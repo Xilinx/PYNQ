@@ -3,7 +3,6 @@ ifndef BOARD
     $(error BOARD environment variable is undefined)
 endif
 
-BACKUP_DIR = /home/xilinx/pynq_backup
 REPO_DIR = /home/xilinx/pynq_git
 PYNQ_DIR = /usr/local/lib/python3.4/dist-packages/pynq
 
@@ -52,10 +51,10 @@ sdk_make_result.JPG \
 vivado_base_overlay.JPG
 
 DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
-4_programming_in_python.tmp  \
-5_programming_onboard_peripherals.tmp \
-7_peripherals_and_base_overlay.tmp  \
-8_base_overlay_video.tmp  
+4_programming_python.tmp  \
+5_programming_onboard.tmp \
+7_base_overlay_iop.tmp \
+8_base_overlay_video.tmp
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
@@ -69,7 +68,7 @@ ROOT_SCRIPTS := 0_network.sh   \
 2_pl_server.sh   \
 3_resizefs.sh \
 
-update_pynq: backup git_clone xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks pynq_permissions
+update_pynq: pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks pynq_permissions
 	@echo "Completed PYNQ update."
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
@@ -77,30 +76,11 @@ update_pynq: backup git_clone xlnkutils pynq_package scripts_notebooks doc_temp_
 	@echo "Completed PYNQ update."
 	@echo ""
 
-update_docs: backup git_clone scripts_notebooks doc_sphinx doc_notebooks pynq_permissions
+update_docs: git_clone scripts_notebooks doc_sphinx doc_notebooks pynq_permissions
 	@echo	
 	@echo "Completed PYNQ documentation build."
 	@echo "Documentation folder is at: ${FINAL_DOCS_DIR}"
 	@echo
-
-backup:
-	@echo
-	@echo "Backing up files into ${{BACKUP_DIR}"
-	@echo
-	mkdir ${BACKUP_DIR}
-	cp -r ${FINAL_DOCS_DIR} ${FINAL_NOTEBOOKS_DIR} ${FINAL_SCRIPTS_DIR} ${ROOT_DIR} ${BACKUP_DIR}
-
-git_clone:
-	@echo
-	@echo "Clone PYNQ repository into ${REPO_DIR}"
-	@echo
-	git clone https://github.com/Xilinx/PYNQ ${REPO_DIR}
-
-xlnkutils:
-	@echo
-	@echo "Build libxlnk_cma"
-	@echo
-	cd ${REPO_DIR}/scripts/xlnkutils && make && make install
 
 pynq_package:
 	@echo
@@ -118,26 +98,22 @@ pynq_permissions:
 	chmod -R a+rw ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${PYNQ_DIR}
 	chmod -R a+x ${FINAL_SCRIPTS_DIR}/*
 	chmod    a+x ${ROOT_DIR}/*.sh
-	chown -R xilinx:xilinx ${REPO_DIR} ${BACKUP_DIR}
 	chown -R xilinx:xilinx ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${FINAL_SCRIPTS_DIR} ${PYNQ_DIR}
 
 scripts_notebooks:
 	@echo
 	@echo "Update scripts and notebooks"
 	@echo
-	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
-	cp -r ${REPO_DIR}/${BOARD}/notebooks/* ${FINAL_NOTEBOOKS_DIR}
-	cd ${FINAL_NOTEBOOKS_DIR} ; ln -s /home/xilinx/docs
+	cp -arfv ${REPO_DIR}/${BOARD}/notebooks/* ${FINAL_NOTEBOOKS_DIR}
+	cd ${FINAL_NOTEBOOKS_DIR} ; ln -fs /home/xilinx/docs
 
 	@for f in ${USER_SCRIPTS} ; do \
-		cp ${REPO_DIR}/scripts/linux/$$f  ${FINAL_SCRIPTS_DIR}  ; \
+		cp -af ${REPO_DIR}/scripts/linux/$$f ${FINAL_SCRIPTS_DIR} || exit 1;\
 	done
 
 	@for f in ${ROOT_SCRIPTS} ; do \
-		cp ${REPO_DIR}/scripts/linux/$$f  ${ROOT_DIR} ; \
+		cp ${REPO_DIR}/scripts/linux/$$f  ${ROOT_DIR} || exit 1;\
 	done
-	mkdir -p ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js
-	git clone  ${REVEALJS} ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js
 
 doc_sphinx:
 	@echo
@@ -150,8 +126,8 @@ doc_sphinx:
 	cp -r ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
 
 doc_notebooks:
-	mkdir ${FINAL_NOTEBOOKS_DIR}/Getting_Started
-	mkdir ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images	
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images	
 	cp ${REPO_DIR}/docs/source/3_jupyter_notebook.ipynb \
 		${FINAL_NOTEBOOKS_DIR}/Getting_Started/1_jupyter_notebook.ipynb
 	cp ${REPO_DIR}/docs/source/4_programming_python.ipynb \
@@ -165,13 +141,10 @@ doc_notebooks:
 
 doc_temp_notebooks: 
 	@for f in ${DOC_TEMP_NOTEBOOKS} ; do \
-		cp ${REPO_DIR}/docs/source/temp/$$f  ${REPO_DIR}/docs/source/${f%.tmp}.ipynb ; \
+		cp ${REPO_DIR}/docs/source/temp/$$f  ${REPO_DIR}/docs/source/${f%.tmp}.ipynb || exit 1; \
 	done
 
 doc_images: 
 	@for f in ${NOTEBOOK_IMAGES} ; do \
-		cp ${REPO_DIR}/docs/source/images/$$f ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images/ ; \
+		cp ${REPO_DIR}/docs/source/images/$$f ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images/ || exit 1; \
 	done
-
-
-
