@@ -5,12 +5,14 @@
 #include "xlnk.h"
 #include <sys/ioctl.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 // kernel buffer pool
 #define XLNK_BUFPOOL_SIZE 100
 
 #define XLNK_DRIVER_PATH "/dev/xlnk"
 
+int bufIDs[100] = {0};
 // counter of buffer currently instantiated
 static uint32_t xlnkBufCnt = 0;
 // virtual address of buffer
