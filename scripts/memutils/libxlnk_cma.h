@@ -12,7 +12,6 @@
 
 #define XLNK_DRIVER_PATH "/dev/xlnk"
 
-int bufIDs[100] = {0};
 // counter of buffer currently instantiated
 static uint32_t xlnkBufCnt = 0;
 // virtual address of buffer

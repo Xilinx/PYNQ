@@ -6,6 +6,8 @@ int fd;
 void _xlnk_reset();
 // Internal Function to free all buffers.
 void _xlnk_free();
+char *tmp_file = "/tmp/.xlnkInitialized";
+int _buf_count;
 
 __attribute__((constructor))
 void _cma_init()
@@ -14,7 +16,15 @@ void _cma_init()
     if (fd < 0) {
         exit(-1);
     }
-    _xlnk_reset();
+    if( access(tmp_file, F_OK ) != -1 ) {
+    // file exists
+        return;
+    } else {
+    // file doesn't exist
+        _xlnk_reset();
+        int tmfd = creat(tmp_file,0666);
+        close(tmfd);
+    }
 }
 
 __attribute__((destructor))
@@ -22,6 +32,7 @@ void _cma_fin()
 {
     _xlnk_free();
     close(fd);
+    remove(tmp_file);
 }
 
 void _xlnk_free()
@@ -79,9 +90,9 @@ void *cma_alloc(uint32_t len, uint32_t cacheable)
     }
     xlnkBufPool[bufId] = addr;
     xlnkBufLens[bufId] = len;
-    bufIDs[bufId] = 1;
     xlnkBufPhyPool[bufId] = bufPhyAddr;
     xlnkBufCnt++;
+    _buf_count = bufId;
     return addr;
 }
 
