@@ -1,13 +1,13 @@
 #include "libxlnk_cma.h"
 
-// Global handle to Xlnk Driver.
-int fd;
-// Internal Function to Reset Xlnk.
+/*
+ * Internal Variables and Functions declared here.
+ */
+static int fd;
 void _xlnk_reset();
-// Internal Function to free all buffers.
 void _xlnk_free();
-char *tmp_file = "/tmp/.xlnkInitialized";
-int _buf_count;
+static char *tmp_file = "/tmp/.xlnkInitialized";
+static int _buf_count;
 
 __attribute__((constructor))
 void _cma_init()
@@ -16,7 +16,7 @@ void _cma_init()
     if (fd < 0) {
         exit(-1);
     }
-    if( access(tmp_file, F_OK ) != -1 ) {
+    if ( access(tmp_file, F_OK ) != -1 ) {
     // file exists
         return;
     } else {
@@ -33,6 +33,29 @@ void _cma_fin()
     _xlnk_free();
     close(fd);
     remove(tmp_file);
+}
+
+uint32_t cma_pages_available()
+{
+    FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    char * cmp = "nr_free_cma";
+    char dummy[20];
+    int num = -1;
+
+    fp = fopen("/proc/vmstat", "r");
+    if (fp == NULL)
+        return -1 ;
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        if (strstr(line,cmp) !=NULL) {
+            sscanf(line,"%s %d",dummy,&num);
+        }
+    }
+    fclose(fp);
+    return num;
 }
 
 void _xlnk_free()
