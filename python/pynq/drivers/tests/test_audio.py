@@ -82,7 +82,7 @@ def test_audio_playback():
     audio_t = Audio()
     
     print("\nPlaying an audio file...")
-    audio_t.load("/home/xilinx/pynq/drivers/tests/welcome.pdm")
+    audio_t.load("/home/xilinx/pynq/drivers/tests/pynq_welcome.pdm")
     audio_t.play()
     assert user_answer_yes("Heard welcome message?")
     
