@@ -12,6 +12,8 @@ FINAL_NOTEBOOKS_DIR = /home/xilinx/jupyter_notebooks
 FINAL_SCRIPTS_DIR = /home/xilinx/scripts
 ROOT_DIR = /root
 
+REVEALJS = https://github.com/hakimel/reveal.js.git
+
 NOTEBOOK_IMAGES=edit_mode.png \
 dashboard_running_tab.png \
 python_logo.svg \
@@ -120,6 +122,8 @@ scripts_notebooks:
 	@for f in ${ROOT_SCRIPTS} ; do \
 		cp ${REPO_DIR}/scripts/linux/$$f  ${ROOT_DIR} ; \
 	done
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/slides
+	git clone  ${REVEALJS} ${FINAL_NOTEBOOKS_DIR}/slides/
 
 doc_sphinx:
 	@echo
