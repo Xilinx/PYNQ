@@ -1,0 +1,9 @@
+from .test__iop import test__iop as test_0_iop
+from .test_devmode import test_devmode as test_1_devmode
+from .test_gpio_internal import test_gpio_internal as test_2_gpio_internal
+from .test_gpio_loop import test_gpio_loop as test_3_gpio_loop
+from .test_led8 import test_led8 as test_4_led8
+from .test_oled import test_oled as test_5_oled
+from .test_dac_adc import test_dac_adc as test_6_dac_adc
+from .test_als import test_als as test_7_als
+from .test_tmp2 import test_tmp2 as test_8_tmp2

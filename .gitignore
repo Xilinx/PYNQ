@@ -1,0 +1,38 @@
+# Compiled Sources
+###################
+*.o
+*.a
+*.map
+*.hex
+*.dis
+*.exe
+
+# Packages 
+############
+
+# Logs and Databases
+######################
+*.log
+
+# VIM Swap Files
+######################
+*.swp
+
+# Build directory
+######################
+build/
+sdcard/
+
+# Test failure outputs
+######################
+tests/*.exp
+tests/*.out
+
+# Python cache files
+######################
+__pycache__/
+
+# Customized Makefile/project overrides
+######################
+GNUmakefile
+user.props
