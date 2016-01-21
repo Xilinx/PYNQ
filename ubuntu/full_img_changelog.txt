@@ -1,0 +1,16 @@
+latest image available at: file://xco-smb/gnatale/public/
+
+01-14-2016 - <giuseppe.natale@xilinx.com>
+             First release of the image.
+
+01-20-2016 - <giuseppe.natale@xilinx.com>
+             1)	Full support for the popular python packages (matplotlib, 
+                pandas, numpy, scipy..ecc for a list type `help(modules)` 
+                in a python shell)
+             2) A first release of pyxi is available and it can be imported 
+                from Jupyter. Just remember to launch jupyter with ‘sudo’ 
+                (as specified by the message in ./configure_jupyter.h) since 
+                we need root permissions to use pyxi. Currently, only 
+                on-board device (LEDs, Switches, Buttons) are supported, the
+                rest is still there but is leftover from the old release, 
+                therefore is not usable.
