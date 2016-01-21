@@ -17,7 +17,7 @@ to make it executable before you launch it.
 ### Installing `pyxi` easily using pip
 an easy alternative to script #3 is to install the pyxi package using `pip` directly (and avoid all the hassle of manually copying files). To do that, simply type from a terminal
 ```
-pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'
+sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'
 ```
 
 ------------------------------------------------------------------------------------------------------
