@@ -15,7 +15,7 @@ chmod +x <selected_scritp.sh>
 to make it executable before you launch it.
 
 ### Installing `pyxi` easily using pip
-an easy alternative to script #3 is to install the pyxi package using `pip` directly (and avoid all the hassle of manually copying files). To do that, simply type from a terminal while being in the home directory (/home/xpp)
+An easy alternative to script #3 is to install the pyxi package using `pip` directly (and avoid all the hassle of manually copying files). To do that, simply type from a terminal while being in the home directory (/home/xpp).
 ```
 sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'
 ```
@@ -23,10 +23,10 @@ sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdi
 ------------------------------------------------------------------------------------------------------
 ### Ubuntu Core image for Zybo
 
-latest image available at: [file://xco-smb/gnatale/public/](file://xco-smb/gnatale/public/)
+All images including the latest are available at: [file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/](file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/)
 
 ```
-LATEST CHANGELOG:
+LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
 01-21-2016 - <giuseppe.natale@xilinx.com>
              Added support for install/update of pyxi using pip
