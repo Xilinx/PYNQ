@@ -21,10 +21,10 @@ class TestSwitch(unittest.TestCase):
         print("\nSet all the 4 switches (SW0 ~ SW3) off (lower position).") 
         input("Then hit enter...")
         for s in switches:
-            self.assertTrue(s() is 0)
+            self.assertTrue(s.read() is 0)
         input("Now switch them on (upper position) and hit enter...")
         for s in switches:
-            self.assertTrue(s() is 1)
+            self.assertTrue(s.read() is 1)
 
 def test_switch():
     unittest.main(__name__) 

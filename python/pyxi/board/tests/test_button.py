@@ -19,10 +19,10 @@ class TestButton(unittest.TestCase):
         buttons = [Button(index) for index in range(4)] 
         input("\nHit enter to continue...")
         for b in buttons:
-            self.assertTrue(b() == 0)      
+            self.assertTrue(b.read() == 0)      
         for i in range(len(buttons)):           
             input("Hit enter while pressing Button {0} (BTN{0})...".format(i))
-            self.assertTrue(buttons[i]() == 1)
+            self.assertTrue(buttons[i].read() == 1)
 
 def test_button():
     unittest.main(__name__) 

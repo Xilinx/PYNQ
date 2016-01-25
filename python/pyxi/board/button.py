@@ -34,7 +34,7 @@ class Button(object):
             Button._mmio = mmio(addr)
         self.index = index
 
-    def __call__(self):
+    def read(self):
         """Read the current value of the Button."""
         curr_val = Button._mmio.read()
         return (curr_val & (1 << self.index)) >> self.index

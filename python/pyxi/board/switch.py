@@ -34,7 +34,7 @@ class Switch(object):
             Switch._mmio = mmio(addr)
         self.index = index
 
-    def __call__(self):
+    def read(self):
         """Read the current value of the Switch."""
         curr_val = Switch._mmio.read()       
         return (curr_val & (1 << self.index)) >> self.index
