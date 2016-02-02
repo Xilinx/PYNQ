@@ -38,13 +38,17 @@ class GPIO:
             print('cannot write into',self.path)
             exit()
 
-    #def __del__(self):
-    #    if os.path.exists(self.path):
-    #        try:
-    #            with open('/sys/class/gpio/unexport', 'w') as f:
-    #                f.write(str(self.index))
-    #        except IOError:
-    #            print('cannot write into /sys/class/gpio/unexport')
+    """ Warning: Since the use of the following __del()__ function is not safe, 
+    the GPIO drivers will be left in /sys/class/gpio/ directory, even 
+    after exiting python prompt
+    def __del__(self):
+        if os.path.exists(self.path):
+            try:
+                with open('/sys/class/gpio/unexport', 'w') as f:
+                    f.write(str(self.index))
+            except IOError:
+                print('cannot write into /sys/class/gpio/unexport')
+    """
 
     def read(self):
         assert self.direction is 'in', "cannot read gpio output"

@@ -57,7 +57,7 @@ class Test_1_DAC_ADC(unittest.TestCase):
 
 def test_dac_adc():
     if not unittest.request_user_confirmation(
-            'Are both ADC and DAC attached to the board?'):
+            'Both ADC and DAC attached (through straight cable)?'):
         raise unittest.SkipTest()
 
     global adc, dac
