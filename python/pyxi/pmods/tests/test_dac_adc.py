@@ -8,8 +8,8 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from pyxi.tests import unittest
-from pyxi.tests.random import rng
-from pyxi.board.utils import delay
+from random import randint
+from time import sleep
 
 from pyxi.pmods.adc import ADC
 from pyxi.pmods.dac import DAC
@@ -29,7 +29,7 @@ class Test_0_ADC(unittest.TestCase):
         self.assertIs(type(adc.read()), str)    
 
 
-class TestDAC_1_ADC(unittest.TestCase):
+class Test_1_DAC_ADC(unittest.TestCase):
     """TestCase for both the DAC and ADC classes."""
 
     def test_0_single(self):
@@ -50,9 +50,9 @@ class TestDAC_1_ADC(unittest.TestCase):
         print('\nGenerating 100 random voltages from 0.00V to 1.20V...')
         DelaySec = 0.01
         for i in range(0,100):
-            value = 0.01*(rng()%121)
+            value = 0.01*randint(0,120)
             dac.write(value)
-            delay(DelaySec)
+            sleep(DelaySec)
             self.assertAlmostEqual(value, float(adc.read()), delta=.06)
 
 def test_dac_adc():

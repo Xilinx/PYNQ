@@ -1,7 +1,7 @@
 """This module exposes API to control a LED8 PMOD."""
 
 
-__author__      = "Graham Schelle, Giuseppe Natale"
+__author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2015, Xilinx"
 __version__     = "0.1"
 __maintainer__  = "Giuseppe Natale"
@@ -10,8 +10,6 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 from . import _iop
 from .devmode import DevMode
-from pyb import mmio
-
 
 class LED8(object):
     """Control a single LED on the LED8 PMOD.
@@ -35,41 +33,41 @@ class LED8(object):
         DevMode initialization. 
         Refer to _iop.request_iop() for additional details.
         """
-        if (pmod_id not in _iop.iop_constants):
-            raise ValueError("PMOD ID not valid. Valid values are: 1, 2, 3, 4")
-        if (index <0 or index >7 ):
-            raise ValueError("Index should be from 0 - 7")
-        self.iop = DevMode(pmod_id, _iop.IOP_SWCFG_GPIOALL) 
+        if not pmod_id in _iop.IOP_CONSTANTS:
+            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4")
+        if not index in _iop.IOP_SWCFG_XGPIOALL:
+            raise ValueError("Valid pin indexes are 0 - 7")
+        self.iop = DevMode(pmod_id, _iop.IOP_SWCFG_XGPIOALL) 
         self.iop_id = pmod_id
         self.index = index
 
         if self.iop.status()[0] != 'RUNNING':
             self.iop.start()
-            self.iop.write_cmd(_iop.IOPMM_GPIO_BASEADDR + 
+            self.iop.write_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
                                _iop.IOPMM_XGPIO_TRI_OFFSET, 
                                _iop.IOCFG_XGPIO_ALLOUTPUT)    
 
-        # Set switch to GPIOALL (corner case : mailbox.bin was used previously 
+        # Set switch to XGPIOALL (corner case : mailbox.bin was used previously 
         #                        with non-LED8 PMOD)
         self.iop.load_switch_config()     
                   
     def toggle(self):  
         """Flip the bit of the single LED."""
-        curr_val = self.iop.read_cmd(_iop.IOPMM_GPIO_BASEADDR + 
+        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
                                      _iop.IOPMM_XGPIO_DATA_OFFSET)
         new_val  = (curr_val) ^ (0x1 << self.index)        
         self._set_leds_values(new_val)
         
     def on(self):  
         """Turn on single LED."""
-        curr_val = self.iop.read_cmd(_iop.IOPMM_GPIO_BASEADDR + 
+        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
                                      _iop.IOPMM_XGPIO_DATA_OFFSET)
         new_val  = (curr_val) | (0x1 << self.index)            
         self._set_leds_values(new_val)
      
     def off(self):    
         """Turn on single LED."""
-        curr_val = self.iop.read_cmd(_iop.IOPMM_GPIO_BASEADDR + 
+        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
                                      _iop.IOPMM_XGPIO_DATA_OFFSET)
         new_val  = (curr_val) & (0xff ^ (0x1 << self.index))    
         self._set_leds_values(new_val)
@@ -83,8 +81,8 @@ class LED8(object):
         otherwise. Note that this method does not take into account the current 
         LED state.
         """
-        if (value > 1 or value < 0):
-            raise ValueError("Requested value should be 0 or 1")
+        if not value in (0,1):
+            raise ValueError("LED8 can only write 0 or 1")
         if value:
             self.on()
         else:
@@ -97,7 +95,7 @@ class LED8(object):
         ----------
         None
         """
-        curr_val = self.iop.read_cmd(_iop.IOPMM_GPIO_BASEADDR + 
+        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
                                      _iop.IOPMM_XGPIO_DATA_OFFSET)
         return (curr_val >> self.index) & 0x1 
     
@@ -113,6 +111,6 @@ class LED8(object):
         ----------
         value (int) : The value of all the LEDs encoded in one single value
         """
-        self.iop.write_cmd(_iop.IOPMM_GPIO_BASEADDR + 
+        self.iop.write_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
                            _iop.IOPMM_XGPIO_DATA_OFFSET, value)
                          

@@ -1,5 +1,5 @@
 """This module exposes API to control an I/O Processor in Development Mode. 
-The IOP is in loop waiting for user to send commands to GPIO, IIC, or 
+The IOP is in loop waiting for user to send commands to XGPIO, IIC, or 
 SPI I/O on a single PMOD.
 """
 
@@ -10,16 +10,15 @@ __maintainer__  = "Giuseppe Natale"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
+import time
 from . import _iop
-from pyb import mmio, udelay
+from pyxi import mmio,gpio
 
-
-PROGRAM = "./pyxi/pmods/mailbox.bin"
-
+PROGRAM = "mailbox.bin"
 
 class DevMode(object):
     """Control an I/O Processor running the Developer Mode executable - waiting 
-    for Python to send I/O commands to GPIO, IIC or SPI I/O on a single GPIO.
+    for Python to send I/O commands to XGPIO, IIC or SPI I/O.
 
     Arguments
     ----------
@@ -43,11 +42,11 @@ class DevMode(object):
         exception as the *force* flag is not set when calling request_iop(). 
         Refer to _iop.request_iop() for additional details.
         """
-        self.iop = _iop.request_iop(self, pmod_id, PROGRAM)
+        self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_switch_config = list(switch_config)
         self.iop_id = pmod_id
-        self.mmio = mmio(_iop.iop_constants[pmod_id]['address'] + 
-                         _iop.MAILBOX_OFFSET, _iop.MAILBOX_SIZE) 
+        self.mmio = mmio.MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'] + 
+                         _iop.MAILBOX_OFFSET, _iop.MAILBOX_SIZE>>2) 
         self.program = PROGRAM
 
     def __repr__(self):
@@ -81,15 +80,7 @@ class DevMode(object):
 
     #######################
     # IOP Config Commands #
-    #######################
-    def load_executable(self):
-        """Load executable file into I/O Processor memory"""
-        # WIP to load Executable into uBlaze ilmb/dlmb BRAMs
-
-        # TODO: remove this once we have loading code
-        print('iopDeveloper::loadExecutable unimplemented - using prebuilt ' + 
-              'executable " + PROGRAM') 
-
+    ####################### 
     def load_switch_config(self, config=None):
         """Load the I/O Processor's Switch Configuration 
 
@@ -103,13 +94,12 @@ class DevMode(object):
         ----------
         TypeError     : If the config argument is not of the correct type.
         """
-        if config and len(config) != _iop.IOPMM_SWITCHCONFIG_NUMREGS:
-            raise TypeError('User supplied switch config that is not a list ' + 
-                            'of 8 integers. Switch will not be configured.' + 
-                            '\nReceived config=' + str(config))
-
         if config:
-            self.iop_switch_config = config  
+            if len(config) != _iop.IOPMM_SWITCHCONFIG_NUMREGS:
+                raise TypeError('User supplied switch config is not a ' +
+                        'list of 8 integers. Switch will not be configured.' + 
+                        '\nReceived config=' + str(config))
+            self.iop_switch_config = config
 
         # build switch config word 
         sw_config_word = 0
@@ -187,12 +177,6 @@ class DevMode(object):
         Example:
             >>> _send_cmd(0, 4, None)  # Read address 4.
         """
-        #if not self.is_cmd_mailbox_idle():
-        #   raise SystemError('Mailbox is not idle -- last command must ' + 
-        #   'not have completed')
-
-        # Write address (and data optional - currently only 
-        #                implementing dLength=1)
         self.mmio.write(_iop.MAILBOX_PY2IOP_CMDADDR_OFFSET, address)
         if data != None:
             self.mmio.write(_iop.MAILBOX_PY2IOP_CMDDATA_OFFSET, data)
@@ -205,11 +189,11 @@ class DevMode(object):
         # Wait for ACK
         cntdown = timeout
         while not self.is_cmd_mailbox_idle() and cntdown > 0:
-            udelay(1000) # wait for 1ms
+            time.sleep(0.001) # wait for 1ms
             cntdown -= 1
 
         # If did not receive ACK, alert user.
-        if timeout == 0:
+        if cntdown == 0:
             print("DevMode::_send_cmd() - Warning: CMD Not Acknowledged " + 
                   "after " + str(timeout) + "ms (PMOD #" + 
                   str(self.iop_id) + ")")

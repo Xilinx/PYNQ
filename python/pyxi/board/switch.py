@@ -4,7 +4,7 @@ __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
-from pyxi.mmio import mmio
+from pyxi.mmio import MMIO
 from pyxi.board import _constants
 
 
@@ -28,10 +28,8 @@ class Switch(object):
     def __init__(self, index, addr = None):
         if Switch._mmio is None: 
             if addr is None:
-                #raise AssertionError('Must specify switches address when ' + 
-                #                     'instantiating the first switch.')
                 addr = _constants.SWS_ADDR                
-            Switch._mmio = mmio(addr)
+            Switch._mmio = MMIO(addr)
         self.index = index
 
     def read(self):

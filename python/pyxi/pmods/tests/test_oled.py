@@ -8,7 +8,6 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from pyxi.tests import unittest
-
 from pyxi.pmods.oled import OLED
 
 oled = None

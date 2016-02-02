@@ -11,10 +11,11 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from . import _iop
-from pyb import mmio, udelay
+from pyxi import mmio
+import time
 
 
-PROGRAM = "./pyxi/pmods/dac.bin"
+PROGRAM = "./dac.bin"
 
 
 class DAC(object):
@@ -40,12 +41,12 @@ class DAC(object):
         as the *force* flag is not set when calling request_iop(). 
         Refer to _iop.request_iop() for additional details.
         """
-        if (pmod_id not in _iop.iop_constants):
-            raise ValueError("PMOD ID not valid. Valid values are: 1, 2, 3, 4")
-        self.iop = _iop.request_iop(self, pmod_id, PROGRAM)
+        if (pmod_id not in _iop.IOP_CONSTANTS):
+            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4")
+        self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_id = pmod_id
-        self.mmio = mmio(_iop.iop_constants[pmod_id]['address'], 
-                         _iop.IOP_MMIO_REGSIZE)    
+        self.mmio = mmio.MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'], 
+                         _iop.IOP_MMIO_REGSIZE>>2)    
 
         self.iop.start()
 
@@ -80,5 +81,5 @@ class DAC(object):
         # Wait for I/O Processor to complete
         while (self.mmio.read(_iop.MAILBOX_OFFSET + 
                               _iop.MAILBOX_PY2IOP_CMDCMD_OFFSET) & 0x1) == 0x1:
-            udelay(1000)
+            time.sleep(0.001)
     

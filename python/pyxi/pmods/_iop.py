@@ -1,21 +1,18 @@
-"""This module defines constants, functions and objects internally 
-used by the PMODs.
-"""
 
+__author__      = "Yun Rock Qu"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "yunq@xilinx.com"
 
-__author__      = "Graham Schelle, Giuseppe Natale"
-__copyright__   = "Copyright 2015, Xilinx"
-__version__     = "0.1"
-__maintainer__  = "Giuseppe Natale"
-__email__       = "giuseppe.natale@xilinx.com"
-
-
-from pyb import iop
-
+import os
+import sys
+import math
+from pyxi import mmio,gpio
+import mmap
 
 #########################
 # IOP mailbox constants #
 #########################
+# bin program size in bytes
 MAILBOX_OFFSET = 0x7000
 MAILBOX_SIZE   = 0x1000
 
@@ -46,15 +43,15 @@ IOPMM_SWITCHCONFIG_IO_6_OFFSET = 24
 IOPMM_SWITCHCONFIG_IO_7_OFFSET = 28
 IOPMM_SWITCHCONFIG_NUMREGS     = 8
 
-# Each PMOD Pin can be tied to GPIO,SPI,IIC pins... enumerate here
-IOP_SWCFG_GPIO0 = 0
-IOP_SWCFG_GPIO1 = 1
-IOP_SWCFG_GPIO2 = 2
-IOP_SWCFG_GPIO3 = 3
-IOP_SWCFG_GPIO4 = 4
-IOP_SWCFG_GPIO5 = 5
-IOP_SWCFG_GPIO6 = 6
-IOP_SWCFG_GPIO7 = 7
+# Each PMOD Pin can be tied to XGPIO,SPI,IIC pins... enumerate here
+IOP_SWCFG_XGPIO0 = 0
+IOP_SWCFG_XGPIO1 = 1
+IOP_SWCFG_XGPIO2 = 2
+IOP_SWCFG_XGPIO3 = 3
+IOP_SWCFG_XGPIO4 = 4
+IOP_SWCFG_XGPIO5 = 5
+IOP_SWCFG_XGPIO6 = 6
+IOP_SWCFG_XGPIO7 = 7
 
 IOP_SWCFG_IIC0_SDA = 0xa
 IOP_SWCFG_IIC0_SCL = 0x8
@@ -62,20 +59,20 @@ IOP_SWCFG_IIC0_SCL = 0x8
 IOP_SWCFG_IIC1_SDA = 0xb
 IOP_SWCFG_IIC1_SCL = 0x9
 
-# SWITCH Config - All GPIOs
-IOP_SWCFG_GPIOALL = [IOP_SWCFG_GPIO0, IOP_SWCFG_GPIO1, IOP_SWCFG_GPIO2, 
-                     IOP_SWCFG_GPIO3, IOP_SWCFG_GPIO4, IOP_SWCFG_GPIO5, 
-                     IOP_SWCFG_GPIO6, IOP_SWCFG_GPIO7]
+# SWITCH Config - All XGPIOs
+IOP_SWCFG_XGPIOALL = [IOP_SWCFG_XGPIO0,IOP_SWCFG_XGPIO1,IOP_SWCFG_XGPIO2, 
+                     IOP_SWCFG_XGPIO3,IOP_SWCFG_XGPIO4,IOP_SWCFG_XGPIO5, 
+                     IOP_SWCFG_XGPIO6,IOP_SWCFG_XGPIO7]
 
 # SWITCH Config - IIC0, Top Row
-IOP_SWCFG_IIC0_TOPROW = [IOP_SWCFG_GPIO0, IOP_SWCFG_GPIO1, IOP_SWCFG_IIC0_SCL, 
-                         IOP_SWCFG_IIC0_SDA, IOP_SWCFG_GPIO2, IOP_SWCFG_GPIO3, 
-                         IOP_SWCFG_GPIO4, IOP_SWCFG_GPIO5]
+IOP_SWCFG_IIC0_TOPROW = [IOP_SWCFG_XGPIO0,IOP_SWCFG_XGPIO1,IOP_SWCFG_IIC0_SCL, 
+                         IOP_SWCFG_IIC0_SDA,IOP_SWCFG_XGPIO2,IOP_SWCFG_XGPIO3, 
+                         IOP_SWCFG_XGPIO4,IOP_SWCFG_XGPIO5]
 
 # SWITCH Config - IIC0, Bottom Row
-IOP_SWCFG_IIC0_BOTTOMROW = [IOP_SWCFG_GPIO0, IOP_SWCFG_GPIO1, IOP_SWCFG_GPIO2, 
-                            IOP_SWCFG_GPIO3, IOP_SWCFG_GPIO4, IOP_SWCFG_GPIO5, 
-                            IOP_SWCFG_IIC0_SCL, IOP_SWCFG_IIC0_SDA]
+IOP_SWCFG_IIC0_BOTTOMROW = [IOP_SWCFG_XGPIO0,IOP_SWCFG_XGPIO1,IOP_SWCFG_XGPIO2, 
+                            IOP_SWCFG_XGPIO3,IOP_SWCFG_XGPIO4,IOP_SWCFG_XGPIO5, 
+                            IOP_SWCFG_IIC0_SCL,IOP_SWCFG_IIC0_SDA]
 
 # IIC Register Map
 IOPMM_XIIC_0_BASEADDR       = 0x40800000
@@ -108,8 +105,8 @@ IOPMM_XSP_SSR_OFFSET        = 0x70
 IOPMM_XSP_TFO_OFFSET        = 0x74
 IOPMM_XSP_RFO_OFFSET        = 0x78
 
-# GPIO Register Map
-IOPMM_GPIO_BASEADDR         = 0x40000000
+# XGPIO Register Map
+IOPMM_XGPIO_BASEADDR         = 0x40000000
 IOPMM_XGPIO_DATA_OFFSET     = 0x0
 IOPMM_XGPIO_TRI_OFFSET      = 0x4
 IOPMM_XGPIO_DATA2_OFFSET    = 0x8
@@ -124,140 +121,172 @@ IOCFG_XGPIO_INPUT  = 1
 IOCFG_XGPIO_ALLOUTPUT = 0x0
 IOCFG_XGPIO_ALLINPUT  = 0xff
 
-# GPIO CABLE TYPE
-GPIO_CABLE_STRAIGHT   = 0
-GPIO_CABLE_LOOPBACK   = 1
+# XGPIO CABLE TYPE
+XGPIO_CABLE_STRAIGHT   = 0
+XGPIO_CABLE_LOOPBACK   = 1
 
 #########################
 # IOP handlers          #
 #########################
-
-# allow users to specify PMOD by number, we manage various static/dynamic state
-iop_constants = {
+IOP_CONSTANTS = {
     1:{
         "address" : 0x40000000,
-        "emioPin": 54
+        "emioPin": 192
     },
     2:{
         "address" : 0x42000000,
-        "emioPin": 55
+        "emioPin": 193
     },
     3:{
         "address" : 0x44000000,
-        "emioPin": 56
+        "emioPin": 194
     },
     4: {
         "address" : 0x46000000,
-        "emioPin": 57
+        "emioPin": 195
     },      
 }
 
-_active_iops = {
+IOP_INSTANCES = {
     1:None,
     2:None,
     3:None,
     4:None  
 }
-"""Dictionary containing references to active IOP instances."""
 
+bin_location = '/home/xpp/src/pyxi/python/pyxi/pmods/'
 
-def request_iop(req_obj, pmod_id, program=None, force=False):
+class _IOP:
+    """Class controls the number of active IOP instances in the system."""
+
+    def __init__(self, iop_id, program='mailbox.bin'):
+        self.pmod_id = iop_id
+        self.program = program
+        self.state = 'IDLE'
+        self.gpio = gpio.GPIO(IOP_CONSTANTS[self.pmod_id]['emioPin'],'out')
+        
+        # reset microblaze
+        self.stop()
+
+        try:
+            bitf = open(bin_location + self.program, 'rb')
+        except IOError:
+            print('cannot open', bin_location + self.program)
+
+        size = (math.ceil(os.fstat(bitf.fileno()).st_size/ \
+                mmap.PAGESIZE))*(mmap.PAGESIZE>>2)
+        self.mmio = mmio.MMIO(IOP_CONSTANTS[self.pmod_id]['address'],size)
+        
+        try:
+            bitbuf = bitf.read(4)
+            counter = 0
+            while bitbuf:
+                self.mmio.write(counter,bitbuf)
+                counter += 4
+                bitbuf = bitf.read(4)
+        except IOError:
+            print('cannot read', bin_location + self.program)
+            print('or write MMIO', IOP_CONSTANTS[self.pmod_id]['address'])
+        finally:
+            bitf.close()
+        
+        # microblaze out of reset
+        self.start()
+        
+    def start(self):
+        self.state = 'RUNNING';
+        self.gpio.write(0)
+        
+    def stop(self):
+        self.state = 'STOPPED'
+        self.gpio.write(1)
+        
+    def update(self, program):
+        self.program = program
+        self.stop()
+
+        try:
+            bitf = open(bin_location + self.program, 'rb')
+        except IOError:
+            print('cannot open', bin_location + self.program)
+
+        size = (math.ceil(os.fstat(bitf.fileno()).st_size/ \
+                mmap.PAGESIZE))*(mmap.PAGESIZE>>2)
+        self.mmio = mmio.MMIO(IOP_CONSTANTS[self.pmod_id]['address'],size)
+        
+        try:
+            bitbuf = bitf.read(4)
+            counter = 0
+            while bitbuf:
+                self.mmio.write(counter,bitbuf)
+                counter += 4
+                bitbuf = bitf.read(4)
+        except IOError:
+            print('cannot read', bin_location + self.program)
+            print('or write MMIO', IOP_CONSTANTS[self.pmod_id]['address'])
+        finally:
+            bitf.close()
+        
+        self.start()
+         
+    def status(self):
+        str = 'Microblaze program %s at address 0x%x %s' % (self.program,
+              IOP_CONSTANTS[self.pmod_id]['address'], self.state)
+        return str
+
+def request_iop(pmod_id, program='mailbox.bin', force=False):
     """This is the interface to request an I/O Processor. 
-    It will lookup for active instances on the same PMOD ID, and prevent 
-    the user from instantiating different types of IOPs on the same ID.
-    The pyb.iop instance is returned, an exception is raised if errors occur.
+    It looks for active instances on the same PMOD ID, and prevents users from 
+    instantiating different types of IOPs on the same PMOD.
 
-    User will be notified with an exception if the selected PMOD is already 
+    Users are notified with an exception if the selected PMOD is already 
     hooked to another type of IOP, to prevent unwanted behavior.
-    This can be explicitly overridden setting the *force* flag.
+    This can be overridden by setting the *force* flag.
 
     Arguments
     ----------
-    req_obj (Object) : Just a reference to the object which is requesting 
-                       the new IOP instance
-    pmod_id (int)    : ID of the PMOD's IOP
-    program (string) : Specify which program has to be loaded on the IOP. 
-                       Can be left unspecified, and in this case 
-                       no program will be loaded
-    force (Boolean)  : Default:False. Flag indicating if the function 
-                       will force IOP instantiation.
+    pmod_id (int)    : ID of the PMOD/IOP
+    program (string) : program to be loaded on the IOP. 
+                       no program is loaded if not specified
+    force (Boolean)  : flag whether the function will force IOP instantiation.
 
     Raises
     ----------
-    LookupError      : If there is a another IOP type in the system with 
-                       the same ID, and the user does not set the *force* flag.
+    LookupError      : Another IOP type in the system with the same ID, 
+                       and the *force* flag is not set.
     """
 
-    # We can basically incur in three different cases 
-    # (one of which is somehow a corner case):
-    # 1. No previous IOP in the system with the same ID
-    # 2. There is a previous IOP in the system with the same ID. Raises an 
-    #    exception or update the previous IOP if *force" is set to True
-    # 3. (Corner case) Although there is a previous IOP in the system with 
-    #    the same ID, the object requesting the new instance is of the same 
-    #    type as of the previous one. In this case, the IOP will be silently 
-    #    updated and no exception will be raised even if *force* is not set. 
-    if _active_iops[pmod_id] != None:
-        if type(_active_iops[pmod_id].current_reference) is not type(req_obj):
-            # case 2        
-            if not force:
-                raise LookupError('Another I/O Processor type with the same ' +  
-                                  'ID is already in the system. The *force* ' + 
-                                  'flag can be set to overwrite the old ' + 
-                                  'instance, but that is not advised as hot ' + 
-                                  'swapping is currently not supported.')
-            _active_iops[pmod_id].current_reference = req_obj
-        # Common to 2 and 3. If program is not set, there is nothing to update. 
-        if program != None and \
-                program != _active_iops[pmod_id].iop.status()[1]: 
-            _active_iops[pmod_id].iop.update(program)        
-        return _active_iops[pmod_id].iop    
-    else: 
-        # case 3        
-        new_iop = IOP(req_obj, pmod_id, program)
-        _active_iops[pmod_id] = new_iop
-        return new_iop.iop
+    """ Three cases:
+    1. No previous IOP in the system with the same ID
+    2. There is A previous IOP in the system with the same ID. 
+       Users want to request another instance with the same program. 
+       Update the program only: do not raises an exception.
+    3. force == False. There is A previous IOP in the system with the same ID. 
+       Users want to request another instance with a different program. 
+       Raises an exception.           
+    """
+    if IOP_INSTANCES[pmod_id] is None:
+        # case 1
+        new_iop = _IOP(pmod_id, program)
+        IOP_INSTANCES[pmod_id] = new_iop
+        return new_iop
+    else:
+        if (force or program is IOP_INSTANCES[pmod_id].program):
+        # case 2
+            IOP_INSTANCES[pmod_id].update(program)
+        else:
+        # case 3
+            raise LookupError('Another I/O Processor type with the same ' +  
+                              'ID is already in the system. The *force* ' + 
+                              'flag can be set to overwrite the old ' + 
+                              'instance, but that is not advised as hot ' + 
+                              'swapping is currently not supported.')   
+        return IOP_INSTANCES[pmod_id]
 
 def _flush_iops():
-    """This function is intended for internal use only and should be used with
-    caution.
-    It flushes the _active_iops dictionary.
+    """This function should be used with caution.
+    It flushes the _IOP_INSTANCES dictionary.
     """    
-    for key in _active_iops:
-        del _active_iops[key]
-        _active_iops[key] = None    
+    for key in IOP_INSTANCES:
+        IOP_INSTANCES[key] = None
 
-
-# NOTE ABOUT THIS CLASS: It would have made a lot of sense to make this IOP 
-#   class an extension of pyb.iop. However, inheritance from pyb.iop does 
-#   not work properly. Although make_new() is good for performance, it is 
-#   not Python compliant. pyb.iop does not have __new__ and __init__ at all,
-#   so __init__ overriding is simply not possible (see commented code).
-#
-#   REF: https://github.com/micropython/micropython/issues/606
-#   The current, not so elegant workaround is to have a pyb.iop instance 
-#   as an attribute of this class.
-class IOP(object):
-    """This class extends pyb.iop functionalities to control the number of 
-    active IOP instances in the system.
-
-    The only difference is that it contains a reference to the object instance 
-    (current_reference) which is using the IOP.
-    Refer to pyb.iop for additional details.
-    """
-
-    def __init__(self, current_reference, iop_id, program=None):
-        #if program != None:
-        #   super().__init__(iop_constants[iop_id]['address'], 
-        #                    iop_constants[iop_id]['emioPin'], program)
-        #else:
-        #   super().__init__(iop_constants[iop_id]['address'], 
-        #                    iop_constants[iop_id]['emioPin'])
-        self.current_reference = current_reference
-
-        if program != None:
-            self.iop = iop(iop_constants[iop_id]['address'], 
-                           iop_constants[iop_id]['emioPin'], program)
-        else:
-            self.iop = iop(iop_constants[iop_id]['address'], 
-                           iop_constants[iop_id]['emioPin'])

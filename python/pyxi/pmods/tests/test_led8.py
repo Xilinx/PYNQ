@@ -8,8 +8,7 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from pyxi.tests import unittest
-from pyxi.board.utils import delay
-
+from time import sleep
 from pyxi.pmods.led8 import LED8
 
 led_id = None
@@ -38,7 +37,7 @@ class TestLED(unittest.TestCase):
     
     def test_1_shift_leds(self):
         """Instantiates 8 LED objects and shifts from right to left.""" 
-        DelaySec1 = 0.2
+        DelaySec1 = 0.1
         leds = [LED8(led_id,index) for index in range(0, 8)] 
         
         for led in leds:
@@ -47,15 +46,15 @@ class TestLED(unittest.TestCase):
         for i in range(0,2):
             for led in leds:
                 led.on()
-                delay(DelaySec1)
+                sleep(DelaySec1)
             for led in leds:
                 led.off()
-                delay(DelaySec1)
+                sleep(DelaySec1)
         self.assertUserAnswersYes("\nLEDs on/off shifting from LD0 to LD7?")
     
     def test_2_toggle_leds(self):
         """Instantiates 8 LED objects and toggles them.""" 
-        DelaySec2 = 0.25
+        DelaySec2 = 0.2
         leds = [LED8(led_id,index) for index in range(0, 8)] 
         
         for led in leds:
@@ -67,7 +66,7 @@ class TestLED(unittest.TestCase):
         for i in range(0,10):
             for led in leds:
                 led.toggle()
-            delay(DelaySec2)
+            sleep(DelaySec2)
         for led in leds:
             led.off()
         self.assertUserAnswersYes("\nSeen PMOD LEDs toggling?")

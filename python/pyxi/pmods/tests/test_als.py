@@ -8,7 +8,6 @@ __email__       = "npurusho@xilinx.com"
 
 
 from pyxi.tests import unittest
-
 from pyxi.pmods.als import ALS
 
 als = None

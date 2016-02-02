@@ -9,11 +9,10 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from . import _iop
-from pyb import mmio, udelay
+from pyxi import mmio
+import time
 
-
-PROGRAM = "./pyxi/pmods/oled.bin"
-
+PROGRAM = "./oled.bin"
 
 class OLED(object):
     """Control an OLED PMOD.
@@ -38,11 +37,11 @@ class OLED(object):
         as the *force* flag is not set when calling request_iop(). 
         Refer to _iop.request_iop() for additional details.
         """
-        if (pmod_id not in _iop.iop_constants):
-            raise ValueError("PMOD ID not valid. Valid values are: 1, 2, 3, 4")
-        self.iop = _iop.request_iop(self, pmod_id, PROGRAM)
+        if (pmod_id not in _iop.IOP_CONSTANTS):
+            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4")
+        self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_id = pmod_id
-        self.mmio = mmio(_iop.iop_constants[pmod_id]['address'], 
+        self.mmio = mmio.MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'], 
                          _iop.IOP_MMIO_REGSIZE)    
 
         self.iop.start()
@@ -59,7 +58,7 @@ class OLED(object):
         text (string): The text string that will be written on the OLED.
         """     
         self.clear_screen()
-        udelay(10000)
+        time.sleep(0.1)
         self._write_string(text)
                 
     def _write_string(self, text):

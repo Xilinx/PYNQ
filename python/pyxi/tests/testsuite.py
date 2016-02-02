@@ -54,7 +54,7 @@ from pyxi.tests import unittest
 # List here all packages to test or demo(as strings)
 test_suite = [
     'pyxi.board.tests',
-#    'pyxi.pmods.tests',
+    'pyxi.pmods.tests'
 #    'pyxi.video.tests',
 #    'pyxi.audio.tests'
 ]

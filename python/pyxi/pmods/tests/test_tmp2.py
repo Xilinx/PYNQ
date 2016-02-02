@@ -9,7 +9,7 @@ __email__       = "npurusho@xilinx.com"
 from pyxi.tests import unittest
 
 from pyxi.pmods.tmp2 import TMP2
-from pyb import mmio, udelay
+from pyxi import mmio
 
 tmp2 = None
 

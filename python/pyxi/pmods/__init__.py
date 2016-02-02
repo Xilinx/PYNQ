@@ -3,7 +3,7 @@ from .dac import DAC
 from .oled import OLED
 from .devmode import DevMode
 from .led8 import LED8
-from .gpio import GPIO
+from .xgpio import XGPIO
 from .dpot import DPOT
 from .tmp2 import TMP2
 from .als import ALS

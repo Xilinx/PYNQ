@@ -8,11 +8,10 @@ __email__       = "yunq@xilinx.com"
 
 
 from pyxi.tests import unittest
-from pyxi.tests.random import rng
-from pyxi.board.utils import delay
-
+from random import randint
+from time import sleep
 from pyxi.pmods import _iop
-from pyxi.pmods.gpio import GPIO
+from pyxi.pmods.xgpio import XGPIO
 
 class Test_0_Shift(unittest.TestCase):
     """
@@ -27,7 +26,7 @@ class Test_0_Shift(unittest.TestCase):
                 data1 = data1[-1:]+data1[:-1]
             data2 = [0,0,0,0,0,0,0,0]
             tx[i].write(data1[i])    
-            delay(DelaySec)
+            sleep(DelaySec)
             data2[i] = rx[i].read()
             self.assertEqual(
                 data1,data2,
@@ -42,7 +41,7 @@ class Test_0_Shift(unittest.TestCase):
                 data1 = data1[-1:]+data1[:-1]
             data2 = [1,1,1,1,1,1,1,1]
             tx[i].write(data1[i])    
-            delay(DelaySec)
+            sleep(DelaySec)
             data2[i] = rx[i].read()
             self.assertEqual(
                 data1,data2,
@@ -57,7 +56,7 @@ class Test_0_Shift(unittest.TestCase):
                 data1 = data1[1:]+data1[:1]
             data2 = [0,0,0,0,0,0,0,0]
             tx[7-i].write(data1[7-i])    
-            delay(DelaySec)
+            sleep(DelaySec)
             data2[7-i] = rx[7-i].read()
             self.assertEqual(
                 data1,data2,
@@ -72,7 +71,7 @@ class Test_0_Shift(unittest.TestCase):
                 data1 = data1[1:]+data1[:1]
             data2 = [1,1,1,1,1,1,1,1]
             tx[7-i].write(data1[7-i])    
-            delay(DelaySec)
+            sleep(DelaySec)
             data2[7-i] = rx[7-i].read()
             self.assertEqual(
                 data1,data2,
@@ -93,35 +92,35 @@ class Test_1_Random(unittest.TestCase):
             data1=[0,0,0,0,0,0,0,0]
             data2=[1,1,1,1,1,1,1,1]
             for j in range (0, 8):
-                data1[j] = rng()%2
+                data1[j] = randint(0,1)
                 tx[j].write(data1[j])               
-                delay(DelaySec) 
+                sleep(DelaySec) 
                 data2[j] = rx[j].read()
             self.assertEqual(
                 data1,data2,
                 'Sent {} != received {} at Pin {}.'.format(data1,data2,j))
                
                
-def test_gpio_loop():
-    print('Testing PMOD GPIO loop ...')
+def test_xgpio():
+    print('Testing PMOD XGPIO loop ...')
     if not unittest.request_user_confirmation(
             'Two PMOD interfaces connected by a cable?'):
         raise unittest.SkipTest()
    
     global DelaySec 
-    DelaySec = 0.01
+    DelaySec = 0.005
     
     TX_PORT = int(input("Type in the PMOD ID of the sender (1 ~ 4): "))
     RX_PORT = int(input("Type in the PMOD ID of the receiver (1 ~ 4): "))
     
     if TX_PORT==RX_PORT:
         print('The sender port cannot be the receiver port.')
-        # users should do GPIO internal tests instead in this case
+        # users should do XGPIO internal tests instead in this case
         raise unittest.SkipTest()
     else:
         global tx,rx
-        tx = [GPIO(TX_PORT,k,_iop.IOCFG_XGPIO_OUTPUT) for k in range(0, 8)]
-        rx = [GPIO(RX_PORT,k,_iop.IOCFG_XGPIO_INPUT) for k in range(0, 8)]
+        tx = [XGPIO(TX_PORT,k,_iop.IOCFG_XGPIO_OUTPUT) for k in range(0, 8)]
+        rx = [XGPIO(RX_PORT,k,_iop.IOCFG_XGPIO_INPUT) for k in range(0, 8)]
         
         # Identify the cable type: straight / loop-back
         # Upper row: {vdd,gnd,4,5,6,7}
@@ -138,13 +137,13 @@ def test_gpio_loop():
               rx[4].read()==0 and rx[7].read()==0):
             print("Using a straight cable...")
             for i in range(0, 8):
-                rx[i].setCable(_iop.GPIO_CABLE_STRAIGHT)
+                rx[i].setCable(_iop.XGPIO_CABLE_STRAIGHT)
         else:
             print("Cable unrecognizable.")
             raise unittest.SkipTest()
         
         # starting tests
-        unittest.main('pyxi.pmods.tests.test_gpio_loop')
+        unittest.main('pyxi.pmods.tests.test_xgpio')
         
         # cleanup active_iops
         from pyxi.pmods._iop import _flush_iops
@@ -152,4 +151,4 @@ def test_gpio_loop():
 
 
 if __name__ == "__main__":
-    test_gpio_loop()
+    test_xgpio()

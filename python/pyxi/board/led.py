@@ -4,7 +4,7 @@ __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
-from pyxi.mmio import mmio
+from pyxi.mmio import MMIO
 from pyxi.board import _constants
 
 
@@ -34,12 +34,10 @@ class LED(object):
         self.index = index
         if LED._mmio is None: 
             if addr is None:
-                #raise AssertionError('Must specify LEDs address when ' + 
-                #                     'instantiating the first LED.')
                 addr = _constants.LEDS_ADDR
-            LED._mmio = mmio(addr, int(_constants.LEDS_OFFSET/4) + 2)
+            LED._mmio = MMIO(addr, int(_constants.LEDS_OFFSET/4) + 2)
 
-        LED._mmio.write(0x0, offset = 0x4 + _constants.LEDS_OFFSET) 
+        LED._mmio.write(0x4 + _constants.LEDS_OFFSET, 0x0) 
                   
     def toggle(self):  
         """Flip the bit of the single LED."""
@@ -92,4 +90,4 @@ class LED(object):
         value (int) : The value of all the LEDs encoded in one single value
         """
         LED._leds_value = value
-        LED._mmio.write(value, offset = _constants.LEDS_OFFSET)
+        LED._mmio.write(_constants.LEDS_OFFSET, value)

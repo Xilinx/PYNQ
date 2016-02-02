@@ -4,7 +4,7 @@ __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
-from pyxi.mmio import mmio
+from pyxi.mmio import MMIO
 from pyxi.board import _constants
 
 
@@ -24,14 +24,11 @@ class Button(object):
     # and data.
     _mmio = None
 
-
     def __init__(self, index, addr = None):
         if Button._mmio is None: 
             if addr is None:
-                #raise AssertionError('Must specify buttons address when ' + 
-                #                     'instantiating the first button.')
                 addr = _constants.BTNS_ADDR
-            Button._mmio = mmio(addr)
+            Button._mmio = MMIO(addr)
         self.index = index
 
     def read(self):
