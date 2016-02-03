@@ -64,9 +64,11 @@ following the order in which they are inserted here."""
 def run_tests():
     run('test')
 
-
 def run(what):
     print('PYXI {} SUITE\n==============='.format(what.upper()))
+    sutest = unittest.TestCase()
+    sutest.assertUserAnswersYes("Are you a superuser?",\
+        "Must have root access in order to pass all the tests")
     for package in test_suite:
         p = __import__(package, globals(), locals(), ['*'])
         for m in sorted(dir(p)):
