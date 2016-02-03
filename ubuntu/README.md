@@ -1,3 +1,51 @@
+
+
+
+
+
+## Ubuntu Core image for Zybo
+
+All images including the latest are available at: [file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/](file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/)
+
+```
+LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
+
+02-03-2016 - <graham.schelle@xilinx.com>
+             On poweron, networking and jupyter server start
+                Use 'ifconfig' to see network address
+                View /root/jupyter.log to see jupyter status
+             Updated pyxi package to latest Pyxi github repository 
+
+```
+
+
+## Ubuntu Build Steps
+
+02-03-2016
+
+```
+<from repository>
+
+copy <Pyxi Repo Head>/ubuntu/* --> <Zybo Linux Root>/home/xpp 
+
+```
+
+
+```
+<on target terminal>
+
+sudo mv 0_network.sh 1_jupyter_config.sh 2_jupyter_server.sh /root/
+sudo mv rc.local /etc/rc.local
+sudo chmod +x /root/0_network.sh /root/1_jupyter_config.sh  /root/2_jupyter_server.sh /etc/rc.local
+
+sudo cp ~xpp/.bash* /root
+sudo cp -r ~xpp/.jupyter /root
+
+
+```
+
+
+
 ## Ubuntu Scripts
 
 1. *configure_jupyter.sh* : set up the ethernet connection and configure Jupyter to be launched with the DHCP given IP address. A message at the end will provide further instructions
@@ -14,24 +62,10 @@ chmod +x <selected_scritp.sh>
 ```
 to make it executable before you launch it.
 
-### Installing `pyxi` easily using pip
+## Installing `pyxi` easily using pip
 An easy alternative to script #3 is to install the pyxi package using `pip` directly (and avoid all the hassle of manually copying files). To do that, simply type from a terminal while being in the home directory (/home/xpp).
 ```
 sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'
 ```
 
 ------------------------------------------------------------------------------------------------------
-### Ubuntu Core image for Zybo
-
-All images including the latest are available at: [file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/](file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/)
-
-```
-LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
-
-01-21-2016 - <giuseppe.natale@xilinx.com>
-             Added support for install/update of pyxi using pip
-             run this command from the home directory (/home/xpp)
-             <sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'>
-             the entire repo will be cloned in /home/xpp/src/pyxi, with the
-             package located in /home/xpp/src/pyxi/python/pyxi
-```

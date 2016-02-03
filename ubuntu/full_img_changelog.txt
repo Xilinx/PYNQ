@@ -21,3 +21,9 @@ latest image available at: file://xco-smb/gnatale/public/
              <sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'>
              the entire repo will be cloned in /home/xpp/src/pyxi, with the
              package located in /home/xpp/src/pyxi/python/pyxi
+
+02-03-2016 - <graham.schelle@xilinx.com>
+             On poweron, networking and jupyter server start
+             Use ifconfig to see network address
+             View /root/jupyter.log to see jupyter status
+             Updated pyxi package to latest Pyxi github reposiotry 
