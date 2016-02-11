@@ -10,11 +10,13 @@ All images including the latest are available at: [file://xsjeng1/group/xrlabs/g
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-02-03-2016 - <graham.schelle@xilinx.com>
-             On poweron, networking and jupyter server start
-                Use 'ifconfig' to see network address
-                View /root/jupyter.log to see jupyter status
-             Updated pyxi package to latest Pyxi github repository 
+02-11-2016 - <giuseppe.natale@xilinx.com>
+             1) upgraded pip to latest version (8.0.1)
+             2) upgraded pyxi package from repository
+             3) solved issue #3
+             4) updated devicetree in preparation to AV overlay. Tested 
+                current version of the audio bindings on this build and it works.
+             5) installed i2c-tools and libi2c-dev needed to use i2c linux drivers
 
 ```
 

@@ -27,3 +27,11 @@ latest image available at: file://xco-smb/gnatale/public/
              Use ifconfig to see network address
              View /root/jupyter.log to see jupyter status
              Updated pyxi package to latest Pyxi github reposiotry 
+
+02-11-2016 - <giuseppe.natale@xilinx.com>
+             1) upgraded pip to latest version (8.0.1)
+             2) upgraded pyxi package from repository
+             3) solved issue #3 
+             4) updated devicetree in preparation to AV overlay. Tested 
+                current version of the audio bindings on this build and it works.
+             5) installed i2c-tools and libi2c-dev needed to use i2c linux drivers
