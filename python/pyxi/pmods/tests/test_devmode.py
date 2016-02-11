@@ -7,43 +7,36 @@ __maintainer__  = "Yun Rock Qu"
 __email__       = "yunq@xilinx.com"
 
 
-from pyxi.tests import unittest
+import pytest
 from pyxi.pmods.devmode import DevMode
 from pyxi.pmods import _iop
+from pyxi.pmods._iop import _flush_iops
 
-class TestDevMode(unittest.TestCase):
-    """TestCase for the DevMode class."""
-    def test_0_pmod(self):
-        """Tests whether DevMode works for PMOD 1."""
-        self.assertIsNotNone(DevMode(1, _iop.IOP_SWCFG_XGPIOALL))
-        self.assertIsNotNone(DevMode(1, _iop.IOP_SWCFG_IIC0_TOPROW))
-        self.assertIsNotNone(DevMode(1, _iop.IOP_SWCFG_IIC0_BOTTOMROW))
+@pytest.mark.run(order=9)
+def test_pmod1():
+    """Tests whether DevMode works for PMOD 1."""
+    assert DevMode(1, _iop.IOP_SWCFG_XGPIOALL) is not None
+    assert DevMode(1, _iop.IOP_SWCFG_IIC0_TOPROW) is not None
+    assert DevMode(1, _iop.IOP_SWCFG_IIC0_BOTTOMROW) is not None
 
-    def test_1_pmod(self):
-        """Tests whether DevMode works for PMOD 2."""
-        self.assertIsNotNone(DevMode(2, _iop.IOP_SWCFG_XGPIOALL))
-        self.assertIsNotNone(DevMode(2, _iop.IOP_SWCFG_IIC0_TOPROW))
-        self.assertIsNotNone(DevMode(2, _iop.IOP_SWCFG_IIC0_BOTTOMROW))
+@pytest.mark.run(order=10)
+def test_pmod2():
+    """Tests whether DevMode works for PMOD 2."""
+    assert DevMode(2, _iop.IOP_SWCFG_XGPIOALL) is not None
+    assert DevMode(2, _iop.IOP_SWCFG_IIC0_TOPROW) is not None
+    assert DevMode(2, _iop.IOP_SWCFG_IIC0_BOTTOMROW) is not None
 
-    def test_2_pmod(self):
-        """Tests whether DevMode works for PMOD 3."""
-        self.assertIsNotNone(DevMode(3, _iop.IOP_SWCFG_XGPIOALL))
-        self.assertIsNotNone(DevMode(3, _iop.IOP_SWCFG_IIC0_TOPROW))
-        self.assertIsNotNone(DevMode(3, _iop.IOP_SWCFG_IIC0_BOTTOMROW))
+@pytest.mark.run(order=11)
+def test_pmod3():
+    """Tests whether DevMode works for PMOD 3."""
+    assert DevMode(3, _iop.IOP_SWCFG_XGPIOALL) is not None
+    assert DevMode(3, _iop.IOP_SWCFG_IIC0_TOPROW) is not None
+    assert DevMode(3, _iop.IOP_SWCFG_IIC0_BOTTOMROW) is not None
 
-    def test_3_pmod(self):
-        """Tests whether DevMode works for PMOD 4."""
-        self.assertIsNotNone(DevMode(4, _iop.IOP_SWCFG_XGPIOALL))
-        self.assertIsNotNone(DevMode(4, _iop.IOP_SWCFG_IIC0_TOPROW))
-        self.assertIsNotNone(DevMode(4, _iop.IOP_SWCFG_IIC0_BOTTOMROW))
-
-
-def test_devmode():
-    unittest.main(__name__) 
-    
-    # cleanup active_iops
-    from pyxi.pmods._iop import _flush_iops
+@pytest.mark.run(order=12)
+def test_pmod4():
+    """Tests whether DevMode works for PMOD 4."""
+    assert DevMode(4, _iop.IOP_SWCFG_XGPIOALL) is not None
+    assert DevMode(4, _iop.IOP_SWCFG_IIC0_TOPROW) is not None
+    assert DevMode(4, _iop.IOP_SWCFG_IIC0_BOTTOMROW) is not None
     _flush_iops()
-
-if __name__ == "__main__":
-    test_devmode()

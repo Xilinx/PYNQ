@@ -37,7 +37,7 @@ class ALS(object):
 
         self.cmdAddr = 0x7ffc
         self.mbAddr  = 0x7000
-        self.mmio.write(self.cmdAddr, 3)   # initialize ALS with a read   
+        # self.mmio.write(self.cmdAddr, 3)   initialize ALS with a read   
         self.data = 0
         self.delay   = 0
         self.count = 0

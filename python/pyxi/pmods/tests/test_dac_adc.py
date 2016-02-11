@@ -1,76 +1,65 @@
 """Test module for adc.py and dac.py"""
 
 
-__author__      = "Giuseppe Natale"
+__author__      = "Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2015, Xilinx"
 __maintainer__  = "Giuseppe Natale"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
-from pyxi.tests import unittest
+import pytest
 from random import randint
 from time import sleep
-
 from pyxi.pmods.adc import ADC
 from pyxi.pmods.dac import DAC
+from pyxi.pmods._iop import _flush_iops
+from pyxi.test.util import user_answer_yes
 
-adc = None
-dac = None
+flag = user_answer_yes("\nBoth ADC and DAC attached (straight cable)?")
+if flag:
+        global adc_id, dac_id
+        dac_id = int(input("Type in the PMOD ID of the DAC (1 ~ 4): "))
+        adc_id = int(input("Type in the PMOD ID of the ADC (1 ~ 4): "))
+    
+@pytest.mark.run(order=25)  
+@pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
+def test_adc_value():
+    """Tests whether value() correctly returns a number."""
+    global dac,adc
+    dac = DAC(dac_id)
+    adc = ADC(adc_id)
+    assert type(adc.value()) is int
 
-class Test_0_ADC(unittest.TestCase):
-    """TestCase for the ADC class."""
+@pytest.mark.run(order=26) 
+@pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
+def test_adc_read():
+    """Tests whether read() correctly returns a string."""  
+    assert type(adc.read()) is str
 
-    def test_0_value(self):
-        """Tests whether value() correctly returns a number."""
-        self.assertIs(type(adc.value()), int)     
+@pytest.mark.run(order=27) 
+@pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
+def test_loop_single():
+    """Asks the user to write a voltage on the DAC, read from the ADC,
+    and compares the two voltages
+    """
+    value = float(input("\nInsert a voltage to write (0.0 - 1.2): "))
+    assert value<=1.20, 'Input voltage higher than 1.20V.'
+    assert value>=0.00, 'Input voltage lower than 0.00V.'
+    dac.write(value)
+    assert abs(value-float(adc.read()))<0.06
 
-    def test_1_value(self):
-        """Tests whether read() correctly returns a string."""  
-        self.assertIs(type(adc.read()), str)    
-
-
-class Test_1_DAC_ADC(unittest.TestCase):
-    """TestCase for both the DAC and ADC classes."""
-
-    def test_0_single(self):
-        """Asks the user to write a voltage on the DAC, read from the ADC,
-        and compares the two voltages
-        """         
-        value = float(input("\nInsert a voltage to write (0.0 - 1.2): "))
-        self.assertTrue(value<=1.20, 'Input voltage higher than 1.20V.')
-        self.assertTrue(value>=0.00, 'Input voltage lower than 0.00V.')
+@pytest.mark.run(order=28) 
+@pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
+def test_loop_random():
+    """Writes a sequence of voltages on the DAC and read from the ADC, 
+    then checks that they are approximatively the same 
+    (with a delta of .05).
+    """
+    print('\nGenerating 100 random voltages from 0.00V to 1.20V...')
+    DelaySec = 0.001
+    for i in range(0,100):
+        value = 0.01*randint(0,120)
         dac.write(value)
-        self.assertAlmostEqual(value, float(adc.read()), delta=.06)
-    
-    def test_1_random(self):
-        """Writes a sequence of voltages on the DAC and read from the ADC, 
-        then checks that they are approximatively the same 
-        (with a delta of .05).
-        """
-        print('\nGenerating 100 random voltages from 0.00V to 1.20V...')
-        DelaySec = 0.01
-        for i in range(0,100):
-            value = 0.01*randint(0,120)
-            dac.write(value)
-            sleep(DelaySec)
-            self.assertAlmostEqual(value, float(adc.read()), delta=.06)
-
-def test_dac_adc():
-    if not unittest.request_user_confirmation(
-            'Both ADC and DAC attached (through straight cable)?'):
-        raise unittest.SkipTest()
-
-    global adc, dac
-    dac = DAC(int(input("Type in the PMOD's ID of the DAC (1 ~ 4): ")))
-    adc = ADC(int(input("Type in the PMOD's ID of the ADC (1 ~ 4): ")))
-
-    # starting tests
-    unittest.main(__name__) 
-    
-    # cleanup active_iops
-    from pyxi.pmods._iop import _flush_iops
+        sleep(DelaySec)
+        assert abs(value-float(adc.read()))<0.06
     _flush_iops()
-
-
-if __name__ == "__main__":
-    test_dac_adc()

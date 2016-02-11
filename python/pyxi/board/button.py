@@ -8,7 +8,7 @@ from pyxi.mmio import MMIO
 from pyxi.board import _constants
 
 
-class Button(object):
+class BUTTON(object):
     """Control a single onboard push-button.
 
     Arguments
@@ -25,13 +25,13 @@ class Button(object):
     _mmio = None
 
     def __init__(self, index, addr = None):
-        if Button._mmio is None: 
+        if BUTTON._mmio is None: 
             if addr is None:
                 addr = _constants.BTNS_ADDR
-            Button._mmio = MMIO(addr)
+            BUTTON._mmio = MMIO(addr)
         self.index = index
 
     def read(self):
-        """Read the current value of the Button."""
-        curr_val = Button._mmio.read()
+        """Read the current value of the BUTTON."""
+        curr_val = BUTTON._mmio.read()
         return (curr_val & (1 << self.index)) >> self.index

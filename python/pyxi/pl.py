@@ -21,7 +21,7 @@ class PL:
             exit()
           
 class bitstream(PL):
-    """This class extends the PL (singleton) class."""
+    """The bitstream class extends the PL (singleton) class."""
     
     global bs_path, bs_default
     bs_path = '/home/xpp/src/pyxi/bitstream/'
@@ -86,4 +86,5 @@ class bitstream(PL):
         self.timestamp = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
         PL.bitstream = self.bitstream             
         PL.timestamp = self.timestamp
-            
+        
+        

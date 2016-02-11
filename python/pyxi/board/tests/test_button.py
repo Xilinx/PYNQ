@@ -1,31 +1,26 @@
 """Test module for button.py"""
 
 
-__author__      = "Giuseppe Natale"
-__copyright__   = "Copyright 2015, Xilinx"
-__email__       = "giuseppe.natale@xilinx.com"
+__author__      = "Giuseppe Natale, Yun Rock Qu"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "yunq@xilinx.com"
 
 
-from pyxi.tests import unittest
-from pyxi.board.button import Button
+import pytest
+from pyxi.board.button import BUTTON
 
+@pytest.mark.run(order=5)
+def test_btn_all():
+    """TestCase for the Button class and its wrapper functions.
+    Instantiates 4 Button objects on index 0 ~ 3 and performs some 
+    actions on it, requesting user confirmation."""
+    buttons = [BUTTON(index) for index in range(0, 4)] 
+    input("\nHit enter to continue...")
+    for index in range(4):
+        assert buttons[index].read()==0, \
+            "Button %d read wrong values." % index
+    for index in range(4):
+        input("Hit enter while pressing Button {0} (BTN{0})...".format(index))
+        assert buttons[index].read()==1, \
+            "Button %d read wrong values." % index
 
-class TestButton(unittest.TestCase):
-    """TestCase for the Button class and its wrapper functions."""
-    
-    def test_btn_all(self):
-        """Instantiates 4 Button objects on index 0 ~ 3 and performs some 
-        actions on it, requesting user confirmation."""
-        buttons = [Button(index) for index in range(4)] 
-        input("\nHit enter to continue...")
-        for b in buttons:
-            self.assertTrue(b.read() == 0)      
-        for i in range(len(buttons)):           
-            input("Hit enter while pressing Button {0} (BTN{0})...".format(i))
-            self.assertTrue(buttons[i].read() == 1)
-
-def test_button():
-    unittest.main(__name__) 
-
-if __name__ == "__main__":
-    test_button()

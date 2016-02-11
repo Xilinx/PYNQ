@@ -8,7 +8,7 @@ from pyxi.mmio import MMIO
 from pyxi.board import _constants
 
 
-class Switch(object):
+class SWITCH(object):
     """Control a single onboard switch.
 
     Arguments
@@ -24,15 +24,14 @@ class Switch(object):
     # and data.
     _mmio = None
 
-
     def __init__(self, index, addr = None):
-        if Switch._mmio is None: 
+        if SWITCH._mmio is None: 
             if addr is None:
                 addr = _constants.SWS_ADDR                
-            Switch._mmio = MMIO(addr)
+            SWITCH._mmio = MMIO(addr)
         self.index = index
 
     def read(self):
-        """Read the current value of the Switch."""
-        curr_val = Switch._mmio.read()       
+        """Read the current value of the SWITCH."""
+        curr_val = SWITCH._mmio.read()       
         return (curr_val & (1 << self.index)) >> self.index
