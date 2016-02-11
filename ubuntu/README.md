@@ -21,6 +21,28 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
 ## Ubuntu Build Steps
 
+
+02-11-2016
+
+```
+<on target terminal>
+
+# autologin XPP user
+sudo sed -i.bak 's/ExecStart=-\/sbin\/agetty/ExecStart=-\/sbin\/agetty --autologin xpp/' /lib/systemd/system/serial-getty@.service
+
+# fix date/time due to no RTC
+sudo apt-get install ntp 
+sudo sed -i.bak 's/\/var\/lib\/ntp\/ntp.conf.dhcp -nt \/etc\/ntp.conf/ -e \/var\/lib\/ntp\/ntp.conf.dhcp /' /etc/init.d/ntp 
+
+# speed up boot when no network DHCP server
+sudo sed -i.bak 's/timeout 300;/timeout 3;\nretry 3;\nreboot 3;\nselect-timeout 0;\ninitial-interval 2;\nlink-timeout 3;\n/' /etc/dhcp/dhclient.conf
+
+# reboot
+shutdown -r now 
+
+```
+
+
 02-03-2016
 
 ```
