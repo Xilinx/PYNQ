@@ -72,6 +72,7 @@ For instance, the `i2c-tools` and `libi2c-dev` are not available using normal `a
 
 - https://launchpad.net/ubuntu/wily/armhf/i2c-tools/3.1.1-1
 - https://launchpad.net/ubuntu/wily/armhf/libi2c-dev/3.1.1-1
+
 To install them, simply execute this commands
 ```
 wget http://launchpadlibrarian.net/173848656/i2c-tools_3.1.1-1_armhf.deb
