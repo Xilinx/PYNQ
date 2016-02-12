@@ -33,7 +33,9 @@ pip install pytest-ordering
 
 
 ```
-
+## Not able to do "pip install pytest"
+There must be something wrong with the configuration. The most suspicious thing is the DHCP server setting
+in the new release
 
 
 
