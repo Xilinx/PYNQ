@@ -68,9 +68,10 @@ sudo cp -r ~xpp/.jupyter /root
 ```
 ## Installing armhf build of packages not in ubuntu mainline
 Sometimes you may find that ubuntu official repos does not include certain pakcages for the armhf architecture - i.e. the usual `apt-get` will not work. However, it may be that these packages are available as a yet-unofficial build on ubuntu's development website: [https://launchpad.net/ubuntu/wily/armhf](https://launchpad.net/ubuntu/wily/armhf). If so, simply `wget` the `.deb` package and then install it using `dpkg`.
-For instance, the `i2c-tools` and `libi2c-dev` are not available using normal `apt-get`, but there is still an armhf build for ubuntu 15.10
-. https://launchpad.net/ubuntu/wily/armhf/i2c-tools/3.1.1-1
-. https://launchpad.net/ubuntu/wily/armhf/libi2c-dev/3.1.1-1
+For instance, the `i2c-tools` and `libi2c-dev` are not available using normal `apt-get`, but there is still an armhf build for ubuntu 15.10:
+
+- https://launchpad.net/ubuntu/wily/armhf/i2c-tools/3.1.1-1
+- https://launchpad.net/ubuntu/wily/armhf/libi2c-dev/3.1.1-1
 To install them, simply execute this commands
 ```
 wget http://launchpadlibrarian.net/173848656/i2c-tools_3.1.1-1_armhf.deb
