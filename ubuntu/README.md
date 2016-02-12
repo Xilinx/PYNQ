@@ -23,7 +23,6 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
 ## Ubuntu Build Steps
 
-
 02-11-2016
 
 ```
@@ -67,8 +66,19 @@ sudo cp -r ~xpp/.jupyter /root
 
 
 ```
-
-
+## Installing armhf build of packages not in ubuntu mainline
+Sometimes you may find that ubuntu official repos does not include certain pakcages for the armhf architecture - i.e. the usual `apt-get` will not work. However, it may be that these packages are available as a yet-unofficial build on ubuntu's development website: [https://launchpad.net/ubuntu/wily/armhf](https://launchpad.net/ubuntu/wily/armhf). If so, simply `wget` the `.deb` package and then install it using `dpkg`.
+For instance, the `i2c-tools` and `libi2c-dev` are not available using normal `apt-get`, but there is still an armhf build for ubuntu 15.10
+. https://launchpad.net/ubuntu/wily/armhf/i2c-tools/3.1.1-1
+. https://launchpad.net/ubuntu/wily/armhf/libi2c-dev/3.1.1-1
+To install them, simply execute this commands
+```
+wget http://launchpadlibrarian.net/173848656/i2c-tools_3.1.1-1_armhf.deb
+wget http://launchpadlibrarian.net/173859774/libi2c-dev_3.1.1-1_all.deb
+dpkg -i i2c-tools*
+dpkg -i libi2c-dev*
+```
+When you install packages in this way, you need to manually recursively resolve every dependency listed on the package website (the `depends on` list at the bottom of the package page, if present), possibly installing them using the same technique if they are not available with normal `apt-get`.
 
 ## Ubuntu Scripts
 
