@@ -23,6 +23,20 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
 ## Ubuntu Build Steps
 
+Staging - to be added in next image
+
+```
+<on target terminal>
+
+pip install pytest
+pip install pytest-ordering
+
+
+```
+
+
+
+
 02-11-2016
 
 ```
