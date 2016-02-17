@@ -35,3 +35,9 @@ latest image available at: file://xco-smb/gnatale/public/
              4) updated devicetree in preparation to AV overlay. Tested 
                 current version of the audio bindings on this build and it works.
              5) installed i2c-tools and libi2c-dev needed to use i2c linux drivers
+
+02-17-2016 - <giuseppe.natale@xilinx.com>
+             1) updated pyxi to latest version on repo (with AV overlay)
+             2) updated devicetree and uImage to work with AV overlay
+                - the kernel is compiled from original xilinx repo with xlnk drivers enabled
+             3) installed pytest and pytest-ordering using pip

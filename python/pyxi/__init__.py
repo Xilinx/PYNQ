@@ -1,5 +1,7 @@
 """PyXi - Python for Xilinx."""
 
-__all__ = ['gpio', 'mmio', 'pl', 'test',
-           'board', 'pmods'
-          ]
+from .gpio import GPIO
+from .mmio import MMIO
+from .pl import PL, bitstream
+
+__all__ = ['board', 'pmods', 'audio', 'video']

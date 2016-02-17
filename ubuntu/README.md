@@ -10,14 +10,11 @@ All images including the latest are available at: [file://xsjeng1/group/xrlabs/g
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-02-11-2016 - <giuseppe.natale@xilinx.com>
-             1) upgraded pip to latest version (8.0.1)
-             2) upgraded pyxi package from repository
-             3) solved issue #3
-             4) updated devicetree in preparation to AV overlay. Tested 
-                current version of the audio bindings on this build and it works.
-             5) installed i2c-tools and libi2c-dev needed to use i2c linux drivers
-
+02-17-2016 - <giuseppe.natale@xilinx.com>
+             1) updated pyxi to latest version on repo (with AV overlay)
+             2) updated devicetree and uImage to work with AV overlay
+                - the kernel is compiled from original xilinx repo with xlnk drivers enabled
+             3) installed pytest and pytest-ordering using pip
 ```
 
 
@@ -26,11 +23,6 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-<on target terminal>
-
-pip install pytest
-pip install pytest-ordering
-
 
 ```
 

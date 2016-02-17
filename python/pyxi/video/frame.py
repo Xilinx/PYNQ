@@ -1,8 +1,6 @@
 
 __author__      = "Giuseppe Natale"
 __copyright__   = "Copyright 2015, Xilinx"
-__version__     = "0.1"
-__maintainer__  = "Giuseppe Natale"
 __email__       = "giuseppe.natale@xilinx.com"
 
 

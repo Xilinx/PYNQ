@@ -5,8 +5,6 @@ used by the video sub-package.
 
 __author__      = "Giuseppe Natale"
 __copyright__   = "Copyright 2015, Xilinx"
-__version__     = "0.1"
-__maintainer__  = "Giuseppe Natale"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
@@ -53,6 +51,3 @@ gpio_dict = {
     'INTERRUPT_PRESENT':1,
     'IS_DUAL':1,
 }
-
-gpio_intr = 65
-vtc_intr = 64
