@@ -7,7 +7,7 @@ __maintainer__  = "Cathal McCabe"
 __email__       = "cathal.mccabe@xilinx.com"
 
 from . import _iop
-from pyxi import mmio
+from pyxi import MMIO
 import time
 
 PROGRAM = "./als.bin"
@@ -31,7 +31,7 @@ class ALS(object):
             raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4")
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_id = pmod_id
-        self.mmio = mmio.MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'], 
+        self.mmio = MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'], 
                          _iop.IOP_MMIO_REGSIZE)    
         self.iop.start()
 

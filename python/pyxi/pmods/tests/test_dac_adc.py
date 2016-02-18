@@ -21,7 +21,7 @@ if flag:
         dac_id = int(input("Type in the PMOD ID of the DAC (1 ~ 4): "))
         adc_id = int(input("Type in the PMOD ID of the ADC (1 ~ 4): "))
     
-@pytest.mark.run(order=25)  
+@pytest.mark.run(order=22)  
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
 def test_adc_value():
     """Tests whether value() correctly returns a number."""
@@ -30,13 +30,13 @@ def test_adc_value():
     adc = ADC(adc_id)
     assert type(adc.value()) is int
 
-@pytest.mark.run(order=26) 
+@pytest.mark.run(order=23) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
 def test_adc_read():
     """Tests whether read() correctly returns a string."""  
     assert type(adc.read()) is str
 
-@pytest.mark.run(order=27) 
+@pytest.mark.run(order=24) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
 def test_loop_single():
     """Asks the user to write a voltage on the DAC, read from the ADC,
@@ -48,7 +48,7 @@ def test_loop_single():
     dac.write(value)
     assert abs(value-float(adc.read()))<0.06
 
-@pytest.mark.run(order=28) 
+@pytest.mark.run(order=25) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
 def test_loop_random():
     """Writes a sequence of voltages on the DAC and read from the ADC, 

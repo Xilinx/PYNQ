@@ -6,9 +6,11 @@ __email__       = "yunq@xilinx.com"
 import os
 import sys
 import math
-from pyxi import mmio,gpio
+from pyxi import MMIO,GPIO,OVERLAY
 import mmap
 
+ol = OVERLAY()
+ol.add_bitstream('pmod.bit')
 #########################
 # IOP mailbox constants #
 #########################
@@ -32,7 +34,8 @@ IOP_MMIO_REGSIZE = 0x8000
 #########################
 
 # IOP Switch Register Map
-IOPMM_SWITCHCONFIG_BASEADDR    = 0x44A00000
+IOPMM_SWITCHCONFIG_BASEADDR    = int(ol.get_mmio_base('pmod.bit',\
+                                    'PMOD_IO_Switch_IP'),16)
 IOPMM_SWITCHCONFIG_IO_0_OFFSET = 0
 IOPMM_SWITCHCONFIG_IO_1_OFFSET = 4
 IOPMM_SWITCHCONFIG_IO_2_OFFSET = 8
@@ -75,7 +78,7 @@ IOP_SWCFG_IIC0_BOTTOMROW = [IOP_SWCFG_XGPIO0,IOP_SWCFG_XGPIO1,IOP_SWCFG_XGPIO2,
                             IOP_SWCFG_IIC0_SCL,IOP_SWCFG_IIC0_SDA]
 
 # IIC Register Map
-IOPMM_XIIC_0_BASEADDR       = 0x40800000
+IOPMM_XIIC_0_BASEADDR       = int(ol.get_mmio_base('pmod.bit','iic'),16)
 IOPMM_XIIC_DGIER_OFFSET     = 0x1C
 IOPMM_XIIC_IISR_OFFSET      = 0x20
 IOPMM_XIIC_IIER_OFFSET      = 0x28
@@ -92,7 +95,7 @@ IOPMM_XIIC_RFD_REG_OFFSET   = 0x120
 IOPMM_XIIC_GPO_REG_OFFSET   = 0x124
 
 # SPI Register Map
-IOPMM_SPI_0_BASEADDR        = 0x44A10000
+IOPMM_SPI_0_BASEADDR        = int(ol.get_mmio_base('pmod.bit','spi'),16)
 IOPMM_XSP_DGIER_OFFSET      = 0x1C
 IOPMM_XSP_IISR_OFFSET       = 0x20
 IOPMM_XSP_IIER_OFFSET       = 0x28
@@ -106,7 +109,7 @@ IOPMM_XSP_TFO_OFFSET        = 0x74
 IOPMM_XSP_RFO_OFFSET        = 0x78
 
 # XGPIO Register Map
-IOPMM_XGPIO_BASEADDR         = 0x40000000
+IOPMM_XGPIO_BASEADDR        = int(ol.get_mmio_base('pmod.bit','gpio'),16)
 IOPMM_XGPIO_DATA_OFFSET     = 0x0
 IOPMM_XGPIO_TRI_OFFSET      = 0x4
 IOPMM_XGPIO_DATA2_OFFSET    = 0x8
@@ -130,20 +133,20 @@ XGPIO_CABLE_LOOPBACK   = 1
 #########################
 IOP_CONSTANTS = {
     1:{
-        "address" : 0x40000000,
-        "emioPin": 192
+        "address" : int(ol.get_mmio_base('pmod.bit','axi_bram_ctrl_1'),16),
+        "emioPin": ol.get_gpio_base() + 54
     },
     2:{
-        "address" : 0x42000000,
-        "emioPin": 193
+        "address" : int(ol.get_mmio_base('pmod.bit','axi_bram_ctrl_2'),16),
+        "emioPin": ol.get_gpio_base() + 55
     },
     3:{
-        "address" : 0x44000000,
-        "emioPin": 194
+        "address" : int(ol.get_mmio_base('pmod.bit','axi_bram_ctrl_3'),16),
+        "emioPin": ol.get_gpio_base() + 56
     },
     4: {
-        "address" : 0x46000000,
-        "emioPin": 195
+        "address" : int(ol.get_mmio_base('pmod.bit','axi_bram_ctrl_4'),16),
+        "emioPin": ol.get_gpio_base() + 57
     },      
 }
 
@@ -163,7 +166,7 @@ class _IOP:
         self.pmod_id = iop_id
         self.program = program
         self.state = 'IDLE'
-        self.gpio = gpio.GPIO(IOP_CONSTANTS[self.pmod_id]['emioPin'],'out')
+        self.gpio = GPIO(IOP_CONSTANTS[self.pmod_id]['emioPin'],'out')
         
         # reset microblaze
         self.stop()
@@ -175,7 +178,7 @@ class _IOP:
 
         size = (math.ceil(os.fstat(bitf.fileno()).st_size/ \
                 mmap.PAGESIZE))*(mmap.PAGESIZE>>2)
-        self.mmio = mmio.MMIO(IOP_CONSTANTS[self.pmod_id]['address'],size)
+        self.mmio = MMIO(IOP_CONSTANTS[self.pmod_id]['address'],size)
         
         try:
             bitbuf = bitf.read(4)
@@ -212,7 +215,7 @@ class _IOP:
 
         size = (math.ceil(os.fstat(bitf.fileno()).st_size/ \
                 mmap.PAGESIZE))*(mmap.PAGESIZE>>2)
-        self.mmio = mmio.MMIO(IOP_CONSTANTS[self.pmod_id]['address'],size)
+        self.mmio = MMIO(IOP_CONSTANTS[self.pmod_id]['address'],size)
         
         try:
             bitbuf = bitf.read(4)

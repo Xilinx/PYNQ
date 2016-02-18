@@ -8,7 +8,6 @@ __email__       = "yunq@xilinx.com"
 
 
 from . import _iop
-from pyxi import mmio
 from .devmode import DevMode
 
 class XGPIO(object):

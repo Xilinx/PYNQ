@@ -18,7 +18,7 @@ if flag:
     global led_id
     led_id = int(input("Type in the PMOD ID of the LED8 (1 ~ 4): "))
 
-@pytest.mark.run(order=13)  
+@pytest.mark.run(order=17)  
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run") 
 def test_led0():
     """TestCase for the PMOD LED class.
@@ -41,7 +41,7 @@ def test_led0():
     assert led.read() is 1 
     led.off()
 
-@pytest.mark.run(order=14) 
+@pytest.mark.run(order=18) 
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run") 
 def test_shift_leds():
     """Instantiates 8 LED objects and shifts from right to left.""" 
@@ -60,7 +60,7 @@ def test_shift_leds():
             sleep(DelaySec1)
     assert user_answer_yes("\nLEDs on/off shifting from LD0 to LD7?")
 
-@pytest.mark.run(order=15) 
+@pytest.mark.run(order=19) 
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")  
 def test_toggle_leds():
     """Instantiates 8 LED objects and toggles them.""" 

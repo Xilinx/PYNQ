@@ -9,7 +9,7 @@ __email__       = "yunq@xilinx.com"
 import pytest
 from pyxi.board.switch import SWITCH
     
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=7)
 def test_switch_all():
     """TestCase for the Switch class and its wrapper functions.
     Instantiates 4 Switch objects on index 0 ~ 3 and performs some 

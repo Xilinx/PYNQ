@@ -5,8 +5,10 @@ __email__       = "yunq@xilinx.com"
  
 import pytest
 import os
-    
-    
-@pytest.mark.run(order=1)
-def test_superuser():
-    assert os.geteuid()==0, "Need ROOT access in order to run tests" 
+from pyxi import GPIO
+
+
+@pytest.mark.run(order=3)
+def test_gpio():
+    # To do
+    pass

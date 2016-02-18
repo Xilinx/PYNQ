@@ -5,8 +5,11 @@ __email__       = "yunq@xilinx.com"
  
 import pytest
 import os
+from pyxi import MMIO
     
     
-@pytest.mark.run(order=1)
-def test_superuser():
-    assert os.geteuid()==0, "Need ROOT access in order to run tests" 
+@pytest.mark.run(order=2)
+def test_mmio():
+    # To do
+    pass
+

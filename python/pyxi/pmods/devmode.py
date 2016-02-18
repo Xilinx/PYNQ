@@ -12,7 +12,7 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 import time
 from . import _iop
-from pyxi import mmio,gpio
+from pyxi import MMIO
 
 PROGRAM = "mailbox.bin"
 
@@ -29,10 +29,10 @@ class DevMode(object):
 
     Attributes
     ----------
-    iop (pyb.iop)           : I/O Processor instance used by DevMode
+    iop                     : I/O Processor instance used by DevMode
     iop_id (int)            : From argument *pmod_id*
     iop_switch_config (list): From argument *switch_config*
-    mmio (pyb.mmio)         : Memory-mapped I/O instance needed to read 
+    mmio (MMIO)             : Memory-mapped I/O instance needed to read 
                               and write instructions and data.
     program (str)           : Current executable running.
     """
@@ -45,7 +45,7 @@ class DevMode(object):
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_switch_config = list(switch_config)
         self.iop_id = pmod_id
-        self.mmio = mmio.MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'] + 
+        self.mmio = MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'] + 
                          _iop.MAILBOX_OFFSET, _iop.MAILBOX_SIZE>>2) 
         self.program = PROGRAM
 
