@@ -7,9 +7,13 @@ __author__      = "Giuseppe Natale"
 __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
+from pyxi import OVERLAY
 
-vdma_dict = {
-    'BASEADDR': 0x43000000,
+ol = OVERLAY()
+ol.add_bitstream('audiovideo.bit')
+
+VDMA_DICT = {
+    'BASEADDR': int(ol.get_mmio_base('audiovideo.bit','axi_vdma_0'),16),
     'NUM_FSTORES': 3,
     'INCLUDE_MM2S': 1,
     'INCLUDE_MM2S_DRE':0,
@@ -41,13 +45,13 @@ vdma_dict = {
     'ADDR_WIDTH':32,
 }
 
-vtc_display_addr = 0x43C00000
-vtc_capture_addr = 0x43C20000
+VTC_DISPLAY_ADDR = int(ol.get_mmio_base('audiovideo.bit','v_tc_0'),16)
+VTC_CAPTURE_ADDR = int(ol.get_mmio_base('audiovideo.bit','v_tc_1'),16)
 
-dyn_clk_addr = 0x43C10000
+DYN_CLK_ADDR = int(ol.get_mmio_base('audiovideo.bit','axi_dynclk_0'),16)
 
-gpio_dict = {
-    'BASEADDR':0x41230000,
+GPIO_DICT = {
+    'BASEADDR':int(ol.get_mmio_base('audiovideo.bit','axi_gpio_video'),16),
     'INTERRUPT_PRESENT':1,
     'IS_DUAL':1,
 }

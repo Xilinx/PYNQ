@@ -3,12 +3,19 @@ used by the audio sub-package.
 """
 
 
-__author__      = "Giuseppe Natale"
+__author__      = "Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
-audio_base_address = 0x60000000
 
-audio_gpio_pin = 56+138 #138 is the base index of the /sys/class/gpio i/f
+from pyxi import OVERLAY
 
-iicps_index = 1
+ol = OVERLAY()
+ol.add_bitstream('audiovideo.bit')
+
+AUDIO_BASE_ADDRESS = int(ol.get_mmio_base('audiovideo.bit',\
+                                            'zybo_audio_ctrl_0'),16)
+
+AUDIO_GPIO_PIN = ol.get_gpio_base() + 56
+
+IICPS_INDEX = 1

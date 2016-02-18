@@ -32,13 +32,13 @@ class HDMI(object):
         if direction.lower() == 'in':
             self.direction = 'in'
             if frame_buffer == None:
-                self._capture = _video._capture(_constants.vdma_dict, 
-                                                _constants.gpio_dict, 
-                                                _constants.vtc_capture_addr)
+                self._capture = _video._capture(_constants.VDMA_DICT, 
+                                                _constants.GPIO_DICT, 
+                                                _constants.VTC_CAPTURE_ADDR)
             else:
-                self._capture = _video._capture(_constants.vdma_dict, 
-                                                _constants.gpio_dict, 
-                                                _constants.vtc_capture_addr, 
+                self._capture = _video._capture(_constants.VDMA_DICT, 
+                                                _constants.GPIO_DICT, 
+                                                _constants.VTC_CAPTURE_ADDR, 
                                                 frame_buffer)
 
             self.start = self._capture.start

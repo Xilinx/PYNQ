@@ -12,7 +12,7 @@ ol.add_bitstream('pmod.bit')
 ol.add_bitstream('audiovideo.bit')
     
 @pytest.mark.run(order=4)
-def test_pl():
+def test_overlay():
     """ Test whether the overlay is properly set.
     """
     global ol
@@ -36,8 +36,8 @@ def test_pl():
             'audiovideo.bit gets wrong MMIO range'
 
 @pytest.mark.run(order=9)
-def test_pmod_ol():
-    """ Change the bitstream on PL to "pmod"
+def test_pmod():
+    """ Change the bitstream on PL to "pmod", and then test.
     """
     global ol
     ol.download_bitstream('pmod.bit')
@@ -49,8 +49,8 @@ def test_pmod_ol():
             'audiovideo.bit should not be loaded'
 
 @pytest.mark.run(order=33)
-def test_audiovideo_ol():
-    """ Change the bitstream on PL to "audiovideo"
+def test_audiovideo():
+    """ Change the bitstream on PL to "audiovideo", and then test.
     """
     global ol
     ol.download_bitstream('audiovideo.bit')
@@ -60,3 +60,16 @@ def test_audiovideo_ol():
             'pmod.bit should not be loaded'
     assert ol.get_status('audiovideo.bit')=='LOADED', \
             'audiovideo.bit is not loaded yet'
+
+@pytest.mark.run(order=43)
+def test_end():
+    """ Wrapping up by changing the bitstream back to "pmod".
+    """
+    global ol
+    ol.download_bitstream('pmod.bit')
+    assert not ol.get_timestamp('pmod.bit')=='', \
+            'pmod.bit does not have timestamp'
+    assert ol.get_status('pmod.bit')=='LOADED', \
+            'pmod.bit is not loaded yet'
+    assert ol.get_status('audiovideo.bit')=='UNLOADED', \
+            'audiovideo.bit should not be loaded'

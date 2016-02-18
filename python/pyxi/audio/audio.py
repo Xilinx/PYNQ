@@ -15,9 +15,9 @@ class Audio(object):
 
     def __init__(self):
         if Audio._audio_ctrl is None:
-           Audio._audio_ctrl = _audio._audio(_constants.audio_base_address, 
-                                             _constants.audio_gpio_pin, 
-                                             _constants.iicps_index)
+           Audio._audio_ctrl = _audio._audio(_constants.AUDIO_BASE_ADDRESS, 
+                                             _constants.AUDIO_GPIO_PIN, 
+                                             _constants.IICPS_INDEX)
 
 class LineIn(Audio):
     """Class for the audio LineIn channel."""

@@ -32,13 +32,13 @@ class VGA(object):
         if direction.lower() == 'out':
             self.direction = 'out'
             if frame_buffer == None:
-                self._display = _video._display(_constants.vdma_dict, 
-                                                _constants.vtc_display_addr, 
-                                                _constants.dyn_clk_addr, 1)
+                self._display = _video._display(_constants.VDMA_DICT, 
+                                                _constants.VTC_DISPLAY_ADDR, 
+                                                _constants.DYN_CLK_ADDR, 1)
             else:
-                self._display = _video._display(_constants.vdma_dict, 
-                                                _constants.vtc_display_addr, 
-                                                _constants.dyn_clk_addr, 1, 
+                self._display = _video._display(_constants.VDMA_DICT, 
+                                                _constants.VTC_DISPLAY_ADDR, 
+                                                _constants.DYN_CLK_ADDR, 1, 
                                                 frame_buffer)  
                                                      
             self.start = self._display.start
