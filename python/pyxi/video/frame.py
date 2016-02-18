@@ -4,6 +4,9 @@ __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
+from . import _video
+
+
 class Frame(object):
     """Just a wrapper to a bytearray frame buffer that exposes handy getter and
     setter.
@@ -20,9 +23,11 @@ class Frame(object):
     """
     def __init__(self, width, height, frame=None):
         if frame is not None:
+            self._framebuffer = None
             self.frame = frame
         else:
-            self.frame = bytearray(1920*1080*3) # empty frame
+            self._framebuffer = _video._frame(1) #framebuffer with just 1 frame
+            self.frame = self._framebuffer(0) # empty frame
         self.width = width
         self.height = height
 
@@ -57,3 +62,7 @@ class Frame(object):
             self.frame[offset + 1] = value[2]
         else:
             raise ValueError("Index is out of range.")
+
+    def __del__(self):
+        if self._framebuffer is not None:
+            del self._framebuffer #free memory

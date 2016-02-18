@@ -79,9 +79,24 @@ static PyObject *videoframe_new(PyTypeObject *type, PyObject *args,
 /*
  * __init()__ method
  *
- * Python Constructor: frame()
+ * Python Constructor: frame([single_frame])
+ * set single_frame to 1 if you want this object to hold a single frame 
+ * (that will be available at index 0)
  */
 static int videoframe_init(videoframeObject *self, PyObject *args){
+    self->single_frame = 0;
+    if (!PyArg_ParseTuple(args, "|I", &self->single_frame))
+        return -1;
+    if (self->single_frame == 1) // allocate just the frame at position 0
+    {
+        if((self->frame_buffer[0] = (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME))
+           == NULL){
+            PyErr_Format(PyExc_MemoryError,"unable to allocate memory");
+            return -1; 
+        }
+        return 0;
+    }
+    self->single_frame = 0; // reset to 0 in case user specified a non valid value
     for(int i = 0; i < NUM_FRAMES; i++)
         if((self->frame_buffer[i] = (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME))
            == NULL){
@@ -90,6 +105,15 @@ static int videoframe_init(videoframeObject *self, PyObject *args){
         }
     return 0;
 }
+
+/*
+ * exposing members
+ */
+static PyMemberDef videoframe_members[] = {
+    {"single_frame", T_UINT, offsetof(videoframeObject, single_frame),READONLY,
+     "1 if this object holds a single frame"},
+    {NULL}  /* Sentinel */
+};
 
 /*****************************************************************************/
 /*
@@ -133,6 +157,8 @@ PyObject *videoframe_call(videoframeObject *self, PyObject *args,
     PyObject *new_frame = NULL;
     if (!PyArg_ParseTuple(args, "I|O", &index, &new_frame))
         return NULL;
+    if(self->single_frame == 1) // ignore index parameter
+        index = 0;              // as there is only one frame
     if(new_frame != NULL){ // set mode
         if (!PyByteArray_CheckExact(new_frame)){
             PyErr_SetString(PyExc_SyntaxError, 
@@ -146,6 +172,8 @@ PyObject *videoframe_call(videoframeObject *self, PyObject *args,
 }
 
 static PyObject *videoframe_max_frames(videoframeObject *self){
+    if(self->single_frame == 1)
+        return Py_BuildValue("i", 1);
     return Py_BuildValue("i", NUM_FRAMES);
 }
 
@@ -208,7 +236,7 @@ PyTypeObject videoframeType = {
     0,                                          /* tp_iter */
     0,                                          /* tp_iternext */
     videoframe_methods,                         /* tp_methods */
-    0,                                          /* tp_members */
+    videoframe_members,                         /* tp_members */
     0,                                          /* tp_getset */
     0,                                          /* tp_base */
     0,                                          /* tp_dict */
