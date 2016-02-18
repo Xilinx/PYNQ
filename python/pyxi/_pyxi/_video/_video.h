@@ -41,6 +41,7 @@
 typedef struct{
     PyObject_HEAD
     u8 *frame_buffer[NUM_FRAMES];
+    unsigned int single_frame;
 } videoframeObject;
 
 extern PyObject *get_frame(videoframeObject *self, unsigned int index);
