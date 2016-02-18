@@ -85,7 +85,7 @@ static PyObject *videoframe_new(PyTypeObject *type, PyObject *args,
  */
 static int videoframe_init(videoframeObject *self, PyObject *args){
     self->single_frame = 0;
-    if (!PyArg_ParseTuple(args, "|I", &single_frame))
+    if (!PyArg_ParseTuple(args, "|I", &self->single_frame))
         return -1;
     if (self->single_frame == 1) // allocate just the frame at position 0
     {
