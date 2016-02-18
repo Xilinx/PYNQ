@@ -16,7 +16,7 @@ if flag:
     global tmp2_id
     tmp2_id = int(input("Type in the PMOD ID of the TMP2 (1 ~ 4): "))
 
-@pytest.mark.run(order=23)
+@pytest.mark.run(order=21)
 @pytest.mark.skipif(not flag, reason="need TMP2 attached in order to run")
 def test_readtemp():
     """TestCase for the TMP2 class.

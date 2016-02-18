@@ -17,7 +17,7 @@ if flag:
     global als_id
     als_id = int(input("Type in the PMOD ID of the ALS (1 ~ 4): "))
 
-@pytest.mark.run(order=24)  
+@pytest.mark.run(order=26)  
 @pytest.mark.skipif(not flag, reason="need ALS attached in order to run")
 def test_readlight():
     """TestCase for the ALS class.

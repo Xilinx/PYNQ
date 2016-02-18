@@ -23,7 +23,7 @@ if flag:
     global DelaySec 
     DelaySec = 0.005
                                
-@pytest.mark.run(order=17) 
+@pytest.mark.run(order=27) 
 @pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
 def test_xgpio_cable():
     print('\nTesting PMOD XGPIO loop ...')
@@ -54,7 +54,7 @@ def test_xgpio_cable():
         else:
             raise AssertionError("Cable unrecognizable.")
 
-@pytest.mark.run(order=18) 
+@pytest.mark.run(order=28) 
 @pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
 def test_rshift1():
     """
@@ -73,7 +73,7 @@ def test_rshift1():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i)
 
-@pytest.mark.run(order=19) 
+@pytest.mark.run(order=29) 
 @pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run") 
 def test_rshift0():
     print('\nGenerating tests for right shifting a \"0\"...')
@@ -89,7 +89,7 @@ def test_rshift0():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i) 
 
-@pytest.mark.run(order=20) 
+@pytest.mark.run(order=30) 
 @pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
 def test_lshift1():
     print('\nGenerating tests for left shifting a \"1\"...')
@@ -105,7 +105,7 @@ def test_lshift1():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
-@pytest.mark.run(order=21) 
+@pytest.mark.run(order=31) 
 @pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
 def test_lshift0():
     print('\nGenerating tests for left shifting a \"0\"...')
@@ -121,7 +121,7 @@ def test_lshift0():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
-@pytest.mark.run(order=22) 
+@pytest.mark.run(order=32) 
 @pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
 def test_random():
     """

@@ -1,8 +1,3 @@
-
-
-
-
-
 ## Ubuntu Core image for Zybo
 
 All images including the latest are available at: [file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/](file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/)
@@ -68,9 +63,137 @@ sudo chmod +x /root/0_network.sh /root/1_jupyter_config.sh  /root/2_jupyter_serv
 
 sudo cp ~xpp/.bash* /root
 sudo cp -r ~xpp/.jupyter /root
+```
+
+
+### Complete Steps to rebuild SDCard Boot Parition
+
+
+
+#### FSBL
+```
+# TBD - using AV Overlay FSBL
+```
+
+#### Bitstream
+```
+# TBD - using pmod.bit
+```
+#### U-boot
+```
+source <Path to Vivado>/settings64.sh
+git clone https://github.com/xilinx/u-boot-xlnx
+
+cd u-boot-xlnx
+sed -i.bak '/ramdisk_image/d' include/configs/zynq-common.h
+make clean zynq_zybo_config
+make
+mv u-boot u-boot.elf
+```
+
+#### Linux Kernel (uImage)
+```
+source <Path to Vivado>/settings64.sh
+git clone https://github.com/Xilinx/linux-xlnx.git --branch xlnx_3.17 --single-branch
+
+cd linux-xlnx
+export PATH=${PATH}:`pwd`/../u-boot-xlnx/tools/
+make ARCH=arm xilinx_zynq_defconfig 
+
+make ARCH=arm menuconfig
+   -- enable drivers
+
+make ARCH=arm UIMAGE_LOADADDR=0x8000 CROSS_COMPILE=arm-xilinx-linux-gnueabi- uImage modules -j32
+
+rm -rf ../linux_modules
+make ARCH=arm INSTALL_MOD_PATH=../linux_modules CROSS_COMPILE=arm-xilinx-linux-gnueabi- modules_install 
+make ARCH=arm headers_install
+```
+
+#### Boot Partition Assembly
+``` 
+source <Path to Vivado>/settings64.sh
+mkdir sdcard
+
+echo "image : {"                  > boot.bif
+echo "[bootloader]fsbl/fsbl.elf"  >> boot.bif
+echo "u-boot-xlnx/u-boot.elf"     >> boot.bif
+echo "}"                          >> boot.bif  
+
+bootgen -image boot.bif -w on -o i sdcard/boot.bin
+cp linux-xlnx/arch/arm/boot/uImage sdcard/
+cp devicetree/devicetree.dtb sdcard/
+```
+#### DeviceTree
+```
+TBD - Use standard Zybo Device Tree TBD
+```
+#### Partition Your MicroSD Card
+
+Follow step 8 at link below to partition SDCard.  Many other online references exist as well on how to partition an SDCard.
+
+References:
+- http://www.dbrss.org/zybo/tutorial4.html (Step 8)
+
+
+#### Ubuntu root filesystem building
+
+References:
+- http://hunterhu.com/1/post/2015/02/embedded-rootfs-from-ubuntu-core-rootfs.html
+- http://gnu-linux.org/building-ubuntu-rootfs-for-arm.html
 
 
 ```
+# These steps require root access from an Ubuntu machine
+#    For corporate users - this typcailly means having a Virtual Machine
+
+# All steps were done using VMWare and Ubuntu 32b 14.04.3 - ubuntu-14.04.3-desktop-i386.iso
+# SDCard prepartitioned into BOOT (FAT32) and rootfs (EXT4) and accessible from VM
+
+apt-get install qemu-user-static
+export TGZ_PATH=<PATH_TO>/ubuntu-core-15.10-core-armhf.tar.gz
+export CHROOT_IN_PATH=<PATH_TO>/chroot_in.sh
+export CHROOT_OUT_PATH=/chroot_out.sh
+
+tar -zxpf $TGZ_PATH
+
+cp /usr/bin/qemu-arm-static usr/bin
+cp $CHROOT_IN_PATH .
+cp $CHROOT_OUT_PATH .
+
+./chroot_in.sh
+
+chmod 755 /
+apt-get install apt-utils 
+echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+apt-get update
+apt-get upgrade
+apt-get install sudo net-tools build-essential ssh ethtool \
+iputils-ping rsyslog language-pack-en-base bash-completion \
+nano vim policykit-1 lsof resolvconf python3-dev \
+python3-setuptools gfortran ntp vim lsof git sysstat imagemagick
+
+adduser xpp; adduser xpp sudo
+apt-get upgrade
+
+echo "zybo" > /etc/hostname
+echo "127.0.0.1       localhost" > /etc/hosts
+echo "127.0.1.1       zybo"     >> /etc/hosts
+
+./chroot_out.sh
+exit
+cd ..
+
+# Disconnect the SDCard from VM
+```
+
+
+
+
+
+
+
 ## Installing armhf build of packages not in ubuntu mainline
 Sometimes you may find that ubuntu official repos does not include certain pakcages for the armhf architecture - i.e. the usual `apt-get` will not work. However, it may be that these packages are available as a yet-unofficial build on ubuntu's development website: [https://launchpad.net/ubuntu/wily/armhf](https://launchpad.net/ubuntu/wily/armhf). If so, simply `wget` the `.deb` package and then install it using `dpkg`.
 For instance, the `i2c-tools` and `libi2c-dev` are not available using normal `apt-get`, but there is still an armhf build for ubuntu 15.10:

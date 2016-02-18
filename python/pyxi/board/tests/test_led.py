@@ -12,7 +12,7 @@ from pyxi.test.util import user_answer_yes
 from time import sleep
 
 
-@pytest.mark.run(order=2)
+@pytest.mark.run(order=5)
 def test_led0():
     """Instantiates a LED object on index 0 and performs some actions 
     on it to test LED's API, requesting user confirmation."""     
@@ -35,7 +35,7 @@ def test_led0():
     assert led.read()==1
     led.off()
 
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=6)
 def test_toggle_leds():
     """Instantiates 4 LED objects and toggles them.""" 
     leds = [LED(index) for index in range(0, 4)] 

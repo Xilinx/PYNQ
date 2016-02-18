@@ -1,6 +1,3 @@
-"""Utilities for XPP pytest"""
-
-
 __author__      = "Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "yunq@xilinx.com"

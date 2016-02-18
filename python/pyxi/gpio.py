@@ -13,7 +13,8 @@ class GPIO:
     """
     
     def __init__(self, gpio_index, direction='in'):
-        assert direction in ('in','out'), "direction should be in or out"
+        if not direction in ('in','out'):
+            raise ValueError("direction should be in or out")
         self.index = gpio_index
         self.direction = direction
         self.path = '/sys/class/gpio/gpio%d/' % gpio_index
@@ -51,7 +52,8 @@ class GPIO:
     """
 
     def read(self):
-        assert self.direction is 'in', "cannot read gpio output"
+        if not self.direction is 'in':
+            raise ValueError("cannot read gpio output")
         try:
             with open(self.path + 'value', 'r') as f:
                 return int(f.read())
@@ -59,8 +61,10 @@ class GPIO:
             print('cannot read from',self.path)
 
     def write(self, value): 
-        assert self.direction is 'out', "cannot write gpio input"
-        assert value in (0,1), "can only write 0 or 1"
+        if not self.direction is 'out':
+            raise ValueError("cannot write gpio input")
+        if not value in (0,1):
+            raise ValueError("can only write 0 or 1")
         try:
             with open(self.path + 'value', 'w') as f:
                 f.write(str(value))

@@ -1,7 +1,11 @@
 """This module defines constants internally used by the onboard gpios."""
 
-# Some constants to correctly handle the onboard GPIOs
-BTNS_ADDR = 0x41210000
-SWS_ADDR  = 0x41200000
-LEDS_ADDR = 0x41200000
+from pyxi import OVERLAY
+
+ol = OVERLAY()
+ol.add_bitstream('pmod.bit')
+
+BTNS_ADDR = int(ol.get_mmio_base('pmod.bit','btns'),16)
+SWS_ADDR  = int(ol.get_mmio_base('pmod.bit','sws'),16)
+LEDS_ADDR = int(ol.get_mmio_base('pmod.bit','leds'),16)
 LEDS_OFFSET = 0x8

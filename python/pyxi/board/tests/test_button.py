@@ -9,7 +9,7 @@ __email__       = "yunq@xilinx.com"
 import pytest
 from pyxi.board.button import BUTTON
 
-@pytest.mark.run(order=5)
+@pytest.mark.run(order=8)
 def test_btn_all():
     """TestCase for the Button class and its wrapper functions.
     Instantiates 4 Button objects on index 0 ~ 3 and performs some 

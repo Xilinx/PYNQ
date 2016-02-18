@@ -2,6 +2,6 @@
 
 from .gpio import GPIO
 from .mmio import MMIO
-from .pl import PL, bitstream
+from .pl import PL, BITSTREAM, OVERLAY
 
-__all__ = ['board', 'pmods', 'audio', 'video']
+__all__ = ['test', 'board', 'pmods', 'audio', 'video']
