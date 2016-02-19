@@ -41,8 +41,8 @@ class Frame(object):
         if 0 <= y < self.height and 0 <= x < self.width:
             offset = 3 * (y * 1920 + x)
             # To return a tuple (r,g,b), we need to take into account that 
-            # the original frame stores pixels as GRB
-            # so @0 there is Green, @1 there is Red and @2 there is blue
+            # the original frame stores pixels as GBR
+            # so @0 there is Green, @1 there is Blue and @2 there is Red
             return self.frame[offset + 2], self.frame[offset], \
                    self.frame[offset + 1]
         else:
