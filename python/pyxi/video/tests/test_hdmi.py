@@ -12,8 +12,8 @@ from pyxi.test.util import user_answer_yes
 
 flag = user_answer_yes("\nHDMI port connected to a video source?")
 
-@pytest.mark.run(order=37)  
-@pytest.mark.skipif(not flag, reason="need HDMI connected")  
+@pytest.mark.run(order=37)
+@pytest.mark.skipif(not flag, reason="need HDMI connected")
 def test_hdmi():
     """TestCase for the HDMI class with direction set as input."""
     hdmi = HDMI('in')

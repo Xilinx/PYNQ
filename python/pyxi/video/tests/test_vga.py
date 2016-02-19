@@ -13,8 +13,8 @@ from pyxi.test.util import user_answer_yes
 flag = user_answer_yes("\nVGA port connected to a screen?")
 vga = None
 
-@pytest.mark.run(order=38)  
-@pytest.mark.skipif(not flag, reason="need VGA connected")  
+@pytest.mark.run(order=38)
+@pytest.mark.skipif(not flag, reason="need VGA connected")
 def test_vga():
     """TestCase for the VGA class with direction set as output."""
     global vga
@@ -25,12 +25,12 @@ def test_vga():
     vga.start()
     assert vga.state()==1, 'wrong VGA state'
     
-    print("Loading ...")
+    print("\nLoading ...")
     vga.frame_index_next()
 
-@pytest.mark.run(order=39)  
-@pytest.mark.skipif(not flag, reason="need VGA connected") 
-def test_pattern_frame(): 
+@pytest.mark.run(order=39)
+@pytest.mark.skipif(not flag, reason="need VGA connected")
+def test_pattern_frame():
     global vga
     frame = vga.frame()
     index = vga.frame_index()
@@ -43,9 +43,9 @@ def test_pattern_frame():
     xcurrentint = 1
     for xcoi in range(frame.width):
         if xcurrentint > 7:
-            wred = 255
-            wblue = 255
-            wgreen = 255
+            wred = 0
+            wblue = 0
+            wgreen = 0
         else:
             if xcurrentint & 0b001:
                 wred = int(fcolor)
@@ -72,9 +72,9 @@ def test_pattern_frame():
 
     assert user_answer_yes("\nColor bar pattern showing on screen?")        
 
-@pytest.mark.run(order=40)  
-@pytest.mark.skipif(not flag, reason="need VGA connected") 
-def test_pattern_frame_raw(): 
+@pytest.mark.run(order=40)
+@pytest.mark.skipif(not flag, reason="need VGA connected")
+def test_pattern_frame_raw():
     global vga
     frame_raw = vga.frame_raw()
     index = vga.frame_index()             
@@ -136,8 +136,8 @@ def test_pattern_frame_raw():
 
     assert user_answer_yes("\nBlended pattern showing on screen?")               
 
-@pytest.mark.run(order=41)  
-@pytest.mark.skipif(not flag, reason="need VGA connected") 
+@pytest.mark.run(order=41)
+@pytest.mark.skipif(not flag, reason="need VGA connected")
 def test_vga_mode():
     global vga
     assert vga.mode(0) is not "640x480@60Hz", 'wrong VGA mode'
@@ -146,8 +146,8 @@ def test_vga_mode():
     assert vga.mode(3) is not "1280x1024@60Hz", 'wrong VGA mode'
     assert vga.mode(4) is not "1920x1080@60Hz", 'wrong VGA mode'
 
-@pytest.mark.run(order=42)  
-@pytest.mark.skipif(not flag, reason="need VGA connected") 
+@pytest.mark.run(order=42)
+@pytest.mark.skipif(not flag, reason="need VGA connected")
 def test_vga_state():
     global vga
     vga.stop()

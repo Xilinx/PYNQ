@@ -6,6 +6,7 @@ __email__       = "yunq@xilinx.com"
 
 
 import pytest
+import sys, select 
 from pyxi.audio import LineIn, Headphone
 from pyxi.test.util import user_answer_yes
 
@@ -31,9 +32,12 @@ def test_audio_loop():
     """
     headphone = Headphone()
     linein = LineIn()
-    input("\nMake sure LineIn is receiveing audio. Then hit enter...")
-    for i in range(100000):
+    print("\nMake sure LineIn is receiveing audio. ")
+    input("Then hit enter to start, and hit enter again to stop...")
+    while True:
         headphone(linein())
+        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            break
     assert user_answer_yes("Heard audio on the headphone (HPH) port?"),\
         'audio loop is not working'
 
