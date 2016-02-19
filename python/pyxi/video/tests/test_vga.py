@@ -1,7 +1,6 @@
 
 __author__      = "Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2015, Xilinx"
-__maintainer__  = "Giuseppe Natale"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
@@ -21,7 +20,7 @@ def test_vga():
     vga = VGA('out')
     assert vga.direction is 'out', 'VGA direction is wrong'
     vga.mode(3)
-    assert vga.mode(3) is not "1280x1024@60Hz", 'wrong VGA mode'
+    assert vga.mode(3) == "1280x1024@60Hz", 'wrong VGA mode'
     vga.start()
     assert vga.state()==1, 'wrong VGA state'
     
@@ -140,11 +139,11 @@ def test_pattern_frame_raw():
 @pytest.mark.skipif(not flag, reason="need VGA connected")
 def test_vga_mode():
     global vga
-    assert vga.mode(0) is not "640x480@60Hz", 'wrong VGA mode'
-    assert vga.mode(1) is not "800x600@60Hz", 'wrong VGA mode'
-    assert vga.mode(2) is not "1280x720@60Hz", 'wrong VGA mode'
-    assert vga.mode(3) is not "1280x1024@60Hz", 'wrong VGA mode'
-    assert vga.mode(4) is not "1920x1080@60Hz", 'wrong VGA mode'
+    assert vga.mode(0) == "640x480@60Hz", 'wrong VGA mode'
+    assert vga.mode(1) == "800x600@60Hz", 'wrong VGA mode'
+    assert vga.mode(2) == "1280x720@60Hz", 'wrong VGA mode'
+    assert vga.mode(3) == "1280x1024@60Hz", 'wrong VGA mode'
+    assert vga.mode(4) == "1920x1080@60Hz", 'wrong VGA mode'
 
 @pytest.mark.run(order=42)
 @pytest.mark.skipif(not flag, reason="need VGA connected")
