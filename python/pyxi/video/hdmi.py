@@ -7,6 +7,7 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from . import _constants, _video
+from .frame import Frame
 
 
 class HDMI(object):
@@ -90,7 +91,7 @@ class HDMI(object):
             Can be used to share the same frame buffer among different
             pyxi.video instances.
             """
-            self.stop() # avoid odd behaviors of the DMA
+
         else:
             raise LookupError("Currently HDMI supports direction='in' only.")    
 
@@ -107,4 +108,8 @@ class HDMI(object):
         return Frame(self.frame_width(), self.frame_height(), buf)
 
     def __del__(self):
-        self.stop() # avoid odd behaviors of the DMA
+        self.stop() # may avoid odd behaviors of the DMA
+        if hasattr(self, '_capture'):
+            del self._capture
+        elif hasattr(self, '_display'):
+            del self._display

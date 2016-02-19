@@ -105,10 +105,8 @@ static int _audio_init(_audioObject *self, PyObject *args){
 static PyObject *_audio_str(_audioObject *self){
     char str[200];
     char *state = self->muted? "Muted":"Unmuted";
-    /*sprintf(str,"Audio Controller\r\n   MemAddr: 0x%x \r\n   EMIO Pin: %d \r\n   State: %s \r\n   I2C MemAddr: 0x%x", 
-            self->baseaddr, self->emioPin, state, 
-            self->iic->Config.BaseAddress);*/
-    sprintf(str,"Audio Controller\r\n   I2S MemAddr: 0x%x \r\n   GPIO Pin: %d \r\n   State: %s I2C id: %d", 
+    sprintf(str,"Audio Controller\r\n   I2S MemAddr: 0x%x \r\n   \
+            GPIO Pin: %d \r\n   State: %s I2C id: %d", 
             self->baseaddr, self->emioPin, state, self->iic);
     return Py_BuildValue("s",str);
 }
@@ -201,7 +199,8 @@ static PyMethodDef _audio_methods[] = {
      "Get the current content of both the L and R channel as a list = (L,R)."
     },
     {"output", (PyCFunction)_audio_output, METH_VARARGS,
-     "Take a list = (L,R) and outputs the value on both the left and right channels."
+     "Take a list = (L,R) and outputs the value on both the left and \
+      right channels."
     },
     {"toggle_mute", (PyCFunction)_audio_toggle_mute, METH_VARARGS,
      "Mute/unmute the audio codec."

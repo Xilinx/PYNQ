@@ -62,6 +62,8 @@ typedef struct{
  * deallocator
  */
 static void videocapture_dealloc(videocaptureObject* self){
+    VideoStop(self->capture);
+
     Py_Del_XAxiVdma(self->capture->vdma);
     Py_Del_XVtc(&(self->capture->vtc));
     Py_Del_XGpio(self->capture->gpio);
@@ -109,12 +111,12 @@ static int videocapture_init(videocaptureObject *self, PyObject *args){
             }
     }
 
-    int Status = VideoInitialize(self->capture, vdma_dict, gpio_dict, 
+    int status = VideoInitialize(self->capture, vdma_dict, gpio_dict, 
                                  vtcBaseAddress, self->frame->frame_buffer, 
                                  STRIDE);
-    if (Status != XST_SUCCESS){
+    if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
-                     "video.capture initialization failed [%d]", Status);
+                     "video.capture initialization failed [%d]", status);
         return -1;
     }
     return 0;
@@ -128,7 +130,9 @@ static int videocapture_init(videocaptureObject *self, PyObject *args){
 static PyObject *videocapture_str(videocaptureObject *self){
     VtcDetect(self->capture);
     char str[200];
-    sprintf(str, "Video Capture \r\n   State: %d \r\n   Current Index: %d \r\n   Current Width: %d \r\n   Current Height: %d", 
+    sprintf(str, "Video Capture \r\n   State: %d \r\n   \
+                  Current Index: %d \r\n   Current Width: %d \r\n   \
+                  Current Height: %d", 
             self->capture->state, self->capture->curFrame, 
             self->capture->timing.HActiveVideo, 
             self->capture->timing.HActiveVideo);
@@ -161,7 +165,12 @@ static PyObject *videocapture_frame_index(videocaptureObject *self,
             return NULL;
         if(newIndex >= 0 && newIndex < NUM_FRAMES){       
             self->capture->curFrame = newIndex;
-            VideoChangeFrame(self->capture, newIndex);
+            int status = VideoChangeFrame(self->capture, newIndex);
+            if (status != XST_SUCCESS){
+                PyErr_Format(PyExc_SystemError, 
+                             "unable to change frame [%d]", status);
+                return NULL;
+            }
             Py_RETURN_NONE;
         }
         else{
@@ -183,7 +192,12 @@ static PyObject *videocapture_frame_index_next(videocaptureObject *self){
     unsigned int newIndex = self->capture->curFrame + 1;
      if(newIndex >= NUM_FRAMES)
         newIndex = 0;         
-    VideoChangeFrame(self->capture, newIndex);   
+    int status = VideoChangeFrame(self->capture, newIndex);   
+    if (status != XST_SUCCESS){
+        PyErr_Format(PyExc_SystemError, 
+                     "unable to change frame [%d]", status);
+        return NULL;
+    }
     return Py_BuildValue("I", self->capture->curFrame);
 }
 
@@ -209,7 +223,12 @@ static PyObject *videocapture_frame_height(videocaptureObject *self){
  * start()
  */
 static PyObject *videocapture_start(videocaptureObject *self){
-    VideoStart(self->capture);
+    int status = VideoStart(self->capture);
+    if (status != XST_SUCCESS){
+        PyErr_Format(PyExc_SystemError, 
+                     "unable to start capture device [%d]", status);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -217,7 +236,12 @@ static PyObject *videocapture_start(videocaptureObject *self){
  * stop()
  */
 static PyObject *videocapture_stop(videocaptureObject *self){
-    VideoStop(self->capture);
+    int status = VideoStop(self->capture);
+    if (status != XST_SUCCESS){
+        PyErr_Format(PyExc_SystemError, 
+                     "unable to stop capture device [%d]", status);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -256,10 +280,11 @@ static PyObject *videocapture_frame(videocaptureObject *self, PyObject *args){
  */
 static PyMethodDef videocapture_methods[] = {
     {"frame_index", (PyCFunction)videocapture_frame_index, METH_VARARGS,
-     "Get current index or if the argument is specified set it to a new one within the allowed range."
+     "Get current index or if the argument is specified set it to a new one \
+      within the allowed range."
     },
-    {"frame_index_next", (PyCFunction)videocapture_frame_index_next, METH_VARARGS,
-     "Set the frame index to the next one and return it."
+    {"frame_index_next", (PyCFunction)videocapture_frame_index_next, 
+     METH_VARARGS, "Set the frame index to the next one and return it."
     },
     {"frame_width", (PyCFunction)videocapture_frame_width, METH_VARARGS,
      "Get the current frame width."

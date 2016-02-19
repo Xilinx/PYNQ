@@ -150,7 +150,10 @@ int VideoStart(VideoCapture *videoPtr)
     if(videoPtr->timing.VActiveVideo == 0 
        || videoPtr->timing.HActiveVideo == 0
        || videoPtr->state == VIDEO_DISCONNECTED){
-        printf("please connect to a valid video source before starting\n");
+            PyErr_Format(PyExc_SystemError, "Please connect to a valid video \
+                source before starting.\n The cable might be disconnected or \
+                some previous errors prevent the VTC to properly detect the \
+                source resolution.\n");
         return XST_NO_DATA;
     }
     if (videoPtr->state == VIDEO_STREAMING)
@@ -187,7 +190,8 @@ int VideoStart(VideoCapture *videoPtr)
         return XST_FAILURE;
     }
     // printf("vdma setbuffer\n\r");
-    Status = XAxiVdma_DmaSetBufferAddr(videoPtr->vdma, XAXIVDMA_WRITE, videoPtr->vdmaConfig.FrameStoreStartAddr);
+    Status = XAxiVdma_DmaSetBufferAddr(videoPtr->vdma, XAXIVDMA_WRITE, 
+             videoPtr->vdmaConfig.FrameStoreStartAddr);
     if (Status != XST_SUCCESS)
     {
         printf("Write channel set buffer address failed %d\r\n", Status);
@@ -316,7 +320,9 @@ int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict,
         timeout++;
     }
     if(timeout == 1000000000){
-        printf("Unable to complete initialization, no video source detected. Check if video source is active and retry.\n");
+        PyErr_Format(PyExc_SystemError, "Unable to complete initialization, \
+                     no video source detected.\n Check if video source is \
+                     active and retry.\n");
         return XST_FAILURE;
     }
     XVtc_Config vtcConfig = Py_XVtc_LookupConfig(videoPtr->vtcBaseAddress);

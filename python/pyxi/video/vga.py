@@ -7,6 +7,7 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from . import _constants, _video
+from .frame import Frame
 
 
 class VGA(object):
@@ -106,7 +107,6 @@ class VGA(object):
             pyxi.video instances.
             """
             
-            self.stop() # avoid odd behaviors of the DMA
         else:
             raise LookupError("Currently VGA supports direction='out' only.")
 
@@ -128,4 +128,8 @@ class VGA(object):
                          self._display.frame())
 
     def __del__(self):
-        self.stop() # avoid odd behaviors of the DMA
+        self.stop() # may avoid odd behaviors of the DMA
+        if hasattr(self, '_capture'):
+            del self._capture
+        elif hasattr(self, '_display'):
+            del self._display

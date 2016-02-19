@@ -62,6 +62,8 @@ typedef struct{
  * deallocator
  */
 static void videodisplay_dealloc(videodisplayObject* self){
+    DisplayStop(self->display);
+
     freeVirtualAddress(self->display->dynClkAddr);
     Py_Del_XAxiVdma(self->display->vdma);
     Py_Del_XVtc(self->display->vtc);
@@ -109,12 +111,12 @@ static int videodisplay_init(videodisplayObject *self, PyObject *args){
             }     
     }
 
-    int Status = DisplayInitialize(self->display, vdma_dict, vtcBaseAddress, 
+    int status = DisplayInitialize(self->display, vdma_dict, vtcBaseAddress, 
                                    dynClkAddress, fHdmi, 
                                    self->frame->frame_buffer, STRIDE);
-    if (Status != XST_SUCCESS){
+    if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
-                     "video.display initialization failed [%d]", Status);
+                     "video.display initialization failed [%d]", status);
         return -1;
     }  
     return 0;
@@ -126,7 +128,8 @@ static int videodisplay_init(videodisplayObject *self, PyObject *args){
  */
 static PyObject *videodisplay_str(videodisplayObject *self){
     char str[200];
-    sprintf(str, "Video Dsiplay \r\n   State: %d \r\n   Current Index: %d \r\n   Current Mode: %s", 
+    sprintf(str, "Video Dsiplay \r\n   State: %d \r\n   \
+                  Current Index: %d \r\n   Current Mode: %s", 
             self->display->state, self->display->curFrame, 
             self->display->vMode.label);
     return Py_BuildValue("s",str);
@@ -180,7 +183,12 @@ static PyObject *videodisplay_frame_index_next(videodisplayObject *self){
     unsigned int newIndex = self->display->curFrame + 1;
      if(newIndex >= NUM_FRAMES)
         newIndex = 0;         
-    DisplayChangeFrame(self->display, newIndex);   
+    int status = DisplayChangeFrame(self->display, newIndex);   
+    if (status != XST_SUCCESS){
+        PyErr_Format(PyExc_SystemError, 
+                     "unable to change frame [%d]", status);
+        return NULL;
+    }
     return Py_BuildValue("I", self->display->curFrame);
 }
 
@@ -204,7 +212,12 @@ static PyObject *videodisplay_frame_height(videodisplayObject *self){
  * start()
  */
 static PyObject *videodisplay_start(videodisplayObject *self){
-    DisplayStart(self->display);
+    int status = DisplayStart(self->display);
+    if (status != XST_SUCCESS){
+        PyErr_Format(PyExc_SystemError, 
+                     "unable to start display device [%d]", status);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -212,7 +225,12 @@ static PyObject *videodisplay_start(videodisplayObject *self){
  * stop()
  */
 static PyObject *videodisplay_stop(videodisplayObject *self){
-    DisplayStop(self->display);
+    int status = DisplayStop(self->display);
+    if (status != XST_SUCCESS){
+        PyErr_Format(PyExc_SystemError, 
+                     "unable to stop display device [%d]", status);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -306,7 +324,8 @@ static PyObject *videodisplay_frame(videodisplayObject *self, PyObject *args){
  */
 static PyMethodDef videodisplay_methods[] = {
     {"frame_index", (PyCFunction)videodisplay_frame_index, METH_VARARGS,
-     "Get current index or if the argument is specified set it to a new one within the allowed range."
+     "Get current index or if the argument is specified set it to a new one \
+      within the allowed range."
     },
     {"frame_index_next", (PyCFunction)videodisplay_frame_index_next, METH_VARARGS,
      "Set the frame index to the next one and return it."
@@ -327,10 +346,12 @@ static PyMethodDef videodisplay_methods[] = {
      "Get the state of the display controller."
     },
     {"mode", (PyCFunction)videodisplay_mode, METH_VARARGS,
-     "Return current mode label, and set a new one if new_mode_index is specified."
+     "Return current mode label, and set a new one if new_mode_index \
+      is specified."
     },
     {"frame", (PyCFunction)videodisplay_frame, METH_VARARGS,
-     "Get the current frame (or the one at 'index' if specified) or set the frame if 'new_frame' is specified."
+     "Get the current frame (or the one at 'index' if specified) or set \
+      the frame if 'new_frame' is specified."
     },
     {NULL}  /* Sentinel */
 };

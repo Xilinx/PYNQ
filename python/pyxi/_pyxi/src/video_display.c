@@ -306,8 +306,6 @@ int DisplayStart(DisplayCtrl *dispPtr)
 		return XST_FAILURE;
 	}
 
-
-
 	dispPtr->state = DISPLAY_RUNNING;
 
 	return XST_SUCCESS;
@@ -394,7 +392,6 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
 
     XAxiVdma_Config vdmaCfg = Py_XAxiVdma_LookupConfig(vdmaDict);
 	dispPtr->vdma = Py_XAxiVdma_CfgInitialize(&vdmaCfg);
-
 
 	/*
 	 * Initialize the VDMA Read configuration struct

@@ -43,8 +43,8 @@ def test_audio_mute():
     """ Tests is_muted() and toggle_mute() methods.
     """ 
     headphone = Headphone()
-    is_muted = headphone.controller.is_muted() 
+    is_muted = headphone.controller.muted 
     headphone.controller.toggle_mute()
-    assert not is_muted is headphone.controller.is_muted(), \
+    assert not is_muted is headphone.controller.muted, \
         'audio is not properly muted'
 

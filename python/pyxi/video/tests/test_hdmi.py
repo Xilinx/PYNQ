@@ -20,7 +20,7 @@ def test_hdmi():
     print("\nLoading ...")
     assert hdmi.direction is 'in', 'HDMI direction is wrong'
     sleep(10)
-
+    hdmi.start()
     frame_raw = hdmi.frame_raw()
     assert len(frame_raw)==1920*1080*3, 'wrong frame size'
 
@@ -28,3 +28,4 @@ def test_hdmi():
     hdmi.frame_index(index + 1)
     assert not hdmi.frame_index()==index, 'frame index is not changed'        
 
+    del hdmi
