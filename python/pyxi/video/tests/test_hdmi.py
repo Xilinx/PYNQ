@@ -17,7 +17,7 @@ flag = user_answer_yes("\nHDMI port connected to a video source?")
 def test_hdmi():
     """TestCase for the HDMI class with direction set as input."""
     hdmi = HDMI('in')
-    print("Loading ...")
+    print("\nLoading ...")
     assert hdmi.direction is 'in', 'HDMI direction is wrong'
     sleep(10)
 

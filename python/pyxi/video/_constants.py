@@ -13,7 +13,8 @@ ol = OVERLAY()
 ol.add_bitstream('audiovideo.bit')
 
 VDMA_DICT = {
-    'BASEADDR': int(ol.get_mmio_base('audiovideo.bit','axi_vdma_0'),16),
+    'BASEADDR': int(ol.get_mmio_base('audiovideo.bit',\
+                                        'SEG_axi_vdma_0_Reg'),16),
     'NUM_FSTORES': 3,
     'INCLUDE_MM2S': 1,
     'INCLUDE_MM2S_DRE':0,
