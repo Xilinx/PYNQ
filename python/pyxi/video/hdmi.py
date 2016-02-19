@@ -90,7 +90,7 @@ class HDMI(object):
             Can be used to share the same frame buffer among different
             pyxi.video instances.
             """
-
+            self.stop() # avoid odd behaviors of the DMA
         else:
             raise LookupError("Currently HDMI supports direction='in' only.")    
 
@@ -101,7 +101,10 @@ class HDMI(object):
         """
         buf = None
         if index is None:
-            buf = self._capture.frame(self)
+            buf = self._capture.frame()
         else:
-            buf = self._capture.frame(self, index)
+            buf = self._capture.frame(index)
         return Frame(self.frame_width(), self.frame_height(), buf)
+
+    def __del__(self):
+        self.stop() # avoid odd behaviors of the DMA
