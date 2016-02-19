@@ -105,7 +105,8 @@ class VGA(object):
             Can be used to share the same frame buffer among different
             pyxi.video instances.
             """
-
+            
+            self.stop() # avoid odd behaviors of the DMA
         else:
             raise LookupError("Currently VGA supports direction='out' only.")
 
@@ -125,3 +126,6 @@ class VGA(object):
         else:
             return Frame(self.frame_width(), self.frame_height(), 
                          self._display.frame())
+
+    def __del__(self):
+        self.stop() # avoid odd behaviors of the DMA
