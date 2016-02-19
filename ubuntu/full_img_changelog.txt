@@ -41,3 +41,9 @@ latest image available at: file://xco-smb/gnatale/public/
              2) updated devicetree and uImage to work with AV overlay
                 - the kernel is compiled from original xilinx repo with xlnk drivers enabled
              3) installed pytest and pytest-ordering using pip
+
+02-19-2016 - <giuseppe.natale@xilinx.com>
+             updated pyxi to latest version on repo. Now all regression tests
+             are succesfully passed, including AV overlay
+             Added Liam's sobel edge detection filter as a notebook after converting it
+             to CPython with a few changes in the source
