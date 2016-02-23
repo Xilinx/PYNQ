@@ -100,7 +100,9 @@ exit
 ```
 Note: This step should be done after the bitstream has been generated.
 If Vivado GUI is used to generate the bitstream, first choose "export hardware" and "launch SDK".
-Then create an application project with proper settings, using the zynq_fsbl as the template.
+Then create an application project with proper settings, using the "Zynq FSBL" as the template.
+More information on SDK batch mode can be found at:
+http://www.xilinx.com/support/documentation/sw_manuals/xilinx2014_3/SDK_Doc/reference/sdk_u_batch_mode_commands.htm#26190
 
 #### U-boot
 ```
