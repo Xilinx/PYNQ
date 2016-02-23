@@ -90,12 +90,12 @@ xsdk -batch
 sdk set_workspace <Path to the workspace>
 sdk create_hw_project -name hw_0 -hwspec ../mipy_zybo_video.runs/impl_1/top.hdf
 sdk create_bsp_project -name bsp_0 -hwproject hw_0 -proc ps7_cortexa9_0 -os standalone
-create_project -type app -name zybo_fsbl -hwproject hw_0 -proc ps7_cortexa9_0 -os standalone -lang C -app {Zynq FSBL} -bsp bsp_0
-build -type bsp bsp_0
-build -type app zybo_fsbl
-clean -type bsp bsp_0
-clean -type all
-build -type all
+sdk create_project -type app -name zybo_fsbl -hwproject hw_0 -proc ps7_cortexa9_0 -os standalone -lang C -app {Zynq FSBL} -bsp bsp_0
+sdk build -type bsp bsp_0
+sdk build -type app zybo_fsbl
+sdk clean -type bsp bsp_0
+sdk clean -type all
+sdk build -type all
 exit
 ```
 Note: This step should be done after the bitstream has been generated.
