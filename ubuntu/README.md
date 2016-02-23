@@ -214,7 +214,16 @@ cd ..
 # Disconnect the SDCard from VM
 ```
 
-
+### Set up swap partition 
+```
+if ! grep -Fxq /swap $target; then
+    dd if=/dev/zero of=/swap bs=1M count=512
+    mkswap /swap
+    echo '/swap none swap sw 0 0' >> $target
+else
+    echo swap partition already configured
+fi
+```
 
 
 
