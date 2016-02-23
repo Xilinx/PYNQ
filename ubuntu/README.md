@@ -220,7 +220,7 @@ cd ..
 if ! grep -Fxq /swap /etc/fstab; then
     dd if=/dev/zero of=/swap bs=1M count=1024
     mkswap /swap
-    echo '/swap none swap sw 0 0' >> $target
+    echo '/swap none swap sw 0 0' >> /etc/fstab
 else
     echo swap partition already configured
 fi
