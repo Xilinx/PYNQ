@@ -216,8 +216,9 @@ cd ..
 
 ### Set up swap partition 
 ```
-if ! grep -Fxq /swap $target; then
-    dd if=/dev/zero of=/swap bs=1M count=512
+# a 1024MB swap partition will be created, but only if a swap partition has not been created yet
+if ! grep -Fxq /swap /etc/fstab; then
+    dd if=/dev/zero of=/swap bs=1M count=1024
     mkswap /swap
     echo '/swap none swap sw 0 0' >> $target
 else
