@@ -68,17 +68,40 @@ sudo cp -r ~xpp/.jupyter /root
 
 ### Complete Steps to rebuild SDCard Boot Parition
 
+#### Bitstream
+```
+source <Path to Vivado>/settings64.sh
+cd <Path to the folder containing the .tcl file>
+vivado -mode tcl
+source pmod.tcl
 
+write_sysdef -hwdef "./project_1.runs/impl_1/top.hwdef" -bitfile "./project_1.runs/impl_1/top.bit" \
+    -meminfo "./project_1.runs/impl_1/top_bd.bmm" -file "./project_1.runs/impl_1/top.hdf"
+exit
+```
+Note: This is an example using the "pmod.tcl" file.
+The bitstream can also be generated using Vivado GUI.
 
 #### FSBL
 ```
-# TBD - using AV Overlay FSBL
+source <Path to Vivado>/settings64.sh
+cd <Path to the workspace>
+xsdk -batch
+sdk set_workspace <Path to the workspace>
+sdk create_hw_project -name hw_0 -hwspec ../mipy_zybo_video.runs/impl_1/top.hdf
+sdk create_bsp_project -name bsp_0 -hwproject hw_0 -proc ps7_cortexa9_0 -os standalone
+create_project -type app -name zybo_fsbl -hwproject hw_0 -proc ps7_cortexa9_0 -os standalone -lang C -app {Zynq FSBL} -bsp bsp_0
+build -type bsp bsp_0
+build -type app zybo_fsbl
+clean -type bsp bsp_0
+clean -type all
+build -type all
+exit
 ```
+Note: This step should be done after the bitstream has been generated.
+If Vivado GUI is used to generate the bitstream, first choose "export hardware" and "launch SDK".
+Then create an application project with proper settings, using the zynq_fsbl as the template.
 
-#### Bitstream
-```
-# TBD - using pmod.bit
-```
 #### U-boot
 ```
 source <Path to Vivado>/settings64.sh
