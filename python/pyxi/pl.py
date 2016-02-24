@@ -9,7 +9,7 @@ from time import gmtime, strftime
 from xml.etree import ElementTree
 
 class PL:
-    """This class exposes the programmable logic for users."""
+    """ This class exposes the programmable logic for users."""
     
     global bitstream, timestamp
     bitstream = '/home/xpp/src/pyxi/bitstream/pmod.bit'
@@ -19,7 +19,6 @@ class PL:
         euid = os.geteuid()
         if euid != 0:
             raise EnvironmentError('root permissions required.')
-            exit()
           
 class BITSTREAM(PL):
     """This class extends the PL (singleton) class."""
@@ -37,7 +36,6 @@ class BITSTREAM(PL):
         euid = os.geteuid()
         if euid != 0:
             raise EnvironmentError('root permissions required.')
-            exit()
         
         if not isinstance(bs_name, str):
             raise TypeError("bitstream name has to be a string")
@@ -57,12 +55,14 @@ class BITSTREAM(PL):
             f = open(self.bitstream, 'rb')
         except IOError:
             print('cannot open', self.bitstream)
+            raise
             
         # read bitfile into buffer
         try:
             buf = f.read()
         except IOError:
             print('cannot read', self.bitstream)
+            raise
         finally:
             f.close()
         
@@ -72,6 +72,7 @@ class BITSTREAM(PL):
                       "/is_partial_bitstream", 'w')
         except IOError:
             print('cannot open is_partial_bitstream')
+            raise
         else:
             fd.write('0')
         finally:
@@ -82,6 +83,7 @@ class BITSTREAM(PL):
             f = open("/dev/xdevcfg", 'wb')
         except IOError:
             print('cannot open /dev/xdevcfg')
+            raise
         else:
             f.write(buf)
         finally:
@@ -111,7 +113,6 @@ class OVERLAY(PL):
         euid = os.geteuid()
         if euid != 0:
             raise EnvironmentError('root permissions required.')
-            exit()
         
         self.bit_table = {}
     

@@ -8,7 +8,7 @@ import sys
 import struct
 
 class GPIO:
-    """Class to handle (PS) GPIOs in Linux. This is differernt than the PMOD
+    """ Class to handle (PS) GPIOs in Linux. This is differernt than the PMOD
     GPIO class.
     """
     
@@ -22,7 +22,6 @@ class GPIO:
         euid = os.geteuid()
         if euid != 0:
             raise EnvironmentError('root permissions required.')
-            exit()
         
         if not os.path.exists(self.path):
             try:
@@ -30,39 +29,43 @@ class GPIO:
                     f.write(str(self.index))
             except IOError:
                 print('cannot write into /sys/class/gpio/export')
-                exit()
-            
+                raise
+                
         try:
             with open(self.path + 'direction', 'w') as f:
                 f.write(self.direction)
         except IOError:
-            print('cannot write into',self.path)
-            exit()
+            print('cannot write into /sys/class/gpio/gpio{}/direction'
+                    .format(self.index))
+            raise
+            
 
     """ Warning: Since the use of the following __del()__ function is not safe, 
-    the GPIO drivers will be left in /sys/class/gpio/ directory, even 
-    after exiting python prompt
-    def __del__(self):
+    the GPIO drivers can be left in /sys/class/gpio/ directory, even 
+    after exiting python prompt. For this reason, we will use a function 
+    delete() to explicitly delete the exisiting GPIO instances.
+    """
+    def delete(self):
         if os.path.exists(self.path):
             try:
                 with open('/sys/class/gpio/unexport', 'w') as f:
                     f.write(str(self.index))
             except IOError:
                 print('cannot write into /sys/class/gpio/unexport')
-    """
+                raise
 
     def read(self):
         if not self.direction is 'in':
-            raise ValueError("cannot read gpio output")
+            raise AttributeError("cannot read gpio output")
         try:
             with open(self.path + 'value', 'r') as f:
                 return int(f.read())
         except IOError:
-            print('cannot read from',self.path)
+            raise
 
     def write(self, value): 
         if not self.direction is 'out':
-            raise ValueError("cannot write gpio input")
+            raise AttributeError("cannot write gpio input")
         if not value in (0,1):
             raise ValueError("can only write 0 or 1")
         try:
@@ -70,5 +73,5 @@ class GPIO:
                 f.write(str(value))
             return
         except IOError:
-            print('cannot write into',self.path)
+            raise
             

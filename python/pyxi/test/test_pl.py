@@ -11,7 +11,7 @@ ol = OVERLAY()
 ol.add_bitstream('pmod.bit')
 ol.add_bitstream('audiovideo.bit')
     
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=2)
 def test_overlay():
     """ Test whether the overlay is properly set.
     """
@@ -25,6 +25,9 @@ def test_overlay():
     assert not ol.get_iplist('audiovideo.bit')==[], \
             'audiovideo.bit has an empty IP list'
             
+    assert type(ol.get_gpio_base()) is int, \
+            "get_gpio_base() returns wrong type"
+    
     assert ol.get_mmio_base('pmod.bit','axi_bram_ctrl_1')=='0x40000000',\
             'pmod.bit gets wrong MMIO base'
     assert ol.get_mmio_range('pmod.bit','axi_bram_ctrl_1')=='0x8000',\

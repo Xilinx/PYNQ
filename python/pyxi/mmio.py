@@ -9,7 +9,7 @@ import mmap
 import struct
 
 class MMIO:
-    """This class exposes API to carry MMIO operations."""
+    """ This class exposes API to carry MMIO operations."""
 
     filename = '/dev/mem'
     word = 4
@@ -22,7 +22,6 @@ class MMIO:
         euid = os.geteuid()
         if euid != 0:
             raise EnvironmentError('root permissions required.')
-            exit()
 
         self._debug = debug
 

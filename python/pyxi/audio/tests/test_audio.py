@@ -6,14 +6,14 @@ __email__       = "yunq@xilinx.com"
 
 
 import pytest
-import sys, select 
+import sys, select, termios
 from pyxi.audio import LineIn, Headphone
 from pyxi.test.util import user_answer_yes
 
 flag = user_answer_yes("\nBoth LineIn and Headphone (HPH) jacks connected?")
     
-@pytest.mark.run(order=34)  
-@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")        
+@pytest.mark.run(order=34)
+@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")
 def test_LineIn():
     """ Tests whether the __call__() method correctly returns
         The returned value should be a list of two integers.
@@ -24,25 +24,26 @@ def test_LineIn():
     assert type(linein()[0]) is int, '1st element in the list is not int'
     assert type(linein()[1]) is int, '2nd element in the list is not int'
 
-@pytest.mark.run(order=35)  
-@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")  
+@pytest.mark.run(order=35)
+@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")
 def test_audio_loop():
-    """ Tests whether the two objects works properly using their __call__() 
+    """ Tests whether the two objects works properly using their __call__()
         methods, asking for user confirmation.
     """
     headphone = Headphone()
     linein = LineIn()
-    print("\nMake sure LineIn is receiveing audio. ")
-    input("Then hit enter to start, and hit enter again to stop...")
+    print("\nMake sure LineIn is receiveing audio.")
+    print("Hit enter to stop...", end="")
     while True:
         headphone(linein())
         if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            termios.tcflush(sys.stdin, termios.TCIOFLUSH)
             break
     assert user_answer_yes("Heard audio on the headphone (HPH) port?"),\
         'audio loop is not working'
 
-@pytest.mark.run(order=36)  
-@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")  
+@pytest.mark.run(order=36)
+@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")
 def test_audio_mute():
     """ Tests is_muted() and toggle_mute() methods.
     """ 

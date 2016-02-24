@@ -7,6 +7,7 @@ __email__       = "yunq@xilinx.com"
 
 
 import pytest
+import sys, select, termios
 from pyxi.board.led import LED
 from pyxi.test.util import user_answer_yes
 from time import sleep
@@ -40,13 +41,17 @@ def test_toggle_leds():
     """Instantiates 4 LED objects and toggles them.""" 
     leds = [LED(index) for index in range(0, 4)] 
         
-    print("\nToggling onboard LEDs.")
+    print("\nToggling onboard LEDs. Press enter to stop toggling...", end="")
     for i in range(4):
         leds[i].write(i % 2)
-    for i in range(20):
+    while True:
         for led in leds:
             led.toggle()
         sleep(0.1)
+        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            termios.tcflush(sys.stdin, termios.TCIOFLUSH)
+            break
+
     for led in leds:
         led.off()
-    assert user_answer_yes("Seen LEDs toggling?")
+    assert user_answer_yes("LEDs were toggling?")
