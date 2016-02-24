@@ -32,8 +32,8 @@ def test_audio_loop():
     """
     headphone = Headphone()
     linein = LineIn()
-    print("\nMake sure LineIn is receiveing audio.")
-    print("Hit enter to stop...", end="")
+    print("\nMake sure LineIn is receiveing audio. Hit enter to stop...", \
+            end="")
     while True:
         headphone(linein())
         if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
