@@ -101,8 +101,8 @@ int VideoStop(VideoCapture *videoPtr)
     /*
      * Stop the VDMA core
      */
-    //XAxiVdma_DmaStop(videoPtr->vdma, XAXIVDMA_WRITE);
-//  while(XAxiVdma_IsBusy(videoPtr->vdma, XAXIVDMA_WRITE));
+    XAxiVdma_DmaStop(videoPtr->vdma, XAXIVDMA_WRITE);
+    while(XAxiVdma_IsBusy(videoPtr->vdma, XAXIVDMA_WRITE));
 
     /*
      * This might actually be the better way to test if the core is halted, because
