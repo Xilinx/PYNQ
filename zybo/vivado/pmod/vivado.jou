@@ -1,0 +1,851 @@
+#-----------------------------------------------------------
+# Vivado v2015.3 (64-bit)
+# SW Build 1368829 on Mon Sep 28 20:06:39 MDT 2015
+# IP Build 1367837 on Mon Sep 28 08:56:14 MDT 2015
+# Start of session at: Wed Jan  6 13:34:10 2016
+# Process ID: 21749
+# Current directory: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod
+# Command line: vivado -mode batch -source ./zybo_mipy.tcl
+# Log file: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/vivado.log
+# Journal file: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/vivado.jou
+#-----------------------------------------------------------
+source ./zybo_mipy.tcl
+
+*** Running vivado
+    with args -log top.vdi -applog -m64 -messageDb vivado.pb -mode batch -source top.tcl -notrace
+
+
+****** Vivado v2015.3 (64-bit)
+  **** SW Build 1368829 on Mon Sep 28 20:06:39 MDT 2015
+  **** IP Build 1367837 on Mon Sep 28 08:56:14 MDT 2015
+    ** Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
+
+source top.tcl -notrace
+Design is defaulting to srcset: sources_1
+Design is defaulting to constrset: constrs_1
+INFO: [Netlist 29-17] Analyzing 801 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2015.3
+INFO: [Device 21-403] Loading part xc7z010clg400-1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_btns_gpio_0/system_btns_gpio_0_board.xdc] for cell 'system_i/btns_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_btns_gpio_0/system_btns_gpio_0_board.xdc] for cell 'system_i/btns_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_btns_gpio_0/system_btns_gpio_0.xdc] for cell 'system_i/btns_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_btns_gpio_0/system_btns_gpio_0.xdc] for cell 'system_i/btns_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_gpio_0/system_mb1_gpio_0_board.xdc] for cell 'system_i/mb_JB/mb1_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_gpio_0/system_mb1_gpio_0_board.xdc] for cell 'system_i/mb_JB/mb1_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_gpio_0/system_mb1_gpio_0.xdc] for cell 'system_i/mb_JB/mb1_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_gpio_0/system_mb1_gpio_0.xdc] for cell 'system_i/mb_JB/mb1_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_iic_0/system_mb1_iic_0_board.xdc] for cell 'system_i/mb_JB/mb1_iic'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_iic_0/system_mb1_iic_0_board.xdc] for cell 'system_i/mb_JB/mb1_iic'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_0/system_dlmb_v10_0.xdc] for cell 'system_i/mb_JB/mb1_lmb/dlmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_0/system_dlmb_v10_0.xdc] for cell 'system_i/mb_JB/mb1_lmb/dlmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_0/system_ilmb_v10_0.xdc] for cell 'system_i/mb_JB/mb1_lmb/ilmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_0/system_ilmb_v10_0.xdc] for cell 'system_i/mb_JB/mb1_lmb/ilmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_spi_0/system_mb1_spi_0_board.xdc] for cell 'system_i/mb_JB/mb1_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_spi_0/system_mb1_spi_0_board.xdc] for cell 'system_i/mb_JB/mb1_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_spi_0/system_mb1_spi_0.xdc] for cell 'system_i/mb_JB/mb1_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_spi_0/system_mb1_spi_0.xdc] for cell 'system_i/mb_JB/mb1_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_1_0/system_mb_1_0.xdc] for cell 'system_i/mb_JB/mb_1/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_1_0/system_mb_1_0.xdc] for cell 'system_i/mb_JB/mb_1/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_0/system_rst_clk_wiz_1_100M_0_board.xdc] for cell 'system_i/mb_JB/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_0/system_rst_clk_wiz_1_100M_0_board.xdc] for cell 'system_i/mb_JB/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_0/system_rst_clk_wiz_1_100M_0.xdc] for cell 'system_i/mb_JB/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_0/system_rst_clk_wiz_1_100M_0.xdc] for cell 'system_i/mb_JB/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_gpio_0/system_mb2_gpio_0_board.xdc] for cell 'system_i/mb_JC/mb2_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_gpio_0/system_mb2_gpio_0_board.xdc] for cell 'system_i/mb_JC/mb2_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_gpio_0/system_mb2_gpio_0.xdc] for cell 'system_i/mb_JC/mb2_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_gpio_0/system_mb2_gpio_0.xdc] for cell 'system_i/mb_JC/mb2_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_iic_0/system_mb2_iic_0_board.xdc] for cell 'system_i/mb_JC/mb2_iic'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_iic_0/system_mb2_iic_0_board.xdc] for cell 'system_i/mb_JC/mb2_iic'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_1/system_dlmb_v10_1.xdc] for cell 'system_i/mb_JC/mb2_lmb/dlmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_1/system_dlmb_v10_1.xdc] for cell 'system_i/mb_JC/mb2_lmb/dlmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_1/system_ilmb_v10_1.xdc] for cell 'system_i/mb_JC/mb2_lmb/ilmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_1/system_ilmb_v10_1.xdc] for cell 'system_i/mb_JC/mb2_lmb/ilmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_spi_0/system_mb2_spi_0_board.xdc] for cell 'system_i/mb_JC/mb2_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_spi_0/system_mb2_spi_0_board.xdc] for cell 'system_i/mb_JC/mb2_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_spi_0/system_mb2_spi_0.xdc] for cell 'system_i/mb_JC/mb2_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_spi_0/system_mb2_spi_0.xdc] for cell 'system_i/mb_JC/mb2_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_2_0/system_mb_2_0.xdc] for cell 'system_i/mb_JC/mb_2/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_2_0/system_mb_2_0.xdc] for cell 'system_i/mb_JC/mb_2/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_1/system_rst_clk_wiz_1_100M_1_board.xdc] for cell 'system_i/mb_JC/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_1/system_rst_clk_wiz_1_100M_1_board.xdc] for cell 'system_i/mb_JC/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_1/system_rst_clk_wiz_1_100M_1.xdc] for cell 'system_i/mb_JC/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_1/system_rst_clk_wiz_1_100M_1.xdc] for cell 'system_i/mb_JC/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_gpio_0/system_mb3_gpio_0_board.xdc] for cell 'system_i/mb_JD/mb3_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_gpio_0/system_mb3_gpio_0_board.xdc] for cell 'system_i/mb_JD/mb3_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_gpio_0/system_mb3_gpio_0.xdc] for cell 'system_i/mb_JD/mb3_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_gpio_0/system_mb3_gpio_0.xdc] for cell 'system_i/mb_JD/mb3_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_iic_0/system_mb3_iic_0_board.xdc] for cell 'system_i/mb_JD/mb3_iic'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_iic_0/system_mb3_iic_0_board.xdc] for cell 'system_i/mb_JD/mb3_iic'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_2/system_dlmb_v10_2.xdc] for cell 'system_i/mb_JD/mb3_lmb/dlmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_2/system_dlmb_v10_2.xdc] for cell 'system_i/mb_JD/mb3_lmb/dlmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_2/system_ilmb_v10_2.xdc] for cell 'system_i/mb_JD/mb3_lmb/ilmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_2/system_ilmb_v10_2.xdc] for cell 'system_i/mb_JD/mb3_lmb/ilmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_spi_0/system_mb3_spi_0_board.xdc] for cell 'system_i/mb_JD/mb3_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_spi_0/system_mb3_spi_0_board.xdc] for cell 'system_i/mb_JD/mb3_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_spi_0/system_mb3_spi_0.xdc] for cell 'system_i/mb_JD/mb3_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_spi_0/system_mb3_spi_0.xdc] for cell 'system_i/mb_JD/mb3_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_3_0/system_mb_3_0.xdc] for cell 'system_i/mb_JD/mb_3/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_3_0/system_mb_3_0.xdc] for cell 'system_i/mb_JD/mb_3/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_2/system_rst_clk_wiz_1_100M_2_board.xdc] for cell 'system_i/mb_JD/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_2/system_rst_clk_wiz_1_100M_2_board.xdc] for cell 'system_i/mb_JD/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_2/system_rst_clk_wiz_1_100M_2.xdc] for cell 'system_i/mb_JD/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_2/system_rst_clk_wiz_1_100M_2.xdc] for cell 'system_i/mb_JD/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_gpio_0/system_mb4_gpio_0_board.xdc] for cell 'system_i/mb_JE/mb4_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_gpio_0/system_mb4_gpio_0_board.xdc] for cell 'system_i/mb_JE/mb4_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_gpio_0/system_mb4_gpio_0.xdc] for cell 'system_i/mb_JE/mb4_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_gpio_0/system_mb4_gpio_0.xdc] for cell 'system_i/mb_JE/mb4_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_iic_0/system_mb4_iic_0_board.xdc] for cell 'system_i/mb_JE/mb4_iic'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_iic_0/system_mb4_iic_0_board.xdc] for cell 'system_i/mb_JE/mb4_iic'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_3/system_dlmb_v10_3.xdc] for cell 'system_i/mb_JE/mb4_lmb/dlmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_dlmb_v10_3/system_dlmb_v10_3.xdc] for cell 'system_i/mb_JE/mb4_lmb/dlmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_3/system_ilmb_v10_3.xdc] for cell 'system_i/mb_JE/mb4_lmb/ilmb_v10/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_ilmb_v10_3/system_ilmb_v10_3.xdc] for cell 'system_i/mb_JE/mb4_lmb/ilmb_v10/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_spi_0/system_mb4_spi_0_board.xdc] for cell 'system_i/mb_JE/mb4_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_spi_0/system_mb4_spi_0_board.xdc] for cell 'system_i/mb_JE/mb4_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_spi_0/system_mb4_spi_0.xdc] for cell 'system_i/mb_JE/mb4_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_spi_0/system_mb4_spi_0.xdc] for cell 'system_i/mb_JE/mb4_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_4_0/system_mb_4_0.xdc] for cell 'system_i/mb_JE/mb_4/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb_4_0/system_mb_4_0.xdc] for cell 'system_i/mb_JE/mb_4/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_3/system_rst_clk_wiz_1_100M_3_board.xdc] for cell 'system_i/mb_JE/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_3/system_rst_clk_wiz_1_100M_3_board.xdc] for cell 'system_i/mb_JE/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_3/system_rst_clk_wiz_1_100M_3.xdc] for cell 'system_i/mb_JE/rst_clk_wiz_1_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_clk_wiz_1_100M_3/system_rst_clk_wiz_1_100M_3.xdc] for cell 'system_i/mb_JE/rst_clk_wiz_1_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mdm_1_0/system_mdm_1_0.xdc] for cell 'system_i/mdm_1/U0'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mdm_1_0/system_mdm_1_0.xdc:50]
+get_clocks: Time (s): cpu = 00:00:14 ; elapsed = 00:00:13 . Memory (MB): peak = 1992.961 ; gain = 514.523 ; free physical = 420 ; free virtual = 68690
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mdm_1_0/system_mdm_1_0.xdc] for cell 'system_i/mdm_1/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_processing_system7_0_0/system_processing_system7_0_0.xdc] for cell 'system_i/processing_system7_0/inst'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_processing_system7_0_0/system_processing_system7_0_0.xdc] for cell 'system_i/processing_system7_0/inst'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_processing_system7_0_100M_0/system_rst_processing_system7_0_100M_0_board.xdc] for cell 'system_i/rst_processing_system7_0_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_processing_system7_0_100M_0/system_rst_processing_system7_0_100M_0_board.xdc] for cell 'system_i/rst_processing_system7_0_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_processing_system7_0_100M_0/system_rst_processing_system7_0_100M_0.xdc] for cell 'system_i/rst_processing_system7_0_100M'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_rst_processing_system7_0_100M_0/system_rst_processing_system7_0_100M_0.xdc] for cell 'system_i/rst_processing_system7_0_100M'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_swsleds_gpio_0/system_swsleds_gpio_0_board.xdc] for cell 'system_i/swsleds_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_swsleds_gpio_0/system_swsleds_gpio_0_board.xdc] for cell 'system_i/swsleds_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_swsleds_gpio_0/system_swsleds_gpio_0.xdc] for cell 'system_i/swsleds_gpio/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_swsleds_gpio_0/system_swsleds_gpio_0.xdc] for cell 'system_i/swsleds_gpio/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_xadc_wiz_0_0/system_xadc_wiz_0_0.xdc] for cell 'system_i/xadc_wiz_0/inst'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_xadc_wiz_0_0/system_xadc_wiz_0_0.xdc] for cell 'system_i/xadc_wiz_0/inst'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/src/constraints/top.xdc]
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/src/constraints/top.xdc]
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_spi_0/system_mb1_spi_0_clocks.xdc] for cell 'system_i/mb_JB/mb1_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb1_spi_0/system_mb1_spi_0_clocks.xdc] for cell 'system_i/mb_JB/mb1_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_spi_0/system_mb2_spi_0_clocks.xdc] for cell 'system_i/mb_JC/mb2_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb2_spi_0/system_mb2_spi_0_clocks.xdc] for cell 'system_i/mb_JC/mb2_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_spi_0/system_mb3_spi_0_clocks.xdc] for cell 'system_i/mb_JD/mb3_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb3_spi_0/system_mb3_spi_0_clocks.xdc] for cell 'system_i/mb_JD/mb3_spi/U0'
+Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_spi_0/system_mb4_spi_0_clocks.xdc] for cell 'system_i/mb_JE/mb4_spi/U0'
+Finished Parsing XDC File [/home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ip/system_mb4_spi_0/system_mb4_spi_0_clocks.xdc] for cell 'system_i/mb_JE/mb4_spi/U0'
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Generating merged BMM file for the design top 'top'...
+INFO: [Memdata 28-144] Successfully populated the BRAM INIT strings from the following elf files: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf 
+
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 432 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 32 instances
+  LUT6_2 => LUT6_2 (LUT5, LUT6): 320 instances
+  RAM32M => RAM32M (RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMS32, RAMS32): 80 instances
+
+link_design: Time (s): cpu = 00:00:37 ; elapsed = 00:00:36 . Memory (MB): peak = 1997.023 ; gain = 970.879 ; free physical = 498 ; free virtual = 68680
+Command: opt_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z010'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z010'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2076.992 ; gain = 79.969 ; free physical = 497 ; free virtual = 68679
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+
+Starting Logic Optimization Task
+Implement Debug Cores | Checksum: 1f07fa871
+
+Phase 1 Retarget
+INFO: [Opt 31-138] Pushed 9 inverter(s) to 37 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 1 Retarget | Checksum: 2a796326f
+
+Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2076.992 ; gain = 0.000 ; free physical = 491 ; free virtual = 68673
+
+Phase 2 Constant Propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Opt 31-10] Eliminated 1067 cells.
+Phase 2 Constant Propagation | Checksum: 1f15b136c
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 2076.992 ; gain = 0.000 ; free physical = 490 ; free virtual = 68672
+
+Phase 3 Sweep
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[0].ALU_Bit_I1/LO.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[1].ALU_Bit_I1/EX_CarryOut.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/LO_2.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/Zero_Detect_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[10].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[1].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/mem_valid_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[3].OF_Piperun_Stage/ex_branch_with_delayslot_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[4].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[5].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[5].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[6].OF_Piperun_Stage/ex_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[6].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[7].OF_Piperun_Stage/mem_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[8].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[9].OF_Piperun_Stage/mem_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[9].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Using_PC_Incr_Dbg_or_Prot.if_pc_incr_carry_and_1/Carry_IN0_in.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Using_PC_Incr_Dbg_or_Prot.if_pc_incr_carry_and_1/if_pc_reg[29].
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/if_pc_incr_carry_and_0/Carry_IN0_in.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/if_pc_incr_carry_and_3/Performace_Debug_Control.dbg_stop_if_delay_i_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/jump_logic_I1/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_PipeRun_carry_and/Carry_IN.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_wait_on_ready_N_carry_or/Carry_IN.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_wait_on_ready_N_carry_or/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JB/mb_1/U0/MicroBlaze_Core_I/Performance.Core/mem_databus_ready_sel_carry_or/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[0].ALU_Bit_I1/LO.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[1].ALU_Bit_I1/EX_CarryOut.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/LO_2.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/Zero_Detect_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[10].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[1].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/mem_valid_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[3].OF_Piperun_Stage/ex_branch_with_delayslot_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[4].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[5].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[5].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[6].OF_Piperun_Stage/ex_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[6].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[7].OF_Piperun_Stage/mem_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[8].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[9].OF_Piperun_Stage/mem_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[9].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Using_PC_Incr_Dbg_or_Prot.if_pc_incr_carry_and_1/Carry_IN0_in.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Using_PC_Incr_Dbg_or_Prot.if_pc_incr_carry_and_1/if_pc_reg[29].
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/if_pc_incr_carry_and_0/Carry_IN0_in.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/if_pc_incr_carry_and_3/Performace_Debug_Control.dbg_stop_if_delay_i_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/jump_logic_I1/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_PipeRun_carry_and/Carry_IN.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_wait_on_ready_N_carry_or/Carry_IN.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_wait_on_ready_N_carry_or/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JC/mb_2/U0/MicroBlaze_Core_I/Performance.Core/mem_databus_ready_sel_carry_or/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[0].ALU_Bit_I1/LO.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[1].ALU_Bit_I1/EX_CarryOut.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/LO_2.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/Zero_Detect_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[10].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[1].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/mem_valid_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[3].OF_Piperun_Stage/ex_branch_with_delayslot_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[4].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[5].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[5].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[6].OF_Piperun_Stage/ex_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[6].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[7].OF_Piperun_Stage/mem_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[8].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[9].OF_Piperun_Stage/mem_is_multi_or_load_instr_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[9].OF_Piperun_Stage/use_Reg_Neg_S_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Using_PC_Incr_Dbg_or_Prot.if_pc_incr_carry_and_1/Carry_IN0_in.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Using_PC_Incr_Dbg_or_Prot.if_pc_incr_carry_and_1/if_pc_reg[29].
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/if_pc_incr_carry_and_0/Carry_IN0_in.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/if_pc_incr_carry_and_3/Performace_Debug_Control.dbg_stop_if_delay_i_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/jump_logic_I1/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_PipeRun_carry_and/Carry_IN.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_wait_on_ready_N_carry_or/Carry_IN.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/mem_wait_on_ready_N_carry_or/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JD/mb_3/U0/MicroBlaze_Core_I/Performance.Core/mem_databus_ready_sel_carry_or/Carry_OUT.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[0].ALU_Bit_I1/LO.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/ALL_Bits[1].ALU_Bit_I1/EX_CarryOut.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/ALU_I/LO_2.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/Zero_Detect_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/EX_Op1_Zero.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[10].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[1].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/Using_FPGA.Native.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[2].OF_Piperun_Stage/mem_valid_reg.
+WARNING: [Opt 31-6] Deleting driverless net: system_i/mb_JE/mb_4/U0/MicroBlaze_Core_I/Performance.Core/Decode_I/Use_MuxCy[3].OF_Piperun_Stage/ex_branch_with_delayslot_reg.
+INFO: [Common 17-14] Message 'Opt 31-6' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Opt 31-12] Eliminated 7238 unconnected nets.
+INFO: [Opt 31-11] Eliminated 19325 unconnected cells.
+Phase 3 Sweep | Checksum: 23963c44c
+
+Time (s): cpu = 00:00:20 ; elapsed = 00:00:20 . Memory (MB): peak = 2076.992 ; gain = 0.000 ; free physical = 489 ; free virtual = 68672
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.09 . Memory (MB): peak = 2076.992 ; gain = 0.000 ; free physical = 489 ; free virtual = 68672
+Ending Logic Optimization Task | Checksum: 23963c44c
+
+Time (s): cpu = 00:00:20 ; elapsed = 00:00:20 . Memory (MB): peak = 2076.992 ; gain = 0.000 ; free physical = 489 ; free virtual = 68672
+
+Starting Power Optimization Task
+INFO: [Pwropt 34-132] Skipping clock gating for clocks with a period < 2.00 ns.
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Pwropt 34-9] Applying IDT optimizations ...
+INFO: [Pwropt 34-10] Applying ODC optimizations ...
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+
+
+Starting PowerOpt Patch Enables Task
+INFO: [Pwropt 34-162] WRITE_MODE attribute of 0 BRAM(s) out of a total of 32 has been updated to save power. Run report_power_opt to get a complete listing of the BRAMs updated.
+INFO: [Pwropt 34-201] Structural ODC has moved 0 WE to EN ports
+Number of BRAM Ports augmented: 0 newly gated: 0 Total Ports: 64
+Ending PowerOpt Patch Enables Task | Checksum: 23963c44c
+
+Time (s): cpu = 00:00:00.13 ; elapsed = 00:00:00.13 . Memory (MB): peak = 2300.184 ; gain = 0.000 ; free physical = 274 ; free virtual = 68459
+Ending Power Optimization Task | Checksum: 23963c44c
+
+Time (s): cpu = 00:00:18 ; elapsed = 00:00:08 . Memory (MB): peak = 2300.184 ; gain = 223.191 ; free physical = 274 ; free virtual = 68459
+INFO: [Common 17-83] Releasing license: Implementation
+28 Infos, 100 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:00:43 ; elapsed = 00:00:31 . Memory (MB): peak = 2300.184 ; gain = 303.160 ; free physical = 274 ; free virtual = 68459
+Writing placer database...
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Write XDEF Complete: Time (s): cpu = 00:00:00.21 ; elapsed = 00:00:00.07 . Memory (MB): peak = 2300.184 ; gain = 0.000 ; free physical = 270 ; free virtual = 68459
+write_checkpoint: Time (s): cpu = 00:00:09 ; elapsed = 00:00:06 . Memory (MB): peak = 2300.184 ; gain = 0.000 ; free physical = 263 ; free virtual = 68456
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Coretcl 2-168] The results of DRC are in file /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.runs/impl_1/top_drc_opted.rpt.
+Command: place_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z010'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z010'
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+Starting Placer Task
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 8 CPUs
+
+Phase 1 Placer Initialization
+Netlist sorting complete. Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.07 . Memory (MB): peak = 2300.184 ; gain = 0.000 ; free physical = 259 ; free virtual = 68453
+Netlist sorting complete. Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 2300.184 ; gain = 0.000 ; free physical = 259 ; free virtual = 68453
+
+Phase 1.1 IO Placement/ Clock Placement/ Build Placer Device
+
+Phase 1.1.1 Pre-Place Cells
+Phase 1.1.1 Pre-Place Cells | Checksum: 52a03ed8
+
+Time (s): cpu = 00:00:00.38 ; elapsed = 00:00:00.43 . Memory (MB): peak = 2300.184 ; gain = 0.000 ; free physical = 259 ; free virtual = 68453
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO0_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO1_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO0_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO1_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO0_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO1_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO0_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'IO1_I_REG'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+CRITICAL WARNING: [Place 30-73] Invalid constraint on register 'RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST'. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [Place 30-12] An IO Bus FIXED_IO_mio with more than one IO standard is found. Components associated with this bus are: 
+	FIXED_IO_mio[53] of IOStandard LVCMOS18
+	FIXED_IO_mio[52] of IOStandard LVCMOS18
+	FIXED_IO_mio[51] of IOStandard LVCMOS18
+	FIXED_IO_mio[50] of IOStandard LVCMOS18
+	FIXED_IO_mio[49] of IOStandard LVCMOS18
+	FIXED_IO_mio[48] of IOStandard LVCMOS18
+	FIXED_IO_mio[47] of IOStandard LVCMOS18
+	FIXED_IO_mio[46] of IOStandard LVCMOS18
+	FIXED_IO_mio[45] of IOStandard LVCMOS18
+	FIXED_IO_mio[44] of IOStandard LVCMOS18
+	FIXED_IO_mio[43] of IOStandard LVCMOS18
+	FIXED_IO_mio[42] of IOStandard LVCMOS18
+	FIXED_IO_mio[41] of IOStandard LVCMOS18
+	FIXED_IO_mio[40] of IOStandard LVCMOS18
+	FIXED_IO_mio[39] of IOStandard LVCMOS18
+	FIXED_IO_mio[38] of IOStandard LVCMOS18
+	FIXED_IO_mio[37] of IOStandard LVCMOS18
+	FIXED_IO_mio[36] of IOStandard LVCMOS18
+	FIXED_IO_mio[35] of IOStandard LVCMOS18
+	FIXED_IO_mio[34] of IOStandard LVCMOS18
+	FIXED_IO_mio[33] of IOStandard LVCMOS18
+	FIXED_IO_mio[32] of IOStandard LVCMOS18
+	FIXED_IO_mio[31] of IOStandard LVCMOS18
+	FIXED_IO_mio[30] of IOStandard LVCMOS18
+	FIXED_IO_mio[29] of IOStandard LVCMOS18
+	FIXED_IO_mio[28] of IOStandard LVCMOS18
+	FIXED_IO_mio[27] of IOStandard LVCMOS18
+	FIXED_IO_mio[26] of IOStandard LVCMOS18
+	FIXED_IO_mio[25] of IOStandard LVCMOS18
+	FIXED_IO_mio[24] of IOStandard LVCMOS18
+	FIXED_IO_mio[23] of IOStandard LVCMOS18
+	FIXED_IO_mio[22] of IOStandard LVCMOS18
+	FIXED_IO_mio[21] of IOStandard LVCMOS18
+	FIXED_IO_mio[20] of IOStandard LVCMOS18
+	FIXED_IO_mio[19] of IOStandard LVCMOS18
+	FIXED_IO_mio[18] of IOStandard LVCMOS18
+	FIXED_IO_mio[17] of IOStandard LVCMOS18
+	FIXED_IO_mio[16] of IOStandard LVCMOS18
+	FIXED_IO_mio[15] of IOStandard LVCMOS18
+	FIXED_IO_mio[14] of IOStandard LVCMOS18
+	FIXED_IO_mio[13] of IOStandard LVCMOS18
+	FIXED_IO_mio[12] of IOStandard LVCMOS18
+	FIXED_IO_mio[11] of IOStandard LVCMOS18
+	FIXED_IO_mio[10] of IOStandard LVCMOS18
+	FIXED_IO_mio[9] of IOStandard LVCMOS18
+	FIXED_IO_mio[8] of IOStandard LVCMOS33
+	FIXED_IO_mio[7] of IOStandard LVCMOS18
+	FIXED_IO_mio[6] of IOStandard LVCMOS33
+	FIXED_IO_mio[5] of IOStandard LVCMOS33
+	FIXED_IO_mio[4] of IOStandard LVCMOS33
+	FIXED_IO_mio[3] of IOStandard LVCMOS33
+	FIXED_IO_mio[2] of IOStandard LVCMOS33
+	FIXED_IO_mio[1] of IOStandard LVCMOS33
+	FIXED_IO_mio[0] of IOStandard LVCMOS18
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+
+Phase 1.1.2 IO and Clk Clean Up
+Phase 1.1.2 IO and Clk Clean Up | Checksum: 52a03ed8
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:08 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 257 ; free virtual = 68451
+
+Phase 1.1.3 Implementation Feasibility check On IDelay
+Phase 1.1.3 Implementation Feasibility check On IDelay | Checksum: 52a03ed8
+
+Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 257 ; free virtual = 68451
+
+Phase 1.1.4 Commit IO Placement
+Phase 1.1.4 Commit IO Placement | Checksum: 85c9d906
+
+Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 257 ; free virtual = 68451
+Phase 1.1 IO Placement/ Clock Placement/ Build Placer Device | Checksum: d8754375
+
+Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 257 ; free virtual = 68451
+
+Phase 1.2 Build Placer Netlist Model
+
+Phase 1.2.1 Place Init Design
+
+Phase 1.2.1.1 Init Lut Pin Assignment
+Phase 1.2.1.1 Init Lut Pin Assignment | Checksum: 14e57d137
+
+Time (s): cpu = 00:00:13 ; elapsed = 00:00:10 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 255 ; free virtual = 68449
+Phase 1.2.1 Place Init Design | Checksum: 1b5ad31a1
+
+Time (s): cpu = 00:00:25 ; elapsed = 00:00:14 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 255 ; free virtual = 68449
+Phase 1.2 Build Placer Netlist Model | Checksum: 1b5ad31a1
+
+Time (s): cpu = 00:00:25 ; elapsed = 00:00:14 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 255 ; free virtual = 68449
+
+Phase 1.3 Constrain Clocks/Macros
+
+Phase 1.3.1 Constrain Global/Regional Clocks
+Phase 1.3.1 Constrain Global/Regional Clocks | Checksum: 1b5ad31a1
+
+Time (s): cpu = 00:00:25 ; elapsed = 00:00:15 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 255 ; free virtual = 68449
+Phase 1.3 Constrain Clocks/Macros | Checksum: 1b5ad31a1
+
+Time (s): cpu = 00:00:25 ; elapsed = 00:00:15 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 255 ; free virtual = 68449
+Phase 1 Placer Initialization | Checksum: 1b5ad31a1
+
+Time (s): cpu = 00:00:25 ; elapsed = 00:00:15 . Memory (MB): peak = 2320.191 ; gain = 20.008 ; free physical = 255 ; free virtual = 68449
+
+Phase 2 Global Placement
+SimPL: WL = 1712260 (650579, 1061681)
+SimPL: WL = 1569833 (539470, 1030363)
+SimPL: WL = 1527180 (506981, 1020199)
+SimPL: WL = 1518175 (498274, 1019901)
+SimPL: WL = 1504665 (488317, 1016348)
+Phase 2 Global Placement | Checksum: 8e6b876c
+
+Time (s): cpu = 00:01:17 ; elapsed = 00:00:41 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 239 ; free virtual = 68433
+
+Phase 3 Detail Placement
+
+Phase 3.1 Commit Multi Column Macros
+Phase 3.1 Commit Multi Column Macros | Checksum: 8e6b876c
+
+Time (s): cpu = 00:01:18 ; elapsed = 00:00:41 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 239 ; free virtual = 68433
+
+Phase 3.2 Commit Most Macros & LUTRAMs
+Phase 3.2 Commit Most Macros & LUTRAMs | Checksum: 1035be576
+
+Time (s): cpu = 00:01:32 ; elapsed = 00:00:46 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 238 ; free virtual = 68433
+
+Phase 3.3 Area Swap Optimization
+Phase 3.3 Area Swap Optimization | Checksum: 1a3bcc5d8
+
+Time (s): cpu = 00:01:32 ; elapsed = 00:00:47 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 238 ; free virtual = 68433
+
+Phase 3.4 updateClock Trees: DP
+Phase 3.4 updateClock Trees: DP | Checksum: 1a3bcc5d8
+
+Time (s): cpu = 00:01:32 ; elapsed = 00:00:47 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 238 ; free virtual = 68433
+
+Phase 3.5 Timing Path Optimizer
+Phase 3.5 Timing Path Optimizer | Checksum: d89524c0
+
+Time (s): cpu = 00:01:37 ; elapsed = 00:00:48 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 238 ; free virtual = 68433
+
+Phase 3.6 Fast Optimization
+Phase 3.6 Fast Optimization | Checksum: 1043eb080
+
+Time (s): cpu = 00:01:37 ; elapsed = 00:00:49 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 238 ; free virtual = 68433
+
+Phase 3.7 Small Shape Detail Placement
+
+Phase 3.7.1 Commit Small Macros and Core Logic
+
+Phase 3.7.1.1 Commit Slice Clusters
+Phase 3.7.1.1 Commit Slice Clusters | Checksum: c3d2be2b
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:01:02 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Phase 3.7.1 Commit Small Macros and Core Logic | Checksum: c3d2be2b
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:01:03 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+
+Phase 3.7.2 Clock Restriction Legalization for Leaf Columns
+Phase 3.7.2 Clock Restriction Legalization for Leaf Columns | Checksum: c3d2be2b
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:01:03 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+
+Phase 3.7.3 Clock Restriction Legalization for Non-Clock Pins
+Phase 3.7.3 Clock Restriction Legalization for Non-Clock Pins | Checksum: c3d2be2b
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:01:03 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Phase 3.7 Small Shape Detail Placement | Checksum: c3d2be2b
+
+Time (s): cpu = 00:01:52 ; elapsed = 00:01:03 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+
+Phase 3.8 Re-assign LUT pins
+Phase 3.8 Re-assign LUT pins | Checksum: 9d1fd386
+
+Time (s): cpu = 00:01:53 ; elapsed = 00:01:05 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Phase 3 Detail Placement | Checksum: 9d1fd386
+
+Time (s): cpu = 00:01:53 ; elapsed = 00:01:05 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+
+Phase 4 Post Placement Optimization and Clean-Up
+
+Phase 4.1 Post Commit Optimization
+
+Phase 4.1.1 callUpdateTimingBeforePCO
+Phase 4.1.1 callUpdateTimingBeforePCO | Checksum: 17002c35c
+
+Time (s): cpu = 00:02:04 ; elapsed = 00:01:08 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+
+Phase 4.1.2 updateClock Trees: PCOPT
+Phase 4.1.2 updateClock Trees: PCOPT | Checksum: 17002c35c
+
+Time (s): cpu = 00:02:04 ; elapsed = 00:01:08 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+
+Phase 4.1.3 Post Placement Optimization
+
+Phase 4.1.3.1 PCOPT Shape updates
+
+Phase 4.1.3.1.1 removeOptionalFFsFromShapes
+Phase 4.1.3.1.1 removeOptionalFFsFromShapes | Checksum: 17002c35c
+
+Time (s): cpu = 00:02:05 ; elapsed = 00:01:09 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+
+Phase 4.1.3.1.2 deleteLutnmShapes
+
+Phase 4.1.3.1.2.1 deleteShapes
+Phase 4.1.3.1.2.1 deleteShapes | Checksum: 8fc4497b
+
+Time (s): cpu = 00:02:05 ; elapsed = 00:01:09 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Phase 4.1.3.1.2 deleteLutnmShapes | Checksum: 8fc4497b
+
+Time (s): cpu = 00:02:05 ; elapsed = 00:01:09 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Phase 4.1.3.1 PCOPT Shape updates | Checksum: 8fc4497b
+
+Time (s): cpu = 00:02:05 ; elapsed = 00:01:09 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+
+Phase 4.1.3.2 Post Placement Timing Optimization
+
+Phase 4.1.3.2.1 Restore Best Placement
+Phase 4.1.3.2.1 Restore Best Placement | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:09 ; elapsed = 00:01:13 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+INFO: [Place 30-746] Post Placement Timing Summary WNS=0.500. For the most accurate timing information please run report_timing.
+Phase 4.1.3.2 Post Placement Timing Optimization | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:10 ; elapsed = 00:01:13 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+Phase 4.1.3 Post Placement Optimization | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:10 ; elapsed = 00:01:13 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+Phase 4.1 Post Commit Optimization | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:10 ; elapsed = 00:01:14 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+
+Phase 4.2 Sweep Clock Roots: Post-Placement
+Phase 4.2 Sweep Clock Roots: Post-Placement | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:10 ; elapsed = 00:01:14 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+
+Phase 4.3 Post Placement Cleanup
+Phase 4.3 Post Placement Cleanup | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:10 ; elapsed = 00:01:14 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+
+Phase 4.4 Placer Reporting
+
+Phase 4.4.1 Restore STA
+Phase 4.4.1 Restore STA | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:11 ; elapsed = 00:01:14 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68431
+Phase 4.4 Placer Reporting | Checksum: 122bce33a
+
+Time (s): cpu = 00:02:11 ; elapsed = 00:01:15 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+
+Phase 4.5 Final Placement Cleanup
+Phase 4.5 Final Placement Cleanup | Checksum: 1e85d9b16
+
+Time (s): cpu = 00:02:11 ; elapsed = 00:01:15 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Phase 4 Post Placement Optimization and Clean-Up | Checksum: 1e85d9b16
+
+Time (s): cpu = 00:02:12 ; elapsed = 00:01:15 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Ending Placer Task | Checksum: 15f918cb9
+
+Time (s): cpu = 00:02:12 ; elapsed = 00:01:15 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+INFO: [Common 17-83] Releasing license: Implementation
+41 Infos, 101 Warnings, 12 Critical Warnings and 0 Errors encountered.
+place_design completed successfully
+place_design: Time (s): cpu = 00:02:16 ; elapsed = 00:01:18 . Memory (MB): peak = 2370.211 ; gain = 70.027 ; free physical = 237 ; free virtual = 68432
+Writing placer database...
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Write XDEF Complete: Time (s): cpu = 00:00:07 ; elapsed = 00:00:02 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 202 ; free virtual = 68430
+write_checkpoint: Time (s): cpu = 00:00:12 ; elapsed = 00:00:07 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 225 ; free virtual = 68431
+report_io: Time (s): cpu = 00:00:00.15 ; elapsed = 00:00:00.30 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 223 ; free virtual = 68429
+report_utilization: Time (s): cpu = 00:00:00.38 ; elapsed = 00:00:00.49 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 223 ; free virtual = 68428
+report_control_sets: Time (s): cpu = 00:00:00.23 ; elapsed = 00:00:00.36 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 223 ; free virtual = 68429
+Command: route_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z010'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z010'
+Running DRC as a precondition to command route_design
+INFO: [DRC 23-27] Running DRC with 8 threads
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JB/mb1_spi/U0/IO0_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JB/mb1_spi/U0/IO1_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JB/mb1_spi/U0/QSPI_LEGACY_MD_GEN.QSPI_CORE_INTERFACE_I/LOGIC_FOR_MD_0_GEN.SPI_MODULE_I/RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JC/mb2_spi/U0/IO0_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JC/mb2_spi/U0/IO1_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JC/mb2_spi/U0/QSPI_LEGACY_MD_GEN.QSPI_CORE_INTERFACE_I/LOGIC_FOR_MD_0_GEN.SPI_MODULE_I/RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JD/mb3_spi/U0/IO0_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JD/mb3_spi/U0/IO1_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JD/mb3_spi/U0/QSPI_LEGACY_MD_GEN.QSPI_CORE_INTERFACE_I/LOGIC_FOR_MD_0_GEN.SPI_MODULE_I/RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JE/mb4_spi/U0/IO0_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JE/mb4_spi/U0/IO1_I_REG. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-6) Placement Constraints Check for IO constraints - Invalid constraint on register system_i/mb_JE/mb4_spi/U0/QSPI_LEGACY_MD_GEN.QSPI_CORE_INTERFACE_I/LOGIC_FOR_MD_0_GEN.SPI_MODULE_I/RATIO_NOT_EQUAL_4_GENERATE.SCK_O_NQ_4_NO_STARTUP_USED.SCK_O_NE_4_FDRE_INST. It has the property IOB=TRUE, but it is not driving or driven by any IO element.
+WARNING: [DRC 23-20] Rule violation (PLIO-7) Placement Constraints Check for IO constraints - An IO Bus FIXED_IO_mio[53:0] with more than one IO standard is found. Components associated with this bus are: LVCMOS18 (FIXED_IO_mio[53], FIXED_IO_mio[52], FIXED_IO_mio[51], FIXED_IO_mio[50], FIXED_IO_mio[49], FIXED_IO_mio[48], FIXED_IO_mio[47], FIXED_IO_mio[46], FIXED_IO_mio[45], FIXED_IO_mio[44], FIXED_IO_mio[43], FIXED_IO_mio[42], FIXED_IO_mio[41], FIXED_IO_mio[40], FIXED_IO_mio[39] (the first 15 of 47 listed)); LVCMOS33 (FIXED_IO_mio[8], FIXED_IO_mio[6], FIXED_IO_mio[5], FIXED_IO_mio[4], FIXED_IO_mio[3], FIXED_IO_mio[2], FIXED_IO_mio[1]); 
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors, 13 Warnings
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+
+Starting Routing Task
+INFO: [Route 35-254] Multithreading enabled for route_design using a maximum of 8 CPUs
+Checksum: PlaceDB: 6d54b2f8 ConstDB: 0 ShapeSum: f23cd9c1 RouteDB: 0
+
+Phase 1 Build RT Design
+Phase 1 Build RT Design | Checksum: 16c2b86eb
+
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:11 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 223 ; free virtual = 68430
+
+Phase 2 Router Initialization
+
+Phase 2.1 Create Timer
+Phase 2.1 Create Timer | Checksum: 16c2b86eb
+
+Time (s): cpu = 00:00:17 ; elapsed = 00:00:11 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 223 ; free virtual = 68430
+
+Phase 2.2 Pre Route Cleanup
+Phase 2.2 Pre Route Cleanup | Checksum: 16c2b86eb
+
+Time (s): cpu = 00:00:17 ; elapsed = 00:00:11 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 217 ; free virtual = 68424
+ Number of Nodes with overlaps = 0
+
+Phase 2.3 Update Timing
+Phase 2.3 Update Timing | Checksum: c613383d
+
+Time (s): cpu = 00:00:38 ; elapsed = 00:00:18 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 215 ; free virtual = 68422
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.618  | TNS=0.000  | WHS=-0.357 | THS=-318.055|
+
+Phase 2 Router Initialization | Checksum: 8fe76cd9
+
+Time (s): cpu = 00:00:46 ; elapsed = 00:00:20 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 215 ; free virtual = 68422
+
+Phase 3 Initial Routing
+Phase 3 Initial Routing | Checksum: 12fc7ef8d
+
+Time (s): cpu = 00:01:03 ; elapsed = 00:00:24 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 209 ; free virtual = 68416
+
+Phase 4 Rip-up And Reroute
+
+Phase 4.1 Global Iteration 0
+ Number of Nodes with overlaps = 3869
+ Number of Nodes with overlaps = 661
+ Number of Nodes with overlaps = 231
+ Number of Nodes with overlaps = 51
+ Number of Nodes with overlaps = 6
+ Number of Nodes with overlaps = 8
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 0
+
+Phase 4.1.1 Update Timing
+Phase 4.1.1 Update Timing | Checksum: 15ac18609
+
+Time (s): cpu = 00:01:59 ; elapsed = 00:00:40 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 209 ; free virtual = 68415
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.126  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 4.1 Global Iteration 0 | Checksum: 24f132575
+
+Time (s): cpu = 00:02:00 ; elapsed = 00:00:40 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 209 ; free virtual = 68415
+
+Phase 4.2 Global Iteration 1
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 6
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 5
+ Number of Nodes with overlaps = 0
+
+Phase 4.2.1 Update Timing
+Phase 4.2.1 Update Timing | Checksum: 137f92636
+
+Time (s): cpu = 00:02:04 ; elapsed = 00:00:43 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 209 ; free virtual = 68416
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.170  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 4.2 Global Iteration 1 | Checksum: 12f1ff4b9
+
+Time (s): cpu = 00:02:04 ; elapsed = 00:00:43 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 209 ; free virtual = 68416
+Phase 4 Rip-up And Reroute | Checksum: 12f1ff4b9
+
+Time (s): cpu = 00:02:04 ; elapsed = 00:00:43 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 209 ; free virtual = 68416
+
+Phase 5 Delay and Skew Optimization
+
+Phase 5.1 Delay CleanUp
+
+Phase 5.1.1 Update Timing
+Phase 5.1.1 Update Timing | Checksum: f3e23842
+
+Time (s): cpu = 00:02:06 ; elapsed = 00:00:44 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.285  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 5.1 Delay CleanUp | Checksum: f3e23842
+
+Time (s): cpu = 00:02:07 ; elapsed = 00:00:44 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+
+Phase 5.2 Clock Skew Optimization
+Phase 5.2 Clock Skew Optimization | Checksum: f3e23842
+
+Time (s): cpu = 00:02:07 ; elapsed = 00:00:44 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+Phase 5 Delay and Skew Optimization | Checksum: f3e23842
+
+Time (s): cpu = 00:02:07 ; elapsed = 00:00:44 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+
+Phase 6 Post Hold Fix
+
+Phase 6.1 Update Timing
+Phase 6.1 Update Timing | Checksum: 13848c317
+
+Time (s): cpu = 00:02:10 ; elapsed = 00:00:45 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.285  | TNS=0.000  | WHS=0.018  | THS=0.000  |
+
+Phase 6 Post Hold Fix | Checksum: 14b41c0fa
+
+Time (s): cpu = 00:02:10 ; elapsed = 00:00:46 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+
+Phase 7 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 16.8554 %
+  Global Horizontal Routing Utilization  = 19.6978 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 7 Route finalize | Checksum: 1759a1870
+
+Time (s): cpu = 00:02:11 ; elapsed = 00:00:46 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+
+Phase 8 Verifying routed nets
+
+ Verification completed successfully
+Phase 8 Verifying routed nets | Checksum: 1759a1870
+
+Time (s): cpu = 00:02:11 ; elapsed = 00:00:46 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+
+Phase 9 Depositing Routes
+Phase 9 Depositing Routes | Checksum: 13a914e9c
+
+Time (s): cpu = 00:02:13 ; elapsed = 00:00:48 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+
+Phase 10 Post Router Timing
+INFO: [Route 35-57] Estimated Timing Summary | WNS=0.285  | TNS=0.000  | WHS=0.018  | THS=0.000  |
+
+INFO: [Route 35-327] The final timing numbers are based on the router estimated timing analysis. For a complete and accurate timing signoff, please run report_timing_summary.
+Phase 10 Post Router Timing | Checksum: 13a914e9c
+
+Time (s): cpu = 00:02:13 ; elapsed = 00:00:48 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+INFO: [Route 35-16] Router Completed Successfully
+
+Time (s): cpu = 00:02:13 ; elapsed = 00:00:48 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Implementation
+55 Infos, 114 Warnings, 12 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:02:17 ; elapsed = 00:00:51 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 208 ; free virtual = 68415
+Writing placer database...
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Write XDEF Complete: Time (s): cpu = 00:00:07 ; elapsed = 00:00:02 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 164 ; free virtual = 68414
+write_checkpoint: Time (s): cpu = 00:00:13 ; elapsed = 00:00:07 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 193 ; free virtual = 68413
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Coretcl 2-168] The results of DRC are in file /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.runs/impl_1/top_drc_routed.rpt.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+report_power: Time (s): cpu = 00:00:11 ; elapsed = 00:00:06 . Memory (MB): peak = 2370.211 ; gain = 0.000 ; free physical = 159 ; free virtual = 68380
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z010'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z010'
+Running DRC as a precondition to command write_bitstream
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado 12-3199] DRC finished with 0 Errors
+INFO: [Vivado 12-3200] Please refer to the DRC report (report_drc) for more information.
+Generating merged BMM file for the design top 'top'...
+INFO: [Memdata 28-144] Successfully populated the BRAM INIT strings from the following elf files: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.srcs/sources_1/bd/system/ipshared/xilinx.com/microblaze_v9_5/data/mb_bootloop_le.elf 
+Loading data files...
+Loading site data...
+Loading route data...
+Processing options...
+Creating bitmap...
+Creating bitstream...
+Writing bitstream ./top.bit...
+INFO: [Vivado 12-1842] Bitgen Completed Successfully.
+INFO: [Common 17-83] Releasing license: Implementation
+write_bitstream: Time (s): cpu = 00:00:35 ; elapsed = 00:00:33 . Memory (MB): peak = 2550.785 ; gain = 180.574 ; free physical = 154 ; free virtual = 68113
+INFO: [Common 17-206] Exiting Vivado at Wed Jan  6 13:50:02 2016...

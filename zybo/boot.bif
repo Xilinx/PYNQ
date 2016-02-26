@@ -1,0 +1,5 @@
+image : {
+[bootloader]zybo/sdk/fsbl/fsbl.elf
+zybo/vivado/pmod/zybo_mipy/project_1.runs/impl_1/top.bit
+src/build/firmware.elf
+}

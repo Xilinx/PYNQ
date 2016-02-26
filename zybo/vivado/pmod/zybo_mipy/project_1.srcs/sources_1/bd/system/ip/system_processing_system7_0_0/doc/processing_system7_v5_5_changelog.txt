@@ -1,0 +1,151 @@
+2015.3:
+ * Version 5.5 (Rev. 3)
+ * Added unit (cycles) to Precharge Time column for DDR Controller
+ * PS internal connectivity updated with EMIO_GPIO signals
+ * PCW output code updates - Added volatile keyword for register access
+ * Clock correction for S_AXI_HP3 interface
+ * Parameters are added for ps7_ddr_0, ps7_ram_0 and ps7_ddr_ram_1 peripherals
+ * memory ranges depending on its interface name
+ * Following is the list of parameter which will get populated based on its interface HP/GP or ACP
+ * C_HP0_AXI_BASENAME, C_HP0_AXI_HIGHNAME 
+ * C_HP1_AXI_BASENAME, C_HP1_AXI_HIGHNAME 
+ * C_HP2_AXI_BASENAME, C_HP2_AXI_HIGHNAME 
+ * C_HP3_AXI_BASENAME, C_HP3_AXI_HIGHNAME 
+ * C_GP0_AXI_BASENAME, C_GP0_AXI_HIGHNAME 
+ * C_GP1_AXI_BASENAME, C_GP1_AXI_HIGHNAME 
+ * C_ACP_AXI_BASENAME, C_ACP_AXI_HIGHNAME 
+ * Updated description for Tie off AxUSER under PS - PL Configuration -> ACP Slave AXI Interface
+ * SDIO CD & WP are routed to EMIO when not used.
+ * New parameter PCW_PLL_BYPASSMODE_ENABLE introduced to put PLLs in bypass mode
+ * New attributes as MASTERBUSINTERFACE  and SLAVEBUSINTERFACE  added to Processing System 
+ * internal slave/master memory ranges
+ * Fixed SMC timing calculations
+ * Fixed reg_ddrc_pre_cke_x1024 calculation while DRAM RST is still asserted
+ * Fix for WSTROBE (NIC301) for SDIO in PS7 wrapper
+
+2015.2.1:
+ * Version 5.5 (Rev. 2)
+ * No changes
+
+2015.2:
+ * Version 5.5 (Rev. 2)
+ * No changes
+
+2015.1:
+ * Version 5.5 (Rev. 2)
+ * Secure/Non-Secure Access configuration Enablement added in general settings
+ * DDR training board details were updated with revised scale and correct values
+ * Writing to register tpiu Curentsize (0xF8803004) register is removed if trace is disabled
+ * Enchancements for easier DS_5 integration. These Include Dynamic Trace pipeline width configuration based on user chioce and Adding keep option for Trace Control and Data registers
+ * Added support and functionality for secure and Non-secure
+ * Removed wire ENET0_GMII_TX_EN_i
+ * Wire ENET0_GMII_TX_ER_i; and the signals were tied low
+ * Added functionality for Trace_CTL_PIPE
+ * If JTAG OBUF is disabled; the PJTAG_TDO is set to 0
+
+2014.4.1:
+ * Version 5.5 (Rev. 1)
+ * No changes
+
+2014.4:
+ * Version 5.5 (Rev. 1)
+ * DDR training board details were updated with revised scale
+ * Other bug fixes
+ * Reserved bit for DRAM_param_reg3(0xF8006020) updated to '0'
+
+2014.3:
+ * Version 5.5
+ * The custom time stamp unit(PTP) signals will be exposed to the Programmable Logic(PL), even when the Ethernet is routed through the MIO. For more details, please refer Zynq Technical Reference Manual (UG 585) CH No. 16.4 IEEE 1588 Time Stamping. This change enables additional optional functionality for designs with Ethernet on MIO. No changes are required for existing designs
+ * Updated Trace data port width dependency to be based on Trace parameters Port width will display based on user selection
+ * Updated the JTAG interface from master to slave mode. Based on Zynq Technical Reference Manual, PS boot mode supports 4 master boot mode and 2 Slave JTAG Boot mode. Prior versions of Zynq PS7 IP had PL JTAG in master mode incorrectly. The JTAG port TDO will have a buffer (OBUFT) instantiated as part of the Processing System7 IP. This change only affects designs which use PL JTAG through EMIO interface. For More details, refer chapter no.6 of Zynq Technical Reference Manual (UG 585) - Boot and Configuration
+ * Added range validation for SMC cycle parameters
+ * Prior versions of PS7 IP had writes to certain reserved bits of DDR IOB Buffer Control (DDRIOB_DDR_CTRL). These have been fixed to 0x0.
+ * Save and Apply Configuration options are added to preset
+ * Training board details were updated and computed for revised scale
+ * ENET separate pins for reset introduced
+ * Asserted in Self Refresh for register dram_param_reg3
+ * DRAM_ODT_reg(0xF8006048) is updated with reserved bits of '1'
+ * DDRIOB_DDR_CTRL(0xF8000B6C) is updated with VRP/VRN enabled
+ * Added Configuration for tpiu Curentsize (0xF8803004) register to ps7_init and ps7_post_config
+ * DBG_CLK_CTRL(0xF8000164) register updates when Trace is enabled, Clock source as EMIO for TPIU
+
+2014.2:
+ * Version 5.4 (Rev. 1)
+ * Add the polarity feature for reset (USB, I2C and Ethernet) pins
+ * Add the IP type is processor
+ * Fixed LPDDR2 hang Issue
+
+2014.1:
+ * Version 5.4
+ * IRQ_F2P connections to be made directly in the silicon
+
+2013.4:
+ * Version 5.3 (Rev. 1)
+ * DDRIOB_SLEW registers added in ps7_init
+ * Removed toggling of FPGA_RST_CTRL register from post_config
+ * Trace enabled for different port size such as  2,4,8,16 and 32 bits
+
+2013.3:
+ * Version 5.3
+ * Added Microzed board preset In ps7 ip
+ * xz0303 SBG package added
+ * TCL based preset support  for Zynq
+ * Zynq BFM subcore added for simulation support
+
+2013.2:
+ * Version 5.2
+ * Zynq Power Estimation Support added
+ * Extended addresing support for SMC memories, QSPI memory, PS registers and SLCR registers
+ * Peripheral I/O pin page made more user interactive
+
+2013.1:
+ * Version 5.01
+ * Added support for ps7 preset configurations
+ * Multiple silicon version support
+ * Ps7 gui enhanced to vivado standard
+
+(c) Copyright 2002 - 2015 Xilinx, Inc. All rights reserved.
+
+This file contains confidential and proprietary information
+of Xilinx, Inc. and is protected under U.S. and
+international copyright and other intellectual property
+laws.
+
+DISCLAIMER
+This disclaimer is not a license and does not grant any
+rights to the materials distributed herewith. Except as
+otherwise provided in a valid license issued to you by
+Xilinx, and to the maximum extent permitted by applicable
+law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+(2) Xilinx shall not be liable (whether in contract or tort,
+including negligence, or under any other theory of
+liability) for any loss or damage of any kind or nature
+related to, arising under or in connection with these
+materials, including for any direct, or any indirect,
+special, incidental, or consequential loss or damage
+(including loss of data, profits, goodwill, or any type of
+loss or damage suffered as a result of any action brought
+by a third party) even if such damage or loss was
+reasonably foreseeable or Xilinx had been advised of the
+possibility of the same.
+
+CRITICAL APPLICATIONS
+Xilinx products are not designed or intended to be fail-
+safe, or for use in any application requiring fail-safe
+performance, such as life-support or safety devices or
+systems, Class III medical devices, nuclear facilities,
+applications related to the deployment of airbags, or any
+other applications that could lead to death, personal
+injury, or severe property or environmental damage
+(individually and collectively, "Critical
+Applications"). Customer assumes the sole risk and
+liability of any use of Xilinx products in Critical
+Applications, subject only to applicable laws and
+regulations governing limitations on product liability.
+
+THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+PART OF THIS FILE AT ALL TIMES.

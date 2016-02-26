@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1.0;
+
+BEGIN DRIVER axi_dispctrl
+	OPTION supported_peripherals = (axi_dispctrl);
+	OPTION depends = (common_v1_00_a);
+	OPTION copyfiles = all;
+
+END DRIVER

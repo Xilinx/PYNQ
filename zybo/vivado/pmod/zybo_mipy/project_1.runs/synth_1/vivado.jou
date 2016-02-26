@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2015.3 (64-bit)
+# SW Build 1368829 on Mon Sep 28 20:06:39 MDT 2015
+# IP Build 1367837 on Mon Sep 28 08:56:14 MDT 2015
+# Start of session at: Wed Jan  6 13:37:15 2016
+# Process ID: 22257
+# Current directory: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.runs/synth_1
+# Command line: vivado -log top.vds -mode batch -messageDb vivado.pb -notrace -source top.tcl
+# Log file: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.runs/synth_1/top.vds
+# Journal file: /home/yunq/Zybo-MiPy-20151214/XilinxPythonProject/micropython/zybo/vivado/pmod/zybo_mipy/project_1.runs/synth_1/vivado.jou
+#-----------------------------------------------------------
+source top.tcl -notrace

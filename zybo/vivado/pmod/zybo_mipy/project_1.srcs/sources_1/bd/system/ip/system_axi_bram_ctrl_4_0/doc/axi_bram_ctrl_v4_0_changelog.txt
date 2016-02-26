@@ -1,0 +1,113 @@
+2015.3:
+ * Version 4.0 (Rev. 5)
+ * IP revision number added to HDL module, library, and include file names, to support designs with both locked and upgraded IP instances
+ * Address range supported is increased to 2G in IP Integrator
+
+2015.2.1:
+ * Version 4.0 (Rev. 4)
+ * No changes
+
+2015.2:
+ * Version 4.0 (Rev. 4)
+ * No changes
+
+2015.1:
+ * Version 4.0 (Rev. 4)
+ * Increased the supporting memory depth to 256k
+ * Enabled out-of-context clock frequency setting by adding FREQ_HZ parameter to clock ports
+ * Supported devices and production status are now determined automatically, to simplify support for future devices
+
+2014.4.1:
+ * Version 4.0 (Rev. 3)
+ * No changes
+
+2014.4:
+ * Version 4.0 (Rev. 3)
+ * Internal device family change, no functional changes
+ * Added support for 7-series Automotive (XA) and Defense Grade (XQ) devices
+ * Reduced the IP INFO messages sent to the tool while creation of the IP
+
+2014.3:
+ * Version 4.0 (Rev. 2)
+ * Re-Packaged to improve internal automation, no functional changes
+
+2014.2:
+ * Version 4.0 (Rev. 1)
+ * Constrained the range for the variable "size_plus_lsb" between 1 to 256 in narrow.vhd file to improve the timing
+ * Re-Packaged to improve internal automation, no functional changes
+
+2014.1:
+ * Version 4.0
+ * The ID Ports s_axi_arid,s_axi_awid,s_axi_bid,s_axi_rid shall be generated only when the ID width is greater than or equal to '1'. when upgrading the previously released core, the ID ports mentioned above will not be generated unless the ID width is greater than or equal to '1'
+ * Internal device family name change, no functional changes
+
+2013.4:
+ * Version 3.0 (Rev. 3)
+ * Added support for Hamming Code
+ * Added support for Ultrascale devices
+
+2013.3:
+ * Version 3.0 (Rev. 2)
+ * Updated the port names to lower case
+ * Added example design
+ * Reduced warnings in synthesis and simulation
+ * Improved GUI speed and responsivness, no functional changes
+ * Added Support for Cadence IES and Synopsys VCS simulators
+ * Changed BRAM Interface DIN and DOUT to match bus interface directions.
+
+2013.2:
+ * Version 3.0 (Rev. 1)
+ * Updated Address width to 32 for ECC configurations
+ * Updated to support ECC in IPI Mode
+ * Added support for Future Devices
+
+2013.1:
+ * Version 3.0
+ * Native Vivado Release
+ * There have been no functional or interface changes to this IP.  The version number has changed to support unique versioning in Vivado starting with 2013.1.
+
+(c) Copyright 2002 - 2015 Xilinx, Inc. All rights reserved.
+
+This file contains confidential and proprietary information
+of Xilinx, Inc. and is protected under U.S. and
+international copyright and other intellectual property
+laws.
+
+DISCLAIMER
+This disclaimer is not a license and does not grant any
+rights to the materials distributed herewith. Except as
+otherwise provided in a valid license issued to you by
+Xilinx, and to the maximum extent permitted by applicable
+law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+(2) Xilinx shall not be liable (whether in contract or tort,
+including negligence, or under any other theory of
+liability) for any loss or damage of any kind or nature
+related to, arising under or in connection with these
+materials, including for any direct, or any indirect,
+special, incidental, or consequential loss or damage
+(including loss of data, profits, goodwill, or any type of
+loss or damage suffered as a result of any action brought
+by a third party) even if such damage or loss was
+reasonably foreseeable or Xilinx had been advised of the
+possibility of the same.
+
+CRITICAL APPLICATIONS
+Xilinx products are not designed or intended to be fail-
+safe, or for use in any application requiring fail-safe
+performance, such as life-support or safety devices or
+systems, Class III medical devices, nuclear facilities,
+applications related to the deployment of airbags, or any
+other applications that could lead to death, personal
+injury, or severe property or environmental damage
+(individually and collectively, "Critical
+Applications"). Customer assumes the sole risk and
+liability of any use of Xilinx products in Critical
+Applications, subject only to applicable laws and
+regulations governing limitations on product liability.
+
+THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+PART OF THIS FILE AT ALL TIMES.

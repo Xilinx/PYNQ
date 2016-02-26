@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spirit:component xmlns:xilinx="http://www.xilinx.com"
+		xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<spirit:vendor>Arm.com</spirit:vendor>
+	<spirit:library>user</spirit:library>
+	<spirit:name>AxiStreamVGA</spirit:name>
+	<spirit:version>1.0</spirit:version>
+	<spirit:busInterfaces>
+		<spirit:busInterface>
+			<spirit:name>S_AXIS</spirit:name>
+			<spirit:busType spirit:vendor="xilinx.com"
+					spirit:library="interface"
+					spirit:name="axis"
+					spirit:version="1.0"/>
+			<spirit:abstractionType spirit:vendor="xilinx.com"
+					spirit:library="interface"
+					spirit:name="axis_rtl"
+					spirit:version="1.0"/>
+			<spirit:slave/>
+			<spirit:portMaps>
+				<spirit:portMap>
+					<spirit:logicalPort>
+						<spirit:name>TDATA</spirit:name>
+					</spirit:logicalPort>
+					<spirit:physicalPort>
+						<spirit:name>S_AXIS_TDATA</spirit:name>
+					</spirit:physicalPort>
+				</spirit:portMap>
+				<spirit:portMap>
+					<spirit:logicalPort>
+						<spirit:name>TLAST</spirit:name>
+					</spirit:logicalPort>
+					<spirit:physicalPort>
+						<spirit:name>S_AXIS_TLAST</spirit:name>
+					</spirit:physicalPort>
+				</spirit:portMap>
+				<spirit:portMap>
+					<spirit:logicalPort>
+						<spirit:name>TUSER</spirit:name>
+					</spirit:logicalPort>
+					<spirit:physicalPort>
+						<spirit:name>S_AXIS_TUSER</spirit:name>
+					</spirit:physicalPort>
+				</spirit:portMap>
+				<spirit:portMap>
+					<spirit:logicalPort>
+						<spirit:name>TVALID</spirit:name>
+					</spirit:logicalPort>
+					<spirit:physicalPort>
+						<spirit:name>S_AXIS_TVALID</spirit:name>
+					</spirit:physicalPort>
+				</spirit:portMap>
+				<spirit:portMap>
+					<spirit:logicalPort>
+						<spirit:name>TREADY</spirit:name>
+					</spirit:logicalPort>
+					<spirit:physicalPort>
+						<spirit:name>S_AXIS_TREADY</spirit:name>
+					</spirit:physicalPort>
+				</spirit:portMap>
+			</spirit:portMaps>
+		</spirit:busInterface>
+		<spirit:busInterface>
+			<spirit:name>signal_reset</spirit:name>
+			<spirit:busType spirit:vendor="xilinx.com"
+					spirit:library="signal"
+					spirit:name="reset"
+					spirit:version="1.0"/>
+			<spirit:abstractionType spirit:vendor="xilinx.com"
+					spirit:library="signal"
+					spirit:name="reset_rtl"
+					spirit:version="1.0"/>
+			<spirit:slave/>
+			<spirit:portMaps>
+				<spirit:portMap>
+					<spirit:logicalPort>
+						<spirit:name>RST</spirit:name>
+					</spirit:logicalPort>
+					<spirit:physicalPort>
+						<spirit:name>ARESETN</spirit:name>
+					</spirit:physicalPort>
+				</spirit:portMap>
+			</spirit:portMaps>
+			<spirit:parameters>
+				<spirit:parameter>
+					<spirit:name>POLARITY</spirit:name>
+					<spirit:value spirit:format="string"
+							spirit:resolve="immediate"
+							spirit:id="BUSIFPARAM_VALUE.SIGNAL_RESET.POLARITY"
+							spirit:choiceRef="choices_0">ACTIVE_LOW</spirit:value>
+				</spirit:parameter>
+			</spirit:parameters>
+		</spirit:busInterface>
+		<spirit:busInterface>
+			<spirit:name>signal_clock</spirit:name>
+			<spirit:busType spirit:vendor="xilinx.com"
+					spirit:library="signal"
+					spirit:name="clock"
+					spirit:version="1.0"/>
+			<spirit:abstractionType spirit:vendor="xilinx.com"
+					spirit:library="signal"
+					spirit:name="clock_rtl"
+					spirit:version="1.0"/>
+			<spirit:slave/>
+			<spirit:portMaps>
+				<spirit:portMap>
+					<spirit:logicalPort>
+						<spirit:name>CLK</spirit:name>
+					</spirit:logicalPort>
+					<spirit:physicalPort>
+						<spirit:name>ACLK</spirit:name>
+					</spirit:physicalPort>
+				</spirit:portMap>
+			</spirit:portMaps>
+			<spirit:parameters>
+				<spirit:parameter>
+					<spirit:name>ASSOCIATED_BUSIF</spirit:name>
+					<spirit:value spirit:format="string"
+							spirit:resolve="immediate"
+							spirit:id="BUSIFPARAM_VALUE.SIGNAL_CLOCK.ASSOCIATED_BUSIF">S_AXIS</spirit:value>
+				</spirit:parameter>
+				<spirit:parameter>
+					<spirit:name>ASSOCIATED_RESET</spirit:name>
+					<spirit:value spirit:format="string"
+							spirit:resolve="immediate"
+							spirit:id="BUSIFPARAM_VALUE.SIGNAL_CLOCK.ASSOCIATED_RESET">ARESETN</spirit:value>
+				</spirit:parameter>
+			</spirit:parameters>
+		</spirit:busInterface>
+	</spirit:busInterfaces>
+	<spirit:model>
+		<spirit:views>
+			<spirit:view>
+				<spirit:name>xilinx_vhdlsynthesis</spirit:name>
+				<spirit:displayName>VHDL Synthesis</spirit:displayName>
+				<spirit:envIdentifier>vhdlSource:vivado.xilinx.com:synthesis</spirit:envIdentifier>
+				<spirit:language>vhdl</spirit:language>
+				<spirit:modelName>AxiStreamVGA</spirit:modelName>
+				<spirit:fileSetRef>
+					<spirit:localName>xilinx_vhdlsynthesis_view_fileset</spirit:localName>
+				</spirit:fileSetRef>
+			</spirit:view>
+			<spirit:view>
+				<spirit:name>xilinx_vhdlbehavioralsimulation</spirit:name>
+				<spirit:displayName>VHDL Simulation</spirit:displayName>
+				<spirit:envIdentifier>vhdlSource:vivado.xilinx.com:simulation</spirit:envIdentifier>
+				<spirit:language>vhdl</spirit:language>
+				<spirit:modelName>AxiStreamVGA</spirit:modelName>
+				<spirit:fileSetRef>
+					<spirit:localName>xilinx_vhdlbehavioralsimulation_view_fileset</spirit:localName>
+				</spirit:fileSetRef>
+			</spirit:view>
+			<spirit:view>
+				<spirit:name>xilinx_xpgui</spirit:name>
+				<spirit:displayName>UI Layout</spirit:displayName>
+				<spirit:envIdentifier>:vivado.xilinx.com:xgui.ui</spirit:envIdentifier>
+				<spirit:fileSetRef>
+					<spirit:localName>xilinx_xpgui_view_fileset</spirit:localName>
+				</spirit:fileSetRef>
+			</spirit:view>
+		</spirit:views>
+		<spirit:ports>
+			<spirit:port>
+				<spirit:name>ACLK</spirit:name>
+				<spirit:wire>
+					<spirit:direction>in</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>ARESETN</spirit:name>
+				<spirit:wire>
+					<spirit:direction>in</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>S_AXIS_TVALID</spirit:name>
+				<spirit:wire>
+					<spirit:direction>in</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>S_AXIS_TDATA</spirit:name>
+				<spirit:wire>
+					<spirit:direction>in</spirit:direction>
+					<spirit:vector>
+						<spirit:left spirit:format="long"
+								spirit:resolve="immediate">23</spirit:left>
+						<spirit:right spirit:format="long"
+								spirit:resolve="immediate">0</spirit:right>
+					</spirit:vector>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic_vector</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>S_AXIS_TLAST</spirit:name>
+				<spirit:wire>
+					<spirit:direction>in</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>S_AXIS_TREADY</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>S_AXIS_TUSER</spirit:name>
+				<spirit:wire>
+					<spirit:direction>in</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>PIXELCLK</spirit:name>
+				<spirit:wire>
+					<spirit:direction>in</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>vga_hs</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>vga_vs</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>vga_r</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:vector>
+						<spirit:left spirit:format="long"
+								spirit:resolve="immediate">4</spirit:left>
+						<spirit:right spirit:format="long"
+								spirit:resolve="immediate">0</spirit:right>
+					</spirit:vector>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic_vector</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>vga_g</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:vector>
+						<spirit:left spirit:format="long"
+								spirit:resolve="immediate">5</spirit:left>
+						<spirit:right spirit:format="long"
+								spirit:resolve="immediate">0</spirit:right>
+					</spirit:vector>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic_vector</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>vga_b</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:vector>
+						<spirit:left spirit:format="long"
+								spirit:resolve="immediate">4</spirit:left>
+						<spirit:right spirit:format="long"
+								spirit:resolve="immediate">0</spirit:right>
+					</spirit:vector>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>std_logic_vector</spirit:typeName>
+							<spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+		</spirit:ports>
+		<spirit:modelParameters>
+			<spirit:modelParameter xsi:type="spirit:nameValueTypeType"
+					spirit:dataType="positive">
+				<spirit:name>hor_s</spirit:name>
+				<spirit:displayName>Hor S</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.hor_s">96</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="positive">
+				<spirit:name>hor_bp</spirit:name>
+				<spirit:displayName>Hor Bp</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.hor_bp">48</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="positive">
+				<spirit:name>hor_d</spirit:name>
+				<spirit:displayName>Hor D</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.hor_d">640</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="positive">
+				<spirit:name>hor_fp</spirit:name>
+				<spirit:displayName>Hor Fp</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.hor_fp">16</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="std_logic">
+				<spirit:name>hor_pol</spirit:name>
+				<spirit:displayName>Hor Pol</spirit:displayName>
+				<spirit:value spirit:format="bitString"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.hor_pol"
+						spirit:bitStringLength="1">&quot;0&quot;</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="positive">
+				<spirit:name>vert_s</spirit:name>
+				<spirit:displayName>Vert S</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.vert_s">2</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="positive">
+				<spirit:name>vert_bp</spirit:name>
+				<spirit:displayName>Vert Bp</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.vert_bp">33</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="positive">
+				<spirit:name>vert_d</spirit:name>
+				<spirit:displayName>Vert D</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.vert_d">480</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="positive">
+				<spirit:name>vert_fp</spirit:name>
+				<spirit:displayName>Vert Fp</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.vert_fp">10</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="std_logic">
+				<spirit:name>vert_pol</spirit:name>
+				<spirit:displayName>Vert Pol</spirit:displayName>
+				<spirit:value spirit:format="bitString"
+						spirit:resolve="generated"
+						spirit:id="MODELPARAM_VALUE.vert_pol"
+						spirit:bitStringLength="1">&quot;0&quot;</spirit:value>
+			</spirit:modelParameter>
+		</spirit:modelParameters>
+	</spirit:model>
+	<spirit:choices>
+		<spirit:choice>
+			<spirit:name>choices_0</spirit:name>
+			<spirit:enumeration>ACTIVE_HIGH</spirit:enumeration>
+			<spirit:enumeration>ACTIVE_LOW</spirit:enumeration>
+		</spirit:choice>
+	</spirit:choices>
+	<spirit:fileSets>
+		<spirit:fileSet>
+			<spirit:name>xilinx_vhdlsynthesis_view_fileset</spirit:name>
+			<spirit:file>
+				<spirit:name>edit_AxiStream2VGA.srcs/sources_1/imports/hdl/AxiStreamVGA.vhd</spirit:name>
+				<spirit:fileType>vhdlSource</spirit:fileType>
+				<spirit:logicalName>work</spirit:logicalName>
+			</spirit:file>
+		</spirit:fileSet>
+		<spirit:fileSet>
+			<spirit:name>xilinx_vhdlbehavioralsimulation_view_fileset</spirit:name>
+			<spirit:file>
+				<spirit:name>edit_AxiStream2VGA.srcs/sources_1/imports/hdl/AxiStreamVGA.vhd</spirit:name>
+				<spirit:fileType>vhdlSource</spirit:fileType>
+				<spirit:logicalName>work</spirit:logicalName>
+			</spirit:file>
+		</spirit:fileSet>
+		<spirit:fileSet>
+			<spirit:name>xilinx_xpgui_view_fileset</spirit:name>
+			<spirit:file>
+				<spirit:name>xgui/AxiStreamVGA_v1_0.tcl</spirit:name>
+				<spirit:fileType>tclSource</spirit:fileType>
+				<spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
+			</spirit:file>
+		</spirit:fileSet>
+	</spirit:fileSets>
+	<spirit:description>AxiStreamVGA_v1_0</spirit:description>
+	<spirit:parameters>
+		<spirit:parameter>
+			<spirit:name>Component_Name</spirit:name>
+			<spirit:value spirit:resolve="user"
+					spirit:id="PARAM_VALUE.Component_Name"
+					spirit:order="1">AxiStreamVGA_v1_0</spirit:value>
+		</spirit:parameter>
+	</spirit:parameters>
+	<spirit:vendorExtensions>
+		<xilinx:coreExtensions>
+			<xilinx:supportedFamilies>
+				<xilinx:family xilinx:lifeCycle="Production">zynq</xilinx:family>
+			</xilinx:supportedFamilies>
+			<xilinx:taxonomies>
+				<xilinx:taxonomy>/BaseIP</xilinx:taxonomy>
+			</xilinx:taxonomies>
+			<xilinx:displayName>AxiStreamVGA_v1_0</xilinx:displayName>
+			<xilinx:coreRevision>1</xilinx:coreRevision>
+			<xilinx:coreCreationDateTime>2014-10-30T12:35:21Z</xilinx:coreCreationDateTime>
+		</xilinx:coreExtensions>
+		<xilinx:packagingInfo>
+			<xilinx:xilinxVersion>2013.4</xilinx:xilinxVersion>
+		</xilinx:packagingInfo>
+	</spirit:vendorExtensions>
+</spirit:component>
