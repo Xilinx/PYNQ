@@ -5,7 +5,7 @@ __email__       = "yunq@xilinx.com"
 import os
 import sys
 import re
-from time import gmtime, strftime
+from datetime import datetime
 from xml.etree import ElementTree
 
 class PL:
@@ -89,7 +89,9 @@ class BITSTREAM(PL):
         finally:
             f.close()
         
-        self.timestamp = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+        t = datetime.now()
+        self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(t.year,t.month,t.day,\
+                                t.hour,t.minute,t.second,t.microsecond)
         PL.bitstream = self.bitstream             
         PL.timestamp = self.timestamp
         
