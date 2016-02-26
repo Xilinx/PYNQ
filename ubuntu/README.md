@@ -5,11 +5,11 @@ All images including the latest are available at: [file://xsjeng1/group/xrlabs/g
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-02-19-2016 - <giuseppe.natale@xilinx.com>
-             updated pyxi to latest version on repo. Now all regression tests
-             are succesfully passed, including AV overlay
-             Added Liam's sobel edge detection filter as a notebook after converting it
-             to CPython with a few changes in the source
+02-26-2016 - <giuseppe.natale@xilinx.com>
+             updated pyxi to latest version on repo.
+             upgraded pip to latest version
+             installed 'pillow' (image package for python) and relative dependencies
+             updated sobel edge detection notebook
 ```
 
 
@@ -21,6 +21,18 @@ Staging - to be added in next image
 
 ```
 
+02-26-2016
+
+```
+<on target terminal>
+
+# install Pillow to enable saving an AV frame as JPEG.
+# First of all, install this packages
+sudo apt-get install libtiff5-dev libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.5-dev python-tk
+
+#Then install Pillow using pip
+sudo -H pip install pillow
+```
 
 
 02-11-2016

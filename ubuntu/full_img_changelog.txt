@@ -47,3 +47,9 @@ latest image available at: file://xco-smb/gnatale/public/
              are succesfully passed, including AV overlay
              Added Liam's sobel edge detection filter as a notebook after converting it
              to CPython with a few changes in the source
+
+02-26-2016 - <giuseppe.natale@xilinx.com>
+             updated pyxi to latest version on repo.
+             upgraded pip to latest version
+             installed 'pillow' (image package for python) and relative dependencies
+             updated sobel edge detection notebook

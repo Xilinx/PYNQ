@@ -5,7 +5,8 @@ __email__       = "giuseppe.natale@xilinx.com"
 
 
 from . import _video
-
+from PIL import Image
+from itertools import chain
 
 class Frame(object):
     """Just a wrapper to a bytearray frame buffer that exposes handy getter and
@@ -66,3 +67,22 @@ class Frame(object):
     def __del__(self):
         if self._framebuffer is not None:
             del self._framebuffer #free memory
+
+    def save_as_jpeg(self, path):
+        rgb = bytearray()
+        for i in range(0, self.height):
+            row = self.frame[i*1920*3:(i*1920+self.width)*3]
+            rgb.extend(bytearray(chain.from_iterable((row[j+2],row[j],row[j+1]) for j in range(0, len(row)-1, 3))))
+
+        image = Image.frombytes('RGB',(self.width,self.height),bytes(rgb))
+        image.save(path,'JPEG')
+
+    @staticmethod
+    def save_raw_as_jpeg(path, frame_raw, height, width):
+        rgb = bytearray()
+        for i in range(0, height):
+            row = frame_raw[i*1920*3:(i*1920+width)*3]
+            rgb.extend(bytearray(chain.from_iterable((row[j+2],row[j],row[j+1]) for j in range(0, len(row)-1, 3))))
+
+        image = Image.frombytes('RGB',(width, height),bytes(rgb))
+        image.save(path,'JPEG')
