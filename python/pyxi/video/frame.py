@@ -68,7 +68,7 @@ class Frame(object):
         if self._framebuffer is not None:
             del self._framebuffer #free memory
 
-    def save_as_jpeg(path):
+    def save_as_jpeg(self, path):
         rgb = bytearray()
         for i in range(0, self.height):
             row = self.frame[i*1920*3:(i*1920+self.width)*3]
