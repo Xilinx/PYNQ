@@ -4,12 +4,11 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: Xilinx, Inc
-// Create Date: 08/27/2015 09:11:48 PM
-// Design Name: MicroPython offloading tasks on 5 MicroBlazes
+// Create Date: 02/29/2016
 // Module Name: top
-// Project Name: MicroPyton on Zynq
+// Project Name: Linux on Zynq
 // Target Devices: Zynq
-// Tool Versions: 2015.2
+// Tool Versions: 2015.3
 // Description: 
 //////////////////////////////////////////////////////////////////////////////////
 `timescale 1 ps / 1 ps
@@ -36,6 +35,8 @@ module top(
     FIXED_IO_ps_clk,
     FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb,
+    iic_1_scl_io,
+    iic_1_sda_io,
     btns_4bits_tri_i,
     pmodJB,
     pmodJC,
@@ -69,6 +70,8 @@ module top(
   inout DDR_we_n;
   inout FIXED_IO_ddr_vrn;
   inout FIXED_IO_ddr_vrp;
+  inout iic_1_scl_io;
+  inout iic_1_sda_io;
   inout [53:0]FIXED_IO_mio;
   inout FIXED_IO_ps_clk;
   inout FIXED_IO_ps_porb;
@@ -133,6 +136,26 @@ module top(
   wire pmodJA3_p;
   wire pmodJA4_n;
   wire pmodJA4_p;
+  wire iic_1_scl_i;
+  wire iic_1_scl_io;
+  wire iic_1_scl_o;
+  wire iic_1_scl_t;
+  wire iic_1_sda_i;
+  wire iic_1_sda_io;
+  wire iic_1_sda_o;
+  wire iic_1_sda_t;
+
+// IIC1 (from PS)
+  IOBUF iic_1_scl_iobuf
+       (.I(iic_1_scl_o),
+        .IO(iic_1_scl_io),
+        .O(iic_1_scl_i),
+        .T(iic_1_scl_t));
+  IOBUF iic_1_sda_iobuf
+       (.I(iic_1_sda_o),
+        .IO(iic_1_sda_io),
+        .O(iic_1_sda_i),
+        .T(iic_1_sda_t));
 
   IOBUF pmodJB_data_iobuf_0
        (.I(pmodJB_data_out[0]),
@@ -321,6 +344,12 @@ module top(
         .FIXED_IO_ps_clk(FIXED_IO_ps_clk),
         .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
         .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
+        .IIC_1_scl_i(iic_1_scl_i),
+        .IIC_1_scl_o(iic_1_scl_o),
+        .IIC_1_scl_t(iic_1_scl_t),
+        .IIC_1_sda_i(iic_1_sda_i),
+        .IIC_1_sda_o(iic_1_sda_o),
+        .IIC_1_sda_t(iic_1_sda_t),
         .btns_4bits_tri_i(btns_4bits_tri_i),
         .leds_4bits_tri_o(leds_4bits_tri_o),
         .pmodJB_data_in(pmodJB_data_in),

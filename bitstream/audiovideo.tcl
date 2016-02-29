@@ -34,7 +34,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # CHECKING IF PROJECT EXISTS
 if { [get_projects -quiet] eq "" } {
-   create_project project_1 zybo_mipy -part xc7z010clg400-1
+   create_project project_1 zybo -part xc7z010clg400-1
 }
 
 set_property  ip_repo_paths  ./src/ip [current_project]
@@ -1346,10 +1346,10 @@ levelinfo -pg 1 0 260 730 1120 1700 1890 -top 0 -bot 1610
 create_root_design ""
 
 # Additional steps to get to bitstream
-make_wrapper -files [get_files ./zybo_mipy/project_1.srcs/sources_1/bd/system/system.bd] -top
+make_wrapper -files [get_files ./zybo/project_1.srcs/sources_1/bd/system/system.bd] -top
 
 # generate toplevel wrapper files
-add_files -norecurse ./zybo_mipy/project_1.srcs/sources_1/bd/system/hdl/system_wrapper.v
+add_files -norecurse ./zybo/project_1.srcs/sources_1/bd/system/hdl/system_wrapper.v
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
 add_files -fileset constrs_1 -norecurse ./src/constraints/top.xdc
@@ -1372,6 +1372,3 @@ wait_on_run impl_1
 #phys_opt_design
 #route_design
 #write_bitstream 
-
-# Transform the .bit file into .bin file
-write_cfgmem -format BIN -interface SMAPx32 -disablebitswap -loadbit "up 0 ./zybo_mipy/project_1.runs/impl_1/top.bit" ./zybo_mipy/project_1.runs/impl_1/audiovideo.bit.bin

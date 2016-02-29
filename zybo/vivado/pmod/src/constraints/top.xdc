@@ -111,4 +111,8 @@ set_property BMM_INFO_ADDRESS_SPACE {byte 0x0 32 > system mb_JD/mb3_lmb/lmb_bram
 set_property BMM_INFO_PROCESSOR {microblaze-le > system mb_JE/mb4_lmb/lmb_bram_if_cntlr} [get_cells system_i/mb_JE/mb_4]
 set_property BMM_INFO_ADDRESS_SPACE {byte 0x0 32 > system mb_JE/mb4_lmb/lmb_bram} [get_cells system_i/mb_JE/mb4_lmb/lmb_bram_if_cntlr]
 
-
+#I2C 1 interface
+set_property PACKAGE_PIN N18 [get_ports iic_1_scl_io]
+set_property IOSTANDARD LVCMOS33 [get_ports iic_1_scl_io]
+set_property PACKAGE_PIN N17 [get_ports iic_1_sda_io]
+set_property IOSTANDARD LVCMOS33 [get_ports iic_1_sda_io]
