@@ -53,3 +53,7 @@ latest image available at: file://xco-smb/gnatale/public/
              upgraded pip to latest version
              installed 'pillow' (image package for python) and relative dependencies
              updated sobel edge detection notebook
+
+02-29-2016 - <giuseppe.natale@xilinx.com>
+             Now the unique MAC address is read from zybo's EEPROM 24AA02E48 and 
+             properly set at boot

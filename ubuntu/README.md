@@ -5,11 +5,9 @@ All images including the latest are available at: [file://xsjeng1/group/xrlabs/g
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-02-26-2016 - <giuseppe.natale@xilinx.com>
-             updated pyxi to latest version on repo.
-             upgraded pip to latest version
-             installed 'pillow' (image package for python) and relative dependencies
-             updated sobel edge detection notebook
+02-29-2016 - <giuseppe.natale@xilinx.com>
+             Now the unique MAC address is read from zybo's EEPROM 24AA02E48 and 
+             properly set at boot
 ```
 
 
