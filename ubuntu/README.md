@@ -18,6 +18,12 @@ Staging - to be added in next image
 ```
 pip install cffi # Need the package cffi
 
+
+#To get bash in the Jupyter terminal and consequently all the nice feature such as history and TAB autocompletion
+<on target terminal>
+sudo rm /bin/sh
+sudo ln -s /bin/bash /bin/sh
+
 ```
 
 02-26-2016
