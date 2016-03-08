@@ -20,7 +20,7 @@ class PL:
         if euid != 0:
             raise EnvironmentError('root permissions required.')
           
-class BITSTREAM(PL):
+class Bitstream(PL):
     """This class extends the PL (singleton) class."""
     
     global bs_path, bs_default
@@ -95,8 +95,8 @@ class BITSTREAM(PL):
         PL.bitstream = self.bitstream             
         PL.timestamp = self.timestamp
         
-class OVERLAY(PL):
-    """The OVERLAY class can keep track of multiple bitstreams."""
+class Overlay(PL):
+    """The Overlay class can keep track of multiple bitstreams."""
     
     global bs_path
     bs_path = '/home/xpp/src/pyxi/bitstream/'
@@ -127,7 +127,7 @@ class OVERLAY(PL):
         if not isinstance(bs_name, str):
             raise TypeError("bitstream name has to be a string")
         
-        self.bit_table[bs_name] = BITSTREAM(bs_name)
+        self.bit_table[bs_name] = Bitstream(bs_name)
                 
     def download_bitstream(self, bs_name):
         """ Download a bitstream onto PL

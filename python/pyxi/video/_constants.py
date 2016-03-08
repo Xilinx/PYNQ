@@ -7,9 +7,9 @@ __author__      = "Giuseppe Natale"
 __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
-from pyxi import OVERLAY
+from pyxi import Overlay
 
-ol = OVERLAY()
+ol = Overlay()
 ol.add_bitstream('audiovideo.bit')
 
 VDMA_DICT = {

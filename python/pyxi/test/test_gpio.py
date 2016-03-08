@@ -5,7 +5,7 @@ __email__       = "yunq@xilinx.com"
  
 import pytest
 import os, math
-from pyxi import GPIO, OVERLAY
+from pyxi import GPIO, Overlay
 
 
 @pytest.mark.run(order=3)
@@ -16,7 +16,7 @@ def test_gpio():
         The gpio_max is the smallest power of 2 greater than the GPIO base. 
         This may not be true for other boards.
     """
-    ol = OVERLAY()
+    ol = Overlay()
     gpio_min = ol.get_gpio_base() + 54
     gpio_max = 2**(math.ceil(math.log(gpio_min, 2)))
     

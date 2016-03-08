@@ -7,7 +7,7 @@ __email__       = "yunq@xilinx.com"
 
 
 import pytest
-from pyxi.board.switch import SWITCH
+from pyxi.board.switch import Switch
     
 @pytest.mark.run(order=7)
 def test_switch_all():
@@ -17,7 +17,7 @@ def test_switch_all():
     """ 
     print("\nSet all the 4 switches (SW0 ~ SW3) off (lower position).") 
     input("Then hit enter...")
-    switches = [SWITCH(index) for index in range(0, 4)] 
+    switches = [Switch(index) for index in range(0, 4)] 
     for index in range(4):
         assert switches[index].read()==0, \
             "Switch %d read wrong values." % index

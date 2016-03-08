@@ -5,9 +5,9 @@ __email__       = "yunq@xilinx.com"
  
 import pytest
 import os
-from pyxi import OVERLAY
+from pyxi import Overlay
     
-ol = OVERLAY()
+ol = Overlay()
 ol.add_bitstream('pmod.bit')
 ol.add_bitstream('audiovideo.bit')
     

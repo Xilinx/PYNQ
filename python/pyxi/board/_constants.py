@@ -1,8 +1,8 @@
 """This module defines constants internally used by the onboard gpios."""
 
-from pyxi import OVERLAY
+from pyxi import Overlay
 
-ol = OVERLAY()
+ol = Overlay()
 ol.add_bitstream('pmod.bit')
 
 BTNS_ADDR = int(ol.get_mmio_base('pmod.bit','btns'),16)

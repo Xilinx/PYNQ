@@ -6,10 +6,10 @@ __email__       = "yunq@xilinx.com"
 import os
 import sys
 import math
-from pyxi import MMIO,GPIO,OVERLAY
+from pyxi import MMIO,GPIO,Overlay
 import mmap
 
-ol = OVERLAY()
+ol = Overlay()
 ol.add_bitstream('pmod.bit')
 #########################
 # IOP mailbox constants #

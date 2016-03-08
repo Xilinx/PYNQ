@@ -8,9 +8,9 @@ __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
-from pyxi import OVERLAY
+from pyxi import Overlay
 
-ol = OVERLAY()
+ol = Overlay()
 ol.add_bitstream('audiovideo.bit')
 
 AUDIO_BASE_ADDRESS = int(ol.get_mmio_base('audiovideo.bit',\

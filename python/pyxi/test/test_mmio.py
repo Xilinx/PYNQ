@@ -7,7 +7,7 @@ import pytest
 import os
 from random import randint
 from math import pow
-from pyxi import MMIO, OVERLAY
+from pyxi import MMIO, Overlay
     
     
 @pytest.mark.run(order=4)
@@ -21,7 +21,7 @@ def test_mmio():
         3. The largest unsigned int is 2^32-1. Any number within the 
         range [0, 2^32-1] can be written into a 4-byte location.
     """
-    ol = OVERLAY()
+    ol = Overlay()
     ol.add_bitstream('pmod.bit')
     ol.add_bitstream('audiovideo.bit')
     
