@@ -1,61 +1,24 @@
-/******************************************************************************
-*
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-* OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*
-* Except as contained in this notice, the name of the Xilinx shall not be used
-* in advertising or otherwise to promote the sale, use or other dealings in
-* this Software without prior written authorization from Xilinx.
-*
-******************************************************************S***********/
-
 /*
  * CPython bindings for a video frame object - to be used in conjuction with
- * video.capture and video.display
+ * _video._capture and _video._display
  *
- * @author Giuseppe Natale <giuseppe.natale@xilinx.com>
+ * @author Giuseppe Natale
  * @date   27 JAN 2016
  */
 
-#include <Python.h>         //pulls the Python API
-#include <structmember.h>   //handle attributes
 
+#include <Python.h>
+#include <structmember.h>
 #include <stdio.h>
 #include <string.h>
-
-//#include "xil_cache.h"
 #include "xil_types.h"
 #include "utils.h"
 #include "video_commons.h"
-
 #include "_video.h"
 
 
-// videoframeObject defined in _video.h
-
 /*****************************************************************************/
-/* Defining OOP special methods                                              */
+/* Defining the dunder methods                                               */
 
 /*
  * deallocator
@@ -91,7 +54,7 @@ static int videoframe_init(videoframeObject *self, PyObject *args){
     {
         if((self->frame_buffer[0] = (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME))
            == NULL){
-            PyErr_Format(PyExc_MemoryError,"unable to allocate memory");
+            PyErr_Format(PyExc_MemoryError,"Unable to allocate memory");
             return -1; 
         }
         return 0;
@@ -100,7 +63,7 @@ static int videoframe_init(videoframeObject *self, PyObject *args){
     for(int i = 0; i < NUM_FRAMES; i++)
         if((self->frame_buffer[i] = (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME))
            == NULL){
-            PyErr_Format(PyExc_MemoryError,"unable to allocate memory");
+            PyErr_Format(PyExc_MemoryError,"Unable to allocate memory");
             return -1; 
         }
     return 0;
@@ -116,13 +79,16 @@ static PyMemberDef videoframe_members[] = {
 };
 
 /*****************************************************************************/
+/* functions used to set or get a frame - used by the frame member           */
+/* functions and by _capture.c and _display.c                                */
+
 /*
  * get a bytearray object holding the frame at index
  */
 PyObject *get_frame(videoframeObject *self, unsigned int index){
     if(index < 0 || index >= NUM_FRAMES){
         PyErr_Format(PyExc_ValueError, 
-                     "index %d out of range [%d,%d]",
+                     "Index %d out of range [%d,%d]",
                      index, 0, NUM_FRAMES-1);
         return NULL;
     }
@@ -142,9 +108,6 @@ PyObject *set_frame(videoframeObject *self, unsigned int index,
         return NULL;        
     }
     memcpy(self->frame_buffer[index], new_frame->ob_start, MAX_FRAME);
-    /*// Flush the framebuffer memory range to ensure changes are written 
-    // to the actual memory, and therefore accessible by the XAxiVdma.
-    Xil_DCacheFlushRange((unsigned int)self->frame_buffer[index], MAX_FRAME);*/
     Py_RETURN_NONE;
 }
 
@@ -186,11 +149,8 @@ static PyObject *videoframe_max_height(videoframeObject *self){
 }
 
 /*****************************************************************************/
+/* Defining the methods struct                                               */
 
-/*
- * defining the methods
- *
- */
 static PyMethodDef videoframe_methods[] = {
     {"max_frames", (PyCFunction)videoframe_max_frames, METH_VARARGS,
      "Get the maximum number of frame stored by this frame buffer."

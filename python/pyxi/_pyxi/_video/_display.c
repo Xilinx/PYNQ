@@ -1,50 +1,17 @@
-/******************************************************************************
-*
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-* OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*
-* Except as contained in this notice, the name of the Xilinx shall not be used
-* in advertising or otherwise to promote the sale, use or other dealings in
-* this Software without prior written authorization from Xilinx.
-*
-******************************************************************************/
-
 /*
  * CPython bindings for a video display peripheral (video_display.h)
  *
- * @author Giuseppe Natale <giuseppe.natale@xilinx.com>
+ * @author Giuseppe Natale
  * @date   27 JAN 2016
  */
 
-#include <Python.h>         //pulls the Python API
-#include <structmember.h>   //handle attributes
 
+#include <Python.h>
+#include <structmember.h>
 #include <stdio.h>
 #include <string.h>
 #include "video_commons.h"
 #include "video_display.h"
-
 #include "_video.h"
 
 
@@ -56,7 +23,7 @@ typedef struct{
 
 
 /*****************************************************************************/
-/* Defining OOP special methods                                              */
+/* Defining the dunder methods                                               */
 
 /*
  * deallocator
@@ -79,7 +46,7 @@ static PyObject *videodisplay_new(PyTypeObject *type, PyObject *args,
     videodisplayObject *self;
     self = (videodisplayObject *)type->tp_alloc(type, 0);
     if((self->display = (DisplayCtrl *)malloc(sizeof(DisplayCtrl))) == NULL){
-        PyErr_Format(PyExc_MemoryError, "unable to allocate memory");
+        PyErr_Format(PyExc_MemoryError, "Unable to allocate memory");
         return NULL;        
     }
     return (PyObject *)self;
@@ -106,7 +73,7 @@ static int videodisplay_init(videodisplayObject *self, PyObject *args){
         for(int i = 0; i < NUM_FRAMES; i++)
             if((self->frame->frame_buffer[i] = 
                 (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME)) == NULL){
-                PyErr_Format(PyExc_MemoryError, "unable to allocate memory");
+                PyErr_Format(PyExc_MemoryError, "Unable to allocate memory");
                 return -1;    
             }     
     }
@@ -116,7 +83,7 @@ static int videodisplay_init(videodisplayObject *self, PyObject *args){
                                    self->frame->frame_buffer, STRIDE);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
-                     "video.display initialization failed [%d]", status);
+                     "_video._display initialization failed [%d]", status);
         return -1;
     }  
     return 0;
@@ -161,12 +128,17 @@ static PyObject *videodisplay_frame_index(videodisplayObject *self,
             return NULL;
         if(newIndex >= 0 && newIndex < NUM_FRAMES){       
             self->display->curFrame = newIndex;
-            DisplayChangeFrame(self->display, newIndex);
+            int status = DisplayChangeFrame(self->display, newIndex);
+            if (status != XST_SUCCESS){
+                PyErr_Format(PyExc_SystemError, 
+                             "Unable to change frame [%d]", status);
+                return NULL;
+            }
             Py_RETURN_NONE;
         }
         else{
             PyErr_Format(PyExc_ValueError, 
-                         "index %d out of range [%d,%d]",
+                         "Index %d out of range [%d,%d]",
                          newIndex, 0, NUM_FRAMES-1);
             return NULL;
         }
@@ -186,7 +158,7 @@ static PyObject *videodisplay_frame_index_next(videodisplayObject *self){
     int status = DisplayChangeFrame(self->display, newIndex);   
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_SystemError, 
-                     "unable to change frame [%d]", status);
+                     "Unable to change frame [%d]", status);
         return NULL;
     }
     return Py_BuildValue("I", self->display->curFrame);
@@ -215,7 +187,7 @@ static PyObject *videodisplay_start(videodisplayObject *self){
     int status = DisplayStart(self->display);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_SystemError, 
-                     "unable to start display device [%d]", status);
+                     "Unable to start display device [%d]", status);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -228,7 +200,7 @@ static PyObject *videodisplay_stop(videodisplayObject *self){
     int status = DisplayStop(self->display);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_SystemError, 
-                     "unable to stop display device [%d]", status);
+                     "Unable to stop display device [%d]", status);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -270,7 +242,7 @@ static PyObject *videodisplay_mode(videodisplayObject *self,
                 break;
             default:
                 PyErr_Format(PyExc_ValueError, 
-                             "new mode index out of range [%d,%d]",
+                             "New mode index out of range [%d,%d]",
                              0, 4);    
                 return NULL;
         }         
@@ -293,17 +265,17 @@ static PyObject *videodisplay_frame(videodisplayObject *self, PyObject *args){
     }
     if(nargs == 1 && !PyArg_ParseTuple(args, "O", &new_frame)){
         PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "passed argument is invalid");
+        PyErr_SetString(PyExc_SyntaxError, "Passed argument is invalid");
         return NULL;        
     }
     else if(nargs == 2 && !PyArg_ParseTuple(args, "IO", &index, &new_frame)){
         PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "passed arguments are invalid");
+        PyErr_SetString(PyExc_SyntaxError, "Passed arguments are invalid");
         return NULL;        
     }
     else if(nargs > 2){
         PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "invalid number of arguments");
+        PyErr_SetString(PyExc_SyntaxError, "Invalid number of arguments");
         return NULL;        
     }
     if (!PyByteArray_CheckExact(new_frame)){
@@ -317,11 +289,8 @@ static PyObject *videodisplay_frame(videodisplayObject *self, PyObject *args){
 }
 
 /*****************************************************************************/
+/* Defining the methods struct                                               */
 
-/*
- * defining the methods
- *
- */
 static PyMethodDef videodisplay_methods[] = {
     {"frame_index", (PyCFunction)videodisplay_frame_index, METH_VARARGS,
      "Get current index or if the argument is specified set it to a new one \

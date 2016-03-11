@@ -1,92 +1,48 @@
-/******************************************************************************
-*
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-* OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*
-* Except as contained in this notice, the name of the Xilinx shall not be used
-* in advertising or otherwise to promote the sale, use or other dealings in
-* this Software without prior written authorization from Xilinx.
-*
-******************************************************************************/
-
 /*
  * CPython bindings for an audio peripheral (audio.h)
  *
- * @author Giuseppe Natale <giuseppe.natale@xilinx.com>
+ * @author Giuseppe Natale
  * @date   26 JAN 2016
  */
 
-#include <Python.h>         //pulls the Python API
-#include <structmember.h>   //handle attributes
- 
+
+#include <Python.h>
+#include <structmember.h> 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "gpio.h"
 #include "utils.h"
 #include "audio.h"
 #include "xil_io.h"
-//#include "py_xiicps.h"
 
 
 typedef struct {
     PyObject_HEAD
     unsigned int baseaddr;
     unsigned int emioPin;
-//    XIicPs *iic;
     int iic;
     int muted;
 } _audioObject;
 
 
 /*****************************************************************************/
-/* Defining OOP special methods                                              */
+/* Defining the dunder methods                                               */
 
 /*
  * deallocator
  */
 static void _audio_dealloc(_audioObject* self){
-    //freeVirtualAddress(self->iic->Config.BaseAddress);
-    //Py_Del_XIicPs(self->iic);
-
     freeVirtualAddress(self->baseaddr);
     unsetGpio(self->emioPin);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-/*print
+/*
  * __init()__ method
  *
  * Python Constructor: audio(baseaddr, emio_pin, iicps_idx)
  */
 static int _audio_init(_audioObject *self, PyObject *args){
-    /*PyObject *iicps_dict = NULL;
-    if (!PyArg_ParseTuple(args, "IIO", &self->baseaddr, &self->emioPin,
-                          &iicps_dict))
-        return -1;
-    if (!PyDict_CheckExact(iicps_dict))
-        return -1;*/
     if (!PyArg_ParseTuple(args, "III", &self->baseaddr, &self->emioPin,
                           &self->iic))
         return -1;
@@ -94,7 +50,6 @@ static int _audio_init(_audioObject *self, PyObject *args){
     writeGpio(self->emioPin, 1); // unmute audio CODEC
     self->muted = 0;
     self->baseaddr = getVirtualAddress(self->baseaddr);
-    //self->iic = IicConfig(iicps_dict);
     LineinLineoutConfig(self->iic);   
     return 0;
 }
@@ -138,7 +93,7 @@ static PyObject *_audio_input(_audioObject *self){
     {
         wait = Xil_In32(I2S_STATUS_OFFSET + self->baseaddr);
     }while ( wait == 0);
-    Xil_Out32(I2S_STATUS_OFFSET + self->baseaddr, 0x00000001); //Clear data rdy bit
+    Xil_Out32(I2S_STATUS_OFFSET + self->baseaddr, 0x00000001);
     PyList_Append(channels, Py_BuildValue("I", Xil_In32(I2S_DATA_RX_L_OFFSET
                                                         + self->baseaddr)));
     PyList_Append(channels, Py_BuildValue("I", Xil_In32(I2S_DATA_RX_R_OFFSET
@@ -189,17 +144,14 @@ static PyObject *_audio_toggle_mute(_audioObject *self){
 
 
 /*****************************************************************************/
+/* Defining the methods struct                                               */
 
-/*
- * defining the methods
- *
- */
 static PyMethodDef _audio_methods[] = {
     {"input", (PyCFunction)_audio_input, METH_VARARGS,
-     "Get the current content of both the L and R channel as a list = (L,R)."
+     "Get the current content of both the L and R channel as a list = [L,R]."
     },
     {"output", (PyCFunction)_audio_output, METH_VARARGS,
-     "Take a list = (L,R) and outputs the value on both the left and \
+     "Take a list = [L,R] and outputs the value on both the left and \
       right channels."
     },
     {"toggle_mute", (PyCFunction)_audio_toggle_mute, METH_VARARGS,

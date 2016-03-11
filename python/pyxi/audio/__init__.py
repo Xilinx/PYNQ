@@ -1,1 +1,2 @@
-from .audio import LineIn, Headphone
+from .audio import LineIn
+from .audio import Headphone

@@ -1,50 +1,17 @@
-/******************************************************************************
-*
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-* OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*
-* Except as contained in this notice, the name of the Xilinx shall not be used
-* in advertising or otherwise to promote the sale, use or other dealings in
-* this Software without prior written authorization from Xilinx.
-*
-******************************************************************************/
-
 /*
  * CPython bindings for a video capture peripheral (video_capture.h)
  *
- * @author Giuseppe Natale <giuseppe.natale@xilinx.com>
+ * @author Giuseppe Natale
  * @date   27 JAN 2016
  */
 
-#include <Python.h>         //pulls the Python API
-#include <structmember.h>   //handle attributes
 
+#include <Python.h>
+#include <structmember.h>  
 #include <stdio.h>
 #include <stdlib.h>
 #include "video_commons.h"
 #include "video_capture.h"
-
 #include "_video.h"
 
 
@@ -56,7 +23,7 @@ typedef struct{
 
 
 /*****************************************************************************/
-/* Defining OOP special methods                                              */
+/* Defining the dunder methods                                               */
 
 /*
  * deallocator
@@ -79,7 +46,7 @@ static PyObject *videocapture_new(PyTypeObject *type, PyObject *args,
     videocaptureObject *self;
     self = (videocaptureObject *)type->tp_alloc(type, 0);
     if((self->capture = (VideoCapture *)malloc(sizeof(VideoCapture))) == NULL){
-        PyErr_Format(PyExc_MemoryError, "unable to allocate memory");
+        PyErr_Format(PyExc_MemoryError, "Unable to allocate memory");
         return NULL;        
     }
     return (PyObject *)self;
@@ -106,7 +73,7 @@ static int videocapture_init(videocaptureObject *self, PyObject *args){
         for(int i = 0; i < NUM_FRAMES; i++)
             if((self->frame->frame_buffer[i] = 
                 (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME)) == NULL){
-                PyErr_Format(PyExc_MemoryError, "unable to allocate memory");
+                PyErr_Format(PyExc_MemoryError, "Unable to allocate memory");
                 return -1;            
             }
     }
@@ -116,7 +83,7 @@ static int videocapture_init(videocaptureObject *self, PyObject *args){
                                  STRIDE);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
-                     "video.capture initialization failed [%d]", status);
+                     "_video._capture initialization failed [%d]", status);
         return -1;
     }
     return 0;
@@ -168,14 +135,14 @@ static PyObject *videocapture_frame_index(videocaptureObject *self,
             int status = VideoChangeFrame(self->capture, newIndex);
             if (status != XST_SUCCESS){
                 PyErr_Format(PyExc_SystemError, 
-                             "unable to change frame [%d]", status);
+                             "Unable to change frame [%d]", status);
                 return NULL;
             }
             Py_RETURN_NONE;
         }
         else{
             PyErr_Format(PyExc_ValueError, 
-                         "index %d out of range [%d,%d]",
+                         "Index %d out of range [%d,%d]",
                          newIndex, 0, NUM_FRAMES-1);
             return NULL;
         }
@@ -195,7 +162,7 @@ static PyObject *videocapture_frame_index_next(videocaptureObject *self){
     int status = VideoChangeFrame(self->capture, newIndex);   
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_SystemError, 
-                     "unable to change frame [%d]", status);
+                     "Unable to change frame [%d]", status);
         return NULL;
     }
     return Py_BuildValue("I", self->capture->curFrame);
@@ -226,7 +193,7 @@ static PyObject *videocapture_start(videocaptureObject *self){
     int status = VideoStart(self->capture);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_SystemError, 
-                     "unable to start capture device [%d]", status);
+                     "Unable to start capture device [%d]", status);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -239,7 +206,7 @@ static PyObject *videocapture_stop(videocaptureObject *self){
     int status = VideoStop(self->capture);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_SystemError, 
-                     "unable to stop capture device [%d]", status);
+                     "Unable to stop capture device [%d]", status);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -267,17 +234,14 @@ static PyObject *videocapture_frame(videocaptureObject *self, PyObject *args){
     }
     else{
         PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "invalid argument");
+        PyErr_SetString(PyExc_SyntaxError, "Invalid argument");
         return NULL;        
     }
 }
 
 /*****************************************************************************/
+/* Defining the methods struct                                               */
 
-/*
- * defining the methods
- *
- */
 static PyMethodDef videocapture_methods[] = {
     {"frame_index", (PyCFunction)videocapture_frame_index, METH_VARARGS,
      "Get current index or if the argument is specified set it to a new one \
