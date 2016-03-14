@@ -1,0 +1,215 @@
+****
+Test
+****
+
+
+.. contents:: Table of Contents
+   :depth: 2
+ 
+This section documents the test infrastructure supplied with the `pyxi` package. It is organized as follows:
+
+* *Running Tests*: describes how to run existing tests.
+* *Running Demos*: describes how to run existing demos.
+* *Writing Tests and Demos*: explains how a user can write their own tests and demos.
+* *Miscellaneous*: covers additional information relating to tests. 
+
+
+Running Tests
+=============
+
+
+The *pyxi* package provides integrated test suites, where each sub-module can be tested. 
+
+To run all the tests together, we can import the `run_tests()` function from `pyxi.tests` module and call it.
+
+.. code-block:: python
+
+   from pyxi.tests import run_tests
+
+   run_tests()
+ 
+The test suite will guide the users through all the tests implemented in the pyxi package. As part of the tests, the user will be prompted for confirmation the tests have passed, for example:
+
+.. code-block:: python
+
+   test_led0 ...
+   Onboard LED 0 on? ([yes]/no)>>>
+
+For the answer, "yes", "YES", "Yes", "y", and "Y" are all acceptable; the same applies for a "no" as an answer. Users can also directly press enter; this is equivalent to giving the "yes" answer.
+
+In some tests, the users will also be asked if a PMod is connected, and which port it is connected to. For example:
+
+.. code-block:: python
+
+   Is LED8 attached to the board? ([yes]/no)>>> y
+   Type in the PMOD ID of the LED8 (1 ~ 4):
+
+In this case, 1, 2, 3, and 4 are all acceptable answers; other values will raise an exception. 
+
+To run the entire test suite, alternatively, users can type:
+
+.. code-block:: python
+
+   >>> execfile('pyxi/tests/testsuite.py')
+
+This will execute the file directly.
+
+For board or pmods subpackage, it is also possible to execute a single test. For example, for `pyxi.pmods.tests.test_oled` (*i.e.* the unit test for `pyxi.pmods.oled`), users can write the following code in micropython prompt:
+
+.. code-block:: python
+
+   >>> execfile('pyxi/pmods/tests/test_oled.py')
+
+Running Demos
+=============
+
+Running demos is similar to running tests. For example, we can use the following code to import all the demos: 
+
+.. code-block:: python
+
+   from pyxi.tests import run_demo
+
+After all the demos have been imported, we can run them all by typing:
+
+.. code-block:: python
+
+   run_demo()
+
+Alternatively, we can import a specific demo:
+
+.. code-block:: python
+
+   from .demo_dac_adc_oled import demo_dac_adc_oled
+
+Writing Tests and Demos
+=======================
+This section follows the guide available on `micropython unittest <https://pypi.python.org/pypi/micropython-unittest>`_. The users can write a test class, derived from the `unittest.TestCase`. The `unittest` has many `assert` methods to allow assertions on inputs and outputs to deliver automatic testing. Each test requires a method whose name *must* begin with `test`. More information can be found on `python.org <https://docs.python.org/3.5/library/unittest.html>`_.
+
+As an example, here is one taken directly from `python.org <https://docs.python.org/3.5/library/unittest.html>`_ that shows how a test case should be structured:
+
+.. code-block:: python
+
+   import unittest
+
+   class TestStringMethods(unittest.TestCase):
+
+     def test_upper(self):
+         self.assertEqual('foo'.upper(), 'FOO')
+
+     def test_isupper(self):
+         self.assertTrue('FOO'.isupper())
+         self.assertFalse('Foo'.isupper())
+
+     def test_split(self):
+         s = 'hello wor.ld'
+         self.assertEqual(s.split(), ['hello', 'world'])
+         # check that s.split fails when the separator is not a string
+         with self.assertRaises(TypeError):
+          s.split(2)
+
+   if __name__ == '__main__':
+       unittest.main()
+
+The call made in the `$$__name__$$ == "$$__main__$$"` boilerplate allows the test modules to be executed as stand-alone python scripts. In this example, all of the `test$$_$$` functions implemented in the `TestStringMethods` will be parsed and automatically executed.
+
+The key steps for users to write new tests are shown below:
+
+Step 1
+------ 
+ 
+Within a test module, create a `test_<module_name>()` function. This function will be called by `unittest.main()`:
+
+.. code-block:: python
+
+   def test_led():
+       unittest.main(__name__)
+
+   if __name__ == "__main__":
+       test_led()
+
+Note that users must insert the argument `$$__name__$$` to the `unittest.main()` call. `$$__name__$$` holds the name of the test functions.
+
+Step 2
+------
+To enable stand-alone execution, add this code at the very bottom of the test module: 
+
+.. code-block:: python
+
+   if __name__ == "__main__":
+       test_led()
+
+This will allow the `test_<module_name>()` function to be called when the test module is executed as a Python script.
+
+Step 3
+------
+This `test_<module_name>()` function created in the test module must be exported in `$$__init__.py$$` of the `subpackage.tests`.
+
+.. code-block:: python
+
+   from .test_led import test_led
+
+Step 4
+------
+Once all the unit tests are in place, you need to import them to the test suite by adding an entry in `pyxi\tests\testsuite.py`:
+
+.. code-block:: python
+
+   test_suite = [
+       'pyxi.board.tests',
+       'pyxi.pmods.tests' 
+   ]
+
+This piece of code can parse each list in the `test_suite` and execute all the `test_<module_name>()` exported in `$$__init__.py$$` of the `subpackage.tests`, as specified in *Step 3*.
+
+Developing demos is similar to developing tests. The same steps and principles should be followed, with small changes including:
+
+- The demo function should be called `demo_<module_name>` instead.
+
+- The demo functions should be exported with the name `demo$$_$$<module_name>`.
+
+
+Miscellaneous
+=============
+
+ADC Jumper
+----------
+
+
+In our tests and demos, we have used a PMOD ADC. In order to make it work properly, users have to set a small jumper on the PMOD ADC as following. This setting will allow the ADC to use the correct reference voltage.
+ 
+.. image:: ./images/adc_jumper.jpeg
+
+Cable Type (for GPIO Loop Tests)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Two types of cables can be used with the tests in the pyxi package, a "straight" cable, and a "loopback" cable:
+
+.. image:: ./images/cable_type.jpeg
+   :width: 400
+ 
+*  *Straight cable* (upper one in image): The internal wires between the two ends are straight. This cable is intended for use as an extension cable.
+*  *Loopback cable* (lower one in image, with red ribbon): The internal wires are twisted. This cable is intended for testing.
+
+There are marks on the connectors at each end of the cable to indicate the orientation and wiring of the cable. 
+
+.. note::  
+
+   Since users must avoid shorting the VCC and GND, it is good practice to align the pins with the dot marks to VCC of the PMOD interfaces. 
+   A connection shorting the sources is strictly prohibited.
+
+
+When a straight cable is used to connect two PMOD interfaces, to align the VCC and GND, we have to flip one end of the straight cable upside down. This will change the mapping between the pins of the two PMOD interfaces:
+
+..image:: ./images/pmod_straight_cable.png
+  :width: 400
+
+For this reason, the straight cable is not recommended for our tests; however, the pyxi package can still recognize this cable type and use it for testing.
+
+The loopback cable is recommended for testing, as it preserves the mapping between two PMOD interfaces:
+
+.. image:: ./images/pmod_loopback_cable.png
+   :width: 400
+
+.. note::
+
+   For testing, there is only one connection type (mapping) allowed for each cable type. Otherwise VCC and GND could be shorted, damaging the board.

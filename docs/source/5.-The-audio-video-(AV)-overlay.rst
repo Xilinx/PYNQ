@@ -1,0 +1,258 @@
+***********************
+The Audio-Video Overlay
+***********************
+
+.. contents:: Table of Contents
+   :depth: 2
+
+The audio video overlay, as shown below, *contains an HDMI video capture controller, a VGA video display controller, an audio controller that serves both the HPH and the Line In ports, and 2 IOPs*. 
+
+.. image:: ./images/zyboaudiovideo.jpeg
+   :width: 400
+
+The two IOPs, represented in the image as *Port 1* and *Port 2* are exactly the same as in the `PMODIO Overlay <https://github.com/Xilinx/XilinxPythonProject/wiki/4>`_`, so please refer to the dedicated section for further information on what they are and how to use them.
+What is instead new in this overlay, as the name suggests, is the presence of audio and video components that can be easily accessed and controlled directly from Python, as will be shown later in this section.
+
+Using Video IO
+==============
+
+This overlay contains two video controller, one dedicated to a *video input source (the HDMI)*, and one to *output a video source (VGA)*.
+Both can be *independently controlled*, or *used in combination* to display via VGA what is captured from HDMI.
+
+The HDMI video capture controller
+---------------------------------
+To get started with this controller, connect the on-board HDMI port to a valid video source. For instance, you could connect it to your laptop using an HDMI cable (if your laptop supports this connection). Any video source that outputs to HDMI can be plugged in and work with this controller.
+
+At the MicroPython prompt, to *instantiate* the HDMI object, just type:
+
+.. code-block:: python
+
+   >>> from pyxi.video import HDMI
+   >>> hdmi = HDMI('in')
+
+where the `HDMI()` argument `'in'` indicates that the object is in capture mode. Currently, this is the only supported mode for HDMI.
+
+When a valid video input source is connected, the controller should recognize it and start automatically. For instance, if you connected the HDMI to your laptop, you will notice a new display device listed in your laptop's availabe peripherals.
+
+You can always start/stop the controller at your will. To to that, just type:
+
+.. code-block:: python
+
+   >>> hdmi.stop()
+   >>> hdmi.start()
+
+If you want to know the state of the controller, type instead:
+
+.. code-block:: python
+
+   >>> state = hdmi.state()
+   >>> print(state)
+
+The state is returned as an *integer value*, with one of 3 possible values:
+
+- 0 if *disconnected*,
+- 1 if *streaming*,
+- 2 if *paused*.
+
+You can also check (if the state is not 0, *i.e.* disconnected) the *width* and *height* of the input source by typing:
+
+.. code-block:: python  
+
+   >>> width = hdmi.frame_width()
+   >>> height = hdmi.frame_height()
+   >>> print('HDMI is capturing a video source of resolution {}x{}'.format(width,height))
+
+The HDMI object holds a *frame buffer*, that can contain up to 3 frames, and is where the controller stores the captured frames.
+At the object instantiation, the current frame is the one at index 0. You can check at any time which frame index is active by typing:
+ 
+.. code-block:: python
+
+   >>> hdmi.frame_index()
+
+But the `frame_index()` method is more versatile than that. You can also use it to set a new index, if you specify an argument with the method call. For instance:
+
+.. code-block:: python
+
+   >>> index = hdmi.frame_index()
+   >>> hdmi.frame_index(index + 1)
+ 
+will set the current frame index to the next in the sequence. Be careful though, because if the original index was the last one (2 in our case, where the frame buffer holds 3 frames), the statement `hdmi.frame_index(index + 1)` will raise an exception. This could be solved introducing conditional checks on the index value.
+If however you just want to set the active index to the next one in the sequence, there is an handy method that will do all the checks for you:
+
+.. code-block:: python
+
+   >>> hdmi.frame_index_next()
+
+It will also return the new index as an integer, in case you need.
+
+There are two ways to access the current frame and dump its content:
+
+.. code-block:: python
+
+   >>> frame = hdmi.frame()
+ 
+which will dump the frame as a python 3-dimensional list `frame[height][width][rgb]`. Then, if you want to modify the green content of pixel at height 42, and width 24, you can do it as shown below (remember: 0 is red, 1 is green and 2 is blue on the last dimension).
+ 
+.. code-block:: python
+
+   >>> frame[42][24][1] = 7
+ 
+This `frame()` method is safe, but may be slow.
+If you want to dump a frame at a specific index, just pass the index as an argument of the `frame()` method, like so:
+
+.. code-block:: python
+
+   >>> frame = hdmi.frame(2) # dumping frame at index 2
+ 
+When performance are an absolute constraint, the `frame_raw()` method can be used:
+ 
+.. code-block:: python
+
+   >>> frame_raw = hdmi.frame_raw() # dumping frame at current index
+   >>> frame_raw = hdmi.frame_raw(2) # dumping frame at index 2
+ 
+This method will return a fast memory dump of the internal frame buffer, as a mono-dimensional list of dimension `frame[1920*1080*3]` (fixed dimension no matter what is the input source resolution), where 1920x1080 is the maximum supported frame dimension and 3 represents the three colors. You must pay special care when dealing with - and indexing on - this frame, especially when the input source has a resolution inferior to 1920x1080. 
+Starting from index 0, each pixel is represented by three positions (one for each color, blue first, then green and red) and you must discard any pixel outside of the valid range, given by the current resolution (if current resolution is less than 1920x1080). When traversing the array, you must adjust the index to correctly point to each frame row taking into account the 1920 boundary given by the maximum frame buffer size. To give a concrete example, if the resolution of the video input source is 800x600: 
+
+.. code-block:: python
+
+   >>> print(frame_raw[1]) # printing the green component of pixel (0,0)
+   >>> print(frame_raw[1920 + 399 + 0]) # printing the blue component of pixel (1,399)
+   >>> print(frame_raw[1920*599 + 799 + 2]) # printing the red component of the last pixel (599,799)
+
+In this example, meamingful values will only be in the range `frame_raw[1920*i*3]` to `frame_raw[(1920*i + 799)*3]` for each i (rows) from 0 to 599. Any other position outside of this range will not represent any captured value.
+
+
+The VGA video display controller
+================================
+
+from a Python's standpoint, using the VGA controller is pretty similar to using the HDMI. To use it, connect the on-board VGA port to a valid display device (for instance, a monitor).
+To *instantiate* the VGA object, just type:
+
+.. code-block:: python
+
+   >>> from pyxi.video import VGA
+   >>> vga = VGA('out')
+
+In the case of VGA, you have to start/stop the device explicitly:
+
+.. code-block:: python
+
+   >>> vga.stop()
+   >>> vga.start()
+
+If you want to know the state of the controller, type instead:
+
+.. code-block:: python
+
+   >>> state = vga.state()
+   >>> print(state)
+
+The state is returned as an *integer value*, with one of 2 possible values:
+
+- 0 if *stopped*,
+- 1 if *running*,
+
+At the moment of initialization, the display resolution is set at the lowest level: 800x600@60Hz. To access the current resolution, just type:
+
+.. code-block:: python
+
+   >>> print(vga.mode())
+
+This will print the current mode as a string.
+To change the mode, insert a valid index as an argument when calling `mode()`:
+
+.. code-block:: python
+
+   >>> vga.mode(2) # 1280x720@60Hz
+
+Valid resolutions are:
+
+- 0 : '640x480@60Hz'
+- 1 : '800x600@60Hz'
+- 2 : '1280x720@60Hz'
+- 3 : '1280x1024@60Hz'
+- 4 : '1920x1080@60Hz'        
+
+Similarly to HDMI, you can access to the current resolution width and height:
+
+.. code-block:: python
+
+   >>> width = vga.frame_width()
+   >>> height = vga.frame_height()
+   >>> print('VGA resolution is {}x{}'.format(width,height))
+
+and access the current frame, or change it using the same methods:
+
+.. code-block:: python
+
+   >>> index = vga.frame_index()
+   >>> vga.frame_index(2)
+   >>> vga.frame_index_next()
+
+
+As for HDMI, `frame()` can be used to dump the current frame content, or at a specific index using `frame(index)`. The fast `frame_raw()` is also present (although remember that in the case of VGA we are not capturing video from any source, so this call may be useless).
+You may want to instead pass a *new* frame, and display that one instead. To do that, just pass your new `frame[height][width][rgb]` as an argument to `frame()` or your new `frame_raw[1920*1080*3]` to `frame_raw()`. This will copy your new frame content to the VGA's frame buffer.
+
+.. code-block:: python
+
+   >>> vga.frame(new_frame) # copying new frame at current index
+   >>> vga.frame(2, new_frame) # copying new frame at index 2
+   >>> vga.frame_raw(new_frame_raw) # copying new frame_raw at current index
+   >>> vga.frame_raw(1, new_frame_raw) # copying new frame_raw at index 1
+
+
+To draw a flawless anymation, remember the following principles.
+
+. When you want to draw a new frame, copy it to a frame location not currently used (an index different from the one at `vga.frame_index()`)
+. Once the copy is done, change the current frame index to point to the index where you copied the new frame you want to display
+
+Using HDMI and VGA in combination
+---------------------------------
+Using the HDMI and VGA in combination is extremely easy. All you have to do is make both the HDMI and VGA share the same frame buffer. The frame buffer in both cases can be accessed using the `frame_buffer()` method. You can make the two object share the same frame buffer passing the first declared's object frame buffer as an argument of the second object's constructor:
+
+.. code-block:: python
+
+   >>> hdmi = HDMI('in')
+   >>> vga = VGA('out', hdmi.frame_buffer())
+
+or equivalently:
+
+.. code-block:: python
+
+   >>> vga = VGA('out')
+   >>> hdmi = HDMI('in', vga.frame_buffer())
+
+Once done, `start()` the VGA object and in a matter of seconds you should see directly on the VGA output what you are capturing from the HDMI. Remember that to output directly via VGA what is captured from HDMI, both the object must have the same active `frame_index`. At start, both starts from 0, so the code above should work flawlessly.
+
+You can also use the two object in combination for some advanced operation, such as showing on VGA a filtered frame captured from HDMI.
+For a concrete example, refer to the content of `demo_hdmi_vga <https://github.com/Xilinx/XilinxPythonProject/blob/master/micropython/zybo/py/pyxi/video/tests/demo_hdmi_vga.py>`_.  To learn more about tests and demo, refer to the `related section <https://github.com/Xilinx/XilinxPythonProject/wiki/7.-Test>`_ of this wiki.
+
+Using Audio IO
+==============
+
+The overlay contains an *audio controller* that allows you to control both the *HPH* output port and the *Line In* input port.
+To *instantiate* the two objects, just type:
+
+.. code-block:: python
+
+   >>> from pyxi.audio import HPH, LineIn
+   >>> hph = HPH()
+   >>> linein = LineIn()
+
+Just connect the Line In port to an audio source using a standard 3mm jack, and to listen from the HPH port plug in any valid audio device, such a pair of headset or speakers.
+Using the two objects is really simple. To dump from Line In, just call the object *directly* (in the example, the object is called `linein`):
+
+.. code-block:: python
+
+   >>> dump = linein()
+   >>> print('left channel: {}'.format(dump[0]))
+   >>> print('right channel: {}'.format(dump[1]))
+
+the content of `dump` will be a list of two values `[left, rigth]` representing the read values from the left and right channels. Following the same principle, you can pass a two values list `[left, rigth]` - for instance, the same dumped from `linein()` - to the hph object - yes, calling the object *directly* exactly as for `linein()` - and output that values on the left and right channels of the HPH port. (in the example, the object is called `hph`):
+
+.. code-block:: python
+
+   >>> dump = linein()
+   >>> hph(dump)
+

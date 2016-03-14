@@ -1,0 +1,120 @@
+*******************************************
+Overview of the Xilinx Python Project (XPP)
+*******************************************
+
+.. contents:: Table of Contents
+   :depth: 2
+
+Project rationale
+=================
+
+The Xilinx Python Project (XPP) aims to make working with Xilinx All Programmable Systems on Chip (*APSoCs*) easier and more accessible. We are targeting software and systems engineers who would benefit from Zynq's architecture but are never going to use ASIC-style design tools. XPP targets this goal in three main ways:
+
+* It empowers software and system designers to use APSoC overlays instead of designing their own hardware 
+* It promotes higher-level programming in Python, instead of C/C++, for writing embedded applications that invoke the methods of the overlay APIs
+* XPP is an open source project which contributes to, and benefits from, the open source community.  We hope to engage not only new users from the systems and software communities but also experienced Zynq users who have the knowledge and experience to contribute to the development of new overlays.
+
+APSoC hardware design re-use
+============================
+The 'magic' of mapping an application to an APSoC, without designing custom hardware, is achieved by using *FPGA overlays*. FPGA overlays are FPGA designs that are both highly configurable and highly optimized for a given domain.  The availability of a suitable overlay removes the need for a designer to develop a new bitstream. Software and system designers can customize the functionality of an overlay *in software* once the API for the overlay bitstream is available.
+
+By analogy with the Linux kernel and device drivers, FPGA overlays are designed by relatively few engineers so that they can be re-used by many others. In this way, a relatively small number of overlay designers can support a much larger community of APSoC designers.  Overlays exist to promote re-use. Like kernels and device drivers, these hardware-level artifacts are not static, but evolve and improve over time.
+
+Productivity-layer languages
+============================
+Successive generations of All Programmable Systems on Chip embed more processors and greater processing power. As larger applications are integrated into APSoCs, the embedded code increases also. Embedded code that is speed or size critical, will continue to be written in C/C++.  These 'efficiency-layer or systems languages' are needed to write fast, low-level drivers, for example. However, the proportion of embedded code that is neither speed-critical or size-critical, is increasing more rapidly. We refer to this code as *embedded applications code*.   
+
+Programming embedded applications code in higher-level, 'productivity-layer languages' makes good sense.  It simply extends the generally-accepted best-practice of always programming at the highest possible level of abstraction.  Python is currently a premier productivity-layer language.  It is now available in different variants for a range of embedded systems, hence its adoption in XPP.  The Xilinx Python Project runs C-Python on Linux on the ARM processors in Zynq devices.  To further increase productivity and portability, XPP uses Jupyter Notebook, an open-source web application, to develop code and documentation.
+
+Novelty
+=======
+XPP is the first project to combine the use of FPGA overlays and productivity-level languages to simplify and improve APSoC design.  It takes a holistic approach by considering equally the design of the overlays, the APIs exported by the overlays, and how well these APIs interact with new and existing Python design patterns and idioms to simplify and improve the APSoC design process.  One of the key challenges is to identify good abstractions.  The goal is to find abstractions that improve design consistency by exposing commonality, even among loosely-related tasks.
+
+Open source status
+==================
+XPP is an open source project.  Public release of the software, hardware and documentation is scheduled for late April 2015. The goal is to encourage and inspire potential contributors to further develop and evolve the project.  XPP has evolved from open source projects, such as C Python and MicroPython.  It aims in turn, to contribute to the broader ecosystem by driving Python-enabled APSoCs into new domains and applications.
+
+Success
+=======
+XPP will have succeeded when
+
+* software and system designers can exploit the benefits of APSoCs, such as Zynq MPSoC, without having to create new hardware designs and without having to use 'ASIC-style' design tools.  
+* the open source project becomes a self-sustaining ecosystem
+
+----
+
+Introduction to MicroPython
+===========================
+
+
+CPython versus C/C++
+--------------------
+ the preferred way to use Python in an embedded system is to use C Python running on Linux.  The C Python and Linux approach is viable for powerful processor sub-systems where code base complexity, memory inefficiency, and real-time responsiveness are not primary concerns.  In contrast, MicroPython is a highly-optimized variant of C Python. (despite the nomenclature, both Python versions are implemented in the C programming language).  
+
+Running on FreeRTOS, MicroPython has a much smaller memory footprint, executes faster, and has better real-time responsiveness.  In particular, it avoids the indeterminacy of Linux process scheduling and has a more optimized garbage collector.  
+
+C Python has an advantage in having a far larger library of packages readily available for it.  The MicroPython community has already ported several important libraries but has work to do to close the gap.  
+
+Here is a comparison table of some of the key features of MicroPython versus C Python.
+
++--------------------------+---------------------------------+----------------------------------+
+| Feature/Python Version   | MicroPython                     | C Python (Linux)                 |
++==========================+=================================+==================================+
+| Memory requirements      | Highly optimized for efficiency | Inefficient (even with RT Linux) |
++--------------------------+---------------------------------+----------------------------------+
+| Memory requirements      | Highly optimized for efficiency | Inefficient (even with RT Linux) |
++--------------------------+---------------------------------+----------------------------------+
+| Execution speed          | Fast                            | Slower                           |
++--------------------------+---------------------------------+----------------------------------+
+| Worst-case response time | Fast                            | Much slower                      |
++--------------------------+---------------------------------+----------------------------------+
+| Development complexity   | Low to medium                   | High to very high                |
++--------------------------+---------------------------------+----------------------------------+
+| Support for 3rd-party    | Small set of core libraries     | Huge number of libraries         |
+| libraries                |                                 |                                  | 
++--------------------------+---------------------------------+----------------------------------+
+
+
+In future, we will update these comparisons with more quantitative comparisons assessments of performance.
+
+.. NOTE::
+  While MicroPython on Zynq is the first deliverable from the XPP team, C Python on Linux is also an important option that
+  we have piloted in parallel.  We see potential in both approaches and the underlying principles are common.  The ultimate     
+  goal is to use overlays and Python APIs to enable software and systems engineers to benefit from APSoCs.  Whether   
+  MicroPython or C Python is more effective in achieving this, is secondary to the goal itself.   
+
+Overlays
+========
+An XPP overlay is simply a domain-specific FPGA bitstream that has been designed to be configurable for as many applications as possible.  It has been crafted to maximize post-bitstream programmability which is exposed via its API.  The API provides a new entry-point for application-focused software and systems engineers to exploit APSoCs in their solutions.  With an API they only have to write software to program configure the overlay for their applications.
+
+Designing one bitstream and its corresponding API to serve the needs of many applications in a given domain is what defines a successful overlay.  This, one-to-many relationship between the overlay and its users, is different from the more common one-to-one mapping between a bitstream and its application.  Overlays are not a new idea.  However when combined with APSoC architectures and embedded productivity languages, they make it practical to create re-usable hardware libraries for software and systems engineers.  The benefits of algorithm execution in programmable hardware can be realized by the larger software community without requiring them to engage in hardware design.
+
+Equally importantly, once an open-source overlay and its API are established, the software and open-source communities are free to improve and extend them in new and unexpected ways. 
+
+It is worth noting that the MicroPython API can be used to provide command line and scripting interfaces for more traditional FPGA designs.  We expect that the infrastructure that the XPP team is developing will prove valuable for these opportunities also.
+
+PModIO and AV overlays
+----------------------
+Two overlays and their APIs are included in this alpha release.  The first is the PMod IO overlay (PModIO) and the second is the audio video (AV) overlay.  These are documented in sections 4 and 5.
+
+Future releases
+===============
+This is an alpha prototype of MicroPython for Zynq and it is missing some important functionality that will feature in future releases.  Among the items on the list for consideration are the following:
+
+* `help()` for functions and methods
+* Interrupt support on the ARM Cortex-A9
+* Networking
+
+ * Note that it is presently possible to connect to Zybo over the network via the FreeRTOS interface.  This has to be extended to interface to the MicroPython networking libraries
+
+* Time library support
+* Cross-platform browser terminal and editor support
+
+ * We require open source functionality, similar to XPP-IDE, but written in JavaScript so that it will work in any browser on any platform
+
+* New overlays
+* Documentation to guide users in creating APIs for their own overlays and instructions in how to bind the API methods to MicroPython methods
+* A new low-cost Zynq platform
+* Performance benchmarking of C Python on Linux versus MicroPython
+* Integration with `Jupyter <http://jupyter.org/>`_ notebooks
+
