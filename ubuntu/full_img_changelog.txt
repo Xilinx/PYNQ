@@ -8,7 +8,7 @@ latest image available at: file://xco-smb/gnatale/public/
                 pandas, numpy, scipy..ecc for a list type `help(modules)` 
                 in a python shell)
              2) A first release of pyxi is available and it can be imported 
-                from Jupyter. Just remember to launch jupyter with ‘sudo’ 
+                from Jupyter. Just remember to launch jupyter with â€˜sudoâ€™ 
                 (as specified by the message in ./configure_jupyter.h) since 
                 we need root permissions to use pyxi. Currently, only 
                 on-board device (LEDs, Switches, Buttons) are supported, the
@@ -57,3 +57,10 @@ latest image available at: file://xco-smb/gnatale/public/
 02-29-2016 - <giuseppe.natale@xilinx.com>
              Now the unique MAC address is read from zybo's EEPROM 24AA02E48 and 
              properly set at boot
+             
+03-15-2016 - <graham.schelle@xilinx.com>
+             SAMBA Support
+             Jupyter Terminal will boot into bash shell
+             USB Wifi spport (RALink chipset)
+             USB Webcam support (Logitech C270 support)
+             Reveal.js added to enable Jupyter slideshow
