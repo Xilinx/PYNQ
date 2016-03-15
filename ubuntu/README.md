@@ -1,6 +1,6 @@
 ## Ubuntu Core image for Zybo
 
-All images including the latest are available at: [file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/](file://xsjeng1/group/xrlabs/gnatale/public/ubuntu-core-zybo/)
+All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/](file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/)
 
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
