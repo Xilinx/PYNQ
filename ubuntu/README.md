@@ -16,15 +16,35 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-pip install cffi # Need the package cffi
 
+```
+
+03-15-2016
+```
+
+# cffi used for SDSoC interaction
+pip install cffi
+
+#usb wifi and webcam support - limited support for known USB chipsets (see notebooks usb_*
+sudo apt-get install libusb-1.0-0-dev usbutils module-init-tools linux-firmware wpasupplicant 
+<from Linux kernel build> copy kernel loadable modules to /lib/modules/3.17.0-xilinx
+
+#samba support
+# reference: https://www.howtoforge.com/tutorial/samba-server-ubuntu/
+apt-get install samba
+<modify samba settings for xpp user>  see /etc/samba/smb.conf for changes
 
 #To get bash in the Jupyter terminal and consequently all the nice feature such as history and TAB autocompletion
 <on target terminal>
 sudo rm /bin/sh
 sudo ln -s /bin/bash /bin/sh
 
+# reveal.js
+# https://github.com/hakimel/reveal.js/
+<copy reveal.js into /home/xpp/jupyter_notebooks>
+
 ```
+
 
 02-26-2016
 
