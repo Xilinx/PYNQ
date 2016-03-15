@@ -5,9 +5,12 @@ All images including the latest are available at: [file://xsjeng1/group/xrlabs/g
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-02-29-2016 - <giuseppe.natale@xilinx.com>
-             Now the unique MAC address is read from zybo's EEPROM 24AA02E48 and 
-             properly set at boot
+03-15-2016 - <graham.schelle@xilinx.com>
+             SAMBA Support
+             Jupyter Terminal will boot into bash shell
+             USB Wifi spport (RALink chipset)
+             USB Webcam support (Logitech C270 support)
+             Reveal.js added to enable Jupyter slideshow
 ```
 
 
