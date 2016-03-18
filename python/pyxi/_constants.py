@@ -27,10 +27,24 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "xpp_support@xilinx.com"
+__author__      = "Yun Rock Qu"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "xpp_support@xilinx.com"
 
 
-from .audio import LineIn
-from .audio import Headphone
+#: GPIO constants
+GPIO_MIN_USER_PIN = 54
+
+#: Overlay constants
+BS_SEARCH_PATH = '/home/xpp/src/pyxi/bitstream/'
+BS_BOOT = '/home/xpp/src/pyxi/bitstream/pmod.bit'
+BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
+BS_XDEVCFG = "/dev/xdevcfg"
+
+#: MMIO constants
+MMIO_FILE_NAME = '/dev/mem'
+MMIO_WORD_LENGTH = 4
+MMIO_WORD_MASK = ~(MMIO_WORD_LENGTH - 1)
+
+#: Maximum number of IOP instances on PL
+MAX_IOP_INSTANCES = 4

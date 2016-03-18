@@ -1,18 +1,39 @@
+#   Copyright (c) 2016, Xilinx, Inc.
+#   All rights reserved.
+# 
+#   Redistribution and use in source and binary forms, with or without 
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice, 
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright 
+#       notice, this list of conditions and the following disclaimer in the 
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its 
+#       contributors may be used to endorse or promote products derived from 
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__ = "Giuseppe Natale"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "xpp_support@xilinx.com"
 
-from pyxi import Overlay
 
-ol = Overlay()
-ol.add_bitstream('audiovideo.bit')
-
-# vdma dictionary used by the Xilinx drivers - equivalent to the value fetched
-# from xparameters.h
 VDMA_DICT = {
-    'BASEADDR': int(ol.get_mmio_base('audiovideo.bit',
-                                     'SEG_axi_vdma_0_Reg'), 16),
+    'BASEADDR': 0x43000000,
     'NUM_FSTORES': 3,
     'INCLUDE_MM2S': 1,
     'INCLUDE_MM2S_DRE': 0,
@@ -44,15 +65,12 @@ VDMA_DICT = {
     'ADDR_WIDTH': 32,
 }
 
-VTC_DISPLAY_ADDR = int(ol.get_mmio_base('audiovideo.bit', 'v_tc_0'), 16)
-VTC_CAPTURE_ADDR = int(ol.get_mmio_base('audiovideo.bit', 'v_tc_1'), 16)
+VTC_DISPLAY_ADDR = 0x43C00000
+VTC_CAPTURE_ADDR = 0x43C20000
+DYN_CLK_ADDR = 0x43C10000
 
-DYN_CLK_ADDR = int(ol.get_mmio_base('audiovideo.bit', 'axi_dynclk_0'), 16)
-
-# pl gpio dictionary used by the Xilinx drivers - equivalent to the value 
-# fetched from xparameters.h
 GPIO_DICT = {
-    'BASEADDR': int(ol.get_mmio_base('audiovideo.bit', 'axi_gpio_video'), 16),
+    'BASEADDR': 0x41230000,
     'INTERRUPT_PRESENT': 1,
     'IS_DUAL': 1,
 }

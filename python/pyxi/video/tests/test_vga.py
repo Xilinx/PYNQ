@@ -1,50 +1,92 @@
+#   Copyright (c) 2016, Xilinx, Inc.
+#   All rights reserved.
+# 
+#   Redistribution and use in source and binary forms, with or without 
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice, 
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright 
+#       notice, this list of conditions and the following disclaimer in the 
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its 
+#       contributors may be used to endorse or promote products derived from 
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__      = "Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2015, Xilinx"
 __email__       = "giuseppe.natale@xilinx.com"
 
 
-import pytest
 from time import sleep
+import pytest
+from pyxi import Overlay
 from pyxi.video import VGA
 from pyxi.test.util import user_answer_yes
 
 flag = user_answer_yes("\nVGA port connected to a screen?")
-vga = None
+if flag:
+    global ol
+    ol = Overlay("audiovideo.bit")
 
-@pytest.mark.run(order=38)
+@pytest.mark.run(order=33)
 @pytest.mark.skipif(not flag, reason="need VGA connected")
 def test_vga():
-    """TestCase for the VGA class with direction set as output."""
+    """Test for the VGA class with direction set as output.
+    
+    Test the direction, the display mode, and the state.
+    
+    """
     global vga
     vga = VGA('out')
-    assert vga.direction is 'out', 'VGA direction is wrong'
-    vga.mode(3)
-    assert vga.mode(3) == "1280x1024@60Hz", 'wrong VGA mode'
-    vga.start()
-    assert vga.state()==1, 'wrong VGA state'
     
-    print("\nLoading ...")
+    assert vga.direction is 'out', 'Wrong direction for VGA.'
+    vga.mode(3)
+    assert vga.mode(3) == "1280x1024@60Hz", 'Wrong display mode for VGA.'
+    vga.start()
+    assert vga.state()==1, 'Wrong state for VGA.'
+    
+    print("\nLoading (may take up to 10 seconds)...")
     vga.frame_index_next()
 
-@pytest.mark.run(order=39)
+@pytest.mark.run(order=34)
 @pytest.mark.skipif(not flag, reason="need VGA connected")
-def test_pattern_frame():
+def test_pattern_colorbar():
+    """Test for the VGA class with color bar pattern.
+    
+    This test will show 8 vertical color bars on the screen. 
+    
+    """
     global vga
+    
     frame = vga.frame()
     index = vga.frame_index()
     vga.frame_index_next()
         
-    # constructing colorbar test pattern
+    #: Constructing colorbar test pattern
     xint = int(frame.width / 8)
     xinc = 256.0 / xint
     fcolor =  0.0
     xcurrentint = 1
     for xcoi in range(frame.width):
         if xcurrentint > 7:
-            wred = 0
-            wblue = 0
-            wgreen = 0
+            wred = 255
+            wblue = 255
+            wgreen = 255
         else:
             if xcurrentint & 0b001:
                 wred = int(fcolor)
@@ -71,15 +113,21 @@ def test_pattern_frame():
 
     assert user_answer_yes("\nColor bar pattern showing on screen?")        
 
-@pytest.mark.run(order=40)
+@pytest.mark.run(order=35)
 @pytest.mark.skipif(not flag, reason="need VGA connected")
-def test_pattern_frame_raw():
+def test_pattern_blended():
+    """Test for the VGA class with color bar pattern.
+    
+    This test will show a blended color pattern on the screen. 
+    
+    """
     global vga
+    
     frame_raw = vga.frame_raw()
     index = vga.frame_index()             
     vga.frame_index_next() 
 
-    # constructing colorbar test pattern
+    #: Constructing blended test pattern
     hint = vga.frame_width() / 4
     xleft = hint * 3
     xmid = hint * 2 * 3
@@ -135,24 +183,28 @@ def test_pattern_frame_raw():
 
     assert user_answer_yes("\nBlended pattern showing on screen?")               
 
-@pytest.mark.run(order=41)
+@pytest.mark.run(order=36)
 @pytest.mark.skipif(not flag, reason="need VGA connected")
 def test_vga_mode():
     global vga
-    assert vga.mode(0) == "640x480@60Hz", 'wrong VGA mode'
-    assert vga.mode(1) == "800x600@60Hz", 'wrong VGA mode'
-    assert vga.mode(2) == "1280x720@60Hz", 'wrong VGA mode'
-    assert vga.mode(3) == "1280x1024@60Hz", 'wrong VGA mode'
-    assert vga.mode(4) == "1920x1080@60Hz", 'wrong VGA mode'
+    
+    assert vga.mode(0) == "640x480@60Hz", 'Wrong display mode for VGA.'
+    assert vga.mode(1) == "800x600@60Hz", 'Wrong display mode for VGA.'
+    assert vga.mode(2) == "1280x720@60Hz", 'Wrong display mode for VGA.'
+    assert vga.mode(3) == "1280x1024@60Hz", 'Wrong display mode for VGA.'
+    assert vga.mode(4) == "1920x1080@60Hz", 'Wrong display mode for VGA.'
 
-@pytest.mark.run(order=42)
+@pytest.mark.run(order=37)
 @pytest.mark.skipif(not flag, reason="need VGA connected")
 def test_vga_state():
     global vga
+    
     vga.stop()
-    assert vga.state()==0, 'wrong VGA state'
+    assert vga.state()==0, 'Wrong state for VGA.'
     vga.start()
-    assert vga.state()==1, 'wrong VGA state'
+    assert vga.state()==1, 'Wrong state for VGA.'
     vga.stop()
-    assert vga.state()==0, 'wrong VGA state'
+    assert vga.state()==0, 'Wrong state for VGA.'
+    
     del vga
+    ol.flush_iop_dictionary()

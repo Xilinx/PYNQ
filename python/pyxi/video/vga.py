@@ -1,5 +1,33 @@
+#   Copyright (c) 2016, Xilinx, Inc.
+#   All rights reserved.
+# 
+#   Redistribution and use in source and binary forms, with or without 
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice, 
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright 
+#       notice, this list of conditions and the following disclaimer in the 
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its 
+#       contributors may be used to endorse or promote products derived from 
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Giuseppe Natale"
+__author__ = "Giuseppe Natale, Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "xpp_support@xilinx.com"
 
@@ -8,38 +36,55 @@ from .frame import Frame
 from . import _constants
 from . import _video
 
-
 class VGA(object):
     """Class for a VGA controller.
 
-    Parameters
-    ----------
-    direction : str
-                String whose value (either 'in' or 'out') is used to indicate 
-                whether the VGA instance is set as input or as output
-    frame_buffer : pyxi.video._video._framebuffer 
-                   Assign this frame buffer if specified, otherwise create new.
-                   Can be used to share the same framebuffer among different
-                   instances (e.g. a VGA and an HDMI objects).
-
+    The frame buffer in a VGA object can be shared among different objects.
+    For example, a VGA object and an HDMI object can use the same frame buffer.
+    
+    Note
+    ----
+    Currently VGA only supports direction 'out'.
+    
+    Examples
+    --------
+    >>> vga = VGA('out', frame_buffer)
+    
     Attributes
     ----------
     direction : str
-                From parameter :direction:
-
+        Can only be 'out' for VGA to be output.
+    frame_buffer : _framebuffer
+        A frame buffer storing at most 3 frames.
+        
     Raises
     ------
     ValueError
-        If direction is not set to 'out'. Currently VGA supports 
-        direction='out' only.
+        If direction is not set to 'out'.
+        
     """
 
     def __init__(self, direction, frame_buffer=None):
         """Returns a new instance of a VGA object. 
-
-        Currently only direction 'out' is supported.
+        
+        Assign the given frame buffer if specified, otherwise create a new 
+        frame buffer.
+        
+        Note
+        ----
+        Currently VGA only supports direction 'out'.
+        
+        Parameters
+        ----------
+        direction : str
+            Can only be 'out' for VGA to be output.
+        frame_buffer : optional[_framebuffer] 
+            A frame buffer storing at most 3 frames.
+        
         """
-        if direction.lower() == 'out':
+        if not direction.lower() == 'out':
+            raise ValueError("Currently VGA only supports output.")
+        else:
             self.direction = 'out'
             if frame_buffer == None:
                 self._display = _video._display(_constants.VDMA_DICT,
@@ -50,186 +95,221 @@ class VGA(object):
                                                 _constants.VTC_DISPLAY_ADDR,
                                                 _constants.DYN_CLK_ADDR, 1,
                                                 frame_buffer)
-
+                                                
+            self.frame_buffer = self._display.framebuffer
+            
             self.start = self._display.start
-            """Start the controller.
-
-            Raises
-            ------
-            SystemError
-                If unable to start the controller        
+            """Start the video controller.
+            
+            Parameters
+            ----------
+            None
+            
+            Returns
+            -------
+            None
+            
             """
 
             self.stop = self._display.stop
-            """Stop the controller.
-
-            Raises
-            ------
-            SystemError
-                If unable to stop the controller        
+            """Stop the video controller.
+            
+            Parameters
+            ----------
+            None
+            
+            Returns
+            -------
+            None
+            
             """
 
             self.state = self._display.state
-            """Get the state of the device as an integer value
-
+            """Get the state of the device as an integer value.
+            
+            Parameters
+            ----------
+            None
+            
             Returns
             -------
             int
-                STOPPED = 0,
-                RUNNING = 1.
+                The state 0 (STOPPED), or 1 (RUNNING).
+                
             """
 
             self.mode = self._display.mode
-            """ mode(new_mode_index)
+            """Change the resolution of the display. 
+            
+            Users can use mode(new_mode) to change the resolution.
+            Specifically, with `new_mode` to be:
+            0 : '640x480@60Hz'
+            1 : '800x600@60Hz'
+            2 : '1280x720@60Hz'
+            3 : '1280x1024@60Hz'
+            4 : '1920x1080@60Hz'           
+            
+            If `new_mode` is not specified, return the current mode.
 
             Parameters
             ----------
-            new_mode_index : {0, 1, 2, 3, 4}
-                             must be within the allowed range:
-                             0 : '640x480@60Hz'
-                             1 : '800x600@60Hz'
-                             2 : '1280x720@60Hz'
-                             3 : '1280x1024@60Hz'
-                             4 : '1920x1080@60Hz'           
-                             If `new_mode_index` is not specified, return the 
-                             current mode label. If instead is specified, set 
-                             the mode to the new index and return the new 
-                             mode label.
-
+            new_mode : int
+                A mode index from 0 to 4.
+                
             Returns
-            ---------
+            -------
             str
-                a label representing the currently active mode
-
+                The resolution of the VGA display.
+                
             Raises
             ------
             ValueError
-                If `new_mode_index` is out of range
+                If `new_mode` is out of range.
+                
             """
 
             self.frame_raw = self._display.frame
-            """frame_raw([index],[new_frame]) 
+            """Returns a bytearray of the frame.
+            
+            User may use frame([index]) to access the frame, which may 
+            introduce some overhead in rare cases. The method 
+            frame_raw([i],[new_frame]) is faster, but the parameter `i` has 
+            to be calculated manually.
 
-            Returns a bytearray of the frame buffer.
-
-            User may simply use the non-raw version to ease indexing onto the 
-            array, which however may introduce some overhead, negligible in 
-            most cases. If speed is the primary concern, this version is the
-            fastest, but, again, user must pay attetion when indexing
-            onto the array.
-
+            Note
+            ----
+            If `new_frame` is set, this method will take the bytearray 
+            (`new_frame`) and overwrites the current frame (or the frame 
+            specified by `i`). Also, if `new_frame` is set, nothing will 
+            be returned.
+            
             Parameters
             ----------
-            index : int, optional
-                    If specified, consider the frame at that index.
-                    Otherwise, consider the frame at the current active index
-            new_frame: bytearray, optional
-                       If `new_frame` is set, takes a bytearray 
-                       (`new_frame` itself) and  overwrites the current frame 
-                       (or the frame specified by `index`).                        
-
+            i : optional[int]
+                A location in the bytearray.
+            new_frame: optional[bytearray]
+                A bytearray that can be used to overwrite the frame.
+                
             Returns
             -------
             bytearray
-                the frame in its raw bytearray form. If `new_frame` is set,
-                **nothing** is returned.
+                The frame in its raw bytearray form.
+                
             """
 
             self.frame = self._frame_out
-            """frame([index], [new_frame]) 
-
-            Wraps the raw version using the Frame object.
-            See frame.py for further info on how to use the Frame object.
-
+            """Wraps the raw version using the Frame object.
+            
+            Use frame([index], [new_frame]) to write the frame more easily.
+            
+            Note
+            ----
+            if `new_frame` is set, nothing will be returned.
+            
             Parameters
             ----------
-            index : int, optional
-                    Index of the frame to consider within the 
-                    framebuffer
-            new_frame : pyxi.video.Frame, optional
-                        new frame to copy into the frame buffer      
-
+            index : optional[int]
+                Index of the frames, from 0 to 2.
+            new_frame : optional[Frame]
+                A new frame to copy into the frame buffer.
+                
             Returns
             -------
-            pyxi.video.Frame 
-                If `new_frame` is set, **nothing** is returned.           
+            Frame
+                A Frame object with accessible pixels.
+                
             """
 
             self.frame_index = self._display.frame_index
-            """ frame_index([new_frame_index])
+            """Get the frame index.
+            
+            Use frame_index([new_frame_index]) to access the frame index.
+            If `new_frame_index` is not specified, get the current frame index. 
+            If `new_frame_index` is specified, set the current frame to the 
+            new index. 
 
             Parameters
             ----------
-            index : int, optional
-                    If is not specified, get the current frame index. 
-                    If specified, set the current frame to the new index.  
-
+            new_frame_index : optional[int]
+                Index of the frames, from 0 to 2.
+                
             Returns
             -------
             int
-                the active frame index 
-
-            Raises
-            ------
-            ValueError
-                If `index` is out of range
-            SystemError
-                If unable to change the frame index     
+                The index of the active frame.
+                
             """
 
             self.frame_index_next = self._display.frame_index_next
-            """Change the frame index to the next one and return its value.   
+            """Change the frame index to the next one.
 
+            Parameters
+            ----------
+            None
+            
             Returns
             -------
             int
-                the active frame index  
-
-            Raises
-            ------
-            SystemError
-                If unable to change the frame index              
+                The index of the active frame.
+            
             """
 
             self.frame_width = self._display.frame_width
-            """ Get the current frame width.
+            """Get the current frame width.
 
+            Parameters
+            ----------
+            None
+            
             Returns
             -------
             int
+                The width of the frame.
+                
             """
 
             self.frame_height = self._display.frame_height
-            """ Get the current frame height.
-
+            """Get the current frame height.
+            
+            Parameters
+            ----------
+            None
+            
             Returns
             -------
             int
+                The height of the frame.
+                
             """
-
-            self.frame_buffer = self._display.framebuffer
-            """ The `pyxi.video._video._framebuffer` object that holds 
-            the frame buffer. 
-
-            Can be used to share the same frame buffer among different
-            pyxi.video instances.
-
-            Examples
-            --------
-            >>> hdmi = HDMI('in')
-            >>> vga = VGA('out', hdmi.frame_buffer)          
-            """
-
-        else:
-            raise ValueError("Currently VGA supports direction='out' only.")
 
     def _frame_out(self, *args):
+        """Returns the specified frame or the active frame.
+        
+        Note
+        ----
+        With no parameter specified, this method returns a new Frame object.
+        With 1 parameter specified, this method uses it as the index or frame
+        to create the Frame object. 
+        With 2 parameters specified, this method treats the first argument as 
+        index, while treating the second argument as a frame.
+        
+        Parameters
+        ----------
+        *args
+            Variable length argument list.
+            
+        Returns
+        -------
+        Frame
+            An object of a frame in the frame buffer.
+            
+        """
         if len(args) == 2:
             self._display.frame(args[0], args[1].frame)
         elif len(args) == 1:
-            if type(args[0]) is int:  # arg1 is 'index'
+            if type(args[0]) is int:
                 return Frame(self.frame_width(), self.frame_height(),
-                             self._display.frame(args[0]))
+                                self._display.frame(args[0]))
             else:
                 self._display.frame(args[0].frame)
         else:
@@ -237,7 +317,20 @@ class VGA(object):
                          self._display.frame())
 
     def __del__(self):
-        self.stop()  # may avoid odd behaviors of the DMA
+        """Delete the HDMI object.
+        
+        Stop the video controller first to avoid odd behaviors of the DMA.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        self.stop()
         if hasattr(self, '_capture'):
             del self._capture
         elif hasattr(self, '_display'):

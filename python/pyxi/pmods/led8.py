@@ -1,116 +1,199 @@
-"""This module exposes API to control a LED8 PMOD."""
-
+#   Copyright (c) 2016, Xilinx, Inc.
+#   All rights reserved.
+# 
+#   Redistribution and use in source and binary forms, with or without 
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice, 
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright 
+#       notice, this list of conditions and the following disclaimer in the 
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its 
+#       contributors may be used to endorse or promote products derived from 
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2015, Xilinx"
-__version__     = "0.1"
-__maintainer__  = "Giuseppe Natale"
-__email__       = "giuseppe.natale@xilinx.com"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "xpp_support@xilinx.com"
 
 
-from . import _iop
+from . import _constants
 from .devmode import DevMode
 
 class LED8(object):
-    """Control a single LED on the LED8 PMOD.
-
-    Arguments
-    ----------
-    pmod_id (int)          : Id of the PMOD to which the LED's I/O Processor 
-                             will be attached to
-    index (int)            : Index of the LED to Control
+    """This class controls a single LED on the LED8 PMOD.
 
     Attributes
     ----------
-    iop (dev_mode.DevMode) : I/O Processor instance used by LED
-    iop_id (int)           : From argument *pmod_id*
-    index (int)            : From argument *index*.
+    iop : _IOP
+        I/O processor instance used by LED8.
+    pmod_id : int
+        ID of the PMOD to which the LED8 PMOD is attached, from 1 to 4.
+    index : int
+        Index of the pin on LED8, from 0 to 7.
+        
     """
 
     def __init__(self, pmod_id, index):
-        """Return a new instance of a LED object. It might raise an exception 
-        as the *force* flag is not set when calling request_iop() in 
-        DevMode initialization. 
-        Refer to _iop.request_iop() for additional details.
+        """Return a new instance of a LED object. 
+        
+        When we call request_iop() in DevMode, an exception might be raised if 
+        the *force* flag is not set. Please refer to _iop.request_iop() for 
+        additional details.
+        
+        Parameters
+        ----------
+        pmod_id : int
+            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        index: int
+            The index of the pin in a PMOD, from 0 to 7.
+            
         """
-        if not pmod_id in _iop.IOP_CONSTANTS:
-            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4")
-        if not index in _iop.IOP_SWCFG_XGPIOALL:
-            raise ValueError("Valid pin indexes are 0 - 7")
-        self.iop = DevMode(pmod_id, _iop.IOP_SWCFG_XGPIOALL) 
-        self.iop_id = pmod_id
+        if not pmod_id in range(1,5):
+            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
+        if not index in range(8):
+            raise ValueError("Valid pin indexes are 0 - 7.")
+        self.iop = DevMode(pmod_id, _constants.IOP_SWCFG_PMODIOALL) 
+        self.pmod_id = pmod_id
         self.index = index
 
-        if self.iop.status()[0] != 'RUNNING':
-            self.iop.start()
-            self.iop.write_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
-                               _iop.IOPMM_XGPIO_TRI_OFFSET, 
-                               _iop.IOCFG_XGPIO_ALLOUTPUT)    
+        self.iop.start()
+        self.iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
+                            _constants.IOPMM_PMODIO_TRI_OFFSET, 
+                            _constants.IOCFG_PMODIO_ALLOUTPUT)    
 
-        # Set switch to XGPIOALL (corner case : mailbox.bin was used previously 
-        #                        with non-LED8 PMOD)
-        self.iop.load_switch_config()     
+        self.iop.load_switch_config()
                   
     def toggle(self):  
-        """Flip the bit of the single LED."""
-        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
-                                     _iop.IOPMM_XGPIO_DATA_OFFSET)
+        """Flip the bit of a single LED.
+        
+        Note
+        ----
+        The LED will be turned off if it is on. Similarly, it will be turned 
+        on if it is off.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        curr_val = self.iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
+                                        _constants.IOPMM_PMODIO_DATA_OFFSET)
         new_val  = (curr_val) ^ (0x1 << self.index)        
         self._set_leds_values(new_val)
         
     def on(self):  
-        """Turn on single LED."""
-        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
-                                     _iop.IOPMM_XGPIO_DATA_OFFSET)
+        """Turn on a single LED.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        curr_val = self.iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
+                                        _constants.IOPMM_PMODIO_DATA_OFFSET)
         new_val  = (curr_val) | (0x1 << self.index)            
         self._set_leds_values(new_val)
      
     def off(self):    
-        """Turn on single LED."""
-        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
-                                     _iop.IOPMM_XGPIO_DATA_OFFSET)
+        """Turn off a single LED.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        curr_val = self.iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
+                                        _constants.IOPMM_PMODIO_DATA_OFFSET)
         new_val  = (curr_val) & (0xff ^ (0x1 << self.index))    
         self._set_leds_values(new_val)
 
     def write(self, value):
         """Set the LED state according to the input value
-
-        Arguments
+        
+        Note
+        ----
+        This method does not take into account the current LED state.
+        
+        Parameters
         ----------
-        value (Boolean) : If true, the LED will turned on. Will be turned off 
-        otherwise. Note that this method does not take into account the current 
-        LED state.
+        value : int
+            Turn on the LED if value is 1; turn it off if value is 0.
+            
+        Returns
+        -------
+        None
+        
         """
         if not value in (0,1):
-            raise ValueError("LED8 can only write 0 or 1")
+            raise ValueError("LED8 can only write 0 or 1.")
         if value:
             self.on()
         else:
-            self.off()        
+            self.off()
 
     def read(self):       
-        """Retrieve the LED state
+        """Retrieve the LED state.
 
-        Arguments
+        Parameters
         ----------
         None
+        
+        Returns
+        -------
+        int
+            The data (0 or 1) read out from the selected pin.
+        
         """
-        curr_val = self.iop.read_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
-                                     _iop.IOPMM_XGPIO_DATA_OFFSET)
+        curr_val = self.iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
+                                        _constants.IOPMM_PMODIO_DATA_OFFSET)
         return (curr_val >> self.index) & 0x1 
     
     def _set_leds_values(self, value):
-        """Set the state of all LEDs
+        """Set the state for all the LEDs.
 
         Note
-        ----------
+        ----
         Should not be used directly. User should rely on toggle(), on(), 
-        off(), write(), and read() instead
+        off(), write(), and read() instead.
 
-        Arguments
+        Parameters
         ----------
-        value (int) : The value of all the LEDs encoded in one single value
+        value : int
+            The state of all the LEDs encoded in one single value
+        
+        Returns
+        -------
+        None
+        
         """
-        self.iop.write_cmd(_iop.IOPMM_XGPIO_BASEADDR + 
-                           _iop.IOPMM_XGPIO_DATA_OFFSET, value)
+        self.iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
+                            _constants.IOPMM_PMODIO_DATA_OFFSET, value)
                          

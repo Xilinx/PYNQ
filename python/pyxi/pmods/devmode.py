@@ -1,206 +1,342 @@
-"""This module exposes API to control an I/O Processor in Development Mode. 
-The IOP is in loop waiting for user to send commands to XGPIO, IIC, or 
-SPI I/O on a single PMOD.
-"""
+#   Copyright (c) 2016, Xilinx, Inc.
+#   All rights reserved.
+# 
+#   Redistribution and use in source and binary forms, with or without 
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice, 
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright 
+#       notice, this list of conditions and the following disclaimer in the 
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its 
+#       contributors may be used to endorse or promote products derived from 
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Graham Schelle, Giuseppe Natale"
-__copyright__   = "Copyright 2015, Xilinx"
-__version__     = "0.1"
-__maintainer__  = "Giuseppe Natale"
-__email__       = "giuseppe.natale@xilinx.com"
+__author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "xpp_support@xilinx.com"
 
 
 import time
 from . import _iop
+from . import _constants
 from pyxi import MMIO
+from pyxi import Overlay
+from pyxi.pmods import _constants
 
 PROGRAM = "mailbox.bin"
+ol = Overlay("pmod.bit")
 
 class DevMode(object):
-    """Control an I/O Processor running the Developer Mode executable - waiting 
-    for Python to send I/O commands to XGPIO, IIC or SPI I/O.
-
-    Arguments
-    ----------
-    pmod_id (int)           : Id of the PMOD to which the I/O Processor will be 
-                              attached to
-    switch_config (list)     : I/O Processor switch configuration 
-                              ( list of 8 32bit values )
+    """Control an IO processor running the developer mode executable. 
+    
+    This class will wait for Python to send commands to PMOD IO, IIC, or SPI.
 
     Attributes
     ----------
-    iop                     : I/O Processor instance used by DevMode
-    iop_id (int)            : From argument *pmod_id*
-    iop_switch_config (list): From argument *switch_config*
-    mmio (MMIO)             : Memory-mapped I/O instance needed to read 
-                              and write instructions and data.
-    program (str)           : Current executable running.
+    iop : _IOP
+        IO processor instance used by DevMode
+    pmod_id : int
+        ID of the PMOD to which the IO processor is attached
+    iop_switch_config :list
+        IO processor switch configuration (8 32-bit values)
+    mmio : MMIO
+        Memory-mapped IO instance to read and write instructions and data.
+    program : str
+        Microblaze executable to be run.
+    
     """
 
     def __init__(self, pmod_id, switch_config):
-        """Return a new instance of a DevMode object. It might raise an 
-        exception as the *force* flag is not set when calling request_iop(). 
+        """Return a new instance of a DevMode object. 
+        
+        It might raise an exception when the *force* flag is not set.
         Refer to _iop.request_iop() for additional details.
+        
+        Parameters
+        ----------
+        pmod_id : int
+            ID of the PMOD to which the IO processor is attached
+        switch_config : list
+            IO Processor switch configuration (8 32-bit values)
+            
         """
+        if (pmod_id not in range(1,5)):
+            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
+            
+        for k in ol.get_iop_addr().keys():
+            if ol.get_iop_addr()[k][0] == pmod_id:
+                mmio_addr = int(ol.get_iop_addr()[k][1], 16)
+                break
+        
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_switch_config = list(switch_config)
-        self.iop_id = pmod_id
-        self.mmio = MMIO(_iop.IOP_CONSTANTS[pmod_id]['address'] + 
-                         _iop.MAILBOX_OFFSET, _iop.MAILBOX_SIZE>>2) 
+        self.pmod_id = pmod_id
+        self.mmio = MMIO(mmio_addr + _constants.MAILBOX_OFFSET, 
+                                    _constants.MAILBOX_SIZE) 
         self.program = PROGRAM
-
-    def __repr__(self):
-        return "DevMode()"
-    
-    def __str__(self):
-        return """ DeveloperMode instance on PMOD #{id}
-                    Executable: {program}
-                    Status:     {status}
-                    Switch:     {switch}
-               """.format(id = str(self.iop_id),
-                          program = self.program,
-                          status = str(self.get_status()[0]),
-                          switch = str(self.iop_switch_config))
      
     def start(self):
-        """Enable the I/O Processor:
-            1. start I/O Processor
-            2. zero out mailbox CMD register
-            2. load switch config (if one specified with iopDeveloper class
-            3. set status as running
+        """Start the IO Processor.
+        
+        This method will:
+        1. zero out mailbox CMD register;
+        2. load switch config;
+        3. set IOP status as "RUNNING".
+        
         """
         self.iop.start()
-        # Zero-out cmd mailbox
-        self.mmio.write(_iop.MAILBOX_PY2IOP_CMDCMD_OFFSET, 0)
+        self.mmio.write(_constants.MAILBOX_PY2IOP_CMD_OFFSET, 0)
         self.load_switch_config()   
 
     def stop(self):
-        """Put the I/O Processor into Reset."""
+        """Put the IO Processor into Reset.
+        
+        This method will set IOP status as "STOPPED".
+        
+        """
         self.iop.stop()        
 
-    #######################
-    # IOP Config Commands #
-    ####################### 
     def load_switch_config(self, config=None):
-        """Load the I/O Processor's Switch Configuration 
-
-        Arguments
+        """Load the IO processor's switch configuration 
+        
+        Note
+        ----
+        This method will update switch config first if the configuration is
+        provided (a list of 8 32-bit values). Otherwise, this method will 
+        configure the switch with DevMode.iop_switch_config 
+        
+        Parameters
         ----------
-        config (List) : Default:None - Will update switch config first if 
-                        supplied ( list of 8 32bit values ). Otherwise, will 
-                        configure switch with DevMode.iop_switch_config 
+        config: list
+            A switch configuration list of 8 32-bit values.
 
         Raises
         ----------
-        TypeError     : If the config argument is not of the correct type.
+        TypeError
+            If the config argument is not of the correct type.
+            
         """
         if config:
-            if len(config) != _iop.IOPMM_SWITCHCONFIG_NUMREGS:
-                raise TypeError('User supplied switch config is not a ' +
-                        'list of 8 integers. Switch will not be configured.' + 
-                        '\nReceived config=' + str(config))
+            if len(config) != _constants.IOPMM_SWITCHCONFIG_NUMREGS:
+                raise TypeError('User supplied config {} is not a ' +
+                        'list of 8 integers.'.format(config))
             self.iop_switch_config = config
 
-        # build switch config word 
+        #: Build switch config word 
         sw_config_word = 0
         for ix, cfg in enumerate(self.iop_switch_config): 
             sw_config_word |= (cfg << ix*4)
 
-        #print("SwitchConfig word: " + str(hex(sw_config_word)))
-
-        # disable, configure, enable switch
-        self.write_cmd(_iop.IOPMM_SWITCHCONFIG_BASEADDR + 4, 0)
-        self.write_cmd(_iop.IOPMM_SWITCHCONFIG_BASEADDR, sw_config_word)
-        self.write_cmd(_iop.IOPMM_SWITCHCONFIG_BASEADDR + 7, 0x80, dWidth=1)     
-
+        #: Disable, configure, enable switch
+        self.write_cmd(_constants.IOPMM_SWITCHCONFIG_BASEADDR + 4, 0)
+        self.write_cmd(_constants.IOPMM_SWITCHCONFIG_BASEADDR, \
+                        sw_config_word)
+        self.write_cmd(_constants.IOPMM_SWITCHCONFIG_BASEADDR + 7, \
+                        0x80, dWidth=1)     
 
     def get_switch_config(self):
-        """Print the I/O Processor's Switch Configuration."""
+        """Print the IO processor's switch configuration.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
         sw_config = list()
         for ix, cfg in enumerate(self.iop_switch_config):
-            sw_config.append(self.read_cmd(_iop.IOPMM_switch_config_BASEADDR + 
-                             ix*4, dWidth=1))
+            sw_config.append(self.read_cmd(
+                _constants.IOPMM_switch_config_BASEADDR + ix*4, dWidth=1))
         print(str(sw_config))
 
     def status(self):
-        return self.iop.status()
+        """Returns the status of the IO processor.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        str
+            The IOP status ("IDLE", "RUNNING", or "STOPPED").
+        
+        """
+        return self.iop.state
+       
+    def write_cmd(self, address, data, dWidth=4, dLength=1, timeout=10):
+        """Send a write command to the mailbox.
+        
+        Parameters
+        ----------
+        address : int
+            The address tied to IO processor's memory map.
+        data : int
+            32-bit value to be written (None for read).
+        dWidth : int
+            Command data width.
+        dLength : int
+            Command burst length (currently only supporting dLength 1).
+        timeout : int
+            Time in milliseconds before function exits with warning.
+        
+        Returns
+        -------
+        None
+        
+        """
+        return self._send_cmd(_constants.WRITE_CMD, address, data, 
+                                dWidth=dWidth, timeout=timeout)
 
-    ##########################
-    # Mailbox RD/WR Commands #
-    ##########################        
-    def write_cmd(self, address, data, dWidth=4, dLength=1, timeout=20):
-        return self._send_cmd(_iop.WRITE_CMD, address, data, dWidth=dWidth, 
-                              timeout=timeout)
-
-    def read_cmd(self, address, dWidth=4, dLength=1, timeout=10):        
-        return self._send_cmd(_iop.READ_CMD, address, None, dWidth=dWidth, 
-                              timeout=timeout)
-
+    def read_cmd(self, address, dWidth=4, dLength=1, timeout=10):
+        """Send a read command to the mailbox.
+        
+        Parameters
+        ----------
+        address : int
+            The address tied to IO processor's memory map.
+        dWidth : int
+            Command data width.
+        dLength : int
+            Command burst length (currently only supporting dLength 1).
+        timeout : int
+            Time in milliseconds before function exits with warning.
+        
+        Returns
+        -------
+        list
+            A list of data returned by MMIO read.
+        
+        """
+        return self._send_cmd(_constants.READ_CMD, address, None, 
+                                dWidth=dWidth, timeout=timeout)
 
     def is_cmd_mailbox_idle(self): 
-        """Return true if IOP Mailbox Command API idle."""
-        mb_cmd_word = self.mmio.read(_iop.MAILBOX_PY2IOP_CMDCMD_OFFSET)
+        """Check whether the IOP command mailbox is idle.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        bool
+            True if IOP command mailbox idle.
+        
+        """
+        mb_cmd_word = self.mmio.read(_constants.MAILBOX_PY2IOP_CMD_OFFSET)
         return (mb_cmd_word & 0x1) == 0
 
-    def is_cmd_valid(self, cmd, address, data, dWidth, dLength, timeout):
-        """Check if cmd is valid across all the arguments."""
-        return True # TODO: update it to be meaningful, or remove this method
-
     def get_cmd_word(self, cmd, dWidth, dLength):
-        word = 0x1                    # cmd Valid
-        word = word | (dWidth-1) << 1 # cmd DataWidth   (4B->3, 2B->1, 1B->0)
-        word = word | (cmd) << 3      # cmd type        (RD:1 or WR:0)
-        word = word | (dLength) << 8  # cmd BurstLength (dLength->BurstLength)
- 
-        word = word | (0) << 16       # explicit set to 0
+        """Build the command word.
+
+        Note
+        ----
+        The returned command word has the following format:
+        Bit [0]     : valid bit.
+        Bit [2:1]   : command data width.
+        Bit [3]     : command type (read or write).
+        Bit [15:8]  : command burst length.
+        Bit [31:16] : unused.
+        
+        Parameters
+        ----------        
+        cmd : int
+            Either 1 (read IOP register) or 0 (write IOP register).
+        dWidth : int
+            Command data width.
+        dLength : int
+            Command burst length (currently only supporting dLength 1).
+            
+        Returns
+        -------
+        int
+            The command word following a specific format.
+            
+        """
+        word = 0x1                    # cmd valid
+        word = word | (dWidth-1) << 1 # cmd dataWidth    (3->4B, 1->2B, 0->1B)
+        word = word | (cmd) << 3      # cmd type         (1->RD, 0->WR)
+        word = word | (dLength) << 8  # cmd burst length (1->1 word)
+        word = word | (0) << 16       # unused
               
         return word
 
-
     def _send_cmd(self, cmd, address, data, dWidth=4, dLength=1, timeout=10):
-        """Send a command to the I/O Processor via mailbox.
+        """Send a command to the IO processor via mailbox.
 
-        Arguments
-        ----------        
-        cmd (int)       : 1 Read IOP Reg | 0 Write IOP Reg
-        address (int)   : tied to I/O Processo's memory map (need to write 
-                          out the map)
-        data (int)      : 32bit value that will be written (set data to 
-                          None for Read)
-        timeout (int)   : Default:10. Time in milliseconds before function 
-                          exits with warning
-
-        Typical usage:
-            User should avoid to call this method directly. 
-            Use the readRegCmd() or writeRegCmd() calls instead.
+        Note
+        ----
+        User should avoid to call this method directly. 
+        Use the read_cmd() or write_cmd() instead.
 
         Example:
-            >>> _send_cmd(0, 4, None)  # Read address 4.
+            >>> _send_cmd(1, 4, None)  # Read address 4.
+            
+        Parameters
+        ----------        
+        cmd : int
+            Either 1 (read IOP Reg) or 0 (write IOP Reg).
+        address : int
+            The address tied to IO processor's memory map.
+        data : int
+            32-bit value to be written (None for read).
+        dWidth : int
+            Command data width.
+        dLength : int
+            Command burst length (currently only supporting dLength 1).
+        timeout : int
+            Time in milliseconds before function exits with warning.
+            
+        Raises
+        ------
+        LookupError
+            If it takes too long to receive the ACK from the IOP.
+
+
         """
-        self.mmio.write(_iop.MAILBOX_PY2IOP_CMDADDR_OFFSET, address)
+        self.mmio.write(_constants.MAILBOX_PY2IOP_ADDR_OFFSET, address)
         if data != None:
-            self.mmio.write(_iop.MAILBOX_PY2IOP_CMDDATA_OFFSET, data)
+            self.mmio.write(_constants.MAILBOX_PY2IOP_DATA_OFFSET, data)
         
-        # Build and Write Command
+        #: Build the write command
         cmd_word = self.get_cmd_word(cmd, dWidth, dLength)
 
-        self.mmio.write(_iop.MAILBOX_PY2IOP_CMDCMD_OFFSET, cmd_word)
+        self.mmio.write(_constants.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
 
-        # Wait for ACK
+        #: Wait for ACK in steps of 1ms
         cntdown = timeout
         while not self.is_cmd_mailbox_idle() and cntdown > 0:
-            time.sleep(0.001) # wait for 1ms
+            time.sleep(0.001)
             cntdown -= 1
 
-        # If did not receive ACK, alert user.
+        #: If ACK is not received, alert users.
         if cntdown == 0:
-            print("DevMode::_send_cmd() - Warning: CMD Not Acknowledged " + 
-                  "after " + str(timeout) + "ms (PMOD #" + 
-                  str(self.iop_id) + ")")
+            raise LookupError("DevMode _send_cmd() not acknowledged " + 
+                    "from PMOD " + str(self.pmod_id))
 
-        # Return data if expected from Read, otherwise return None
-        if cmd == _iop.WRITE_CMD: 
+        #: Return data if expected from read, otherwise return None
+        if cmd == _constants.WRITE_CMD: 
             return None
         else:
-            # Return Read Data  (Currently only supporting dLength==1)
-            return self.mmio.read(_iop.MAILBOX_PY2IOP_CMDDATA_OFFSET) 
+            return self.mmio.read(_constants.MAILBOX_PY2IOP_DATA_OFFSET)
+            

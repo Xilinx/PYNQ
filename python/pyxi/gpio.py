@@ -1,77 +1,195 @@
+#   Copyright (c) 2016, Xilinx, Inc.
+#   All rights reserved.
+# 
+#   Redistribution and use in source and binary forms, with or without 
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice, 
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright 
+#       notice, this list of conditions and the following disclaimer in the 
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its 
+#       contributors may be used to endorse or promote products derived from 
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__      = "Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
-__email__       = "yunq@xilinx.com"
+__email__       = "xpp_support@xilinx.com"
+
 
 import os
 import sys
 import struct
+from . import _constants
 
 class GPIO:
-    """ Class to handle (PS) GPIOs in Linux. This is differernt than the PMOD
-    GPIO class.
+    """Class to handle (PS) GPIOs in Linux. 
+    
+    The GPIO class is differernt from the PMOD XGPIO class.
+    
+    Attributes
+    ----------
+    index : int
+        The index of the GPIO, starting from the GPIO base.
+    direction : str
+        Input/output direction of the GPIO.
+    path: str
+        The path of the GPIO device in the linux system.
+    
     """
     
-    def __init__(self, gpio_index, direction='in'):
+    def __init__(self, gpio_index, direction):
+        """Return a new GPIO object. 
+        
+        Parameters
+        ----------
+        gpio_index : int
+            The index of the GPIO, starting from the GPIO base.
+        direction : 'str'
+            Input/output direction of the GPIO.
+        
+        """
         if not direction in ('in','out'):
-            raise ValueError("direction should be in or out")
+            raise ValueError("Direction should be in or out.")
         self.index = gpio_index
         self.direction = direction
-        self.path = '/sys/class/gpio/gpio%d/' % gpio_index
+        self.path = '/sys/class/gpio/gpio{}/'.format(gpio_index)
         
         euid = os.geteuid()
         if euid != 0:
-            raise EnvironmentError('root permissions required.')
+            raise EnvironmentError('Root permissions required.')
         
         if not os.path.exists(self.path):
-            try:
-                with open('/sys/class/gpio/export', 'w') as f:
+            with open('/sys/class/gpio/export', 'w') as f:
                     f.write(str(self.index))
-            except IOError:
-                print('cannot write into /sys/class/gpio/export')
-                raise
                 
-        try:
-            with open(self.path + 'direction', 'w') as f:
-                f.write(self.direction)
-        except IOError:
-            print('cannot write into /sys/class/gpio/gpio{}/direction'
-                    .format(self.index))
-            raise
-            
+        with open(self.path + 'direction', 'w') as f:
+            f.write(self.direction)
 
-    """ Warning: Since the use of the following __del()__ function is not safe, 
-    the GPIO drivers can be left in /sys/class/gpio/ directory, even 
-    after exiting python prompt. For this reason, we will use a function 
-    delete() to explicitly delete the exisiting GPIO instances.
-    """
-    def delete(self):
+    def __del__(self):
+        """Delete a GPIO object.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
         if os.path.exists(self.path):
-            try:
-                with open('/sys/class/gpio/unexport', 'w') as f:
-                    f.write(str(self.index))
-            except IOError:
-                print('cannot write into /sys/class/gpio/unexport')
-                raise
+            with open('/sys/class/gpio/unexport', 'w') as f:
+                f.write(str(self.index))
 
     def read(self):
+        """The method to read a value from the GPIO. 
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        int
+            An integer read from the GPIO            
+        
+        """
         if not self.direction is 'in':
-            raise AttributeError("cannot read gpio output")
-        try:
-            with open(self.path + 'value', 'r') as f:
-                return int(f.read())
-        except IOError:
-            raise
+            raise AttributeError("Cannot read GPIO output.")
+        
+        with open(self.path + 'value', 'r') as f:
+            return int(f.read())
 
     def write(self, value): 
+        """The method to write a value into the GPIO. 
+        
+        Parameters
+        ----------
+        value : int
+            An integer value, either 0 or 1
+        
+        Returns
+        -------
+        None        
+        
+        """
         if not self.direction is 'out':
-            raise AttributeError("cannot write gpio input")
+            raise AttributeError("Cannot write GPIO input.")
+        
         if not value in (0,1):
-            raise ValueError("can only write 0 or 1")
-        try:
-            with open(self.path + 'value', 'w') as f:
-                f.write(str(value))
-            return
-        except IOError:
-            raise
+            raise ValueError("Can only write integer 0 or 1.")
+        
+        with open(self.path + 'value', 'w') as f:
+            f.write(str(value))
+        return
             
+    @staticmethod
+    def get_gpio_base():
+        """This method returns the GPIO base in PS.
+        
+        This is a static method. To use:
+        >>> from pyxi import GPIO
+        >>> gpio = GPIO.get_gpio_base()
+        
+        Note
+        ----
+        For path '/sys/class/gpio/gpiochip138/', this method returns 138.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        int
+            The GPIO index of the base.
+            
+        """
+        for root, dirs, files in os.walk('/sys/class/gpio'):
+            for name in dirs:
+                if 'gpiochip' in name:
+                    return int(''.join(x for x in name if x.isdigit()))
+                    
+    @staticmethod
+    def get_gpio_pin(user_index):
+        """This method returns a GPIO pin for users.
+        
+        Users only need to specify an index starting from 0; this static 
+        method will map this index to the correct GPIO pin number.
+        
+        Note
+        ----
+        The GPIO pin number can be calculated using:
+        GPIO pin number = GPIO base + GPIO offset + user index
+        e.g. The GPIO base is 138, and pin 54 is the minimum GPIO offset.
+        Then the GPIO pin will start from (138 + 54 + 0) = 192.
+        
+        Parameters
+        ----------
+        user_index : int
+            The index specified by users, starting from 0.
+        
+        Returns
+        -------
+        int
+            The GPIO pin number, starting from GPIO base + GPIO offset.
+            
+        """
+        return (GPIO.get_gpio_base() + _constants.GPIO_MIN_USER_PIN\
+                + user_index)
