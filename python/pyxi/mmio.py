@@ -37,7 +37,7 @@ import sys
 import struct
 import mmap
 import math
-from . import _constants
+from . import general_const
 
 class MMIO:
     """ This class exposes API to carry MMIO operations.
@@ -83,9 +83,9 @@ class MMIO:
         self.base_addr_offset = base_addr - self.base_addr
         #: Align the stop address with the words
         stop = base_addr + length
-        if (stop % _constants.MMIO_WORD_MASK):
-            stop = (stop + _constants.MMIO_WORD_LENGTH) \
-                    & _constants.MMIO_WORD_MASK
+        if (stop % general_const.MMIO_WORD_MASK):
+            stop = (stop + general_const.MMIO_WORD_LENGTH) \
+                    & general_const.MMIO_WORD_MASK
         #: Calculate the length between the base address and the stop address
         self.length = stop - self.base_addr
         
@@ -94,7 +94,7 @@ class MMIO:
                 format(hex(self.base_addr), hex(self.length)))
                 
         #: Open file and mmap
-        f = os.open(_constants.MMIO_FILE_NAME, os.O_RDWR | os.O_SYNC)
+        f = os.open(general_const.MMIO_FILE_NAME, os.O_RDWR | os.O_SYNC)
         self.mem = mmap.mmap(f, self.length, mmap.MAP_SHARED,
                     mmap.PROT_READ | mmap.PROT_WRITE,
                     offset = self.base_addr)
@@ -128,7 +128,7 @@ class MMIO:
                     .format(length, hex(offset)))
 
         #: Compensate for the base_address and seek to the aligned offset
-        virt_base_addr = self.base_addr_offset & _constants.MMIO_WORD_MASK
+        virt_base_addr = self.base_addr_offset & general_const.MMIO_WORD_MASK
         mem.seek(virt_base_addr + offset)
 
         #: Read data out
@@ -172,11 +172,11 @@ class MMIO:
         offset += self.base_addr_offset
 
         # Check that the operation is going write to an aligned location
-        if (offset & ~ _constants.MMIO_WORD_MASK): 
+        if (offset & ~ general_const.MMIO_WORD_MASK): 
             raise MemoryError('Write operation not aligned.')
 
         # Seek to the aligned offset
-        virt_base_addr = self.base_addr_offset & _constants.MMIO_WORD_MASK
+        virt_base_addr = self.base_addr_offset & general_const.MMIO_WORD_MASK
         mem.seek(virt_base_addr + offset)
 
         if length == 4:
@@ -184,8 +184,8 @@ class MMIO:
                         format(hex(offset), hex(data)))
             mem.write(struct.pack('I', data))
         else:
-            for i in range(0, length, _constants.MMIO_WORD_LENGTH):
-                buf = int.from_bytes(data[i:i+_constants.MMIO_WORD_LENGTH],
+            for i in range(0, length, general_const.MMIO_WORD_LENGTH):
+                buf = int.from_bytes(data[i:i+general_const.MMIO_WORD_LENGTH],
                                      byteorder='little')
                 mem.write(struct.pack('I', buf))
 

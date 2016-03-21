@@ -35,7 +35,7 @@ __email__ = "xpp_support@xilinx.com"
 from itertools import chain
 from PIL import Image
 from . import _video
-from . import _constants
+from . import video_const
 
 class Frame(object):
     """This class exposes the bytearray of the video frame buffer.
@@ -120,7 +120,7 @@ class Frame(object):
         """
         x, y = pixel
         if 0 <= x < self.width and 0 <= y < self.height:
-            offset = 3 * (y * _constants.MAX_FRAME_WIDTH + x)
+            offset = 3 * (y * video_const.MAX_FRAME_WIDTH + x)
             
             return self.frame[offset+2],self.frame[offset],\
                     self.frame[offset+1]
@@ -163,7 +163,7 @@ class Frame(object):
         """
         x, y = pixel
         if 0 <= x < self.width and 0 <= y < self.height:
-            offset = 3 * (y * _constants.MAX_FRAME_WIDTH + x)
+            offset = 3 * (y * video_const.MAX_FRAME_WIDTH + x)
             self.frame[offset + 2] = value[0]
             self.frame[offset] = value[1]
             self.frame[offset + 1] = value[2]
@@ -207,8 +207,8 @@ class Frame(object):
         """
         rgb = bytearray()
         for i in range(self.height):
-            row = self.frame[i * _constants.MAX_FRAME_WIDTH * 3 :\
-                            (i * _constants.MAX_FRAME_WIDTH + self.width) * 3]
+            row = self.frame[i * video_const.MAX_FRAME_WIDTH * 3 :\
+                            (i * video_const.MAX_FRAME_WIDTH + self.width) * 3]
             rgb.extend(bytearray(
                         chain.from_iterable((row[j+2], row[j], row[j+1])\
                             for j in range(0, len(row)-1, 3))))
@@ -242,8 +242,8 @@ class Frame(object):
         """
         rgb = bytearray()
         for i in range(height):
-            row = frame_raw[i * _constants.MAX_FRAME_WIDTH * 3 :\
-                            (i * _constants.MAX_FRAME_WIDTH + width) * 3]
+            row = frame_raw[i * video_const.MAX_FRAME_WIDTH * 3 :\
+                            (i * video_const.MAX_FRAME_WIDTH + width) * 3]
             rgb.extend(bytearray(
                         chain.from_iterable((row[j+2], row[j], row[j+1])\
                            for j in range(0, len(row)-1, 3))))

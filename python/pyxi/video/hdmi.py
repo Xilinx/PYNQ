@@ -33,7 +33,7 @@ __email__ = "xpp_support@xilinx.com"
 
 
 from .frame import Frame
-from . import _constants
+from . import video_const
 from . import _video
 
 class HDMI(object):
@@ -87,13 +87,13 @@ class HDMI(object):
         else:
             self.direction = 'in'
             if frame_buffer == None:
-                self._capture = _video._capture(_constants.VDMA_DICT,
-                                                _constants.GPIO_DICT,
-                                                _constants.VTC_CAPTURE_ADDR)
+                self._capture = _video._capture(video_const.VDMA_DICT,
+                                                video_const.GPIO_DICT,
+                                                video_const.VTC_CAPTURE_ADDR)
             else:
-                self._capture = _video._capture(_constants.VDMA_DICT,
-                                                _constants.GPIO_DICT,
-                                                _constants.VTC_CAPTURE_ADDR,
+                self._capture = _video._capture(video_const.VDMA_DICT,
+                                                video_const.GPIO_DICT,
+                                                video_const.VTC_CAPTURE_ADDR,
                                                 frame_buffer)
                                                 
             self.frame_buffer = self._capture.framebuffer
@@ -178,7 +178,7 @@ class HDMI(object):
             """Get the frame index.
             
             Use frame_index([new_frame_index]) to access the frame index.
-            If `new_frame_index` is not specified, get the current frame index. 
+            If `new_frame_index` is not specified, get the current frame index.
             If `new_frame_index` is specified, set the current frame to the 
             new index.
 

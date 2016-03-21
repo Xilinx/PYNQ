@@ -33,7 +33,7 @@ __email__ = "xpp_support@xilinx.com"
 
 
 from pyxi import MMIO
-from pyxi.board import _constants
+from pyxi.board import board_const
 
 class Button(object):
     """This class controls the onboard push-buttons.
@@ -56,7 +56,7 @@ class Button(object):
             
         """
         if Button._mmio is None:
-            Button._mmio = MMIO(_constants.BTNS_ADDR)
+            Button._mmio = MMIO(board_const.BTNS_ADDR)
         self.index = index
 
     def read(self):

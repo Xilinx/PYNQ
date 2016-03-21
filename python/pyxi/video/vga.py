@@ -33,7 +33,7 @@ __email__ = "xpp_support@xilinx.com"
 
 
 from .frame import Frame
-from . import _constants
+from . import video_const
 from . import _video
 
 class VGA(object):
@@ -87,13 +87,13 @@ class VGA(object):
         else:
             self.direction = 'out'
             if frame_buffer == None:
-                self._display = _video._display(_constants.VDMA_DICT,
-                                                _constants.VTC_DISPLAY_ADDR,
-                                                _constants.DYN_CLK_ADDR, 1)
+                self._display = _video._display(video_const.VDMA_DICT,
+                                                video_const.VTC_DISPLAY_ADDR,
+                                                video_const.DYN_CLK_ADDR, 1)
             else:
-                self._display = _video._display(_constants.VDMA_DICT,
-                                                _constants.VTC_DISPLAY_ADDR,
-                                                _constants.DYN_CLK_ADDR, 1,
+                self._display = _video._display(video_const.VDMA_DICT,
+                                                video_const.VTC_DISPLAY_ADDR,
+                                                video_const.DYN_CLK_ADDR, 1,
                                                 frame_buffer)
                                                 
             self.frame_buffer = self._display.framebuffer
@@ -224,7 +224,7 @@ class VGA(object):
             """Get the frame index.
             
             Use frame_index([new_frame_index]) to access the frame index.
-            If `new_frame_index` is not specified, get the current frame index. 
+            If `new_frame_index` is not specified, get the current frame index.
             If `new_frame_index` is specified, set the current frame to the 
             new index. 
 

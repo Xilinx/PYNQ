@@ -35,7 +35,7 @@ __email__       = "xpp_support@xilinx.com"
 import os
 import sys
 import struct
-from . import _constants
+from . import general_const
 
 class GPIO:
     """Class to handle (PS) GPIOs in Linux. 
@@ -191,5 +191,5 @@ class GPIO:
             The GPIO pin number, starting from GPIO base + GPIO offset.
             
         """
-        return (GPIO.get_gpio_base() + _constants.GPIO_MIN_USER_PIN\
+        return (GPIO.get_gpio_base() + general_const.GPIO_MIN_USER_PIN\
                 + user_index)

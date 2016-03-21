@@ -32,7 +32,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "xpp_support@xilinx.com"
 
 
-from . import _constants
+from . import general_const
 from .gpio import GPIO
 from .mmio import MMIO
 from .pl import PL

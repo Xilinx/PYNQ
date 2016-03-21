@@ -27,47 +27,26 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Giuseppe Natale"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "xpp_support@xilinx.com"
+__author__      = "Yun Rock Qu"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "xpp_support@xilinx.com"
 
 
-from pyxi import MMIO
-from pyxi.board import board_const
+import os
 
-class Switch(object):
-    """This class controls the onboard switches.
+#: GPIO constants
+GPIO_MIN_USER_PIN = 54
 
-    Attributes
-    ----------
-    index : int
-        Index of the onboard switches, starting from 0.
-        
-    """
-    _mmio = None
+#: Overlay constants
+BS_SEARCH_PATH = os.path.abspath("../../bitstream")+'/'
+BS_BOOT = BS_SEARCH_PATH + 'pmod.bit'
+BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
+BS_XDEVCFG = "/dev/xdevcfg"
 
-    def __init__(self, index):
-        """Create a new Switch object.
-        
-        Parameters
-        ----------
-        index : int
-            The index of the onboard switches, from 0 to 3.
-        
-        """
-        if Switch._mmio is None:
-            Switch._mmio = MMIO(board_const.SWS_ADDR)
-        self.index = index
+#: MMIO constants
+MMIO_FILE_NAME = '/dev/mem'
+MMIO_WORD_LENGTH = 4
+MMIO_WORD_MASK = ~(MMIO_WORD_LENGTH - 1)
 
-    def read(self):
-        """Read the current value of the switch.
-
-        Returns
-        -------
-        int
-            Either 0 if the switch is off or 1 if the switch is on
-            
-        """
-        curr_val = Switch._mmio.read()
-        return (curr_val & (1 << self.index)) >> self.index
-        
+#: Maximum number of IOP instances on PL
+MAX_IOP_INSTANCES = 4

@@ -33,7 +33,7 @@ __email__ = "xpp_support@xilinx.com"
 
 
 from pyxi import MMIO
-from pyxi.board import _constants
+from pyxi.board import board_const
 
 class LED(object):
     """This class controls the onboard LEDs.
@@ -57,8 +57,8 @@ class LED(object):
         """
         self.index = index
         if LED._mmio is None:
-            LED._mmio = MMIO(_constants.LEDS_ADDR, 16)
-        LED._mmio.write(_constants.LEDS_OFFSET + 0x4, 0x0)
+            LED._mmio = MMIO(board_const.LEDS_ADDR, 16)
+        LED._mmio.write(board_const.LEDS_OFFSET + 0x4, 0x0)
 
     def toggle(self):
         """Flip the state of a single LED.
@@ -155,4 +155,4 @@ class LED(object):
         
         """
         LED._leds_value = value
-        LED._mmio.write(_constants.LEDS_OFFSET, value)
+        LED._mmio.write(board_const.LEDS_OFFSET, value)

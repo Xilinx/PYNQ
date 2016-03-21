@@ -37,7 +37,7 @@ import sys
 import re
 from datetime import datetime
 from xml.etree import ElementTree
-from . import _constants
+from . import general_const
     
 class PL:
     """This class serves as a singleton for "Overlay" and "Bitstream" classes.
@@ -54,10 +54,10 @@ class PL:
         
     """
     
-    bitstream = _constants.BS_BOOT
+    bitstream = general_const.BS_BOOT
     timestamp = ""
     iop_instances = {}
-    for i in range(_constants.MAX_IOP_INSTANCES):
+    for i in range(general_const.MAX_IOP_INSTANCES):
         iop_instances[i] = None
     
     def __init__(self):
@@ -115,8 +115,8 @@ class Bitstream(PL):
         
         if os.path.isfile(bs_name):
             self.bitstream = bs_name
-        elif os.path.isfile(_constants.BS_SEARCH_PATH + bs_name):
-            self.bitstream = _constants.BS_SEARCH_PATH + bs_name
+        elif os.path.isfile(general_const.BS_SEARCH_PATH + bs_name):
+            self.bitstream = general_const.BS_SEARCH_PATH + bs_name
         else:
             raise IOError('Bitstream file {} does not exist.'.format(bs_name))
             
@@ -144,11 +144,11 @@ class Bitstream(PL):
             buf = f.read()
         
         #: Set is_partial_bitfile device attribute to 0        
-        with open(_constants.BS_IS_PARTIAL, 'w') as fd:
+        with open(general_const.BS_IS_PARTIAL, 'w') as fd:
             fd.write('0')
         
         #: Write bitfile to xdevcfg device
-        with open(_constants.BS_XDEVCFG, 'wb') as f:
+        with open(general_const.BS_XDEVCFG, 'wb') as f:
             f.write(buf)
         
         t = datetime.now()
@@ -196,8 +196,8 @@ class Overlay(PL):
         
         if os.path.isfile(bs_name):
             self.bs_name = bs_name
-        elif os.path.isfile(_constants.BS_SEARCH_PATH + bs_name):
-            self.bs_name = _constants.BS_SEARCH_PATH + bs_name
+        elif os.path.isfile(general_const.BS_SEARCH_PATH + bs_name):
+            self.bs_name = general_const.BS_SEARCH_PATH + bs_name
         else:
             raise IOError('Bitstream file {} does not exist.'.format(bs_name))
             
@@ -242,7 +242,7 @@ class Overlay(PL):
         
         """
         self.bitstream.download()
-        for i in range(_constants.MAX_IOP_INSTANCES):
+        for i in range(general_const.MAX_IOP_INSTANCES):
             PL.iop_instances[i] = None
         
     def get_timestamp(self):
@@ -283,8 +283,8 @@ class Overlay(PL):
         This method requires the '.bxml' file association.
         The returned list may not be human-readable.
         Users can do the following to get a readable printout:
-            >>> from pprint import pprint
-            >>> pprint(result, width = 1))
+        >>> from pprint import pprint
+        >>> pprint(result, width = 1))
         The IP name in BXML file is slightly different from the ones used
         in the TCL file.
         
@@ -320,8 +320,8 @@ class Overlay(PL):
         This method requires the '.bxml' file association.
         The returned list may not be human-readable.
         Users can do the following to get a readable printout:
-            >>> from pprint import pprint
-            >>> pprint(result, width = 1))
+        >>> from pprint import pprint
+        >>> pprint(result, width = 1))
         The IP name in BXML file is slightly different from the ones used
         in the TCL file.
         
