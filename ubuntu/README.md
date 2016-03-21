@@ -19,7 +19,7 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-
+gpart image back to 16GB
 ```
 
 03-15-2016
