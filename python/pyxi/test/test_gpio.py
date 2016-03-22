@@ -36,7 +36,7 @@ import os
 import math
 import pytest
 from pyxi import GPIO
-from pyxi import _constants
+from pyxi import general_const
 
 @pytest.mark.run(order=3)
 def test_gpio():
@@ -54,7 +54,7 @@ def test_gpio():
                 if 'gpiochip' in name:
                     index = int(''.join(x for x in name if x.isdigit()))
     base = GPIO.get_gpio_base()
-    gpio_min = base + _constants.GPIO_MIN_USER_PIN
+    gpio_min = base + general_const.GPIO_MIN_USER_PIN
     gpio_max = 2**(math.ceil(math.log(gpio_min, 2)))
             
     for index in range(gpio_min, gpio_max):

@@ -39,7 +39,7 @@ from time import sleep
 import pytest
 from pyxi import MMIO
 from pyxi import Overlay
-from pyxi import _constants
+from pyxi import general_const
     
 @pytest.mark.run(order=4)
 def test_mmio():
@@ -61,7 +61,7 @@ def test_mmio():
     mmio_base = int(ol1.get_mmio_base('axi_bram_ctrl_1'),16)
     mmio_range = int(ol1.get_mmio_range('axi_bram_ctrl_1'),16)
     mmio = MMIO(mmio_base, mmio_range)
-    for offset in range(0, 400, _constants.MMIO_WORD_LENGTH):
+    for offset in range(0, 400, general_const.MMIO_WORD_LENGTH):
         data = randint(0, pow(2,32)-1)
         mmio.write(offset, data)
         sleep(0.001)
@@ -74,7 +74,7 @@ def test_mmio():
     mmio_base = int(ol2.get_mmio_base('axi_bram_ctrl_0'),16)
     mmio_range = int(ol2.get_mmio_range('axi_bram_ctrl_0'),16)
     mmio = MMIO(mmio_base, mmio_range)
-    for offset in range(0, 400, _constants.MMIO_WORD_LENGTH):
+    for offset in range(0, 400, general_const.MMIO_WORD_LENGTH):
         data = randint(0, pow(2,32)-1)
         mmio.write(offset, data)
         sleep(0.001)
