@@ -107,7 +107,7 @@ class OLED(object):
         
         """
         self.clear_screen()
-        time.sleep(0.1)
+        time.sleep(0.01)
         self._write_string(text)
                 
     def _write_string(self, text):
