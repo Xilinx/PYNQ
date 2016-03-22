@@ -36,7 +36,7 @@ from random import randint
 import pytest
 from pyxi.pmods.devmode import DevMode
 from pyxi.pmods import _iop
-from pyxi.pmods import _constants
+from pyxi.pmods import pmod_const
 from pyxi import Overlay
 
 global ol
@@ -53,9 +53,9 @@ def test_devmode():
     ol.flush_iop_dictionary()
     
     for pmod_id in range(1,5):
-        assert DevMode(pmod_id, _constants.IOP_SWCFG_IIC0_TOPROW) is not None
-        assert DevMode(pmod_id, _constants.IOP_SWCFG_IIC0_BOTROW) is not None
-        assert DevMode(pmod_id, _constants.IOP_SWCFG_PMODIOALL) is not None
+        assert DevMode(pmod_id, pmod_const.IOP_SWCFG_IIC0_TOPROW) is not None
+        assert DevMode(pmod_id, pmod_const.IOP_SWCFG_IIC0_BOTROW) is not None
+        assert DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) is not None
     
     ol.flush_iop_dictionary()
 
@@ -71,24 +71,24 @@ def test_devmode():
     
     for pmod_id in range(1,5):
         #: Initiate the IOP
-        iop = DevMode(pmod_id, _constants.IOP_SWCFG_PMODIOALL)
+        iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL)
         iop.start()
         assert iop.status()=="RUNNING"
         #: Test whether writing is successful
         data_1 = 0
-        iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                        _constants.IOPMM_PMODIO_TRI_OFFSET,
-                        _constants.IOCFG_PMODIO_ALLINPUT)
+        iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                        pmod_const.IOPMM_PMODIO_TRI_OFFSET,
+                        pmod_const.IOCFG_PMODIO_ALLINPUT)
         iop.load_switch_config()
-        iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
-                        _constants.IOPMM_PMODIO_DATA_OFFSET, data_1)
+        iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
+                        pmod_const.IOPMM_PMODIO_DATA_OFFSET, data_1)
         #: Test whether reading is successful
-        iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                        _constants.IOPMM_PMODIO_TRI_OFFSET,
-                        _constants.IOCFG_PMODIO_ALLOUTPUT)
+        iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                        pmod_const.IOPMM_PMODIO_TRI_OFFSET,
+                        pmod_const.IOCFG_PMODIO_ALLOUTPUT)
         iop.load_switch_config()
-        data_2 = iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                                _constants.IOPMM_PMODIO_DATA_OFFSET)
+        data_2 = iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                                pmod_const.IOPMM_PMODIO_DATA_OFFSET)
         #: Stop the IOP after 100 tests
         iop.stop()
         assert iop.status()=="STOPPED"

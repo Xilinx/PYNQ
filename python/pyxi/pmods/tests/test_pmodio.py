@@ -36,7 +36,7 @@ from random import randint
 from time import sleep
 import pytest
 from pyxi import Overlay
-from pyxi.pmods import _constants
+from pyxi.pmods import pmod_const
 from pyxi.pmods.pmodio import PMODIO
 from pyxi.test.util import user_answer_yes
 
@@ -66,8 +66,8 @@ def test_pmodio_cable():
     assert not TX_PORT == RX_PORT, \
         "The sender port cannot be the receiver port."
     global tx,rx
-    tx = [PMODIO(TX_PORT,k,_constants.IOCFG_PMODIO_OUTPUT) for k in range(8)]
-    rx = [PMODIO(RX_PORT,k,_constants.IOCFG_PMODIO_INPUT) for k in range(8)]
+    tx = [PMODIO(TX_PORT,k,pmod_const.IOCFG_PMODIO_OUTPUT) for k in range(8)]
+    rx = [PMODIO(RX_PORT,k,pmod_const.IOCFG_PMODIO_INPUT) for k in range(8)]
 
     tx[0].write(0)
     tx[3].write(0)
@@ -76,18 +76,18 @@ def test_pmodio_cable():
     
     #: Receiving data assuming the cable is loop-back
     for i in range(8):
-        rx[i].setCable(_constants.PMODIO_CABLE_LOOPBACK)
+        rx[i].setCable(pmod_const.PMODIO_CABLE_LOOPBACK)
             
     if (rx[0].read()==0 and rx[3].read()==0 and 
         rx[4].read()==1 and rx[7].read()==1):
         #: Using a loop-back cable
         for i in range(8):
-            rx[i].setCable(_constants.PMODIO_CABLE_LOOPBACK)
+            rx[i].setCable(pmod_const.PMODIO_CABLE_LOOPBACK)
     elif (rx[0].read()==1 and rx[3].read()==1 and 
         rx[4].read()==0 and rx[7].read()==0):
         #: Using a straight cable
         for i in range(8):
-            rx[i].setCable(_constants.PMODIO_CABLE_STRAIGHT)
+            rx[i].setCable(pmod_const.PMODIO_CABLE_STRAIGHT)
     else:
         raise AssertionError("Cable unrecognizable.")
 
@@ -189,8 +189,8 @@ def test_random():
     """Test for random patterns.
     
     Testing software-generated pseudo-random numbers. Random 0/1's are 
-    generated at each bit location. 8 bits (1 bit per pin) are sent out in every 
-    iteration. This test may take a few seconds to finish.
+    generated at each bit location. 8 bits (1 bit per pin) are sent out 
+    in every iteration. This test may take a few seconds to finish.
     
     """
     print('\nGenerating 100 random tests...')
