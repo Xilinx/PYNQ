@@ -34,7 +34,7 @@ __email__       = "xpp_support@xilinx.com"
 
 import time
 from . import _iop
-from . import _constants
+from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
@@ -83,7 +83,7 @@ class ALS(object):
                 
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.pmod_id = pmod_id
-        self.mmio = MMIO(mmio_addr, _constants.IOP_MMIO_REGSIZE)    
+        self.mmio = MMIO(mmio_addr, pmod_const.IOP_MMIO_REGSIZE)    
         self.log_ms = 0
         
         self.iop.start()
@@ -101,12 +101,12 @@ class ALS(object):
             The current sensor value.
         
         """
-        self.mmio.write(_constants.MAILBOX_OFFSET+\
-                        _constants.MAILBOX_PY2IOP_CMD_OFFSET, 3)      
-        while (self.mmio.read(_constants.MAILBOX_OFFSET+\
-                                _constants.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)      
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
-        return self.mmio.read(_constants.MAILBOX_OFFSET)
+        return self.mmio.read(pmod_const.MAILBOX_OFFSET)
 
     def set_log_ms(self,log_ms):
         """Set the length of the log in the TMP2 PMOD.
@@ -127,7 +127,7 @@ class ALS(object):
         if (log_ms < 0):
             raise ValueError("Log length should not be less than 0.")
         self.log_ms = log_ms
-        self.mmio.write(_constants.MAILBOX_OFFSET+4, self.log_ms)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_ms)
 
     def start_log(self, log_ms =1):
         """Start recording multiple values in a log.
@@ -145,8 +145,8 @@ class ALS(object):
         
         """
         self.set_log_ms(log_ms)
-        self.mmio.write(_constants.MAILBOX_OFFSET+\
-                        _constants.MAILBOX_PY2IOP_CMD_OFFSET, 7)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
 
     def stop_log(self):
         """Stop recording multiple values in a log.
@@ -162,8 +162,8 @@ class ALS(object):
         None
         
         """
-        self.mmio.write(_constants.MAILBOX_OFFSET+\
-                        _constants.MAILBOX_PY2IOP_CMD_OFFSET, 1)    
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)    
 
     def print_log(self):
         """Read and print all the data in the log from mailbox.
@@ -182,7 +182,7 @@ class ALS(object):
         """
         #: First stop logging
         self.stop_log()
-        end_ptr = self.mmio.read(_constants.MAILBOX_OFFSET+8)
+        end_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+8)
       
         if(end_ptr>=1000): 
             #: Mailbox full because end_ptr has looped, so print 1000 values
@@ -196,7 +196,7 @@ class ALS(object):
 
         print("T\tData")
         for x in range(count):
-            temp = self.mmio.read(_constants.MAILBOX_OFFSET+(3+x)*4)
+            temp = self.mmio.read(pmod_const.MAILBOX_OFFSET+(3+x)*4)
             print(str(x) + "\t" + str(self.reg2float(temp)))
             if(current_ptr<999):
                 current_ptr+=1

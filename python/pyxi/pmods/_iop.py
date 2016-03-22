@@ -38,7 +38,7 @@ import mmap
 from pyxi import MMIO
 from pyxi import GPIO
 from pyxi import Overlay
-from pyxi.pmods import _constants
+from pyxi.pmods import pmod_const
 
 class _IOP:
     """This class controls the active IOP instances in the system.
@@ -143,7 +143,7 @@ class _IOP:
         ol = Overlay('pmod.bit')
         iop_dict = ol.get_iop_addr()
         iop_addr = int(iop_dict[self.iop_id][1], 16)
-        with open(_constants.BIN_LOCATION + \
+        with open(pmod_const.BIN_LOCATION + \
                     self.mb_program, 'rb') as ublaze_bin:
             size = (math.ceil(os.fstat(ublaze_bin.fileno()).st_size/ \
                     mmap.PAGESIZE))*mmap.PAGESIZE

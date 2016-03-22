@@ -32,7 +32,7 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
-from . import _constants
+from . import pmod_const
 from .devmode import DevMode
 
 class PMODIO(object):
@@ -88,21 +88,21 @@ class PMODIO(object):
             raise ValueError("Valid pin indexes are 0 - 7.")
         if (direction not in (0,1)):
             raise ValueError("direction can only be 0 (output), or 1 (input).")
-        self.iop = DevMode(pmod_id, _constants.IOP_SWCFG_PMODIOALL) 
+        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) 
         self.pmod_id = pmod_id
         self.index = index
         self.direction = direction
-        self.cable = _constants.PMODIO_CABLE_STRAIGHT
+        self.cable = pmod_const.PMODIO_CABLE_STRAIGHT
         
         self.iop.start()
-        if (self.direction == _constants.IOCFG_PMODIO_INPUT):
-            self.iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                                _constants.IOPMM_PMODIO_TRI_OFFSET,
-                                _constants.IOCFG_PMODIO_ALLINPUT)
+        if (self.direction == pmod_const.IOCFG_PMODIO_INPUT):
+            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                                pmod_const.IOPMM_PMODIO_TRI_OFFSET,
+                                pmod_const.IOCFG_PMODIO_ALLINPUT)
         else:
-            self.iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                                _constants.IOPMM_PMODIO_TRI_OFFSET,
-                                _constants.IOCFG_PMODIO_ALLOUTPUT)
+            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                                pmod_const.IOPMM_PMODIO_TRI_OFFSET,
+                                pmod_const.IOCFG_PMODIO_ALLOUTPUT)
                                                                         
         self.iop.load_switch_config()
                            
@@ -124,10 +124,10 @@ class PMODIO(object):
         None
         
         """
-        if (cable==_constants.PMODIO_CABLE_STRAIGHT):
-            self.cable = _constants.PMODIO_CABLE_STRAIGHT
-        elif (cable==_constants.PMODIO_CABLE_LOOPBACK):
-            self.cable = _constants.PMODIO_CABLE_LOOPBACK
+        if (cable==pmod_const.PMODIO_CABLE_STRAIGHT):
+            self.cable = pmod_const.PMODIO_CABLE_STRAIGHT
+        elif (cable==pmod_const.PMODIO_CABLE_LOOPBACK):
+            self.cable = pmod_const.PMODIO_CABLE_LOOPBACK
         else:
             raise ValueError("Cable unrecognizable.")
     
@@ -146,23 +146,23 @@ class PMODIO(object):
         """
         if not value in (0,1):
             raise ValueError("PMOD IO can only write 0 or 1.")
-        if not self.direction is _constants.IOCFG_PMODIO_OUTPUT:
+        if not self.direction is pmod_const.IOCFG_PMODIO_OUTPUT:
             raise ValueError('PMOD IO used as output, but declared as input.')
 
         if value:
             #: Set the value of a single PMOD IO pin to 1.
-            currVal = self.iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                                        _constants.IOPMM_PMODIO_DATA_OFFSET)
+            currVal = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
             newVal = currVal | (0x1<<self.index)
-            self.iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
-                                _constants.IOPMM_PMODIO_DATA_OFFSET, newVal)
+            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
+                                pmod_const.IOPMM_PMODIO_DATA_OFFSET, newVal)
         else:
             #: Set the value of a single PMOD IO pin to 0.
-            currVal = self.iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                                        _constants.IOPMM_PMODIO_DATA_OFFSET)
+            currVal = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
             newVal = currVal & (0xff ^ (0x1<<self.index))
-            self.iop.write_cmd(_constants.IOPMM_PMODIO_BASEADDR + 
-                                _constants.IOPMM_PMODIO_DATA_OFFSET, newVal)
+            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
+                                pmod_const.IOPMM_PMODIO_DATA_OFFSET, newVal)
 
     def read(self):
         """Receive the value from the offboard PMOD IO device.
@@ -190,12 +190,12 @@ class PMODIO(object):
             The data (0 or 1) on the specified PMOD IO pin.
         
         """  
-        if not self.direction is _constants.IOCFG_PMODIO_INPUT:
+        if not self.direction is pmod_const.IOCFG_PMODIO_INPUT:
             raise ValueError('PMOD IO used as input, but declared as output.') 
-        raw_value = self.iop.read_cmd(_constants.IOPMM_PMODIO_BASEADDR+
-                                        _constants.IOPMM_PMODIO_DATA_OFFSET) 
+        raw_value = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
+                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET) 
                                  
-        if self.cable==_constants.PMODIO_CABLE_STRAIGHT:
+        if self.cable==pmod_const.PMODIO_CABLE_STRAIGHT:
             if (self.index < 4):
                 return (raw_value >> (self.index+4)) & 0x1
             else:

@@ -34,7 +34,7 @@ __email__       = "xpp_support@xilinx.com"
 
 import time
 from . import _iop
-from . import _constants
+from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
@@ -85,7 +85,7 @@ class DAC(object):
                 
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.pmod_id = pmod_id
-        self.mmio = MMIO(mmio_addr, _constants.IOP_MMIO_REGSIZE)    
+        self.mmio = MMIO(mmio_addr, pmod_const.IOP_MMIO_REGSIZE)    
 
         self.iop.start()
 
@@ -115,13 +115,13 @@ class DAC(object):
         
         #: Calculate the voltage value and write to DAC
         intVal = int(value / (0.000610351))
-        self.mmio.write(_constants.MAILBOX_OFFSET + 
-                        _constants.MAILBOX_PY2IOP_CMD_OFFSET, 
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
                         (intVal << 20) | (0x3))
         
         #: Wait for I/O Processor to complete
-        while (self.mmio.read(_constants.MAILBOX_OFFSET + \
-                              _constants.MAILBOX_PY2IOP_CMD_OFFSET) \
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
+                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) \
                               & 0x1) == 0x1:
             time.sleep(0.001)
             

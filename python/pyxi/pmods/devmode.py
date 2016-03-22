@@ -34,10 +34,10 @@ __email__       = "xpp_support@xilinx.com"
 
 import time
 from . import _iop
-from . import _constants
+from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
-from pyxi.pmods import _constants
+from pyxi.pmods import pmod_const
 
 PROGRAM = "mailbox.bin"
 ol = Overlay("pmod.bit")
@@ -87,8 +87,8 @@ class DevMode(object):
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_switch_config = list(switch_config)
         self.pmod_id = pmod_id
-        self.mmio = MMIO(mmio_addr + _constants.MAILBOX_OFFSET, 
-                                    _constants.MAILBOX_SIZE) 
+        self.mmio = MMIO(mmio_addr + pmod_const.MAILBOX_OFFSET, 
+                                    pmod_const.MAILBOX_SIZE) 
         self.program = PROGRAM
      
     def start(self):
@@ -101,7 +101,7 @@ class DevMode(object):
         
         """
         self.iop.start()
-        self.mmio.write(_constants.MAILBOX_PY2IOP_CMD_OFFSET, 0)
+        self.mmio.write(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0)
         self.load_switch_config()   
 
     def stop(self):
@@ -133,7 +133,7 @@ class DevMode(object):
             
         """
         if config:
-            if len(config) != _constants.IOPMM_SWITCHCONFIG_NUMREGS:
+            if len(config) != pmod_const.IOPMM_SWITCHCONFIG_NUMREGS:
                 raise TypeError('User supplied config {} is not a ' +
                         'list of 8 integers.'.format(config))
             self.iop_switch_config = config
@@ -144,10 +144,10 @@ class DevMode(object):
             sw_config_word |= (cfg << ix*4)
 
         #: Disable, configure, enable switch
-        self.write_cmd(_constants.IOPMM_SWITCHCONFIG_BASEADDR + 4, 0)
-        self.write_cmd(_constants.IOPMM_SWITCHCONFIG_BASEADDR, \
+        self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR + 4, 0)
+        self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR, \
                         sw_config_word)
-        self.write_cmd(_constants.IOPMM_SWITCHCONFIG_BASEADDR + 7, \
+        self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR + 7, \
                         0x80, dWidth=1)     
 
     def get_switch_config(self):
@@ -165,7 +165,7 @@ class DevMode(object):
         sw_config = list()
         for ix, cfg in enumerate(self.iop_switch_config):
             sw_config.append(self.read_cmd(
-                _constants.IOPMM_switch_config_BASEADDR + ix*4, dWidth=1))
+                pmod_const.IOPMM_switch_config_BASEADDR + ix*4, dWidth=1))
         print(str(sw_config))
 
     def status(self):
@@ -204,7 +204,7 @@ class DevMode(object):
         None
         
         """
-        return self._send_cmd(_constants.WRITE_CMD, address, data, 
+        return self._send_cmd(pmod_const.WRITE_CMD, address, data, 
                                 dWidth=dWidth, timeout=timeout)
 
     def read_cmd(self, address, dWidth=4, dLength=1, timeout=10):
@@ -227,7 +227,7 @@ class DevMode(object):
             A list of data returned by MMIO read.
         
         """
-        return self._send_cmd(_constants.READ_CMD, address, None, 
+        return self._send_cmd(pmod_const.READ_CMD, address, None, 
                                 dWidth=dWidth, timeout=timeout)
 
     def is_cmd_mailbox_idle(self): 
@@ -243,7 +243,7 @@ class DevMode(object):
             True if IOP command mailbox idle.
         
         """
-        mb_cmd_word = self.mmio.read(_constants.MAILBOX_PY2IOP_CMD_OFFSET)
+        mb_cmd_word = self.mmio.read(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET)
         return (mb_cmd_word & 0x1) == 0
 
     def get_cmd_word(self, cmd, dWidth, dLength):
@@ -314,14 +314,14 @@ class DevMode(object):
 
 
         """
-        self.mmio.write(_constants.MAILBOX_PY2IOP_ADDR_OFFSET, address)
+        self.mmio.write(pmod_const.MAILBOX_PY2IOP_ADDR_OFFSET, address)
         if data != None:
-            self.mmio.write(_constants.MAILBOX_PY2IOP_DATA_OFFSET, data)
+            self.mmio.write(pmod_const.MAILBOX_PY2IOP_DATA_OFFSET, data)
         
         #: Build the write command
         cmd_word = self.get_cmd_word(cmd, dWidth, dLength)
 
-        self.mmio.write(_constants.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
+        self.mmio.write(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
 
         #: Wait for ACK in steps of 1ms
         cntdown = timeout
@@ -335,8 +335,8 @@ class DevMode(object):
                     "from PMOD " + str(self.pmod_id))
 
         #: Return data if expected from read, otherwise return None
-        if cmd == _constants.WRITE_CMD: 
+        if cmd == pmod_const.WRITE_CMD: 
             return None
         else:
-            return self.mmio.read(_constants.MAILBOX_PY2IOP_DATA_OFFSET)
+            return self.mmio.read(pmod_const.MAILBOX_PY2IOP_DATA_OFFSET)
             

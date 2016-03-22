@@ -34,7 +34,7 @@ __email__       = "xpp_support@xilinx.com"
 
 import time
 from . import _iop
-from . import _constants
+from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
@@ -81,7 +81,7 @@ class DPOT(object):
                 
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.pmod_id = pmod_id
-        self.mmio = MMIO(mmio_addr, _constants.IOP_MMIO_REGSIZE)    
+        self.mmio = MMIO(mmio_addr, pmod_const.IOP_MMIO_REGSIZE)    
         
         self.iop.start()
     
@@ -114,19 +114,19 @@ class DPOT(object):
         if log_ms<0:
             raise ValueError("Requested log_ms value cannot be less than 0.")
         
-        self.mmio.write(_constants.MAILBOX_OFFSET+\
-                        _constants.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
                         
-        self.mmio.write(_constants.MAILBOX_OFFSET, val)
-        self.mmio.write(_constants.MAILBOX_OFFSET+4, step)
-        self.mmio.write(_constants.MAILBOX_OFFSET+8, log_ms)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, val)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, step)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+8, log_ms)
       
         if step == 0:
-            self.mmio.write(_constants.MAILBOX_OFFSET+\
-                            _constants.MAILBOX_PY2IOP_CMD_OFFSET, 3)
+            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
         else:
-            self.mmio.write(_constants.MAILBOX_OFFSET+\
-                            _constants.MAILBOX_PY2IOP_CMD_OFFSET, 5)
+            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
 
     def _read_hex(self, addr_offset):
         """Read Hex value from Microblaze address space.
