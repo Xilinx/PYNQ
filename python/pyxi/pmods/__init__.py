@@ -32,7 +32,7 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
-from . import _constants
+from . import pmod_const
 from .adc import ADC 
 from .dac import DAC 
 from .oled import OLED
