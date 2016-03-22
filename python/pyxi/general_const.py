@@ -32,13 +32,11 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
-import os
-
 #: GPIO constants
 GPIO_MIN_USER_PIN = 54
 
 #: Overlay constants
-BS_SEARCH_PATH = os.path.abspath("../../bitstream")+'/'
+BS_SEARCH_PATH = "/home/xpp/src/pyxi/bitstream/"
 BS_BOOT = BS_SEARCH_PATH + 'pmod.bit'
 BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
 BS_XDEVCFG = "/dev/xdevcfg"
