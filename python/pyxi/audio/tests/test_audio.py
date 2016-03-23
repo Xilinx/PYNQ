@@ -96,4 +96,4 @@ def test_audio_mute():
     assert user_answer_yes("Audio on the headphone (HPH) port muted?"),\
         'Cannot mute audio.'
     
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()

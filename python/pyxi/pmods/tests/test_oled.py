@@ -62,5 +62,5 @@ def test_write_string():
     assert user_answer_yes("OLED screen clear now?")      
     
     del oled
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
     

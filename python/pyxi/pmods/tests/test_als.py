@@ -65,4 +65,4 @@ def test_readlight():
     assert user_answer_yes("Is a lower reading displayed?")
     
     del als
-    ol. flush_iop_dictionary()
+    ol.flush_mb_dictionary()

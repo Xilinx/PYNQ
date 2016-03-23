@@ -100,4 +100,4 @@ def test_loop_random():
             'Read value {} != write value {}.'.format(adc.read(), value)
     
     del dac,adc
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()

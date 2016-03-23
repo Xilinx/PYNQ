@@ -208,4 +208,4 @@ def test_random():
              'Sent {} != received {} at Pin {}.'.format(data1,data2,j)
     
     del tx,rx
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()

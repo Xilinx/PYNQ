@@ -36,7 +36,6 @@ import os
 import sys
 import re
 from datetime import datetime
-from xml.etree import ElementTree
 from . import general_const
     
 class PL:
@@ -49,16 +48,14 @@ class PL:
     timestamp : str
         Timestamp when loading the bitstream. Follow a format of:
         (year, month, day, hour, minute, second, microsecond)
-    iop_instances : dict
-        The dictionary storing alive IOP instances; can be empty.
+    mb_instances : dict
+        The dictionary storing alive Microblaze instances; can be empty.
         
     """
     
     bitstream = general_const.BS_BOOT
     timestamp = ""
-    iop_instances = {}
-    for i in range(general_const.MAX_IOP_INSTANCES):
-        iop_instances[i] = None
+    mb_instances = {}
     
     def __init__(self):
         """Return a new PL object.
@@ -202,6 +199,11 @@ class Overlay(PL):
             raise IOError('Bitstream file {} does not exist.'.format(bs_name))
             
         self.bitstream = Bitstream(self.bs_name)
+        
+        #: The number of Microblaze processors supported may vary
+        PL.mb_instances = {}
+        for i in range(len(self.get_mb_addr())):
+            PL.mb_instances[i] = None
     
     def get_bs_name(self):
         """The method to get the bitstream name
@@ -229,7 +231,7 @@ class Overlay(PL):
         Note
         ----
         After the bitstream has been downloaded, the "timestamp" in PL will be 
-        updated. In addition, the dictionary "iop_instances" in PL will be 
+        updated. In addition, the dictionary "mb_instances" in PL will be 
         cleared.
         
         Parameters
@@ -242,8 +244,9 @@ class Overlay(PL):
         
         """
         self.bitstream.download()
-        for i in range(general_const.MAX_IOP_INSTANCES):
-            PL.iop_instances[i] = None
+        PL.mb_instances = {}
+        for i in range(len(self.get_mb_addr())):
+            PL.mb_instances[i] = None
         
     def get_timestamp(self):
         """This method returns the timestamp of a bitstream.
@@ -276,17 +279,15 @@ class Overlay(PL):
         return self.bitstream.timestamp==PL.timestamp
         
     def get_iplist(self):
-        """The method to get the entire list of all the IPs in the bitstream.
+        """The method to get the addressable IPs in the bitstream.
         
         Note
         ----
-        This method requires the '.bxml' file association.
+        This method requires the '.tcl' file association.
         The returned list may not be human-readable.
         Users can do the following to get a readable printout:
         >>> from pprint import pprint
         >>> pprint(result, width = 1))
-        The IP name in BXML file is slightly different from the ones used
-        in the TCL file.
         
         Parameters
         ----------
@@ -295,21 +296,23 @@ class Overlay(PL):
         Returns
         -------
         list
-            The list of all the IPs in the bitstream.
+            The list of all the addressable IPs in the bitstream.
             
         """
-        #: bxml_name will be absolute path
-        bxml_name = os.path.splitext(self.bs_name)[0]+'.bxml'
-        if os.path.isfile(bxml_name):
-            root = ElementTree.parse(bxml_name).getroot()
-        else:
-            raise FileNotFoundError('BXML file {} is missing.'\
-                            .format(bxml_name))
-        
+        #: tcl_name will be absolute path
+        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
         result = []
-        for filename in root.iter('File'):
-            if (filename.attrib.get('Type')=='IP'):
-                result.append(filename.attrib.get('Name'))
+        with open(tcl_name, 'r') as f:
+            for line in f:
+                m = re.search('create_bd_addr_seg(.+?) '+\
+                        '(\[.+?\]) (\[.+?\]) '+
+                        '([A-Za-z0-9_]+)',line,re.IGNORECASE)
+                if m:
+                    result.append(m.group(4))
+        
+        if result is []:
+            raise ValueError('No addressable IPs in bitstream {}.'\
+                            .format(self.bs_name))
         return result
         
     def get_ip(self, ip_name):
@@ -317,13 +320,11 @@ class Overlay(PL):
         
         Note
         ----
-        This method requires the '.bxml' file association.
+        This method requires the '.tcl' file association.
         The returned list may not be human-readable.
         Users can do the following to get a readable printout:
         >>> from pprint import pprint
         >>> pprint(result, width = 1))
-        The IP name in BXML file is slightly different from the ones used
-        in the TCL file.
         
         Parameters
         ----------
@@ -333,25 +334,28 @@ class Overlay(PL):
         Returns
         -------
         list
-            The list of all the IPs containing the input keyword.
+            The list of the addressable IPs containing the input keyword.
             
         """
         if not isinstance(ip_name, str):
             raise TypeError("IP name has to be a string.")
                         
-        #: bxml_name will be absolute path
-        bxml_name = os.path.splitext(self.bs_name)[0]+'.bxml'
-        if os.path.isfile(bxml_name):
-            root = ElementTree.parse(bxml_name).getroot()
-        else:
-            raise FileNotFoundError('BXML file {} is missing.'\
-                            .format(bxml_name))
-        
+        #: tcl will be absolute path
+        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
         result = []
-        for filename in root.iter('File'):
-            if (filename.attrib.get('Type')=='IP'):
-                if (ip_name in filename.attrib.get('Name')):
-                    result.append(filename.attrib.get('Name'))
+        with open(tcl_name, 'r') as f:
+            for line in f:
+                m = re.search('create_bd_addr_seg(.+?) '+\
+                        '(\[.+?\]) (\[.+?\]) '+
+                        '([A-Za-z0-9_]+)',line,re.IGNORECASE)
+                if m:
+                    temp = m.group(4)
+                    if ip_name in temp.lower():
+                        result.append(temp)
+        
+        if result is []:
+            raise ValueError('No such addressable IPs in bitstream {}.'\
+                            .format(self.bs_name))
         return result
         
     def reset(self):
@@ -407,7 +411,7 @@ class Overlay(PL):
         
         if result is None:
             raise ValueError('No such addressable IP in bitstream {}.'\
-                            .format(bs_absolute))
+                            .format(self.bs_name))
         return result
         
     def get_mmio_range(self, ip_name):
@@ -443,22 +447,25 @@ class Overlay(PL):
         
         if result is None:
             raise ValueError('No such addressable IP in bitstream {}.'\
-                            .format(bs_absolute))
+                            .format(self.bs_name))
         return result
         
-    def get_iop_addr(self):
-        """This method returns the base address for IO processors.
+    def get_mb_addr(self):
+        """This method returns the base address of the Microblaze processors.
         
         Note
         ----
         This method requires the '.tcl' file association.
         The address is stored as a string in its hex format.
-        The returned dictionary can also be empty if there is no IOP 
-        available. Each key "iop_id" is associated with a value in the 
-        dictionary; each value is a list of ["pmod_id", "address"].
-        Hence, the dictionary records a mapping from IOP to PMOD.
+        The returned dictionary can also be empty if there is no processors
+        available. 
+        Each key "mb_id" is associated with a value in the 
+        dictionary; each value is an "address".
+        Hence, the dictionary records the addresses of all the Microblaze 
+        processors. This dictionary is different than the Microblaze 
+        dictionary stored in the PL class.
         
-        IOP IDs and PMOD IDs are of type int. 
+        The processor ID is of type int. 
         Address is of type str.
         
         Parameters
@@ -468,13 +475,13 @@ class Overlay(PL):
         Returns
         -------
         dict
-            A dictionary storing the IOP IDs, PMOD IDs, and the addresses.
+            A dictionary storing the Microblaze IDs and the addresses.
         
         """
         #: tcl_name will be absolute path
         tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
         result = {}
-        iop_id = 0
+        mb_id = 0
         with open(tcl_name, 'r') as f:
             for line in f:
                 m = re.search('create_bd_addr_seg(.+?)-offset '+\
@@ -482,55 +489,59 @@ class Overlay(PL):
                         '([0-9]+)(.+?)',line,re.IGNORECASE)
                 if m:
                     addr = m.group(2)
-                    pmod_id = int(m.group(4))
-                    result[iop_id] = [pmod_id, addr]
-                    iop_id += 1
+                    result[mb_id] = addr
+                    mb_id += 1
                     
         return result
         
-    def set_iop_instance(self, iop_id, program):
-        """This method adds an IOP into the iop_instances dictionary.
+    def set_mb_program(self, mb_id, program):
+        """This method adds the program for the Microblaze processor.
         
         Note
         ----
-        The dictionary "iop_instances" is kept as a singleton in PL.
+        The dictionary "mb_instances" is kept as a singleton in PL. This 
+        dictionary stores the mapping from the processor IDs to the programs. 
         
         Parameters
         ----------
-        iop_id : int
-            The ID of the IOP, starting from 0.
+        mb_id : int
+            The ID of the Microblaze processor, starting from 0.
         program : str
-            The Microblaze program loaded on the IOP.
+            The Microblaze program to be loaded.
         
         Returns
         -------
         None
         
         """
-        PL.iop_instances[iop_id] = program
+        PL.mb_instances[mb_id] = program
         
-    def get_iop_instance(self, iop_id):
-        """This method gets a program from the iop_instances dictionary.
+    def get_mb_program(self, mb_id):
+        """This method gets the program for a Microblaze processor.
         
         Note
         ----
-        The dictionary "iop_instances" is kept as a singleton in PL.
+        The dictionary "mb_instances" is kept as a singleton in PL. This 
+        dictionary stores the mapping from the processor IDs to the programs.
         
         Parameters
         ----------
-        iop_id : int
-            The ID of the IOP, starting from 0.
+        mb_id : int
+            The ID of the Microblaze processor, starting from 0.
         
         Returns
         -------
         str
-            The Microblaze program loaded on the IOP.
+            The Microblaze program loaded on the processor.
         
         """
-        return PL.iop_instances[iop_id]
+        return PL.mb_instances[mb_id]
         
-    def get_iop_dictionary(self):
-        """This method returns the entire "iop_instances" dictionary.
+    def get_mb_dictionary(self):
+        """This method returns the alive Microblaze processors on the PL.
+        
+        The returned dictionary stores the mapping from the processor IDs to 
+        the programs.
         
         Parameters
         ----------
@@ -539,13 +550,13 @@ class Overlay(PL):
         Returns
         -------
         dict
-            The dictionary "iop_instances" kept as a singleton in PL.
+            The dictionary "mb_instances" kept as a singleton in PL.
         
         """
-        return PL.iop_instances
+        return PL.mb_instances
     
-    def flush_iop_dictionary(self):
-        """This function flushes the IOP instance dictionary.
+    def flush_mb_dictionary(self):
+        """This function flushes all the alive Microblaze processors.
     
         Note
         ----
@@ -561,5 +572,5 @@ class Overlay(PL):
         None
         
         """
-        for k in self.get_iop_dictionary().keys():
-            self.get_iop_dictionary()[k] = None
+        for k in self.get_mb_dictionary().keys():
+            self.get_mb_dictionary()[k] = None

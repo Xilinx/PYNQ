@@ -59,5 +59,5 @@ def test_readtemp():
     assert user_answer_yes("Reading in celsius displayed?")
     
     del tmp2
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
     

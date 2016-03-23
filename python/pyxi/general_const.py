@@ -45,6 +45,3 @@ BS_XDEVCFG = "/dev/xdevcfg"
 MMIO_FILE_NAME = '/dev/mem'
 MMIO_WORD_LENGTH = 4
 MMIO_WORD_MASK = ~(MMIO_WORD_LENGTH - 1)
-
-#: Maximum number of IOP instances on PL
-MAX_IOP_INSTANCES = 4

@@ -79,10 +79,8 @@ class DevMode(object):
         if (pmod_id not in range(1,5)):
             raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
             
-        for k in ol.get_iop_addr().keys():
-            if ol.get_iop_addr()[k][0] == pmod_id:
-                mmio_addr = int(ol.get_iop_addr()[k][1], 16)
-                break
+        #: The IOP 0 controlls PMOD 1, and so on
+        mmio_addr = int(ol.get_mb_addr()[pmod_id-1], 16)
         
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.iop_switch_config = list(switch_config)

@@ -31,6 +31,7 @@ __author__      = "Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "yunq@xilinx.com"
 
+
 import os
 import sys
 import math
@@ -39,6 +40,8 @@ from pyxi import MMIO
 from pyxi import GPIO
 from pyxi import Overlay
 from pyxi.pmods import pmod_const
+
+ol = Overlay('pmod.bit')
 
 class _IOP:
     """This class controls the active IOP instances in the system.
@@ -140,9 +143,8 @@ class _IOP:
         """
         self.stop()
         
-        ol = Overlay('pmod.bit')
-        iop_dict = ol.get_iop_addr()
-        iop_addr = int(iop_dict[self.iop_id][1], 16)
+        iop_dict = ol.get_mb_addr()
+        iop_addr = int(iop_dict[self.iop_id], 16)
         with open(pmod_const.BIN_LOCATION + \
                     self.mb_program, 'rb') as ublaze_bin:
             size = (math.ceil(os.fstat(ublaze_bin.fileno()).st_size/ \
@@ -168,14 +170,14 @@ def request_iop(pmod_id, mb_program='mailbox.bin', force=False):
     hooked to another type of IOP, to prevent unwanted behavior.
     This can be overridden by setting the *force* flag.
     
-    Three cases:
-    1. No previous IOP in the system with the same ID
-    2. There is A previous IOP in the system with the same ID. 
-       Users want to request another instance with the same program. 
-       Update the program only: do not raises an exception.
-    3. force == False. There is A previous IOP in the system with the same ID. 
-       Users want to request another instance with a different program. 
-       Raises an exception.
+    Two cases:
+    1.  No previous IOP in the system with the same ID, or there is a previous 
+    IOP in the system with the same ID, or users want to request another 
+    instance with the same program. 
+    Do not raises an exception.
+    2.  force == False. There is A previous IOP in the system with the same ID.
+    Users want to request another instance with a different program. 
+    Raises an exception.
 
     Note
     ----
@@ -203,18 +205,14 @@ def request_iop(pmod_id, mb_program='mailbox.bin', force=False):
         An _IOP object with the updated Microblaze program.
         
     """
-    ol = Overlay('pmod.bit')
     iop_id = pmod_id - 1
-    if ol.get_iop_instance(iop_id) is None:
+    if (ol.get_mb_program(iop_id) is None) or force or \
+        (ol.get_mb_program(iop_id) is mb_program):
         #: case 1
-        ol.set_iop_instance(iop_id, mb_program)
-        return _IOP(iop_id, mb_program)
-    elif (force or mb_program is ol.get_iop_instance(iop_id)):
-        #: case 2
-        ol.set_iop_instance(iop_id, mb_program)
+        ol.set_mb_program(iop_id, mb_program)
         return _IOP(iop_id, mb_program)
     else:
-        #: case 3
+        #: case 2
         raise LookupError('Another IOP with the same ID is already on PL.')
         return None
         

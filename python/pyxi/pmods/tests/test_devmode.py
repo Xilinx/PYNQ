@@ -50,14 +50,14 @@ def test_devmode():
     configurations. The returned objects should not be None.
     
     """
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
     
     for pmod_id in range(1,5):
         assert DevMode(pmod_id, pmod_const.IOP_SWCFG_IIC0_TOPROW) is not None
         assert DevMode(pmod_id, pmod_const.IOP_SWCFG_IIC0_BOTROW) is not None
         assert DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) is not None
     
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
 
 @pytest.mark.run(order=14)
 def test_devmode():
@@ -67,7 +67,7 @@ def test_devmode():
     from the mailbox. Test whether the write and the read are successful.
     
     """
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
     
     for pmod_id in range(1,5):
         #: Initiate the IOP
@@ -93,4 +93,4 @@ def test_devmode():
         iop.stop()
         assert iop.status()=="STOPPED"
         
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()

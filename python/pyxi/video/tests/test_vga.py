@@ -207,4 +207,4 @@ def test_vga_state():
     assert vga.state()==0, 'Wrong state for VGA.'
     
     del vga
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()

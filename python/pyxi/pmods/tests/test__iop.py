@@ -47,13 +47,13 @@ def test_request_iop_conflicting():
     request_iop() correctly raises a LookupError exception.
     
     """
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
     
     fixed_id = 1
     request_iop(fixed_id,'adc.bin')
     pytest.raises(LookupError, request_iop, fixed_id, 'dac.bin')
     
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
 
 @pytest.mark.run(order=11)
 def test_request_iop_sameobject():
@@ -63,7 +63,7 @@ def test_request_iop_sameobject():
     any exception since the previous IOP runs the same program.
     
     """
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
     
     fixed_id = 1
     request_iop(fixed_id)
@@ -74,7 +74,7 @@ def test_request_iop_sameobject():
         exception_raised = True
     assert not exception_raised, 'Method request_iop() not working properly.'
     
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
 
 @pytest.mark.run(order=12)
 def test_request_iop_force():
@@ -85,7 +85,7 @@ def test_request_iop_force():
     overwriting the old IOP instance.
     
     """
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
     
     exception_raised = False
     fixed_id = 1
@@ -96,4 +96,4 @@ def test_request_iop_force():
         exception_raised = True
     assert not exception_raised, 'Flag *force* not working properly.'
     
-    ol.flush_iop_dictionary()
+    ol.flush_mb_dictionary()
