@@ -64,7 +64,8 @@ def test_hdmi():
     
     index = hdmi.frame_index()
     hdmi.frame_index(index+1)
-    assert not hdmi.frame_index()==index, 'HDMI frame index is not changed.'        
-
+    assert not hdmi.frame_index()==index, 'HDMI frame index is not changed.'
+    
+    hdmi.stop()
     del hdmi
     ol.flush_mb_dictionary()
