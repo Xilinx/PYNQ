@@ -40,7 +40,6 @@ from pyxi import Overlay
 from pyxi.pmods import pmod_const
 
 PROGRAM = "mailbox.bin"
-ol = Overlay("pmod.bit")
 
 class DevMode(object):
     """Control an IO processor running the developer mode executable. 
@@ -76,17 +75,11 @@ class DevMode(object):
             IO Processor switch configuration (8 32-bit values)
             
         """
-        if (pmod_id not in range(1,5)):
-            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
-            
-        #: The IOP 0 controlls PMOD 1, and so on
-        mmio_addr = int(ol.get_mb_addr()[pmod_id-1], 16)
-        
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.iop_switch_config = list(switch_config)
         self.pmod_id = pmod_id
-        self.mmio = MMIO(mmio_addr + pmod_const.MAILBOX_OFFSET, 
-                                    pmod_const.MAILBOX_SIZE) 
+        self.iop_switch_config = list(switch_config)
+        self.mmio = MMIO(self.iop.mmio.base_addr + pmod_const.MAILBOX_OFFSET, 
+                        pmod_const.MAILBOX_SIZE)
         self.program = PROGRAM
      
     def start(self):

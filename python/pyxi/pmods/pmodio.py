@@ -51,8 +51,6 @@ class PMODIO(object):
     ----------
     iop : _IOP
         The _IOP object returned from the DevMode.
-    pmod_id : int
-        The ID of the PMOD requested.
     index : int
         The index of the pin in a PMOD, from 0 to 7.
     direction : int
@@ -82,14 +80,11 @@ class PMODIO(object):
             Input (1) or output (0).
             
         """
-        if (pmod_id not in range(1,5)):
-            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
         if (index not in range(8)):
             raise ValueError("Valid pin indexes are 0 - 7.")
         if (direction not in (0,1)):
             raise ValueError("direction can only be 0 (output), or 1 (input).")
-        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) 
-        self.pmod_id = pmod_id
+        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL)
         self.index = index
         self.direction = direction
         self.cable = pmod_const.PMODIO_CABLE_STRAIGHT

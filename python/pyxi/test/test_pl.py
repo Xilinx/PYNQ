@@ -46,8 +46,13 @@ def test_overlay():
     Each overlay has its own bitstream. Also need the corresponding ".bxml" 
     and ".tcl" files to pass the tests.
     
+    The entries in Microblaze dictionary use the following format:
+    mb_instance[key] = {base address, program, gpio pin}.
+    
     """
     global ol1, ol2
+    
+    ol1.download()
     assert 'pmod.bit' in ol1.get_bs_name(), \
             'Bitstream is not in the overlay.'
     assert not ol1.get_iplist()==[], \
@@ -56,22 +61,21 @@ def test_overlay():
             'Overlay gets wrong MMIO base.'
     assert ol1.get_mmio_range('axi_bram_ctrl_1')=='0x8000',\
             'Overlay gets wrong MMIO range.'
-    for k in ol1.get_mb_dictionary().keys():
-        assert ol1.get_mb_dictionary()[k]==None,\
-            'Overlay initiates a wrong Microblaze dictionary.'
+    for k in ol1.mb_instances.keys():
+        assert ol1.mb_instances[k][1]==None,\
+            'Overlay should not load program during initialization.'
         ol1.set_mb_program(k, "test")
         assert ol1.get_mb_program(k)=="test",\
             'Overlay cannot set Microblaze program.'
-        assert ol1.get_mb_dictionary()[k]=="test",\
-            'Overlay cannot set Microblaze program.'
         #: Mapping from processor ID to PMOD ID (pmod.bit)
         p = k + 1
-        assert ol1.get_mb_addr()[k]==ol1.get_mmio_base('axi_bram_ctrl_'+str(p))
+        assert ol1.get_mb_addr(k)==ol1.get_mmio_base('axi_bram_ctrl_'+str(p))
     ol1.flush_mb_dictionary()
-    for k in ol1.get_mb_dictionary().keys():
-        assert ol1.get_mb_dictionary()[k]==None,\
+    for k in ol1.mb_instances.keys():
+        assert ol1.mb_instances[k][1]==None,\
             'Overlay cannot flush Microblaze dictionary.'
     
+    ol2.download()
     assert 'audiovideo.bit' in ol2.get_bs_name(), \
             'Bitstream is not in the overlay.'
     assert not ol2.get_iplist()==[], \
@@ -80,20 +84,18 @@ def test_overlay():
             'Overlay gets wrong MMIO base.'
     assert ol2.get_mmio_range('axi_bram_ctrl_0')=='0x8000',\
             'Overlay gets wrong MMIO range.'
-    for k in ol2.get_mb_dictionary().keys():
-        assert ol2.get_mb_dictionary()[k]==None,\
-            'Overlay initiates a wrong Microblaze dictionary.'
+    for k in ol2.mb_instances.keys():
+        assert ol2.mb_instances[k][1]==None,\
+            'Overlay should not load program during initialization.'
         ol2.set_mb_program(k, "test")
         assert ol2.get_mb_program(k)=="test",\
             'Overlay cannot set Microblaze program.'
-        assert ol2.get_mb_dictionary()[k]=="test",\
-            'Overlay cannot set Microblaze program.'
-        #: Mapping from processor ID to PMOD ID (audiovideo.bit)
+        #: Mapping from processor ID to PMOD ID (pmod.bit)
         p = k
-        assert ol2.get_mb_addr()[k]==ol2.get_mmio_base('axi_bram_ctrl_'+str(p))
+        assert ol2.get_mb_addr(k)==ol2.get_mmio_base('axi_bram_ctrl_'+str(p))
     ol2.flush_mb_dictionary()
-    for k in ol2.get_mb_dictionary().keys():
-        assert ol2.get_mb_dictionary()[k]==None,\
+    for k in ol2.mb_instances.keys():
+        assert ol2.mb_instances[k][1]==None,\
             'Overlay cannot flush Microblaze dictionary.'
 
 @pytest.mark.run(order=9)

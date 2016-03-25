@@ -39,7 +39,6 @@ from pyxi import MMIO
 from pyxi import Overlay
 
 PROGRAM = "./dac.bin"
-ol = Overlay("pmod.bit")
 
 class DAC(object):
     """This class controls a Digital to Analog Converter PMOD.
@@ -48,8 +47,6 @@ class DAC(object):
     ----------
     iop : _IOP
         I/O processor instance used by the DAC
-    pmod_id : int
-        The ID of the PMOD to which the DAC is attached
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
         
@@ -75,15 +72,8 @@ class DAC(object):
             The value to be written to the DAC PMOD.
             
         """
-        if (pmod_id not in range(1,5)):
-            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
-            
-        #: The IOP 0 controlls PMOD 1, and so on
-        mmio_addr = int(ol.get_mb_addr()[pmod_id-1], 16)
-                
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.pmod_id = pmod_id
-        self.mmio = MMIO(mmio_addr, pmod_const.IOP_MMIO_REGSIZE)    
+        self.mmio = MMIO(self.iop.mmio.base_addr, pmod_const.IOP_MMIO_REGSIZE)
 
         self.iop.start()
 

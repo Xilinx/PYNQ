@@ -36,10 +36,17 @@ import os
 import sys
 import re
 from datetime import datetime
-from . import general_const
+from pyxi import general_const
+from pyxi import GPIO
     
 class PL:
     """This class serves as a singleton for "Overlay" and "Bitstream" classes.
+    
+    The Microblaze dictionary stores the following information:
+    1. key (int), index starting from 0.
+    2. address (str), the BRAM address where the program can be loaded.
+    3. program (str), the ".bin" files loaded on the Microblaze.
+    4. reset (int), the GPIO pin used as reset for the Microblaze.
     
     Attributes
     ----------
@@ -163,22 +170,33 @@ class Overlay(PL):
     Hence, this class must expose configurability through content discovery 
     and runtime protection.
     
+    The Microblaze dictionary stores the following information about the 
+    usable Microblaze processors in the overlay:
+    1. key (int), index starting from 0.
+    2. address (str), the BRAM address where the program can be loaded.
+    3. program (str), the ".bin" files loaded on the Microblaze.
+    4. reset (int), the GPIO pin used as reset for the Microblaze.
+    
     Attributes
     ----------
     bs_name : str
         The absolute path of the bitstream.
     bitstream : Bitstream
         The corresponding bitstream object.
+    mb_instances : dict
+        The Microblaze instances kept in a dictionary.
         
     """
     
     def __init__(self, bs_name):
         """Return a new Overlay object.
         
+        An overlay instantiates a bitstream object as a member initially.
+        
         Note
         ----
-        An overlay does not instantiate a bitstream object initially.
-        Users can assign bitstreams using the bitstream class.
+        The Microblaze dictionary requires the corresponding ".tcl" file to be
+        present. So this class requires the '.tcl' file association.
         
         Parameters
         ----------
@@ -199,14 +217,42 @@ class Overlay(PL):
             raise IOError('Bitstream file {} does not exist.'.format(bs_name))
             
         self.bitstream = Bitstream(self.bs_name)
+        self.mb_instances = {}
         
-        #: The number of Microblaze processors supported may vary
-        PL.mb_instances = {}
-        for i in range(len(self.get_mb_addr())):
-            PL.mb_instances[i] = None
+        #: Sets the base address for the Microblaze processors
+        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
+        addr = None
+        with open(tcl_name, 'r') as f:
+            mb_id = 0
+            for line in f:
+                m = re.search('create_bd_addr_seg(.+?)-offset '+\
+                        '(0[xX][0-9a-fA-F]+)(.+?)'+'axi_bram_ctrl_'+
+                        '([0-9]+)(.+?)',line,re.IGNORECASE)
+                if m:
+                    addr = m.group(2)
+                    self.mb_instances[mb_id] = [addr, None, None]
+                    mb_id += 1
+        if addr == None:
+            raise LookupError("No BRAM address available.")
+                    
+        #: Sets the reset pins for the Microblaze processors
+        all_pins = None
+        pattern = 'connect_bd_net -net processing_system7_0_GPIO_O'
+        pin = -1
+        with open(tcl_name, 'r') as f:
+            for line in f:
+                if pattern in line:
+                    all_pins = re.findall('(\[.+?\])',line,re.IGNORECASE)
+                    for i in range(len(all_pins)):
+                        if ('[get_bd_pins mb_' in all_pins[i]) and \
+                            ('_reset/Din]' in all_pins[i]):
+                            pin += 1
+                            self.mb_instances[pin][2] = GPIO.get_gpio_pin(pin)
+        if pin == -1:
+            raise LookupError("No reset pins available.")
     
     def get_bs_name(self):
-        """The method to get the bitstream name
+        """The method to get the bitstream name.
         
         Note
         ----
@@ -226,13 +272,13 @@ class Overlay(PL):
         return self.bs_name
         
     def download(self):
-        """The method to download a bitstream onto PL
+        """The method to download a bitstream onto PL.
         
         Note
         ----
         After the bitstream has been downloaded, the "timestamp" in PL will be 
-        updated. In addition, the dictionary "mb_instances" in PL will be 
-        cleared.
+        updated. In addition, the program recorded in the dictionary 
+        "mb_instances" in PL will be cleared.
         
         Parameters
         ----------
@@ -244,9 +290,9 @@ class Overlay(PL):
         
         """
         self.bitstream.download()
-        PL.mb_instances = {}
-        for i in range(len(self.get_mb_addr())):
-            PL.mb_instances[i] = None
+        for i in self.mb_instances.keys():
+            self.mb_instances[i][1] = None
+        PL.mb_instances = self.mb_instances
         
     def get_timestamp(self):
         """This method returns the timestamp of a bitstream.
@@ -276,7 +322,10 @@ class Overlay(PL):
             True if bitstream is loaded.
             
         """
-        return self.bitstream.timestamp==PL.timestamp
+        if not self.bitstream.timestamp=='':
+            return self.bitstream.timestamp==PL.timestamp
+        else:
+            return False
         
     def get_iplist(self):
         """The method to get the addressable IPs in the bitstream.
@@ -357,26 +406,6 @@ class Overlay(PL):
             raise ValueError('No such addressable IPs in bitstream {}.'\
                             .format(self.bs_name))
         return result
-        
-    def reset(self):
-        """This method resets the bitstream in the overlay.
-        
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-        
-        """
-        bs_name = self.bs_name
-        if os.path.isfile(bs_name):
-            self.bs_name = bs_name
-        else:
-            raise IOError('Bitstream file {} does not exist.'.format(bs_name))
-  
-        self.bitstream = Bitstream(self.bs_name)
                     
     def get_mmio_base(self, ip_name):
         """This method returns the MMIO base of an IP.
@@ -450,57 +479,37 @@ class Overlay(PL):
                             .format(self.bs_name))
         return result
         
-    def get_mb_addr(self):
+    def get_mb_addr(self, mb_id):
         """This method returns the base address of the Microblaze processors.
         
         Note
         ----
-        This method requires the '.tcl' file association.
         The address is stored as a string in its hex format.
-        The returned dictionary can also be empty if there is no processors
-        available. 
-        Each key "mb_id" is associated with a value in the 
-        dictionary; each value is an "address".
-        Hence, the dictionary records the addresses of all the Microblaze 
-        processors. This dictionary is different than the Microblaze 
-        dictionary stored in the PL class.
-        
-        The processor ID is of type int. 
-        Address is of type str.
+        The returned address can also be empty if there is no processors
+        available.
         
         Parameters
         ----------
-        None
+        mb_id : int
+            The ID of the Microblaze processor for lookup.
 
         Returns
         -------
-        dict
-            A dictionary storing the Microblaze IDs and the addresses.
+        str
+            The base address of the Microblaze processor.
         
         """
-        #: tcl_name will be absolute path
-        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
-        result = {}
-        mb_id = 0
-        with open(tcl_name, 'r') as f:
-            for line in f:
-                m = re.search('create_bd_addr_seg(.+?)-offset '+\
-                        '(0[xX][0-9a-fA-F]+)(.+?)'+'axi_bram_ctrl_'+
-                        '([0-9]+)(.+?)',line,re.IGNORECASE)
-                if m:
-                    addr = m.group(2)
-                    result[mb_id] = addr
-                    mb_id += 1
-                    
-        return result
+        return self.mb_instances[mb_id][0]
         
     def set_mb_program(self, mb_id, program):
-        """This method adds the program for the Microblaze processor.
+        """This method set the program for the Microblaze processor.
+        
+        The dictionary "mb_instances" stores the mapping from the processor 
+        ID to the base address and the program.
         
         Note
         ----
-        The dictionary "mb_instances" is kept as a singleton in PL. This 
-        dictionary stores the mapping from the processor IDs to the programs. 
+        Users need to make sure the current overlay on PL is the right one.
         
         Parameters
         ----------
@@ -514,15 +523,14 @@ class Overlay(PL):
         None
         
         """
-        PL.mb_instances[mb_id] = program
+        self.mb_instances[mb_id][1] = program
+        PL.mb_instances[mb_id][1] = program
         
     def get_mb_program(self, mb_id):
-        """This method gets the program for a Microblaze processor.
+        """This method gets the current program on a Microblaze processor.
         
-        Note
-        ----
-        The dictionary "mb_instances" is kept as a singleton in PL. This 
-        dictionary stores the mapping from the processor IDs to the programs.
+        The dictionary "mb_instances" stores the mapping from the processor 
+        ID to the base address and the program.
         
         Parameters
         ----------
@@ -535,25 +543,25 @@ class Overlay(PL):
             The Microblaze program loaded on the processor.
         
         """
-        return PL.mb_instances[mb_id]
+        return PL.mb_instances[mb_id][1]
         
-    def get_mb_dictionary(self):
-        """This method returns the alive Microblaze processors on the PL.
+    def get_mb_reset(self, mb_id):
+        """This method sets the reset pins for the Microblaze processors.
         
-        The returned dictionary stores the mapping from the processor IDs to 
-        the programs.
+        The Microblaze resets use the PS GPIO pins.
         
         Parameters
         ----------
-        None
-        
+        mb_id : int
+            The ID of the Microblaze processor, starting from 0.
+
         Returns
         -------
-        dict
-            The dictionary "mb_instances" kept as a singleton in PL.
-        
+        int
+            The number of the GPIO pin used for reset.
+            
         """
-        return PL.mb_instances
+        return self.mb_instances[mb_id][2]
     
     def flush_mb_dictionary(self):
         """This function flushes all the alive Microblaze processors.
@@ -561,7 +569,7 @@ class Overlay(PL):
         Note
         ----
         This function should be used with caution since it only clears the 
-        dictionary.
+        dictionary. It also clears the dictionary in PL.
         
         Parameters
         ----------
@@ -572,5 +580,6 @@ class Overlay(PL):
         None
         
         """
-        for k in self.get_mb_dictionary().keys():
-            self.get_mb_dictionary()[k] = None
+        for k in self.mb_instances.keys():
+            self.set_mb_program(k, None)
+            

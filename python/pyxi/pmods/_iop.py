@@ -50,8 +50,6 @@ class _IOP:
     ----------
     iop_id : int
         The ID of the IOP, index starting from 0.
-    pmod_id : int
-        The corresponding PMOD ID of the IOP, index starting from 1.
     mb_program : str
         The Microblaze program loaded for the IOP.
     state : str
@@ -68,7 +66,7 @@ class _IOP:
         
         Note
         ----
-        For "pmod.bit", pmod_id = iop_id + 1. This mapping may be changed for 
+        For "pmod.bit", PMOD ID = IOP ID + 1. This mapping may be changed for 
         other bitstreams.
         
         Parameters
@@ -82,14 +80,12 @@ class _IOP:
         if (iop_id not in [0,1,2,3]):
             raise ValueError("Valid IOP IDs are: 0, 1, 2, 3.")
         self.iop_id = iop_id
-        self.pmod_id = iop_id + 1
         self.mb_program = mb_program
         self.state = 'IDLE'
+        self.gpio = GPIO(ol.get_mb_reset(iop_id), 'out')
+        self.mmio = None
         
-        emio_pin = GPIO.get_gpio_pin(iop_id)
-        self.gpio = GPIO(emio_pin, 'out')
-        
-        #: Use self.program to update the Microblaze
+        #: Use self.program to update the MMIO
         self.program()
         
     def start(self):
@@ -143,13 +139,11 @@ class _IOP:
         """
         self.stop()
         
-        iop_dict = ol.get_mb_addr()
-        iop_addr = int(iop_dict[self.iop_id], 16)
         with open(pmod_const.BIN_LOCATION + \
                     self.mb_program, 'rb') as ublaze_bin:
             size = (math.ceil(os.fstat(ublaze_bin.fileno()).st_size/ \
                     mmap.PAGESIZE))*mmap.PAGESIZE
-            self.mmio = MMIO(iop_addr, size)
+            self.mmio = MMIO(int(ol.get_mb_addr(self.iop_id), 16), size)
             
             buf = ublaze_bin.read(size)
             self.mmio.write(0, buf)
@@ -205,6 +199,8 @@ def request_iop(pmod_id, mb_program='mailbox.bin', force=False):
         An _IOP object with the updated Microblaze program.
         
     """
+    if (pmod_id not in range(1,5)):
+            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
     iop_id = pmod_id - 1
     if (ol.get_mb_program(iop_id) is None) or force or \
         (ol.get_mb_program(iop_id) is mb_program):
@@ -213,6 +209,7 @@ def request_iop(pmod_id, mb_program='mailbox.bin', force=False):
         return _IOP(iop_id, mb_program)
     else:
         #: case 2
-        raise LookupError('Another IOP with the same ID is already on PL.')
+        raise LookupError('Another program {} already running on IOP.'\
+                .format(ol.get_mb_program(iop_id)))
         return None
         

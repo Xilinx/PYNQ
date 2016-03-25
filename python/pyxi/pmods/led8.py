@@ -42,8 +42,6 @@ class LED8(object):
     ----------
     iop : _IOP
         I/O processor instance used by LED8.
-    pmod_id : int
-        ID of the PMOD to which the LED8 PMOD is attached, from 1 to 4.
     index : int
         Index of the pin on LED8, from 0 to 7.
         
@@ -64,12 +62,9 @@ class LED8(object):
             The index of the pin in a PMOD, from 0 to 7.
             
         """
-        if not pmod_id in range(1,5):
-            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
         if not index in range(8):
             raise ValueError("Valid pin indexes are 0 - 7.")
         self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) 
-        self.pmod_id = pmod_id
         self.index = index
 
         self.iop.start()
