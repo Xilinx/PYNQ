@@ -5,12 +5,11 @@ All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-03-15-2016 - <graham.schelle@xilinx.com>
-             SAMBA Support
-             Jupyter Terminal will boot into bash shell
-             USB Wifi spport (RALink chipset)
-             USB Webcam support (Logitech C270 support)
-             Reveal.js added to enable Jupyter slideshow
+03-25-2016 - <graham.schelle@xilinx.com>
+             Increased image size to 16GB
+             Microblaze cross-compiler added
+             New notebook folder structure
+             Pyxi package upgraded to today's git repo
 ```
 
 
@@ -19,8 +18,36 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-gpart image back to 16GB
 ```
+
+03-25-2016
+```
+# Microblaze cross compiler
+# https://briolidz.wordpress.com/2012/02/07/building-embedded-arm-systems-with-crosstool-ng/ 
+# http://crosstool-ng.org/download/crosstool-ng/ 
+
+# use crosstool-ng version 1.20.0
+# once downloaded onto Zybo
+./configure --with-libtool=/usr/share/libtool
+make
+make install
+./ct-ng menuconfig
+   Enable Experimental Features
+   Target: microblaze
+   vendor: xilinx
+   endinanness: little-endian
+
+./ct-ng build
+# will take 1.5 hours on Zybo
+
+export PATH=/home/xpp/x-tools/microblazeel-xilinx-elf/bin:${PATH}
+cd /home/xpp/x-tools/microblazeel-xilinx-elf/bin
+
+# make symbolic link for each microblazeel-xilinx-elf-* to mb-*
+#   this link will allow for SDK makefiles to run with alteration
+
+```
+
 
 03-15-2016
 ```
