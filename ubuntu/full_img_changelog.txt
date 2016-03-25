@@ -1,4 +1,4 @@
-latest image available at: file://xco-smb/gnatale/public/
+latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/
 
 01-14-2016 - <giuseppe.natale@xilinx.com>
              First release of the image.
@@ -64,3 +64,10 @@ latest image available at: file://xco-smb/gnatale/public/
              USB Wifi spport (RALink chipset)
              USB Webcam support (Logitech C270 support)
              Reveal.js added to enable Jupyter slideshow
+             
+03-25-2016 - <graham.schelle@xilinx.com>
+             Increased image size to 16GB
+             Microblaze cross-compiler added
+             New notebook folder structure
+             Pyxi package upgraded to today's git repo
+             
