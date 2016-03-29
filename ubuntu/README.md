@@ -19,6 +19,7 @@ Staging - to be added in next image
 
 ```
 add back in chroot* scripts
+pip install sphinx_rtd_theme
 ```
 
 03-25-2016
