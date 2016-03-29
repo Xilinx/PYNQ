@@ -18,6 +18,7 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
+add back in chroot* scripts
 ```
 
 03-25-2016
