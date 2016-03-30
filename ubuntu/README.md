@@ -24,6 +24,8 @@ pip install sphinx_rtd_theme
 # tree package (needs manual debian download)
 # https://packages.debian.org/jessie/armhf/tree/download
 dkpg -i  dpkg -i tree_1.7.0-3_armhf.deb
+
+# samba access now is xpp user - giving read/write privileges.  user/pass: xpp/xpp
 ```
 
 03-25-2016
