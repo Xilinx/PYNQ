@@ -9,6 +9,7 @@
 
 #include "pmod.h"
 
+
 void spi_transfer(u32 BaseAddress, u8 numBytes, u8* readData, u8* writeData) {
    u8 i; // Byte counter
 
@@ -23,7 +24,7 @@ void spi_transfer(u32 BaseAddress, u8 numBytes, u8* readData, u8* writeData) {
    Xil_Out32(BaseAddress+XSP_CR_OFFSET, SPI_RELEASE);    // Enable transactions
 
    while(((Xil_In32(BaseAddress+XSP_SR_OFFSET) & 0x04)) != 0x04);
-   delay();
+   delay_ms(1);
 
    // Read SPI
    for(i=0;i< numBytes; i++){
@@ -33,7 +34,8 @@ void spi_transfer(u32 BaseAddress, u8 numBytes, u8* readData, u8* writeData) {
 
 }
 
-void SpiInit(void) {
+
+void spi_init(void) {
    u32 Control;
 
    // Reset SPI
@@ -48,43 +50,56 @@ void SpiInit(void) {
 }
 
 
-u32 iic_read(u32 sel) // , u32 display)
+int iic_read(u32 addr, u8* buffer, u8 numbytes) 
 {
-    u32 rdata;
-    // Set RX FIFO Depth to 3 bytes
-    Xil_Out32((IIC_BASEADDR + 0x120), 0x03);
+    u32 rxCnt = 0;
+    u32 timeout = 0xffff;
+
+    // Set RX FIFO Depth to numbytes+1 (addrbyte + numbytes)
+    Xil_Out32((IIC_BASEADDR + 0x120), numbytes+1);
     
     // Reset TX FIFO
     Xil_Out32((IIC_BASEADDR + 0x100), 0x002);
     
     // Enable IIC Core
     Xil_Out32((IIC_BASEADDR + 0x100), 0x001);
-    
-    // Transmit 7-bit address and Read bit
-    Xil_Out32((IIC_BASEADDR + 0x108), (0x101 | sel << 1));
-    
-    // Program IIC Core to read 2 bytes
-    // and issue a STOP bit afterwards
-    Xil_Out32((IIC_BASEADDR + 0x108), 0x202);
-    
-    // Wait for data to be available in RX FIFO
-    while(((IIC_BASEADDR + 0x104) & 0x40) == 1);
-    
-    // Read data - First byte
-    rdata = Xil_In32(IIC_BASEADDR + 0x10c) & 0xff;
-    
-    // Wait for data to be available in RX FIFO
-    while(((IIC_BASEADDR + 0x104) & 0x40) == 1);
-    
-    // Read data - Second byte
-    rdata = (rdata << 8) | (Xil_In32(IIC_BASEADDR + 0x10c) & 0xff);
+    delay_ms(1);
 
-    delay_ms(10);
-    return(rdata);
+    // Transmit 7-bit address and Read bit
+    Xil_Out32((IIC_BASEADDR + 0x108), (0x101 | addr << 1));
+    
+    // Program IIC Core to read numbytes bytes
+    // and issue a STOP bit afterwards
+    Xil_Out32((IIC_BASEADDR + 0x108), 0x200 + numbytes);
+    
+
+    while(rxCnt < numbytes) {
+
+      // Wait for data to be available in RX FIFO
+      while((Xil_In32(IIC_BASEADDR + 0x104) & 0x40) && (timeout--));
+
+      if(timeout==-1)
+	return rxCnt;
+
+      // Read data 
+      buffer[rxCnt] = Xil_In32(IIC_BASEADDR + 0x10c) & 0xff;
+
+      rxCnt++;
+      delay_ms(1);
+
+    }
+
+    return rxCnt;
+
 }
 
-void iic_write(u32 sel, u8 data)
+
+int iic_write(u32 addr, u8* buffer, u8 numbytes)
 {
+    u32 txCnt = 0;
+    u32 txWord = 0;
+    u32 timeout = 0xffff;
+
    // Reset TX FIFO
     Xil_Out32((IIC_BASEADDR + 0x100), 0x002);
     
@@ -93,13 +108,108 @@ void iic_write(u32 sel, u8 data)
     delay_ms(1);
     
     // Transmit 7-bit address and Write bit
-    Xil_Out32((IIC_BASEADDR + 0x108), (0x100 | sel << 1));
+    Xil_Out32((IIC_BASEADDR + 0x108), (0x100 | addr << 1));
     
-    // Transmit 1 byte of data and issue a STOP bit afterwards
-    Xil_Out32((IIC_BASEADDR + 0x108), (0x200 | data));
-    
+    // Transmit data      
+    while((txCnt < numbytes) && (timeout > 0)) {
+
+      timeout = 100;
+      
+      // Put the Tx data into the Tx FIFO (last word gets STOP bit)      
+      if (txCnt == numbytes - 1)
+	txWord = (0x200 | buffer[txCnt]);
+      else
+	txWord = buffer[txCnt];
+      
+      Xil_Out32((IIC_BASEADDR + 0x108),txWord);
+
+      while ( (Xil_In32(IIC_BASEADDR + 0x104) & 0x80) == 0x00 && (timeout--));
+
+      if(timeout==-1)
+	return txCnt;
+
+      txCnt++;
+    }
+
     delay_ms(10);
+    return txCnt;
 }
+
+
+
+int cb_init(circular_buffer *cb, u32* log_start_addr, size_t capacity, size_t sz)
+{
+  cb->buffer = (volatile char*) log_start_addr;
+  if(cb->buffer == NULL)
+    return -1;
+  cb->buffer_end = (char *)cb->buffer + capacity * sz;
+  cb->capacity = capacity;
+  cb->sz = sz;
+  cb->head = cb->buffer;
+  cb->tail = cb->buffer; 
+
+  // Mailbox API Initialization
+  MAILBOX_DATA(0)  = 0xffffffff;
+  MAILBOX_DATA(2)  = (u32) cb->head;
+  MAILBOX_DATA(3)  = (u32) cb->tail;
+  
+  return 0;
+
+}
+
+void cb_push_back(circular_buffer *cb, const void *item)
+{
+
+  u8 i;
+  u8* tail_ptr = (u8*) cb->tail;
+  u8* item_ptr = (u8*) item;
+
+  // update data 
+  for(i=0;i<cb->sz;i++){
+    tail_ptr[i] = item_ptr[i]; 
+  }
+
+  cb_push_incr_ptrs(cb);
+
+  // Mailbox API Update
+  MAILBOX_DATA(0)  = (u32) item;
+  MAILBOX_DATA(2)  = (u32) cb->head;
+  MAILBOX_DATA(3)  = (u32) cb->tail;
+}
+
+
+void cb_push_back_float(circular_buffer *cb, const float *item)
+{
+
+  // update data 
+  float* tail_ptr = (float*) cb->tail;
+  *tail_ptr = *item;
+  
+  cb_push_incr_ptrs(cb);
+
+  // Mailbox API Update
+  MAILBOX_DATA_FLOAT(0)  = *item;
+
+
+
+}
+
+void cb_push_incr_ptrs(circular_buffer *cb){
+
+  // update pointers
+  cb->tail = (char*)cb->tail + cb->sz;
+  if(cb->tail >= cb->buffer_end)
+    cb->tail = cb->buffer;
+
+  if((cb->tail == cb->head) ) {
+    cb->head  = (char*)cb->head + cb->sz;
+  }
+
+  // update mailbox API
+  MAILBOX_DATA(2)        = (u32) cb->head;
+  MAILBOX_DATA(3)        = (u32) cb->tail;
+}
+
 
 void delay_ms(u32 ms_count)
 {
@@ -110,26 +220,24 @@ void delay_ms(u32 ms_count)
    }
 }
 
-void delay(void) {
-   int i=0;
-   for(i=0;i<9;i++);
-}
 
-// Switch Configuration
-// 8 input chars, each representing the connection for 1 PMOD pin
-// Only the least significant 4-bits for each input char is used
-//
-// Configuration is done by writing a 32 bit value to the switch.
-// The 32-bit value represents 8 x 4-bit values concatenated; One 4-bit value to configure each PMOD pin.
-// PMOD pin 8 = bits [31:28]
-// PMOD pin 7 = bits [27:24]
-// PMOD pin 6 = bits [23:20]
-// PMOD pin 5 = bits [19:16]
-// PMOD pin 4 = bits [15:12]
-// PMOD pin 3 = bits [11:8]
-// PMOD pin 2 = bits [7:4]
-// PMOD pin 1 = bits [3:0]
-// e.g. Write GPIO 0 - 7 to PMOD 1-8 => switchConfigValue = 0x76543210
+/*
+ * Switch Configuration
+ * 8 input chars, each representing the connection for 1 PMOD pin
+ * Only the least significant 4-bits for each input char is used
+ *
+ * Configuration is done by writing a 32 bit value to the switch.
+ * The 32-bit value represents 8 x 4-bit values concatenated; One 4-bit value to configure each PMOD pin.
+ * PMOD pin 8 = bits [31:28]
+ * PMOD pin 7 = bits [27:24]
+ * PMOD pin 6 = bits [23:20]
+ * PMOD pin 5 = bits [19:16]
+ * PMOD pin 4 = bits [15:12]
+ * PMOD pin 3 = bits [11:8]
+ * PMOD pin 2 = bits [7:4]
+ * PMOD pin 1 = bits [3:0]
+ * e.g. Write GPIO 0 - 7 to PMOD 1-8 => switchConfigValue = 0x76543210
+ */
 void configureSwitch(char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7, char pin8){
    u32 switchConfigValue;
 

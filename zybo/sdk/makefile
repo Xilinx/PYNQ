@@ -6,7 +6,7 @@ MBBINS = pmodadc.bin pmoddac.bin pmodoled.bin pmodals.bin pmodtmp2.bin pmoddpot.
 all: pmod_bins
 	@echo "Completed Microblaze Projects' Builds"
 
-mb_bsp: standalone_bsp_mb1/mb_1_microblaze_1/lib/libxil.a
+mb_bsp: 
 	cd standalone_bsp_mb1 ; make
 
 %.bin: mb_bsp

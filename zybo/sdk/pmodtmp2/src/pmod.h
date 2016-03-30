@@ -25,9 +25,14 @@
 #define SWITCH_BASEADDR    XPAR_MB_1_MB1_SWITCH_S00_AXI_BASEADDR // Base address of switch
 #define GPIO             XPAR_GPIO_0_BASEADDR
 
-#define MAILBOX_CMD_ADDR    (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB
-#define MAILBOX_DATA(x)    (*(volatile float *)(0x00007000 +((x)*4))) // Data from A9 to MB
-//#define MAILBOX_DATA(x)    (*(volatile float *)(0x00007000 +((x)*4))) // Data from A9 to MB
+#define MAILBOX_CMD_ADDR       (*(volatile u32 *)(0x00007FFC)) // command from A9 to MB
+
+#define MAILBOX_DATA(x)        (*(volatile u32 *)(0x00007000 +((x)*4))) 
+#define MAILBOX_DATA_PTR(x)    ( (volatile u32 *)(0x00007000 +((x)*4)))
+ 
+#define MAILBOX_DATA_FLOAT(x)     (*(volatile float *)(0x00007000 +((x)*4))) 
+#define MAILBOX_DATA_FLOAT_PTR(x) ( (volatile float *)(0x00007000 +((x)*4))) 
+
 
 // Switch mappings used for IOP Switch configuration
 #define GPIO_0 0x0
@@ -55,11 +60,32 @@ void SpiInit(void);
 void spi_transfer(u32 BaseAddress, u8 numBytes, u8* readData, u8* writeData);
 
 // IIC API
-u32 iic_read(u32 sel); 
-void iic_write(u32 sel, u8 data);
+int iic_read(u32 addr, u8* buffer, u8 numbytes); 
+int iic_write(u32 addr, u8* buffer, u8 numbytes);
 
 void delay_ms(u32 ms_count);
-void delay(void);
+
+// Logging API for sensor PMODs - using mailbox as a circular buffer.  
+// Borrow existing circular buffer implementation, modify to match mailbox API
+// http://stackoverflow.com/questions/827691/how-do-you-implement-a-circular-buffer-in-c
+typedef struct circular_buffer
+{
+  volatile void *buffer;     // data buffer
+  void *buffer_end;          // end of data buffer
+  size_t capacity;           // maximum number of items in the buffer
+  size_t count;              // number of items in the buffer
+  size_t sz;                 // size of each item in the buffer
+  volatile void *head;       // pointer to head
+  volatile void *tail;       // pointer to tail
+} circular_buffer;
+
+circular_buffer pmod_log;
+
+int cb_init(circular_buffer *cb, u32* log_start_addr, size_t capacity, size_t sz);
+void cb_push_back(circular_buffer *cb, const void *item);
+void cb_push_back_float(circular_buffer *cb, const float *item);
+void cb_push_incr_ptrs(circular_buffer *cb);
+
 
 // Switch Configuration
 void configureSwitch(char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7, char pin8);
