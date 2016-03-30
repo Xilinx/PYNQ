@@ -35,18 +35,21 @@ __email__       = "xpp_support@xilinx.com"
 import os
 import sys
 import re
+import mmap
+import math
 from datetime import datetime
 from pyxi import general_const
 from pyxi import GPIO
+from pyxi import MMIO
     
 class PL:
     """This class serves as a singleton for "Overlay" and "Bitstream" classes.
     
-    The Microblaze dictionary stores the following information:
+    The dictionary of programmable IPs stores the following information:
     1. key (int), index starting from 0.
-    2. address (str), the BRAM address where the program can be loaded.
-    3. program (str), the ".bin" files loaded on the Microblaze.
-    4. reset (int), the GPIO pin used as reset for the Microblaze.
+    2. address (str), the base address of the IP.
+    3. program (str), the program (e.g. ".bin") loaded on the IP.
+    4. psgpio (int), the GPIO pin used for control.
     
     Attributes
     ----------
@@ -55,15 +58,15 @@ class PL:
     timestamp : str
         Timestamp when loading the bitstream. Follow a format of:
         (year, month, day, hour, minute, second, microsecond)
-    mb_instances : dict
-        The dictionary storing alive Microblaze instances; can be empty.
+    prog_ips : dict
+        The dictionary storing alive programmable IP instances; can be empty.
         
     """
     
     bitstream = general_const.BS_BOOT
     timestamp = ""
-    mb_instances = {}
-    
+    prog_ips = general_const.PL_IP_DICT
+
     def __init__(self):
         """Return a new PL object.
         
@@ -93,7 +96,7 @@ class Bitstream(PL):
         
     """
     
-    def __init__(self, bs_name):
+    def __init__(self, bitfile_name):
         """Return a new Bitstream object. 
         
         Users can either specify an absolute path to the bitstream file 
@@ -108,21 +111,22 @@ class Bitstream(PL):
         
         Parameters
         ----------
-        bs_name : str
+        bitfile_name : str
             The bitstream absolute path or name as a string.
             
         """
         super().__init__()
         
-        if not isinstance(bs_name, str):
+        if not isinstance(bitfile_name, str):
             raise TypeError("Bitstream name has to be a string.")
         
-        if os.path.isfile(bs_name):
-            self.bitstream = bs_name
-        elif os.path.isfile(general_const.BS_SEARCH_PATH + bs_name):
-            self.bitstream = general_const.BS_SEARCH_PATH + bs_name
+        if os.path.isfile(bitfile_name):
+            self.bitstream = bitfile_name
+        elif os.path.isfile(general_const.BS_SEARCH_PATH + bitfile_name):
+            self.bitstream = general_const.BS_SEARCH_PATH + bitfile_name
         else:
-            raise IOError('Bitstream file {} does not exist.'.format(bs_name))
+            raise IOError('Bitstream file {} does not exist.'\
+                            .format(bitfile_name))
             
         self.timestamp = ''
 
@@ -158,7 +162,7 @@ class Bitstream(PL):
         t = datetime.now()
         self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(t.year,t.month,t.day,\
                                 t.hour,t.minute,t.second,t.microsecond)
-        PL.bitstream = self.bitstream             
+        PL.bitstream = self.bitstream
         PL.timestamp = self.timestamp
         
 class Overlay(PL):
@@ -170,88 +174,108 @@ class Overlay(PL):
     Hence, this class must expose configurability through content discovery 
     and runtime protection.
     
-    The Microblaze dictionary stores the following information about the 
-    usable Microblaze processors in the overlay:
+    The dictionary of programmable IPs stores the following information:
     1. key (int), index starting from 0.
-    2. address (str), the BRAM address where the program can be loaded.
-    3. program (str), the ".bin" files loaded on the Microblaze.
-    4. reset (int), the GPIO pin used as reset for the Microblaze.
+    2. address (str), the base address of the IP.
+    3. program (str), the program (e.g. ".bin") loaded on the IP.
+    4. psgpio (int), the GPIO pin used for control.
     
     Attributes
     ----------
-    bs_name : str
+    bitfile_name : str
         The absolute path of the bitstream.
     bitstream : Bitstream
         The corresponding bitstream object.
-    mb_instances : dict
-        The Microblaze instances kept in a dictionary.
+    prog_ips : dict
+        The programmable IP instances on the overlay.
         
     """
     
-    def __init__(self, bs_name):
+    def __init__(self, bitfile_name):
         """Return a new Overlay object.
         
         An overlay instantiates a bitstream object as a member initially.
         
         Note
         ----
-        The Microblaze dictionary requires the corresponding ".tcl" file to be
-        present. So this class requires the '.tcl' file association.
+        This method requires the '.tcl' file association.
         
         Parameters
         ----------
-        bs_name : str
+        bitfile_name : str
             The bitstream name or absolute path as a string.
             
         """
         super().__init__()
         
-        if not isinstance(bs_name, str):
+        if not isinstance(bitfile_name, str):
             raise TypeError("Bitstream name has to be a string.")
         
-        if os.path.isfile(bs_name):
-            self.bs_name = bs_name
-        elif os.path.isfile(general_const.BS_SEARCH_PATH + bs_name):
-            self.bs_name = general_const.BS_SEARCH_PATH + bs_name
+        if os.path.isfile(bitfile_name):
+            self.bitfile_name = bitfile_name
+        elif os.path.isfile(general_const.BS_SEARCH_PATH + bitfile_name):
+            self.bitfile_name = general_const.BS_SEARCH_PATH + bitfile_name
         else:
-            raise IOError('Bitstream file {} does not exist.'.format(bs_name))
+            raise IOError('Bitstream file {} does not exist.'\
+                            .format(bitfile_name))
             
-        self.bitstream = Bitstream(self.bs_name)
-        self.mb_instances = {}
+        self.bitstream = Bitstream(self.bitfile_name)
+        self.prog_ips = {}
+        self.set_prog_ips()
         
-        #: Sets the base address for the Microblaze processors
-        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
-        addr = None
+    def set_prog_ips(self, mmio_kwd='axi_bram_ctrl_', 
+                     psgpio_kwd='get_bd_pins mb_'):
+        """Set the dictionary for the programmable IPs.
+        
+        This method will be called during the initialization. Users can also
+        call it again to refresh the dictionary. 
+        The default values of the parameters can be used for Microblaze 
+        processors.
+        
+        Note
+        ----
+        This method requires the '.tcl' file association.
+        
+        Parameters
+        ----------
+        mmio_kwd : str
+            The keyword to search for the MMIO address.
+        psgpio_kwd : str
+            The keyword to search for the PS GPIO pin.
+            
+        Returns
+        -------
+        None
+            
+        """
+        #: Sets the base address for the programmable IPs
+        tcl_name = os.path.splitext(self.bitfile_name)[0]+'.tcl'
         with open(tcl_name, 'r') as f:
-            mb_id = 0
+            addr = None
+            ip_id = 0
             for line in f:
-                m = re.search('create_bd_addr_seg(.+?)-offset '+\
-                        '(0[xX][0-9a-fA-F]+)(.+?)'+'axi_bram_ctrl_'+
+                m = re.search('create_bd_addr_seg(.+?)-offset '+ \
+                        '(0[xX][0-9a-fA-F]+)(.+?)'+ mmio_kwd + \
                         '([0-9]+)(.+?)',line,re.IGNORECASE)
                 if m:
                     addr = m.group(2)
-                    self.mb_instances[mb_id] = [addr, None, None]
-                    mb_id += 1
-        if addr == None:
-            raise LookupError("No BRAM address available.")
-                    
-        #: Sets the reset pins for the Microblaze processors
-        all_pins = None
-        pattern = 'connect_bd_net -net processing_system7_0_GPIO_O'
-        pin = -1
+                    self.prog_ips[ip_id] = [addr, None, None]
+                    ip_id += 1
+            
+        #: Sets the psgpio pins for the programmable IPs
         with open(tcl_name, 'r') as f:
+            all_pins = None
+            pattern = 'connect_bd_net -net processing_system7_0_GPIO_O'
             for line in f:
                 if pattern in line:
-                    all_pins = re.findall('(\[.+?\])',line,re.IGNORECASE)
+                    ip_id = 0
+                    all_pins = re.findall('\[(.+?)\]',line,re.IGNORECASE)
                     for i in range(len(all_pins)):
-                        if ('[get_bd_pins mb_' in all_pins[i]) and \
-                            ('_reset/Din]' in all_pins[i]):
-                            pin += 1
-                            self.mb_instances[pin][2] = GPIO.get_gpio_pin(pin)
-        if pin == -1:
-            raise LookupError("No reset pins available.")
+                        if (psgpio_kwd in all_pins[i]):
+                            self.prog_ips[ip_id][2] = GPIO.get_gpio_pin(ip_id)
+                            ip_id += 1
     
-    def get_bs_name(self):
+    def get_bitfile_name(self):
         """The method to get the bitstream name.
         
         Note
@@ -269,7 +293,7 @@ class Overlay(PL):
             The name of the bitstream in the overlay.
         
         """
-        return self.bs_name
+        return self.bitfile_name
         
     def download(self):
         """The method to download a bitstream onto PL.
@@ -278,7 +302,7 @@ class Overlay(PL):
         ----
         After the bitstream has been downloaded, the "timestamp" in PL will be 
         updated. In addition, the program recorded in the dictionary 
-        "mb_instances" in PL will be cleared.
+        "prog_ips" in PL will be cleared.
         
         Parameters
         ----------
@@ -290,12 +314,14 @@ class Overlay(PL):
         
         """
         self.bitstream.download()
-        for i in self.mb_instances.keys():
-            self.mb_instances[i][1] = None
-        PL.mb_instances = self.mb_instances
+        for i in self.prog_ips.keys():
+            self.prog_ips[i][1] = None
+        PL.prog_ips = self.prog_ips
         
     def get_timestamp(self):
-        """This method returns the timestamp of a bitstream.
+        """This method returns the timestamp of the bitstream.
+        
+        The timestamp will be empty unless the bitstream is downloaded.
         
         Parameters
         ----------
@@ -304,13 +330,17 @@ class Overlay(PL):
         Returns
         -------
         str
-            The timestamp of the bitstream.
+            The timestamp when the bitstream is downloaded.
             
-        """ 
+        """
         return self.bitstream.timestamp
-        
+            
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
+        
+        First check whether the timestamps are the same. Otherwise if the two
+        bitstreams have the same name, this method will also consider this 
+        case as loaded.
         
         Parameters
         ----------
@@ -325,47 +355,14 @@ class Overlay(PL):
         if not self.bitstream.timestamp=='':
             return self.bitstream.timestamp==PL.timestamp
         else:
-            return False
+            return self.bitfile_name==PL.bitstream
         
-    def get_iplist(self):
-        """The method to get the addressable IPs in the bitstream.
-        
-        Note
-        ----
-        This method requires the '.tcl' file association.
-        The returned list may not be human-readable.
-        Users can do the following to get a readable printout:
-        >>> from pprint import pprint
-        >>> pprint(result, width = 1))
-        
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        list
-            The list of all the addressable IPs in the bitstream.
-            
-        """
-        #: tcl_name will be absolute path
-        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
-        result = []
-        with open(tcl_name, 'r') as f:
-            for line in f:
-                m = re.search('create_bd_addr_seg(.+?) '+\
-                        '(\[.+?\]) (\[.+?\]) '+
-                        '([A-Za-z0-9_]+)',line,re.IGNORECASE)
-                if m:
-                    result.append(m.group(4))
-        
-        if result is []:
-            raise ValueError('No addressable IPs in bitstream {}.'\
-                            .format(self.bs_name))
-        return result
-        
-    def get_ip(self, ip_name):
+    def get_ip(self, ip_name=None):
         """The method to return a list of IPs containing ip_name.
+        
+        If ip_name is not specified, this method will return all the IPs 
+        available in the overlay. This method applies to all the programmable 
+        and non-programmable IPs.
         
         Note
         ----
@@ -386,11 +383,11 @@ class Overlay(PL):
             The list of the addressable IPs containing the input keyword.
             
         """
-        if not isinstance(ip_name, str):
+        if (not ip_name is None) and (not isinstance(ip_name, str)):
             raise TypeError("IP name has to be a string.")
                         
         #: tcl will be absolute path
-        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
+        tcl_name = os.path.splitext(self.bitfile_name)[0]+'.tcl'
         result = []
         with open(tcl_name, 'r') as f:
             for line in f:
@@ -399,16 +396,18 @@ class Overlay(PL):
                         '([A-Za-z0-9_]+)',line,re.IGNORECASE)
                 if m:
                     temp = m.group(4)
-                    if ip_name in temp.lower():
+                    if (ip_name is None) or (ip_name in temp.lower()):
                         result.append(temp)
         
         if result is []:
             raise ValueError('No such addressable IPs in bitstream {}.'\
-                            .format(self.bs_name))
+                            .format(self.bitfile_name))
         return result
                     
-    def get_mmio_base(self, ip_name):
+    def get_ip_addr_base(self, ip_name):
         """This method returns the MMIO base of an IP.
+        
+        This method applies to all the programmable and non-programmable IPs.
         
         Note
         ----
@@ -429,7 +428,7 @@ class Overlay(PL):
             raise TypeError("IP name has to be a string.")
         
         #: tcl_name will be absolute path
-        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
+        tcl_name = os.path.splitext(self.bitfile_name)[0]+'.tcl'
         result = None
         with open(tcl_name, 'r') as f:
             for line in f:
@@ -440,11 +439,13 @@ class Overlay(PL):
         
         if result is None:
             raise ValueError('No such addressable IP in bitstream {}.'\
-                            .format(self.bs_name))
+                            .format(self.bitfile_name))
         return result
         
-    def get_mmio_range(self, ip_name):
+    def get_ip_addr_range(self, ip_name):
         """This method returns the MMIO range of an IP.
+        
+        This method applies to all the programmable and non-programmable IPs.
         
         Note
         ----
@@ -465,7 +466,7 @@ class Overlay(PL):
             raise TypeError("IP name has to be a string.")
         
         #: tcl_name will be absolute path
-        tcl_name = os.path.splitext(self.bs_name)[0]+'.tcl'
+        tcl_name = os.path.splitext(self.bitfile_name)[0]+'.tcl'
         result = None
         with open(tcl_name, 'r') as f:
             for line in f:
@@ -476,96 +477,123 @@ class Overlay(PL):
         
         if result is None:
             raise ValueError('No such addressable IP in bitstream {}.'\
-                            .format(self.bs_name))
+                            .format(self.bitfile_name))
         return result
+    
+    def get_ip_addr_prog(self, ip_id):
+        """This method returns the address for programming an IP.
         
-    def get_mb_addr(self, mb_id):
-        """This method returns the base address of the Microblaze processors.
+        Only the programmable IPs in PL will be checked.
         
         Note
         ----
-        The address is stored as a string in its hex format.
-        The returned address can also be empty if there is no processors
-        available.
+        Each entry in the dictionary stores [address, program, psgpio]:
+        address (str), the base address of the IP.
+        program (str), the program (e.g. ".bin") loaded on the IP.
+        psgpio (int), the GPIO pin used for control.
         
         Parameters
         ----------
-        mb_id : int
-            The ID of the Microblaze processor for lookup.
+        ip_id : int
+            The ID of the programmable IP.
 
         Returns
         -------
         str
-            The base address of the Microblaze processor.
+            The address for programming, in hex format.
         
         """
-        return self.mb_instances[mb_id][0]
+        return PL.prog_ips[ip_id][0]
         
-    def set_mb_program(self, mb_id, program):
-        """This method set the program for the Microblaze processor.
+    def get_ip_program(self, ip_id):
+        """This method returns the program loaded in a programmable IP.
         
-        The dictionary "mb_instances" stores the mapping from the processor 
-        ID to the base address and the program.
+        Only the programmable IPs in PL will be checked.
         
         Note
         ----
-        Users need to make sure the current overlay on PL is the right one.
+        Each entry in the dictionary stores [address, program, psgpio]:
+        address (str), the base address of the IP.
+        program (str), the program (e.g. ".bin") loaded on the IP.
+        psgpio (int), the GPIO pin used for control.
         
         Parameters
         ----------
-        mb_id : int
-            The ID of the Microblaze processor, starting from 0.
+        ip_id : int
+            The ID of the programmable IP.
+
+        Returns
+        -------
+        str
+            The program loaded in a programmable IP.
+        
+        """
+        return PL.prog_ips[ip_id][1]
+    
+    def get_ip_psgpio(self, ip_id):
+        """This method returns the PS GPIO for a programmable IP.
+        
+        Only the programmable IPs in PL will be checked.
+        
+        Note
+        ----
+        Each entry in the dictionary stores [address, program, psgpio]:
+        address (str), the base address of the IP.
+        program (str), the program (e.g. ".bin") loaded on the IP.
+        psgpio (int), the GPIO pin used for control.
+        
+        Parameters
+        ----------
+        ip_id : int
+            The ID of the programmable IP.
+
+        Returns
+        -------
+        int
+            The GPIO pin used for control from PS.
+        
+        """
+        return PL.prog_ips[ip_id][2]
+    
+    def load_ip_program(self, ip_id, program):
+        """This method loads the program for the programmable IP.
+        
+        Only the programmable IPs will be affected.
+        
+        Note
+        ----
+        Make sure the current overlay on PL is the right one.
+        
+        Parameters
+        ----------
+        ip_id : int
+            The ID of the programmable IP, starting from 0.
         program : str
-            The Microblaze program to be loaded.
+            The absolute path of the program to be loaded.
         
         Returns
         -------
         None
         
         """
-        self.mb_instances[mb_id][1] = program
-        PL.mb_instances[mb_id][1] = program
-        
-    def get_mb_program(self, mb_id):
-        """This method gets the current program on a Microblaze processor.
-        
-        The dictionary "mb_instances" stores the mapping from the processor 
-        ID to the base address and the program.
-        
-        Parameters
-        ----------
-        mb_id : int
-            The ID of the Microblaze processor, starting from 0.
-        
-        Returns
-        -------
-        str
-            The Microblaze program loaded on the processor.
-        
-        """
-        return PL.mb_instances[mb_id][1]
-        
-    def get_mb_reset(self, mb_id):
-        """This method sets the reset pins for the Microblaze processors.
-        
-        The Microblaze resets use the PS GPIO pins.
-        
-        Parameters
-        ----------
-        mb_id : int
-            The ID of the Microblaze processor, starting from 0.
-
-        Returns
-        -------
-        int
-            The number of the GPIO pin used for reset.
-            
-        """
-        return self.mb_instances[mb_id][2]
+        if not self.is_loaded():
+            raise LookupError("The current overlay has not been loaded.")
+        else:
+            with open(program, 'rb') as bin:
+                size = (math.ceil(os.fstat(bin.fileno()).st_size/ \
+                        mmap.PAGESIZE))*mmap.PAGESIZE
+                self.mmio = MMIO(int(self.prog_ips[ip_id][0], 16), size)
+                buf = bin.read(size)
+                self.mmio.write(0, buf)
+                
+            self.prog_ips[ip_id][1] = program
+            PL.prog_ips[ip_id][1] = program
     
-    def flush_mb_dictionary(self):
-        """This function flushes all the alive Microblaze processors.
-    
+    def flush_ip_dictionary(self):
+        """This function flushes all the alive programmable IPs.
+        
+        Only the programmable IPs will be flushed.
+        
         Note
         ----
         This function should be used with caution since it only clears the 
@@ -580,6 +608,7 @@ class Overlay(PL):
         None
         
         """
-        for k in self.mb_instances.keys():
-            self.set_mb_program(k, None)
+        for ip_id in self.prog_ips.keys():
+            self.prog_ips[ip_id][1] = None
+            PL.prog_ips[ip_id][1] = None
             

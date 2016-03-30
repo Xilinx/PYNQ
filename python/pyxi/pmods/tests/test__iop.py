@@ -40,60 +40,62 @@ global ol
 ol = Overlay("pmod.bit")
 
 @pytest.mark.run(order=10)
-def test_request_iop_conflicting():
+def test_request_iop():
     """Test for the _IOP class and the method request_iop().
     
-    Creates multiple IOP instances on the same fixed ID. Tests whether 
-    request_iop() correctly raises a LookupError exception.
+    Test whether the request_iop() can return an object without errors. 
+    This is a test for case 1 (for more information, please see request_iop).
     
     """
-    ol.flush_mb_dictionary()
+    ol.flush_ip_dictionary()
     
     fixed_id = 1
-    request_iop(fixed_id,'adc.bin')
-    pytest.raises(LookupError, request_iop, fixed_id, 'dac.bin')
-    
-    ol.flush_mb_dictionary()
-
-@pytest.mark.run(order=11)
-def test_request_iop_sameobject():
-    """Test for the _IOP class and the method request_iop().
-    
-    Even with the *force* flag to be False, the request_iop() should not raise 
-    any exception since the previous IOP runs the same program.
-    
-    """
-    ol.flush_mb_dictionary()
-    
-    fixed_id = 1
-    request_iop(fixed_id)
     exception_raised = False
     try:
         request_iop(fixed_id)
     except LookupError:
         exception_raised = True
-    assert not exception_raised, 'Method request_iop() not working properly.'
+    assert not exception_raised, 'request_iop() should not raise exception.'
     
-    ol.flush_mb_dictionary()
-
-@pytest.mark.run(order=12)
-def test_request_iop_force():
+    ol.flush_ip_dictionary()
+    
+@pytest.mark.run(order=11)
+def test_request_iop_same():
     """Test for the _IOP class and the method request_iop().
     
-    Creates multiple IOP instances on the same fixed ID with the *force* 
-    flag active. Tests whether request_iop() behaves correctly, silently 
-    overwriting the old IOP instance.
+    The request_iop() should not raise any exception since the previous IOP 
+    runs the same program.
+    This is a test for case 1 (for more information, please see request_iop).
     
     """
-    ol.flush_mb_dictionary()
+    ol.flush_ip_dictionary()
     
-    exception_raised = False
     fixed_id = 1
+    exception_raised = False
+    request_iop(fixed_id)
     try:
-        request_iop(fixed_id, force=True)
-        request_iop(fixed_id, force=True)
+        request_iop(fixed_id)
     except LookupError:
         exception_raised = True
-    assert not exception_raised, 'Flag *force* not working properly.'
+    assert not exception_raised, 'request_iop() should not raise exception.'
     
-    ol.flush_mb_dictionary()
+    ol.flush_ip_dictionary()
+    
+@pytest.mark.run(order=12)
+def test_request_iop_conflict():
+    """Test for the _IOP class and the method request_iop().
+    
+    Creates multiple IOP instances on the same fixed ID. Tests whether 
+    request_iop() correctly raises a LookupError exception.
+    This is a test for case 2 (for more information, please see request_iop).
+    
+    """
+    ol.flush_ip_dictionary()
+    
+    fixed_id = 1
+    request_iop(fixed_id,'adc.bin')
+    pytest.raises(LookupError, request_iop, fixed_id, 'dac.bin')
+    
+    ol.flush_ip_dictionary()
+    
+

@@ -40,6 +40,10 @@ BS_SEARCH_PATH = "/home/xpp/src/pyxi/bitstream/"
 BS_BOOT = BS_SEARCH_PATH + 'pmod.bit'
 BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
 BS_XDEVCFG = "/dev/xdevcfg"
+PL_IP_DICT =   {0:["0x40000000",None,192],
+                1:["0x42000000",None,193],
+                2:["0x44000000",None,194],
+                3:["0x46000000",None,195]}
 
 #: MMIO constants
 MMIO_FILE_NAME = '/dev/mem'

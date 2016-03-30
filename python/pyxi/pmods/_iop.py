@@ -35,7 +35,6 @@ __email__       = "yunq@xilinx.com"
 import os
 import sys
 import math
-import mmap
 from pyxi import MMIO
 from pyxi import GPIO
 from pyxi import Overlay
@@ -51,13 +50,13 @@ class _IOP:
     iop_id : int
         The ID of the IOP, index starting from 0.
     mb_program : str
-        The Microblaze program loaded for the IOP.
+        The absolute path of the Microblaze program.
     state : str
         The status of the IOP.
     gpio : GPIO
-        The GPIO pin associated with the IOP.
-    mmio : MMIO
-        The MMIO instance associated with the IOP.
+        The reset pin associated with the IOP.
+    base_addr : int
+        The MMIO base address of the IOP.
         
     """
 
@@ -80,12 +79,12 @@ class _IOP:
         if (iop_id not in [0,1,2,3]):
             raise ValueError("Valid IOP IDs are: 0, 1, 2, 3.")
         self.iop_id = iop_id
-        self.mb_program = mb_program
+        self.mb_program = pmod_const.BIN_LOCATION + mb_program
         self.state = 'IDLE'
-        self.gpio = GPIO(ol.get_mb_reset(iop_id), 'out')
-        self.mmio = None
+        self.gpio = GPIO(ol.get_ip_psgpio(iop_id), "out")
+        self.base_addr = int(ol.get_ip_addr_prog(iop_id), 16)
         
-        #: Use self.program to update the MMIO
+        #: Use self.mb_program to update the program
         self.program()
         
     def start(self):
@@ -139,46 +138,30 @@ class _IOP:
         """
         self.stop()
         
-        with open(pmod_const.BIN_LOCATION + \
-                    self.mb_program, 'rb') as ublaze_bin:
-            size = (math.ceil(os.fstat(ublaze_bin.fileno()).st_size/ \
-                    mmap.PAGESIZE))*mmap.PAGESIZE
-            self.mmio = MMIO(int(ol.get_mb_addr(self.iop_id), 16), size)
-            
-            buf = ublaze_bin.read(size)
-            self.mmio.write(0, buf)
+        ol.load_ip_program(self.iop_id, self.mb_program)
         
         self.start()
-         
-    def _status(self):
-        str = 'Microblaze program {} at address 0x{} {}'\
-            .format(self.mb_program, self.mmio.base_addr, self.state)
-        return str
 
-def request_iop(pmod_id, mb_program='mailbox.bin', force=False):
+def request_iop(pmod_id, mb_program='mailbox.bin'):
     """This is the interface to request an I/O Processor.
     
     It looks for active instances on the same PMOD ID, and prevents users from 
     instantiating different types of IOPs on the same PMOD.
     Users are notified with an exception if the selected PMOD is already 
     hooked to another type of IOP, to prevent unwanted behavior.
-    This can be overridden by setting the *force* flag.
     
     Two cases:
-    1.  No previous IOP in the system with the same ID, or there is a previous 
-    IOP in the system with the same ID, or users want to request another 
-    instance with the same program. 
+    1.  No previous IOP in the system with the same ID, or users want to 
+    request another instance with the same program. 
     Do not raises an exception.
-    2.  force == False. There is A previous IOP in the system with the same ID.
-    Users want to request another instance with a different program. 
+    2.  There is A previous IOP in the system with the same ID. Users want to 
+    request another instance with a different program. 
     Raises an exception.
 
     Note
     ----
-    Raises LookupError when another IOP type in the system with the same ID, 
-    and the *force* flag is not set. A work-around is to set the *force* flag
-    to overwrite the old instance, but that is not advised since hot swapping
-    is not supported currently.
+    Raises LookupError when another IOP type in the system with the same ID. 
+    Users are in danger of losing the old instances associated with this PMOD.
     
     For bitstream "pmod.bit", the PMOD IDs are {1, 2, 3, 4}, while the IOP 
     IDs are {0, 1, 2, 3} <=> {JB, JC, JD, JE}. 
@@ -189,9 +172,7 @@ def request_iop(pmod_id, mb_program='mailbox.bin', force=False):
     pmod_id : int
         ID of the PMOD
     mb_program : str
-        Program to be loaded on the IOP. 
-    force : bool
-        Flag whether the function will force IOP instantiation.
+        Program to be loaded on the IOP.
     
     Returns
     -------
@@ -202,14 +183,13 @@ def request_iop(pmod_id, mb_program='mailbox.bin', force=False):
     if (pmod_id not in range(1,5)):
             raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
     iop_id = pmod_id - 1
-    if (ol.get_mb_program(iop_id) is None) or force or \
-        (ol.get_mb_program(iop_id) is mb_program):
+    if (ol.get_ip_program(iop_id) is None) or \
+        (ol.get_ip_program(iop_id) == (pmod_const.BIN_LOCATION + mb_program)):
         #: case 1
-        ol.set_mb_program(iop_id, mb_program)
         return _IOP(iop_id, mb_program)
     else:
         #: case 2
         raise LookupError('Another program {} already running on IOP.'\
-                .format(ol.get_mb_program(iop_id)))
+                .format(ol.get_ip_program(iop_id)))
         return None
         

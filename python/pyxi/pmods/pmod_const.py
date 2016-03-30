@@ -34,6 +34,7 @@ __email__ = "xpp_support@xilinx.com"
 
 #: Microblaze program location
 BIN_LOCATION = '/home/xpp/src/pyxi/python/pyxi/pmods/'
+MAILBOX_PROGRAM = 'mailbox.bin'
 
 #: IOP mailbox constants
 MAILBOX_OFFSET = 0x7000

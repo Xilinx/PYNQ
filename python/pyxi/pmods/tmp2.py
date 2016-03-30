@@ -38,7 +38,7 @@ from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
-PROGRAM = "./tmp2.bin"
+PROGRAM = "tmp2.bin"
 
 class TMP2(object):
     """This class controls a temperature sensor PMOD.
@@ -71,7 +71,7 @@ class TMP2(object):
             
         """
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.mmio = MMIO(self.iop.mmio.base_addr, pmod_const.IOP_MMIO_REGSIZE)
+        self.mmio = MMIO(self.iop.base_addr, pmod_const.IOP_MMIO_REGSIZE)
         self.log_ms = 0
         
         self.iop.start()

@@ -68,4 +68,4 @@ def test_hdmi():
     
     hdmi.stop()
     del hdmi
-    ol.flush_mb_dictionary()
+    ol.flush_ip_dictionary()

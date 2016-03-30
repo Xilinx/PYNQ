@@ -38,7 +38,7 @@ from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
-PROGRAM = "./dpot.bin"
+PROGRAM = "dpot.bin"
 
 class DPOT(object):
     """This class controls a digital potentiometer PMOD.
@@ -69,7 +69,7 @@ class DPOT(object):
             
         """
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.mmio = MMIO(self.iop.mmio.base_addr, pmod_const.IOP_MMIO_REGSIZE)
+        self.mmio = MMIO(self.iop.base_addr, pmod_const.IOP_MMIO_REGSIZE)
         
         self.iop.start()
     

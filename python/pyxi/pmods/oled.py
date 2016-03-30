@@ -38,7 +38,7 @@ from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
-PROGRAM = "./oled.bin"
+PROGRAM = "oled.bin"
 
 class OLED(object):
     """This class controls an OLED PMOD.
@@ -72,7 +72,7 @@ class OLED(object):
             
         """
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.mmio = MMIO(self.iop.mmio.base_addr, pmod_const.IOP_MMIO_REGSIZE)
+        self.mmio = MMIO(self.iop.base_addr, pmod_const.IOP_MMIO_REGSIZE)
 
         self.iop.start()
    

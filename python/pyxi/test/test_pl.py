@@ -53,50 +53,54 @@ def test_overlay():
     global ol1, ol2
     
     ol1.download()
-    assert 'pmod.bit' in ol1.get_bs_name(), \
+    assert 'pmod.bit' in ol1.get_bitfile_name(), \
             'Bitstream is not in the overlay.'
-    assert not ol1.get_iplist()==[], \
+    assert not ol1.get_ip()==[], \
             'Overlay has an empty IP list.'
-    assert ol1.get_mmio_base('axi_bram_ctrl_1')=='0x40000000',\
-            'Overlay gets wrong MMIO base.'
-    assert ol1.get_mmio_range('axi_bram_ctrl_1')=='0x8000',\
-            'Overlay gets wrong MMIO range.'
-    for k in ol1.mb_instances.keys():
-        assert ol1.mb_instances[k][1]==None,\
-            'Overlay should not load program during initialization.'
-        ol1.set_mb_program(k, "test")
-        assert ol1.get_mb_program(k)=="test",\
-            'Overlay cannot set Microblaze program.'
+    assert ol1.get_ip_addr_base('axi_bram_ctrl_1')=='0x40000000',\
+            'Overlay gets wrong IP base address.'
+    assert ol1.get_ip_addr_range('axi_bram_ctrl_1')=='0x8000',\
+            'Overlay gets wrong IP address range.'
+    for k in ol1.prog_ips.keys():
         #: Mapping from processor ID to PMOD ID (pmod.bit)
-        p = k + 1
-        assert ol1.get_mb_addr(k)==ol1.get_mmio_base('axi_bram_ctrl_'+str(p))
-    ol1.flush_mb_dictionary()
-    for k in ol1.mb_instances.keys():
-        assert ol1.mb_instances[k][1]==None,\
-            'Overlay cannot flush Microblaze dictionary.'
-    
+        addr_base = ol1.get_ip_addr_base('axi_bram_ctrl_'+str(k+1))
+        assert addr_base==ol1.prog_ips[k][0],\
+            'Overlay gets wrong IP base address.'
+        assert addr_base==ol1.get_ip_addr_prog(k),\
+            'Overlay gets wrong IP base address.'
+        assert ol1.get_ip_program(k)==None,\
+            'Overlay should not load program during initialization.'
+        assert not ol1.get_ip_psgpio(k)==None,\
+            'Overlay cannot get PS GPIO pin.'
+    ol1.flush_ip_dictionary()
+    for k in ol1.prog_ips.keys():
+        assert ol1.get_ip_program(k)==None,\
+            'Overlay cannot flush IP dictionary.'
+            
     ol2.download()
-    assert 'audiovideo.bit' in ol2.get_bs_name(), \
+    assert 'audiovideo.bit' in ol2.get_bitfile_name(), \
             'Bitstream is not in the overlay.'
-    assert not ol2.get_iplist()==[], \
+    assert not ol2.get_ip()==[], \
             'Overlay has an empty IP list.'
-    assert ol2.get_mmio_base('axi_bram_ctrl_0')=='0x40000000',\
-            'Overlay gets wrong MMIO base.'
-    assert ol2.get_mmio_range('axi_bram_ctrl_0')=='0x8000',\
-            'Overlay gets wrong MMIO range.'
-    for k in ol2.mb_instances.keys():
-        assert ol2.mb_instances[k][1]==None,\
-            'Overlay should not load program during initialization.'
-        ol2.set_mb_program(k, "test")
-        assert ol2.get_mb_program(k)=="test",\
-            'Overlay cannot set Microblaze program.'
+    assert ol2.get_ip_addr_base('axi_bram_ctrl_0')=='0x40000000',\
+            'Overlay gets wrong IP base address.'
+    assert ol2.get_ip_addr_range('axi_bram_ctrl_0')=='0x8000',\
+            'Overlay gets wrong IP address range.'
+    for k in ol2.prog_ips.keys():
         #: Mapping from processor ID to PMOD ID (pmod.bit)
-        p = k
-        assert ol2.get_mb_addr(k)==ol2.get_mmio_base('axi_bram_ctrl_'+str(p))
-    ol2.flush_mb_dictionary()
-    for k in ol2.mb_instances.keys():
-        assert ol2.mb_instances[k][1]==None,\
-            'Overlay cannot flush Microblaze dictionary.'
+        addr_base = ol2.get_ip_addr_base('axi_bram_ctrl_'+str(k))
+        assert addr_base==ol2.prog_ips[k][0],\
+            'Overlay gets wrong IP base address.'
+        assert addr_base==ol2.get_ip_addr_prog(k),\
+            'Overlay gets wrong IP base address.'
+        assert ol2.get_ip_program(k)==None,\
+            'Overlay should not load program during initialization.'
+        assert not ol2.get_ip_psgpio(k)==None,\
+            'Overlay cannot get PS GPIO pin.'
+    ol2.flush_ip_dictionary()
+    for k in ol2.prog_ips.keys():
+        assert ol2.get_ip_program(k)==None,\
+            'Overlay cannot flush IP dictionary.'
 
 @pytest.mark.run(order=9)
 def test_pmod():

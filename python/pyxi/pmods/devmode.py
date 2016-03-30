@@ -39,25 +39,21 @@ from pyxi import MMIO
 from pyxi import Overlay
 from pyxi.pmods import pmod_const
 
-PROGRAM = "mailbox.bin"
+ol = Overlay('pmod.bit')
 
 class DevMode(object):
-    """Control an IO processor running the developer mode executable. 
+    """Control an IO processor running the developer mode program. 
     
     This class will wait for Python to send commands to PMOD IO, IIC, or SPI.
 
     Attributes
     ----------
     iop : _IOP
-        IO processor instance used by DevMode
-    pmod_id : int
-        ID of the PMOD to which the IO processor is attached
+        IO processor instance used by DevMode.
     iop_switch_config :list
-        IO processor switch configuration (8 32-bit values)
+        IO processor switch configuration (8 32-bit values).
     mmio : MMIO
         Memory-mapped IO instance to read and write instructions and data.
-    program : str
-        Microblaze executable to be run.
     
     """
 
@@ -75,15 +71,15 @@ class DevMode(object):
             IO Processor switch configuration (8 32-bit values)
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.pmod_id = pmod_id
+        self.iop = _iop.request_iop(pmod_id, pmod_const.MAILBOX_PROGRAM)
         self.iop_switch_config = list(switch_config)
-        self.mmio = MMIO(self.iop.mmio.base_addr + pmod_const.MAILBOX_OFFSET, 
-                        pmod_const.MAILBOX_SIZE)
-        self.program = PROGRAM
-     
+        self.mmio = MMIO(self.iop.base_addr + pmod_const.MAILBOX_OFFSET, 
+                            pmod_const.MAILBOX_SIZE)
+                        
     def start(self):
         """Start the IO Processor.
+        
+        The IOP instance will start automatically after instantiation.
         
         This method will:
         1. zero out mailbox CMD register;
@@ -93,7 +89,7 @@ class DevMode(object):
         """
         self.iop.start()
         self.mmio.write(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0)
-        self.load_switch_config()   
+        self.load_switch_config()
 
     def stop(self):
         """Put the IO Processor into Reset.
@@ -101,7 +97,7 @@ class DevMode(object):
         This method will set IOP status as "STOPPED".
         
         """
-        self.iop.stop()        
+        self.iop.stop()
 
     def load_switch_config(self, config=None):
         """Load the IO processor's switch configuration 
@@ -150,14 +146,15 @@ class DevMode(object):
         
         Returns
         -------
-        None
+        list
+            A switch configuration list of 8 32-bit values.
         
         """
         sw_config = list()
         for ix, cfg in enumerate(self.iop_switch_config):
             sw_config.append(self.read_cmd(
                 pmod_const.IOPMM_switch_config_BASEADDR + ix*4, dWidth=1))
-        print(str(sw_config))
+        return sw_config
 
     def status(self):
         """Returns the status of the IO processor.
@@ -322,8 +319,7 @@ class DevMode(object):
 
         #: If ACK is not received, alert users.
         if cntdown == 0:
-            raise LookupError("DevMode _send_cmd() not acknowledged " + 
-                    "from PMOD " + str(self.pmod_id))
+            raise LookupError("DevMode _send_cmd() not acknowledged.")
 
         #: Return data if expected from read, otherwise return None
         if cmd == pmod_const.WRITE_CMD: 

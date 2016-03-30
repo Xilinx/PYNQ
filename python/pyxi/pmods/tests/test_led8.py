@@ -134,4 +134,4 @@ def test_toggle_leds():
     assert user_answer_yes("PMOD LEDs were toggling?")
     
     del leds
-    ol.flush_mb_dictionary()
+    ol.flush_ip_dictionary()
