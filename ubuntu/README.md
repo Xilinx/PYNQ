@@ -20,6 +20,10 @@ Staging - to be added in next image
 ```
 add back in chroot* scripts
 pip install sphinx_rtd_theme
+
+# tree package (needs manual debian download)
+# https://packages.debian.org/jessie/armhf/tree/download
+dkpg -i  dpkg -i tree_1.7.0-3_armhf.deb
 ```
 
 03-25-2016
