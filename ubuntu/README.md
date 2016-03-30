@@ -27,6 +27,9 @@ pip install nbsphinx
 dkpg -i  dpkg -i tree_1.7.0-3_armhf.deb
 
 # samba access now is xpp user - giving read/write privileges.  user/pass: xpp/xpp
+
+# make team aware of hostname.sh script for modifying the Zybo's network name
+
 ```
 
 03-25-2016
