@@ -20,12 +20,16 @@ Staging - to be added in next image
 ```
 add back in chroot* scripts
 pip install sphinx_rtd_theme
+pip install nbsphinx
 
 # tree package (needs manual debian download)
 # https://packages.debian.org/jessie/armhf/tree/download
 dkpg -i  dpkg -i tree_1.7.0-3_armhf.deb
 
 # samba access now is xpp user - giving read/write privileges.  user/pass: xpp/xpp
+
+# make team aware of hostname.sh script for modifying the Zybo's network name
+
 ```
 
 03-25-2016
