@@ -113,7 +113,7 @@ int iic_write(u32 addr, u8* buffer, u8 numbytes)
     // Transmit data      
     while((txCnt < numbytes) && (timeout > 0)) {
 
-      timeout = 100;
+      timeout = 0xffff;
       
       // Put the Tx data into the Tx FIFO (last word gets STOP bit)      
       if (txCnt == numbytes - 1)
@@ -131,13 +131,12 @@ int iic_write(u32 addr, u8* buffer, u8 numbytes)
       txCnt++;
     }
 
-    delay_ms(10);
+    delay_ms(1);
     return txCnt;
 }
 
 
-
-int cb_init(circular_buffer *cb, u32* log_start_addr, size_t capacity, size_t sz)
+int cb_init(circular_buffer *cb, volatile u32* log_start_addr, size_t capacity, size_t sz)
 {
   cb->buffer = (volatile char*) log_start_addr;
   if(cb->buffer == NULL)
@@ -156,6 +155,7 @@ int cb_init(circular_buffer *cb, u32* log_start_addr, size_t capacity, size_t sz
   return 0;
 
 }
+
 
 void cb_push_back(circular_buffer *cb, const void *item)
 {
@@ -190,9 +190,8 @@ void cb_push_back_float(circular_buffer *cb, const float *item)
   // Mailbox API Update
   MAILBOX_DATA_FLOAT(0)  = *item;
 
-
-
 }
+
 
 void cb_push_incr_ptrs(circular_buffer *cb){
 

@@ -21,11 +21,21 @@
 #define LOG_ITEM_SIZE sizeof(float)
 #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
+
+// TMP2 get sample in Celsius (x2 reads to clear stale data)
+float get_sample(){
+  u8 raw_data[2];
+  u32 sample;
+  iic_read(0x4b,raw_data,2); 
+  iic_read(0x4b,raw_data,2);  
+  sample = (raw_data[0] << 8) | raw_data[1];
+  return (((float)sample)*0.0625)/8; 
+}
+
+
 int main(void)
 {
    int cmd;
-   u8 raw_data[2];
-   u32 sample;
    u32 delay;
    float temperature;
 
@@ -40,40 +50,26 @@ int main(void)
 
       switch(cmd){
 
-         case READ_SINGLE_VALUE:
-	   
-	   // get sample in Celsius (x2 reads to clear stale data)
-	   iic_read(0x4b,raw_data,2); 
-	   iic_read(0x4b,raw_data,2);  
-	   sample = (raw_data[0] << 8) | raw_data[1];
-	   temperature = (((float)sample)*0.0625)/8; 
-	   
+         case READ_SINGLE_VALUE:	   	   
 	   // write out temperature, reset mailbox
-	   MAILBOX_DATA_FLOAT(0) = temperature;
+	   MAILBOX_DATA_FLOAT(0) = get_sample();
 	   MAILBOX_CMD_ADDR = 0x0; 
 	   
 	   break;
 	   
-         case READ_AND_LOG:
-	   
+         case READ_AND_LOG:	   
 	   // initialize logging variables, reset cmd
 	   cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
 	   delay = MAILBOX_DATA(1);	   
 	   MAILBOX_CMD_ADDR = 0x0; 
 
-	   do{	      
-	     // get sample in Celsius (x2 reads to clear stale data)
-	     iic_read(0x4b,raw_data,2); 
-	     iic_read(0x4b,raw_data,2);
-	     sample = (raw_data[0] << 8) | raw_data[1];
-	     temperature = (((float)sample)*0.0625)/8; 
-	     
-	      // log temperature and delay
+	   do{	   
+	     // push sample to log and delay
+	     temperature = get_sample();
 	     cb_push_back_float(&pmod_log, &temperature);
 	     delay_ms(delay);
 
-	   }
-	   while((MAILBOX_CMD_ADDR & 0x1)== 0); // do while no new command
+	   } while((MAILBOX_CMD_ADDR & 0x1)== 0); // do while no new command
 	   
 	   break;
 	   
