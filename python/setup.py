@@ -94,7 +94,7 @@ setup(  name='pyxi',
         packages = find_packages(),
         download_url = 'https://github.com/Xilinx/Pyxi',
         package_data = {
-          '': ['test/*', 'tests/*'],
+          '': ['test/*', 'tests/*', '*.bin'],
         },
         ext_modules = [
             Extension('pyxi.audio._audio', audio, 
