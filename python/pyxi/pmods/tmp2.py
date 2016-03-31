@@ -38,13 +38,9 @@ from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
-<<<<<<< HEAD
 TMP2_PROGRAM = "./tmp2.bin"
 TMP2_LOG_START = pmod_const.MAILBOX_OFFSET+16
 TMP2_LOG_END = TMP2_LOG_START+(1000*4)
-=======
-PROGRAM = "tmp2.bin"
->>>>>>> 8a088238dd47d949ca40626ab58937732aebafd5
 
 class TMP2(object):
     """This class controls a temperature sensor PMOD.
@@ -69,15 +65,9 @@ class TMP2(object):
             programmable logic.  Indexing starts at 1.
             
         """
-<<<<<<< HEAD
         self.iop = _iop.request_iop(pmod_id, TMP2_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
-=======
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.mmio = MMIO(self.iop.base_addr, pmod_const.IOP_MMIO_REGSIZE)
-        self.log_ms = 0
->>>>>>> 8a088238dd47d949ca40626ab58937732aebafd5
         
         self.iop.start()
 
@@ -126,7 +116,8 @@ class TMP2(object):
     def start_log(self):
         """Start recording multiple values in a log.
         
-        This method will first call set_log_interval_ms() before writting to the MMIO.
+        This method will first call set_log_interval_ms() before writting to
+        the MMIO.
         
         Parameters
         ----------
@@ -186,7 +177,7 @@ class TMP2(object):
                 temps.append(self._reg2float(self.mmio.read(i)))
         else:
             for i in range(head_ptr,TMP2_LOG_END,4):
-                temps.append(self._reg2float(self.mmio.read(i)))                
+                temps.append(self._reg2float(self.mmio.read(i)))
             for i in range(TMP2_LOG_START,tail_ptr,4):            
                 temps.append(self._reg2float(self.mmio.read(i))) 
 

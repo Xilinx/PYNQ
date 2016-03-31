@@ -38,7 +38,10 @@ from . import pmod_const
 from pyxi import MMIO
 from pyxi import Overlay
 
-PROGRAM = "als.bin"
+
+ALS_PROGRAM = "./als.bin"
+ALS_LOG_START = pmod_const.MAILBOX_OFFSET+16
+ALS_LOG_END = ALS_LOG_START+(1000*4)
 
 class ALS(object):
     """This class controls a light sensor PMOD.
@@ -46,33 +49,26 @@ class ALS(object):
     Attributes
     ----------
     iop : _IOP
-        I/O processor instance used by TMP2
+        I/O processor instance used by ALS
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
-    log_ms : int
-        The length of the log in milliseconds, for debug only.
+    log_interval_ms : int
+        Time in milliseconds between sampled reads of the ALS sensor
         
     """
     def __init__(self, pmod_id):
         """Return a new instance of an ALS object. 
         
-        When we call request_iop(), an exception might be raised if 
-        the *force* flag is not set. Please refer to _iop.request_iop() for 
-        additional details.
-        
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
-        
         Parameters
         ----------
         pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+            Requested PMOD index from list of all PMOD IO Processors in the
+            programmable logic.  Indexing starts at 1.
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.mmio = MMIO(self.iop.base_addr, pmod_const.IOP_MMIO_REGSIZE)
-        self.log_ms = 0
+        self.iop = _iop.request_iop(pmod_id, ALS_PROGRAM)
+        self.mmio = self.iop.mmio
+        self.log_interval_ms = 1000
         
         self.iop.start()
         
@@ -96,15 +92,15 @@ class ALS(object):
             pass
         return self.mmio.read(pmod_const.MAILBOX_OFFSET)
 
-    def set_log_ms(self,log_ms):
-        """Set the length of the log in the TMP2 PMOD.
+    def set_log_interval_ms(self,log_interval_ms):
+        """Set the length of the log in the ALS PMOD.
         
         This method can set the length of the log, so that users can read out
         multiple values in a single log. 
         
         Parameters
         ----------
-        log_ms : int
+        log_interval_ms : int
             The length of the log in milliseconds, for debug only.
             
         Returns
@@ -112,27 +108,28 @@ class ALS(object):
         None
         
         """
-        if (log_ms < 0):
+        if (log_interval_ms < 0):
             raise ValueError("Log length should not be less than 0.")
-        self.log_ms = log_ms
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_ms)
+        
+        self.log_interval_ms = log_interval_ms
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_interval_ms)
 
-    def start_log(self, log_ms =1):
+    def start_log(self):
         """Start recording multiple values in a log.
         
-        This method will first call set_log_ms() before writting to the MMIO.
+        This method will first call set_log_interval_ms() before writting to
+        the MMIO.
         
         Parameters
         ----------
-        log_ms : int
-            The length of the log in milliseconds, for debug only.
+        None
             
         Returns
         -------
         None
         
         """
-        self.set_log_ms(log_ms)
+        self.set_log_interval_ms(self.log_interval_ms)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
 
@@ -153,11 +150,8 @@ class ALS(object):
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)    
 
-    def print_log(self):
-        """Read and print all the data in the log from mailbox.
-        
-        This method should only be used for debug. To get an value from the 
-        TMP2 PMOD, use read() instead.
+    def get_log(self):
+        """Return list of logged samples.
         
         Parameters
         ----------
@@ -165,29 +159,30 @@ class ALS(object):
             
         Returns
         -------
-        None
+        List of valid samples from the ALS sensor [0-255]
         
         """
-        #: First stop logging
+        #: Stop logging
         self.stop_log()
-        end_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+8)
-      
-        if(end_ptr>=1000): 
-            #: Mailbox full because end_ptr has looped, so print 1000 values
-            current_ptr = end_ptr-999
-            end_ptr = end_ptr-1000
-            count = 1000
-        else: 
-            #: Mailbox not full, print to the end_ptr
-            current_ptr = 0 
-            count = end_ptr
 
-        print("T\tData")
-        for x in range(count):
-            temp = self.mmio.read(pmod_const.MAILBOX_OFFSET+(3+x)*4)
-            print(str(x) + "\t" + str(self.reg2float(temp)))
-            if(current_ptr<999):
-                current_ptr+=1
-            else:
-                current_ptr=0
-                
+        # prep iterators and results list
+        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        readings = list()
+
+        # sweep circular buffer for samples
+        if head_ptr == tail_ptr:
+            return None
+        elif head_ptr < tail_ptr:
+            for i in range(head_ptr,tail_ptr,4):
+                readings.append(self.mmio.read(i))
+        else:
+            for i in range(head_ptr,ALS_LOG_END,4):
+                readings.append(self.mmio.read(i))
+            for i in range(ALS_LOG_START,tail_ptr,4):            
+                readings.append(self.mmio.read(i)) 
+
+        return readings
+
+
+     
