@@ -41,7 +41,7 @@ from pynq import Overlay
 from pynq import PL
 from pynq.pmods import pmod_const
 
-ol = Overlay('pmod.bit')
+#ol = Overlay('pmod.bit')
 
 class _IOP:
     """This class controls the active IOP instances in the system.
@@ -80,8 +80,13 @@ class _IOP:
             The address range for the MMIO in hex format.
         gpio_uix : int
             The user index of the GPIO, starting from 0.
+        ol : Overlay
+            The PL overlay that was present when IOP instantiated.
         
         """
+
+        self.ol = Overlay(PL.bitfile_name)
+
         self.iop_name = iop_name
         self.mb_program = pmod_const.BIN_LOCATION + mb_program
         self.state = 'IDLE'
@@ -141,7 +146,7 @@ class _IOP:
         """
         self.stop()
         
-        ol.load_ip_data(self.iop_name, self.mb_program)
+        self.ol.load_ip_data(self.iop_name, self.mb_program)
         
         self.start()
 
@@ -184,16 +189,14 @@ def request_iop(pmod_id, mb_program):
         
     Raises
     ------
-    LookupError
-        When the PMOD overlay is not loaded yet.
     ValueError
         When the IOP name or the GPIO name cannot be found in the PL.
     LookupError
         When another IOP is in the system with the same PMOD ID.
         
     """
-    if not ol.is_loaded():
-        raise LookupError("The PMOD overlay is not loaded.")
+    #if not ol.is_loaded():
+    #    raise LookupError("The overlay is no longer loaded.")
     
     ip_names = PL.get_ip_names("axi_bram_ctrl_")
     iop_name = "SEG_axi_bram_ctrl_" + str(pmod_id) + "_Mem0"
