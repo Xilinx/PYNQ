@@ -1,5 +1,5 @@
 # Pynq
-(Py)thon for (Xi)linx
+(Py)thon on Zy(nq)
 
 
 ## Zybo image files
