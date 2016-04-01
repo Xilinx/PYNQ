@@ -21,3 +21,8 @@ sudo shutdown -r now
 ```
 sudo -H pip install -e 'git+https://github.com/Xilinx/Pynq@master#egg=pynq&subdirectory=python'
 ```
+
+## Running Regression from terminal
+```
+py.test –vsrw
+```
