@@ -1,4 +1,4 @@
-# Pyxi
+# Pynq
 (Py)thon for (Xi)linx
 
 
@@ -19,5 +19,5 @@ sudo shutdown -r now
 ## Updating `pynq` on Zybo using pip 
 
 ```
-sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pynq&subdirectory=python'
+sudo -H pip install -e 'git+https://github.com/Xilinx/Pynq@master#egg=pynq&subdirectory=python'
 ```

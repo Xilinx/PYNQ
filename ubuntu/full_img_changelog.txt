@@ -18,7 +18,7 @@ latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-c
 01-21-2016 - <giuseppe.natale@xilinx.com>
              Added support for install/update of pynq using pip
              run this command from the home directory (/home/xpp)
-             <sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pynq&subdirectory=python'>
+             <sudo -H pip install -e 'git+https://github.com/Xilinx/Pynq@master#egg=pynq&subdirectory=python'>
              the entire repo will be cloned in /home/xpp/src/pynq, with the
              package located in /home/xpp/src/pynq/python/pynq
 
@@ -26,7 +26,7 @@ latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-c
              On poweron, networking and jupyter server start
              Use ifconfig to see network address
              View /root/jupyter.log to see jupyter status
-             Updated pynq package to latest Pyxi github reposiotry 
+             Updated pynq package to latest Pynq github reposiotry 
 
 02-11-2016 - <giuseppe.natale@xilinx.com>
              1) upgraded pip to latest version (8.0.1)
@@ -69,5 +69,5 @@ latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-c
              Increased image size to 16GB
              Microblaze cross-compiler added
              New notebook folder structure
-             Pyxi package upgraded to today's git repo
+             Pynq package upgraded to today's git repo
              

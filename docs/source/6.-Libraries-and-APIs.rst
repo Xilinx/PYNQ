@@ -46,7 +46,7 @@ What is a package in Python? In a nutshell, a package is a folder which contains
                      |
                    .....
 
-Pyxi contains four _user_ subpackages: `board`, `pmods`, `audio`, and `video`; a `tests` subpackage is for testing the user subpackages. Please refer to the https://docs.python.org/3.5/tutorial/modules.html#packages[offical python documentation] for additional information.
+Pynq contains four _user_ subpackages: `board`, `pmods`, `audio`, and `video`; a `tests` subpackage is for testing the user subpackages. Please refer to the https://docs.python.org/3.5/tutorial/modules.html#packages[offical python documentation] for additional information.
 
 board
 -----
@@ -133,7 +133,7 @@ Delay for the given number of seconds
    >>> delay(5)
 
 ``ls(path='')``
-Pyxi equivalent to the UNIX 'ls' command
+Pynq equivalent to the UNIX 'ls' command
 
 .. code-block:: python
 
@@ -142,7 +142,7 @@ Pyxi equivalent to the UNIX 'ls' command
 
 
 ``cat(fn)``
-Pyxi equivalent to the UNIX 'cat' command
+Pynq equivalent to the UNIX 'cat' command
 
 .. code-block:: python
 
@@ -301,7 +301,7 @@ Return a pseudo-random number between 0 to 8388593
 Usage
 =====
 
-Refer to `Section 3. Programing ZYBO in Python <https://github.com/Xilinx/XilinxPythonProject/wiki/3.-Programing-ZYBO-in-Python>`_ for more information on how to use Pyxi.
+Refer to `Section 3. Programing ZYBO in Python <https://github.com/Xilinx/XilinxPythonProject/wiki/3.-Programing-ZYBO-in-Python>`_ for more information on how to use Pynq.
 
 To use pynq, import the whole package: 
 

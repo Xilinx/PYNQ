@@ -9,7 +9,7 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
              Increased image size to 16GB
              Microblaze cross-compiler added
              New notebook folder structure
-             Pyxi package upgraded to today's git repo
+             Pynq package upgraded to today's git repo
 ```
 
 
@@ -128,7 +128,7 @@ shutdown -r now
 ```
 <from repository>
 
-copy <Pyxi Repo Head>/ubuntu/* --> <Zybo Linux Root>/home/xpp 
+copy <Pynq Repo Head>/ubuntu/* --> <Zybo Linux Root>/home/xpp 
 
 ```
 
@@ -344,7 +344,7 @@ to make it executable before you launch it.
 ## Installing `pynq` easily using pip
 An easy alternative to script #3 is to install the pynq package using `pip` directly (and avoid all the hassle of manually copying files). To do that, simply type from a terminal while being in the home directory (/home/xpp).
 ```
-sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pynq&subdirectory=python'
+sudo -H pip install -e 'git+https://github.com/Xilinx/Pynq@master#egg=pynq&subdirectory=python'
 ```
 
 ------------------------------------------------------------------------------------------------------
