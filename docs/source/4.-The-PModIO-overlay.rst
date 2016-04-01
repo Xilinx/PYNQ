@@ -69,13 +69,13 @@ Plug the *PModOLED* into Port 1, and *PModALS* (Ambient Light Sensor) into the t
 .. image:: ./images/als_oled_Demo.jpeg
    :width: 300
 
-The libraries can be found on the sd card in the pyxi/pmods directory.
+The libraries can be found on the sd card in the pynq/pmods directory.
 
 At the MicroPython prompt, *import the OLED* library by typing:
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import OLED
+   >>> from pynq.pmods import OLED
 
 
 To *instantiate* the object, on port 1 type:
@@ -97,7 +97,7 @@ Import the ALS library, create an instance, and read the value from the sensor
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import ALS
+   >>> from pynq.pmods import ALS
    >>> als = ALS(2)
    # get a value from 0-255; 0 Darkest, 255 = Brightest
    >>> als.read_light() 
@@ -118,7 +118,7 @@ Align the ADC to the left pins of the port.
 
 .. code-block:: python
 
-   from pyxi.pmods import ADC
+   from pynq.pmods import ADC
    adc = ADC(1)
    # Get the raw data
    adc.read() 
@@ -132,7 +132,7 @@ The DAC can only be used in the *TOP row* of a port.
 
 .. code-block:: python
 
-   from pyxi.pmods import DAC
+   from pynq.pmods import DAC
    dac = DAC(1)
    # Write a voltage between 0 and 1.2 V
    dac.write(0.9)            
@@ -144,7 +144,7 @@ The DPOT can only be used in the *TOP row* of a port.
 
 .. code-block:: python
 
-   from pyxi.pmods import DPOT
+   from pynq.pmods import DPOT
    dpot = DPOT(1)
    # Set the DPot from 0-255; Wiper voltage = (VCC*Value)/255
    dpot.write(value)  
@@ -157,7 +157,7 @@ Align the TMP2 to the left pins of a port.
 
 .. code-block:: python
 
-   from pyxi.pmods import TMP2
+   from pynq.pmods import TMP2
    temp = TMP2(1)
    # Read back the temperature in degrees C
    temp.read_temp() 
@@ -172,7 +172,7 @@ The ALS can only be used in the *TOP row* of a port.
 
 .. code-block:: python
 
-   from pyxi.pmods import ALS
+   from pynq.pmods import ALS
    als = ALS(1)
    als.read_light() 
    # start logging values at intervals of delay
@@ -204,11 +204,11 @@ This example connects the DAC to the ADC. You will write a value to the DAC whic
 
 (4) Power on the board, and open a terminal
 
-(5) Load the PMod classes from Python-Xilinx library (pyxi.pmods)
+(5) Load the PMod classes from Python-Xilinx library (pynq.pmods)
 
 .. code-block:: python
 
-   from pyxi.pmods import OLED, ADC, DAC
+   from pynq.pmods import OLED, ADC, DAC
 
 (6) instantiate the PMods
 
@@ -246,7 +246,7 @@ The DAC_LOOP.py file contains a function dac_loop(). Load the file by typing:
 
 .. code-block:: python
 
-   execfile("pyxi/examples/DAC_LOOP.py")
+   execfile("pynq/examples/DAC_LOOP.py")
 
 
 By default, this uses the previous configuration (*DAC* connected to *Port 1* (Top Row), *ADC* connected to *Port 2*, *OLED* connected to *Port 4* and a wire connecting the DAC to the ADC). The function reads *Switch 4*, and if the switch is on, it will run a loop that writes to the DAC, reads the value on the ADC and writes to the OLED. This is the same as the previous example, but this time executing from a script, and inside a loop controlled by a switch. 
@@ -277,11 +277,11 @@ The function can also be called with the following parameters to change the conf
    '''
       DAC -> ADC -> OLED -- LOOP OVER 10 Values
    '''
-       # Import PMOD classes from library PythonXilinx (pyxi.pmods)
-         from pyxi.pmods import OLED, ADC, DAC
+       # Import PMOD classes from library PythonXilinx (pynq.pmods)
+         from pynq.pmods import OLED, ADC, DAC
     
-       from pyxi.board import  LED, Switch
-       from pyxi.board.utils import delay
+       from pynq.board import  LED, Switch
+       from pynq.board.utils import delay
     
        # Match PMOD instances to PMOD Connectors
     

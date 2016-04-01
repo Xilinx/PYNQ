@@ -16,8 +16,8 @@ sudo shutdown -r now
 ```
 
 
-## Updating `pyxi` on Zybo using pip 
+## Updating `pynq` on Zybo using pip 
 
 ```
-sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'
+sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pynq&subdirectory=python'
 ```

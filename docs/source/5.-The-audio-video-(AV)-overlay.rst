@@ -27,7 +27,7 @@ At the MicroPython prompt, to *instantiate* the HDMI object, just type:
 
 .. code-block:: python
 
-   >>> from pyxi.video import HDMI
+   >>> from pynq.video import HDMI
    >>> hdmi = HDMI('in')
 
 where the `HDMI()` argument `'in'` indicates that the object is in capture mode. Currently, this is the only supported mode for HDMI.
@@ -131,7 +131,7 @@ To *instantiate* the VGA object, just type:
 
 .. code-block:: python
 
-   >>> from pyxi.video import VGA
+   >>> from pynq.video import VGA
    >>> vga = VGA('out')
 
 In the case of VGA, you have to start/stop the device explicitly:
@@ -226,7 +226,7 @@ or equivalently:
 Once done, `start()` the VGA object and in a matter of seconds you should see directly on the VGA output what you are capturing from the HDMI. Remember that to output directly via VGA what is captured from HDMI, both the object must have the same active `frame_index`. At start, both starts from 0, so the code above should work flawlessly.
 
 You can also use the two object in combination for some advanced operation, such as showing on VGA a filtered frame captured from HDMI.
-For a concrete example, refer to the content of `demo_hdmi_vga <https://github.com/Xilinx/XilinxPythonProject/blob/master/micropython/zybo/py/pyxi/video/tests/demo_hdmi_vga.py>`_.  To learn more about tests and demo, refer to the `related section <https://github.com/Xilinx/XilinxPythonProject/wiki/7.-Test>`_ of this wiki.
+For a concrete example, refer to the content of `demo_hdmi_vga <https://github.com/Xilinx/XilinxPythonProject/blob/master/micropython/zybo/py/pynq/video/tests/demo_hdmi_vga.py>`_.  To learn more about tests and demo, refer to the `related section <https://github.com/Xilinx/XilinxPythonProject/wiki/7.-Test>`_ of this wiki.
 
 Using Audio IO
 ==============
@@ -236,7 +236,7 @@ To *instantiate* the two objects, just type:
 
 .. code-block:: python
 
-   >>> from pyxi.audio import HPH, LineIn
+   >>> from pynq.audio import HPH, LineIn
    >>> hph = HPH()
    >>> linein = LineIn()
 

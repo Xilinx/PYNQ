@@ -13,7 +13,7 @@ The second set of examples show how easy it is to program the A9 to control peri
 The factors_and_primes module
 =============================
 
-The `factors_and_primes` module can be found in the pyxi.examples package.  It contains some sample functions to calculate the factors and primes of integers.  We will use three functions from the `factors_and_primes` module to demonstrate programming the ARM A9 CPU with MicroPython.  
+The `factors_and_primes` module can be found in the pynq.examples package.  It contains some sample functions to calculate the factors and primes of integers.  We will use three functions from the `factors_and_primes` module to demonstrate programming the ARM A9 CPU with MicroPython.  
 
 factorize(n)::
 Calculate all factors of integer n
@@ -136,12 +136,12 @@ ZYBO has four LEDs, four slide-switches and four push-buttons that are connected
 
 (Note that two additional push-buttons and 1 LED are connected directly to ZYBO's processor system via memory IO pins.  These are not highlighted in the figure and we will ignore them for now.)
 
-Each of the three banks of 4 IO devices can be controlled from Python.  To demonstrate this, we first import the `LED`, `Switch` and `Button` classes from the module `pyxi.board`
+Each of the three banks of 4 IO devices can be controlled from Python.  To demonstrate this, we first import the `LED`, `Switch` and `Button` classes from the module `pynq.board`
   
 .. code-block:: python
 
   # Import libraries    
-  >>> from pyxi.board import LED, Switch, Button      
+  >>> from pynq.board import LED, Switch, Button      
 
 
 Controlling a single LED
@@ -158,7 +158,7 @@ Let's toggle `led0` ten times.  We need to import the `delay()` method from the 
 
 .. code-block:: python
   
-  >>> from pyxi.board import LED, Switch, Button, delay
+  >>> from pynq.board import LED, Switch, Button, delay
   >>> led0 = LED(0)
   >>> for i in range(20):
   ...    led0.toggle()
@@ -170,7 +170,7 @@ Next we create an example that uses the 4 LEDs, 4 slide-switches and 4 push-butt
 
 .. code-block:: python
 
-  from pyxi.board import LED, Switch, Button
+  from pynq.board import LED, Switch, Button
 
   MAX_LEDS = 4
   MAX_SWITCHES = 4

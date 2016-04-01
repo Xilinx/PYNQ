@@ -35,41 +35,41 @@ __email__       = "xpp_support@xilinx.com"
 from setuptools import setup, Extension, find_packages
 
 #: Audio and video source files
-_audio_src = ['pyxi/_pyxi/_audio/_audio.c', 'pyxi/_pyxi/src/audio.c', 
-              'pyxi/_pyxi/src/gpio.c', 'pyxi/_pyxi/src/i2cps.c', 
-              'pyxi/_pyxi/src/utils.c']
+_audio_src = ['pynq/_pynq/_audio/_audio.c', 'pynq/_pynq/src/audio.c', 
+              'pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/i2cps.c', 
+              'pynq/_pynq/src/utils.c']
 
-_video_src = ['pyxi/_pyxi/_video/_video.c', 'pyxi/_pyxi/_video/_capture.c', 
-              'pyxi/_pyxi/_video/_display.c', 'pyxi/_pyxi/_video/_frame.c', 
-              'pyxi/_pyxi/src/gpio.c', 'pyxi/_pyxi/src/py_xaxivdma.c', 
-              'pyxi/_pyxi/src/py_xgpio.c', 'pyxi/_pyxi/src/utils_xlnk.c', 
-              'pyxi/_pyxi/src/py_xvtc.c', 'pyxi/_pyxi/src/utils.c',  
-              'pyxi/_pyxi/src/video_capture.c', 
-              'pyxi/_pyxi/src/video_display.c']
+_video_src = ['pynq/_pynq/_video/_video.c', 'pynq/_pynq/_video/_capture.c', 
+              'pynq/_pynq/_video/_display.c', 'pynq/_pynq/_video/_frame.c', 
+              'pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/py_xaxivdma.c', 
+              'pynq/_pynq/src/py_xgpio.c', 'pynq/_pynq/src/utils_xlnk.c', 
+              'pynq/_pynq/src/py_xvtc.c', 'pynq/_pynq/src/utils.c',  
+              'pynq/_pynq/src/video_capture.c', 
+              'pynq/_pynq/src/video_display.c']
 
 #: BSP source files
 bsp_axivdma = \
-  ['pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma.c',
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_channel.c', 
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_intr.c', 
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_selftest.c']
+  ['pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma.c',
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_channel.c', 
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_intr.c', 
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_selftest.c']
 
 bsp_gpio = \
-  ['pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio.c', 
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_extra.c',
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_intr.c',
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_selftest.c']
+  ['pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio.c', 
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_extra.c',
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_intr.c',
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_selftest.c']
 
 bsp_vtc = \
-  ['pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc.c', 
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc_intr.c', 
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc_selftest.c']
+  ['pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc.c', 
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc_intr.c', 
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc_selftest.c']
 
 bsp_standalone = \
-  ['pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xplatform_info.c',
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_assert.c',
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_io.c',
-   'pyxi/_pyxi/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
+  ['pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xplatform_info.c',
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_assert.c',
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_io.c',
+   'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
 
 
 #: Merge BSP src to _audio src
@@ -85,7 +85,7 @@ video.extend(bsp_gpio)
 video.extend(bsp_vtc)
 video.extend(_video_src)
 
-setup(  name='pyxi',
+setup(  name='pynq',
         version='0.1',
         description='Python for Xilinx package',
         author='XilinxPythonProject',
@@ -97,13 +97,13 @@ setup(  name='pyxi',
           '': ['test/*', 'tests/*', '*.bin'],
         },
         ext_modules = [
-            Extension('pyxi.audio._audio', audio, 
-                      include_dirs = ['pyxi/_pyxi/inc', 
-                                      'pyxi/_pyxi/bsp/ps7_cortexa9_0/include'],
+            Extension('pynq.audio._audio', audio, 
+                      include_dirs = ['pynq/_pynq/inc', 
+                                      'pynq/_pynq/bsp/ps7_cortexa9_0/include'],
                      ),
-            Extension('pyxi.video._video', video, 
-                      include_dirs = ['pyxi/_pyxi/inc', 
-                                      'pyxi/_pyxi/bsp/ps7_cortexa9_0/include'],
+            Extension('pynq.video._video', video, 
+                      include_dirs = ['pynq/_pynq/inc', 
+                                      'pynq/_pynq/bsp/ps7_cortexa9_0/include'],
                      ),
         ]
     )

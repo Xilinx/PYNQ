@@ -7,49 +7,49 @@ latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-c
              1)	Full support for the popular python packages (matplotlib, 
                 pandas, numpy, scipy..ecc for a list type `help(modules)` 
                 in a python shell)
-             2) A first release of pyxi is available and it can be imported 
+             2) A first release of pynq is available and it can be imported 
                 from Jupyter. Just remember to launch jupyter with ‘sudo’ 
                 (as specified by the message in ./configure_jupyter.h) since 
-                we need root permissions to use pyxi. Currently, only 
+                we need root permissions to use pynq. Currently, only 
                 on-board device (LEDs, Switches, Buttons) are supported, the
                 rest is still there but is leftover from the old release, 
                 therefore is not usable.
 
 01-21-2016 - <giuseppe.natale@xilinx.com>
-             Added support for install/update of pyxi using pip
+             Added support for install/update of pynq using pip
              run this command from the home directory (/home/xpp)
-             <sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pyxi&subdirectory=python'>
-             the entire repo will be cloned in /home/xpp/src/pyxi, with the
-             package located in /home/xpp/src/pyxi/python/pyxi
+             <sudo -H pip install -e 'git+https://github.com/Xilinx/Pyxi@master#egg=pynq&subdirectory=python'>
+             the entire repo will be cloned in /home/xpp/src/pynq, with the
+             package located in /home/xpp/src/pynq/python/pynq
 
 02-03-2016 - <graham.schelle@xilinx.com>
              On poweron, networking and jupyter server start
              Use ifconfig to see network address
              View /root/jupyter.log to see jupyter status
-             Updated pyxi package to latest Pyxi github reposiotry 
+             Updated pynq package to latest Pyxi github reposiotry 
 
 02-11-2016 - <giuseppe.natale@xilinx.com>
              1) upgraded pip to latest version (8.0.1)
-             2) upgraded pyxi package from repository
+             2) upgraded pynq package from repository
              3) solved issue #3 
              4) updated devicetree in preparation to AV overlay. Tested 
                 current version of the audio bindings on this build and it works.
              5) installed i2c-tools and libi2c-dev needed to use i2c linux drivers
 
 02-17-2016 - <giuseppe.natale@xilinx.com>
-             1) updated pyxi to latest version on repo (with AV overlay)
+             1) updated pynq to latest version on repo (with AV overlay)
              2) updated devicetree and uImage to work with AV overlay
                 - the kernel is compiled from original xilinx repo with xlnk drivers enabled
              3) installed pytest and pytest-ordering using pip
 
 02-19-2016 - <giuseppe.natale@xilinx.com>
-             updated pyxi to latest version on repo. Now all regression tests
+             updated pynq to latest version on repo. Now all regression tests
              are succesfully passed, including AV overlay
              Added Liam's sobel edge detection filter as a notebook after converting it
              to CPython with a few changes in the source
 
 02-26-2016 - <giuseppe.natale@xilinx.com>
-             updated pyxi to latest version on repo.
+             updated pynq to latest version on repo.
              upgraded pip to latest version
              installed 'pillow' (image package for python) and relative dependencies
              updated sobel edge detection notebook

@@ -291,24 +291,24 @@ MicroPython supports a limited version of the Python ``help()`` function.  ``hel
      Type "help()" for more information.
   >>> dir()                                                                  # (1)
   ['__name__']
-  >>> from pyxi import board
+  >>> from pynq import board
   >>> dir()                                                                  # (2)
   ['__name__', 'board']
   >>> help(board)                                                            # (3)
-  object <module 'pyxi.board' from '/sd/pyxi/board/__init__.py'> is of type module
-    __path__ -- /sd/pyxi/board
-    _gpios -- <module 'pyxi.board._gpios' from '/sd/pyxi/board/_gpios.py'>
-    __file__ -- /sd/pyxi/board/__init__.py
-    button -- <module 'pyxi.board.button' from '/sd/pyxi/board/button.py'>
+  object <module 'pynq.board' from '/sd/pynq/board/__init__.py'> is of type module
+    __path__ -- /sd/pynq/board
+    _gpios -- <module 'pynq.board._gpios' from '/sd/pynq/board/_gpios.py'>
+    __file__ -- /sd/pynq/board/__init__.py
+    button -- <module 'pynq.board.button' from '/sd/pynq/board/button.py'>
     delay -- <function delay at 0x75b260>
     Button -- <class 'Button'>
-    switch -- <module 'pyxi.board.switch' from '/sd/pyxi/board/switch.py'>
-    led -- <module 'pyxi.board.led' from '/sd/pyxi/board/led.py'>
+    switch -- <module 'pynq.board.switch' from '/sd/pynq/board/switch.py'>
+    led -- <module 'pynq.board.led' from '/sd/pynq/board/led.py'>
     ls -- <function ls at 0x75b290>
     Switch -- <class 'Switch'>
-    utils -- <module 'pyxi.board.utils' from '/sd/pyxi/board/utils.py'>
+    utils -- <module 'pynq.board.utils' from '/sd/pynq/board/utils.py'>
     millis -- <function>
-    __name__ -- pyxi.board
+    __name__ -- pynq.board
     cat -- <function cat at 0x75b2b0>
     udelay -- <function udelay at 0x75b270>
     mmio -- <class 'mmio'>
@@ -325,7 +325,7 @@ MicroPython supports a limited version of the Python ``help()`` function.  ``hel
 
 (3) With board in the current namespace we can execute ``help(board)`` and we see the names of the objects and attributes defined in the ``board`` package.  These include attributes such as the current file's path (``_path_``), functions ( eg ``delay``), classes (eg ``Button``) and other nested modules (eg ``utils``)
 
-When we execute statements like ``from pyxi.board import *``, we bring all of the objects in the ``board`` package into the current namespace.  In general, it is preferable only to import what is needed.  A statement like ``from pyxi.board import LED, Button, Switch, delay`` is preferable to importing everything, if these four objects are indeed all we need from the  ``board`` package.
+When we execute statements like ``from pynq.board import *``, we bring all of the objects in the ``board`` package into the current namespace.  In general, it is preferable only to import what is needed.  A statement like ``from pynq.board import LED, Button, Switch, delay`` is preferable to importing everything, if these four objects are indeed all we need from the  ``board`` package.
 
 
 Command history

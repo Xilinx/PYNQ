@@ -1,18 +1,18 @@
-The ``pyxi`` (**Py**\thon **Xi**\linx) Package
+The ``pynq`` (**Py**\thon **Xi**\linx) Package
 ==============================================
 
 
-The section describes the ``pyxi`` (**Py**\thon **Xi**\linx) package. It is organized as follows:
+The section describes the ``pynq`` (**Py**\thon **Xi**\linx) package. It is organized as follows:
 
 * *Structure*: This subsection provides the description of the package structure in terms of folders and files.
 
-* *Function List*: This subsection covers a list of many useful functions available in pyxi package.
+* *Function List*: This subsection covers a list of many useful functions available in pynq package.
 
-* *Usage*: This subsection details and code examples on how to use the pyxi package.
+* *Usage*: This subsection details and code examples on how to use the pynq package.
 
-* *Examples*: This subsection introduces various examples based on the pyxi package.
+* *Examples*: This subsection introduces various examples based on the pynq package.
 
-``pyxi`` is a package of python libraries consisting of utility functions and modules to support the on-board and external peripherals (e.g. ZYBO LEDs, switches, and external PMods). 
+``pynq`` is a package of python libraries consisting of utility functions and modules to support the on-board and external peripherals (e.g. ZYBO LEDs, switches, and external PMods). 
 
 
 Structure
@@ -20,7 +20,7 @@ Structure
 What is a package in Python? In a nutshell, a package is a folder which contains multiple ".py" files -- _i.e._ modules -- and the file ``$$__init__$$.py``. ``$$__init__$$.py`` makes Python treat the directory as a self-containing package. ``$$__init__$$.py`` can also execute the initialization code for the package. For instance, in ``$$__init__$$.py``, the ``$$__all__$$`` variable can be used to define the subpackages or modules that will be imported by default when this package is imported::
 
                              +-------+
-                             | pyxi  |
+                             | pynq  |
                              +-------+
                                  |
         ---------------------------------------------------------------------
@@ -50,7 +50,7 @@ Pyxi contains four _user_ subpackages: `board`, `pmods`, `audio`, and `video`; a
 
 board
 -----
-This folder contains the "onboard" subpackage, _i.e._ libraries for peripherals available on Zybo. e.g. Buttons, Switches, LEDs. The idea is that, for each board, `pyxi` will have a subpackage `<board_name>` that will define available onboard peripherals and their API. In this case, `board` contains five modules: `utils`, `button`, `led`, `switch` and `$$_$$gpios`. `utils` contains utility functions like `cat()`, `ls()`, and `delay()`, while `button`, `led`, and `switch` expose the `Button`, `LED`, and `Switch` classes and their wrapper functions. 
+This folder contains the "onboard" subpackage, _i.e._ libraries for peripherals available on Zybo. e.g. Buttons, Switches, LEDs. The idea is that, for each board, `pynq` will have a subpackage `<board_name>` that will define available onboard peripherals and their API. In this case, `board` contains five modules: `utils`, `button`, `led`, `switch` and `$$_$$gpios`. `utils` contains utility functions like `cat()`, `ls()`, and `delay()`, while `button`, `led`, and `switch` expose the `Button`, `LED`, and `Switch` classes and their wrapper functions. 
 
 pmods
 -----
@@ -91,33 +91,33 @@ Below is a diagram of the modules implemented in the ```pmods`` folder. This dia
 .. note:: ``$$_$$iop.py`` is an internal module, not intended for the end users. In Python, there is no concept of _public_ and _private_; we use ``$$_$$`` as a prefix to indicate internal definitions, variables, functions, and packages.
 
 
-``$$__init__$$.py`` is used to raise the scope of all the classes at the package level. The following can be used to import everything in ``pyxi.pmods``:
+``$$__init__$$.py`` is used to raise the scope of all the classes at the package level. The following can be used to import everything in ``pynq.pmods``:
 
 .. code-block:: python
 
-   import pyxi.pmods
+   import pynq.pmods
 
 Alternatively, users can also import each class individually:
 
 .. code-block:: python
 
-   from pyxi.pmods import ADC
+   from pynq.pmods import ADC
 
 or
 
 .. code-block:: python
 
-   from pyxi.pmods.adc import ADC
+   from pynq.pmods.adc import ADC
 
 But the latter is verbose and not recommended.
 
 tests
 ^^^^^
-This folder includes a tests package for use with all other pyxi subpackages. 
+This folder includes a tests package for use with all other pynq subpackages. 
 
 For now, it contains the `unittest <https://pypi.python.org/pypi/micropython-unittest>`_ package.
 
-NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pyxi package. This common practice  in Python where each subpackage has its own ``tests``. This practice can keep the source code modular and *self-contained*.
+NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice  in Python where each subpackage has its own ``tests``. This practice can keep the source code modular and *self-contained*.
 
 Function List
 -------------
@@ -129,7 +129,7 @@ Delay for the given number of seconds
 
 .. code-block:: python
 
-   >>> from pyxi.board import delay
+   >>> from pynq.board import delay
    >>> delay(5)
 
 ``ls(path='')``
@@ -137,7 +137,7 @@ Pyxi equivalent to the UNIX 'ls' command
 
 .. code-block:: python
 
-   >>> from pyxi.board import ls
+   >>> from pynq.board import ls
    >>> ls()
 
 
@@ -146,8 +146,8 @@ Pyxi equivalent to the UNIX 'cat' command
 
 .. code-block:: python
 
-   >>> from pyxi.board import cat
-   >>> cat("pyxi/__init__.py")
+   >>> from pynq.board import cat
+   >>> cat("pynq/__init__.py")
 
 **button.py**
 ``read()``
@@ -155,7 +155,7 @@ Read the current value of the button
 
 .. code-block:: python
 
-   >>> from pyxi.board import Button
+   >>> from pynq.board import Button
    >>> BTN1 = Button(1)
    >>> BTN1.read()
 
@@ -165,7 +165,7 @@ Read the current value of the switch
 
 .. code-block:: python
 
-   >>> from pyxi.board import Switch
+   >>> from pynq.board import Switch
    >>> SW2 = Switch(2)
    >>> SW2.read()
 
@@ -182,7 +182,7 @@ Set the LED state according to the input value
 
 .. code-block:: python
 
-   >>> from pyxi.board import LED
+   >>> from pynq.board import LED
    >>> LD3 = LED(3)
    >>> LD3.on()
    >>> LD3.off()
@@ -197,7 +197,7 @@ Get the raw value from the ADC PMOD and convert it to a float string
 
 .. code-block:: python
    
-   >>> from pyxi.pmods import ADC
+   >>> from pynq.pmods import ADC
    >>> adc1 = ADC(1)
    >>> adc1.read()
 
@@ -207,7 +207,7 @@ Read current sensor value
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import ALS
+   >>> from pynq.pmods import ALS
    >>> als1 = ALS(1)
    >>> als1.read()
 
@@ -218,7 +218,7 @@ Write a floating-point number on the DAC PMOD
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import DAC
+   >>> from pynq.pmods import DAC
    >>> dac2 = DAC(2)
    >>> dac2.write(1.0)
 
@@ -232,7 +232,7 @@ Receive the value from the offboard GPIO device
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import GPIO
+   >>> from pynq.pmods import GPIO
    >>> gpio1 = GPIO(1,7,0)
    >>> gpio2 = GPIO(2,7,1)
    >>> gpio1.write(1)
@@ -253,7 +253,7 @@ Set the LED state according to the input value
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import LED8
+   >>> from pynq.pmods import LED8
    >>> led8 = LED8(3)
    >>> led8.on()
    >>> led8.off()
@@ -267,7 +267,7 @@ Read the current temperature value
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import TMP2
+   >>> from pynq.pmods import TMP2
    >>> temp2 = TMP2(2)
    >>> temp2.read()
 
@@ -280,7 +280,7 @@ Clear the OLED screen.
 
 .. code-block:: python
 
-   >>> from pyxi.pmods import OLED
+   >>> from pynq.pmods import OLED
    >>> oled4 = OLED(4)
    >>> oled4.write("Zybo")
    >>> oled4.clear_screen()
@@ -295,7 +295,7 @@ Return a pseudo-random number between 0 to 8388593
 
 .. code-block:: python
 
-   >>> from pyxi.tests.random import rng
+   >>> from pynq.tests.random import rng
    >>> rng()
 
 Usage
@@ -303,19 +303,19 @@ Usage
 
 Refer to `Section 3. Programing ZYBO in Python <https://github.com/Xilinx/XilinxPythonProject/wiki/3.-Programing-ZYBO-in-Python>`_ for more information on how to use Pyxi.
 
-To use pyxi, import the whole package: 
+To use pynq, import the whole package: 
 
 .. code-block:: python
 
-  import pyxi
+  import pynq
  
 or
 
 .. code-block:: python
 
-   from pyxi import *
+   from pynq import *
 
-Note the content of ``$$__init__$$.py`` in the ``pyxi`` folder:
+Note the content of ``$$__init__$$.py`` in the ``pynq`` folder:
 
 .. code-block:: python
 
@@ -327,38 +327,38 @@ To access the _onboard_ packages, type:
 
 .. code-block:: python
 
-   from pyxi import board
+   from pynq import board
 
 or
 
 .. code-block:: python
 
-   import pyxi.board
+   import pynq.board
 
 or, to import specific packages:
 
 .. code-block:: python
 
-   from pyxi.board import Button, LED, cat, ls
+   from pynq.board import Button, LED, cat, ls
 
 
 To access the PMod overlay objects, type:
 
 .. code-block:: python
 
-   from pyxi import pmods
+   from pynq import pmods
 
 or
 
 .. code-block:: python
 
-   import pyxi.pmods
+   import pynq.pmods
 
 or, for a single object
 
 .. code-block:: python
 
-   from pyxi.pmods import ADC, DAC
+   from pynq.pmods import ADC, DAC
 
 
 
