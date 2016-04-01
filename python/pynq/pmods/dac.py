@@ -73,7 +73,7 @@ class DAC(object):
             
         """
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
-        self.mmio = MMIO(self.iop.base_addr, pmod_const.IOP_MMIO_REGSIZE)
+        self.mmio = self.iop.mmio
 
         self.iop.start()
 

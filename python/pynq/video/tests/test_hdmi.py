@@ -39,9 +39,6 @@ from pynq.video import HDMI
 from pynq.test.util import user_answer_yes
 
 flag = user_answer_yes("\nHDMI port connected to a video source?")
-if flag:
-    global ol
-    ol = Overlay("audiovideo.bit")
     
 @pytest.mark.run(order=32)
 @pytest.mark.skipif(not flag, reason="need HDMI connected")
@@ -68,4 +65,3 @@ def test_hdmi():
     
     hdmi.stop()
     del hdmi
-    ol.flush_ip_dictionary()

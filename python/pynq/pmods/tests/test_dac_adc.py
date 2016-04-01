@@ -45,8 +45,6 @@ if flag:
         global adc_id, dac_id
         dac_id = int(input("Type in the PMOD ID of the DAC (1 ~ 4): "))
         adc_id = int(input("Type in the PMOD ID of the ADC (1 ~ 4): "))
-        global ol
-        ol = Overlay('pmod.bit')
 
 @pytest.mark.run(order=25) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
@@ -100,4 +98,3 @@ def test_loop_random():
             'Read value {} != write value {}.'.format(adc.read(), value)
     
     del dac,adc
-    ol.flush_ip_dictionary()

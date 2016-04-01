@@ -41,8 +41,6 @@ flag = user_answer_yes("\nOLED attached to the board?")
 if flag:
     global oled_id
     oled_id = int(input("Type in the PMOD ID of the OLED (1 ~ 4): "))
-    global oled
-    ol = Overlay('pmod.bit')
 
 @pytest.mark.run(order=24)
 @pytest.mark.skipif(not flag, reason="need OLED attached in order to run")
@@ -62,5 +60,4 @@ def test_write_string():
     assert user_answer_yes("OLED screen clear now?")      
     
     del oled
-    ol.flush_ip_dictionary()
     

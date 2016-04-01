@@ -39,9 +39,6 @@ from pynq.video import VGA
 from pynq.test.util import user_answer_yes
 
 flag = user_answer_yes("\nVGA port connected to a screen?")
-if flag:
-    global ol
-    ol = Overlay("audiovideo.bit")
 
 @pytest.mark.run(order=33)
 @pytest.mark.skipif(not flag, reason="need VGA connected")
@@ -207,4 +204,3 @@ def test_vga_state():
     assert vga.state()==0, 'Wrong state for VGA.'
     
     del vga
-    ol.flush_ip_dictionary()

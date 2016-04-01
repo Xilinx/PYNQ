@@ -38,6 +38,7 @@ import math
 from pynq import MMIO
 from pynq import GPIO
 from pynq import Overlay
+from pynq import PL
 from pynq.pmods import pmod_const
 
 ol = Overlay('pmod.bit')
@@ -47,20 +48,19 @@ class _IOP:
     
     Attributes
     ----------
-    iop_id : int
-        The ID of the IOP, index starting from 0.
     mb_program : str
         The absolute path of the Microblaze program.
     state : str
-        The status of the IOP.
+        The status (IDLE, RUNNING, or STOPPED) of the IOP.
     gpio : GPIO
-        The reset pin associated with the IOP.
-    base_addr : int
-        The MMIO base address of the IOP.
+        The GPIO instance associated with the IOP.
+    mmio : MMIO
+        The MMIO instance associated with the IOP.
         
     """
 
-    def __init__(self, iop_id, mb_program='mailbox.bin'):
+    def __init__(self, iop_name, addr_base, addr_range, 
+                 gpio_uix, mb_program):
         """Create a new _IOP object.
         
         Note
@@ -70,21 +70,24 @@ class _IOP:
         
         Parameters
         ----------
-        iop_id : int
-            The ID of the IOP, index starting from 0.
+        iop_name : str
+            The name of the IP corresponding to the I/O Processor.
         mb_program : str
             The Microblaze program loaded for the IOP.
+        addr_base : str
+            The base address for the MMIO in hex format.
+        addr_range : str
+            The address range for the MMIO in hex format.
+        gpio_uix : int
+            The user index of the GPIO, starting from 0.
         
         """
-        if (iop_id not in [0,1,2,3]):
-            raise ValueError("Valid IOP IDs are: 0, 1, 2, 3.")
-        self.iop_id = iop_id
+        self.iop_name = iop_name
         self.mb_program = pmod_const.BIN_LOCATION + mb_program
         self.state = 'IDLE'
-        self.gpio = GPIO(ol.get_ip_psgpio(iop_id), "out")
-        self.base_addr = int(ol.get_ip_addr_prog(iop_id), 16)
+        self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
+        self.mmio = MMIO(int(addr_base, 16), int(addr_range,16))
         
-        #: Use self.mb_program to update the program
         self.program()
         
     def start(self):
@@ -138,11 +141,11 @@ class _IOP:
         """
         self.stop()
         
-        ol.load_ip_program(self.iop_id, self.mb_program)
+        ol.load_ip_data(self.iop_name, self.mb_program)
         
         self.start()
 
-def request_iop(pmod_id, mb_program='mailbox.bin'):
+def request_iop(pmod_id, mb_program):
     """This is the interface to request an I/O Processor.
     
     It looks for active instances on the same PMOD ID, and prevents users from 
@@ -160,17 +163,17 @@ def request_iop(pmod_id, mb_program='mailbox.bin'):
 
     Note
     ----
-    Raises LookupError when another IOP type in the system with the same ID. 
-    Users are in danger of losing the old instances associated with this PMOD.
+    When another IOP is in the system with the same PMOD ID, users are in 
+    danger of losing the old instances associated with this PMOD.
     
-    For bitstream "pmod.bit", the PMOD IDs are {1, 2, 3, 4}, while the IOP 
-    IDs are {0, 1, 2, 3} <=> {JB, JC, JD, JE}. 
+    For bitstream "pmod.bit", the PMOD IDs are 
+    {1, 2, 3, 4} <=> {JB, JC, JD, JE}. 
     For different bitstreams, this mapping can be different.
     
     Parameters
     ----------
     pmod_id : int
-        ID of the PMOD
+        ID of the PMOD.
     mb_program : str
         Program to be loaded on the IOP.
     
@@ -179,17 +182,42 @@ def request_iop(pmod_id, mb_program='mailbox.bin'):
     _IOP
         An _IOP object with the updated Microblaze program.
         
+    Raises
+    ------
+    LookupError
+        When the PMOD overlay is not loaded yet.
+    ValueError
+        When the IOP name or the GPIO name cannot be found in the PL.
+    LookupError
+        When another IOP is in the system with the same PMOD ID.
+        
     """
-    if (pmod_id not in range(1,5)):
-            raise ValueError("Valid PMOD IDs are: 1, 2, 3, 4.")
-    iop_id = pmod_id - 1
-    if (ol.get_ip_program(iop_id) is None) or \
-        (ol.get_ip_program(iop_id) == (pmod_const.BIN_LOCATION + mb_program)):
+    if not ol.is_loaded():
+        raise LookupError("The PMOD overlay is not loaded.")
+    
+    ip_names = PL.get_ip_names("axi_bram_ctrl_")
+    iop_name = "SEG_axi_bram_ctrl_" + str(pmod_id) + "_Mem0"
+    if (iop_name not in ip_names):
+            raise ValueError("No such IOP for PMOD ID {}."
+                            .format(pmod_id))
+                            
+    gpio_names = PL.get_gpio_names()
+    rst_pin_name = "mb_" + str(pmod_id) + "_reset/Din"
+    if (rst_pin_name not in gpio_names):
+            raise ValueError("No such GPIO pin for PMOD ID {}."
+                            .format(pmod_id))
+            
+    addr_base = PL.get_ip_addr_base(iop_name)
+    addr_range = PL.get_ip_addr_range(iop_name)
+    gpio_uix = PL.get_gpio_user_ix(rst_pin_name)
+    if (PL.get_ip_state(iop_name) is None) or \
+        (PL.get_ip_state(iop_name)== \
+                (pmod_const.BIN_LOCATION + mb_program)):
         #: case 1
-        return _IOP(iop_id, mb_program)
+        return _IOP(iop_name, addr_base, addr_range, gpio_uix, mb_program)
     else:
         #: case 2
         raise LookupError('Another program {} already running on IOP.'\
-                .format(ol.get_ip_program(iop_id)))
+                .format(PL.get_ip_state(iop_name)))
         return None
         

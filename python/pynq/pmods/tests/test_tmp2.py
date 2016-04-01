@@ -41,8 +41,6 @@ flag = user_answer_yes("\nTMP2 attached to the board?")
 if flag:
     global tmp2_id
     tmp2_id = int(input("Type in the PMOD ID of the TMP2 (1 ~ 4): "))
-    global ol
-    ol = Overlay("pmod.bit")
 
 @pytest.mark.run(order=27)
 @pytest.mark.skipif(not flag, reason="need TMP2 attached in order to run")
@@ -59,5 +57,4 @@ def test_readtemp():
     assert user_answer_yes("Reading in celsius displayed?")
     
     del tmp2
-    ol.flush_ip_dictionary()
     

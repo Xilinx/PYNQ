@@ -53,54 +53,62 @@ def test_overlay():
     global ol1, ol2
     
     ol1.download()
-    assert 'pmod.bit' in ol1.get_bitfile_name(), \
+    assert 'pmod.bit' in ol1.bitfile_name, \
             'Bitstream is not in the overlay.'
-    assert not ol1.get_ip()==[], \
-            'Overlay has an empty IP list.'
-    assert ol1.get_ip_addr_base('axi_bram_ctrl_1')=='0x40000000',\
+    assert len(ol1.ip_dict)>0,\
+            'Overlay gets empty IP dictionary.'
+    assert len(ol1.gpio_dict)>0,\
+            'Overlay gets empty GPIO dictionary.'
+    assert ol1.get_ip_addr_base('SEG_axi_bram_ctrl_1_Mem0')=='0x40000000',\
             'Overlay gets wrong IP base address.'
-    assert ol1.get_ip_addr_range('axi_bram_ctrl_1')=='0x8000',\
+    assert ol1.get_ip_addr_range('SEG_axi_bram_ctrl_1_Mem0')=='0x8000',\
             'Overlay gets wrong IP address range.'
-    for k in ol1.prog_ips.keys():
-        #: Mapping from processor ID to PMOD ID (pmod.bit)
-        addr_base = ol1.get_ip_addr_base('axi_bram_ctrl_'+str(k+1))
-        assert addr_base==ol1.prog_ips[k][0],\
+    for i in ol1.ip_dict.keys():
+        assert ol1.get_ip_addr_base(i)==ol1.ip_dict[i][0],\
             'Overlay gets wrong IP base address.'
-        assert addr_base==ol1.get_ip_addr_prog(k),\
-            'Overlay gets wrong IP base address.'
-        assert ol1.get_ip_program(k)==None,\
-            'Overlay should not load program during initialization.'
-        assert not ol1.get_ip_psgpio(k)==None,\
-            'Overlay cannot get PS GPIO pin.'
-    ol1.flush_ip_dictionary()
-    for k in ol1.prog_ips.keys():
-        assert ol1.get_ip_program(k)==None,\
-            'Overlay cannot flush IP dictionary.'
+        assert ol1.get_ip_addr_range(i)==ol1.ip_dict[i][1],\
+            'Overlay gets wrong IP address range.'
+        assert ol1.get_ip_state(i)==ol1.ip_dict[i][2]==None,\
+            'Overlay gets wrong IP state.'
+        #: Set the test for the state
+        ol1.ip_dict[i][2] = "TEST"
+    for i in ol1.gpio_dict.keys():
+        assert ol1.get_gpio_user_ix(i)==ol1.gpio_dict[i],\
+            'Overlay gets wrong PS GPIO pin.'
+    ol1.reset_ip_dict()
+    for i in ol1.ip_dict.keys():
+        #: "TEST" should have been cleared by reset_ip_dict()
+        assert ol1.get_ip_state(i)==None,\
+            'Overlay cannot reset IP dictionary.'
             
     ol2.download()
-    assert 'audiovideo.bit' in ol2.get_bitfile_name(), \
+    assert 'audiovideo.bit' in ol2.bitfile_name, \
             'Bitstream is not in the overlay.'
-    assert not ol2.get_ip()==[], \
-            'Overlay has an empty IP list.'
-    assert ol2.get_ip_addr_base('axi_bram_ctrl_0')=='0x40000000',\
+    assert len(ol2.ip_dict)>0,\
+            'Overlay gets empty IP dictionary.'
+    assert len(ol2.gpio_dict)>0,\
+            'Overlay gets empty GPIO dictionary.'
+    assert ol2.get_ip_addr_base('SEG_axi_bram_ctrl_0_Mem0')=='0x40000000',\
             'Overlay gets wrong IP base address.'
-    assert ol2.get_ip_addr_range('axi_bram_ctrl_0')=='0x8000',\
+    assert ol2.get_ip_addr_range('SEG_axi_bram_ctrl_0_Mem0')=='0x8000',\
             'Overlay gets wrong IP address range.'
-    for k in ol2.prog_ips.keys():
-        #: Mapping from processor ID to PMOD ID (pmod.bit)
-        addr_base = ol2.get_ip_addr_base('axi_bram_ctrl_'+str(k))
-        assert addr_base==ol2.prog_ips[k][0],\
+    for i in ol2.ip_dict.keys():
+        assert ol2.get_ip_addr_base(i)==ol2.ip_dict[i][0],\
             'Overlay gets wrong IP base address.'
-        assert addr_base==ol2.get_ip_addr_prog(k),\
-            'Overlay gets wrong IP base address.'
-        assert ol2.get_ip_program(k)==None,\
-            'Overlay should not load program during initialization.'
-        assert not ol2.get_ip_psgpio(k)==None,\
-            'Overlay cannot get PS GPIO pin.'
-    ol2.flush_ip_dictionary()
-    for k in ol2.prog_ips.keys():
-        assert ol2.get_ip_program(k)==None,\
-            'Overlay cannot flush IP dictionary.'
+        assert ol2.get_ip_addr_range(i)==ol2.ip_dict[i][1],\
+            'Overlay gets wrong IP address range.'
+        assert ol2.get_ip_state(i)==ol2.ip_dict[i][2]==None,\
+            'Overlay gets wrong IP state.'
+        #: Set the test for the state
+        ol2.ip_dict[i][2] = "TEST"
+    for i in ol2.gpio_dict.keys():
+        assert ol2.get_gpio_user_ix(i)==ol2.gpio_dict[i],\
+            'Overlay gets wrong PS GPIO pin.'
+    ol2.reset_ip_dict()
+    for i in ol2.ip_dict.keys():
+        #: "TEST" should have been cleared by reset_ip_dict()
+        assert ol2.get_ip_state(i)==None,\
+            'Overlay cannot reset IP dictionary.'
 
 @pytest.mark.run(order=9)
 def test_pmod():

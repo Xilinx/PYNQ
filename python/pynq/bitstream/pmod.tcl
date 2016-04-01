@@ -1,3 +1,10 @@
+#
+# MicroPython for Zybo Build Script (2015.3)
+#
+# vivado -source zybo_mipy.tcl
+#
+#  
+#
 
 ################################################################
 # This is a generated script based on design: system
@@ -33,7 +40,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # CHECKING IF PROJECT EXISTS
 if { [get_projects -quiet] eq "" } {
-   create_project project_1 zybo -part xc7z010clg400-1
+   create_project project_1 zybo_mipy -part xc7z010clg400-1
 }
 
 set_property  ip_repo_paths  ./src/ip [current_project]
@@ -997,7 +1004,6 @@ proc create_root_design { parentCell } {
   # Create interface ports
   set DDR [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 DDR ]
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
-  set IIC_1 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 IIC_1 ]
   set Vaux6 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux6 ]
   set Vaux7 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux7 ]
   set Vaux14 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux14 ]
@@ -1131,7 +1137,6 @@ CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
 CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {1} \
 CONFIG.PCW_GPIO_EMIO_GPIO_IO {6} \
 CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {0} \
-CONFIG.PCW_I2C1_PERIPHERAL_ENABLE {1} \
 CONFIG.PCW_MIO_0_PULLUP {<Select>} \
 CONFIG.PCW_MIO_10_PULLUP {<Select>} \
 CONFIG.PCW_MIO_11_PULLUP {<Select>} \
@@ -1174,31 +1179,31 @@ CONFIG.PCW_MIO_26_SLEW {slow} \
 CONFIG.PCW_MIO_27_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_27_PULLUP {enabled} \
 CONFIG.PCW_MIO_27_SLEW {slow} \
-CONFIG.PCW_MIO_28_PULLUP {enabled} \
-CONFIG.PCW_MIO_28_SLEW {slow} \
-CONFIG.PCW_MIO_29_PULLUP {enabled} \
-CONFIG.PCW_MIO_29_SLEW {slow} \
+CONFIG.PCW_MIO_28_PULLUP {<Select>} \
+CONFIG.PCW_MIO_28_SLEW {<Select>} \
+CONFIG.PCW_MIO_29_PULLUP {<Select>} \
+CONFIG.PCW_MIO_29_SLEW {<Select>} \
 CONFIG.PCW_MIO_2_SLEW {fast} \
-CONFIG.PCW_MIO_30_PULLUP {enabled} \
-CONFIG.PCW_MIO_30_SLEW {slow} \
-CONFIG.PCW_MIO_31_PULLUP {enabled} \
-CONFIG.PCW_MIO_31_SLEW {slow} \
-CONFIG.PCW_MIO_32_PULLUP {enabled} \
-CONFIG.PCW_MIO_32_SLEW {slow} \
-CONFIG.PCW_MIO_33_PULLUP {enabled} \
-CONFIG.PCW_MIO_33_SLEW {slow} \
-CONFIG.PCW_MIO_34_PULLUP {enabled} \
-CONFIG.PCW_MIO_34_SLEW {slow} \
-CONFIG.PCW_MIO_35_PULLUP {enabled} \
-CONFIG.PCW_MIO_35_SLEW {slow} \
-CONFIG.PCW_MIO_36_PULLUP {enabled} \
-CONFIG.PCW_MIO_36_SLEW {slow} \
-CONFIG.PCW_MIO_37_PULLUP {enabled} \
-CONFIG.PCW_MIO_37_SLEW {slow} \
-CONFIG.PCW_MIO_38_PULLUP {enabled} \
-CONFIG.PCW_MIO_38_SLEW {slow} \
-CONFIG.PCW_MIO_39_PULLUP {enabled} \
-CONFIG.PCW_MIO_39_SLEW {slow} \
+CONFIG.PCW_MIO_30_PULLUP {<Select>} \
+CONFIG.PCW_MIO_30_SLEW {<Select>} \
+CONFIG.PCW_MIO_31_PULLUP {<Select>} \
+CONFIG.PCW_MIO_31_SLEW {<Select>} \
+CONFIG.PCW_MIO_32_PULLUP {<Select>} \
+CONFIG.PCW_MIO_32_SLEW {<Select>} \
+CONFIG.PCW_MIO_33_PULLUP {<Select>} \
+CONFIG.PCW_MIO_33_SLEW {<Select>} \
+CONFIG.PCW_MIO_34_PULLUP {<Select>} \
+CONFIG.PCW_MIO_34_SLEW {<Select>} \
+CONFIG.PCW_MIO_35_PULLUP {<Select>} \
+CONFIG.PCW_MIO_35_SLEW {<Select>} \
+CONFIG.PCW_MIO_36_PULLUP {<Select>} \
+CONFIG.PCW_MIO_36_SLEW {<Select>} \
+CONFIG.PCW_MIO_37_PULLUP {<Select>} \
+CONFIG.PCW_MIO_37_SLEW {<Select>} \
+CONFIG.PCW_MIO_38_PULLUP {<Select>} \
+CONFIG.PCW_MIO_38_SLEW {<Select>} \
+CONFIG.PCW_MIO_39_PULLUP {<Select>} \
+CONFIG.PCW_MIO_39_SLEW {<Select>} \
 CONFIG.PCW_MIO_3_SLEW {fast} \
 CONFIG.PCW_MIO_40_PULLUP {disabled} \
 CONFIG.PCW_MIO_40_SLEW {fast} \
@@ -1252,10 +1257,9 @@ CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K128M16 JT-125} \
 CONFIG.PCW_UIPARAM_DDR_TRAIN_DATA_EYE {1} \
 CONFIG.PCW_UIPARAM_DDR_TRAIN_READ_GATE {1} \
 CONFIG.PCW_UIPARAM_DDR_TRAIN_WRITE_LEVEL {1} \
-CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} \
+CONFIG.PCW_USB0_PERIPHERAL_ENABLE {0} \
 CONFIG.PCW_USB0_RESET_ENABLE {0} \
 CONFIG.PCW_USB0_RESET_IO {<Select>} \
-CONFIG.PCW_USB1_PERIPHERAL_ENABLE {0} \
  ] $processing_system7_0
 
   # Create instance: processing_system7_0_axi_periph, and set properties
@@ -1357,7 +1361,6 @@ CONFIG.SIZE {8} \
   connect_bd_intf_net -intf_net microblaze_0_debug [get_bd_intf_pins mb_JB/DEBUG] [get_bd_intf_pins mdm_1/MBDEBUG_0]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
-  connect_bd_intf_net -intf_net processing_system7_0_IIC_1 [get_bd_intf_ports IIC_1] [get_bd_intf_pins processing_system7_0/IIC_1]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins processing_system7_0_axi_periph/S00_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M00_AXI [get_bd_intf_pins processing_system7_0_axi_periph/M00_AXI] [get_bd_intf_pins swsleds_gpio/S_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M01_AXI [get_bd_intf_pins btns_gpio/S_AXI] [get_bd_intf_pins processing_system7_0_axi_periph/M01_AXI]
@@ -1437,15 +1440,14 @@ CONFIG.SIZE {8} \
 
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
-   guistr: "# # String gsaved with Nlview 6.5.5  2015-06-26 bk=1.3371 VDI=38 GEI=35 GUI=JA:1.8
+   guistr: "# # String gsaved with Nlview 6.5.5  2015-06-26 bk=1.3371 VDI=38 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
 preplace port btns_4bits -pg 1 -y 490 -defaultsOSRD
-preplace port DDR -pg 1 -y 60 -defaultsOSRD
+preplace port DDR -pg 1 -y 100 -defaultsOSRD
 preplace port Vp_Vn -pg 1 -y 810 -defaultsOSRD
 preplace port sws_4bits -pg 1 -y 600 -defaultsOSRD
 preplace port leds_4bits -pg 1 -y 620 -defaultsOSRD
 preplace port FIXED_IO -pg 1 -y 120 -defaultsOSRD
-preplace port IIC_1 -pg 1 -y 100 -defaultsOSRD
 preplace port Vaux6 -pg 1 -y 250 -defaultsOSRD
 preplace port Vaux14 -pg 1 -y 770 -defaultsOSRD
 preplace port Vaux7 -pg 1 -y 270 -defaultsOSRD
@@ -1462,91 +1464,90 @@ preplace portBus pmodJD_data_out -pg 1 -y 1130 -defaultsOSRD
 preplace portBus pmodJC_tri_out -pg 1 -y 980 -defaultsOSRD
 preplace portBus pmodJC_data_in -pg 1 -y 1360 -defaultsOSRD
 preplace portBus pmodJD_tri_out -pg 1 -y 1340 -defaultsOSRD
-preplace inst xup_mux_data_in -pg 1 -lvl 2 -y 1450 -defaultsOSRD -resize 220 140
 preplace inst mb_4_reset -pg 1 -lvl 5 -y 1710 -defaultsOSRD -resize 140 60
 preplace inst mb_2_reset -pg 1 -lvl 5 -y 1060 -defaultsOSRD -resize 140 60
 preplace inst axi_bram_ctrl_2 -pg 1 -lvl 5 -y 660 -defaultsOSRD
+preplace inst xup_mux_data_in -pg 1 -lvl 2 -y 1450 -defaultsOSRD -resize 220 140
 preplace inst axi_bram_ctrl_3 -pg 1 -lvl 5 -y 800 -defaultsOSRD
 preplace inst rst_processing_system7_0_100M -pg 1 -lvl 2 -y 360 -defaultsOSRD
 preplace inst mb_3_reset -pg 1 -lvl 5 -y 1590 -defaultsOSRD -resize 140 60
 preplace inst axi_bram_ctrl_4 -pg 1 -lvl 5 -y 940 -defaultsOSRD
-preplace inst xadc_wiz_0 -pg 1 -lvl 4 -y 340 -defaultsOSRD
 preplace inst swsleds_gpio -pg 1 -lvl 6 -y 610 -defaultsOSRD
 preplace inst mb_1_reset -pg 1 -lvl 5 -y 1280 -defaultsOSRD
 preplace inst bit8_logic_0 -pg 1 -lvl 2 -y 870 -defaultsOSRD
+preplace inst xadc_wiz_0 -pg 1 -lvl 4 -y 340 -defaultsOSRD
 preplace inst xup_mux_tri_out -pg 1 -lvl 2 -y 1220 -defaultsOSRD -resize 220 140
 preplace inst mb_JB -pg 1 -lvl 6 -y 1230 -defaultsOSRD
+preplace inst logic_1 -pg 1 -lvl 5 -y 1140 -defaultsOSRD
 preplace inst xlconcat_0 -pg 1 -lvl 3 -y 900 -defaultsOSRD
 preplace inst mb_JC -pg 1 -lvl 6 -y 970 -defaultsOSRD -resize 300 196
-preplace inst logic_1 -pg 1 -lvl 5 -y 1140 -defaultsOSRD
 preplace inst mb_JD -pg 1 -lvl 6 -y 1480 -defaultsOSRD -resize 300 196
 preplace inst mdm_1 -pg 1 -lvl 5 -y 1450 -defaultsOSRD
 preplace inst mb_JE -pg 1 -lvl 6 -y 1690 -defaultsOSRD -resize 300 196
-preplace inst xup_mux_data_out -pg 1 -lvl 2 -y 1030 -defaultsOSRD
 preplace inst btns_gpio -pg 1 -lvl 6 -y 490 -defaultsOSRD
+preplace inst xup_mux_data_out -pg 1 -lvl 2 -y 1030 -defaultsOSRD
 preplace inst tracebuffer_sel -pg 1 -lvl 1 -y 1490 -defaultsOSRD
+preplace inst processing_system7_0 -pg 1 -lvl 2 -y 120 -defaultsOSRD
 preplace inst processing_system7_0_axi_periph -pg 1 -lvl 3 -y 520 -defaultsOSRD
-preplace inst processing_system7_0 -pg 1 -lvl 2 -y 110 -defaultsOSRD
-preplace inst axi_traceBuffer_v1_0_0 -pg 1 -lvl 4 -y 590 -defaultsOSRD
 preplace inst axi_bram_ctrl_1 -pg 1 -lvl 5 -y 540 -defaultsOSRD
+preplace inst axi_traceBuffer_v1_0_0 -pg 1 -lvl 4 -y 590 -defaultsOSRD
+preplace netloc Vaux6_1 1 0 4 NJ 250 NJ 250 NJ 250 NJ
 preplace netloc btns_gpio_GPIO 1 6 1 NJ
-preplace netloc Vaux6_1 1 0 4 NJ 250 NJ 250 NJ 240 NJ
-preplace netloc processing_system7_0_DDR 1 2 5 NJ 60 NJ 60 NJ 60 NJ 60 NJ
-preplace netloc xup_mux_tri_out_y 1 2 1 720
+preplace netloc processing_system7_0_DDR 1 2 5 NJ 100 NJ 100 NJ 100 NJ 100 NJ
+preplace netloc xup_mux_tri_out_y 1 2 1 710
 preplace netloc pmod2sw_data_in_3 1 0 6 NJ 1420 210 1540 NJ 1540 NJ 1540 NJ 1540 NJ
-preplace netloc pmod2sw_data_in_4 1 0 6 NJ 1440 200 1550 NJ 1550 NJ 1550 NJ 1760 NJ
-preplace netloc mb_JD_sw2pmod_data_out 1 1 6 280 1120 NJ 1120 NJ 1120 NJ 1200 NJ 1100 2300
-preplace netloc processing_system7_0_axi_periph_M03_AXI 1 3 2 NJ 500 1520
-preplace netloc processing_system7_0_axi_periph_M00_AXI 1 3 3 NJ 460 NJ 460 1920
-preplace netloc xup_mux_data_out_y 1 2 1 710
-preplace netloc processing_system7_0_GPIO_O 1 0 5 20 920 NJ 920 700 990 NJ 990 1520
-preplace netloc Vaux7_1 1 0 4 NJ 270 NJ 270 NJ 230 NJ
-preplace netloc processing_system7_0_axi_periph_M07_AXI 1 3 1 1150
-preplace netloc processing_system7_0_M_AXI_GP0 1 2 1 740
-preplace netloc mdm_1_MBDEBUG_1 1 5 1 1810
-preplace netloc Vp_Vn_1 1 0 4 NJ 810 NJ 810 NJ 810 NJ
-preplace netloc processing_system7_0_axi_periph_M05_AXI 1 3 2 1170 510 NJ
-preplace netloc mdm_1_MBDEBUG_2 1 5 1 1940
-preplace netloc processing_system7_0_FCLK_RESET0_N 1 1 2 250 260 660
+preplace netloc pmod2sw_data_in_4 1 0 6 NJ 1440 200 1660 NJ 1660 NJ 1660 NJ 1660 NJ
+preplace netloc mb_JD_sw2pmod_data_out 1 1 6 270 1120 NJ 1120 NJ 1120 NJ 1210 NJ 1100 2130
+preplace netloc processing_system7_0_axi_periph_M00_AXI 1 3 3 NJ 460 NJ 460 1780
+preplace netloc processing_system7_0_axi_periph_M03_AXI 1 3 2 NJ 510 1390
+preplace netloc xup_mux_data_out_y 1 2 1 700
+preplace netloc processing_system7_0_GPIO_O 1 0 5 20 1310 NJ 1310 680 980 NJ 910 1390
+preplace netloc Vaux7_1 1 0 4 NJ 270 NJ 260 NJ 260 NJ
+preplace netloc processing_system7_0_axi_periph_M07_AXI 1 3 1 1030
+preplace netloc mdm_1_MBDEBUG_1 1 5 1 1690
+preplace netloc processing_system7_0_M_AXI_GP0 1 2 1 730
+preplace netloc Vp_Vn_1 1 0 4 NJ 810 NJ 800 NJ 800 NJ
+preplace netloc processing_system7_0_axi_periph_M05_AXI 1 3 2 1040 920 NJ
+preplace netloc mdm_1_MBDEBUG_2 1 5 1 1790
 preplace netloc mb_1_reset_Dout 1 5 1 NJ
-preplace netloc PMOD_IO_Switch_IP_0_sw2pmod_data_out 1 1 6 250 940 NJ 980 NJ 980 NJ 1010 NJ 1090 2330
-preplace netloc mdm_1_MBDEBUG_3 1 5 1 1810
-preplace netloc axi_bram_ctrl_2_BRAM_PORTA 1 5 1 1920
-preplace netloc processing_system7_0_IIC_1 1 2 5 NJ 100 NJ 100 NJ 100 NJ 100 NJ
+preplace netloc processing_system7_0_FCLK_RESET0_N 1 1 2 240 270 660
+preplace netloc PMOD_IO_Switch_IP_0_sw2pmod_data_out 1 1 6 270 940 NJ 1010 NJ 1010 NJ 1200 NJ 1090 2160
+preplace netloc mdm_1_MBDEBUG_3 1 5 1 1650
+preplace netloc axi_bram_ctrl_2_BRAM_PORTA 1 5 1 1750
 preplace netloc swsleds_gpio_GPIO2 1 6 1 NJ
-preplace netloc processing_system7_0_axi_periph_M02_AXI 1 3 2 NJ 490 1540
-preplace netloc rst_processing_system7_0_100M_peripheral_aresetn 1 2 4 750 220 1200 480 1510 440 1930
-preplace netloc mb_JB1_sw2pmod_tri_out 1 1 6 270 1310 NJ 1220 NJ 1220 NJ 1220 NJ 1080 2300
-preplace netloc processing_system7_0_axi_periph_M06_AXI 1 3 1 1230
-preplace netloc xup_mux_data_in_y 1 2 1 740
-preplace netloc xlconcat_0_dout 1 3 1 1230
-preplace netloc mb_JE_sw2pmod_tri_out 1 1 6 260 1360 NJ 1360 NJ 1360 NJ 1360 NJ 1360 2310
+preplace netloc processing_system7_0_axi_periph_M02_AXI 1 3 2 NJ 490 1410
+preplace netloc mb_JB1_sw2pmod_tri_out 1 1 6 240 930 NJ 1000 NJ 1000 NJ 1190 NJ 1080 2130
+preplace netloc rst_processing_system7_0_100M_peripheral_aresetn 1 2 4 730 820 1110 690 1410 730 1650
+preplace netloc processing_system7_0_axi_periph_M06_AXI 1 3 1 1090
+preplace netloc xlconcat_0_dout 1 3 1 1120
+preplace netloc xup_mux_data_in_y 1 2 1 720
+preplace netloc mb_JE_sw2pmod_tri_out 1 1 6 270 1340 NJ 1340 NJ 1340 NJ 1340 NJ 1350 2140
 preplace netloc mb_2_reset_Dout 1 5 1 NJ
+preplace netloc Vaux14_1 1 0 4 NJ 770 NJ 770 NJ 780 NJ
 preplace netloc swsleds_gpio_GPIO 1 6 1 NJ
-preplace netloc Vaux14_1 1 0 4 NJ 770 NJ 770 NJ 260 NJ
-preplace netloc processing_system7_0_FIXED_IO 1 2 5 NJ 80 NJ 80 NJ 80 NJ 80 NJ
-preplace netloc axi_bram_ctrl_3_BRAM_PORTA 1 5 1 1880
-preplace netloc mb_JE_sw2pmod_data_out 1 1 6 250 1350 NJ 1350 NJ 1350 NJ 1350 NJ 1350 2320
-preplace netloc logic_1_dout 1 5 1 1920
-preplace netloc axi_bram_ctrl_4_BRAM_PORTA 1 5 1 1860
-preplace netloc mb_JB1_sw2pmod_data_out 1 1 6 220 820 NJ 820 NJ 820 NJ 870 NJ 850 2300
-preplace netloc rst_processing_system7_0_100M_interconnect_aresetn 1 2 1 690
-preplace netloc processing_system7_0_FCLK_CLK0 1 1 5 220 450 720 210 1210 670 1530 450 1890
+preplace netloc processing_system7_0_FIXED_IO 1 2 5 NJ 120 NJ 120 NJ 120 NJ 120 NJ
+preplace netloc axi_bram_ctrl_3_BRAM_PORTA 1 5 1 1730
+preplace netloc mb_JE_sw2pmod_data_out 1 1 6 250 1350 NJ 1350 NJ 1350 NJ 1350 NJ 1360 2150
+preplace netloc logic_1_dout 1 5 1 1780
+preplace netloc axi_bram_ctrl_4_BRAM_PORTA 1 5 1 1680
+preplace netloc mb_JB1_sw2pmod_data_out 1 1 6 250 920 NJ 990 NJ 990 NJ 1010 NJ 850 2130
 preplace netloc mb_3_reset_Dout 1 5 1 NJ
-preplace netloc PMOD_IO_Switch_IP_0_sw2pmod_tri_out 1 1 6 280 1130 NJ 1130 NJ 1130 NJ 1190 NJ 1110 2310
-preplace netloc microblaze_0_debug 1 5 1 1910
-preplace netloc axi_bram_ctrl_1_BRAM_PORTA 1 5 1 1910
-preplace netloc pmod2sw_data_in_1 1 0 6 NJ 1320 230 1330 NJ 1330 NJ 1330 NJ 1330 NJ
-preplace netloc mdm_1_debug_sys_rst 1 5 1 1930
-preplace netloc mb_JD_sw2pmod_tri_out 1 1 6 280 1340 NJ 1340 NJ 1340 NJ 1340 NJ 1340 2330
-preplace netloc mb_3_reset1_Dout 1 5 1 NJ
+preplace netloc rst_processing_system7_0_100M_interconnect_aresetn 1 2 1 660
+preplace netloc processing_system7_0_FCLK_CLK0 1 1 5 230 450 720 810 1100 680 1400 870 1710
+preplace netloc PMOD_IO_Switch_IP_0_sw2pmod_tri_out 1 1 6 270 1130 NJ 1130 NJ 1130 NJ 1220 NJ 1110 2150
+preplace netloc axi_bram_ctrl_1_BRAM_PORTA 1 5 1 1770
+preplace netloc microblaze_0_debug 1 5 1 1760
 preplace netloc bit8_logic_0_dout 1 2 1 NJ
+preplace netloc mb_3_reset1_Dout 1 5 1 NJ
+preplace netloc mb_JD_sw2pmod_tri_out 1 1 6 260 1330 NJ 1330 NJ 1330 NJ 1330 NJ 1340 2160
+preplace netloc pmod2sw_data_in_1 1 0 6 NJ 1320 240 1320 NJ 1230 NJ 1230 NJ 1230 NJ
+preplace netloc mdm_1_debug_sys_rst 1 5 1 1750
 preplace netloc Vaux15_1 1 0 4 NJ 790 NJ 790 NJ 790 NJ
-preplace netloc processing_system7_0_axi_periph_M04_AXI 1 3 2 NJ 780 N
 preplace netloc processing_system7_0_axi_periph_M01_AXI 1 3 3 NJ 470 NJ 470 N
-preplace netloc tracebuffer_sel_Dout 1 1 1 220
-preplace netloc pmod2sw_data_in_2 1 0 6 NJ 1360 240 1320 NJ 1230 NJ 1230 NJ 1230 1820
-levelinfo -pg 1 0 110 470 990 1360 1670 2120 2350 -top -20 -bot 1800
+preplace netloc processing_system7_0_axi_periph_M04_AXI 1 3 2 NJ 670 1390
+preplace netloc tracebuffer_sel_Dout 1 1 1 230
+preplace netloc pmod2sw_data_in_2 1 0 6 NJ 1360 220 1360 NJ 1360 NJ 1360 NJ 1360 1660
+levelinfo -pg 1 0 110 460 880 1240 1530 1960 2180 -top 0 -bot 1800
 ",
 }
 
@@ -1565,10 +1566,10 @@ levelinfo -pg 1 0 110 470 990 1360 1670 2120 2350 -top -20 -bot 1800
 create_root_design ""
 
 # Additional steps to get to bitstream
-make_wrapper -files [get_files ./zybo/project_1.srcs/sources_1/bd/system/system.bd] -top
+make_wrapper -files [get_files ./zybo_mipy/project_1.srcs/sources_1/bd/system/system.bd] -top
 
 # generate toplevel wrapper files
-add_files -norecurse ./zybo/project_1.srcs/sources_1/bd/system/hdl/system_wrapper.v
+add_files -norecurse ./zybo_mipy/project_1.srcs/sources_1/bd/system/hdl/system_wrapper.v
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
 add_files -fileset constrs_1 -norecurse ./src/constraints/top.xdc
@@ -1593,3 +1594,5 @@ wait_on_run impl_1
 #route_design
 #write_bitstream 
 
+# Transform the .bit file into .bin file
+write_cfgmem -format BIN -interface SMAPx32 -disablebitswap -loadbit "up 0 ./zybo_mipy/project_1.runs/impl_1/top.bit" ./zybo_mipy/project_1.runs/impl_1/pmod.bit.bin

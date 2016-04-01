@@ -73,7 +73,7 @@ class DevMode(object):
         """
         self.iop = _iop.request_iop(pmod_id, pmod_const.MAILBOX_PROGRAM)
         self.iop_switch_config = list(switch_config)
-        self.mmio = MMIO(self.iop.base_addr + pmod_const.MAILBOX_OFFSET, 
+        self.mmio = MMIO(self.iop.mmio.base_addr + pmod_const.MAILBOX_OFFSET, 
                             pmod_const.MAILBOX_SIZE)
                         
     def start(self):

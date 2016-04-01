@@ -42,9 +42,6 @@ from pynq.audio import Headphone
 from pynq.test.util import user_answer_yes
 
 flag = user_answer_yes("\nBoth LineIn and Headphone (HPH) jacks connected?")
-if flag:
-    global ol
-    ol = Overlay("audiovideo.bit")
 
 @pytest.mark.run(order=30)
 @pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")
@@ -96,4 +93,3 @@ def test_audio_mute():
     assert user_answer_yes("Audio on the headphone (HPH) port muted?"),\
         'Cannot mute audio.'
     
-    ol.flush_ip_dictionary()

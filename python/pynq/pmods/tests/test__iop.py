@@ -47,17 +47,15 @@ def test_request_iop():
     This is a test for case 1 (for more information, please see request_iop).
     
     """
-    ol.flush_ip_dictionary()
-    
     fixed_id = 1
     exception_raised = False
     try:
-        request_iop(fixed_id)
+        request_iop(fixed_id,'mailbox.bin')
     except LookupError:
         exception_raised = True
     assert not exception_raised, 'request_iop() should not raise exception.'
     
-    ol.flush_ip_dictionary()
+    ol.reset_ip_dict()
     
 @pytest.mark.run(order=11)
 def test_request_iop_same():
@@ -68,18 +66,16 @@ def test_request_iop_same():
     This is a test for case 1 (for more information, please see request_iop).
     
     """
-    ol.flush_ip_dictionary()
-    
     fixed_id = 1
     exception_raised = False
-    request_iop(fixed_id)
+    request_iop(fixed_id,'mailbox.bin')
     try:
-        request_iop(fixed_id)
+        request_iop(fixed_id,'mailbox.bin')
     except LookupError:
         exception_raised = True
     assert not exception_raised, 'request_iop() should not raise exception.'
     
-    ol.flush_ip_dictionary()
+    ol.reset_ip_dict()
     
 @pytest.mark.run(order=12)
 def test_request_iop_conflict():
@@ -90,12 +86,10 @@ def test_request_iop_conflict():
     This is a test for case 2 (for more information, please see request_iop).
     
     """
-    ol.flush_ip_dictionary()
-    
     fixed_id = 1
     request_iop(fixed_id,'adc.bin')
     pytest.raises(LookupError, request_iop, fixed_id, 'dac.bin')
     
-    ol.flush_ip_dictionary()
+    ol.reset_ip_dict()
     
 

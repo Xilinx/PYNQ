@@ -32,8 +32,10 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "xpp_support@xilinx.com"
 
 
+import os
+
 #: Microblaze program location
-BIN_LOCATION = '/home/xpp/src/pynq/python/pynq/pmods/'
+BIN_LOCATION = os.path.dirname(os.path.realpath(__file__))+"/"
 MAILBOX_PROGRAM = 'mailbox.bin'
 
 #: IOP mailbox constants

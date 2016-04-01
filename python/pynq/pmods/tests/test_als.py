@@ -41,8 +41,6 @@ flag = user_answer_yes("\nALS attached to the board?")
 if flag:
     global als_id
     als_id = int(input("Type in the PMOD ID of the ALS (1 ~ 4): "))
-    global ol
-    ol = Overlay("pmod.bit")
 
 @pytest.mark.run(order=28)  
 @pytest.mark.skipif(not flag, reason="need ALS attached in order to run")
@@ -65,4 +63,3 @@ def test_readlight():
     assert user_answer_yes("Is a lower reading displayed?")
     
     del als
-    ol.flush_ip_dictionary()

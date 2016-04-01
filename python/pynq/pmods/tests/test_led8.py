@@ -45,8 +45,6 @@ flag = user_answer_yes("\nLED8 attached to the board?")
 if flag:
     global led_id
     led_id = int(input("Type in the PMOD ID of the LED8 (1 ~ 4): "))
-    global ol
-    ol = Overlay('pmod.bit')
 
 @pytest.mark.run(order=21)
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")
@@ -134,4 +132,3 @@ def test_toggle_leds():
     assert user_answer_yes("PMOD LEDs were toggling?")
     
     del leds
-    ol.flush_ip_dictionary()

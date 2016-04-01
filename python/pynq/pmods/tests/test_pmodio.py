@@ -45,8 +45,6 @@ if flag:
     global TX_PORT,RX_PORT
     TX_PORT = int(input("Type in the PMOD ID of the sender (1 ~ 4): "))
     RX_PORT = int(input("Type in the PMOD ID of the receiver (1 ~ 4): "))
-    global ol
-    ol = Overlay("pmod.bit")
     
 @pytest.mark.run(order=15) 
 @pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
@@ -208,4 +206,3 @@ def test_random():
              'Sent {} != received {} at Pin {}.'.format(data1,data2,j)
     
     del tx,rx
-    ol.flush_ip_dictionary()
