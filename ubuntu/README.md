@@ -5,11 +5,12 @@ All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-03-25-2016 - <graham.schelle@xilinx.com>
-             Increased image size to 16GB
-             Microblaze cross-compiler added
-             New notebook folder structure
-             Pynq package upgraded to today's git repo
+04-01-2016 - <graham.schelle@xilinx.com>
+            IPython terminal now starts in proper bash shell
+            Samba access now is "writeable" by enabling xpp user in samba.conf
+            Pynq package now installed in /usr/local/.. (not in ~xpp/)
+            tree functionality added
+            ~xpp/hostname.sh added to allow easy hostname changing
 ```
 
 
@@ -21,15 +22,6 @@ Staging - to be added in next image
 add back in chroot* scripts
 pip install sphinx_rtd_theme
 pip install nbsphinx
-
-# tree package (needs manual debian download)
-# https://packages.debian.org/jessie/armhf/tree/download
-dkpg -i  dpkg -i tree_1.7.0-3_armhf.deb
-
-# samba access now is xpp user - giving read/write privileges.  user/pass: xpp/xpp
-
-# make team aware of hostname.sh script for modifying the Zybo's network name
-
 ```
 
 03-25-2016
