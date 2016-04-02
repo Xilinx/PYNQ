@@ -71,3 +71,10 @@ latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-c
              New notebook folder structure
              Pynq package upgraded to today's git repo
              
+04-01-2016 - <graham.schelle@xilinx.com>
+            IPython terminal now starts in proper bash shell
+            Samba access now is "writeable" by enabling xpp user in samba.conf
+            Pynq package now installed in /usr/local/.. (not in ~xpp/)
+            tree functionality added
+            ~xpp/hostname.sh added to allow easy hostname changing
+            
