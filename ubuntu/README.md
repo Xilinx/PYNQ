@@ -22,6 +22,10 @@ Staging - to be added in next image
 add back in chroot* scripts
 pip install sphinx_rtd_theme
 pip install nbsphinx
+
+rm /etc/network/interfaces.d/wlx000f6002a692
+sudo chown -R xpp:xpp /home/xpp/jupyter_notebooks
+
 ```
 
 03-25-2016
