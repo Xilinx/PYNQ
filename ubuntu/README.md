@@ -26,6 +26,16 @@ pip install nbsphinx
 rm /etc/network/interfaces.d/wlx000f6002a692
 sudo chown -R xpp:xpp /home/xpp/jupyter_notebooks
 
+cd /home/xpp
+ln -s /usr/local/lib/python3.4/dist-packages/pynq
+chmod -R a+rw  /usr/local/lib/python3.4/dist-packages/pynq
+chmod  a+x  /usr/local/lib/python3.4/dist-packages/pynq
+
+# modified smb.conf to allow symlink-following
+# C:\Users\grahams\Documents\PyXi\smb.conf
+
+
+
 ```
 
 03-25-2016
