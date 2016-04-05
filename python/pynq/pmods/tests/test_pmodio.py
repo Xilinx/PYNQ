@@ -53,7 +53,7 @@ def test_pmodio_cable():
     
     Note
     ----
-    The cable type can only be 0 (straight) or 1 (loop-back).
+    The cable type can only be 'straight' or 'loopback'.
     Default cable type is straight.
     The PMOD IO layout is:
         Upper row: {vdd,gnd,4,5,6,7}
@@ -64,8 +64,8 @@ def test_pmodio_cable():
     assert not TX_PORT == RX_PORT, \
         "The sender port cannot be the receiver port."
     global tx,rx
-    tx = [PMODIO(TX_PORT,k,pmod_const.IOCFG_PMODIO_OUTPUT) for k in range(8)]
-    rx = [PMODIO(RX_PORT,k,pmod_const.IOCFG_PMODIO_INPUT) for k in range(8)]
+    tx = [PMODIO(TX_PORT,k,'out') for k in range(8)]
+    rx = [PMODIO(RX_PORT,k,'in') for k in range(8)]
 
     tx[0].write(0)
     tx[3].write(0)
@@ -74,18 +74,18 @@ def test_pmodio_cable():
     
     #: Receiving data assuming the cable is loop-back
     for i in range(8):
-        rx[i].setCable(pmod_const.PMODIO_CABLE_LOOPBACK)
+        rx[i].setCable('loopback')
             
     if (rx[0].read()==0 and rx[3].read()==0 and 
         rx[4].read()==1 and rx[7].read()==1):
         #: Using a loop-back cable
         for i in range(8):
-            rx[i].setCable(pmod_const.PMODIO_CABLE_LOOPBACK)
+            rx[i].setCable('loopback')
     elif (rx[0].read()==1 and rx[3].read()==1 and 
         rx[4].read()==0 and rx[7].read()==0):
         #: Using a straight cable
         for i in range(8):
-            rx[i].setCable(pmod_const.PMODIO_CABLE_STRAIGHT)
+            rx[i].setCable('straight')
     else:
         raise AssertionError("Cable unrecognizable.")
 

@@ -73,7 +73,7 @@ def test_overlay():
         #: Set the test for the state
         ol1.ip_dict[i][2] = "TEST"
     for i in ol1.gpio_dict.keys():
-        assert ol1.get_gpio_user_ix(i)==ol1.gpio_dict[i],\
+        assert ol1.get_gpio_user_ix(i)==ol1.gpio_dict[i][0],\
             'Overlay gets wrong PS GPIO pin.'
     ol1.reset_ip_dict()
     for i in ol1.ip_dict.keys():
@@ -102,7 +102,7 @@ def test_overlay():
         #: Set the test for the state
         ol2.ip_dict[i][2] = "TEST"
     for i in ol2.gpio_dict.keys():
-        assert ol2.get_gpio_user_ix(i)==ol2.gpio_dict[i],\
+        assert ol2.get_gpio_user_ix(i)==ol2.gpio_dict[i][0],\
             'Overlay gets wrong PS GPIO pin.'
     ol2.reset_ip_dict()
     for i in ol2.ip_dict.keys():

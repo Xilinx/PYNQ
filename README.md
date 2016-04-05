@@ -10,9 +10,9 @@ file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/
 ```
 
 - After imaging, change Zybo's hostname to avoid network conflicts
+Run the following script in the folder "ubuntu":
 ```
-sudo sh -c 'echo "UNIQUE_NAME" > /etc/hostname'
-sudo shutdown -r now
+sudo ./hostname.sh <YOUR_UNIQUE_NAME>
 ```
 
 

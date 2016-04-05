@@ -41,10 +41,10 @@ class PMODIO(object):
     Note
     ----
     The parameter 'direction' determines whether the instance is input /output.
-    direction = 0 -> output; sending output from onchip to offchip.
-    direction = 1 -> input; receiving input from offchip to onchip. 
+    direction = 'out' -> sending output from onchip to offchip.
+    direction = 'in'  -> receiving input from offchip to onchip. 
     When 2 PMODs are connected using a cable, the parameter 'cable' decides 
-    whether the cable is a "loop-back" or "straight" cable.
+    whether the cable is a 'loopback' or 'straight' cable.
     The default is a straight cable.
     
     Attributes
@@ -53,10 +53,10 @@ class PMODIO(object):
         The _IOP object returned from the DevMode.
     index : int
         The index of the pin in a PMOD, from 0 to 7.
-    direction : int
-        Input (1) or output (0).
-    cable : int
-        Straight cable (0) or loop-back cable (1).
+    direction : str
+        Input 'in' or output 'out'.
+    cable : str
+        Either 'straight' or 'loopback'.
     
     """
     def __init__(self, pmod_id, index, direction): 
@@ -76,21 +76,21 @@ class PMODIO(object):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         index: int
             The index of the pin in a PMOD, from 0 to 7.
-        direction : int
-            Input (1) or output (0).
+        direction : str
+            Input 'in' or output 'out'.
             
         """
         if (index not in range(8)):
             raise ValueError("Valid pin indexes are 0 - 7.")
-        if (direction not in (0,1)):
-            raise ValueError("direction can only be 0 (output), or 1 (input).")
+        if (direction not in ['in', 'out']):
+            raise ValueError("Direction can only be 'in', or 'out'.")
         self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL)
         self.index = index
         self.direction = direction
-        self.cable = pmod_const.PMODIO_CABLE_STRAIGHT
+        self.cable = 'straight'
         
         self.iop.start()
-        if (self.direction == pmod_const.IOCFG_PMODIO_INPUT):
+        if (self.direction == 'in'):
             self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
                                 pmod_const.IOPMM_PMODIO_TRI_OFFSET,
                                 pmod_const.IOCFG_PMODIO_ALLINPUT)
@@ -106,32 +106,29 @@ class PMODIO(object):
 
         Note
         ----------
-        The default cable type is "straight". Only straight cable or loop-back
+        The default cable type is 'straight'. Only straight cable or loop-back
         cable can be recognized.
        
         Parameters
         ----------
-        cable : int
-            Straight cable (0) or loop-back cable (1).
+        cable : str
+            Either 'straight' or 'loopback'.
             
         Returns
         -------
         None
         
         """
-        if (cable==pmod_const.PMODIO_CABLE_STRAIGHT):
-            self.cable = pmod_const.PMODIO_CABLE_STRAIGHT
-        elif (cable==pmod_const.PMODIO_CABLE_LOOPBACK):
-            self.cable = pmod_const.PMODIO_CABLE_LOOPBACK
-        else:
+        if (cable not in ['straight', 'loopback']):
             raise ValueError("Cable unrecognizable.")
+        self.cable = cable
     
     def write(self, value): 
         """Send the value to the offboard PMOD IO device.
 
         Note
         ----------
-        Only use this function when direction = 0.
+        Only use this function when direction = 'out'.
         
         Parameters
         ----------
@@ -141,7 +138,7 @@ class PMODIO(object):
         """
         if not value in (0,1):
             raise ValueError("PMOD IO can only write 0 or 1.")
-        if not self.direction is pmod_const.IOCFG_PMODIO_OUTPUT:
+        if not self.direction is 'out':
             raise ValueError('PMOD IO used as output, but declared as input.')
 
         if value:
@@ -165,15 +162,15 @@ class PMODIO(object):
         Note
         ----
         When two PMODs are connected, for any received raw value, 
-        a "straignt" cable (self.cable = 0) flips the upper 4 pins and 
+        a "straignt" cable flips the upper 4 pins and 
         the bottom 4 pins:
         {vdd,gnd,0,1,2,3}      <=>      {vdd,gnd,4,5,6,7}
         {vdd,gnd,4,5,6,7}      <=>      {vdd,gnd,0,1,2,3}
-        A "loop-back" cable (self.cable = 1) satisfies the following mapping 
+        A "loop-back" cable satisfies the following mapping 
         between two PMODs:
         {vdd,gnd,0,1,2,3}      <=>      {vdd,gnd,0,1,2,3}
         {vdd,gnd,4,5,6,7}      <=>      {vdd,gnd,4,5,6,7}
-        Also, only use this function when direction = 1.
+        Also, only use this function when direction = 'in'.
         
         Parameters
         ---------
@@ -185,12 +182,12 @@ class PMODIO(object):
             The data (0 or 1) on the specified PMOD IO pin.
         
         """  
-        if not self.direction is pmod_const.IOCFG_PMODIO_INPUT:
+        if not self.direction is 'in':
             raise ValueError('PMOD IO used as input, but declared as output.') 
         raw_value = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
                                         pmod_const.IOPMM_PMODIO_DATA_OFFSET) 
                                  
-        if self.cable==pmod_const.PMODIO_CABLE_STRAIGHT:
+        if self.cable=='straight':
             if (self.index < 4):
                 return (raw_value >> (self.index+4)) & 0x1
             else:

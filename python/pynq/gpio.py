@@ -40,7 +40,7 @@ from . import general_const
 class GPIO:
     """Class to handle (PS) GPIOs in Linux. 
     
-    The GPIO class is differernt from the PMOD XGPIO class.
+    The GPIO class is differernt from the PMODIO class.
     
     Attributes
     ----------

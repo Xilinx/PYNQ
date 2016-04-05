@@ -60,201 +60,85 @@ def _get_tcl_name(bitfile_name):
         
     """
     return os.path.splitext(bitfile_name)[0]+'.tcl'
+                        
+def _get_dict_ip_addr(tcl_name):
+    """This method returns the MMIO base and range of an IP.
     
-def _get_ip_names(tcl_name, ip_kwd=None):
-    """This method returns a list of IPs containing ip_kwd.
-    
-    If ip_kwd is not specified, this method will return all the IPs 
-    available in the tcl file. This method applies to all the addressable IPs.
+    This method applies to all the addressable IPs.
     
     Note
     ----
     This method requires the absolute path of the '.tcl' file as input.
-    The returned list may not be human-readable.
-    Users can do the following to get a readable printout:
-    >>> from pprint import pprint
-    >>> pprint(result, width = 1))
+    Each entry in the returned dictionary stores a list of strings containing 
+    the base and range in hex format, and an empty state.
     
     Parameters
     ----------
     tcl_name : str
         The absolute path of the .tcl file.
-    ip_kwd : str
-        The input keyword to search for in the bitstream.
-        
+
     Returns
     -------
-    list
-        A list of the addressable IPs containing the ip_kwd.
-        
+    dict
+        A dictionary storing the address base and range information.
+    
     """
-    if (not ip_kwd==None) and (not isinstance(ip_kwd, str)):
-        raise TypeError("IP name has to be a string.")
-        
-    result = []
+    result = {}
     with open(tcl_name, 'r') as f:
         for line in f:
-            m = re.search('create_bd_addr_seg(.+?) '+\
-                    '(\[.+?\]) (\[.+?\]) '+
+            m = re.search('create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) '+\
+                    '-offset (0[xX][0-9a-fA-F]+) '+\
+                    '(\[get_bd_addr_spaces processing_system7_0/Data\]) '+\
+                    '(\[.+?\]) '+\
                     '([A-Za-z0-9_]+)',line,re.IGNORECASE)
             if m:
-                temp = m.group(4)
-                if (ip_kwd is None) or (ip_kwd in temp.lower()):
-                        result.append(temp)
-        
-    if result==[]:
-        raise ValueError('No such addressable IPs in file {}.'\
-                        .format(tcl_name))
-    return result
-                        
-def _get_ip_addr_base(tcl_name, ip_name):
-    """This method returns the MMIO base of an IP.
+                #: Each entry is [base, range, state]
+                result[m.group(5)] = [m.group(2), m.group(1), None]
     
-    This method applies to all the addressable IPs.
-    
-    Note
-    ----
-    This method requires the absolute path of the '.tcl' file as input.
-    
-    Parameters
-    ----------
-    tcl_name : str
-        The absolute path of the .tcl file.
-    ip_name : str
-        The IP name to lookup in the bitstream.
-
-    Returns
-    -------
-    str
-        A string containing the hexadecimal representation of the base.
-    
-    """
-    if not isinstance(ip_name, str):
-        raise TypeError("IP name has to be a string.")
-        
-    result = None
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            m = re.search('create_bd_addr_seg(.+?)-offset '+\
-                    '(0[xX][0-9a-fA-F]+)(.+?)'+ip_name,line,re.IGNORECASE)
-            if m:
-                result = m.group(2)
-    
-    if result==None:
-        raise ValueError('No such addressable IP in file {}.'\
-                        .format(tcl_name))
-    return result
-        
-def _get_ip_addr_range(tcl_name, ip_name):
-    """This method returns the MMIO range of an IP.
-    
-    This method applies to all the addressable IPs.
-    
-    Note
-    ----
-    This method requires the absolute path of the '.tcl' file as input.
-    
-    Parameters
-    ----------
-    tcl_name : str
-        The absolute path of the .tcl file.
-    ip_name : str
-        The IP name to lookup in the bitstream.
-
-    Returns
-    -------
-    str
-        A string containing the hexadecimal representation of the range.
-    
-    """
-    if not isinstance(ip_name, str):
-        raise TypeError("IP name has to be a string.")
-        
-    result = None
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            m = re.search('create_bd_addr_seg -range '+\
-                    '(0[xX][0-9a-fA-F]+)(.+?)'+ip_name,line,re.IGNORECASE)
-            if m:
-                result = m.group(1)
-                
-    if result==None:
+    if result=={}:
         raise ValueError('No such addressable IP in file {}.'\
                         .format(tcl_name))
     return result
     
-def _get_gpio_names(tcl_name):
-    """The method to return a list of PS GPIO instance names.
-    
-    Note
-    ----
-    This method requires the absolute path of the '.tcl' file as input.
-    The returned list may not be human-readable.
-    Users can do the following to get a readable printout:
-    >>> from pprint import pprint
-    >>> pprint(result, width = 1))
-    
-    Parameters
-    ----------
-    tcl_name : str
-        The absolute path of the .tcl file.
-        
-    Returns
-    -------
-    list
-        A list of GPIO instance names.
-        
-    """
-    pattern = 'connect_bd_net -net processing_system7_0_GPIO_O'
-    result=[]
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            if pattern in line:
-                result = re.findall('\[get_bd_pins (.+?)\]',line,re.IGNORECASE)
-                
-    if result==[]:
-        raise ValueError('No such GPIO instances in file {}.'\
-                        .format(tcl_name))
-    return result
-    
-def _get_gpio_user_ix(tcl_name, gpio_kwd):
+def _get_dict_gpio(tcl_name):
     """This method returns the user index of the GPIO for an IP.
     
     Note
     ----
     This method requires the absolute path of the '.tcl' file as input.
-    For more information about the user GPIO pin, please check the GPIO class.
+    Each entry in the returned dictionary stores a user index, and an empty
+    state. For more information about the user GPIO pin, please check the GPIO
+    class.
     
     Parameters
     ----------
     tcl_name : str
         The absolute path of the .tcl file.
-    gpio_kwd : str
-        The input keyword to search for in the bitstream.
 
     Returns
     -------
-    int
-        The user index of the GPIO, starting from 0.
+    dict
+        The dictionary storing the GPIO user indices, starting from 0.
     
     """
-    if not isinstance(gpio_kwd, str):
-        raise TypeError("PS GPIO name has to be a string.")
-        
-    gpio_list = _get_gpio_names(tcl_name)
-    result = None
+    pattern = 'connect_bd_net -net processing_system7_0_GPIO_O'
+    result = {}
+    with open(tcl_name, 'r') as f:
+        for line in f:
+            if pattern in line:
+                gpio_list = re.findall('\[get_bd_pins (.+?)\]',\
+                                        line,re.IGNORECASE)
+                                        
     for i in range(len(gpio_list)):
-        if gpio_kwd in gpio_list[i]:
-            result = i
+        result[gpio_list[i]] = [i, None]
             
-    if result==None:
+    if result=={}:
         raise ValueError('No such GPIO instances in file {}.'\
                         .format(tcl_name))
     return result
     
-    
 class PL:
-    """This class serves as a singleton for "Overlay" and "Bitstream" classes.
+    """Serves as a singleton for "Overlay" and "Bitstream" classes.
     
     The IP dictionary stores the following information:
     1. name (str), the key of an entry.
@@ -265,6 +149,7 @@ class PL:
     The PS GPIO dictionary stores the following information:
     1. name (str), the key of an entry.
     2. pin (int), the user index of the GPIO, starting from 0.
+    3. state (str), the state information about the GPIO.
     
     The timestamp uses the following format:
     Follow a format of: (year, month, day, hour, minute, second, microsecond)
@@ -284,13 +169,8 @@ class PL:
     
     bitfile_name = general_const.BS_BOOT
     timestamp = ""
-    ip_dict = {i : [_get_ip_addr_base(general_const.TCL_BOOT,i),
-                    _get_ip_addr_range(general_const.TCL_BOOT,i),
-                    None] 
-                    for i in _get_ip_names(general_const.TCL_BOOT)}
-    gpio_dict = {i : _get_gpio_user_ix(general_const.TCL_BOOT,i)
-                    for i in _get_gpio_names(general_const.TCL_BOOT)}
-                    
+    ip_dict = _get_dict_ip_addr(general_const.TCL_BOOT)
+    gpio_dict = _get_dict_gpio(general_const.TCL_BOOT)
         
     def __init__(self):
         """Return a new PL object.
@@ -320,11 +200,8 @@ class PL:
         
         """
         tcl_name = _get_tcl_name(cls.bitfile_name)
-        cls.ip_dict = {i : [_get_ip_addr_base(tcl_name,i),
-                            _get_ip_addr_range(tcl_name,i),
-                            None]
-                            for i in _get_ip_names(tcl_name)}
-    
+        cls.ip_dict = _get_dict_ip_addr(tcl_name)
+        
     @classmethod
     def reset_gpio_dict(cls):
         """Reset the GPIO dictionary.
@@ -341,9 +218,8 @@ class PL:
         
         """
         tcl_name = _get_tcl_name(cls.bitfile_name)
-        gpio_dict = {i : _get_gpio_user_ix(tcl_name,i)
-                    for i in _get_gpio_names(tcl_name)}
-                        
+        cls.gpio_dict = _get_dict_gpio(tcl_name)
+        
     @classmethod
     def get_ip_names(cls, ip_kwd=None):
         """This method returns the IP names on PL.
@@ -472,6 +348,7 @@ class PL:
         The PS GPIO dictionary stores the following information:
         1. name (str), the key of an entry.
         2. pin (int), the user index of the GPIO, starting from 0.
+        3. state (str), the state information about the GPIO.
         
         Parameters
         ----------
@@ -500,6 +377,7 @@ class PL:
         The PS GPIO dictionary stores the following information:
         1. name (str), the key of an entry.
         2. pin (int), the user index of the GPIO, starting from 0.
+        3. state (str), the state information about the GPIO.
         
         Parameters
         ----------
@@ -512,8 +390,34 @@ class PL:
             The user index of the GPIO, starting from 0.
         
         """
-        return cls.gpio_dict[gpio_name]
-
+        return cls.gpio_dict[gpio_name][0]
+        
+    @classmethod
+    def get_gpio_state(cls, gpio_name):
+        """This method returns the state for a GPIO.
+        
+        Returns the information about the current overlay loaded.
+        
+        Note
+        ----
+        The PS GPIO dictionary stores the following information:
+        1. name (str), the key of an entry.
+        2. pin (int), the user index of the GPIO, starting from 0.
+        3. state (str), the state information about the GPIO.
+        
+        Parameters
+        ----------
+        gpio_name : str
+            The name of the PS GPIO pin.
+            
+        Returns
+        -------
+        str
+            The state of the GPIO pin.
+        
+        """
+        return cls.gpio_dict[gpio_name][1]
+        
 class Bitstream(PL):
     """This class provides the bitstreams that can be downloaded.
     
@@ -619,6 +523,7 @@ class Overlay(PL):
     The PS GPIO dictionary stores the following information:
     1. name (str), the key of an entry.
     2. pin (int), the user index of the GPIO, starting from 0.
+    3. state (str), the state information about the GPIO.
     
     Attributes
     ----------
@@ -666,14 +571,10 @@ class Overlay(PL):
         tcl_name = _get_tcl_name(self.bitfile_name)
         
         #: Set the IP dictionary
-        self.ip_dict = {i : [_get_ip_addr_base(tcl_name,i),
-                            _get_ip_addr_range(tcl_name,i),
-                            None] 
-                            for i in _get_ip_names(tcl_name)}
+        self.ip_dict = _get_dict_ip_addr(tcl_name)
                         
         #: Set the GPIO dictionary
-        self.gpio_dict = {i : _get_gpio_user_ix(tcl_name,i)
-                            for i in _get_gpio_names(tcl_name)}
+        self.gpio_dict = _get_dict_gpio(tcl_name)
         
     def download(self):
         """The method to download a bitstream onto PL.
@@ -750,7 +651,7 @@ class Overlay(PL):
         ip_name : str
             The name of the addressable IP.
         data : str
-            The absolute path of the program to be loaded.
+            The absolute path of the data to be loaded.
         
         Returns
         -------
@@ -798,10 +699,7 @@ class Overlay(PL):
         
         """
         tcl_name = _get_tcl_name(self.bitfile_name)
-        self.ip_dict = {i : [_get_ip_addr_base(tcl_name,i),
-                            _get_ip_addr_range(tcl_name,i),
-                            None]
-                            for i in _get_ip_names(tcl_name)}
+        self.ip_dict = _get_dict_ip_addr(tcl_name)
         if self.is_loaded():
             PL.reset_ip_dict()
     
@@ -824,8 +722,7 @@ class Overlay(PL):
         
         """
         tcl_name = _get_tcl_name(self.bitfile_name)
-        gpio_dict = {i : _get_gpio_user_ix(tcl_name,i)
-                    for i in _get_gpio_names(tcl_name)}
+        gpio_dict = _get_dict_gpio(tcl_name)
         if self.is_loaded():
             PL.reset_gpio_dict()
                     
@@ -902,13 +799,14 @@ class Overlay(PL):
         return self.ip_dict[ip_name][2]
     
     def get_gpio_user_ix(self, gpio_name):
-        """This method returns the user index of the GPIO for an IP.
+        """This method returns the user index of the GPIO.
         
         Note
         ----
         The PS GPIO dictionary stores the following information:
         1. name (str), the key of an entry.
         2. pin (int), the user index of the GPIO, starting from 0.
+        3. state (str), the state information about the GPIO.
         
         Parameters
         ----------
@@ -921,5 +819,28 @@ class Overlay(PL):
             The user index of the GPIO, starting from 0.
         
         """
-        return self.gpio_dict[gpio_name]
+        return self.gpio_dict[gpio_name][0]
+        
+    def get_gpio_state(self, gpio_name):
+        """This method returns the state of the GPIO.
+        
+        Note
+        ----
+        The PS GPIO dictionary stores the following information:
+        1. name (str), the key of an entry.
+        2. pin (int), the user index of the GPIO, starting from 0.
+        3. state (str), the state information about the GPIO.
+        
+        Parameters
+        ----------
+        gpio_name : str
+            The name of the PS GPIO pin.
+
+        Returns
+        -------
+        str
+            The state information about the GPIO.
+        
+        """
+        return self.gpio_dict[gpio_name][1]
             
