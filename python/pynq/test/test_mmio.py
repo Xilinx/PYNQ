@@ -73,8 +73,8 @@ def test_mmio():
         
     ol2.download()
     sleep(0.1)
-    mmio_base = int(ol2.get_ip_addr_base('SEG_axi_bram_ctrl_0_Mem0'),16)
-    mmio_range = int(ol2.get_ip_addr_range('SEG_axi_bram_ctrl_0_Mem0'),16)
+    mmio_base = int(ol2.get_ip_addr_base('SEG_axi_bram_ctrl_1_Mem0'),16)
+    mmio_range = int(ol2.get_ip_addr_range('SEG_axi_bram_ctrl_1_Mem0'),16)
     mmio = MMIO(mmio_base, mmio_range)
     for offset in range(0, 100, general_const.MMIO_WORD_LENGTH):
         data = randint(0, pow(2,32)-1)
