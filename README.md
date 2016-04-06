@@ -18,7 +18,7 @@ sudo /home/xpp/hostname.sh A_UNIQUE_HOSTNAME
 ## Updating `pynq` on Zybo using pip 
 
 ```
-sudo -H pip install 'git+https://github.com/Xilinx/Pynq@master#egg=pynq&subdirectory=python'
+sudo -H pip install --upgrade 'git+https://github.com/Xilinx/Pynq@master#egg=pynq&subdirectory=python'
 
 
 # (deprecated) Developer Mode will pull entire github respository into `pwd`/src
