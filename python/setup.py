@@ -86,7 +86,7 @@ video.extend(bsp_vtc)
 video.extend(_video_src)
 
 setup(  name='pynq',
-        version='0.1.1',
+        version='0.1',
         description='Python for Xilinx package',
         author='XilinxPythonProject',
         author_email='xpp_support@xilinx.com',
