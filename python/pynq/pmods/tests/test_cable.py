@@ -37,7 +37,7 @@ from time import sleep
 import pytest
 from pynq import Overlay
 from pynq.pmods import pmod_const
-from pynq.pmods.pmodio import PMODIO
+from pynq.pmods.cable import Cable
 from pynq.test.util import user_answer_yes
 
 flag = user_answer_yes("\nTwo PMOD interfaces connected by a cable?")
@@ -47,50 +47,44 @@ if flag:
     RX_PORT = int(input("Type in the PMOD ID of the receiver (1 ~ 4): "))
     
 @pytest.mark.run(order=15) 
-@pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
-def test_pmodio_cable():
-    """Tests for the PMOD IO cable type.
+@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
+def test_cable_type():
+    """Tests for the PMOD cable type.
     
     Note
     ----
     The cable type can only be 'straight' or 'loopback'.
     Default cable type is straight.
+    
     The PMOD IO layout is:
-        Upper row: {vdd,gnd,4,5,6,7}
-        Lower row: {vdd,gnd,0,1,2,3}
+    Upper row: {vdd,gnd,3,2,1,0}.
+    Lower row: {vdd,gnd,7,6,5,4}.
     
     """
-    print('\nTesting PMOD IO loop ...')
+    print('\nTesting PMOD IO cable...')
     assert not TX_PORT == RX_PORT, \
         "The sender port cannot be the receiver port."
     global tx,rx
-    tx = [PMODIO(TX_PORT,k,'out') for k in range(8)]
-    rx = [PMODIO(RX_PORT,k,'in') for k in range(8)]
-
+    tx = [Cable(TX_PORT,k,'out','loopback') for k in range(8)]
+    rx = [Cable(RX_PORT,k,'in','loopback') for k in range(8)]
     tx[0].write(0)
     tx[3].write(0)
     tx[4].write(1)
     tx[7].write(1)
     
-    #: Receiving data assuming the cable is loop-back
-    for i in range(8):
-        rx[i].setCable('loopback')
-            
-    if (rx[0].read()==0 and rx[3].read()==0 and 
-        rx[4].read()==1 and rx[7].read()==1):
+    if [rx[0].read(),rx[3].read(),rx[4].read(),rx[7].read()]==[0,0,1,1]:
         #: Using a loop-back cable
         for i in range(8):
-            rx[i].setCable('loopback')
-    elif (rx[0].read()==1 and rx[3].read()==1 and 
-        rx[4].read()==0 and rx[7].read()==0):
+            rx[i].set_cable('loopback')
+    elif [rx[0].read(),rx[3].read(),rx[4].read(),rx[7].read()]==[1,1,0,0]:
         #: Using a straight cable
         for i in range(8):
-            rx[i].setCable('straight')
+            rx[i].set_cable('straight')
     else:
         raise AssertionError("Cable unrecognizable.")
 
 @pytest.mark.run(order=16) 
-@pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
+@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_rshift1():
     """Test for right shifting the bit "1".
     
@@ -113,7 +107,7 @@ def test_rshift1():
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i)
 
 @pytest.mark.run(order=17) 
-@pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run") 
+@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run") 
 def test_rshift0():
     """Test for right shifting the bit "0".
     
@@ -136,7 +130,7 @@ def test_rshift0():
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i) 
 
 @pytest.mark.run(order=18) 
-@pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
+@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_lshift1():
     """Test for left shifting the bit "1".
     
@@ -152,14 +146,14 @@ def test_lshift1():
         else:
             data1 = data1[1:]+data1[:1]
         data2 = [0,0,0,0,0,0,0,0]
-        tx[7-i].write(data1[7-i])    
+        tx[7-i].write(data1[7-i])
         sleep(0.001)
         data2[7-i] = rx[7-i].read()
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
 @pytest.mark.run(order=19) 
-@pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
+@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_lshift0():
     """Test for left shifting the bit "0".
     
@@ -175,14 +169,14 @@ def test_lshift0():
         else:
             data1 = data1[1:]+data1[:1]
         data2 = [1,1,1,1,1,1,1,1]
-        tx[7-i].write(data1[7-i])    
+        tx[7-i].write(data1[7-i])
         sleep(0.001)
         data2[7-i] = rx[7-i].read()
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
 @pytest.mark.run(order=20) 
-@pytest.mark.skipif(not flag, reason="need PMOD interfaces connected to run")
+@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_random():
     """Test for random patterns.
     
@@ -199,7 +193,7 @@ def test_random():
         data2=[1,1,1,1,1,1,1,1]
         for j in range(8):
             data1[j] = randint(0,1)
-            tx[j].write(data1[j])               
+            tx[j].write(data1[j])
             sleep(0.001) 
             data2[j] = rx[j].read()
         assert data1==data2,\

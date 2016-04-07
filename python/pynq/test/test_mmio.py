@@ -65,10 +65,10 @@ def test_mmio():
     for offset in range(0, 100, general_const.MMIO_WORD_LENGTH):
         data = randint(0, pow(2,32)-1)
         mmio.write(offset, data)
-        sleep(0.01)
+        sleep(0.05)
         assert mmio.read(offset)==data, 'MMIO read back a wrong random value.'
         mmio.write(offset, 0)
-        sleep(0.01)
+        sleep(0.05)
         assert mmio.read(offset)==0, 'MMIO read back a wrong fixed value.'
         
     ol2.download()
@@ -79,10 +79,10 @@ def test_mmio():
     for offset in range(0, 100, general_const.MMIO_WORD_LENGTH):
         data = randint(0, pow(2,32)-1)
         mmio.write(offset, data)
-        sleep(0.01)
+        sleep(0.05)
         assert mmio.read(offset)==data, 'MMIO read back a wrong random value.'
         mmio.write(offset, 0)
-        sleep(0.01)
+        sleep(0.05)
         assert mmio.read(offset)==0, 'MMIO read back a wrong fixed value.'
     
     ol1.download()

@@ -138,8 +138,7 @@ IOCFG_PMODIO_ALLOUTPUT = 0x0
 IOCFG_PMODIO_ALLINPUT  = 0xff
 
 # Stickit PMOD to Grove pin mapping
-STICKIT_PINS_GR1  = [0,4]
-STICKIT_PINS_GR2  = [1,5]
-STICKIT_PINS_GR3  = [7,3]
-STICKIT_PINS_GR4  = [6,2]
-
+STICKIT_PINS_GR  = {1: [0,4],
+                    2: [1,5],
+                    3: [7,3],
+                    4: [6,2]}

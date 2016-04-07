@@ -53,10 +53,6 @@ class DPOT(object):
     """
     def __init__(self, pmod_id):
         """Return a new instance of a DPOT object. 
-        
-        When we call request_iop(), an exception might be raised if 
-        the *force* flag is not set. Please refer to _iop.request_iop() for 
-        additional details.
     
         Note
         ----

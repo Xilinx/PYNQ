@@ -27,29 +27,65 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
+__author__      = "Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
-import pytest
-from pynq.board.button import Button
+from pynq.pmods import pmod_const
+from pynq.pmods.pmodio import PMODIO
 
-@pytest.mark.run(order=8)
-def test_btn_all():
-    """Test for the Button class and its wrapper functions.
+class Grove_PIR(PMODIO):
+    """This class controls the PIR motion sensor.
     
-    Instantiates 4 Button objects on index 0 ~ 3 and performs some 
-    actions on it, requesting user confirmation.
+    The grove PIR motion sensor is attached to a PMOD. This class inherits 
+    from the PMODIO class.
+    
+    Attributes
+    ----------
+    iop : _IOP
+        The _IOP object returned from the DevMode.
+    index : int
+        The index of the PMOD pin {0, 1, 7, 6}.
     
     """
-    buttons = [Button(index) for index in range(4)]
-    print("")
-    for index in range(4):
-        assert buttons[index].read()==0, \
-            "Button {} reads wrong values.".format(index)
-    for index in range(4):
-        input("Hit enter while pressing Button {0} (BTN{0})...".format(index))
-        assert buttons[index].read()==1, \
-            "Button {} reads wrong values.".format(index)
-
+    def __init__(self, pmod_id, gr_id): 
+        """Return a new instance of a PIR object. 
+        
+        Only checks the gr_id, since other parameters can be checked by the 
+        PMODIO class. The gr_id starts from 1, at the StickIt socket farthest
+        away from the board.
+        
+        Note
+        ----
+        The pmod_id 0 is reserved for XADC (JA).
+        
+        Parameters
+        ----------
+        pmod_id : int
+            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        gr_id: int
+            The group ID on StickIt, from 1 to 4.
+            
+        """
+        if (gr_id not in range(1,5)):
+            raise ValueError("Valid StickIt group IDs are 1 - 4.")
+            
+        super().__init__(pmod_id, pmod_const.STICKIT_PINS_GR[gr_id][0], 'in')
+        
+    def read(self):
+        """Receive the value from the PIR sensor.
+        
+        Returns 0 when there is no motion, and returns 1 otherwise.
+        
+        Parameters
+        ---------
+        None
+        
+        Returns
+        -------
+        int
+            The data (0 or 1) read from the PIR sensor.
+        
+        """
+        return super().read()

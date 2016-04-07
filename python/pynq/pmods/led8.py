@@ -48,11 +48,7 @@ class LED8(object):
     """
 
     def __init__(self, pmod_id, index):
-        """Return a new instance of a LED object. 
-        
-        When we call request_iop() in DevMode, an exception might be raised if 
-        the *force* flag is not set. Please refer to _iop.request_iop() for 
-        additional details.
+        """Return a new instance of a LED object.
         
         Parameters
         ----------

@@ -58,10 +58,7 @@ class DevMode(object):
     """
 
     def __init__(self, pmod_id, switch_config):
-        """Return a new instance of a DevMode object. 
-        
-        It might raise an exception when the *force* flag is not set.
-        Refer to _iop.request_iop() for additional details.
+        """Return a new instance of a DevMode object.
         
         Parameters
         ----------
