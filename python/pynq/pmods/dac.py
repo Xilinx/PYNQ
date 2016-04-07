@@ -52,7 +52,7 @@ class DAC(object):
         
     """
 
-    def __init__(self, pmod_id, value=None):
+    def __init__(self, pmod_id, value=None, overlay_name='pmod.bit'):
         """Return a new instance of a DAC object.
     
         Note
@@ -66,9 +66,11 @@ class DAC(object):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         value: float
             The value to be written to the DAC PMOD.
+        overlay_name : str
+            The name of the overlay for IOP.
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
+        self.iop = _iop.request_iop(pmod_id, PROGRAM, overlay_name)
         self.mmio = self.iop.mmio
 
         self.iop.start()

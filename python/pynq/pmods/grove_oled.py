@@ -156,7 +156,7 @@ class Grove_OLED(PMODIIC):
         The IIC device address.
     
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, pmod_id, gr_id, overlay_name='pmod.bit'): 
         """Return a new instance of a grove OLED object. 
     
         Note
@@ -176,13 +176,15 @@ class Grove_OLED(PMODIIC):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         gr_id: int
             The group ID on StickIt, from 1 to 4.
+        overlay_name : str
+            The name of the overlay for IOP.
             
         """
         if (gr_id not in [3,4]):
             raise ValueError("Valid StickIt group IDs are 3 and 4.")
         [scl_pin,sda_pin] = pmod_const.STICKIT_PINS_GR[gr_id]
         
-        super().__init__(pmod_id, scl_pin, sda_pin, 0x3C)
+        super().__init__(pmod_id, scl_pin, sda_pin, 0x3C, overlay_name)
         
         #: Unlock OLED driver IC MCU interface
         self._send_cmd(0xFD) 

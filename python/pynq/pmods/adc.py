@@ -52,7 +52,7 @@ class ADC(object):
         
     """
 
-    def __init__(self, pmod_id):
+    def __init__(self, pmod_id, overlay_name='pmod.bit'):
         """Return a new instance of an ADC object.
     
         Note
@@ -63,9 +63,11 @@ class ADC(object):
         ----------
         pmod_id : int
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        overlay_name : str
+            The name of the overlay for IOP.
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
+        self.iop = _iop.request_iop(pmod_id, PROGRAM, overlay_name)
         self.mmio = self.iop.mmio
 
         self.iop.start()

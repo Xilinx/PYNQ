@@ -47,7 +47,7 @@ class LED8(object):
         
     """
 
-    def __init__(self, pmod_id, index):
+    def __init__(self, pmod_id, index, overlay_name='pmod.bit'):
         """Return a new instance of a LED object.
         
         Parameters
@@ -56,11 +56,14 @@ class LED8(object):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         index: int
             The index of the pin in a PMOD, from 0 to 7.
+        overlay_name : str
+            The name of the overlay for IOP.
             
         """
         if not index in range(8):
             raise ValueError("Valid pin indexes are 0 - 7.")
-        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) 
+        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL, \
+                            overlay_name) 
         self.index = index
 
         self.iop.start()

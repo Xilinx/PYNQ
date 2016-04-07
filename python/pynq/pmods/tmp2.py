@@ -55,17 +55,19 @@ class TMP2(object):
         Time in milliseconds between sampled reads of the TMP2 sensor
         
     """
-    def __init__(self,pmod_id):
+    def __init__(self,pmod_id,overlay_name='pmod.bit'):
         """Return a new instance of a TMP2 object. 
         
         Parameters
         ----------
         pmod_id : int
             Requested PMOD index from list of all PMOD IO Processors in the
-            programmable logic.  Indexing starts at 1.
-            
+            programmable logic. Indexing starts at 1.
+        overlay_name : str
+            The name of the overlay for IOP.
+        
         """
-        self.iop = _iop.request_iop(pmod_id, TMP2_PROGRAM)
+        self.iop = _iop.request_iop(pmod_id, TMP2_PROGRAM, overlay_name)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         

@@ -49,7 +49,7 @@ class Grove_PIR(PMODIO):
         The index of the PMOD pin {0, 1, 7, 6}.
     
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, pmod_id, gr_id, overlay_name='pmod.bit'): 
         """Return a new instance of a PIR object. 
         
         Only checks the gr_id, since other parameters can be checked by the 
@@ -66,12 +66,15 @@ class Grove_PIR(PMODIO):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         gr_id: int
             The group ID on StickIt, from 1 to 4.
+        overlay_name : str
+            The name of the overlay for IOP.
             
         """
         if (gr_id not in range(1,5)):
             raise ValueError("Valid StickIt group IDs are 1 - 4.")
             
-        super().__init__(pmod_id, pmod_const.STICKIT_PINS_GR[gr_id][0], 'in')
+        super().__init__(pmod_id, pmod_const.STICKIT_PINS_GR[gr_id][0], \
+                            'in', overlay_name)
         
     def read(self):
         """Receive the value from the PIR sensor.

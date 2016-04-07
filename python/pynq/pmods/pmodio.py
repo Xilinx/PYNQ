@@ -57,7 +57,7 @@ class PMODIO(object):
         Input 'in' or output 'out'.
     
     """
-    def __init__(self, pmod_id, index, direction): 
+    def __init__(self, pmod_id, index, direction, overlay_name='pmod.bit'): 
         """Return a new instance of a PMOD IO object.
     
         Note
@@ -72,6 +72,8 @@ class PMODIO(object):
             The index of the PMOD pin, from 0 to 7.
         direction : str
             Input 'in' or output 'out'.
+        overlay_name : str
+            The name of the overlay for IOP.
             
         """
         if (index not in range(8)):
@@ -79,7 +81,8 @@ class PMODIO(object):
         if (direction not in ['in', 'out']):
             raise ValueError("Direction can only be 'in', or 'out'.")
             
-        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL)
+        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL, \
+                            overlay_name)
         self.index = index
         self.direction = direction
         

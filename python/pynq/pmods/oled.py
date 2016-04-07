@@ -52,7 +52,7 @@ class OLED(object):
         
     """
 
-    def __init__(self, pmod_id, text=None):         
+    def __init__(self, pmod_id, text=None, overlay_name='pmod.bit'):
         """Return a new instance of an OLED object. 
     
         Note
@@ -65,9 +65,11 @@ class OLED(object):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         text: str
             The text to be displayed after initialization.
+        overlay_name : str
+            The name of the overlay for IOP.
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
+        self.iop = _iop.request_iop(pmod_id, PROGRAM, overlay_name)
         self.mmio = self.iop.mmio
 
         self.iop.start()
