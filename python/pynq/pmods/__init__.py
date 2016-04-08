@@ -42,3 +42,4 @@ from .pmodio import PMODIO
 from .dpot import DPOT
 from .tmp2 import TMP2
 from .als import ALS
+from .grove_adc import GROVE_ADC
