@@ -1,7 +1,7 @@
 # Makefile to build select Microblaze projects.
 
 
-MBBINS = pmodadc.bin pmoddac.bin pmodoled.bin pmodals.bin pmodtmp2.bin pmoddpot.bin mailbox.bin
+MBBINS = pmodadc.bin pmoddac.bin pmodoled.bin pmodals.bin pmodtmp2.bin pmoddpot.bin mailbox.bin grove_adc.bin
 
 all: pmod_bins
 	@echo "Completed Microblaze Projects' Builds"

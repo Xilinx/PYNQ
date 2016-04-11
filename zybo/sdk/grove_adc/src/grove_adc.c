@@ -8,6 +8,8 @@
  *
  * CMC
  * 6 April 2016
+ * 11 April: To Do: Check the hysteresis, low, high level, and status.
+ * Currently not fully implemented/tested
 */
 
 /* Grove ADC is based on adc121c021  
@@ -49,56 +51,32 @@ http://www.ti.com/lit/ds/symlink/adc121c021-q1.pdf
 #define REG_ADDR_CONVL          0x06
 #define REG_ADDR_CONVH          0x07
 
-/*float read_adc(){
-   u8 raw_data[2];
-   u32 sample;
-   
-   raw_data[0] = REG_ADDR_RESULT;
-  
-   //iic_write(IIC_ADDRESS, raw_data, 1);
-   iic_read(IIC_ADDRESS,raw_data,2); 
-   sample = ((raw_data[0]&0x0f) << 8) | raw_data[1];
-   return (float)sample*V_REF*2/4096; 
-}*/
-
 u32 read_adc(u8 reg){
-   u8 raw_data[2];
+   u8 data_buffer[2];
    u32 sample;
    
-   raw_data[0] = reg; // Set the address pointer
+   data_buffer[0] = reg; // Set the address pointer
    
-   iic_write(IIC_ADDRESS, raw_data, 1);
+   iic_write(IIC_ADDRESS, data_buffer, 1);
   
-   iic_read(IIC_ADDRESS,raw_data,2); 
-   sample = ((raw_data[0]&0x0f) << 8) | raw_data[1];
+   iic_read(IIC_ADDRESS,data_buffer,2);
+   sample = ((data_buffer[0]&0x0f) << 8) | data_buffer[1];
    return sample; 
-}
-
-void init_adc(){
-   u8 raw_data[2];
-   raw_data[0] = REG_ADDR_CONFIG;
-   raw_data[1] = 0x20; // Tconvert x 32 ; Typical fconvert 27 ksps 
-
-   iic_write(IIC_ADDRESS, raw_data, 2);
 }
 
 // Set high/low/hysteresis limits and clear lowest/highest conversion results
 void write_adc(u8 reg, u32 data, u8 bytes){
-   u8 raw_data[3];
-   raw_data[0] = reg;
+   u8 data_buffer[3];
+   data_buffer[0] = reg;
    if(bytes ==2){
-      raw_data[1] = data & 0x0f; // Bits 11:8
-      raw_data[2] = data & 0xff; // Bits 7:0
+	   data_buffer[1] = data & 0x0f; // Bits 11:8
+	   data_buffer[2] = data & 0xff; // Bits 7:0
    }else if(bytes == 2){
-      raw_data[1] = data; // Bits 11:8
+	   data_buffer[1] = data & 0xff; // Bits 11:8
    }
-   
      
-   iic_write(IIC_ADDRESS, raw_data, bytes+1);  
-   
-   raw_data[0] = REG_ADDR_RESULT; // Reset to the result address
-   
-   iic_write(IIC_ADDRESS, raw_data, 1);
+   iic_write(IIC_ADDRESS, 	   data_buffer, bytes+1);
+
 }
 
 int main(void)
@@ -110,7 +88,7 @@ int main(void)
    
 
    configureSwitch( BLANK, BLANK, SDA, BLANK, BLANK, BLANK, SCL, BLANK);
-   init_adc();
+   write_adc(REG_ADDR_CONFIG, 0x20, 1); // Reset, set Tconvert x 32 (fconvert 27 ksps)
    // Run application
    while(1){
 
