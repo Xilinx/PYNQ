@@ -59,8 +59,7 @@ class Cable(PMODIO):
         Either 'straight' or 'loopback'.
     
     """
-    def __init__(self, pmod_id, index, direction, cable, 
-                 overlay_name='pmod.bit'): 
+    def __init__(self, pmod_id, index, direction, cable): 
         """Return a new instance of a Cable object.
     
         Only the cable type is checked during initialization, since all the
@@ -80,14 +79,12 @@ class Cable(PMODIO):
             Input 'in' or output 'out'.
         cable : str
             Either 'straight' or 'loopback'.
-        overlay_name : str
-            The name of the overlay for IOP.
             
         """
         if (cable not in ['straight', 'loopback']):
             raise ValueError("Cable can only be 'straight', or 'loopback'.")
         
-        super().__init__(pmod_id, index, direction, overlay_name)
+        super().__init__(pmod_id, index, direction)
         self.cable = cable
         
     def set_cable(self, cable):

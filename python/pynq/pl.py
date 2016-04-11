@@ -334,6 +334,36 @@ class PL:
         
         """
         return cls.ip_dict[ip_name][2]
+        
+    @classmethod
+    def load_ip_data(cls, ip_name, data):
+        """This method loads the data to the addressable IP.
+        
+        Note
+        ----
+        The data is assumed to be in binary format (*.bin). The data name will
+        be stored as a state information in the IP dictionary.
+        
+        Parameters
+        ----------
+        ip_name : str
+            The name of the addressable IP.
+        data : str
+            The absolute path of the data to be loaded.
+        
+        Returns
+        -------
+        None
+        
+        """
+        with open(data, 'rb') as bin:
+            size = (math.ceil(os.fstat(bin.fileno()).st_size/ \
+                    mmap.PAGESIZE))*mmap.PAGESIZE
+            mmio = MMIO(int(cls.ip_dict[ip_name][0], 16), size)
+            buf = bin.read(size)
+            mmio.write(0, buf)
+            
+        cls.ip_dict[ip_name][2] = data
     
     @classmethod
     def get_gpio_names(cls, gpio_kwd=None):
@@ -633,48 +663,6 @@ class Overlay(PL):
             return self.bitstream.timestamp==PL.timestamp
         else:
             return self.bitfile_name==PL.bitfile_name
-    
-    def load_ip_data(self, ip_name, data):
-        """This method loads the data to the addressable IP.
-        
-        This method can also be used for programming the IP. For example, 
-        users can use this method to load the program to the Microblaze 
-        processors on PL.
-        
-        Note
-        ----
-        The data is assumed to be in binary format (*.bin). The data name will
-        be stored as a state information in the IP dictionary.
-        
-        Parameters
-        ----------
-        ip_name : str
-            The name of the addressable IP.
-        data : str
-            The absolute path of the data to be loaded.
-        
-        Returns
-        -------
-        None
-        
-        Raises
-        ------
-        LookupError
-            If the overlay is not loaded yet.
-        
-        """
-        if not self.is_loaded():
-            raise LookupError("The current overlay has not been loaded.")
-        else:
-            with open(data, 'rb') as bin:
-                size = (math.ceil(os.fstat(bin.fileno()).st_size/ \
-                        mmap.PAGESIZE))*mmap.PAGESIZE
-                mmio = MMIO(int(self.ip_dict[ip_name][0], 16), size)
-                buf = bin.read(size)
-                mmio.write(0, buf)
-                
-            self.ip_dict[ip_name][2] = data
-            PL.ip_dict[ip_name][2] = data
             
     def reset_ip_dict(self):
         """This function resets the entire IP dictionary of the overlay.
@@ -797,7 +785,34 @@ class Overlay(PL):
         
         """
         return self.ip_dict[ip_name][2]
-    
+        
+    def load_ip_data(self, ip_name, data):
+        """This method loads the data to the addressable IP.
+        
+        Calls the method in the super class to load the data. This method can
+        be used to program the IP. For example, users can use this method to 
+        load the program to the Microblaze processors on PL.
+        
+        Note
+        ----
+        The data is assumed to be in binary format (*.bin). The data name will
+        be stored as a state information in the IP dictionary.
+        
+        Parameters
+        ----------
+        ip_name : str
+            The name of the addressable IP.
+        data : str
+            The absolute path of the data to be loaded.
+        
+        Returns
+        -------
+        None
+        
+        """
+        super().load_ip_data(ip_name, data)
+        self.ip_dict[ip_name][2] = data
+        
     def get_gpio_user_ix(self, gpio_name):
         """This method returns the user index of the GPIO.
         

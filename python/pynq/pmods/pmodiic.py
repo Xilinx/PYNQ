@@ -56,8 +56,7 @@ class PMODIIC(object):
         The IIC device address.
     
     """
-    def __init__(self, pmod_id, scl_pin, sda_pin, iic_addr, 
-                 overlay_name='pmod.bit'): 
+    def __init__(self, pmod_id, scl_pin, sda_pin, iic_addr): 
         """Return a new instance of a PMODIIC object.
     
         Note
@@ -74,8 +73,6 @@ class PMODIIC(object):
             The SDA pin number.
         iic_addr : int
             The IIC device address.
-        overlay_name : str
-            The name of the overlay for IOP.
             
         """
         if (scl_pin not in range(8)):
@@ -92,7 +89,7 @@ class PMODIIC(object):
             else:
                 switchconfig.append(pmod_const.IOP_SWCFG_PMODIO0)
         
-        self.iop = DevMode(pmod_id, switchconfig, overlay_name)
+        self.iop = DevMode(pmod_id, switchconfig)
         self.iop.start()
         self.iop.load_switch_config()
         

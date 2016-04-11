@@ -39,7 +39,10 @@ from .oled import OLED
 from .devmode import DevMode
 from .led8 import LED8
 from .pmodio import PMODIO
+from .pmodiic import PMODIIC
 from .dpot import DPOT
 from .tmp2 import TMP2
 from .als import ALS
-from .grove_adc import GROVE_ADC
+from .cable import Cable
+from .grove_pir import Grove_PIR
+from .grove_adc import Grove_ADC

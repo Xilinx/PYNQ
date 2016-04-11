@@ -37,13 +37,12 @@ import struct
 from . import _iop
 from . import pmod_const
 from pynq import MMIO
-from pynq import Overlay
 
-GROVE_ADC_PROGRAM = "./grove_adc.bin"
+GROVE_ADC_PROGRAM = "grove_adc.bin"
 GROVE_ADC_LOG_START = pmod_const.MAILBOX_OFFSET+16
 GROVE_ADC_LOG_END = GROVE_ADC_LOG_START+(1000*4)
 
-class GROVE_ADC(object):
+class Grove_ADC(object):
     """This class controls a light sensor PMOD.
 
     Attributes

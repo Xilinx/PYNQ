@@ -36,9 +36,8 @@ import time
 from . import _iop
 from . import pmod_const
 from pynq import MMIO
-from pynq import Overlay
 
-ALS_PROGRAM = "./als.bin"
+ALS_PROGRAM = "als.bin"
 ALS_LOG_START = pmod_const.MAILBOX_OFFSET+16
 ALS_LOG_END = ALS_LOG_START+(1000*4)
 
@@ -55,19 +54,16 @@ class ALS(object):
         Time in milliseconds between sampled reads of the ALS sensor
         
     """
-    def __init__(self, pmod_id, overlay_name='pmod.bit'):
+    def __init__(self, pmod_id):
         """Return a new instance of an ALS object. 
         
         Parameters
         ----------
         pmod_id : int
-            Requested PMOD index from list of all PMOD IO Processors in the
-            programmable logic. Indexing starts at 1.
-        overlay_name : str
-            The name of the overlay for IOP.
+            PMOD index in the programmable logic, starting at 1.
             
         """
-        self.iop = _iop.request_iop(pmod_id, ALS_PROGRAM, overlay_name)
+        self.iop = _iop.request_iop(pmod_id, ALS_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         

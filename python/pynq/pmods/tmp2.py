@@ -36,9 +36,8 @@ import time
 from . import _iop
 from . import pmod_const
 from pynq import MMIO
-from pynq import Overlay
 
-TMP2_PROGRAM = "./tmp2.bin"
+TMP2_PROGRAM = "tmp2.bin"
 TMP2_LOG_START = pmod_const.MAILBOX_OFFSET+16
 TMP2_LOG_END = TMP2_LOG_START+(1000*4)
 
@@ -55,19 +54,16 @@ class TMP2(object):
         Time in milliseconds between sampled reads of the TMP2 sensor
         
     """
-    def __init__(self,pmod_id,overlay_name='pmod.bit'):
+    def __init__(self, pmod_id):
         """Return a new instance of a TMP2 object. 
         
         Parameters
         ----------
         pmod_id : int
-            Requested PMOD index from list of all PMOD IO Processors in the
-            programmable logic. Indexing starts at 1.
-        overlay_name : str
-            The name of the overlay for IOP.
+            PMOD index in the programmable logic, starting at 1.
         
         """
-        self.iop = _iop.request_iop(pmod_id, TMP2_PROGRAM, overlay_name)
+        self.iop = _iop.request_iop(pmod_id, TMP2_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         
@@ -160,7 +156,7 @@ class TMP2(object):
             
         Returns
         -------
-        List of valid samples from the temperature sensor in Celsius
+        List of valid samples from the temperature sensor in Celsius.
         
         """
         #: First stop logging

@@ -36,7 +36,6 @@ import time
 from . import _iop
 from . import pmod_const
 from pynq import MMIO
-from pynq import Overlay
 from pynq.pmods import pmod_const
 
 
@@ -56,21 +55,18 @@ class DevMode(object):
     
     """
 
-    def __init__(self, pmod_id, switch_config, overlay_name='pmod.bit'):
+    def __init__(self, pmod_id, switch_config):
         """Return a new instance of a DevMode object.
         
         Parameters
         ----------
         pmod_id : int
-            ID of the PMOD to which the IO processor is attached
+            ID of the PMOD to which the IO processor is attached.
         switch_config : list
-            IO Processor switch configuration (8 32-bit values)
-        overlay_name : str
-            The name of the overlay for IOP.
+            IO Processor switch configuration (8 32-bit values).
             
         """
-        self.iop = _iop.request_iop(pmod_id, pmod_const.MAILBOX_PROGRAM, \
-                                    overlay_name)
+        self.iop = _iop.request_iop(pmod_id, pmod_const.MAILBOX_PROGRAM)
         self.iop_switch_config = list(switch_config)
         self.mmio = MMIO(self.iop.mmio.base_addr + pmod_const.MAILBOX_OFFSET, 
                             pmod_const.MAILBOX_SIZE)

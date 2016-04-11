@@ -36,7 +36,6 @@ import time
 from . import _iop
 from . import pmod_const
 from pynq import MMIO
-from pynq import Overlay
 
 PROGRAM = "dpot.bin"
 
@@ -51,7 +50,7 @@ class DPOT(object):
         Memory-mapped I/O instance to read and write instructions and data.
         
     """
-    def __init__(self, pmod_id, overlay_name='pmod.bit'):
+    def __init__(self, pmod_id):
         """Return a new instance of a DPOT object. 
     
         Note
@@ -62,11 +61,9 @@ class DPOT(object):
         ----------
         pmod_id : int
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        overlay_name : str
-            The name of the overlay for IOP.
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM, overlay_name)
+        self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.mmio = self.iop.mmio
         
         self.iop.start()

@@ -37,7 +37,6 @@ import sys
 import math
 from pynq import MMIO
 from pynq import GPIO
-from pynq import Overlay
 from pynq import PL
 from pynq.pmods import pmod_const
 
@@ -54,13 +53,10 @@ class _IOP:
         The GPIO instance associated with the IOP.
     mmio : MMIO
         The MMIO instance associated with the IOP.
-    overlay : Overlay
-        The overlay instance for the IOP.
         
     """
 
-    def __init__(self, iop_name, addr_base, addr_range, 
-                 gpio_uix, mb_program, overlay_name='pmod.bit'):
+    def __init__(self, iop_name, addr_base, addr_range, gpio_uix, mb_program):
         """Create a new _IOP object.
         
         Note
@@ -80,8 +76,6 @@ class _IOP:
             The user index of the GPIO, starting from 0.
         mb_program : str
             The Microblaze program loaded for the IOP.
-        overlay_name : str
-            The name of the overlay for the IOP.
         
         """
         self.iop_name = iop_name
@@ -89,10 +83,7 @@ class _IOP:
         self.state = 'IDLE'
         self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
         self.mmio = MMIO(int(addr_base, 16), int(addr_range,16))
-        self.overlay = Overlay(overlay_name)
         
-        if not self.overlay.is_loaded():
-            self.overlay.download()
         self.program()
         
     def start(self):
@@ -146,11 +137,11 @@ class _IOP:
         """
         self.stop()
         
-        self.overlay.load_ip_data(self.iop_name, self.mb_program)
+        PL.load_ip_data(self.iop_name, self.mb_program)
         
         self.start()
 
-def request_iop(pmod_id, mb_program, overlay_name='pmod.bit'):
+def request_iop(pmod_id, mb_program):
     """This is the interface to request an I/O Processor.
     
     It looks for active instances on the same PMOD ID, and prevents users from 
@@ -181,8 +172,6 @@ def request_iop(pmod_id, mb_program, overlay_name='pmod.bit'):
         ID of the PMOD.
     mb_program : str
         Program to be loaded on the IOP.
-    overlay_name : str
-        The name of the overlay for the IOP.
     
     Returns
     -------
@@ -217,7 +206,7 @@ def request_iop(pmod_id, mb_program, overlay_name='pmod.bit'):
                 (pmod_const.BIN_LOCATION + mb_program)):
         #: case 1
         return _IOP(iop_name, addr_base, addr_range, \
-                    gpio_uix, mb_program, overlay_name)
+                    gpio_uix, mb_program)
     else:
         #: case 2
         raise LookupError('Another program {} already running on IOP.'\
