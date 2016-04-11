@@ -34,6 +34,19 @@ chmod  a+x  /usr/local/lib/python3.4/dist-packages/pynq
 # modified smb.conf to allow symlink-following
 # C:\Users\grahams\Documents\PyXi\smb.conf
 
+# Add cpufreq-utils to disable clock scaling
+# http://askubuntu.com/questions/523640/how-i-can-disable-cpu-frequency-scaling-and-set-the-system-to-performance
+# get trusty armhf debian packages below
+dpkg -i libcpufreq0_008-1_armhf.deb
+dpkg -i cpufrequtils_008-1_armhf.deb
+
+# add line GOVERNOR="performance"
+vi /etc/default/cpufrequtils
+sudo update-rc.d ondemand disable
+sudo shutdown -r now
+
+cpufreq-info
+  cpufreq stats: 325 MHz:0.00%, 650 MHz:100.00%
 
 
 ```
