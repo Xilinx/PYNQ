@@ -6,7 +6,7 @@ Test
 .. contents:: Table of Contents
    :depth: 2
  
-This section documents the test infrastructure supplied with the `pynq` package. It is organized as follows:
+This section documents the test infrastructure supplied with the `pyxi` package. It is organized as follows:
 
 * *Running Tests*: describes how to run existing tests.
 * *Running Demos*: describes how to run existing demos.
@@ -18,19 +18,19 @@ Running Tests
 =============
 
 
-The *pynq* package provides integrated test suites, where each sub-module can be tested. 
+The *pyxi* package provides integrated test suites, where each sub-module can be tested. 
 
-To run all the tests together, we can import the `run_tests()` function from `pynq.tests` module and call it.
+To run all the tests together, we can import the `run_tests()` function from `pyxi.tests` module and call it.
 
 .. code-block:: python
 
-   from pynq.tests import run_tests
+   from pyxi.tests import run_tests
 
    run_tests()
  
-The test suite will guide the users through all the tests implemented in the pynq package. As part of the tests, the user will be prompted for confirmation the tests have passed, for example:
+The test suite will guide the users through all the tests implemented in the pyxi package. As part of the tests, the user will be prompted for confirmation the tests have passed, for example:
 
-.. code-block:: python
+.. code-block:: console
 
    test_led0 ...
    Onboard LED 0 on? ([yes]/no)>>>
@@ -39,7 +39,7 @@ For the answer, "yes", "YES", "Yes", "y", and "Y" are all acceptable; the same a
 
 In some tests, the users will also be asked if a PMod is connected, and which port it is connected to. For example:
 
-.. code-block:: python
+.. code-block:: console
 
    Is LED8 attached to the board? ([yes]/no)>>> y
    Type in the PMOD ID of the LED8 (1 ~ 4):
@@ -50,15 +50,15 @@ To run the entire test suite, alternatively, users can type:
 
 .. code-block:: python
 
-   >>> execfile('pynq/tests/testsuite.py')
+   >>> execfile('pyxi/tests/testsuite.py')
 
 This will execute the file directly.
 
-For board or pmods subpackage, it is also possible to execute a single test. For example, for `pynq.pmods.tests.test_oled` (*i.e.* the unit test for `pynq.pmods.oled`), users can write the following code in micropython prompt:
+For board or pmods subpackage, it is also possible to execute a single test. For example, for `pyxi.pmods.tests.test_oled` (*i.e.* the unit test for `pyxi.pmods.oled`), users can write the following code in micropython prompt:
 
 .. code-block:: python
 
-   >>> execfile('pynq/pmods/tests/test_oled.py')
+   >>> execfile('pyxi/pmods/tests/test_oled.py')
 
 Running Demos
 =============
@@ -67,7 +67,7 @@ Running demos is similar to running tests. For example, we can use the following
 
 .. code-block:: python
 
-   from pynq.tests import run_demo
+   from pyxi.tests import run_demo
 
 After all the demos have been imported, we can run them all by typing:
 
@@ -150,13 +150,13 @@ This `test_<module_name>()` function created in the test module must be exported
 
 Step 4
 ------
-Once all the unit tests are in place, you need to import them to the test suite by adding an entry in `pynq\tests\testsuite.py`:
+Once all the unit tests are in place, you need to import them to the test suite by adding an entry in `pyxi\tests\testsuite.py`:
 
 .. code-block:: python
 
    test_suite = [
-       'pynq.board.tests',
-       'pynq.pmods.tests' 
+       'pyxi.board.tests',
+       'pyxi.pmods.tests' 
    ]
 
 This piece of code can parse each list in the `test_suite` and execute all the `test_<module_name>()` exported in `$$__init__.py$$` of the `subpackage.tests`, as specified in *Step 3*.
@@ -182,7 +182,7 @@ In our tests and demos, we have used a PMOD ADC. In order to make it work proper
 Cable Type (for GPIO Loop Tests)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Two types of cables can be used with the tests in the pynq package, a "straight" cable, and a "loopback" cable:
+Two types of cables can be used with the tests in the pyxi package, a "straight" cable, and a "loopback" cable:
 
 .. image:: ./images/cable_type.jpeg
    :width: 400
@@ -203,7 +203,7 @@ When a straight cable is used to connect two PMOD interfaces, to align the VCC a
 ..image:: ./images/pmod_straight_cable.png
   :width: 400
 
-For this reason, the straight cable is not recommended for our tests; however, the pynq package can still recognize this cable type and use it for testing.
+For this reason, the straight cable is not recommended for our tests; however, the pyxi package can still recognize this cable type and use it for testing.
 
 The loopback cable is recommended for testing, as it preserves the mapping between two PMOD interfaces:
 

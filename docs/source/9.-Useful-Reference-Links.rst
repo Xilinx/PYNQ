@@ -10,10 +10,6 @@ FTDI software drivers:
 ======================
 * `Virtual Com Port drivers <http://www.ftdichip.com/Drivers/VCP.htm>`_
 
-MicroPython:
-============
-* `MicroPython.org <https://micropython.org/>`_
-* `MicroPython Documentationhttp <//docs.micropython.org/en/latest/pyboard_index.html#>`_
 
 PUTTY terminal emulation software:
 ==================================
@@ -39,3 +35,21 @@ ZYBO reference manual:
 ======================
 * `ZYBO Reference Manual <http://www.xilinx.com/support/documentation/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf>`_
 
+
+Jupyter
+=======
+
+* `Jupyter Project <http://jupyter.org/>`_
+
+
+Documentation
+=============
+
+Restructured Text and Sphinx
+----------------------------
+
+* `The official Sphinx docs <http://www.sphinx-doc.org/en/stable/index.html>`_
+
+* `Online reST and Sphinx editor with rendering <https://livesphinx.herokuapp.com/>`_
+
+* `A useful Sphinx cheat sheet <http://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html>`_
