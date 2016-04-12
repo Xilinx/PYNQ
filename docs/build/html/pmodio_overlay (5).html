@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Peripherals and the PModIO overlay &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="PMODs and the PModIO overlay" href="4.-The-PModIO-overlay.html"/>
+        <link rel="prev" title="Programming Zybo’s onboard peripherals" href="Programming_Zybo&#39;s_onboard_peripherals.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="1.-Pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2.-Getting-started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="b. Notebook Basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c. Running Code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="d. Working With Markdown Cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Peripherals and the PModIO overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Supported-peripherals">Supported peripherals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#PMod-Connector">PMod Connector</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Close-up-of-a-12-pin-Pmod">Close-up of a 12-pin Pmod</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Pmod-pin-numbers-and-assignment">Pmod pin numbers and assignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#PMod-peripherals">PMod peripherals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Pmod-Grove-Adapter">Pmod-Grove Adapter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#PMod-Pin-configuration">PMod Pin configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#IO-Processors">IO Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ZYBO-PMODIO-Overlay">ZYBO PMODIO Overlay</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)">Example: Using the OLED and the ambient light sensor (ALS)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#OLED-displaying-light-reading-from-ambient-light-sensor">OLED displaying light reading from ambient light sensor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Example:-Using-the-ADC,-DAC-and-OLED">Example: Using the ADC, DAC and OLED</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Going-further">Going further</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7.-Test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8.-Glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix_1.html">Appendix 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Peripherals and the PModIO overlay</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/pmodio_overlay (5).txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="Peripherals-and-the-PModIO-overlay">
+<h1>Peripherals and the PModIO overlay<a class="headerlink" href="#Peripherals-and-the-PModIO-overlay" title="Permalink to this headline">¶</a></h1>
+<p>The Zybo board can be extended with additional peripherals by connecting
+to the PMod interfaces availabel on the board. PMod stands for
+Peripheral Module, and can be used to connect periperhals and other
+accessories to theboard.</p>
+<p>PMod peripherals are accessory boards that plug directly into the PMod
+port and are available from <a class="reference external" href="http://www.digilentinc.com">Digilent
+Inc</a> and other suppliers.</p>
+<div class="section" id="Supported-peripherals">
+<h2>Supported peripherals<a class="headerlink" href="#Supported-peripherals" title="Permalink to this headline">¶</a></h2>
+<p>Pynq current supports a number of PMods which can be found in the pyxi
+documentation &gt; <a class="reference external" href="../Pynq/pynq.pmods.html">pyxi.pmods package</a></p>
+<p>As the PMOD interface connects to FPGA pins, any accessory or periphal
+supported by the FPGA IO standard (i.e. that works at the correct
+voltages) that can be wired or connected to a PMod port can be used.
+Pynq current supports a number of Grove peripherals which can be
+connected to a PMod port through and interface board.</p>
+<p>Currently supported Grove peripherals can be found in the pyxi
+documentation &gt; NEED LINK HERE).</p>
+</div>
+<div class="section" id="PMod-Connector">
+<h2>PMod Connector<a class="headerlink" href="#PMod-Connector" title="Permalink to this headline">¶</a></h2>
+<p>Each PMod connector has 12 pins (2 rows of 6 pins, where each row has
+3.3V (VCC), ground (GND) and 4 data pins giving 8 data pins in total).</p>
+<div class="section" id="Close-up-of-a-12-pin-Pmod">
+<h3>Close-up of a 12-pin Pmod<a class="headerlink" href="#Close-up-of-a-12-pin-Pmod" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center">
+<img alt="_images/pmod_closeup_opt.jpeg" src="_images/pmod_closeup_opt.jpeg" />
+</div>
+</div>
+<div class="section" id="Pmod-pin-numbers-and-assignment">
+<h3>Pmod pin numbers and assignment<a class="headerlink" href="#Pmod-pin-numbers-and-assignment" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center">
+<img alt="_images/pmod_pins_opt.png" src="_images/pmod_pins_opt.png" />
+</div>
+<p>Note the PMod pins are labelled 1- 7. These are the data pins. In the
+Digilent documentation the pins are labelled 1-12 and include the VCC
+and GND pins, but this should be ignored when programming in Pynq and
+0-7 should be used to reference data pins.)</p>
+</div>
+<div class="section" id="PMod-peripherals">
+<h3>PMod peripherals<a class="headerlink" href="#PMod-peripherals" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center">
+<img alt="_images/PMods_opt.png" src="_images/PMods_opt.png" />
+</div>
+</div>
+<div class="section" id="Pmod-Grove-Adapter">
+<h3>Pmod-Grove Adapter<a class="headerlink" href="#Pmod-Grove-Adapter" title="Permalink to this headline">¶</a></h3>
+<p>With a Pmod-to-Grove adapter a wide range of Grove peripherals can now
+be connected to the board. Each Grove connector has 4 pins. One each are
+used for VCC and GND respectively. The leaves 2 pins on each connector
+for signal wires.</p>
+<div class="figure align-center">
+<img alt="_images/Pmod_Grove_Adapter_opt.jpeg" src="_images/Pmod_Grove_Adapter_opt.jpeg" />
+</div>
+</div>
+</div>
+<div class="section" id="PMod-Pin-configuration">
+<h2>PMod Pin configuration<a class="headerlink" href="#PMod-Pin-configuration" title="Permalink to this headline">¶</a></h2>
+<p>PMods have different pin configurations depending on the number of data
+pins required. PMod peripherals with only a single row of pins can be
+plugged into the top row or the bottom row of the PMod connector.</p>
+<p>Some PMods use both rows (2x4, 2x6 pins), and in general should be
+aligned to the left of the connector (to align with VCC and GND).</p>
+<div class="figure align-center">
+<img alt="_images/tmp2_8pin_opt.jpeg" src="_images/tmp2_8pin_opt.jpeg" />
+</div>
+</div>
+<div class="section" id="IO-Processors">
+<h2>IO Processors<a class="headerlink" href="#IO-Processors" title="Permalink to this headline">¶</a></h2>
+<p>For overlays to be useful, they must provide sufficient functionality,
+while also providing flexibility to suit a wide range of applications.
+Flexibility in the overlay is provided through IO Processors (IOPs). An
+IO Processor is implemented in the Programmable Logic (PL or FPGA
+fabric) and consists of a MicroBlaze processor, Memory, IIC, SPI, GPIO,
+Debug logic and a configurable switch.</p>
+<div class="figure align-center">
+<img alt="_images/iop1.png" src="_images/iop1.png" />
+</div>
+<p>The IOP gives flexibility to connect to and control a range of different
+external accessories without requiring a re-design of the FPGA hardware.
+The IOP can be used to control a PMod port, or other interface, or to
+off-load applications from the main ARM A9 processors in the Zynq PS.</p>
+<p>Each IOP has a dedicated memory block for the MicroBlaze instruction and
+data memory. This memory block is dual-port, with one port connected to
+the MicroBlaze, and the other connected to the Zynq A9 processors. This
+allows the ARM A9 processors to access the MicroBlaze memory and
+dynamically write a new program to the MicroBlaze instruction area. The
+data area can be used for communication and data transfer between the A9
+processors and the IOP(s).</p>
+<p>Currently, one IOP can support one PMod port. Inside the IOP are
+dedicated interface blocks; IIC, SPI and GPIO (General Purpose
+Input/Output). IIC and SPI are specialised interfaces used by many of
+the available PMod, Grove and other peripherals, and GPIO can be used to
+connect to custom interfaces or used as simple inputs and outputs. When
+a PMod or other peripheral is plugged in to a port, the configurable
+switch allows the PMod signals to be routed internally to the required
+interface block.</p>
+</div>
+<div class="section" id="ZYBO-PMODIO-Overlay">
+<h2>ZYBO PMODIO Overlay<a class="headerlink" href="#ZYBO-PMODIO-Overlay" title="Permalink to this headline">¶</a></h2>
+<p>The ZYBO has 6 PMod connectors. Ports 1-4 as indicated below are
+connected the Zynq PL. XADC is connected to the Xilinx ADC on the Zynq,
+and JF is connected directly to the Zynq PS. XADC and JF are not
+included in this overlay.</p>
+<div class="figure align-center">
+<img alt="_images/zybopmods_opt.jpeg" src="_images/zybopmods_opt.jpeg" />
+</div>
+<p>The PModIO overlay for the ZYBO contains 4 IOPs each connected to one of
+the PL PMod ports. This allows control of the PMod from Python, via the
+IOP.</p>
+<div class="figure align-center">
+<img alt="_images/pmodio_overlay_1_opt.png" src="_images/pmodio_overlay_1_opt.png" />
+</div>
+<p>A PMod module is provided in Pynq thon, the module must be imported. For
+PMod modules, the port that the PMod is plugged into must also be
+specified.</p>
+<div class="section" id="Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)">
+<h3>Example: Using the OLED and the ambient light sensor (ALS)<a class="headerlink" href="#Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)" title="Permalink to this headline">¶</a></h3>
+<p>Plug the PModOLED into Port 1, and PModALS (Ambient Light Sensor) into
+the top row of Port 2. (The PModALS can currently only be used in the
+top row of a port.)</p>
+<div class="section" id="OLED-displaying-light-reading-from-ambient-light-sensor">
+<h4>OLED displaying light reading from ambient light sensor<a class="headerlink" href="#OLED-displaying-light-reading-from-ambient-light-sensor" title="Permalink to this headline">¶</a></h4>
+<div class="figure align-center">
+<img alt="_images/als_oled_Demo_opt.jpeg" src="_images/als_oled_Demo_opt.jpeg" />
+</div>
+<p>Run the following code to import the OLED module and instantiate it:</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [1]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">OLED</span>
+<span class="n">oled</span> <span class="o">=</span> <span class="n">OLED</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Try writing a message to the OLED.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [2]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Hello World&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [3]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># Add delay to make OLED output visible for a few seconds</span>
+              <span class="c"># if running whole workbook</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [4]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">oled</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Import the ALS library, create an instance, and read the value from the
+sensor</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [5]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">ALS</span>
+<span class="n">als</span> <span class="o">=</span> <span class="n">ALS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[5]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+64
+</pre></div>
+</div>
+</div>
+<p>Write the value from the ALS to the OLED. The ALS sensor returns an
+8-bit value. 0 = Darkest, 255 = Brightest</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [6]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Light value : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [18]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">ALS</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="n">als</span> <span class="o">=</span> <span class="n">ALS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">als</span><span class="o">.</span><span class="n">set_log_interval_ms</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">als</span><span class="o">.</span><span class="n">start_log</span><span class="p">()</span> <span class="c"># start logging values at intervals of delay</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">als</span><span class="o">.</span><span class="n">stop_log</span><span class="p">()</span>
+<span class="n">als</span><span class="o">.</span><span class="n">get_log</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[18]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+[246,
+ 181,
+ 125,
+ 113,
+ 96,
+ 95,
+ 85,
+ 90,
+ 81,
+ 88,
+ 83,
+ 95,
+ 99,
+ 122,
+ 142,
+ 243,
+ 248,
+ 249,
+ 250,
+ 251,
+ 252,
+ 253,
+ 253,
+ 253,
+ 253,
+ 253]
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Example:-Using-the-ADC,-DAC-and-OLED">
+<h3>Example: Using the ADC, DAC and OLED<a class="headerlink" href="#Example:-Using-the-ADC,-DAC-and-OLED" title="Permalink to this headline">¶</a></h3>
+<p>This example connects the DAC to the ADC. You will write a value to the
+DAC which the ADC will measure, and also write the value to the OLED for
+display.</p>
+<ul class="simple">
+<li>Set the jumper (JP1) on the PModAD2 to Ref</li>
+</ul>
+<p>Insert the following PMods: * OLED to Port 1 * (ALS can be left
+plugged in to port 2 if used earlier, but is not used for this demo) *
+ADC to Port 3 (Align to the left of the port) * DAC to Port 4 (Top Row)</p>
+<ul class="simple">
+<li>Connect a wire from PModA4 Pin A to PModAD2 V1</li>
+</ul>
+<div class="figure align-center">
+<img alt="_images/adc_dac_demo_opt.jpeg" src="_images/adc_dac_demo_opt.jpeg" />
+</div>
+<ul class="simple">
+<li>Power on the board, and open a terminal</li>
+<li>Load the PMod classes from Python-Xilinx library (pyxi.pmods)</li>
+</ul>
+<p>Note the overlay will be reloaded to reset the IOPs if the code at the
+top of this notebook was run. You can change the value written to the
+DAC (must be between 0 and 1.2) and rerun the cell. The return value
+from the ADC and displayed on the LED is the measured value. There may
+be some small error between this and the value written to the DAC.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [8]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">OLED</span><span class="p">,</span> <span class="n">ADC</span><span class="p">,</span> <span class="n">DAC</span>
+<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span>
+<span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+<span class="n">oled</span> <span class="o">=</span> <span class="n">OLED</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">adc</span> <span class="o">=</span> <span class="n">ADC</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">dac</span> <span class="o">=</span> <span class="n">DAC</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span> <span class="c"># Set the DAC output voltage</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Measure output of DAC with ADC</span>
+<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="c"># Display measured value on OLED</span>
+</pre></div>
+</div>
+</div>
+<p>For documentation on other supported peripherals, see</p>
+<ul class="simple">
+<li><a class="reference external" href="../Pynq/pynq.pmods.html">PMods pyxi.pmods package</a></li>
+<li><a class="reference external" href="../Pynq/pyxi.pmods.html">Grove peripherals pyxi.???</a>.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="Going-further">
+<h2>Going further<a class="headerlink" href="#Going-further" title="Permalink to this headline">¶</a></h2>
+<p>Scripts can be created and executed from the notebook.</p>
+<p>In this example, the code below will be copied to a script and saved on
+the board. Examine the code in the cell below, and copy it.</p>
+<p>Go back to the Pynq Homepage * Select New &gt; Text File (which opens in a
+new window) * Paste the code into the file * Rename the file
+dac_loop.py, and save it</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [ ]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">OLED</span><span class="p">,</span> <span class="n">ADC</span><span class="p">,</span> <span class="n">DAC</span>
+<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="c"># dac_loop.py</span>
+<span class="k">def</span> <span class="nf">dac_loop</span><span class="p">(</span><span class="n">DAC_Port</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">ADC_Port</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">OLED_Port</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">Switch_nmbr</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">delay_secs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    DAC -&gt; ADC -&gt; OLED -- LOOP OVER 10 Values</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span>
+    <span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+    <span class="c"># Import PMOD classes from library PythonXilinx (pyxi.pmods)</span>
+    <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">OLED</span><span class="p">,</span> <span class="n">ADC</span><span class="p">,</span> <span class="n">DAC</span>
+
+    <span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span>  <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span>
+
+    <span class="c"># Match PMOD instances to PMOD Connectors</span>
+
+    <span class="c"># Instantiate OLED</span>
+    <span class="n">oled</span> <span class="o">=</span> <span class="n">OLED</span><span class="p">(</span><span class="n">OLED_Port</span><span class="p">)</span>
+
+    <span class="c"># Instantiate Digital to Analog Converter</span>
+    <span class="n">dac</span> <span class="o">=</span> <span class="n">DAC</span><span class="p">(</span><span class="n">DAC_Port</span><span class="p">)</span>
+
+    <span class="c"># Instantiate Analog to Digital Converter</span>
+    <span class="n">adc</span> <span class="o">=</span> <span class="n">ADC</span><span class="p">(</span><span class="n">ADC_Port</span><span class="p">)</span>
+
+    <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">Switch</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&quot;Switch 3 is off. To run the loop, set Switch 3 to on before running&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&quot;Turn Switch 3 off to stop the program&quot;</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">Switch</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
+        <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+            <span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">measured</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s">&#39;Measurement {} equals: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">measured</span><span class="p">))</span>
+            <span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">measured</span><span class="p">)</span>
+    <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<p>By default, this uses the previous configuration (DAC connected to Port
+1 (Top Row), ADC connected to Port 2, OLED connected to Port 4 and a
+wire connecting the DAC to the ADC). The function reads <em>Switch</em> 4 on
+the board. If the switch is on, it will run a loop that writes to the
+DAC, reads the value on the ADC and writes to the OLED. This is the same
+as the previous example, but this time executing from a script, and
+inside a loop controlled by a switch.</p>
+<p>To run this code, the cell above can be executed, which loads
+dac_loop(), or the cell below can directly execute the script.</p>
+<p>Try executing the cell above, set Switch 4 on the board, and then run
+the cell below:</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [15]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">dac_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+Turn Switch 3 off to stop the program
+Measurement 1 equals: 0.1040
+Measurement 2 equals: 0.2000
+Measurement 3 equals: 0.3120
+Measurement 4 equals: 0.4080
+Measurement 5 equals: 0.5040
+Measurement 6 equals: 0.6040
+Measurement 7 equals: 0.7000
+Measurement 8 equals: 0.7960
+Measurement 9 equals: 0.8920
+Measurement 10 equals: 1.0320
+</pre></div></div>
+</div>
+<p>Restart the kernel (Kernel &gt; Restart) to clear the dac_loop function,
+execut the cells below to run the script directly, and execute the
+dac_loop() function</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [ ]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="o">%</span><span class="k">run</span> dac_loop.py
+<span class="n">dac_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+/home/xpp/jupyter_notebooks
+Switch 3 is off. To run the loop, set Switch 3 to on before running
+</pre></div></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="4.-The-PModIO-overlay.html" class="btn btn-neutral float-right" title="PMODs and the PModIO overlay" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Programming_Zybo&#39;s_onboard_peripherals.html" class="btn btn-neutral" title="Programming Zybo’s onboard peripherals" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

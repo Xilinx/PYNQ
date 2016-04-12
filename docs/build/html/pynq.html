@@ -1,0 +1,1290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynq package &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="up" title="pynq" href="modules.html"/>
+        <link rel="next" title="pynq.audio package" href="pynq.audio.html"/>
+        <link rel="prev" title="pynq" href="modules.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="1.-Pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2.-Getting-started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="b. Notebook Basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c. Running Code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="d. Working With Markdown Cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pmodio_overlay (5).html">Peripherals and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7.-Test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8.-Glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix_1.html">Appendix 1</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynq</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pynq package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pynq.audio.html">pynq.audio package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.board.html">pynq.board package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.pmods.html">pynq.pmods package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.video.html">pynq.video package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pynq.general_const">pynq.general_const module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pynq.gpio">pynq.gpio module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pynq.mmio">pynq.mmio module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pynq.pl">pynq.pl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pynq">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="modules.html">pynq</a> &raquo;</li>
+      
+    <li>pynq package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/pynq.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="pynq-package">
+<h1>pynq package<a class="headerlink" href="#pynq-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pynq.audio.html">pynq.audio package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.audio.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.audio.html#module-pynq.audio.audio">pynq.audio.audio module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.audio.html#module-pynq.audio.audio_const">pynq.audio.audio_const module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.audio.html#module-pynq.audio">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pynq.board.html">pynq.board package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.board_const">pynq.board.board_const module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.button">pynq.board.button module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.led">pynq.board.led module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.switch">pynq.board.switch module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pynq.pmods.html">pynq.pmods package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.adc">pynq.pmods.adc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.als">pynq.pmods.als module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.dac">pynq.pmods.dac module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.devmode">pynq.pmods.devmode module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.dpot">pynq.pmods.dpot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.led8">pynq.pmods.led8 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.oled">pynq.pmods.oled module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.pmod_const">pynq.pmods.pmod_const module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.pmodio">pynq.pmods.pmodio module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.tmp2">pynq.pmods.tmp2 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pynq.video.html">pynq.video package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.video.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.video.html#module-pynq.video.frame">pynq.video.frame module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.video.html#module-pynq.video.hdmi">pynq.video.hdmi module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.video.html#module-pynq.video.vga">pynq.video.vga module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.video.html#module-pynq.video.video_const">pynq.video.video_const module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.video.html#module-pynq.video">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pynq.general_const">
+<span id="pynq-general-const-module"></span><h2>pynq.general_const module<a class="headerlink" href="#module-pynq.general_const" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="pynq.general_const.BS_SEARCH_PATH">
+<code class="descclassname">pynq.general_const.</code><code class="descname">BS_SEARCH_PATH</code><em class="property"> = '/usr/local/lib/python3.4/dist-packages/pynq/bitstream/'</em><a class="headerlink" href="#pynq.general_const.BS_SEARCH_PATH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overlay constants</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pynq.general_const.GPIO_MIN_USER_PIN">
+<code class="descclassname">pynq.general_const.</code><code class="descname">GPIO_MIN_USER_PIN</code><em class="property"> = 54</em><a class="headerlink" href="#pynq.general_const.GPIO_MIN_USER_PIN" title="Permalink to this definition">¶</a></dt>
+<dd><p>GPIO constants</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pynq.general_const.MMIO_FILE_NAME">
+<code class="descclassname">pynq.general_const.</code><code class="descname">MMIO_FILE_NAME</code><em class="property"> = '/dev/mem'</em><a class="headerlink" href="#pynq.general_const.MMIO_FILE_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>MMIO constants</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynq.gpio">
+<span id="pynq-gpio-module"></span><h2>pynq.gpio module<a class="headerlink" href="#module-pynq.gpio" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pynq.gpio.GPIO">
+<em class="property">class </em><code class="descclassname">pynq.gpio.</code><code class="descname">GPIO</code><span class="sig-paren">(</span><em>gpio_index</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/gpio.html#GPIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.gpio.GPIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class to handle (PS) GPIOs in Linux.</p>
+<p>The GPIO class is differernt from the PMOD XGPIO class.</p>
+<dl class="attribute">
+<dt id="pynq.gpio.GPIO.index">
+<code class="descname">index</code><a class="headerlink" href="#pynq.gpio.GPIO.index" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The index of the GPIO, starting from the GPIO base.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.gpio.GPIO.direction">
+<code class="descname">direction</code><a class="headerlink" href="#pynq.gpio.GPIO.direction" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Input/output direction of the GPIO.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.gpio.GPIO.path">
+<code class="descname">path</code><a class="headerlink" href="#pynq.gpio.GPIO.path" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The path of the GPIO device in the linux system.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynq.gpio.GPIO.get_gpio_base">
+<em class="property">static </em><code class="descname">get_gpio_base</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/gpio.html#GPIO.get_gpio_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.gpio.GPIO.get_gpio_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the GPIO base in PS.</p>
+<p>This is a static method. To use:
+&gt;&gt;&gt; from pynq import GPIO
+&gt;&gt;&gt; gpio = GPIO.get_gpio_base()</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For path &#8216;/sys/class/gpio/gpiochip138/&#8217;, this method returns 138.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The GPIO index of the base.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynq.gpio.GPIO.get_gpio_pin">
+<em class="property">static </em><code class="descname">get_gpio_pin</code><span class="sig-paren">(</span><em>user_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/gpio.html#GPIO.get_gpio_pin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.gpio.GPIO.get_gpio_pin" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns a GPIO pin for users.</p>
+<p>Users only need to specify an index starting from 0; this static
+method will map this index to the correct GPIO pin number.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The GPIO pin number can be calculated using:
+GPIO pin number = GPIO base + GPIO offset + user index
+e.g. The GPIO base is 138, and pin 54 is the minimum GPIO offset.
+Then the GPIO pin will start from (138 + 54 + 0) = 192.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_index</strong> (<em>int</em>) &#8211; The index specified by users, starting from 0.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The GPIO pin number, starting from GPIO base + GPIO offset.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.gpio.GPIO.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/gpio.html#GPIO.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.gpio.GPIO.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to read a value from the GPIO.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An integer read from the GPIO</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.gpio.GPIO.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/gpio.html#GPIO.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.gpio.GPIO.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to write a value into the GPIO.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>int</em>) &#8211; An integer value, either 0 or 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynq.mmio">
+<span id="pynq-mmio-module"></span><h2>pynq.mmio module<a class="headerlink" href="#module-pynq.mmio" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pynq.mmio.MMIO">
+<em class="property">class </em><code class="descclassname">pynq.mmio.</code><code class="descname">MMIO</code><span class="sig-paren">(</span><em>base_addr</em>, <em>length=4</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/mmio.html#MMIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.mmio.MMIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class exposes API to carry MMIO operations.</p>
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.base_addr">
+<code class="descname">base_addr</code><a class="headerlink" href="#pynq.mmio.MMIO.base_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The base address of the MMIO, aligned with pages.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.base_addr_offset">
+<code class="descname">base_addr_offset</code><a class="headerlink" href="#pynq.mmio.MMIO.base_addr_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The base address offset with respect to pages.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.length">
+<code class="descname">length</code><a class="headerlink" href="#pynq.mmio.MMIO.length" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The length in bytes, with stop address aligned with words.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.debug">
+<code class="descname">debug</code><a class="headerlink" href="#pynq.mmio.MMIO.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; Turn on debug mode if it is True.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.mem">
+<code class="descname">mem</code><a class="headerlink" href="#pynq.mmio.MMIO.mem" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>mmap</em> &#8211; An mmap object created when mapping files to memory.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">base_addr</code><em class="property"> = None</em></dt>
+<dd><p>Align the base address with the pages</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">base_addr_offset</code><em class="property"> = None</em></dt>
+<dd><p>Calculate base address offset w.r.t the base address</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.f">
+<code class="descname">f</code><em class="property"> = None</em><a class="headerlink" href="#pynq.mmio.MMIO.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open file and mmap</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">length</code><em class="property"> = None</em></dt>
+<dd><p>Calculate the length between the base address and the stop address</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.mmio.MMIO.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>offset=0</em>, <em>length=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/mmio.html#MMIO.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.mmio.MMIO.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to read data from MMIO.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>offset</strong> (<em>int</em>) &#8211; The offset added to the MMIO base address.</li>
+<li><strong>length</strong> (<em>int</em>) &#8211; The length of the data in bytes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of data read out from MMIO</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.stop">
+<code class="descname">stop</code><em class="property"> = None</em><a class="headerlink" href="#pynq.mmio.MMIO.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Align the stop address with the words</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.mmio.MMIO.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>offset</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/mmio.html#MMIO.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.mmio.MMIO.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to write the data into MMIO.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>offset</strong> (<em>int</em>) &#8211; The offset added to the MMIO base address.</li>
+<li><strong>data</strong> (<em>int / str</em>) &#8211; The integer(s) to be written into MMIO.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynq.pl">
+<span id="pynq-pl-module"></span><h2>pynq.pl module<a class="headerlink" href="#module-pynq.pl" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pynq.pl.Bitstream">
+<em class="property">class </em><code class="descclassname">pynq.pl.</code><code class="descname">Bitstream</code><span class="sig-paren">(</span><em>bitfile_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Bitstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Bitstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pynq.pl.PL" title="pynq.pl.PL"><code class="xref py py-class docutils literal"><span class="pre">pynq.pl.PL</span></code></a></p>
+<p>This class provides the bitstreams that can be downloaded.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To avoid confusion, self.bitstream always stores an absolute path.</p>
+</div>
+<dl class="attribute">
+<dt id="pynq.pl.Bitstream.bitfile_name">
+<code class="descname">bitfile_name</code><a class="headerlink" href="#pynq.pl.Bitstream.bitfile_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The absolute path of the bitstream.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pl.Bitstream.timestamp">
+<code class="descname">timestamp</code><a class="headerlink" href="#pynq.pl.Bitstream.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Timestamp when loading the bitstream. Follow a format of:
+(year, month, day, hour, minute, second, microsecond)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Bitstream.download">
+<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Bitstream.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Bitstream.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to download the bitstream onto PL.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The class variables held by the singleton PL will also be updated.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pynq.pl.Overlay">
+<em class="property">class </em><code class="descclassname">pynq.pl.</code><code class="descname">Overlay</code><span class="sig-paren">(</span><em>bitfile_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pynq.pl.PL" title="pynq.pl.PL"><code class="xref py py-class docutils literal"><span class="pre">pynq.pl.PL</span></code></a></p>
+<p>The Overlay class keeps track of a single bitstream.</p>
+<p>The overlay class holds the state of the bitstream and enables run-time
+protection of bindlings.
+Our definition of overlay is: &#8220;post-bitstream configurable design&#8221;.
+Hence, this class must expose configurability through content discovery
+and runtime protection.</p>
+<p>The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+<p>The PS GPIO dictionary stores the following information:
+1. name (str), the key of an entry.
+2. pin (int), the user index of the GPIO, starting from 0.</p>
+<dl class="attribute">
+<dt id="pynq.pl.Overlay.bitfile_name">
+<code class="descname">bitfile_name</code><a class="headerlink" href="#pynq.pl.Overlay.bitfile_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The absolute path of the bitstream.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pl.Overlay.bitstream">
+<code class="descname">bitstream</code><a class="headerlink" href="#pynq.pl.Overlay.bitstream" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Bitstream</em> &#8211; The corresponding bitstream object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pl.Overlay.ip_dict">
+<code class="descname">ip_dict</code><a class="headerlink" href="#pynq.pl.Overlay.ip_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> &#8211; The addressable IP instances on the overlay.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pl.Overlay.gpio_dict">
+<code class="descname">gpio_dict</code><a class="headerlink" href="#pynq.pl.Overlay.gpio_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> &#8211; The dictionary storing the PS GPIO pins.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">bitstream</code><em class="property"> = None</em></dt>
+<dd><p>Set the bitstream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.download">
+<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to download a bitstream onto PL.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">After the bitstream has been downloaded, the &#8220;timestamp&#8221; in PL will be
+updated. In addition, both of the IP and GPIO dictionaries on PL will
+be reset automatically.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.get_gpio_user_ix">
+<code class="descname">get_gpio_user_ix</code><span class="sig-paren">(</span><em>gpio_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.get_gpio_user_ix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.get_gpio_user_ix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the user index of the GPIO for an IP.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The PS GPIO dictionary stores the following information:
+1. name (str), the key of an entry.
+2. pin (int), the user index of the GPIO, starting from 0.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gpio_name</strong> (<em>str</em>) &#8211; The name of the PS GPIO pin.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The user index of the GPIO, starting from 0.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.get_ip_addr_base">
+<code class="descname">get_ip_addr_base</code><span class="sig-paren">(</span><em>ip_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.get_ip_addr_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.get_ip_addr_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the base address for an IP on the overlay.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip_name</strong> (<em>str</em>) &#8211; The name of the addressable IP.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The base address in hex format.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.get_ip_addr_range">
+<code class="descname">get_ip_addr_range</code><span class="sig-paren">(</span><em>ip_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.get_ip_addr_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.get_ip_addr_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the address range for an IP on the overlay.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip_name</strong> (<em>str</em>) &#8211; The name of the addressable IP.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The address range in hex format.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.get_ip_state">
+<code class="descname">get_ip_state</code><span class="sig-paren">(</span><em>ip_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.get_ip_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.get_ip_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the state about an addressable IP.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip_name</strong> (<em>str</em>) &#8211; The name of the addressable IP.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The state of the addressable IP.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.get_timestamp">
+<code class="descname">get_timestamp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.get_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.get_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the timestamp of the bitstream.</p>
+<p>The timestamp will be empty unless the bitstream is downloaded.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The timestamp when the bitstream is downloaded.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">gpio_dict</code><em class="property"> = None</em></dt>
+<dd><p>Set the GPIO dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">ip_dict</code><em class="property"> = None</em></dt>
+<dd><p>Set the IP dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.is_loaded">
+<code class="descname">is_loaded</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.is_loaded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.is_loaded" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method checks whether a bitstream is loaded.</p>
+<p>This method returns true if the timestamps are the same.
+The method also returns true if the two bitstreams have the same name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if bitstream is loaded.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.load_ip_data">
+<code class="descname">load_ip_data</code><span class="sig-paren">(</span><em>ip_name</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.load_ip_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.load_ip_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method loads the data to the addressable IP.</p>
+<p>This method can also be used for programming the IP. For example,
+users can use this method to load the program to the Microblaze
+processors on PL.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The data is assumed to be in binary format (<a href="#id1"><span class="problematic" id="id2">*</span></a>.bin). The data name will
+be stored as a state information in the IP dictionary.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ip_name</strong> (<em>str</em>) &#8211; The name of the addressable IP.</li>
+<li><strong>data</strong> (<em>str</em>) &#8211; The absolute path of the program to be loaded.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">LookupError</span></code> &#8211; If the overlay is not loaded yet.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.reset_gpio_dict">
+<code class="descname">reset_gpio_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.reset_gpio_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.reset_gpio_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function resets the entire GPIO dictionary of the overlay.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function should be used with caution since it resets the
+GPIO dictionary. If the overlay is loaded, it also resets the GPIO
+dictionary in the PL.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pl.Overlay.reset_ip_dict">
+<code class="descname">reset_ip_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#Overlay.reset_ip_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.Overlay.reset_ip_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function resets the entire IP dictionary of the overlay.</p>
+<p>This function is usually called before instantiating new objects on
+the same overlay. In that case, the GPIO dictionary does not have to
+be reset.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function should be used with caution since it resets the IP
+dictionary; the state information will be lost. If the overlay is
+loaded, it also resets the IP dictionary in the PL.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pynq.pl.PL">
+<em class="property">class </em><code class="descclassname">pynq.pl.</code><code class="descname">PL</code><a class="reference internal" href="_modules/pynq/pl.html#PL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class serves as a singleton for &#8220;Overlay&#8221; and &#8220;Bitstream&#8221; classes.</p>
+<p>The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+<p>The PS GPIO dictionary stores the following information:
+1. name (str), the key of an entry.
+2. pin (int), the user index of the GPIO, starting from 0.</p>
+<p>The timestamp uses the following format:
+Follow a format of: (year, month, day, hour, minute, second, microsecond)</p>
+<dl class="attribute">
+<dt id="pynq.pl.PL.bitfile_name">
+<code class="descname">bitfile_name</code><a class="headerlink" href="#pynq.pl.PL.bitfile_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The absolute path of the bitstream currently on PL.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pl.PL.timestamp">
+<code class="descname">timestamp</code><a class="headerlink" href="#pynq.pl.PL.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Timestamp when loading the bitstream.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pl.PL.ip_dict">
+<code class="descname">ip_dict</code><a class="headerlink" href="#pynq.pl.PL.ip_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> &#8211; The dictionary storing addressable IP instances; can be empty.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pl.PL.gpio_dict">
+<code class="descname">gpio_dict</code><a class="headerlink" href="#pynq.pl.PL.gpio_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> &#8211; The dictionary storing the PS GPIO pins.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">bitfile_name</code><em class="property"> = '/usr/local/lib/python3.4/dist-packages/pynq/bitstream/pmod.bit'</em></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.get_gpio_names">
+<em class="property">classmethod </em><code class="descname">get_gpio_names</code><span class="sig-paren">(</span><em>gpio_kwd=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.get_gpio_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.get_gpio_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the GPIO instance names on PL.</p>
+<p>This method returns the information about the current overlay loaded.
+If the gpio_kwd is not specified, this method returns the entire list;
+otherwise it returns the GPIO instance names containing the gpio_kwd.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The PS GPIO dictionary stores the following information:
+1. name (str), the key of an entry.
+2. pin (int), the user index of the GPIO, starting from 0.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gpio_kwd</strong> (<em>str</em>) &#8211; The input keyword to search for in the overlay.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of the GPIO instance names containing the gpio_kwd.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.get_gpio_user_ix">
+<em class="property">classmethod </em><code class="descname">get_gpio_user_ix</code><span class="sig-paren">(</span><em>gpio_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.get_gpio_user_ix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.get_gpio_user_ix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the user GPIO pin for an IP.</p>
+<p>Returns the information about the current overlay loaded.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The PS GPIO dictionary stores the following information:
+1. name (str), the key of an entry.
+2. pin (int), the user index of the GPIO, starting from 0.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gpio_name</strong> (<em>str</em>) &#8211; The name of the PS GPIO pin.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The user index of the GPIO, starting from 0.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.get_ip_addr_base">
+<em class="property">classmethod </em><code class="descname">get_ip_addr_base</code><span class="sig-paren">(</span><em>ip_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.get_ip_addr_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.get_ip_addr_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the base address for an IP on PL.</p>
+<p>Returns the information about the current overlay loaded.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip_name</strong> (<em>str</em>) &#8211; The name of the addressable IP.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The base address in hex format.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.get_ip_addr_range">
+<em class="property">classmethod </em><code class="descname">get_ip_addr_range</code><span class="sig-paren">(</span><em>ip_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.get_ip_addr_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.get_ip_addr_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the address range for an IP on PL.</p>
+<p>Returns the information about the current overlay loaded.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip_name</strong> (<em>str</em>) &#8211; The name of the addressable IP.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The address range in hex format.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.get_ip_names">
+<em class="property">classmethod </em><code class="descname">get_ip_names</code><span class="sig-paren">(</span><em>ip_kwd=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.get_ip_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.get_ip_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the IP names on PL.</p>
+<p>This method returns the information about the current overlay loaded.
+If the ip_kwd is not specified, this method returns the entire list;
+otherwise it returns the IP names containing the ip_kwd.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip_kwd</strong> (<em>str</em>) &#8211; The input keyword to search for in the overlay.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of the addressable IPs containing the ip_kwd.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.get_ip_state">
+<em class="property">classmethod </em><code class="descname">get_ip_state</code><span class="sig-paren">(</span><em>ip_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.get_ip_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.get_ip_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the state about an addressable IP.</p>
+<p>Returns the information about the current overlay loaded. The state
+information can be used for general purposes, e.g., a program running
+on the IP.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IP dictionary stores the following information:
+1. name (str), the key of an entry.
+2. address (str), the base address of the IP.
+3. range (str), the address range of the IP.
+4. state (str), the state information about the IP.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip_name</strong> (<em>str</em>) &#8211; The name of the addressable IP.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The state of the addressable IP.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">gpio_dict</code><em class="property"> = {'processing_system7_0/GPIO_O': 4, 'mb_3_reset/Din': 2, 'mb_1_reset/Din': 0, 'tracebuffer_sel/Din': 5, 'mb_2_reset/Din': 1, 'mb_4_reset/Din': 3}</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">ip_dict</code><em class="property"> = {'SEG_axi_quad_spi_0_Reg': ['0x44A10000', '0x10000', None], 'SEG_xadc_wiz_0_Reg': ['0x43C10000', '0x10000', None], 'SEG_axi_traceBuffer_v1_0_0_reg0': ['0x43C00000', '0x10000', None], 'SEG_mb3_iic_Reg': ['0x40800000', '0x10000', None], 'SEG_axi_gpio_0_Reg': ['0x40000000', '0x10000', None], 'SEG_mb2_gpio_Reg': ['0x40000000', '0x10000', None], 'SEG_PMOD_IO_Switch_IP_0_S00_AXI_reg': ['0x44A00000', '0x10000', None], 'SEG_ilmb_bram_if_cntlr_Mem': ['0x0', '0x8000', None], 'SEG_mb3_gpio_Reg': ['0x40000000', '0x10000', None], 'SEG_mb2_PMOD_IO_Switch_IP_S00_AXI_reg': ['0x44A00000', '0x10000', None], 'SEG_swsleds_gpio_Reg': ['0x41200000', '0x10000', None], 'SEG_axi_iic_0_Reg': ['0x40800000', '0x10000', None], 'SEG_mb2_iic_Reg': ['0x40800000', '0x10000', None], 'SEG_axi_bram_ctrl_3_Mem0': ['0x44000000', '0x8000', None], 'SEG_btns_gpio_Reg': ['0x41210000', '0x10000', None], 'SEG_axi_bram_ctrl_2_Mem0': ['0x42000000', '0x8000', None], 'SEG_mb3_PMOD_IO_Switch_IP_S00_AXI_reg': ['0x44A00000', '0x10000', None], 'SEG_axi_bram_ctrl_4_Mem0': ['0x46000000', '0x8000', None], 'SEG_lmb_bram_if_cntlr_Mem': ['0x0', '0x8000', None], 'SEG_mb3_spi_Reg': ['0x44A10000', '0x10000', None], 'SEG_axi_bram_ctrl_1_Mem0': ['0x40000000', '0x8000', None], 'SEG_mb2_spi_Reg': ['0x44A10000', '0x10000', None]}</em></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.reset_gpio_dict">
+<em class="property">classmethod </em><code class="descname">reset_gpio_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.reset_gpio_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.reset_gpio_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the GPIO dictionary.</p>
+<p>This class method is usually called after a bitstream download.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.reset_ip_dict">
+<em class="property">classmethod </em><code class="descname">reset_ip_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.reset_ip_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.reset_ip_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the IP dictionary.</p>
+<p>This class method is usually called after a bitstream download.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">timestamp</code><em class="property"> = ''</em></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynq">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pynq.audio.html" class="btn btn-neutral float-right" title="pynq.audio package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules.html" class="btn btn-neutral" title="pynq" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
