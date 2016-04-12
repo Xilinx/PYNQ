@@ -48,6 +48,9 @@ sudo shutdown -r now
 cpufreq-info
   cpufreq stats: 325 MHz:0.00%, 650 MHz:100.00%
 
+# modify jupyter start call to put jupyter terminal at /home/xpp
+vi /root/2_jupyter_server.sh
+su -c "cd ~xpp ; jupyter notebook 2> /root/jupyter.log &" -s /bin/bash root 
 
 ```
 
