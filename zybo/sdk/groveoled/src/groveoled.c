@@ -1,15 +1,9 @@
 /*
  * IOP code (MicroBlaze) for groveoled
  * Grove OLED is write only, and has IIC interface
- * Operations implemented:
- *   1. Simple, single read from sensor, and write to data area
- *   2. Continuous read from sensor and log to data area
- * Switch configuration is done within this program.
  *
- * CMC
- * 6 April 2016
- * 11 April: To Do: Check the hysteresis, low, high level, and status.
- * Currently not fully implemented/tested
+ * April 13, 2016
+ * Author: Yun Rock Qu
 */
 
 /* Grove OLED is based on OLE35046P
@@ -26,7 +20,7 @@ http://www.seeedstudio.com/wiki/Grove_-_OLED_Display_0.96%22
 #define SET_NORMAL_DISPLAY      0x3 
 #define SET_INVERSE_DISPLAY     0x5 
 #define SET_GRAY_LEVEL          0x7 
-#define SET_VERTICAL_MODE       0x9 
+#define SET_PAGE_MODE           0x9 
 #define SET_HORIZONTAL_MODE     0xB 
 #define SET_TEXT_XY             0xD
 #define CLEAR_DISPLAY           0xF 
@@ -36,33 +30,33 @@ http://www.seeedstudio.com/wiki/Grove_-_OLED_Display_0.96%22
 #define ENABLE_SCROLL           0x17
 #define DISABLE_SCROLL          0x19
 
-#define VERTICAL_MODE			01
-#define HORIZONTAL_MODE			02
+#define PAGE_MODE               01
+#define HORIZONTAL_MODE         02
 
-#define OLED_Address		0x3c
-#define OLED_Command_Mode	0x80
-#define OLED_Data_Mode		0x40
+#define OLED_Address            0x3c
+#define OLED_Command_Mode       0x80
+#define OLED_Data_Mode          0x40
 
-#define OLED_Display_Off_Cmd	0xAE
+#define OLED_Display_Off_Cmd    0xAE
 #define OLED_Display_On_Cmd     0xAF
 
-#define OLED_Normal_Display_Cmd	0xA4
-#define OLED_Inverse_Display_Cmd	0xA7
-#define OLED_Activate_Scroll_Cmd	0x2F
-#define OLED_Dectivate_Scroll_Cmd	0x2E
-#define OLED_Set_ContrastLevel_Cmd	0x81
+#define OLED_Normal_Display_Cmd     0xA6
+#define OLED_Inverse_Display_Cmd    0xA7
+#define OLED_Activate_Scroll_Cmd    0x2F
+#define OLED_Dectivate_Scroll_Cmd   0x2E
+#define OLED_Set_ContrastLevel_Cmd  0x81
 
-#define Scroll_Left			0x00
-#define Scroll_Right			0x01
+#define Scroll_Left             0x00
+#define Scroll_Right            0x01
 
-#define Scroll_2Frames			0x7
-#define Scroll_3Frames			0x4
-#define Scroll_4Frames			0x5
-#define Scroll_5Frames			0x0
-#define Scroll_25Frames			0x6
-#define Scroll_64Frames			0x1
-#define Scroll_128Frames		0x2
-#define Scroll_256Frames		0x3
+#define Scroll_2Frames          0x7
+#define Scroll_3Frames          0x4
+#define Scroll_4Frames          0x5
+#define Scroll_5Frames          0x0
+#define Scroll_25Frames         0x6
+#define Scroll_64Frames         0x1
+#define Scroll_128Frames        0x2
+#define Scroll_256Frames        0x3
 
 void init(void);
 
@@ -72,7 +66,7 @@ void sendData(unsigned char Data);
 void setNormalDisplay();
 void setInverseDisplay();
 void setGrayLevel();
-void setVerticalMode();
+void setPageMode();
 void setHorizontalMode();
 void setTextXY();
 void clearDisplay();
@@ -86,7 +80,6 @@ void deactivateScroll();
 // 8x8 Font ASCII 32 - 127 Implemented
 // Users can modify this to support more characters(glyphs)
 // BasicFont is placed in code memory.
-
 // This font can be freely used without any restriction(It is placed in public domain)
 const unsigned char BasicFont[][8]=
 {
@@ -208,49 +201,15 @@ void sendData(u8 data){
 
 void init()
 {
-    sendCommand(0xFD); // Unlock OLED driver IC MCU interface from entering command. i.e: Accept commands
+    // Unlock OLED driver IC MCU interface
+    sendCommand(0xFD);
     sendCommand(0x12);
-    sendCommand(0xAE); // Set display off
-    sendCommand(0xA8); // set multiplex ratio
-    sendCommand(0x5F); // 96
-    sendCommand(0xA1); // set display start line
-    sendCommand(0x00);
-    sendCommand(0xA2); // set display offset
-    sendCommand(0x60);
-    sendCommand(0xA0); // set remap
-    sendCommand(0x46);
-    sendCommand(0xAB); // set vdd internal
-    sendCommand(0x01); //
-    sendCommand(0x81); // set contrasr
-    sendCommand(0x53); // 100 nit
-    sendCommand(0xB1); // Set Phase Length
-    sendCommand(0X51); //
-    sendCommand(0xB3); // Set Display Clock Divide Ratio/Oscillator Frequency
-    sendCommand(0x01);
-    sendCommand(0xB9); //
-    sendCommand(0xBC); // set pre_charge voltage/VCOMH
-    sendCommand(0x08); // (0x08);
-    sendCommand(0xBE); // set VCOMH
-    sendCommand(0X07); // (0x07);
-    sendCommand(0xB6); // Set second pre-charge period
-    sendCommand(0x01); //
-    sendCommand(0xD5); // enable second precharge and enternal vsl
-    sendCommand(0X62); // (0x62);
-    sendCommand(0xA4); // Set Normal Display Mode
-    sendCommand(0x2E); // Deactivate Scroll
-    sendCommand(0xAF); // Switch on display
-    delay_ms(100);
-    
-    // Row Address
-    sendCommand(0x75); 	  // Set Row Address 
-    sendCommand(0x00); 	  // Start 0
-    sendCommand(0x5f); 	  // End 95 
-
-    // Column Address
-    sendCommand(0x15); 	  // Set Column Address 
-    sendCommand(0x08); 	  // Start from 8th Column of driver IC. This is 0th Column for OLED 
-    sendCommand(0x37); 	  // End at (8 + 47)th column. Each Column has 2 pixels(segments)
-
+    //Set display off
+    sendCommand(0xAE);
+    // Switch on display
+    sendCommand(0xAF);
+    // Set normal display
+    sendCommand(0xA4);
     // Init gray level for text. Default:Brightest White
     grayH= 0xF0;
     grayL= 0x0F;
@@ -266,51 +225,41 @@ void setContrastLevel()
 
 void setHorizontalMode()
 {
-    sendCommand(0xA0); // remap to
-    sendCommand(0x42); // horizontal mode
-
-    // Row Address
-    sendCommand(0x75); 	  // Set Row Address 
-    sendCommand(0x00); 	  // Start 0
-    sendCommand(0x5f); 	  // End 95 
-
-    // Column Address
-    sendCommand(0x15); 	  // Set Column Address 
-    sendCommand(0x08); 	  // Start from 8th Column of driver IC. This is 0th Column for OLED 
-    sendCommand(0x37); 	  // End at  (8 + 47)th column. Each Column has 2 pixels(or segments)
+    addressingMode = HORIZONTAL_MODE;
+    sendCommand(0x20);             //set addressing mode
+    sendCommand(0x00);             //set horizontal addressing mode
 }
 
-void setVerticalMode()
+void setPageMode()
 {
-    sendCommand(0xA0); // remap to
-    sendCommand(0x46); // Vertical mode
+    addressingMode = PAGE_MODE;
+    sendCommand(0x20);             //set addressing mode
+    sendCommand(0x02);             //set page addressing mode
 }
 
-void setTextXY()
+void setTextXY(int Row, int Column)
 {
-    int Row, Column;
-    Row = (u32) MAILBOX_DATA(0);
-    Column = (u32) MAILBOX_DATA(1);
-    //Column Address
-    sendCommand(0x15); 	           /* Set Column Address */
-    sendCommand(0x08+(Column*4));  /* Start Column: Start from 8 */
-    sendCommand(0x37); 	           /* End Column */
-    // Row Address
-    sendCommand(0x75); 	           /* Set Row Address */
-    sendCommand(0x00+(Row*8));     /* Start Row*/
-    sendCommand(0x07+(Row*8));     /* End Row*/
+    sendCommand(0xB0 + Row);                   //set page address
+    sendCommand(0x00 + (8*Column & 0x0F));     //set column lower address
+    sendCommand(0x10 + ((8*Column>>4)&0x0F));  //set column higher address
 }
 
 void clearDisplay()
 {
     int i,j;
-    for(j=0;j<48;j++)
+    sendCommand(OLED_Display_Off_Cmd);     //display off
+    for(j=0;j<8;j++)
     {
-        for(i=0;i<96;i++)  //clear all columns
+        setTextXY(j,0);
         {
-            sendData(0x00);
+            for(i=0;i<16;i++)             //clear all columns
+            {
+                putChar(' ');
+            }
         }
     }
+    sendCommand(OLED_Display_On_Cmd);     //display on
+    setTextXY(0,0);
 }
 
 void setGrayLevel()
@@ -323,94 +272,57 @@ void setGrayLevel()
 
 void putChar(unsigned char C)
 {
-    int i,j;
-    if(C < 32 || C > 127) //Ignore non-printable ASCII characters. This can be modified for multilingual font.
+    if(C < 32 || C > 127) //Ignore non-printable ASCII characters.
     {
         C=' '; //Space
     }
-
-    /*
-    for(i=0;i<8;i=i+2)
-    {
-        for(j=0;j<8;j++)
-        {
-            // Character is constructed two pixel at a time using vertical mode from the default 8x8 font
-            char c=0x00;
-            char bit1=(BasicFont[C-32][i] >> j)  & 0x01;  
-            char bit2=(BasicFont[C-32][i+1] >> j) & 0x01;
-           // Each bit is changed to a nibble
-            c|=(bit1)?grayH:0x00;
-            c|=(bit2)?grayL:0x00;
-            sendData(c);
-        }
-    }
-    */
-    char c;
-    for(j=0;j<8;j++){
-        c = BasicFont[C-32][i];
-        sendData(c);
+    
+    int i;
+    for(i=0;i<8;i++){
+        sendData(BasicFont[C-32][i]);
     }
 }
 
 void putString()
 {
     int length;
-	char ch;
-	int i;
+    char ch;
+    int i;
 
-	length=MAILBOX_DATA(0);
-	for(i=0; i<length; i++){
-		ch = MAILBOX_DATA(1+i);
+    length=MAILBOX_DATA(0);
+    for(i=0; i<length; i++){
+        ch = MAILBOX_DATA(1+i);
         putChar(ch);
-	}
+    }
 
 }
 
 void setHorizontalScrollProperties()
 {
-/*
-Use the following defines for 'direction' :
-
- Scroll_Left
- Scroll_Right
-
-Use the following defines for 'scrollSpeed' :
-
- Scroll_2Frames	
- Scroll_3Frames
- Scroll_4Frames
- Scroll_5Frames	
- Scroll_25Frames
- Scroll_64Frames
- Scroll_128Frames
- Scroll_256Frames
-*/
     unsigned char direction;
-    unsigned char startRow;
-    unsigned char endRow;
-    unsigned char startColumn;
-    unsigned char endColumn;
+    unsigned char startPage;
+    unsigned char endPage;
     unsigned char scrollSpeed;
     
     direction = (u8) MAILBOX_DATA(0);
-    startRow = (u8) MAILBOX_DATA(1);
-    endRow = (u8) MAILBOX_DATA(2);
-    startColumn = (u8) MAILBOX_DATA(3);
-    endColumn = (u8) MAILBOX_DATA(4);
-    scrollSpeed = (u8) MAILBOX_DATA(5);
+    startPage = (u8) MAILBOX_DATA(1);
+    endPage = (u8) MAILBOX_DATA(2);
+    scrollSpeed = (u8) MAILBOX_DATA(3);
     
-    if(Scroll_Right == direction){//Scroll Right
-        sendCommand(0x27);
-    }else{//Scroll Left  
-        sendCommand(0x26);
+    if(Scroll_Right == direction)
+    {
+        sendCommand(0x26);//Scroll Right
     }
-    sendCommand(0x00);       //Dummmy byte
-    sendCommand(startRow);
+    else
+    {
+        sendCommand(0x27);//Scroll Left
+    }
+    sendCommand(0x00);
+    sendCommand(startPage);
     sendCommand(scrollSpeed);
-    sendCommand(endRow);
-    sendCommand(startColumn+8);
-    sendCommand(endColumn+8);
-    sendCommand(0x00);      //Dummmy byte
+    sendCommand(endPage);
+    sendCommand(0x00);
+    sendCommand(0xFF);
 }
 
 void activateScroll()
@@ -436,6 +348,7 @@ void setInverseDisplay()
 int main(void)
 {
    int cmd;
+   int Row, Column;
 
    configureSwitch(BLANK, BLANK, SDA, BLANK, BLANK, BLANK, SCL, BLANK);
    // Initialization
@@ -463,8 +376,8 @@ int main(void)
             MAILBOX_CMD_ADDR = 0x0; 
             break;
             
-         case SET_VERTICAL_MODE:   
-            setVerticalMode();
+         case SET_PAGE_MODE:   
+            setPageMode();
             MAILBOX_CMD_ADDR = 0x0; 
             break;
             
@@ -474,8 +387,10 @@ int main(void)
             break;
             
          case SET_TEXT_XY:
-            setTextXY();
-            MAILBOX_CMD_ADDR = 0x0; 
+            Row = (u32) MAILBOX_DATA(0);
+            Column = (u32) MAILBOX_DATA(1);
+            setTextXY(Row, Column);
+            MAILBOX_CMD_ADDR = 0x0;
             break;
             
          case CLEAR_DISPLAY:

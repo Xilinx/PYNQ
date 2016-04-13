@@ -74,6 +74,9 @@ class Grove_OLED(object):
         
         self.iop.start()
         
+        #: Use the default of horizontal mode
+        self.set_horizontal_mode()
+        
     def write(self, text):
         """Write a new text string on the OLED.
         
@@ -143,7 +146,7 @@ class Grove_OLED(object):
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
                         
-    def set_normal_display(self):
+    def set_normal_mode(self):
         """Set the display mode to normal.
         
         Parameters
@@ -158,7 +161,7 @@ class Grove_OLED(object):
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
                         
-    def set_inverse_display(self):
+    def set_inverse_mode(self):
         """Set the display mode to inverse.
         
         Parameters
@@ -172,4 +175,58 @@ class Grove_OLED(object):
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
+                        
+    def set_page_mode(self):
+        """Set the display mode to paged.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
+                        
+    def set_horizontal_mode(self):
+        """Set the display mode to horizontal.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
+                        
+    def set_contrast(self, brightness):
+        """Set the contrast level for the OLED display.
+        
+        The contrast level is in [0, 255].
+        
+        Parameters
+        ----------
+        brightness : int
+            The brightness of the display.
+        
+        Returns
+        -------
+        None
+        
+        """
+        #: First write the brightness
+        if (brightness not in range(0,256)):
+            raise ValueError("Valid brightness is between 0 and 255.")
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, brightness)
+        
+        #: Then write the command
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x11)
     
