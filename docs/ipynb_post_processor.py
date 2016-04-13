@@ -28,7 +28,7 @@ import re
 
 
 # Set target_directory and create list of *.ipynb files within it
-target_dir = "./test"
+target_dir = "./source"
 
 # Remove all previously post-processed (_pp.ipynb) files from target directory
 ipynb_pp_files = [file for file in os.listdir(target_dir) if file.endswith("_pp.ipynb")]
