@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Python on Zynq (Pynq) Documentation &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="#"/>
+        <link rel="next" title="Pynq Overview" href="1.-Pynq.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="1.-Pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2.-Getting-started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="b. Notebook Basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c. Running Code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="d. Working With Markdown Cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pmodio_overlay (5).html">Peripherals and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7.-Test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8.-Glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix_1.html">Appendix 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>Python on Zynq (Pynq) Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="python-on-zynq-pynq-documentation">
+<h1>Python on Zynq (Pynq) Documentation<a class="headerlink" href="#python-on-zynq-pynq-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="1.-Pynq.html">Pynq Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="1.-Pynq.html#project-goals">Project Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1.-Pynq.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="2.-Getting-started.html">Start here</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="2.-Getting-started.html#three-main-steps">Three main steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2.-Getting-started.html#hardware-installation">Hardware installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2.-Getting-started.html#interacting-with-the-zynq-portal">Interacting with the Zynq Portal</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="a. What is the Jupyter Notebook.html#Introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a. What is the Jupyter Notebook.html#Notebook-web-application">Notebook web application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a. What is the Jupyter Notebook.html#Kernels">Kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a. What is the Jupyter Notebook.html#Notebook-documents">Notebook documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="b. Notebook Basics.html">Notebook Basics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="b. Notebook Basics.html#The-Notebook-dashboard">The Notebook dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="b. Notebook Basics.html#Overview-of-the-Notebook-UI">Overview of the Notebook UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="b. Notebook Basics.html#Modal-editor">Modal editor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="b. Notebook Basics.html#Mouse-navigation">Mouse navigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="b. Notebook Basics.html#Keyboard-Navigation">Keyboard Navigation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c. Running Code.html">Running Code</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c. Running Code.html#Code-cells-allow-you-to-enter-and-run-code">Code cells allow you to enter and run code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c. Running Code.html#Managing-the-Kernel">Managing the Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c. Running Code.html#Cell-menu">Cell menu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c. Running Code.html#Restarting-the-kernels">Restarting the kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c. Running Code.html#sys.stdout-and-sys.stderr">sys.stdout and sys.stderr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c. Running Code.html#Output-is-asynchronous">Output is asynchronous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c. Running Code.html#Large-outputs">Large outputs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="d. Working With Markdown Cells.html">Markdown Cells</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="d. Working With Markdown Cells.html#Markdown-basics">Markdown basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="d. Working With Markdown Cells.html#Headings">Headings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="d. Working With Markdown Cells.html#Embedded-code">Embedded code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="d. Working With Markdown Cells.html#LaTeX-equations">LaTeX equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="d. Working With Markdown Cells.html#GitHub-flavored-markdown">GitHub flavored markdown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="d. Working With Markdown Cells.html#General-HTML">General HTML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="d. Working With Markdown Cells.html#Local-files">Local files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html#the-factors-and-primes-module">The factors_and_primes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html#programming-on-board-io">Programming on-board IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html#LEDs,-switches-and-buttons">LEDs, switches and buttons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html#Controlling-a-single-LED">Controlling a single LED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html#Example:-Controlling-all-the-LEDs,-switches-and-buttons">Example: Controlling all the LEDs, switches and buttons</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pmodio_overlay (5).html">Peripherals and the PModIO overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pmodio_overlay (5).html#Supported-peripherals">Supported peripherals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmodio_overlay (5).html#PMod-Connector">PMod Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmodio_overlay (5).html#PMod-Pin-configuration">PMod Pin configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmodio_overlay (5).html#IO-Processors">IO Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmodio_overlay (5).html#ZYBO-PMODIO-Overlay">ZYBO PMODIO Overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmodio_overlay (5).html#Going-further">Going further</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#pmods">PMods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#pmod-interface">PMod Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#io-processors">IO Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#zybo-pmodio-overlay">ZYBO PMODIO Overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#example-using-the-oled-and-als">Example: Using the OLED and ALS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#using-other-pmods">Using other PMods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#example-using-the-adc-dac-and-oled">Example: Using the ADC, DAC and OLED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4.-The-PModIO-overlay.html#going-further">Going further</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="audio_video_overlay.html">The Audio-Video Overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="audio_video_overlay.html#Video-IO">Video IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="audio_video_overlay.html#The-HDMI-video-capture-controller">The HDMI video capture controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="audio_video_overlay.html#Starting-and-stopping-the-controller">Starting and stopping the controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="audio_video_overlay.html#Readback-from-the-controller">Readback from the controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="audio_video_overlay.html#HDMI-Frame-buffer">HDMI Frame buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="audio_video_overlay.html#The-VGA-video-display-controller">The VGA video display controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="audio_video_overlay.html#Using-Audio-IO">Using Audio IO</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="6.-Libraries-and-APIs.html#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6.-Libraries-and-APIs.html#board">board</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6.-Libraries-and-APIs.html#pmods">pmods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6.-Libraries-and-APIs.html#function-list">Function List</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7.-Test.html">Test</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="7.-Test.html#running-tests">Running Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7.-Test.html#running-demos">Running Demos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7.-Test.html#writing-tests-and-demos">Writing Tests and Demos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7.-Test.html#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="8.-Glossary.html">Glossary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="8.-Glossary.html#a-g">A-G</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8.-Glossary.html#h-r">H-R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8.-Glossary.html#s-z">S-Z</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="9.-Useful-Reference-Links.html">Useful Reference Links</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#ftdi-software-drivers">FTDI software drivers:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#putty-terminal-emulation-software">PUTTY terminal emulation software:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#python-built-in-functions">Python built-in functions:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#python-training">Python training:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#xpp-technical-support">XPP Technical support:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#zybo-reference-manual">ZYBO reference manual:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#jupyter">Jupyter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9.-Useful-Reference-Links.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="10.-FAQs.html">Frequently Asked Questions (FAQs)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="10.-FAQs.html#why">Why ...</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix_1.html">Appendix 1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Appendix_1.html#technology-backgrounder">Technology Backgrounder</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.html">pynq package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div></blockquote>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="1.-Pynq.html" class="btn btn-neutral float-right" title="Pynq Overview" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Appendix 1 &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="pynq" href="modules.html"/>
+        <link rel="prev" title="Frequently Asked Questions (FAQs)" href="10.-FAQs.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="1.-Pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2.-Getting-started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="b. Notebook Basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c. Running Code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="d. Working With Markdown Cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pmodio_overlay (5).html">Peripherals and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7.-Test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8.-Glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Appendix 1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#technology-backgrounder">Technology Backgrounder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overlays-and-design-re-use">Overlays and Design Re-use</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#characteristics-of-good-overlays">Characteristics of Good Overlays</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#the-case-for-productivity-layer-languages">The Case for Productivity-layer Languages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Appendix 1</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/Appendix_1.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="appendix-1">
+<h1><a class="toc-backref" href="#id1">Appendix 1</a><a class="headerlink" href="#appendix-1" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#appendix-1" id="id1">Appendix 1</a><ul>
+<li><a class="reference internal" href="#technology-backgrounder" id="id2">Technology Backgrounder</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="technology-backgrounder">
+<h2><a class="toc-backref" href="#id2">Technology Backgrounder</a><a class="headerlink" href="#technology-backgrounder" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overlays-and-design-re-use">
+<h3>Overlays and Design Re-use<a class="headerlink" href="#overlays-and-design-re-use" title="Permalink to this headline">¶</a></h3>
+<p>The &#8216;magic&#8217; of mapping an application to an APSoC, without designing custom hardware, is achieved by using <em>FPGA overlays</em>. FPGA overlays are FPGA designs that are both highly configurable and highly optimized for a given domain.  The availability of a suitable overlay removes the need for a software designer to develop a new bitstream. Software and system designers can customize the functionality of an existing overlay <em>in software</em> once the API for the overlay bitstream is available.</p>
+<p>An FPGA overlay is a domain-specific FPGA design that has been created to be highly configurable so that it can be used in  as many different applications as possible.  It has been crafted to maximize post-bitstream programmability which is exposed via its API.  The API provides a new entry-point for application-focused software and systems engineers to exploit APSoCs in their solutions.  With an API they only have to write software to program configure the functions of an overlay for their applications.</p>
+<p>By analogy with the Linux kernel and device drivers, FPGA overlays are designed by relatively few engineers so that they can be re-used by many others. In this way, a relatively small number of overlay designers can support a much larger community of APSoC designers.  Overlays exist to promote re-use. Like kernels and device drivers, these hardware-level artifacts are not static, but evolve and improve over time.</p>
+<div class="section" id="characteristics-of-good-overlays">
+<h4>Characteristics of Good Overlays<a class="headerlink" href="#characteristics-of-good-overlays" title="Permalink to this headline">¶</a></h4>
+<p>Creating one FPGA design and its corresponding API to serve the needs of many applications in a given domain is what defines a successful overlay.  This, one-to-many relationship between the overlay and its users, is different from the more common one-to-one mapping between a bitstream and its application.</p>
+<p>Consider the example of an overlay created for controlling drones.  Instead of creating a design that is optimized for controlling just a single type of drone, the hardware architects recognize the many common requirements shared by different drone controllers. They create a design for controlling drones that is a flexible enough to be used with several different drones.  In effect, they create a drone-control overlay.  They expose, to the users of their bitstream, an API through which the users can determine in software the parameters critical to their application.  For example, a drone control overlay might support up to eight, pulse-width-modulated (PWM) motor control circuits.  The software programmer can determine how many of the control circuits to enable and how to tune the individual motor control parameters to the needs of his particular drone.</p>
+<p>The design of a good overlay shares many common elements with the design of a class in object-oriented software.  Determining the fundamental data structure, the private methods and the public interface are common requirements.  The quality of the class is determined both by its overall usefulness and the coherency of the API it exposes.  Well-engineered classes and overlays are inherently useful and are easy to learn and deploy.</p>
+<p>Pynq adopts a holistic approach by considering equally the design of the overlays, the APIs exported by the overlays, and how well these APIs interact with new and existing Python design patterns and idioms to simplify and improve the APSoC design process.  One of the key challenges is to identify and refine good abstractions.  The goal is to find abstractions that improve design coherency by exposing commonality, even among loosely-related tasks.  As new overlays and APIs are published, we expect that the open-source software community will further improve and extend them in new and unexpected ways.</p>
+<p>Note that FPGA overlays are not a novel concept.  They have been studied for over a decade and many academic papers have been published on the topic.</p>
+</div>
+</div>
+<div class="section" id="the-case-for-productivity-layer-languages">
+<h3>The Case for Productivity-layer Languages<a class="headerlink" href="#the-case-for-productivity-layer-languages" title="Permalink to this headline">¶</a></h3>
+<p>Successive generations of All Programmable Systems on Chip embed more processors and greater processing power. As larger applications are integrated into APSoCs, the embedded code increases also. Embedded code that is speed or size critical, will continue to be written in C/C++.  These &#8216;efficiency-layer or systems languages&#8217; are needed to write fast, low-level drivers, for example. However, the proportion of embedded code that is neither speed-critical or size-critical, is increasing more rapidly. We refer to this braod class of code as <em>embedded applications code</em>.</p>
+<p>Programming embedded applications code in higher-level, &#8216;productivity-layer languages&#8217; makes good sense.  It simply extends the generally-accepted best-practice of always programming at the highest possible level of abstraction.  Python is currently a premier productivity-layer language.  It is now available in different variants for a range of embedded systems, hence its adoption in Pynq.  Pynq runs CPython on Linux on the ARM processors in Zynq devices.  To further increase productivity and portability, Pynq uses the Jupyter Notebook, an open-source web framework to rapidly develop systems, document their behavior and disseminate the results.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="modules.html" class="btn btn-neutral float-right" title="pynq" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="10.-FAQs.html" class="btn btn-neutral" title="Frequently Asked Questions (FAQs)" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
