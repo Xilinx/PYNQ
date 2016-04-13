@@ -6,10 +6,8 @@ Start here
    :depth: 2
 
 
-Pynq for ZYBO is a beta-stage deliverable from the Pynq team.  The full cource code for the project is available on the  `Pynq project GitHub<https://github.com/Xilinx/Pynq>`_. The source code is compiled to an bootable image for the Zybo. Zybo is currently the only officially supported platform, but the project could be ported to other Zynq platforms and the project team plan to support other Zynq platforms in the future. It is intended that Pynq will be used with a Zynq board and optionally external peripherals. 
+Pynq for ZYBO is a beta-stage deliverable from the Pynq team.  The full cource code for the project is available on the  `Pynq project GitHub<https://github.com/Xilinx/Pynq>`_. Zybo is currently the supported Pynq platform. The source code is compiled to an bootable image for the Zybo. 
 
-Documentation is available directly from the board. Once the board is running, navigate to <hostname>. 
-The documentation will also be available on readthedocs.org. 
 Any issues can be submitted via the github site's `issue tracker <https://github.com/Xilinx/Pynq/issues>`_.
 
 .. NOTE::
