@@ -49,7 +49,7 @@ for file in ipynb_files:
         print('\nScanning ..... file "{}"'.format(file))
         f.close()
         
-        # build list of markdown_cells thta contain a string matching the image_ref_pattern
+        # build list of markdown_cells that contain a string matching the image_ref_pattern
         match_count = 0
         for i, notebook_cell in enumerate(notebook['cells']):
             if notebook_cell['cell_type'] == 'markdown':
@@ -76,7 +76,7 @@ for file in ipynb_files:
                                         }
                                                                                  
                             print ('\tInserting RAW reST cell for {}'.format(reST_figure_directive))
-                            # Create new notebook cell after the current on of type RAW with reST figure directive 
+                            # Create new notebook cell after the current one, of type RAW with reST figure directive 
                             notebook['cells'].insert(i+1, reST_cell)
         # For notebooks without any images
         if match_count == 0:
