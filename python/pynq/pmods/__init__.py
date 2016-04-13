@@ -46,3 +46,4 @@ from .als import ALS
 from .cable import Cable
 from .grove_pir import Grove_PIR
 from .grove_adc import Grove_ADC
+from .grove_oled import Grove_OLED

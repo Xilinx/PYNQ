@@ -25,29 +25,29 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 ELFSIZE += \
-grove_adc.elf.size \
+groveadc.elf.size \
 
 
 # All Target
-all: grove_adc.elf secondary-outputs
+all: groveadc.elf secondary-outputs
 
 # Tool invocations
-grove_adc.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
+groveadc.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MicroBlaze gcc linker'
-	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../standalone_bsp_mb1/mb_1_microblaze_1/lib -mlittle-endian -mcpu=v9.5 -mxl-soft-mul -Wl,--no-relax -o "grove_adc.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../standalone_bsp_mb1/mb_1_microblaze_1/lib -mlittle-endian -mcpu=v9.5 -mxl-soft-mul -Wl,--no-relax -o "groveadc.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-grove_adc.elf.size: grove_adc.elf
+groveadc.elf.size: groveadc.elf
 	@echo 'Invoking: MicroBlaze Print Size'
-	mb-size grove_adc.elf  |tee "grove_adc.elf.size"
+	mb-size groveadc.elf  |tee "groveadc.elf.size"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-grove_adc.bin: grove_adc.elf
+groveadc.bin: groveadc.elf
 	@echo 'Invoking: MicroBlaze Bin Gen'
-	mb-objcopy -O binary grove_adc.elf grove_adc.bin
+	mb-objcopy -O binary groveadc.elf groveadc.bin
 	@echo 'Finished building: $@'
 	@echo ' '
 
@@ -55,10 +55,10 @@ grove_adc.bin: grove_adc.elf
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_adc.elf grove_adc.bin
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) groveadc.elf groveadc.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE) grove_adc.bin
+secondary-outputs: $(ELFSIZE) groveadc.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

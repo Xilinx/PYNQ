@@ -1,4 +1,5 @@
-src/pmodtmp2.o src/pmodtmp2.d: ../src/pmodtmp2.c ../src/pmod.h \
+src/pmodtmp2.o src/pmodtmp2.d: ../src/pmodtmp2.c \
+ ../../standalone_bsp_mb1/mb_1_microblaze_1/include/pmod.h \
  ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xparameters.h \
  ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xspi.h \
  ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xil_types.h \
@@ -8,10 +9,9 @@ src/pmodtmp2.o src/pmodtmp2.d: ../src/pmodtmp2.c ../src/pmod.h \
  ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xil_io.h \
  ../../standalone_bsp_mb1/mb_1_microblaze_1/include/mb_interface.h \
  ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xil_exception.h \
- ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xil_printf.h \
- ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xspi_l.h
+ ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xil_printf.h
 
-../src/pmod.h:
+../../standalone_bsp_mb1/mb_1_microblaze_1/include/pmod.h:
 
 ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xparameters.h:
 
@@ -32,5 +32,3 @@ src/pmodtmp2.o src/pmodtmp2.d: ../src/pmodtmp2.c ../src/pmod.h \
 ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xil_exception.h:
 
 ../../standalone_bsp_mb1/mb_1_microblaze_1/include/xil_printf.h:
-
-../../standalone_bsp_mb1/mb_1_microblaze_1/include/xspi_l.h:

@@ -7,13 +7,13 @@ LD_SRCS += \
 ../src/lscript.ld 
 
 C_SRCS += \
-../src/grove_adc.c 
+../src/groveadc.c 
 
 OBJS += \
-./src/grove_adc.o 
+./src/groveadc.o 
 
 C_DEPS += \
-./src/grove_adc.d 
+./src/groveadc.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
