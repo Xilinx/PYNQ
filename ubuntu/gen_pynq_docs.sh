@@ -14,6 +14,6 @@ cd ~xpp
 git clone https://github.com/Xilinx/Pynq Pynq_doc
 cd Pynq_doc/docs
 sphinx-apidoc -f -o ./source usr/local/lib/python3.4/dist-packages/pynq
-python3 ipynb_pp.py
+python3 ipynb_post_processor.py
 make clean ; make html
 
