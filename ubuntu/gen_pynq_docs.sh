@@ -5,6 +5,11 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
  
+if [ -d "~xpp/Pynq_doc" ]; then
+   echo "plesae manually remove ~xpp/Pynq_doc before running this script."
+   exit 1
+fi
+ 
 cd ~xpp
 git clone https://github.com/Xilinx/Pynq Pynq_doc
 cd Pynq_doc/docs
