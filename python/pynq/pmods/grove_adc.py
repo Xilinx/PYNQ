@@ -68,18 +68,17 @@ class Grove_ADC(object):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         gr_id: int
             The group ID on StickIt, from 1 to 4.
+            
         """
-        
+        # IOP Switch Configuration
+        if (gr_id not in range(4,5)):
+            raise ValueError("Valid StickIt ID for ADC (IIC) is 4. ")
 
         self.iop = _iop.request_iop(pmod_id, GROVE_ADC_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         self.log_running  = 0
         self.iop.start()
-        
-        # IOP Switch Configuration
-        if (gr_id not in range(3,5)):
-            raise ValueError("Valid StickIt ID for ADC (IIC) is 3 or 4. ")
  
         # Configure IOP Switch
         # SDA is configuration 0x9 
@@ -98,7 +97,6 @@ class Grove_ADC(object):
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
-            
         # Write SDA Pin Config    
         pin_config = SDA + pmod_const.STICKIT_PINS_GR[gr_id][1];   
         # Write Pin Config
@@ -109,11 +107,7 @@ class Grove_ADC(object):
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
-            
         
-        
-        
-        #super().__init__(pmod_id, pmod_const.STICKIT_PINS_GR[gr_id][0],'in')
         
     def read(self):
         """Read the ADC value from the GROVE_ADC peripheral.
@@ -125,7 +119,7 @@ class Grove_ADC(object):
         Returns
         -------
         int
-            The current sensor value.
+            The raw value from the sensor.
         
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
@@ -146,7 +140,7 @@ class Grove_ADC(object):
         Returns
         -------
         float
-            The current sensor value.
+            The float value after translation.
         
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
@@ -249,7 +243,8 @@ class Grove_ADC(object):
             
         Returns
         -------
-        List of valid voltage samples (floats) from the GROVE_ADC sensor [0V - 3.3V]
+        list
+            List of valid voltage samples (floats) from the GROVE_ADC sensor.
         
         """
         #: Stop logging
@@ -281,7 +276,8 @@ class Grove_ADC(object):
             
         Returns
         -------
-        List of valid voltage samples (floats) from the GROVE_ADC sensor [0V - 3.3V]
+        list
+            List of valid voltage samples (floats) from the GROVE_ADC sensor.
         
         """
         #: Stop logging
@@ -297,12 +293,15 @@ class Grove_ADC(object):
             return None
         elif head_ptr < tail_ptr:
             for i in range(head_ptr,tail_ptr,4):
-                readings.append(float("{0:.3f}".format(self._reg2float(self.mmio.read(i)))))
+                readings.append(float("{0:.3f}"\
+                    .format(self._reg2float(self.mmio.read(i)))))
         else:
             for i in range(head_ptr,GROVE_ADC_LOG_END,4):
-                readings.append(float("{0:.3f}".format(self._reg2float(self.mmio.read(i)))))
-            for i in range(GROVE_ADC_LOG_START,tail_ptr,4):            
-                readings.append(float("{0:.3f}".format(self._reg2float(self.mmio.read(i)))))
+                readings.append(float("{0:.3f}"\
+                    .format(self._reg2float(self.mmio.read(i)))))
+            for i in range(GROVE_ADC_LOG_START,tail_ptr,4):
+                readings.append(float("{0:.3f}"\
+                    .format(self._reg2float(self.mmio.read(i)))))
         return readings
         
     def reset_adc(self):
@@ -326,15 +325,17 @@ class Grove_ADC(object):
             pass
             
     def _reg2float(self, reg):
-        """Converts 32 bit int to float representation in Python
+        """Converts 32-bit register value to floats in Python.
         
         Parameters
         ----------
         reg: int
+            A 32-bit register value read from the mailbox.
             
         Returns
         -------
         float
+            A float number translated from the register value.
         
         """
         s = struct.pack('>l', reg)
