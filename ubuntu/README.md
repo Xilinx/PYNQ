@@ -52,6 +52,10 @@ cpufreq-info
 vi /root/2_jupyter_server.sh
 su -c "cd ~xpp ; jupyter notebook 2> /root/jupyter.log &" -s /bin/bash root 
 
+
+# seaborn for nice matplotlib
+pip install seaborn
+
 ```
 
 03-25-2016
