@@ -1,321 +1,92 @@
-The ``pyxi`` (**Py**\thon **Xi**\linx) Package
+The ``Pynq`` (PYthon ZyNQ) Package
 ==============================================
 
+The section describes the ``pynq`` (**Py**\thon Zy **nq**) package. 
 
-The section describes the ``pyxi`` (**Py**\thon **Xi**\linx) package. It is organized as follows:
+The Pynq project is based on Ubuntu core.  
 
-* *Structure*: This subsection provides the description of the package structure in terms of folders and files.
+You can explore the project code on GitHub, or you can navigate to the Pynq code on your board. The board has a Samba share which allows you to view directories on the board as a network drive.
 
-* *Function List*: This subsection covers a list of many useful functions available in pyxi package.
+In Windows, using Windows Explorer, navigate to or map `\\\\pynq\\xpp\\pynq<\\\\pynq\\xpp\\pynq>
+You can browse to the directory in a similar way using other operating systems.
 
-* *Usage*: This subsection details and code examples on how to use the pyxi package.
-
-* *Examples*: This subsection introduces various examples based on the pyxi package.
-
-``pyxi`` is a package of python libraries consisting of utility functions and modules to support the on-board and external peripherals (e.g. ZYBO LEDs, switches, and external PMods). 
-
-
-Structure
+Pynq Structure
 ---------
-What is a package in Python? In a nutshell, a package is a folder which contains multiple ".py" files -- _i.e._ modules -- and the file ``$$__init__$$.py``. ``$$__init__$$.py`` makes Python treat the directory as a self-containing package. ``$$__init__$$.py`` can also execute the initialization code for the package. For instance, in ``$$__init__$$.py``, the ``$$__all__$$`` variable can be used to define the subpackages or modules that will be imported by default when this package is imported::
+A package in Python is a folder which contains multiple ".py" files -- _i.e._ modules -- and the file ``__init__.py``. ``__init__.py`` makes Python treat the directory as a self-containing package. ``__init__.py`` can also execute the initialization code for the package. For instance, in ``__init__.py``, the ``__all__`` variable can be used to define the subpackages or modules that will be imported by default when this package is imported:: 
 
-                             +-------+
-                             | pyxi  |
-                             +-------+
-                                 |
-        ---------------------------------------------------------------------
-       |            |               |              |             |         |
-   +-------+    +-------+        +-------+     +-------+     +-------+   
-   | board |    | pmods |        | audio |     | video |     | tests |   __init__.py
-   +-------+    +-------+        +-------+     +-------+     +-------+   
-       |            |               |              |             |
-   __init__.py  __init__.py    __init__.py   __init__.py     __init__.py
-   _gpios.py      _iop.py        _audio.py     _video.py      random.py
-   button.py      adc.py         audio.py     hdmi.py      testsuite.py
-   led.py         als.py        +-------+       vga.py      unittest.py
-   switch.py      dac.py        | tests |      +-------+  
-   utils.py      devmode.py     +-------+      | tests | 
-   +-------+       dpot.py          |          +-------+
-   | tests |      gpio.py         .....            |
-   +-------+       led8.py                       .....
-       |          oled.py
-     .....        tmp2.py
-                 +-------+
-                 | tests | 
-                 +-------+
-                     |
-                   .....
-
-Pyxi contains four _user_ subpackages: `board`, `pmods`, `audio`, and `video`; a `tests` subpackage is for testing the user subpackages. Please refer to the https://docs.python.org/3.5/tutorial/modules.html#packages[offical python documentation] for additional information.
+Pynq contains four _user_ subpackages: `board`, `pmods`, `audio`, and `video`; a `tests` subpackage is for testing the user subpackages. Please refer to the `offical python documentation <https://docs.python.org/3.5/tutorial/modules.html#packages>`_
+ for additional information.
 
 board
 -----
-This folder contains the "onboard" subpackage, _i.e._ libraries for peripherals available on Zybo. e.g. Buttons, Switches, LEDs. The idea is that, for each board, `pyxi` will have a subpackage `<board_name>` that will define available onboard peripherals and their API. In this case, `board` contains five modules: `utils`, `button`, `led`, `switch` and `$$_$$gpios`. `utils` contains utility functions like `cat()`, `ls()`, and `delay()`, while `button`, `led`, and `switch` expose the `Button`, `LED`, and `Switch` classes and their wrapper functions. 
+This folder contains the "onboard" subpackage, _i.e._ libraries for peripherals available on Zybo. e.g. Buttons, Switches, LEDs. Zybo is currently the only supported board, but for other boards, `pynq` could have a subpackage `<board_name>` that will define available onboard peripherals and their API. In this case, `board` contains the modules: `button`, `led`, and `switch`, which expose the `Button`, `LED`, and `Switch` classes and their wrapper functions. 
 
-pmods
+pmods (and Grove Peripherals)
 -----
-This folder contains PMod packages which includes the following modules `OLED`, `TMP2`, `ALS` `LED8`, `ADC`, and `DAC`.  In addition, `DevMode` is a developer mode for the IO processor. 
+This folder contains peripheral packages which includes the following PMod modules `OLED`, `TMP2`, `ALS` `LED8`, `ADC`, and `DAC`.  
 
-There is also an additional module named `$$_$$iop.py`; this module acts like a wrapper to allow all the PMODs' classes to interface with the `pyb.iop` object. The `pyb.iop` object is bound to the IOPs. The `$$_$$iop` module will act like a _singleton_ and prevent multiple instantiations of `pyb.iop` objects on the same PMOD. At the same time, `$$_$$iop` keeps track of the status of all the PMODs. This is done through the API whose signature is shown below:
+The following Grove peripherals are also supported: `GROVE ADC`, `GROVE PIR`, `GROVE OLED`, `GROVE BUZZER`, `GROVE LIGHT SENSOR`, `GROVE LED BAR`, `GROVE TEMPERATURE SENSOR`. In addition, `DevMode` is a developer mode for the IO processor. 
+
+There is also an additional module named `_iop.py`; this module acts like a wrapper to allow all the PMODs' classes to interface with the `pyb.iop` object. The `pyb.iop` object is bound to the IOPs. The `_iop` module will act like a _singleton_ and prevent multiple instantiations of `pyb.iop` objects on the same PMOD. At the same time, `_iop` keeps track of the status of all the PMODs. This is done through the API whose signature is shown below:
 
 .. code-block:: python
 
    def request_iop(req_obj, pmod_id, program = None, force = False)
 
-Below is a diagram of the modules implemented in the ```pmods`` folder. This diagram also shows the hierarchy when a new ``pyb.iop`` is requested by a top module::
 
-    +-------+   +-------+   +-------+   +-------+   +---------+   
-    |       |   |       |   |       |   |       |   |         |   
-    | oled  |   | led8  |   |  adc  |   |  dac  |   | devmode |   ...
-    |       |   |       |   |       |   |       |   |         |   
-    +---+---+   +---+---+   +---+---+   +---+---+   +---+-----+   
-        |           |           |           |           |    
-        |           |           |           |           |
-        +-----------+-------+---+-----------+-----------+--- ...
-                            | request_iop()
-                            v
-                        +-------+
-                        |       |
-                        | _iop  | 
-                        |       |
-                        +---+---+                  
-                            |
-                            v
-                       +---------+
-                       |         |
-                       | pyb.iop |
-                       |         |
-                       +---------+                                                      
+.. note:: ``_iop.py`` is an internal module, not intended for the end users. In Python, there is no concept of _public_ and _private_; we use ``_`` as a prefix to indicate internal definitions, variables, functions, and packages.
 
 
-.. note:: ``$$_$$iop.py`` is an internal module, not intended for the end users. In Python, there is no concept of _public_ and _private_; we use ``$$_$$`` as a prefix to indicate internal definitions, variables, functions, and packages.
-
-
-``$$__init__$$.py`` is used to raise the scope of all the classes at the package level. The following can be used to import everything in ``pyxi.pmods``:
+``__init__.py`` is used to raise the scope of all the classes at the package level. The following can be used to import everything in ``pynq.pmods``:
 
 .. code-block:: python
 
-   import pyxi.pmods
+   import pynq.pmods
 
 Alternatively, users can also import each class individually:
 
 .. code-block:: python
 
-   from pyxi.pmods import ADC
+   from pynq.pmods import ADC
 
 or
 
 .. code-block:: python
 
-   from pyxi.pmods.adc import ADC
+   from pynq.pmods.adc import ADC
 
 But the latter is verbose and not recommended.
 
 tests
 ^^^^^
-This folder includes a tests package for use with all other pyxi subpackages. 
+This folder includes a tests package for use with all other pynq subpackages. 
 
 For now, it contains the `unittest <https://pypi.python.org/pypi/micropython-unittest>`_ package.
 
-NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pyxi package. This common practice  in Python where each subpackage has its own ``tests``. This practice can keep the source code modular and *self-contained*.
+NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice  in Python where each subpackage has its own ``tests``. This practice can keep the source code modular and *self-contained*.
 
-Function List
--------------
-board
-^^^^^
-**utils.py**
-``delay(seconds)``
-Delay for the given number of seconds
-
-.. code-block:: python
-
-   >>> from pyxi.board import delay
-   >>> delay(5)
-
-``ls(path='')``
-Pyxi equivalent to the UNIX 'ls' command
-
-.. code-block:: python
-
-   >>> from pyxi.board import ls
-   >>> ls()
-
-
-``cat(fn)``
-Pyxi equivalent to the UNIX 'cat' command
-
-.. code-block:: python
-
-   >>> from pyxi.board import cat
-   >>> cat("pyxi/__init__.py")
-
-**button.py**
-``read()``
-Read the current value of the button
-
-.. code-block:: python
-
-   >>> from pyxi.board import Button
-   >>> BTN1 = Button(1)
-   >>> BTN1.read()
-
-**switch.py**
-``read()``
-Read the current value of the switch
-
-.. code-block:: python
-
-   >>> from pyxi.board import Switch
-   >>> SW2 = Switch(2)
-   >>> SW2.read()
-
-
-**led.py**
-``toggle()``::``
-Flip the bit of a single LED
-``on()``::``
-Turn on a single LED
-``off()``::``
-Turn off a single LED
-``set(value)``::``
-Set the LED state according to the input value
-
-.. code-block:: python
-
-   >>> from pyxi.board import LED
-   >>> LD3 = LED(3)
-   >>> LD3.on()
-   >>> LD3.off()
-   >>> LD3.toggle()
-   >>> LD3.set(0)
-
-pmods
-^^^^^
-**adc.py**
-``read()``
-Get the raw value from the ADC PMOD and convert it to a float string
-
-.. code-block:: python
-   
-   >>> from pyxi.pmods import ADC
-   >>> adc1 = ADC(1)
-   >>> adc1.read()
-
-**als.py**
-``read()``
-Read current sensor value
-
-.. code-block:: python
-
-   >>> from pyxi.pmods import ALS
-   >>> als1 = ALS(1)
-   >>> als1.read()
-
-
-**dac.py**
-write(value)::
-Write a floating-point number on the DAC PMOD
-
-.. code-block:: python
-
-   >>> from pyxi.pmods import DAC
-   >>> dac2 = DAC(2)
-   >>> dac2.write(1.0)
-
-
-**gpio.py**
-``write(value)``
-Send the value to the offboard GPIO device
-
-**read()**
-Receive the value from the offboard GPIO device
-
-.. code-block:: python
-
-   >>> from pyxi.pmods import GPIO
-   >>> gpio1 = GPIO(1,7,0)
-   >>> gpio2 = GPIO(2,7,1)
-   >>> gpio1.write(1)
-   >>> gpio2.read()
-
-**led8.py**
-``toggle()``
-Flip the bit of a single LED
-
-``on()``
-Turn on a single LED
-
-``off()``
-Turn off a single LED
-
-``set(value)``
-Set the LED state according to the input value
-
-.. code-block:: python
-
-   >>> from pyxi.pmods import LED8
-   >>> led8 = LED8(3)
-   >>> led8.on()
-   >>> led8.off()
-   >>> led8.toggle()
-   >>> led8.set(0)
-
-**tmp2.py**
-
-``read(value)``
-Read the current temperature value
-
-.. code-block:: python
-
-   >>> from pyxi.pmods import TMP2
-   >>> temp2 = TMP2(2)
-   >>> temp2.read()
-
-**oled.py**
-
-``write()``
-Write a new text string on the OLED
-clear_screen()::
-Clear the OLED screen.
-
-.. code-block:: python
-
-   >>> from pyxi.pmods import OLED
-   >>> oled4 = OLED(4)
-   >>> oled4.write("Zybo")
-   >>> oled4.clear_screen()
-
-tests
-^^^^^
-
-**random.py**
-
-``rng()``
-Return a pseudo-random number between 0 to 8388593
-
-.. code-block:: python
-
-   >>> from pyxi.tests.random import rng
-   >>> rng()
+Package contents
+=====
+To find a list of modules, and to find documentation for each module, see the [Pynq Package ](../build/html/modules.html)
 
 Usage
 =====
 
-Refer to `Section 3. Programing ZYBO in Python <https://github.com/Xilinx/XilinxPythonProject/wiki/3.-Programing-ZYBO-in-Python>`_ for more information on how to use Pyxi.
+Refer to `Section 3. Programing ZYBO in Python <../build/html/3.-Programing-ZYBO-in-Python.html>`_ for more information on how to use Pynq.
 
-To use pyxi, import the whole package: 
+To use pynq, import the whole package: 
 
 .. code-block:: python
 
-  import pyxi
+  import pynq
  
 or
 
 .. code-block:: python
 
-   from pyxi import *
+   from pynq import *
 
-Note the content of ``$$__init__$$.py`` in the ``pyxi`` folder:
+Note the content of ``__init__.py`` in the ``pynq`` folder:
 
 .. code-block:: python
 
@@ -327,38 +98,38 @@ To access the _onboard_ packages, type:
 
 .. code-block:: python
 
-   from pyxi import board
+   from pynq import board
 
 or
 
 .. code-block:: python
 
-   import pyxi.board
+   import pynq.board
 
 or, to import specific packages:
 
 .. code-block:: python
 
-   from pyxi.board import Button, LED, cat, ls
+   from pynq.board import Button, LED, cat, ls
 
 
 To access the PMod overlay objects, type:
 
 .. code-block:: python
 
-   from pyxi import pmods
+   from pynq import pmods
 
 or
 
 .. code-block:: python
 
-   import pyxi.pmods
+   import pynq.pmods
 
 or, for a single object
 
 .. code-block:: python
 
-   from pyxi.pmods import ADC, DAC
+   from pynq.pmods import ADC, DAC
 
 
 

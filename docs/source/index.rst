@@ -13,15 +13,15 @@ Contents:
    :maxdepth: 2
 
    1.-Pynq
+   2.-Getting-started
    a. What is the Jupyter Notebook
    b. Notebook Basics
    c. Running Code
    d. Working With Markdown Cells
-   2.-Getting-started
    3.-Programing-ZYBO-in-Python
    Programming_Zybo's_onboard_peripherals_pp
    pmodio_overlay (5)_pp
-   4.-The-PModIO-overlay
+   4.-The-PModIO-overlay_pp
    audio_video_overlay
    6.-Libraries-and-APIs
    7.-Test

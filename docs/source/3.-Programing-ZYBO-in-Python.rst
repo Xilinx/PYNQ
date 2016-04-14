@@ -6,9 +6,8 @@ Zynq A9 programming in Python
 .. contents:: Table of Contents
    :depth: 2
 
-We show here some more examples of how to program the Xilinx Zynq 7010 APSoC on ZYBO using MicroPython.  The first set of examples run exclusively on the ARM Cortex-A9 processor.  These examples, which are based on calculating the factors and primes of integer numbers, give us a sense of the performance available with MicroPython running on a 650MHz Cortex-A9.  
+We show here an example of how to run Python on Zybo with Pynq.  All Python is running exclusively on the ARM Cortex-A9 processor.  This example, which is based on calculating the factors and primes of integer numbers, give us a sense of the performance available when running on a 650MHz ARM Cortex-A9 dual core processor running Ubuntu.  
 
-The second set of examples show how easy it is to program the A9 to control peripherals on the board.  The peripherals are interfaced to the processor by circuits in the programmable logic.  Together, the examples show how MicroPython implements a very substantial subset of the core Python capabilities. They also demonstrate the power of the MicroPython REPL, as a an interpreted interface to Zynq.
 
 The factors_and_primes module
 =============================
@@ -122,86 +121,3 @@ To stress the A9 a little more, we will run a script to determine the integer nu
 The A9 remains quite responsive.  Running this for much larger numbers, say 50,000, will demonstrate noticeably slower responses as we would expect.
 
 The source code for the functions above is available in the file `examples/factors_and_primes.py`  Reviewing the code wil l give you a better appreciation for the power of MicroPython both in terms of Python language covera  ge and performance.
-
-
-Programming on-board IO
-=========================
-LEDs, switches and buttons 
---------------------------
-ZYBO has four LEDs, four slide-switches and four push-buttons that are connected to the Zynq's programmable logic.  These are highlighted in the photo of the ZYBO blow. 
-
-.. image:: ./images/zybo_io.jpeg
-   :height: 320
-   :scale: 50%
-   :align: center
-
-(Note that two additional push-buttons and 1 LED are connected directly to ZYBO's processor system via memory IO pins.  These are not highlighted in the figure and we will ignore them for now.)
-
-Each of the three banks of 4 IO devices can be controlled from Python.  To demonstrate this, we first import the `LED`, `Switch` and `Button` classes from the module `pyxi.board`
-  
-.. code-block:: python
-
-  # Import libraries    
-  >>> from pyxi.board import LED, Switch, Button      
-
-
-Controlling a single LED
-------------------------
-Now we can instantiate instances of each of these classes and invoke their methods to manipulate them.  Let's start by instantiating a single LED and turning it on and off.
-
-.. code-block:: python
-
-  >>> led0 = LED(0)
-  >>> led0.on()
-  >>> led0.off()
-
-Let's toggle `led0` ten times.  We need to import the `delay()` method from the `board` module to allow us to see the led flashing.  A delay argument of 1 second is sufficient.
-
-.. code-block:: python
-  
-  >>> from pyxi.board import LED, Switch, Button, delay
-  >>> led0 = LED(0)
-  >>> for i in range(20):
-  ...    led0.toggle()
-  ...    delay(1)
-
-Controlling all the LEDs, switches and buttons
-----------------------------------------------
-Next we create an example that uses the 4 LEDs, 4 slide-switches and 4 push-buttons. The script begins by turning all 4 LEDs off.  Then it samples the state of each of the 4 slide-switches and for any switch that is on, it lights the corresponding LED.  Finally, it checks the state of each of the 4 push-buttons and toggles the state of the corresponding LED.
-
-.. code-block:: python
-
-  from pyxi.board import LED, Switch, Button
-
-  MAX_LEDS = 4
-  MAX_SWITCHES = 4
-  MAX_BUTTONS = 4 
-
-  # Create lists for each of the IO component groups
-  leds = [LED(i) for i in range(MAX_LEDS)]                 # (1)
-  switches = [Switch(i) for i in range(MAX_SWITCHES)]
-  buttons = [Button(i) for i in range(MAX_BUTTONS)]
-
-  # LEDs start in the off state
-  for led in leds:
-      led.off()
-
-  # if a slide-switch is on, light the corresponding LED
-  for i, switch in enumerate(switches):                    # (2)
-      if switch.read():                                    # (3)
-          leds[i].on()
-      else:
-          leds[i].off()
-
-  # if a button is depressed, toggle the state of the corresponding LED
-  for i, button in enumerate(buttons):
-      if button.read():
-          leds[i].toggle()
-
-(1) The script uses list comprehensions to create 3 separate lists, called `leds`, `switches` and `buttons`, for the respective banks of IO components + 
-(2) It then calls the built-in Python function, `enumerate()`, to access the index of a switch element, and the element itself, on each iteration through the loop +
-(3) The script invokes the `read()` method of a switch element to sample the state of the switch which is then transferred to the corresponding LED using the element index.
-
-Summary 
-=======
-We have used MicroPython to execute scripts that target both the PS and PL subsystems of Zynq.  Having established this core functionality, we are ready to extend our horizons by introducing more advanced features of overlays.  In the next section we will describe the PModIO overlay and demonstrate how to program it.
