@@ -40,16 +40,16 @@ import math
 from . import general_const
 
 class MMIO:
-    """ This class exposes API to carry MMIO operations.
+    """ This class exposes API for MMIO read and write.
     
     Attributes
     ----------
     base_addr : int
-        The base address of the MMIO, aligned with pages.
+        The base address of an address range, page aligned.
     base_addr_offset : int
-        The base address offset with respect to pages.
+        The base address offset from page aligned base_addr.
     length : int
-        The length in bytes, with stop address aligned with words.
+        The length in bytes, page aligned.
     debug : bool
         Turn on debug mode if it is True.
     mem : mmap
@@ -105,7 +105,7 @@ class MMIO:
         Parameters
         ----------
         offset : int
-            The offset added to the MMIO base address.
+            The read offset from the MMIO base address.
         length : int
             The length of the data in bytes.
         
@@ -136,12 +136,12 @@ class MMIO:
 
 
     def write(self, offset, data):
-        """The method to write the data into MMIO.
+        """The method to write data to MMIO.
 
         Parameters
         ----------
         offset : int
-            The offset added to the MMIO base address.
+            The write offset from the MMIO base address.
         data : int / str
             The integer(s) to be written into MMIO.
         

@@ -101,13 +101,13 @@ def _get_dict_ip_addr(tcl_name):
     return result
     
 def _get_dict_gpio(tcl_name):
-    """This method returns the user index of the GPIO for an IP.
+    """This method returns the PS GPIO index for an IP.
     
     Note
     ----
     This method requires the absolute path of the '.tcl' file as input.
     Each entry in the returned dictionary stores a user index, and an empty
-    state. For more information about the user GPIO pin, please check the GPIO
+    state. For more information about the user GPIO pin, please see the GPIO
     class.
     
     Parameters
@@ -141,25 +141,25 @@ class PL:
     """Serves as a singleton for "Overlay" and "Bitstream" classes.
     
     The IP dictionary stores the following information:
-    1. name (str), the key of an entry.
+    1. name (str), the key of an IP entry.
     2. address (str), the base address of the IP.
     3. range (str), the address range of the IP.
     4. state (str), the state information about the IP.
     
     The PS GPIO dictionary stores the following information:
-    1. name (str), the key of an entry.
-    2. pin (int), the user index of the GPIO, starting from 0.
+    1. name (str), the key of an IP entry.
+    2. pin (int), the PS GPIO index, starting from 0.
     3. state (str), the state information about the GPIO.
     
     The timestamp uses the following format:
-    Follow a format of: (year, month, day, hour, minute, second, microsecond)
+    year, month, day, hour, minute, second, microsecond
     
     Attributes
     ----------
     bitfile_name : str
         The absolute path of the bitstream currently on PL.
     timestamp : str
-        Timestamp when loading the bitstream.
+        Bitstream download timestamp.
     ip_dict : dict
         The dictionary storing addressable IP instances; can be empty.
     gpio_dict : dict
@@ -188,7 +188,7 @@ class PL:
     def reset_ip_dict(cls):
         """Reset the IP dictionary.
         
-        This class method is usually called after a bitstream download.
+        This method must be called after a bitstream download.
         
         Parameters
         ----------
@@ -206,7 +206,7 @@ class PL:
     def reset_gpio_dict(cls):
         """Reset the GPIO dictionary.
         
-        This class method is usually called after a bitstream download.
+        This method must be called after a bitstream download.
         
         Parameters
         ----------
@@ -222,9 +222,9 @@ class PL:
         
     @classmethod
     def get_ip_names(cls, ip_kwd=None):
-        """This method returns the IP names on PL.
+        """This method returns the IP names in the PL.
         
-        This method returns the information about the current overlay loaded. 
+        This method returns information about the current overlay loaded. 
         If the ip_kwd is not specified, this method returns the entire list; 
         otherwise it returns the IP names containing the ip_kwd.
         
@@ -254,9 +254,7 @@ class PL:
             
     @classmethod
     def get_ip_addr_base(cls, ip_name):
-        """This method returns the base address for an IP on PL.
-        
-        Returns the information about the current overlay loaded.
+        """This method returns the base address for an IP in the PL.
         
         Note
         ----
@@ -281,9 +279,7 @@ class PL:
         
     @classmethod
     def get_ip_addr_range(cls, ip_name):
-        """This method returns the address range for an IP on PL.
-        
-        Returns the information about the current overlay loaded.
+        """This method returns the address range for an IP in the PL.
         
         Note
         ----
@@ -310,9 +306,9 @@ class PL:
     def get_ip_state(cls, ip_name):
         """This method returns the state about an addressable IP.
         
-        Returns the information about the current overlay loaded. The state 
-        information can be used for general purposes, e.g., a program running
-        on the IP.
+        Returns information about a currently loaded IP. This general 
+        purpose state's meaning is defined by the loaded Overlay.  
+        E.g., can specify what program is running on a soft processor.
         
         Note
         ----
@@ -337,12 +333,12 @@ class PL:
         
     @classmethod
     def load_ip_data(cls, ip_name, data):
-        """This method loads the data to the addressable IP.
+        """This method writes data to the addressable IP.
         
         Note
         ----
-        The data is assumed to be in binary format (*.bin). The data name will
-        be stored as a state information in the IP dictionary.
+        The data is assumed to be in binary format (*.bin). The data 
+        name will be stored as a state information in the IP dictionary.
         
         Parameters
         ----------
@@ -367,7 +363,7 @@ class PL:
     
     @classmethod
     def get_gpio_names(cls, gpio_kwd=None):
-        """This method returns the GPIO instance names on PL.
+        """This method returns PS GPIO accessible IP.
         
         This method returns the information about the current overlay loaded. 
         If the gpio_kwd is not specified, this method returns the entire list; 
@@ -398,9 +394,7 @@ class PL:
             
     @classmethod
     def get_gpio_user_ix(cls, gpio_name):
-        """This method returns the user GPIO pin for an IP.
-        
-        Returns the information about the current overlay loaded.
+        """This method returns the PS GPIO index for an IP.
         
         Note
         ----
@@ -426,8 +420,6 @@ class PL:
     def get_gpio_state(cls, gpio_name):
         """This method returns the state for a GPIO.
         
-        Returns the information about the current overlay loaded.
-        
         Note
         ----
         The PS GPIO dictionary stores the following information:
@@ -449,19 +441,15 @@ class PL:
         return cls.gpio_dict[gpio_name][1]
         
 class Bitstream(PL):
-    """This class provides the bitstreams that can be downloaded.
-    
-    Note
-    ----
-    To avoid confusion, self.bitstream always stores an absolute path.
+    """This class instantiates a programmable logic bitstream.
     
     Attributes
     ----------
     bitfile_name : str
         The absolute path of the bitstream.
     timestamp : str
-        Timestamp when loading the bitstream. Follow a format of:
-        (year, month, day, hour, minute, second, microsecond)
+        Timestamp when loading the bitstream. Format:
+        year, month, day, hour, minute, second, microsecond
         
     """
     
@@ -475,7 +463,6 @@ class Bitstream(PL):
         
         Note
         ----
-        To avoid any confusion, always use consistent representation.
         self.bitstream always stores the absolute path of the bitstream.
         
         Parameters
@@ -536,7 +523,7 @@ class Bitstream(PL):
         PL.reset_gpio_dict()
         
 class Overlay(PL):
-    """The Overlay class keeps track of a single bitstream.
+    """The Overlay class keeps track of a single bitstream's state and contents.
     
     The overlay class holds the state of the bitstream and enables run-time 
     protection of bindlings. 
@@ -575,7 +562,8 @@ class Overlay(PL):
         
         Note
         ----
-        This method requires the '.tcl' file association.
+        This class requires a Vivado '.tcl' file to be next to bitstream file with same
+        base name (e.g. pmod.bit and pmod.tcl).
         
         Parameters
         ----------
@@ -629,7 +617,7 @@ class Overlay(PL):
     def get_timestamp(self):
         """This method returns the timestamp of the bitstream.
         
-        The timestamp will be empty unless the bitstream is downloaded.
+        The timestamp will be empty string until the bitstream is downloaded.
         
         Parameters
         ----------
@@ -646,8 +634,8 @@ class Overlay(PL):
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
         
-        This method returns true if the timestamps are the same. 
-        The method also returns true if the two bitstreams have the same name.
+        This method returns true if the loaded PL bitstream is same 
+        as this Overlay's member bitstream.
         
         Parameters
         ----------
@@ -715,7 +703,7 @@ class Overlay(PL):
             PL.reset_gpio_dict()
                     
     def get_ip_addr_base(self, ip_name):
-        """This method returns the base address for an IP on the overlay.
+        """This method returns the base address of an IP in this overlay.
         
         Note
         ----
@@ -739,7 +727,7 @@ class Overlay(PL):
         return self.ip_dict[ip_name][0]
         
     def get_ip_addr_range(self, ip_name):
-        """This method returns the address range for an IP on the overlay.
+        """This method returns an IP's address range in this overlay.
         
         Note
         ----
@@ -763,7 +751,7 @@ class Overlay(PL):
         return self.ip_dict[ip_name][1]
         
     def get_ip_state(self, ip_name):
-        """This method returns the state about an addressable IP.
+        """This method returns the state of an addressable IP.
         
         Note
         ----
