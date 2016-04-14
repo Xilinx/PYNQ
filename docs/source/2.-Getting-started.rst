@@ -101,13 +101,13 @@ When prompted enter the password `pynq` to launch the Jupyter dashboard. If you 
 
 The Jupyter portal should now be open.
 
-#The Jupyter Dashboard
-#---------------------
-#
-#.. image:: ./images/jupyter_portal.jpeg
-#   :height: 600px
-#   :scale: 75%
-#   :align: center
+The Jupyter Dashboard
+---------------------
+
+.. image:: ./images/dashboard_files_tab.png
+   :height: 600px
+   :scale: 75%
+   :align: center
 
 
 
@@ -124,5 +124,4 @@ Getting Started Notebook #1
 To Do : Add getting started video
         Add link to getting started notebooks
         Add link to Trouble shooting guide
-        Update Jupyter portal image
         Update getting started notebook image
