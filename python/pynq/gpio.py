@@ -38,9 +38,9 @@ import struct
 from . import general_const
 
 class GPIO:
-    """Class to handle (PS) GPIOs in Linux. 
+    """Class to wrap Linux's GPIO Sysfs API. 
     
-    The GPIO class is differernt from the PMODIO class.
+    This GPIO class does not handle PL I/O.
     
     Attributes
     ----------
@@ -59,7 +59,7 @@ class GPIO:
         Parameters
         ----------
         gpio_index : int
-            The index of the GPIO, starting from the GPIO base.
+            The index of the GPIO using Linux's GPIO Sysfs API.
         direction : 'str'
             Input/output direction of the GPIO.
         
@@ -141,7 +141,7 @@ class GPIO:
             
     @staticmethod
     def get_gpio_base():
-        """This method returns the GPIO base in PS.
+        """This method returns the GPIO base using Linux's GPIO Sysfs API.
         
         This is a static method. To use:
         >>> from pynq import GPIO
@@ -167,29 +167,29 @@ class GPIO:
                     return int(''.join(x for x in name if x.isdigit()))
                     
     @staticmethod
-    def get_gpio_pin(user_index):
-        """This method returns a GPIO pin for users.
+    def get_gpio_pin(ps_gpio_index):
+        """This method returns a GPIO instance for PS GPIO pins.
         
         Users only need to specify an index starting from 0; this static 
-        method will map this index to the correct GPIO pin number.
+        method will map this index to the correct Linux GPIO pin number.
         
         Note
         ----
         The GPIO pin number can be calculated using:
         GPIO pin number = GPIO base + GPIO offset + user index
-        e.g. The GPIO base is 138, and pin 54 is the minimum GPIO offset.
-        Then the GPIO pin will start from (138 + 54 + 0) = 192.
+        e.g. The GPIO base is 138, and pin 54 is the base GPIO offset.
+        Then the Linux GPIO pin would be (138 + 54 + 0) = 192.
         
         Parameters
         ----------
-        user_index : int
+        ps_pl_gpio_index : int
             The index specified by users, starting from 0.
         
         Returns
         -------
         int
-            The GPIO pin number, starting from GPIO base + GPIO offset.
+            The Linux Sysfs GPIO pin number.
             
         """
         return (GPIO.get_gpio_base() + general_const.GPIO_MIN_USER_PIN\
-                + user_index)
+                + ps_gpio_index)
