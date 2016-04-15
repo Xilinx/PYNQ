@@ -1,9 +1,9 @@
 # Makefile to build select Microblaze projects.
 
 
-MBBINS = pmodadc.bin pmoddac.bin pmodoled.bin pmodals.bin pmodtmp2.bin \
-            pmoddpot.bin mailbox.bin groveadc.bin groveoled.bin \
-            groveimu.bin
+MBBINS = pmod_adc.bin pmod_dac.bin pmod_oled.bin pmod_als.bin pmod_tmp2.bin \
+			pmod_dpot.bin mailbox.bin grove_adc.bin grove_oled.bin \
+			grove_imu.bin
 
 all: pmod_bins
 	@echo "Completed Microblaze Projects' Builds"
@@ -15,10 +15,10 @@ mb_bsp:
 	cd $(subst .bin,,$@)/Debug; make clean ; make 
 
 pmod_bins: $(MBBINS)
-	-mkdir pmodbins
-	@cp */Debug/*.bin pmodbins
+	mkdir -p bins
+	@cp */Debug/*.bin bins
 
 
 clean:
 	rm -f */Debug/*.bin
-	rm -f pmodbins/*
+	rm -f bins/*
