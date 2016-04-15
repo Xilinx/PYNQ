@@ -87,8 +87,8 @@ def test_request_iop_conflict():
     
     """
     fixed_id = 1
-    request_iop(fixed_id,'adc.bin')
-    pytest.raises(LookupError, request_iop, fixed_id, 'dac.bin')
+    request_iop(fixed_id,'pmod_adc.bin')
+    pytest.raises(LookupError, request_iop, fixed_id, 'pmod_dac.bin')
     
     ol.reset_ip_dict()
     

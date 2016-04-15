@@ -75,7 +75,7 @@ def test_led0():
 
 @pytest.mark.run(order=22) 
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run") 
-def test_shift_leds():
+def test_shifts():
     """Test for all the LEDs on LED8.
     
     Instantiates 8 LED8 objects and shifts from right to left.
@@ -102,10 +102,11 @@ def test_shift_leds():
 
 @pytest.mark.run(order=23) 
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")  
-def test_toggle_leds():
+def test_toggle_1():
     """Test for all the LEDs on LED8.
     
-    Instantiates 8 LED objects and toggles them.
+    Instantiates 8 LED objects and toggles them. This test is done on the PMOD 
+    overlay, and can be skipped.
     
     """
     global leds
@@ -125,6 +126,37 @@ def test_toggle_leds():
         if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
             termios.tcflush(sys.stdin, termios.TCIOFLUSH)
             break
+            
+    for led in leds:
+        led.off()
+        
+    assert user_answer_yes("PMOD LEDs were toggling?")
+    
+    del leds
+
+@pytest.mark.run(order=38)
+def test_toggle_2():
+    """Test for all the LEDs on LED8.
+    
+    Instantiates 8 LED objects and toggles them. This test is done on the 
+    audiovideo overlay, and is required.
+    
+    """
+    input("\nPress enter after plugging the PMOD LED8 into PMOD 1 (JB).")
+    leds = [PMOD_LED8(1,index) for index in range(8)]
+    
+    for led in leds:
+        led.off()
+    leds[0].on()
+    leds[2].on()
+    leds[4].on()
+    leds[6].on()
+    
+    print("Toggling PMOD LEDs for a few seconds...")
+    for i in range(30):
+        for led in leds:
+            led.toggle()
+        sleep(0.2)
             
     for led in leds:
         led.off()
