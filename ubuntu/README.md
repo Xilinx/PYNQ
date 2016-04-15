@@ -5,12 +5,13 @@ All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-04-01-2016 - <graham.schelle@xilinx.com>
-            IPython terminal now starts in proper bash shell
-            Samba access now is "writeable" by enabling xpp user in samba.conf
-            Pynq package now installed in /usr/local/.. (not in ~xpp/)
-            tree functionality added
-            ~xpp/hostname.sh added to allow easy hostname changing
+04-15-2016 - <graham.schelle@xilinx.com>
+            Performance setting - no clock scaling
+            python seaborn package
+            xpp home directory cleaned 
+              cross compiler moved to /usr/local
+              docs and scripts folders added
+              notebook structure cleaned
 ```
 
 
@@ -18,6 +19,11 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
 Staging - to be added in next image
 
+```
+```
+
+
+04-15-2016
 ```
 add back in chroot* scripts
 pip install sphinx_rtd_theme
@@ -55,6 +61,7 @@ su -c "cd ~xpp ; jupyter notebook 2> /root/jupyter.log &" -s /bin/bash root
 
 # seaborn for nice matplotlib
 pip install seaborn
+
 
 ```
 
