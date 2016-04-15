@@ -12,7 +12,7 @@ We show here an example of how to run Python on Zybo with Pynq.  All Python is r
 The factors_and_primes module
 =============================
 
-The `factors_and_primes` module can be found in the pyxi.examples package.  It contains some sample functions to calculate the factors and primes of integers.  We will use three functions from the `factors_and_primes` module to demonstrate programming the ARM A9 CPU with MicroPython.  
+The `factors_and_primes` module can be found in the 'Examples/python_factors_primes.ipynb' notebook, accessible from Pynq's portal.  It contains some sample functions to calculate the factors and primes of integers.  We will use three functions from the `factors_and_primes` module to demonstrate Python programming.  
 
 factorize(n)::
 Calculate all factors of integer n
@@ -73,7 +73,7 @@ And we can combine `len()` with another built-in method, `sum()`, to calculate t
   >>> sum(primes_1066) / len(primes_1066)
   486.2056
 
-This result makes sense intuitively because prime numbers are known to become less frequent for larger number intervals.  These examples demonstrate how Python treats functions as first-class objects so that functions may be passed as parameters to other functions.  This is a key property of functional programming and demonstrates the power of Python (and MicroPython).
+This result makes sense intuitively because prime numbers are known to become less frequent for larger number intervals.  These examples demonstrate how Python treats functions as first-class objects so that functions may be passed as parameters to other functions.  This is a key property of functional programming and demonstrates the power of Python.
 
 We can use list comprehensions (a 'Pythonic' form of the map-filter-reduce template) to 'mine' the factors of 1066 to find those factors that end in the digit '3'.
 
@@ -85,7 +85,7 @@ We can use list comprehensions (a 'Pythonic' form of the map-filter-reduce templ
   [3, 13, 23, 43, 53, 73, 83, 103, 113, 163, 173, 193, 223, 233, 263, 283, 293, 313, 353, 373, 383, 433, 443, 463, 503, 523, 563, 593, 613, 643, 653, 673, 683, 733, 743, 773, 823, 853, 863, 883, 953, 983, 1013, 1033, 1063]
 
 
-This code tells MicroPython to first convert each prime between 1 and 1066 to a string and then to return those nu  mbers whose string representation end with the number '3'.  It uses the built-in `str()` and `endswith()` me  thods to test each prime for inclusion in the list.  A list of Python's b
+This code tells Python to first convert each prime between 1 and 1066 to a string and then to return those nu  mbers whose string representation end with the number '3'.  It uses the built-in `str()` and `endswith()` me  thods to test each prime for inclusion in the list.  A list of Python's b
 
 And because we really want to know what fraction of the 180 primes of 1066 end in a '3', we can calculate  ...
 
@@ -120,4 +120,4 @@ To stress the A9 a little more, we will run a script to determine the integer nu
 
 The A9 remains quite responsive.  Running this for much larger numbers, say 50,000, will demonstrate noticeably slower responses as we would expect.
 
-The source code for the functions above is available in the file `examples/factors_and_primes.py`  Reviewing the code wil l give you a better appreciation for the power of MicroPython both in terms of Python language covera  ge and performance.
+The source code for the functions above is available in the notebook `Examples/python_factors_primes.ipynb`.  Reviewing the code will give you a better appreciation for the power of Python both in terms of Python language coverage and performance.

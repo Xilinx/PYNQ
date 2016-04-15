@@ -6,7 +6,7 @@ Start here
    :depth: 2
 
 
-Pynq for Zybo is a beta-stage deliverable from the Pynq team.  The full source code for the project will be  available on the  `Pynq project GitHub <https://github.com/Xilinx/Pynq>`_ after the official beta release. Zybo is currently the supported *Pynq* platform. The source code is compiled to a bootable image for the Zybo. 
+Pynq for Zybo is a beta-stage deliverable from the Pynq team. The full build steps and Python packages will be available on the  `Pynq project GitHub <https://github.com/Xilinx/Pynq>`_ after the official beta release. Zybo is currently the supported Pynq platform. The source code can be directly pulled onto Zybo and compiled locally.
 
 Any issues can be submitted via the github site's `issue tracker <https://github.com/Xilinx/Pynq/issues>`_ once the site is live.
 
@@ -41,7 +41,7 @@ There are four main steps (each with several smaller steps) to getting started w
 * **3. Open a web browser and connect to Pynq web portal**
 
  * Using a web browser, open the address  `pynq:9090 <http://pynq:9090>`_
- If you can't connect to the board, see the [Frequnetly asked questions](10.-FAQs.html)
+ If you can't connect to the board, see the [Frequently asked questions](10.-FAQs.html)
 
 * **4. Familiarize yourself with Jupyter dashboard and notebooks**
 
@@ -91,16 +91,16 @@ Getting an IP address
 
 DHCP is enabled by default, so when you first power on the board, it should obtain an IP address automatically if you connect it to a home router or network switch. 
 
-See the [Frequnetly asked questions](10.-FAQs.html) if you can't connect to the board, or if you need to configure the network settings.
+See the [Frequently asked questions](10.-FAQs.html) if you can't connect to the board, or if you need to configure the network settings.
 
 Open the Pynq Portal
 --------------------
 Using a web browser, open the address  `pynq:9090 <http://pynq:9090>`_
 
 **pynq** is the default Ubuntu hostname of the board. 
-(This is only recommended where more than one board will be used on the same network. e.g. classroom teaching.) 
+(It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching.) 
 
-When prompted enter the password `pynq` to launch the Jupyter dashboard. If you have an older image, the password is xpp
+When prompted enter the password `xpp` to launch the Jupyter dashboard. 
 
 The Jupyter portal should now be open.
 
@@ -116,4 +116,4 @@ The Jupyter Dashboard
 
 Troubleshooting
 --------------------
-If you are having problems connecting to the board, see the [Frequnetly asked questions](10.-FAQs.html)
+If you are having problems connecting to the board, see the [Frequently asked questions](10.-FAQs.html)
