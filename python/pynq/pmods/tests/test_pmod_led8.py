@@ -38,10 +38,10 @@ import termios
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.pmods.led8 import LED8
+from pynq.pmods.pmod_led8 import PMOD_LED8
 from pynq.test.util import user_answer_yes
 
-flag = user_answer_yes("\nLED8 attached to the board?")
+flag = user_answer_yes("\nPMOD LED8 attached to the board?")
 if flag:
     global led_id
     led_id = int(input("Type in the PMOD ID of the LED8 (1 ~ 4): "))
@@ -56,7 +56,7 @@ def test_led0():
     
     """
     global leds
-    leds = [LED8(led_id,index) for index in range(8)]
+    leds = [PMOD_LED8(led_id,index) for index in range(8)]
     
     led = leds[0]
     led.on()

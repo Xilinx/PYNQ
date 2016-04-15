@@ -34,7 +34,7 @@ __email__       = "xpp_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
-from pynq.pmods.als import ALS
+from pynq.pmods.pmod_als import PMOD_ALS
 from pynq.test.util import user_answer_yes
 
 flag = user_answer_yes("\nALS attached to the board?")
@@ -52,7 +52,7 @@ def test_readlight():
     
     """
     global als
-    als = ALS(als_id)
+    als = PMOD_ALS(als_id)
     
     n = als.read()
     print("\nCurrent ALS reading: {}.".format(n))

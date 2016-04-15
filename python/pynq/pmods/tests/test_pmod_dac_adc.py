@@ -36,11 +36,11 @@ from random import randint
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.pmods.adc import ADC
-from pynq.pmods.dac import DAC
+from pynq.pmods.pmod_adc import PMOD_ADC
+from pynq.pmods.pmod_dac import PMOD_DAC
 from pynq.test.util import user_answer_yes
 
-flag = user_answer_yes("\nBoth ADC and DAC attached (straight cable)?")
+flag = user_answer_yes("\nPMOD ADC and PMOD DAC attached (straight cable)?")
 if flag:
         global adc_id, dac_id
         dac_id = int(input("Type in the PMOD ID of the DAC (1 ~ 4): "))
@@ -63,8 +63,8 @@ def test_loop_single():
     
     """
     global dac,adc
-    dac = DAC(dac_id)
-    adc = ADC(adc_id)
+    dac = PMOD_DAC(dac_id)
+    adc = PMOD_ADC(adc_id)
     
     value = float(input("\nInsert a voltage in the range of [0.00, 2.00]: "))
     assert value<=2.00, 'Input voltage should not be higher than 2.00V.'

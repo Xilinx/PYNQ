@@ -35,7 +35,7 @@ __email__       = "xpp_support@xilinx.com"
 from pynq.pmods import pmod_const
 from pynq.pmods.devmode import DevMode
 
-class PMODIIC(object):
+class PMOD_IIC(object):
     """This class controls the PMOD IIC pins.
     
     Note

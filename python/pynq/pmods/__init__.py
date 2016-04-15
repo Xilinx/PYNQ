@@ -33,17 +33,17 @@ __email__       = "xpp_support@xilinx.com"
 
 
 from . import pmod_const
-from .adc import ADC 
-from .dac import DAC 
-from .oled import OLED
 from .devmode import DevMode
-from .led8 import LED8
-from .pmodio import PMODIO
-from .pmodiic import PMODIIC
-from .dpot import DPOT
-from .tmp2 import TMP2
-from .als import ALS
-from .cable import Cable
+from .pmod_adc import PMOD_ADC 
+from .pmod_dac import PMOD_DAC 
+from .pmod_oled import PMOD_OLED
+from .pmod_led8 import PMOD_LED8
+from .pmod_io import PMOD_IO
+from .pmod_iic import PMOD_IIC
+from .pmod_dpot import PMOD_DPOT
+from .pmod_tmp2 import PMOD_TMP2
+from .pmod_als import PMOD_ALS
+from .pmod_cable import PMOD_Cable
 from .grove_pir import Grove_PIR
 from .grove_adc import Grove_ADC
 from .grove_oled import Grove_OLED

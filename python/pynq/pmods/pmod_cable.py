@@ -33,9 +33,9 @@ __email__       = "xpp_support@xilinx.com"
 
 
 from . import pmod_const
-from .pmodio import PMODIO
+from .pmod_io import PMOD_IO
 
-class Cable(PMODIO):
+class Cable(PMOD_IO):
     """This class can be used for a cable connecting PMOD interfaces.
     
     This class inherits from the PMODIO class.

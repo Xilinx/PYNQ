@@ -37,9 +37,9 @@ from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
-PROGRAM = "oled.bin"
+PROGRAM = "pmod_oled.bin"
 
-class OLED(object):
+class PMOD_OLED(object):
     """This class controls an OLED PMOD.
 
     Attributes

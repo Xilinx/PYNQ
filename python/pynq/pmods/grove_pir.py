@@ -33,9 +33,9 @@ __email__       = "xpp_support@xilinx.com"
 
 
 from pynq.pmods import pmod_const
-from pynq.pmods.pmodio import PMODIO
+from pynq.pmods.pmod_io import PMOD_IO
 
-class Grove_PIR(PMODIO):
+class Grove_PIR(PMOD_IO):
     """This class controls the PIR motion sensor.
     
     The grove PIR motion sensor is attached to a PMOD. This class inherits 

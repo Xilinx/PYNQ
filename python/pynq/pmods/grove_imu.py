@@ -39,7 +39,7 @@ from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
-GROVE_IMU_PROGRAM = "groveimu.bin"
+GROVE_IMU_PROGRAM = "grove_imu.bin"
 
 class Grove_IMU(object):
     """This class controls the Grove IIC IMU. 

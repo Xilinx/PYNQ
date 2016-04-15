@@ -37,11 +37,11 @@ from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
-TMP2_PROGRAM = "tmp2.bin"
+TMP2_PROGRAM = "pmod_tmp2.bin"
 TMP2_LOG_START = pmod_const.MAILBOX_OFFSET+16
 TMP2_LOG_END = TMP2_LOG_START+(1000*4)
 
-class TMP2(object):
+class PMOD_TMP2(object):
     """This class controls a temperature sensor PMOD.
 
     Attributes

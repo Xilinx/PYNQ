@@ -37,9 +37,9 @@ from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
-PROGRAM = "dac.bin"
+PROGRAM = "pmod_dac.bin"
 
-class DAC(object):
+class PMOD_DAC(object):
     """This class controls a Digital to Analog Converter PMOD.
 
     Attributes

@@ -27,7 +27,7 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
+__author__      = "Cathal McCabe, Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
@@ -37,26 +37,25 @@ from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
-PROGRAM = "adc.bin"
+PROGRAM = "pmod_dpot.bin"
 
-class ADC(object):
-    """This class controls an Analog to Digital Converter PMOD.
+class PMOD_DPOT(object):
+    """This class controls a digital potentiometer PMOD.
 
     Attributes
     ----------
     iop : _IOP
-        I/O processor instance used by the ADC
+        I/O processor instance used by DPOT
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
         
     """
-
     def __init__(self, pmod_id):
-        """Return a new instance of an ADC object.
+        """Return a new instance of a DPOT object. 
     
         Note
         ----
-        The pmod_id 0 is reserved for XADC (JA). 
+        The pmod_id 0 is reserved for XADC (JA).
         
         Parameters
         ----------
@@ -66,59 +65,69 @@ class ADC(object):
         """
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.mmio = self.iop.mmio
-
+        
         self.iop.start()
     
-    def _value(self):   
-        """Get the raw value from the ADC PMOD.
+    def write(self, val, step=0, log_ms=0):
+        """Write the value into the DPOT.
+        
+        This method will write the parameters "value", "step", and "log_ms" 
+        all together into the DPOT PMOD. The parameter "log_ms" is only used
+        for debug; users can ignore this parameter.
+        
+        Parameters
+        ----------
+        val : int
+            The initial value to start, in [0, 255].
+        step : int
+            The number of steps when ramping up to the final value.
+        log_ms : int
+            The length of the log in milliseconds, for debug only.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if not 0<=val<=255:
+            raise ValueError("Initial value should be in range [0, 255].")    
+        if not 0<=step<=(255-val):
+            raise ValueError("Ramp steps should be in range [0, {}]."\
+                            .format(255-val))
+        if log_ms<0:
+            raise ValueError("Requested log_ms value cannot be less than 0.")
+        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+                        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, val)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, step)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+8, log_ms)
+      
+        if step == 0:
+            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
+        else:
+            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
+
+    def _read_hex(self, addr_offset):
+        """Read Hex value from Microblaze address space.
         
         Note
         ----
-        This method should not be used directly. Users should use read() 
-        instead to read the value returned by the ADC PMOD.
+        This method should not be used directly. It should be only used for 
+        debug.
         
         Parameters
         ----------
-        None
-        
-        Returns
-        -------
-        int
-            The value read from the ADC PMOD in its raw format.
-        
-        """     
-        #: Set up ADC (3 samples of channel 10)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xa0403)
-        
-        #: Wait for I/O processor to complete
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) 
-                              & 0x1) == 0x1:
-            time.sleep(0.001)
-
-        return self.mmio.read(pmod_const.MAILBOX_OFFSET + 12)
+        addr_offset : int
+            The MMIO address to be read from.
             
-    def read(self):
-        """Read the value from the ADC PMOD as a string.
-        
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         str
-            An floating number expressed as a string.
-        
+            The data read from the MMIO address expressed in hex.
+            
         """
-        val = self._value()        
-        chars = ['0','.','0','0','0','0']
-        
-        chars[0] = chr((val >> 24 ) & 0xff)
-        chars[2] = chr((val >> 16 ) & 0xff)
-        chars[3] = chr((val >> 8 )  & 0xff)
-        chars[4] = chr((val)        & 0xff)
-        
-        return  ''.join(chars)  
-    
+        return hex(self.mmio.read(addr_offset)) 

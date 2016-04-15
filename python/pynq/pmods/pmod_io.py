@@ -35,7 +35,7 @@ __email__       = "xpp_support@xilinx.com"
 from . import pmod_const
 from .devmode import DevMode
 
-class PMODIO(object):
+class PMOD_IO(object):
     """This class controls the PMOD IO pins as inputs or outputs.
     
     Note

@@ -37,7 +37,7 @@ from time import sleep
 import pytest
 from pynq import Overlay
 from pynq.pmods import pmod_const
-from pynq.pmods.cable import Cable
+from pynq.pmods.pmod_cable import PMOD_Cable
 from pynq.test.util import user_answer_yes
 
 flag = user_answer_yes("\nTwo PMOD interfaces connected by a cable?")
@@ -65,8 +65,8 @@ def test_cable_type():
     assert not TX_PORT == RX_PORT, \
         "The sender port cannot be the receiver port."
     global tx,rx
-    tx = [Cable(TX_PORT,k,'out','loopback') for k in range(8)]
-    rx = [Cable(RX_PORT,k,'in','loopback') for k in range(8)]
+    tx = [PMOD_Cable(TX_PORT,k,'out','loopback') for k in range(8)]
+    rx = [PMOD_Cable(RX_PORT,k,'in','loopback') for k in range(8)]
     tx[0].write(0)
     tx[3].write(0)
     tx[4].write(1)

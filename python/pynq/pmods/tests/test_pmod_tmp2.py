@@ -27,37 +27,34 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
+__author__      = "Naveen Purushotham, Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
 import pytest
 from pynq import Overlay
-from pynq.pmods.oled import OLED
+from pynq.pmods.pmod_tmp2 import PMOD_TMP2
 from pynq.test.util import user_answer_yes
 
-flag = user_answer_yes("\nOLED attached to the board?")
+flag = user_answer_yes("\nPMOD TMP2 attached to the board?")
 if flag:
-    global oled_id
-    oled_id = int(input("Type in the PMOD ID of the OLED (1 ~ 4): "))
+    global tmp2_id
+    tmp2_id = int(input("Type in the PMOD ID of the TMP2 (1 ~ 4): "))
 
-@pytest.mark.run(order=24)
-@pytest.mark.skipif(not flag, reason="need OLED attached in order to run")
-def test_write_string():
-    """Test for the OLED PMOD.
+@pytest.mark.run(order=27)
+@pytest.mark.skipif(not flag, reason="need TMP2 attached in order to run")
+def test_readtemp():
+    """Test for the TMP2 class.
     
-    Writes on the OLED the string 'Welcome to Zybo.' and asks the user to 
-    confirm if it is shown on the OLED. After that, it clears the screen.
+    Reads the TMP2 and asks the user if the temperature is displayed.
     
     """
-    global oled
-    oled = OLED(oled_id)
+    global tmp2
+    tmp2 = PMOD_TMP2(tmp2_id)
+    n = tmp2.read()
+    print("\nCurrent temperature: {} C.".format(n))
+    assert user_answer_yes("Reading in celsius displayed?")
     
-    oled.write('Welcome to Zybo.')
-    assert user_answer_yes("\nWelcome message shown on the OLED?")
-    oled.clear_screen()
-    assert user_answer_yes("OLED screen clear now?")      
-    
-    del oled
+    del tmp2
     

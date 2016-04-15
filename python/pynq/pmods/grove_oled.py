@@ -38,7 +38,7 @@ from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
-GROVE_OLED_PROGRAM = "groveoled.bin"
+GROVE_OLED_PROGRAM = "grove_oled.bin"
 
 class Grove_OLED(object):
     """This class controls the Grove IIC OLED. 

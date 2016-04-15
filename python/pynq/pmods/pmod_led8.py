@@ -35,7 +35,7 @@ __email__       = "xpp_support@xilinx.com"
 from . import pmod_const
 from .devmode import DevMode
 
-class LED8(object):
+class PMOD_LED8(object):
     """This class controls a single LED on the LED8 PMOD.
 
     Attributes

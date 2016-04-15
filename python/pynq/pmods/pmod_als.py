@@ -37,11 +37,11 @@ from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
-ALS_PROGRAM = "als.bin"
+ALS_PROGRAM = "pmod_als.bin"
 ALS_LOG_START = pmod_const.MAILBOX_OFFSET+16
 ALS_LOG_END = ALS_LOG_START+(1000*4)
 
-class ALS(object):
+class PMOD_ALS(object):
     """This class controls a light sensor PMOD.
 
     Attributes
