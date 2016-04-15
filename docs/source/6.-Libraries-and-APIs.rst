@@ -1,21 +1,20 @@
-The ``Pynq`` (PYthon ZyNQ) Package
+The ``Pynq`` (Python on Zynq) Platform
 ==============================================
 
-The section describes the ``pynq`` (**Py**\thon Zy **nq**) package. 
+The section describes the ``pynq`` (Python on Zynq) platform - specifically the operating system support and preloaded Python ``pynq`` package. 
 
-The Pynq project is based on Ubuntu core.  
+The Pynq platform itself is a preloaded SDCard that boots into Ubuntu Server 14.04.  Python3 is loaded with Jupyter notebook support and the needed Python package, also named pynq.  With the pynq package, users can access programmable logic overlays without ever leaving Python.  
 
-You can explore the project code on GitHub, or you can navigate to the Pynq code on your board. The board has a Samba share which allows you to view directories on the board as a network drive.
+You can explore the project code on GitHub, or you can navigate to the Python pynq package on your Zybo board at /home/xpp/pynq. 
 
-In Windows, using Windows Explorer, navigate to or map `\\\\pynq\\xpp\\pynq<\\\\pynq\\xpp\\pynq>
+The board also has a Samba share which allows you map pynq as a network drive. In Windows, using Windows Explorer, navigate to or map `\\\\pynq\\xpp`
 You can browse to the directory in a similar way using other operating systems.
 
-Pynq Structure
+Python ``pynq`` Package Structure
 ---------
 A package in Python is a folder which contains multiple ".py" files -- _i.e._ modules -- and the file ``__init__.py``. ``__init__.py`` makes Python treat the directory as a self-containing package. ``__init__.py`` can also execute the initialization code for the package. For instance, in ``__init__.py``, the ``__all__`` variable can be used to define the subpackages or modules that will be imported by default when this package is imported:: 
 
-Pynq contains four _user_ subpackages: `board`, `pmods`, `audio`, and `video`; a `tests` subpackage is for testing the user subpackages. Please refer to the `offical python documentation <https://docs.python.org/3.5/tutorial/modules.html#packages>`_
- for additional information.
+Pynq contains four _user_ subpackages: `board`, `pmods`, `audio`, and `video`; a `tests` subpackage is for testing the user subpackages. Please refer to the `offical python documentation <https://docs.python.org/3.5/tutorial/modules.html#packages>`_  for additional information.
 
 board
 -----
@@ -25,14 +24,9 @@ pmods (and Grove Peripherals)
 -----
 This folder contains peripheral packages which includes the following PMod modules `OLED`, `TMP2`, `ALS` `LED8`, `ADC`, and `DAC`.  
 
-The following Grove peripherals are also supported: `GROVE ADC`, `GROVE PIR`, `GROVE OLED`, `GROVE BUZZER`, `GROVE LIGHT SENSOR`, `GROVE LED BAR`, `GROVE TEMPERATURE SENSOR`. In addition, `DevMode` is a developer mode for the IO processor. 
+The following Grove peripherals are also supported: `Grove ADC`, `Grove PIR`, `Grove OLED`, `Grove Buzzer`, `Grove Light Sensor`, `Grove LED BAR`, `Grove Temperature Sensor`. In addition, `Pmodio`, `PmodIic` and `DevMode` are developer classes allowing direct low level access to I/O controllers.
 
-There is also an additional module named `_iop.py`; this module acts like a wrapper to allow all the PMODs' classes to interface with the `pyb.iop` object. The `pyb.iop` object is bound to the IOPs. The `_iop` module will act like a _singleton_ and prevent multiple instantiations of `pyb.iop` objects on the same PMOD. At the same time, `_iop` keeps track of the status of all the PMODs. This is done through the API whose signature is shown below:
-
-.. code-block:: python
-
-   def request_iop(req_obj, pmod_id, program = None, force = False)
-
+There is also an additional module named `_iop.py`; this module acts like a wrapper to allow all the PMODs' classes to interface with the Microblaze objects.  The `_IOP` class prevents multiple device instantiations on the same PMOD. At the same time, `_IOP` keeps track of the status of all the PMODs. 
 
 .. note:: ``_iop.py`` is an internal module, not intended for the end users. In Python, there is no concept of _public_ and _private_; we use ``_`` as a prefix to indicate internal definitions, variables, functions, and packages.
 
@@ -61,9 +55,7 @@ tests
 ^^^^^
 This folder includes a tests package for use with all other pynq subpackages. 
 
-For now, it contains the `unittest <https://pypi.python.org/pypi/micropython-unittest>`_ package.
-
-NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice  in Python where each subpackage has its own ``tests``. This practice can keep the source code modular and *self-contained*.
+NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
 
 Package contents
 =====
@@ -110,7 +102,7 @@ or, to import specific packages:
 
 .. code-block:: python
 
-   from pynq.board import Button, LED, cat, ls
+   from pynq.board import Button, LED
 
 
 To access the PMod overlay objects, type:
