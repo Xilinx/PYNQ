@@ -2,7 +2,8 @@
 
 
 MBBINS = pmodadc.bin pmoddac.bin pmodoled.bin pmodals.bin pmodtmp2.bin \
-            pmoddpot.bin mailbox.bin groveadc.bin groveoled.bin
+            pmoddpot.bin mailbox.bin groveadc.bin groveoled.bin \
+            groveimu.bin
 
 all: pmod_bins
 	@echo "Completed Microblaze Projects' Builds"
