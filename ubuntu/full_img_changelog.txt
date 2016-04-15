@@ -1,5 +1,13 @@
 latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/
 
+04-15-2016 - <graham.schelle@xilinx.com>
+            Performance setting - no clock scaling
+            python seaborn package
+            xpp home directory cleaned 
+              cross compiler moved to /usr/local
+              docs and scripts folders added
+              notebook structure cleaned
+              
 01-14-2016 - <giuseppe.natale@xilinx.com>
              First release of the image.
 
