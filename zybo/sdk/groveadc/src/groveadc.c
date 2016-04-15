@@ -20,7 +20,8 @@ http://www.ti.com/lit/ds/symlink/adc121c021-q1.pdf
 
 #define IIC_ADDRESS 0x50
 
-#define V_REF 3.30
+// VRef = Va measured on the board
+#define V_REF 3.10
 
 // Mailbox commands
 // bit 1 always needs to be set
