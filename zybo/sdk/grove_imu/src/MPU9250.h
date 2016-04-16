@@ -386,7 +386,7 @@ uint8_t mpu_getFullScaleAccelRange();
 void mpu_setFullScaleAccelRange(uint8_t range);
 
 // ACCEL_*OUT_* registers
-void mpu_calibrateMotion9(int16_t* Ax, int16_t* Ay, int16_t* Az, int16_t* Gx, int16_t* Gy, int16_t* Gz, int16_t* Mx, int16_t* My, int16_t* Mz);
+void mpu_calibrateMotion9(float* Ax, float* Ay, float* Az, float* Gx, float* Gy, float* Gz, float* Mx, float* My, float* Mz);
 void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz);
 void mpu_getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz);
 void mpu_getAcceleration(int16_t* x, int16_t* y, int16_t* z);
@@ -407,4 +407,9 @@ uint8_t mpu_getDeviceID();
 uint8_t mpuAddr;
 uint8_t buffer[14];
 
+// Calibration parameters
+static float mx_centre = 0;
+static float my_centre = 0;
+static float mz_centre = 0;
+    
 #endif /* _MPU9250_H_ */

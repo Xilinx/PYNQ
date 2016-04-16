@@ -91,11 +91,49 @@ int8_t iic_writeBit(uint8_t mpuAddr, uint8_t regAddr, uint8_t bitStart, uint8_t 
 
 //// MPU9250 Driver functions ////
 void mpu_init() {
+    //device setup
     mpuAddr = MPU9250_DEFAULT_ADDRESS;
     mpu_setClockSource(MPU9250_CLOCK_PLL_XGYRO);
     mpu_setFullScaleGyroRange(MPU9250_GYRO_FS_250);
     mpu_setFullScaleAccelRange(MPU9250_ACCEL_FS_2);
     mpu_setSleepEnabled(false);
+    
+    /*initialization of calibration parameters
+    float Mxyz[3];
+    volatile float mx_sample[3];
+    volatile float my_sample[3];
+    volatile float mz_sample[3];
+    int16_t ax, ay, az, gx, gy, gz, mx, my, mz;
+    int i;
+    for (i = 0; i < NUM_SAMPLES; i++){
+        mpu_getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
+        Mxyz[0] = (float) mx * 1200 / 4096;
+        Mxyz[1] = (float) my * 1200 / 4096;
+        Mxyz[2] = (float) mz * 1200 / 4096;
+        mx_sample[2] = Mxyz[0];
+        my_sample[2] = Mxyz[1];
+        mz_sample[2] = Mxyz[2];
+        if (i==0){
+            mx_sample[0] = Mxyz[0];
+            my_sample[0] = Mxyz[1];
+            mz_sample[0] = Mxyz[2];
+            mx_sample[1] = Mxyz[0];
+            my_sample[1] = Mxyz[1];
+            mz_sample[1] = Mxyz[2];
+        }   
+        //find max value
+        if (mx_sample[2] >= mx_sample[1]) mx_sample[1] = mx_sample[2];
+        if (my_sample[2] >= my_sample[1]) my_sample[1] = my_sample[2];
+        if (mz_sample[2] >= mz_sample[1]) mz_sample[1] = mz_sample[2];
+        //find min value
+        if (mx_sample[2] <= mx_sample[0]) mx_sample[0] = mx_sample[2];
+        if (my_sample[2] <= my_sample[0]) my_sample[0] = my_sample[2]; 
+        if (mz_sample[2] <= mz_sample[0]) mz_sample[0] = mz_sample[2];
+    }
+    mx_centre = (mx_sample[1] + mx_sample[0]) / 2;
+    my_centre = (my_sample[1] + my_sample[0]) / 2;
+    mz_centre = (mz_sample[1] + mz_sample[0]) / 2;
+    */
 }
 
 bool mpu_testConnection() {
@@ -124,56 +162,21 @@ void mpu_setFullScaleAccelRange(uint8_t range) {
     iic_writeBits(mpuAddr, MPU9250_RA_ACCEL_CONFIG, MPU9250_ACONFIG_AFS_SEL_BIT, MPU9250_ACONFIG_AFS_SEL_LENGTH, &range);
 }
 
-void mpu_calibrateMotion9(int16_t* Ax, int16_t* Ay, int16_t* Az, int16_t* Gx, int16_t* Gy, int16_t* Gz, int16_t* Mx, int16_t* My, int16_t* Mz) {
-    float Mxyz[3];
-    volatile float mx_sample[3];
-    volatile float my_sample[3];
-    volatile float mz_sample[3];
-    static float mx_centre = 0;
-    static float my_centre = 0;
-    static float mz_centre = 0;
+void mpu_calibrateMotion9(float* Ax, float* Ay, float* Az, float* Gx, float* Gy, float* Gz, float* Mx, float* My, float* Mz) {
     int16_t ax, ay, az, gx, gy, gz, mx, my, mz;
-    int i;
-    for (i = 0; i < NUM_SAMPLES; i++){
-        mpu_getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-        Mxyz[0] = (double) mx * 1200 / 4096;
-        Mxyz[1] = (double) my * 1200 / 4096;
-        Mxyz[2] = (double) mz * 1200 / 4096;
-        mx_sample[2] = Mxyz[0];
-        my_sample[2] = Mxyz[1];
-        mz_sample[2] = Mxyz[2];
-        if (i==0){
-            mx_sample[0] = *Mx;
-            my_sample[0] = *My;
-            mz_sample[0] = *Mz;
-            mx_sample[1] = *Mx;
-            my_sample[1] = *My;
-            mz_sample[1] = *Mz;
-        }   
-        //find max value
-        if (mx_sample[2] >= mx_sample[1]) mx_sample[1] = mx_sample[2];
-        if (my_sample[2] >= my_sample[1]) my_sample[1] = my_sample[2];
-        if (mz_sample[2] >= mz_sample[1]) mz_sample[1] = mz_sample[2];
-        //find min value
-        if (mx_sample[2] <= mx_sample[0]) mx_sample[0] = mx_sample[2];
-        if (my_sample[2] <= my_sample[0]) my_sample[0] = my_sample[2]; 
-        if (mz_sample[2] <= mz_sample[0]) mz_sample[0] = mz_sample[2];
-    }
-    mx_centre = (mx_sample[1] + mx_sample[0]) / 2;
-    my_centre = (my_sample[1] + my_sample[0]) / 2;
-    mz_centre = (mz_sample[1] + mz_sample[0]) / 2;
-            
-    //do the final calculation
+    float Mxyz[3];
+    
+    //do the calibration
     mpu_getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-    *Ax = (double) ax / 16384;
-    *Ay = (double) ay / 16384;
-    *Az = (double) az / 16384;
-    *Gx = (double) gx * 250 / 32768;
-    *Gy = (double) gy * 250 / 32768;
-    *Gz = (double) gz * 250 / 32768;
-    Mxyz[0] = (double) mx * 1200 / 4096;
-    Mxyz[1] = (double) my * 1200 / 4096;
-    Mxyz[2] = (double) mz * 1200 / 4096;
+    *Ax = (float) ax / 16384;
+    *Ay = (float) ay / 16384;
+    *Az = (float) az / 16384;
+    *Gx = (float) gx * 250 / 32768;
+    *Gy = (float) gy * 250 / 32768;
+    *Gz = (float) gz * 250 / 32768;
+    Mxyz[0] = (float) mx * 1200 / 4096;
+    Mxyz[1] = (float) my * 1200 / 4096;
+    Mxyz[2] = (float) mz * 1200 / 4096;
     *Mx = Mxyz[0] - mx_centre;
     *My = Mxyz[1] - my_centre;
     *Mz = Mxyz[2] - mz_centre;
@@ -188,10 +191,10 @@ void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t*
     uint8_t data;
     data = 0x02;
     iic_writeByte(mpuAddr, MPU9250_RA_INT_PIN_CFG, &data); //set i2c bypass enable pin to access magnetometer
-    delay_ms(10);
+    delay_ms(20);
     data = 0x01;
     iic_writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, &data); //enable the magnetometer
-    delay_ms(10);
+    delay_ms(20);
     iic_readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
     *mx = (((int16_t)buffer[1]) << 8) | buffer[0];
     *my = (((int16_t)buffer[3]) << 8) | buffer[2];
@@ -284,7 +287,7 @@ float bmp_GetTemperature()
     data[0] = 0xF4;
     data[1] = 0x2E;
     iic_write(bmpAddr, data, 2);
-    delay_ms(5);
+    delay_ms(20);
     ut = bmp_ReadInt(0xF6);
     
     // calculate the compensated temperature
@@ -310,7 +313,7 @@ float bmp_GetPressure()
     data[0] = 0xF4;
     data[1] = 0x34 + (OSS<<6);
     iic_write(bmpAddr, data, 2);
-    delay_ms(2 + (3<<OSS));
+    delay_ms(10 + (3<<OSS));
     msb = bmp_ReadByte(0xF6);
     lsb = bmp_ReadByte(0xF7);
     xlsb = bmp_ReadByte(0xF8);
@@ -347,9 +350,9 @@ float bmp_GetPressure()
 int main()
 {
    int cmd;
-   int16_t ax, ay, az;
-   int16_t gx, gy, gz;
-   int16_t mx, my, mz;
+   float ax, ay, az;
+   float gx, gy, gz;
+   float mx, my, mz;
    
    configureSwitch(BLANK, BLANK, SDA, BLANK, BLANK, BLANK, SCL, BLANK);
    // Initialization
@@ -364,25 +367,25 @@ int main()
       switch(cmd){
          case GET_ACCL_DATA:
             mpu_calibrateMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-            MAILBOX_DATA_FLOAT(0) = (float)ax;
-            MAILBOX_DATA_FLOAT(1) = (float)ay;
-            MAILBOX_DATA_FLOAT(2) = (float)az;
+            MAILBOX_DATA_FLOAT(0) = ax;
+            MAILBOX_DATA_FLOAT(1) = ay;
+            MAILBOX_DATA_FLOAT(2) = az;
             MAILBOX_CMD_ADDR = 0x0; 
             break;
             
          case GET_GYRO_DATA:
             mpu_calibrateMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-            MAILBOX_DATA_FLOAT(0) = (float)gx;
-            MAILBOX_DATA_FLOAT(1) = (float)gy;
-            MAILBOX_DATA_FLOAT(2) = (float)gz;
+            MAILBOX_DATA_FLOAT(0) = gx;
+            MAILBOX_DATA_FLOAT(1) = gy;
+            MAILBOX_DATA_FLOAT(2) = gz;
             MAILBOX_CMD_ADDR = 0x0; 
             break;
             
          case GET_COMPASS_DATA:
             mpu_calibrateMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-            MAILBOX_DATA_FLOAT(0) = (float)mx;
-            MAILBOX_DATA_FLOAT(1) = (float)my;
-            MAILBOX_DATA_FLOAT(2) = (float)mz;
+            MAILBOX_DATA_FLOAT(0) = mx;
+            MAILBOX_DATA_FLOAT(1) = my;
+            MAILBOX_DATA_FLOAT(2) = mz;
             MAILBOX_CMD_ADDR = 0x0; 
             break;
             
