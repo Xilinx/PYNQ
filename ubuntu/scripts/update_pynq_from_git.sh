@@ -2,6 +2,7 @@
 
 
 # Global Paths
+SCRIPT_NAME=`basename "$0"`
 BACKUP_DIR=/home/xpp/pynq_update_backup
 REPO_DIR=/home/xpp/Pynq_git
 PYNQ_DIR=/usr/local/lib/python3.4/dist-packages/pynq
@@ -26,8 +27,6 @@ if [ -d $REPO_DIR ] || [ -d $BACKUP_DIR ] ; then
 fi
  
 
-
-
 echo "1. Backing up files into ${BACKUP_DIR}"
 mkdir $BACKUP_DIR
 cp -r $FINAL_DOCS_DIR $FINAL_NOTEBOOKS_DIR $FINAL_SCRIPTS_DIR $BACKUP_DIR
@@ -46,15 +45,24 @@ python3 ipynb_post_processor.py
 make clean ; make html
 
 echo "5. Transfer Git files into final filesystem locations with correct ownership"
-rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/* FINAL_SCRIPTS_DIR/*
+rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/* $FINAL_SCRIPTS_DIR/*
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
 cp -r $REPO_DIR/python/notebooks/* $FINAL_NOTEBOOKS_DIR
 cp -r $REPO_DIR/ubuntu/*.sh $FINAL_SCRIPTS_DIR
-chmod a+rw $FINAL_NOTEBOOKS_DIR $FINAL_DOCS_DIR $PYNQ_DIR
-chown -R xpp:xpp $FINAL_NOTEBOOKS_DIR $FINAL_DOCS_DIR  $FINAL_SCRIPTS_DIR $PYNQ_DIR  
+chmod -R a+rw $FINAL_NOTEBOOKS_DIR $FINAL_DOCS_DIR $PYNQ_DIR
+chmod -R a+x $FINAL_SCRIPTS_DIR/*
+chown -R xpp:xpp $REPO_DIR $BACKUP_DIR
+chown -R xpp:xpp $FINAL_NOTEBOOKS_DIR $FINAL_DOCS_DIR $FINAL_SCRIPTS_DIR $PYNQ_DIR  
 
-
-
-
+echo ""
+echo "Completed build."
+echo "Documentation folder is at: $FINAL_DOCS_DIR"
+echo "Notebooks     folder is at: $FINAL_NOTEBOOKS_DIR"
+echo "Scripts       folder is at: $FINAL_SCRIPTS_DIR"
+echo ""
+echo "If needed, please manually replace this script from local git"
+echo "cp -r $REPO_DIR/ubuntu/scripts/$SCRIPT_NAME $FINAL_SCRIPTS_DIR"
+echo ""
+echo ""
 
 
