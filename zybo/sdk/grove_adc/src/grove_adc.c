@@ -138,7 +138,7 @@ int main(void)
             break;
          case READ_RAW_DATA:
             // write out adc_value, reset mailbox
-            MAILBOX_DATA(0) = read_adc(REG_ADDR_RESULT);
+            MAILBOX_DATA(0) = 2*read_adc(REG_ADDR_RESULT);
             MAILBOX_CMD_ADDR = 0x0; 
 
             break;
@@ -157,7 +157,7 @@ int main(void)
 
             do{   
                // push sample to log and delay
-               adc_raw_value = read_adc(REG_ADDR_RESULT);
+               adc_raw_value = 2*read_adc(REG_ADDR_RESULT);
                cb_push_back(&pmod_log, &adc_raw_value);
                delay_ms(delay);
 
