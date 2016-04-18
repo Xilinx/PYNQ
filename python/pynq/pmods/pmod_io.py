@@ -99,7 +99,7 @@ class PMOD_IO(object):
         """Send the value to the offboard PMOD IO device.
 
         Note
-        ----------
+        ----
         Only use this function when direction = 'out'.
         
         Parameters
@@ -140,7 +140,7 @@ class PMOD_IO(object):
         Only use this function when direction = 'in'.
         
         Parameters
-        ---------
+        ----------
         None
         
         Returns
@@ -155,3 +155,24 @@ class PMOD_IO(object):
         raw_value = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
                                         pmod_const.IOPMM_PMODIO_DATA_OFFSET)
         return (raw_value >> (self.index)) & 0x1
+        
+    def _state(self):
+        """Retrieve the current state of the PMOD IO.
+        
+        This function is usually used for debug purpose. Users should still
+        rely on read() or write() to get/put a value.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        int
+            The data (0 or 1) on the specified PMOD IO pin.
+        
+        """
+        raw_value = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
+                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
+        return (raw_value >> (self.index)) & 0x1
+        
