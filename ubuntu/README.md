@@ -20,6 +20,8 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
+new /etc/environment to capture latest crosscompiler location
+C:\Users\grahams\Documents\PyXi\pynq_linux_files\environment
 ```
 
 
