@@ -45,10 +45,17 @@ python3 ipynb_post_processor.py
 make clean ; make html
 
 echo "5. Transfer Git files into final filesystem locations with correct ownership"
-rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/* $FINAL_SCRIPTS_DIR/*
+rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/* 
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
 cp -r $REPO_DIR/python/notebooks/* $FINAL_NOTEBOOKS_DIR
 cp -r $REPO_DIR/ubuntu/*.sh $FINAL_SCRIPTS_DIR
+
+# 5a. (PLACEHOLDER) Jupyer_notebooks/Getting Started derived contents
+rm -rf $FINAL_NOTEBOOKS_DIR/Getting_Started/*
+cp $REPO_DIR/docs/source/*.ipynb $FINAL_NOTEBOOKS_DIR/Getting_Started
+rm -rf $FINAL_NOTEBOOKS_DIR/Getting_Started/*_pp.ipynb
+
+
 chmod -R a+rw $FINAL_NOTEBOOKS_DIR $FINAL_DOCS_DIR $PYNQ_DIR
 chmod -R a+x $FINAL_SCRIPTS_DIR/*
 chown -R xpp:xpp $REPO_DIR $BACKUP_DIR
