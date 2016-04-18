@@ -104,7 +104,7 @@ class Grove_OLED(object):
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x13)
         
-    def clear_screen(self):
+    def clear(self):
         """Clear the OLED screen.
         
         This is done by writing empty strings into the OLED in Microblaze.
