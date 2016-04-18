@@ -1,0 +1,772 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Zynq A9 programming in Python &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="Programming Zybo’s onboard peripherals" href="3_2_programming_onboard_peripherals_pp.html"/>
+        <link rel="prev" title="Markdown Cells" href="2_d_markdown_cells.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_a_jupyter_notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_b_notebook_basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_c_running_code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_d_markdown_cells.html">Markdown Cells</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Zynq A9 programming in Python</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#The-factors-and-primes-example">The factors and primes example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#More-intensive-calculations">More intensive calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="3_2_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_pmodio_overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_libraries_and_overlays.html#package-contents">Package contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_libraries_and_overlays.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_1_iop_code.html">Creating drivers and writing code for the IOP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7.-Test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Zynq A9 programming in Python</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/3_1_programming_zybo_in_python.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="Zynq-A9-programming-in-Python">
+<h1>Zynq A9 programming in Python<a class="headerlink" href="#Zynq-A9-programming-in-Python" title="Permalink to this headline">¶</a></h1>
+<p>This notebook is available in the getting started folder from the Zybo
+Zynq portal.</p>
+<p>We show here an example of how to run Python on Zybo with Pynq. All
+Python is running exclusively on the ARM Cortex-A9 processor. This
+example, which is based on calculating the factors and primes of integer
+numbers, give us a sense of the performance available when running on a
+650MHz ARM Cortex-A9 dual core processor running Ubuntu.</p>
+<div class="section" id="The-factors-and-primes-example">
+<h2>The factors and primes example<a class="headerlink" href="#The-factors-and-primes-example" title="Permalink to this headline">¶</a></h2>
+<p>Code is provided in the cell below for a function to calculate factors
+and primes. It contains some sample functions to calculate the factors
+and primes of integers. We will use three functions from the
+factors_and_primes module to demonstrate Python programming.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [1]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Factors-and-primes functions.</span>
+
+<span class="sd">Find factors or primes of integers, int ranges and int lists</span>
+<span class="sd">and sets of integers with most factors in a given integer interval</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">factorize</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate all factors of integer n.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        integer to factorize.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A sorted set of integer factors of n.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">factors</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">//</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">factors</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&#39;factorize ONLY computes with one integer argument &gt; 0&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">primes_between</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find all primes in the interval.</span>
+
+<span class="sd">    The interval is defined by interval_min and interval_max.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    interval_min : int</span>
+<span class="sd">        Start of the integer range.</span>
+<span class="sd">    interval_max : int</span>
+<span class="sd">        End of the integer range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A sorted set of integer primes in original range.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">primes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">interval_min</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span>
+       <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval_max</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">interval_max</span> <span class="o">&gt;</span> <span class="n">interval_min</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">interval_min</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">primes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">factorize</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">primes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">primes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&#39;primes_between ONLY computes over the specified range.&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">primes_in</span><span class="p">(</span><span class="n">integer_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate all unique prime numbers.</span>
+
+<span class="sd">    Calculate the prime numbers in a list of integers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    integer_list : list</span>
+<span class="sd">        A list of integers to test for primality.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A sorted set of integer primes from original list.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">primes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">integer_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">factorize</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">primes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">primes</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&#39;primes_in ONLY computes over lists of integers.&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_ints_with_most_factors</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Finds the integers with the most factors.</span>
+
+<span class="sd">    Find the integer or integers with the most factors in a given</span>
+<span class="sd">    integer range.</span>
+
+<span class="sd">    The returned result is a list of tuples, where each tuple is:</span>
+<span class="sd">    [no_with_most_factors (int), no_of_factors (int),</span>
+<span class="sd">    factors (int list)].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    interval_min : int</span>
+<span class="sd">        Start of the integer range.</span>
+<span class="sd">    interval_max : int</span>
+<span class="sd">        End of the integer range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of tuples showing the results.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">max_no_of_factors</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">all_ints_with_most_factors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c">#: Find the lowest number with most factors between i_min and i_max</span>
+    <span class="k">if</span> <span class="n">interval_check</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+            <span class="n">factors_of_i</span> <span class="o">=</span> <span class="n">factorize</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">no_of_factors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">factors_of_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">no_of_factors</span> <span class="o">&gt;</span> <span class="n">max_no_of_factors</span><span class="p">:</span>
+                <span class="n">max_no_of_factors</span> <span class="o">=</span> <span class="n">no_of_factors</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">max_no_of_factors</span><span class="p">,</span> <span class="n">factors_of_i</span><span class="p">,</span>\
+                            <span class="n">primes_in</span><span class="p">(</span><span class="n">factors_of_i</span><span class="p">))</span>
+        <span class="n">all_ints_with_most_factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="c">#: Find any larger numbers with an equal number of factors</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">all_ints_with_most_factors</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+            <span class="n">factors_of_i</span> <span class="o">=</span> <span class="n">factorize</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">no_of_factors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">factors_of_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">no_of_factors</span> <span class="o">==</span> <span class="n">max_no_of_factors</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">max_no_of_factors</span><span class="p">,</span> <span class="n">factors_of_i</span><span class="p">,</span> \
+                            <span class="n">primes_in</span><span class="p">(</span><span class="n">factors_of_i</span><span class="p">))</span>
+                <span class="n">all_ints_with_most_factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_ints_with_most_factors</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">print_error_msg</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">print_ints_with_most_factors</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reports integers with most factors in a given integer range.</span>
+
+<span class="sd">    The results can consist of the following:</span>
+<span class="sd">    1.  All the integers with the most factors</span>
+<span class="sd">    2.  The number of factors</span>
+<span class="sd">    3.  The actual factors of each of the integers</span>
+<span class="sd">    4.  Any prime numbers in the list of factors</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    interval_min : int</span>
+<span class="sd">        Start of the integer range.</span>
+<span class="sd">    interval_max : int</span>
+<span class="sd">        End of the integer range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of tuples showing the integers and factors.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">interval_check</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">Between {} and {} the number/s with the most factors:</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span>
+           <span class="nb">format</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">results</span> <span class="ow">in</span> <span class="p">(</span><span class="n">get_ints_with_most_factors</span><span class="p">(</span>
+                            <span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s">&#39;{} ... with the following {} factors:</span><span class="se">\n</span><span class="s">{}&#39;</span><span class="o">.</span>
+               <span class="nb">format</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">results</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s">&#39;The prime number factors of {} are: {}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span>
+               <span class="nb">format</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">results</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">print_error_msg</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">interval_check</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="n">interval_max</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check type and range of integer interval.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    interval_min : int</span>
+<span class="sd">        Start of the integer range.</span>
+<span class="sd">    interval_max : int</span>
+<span class="sd">        End of the integer range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">interval_min</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">interval_min</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span>
+       <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval_max</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">interval_max</span> <span class="o">&gt;</span> <span class="n">interval_min</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">False</span>
+
+<span class="k">def</span> <span class="nf">print_error_msg</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Print invalid integer interval error message.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">&#39;ints_with_most_factors ONLY computes over integer intervals where&#39;</span>
+            <span class="s">&#39; interval_min &lt;= int_with_most_factors &lt; interval_max and&#39;</span>
+            <span class="s">&#39; interval_min &gt;= 1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>factorize(n):: Calculate all factors of integer n
+primes_between(interval_min, interval_max):: Find all primes in the
+interval defined by interval_min, interval_max
+print_ints_with_most_factors(interval_min, interval_max):: Reports
+integers with most factors in a given integer range</p>
+<p>Next we will call the factorize() function to calculate the factors of
+an integer.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [2]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">factorize</span><span class="p">(</span><span class="mi">1066</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[2]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+[1, 2, 13, 26, 41, 82, 533, 1066]
+</pre></div>
+</div>
+</div>
+<p>The primes_between() function can tell us how many prime numbers there
+are in an integer range. Let’s try it for the interval 1 through 1066.</p>
+<p>fp.primes_between(1, 1066)</p>
+<p>The answer is quite a few! We can use one of Python’s built-in methods
+len() to count them all.</p>
+<p>Using built-in functions We can use one of Python’s built-in methods
+len() to count them the primes.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [3]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="nb">len</span><span class="p">(</span><span class="n">primes_between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1066</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[3]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+180
+</pre></div>
+</div>
+</div>
+<p>And we can combine len() with another built-in method, sum(), to
+calculate the average of the 180 prime numbers.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [4]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">primes_1066</span> <span class="o">=</span> <span class="n">primes_between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1066</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>This result makes sense intuitively because prime numbers are known to
+become less frequent for larger number intervals. These examples
+demonstrate how Python treats functions as first-class objects so that
+functions may be passed as parameters to other functions. This is a key
+property of functional programming and demonstrates the power of Python.</p>
+<p>We can use list comprehensions (a ‘Pythonic’ form of the
+map-filter-reduce template) to ‘mine’ the factors of 1066 to find those
+factors that end in the digit ‘3’.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [5]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">primes_between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1066</span><span class="p">)</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[5]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+[3,
+ 13,
+ 23,
+ 43,
+ 53,
+ 73,
+ 83,
+ 103,
+ 113,
+ 163,
+ 173,
+ 193,
+ 223,
+ 233,
+ 263,
+ 283,
+ 293,
+ 313,
+ 353,
+ 373,
+ 383,
+ 433,
+ 443,
+ 463,
+ 503,
+ 523,
+ 563,
+ 593,
+ 613,
+ 643,
+ 653,
+ 673,
+ 683,
+ 733,
+ 743,
+ 773,
+ 823,
+ 853,
+ 863,
+ 883,
+ 953,
+ 983,
+ 1013,
+ 1033,
+ 1063]
+</pre></div>
+</div>
+</div>
+<p>This code tells Python to first convert each prime between 1 and 1066 to
+a string and then to return those nu mbers whose string representation
+end with the number ‘3’. It uses the built-in str() and endswith() me
+thods to test each prime for inclusion in the list. A list of Python’s b</p>
+<p>And because we really want to know what fraction of the 180 primes of
+1066 end in a ‘3’, we can calculate ...</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [6]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">primes_1066</span> <span class="o">=</span> <span class="n">primes_between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1066</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>These examples demonstrate how Python is a modern, multi-paradigmatic
+language. More simply, it continually integrates the best features of
+other leading languages, including functional programming constructs.
+Consider how many lines of code you would need to implement the list
+comprehension above in C and you get an appreciation of the power of
+productivity-layer languages. Higher levels of programming abstraction
+really do result in higher programm er productivity!</p>
+</div>
+<div class="section" id="More-intensive-calculations">
+<h2>More intensive calculations<a class="headerlink" href="#More-intensive-calculations" title="Permalink to this headline">¶</a></h2>
+<p>To stress the A9 a little more, we will run a script to determine the
+integer number, or numbers, that have the most factors between 1 and
+1066, using the print_ints_with_most_factors() function from the
+factors_and_primes module.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [7]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">print_ints_with_most_factors</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1066</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+
+Between 1 and 1066 the number/s with the most factors:
+
+840 ... with the following 32 factors:
+[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 20, 21, 24, 28, 30, 35, 40, 42, 56, 60, 70, 84, 105, 120, 140, 168, 210, 280, 420, 840]
+The prime number factors of 840 are: [2, 3, 5, 7]
+
+</pre></div></div>
+</div>
+<p>The A9 remains quite responsive. Running this for much larger numbers,
+say 50,000, will demonstrate noticeably slower responses as we would
+expect.</p>
+<p>The source code for the functions above is available in the notebook
+Examples/python_factors_primes.ipynb. Reviewing the code will give you
+a better appreciation for the power of Python both in terms of Python
+language coverage and performance.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="3_2_programming_onboard_peripherals_pp.html" class="btn btn-neutral float-right" title="Programming Zybo’s onboard peripherals" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="2_d_markdown_cells.html" class="btn btn-neutral" title="Markdown Cells" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
