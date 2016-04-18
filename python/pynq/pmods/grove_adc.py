@@ -71,7 +71,7 @@ class Grove_ADC(object):
             
         """
         # IOP Switch Configuration
-        if (gr_id not in range(4,5)):
+        if (gr_id not in range(3,5)):
             raise ValueError("Valid StickIt ID for ADC (IIC) is 4. ")
 
         self.iop = _iop.request_iop(pmod_id, GROVE_ADC_PROGRAM)
