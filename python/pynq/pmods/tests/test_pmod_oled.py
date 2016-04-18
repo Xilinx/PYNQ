@@ -57,7 +57,7 @@ def test_write_string1():
     
     oled.write('Welcome to Zybo.')
     assert user_answer_yes("\nWelcome message shown on the OLED?")
-    oled.clear_screen()
+    oled.clear()
     assert user_answer_yes("OLED screen clear now?")      
     
     del oled
@@ -76,7 +76,7 @@ def test_write_string2():
     
     oled.write('Welcome to Zybo.')
     assert user_answer_yes("Welcome message shown on the OLED?")
-    oled.clear_screen()
+    oled.clear()
     assert user_answer_yes("OLED screen clear now?")      
     
     del oled
