@@ -61,12 +61,12 @@ NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the funct
 
 Package contents
 ================
-To find a list of modules, and to find documentation for each module, see the [Pynq Package ](../build/html/modules.html)
+To find a list of modules, and to find documentation for each module, see the [Pynq Package ](modules.html)
 
 Usage
 =====
 
-Refer to `Section 3. Programing ZYBO in Python <../build/html/3.-Programing-ZYBO-in-Python.html>`_ for more information on how to use Pynq.
+Refer to `Programing Zybo's onboard peripherasl in Python <3_2_programming_onboard_peripherals.html>`_ for more information on how to use Pynq.
 
 To use pynq, import the whole package: 
 

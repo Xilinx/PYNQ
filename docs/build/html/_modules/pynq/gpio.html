@@ -81,24 +81,25 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../1.-Pynq.html">Pynq Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../2.-Getting-started.html">Start here</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../b. Notebook Basics.html">Notebook Basics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../c. Running Code.html">Running Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../d. Working With Markdown Cells.html">Markdown Cells</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../pmodio_overlay (5).html">Peripherals and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../audio_video_overlay.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_getting_started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_a_jupyter_notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_b_notebook_basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_c_running_code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_d_markdown_cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3_1_programming_zybo_in_python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3_2_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../4_pmodio_overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../5_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html#package-contents">Package contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_1_iop_code.html">Creating drivers and writing code for the IOP</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../7.-Test.html">Test</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../8.-Glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Appendix_1.html">Appendix 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../8_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../9_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix.html">Appendix 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">pynq</a></li>
 </ul>
 
@@ -299,9 +300,9 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">general_const</span>
 
 <div class="viewcode-block" id="GPIO"><a class="viewcode-back" href="../../pynq.html#pynq.gpio.GPIO">[docs]</a><span class="k">class</span> <span class="nc">GPIO</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class to handle (PS) GPIOs in Linux. </span>
+    <span class="sd">&quot;&quot;&quot;Class to wrap Linux&#39;s GPIO Sysfs API. </span>
 <span class="sd">    </span>
-<span class="sd">    The GPIO class is differernt from the PMOD XGPIO class.</span>
+<span class="sd">    This GPIO class does not handle PL I/O.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -320,7 +321,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        gpio_index : int</span>
-<span class="sd">            The index of the GPIO, starting from the GPIO base.</span>
+<span class="sd">            The index of the GPIO using Linux&#39;s GPIO Sysfs API.</span>
 <span class="sd">        direction : &#39;str&#39;</span>
 <span class="sd">            Input/output direction of the GPIO.</span>
 <span class="sd">        </span>
@@ -402,7 +403,7 @@ div.nboutput  > :nth-child(2).stderr {
             
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="GPIO.get_gpio_base"><a class="viewcode-back" href="../../pynq.html#pynq.gpio.GPIO.get_gpio_base">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_base</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the GPIO base in PS.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the GPIO base using Linux&#39;s GPIO Sysfs API.</span>
 <span class="sd">        </span>
 <span class="sd">        This is a static method. To use:</span>
 <span class="sd">        &gt;&gt;&gt; from pynq import GPIO</span>
@@ -428,32 +429,32 @@ div.nboutput  > :nth-child(2).stderr {
                     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()))</span></div>
                     
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="GPIO.get_gpio_pin"><a class="viewcode-back" href="../../pynq.html#pynq.gpio.GPIO.get_gpio_pin">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_pin</span><span class="p">(</span><span class="n">user_index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns a GPIO pin for users.</span>
+<div class="viewcode-block" id="GPIO.get_gpio_pin"><a class="viewcode-back" href="../../pynq.html#pynq.gpio.GPIO.get_gpio_pin">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_pin</span><span class="p">(</span><span class="n">ps_gpio_index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method returns a GPIO instance for PS GPIO pins.</span>
 <span class="sd">        </span>
 <span class="sd">        Users only need to specify an index starting from 0; this static </span>
-<span class="sd">        method will map this index to the correct GPIO pin number.</span>
+<span class="sd">        method will map this index to the correct Linux GPIO pin number.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
 <span class="sd">        The GPIO pin number can be calculated using:</span>
 <span class="sd">        GPIO pin number = GPIO base + GPIO offset + user index</span>
-<span class="sd">        e.g. The GPIO base is 138, and pin 54 is the minimum GPIO offset.</span>
-<span class="sd">        Then the GPIO pin will start from (138 + 54 + 0) = 192.</span>
+<span class="sd">        e.g. The GPIO base is 138, and pin 54 is the base GPIO offset.</span>
+<span class="sd">        Then the Linux GPIO pin would be (138 + 54 + 0) = 192.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        user_index : int</span>
+<span class="sd">        ps_pl_gpio_index : int</span>
 <span class="sd">            The index specified by users, starting from 0.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        int</span>
-<span class="sd">            The GPIO pin number, starting from GPIO base + GPIO offset.</span>
+<span class="sd">            The Linux Sysfs GPIO pin number.</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">get_gpio_base</span><span class="p">()</span> <span class="o">+</span> <span class="n">general_const</span><span class="o">.</span><span class="n">GPIO_MIN_USER_PIN</span>\
-                <span class="o">+</span> <span class="n">user_index</span><span class="p">)</span></div></div>
+                <span class="o">+</span> <span class="n">ps_gpio_index</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

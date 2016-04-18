@@ -20,6 +20,14 @@ pynq.pmods.als module
     :undoc-members:
     :show-inheritance:
 
+pynq.pmods.cable module
+-----------------------
+
+.. automodule:: pynq.pmods.cable
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pynq.pmods.dac module
 ---------------------
 
@@ -44,6 +52,30 @@ pynq.pmods.dpot module
     :undoc-members:
     :show-inheritance:
 
+pynq.pmods.grove_adc module
+---------------------------
+
+.. automodule:: pynq.pmods.grove_adc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pynq.pmods.grove_oled module
+----------------------------
+
+.. automodule:: pynq.pmods.grove_oled
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pynq.pmods.grove_pir module
+---------------------------
+
+.. automodule:: pynq.pmods.grove_pir
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pynq.pmods.led8 module
 ----------------------
 
@@ -64,6 +96,14 @@ pynq.pmods.pmod_const module
 ----------------------------
 
 .. automodule:: pynq.pmods.pmod_const
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pynq.pmods.pmodiic module
+-------------------------
+
+.. automodule:: pynq.pmods.pmodiic
     :members:
     :undoc-members:
     :show-inheritance:

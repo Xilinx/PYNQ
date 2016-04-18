@@ -15,13 +15,13 @@ Any issues can be submitted via the github site's `issue tracker <https://github
 
   2. Pynq on Zybo does not try to teach Python programming to first-time users. Programmers who are familiar with other languages, will pick up much of the fundamentals of Python quickly from the examples in these notes. Nonetheless, Python is a very comprehensive language with many advanced features that may require additional study.  For these reasons we have provided links to excellent `Python training material <https://github.com/Xilinx/XilinxPythonProject/wiki/9.-Useful-Reference-Links#useful-reference-links>`_
 
-
-Four main steps
+Setup
 ================
 
 There are four main steps (each with several smaller steps) to getting started with Pynq and the ZYBO board.  These are:
 
 * **1 Get the image and prepare the micro-SD Card**
+
  * For now you will need to obtain the image, or a micro-SD card preloaded with the image directly from the Pynq team.
  * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_
 
@@ -40,8 +40,9 @@ There are four main steps (each with several smaller steps) to getting started w
 
 * **3. Open a web browser and connect to Pynq web portal**
 
- * Using a web browser, open the address  `pynq:9090 <http://pynq:9090>`_
- If you can't connect to the board, see the [Frequently asked questions](10.-FAQs.html)
+ * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_
+
+If you can't connect to the board, see the [Frequently asked questions](10.-FAQs.html)
 
 * **4. Familiarize yourself with Jupyter dashboard and notebooks**
 
@@ -87,7 +88,7 @@ Interacting with the Zynq Portal
 ================================
 
 Getting an IP address
---------------------
+---------------------
 
 DHCP is enabled by default, so when you first power on the board, it should obtain an IP address automatically if you connect it to a home router or network switch. 
 

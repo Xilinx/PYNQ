@@ -31,8 +31,8 @@
 
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
-        <link rel="next" title="Glossary" href="8.-Glossary.html"/>
-        <link rel="prev" title="The pyxi (Python Xilinx) Package" href="6.-Libraries-and-APIs.html"/> 
+        <link rel="next" title="Glossary" href="8_glossary.html"/>
+        <link rel="prev" title="Creating drivers and writing code for the IOP" href="6_1_iop_code.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -82,42 +82,43 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="1.-Pynq.html">Pynq Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2.-Getting-started.html">Start here</a></li>
-<li class="toctree-l1"><a class="reference internal" href="a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="b. Notebook Basics.html">Notebook Basics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="c. Running Code.html">Running Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="d. Working With Markdown Cells.html">Markdown Cells</a></li>
-<li class="toctree-l1"><a class="reference internal" href="3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pmodio_overlay (5).html">Peripherals and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="audio_video_overlay.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_a_jupyter_notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_b_notebook_basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_c_running_code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_d_markdown_cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_1_programming_zybo_in_python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_2_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_pmodio_overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_libraries_and_overlays.html#package-contents">Package contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_libraries_and_overlays.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_1_iop_code.html">Creating drivers and writing code for the IOP</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Test</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#running-tests">Running Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#running-demos">Running Demos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#writing-tests-and-demos">Writing Tests and Demos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-tests">Running Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#collection-phase">Collection Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-phase">Testing Phase</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-tests">Writing Tests</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-1">Step 1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-2">Step 2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-3">Step 3</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-4">Step 4</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#adc-jumper">ADC Jumper</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cable-type-for-gpio-loop-tests">Cable Type (for GPIO Loop Tests)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adc-jumper">ADC Jumper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cable-type">Cable Type</a></li>
 </ul>
 </li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="8.-Glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Appendix_1.html">Appendix 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
 </ul>
 
@@ -278,185 +279,130 @@ div.nboutput  > :nth-child(2).stderr {
 .ansibold { font-weight: bold; }
 </style>
 <div class="section" id="test">
-<h1><a class="toc-backref" href="#id2">Test</a><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h1>
+<h1><a class="toc-backref" href="#id1">Test</a><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title first">Table of Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#test" id="id2">Test</a><ul>
-<li><a class="reference internal" href="#running-tests" id="id3">Running Tests</a></li>
-<li><a class="reference internal" href="#running-demos" id="id4">Running Demos</a></li>
-<li><a class="reference internal" href="#writing-tests-and-demos" id="id5">Writing Tests and Demos</a></li>
-<li><a class="reference internal" href="#miscellaneous" id="id6">Miscellaneous</a></li>
+<li><a class="reference internal" href="#test" id="id1">Test</a><ul>
+<li><a class="reference internal" href="#running-tests" id="id2">Running Tests</a></li>
+<li><a class="reference internal" href="#writing-tests" id="id3">Writing Tests</a></li>
+<li><a class="reference internal" href="#miscellaneous" id="id4">Miscellaneous</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<p>This section documents the test infrastructure supplied with the <cite>pyxi</cite> package. It is organized as follows:</p>
+<p>This section documents the test infrastructure supplied with the <cite>pynq</cite> package. It is organized as follows:</p>
 <ul class="simple">
-<li><em>Running Tests</em>: describes how to run existing tests.</li>
-<li><em>Running Demos</em>: describes how to run existing demos.</li>
-<li><em>Writing Tests and Demos</em>: explains how a user can write their own tests and demos.</li>
-<li><em>Miscellaneous</em>: covers additional information relating to tests.</li>
+<li><em>Running Tests</em> : describes how to run the pytest.</li>
+<li><em>Writing Tests</em> : explains how a user can write their own tests.</li>
+<li><em>Miscellaneous</em> : covers additional information relating to tests.</li>
 </ul>
 <div class="section" id="running-tests">
-<h2><a class="toc-backref" href="#id3">Running Tests</a><a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
-<p>The <em>pyxi</em> package provides integrated test suites, where each sub-module can be tested.</p>
-<p>To run all the tests together, we can import the <cite>run_tests()</cite> function from <cite>pyxi.tests</cite> module and call it.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyxi.tests</span> <span class="kn">import</span> <span class="n">run_tests</span>
-
-<span class="n">run_tests</span><span class="p">()</span>
+<h2><a class="toc-backref" href="#id2">Running Tests</a><a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
+<p>The <em>pynq</em> package provides tests for most python modules.</p>
+<p>To run all the tests together, we can directly run pytest in the Linux terminal. All the tests will be automatically collected in the current directory and all of its child directories.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">cd /usr/local/lib/python3.4/dist-packages/pynq</span>
+<span class="go">py.test –vsrw</span>
 </pre></div>
 </div>
-<p>The test suite will guide the users through all the tests implemented in the pyxi package. As part of the tests, the user will be prompted for confirmation the tests have passed, for example:</p>
+<p>For a complete list of pytest options, please refer to <a class="reference external" href="https://pytest.org/latest/usage.html">Usage and Invocations - Pytest</a>.</p>
+<div class="section" id="collection-phase">
+<h3>Collection Phase<a class="headerlink" href="#collection-phase" title="Permalink to this headline">¶</a></h3>
+<p>During this phase, the pytest will collect all the test modules in the current directory and all of its child directories. The users will be asked if a PMOD is connected, and to which port it is connected.</p>
+<p>For example:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">Is LED8 attached to the board? ([yes]/no)&gt;&gt;&gt; yes</span>
+<span class="go">Type in the PMOD ID of the LED8 (1 ~ 4):</span>
+</pre></div>
+</div>
+<p>For the answer to the first question, &#8220;yes&#8221;, &#8220;YES&#8221;, &#8220;Yes&#8221;, &#8220;y&#8221;, and &#8220;Y&#8221; are acceptable; the same applies for a &#8220;no&#8221; as an answer. Users can also directly press enter; this is equivalent to giving the &#8220;yes&#8221; answer.</p>
+<p>For the answer to the second question, since we are using the PMOD overlay, 1, 2, 3, and 4 are all acceptable answers, since there are only 4 IO processors in &#8220;pmod.bit&#8221;.</p>
+<p>If we answer &#8220;no&#8221; to the first question, the corresponding tests wil be skipped during the testing phase.</p>
+</div>
+<div class="section" id="testing-phase">
+<h3>Testing Phase<a class="headerlink" href="#testing-phase" title="Permalink to this headline">¶</a></h3>
+<p>The test suite will guide the users through all the tests implemented in the pynq package. As part of the tests, the user will be prompted for confirmation the tests have passed, for example:</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="go">test_led0 ...</span>
 <span class="go">Onboard LED 0 on? ([yes]/no)&gt;&gt;&gt;</span>
 </pre></div>
 </div>
-<p>For the answer, &#8220;yes&#8221;, &#8220;YES&#8221;, &#8220;Yes&#8221;, &#8220;y&#8221;, and &#8220;Y&#8221; are all acceptable; the same applies for a &#8220;no&#8221; as an answer. Users can also directly press enter; this is equivalent to giving the &#8220;yes&#8221; answer.</p>
-<p>In some tests, the users will also be asked if a PMod is connected, and which port it is connected to. For example:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="go">Is LED8 attached to the board? ([yes]/no)&gt;&gt;&gt; y</span>
-<span class="go">Type in the PMOD ID of the LED8 (1 ~ 4):</span>
-</pre></div>
-</div>
-<p>In this case, 1, 2, 3, and 4 are all acceptable answers; other values will raise an exception.</p>
-<p>To run the entire test suite, alternatively, users can type:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;pyxi/tests/testsuite.py&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>This will execute the file directly.</p>
-<p>For board or pmods subpackage, it is also possible to execute a single test. For example, for <cite>pyxi.pmods.tests.test_oled</cite> (<em>i.e.</em> the unit test for <cite>pyxi.pmods.oled</cite>), users can write the following code in micropython prompt:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;pyxi/pmods/tests/test_oled.py&#39;</span><span class="p">)</span>
-</pre></div>
+<p>Again, &#8220;yes&#8221;, &#8220;YES&#8221;, &#8220;Yes&#8221;, &#8220;y&#8221;, and &#8220;Y&#8221; are acceptable; the same applies for a &#8220;no&#8221; as an answer. Users can also directly press enter; this is equivalent to giving the &#8220;yes&#8221; answer.</p>
+<p>At the end of the testing phase, a summary will be given to show users how many tests are passed / skipped / failed.</p>
 </div>
 </div>
-<div class="section" id="running-demos">
-<h2><a class="toc-backref" href="#id4">Running Demos</a><a class="headerlink" href="#running-demos" title="Permalink to this headline">¶</a></h2>
-<p>Running demos is similar to running tests. For example, we can use the following code to import all the demos:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyxi.tests</span> <span class="kn">import</span> <span class="n">run_demo</span>
-</pre></div>
-</div>
-<p>After all the demos have been imported, we can run them all by typing:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">run_demo</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Alternatively, we can import a specific demo:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.demo_dac_adc_oled</span> <span class="kn">import</span> <span class="n">demo_dac_adc_oled</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="writing-tests-and-demos">
-<h2><a class="toc-backref" href="#id5">Writing Tests and Demos</a><a class="headerlink" href="#writing-tests-and-demos" title="Permalink to this headline">¶</a></h2>
-<p>This section follows the guide available on <a class="reference external" href="https://pypi.python.org/pypi/micropython-unittest">micropython unittest</a>. The users can write a test class, derived from the <cite>unittest.TestCase</cite>. The <cite>unittest</cite> has many <cite>assert</cite> methods to allow assertions on inputs and outputs to deliver automatic testing. Each test requires a method whose name <em>must</em> begin with <cite>test</cite>. More information can be found on <a class="reference external" href="https://docs.python.org/3.5/library/unittest.html">python.org</a>.</p>
-<p>As an example, here is one taken directly from <a class="reference external" href="https://docs.python.org/3.5/library/unittest.html">python.org</a> that shows how a test case should be structured:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">unittest</span>
-
-<span class="k">class</span> <span class="nc">TestStringMethods</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-
-  <span class="k">def</span> <span class="nf">test_upper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="s">&#39;FOO&#39;</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">test_isupper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s">&#39;FOO&#39;</span><span class="o">.</span><span class="n">isupper</span><span class="p">())</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="s">&#39;Foo&#39;</span><span class="o">.</span><span class="n">isupper</span><span class="p">())</span>
-
-  <span class="k">def</span> <span class="nf">test_split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-      <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;hello wor.ld&#39;</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="p">[</span><span class="s">&#39;hello&#39;</span><span class="p">,</span> <span class="s">&#39;world&#39;</span><span class="p">])</span>
-      <span class="c"># check that s.split fails when the separator is not a string</span>
-      <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
-       <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>The call made in the <cite>$$__name__$$ == &#8220;$$__main__$$&#8221;</cite> boilerplate allows the test modules to be executed as stand-alone python scripts. In this example, all of the <cite>test$$_$$</cite> functions implemented in the <cite>TestStringMethods</cite> will be parsed and automatically executed.</p>
-<p>The key steps for users to write new tests are shown below:</p>
+<div class="section" id="writing-tests">
+<h2><a class="toc-backref" href="#id3">Writing Tests</a><a class="headerlink" href="#writing-tests" title="Permalink to this headline">¶</a></h2>
+<p>This section follows the guide available on <a class="reference external" href="https://pytest.org/latest/example/">Ussages and Examples - Pytest</a>. The users can write a test class with assertions on inputs and outputs to deliver automatic testing. The names of the test modules <em>must</em> start with <cite>test_</cite>; all the methods for tests in any test module <em>must</em> begin with <cite>test_</cite> as well. One reason to enforce this is to ensure the tests will be collected properly. More information can be found on <a class="reference external" href="https://pytest.org/latest/contents.html">Full pytest documentation</a>.</p>
 <div class="section" id="step-1">
 <h3>Step 1<a class="headerlink" href="#step-1" title="Permalink to this headline">¶</a></h3>
-<p>Within a test module, create a <cite>test_&lt;module_name&gt;()</cite> function. This function will be called by <cite>unittest.main()</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">test_led</span><span class="p">():</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">test_led</span><span class="p">()</span>
+<p>First of all, the pytest package has to be imported:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pytest</span>
 </pre></div>
 </div>
-<p>Note that users must insert the argument <cite>$$__name__$$</cite> to the <cite>unittest.main()</cite> call. <cite>$$__name__$$</cite> holds the name of the test functions.</p>
 </div>
 <div class="section" id="step-2">
 <h3>Step 2<a class="headerlink" href="#step-2" title="Permalink to this headline">¶</a></h3>
-<p>To enable stand-alone execution, add this code at the very bottom of the test module:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">test_led</span><span class="p">()</span>
+<p>Then users can specify decorators right above the methods. For example, users can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More decorators can be found on <a class="reference external" href="https://pytest.org/latest/mark.html">Marking test functions with attributes - Pytest</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@pytest.mark.run</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="nd">@pytest.mark.skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">flag</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s">&quot;need both ADC and DAC attached&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This will allow the <cite>test_&lt;module_name&gt;()</cite> function to be called when the test module is executed as a Python script.</p>
 </div>
 <div class="section" id="step-3">
 <h3>Step 3<a class="headerlink" href="#step-3" title="Permalink to this headline">¶</a></h3>
-<p>This <cite>test_&lt;module_name&gt;()</cite> function created in the test module must be exported in <cite>$$__init__.py$$</cite> of the <cite>subpackage.tests</cite>.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.test_led</span> <span class="kn">import</span> <span class="n">test_led</span>
+<p>Right below the decorators, users can write some assertions/tests. Below is an example taken from <cite>test_dac_adc.py</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@pytest.mark.run</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="nd">@pytest.mark.skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">flag</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s">&quot;need both ADC and DAC attached&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_loop_single</span><span class="p">():</span>
+<span class="sd">&quot;&quot;&quot;Test for writing a single value via the loop.</span>
+
+<span class="sd">First check whether read() correctly returns a string. Then ask the users</span>
+<span class="sd">to write a voltage on the DAC, read from the ADC, and compares the two</span>
+<span class="sd">voltages.</span>
+
+<span class="sd">Note</span>
+<span class="sd">----</span>
+<span class="sd">Users can use a straight cable (instead of wires) to do this test.</span>
+<span class="sd">For the 6-pin DAC PMOD, it has to be plugged into the upper row of the PMOD</span>
+<span class="sd">interface.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">global</span> <span class="n">dac</span><span class="p">,</span><span class="n">adc</span>
+<span class="n">dac</span> <span class="o">=</span> <span class="n">DAC</span><span class="p">(</span><span class="n">dac_id</span><span class="p">)</span>
+<span class="n">adc</span> <span class="o">=</span> <span class="n">ADC</span><span class="p">(</span><span class="n">adc_id</span><span class="p">)</span>
+
+<span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Insert a voltage in the range of [0.00, 2.00]: &quot;</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">value</span><span class="o">&lt;=</span><span class="mf">2.00</span><span class="p">,</span> <span class="s">&#39;Input voltage should not be higher than 2.00V.&#39;</span>
+<span class="k">assert</span> <span class="n">value</span><span class="o">&gt;=</span><span class="mf">0.00</span><span class="p">,</span> <span class="s">&#39;Input voltage should not be lower than 0.00V.&#39;</span>
+<span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span><span class="o">&lt;</span><span class="mf">0.06</span><span class="p">,</span> <span class="s">&#39;Read value != write value.&#39;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="step-4">
-<h3>Step 4<a class="headerlink" href="#step-4" title="Permalink to this headline">¶</a></h3>
-<p>Once all the unit tests are in place, you need to import them to the test suite by adding an entry in <cite>pyxiteststestsuite.py</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">test_suite</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s">&#39;pyxi.board.tests&#39;</span><span class="p">,</span>
-    <span class="s">&#39;pyxi.pmods.tests&#39;</span>
-<span class="p">]</span>
-</pre></div>
-</div>
-<p>This piece of code can parse each list in the <cite>test_suite</cite> and execute all the <cite>test_&lt;module_name&gt;()</cite> exported in <cite>$$__init__.py$$</cite> of the <cite>subpackage.tests</cite>, as specified in <em>Step 3</em>.</p>
-<p>Developing demos is similar to developing tests. The same steps and principles should be followed, with small changes including:</p>
-<ul class="simple">
-<li>The demo function should be called <cite>demo_&lt;module_name&gt;</cite> instead.</li>
-<li>The demo functions should be exported with the name <cite>demo$$_$$&lt;module_name&gt;</cite>.</li>
-</ul>
+<p>Note the <cite>assert</cite> statements specify the desired condition, and raise exceptions whenever that condition is not met. A customized exception message can be attached at the end of the <cite>assert</cite> methods, as shown above in the example.</p>
 </div>
 </div>
 <div class="section" id="miscellaneous">
-<h2><a class="toc-backref" href="#id6">Miscellaneous</a><a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">Miscellaneous</a><a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="adc-jumper">
 <h3>ADC Jumper<a class="headerlink" href="#adc-jumper" title="Permalink to this headline">¶</a></h3>
 <p>In our tests and demos, we have used a PMOD ADC. In order to make it work properly, users have to set a small jumper on the PMOD ADC as following. This setting will allow the ADC to use the correct reference voltage.</p>
-<img alt="_images/adc_jumper.jpeg" src="_images/adc_jumper.jpeg" />
-<div class="section" id="cable-type-for-gpio-loop-tests">
-<h4>Cable Type (for GPIO Loop Tests)<a class="headerlink" href="#cable-type-for-gpio-loop-tests" title="Permalink to this headline">¶</a></h4>
-<p>Two types of cables can be used with the tests in the pyxi package, a &#8220;straight&#8221; cable, and a &#8220;loopback&#8221; cable:</p>
+<a class="reference internal image-reference" href="_images/adc_jumper.jpeg"><img alt="_images/adc_jumper.jpeg" src="_images/adc_jumper.jpeg" style="width: 200px;" /></a>
+</div>
+<div class="section" id="cable-type">
+<h3>Cable Type<a class="headerlink" href="#cable-type" title="Permalink to this headline">¶</a></h3>
+<p>Two types of cables can be used with the tests in the pynq package, a &#8220;straight&#8221; cable, and a &#8220;loopback&#8221; cable:</p>
 <a class="reference internal image-reference" href="_images/cable_type.jpeg"><img alt="_images/cable_type.jpeg" src="_images/cable_type.jpeg" style="width: 400px;" /></a>
 <ul class="simple">
-<li><em>Straight cable</em> (upper one in image): The internal wires between the two ends are straight. This cable is intended for use as an extension cable.</li>
-<li><em>Loopback cable</em> (lower one in image, with red ribbon): The internal wires are twisted. This cable is intended for testing.</li>
+<li><em>Straight cable</em> (upper one in the image): The internal wires between the two ends are straight. This cable is intended for use as an extension cable.</li>
+<li><em>Loopback cable</em> (lower one in the image, with red ribbon): The internal wires are twisted. This cable is intended for testing.</li>
 </ul>
 <p>There are marks on the connectors at each end of the cable to indicate the orientation and wiring of the cable.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Since users must avoid shorting the VCC and GND, it is good practice to align the pins with the dot marks to VCC of the PMOD interfaces.
-A connection shorting the sources is strictly prohibited.</p>
+<p class="last">Since users must avoid shorting the VCC and GND, it is good practice to align the pins with the dot marks to VCC of the PMOD interfaces. A connection shorting the sources is strictly prohibited.</p>
 </div>
-<p>When a straight cable is used to connect two PMOD interfaces, to align the VCC and GND, we have to flip one end of the straight cable upside down. This will change the mapping between the pins of the two PMOD interfaces:</p>
-<dl class="docutils">
-<dt>..image:: ./images/pmod_straight_cable.png</dt>
-<dd><table class="first last docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">width:</th><td class="field-body">400</td>
-</tr>
-</tbody>
-</table>
-</dd>
-</dl>
-<p>For this reason, the straight cable is not recommended for our tests; however, the pyxi package can still recognize this cable type and use it for testing.</p>
-<p>The loopback cable is recommended for testing, as it preserves the mapping between two PMOD interfaces:</p>
-<a class="reference internal image-reference" href="_images/pmod_loopback_cable.png"><img alt="_images/pmod_loopback_cable.png" src="_images/pmod_loopback_cable.png" style="width: 400px;" /></a>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">For testing, there is only one connection type (mapping) allowed for each cable type. Otherwise VCC and GND could be shorted, damaging the board.</p>
-</div>
 </div>
 </div>
 </div>
@@ -469,10 +415,10 @@ A connection shorting the sources is strictly prohibited.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="8.-Glossary.html" class="btn btn-neutral float-right" title="Glossary" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="8_glossary.html" class="btn btn-neutral float-right" title="Glossary" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="6.-Libraries-and-APIs.html" class="btn btn-neutral" title="The pyxi (Python Xilinx) Package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="6_1_iop_code.html" class="btn btn-neutral" title="Creating drivers and writing code for the IOP" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

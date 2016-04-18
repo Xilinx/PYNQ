@@ -12,23 +12,23 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   1.-Pynq
-   2.-Getting-started
-   a. What is the Jupyter Notebook
-   b. Notebook Basics
-   c. Running Code
-   d. Working With Markdown Cells
-   3.-Programing-ZYBO-in-Python
-   Programming_Zybo's_onboard_peripherals
-   pmodio_overlay (5)
-   4.-The-PModIO-overlay
-   audio_video_overlay
-   6.-Libraries-and-APIs
+   1_pynq
+   2_getting_started
+   2_a_jupyter_notebook
+   2_b_notebook_basics
+   2_c_running_code
+   2_d_markdown_cells
+   3_1_programming_zybo_in_python
+   3_2_programming_onboard_peripherals_pp
+   4_pmodio_overlay
+   5_audio_video_overlay
+   6_libraries_and_overlays
+   6_1_iop_code
    7.-Test
-   8.-Glossary
-   9.-Useful-Reference-Links
-   10.-FAQs
-   Appendix_1
+   8_glossary
+   9_references
+   10_faqs
+   appendix
 
    modules
 

@@ -81,24 +81,25 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../1.-Pynq.html">Pynq Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../2.-Getting-started.html">Start here</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../b. Notebook Basics.html">Notebook Basics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../c. Running Code.html">Running Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../d. Working With Markdown Cells.html">Markdown Cells</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../pmodio_overlay (5).html">Peripherals and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../audio_video_overlay.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_getting_started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_a_jupyter_notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_b_notebook_basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_c_running_code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_d_markdown_cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3_1_programming_zybo_in_python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3_2_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../4_pmodio_overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../5_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html#package-contents">Package contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_1_iop_code.html">Creating drivers and writing code for the IOP</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../7.-Test.html">Test</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../8.-Glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Appendix_1.html">Appendix 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../8_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../9_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix.html">Appendix 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">pynq</a></li>
 </ul>
 
@@ -301,16 +302,16 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">general_const</span>
 
 <div class="viewcode-block" id="MMIO"><a class="viewcode-back" href="../../pynq.html#pynq.mmio.MMIO">[docs]</a><span class="k">class</span> <span class="nc">MMIO</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; This class exposes API to carry MMIO operations.</span>
+    <span class="sd">&quot;&quot;&quot; This class exposes API for MMIO read and write.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    base_addr : int</span>
-<span class="sd">        The base address of the MMIO, aligned with pages.</span>
+<span class="sd">        The base address of an address range, page aligned.</span>
 <span class="sd">    base_addr_offset : int</span>
-<span class="sd">        The base address offset with respect to pages.</span>
+<span class="sd">        The base address offset from page aligned base_addr.</span>
 <span class="sd">    length : int</span>
-<span class="sd">        The length in bytes, with stop address aligned with words.</span>
+<span class="sd">        The length in bytes, page aligned.</span>
 <span class="sd">    debug : bool</span>
 <span class="sd">        Turn on debug mode if it is True.</span>
 <span class="sd">    mem : mmap</span>
@@ -366,7 +367,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        offset : int</span>
-<span class="sd">            The offset added to the MMIO base address.</span>
+<span class="sd">            The read offset from the MMIO base address.</span>
 <span class="sd">        length : int</span>
 <span class="sd">            The length of the data in bytes.</span>
 <span class="sd">        </span>
@@ -397,12 +398,12 @@ div.nboutput  > :nth-child(2).stderr {
 
 
 <div class="viewcode-block" id="MMIO.write"><a class="viewcode-back" href="../../pynq.html#pynq.mmio.MMIO.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The method to write the data into MMIO.</span>
+        <span class="sd">&quot;&quot;&quot;The method to write data to MMIO.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        offset : int</span>
-<span class="sd">            The offset added to the MMIO base address.</span>
+<span class="sd">            The write offset from the MMIO base address.</span>
 <span class="sd">        data : int / str</span>
 <span class="sd">            The integer(s) to be written into MMIO.</span>
 <span class="sd">        </span>

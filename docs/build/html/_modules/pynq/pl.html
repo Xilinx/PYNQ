@@ -81,24 +81,25 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../1.-Pynq.html">Pynq Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../2.-Getting-started.html">Start here</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../a. What is the Jupyter Notebook.html">What is the Jupyter Notebook?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../b. Notebook Basics.html">Notebook Basics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../c. Running Code.html">Running Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../d. Working With Markdown Cells.html">Markdown Cells</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../3.-Programing-ZYBO-in-Python.html">Zynq A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Programming_Zybo's_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../pmodio_overlay (5).html">Peripherals and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../4.-The-PModIO-overlay.html">PMODs and the PModIO overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../audio_video_overlay.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../6.-Libraries-and-APIs.html">The <code class="docutils literal"><span class="pre">pyxi</span></code> (<strong>Py</strong>thon <strong>Xi</strong>linx) Package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../6.-Libraries-and-APIs.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_getting_started.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_a_jupyter_notebook.html">What is the Jupyter Notebook?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_b_notebook_basics.html">Notebook Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_c_running_code.html">Running Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_d_markdown_cells.html">Markdown Cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3_1_programming_zybo_in_python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3_2_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../4_pmodio_overlay.html">PMODs and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../5_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html#package-contents">Package contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_libraries_and_overlays.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_1_iop_code.html">Creating drivers and writing code for the IOP</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../7.-Test.html">Test</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../8.-Glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../9.-Useful-Reference-Links.html">Useful Reference Links</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../10.-FAQs.html">Frequently Asked Questions (FAQs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Appendix_1.html">Appendix 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../8_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../9_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix.html">Appendix 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">pynq</a></li>
 </ul>
 
@@ -321,221 +322,106 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">bitfile_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s">&#39;.tcl&#39;</span>
-    
-<span class="k">def</span> <span class="nf">_get_ip_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="n">ip_kwd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This method returns a list of IPs containing ip_kwd.</span>
+                        
+<span class="k">def</span> <span class="nf">_get_dict_ip_addr</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This method returns the MMIO base and range of an IP.</span>
 <span class="sd">    </span>
-<span class="sd">    If ip_kwd is not specified, this method will return all the IPs </span>
-<span class="sd">    available in the tcl file. This method applies to all the addressable IPs.</span>
+<span class="sd">    This method applies to all the addressable IPs.</span>
 <span class="sd">    </span>
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
 <span class="sd">    This method requires the absolute path of the &#39;.tcl&#39; file as input.</span>
-<span class="sd">    The returned list may not be human-readable.</span>
-<span class="sd">    Users can do the following to get a readable printout:</span>
-<span class="sd">    &gt;&gt;&gt; from pprint import pprint</span>
-<span class="sd">    &gt;&gt;&gt; pprint(result, width = 1))</span>
+<span class="sd">    Each entry in the returned dictionary stores a list of strings containing </span>
+<span class="sd">    the base and range in hex format, and an empty state.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    tcl_name : str</span>
 <span class="sd">        The absolute path of the .tcl file.</span>
-<span class="sd">    ip_kwd : str</span>
-<span class="sd">        The input keyword to search for in the bitstream.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list</span>
-<span class="sd">        A list of the addressable IPs containing the ip_kwd.</span>
-<span class="sd">        </span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary storing the address base and range information.</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">ip_kwd</span><span class="o">==</span><span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ip_kwd</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;IP name has to be a string.&quot;</span><span class="p">)</span>
-        
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;create_bd_addr_seg(.+?) &#39;</span><span class="o">+</span>\
-                    <span class="s">&#39;(\[.+?\]) (\[.+?\]) &#39;</span><span class="o">+</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) &#39;</span><span class="o">+</span>\
+                    <span class="s">&#39;-offset (0[xX][0-9a-fA-F]+) &#39;</span><span class="o">+</span>\
+                    <span class="s">&#39;(\[get_bd_addr_spaces processing_system7_0/Data\]) &#39;</span><span class="o">+</span>\
+                    <span class="s">&#39;(\[.+?\]) &#39;</span><span class="o">+</span>\
                     <span class="s">&#39;([A-Za-z0-9_]+)&#39;</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-                <span class="n">temp</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">ip_kwd</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ip_kwd</span> <span class="ow">in</span> <span class="n">temp</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
-                        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
-        
-    <span class="k">if</span> <span class="n">result</span><span class="o">==</span><span class="p">[]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No such addressable IPs in file {}.&#39;</span>\
-                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">result</span>
-                        
-<span class="k">def</span> <span class="nf">_get_ip_addr_base</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This method returns the MMIO base of an IP.</span>
-<span class="sd">    </span>
-<span class="sd">    This method applies to all the addressable IPs.</span>
-<span class="sd">    </span>
-<span class="sd">    Note</span>
-<span class="sd">    ----</span>
-<span class="sd">    This method requires the absolute path of the &#39;.tcl&#39; file as input.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    tcl_name : str</span>
-<span class="sd">        The absolute path of the .tcl file.</span>
-<span class="sd">    ip_name : str</span>
-<span class="sd">        The IP name to lookup in the bitstream.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        A string containing the hexadecimal representation of the base.</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ip_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;IP name has to be a string.&quot;</span><span class="p">)</span>
-        
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;create_bd_addr_seg(.+?)-offset &#39;</span><span class="o">+</span>\
-                    <span class="s">&#39;(0[xX][0-9a-fA-F]+)(.+?)&#39;</span><span class="o">+</span><span class="n">ip_name</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="c">#: Each entry is [base, range, state]</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="bp">None</span><span class="p">]</span>
     
-    <span class="k">if</span> <span class="n">result</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No such addressable IP in file {}.&#39;</span>\
-                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">result</span>
-        
-<span class="k">def</span> <span class="nf">_get_ip_addr_range</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This method returns the MMIO range of an IP.</span>
-<span class="sd">    </span>
-<span class="sd">    This method applies to all the addressable IPs.</span>
-<span class="sd">    </span>
-<span class="sd">    Note</span>
-<span class="sd">    ----</span>
-<span class="sd">    This method requires the absolute path of the &#39;.tcl&#39; file as input.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    tcl_name : str</span>
-<span class="sd">        The absolute path of the .tcl file.</span>
-<span class="sd">    ip_name : str</span>
-<span class="sd">        The IP name to lookup in the bitstream.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        A string containing the hexadecimal representation of the range.</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ip_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;IP name has to be a string.&quot;</span><span class="p">)</span>
-        
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;create_bd_addr_seg -range &#39;</span><span class="o">+</span>\
-                    <span class="s">&#39;(0[xX][0-9a-fA-F]+)(.+?)&#39;</span><span class="o">+</span><span class="n">ip_name</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-                
-    <span class="k">if</span> <span class="n">result</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">==</span><span class="p">{}:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No such addressable IP in file {}.&#39;</span>\
                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">result</span>
     
-<span class="k">def</span> <span class="nf">_get_gpio_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The method to return a list of PS GPIO instance names.</span>
+<span class="k">def</span> <span class="nf">_get_dict_gpio</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This method returns the PS GPIO index for an IP.</span>
 <span class="sd">    </span>
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
 <span class="sd">    This method requires the absolute path of the &#39;.tcl&#39; file as input.</span>
-<span class="sd">    The returned list may not be human-readable.</span>
-<span class="sd">    Users can do the following to get a readable printout:</span>
-<span class="sd">    &gt;&gt;&gt; from pprint import pprint</span>
-<span class="sd">    &gt;&gt;&gt; pprint(result, width = 1))</span>
+<span class="sd">    Each entry in the returned dictionary stores a user index, and an empty</span>
+<span class="sd">    state. For more information about the user GPIO pin, please see the GPIO</span>
+<span class="sd">    class.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    tcl_name : str</span>
 <span class="sd">        The absolute path of the .tcl file.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list</span>
-<span class="sd">        A list of GPIO instance names.</span>
-<span class="sd">        </span>
+<span class="sd">    dict</span>
+<span class="sd">        The dictionary storing the GPIO user indices, starting from 0.</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="s">&#39;connect_bd_net -net processing_system7_0_GPIO_O&#39;</span>
-    <span class="n">result</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&#39;\[get_bd_pins (.+?)\]&#39;</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-                
-    <span class="k">if</span> <span class="n">result</span><span class="o">==</span><span class="p">[]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No such GPIO instances in file {}.&#39;</span>\
-                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">result</span>
-    
-<span class="k">def</span> <span class="nf">_get_gpio_user_ix</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="n">gpio_kwd</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This method returns the user index of the GPIO for an IP.</span>
-<span class="sd">    </span>
-<span class="sd">    Note</span>
-<span class="sd">    ----</span>
-<span class="sd">    This method requires the absolute path of the &#39;.tcl&#39; file as input.</span>
-<span class="sd">    For more information about the user GPIO pin, please check the GPIO class.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    tcl_name : str</span>
-<span class="sd">        The absolute path of the .tcl file.</span>
-<span class="sd">    gpio_kwd : str</span>
-<span class="sd">        The input keyword to search for in the bitstream.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    int</span>
-<span class="sd">        The user index of the GPIO, starting from 0.</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gpio_kwd</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;PS GPIO name has to be a string.&quot;</span><span class="p">)</span>
-        
-    <span class="n">gpio_list</span> <span class="o">=</span> <span class="n">_get_gpio_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">gpio_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&#39;\[get_bd_pins (.+?)\]&#39;</span><span class="p">,</span>\
+                                        <span class="n">line</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+                                        
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gpio_list</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="n">gpio_kwd</span> <span class="ow">in</span> <span class="n">gpio_list</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">gpio_list</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span>
             
-    <span class="k">if</span> <span class="n">result</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">==</span><span class="p">{}:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No such GPIO instances in file {}.&#39;</span>\
                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">result</span>
-    
     
 <div class="viewcode-block" id="PL"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL">[docs]</a><span class="k">class</span> <span class="nc">PL</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;This class serves as a singleton for &quot;Overlay&quot; and &quot;Bitstream&quot; classes.</span>
+    <span class="sd">&quot;&quot;&quot;Serves as a singleton for &quot;Overlay&quot; and &quot;Bitstream&quot; classes.</span>
 <span class="sd">    </span>
 <span class="sd">    The IP dictionary stores the following information:</span>
-<span class="sd">    1. name (str), the key of an entry.</span>
+<span class="sd">    1. name (str), the key of an IP entry.</span>
 <span class="sd">    2. address (str), the base address of the IP.</span>
 <span class="sd">    3. range (str), the address range of the IP.</span>
 <span class="sd">    4. state (str), the state information about the IP.</span>
 <span class="sd">    </span>
 <span class="sd">    The PS GPIO dictionary stores the following information:</span>
-<span class="sd">    1. name (str), the key of an entry.</span>
-<span class="sd">    2. pin (int), the user index of the GPIO, starting from 0.</span>
+<span class="sd">    1. name (str), the key of an IP entry.</span>
+<span class="sd">    2. pin (int), the PS GPIO index, starting from 0.</span>
+<span class="sd">    3. state (str), the state information about the GPIO.</span>
 <span class="sd">    </span>
 <span class="sd">    The timestamp uses the following format:</span>
-<span class="sd">    Follow a format of: (year, month, day, hour, minute, second, microsecond)</span>
+<span class="sd">    year, month, day, hour, minute, second, microsecond</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    bitfile_name : str</span>
 <span class="sd">        The absolute path of the bitstream currently on PL.</span>
 <span class="sd">    timestamp : str</span>
-<span class="sd">        Timestamp when loading the bitstream.</span>
+<span class="sd">        Bitstream download timestamp.</span>
 <span class="sd">    ip_dict : dict</span>
 <span class="sd">        The dictionary storing addressable IP instances; can be empty.</span>
 <span class="sd">    gpio_dict : dict</span>
@@ -545,13 +431,8 @@ div.nboutput  > :nth-child(2).stderr {
     
     <span class="n">bitfile_name</span> <span class="o">=</span> <span class="n">general_const</span><span class="o">.</span><span class="n">BS_BOOT</span>
     <span class="n">timestamp</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-    <span class="n">ip_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="p">[</span><span class="n">_get_ip_addr_base</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">TCL_BOOT</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                    <span class="n">_get_ip_addr_range</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">TCL_BOOT</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                    <span class="bp">None</span><span class="p">]</span> 
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_ip_names</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">TCL_BOOT</span><span class="p">)}</span>
-    <span class="n">gpio_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="n">_get_gpio_user_ix</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">TCL_BOOT</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_gpio_names</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">TCL_BOOT</span><span class="p">)}</span>
-                    
+    <span class="n">ip_dict</span> <span class="o">=</span> <span class="n">_get_dict_ip_addr</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">TCL_BOOT</span><span class="p">)</span>
+    <span class="n">gpio_dict</span> <span class="o">=</span> <span class="n">_get_dict_gpio</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">TCL_BOOT</span><span class="p">)</span>
         
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a new PL object.</span>
@@ -569,7 +450,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="viewcode-block" id="PL.reset_ip_dict"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.reset_ip_dict">[docs]</a>    <span class="k">def</span> <span class="nf">reset_ip_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reset the IP dictionary.</span>
 <span class="sd">        </span>
-<span class="sd">        This class method is usually called after a bitstream download.</span>
+<span class="sd">        This method must be called after a bitstream download.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -581,16 +462,13 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tcl_name</span> <span class="o">=</span> <span class="n">_get_tcl_name</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">bitfile_name</span><span class="p">)</span>
-        <span class="n">cls</span><span class="o">.</span><span class="n">ip_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="p">[</span><span class="n">_get_ip_addr_base</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                            <span class="n">_get_ip_addr_range</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                            <span class="bp">None</span><span class="p">]</span>
-                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_ip_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)}</span></div>
-    
+        <span class="n">cls</span><span class="o">.</span><span class="n">ip_dict</span> <span class="o">=</span> <span class="n">_get_dict_ip_addr</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span></div>
+        
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PL.reset_gpio_dict"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.reset_gpio_dict">[docs]</a>    <span class="k">def</span> <span class="nf">reset_gpio_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reset the GPIO dictionary.</span>
 <span class="sd">        </span>
-<span class="sd">        This class method is usually called after a bitstream download.</span>
+<span class="sd">        This method must be called after a bitstream download.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -602,14 +480,13 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tcl_name</span> <span class="o">=</span> <span class="n">_get_tcl_name</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">bitfile_name</span><span class="p">)</span>
-        <span class="n">gpio_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="n">_get_gpio_user_ix</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_gpio_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)}</span></div>
-                        
+        <span class="n">cls</span><span class="o">.</span><span class="n">gpio_dict</span> <span class="o">=</span> <span class="n">_get_dict_gpio</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span></div>
+        
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PL.get_ip_names"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_ip_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_names</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ip_kwd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the IP names on PL.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the IP names in the PL.</span>
 <span class="sd">        </span>
-<span class="sd">        This method returns the information about the current overlay loaded. </span>
+<span class="sd">        This method returns information about the current overlay loaded. </span>
 <span class="sd">        If the ip_kwd is not specified, this method returns the entire list; </span>
 <span class="sd">        otherwise it returns the IP names containing the ip_kwd.</span>
 <span class="sd">        </span>
@@ -639,9 +516,7 @@ div.nboutput  > :nth-child(2).stderr {
             
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PL.get_ip_addr_base"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_ip_addr_base">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_addr_base</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the base address for an IP on PL.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns the information about the current overlay loaded.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the base address for an IP in the PL.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
@@ -666,9 +541,7 @@ div.nboutput  > :nth-child(2).stderr {
         
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PL.get_ip_addr_range"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_ip_addr_range">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_addr_range</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the address range for an IP on PL.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns the information about the current overlay loaded.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the address range for an IP in the PL.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
@@ -695,9 +568,9 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="viewcode-block" id="PL.get_ip_state"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_ip_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_state</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This method returns the state about an addressable IP.</span>
 <span class="sd">        </span>
-<span class="sd">        Returns the information about the current overlay loaded. The state </span>
-<span class="sd">        information can be used for general purposes, e.g., a program running</span>
-<span class="sd">        on the IP.</span>
+<span class="sd">        Returns information about a currently loaded IP. This general </span>
+<span class="sd">        purpose state&#39;s meaning is defined by the loaded Overlay.  </span>
+<span class="sd">        E.g., can specify what program is running on a soft processor.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
@@ -719,10 +592,40 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span></div>
+        
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PL.load_ip_data"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.load_ip_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_ip_data</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method writes data to the addressable IP.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        The data is assumed to be in binary format (*.bin). The data </span>
+<span class="sd">        name will be stored as a state information in the IP dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ip_name : str</span>
+<span class="sd">            The name of the addressable IP.</span>
+<span class="sd">        data : str</span>
+<span class="sd">            The absolute path of the data to be loaded.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">bin</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">fstat</span><span class="p">(</span><span class="nb">bin</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span><span class="o">.</span><span class="n">st_size</span><span class="o">/</span> \
+                    <span class="n">mmap</span><span class="o">.</span><span class="n">PAGESIZE</span><span class="p">))</span><span class="o">*</span><span class="n">mmap</span><span class="o">.</span><span class="n">PAGESIZE</span>
+            <span class="n">mmio</span> <span class="o">=</span> <span class="n">MMIO</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">16</span><span class="p">),</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">buf</span> <span class="o">=</span> <span class="nb">bin</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
+            
+        <span class="n">cls</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span></div>
     
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PL.get_gpio_names"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_gpio_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_names</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">gpio_kwd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the GPIO instance names on PL.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns PS GPIO accessible IP.</span>
 <span class="sd">        </span>
 <span class="sd">        This method returns the information about the current overlay loaded. </span>
 <span class="sd">        If the gpio_kwd is not specified, this method returns the entire list; </span>
@@ -733,6 +636,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        The PS GPIO dictionary stores the following information:</span>
 <span class="sd">        1. name (str), the key of an entry.</span>
 <span class="sd">        2. pin (int), the user index of the GPIO, starting from 0.</span>
+<span class="sd">        3. state (str), the state information about the GPIO.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -752,15 +656,14 @@ div.nboutput  > :nth-child(2).stderr {
             
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PL.get_gpio_user_ix"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_gpio_user_ix">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_user_ix</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">gpio_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the user GPIO pin for an IP.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns the information about the current overlay loaded.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the PS GPIO index for an IP.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
 <span class="sd">        The PS GPIO dictionary stores the following information:</span>
 <span class="sd">        1. name (str), the key of an entry.</span>
 <span class="sd">        2. pin (int), the user index of the GPIO, starting from 0.</span>
+<span class="sd">        3. state (str), the state information about the GPIO.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -773,22 +676,42 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            The user index of the GPIO, starting from 0.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">gpio_dict</span><span class="p">[</span><span class="n">gpio_name</span><span class="p">]</span></div></div>
-
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">gpio_dict</span><span class="p">[</span><span class="n">gpio_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+        
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PL.get_gpio_state"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_gpio_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_state</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">gpio_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the state for a GPIO.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        The PS GPIO dictionary stores the following information:</span>
+<span class="sd">        1. name (str), the key of an entry.</span>
+<span class="sd">        2. pin (int), the user index of the GPIO, starting from 0.</span>
+<span class="sd">        3. state (str), the state information about the GPIO.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gpio_name : str</span>
+<span class="sd">            The name of the PS GPIO pin.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The state of the GPIO pin.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">gpio_dict</span><span class="p">[</span><span class="n">gpio_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div></div>
+        
 <div class="viewcode-block" id="Bitstream"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Bitstream">[docs]</a><span class="k">class</span> <span class="nc">Bitstream</span><span class="p">(</span><span class="n">PL</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This class provides the bitstreams that can be downloaded.</span>
-<span class="sd">    </span>
-<span class="sd">    Note</span>
-<span class="sd">    ----</span>
-<span class="sd">    To avoid confusion, self.bitstream always stores an absolute path.</span>
+    <span class="sd">&quot;&quot;&quot;This class instantiates a programmable logic bitstream.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    bitfile_name : str</span>
 <span class="sd">        The absolute path of the bitstream.</span>
 <span class="sd">    timestamp : str</span>
-<span class="sd">        Timestamp when loading the bitstream. Follow a format of:</span>
-<span class="sd">        (year, month, day, hour, minute, second, microsecond)</span>
+<span class="sd">        Timestamp when loading the bitstream. Format:</span>
+<span class="sd">        year, month, day, hour, minute, second, microsecond</span>
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
@@ -802,7 +725,6 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        To avoid any confusion, always use consistent representation.</span>
 <span class="sd">        self.bitstream always stores the absolute path of the bitstream.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -863,7 +785,7 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="n">PL</span><span class="o">.</span><span class="n">reset_gpio_dict</span><span class="p">()</span></div></div>
         
 <div class="viewcode-block" id="Overlay"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay">[docs]</a><span class="k">class</span> <span class="nc">Overlay</span><span class="p">(</span><span class="n">PL</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The Overlay class keeps track of a single bitstream.</span>
+    <span class="sd">&quot;&quot;&quot;The Overlay class keeps track of a single bitstream&#39;s state and contents.</span>
 <span class="sd">    </span>
 <span class="sd">    The overlay class holds the state of the bitstream and enables run-time </span>
 <span class="sd">    protection of bindlings. </span>
@@ -880,6 +802,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">    The PS GPIO dictionary stores the following information:</span>
 <span class="sd">    1. name (str), the key of an entry.</span>
 <span class="sd">    2. pin (int), the user index of the GPIO, starting from 0.</span>
+<span class="sd">    3. state (str), the state information about the GPIO.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -901,7 +824,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        This method requires the &#39;.tcl&#39; file association.</span>
+<span class="sd">        This class requires a Vivado &#39;.tcl&#39; file to be next to bitstream file with same</span>
+<span class="sd">        base name (e.g. pmod.bit and pmod.tcl).</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -927,14 +851,10 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="n">tcl_name</span> <span class="o">=</span> <span class="n">_get_tcl_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bitfile_name</span><span class="p">)</span>
         
         <span class="c">#: Set the IP dictionary</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="p">[</span><span class="n">_get_ip_addr_base</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                            <span class="n">_get_ip_addr_range</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                            <span class="bp">None</span><span class="p">]</span> 
-                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_ip_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span> <span class="o">=</span> <span class="n">_get_dict_ip_addr</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span>
                         
         <span class="c">#: Set the GPIO dictionary</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gpio_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="n">_get_gpio_user_ix</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
-                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_gpio_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpio_dict</span> <span class="o">=</span> <span class="n">_get_dict_gpio</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span>
         
 <div class="viewcode-block" id="Overlay.download"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The method to download a bitstream onto PL.</span>
@@ -959,7 +879,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="viewcode-block" id="Overlay.get_timestamp"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.get_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">get_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This method returns the timestamp of the bitstream.</span>
 <span class="sd">        </span>
-<span class="sd">        The timestamp will be empty unless the bitstream is downloaded.</span>
+<span class="sd">        The timestamp will be empty string until the bitstream is downloaded.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -976,8 +896,8 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="viewcode-block" id="Overlay.is_loaded"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.is_loaded">[docs]</a>    <span class="k">def</span> <span class="nf">is_loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This method checks whether a bitstream is loaded.</span>
 <span class="sd">        </span>
-<span class="sd">        This method returns true if the timestamps are the same. </span>
-<span class="sd">        The method also returns true if the two bitstreams have the same name.</span>
+<span class="sd">        This method returns true if the loaded PL bitstream is same </span>
+<span class="sd">        as this Overlay&#39;s member bitstream.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -993,48 +913,6 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bitstream</span><span class="o">.</span><span class="n">timestamp</span><span class="o">==</span><span class="n">PL</span><span class="o">.</span><span class="n">timestamp</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bitfile_name</span><span class="o">==</span><span class="n">PL</span><span class="o">.</span><span class="n">bitfile_name</span></div>
-    
-<div class="viewcode-block" id="Overlay.load_ip_data"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.load_ip_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_ip_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method loads the data to the addressable IP.</span>
-<span class="sd">        </span>
-<span class="sd">        This method can also be used for programming the IP. For example, </span>
-<span class="sd">        users can use this method to load the program to the Microblaze </span>
-<span class="sd">        processors on PL.</span>
-<span class="sd">        </span>
-<span class="sd">        Note</span>
-<span class="sd">        ----</span>
-<span class="sd">        The data is assumed to be in binary format (*.bin). The data name will</span>
-<span class="sd">        be stored as a state information in the IP dictionary.</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        ip_name : str</span>
-<span class="sd">            The name of the addressable IP.</span>
-<span class="sd">        data : str</span>
-<span class="sd">            The absolute path of the program to be loaded.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None</span>
-<span class="sd">        </span>
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        LookupError</span>
-<span class="sd">            If the overlay is not loaded yet.</span>
-<span class="sd">        </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_loaded</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s">&quot;The current overlay has not been loaded.&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">bin</span><span class="p">:</span>
-                <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">fstat</span><span class="p">(</span><span class="nb">bin</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span><span class="o">.</span><span class="n">st_size</span><span class="o">/</span> \
-                        <span class="n">mmap</span><span class="o">.</span><span class="n">PAGESIZE</span><span class="p">))</span><span class="o">*</span><span class="n">mmap</span><span class="o">.</span><span class="n">PAGESIZE</span>
-                <span class="n">mmio</span> <span class="o">=</span> <span class="n">MMIO</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">16</span><span class="p">),</span> <span class="n">size</span><span class="p">)</span>
-                <span class="n">buf</span> <span class="o">=</span> <span class="nb">bin</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-                <span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
-                
-            <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
-            <span class="n">PL</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span></div>
             
 <div class="viewcode-block" id="Overlay.reset_ip_dict"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.reset_ip_dict">[docs]</a>    <span class="k">def</span> <span class="nf">reset_ip_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This function resets the entire IP dictionary of the overlay.</span>
@@ -1059,10 +937,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tcl_name</span> <span class="o">=</span> <span class="n">_get_tcl_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bitfile_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="p">[</span><span class="n">_get_ip_addr_base</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                            <span class="n">_get_ip_addr_range</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">),</span>
-                            <span class="bp">None</span><span class="p">]</span>
-                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_ip_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span> <span class="o">=</span> <span class="n">_get_dict_ip_addr</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_loaded</span><span class="p">():</span>
             <span class="n">PL</span><span class="o">.</span><span class="n">reset_ip_dict</span><span class="p">()</span></div>
     
@@ -1085,13 +960,12 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tcl_name</span> <span class="o">=</span> <span class="n">_get_tcl_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bitfile_name</span><span class="p">)</span>
-        <span class="n">gpio_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="n">_get_gpio_user_ix</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_gpio_names</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)}</span>
+        <span class="n">gpio_dict</span> <span class="o">=</span> <span class="n">_get_dict_gpio</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_loaded</span><span class="p">():</span>
             <span class="n">PL</span><span class="o">.</span><span class="n">reset_gpio_dict</span><span class="p">()</span></div>
                     
 <div class="viewcode-block" id="Overlay.get_ip_addr_base"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.get_ip_addr_base">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_addr_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the base address for an IP on the overlay.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the base address of an IP in this overlay.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
@@ -1115,7 +989,7 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
         
 <div class="viewcode-block" id="Overlay.get_ip_addr_range"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.get_ip_addr_range">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_addr_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the address range for an IP on the overlay.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns an IP&#39;s address range in this overlay.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
@@ -1139,7 +1013,7 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div>
         
 <div class="viewcode-block" id="Overlay.get_ip_state"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.get_ip_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the state about an addressable IP.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the state of an addressable IP.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
@@ -1161,15 +1035,43 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span></div>
-    
+        
+<div class="viewcode-block" id="Overlay.load_ip_data"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.load_ip_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_ip_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method loads the data to the addressable IP.</span>
+<span class="sd">        </span>
+<span class="sd">        Calls the method in the super class to load the data. This method can</span>
+<span class="sd">        be used to program the IP. For example, users can use this method to </span>
+<span class="sd">        load the program to the Microblaze processors on PL.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        The data is assumed to be in binary format (*.bin). The data name will</span>
+<span class="sd">        be stored as a state information in the IP dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ip_name : str</span>
+<span class="sd">            The name of the addressable IP.</span>
+<span class="sd">        data : str</span>
+<span class="sd">            The absolute path of the data to be loaded.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_ip_data</span><span class="p">(</span><span class="n">ip_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="n">ip_name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span></div>
+        
 <div class="viewcode-block" id="Overlay.get_gpio_user_ix"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.get_gpio_user_ix">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_user_ix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gpio_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns the user index of the GPIO for an IP.</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the user index of the GPIO.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
 <span class="sd">        The PS GPIO dictionary stores the following information:</span>
 <span class="sd">        1. name (str), the key of an entry.</span>
 <span class="sd">        2. pin (int), the user index of the GPIO, starting from 0.</span>
+<span class="sd">        3. state (str), the state information about the GPIO.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1182,7 +1084,30 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            The user index of the GPIO, starting from 0.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpio_dict</span><span class="p">[</span><span class="n">gpio_name</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpio_dict</span><span class="p">[</span><span class="n">gpio_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+        
+<div class="viewcode-block" id="Overlay.get_gpio_state"><a class="viewcode-back" href="../../pynq.html#pynq.pl.Overlay.get_gpio_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_gpio_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gpio_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method returns the state of the GPIO.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        The PS GPIO dictionary stores the following information:</span>
+<span class="sd">        1. name (str), the key of an entry.</span>
+<span class="sd">        2. pin (int), the user index of the GPIO, starting from 0.</span>
+<span class="sd">        3. state (str), the state information about the GPIO.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gpio_name : str</span>
+<span class="sd">            The name of the PS GPIO pin.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The state information about the GPIO.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpio_dict</span><span class="p">[</span><span class="n">gpio_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div></div>
             
 </pre></div>
 

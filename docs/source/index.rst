@@ -19,8 +19,8 @@ Contents:
    2_c_running_code
    2_d_markdown_cells
    3_1_programming_zybo_in_python
-   3_2_programming_onboard_peripherals
-   4_pmodio_overlay_pp
+   3_2_programming_onboard_peripherals_pp
+   4_pmodio_overlay
    5_audio_video_overlay
    6_libraries_and_overlays
    6_1_iop_code
