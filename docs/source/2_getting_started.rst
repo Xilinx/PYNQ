@@ -1,12 +1,14 @@
-**********
-Start here
-**********
+***************
+Getting Started
+***************
 
 .. contents:: Table of Contents
    :depth: 2
 
 
-Pynq for Zybo is a beta-stage deliverable from the Pynq team. The full build steps and Python packages will be available on the  `Pynq project GitHub <https://github.com/Xilinx/Pynq>`_ after the official beta release. Zybo is currently the supported Pynq platform. The source code can be directly pulled onto Zybo and compiled locally.
+Pynq for Zybo is a beta-stage deliverable from the Pynq team. The full build steps and Python packages will be available on the  `Pynq project GitHub <https://github.com/Xilinx/Pynq>`_ after the official beta release. 
+
+Zybo is currently the supported Pynq platform. 
 
 Any issues can be submitted via the github site's `issue tracker <https://github.com/Xilinx/Pynq/issues>`_ once the site is live.
 
@@ -18,14 +20,14 @@ Any issues can be submitted via the github site's `issue tracker <https://github
 Setup
 ================
 
-There are four main steps (each with several smaller steps) to getting started with Pynq and the ZYBO board.  These are:
+There are four main steps to getting started with Pynq and the ZYBO board.  These are:
 
-* **1 Get the image and prepare the micro-SD Card**
+1. **Get the image and prepare the micro-SD Card**
 
  * For now you will need to obtain the image, or a micro-SD card preloaded with the image directly from the Pynq team.
  * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_
 
-* **2. Configure ZYBO and connect it to your host machine and network**
+2. **Configure ZYBO and connect it to your host machine and network**
 
  * Set the board jumpers correctly
  
@@ -38,15 +40,15 @@ There are four main steps (each with several smaller steps) to getting started w
  * Switch on ZYBO and verify that the status LEDs indicate successful boot-up
 
 
-* **3. Open a web browser and connect to Pynq web portal**
+3. **Open a web browser and connect to Pynq Jupyter Notebooks web portal**
 
  * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_
 
-If you can't connect to the board, see the [Frequently asked questions](10.-FAQs.html)
+If you can't connect to the board, see the `Frequently asked questions <13_faqs.html>`_
 
-* **4. Familiarize yourself with Jupyter dashboard and notebooks**
+4. **Familiarize yourself with Jupyter dashboard and notebooks**
 
- * From the Jupyter dashboard, explore the *Getting Started* Notebook(s) to learn more about Pynq and how to use the overlays provided to control the peripherals on the Zybo itself as well as other peripherals that can be attached to it.
+ * From the Jupyter dashboard, explore the *Getting Started* and *Example* Notebooks to learn more about Pynq and how to use the overlays provided to control the peripherals on the Zybo itself as well as other peripherals that can be attached to it.
 
 
 
@@ -92,11 +94,16 @@ Getting an IP address
 
 DHCP is enabled by default, so when you first power on the board, it should obtain an IP address automatically if you connect it to a home router or network switch. 
 
-See the [Frequently asked questions](10.-FAQs.html) if you can't connect to the board, or if you need to configure the network settings.
+See the `Frequently asked questions <13_faqs.html>`_ if you can't connect to the board, or if you need to configure the network settings.
 
 Open the Pynq Portal
 --------------------
 Using a web browser, open the address  `pynq:9090 <http://pynq:9090>`_
+
+.. image:: ./images/portal_login.jpg
+   :height: 600px
+   :scale: 75%
+   :align: center
 
 **pynq** is the default Ubuntu hostname of the board. 
 (It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching.) 
@@ -105,16 +112,47 @@ When prompted enter the password `xpp` to launch the Jupyter dashboard.
 
 The Jupyter portal should now be open.
 
-
- 
 The Jupyter Dashboard
 ---------------------
 
-.. image:: ./images/dashboard_files_tab.png
+.. image:: ./images/portal_homepage.jpg
+   :height: 600px
+   :scale: 75%
+   :align: center
+
+You can click on a notebook (.ipynb) to open it. 
+
+   
+Getting started notebooks
+----------------------------
+
+A powerful feature of Jupyter notebooks is the ability to render html webpages from the source docuemnts. Some of this documentation has been generated directly from notebooks. 
+
+You can view the webpage for documentation, or if you have a board running pynq, you can view the documenation interactively and try out some exmaple code, by opening the corresponding notebook in the getting started folder in the jupyter notebooks folder. 
+ 
+.. image:: ./images/pynq_getting_started.jpg
+   :height: 600px
+   :scale: 75%
+   :align: center
+   
+
+There are also a number of example notebooks available showing examples of how to use different peripherals with the board. 
+
+.. image:: ./images/pynq_examples.jpg
+   :height: 600px
+   :scale: 75%
+   :align: center
+   
+   
+Accessing files on the board
+----------------------------
+Samba is running on the board, and the home area is shared and can be accesed like a networked drive. You can navigate to **\\\\pynq\\** to access the home area from a host PC. 
+
+.. image:: ./images/samba_share.jpg
    :height: 600px
    :scale: 75%
    :align: center
 
 Troubleshooting
 --------------------
-If you are having problems connecting to the board, see the [Frequently asked questions](10.-FAQs.html)
+If you are having problems connecting to the board, see the `Frequently asked questions <13_faqs.html>`_

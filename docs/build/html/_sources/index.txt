@@ -14,23 +14,20 @@ Contents:
 
    1_pynq
    2_getting_started
-   2_a_jupyter_notebook
-   2_b_notebook_basics
-   2_c_running_code
-   2_d_markdown_cells
-   3_1_programming_zybo_in_python
-   3_2_programming_onboard_peripherals_pp
-   4_pmodio_overlay
-   5_audio_video_overlay
-   6_libraries_and_overlays
-   6_1_iop_code
-   7.-Test
-   8_glossary
-   9_references
-   10_faqs
+   3_jupyter_notebook
+   4_programming_zybo_in_python
+   5_programming_onboard_peripherals_pp
+   6_pmodio_overlay
+   7_audio_video_overlay
+   8_iop_code
+   9_libraries_and_overlays
+   10_test
+   11_glossary
+   12_references
+   13_faqs
+   modules
    appendix
 
-   modules
 
 Indices and tables
 ==================

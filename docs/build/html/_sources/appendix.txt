@@ -1,5 +1,5 @@
 ***********
-Appendix 1
+Appendix
 ***********
 
 .. contents:: Table of Contents

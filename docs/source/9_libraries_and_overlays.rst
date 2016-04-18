@@ -60,13 +60,13 @@ This folder includes a tests package for use with all other pynq subpackages.
 NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
 
 Package contents
-================
+-----------------------------
 To find a list of modules, and to find documentation for each module, see the [Pynq Package ](modules.html)
 
 Usage
-=====
+-----------------------------
 
-Refer to `Programing Zybo's onboard peripherasl in Python <3_2_programming_onboard_peripherals.html>`_ for more information on how to use Pynq.
+Refer to `Programing Zybo's onboard peripherasl in Python <5_programming_onboard_peripherals.html>`_ for more information on how to use Pynq.
 
 To use pynq, import the whole package: 
 

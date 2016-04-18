@@ -39,7 +39,8 @@ Why ...
    By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your netwrok, it should be allocated an IP address automatically. 
    
    If you plug the ethernet cable directly to your computer, you will need to manually configure a static IP address.
-   
+
+... How do I set a static IP address
    To do this, you need to connect to the board using a terminal.
    
    To connect a terminal
@@ -56,6 +57,13 @@ Why ...
    Once you connect to the board, you can configure the network interface in Ubuntu
    
    e.g. sudo ifconfig eth0 192.168.0.10 
+   
+   You will need to stop the dhclient first
+   
+   run ps -ef | grep dhclient to find the process id of the dhclient, and then use sudo to kill it:
+
+   .. image:: ./images/terminal_static_ip_address.jpg
+      :align: center
    
    You can check Ubuntu documentation for further information.
    
