@@ -1584,6 +1584,11 @@ update_compile_order -fileset sources_1
 launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
 
+file mkdir ./zybo/project_1.sdk
+write_hwdef -force  -file ./zybo/project_1.sdk/pmod_overlay.hdf
+file copy -force ./zybo/project_1.sdk/pmod_overlay.hdf ../../sdk/
+
+
 #synth_design -top top -part xc7z020clg484-1
 #synth_design
 #opt_design
