@@ -267,9 +267,9 @@ class Grove_IMU(object):
         """
         pressure = self.get_pressure()
         A = pressure/101325;
-        B = 1/5.25588;
+        B = 1/5.255;
         C = 1-pow(A,B);
-        altitude = C /0.0000225577;
+        altitude = 44300 * C;
         return altitude
         
     def _reg2float(self, reg):
@@ -295,5 +295,5 @@ class Grove_IMU(object):
         else:
             man = 1+(reg & 0x007fffff)/pow(2,23)
         result = pow(2,exp)*(man)*((sign*-2) +1)
-        return float("{0:.1f}".format(result))
+        return float("{0:.2f}".format(result))
         

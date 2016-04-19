@@ -249,7 +249,9 @@ int bmp_ReadInt(uint8_t address)
     // read 2 bytes from the address and return an int
     uint8_t msb, lsb;
     iic_readByte(bmpAddr, address, &msb);
+    delay_ms(20);
     iic_readByte(bmpAddr, address+1, &lsb);
+    delay_ms(20);
     return (int) msb<<8 | lsb;
 }
 
@@ -258,6 +260,7 @@ char bmp_ReadByte(unsigned char address)
     // read a single byte from the address
     uint8_t data;
     iic_readByte(bmpAddr, address, &data);
+    delay_ms(20);
     return data;
 }
 
@@ -279,22 +282,21 @@ void bmp_init(){
 float bmp_GetTemperature()
 {
     unsigned int ut;
-    long x1, x2, Compensate;
+    long x1, x2;
     float temp;
-     uint8_t data[2];
+    uint8_t data;
     
     // get the uncompensated temperature
-    data[0] = 0xF4;
-    data[1] = 0x2E;
-    iic_write(bmpAddr, data, 2);
+    data = 0x2E;
+    iic_writeByte(bmpAddr, 0xF4, &data);
     delay_ms(20);
     ut = bmp_ReadInt(0xF6);
     
     // calculate the compensated temperature
     x1 = (((long)ut - (long)ac6)*(long)ac5) >> 15;
     x2 = ((long)mc << 11)/(x1 + md);
-    Compensate = x1 + x2;
-    temp = (float)((Compensate + 8)>>4);
+    PressureCompensate = x1 + x2;
+    temp = (float)((PressureCompensate + 8)>>4);
     temp = temp /10;
 
     return temp;
@@ -307,13 +309,15 @@ float bmp_GetPressure()
     unsigned char msb, lsb, xlsb;
     unsigned long up = 0;
     float temp;
-    uint8_t data[2];
+    uint8_t data;
+    
+    // Read the temperature first to set PressureCompensate
+    bmp_GetTemperature();
     
     // get the uncompensated pressure
-    data[0] = 0xF4;
-    data[1] = 0x34 + (OSS<<6);
-    iic_write(bmpAddr, data, 2);
-    delay_ms(10 + (3<<OSS));
+    data = 0x34;
+    iic_writeByte(bmpAddr, 0xF4, &data);
+    delay_ms(20);
     msb = bmp_ReadByte(0xF6);
     lsb = bmp_ReadByte(0xF7);
     xlsb = bmp_ReadByte(0xF8);
@@ -325,7 +329,6 @@ float bmp_GetPressure()
     x2 = (ac2 * b6)>>11;
     x3 = x1 + x2;
     b3 = (((((long)ac1)*4 + x3)<<OSS) + 2)>>2;
-
     x1 = (ac3 * b6)>>13;
     x2 = (b1 * ((b6 * b6)>>12))>>16;
     x3 = ((x1 + x2) + 2)>>2;
