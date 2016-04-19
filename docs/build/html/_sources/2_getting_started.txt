@@ -44,7 +44,7 @@ There are four main steps to getting started with Pynq and the ZYBO board.  Thes
 
  * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_
 
-If you can't connect to the board, see the `Frequently asked questions <13_faqs.html>`_
+If you can't connect to the board, see the `Frequently asked questions <14_faqs.html>`_
 
 4. **Familiarize yourself with Jupyter dashboard and notebooks**
 
@@ -94,7 +94,7 @@ Getting an IP address
 
 DHCP is enabled by default, so when you first power on the board, it should obtain an IP address automatically if you connect it to a home router or network switch. 
 
-See the `Frequently asked questions <13_faqs.html>`_ if you can't connect to the board, or if you need to configure the network settings.
+See the `Frequently asked questions <14_faqs.html>`_ if you can't connect to the board, or if you need to configure the network settings.
 
 Open the Pynq Portal
 --------------------
@@ -155,4 +155,4 @@ Samba is running on the board, and the home area is shared and can be accesed li
 
 Troubleshooting
 --------------------
-If you are having problems connecting to the board, see the `Frequently asked questions <13_faqs.html>`_
+If you are having problems connecting to the board, see the `Frequently asked questions <14_faqs.html>`_

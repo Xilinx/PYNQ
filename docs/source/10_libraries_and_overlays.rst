@@ -11,7 +11,7 @@ The board also has a Samba share which allows you map pynq as a network drive. I
 You can browse to the directory in a similar way using other operating systems.
 
 Python ``pynq`` Package Structure
----------
+---------------------------------
 A package in Python is a folder which contains multiple Pthon moduels (".py" files) and a ``__init__.py`` file. 
 
 ``__init__.py`` makes Python treat the directory as a self-containing package. The initialization file can also execute the initialization code for the package. For instance, in ``__init__.py``, the ``__all__`` variable can be used to define the subpackages or modules that will be imported by default when this package is imported.

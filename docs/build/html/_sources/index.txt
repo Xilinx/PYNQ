@@ -17,14 +17,15 @@ Contents:
    3_jupyter_notebook
    4_programming_zybo_in_python
    5_programming_onboard_peripherals_pp
-   6_pmodio_overlay
-   7_audio_video_overlay
+   6_pmodio_overlay_pp
+   7_audio_video_overlay__pp
    8_iop_code
-   9_libraries_and_overlays
-   10_test
-   11_glossary
-   12_references
-   13_faqs
+   9_creating_overlays.rst
+   10_libraries_and_overlays
+   11_test
+   12_glossary
+   13_references
+   14_faqs
    modules
    appendix
 
