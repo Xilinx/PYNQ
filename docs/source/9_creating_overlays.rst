@@ -1,13 +1,11 @@
 Creating Overlays
 ==============================================
 
-Creating overlays is done using traditional hardware design methods, and the design process will not be covered in this document. 
+Creating overlays is done using traditional hardware design methods. This document will describe how overlays can be created and integrated into Pynq by FPGA/Zynq designers, but will not cover the hardware design process. If you are new to FPGA technology, see the `Xilinx Getting Started Guide <http://www.xilinx.com/company/gettingstarted/>`_
 
-How overlays can be created and integrated into Pynq by FPGA/Zynq designers will be explained. 
+While FPGA fabric has the ability to be customized to very specific and optimized implementations, a high level of expertise is required to do this. Compared to building and compiling software, this is typically a time consuming process.
 
-While FPGA fabric has the ability to be customized to very specific and optimized implementations, a high level of expertise is required to do this. Compared to building and compiling software, this is typically a time consuing process.
-
-The key concept of overlays in Pynq is that an overlay should be as flexible and generic as possible so that it can be as applicable to as many differen applications as possible. 
+The key concept of overlays in Pynq is that an overlay should be as flexible and generic as possible so that it can be as applicable to as many different applications as possible. 
 
 For example, it is recommended that IOPs are used for PMOD interfaces to make the overlay as widely applicable as possible, even where the designer intends to use a specific peripheral. 
 
@@ -15,22 +13,24 @@ Rather than customizing any other hardware components in the design, it is recom
 
 There should be few overlays used for many different applications.
 
-Provided Overlays
+Existing Overlays
 -----------------
 
 Two overlays are currently included in the Pynq repository; pmod, and audiovideo. Both can be found here:
 
    Pynq/zybo/vivado
 
-A makefile exists in the same location that can be used to build the Vivado projects, and generate the bitstreams for the overlays. Once the projects have been built, they can be opened in Vivado and modified to create a new overlay, or a new overlay can be created. 
+A makefile exists in the same location that can be used to build the Vivado projects, and generate the bitstreams for the overlays. 
 
-Integratig new overlays into Pynq
+Once the projects have been built, they can be opened in Vivado and modified to create a new overlay, or a new overlay can be created. 
+
+Integrating new overlays into Pynq
 -------------------------------------
 Creating overlays for experienced FPGA/Zynq designers using Vivado should be familiar. 
 
 The important part of the process of creating a new overlay is the interface to the Pynq environment. 
 
-The Zynq design should be created as normal. As with any application running on Zynq, the interface between the software and hardware is via the memory map for the PS and PL. 
+It is recommended to use an existing overlay to encorporate the settings for the Zynq PS, and the existing PS/PL interfaces. The Zynq PL design can then be added to the existing design. As with any application running on Zynq, the interface between the software and hardware is via the memory map for the PS and PL. 
 
 Pynq includes the MMIO switch which can be used to read and write from the PL memory system. Once the Overlay has been designed, the MMIO can be used to read and write data to the PL. The same design principles for Zynq designs apply to creating overlays when choosing PS/PL interfaces and transferring data.
  
@@ -45,9 +45,21 @@ Loading Overlays
 
 The PL can be dynamically reconfigured with new overlays as the system is running. This allows Pynq to swap in and out different overlays to support different functionality in the PL. 
 
-This can be done using the Overlay class, part of the PL package here:
+This can be in Python done using the Overlay class, part of the Pynq PL package here:
 
    Pynq/python/pynq/pl.py
+   
+To use this class, the Overlay class must first be imported:
+   
+   from pynq import Overlay
+
+The Overlay bitstream can be specified:
+
+ol = Overlay("audiovideo.bit")
+
+Finally, the overlay can be downloaded and used to configure the Zynq PL:
+
+   ol.download()
    
 
 
