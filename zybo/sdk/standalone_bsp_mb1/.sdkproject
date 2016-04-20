@@ -1,4 +1,4 @@
 THIRPARTY=false
-HW_PROJECT_REFERENCE=top_hw_platform_0
-PROCESSOR=mb_1_microblaze_1
+HW_PROJECT_REFERENCE=pmod_overlay_platform
+PROCESSOR=mb_JB_mb_1
 MSS_FILE=system.mss
