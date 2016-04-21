@@ -11,6 +11,7 @@
 *.jpg binary
 *.dxf binary
 *.mp4 binary
+*.hdf binary
 *.elf binary -crlf
 *.bin binary -crlf
 *.bit binary -crlf
