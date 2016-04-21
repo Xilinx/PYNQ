@@ -100,10 +100,13 @@ class Grove_OLED(object):
             self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4 + i*4, 
                             ord(text[i]))
                        
-        #: Finally write the print string command bit[3]: str, bit[0]: valid
+        #: Finally write the print string command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x13)
-        
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x13):
+            pass
+            
     def clear(self):
         """Clear the OLED screen.
         
@@ -120,7 +123,10 @@ class Grove_OLED(object):
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xF)
-                        
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xF):
+            pass
+            
     def set_position(self, row, column):
         """Set the position of the display.
         
@@ -145,7 +151,10 @@ class Grove_OLED(object):
         #: Then write the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
-                        
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xD):
+            pass
+            
     def set_normal_mode(self):
         """Set the display mode to normal.
         
@@ -160,6 +169,9 @@ class Grove_OLED(object):
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
+            pass
                         
     def set_inverse_mode(self):
         """Set the display mode to inverse.
@@ -175,7 +187,10 @@ class Grove_OLED(object):
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-                        
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
+            pass
+            
     def set_page_mode(self):
         """Set the display mode to paged.
         
@@ -190,6 +205,9 @@ class Grove_OLED(object):
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
+            pass
                         
     def set_horizontal_mode(self):
         """Set the display mode to horizontal.
@@ -205,7 +223,10 @@ class Grove_OLED(object):
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-                        
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
+            pass
+            
     def set_contrast(self, brightness):
         """Set the contrast level for the OLED display.
         
@@ -229,4 +250,7 @@ class Grove_OLED(object):
         #: Then write the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x11)
-    
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x11):
+            pass
+            
