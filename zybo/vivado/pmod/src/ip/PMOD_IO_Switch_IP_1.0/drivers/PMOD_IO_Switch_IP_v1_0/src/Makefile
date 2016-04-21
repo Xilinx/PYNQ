@@ -9,7 +9,7 @@ RELEASEDIR=../../../lib
 INCLUDEDIR=../../../include
 INCLUDES=-I./. -I${INCLUDEDIR}
 
-INCLUDEFILES=*.h
+INCLUDEFILES=*.h pmod.h
 LIBSOURCES=*.c
 OUTS = *.o
 

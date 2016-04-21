@@ -21,6 +21,13 @@
         input wire [7:0] pmod2sw_data_in,
         output wire [7:0] sw2pmod_data_out,
         output wire [7:0] sw2pmod_tri_out,
+        output wire  pwm_i_in,
+        input wire  pwm_o_in,
+        input wire  pwm_t_in,
+        output wire  cap0_i_in,
+        input wire  gen0_o_in,
+        input wire  gen0_t_in,
+
         output wire spick_i_in,
         input wire spick_o_in,
         input wire spick_t_in,  
@@ -428,6 +435,13 @@
         .pmod2sw_data_in(pmod2sw_data_in),
         .sw2pmod_data_out(sw2pmod_data_out),
         .sw2pmod_tri_out(sw2pmod_tri_out),
+        // timer
+        .pwm_i_in(pwm_i_in),
+        .pwm_o_in(pwm_o_in),
+        .pwm_t_in(pwm_t_in),
+        .cap0_i_in(cap0_i_in),
+        .gen0_o_in(gen0_o_in),
+        .gen0_t_in(gen0_t_in),
         // SPI channel
         .spick_i_in(spick_i_in),
         .spick_o_in(spick_o_in),

@@ -24,7 +24,7 @@
 // Memory map
 #define IIC_BASEADDR      XPAR_IIC_0_BASEADDR
 #define SPI_BASEADDR      XPAR_SPI_0_BASEADDR // base address of QSPI[0]
-#define SWITCH_BASEADDR    XPAR_MB_JB_MB1_PMOD_IO_SWITCH_IP_S00_AXI_BASEADDR // Base address of switch
+#define SWITCH_BASEADDR   XPAR_IOP1_MB1_PMOD_IO_SWITCH_IP_S00_AXI_BASEADDR // Base address of switch
 #define GPIO             XPAR_GPIO_0_BASEADDR
 
 #define MAILBOX_CMD_ADDR       (*(volatile u32 *)(0x00007FFC)) // command from A9 to MB
