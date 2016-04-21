@@ -357,7 +357,7 @@ int main()
    float gx, gy, gz;
    float mx, my, mz;
    
-   configureSwitch(BLANK, BLANK, SDA, BLANK, BLANK, BLANK, SCL, BLANK);
+   configureSwitch(GPIO_0, GPIO_1, SDA, GPIO_3, GPIO_4, GPIO_5, SCL, GPIO_7);
    // Initialization
    mpu_init();
    bmp_init();
