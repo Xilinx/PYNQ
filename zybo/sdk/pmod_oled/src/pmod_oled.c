@@ -4,11 +4,9 @@
 #include "OledChar.h"
 #include "OledGrph.h"
 #include "FillPat.h"
+#include "pmod.h"
 
 #define SPI_BASEADDR XPAR_SPI_0_BASEADDR // base address of QSPI[0]
-#define XPAR_PMOD_IO_SWITCH_BASEADDR XPAR_MB_1_MB1_SWITCH_S00_AXI_BASEADDR
-#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB0
-#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007000+((x)*4)))
 // Passed parameters in MAILBOX_WRITE_CMD
 // bits 31:8 => not used
 // bit 7 => draw a filled rectangle
@@ -266,9 +264,9 @@ int main (void) {
     // SPI[0].SCLK to pmod bit 3
     // rest of the bits are configured to default gpio channels, i.e. gpio[7] (unused) to pmod bit 2
     // gpio[0] (DC) to pmod bit 4, gpio[1] (RST) to pmod bit 5, gpio[2] (VDDC) to pmod bit 6, gpio[3] (VBAT) to pmod bit 7
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR+4,0x00000000); // isolate configuration port by writing 0 to slv_reg1[31]
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR,0x3210A7CD); //
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR+4,0x80000000); // Enable configuration by writing 1 to slv_reg1[31]
+	Xil_Out32(SWITCH_BASEADDR+4,0x00000000); // isolate configuration port by writing 0 to slv_reg1[31]
+	Xil_Out32(SWITCH_BASEADDR,0x3210A7CD); //
+	Xil_Out32(SWITCH_BASEADDR+4,0x80000000); // Enable configuration by writing 1 to slv_reg1[31]
 
 	SpiInit();
 

@@ -39,7 +39,7 @@ int main(void)
    u32 delay;
    float temperature;
 
-   configureSwitch(BLANK, BLANK, SCL, SDA, BLANK, BLANK, SCL, SDA);
+   configureSwitch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
    
    // Run application
    while(1){

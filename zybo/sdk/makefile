@@ -8,8 +8,8 @@ MBBINS = pmod_adc.bin pmod_dac.bin pmod_oled.bin pmod_als.bin pmod_tmp2.bin \
 all: pmod_bins
 	@echo "Completed Microblaze Projects' Builds"
 
-mb_bsp: 
-	cd standalone_bsp_mb1 ; make
+mb_bsp: sdk_workspace
+	cd bsp ; make
 
 %.bin: mb_bsp
 	cd $(subst .bin,,$@)/Debug; make clean ; make 
@@ -18,7 +18,11 @@ pmod_bins: $(MBBINS)
 	mkdir -p bins
 	@cp */Debug/*.bin bins
 
+sdk_workspace: pmod.hdf
+	rm -rf hw_def bsp .metadata/ .Xil/ 
+	xsdk -batch -source build_xsdk.tcl
 
 clean:
-	rm -f */Debug/*.bin
+	rm -f */Debug/*.bin 
 	rm -f bins/*
+	rm -rf bsp hw_def

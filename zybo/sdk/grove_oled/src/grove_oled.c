@@ -350,7 +350,7 @@ int main(void)
    int cmd;
    int Row, Column;
 
-   configureSwitch(BLANK, BLANK, SDA, BLANK, BLANK, BLANK, SCL, BLANK);
+   configureSwitch(GPIO_0, GPIO_1, SDA, GPIO_3, GPIO_4, GPIO_5, SCL, GPIO_7);
    // Initialization
    init();
    // Run application

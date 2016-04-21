@@ -1,19 +1,19 @@
 #include "xparameters.h"
-#include "iic.h"
 #include "AD7991.h"
 #include "xil_io.h"
+#include "pmod.h"
 
 /*****************************************************************************/
 /************************** Macros Definitions *******************************/
 /*****************************************************************************/
-#define XPAR_PMOD_IO_SWITCH_BASEADDR XPAR_MB_1_MB1_SWITCH_S00_AXI_BASEADDR
+
 #define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
 // Reference Voltage value
 // Actual value * 10000
 // E.g. VREF = 2.048 * 10000
 #define VREF 20480
-#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB0
-#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007000+((x)*4)))
+//#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB0
+//#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007000+((x)*4)))
 // Passed parameters in MAILBOX_WRITE_CMD
 // bits 31:16 => delay between every channels samples in MS
 // bits 15:8 => number of channels samples if 0 then infinite and the result will be placed only at MAILBOX_DATA
@@ -43,10 +43,12 @@ int main()
     // rest of the bits are configured to default gpio channels, i.e. pmod bit[0] to gpio[0]
     // pmod bit[1] to gpio[1], pmod bit[4] to gpio[4], pmod bit[5] to gpio[5]
     // pmod bit[6] to gpio[6], pmod bit[7] to gpio[7]
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR+4,0x00000000); // isolate configuration port by writing 0 to slv_reg1[31]
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR,0x76549810); //
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR+4,0x80000000); // Enable configuration by writing 1 to slv_reg1[31]
+	Xil_Out32(SWITCH_BASEADDR+4,0x00000000); // isolate configuration port by writing 0 to slv_reg1[31]
+	Xil_Out32(SWITCH_BASEADDR,0x76549810); //
+	Xil_Out32(SWITCH_BASEADDR+4,0x80000000); // Enable configuration by writing 1 to slv_reg1[31]
 
+//	configureSwitch( GPIO_1, GPIO_2, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
+	pmod_init();
     useVref=1;	// use internal VREF, make sure that JP1 is bridged between pin1 and center pin
     useFILT=0;	// filtering on SDA and SCL is enabled
     useBIT=0;	// use BIT delay enabled

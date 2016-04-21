@@ -38,7 +38,7 @@ int main(void)
    u16 als_data;
    u32 delay;
 
-   configureSwitch(SS, BLANK, MISO, SPICLK, BLANK, BLANK, BLANK, BLANK); 
+   configureSwitch(SS, GPIO_1, MISO, SPICLK, GPIO_4, GPIO_5, GPIO_6, GPIO_7); 
 
    // Run application
    while(1){

@@ -1,9 +1,9 @@
 #include "xparameters.h"	/* XPAR parameters */
 #include "xspi.h"		/* SPI device driver */
 #include "xspi_l.h"
+#include "pmod.h"
 
 #define SPI_BASEADDR XPAR_SPI_0_BASEADDR // base address of QSPI[0]
-#define XPAR_PMOD_IO_SWITCH_BASEADDR XPAR_MB_1_MB1_SWITCH_S00_AXI_BASEADDR
 #define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB0
 #define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007000+((x)*4)))
 // Passed parameters in MAILBOX_WRITE_CMD
@@ -73,23 +73,6 @@ static int sinetable[256] = {
 				 0x67, 0x6A, 0x6D, 0x70, 0x74, 0x77, 0x7A, 0x7D
 		 };
 
-void delay_ms(u32 ms_count)
-{
-    u32 count;
-    for (count = 0; count < ((ms_count * 2500) + 1); count++)
-    {
-        asm("nop");
-    }
-}
-
-void delay_us(u32 ms_count)
-{
-    u32 count;
-    for (count = 0; count < ((ms_count * 2) + 1); count++)
-    {
-        asm("nop");
-    }
-}
 
 void delay(void) {
 	int i=0;
@@ -376,9 +359,9 @@ int main(void)
     // SPI[0].SCLK to pmod bit 3
     // rest of the bits are configured to default gpio channels, i.e. gpio[0] to pmod bit 2
     // gpio[1] to pmod bit 4, gpio[2] to pmod bit 5, gpio[3] to pmod bit 6, gpio[4] to pmod bit 7
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR+4,0x00000000); // isolate configuration port by writing 0 to slv_reg1[31]
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR,0xA0CDA0CD); //
-	Xil_Out32(XPAR_PMOD_IO_SWITCH_BASEADDR+4,0x80000000); // Enable configuration by writing 1 to slv_reg1[31]
+	Xil_Out32(SWITCH_BASEADDR+4,0x00000000); // isolate configuration port by writing 0 to slv_reg1[31]
+	Xil_Out32(SWITCH_BASEADDR,0xA0CDA0CD); //
+	Xil_Out32(SWITCH_BASEADDR+4,0x80000000); // Enable configuration by writing 1 to slv_reg1[31]
 
 	SpiInit();
 	RefOn();

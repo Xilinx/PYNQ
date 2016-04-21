@@ -1,13 +1,14 @@
-#include "iic.h"
+#include "xparameters.h"
 #include "AD7991.h"
-#include "xil_io.h"
+#include "pmod.h"
 
-#define IIC_BASEADDR  XPAR_AXI_IIC_0_BASEADDR
+#define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
 
 // void AD7991_Init(void)
 void AD7991_Init(void)
 {
-    u8 cfgValue = 0;
+    u8 cfgValue;
+    u8 WriteBuffer[6];
     
 // Set default Configuration Register Values
 //    Channel 3 - Selected for conversion
@@ -28,7 +29,8 @@ void AD7991_Init(void)
                (0 << sampleDelay);
                
     // Write to the Configuration Register
-    AD7991_iic_write(AD7991IICAddr,cfgValue);
+    WriteBuffer[0]=cfgValue;
+    iic_write(AD7991IICAddr, WriteBuffer, 1);
 }
 
 // Configure the AD7911 device.
@@ -43,7 +45,8 @@ void AD7991_Init(void)
 // void AD7991_Config(char chan3, char chan2, char chan1, char chan0, char ref, char filter, char bit, char sample)
 void AD7991_Config(char chan3, char chan2, char chan1, char chan0, char ref, char filter, char bit, char sample)
 {
-    u8 cfgValue = 0;
+    u8 cfgValue;
+    u8 WriteBuffer[6];
 
     // Set Configuration Register Values
     cfgValue = (chan3 << CH3)         | // Read Channel 3
@@ -56,12 +59,14 @@ void AD7991_Config(char chan3, char chan2, char chan1, char chan0, char ref, cha
                (sample << sampleDelay); // Delay IIC Messages
                
     // Write to the Configuration Register
-    AD7991_iic_write(AD7991IICAddr,cfgValue);
+    WriteBuffer[0]=cfgValue;
+    iic_write(AD7991IICAddr, WriteBuffer, 1);
 }
 
 unsigned int AD7991_Read(u32 nr_cnv, u32 vref)
 {
     int rxData;
+    u8 rcvbuffer[10];
     char c[7] = {'0','.','0','0','0',0};
     u32 nr;
 	int i;
@@ -77,7 +82,8 @@ unsigned int AD7991_Read(u32 nr_cnv, u32 vref)
 	c[0] = '0';
 
 	// Read data from AD7991
-	rxData = AD7991_iic_read(AD7991IICAddr); //,0);
+	iic_read(AD7991IICAddr, rcvbuffer, 2);
+	rxData = ((rcvbuffer[0] << 8) | rcvbuffer[1]);
 
 	// Process read voltage value
 	nr = (rxData & ADCValue) * vref / 4096;
