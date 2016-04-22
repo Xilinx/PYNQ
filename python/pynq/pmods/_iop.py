@@ -187,7 +187,7 @@ def request_iop(pmod_id, mb_program):
         
     """
     ip_names = PL.get_ip_names("axi_bram_ctrl_")
-    iop_name = "SEG_axi_bram_ctrl_" + str(pmod_id) + "_Mem0"
+    iop_name = "SEG_mb_bram_ctrl_" + str(pmod_id) + "_Mem0"
     if (iop_name not in ip_names):
             raise ValueError("No such IOP for PMOD ID {}."
                             .format(pmod_id))
