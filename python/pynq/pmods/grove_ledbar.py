@@ -64,40 +64,20 @@ class Grove_LEDbar(object):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         gr_id: int
             The group ID on StickIt, from 1 to 4.
+            Valid StickIt group ID is currently only 1
             
         """
+        if (gr_id  != 1):
+            raise ValueError("Valid StickIt group ID is currently only 1.")
         self.iop = _iop.request_iop(pmod_id, GROVE_LEDBAR_PROGRAM)
         self.mmio = self.iop.mmio
         
         self.iop.start()
-        
-    def self_check(self):
-        """Runs a small demo of the LEDbar.
-        
-        Clear the LEDbar after the self check is complete.
 
-        Parameters
-        ----------
-        None
-            
-        Returns
-        -------
-        None
-        
-        """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x07)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, 0x00)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, 0)		
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, 0)					
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
-            pass
-			
     def reset(self):
         """Resets the LEDbar.
         
-        Clear the LEDbar.
+        Clears the LEDbar, sets all LEDs to OFF state.
 
         Parameters
         ----------
@@ -112,67 +92,131 @@ class Grove_LEDbar(object):
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x01)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
-            pass		
+            pass        
         
-    def set_ledbar_onehot(self, brightness, data_in, red_to_green):
-        """Set individual Leds in the LEDbar based on 16 bit one-hot control.
+    def write_leds(self, data_in):
+        """Set individual LEDs in the LEDbar based on 10 bit binary input.
         
-        brightness and Direction of the LEDbar can also be controlled
+        Each bit in the 10-bit binary input points to a LED position on the
+        LEDbar. Direction is Red-->Green = LSB-->MSB 
         
         Parameters
         ----------
-        brightness : 
-            Controls the brightness of the LEDbar  min - 0x01, max - 0xFF .
-        data_in : 
-            10 LSBs of the 16 bit data control the LEDbar.
-			Control is one hot
-		red_to_green : 
-            Sets the direction of the sequence
-			0 - red to green
-            1 - green to red			
-		
+        data_in : int
+            10 LSBs of this parameter control the LEDbar.
+        
         Returns
         -------
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, brightness)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, data_in)		
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, red_to_green)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, data_in)
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)		
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)        
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):				
-            pass    				
-                        
-    def set_ledbar_level(self, brightness, level, red_to_green):
-        """Set the level to which the leds are light in 1-10.
+                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
+            pass                    
+            
+    def set_brightness(self,  data_in, brightness = []):
+        """Set individual LEDs with 3 level brightness control.
         
-        1 can be red or green led based on red_to_green parameter.
+        Each bit in the 10-bit binary input points to a LED position on the
+        LEDbar. Direction is Red-->Green = LSB-->MSB
+        Brightness of each LED is controlled by the brightness[] list
+        elements. Direction is Red-->Green = brightness[9] --> brightness[0]
         
         Parameters
         ----------
-        brightness : 
-            Controls the brightness of the LEDbar  min - 0x01, max - 0xFF .
-        level : 
-            10 levels exist on the LEDbar.
-			1 is minimum and 10 is maximum
-		red_to_green : 
-            Sets the direction of the sequence
-			0 - red to green
-            1 - green to red.	
+        data_in : int
+            10 LSBs of this parameter control the LEDbar.
+        brightness : List[int]
+            Each List element controls a single LED
+            3 perceivable levels of brightness exist
+            HIGH = 0xFF
+            MED  = 0xAA
+            LOW  = 0x01
         
         Returns
         -------
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, brightness)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, level)		
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, red_to_green)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, data_in)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 4, brightness[0])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 8, brightness[1])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 12, brightness[2])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 16, brightness[3])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 20, brightness[4])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 24, brightness[5])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 28, brightness[6])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 32, brightness[7])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 36, brightness[8])        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 40, brightness[9])        
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)		
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)        
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
-            pass								
+            pass                            
+                        
+    def set_level(self, level, brightness, red_to_green):
+        """Set the level to which the leds are to be lit in levels 1 - 10.
+        
+        Level can be set in both directions. set_level operates by setting
+        all LEDs to the same brightness level.
+        
+        Parameters
+        ----------
+        level : int
+            10 levels exist on the LEDbar.
+            1 is minimum and 10 is maximum
+        brightness : int
+            Controls brightness of all LEDs in the LEDbar
+            3 perceivable levels of brightness exist
+            HIGH = 0xFF
+            MED  = 0xAA
+            LOW  = 0x01
+        red_to_green : 
+            Sets the direction of the sequence
+            0 - red to green
+            1 - green to red.    
+        
+        Returns
+        -------
+        None
+        
+        """
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, level)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, brightness)        
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, red_to_green)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)        
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
+            pass
+
+    def read_leds(self):
+        """Reads the current status of LEDbar.
+        
+        Reads the current status of LEDbar and returns a 10-bit binary string
+
+        Parameters
+        ----------
+        None
+            
+        Returns
+        -------
+        str
+            String of 10 binary bits.
+            Each bit position corresponds to a LED position in the LEDbar,
+            and bit value corresponds to the LED state.
+            Direction is Red-->Green = LSB-->MSB            
+        
+        """
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)        
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
+                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
+            pass              
+        value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
+        return (bin(value)[2:].zfill(10))
     
