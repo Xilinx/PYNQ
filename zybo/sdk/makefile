@@ -23,6 +23,10 @@ sdk_workspace: pmod.hdf
 	xsdk -batch -source build_xsdk.tcl
 
 clean:
-	rm -f */Debug/*.bin 
+	rm -f */Debug/*.bin
+	rm -f */Debug/*.elf
+	rm -f */Debug/*.elf.size
+	rm -f */Debug/src/*.o
+	rm -f */Debug/src/*.d
 	rm -f bins/*
 	rm -rf bsp hw_def

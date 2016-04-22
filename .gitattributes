@@ -4,7 +4,6 @@
 # These will always have CRLF line endings on checkout.
 *.vcxproj text eol=crlf
 *.props text eol=crlf
-*.bat text eol=crlf
 
 # These are binary so should never be modified by git.
 *.png binary
@@ -12,6 +11,7 @@
 *.dxf binary
 *.mp4 binary
 *.hdf binary
+*.bat binary
 *.elf binary -crlf
 *.bin binary -crlf
 *.bit binary -crlf
