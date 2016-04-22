@@ -186,7 +186,7 @@ def request_iop(pmod_id, mb_program):
         When another IOP is in the system with the same PMOD ID.
         
     """
-    ip_names = PL.get_ip_names("axi_bram_ctrl_")
+    ip_names = PL.get_ip_names("mb_bram_ctrl_")
     iop_name = "SEG_mb_bram_ctrl_" + str(pmod_id) + "_Mem0"
     if (iop_name not in ip_names):
             raise ValueError("No such IOP for PMOD ID {}."
