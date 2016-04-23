@@ -112,10 +112,12 @@ class Grove_IMU(object):
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
             pass
-        ax = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET))
-        ay = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET+1))
-        az = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET+2))
-        return [ax, ay, az]
+        ax = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET))
+        ay = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
+        az = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+        return [float("{0:.2f}".format(ax/16384)), \
+                float("{0:.2f}".format(ay/16384)), \
+                float("{0:.2f}".format(az/16384))]
         
     def get_gyro(self):
         """Get the data from the gyroscope.
@@ -135,10 +137,12 @@ class Grove_IMU(object):
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
             pass
-        gx = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET))
-        gy = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET+1))
-        gz = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET+2))
-        return [gx, gy, gz]
+        gx = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET))
+        gy = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
+        gz = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+        return [float("{0:.2f}".format(gx*250/32768)), \
+                float("{0:.2f}".format(gy*250/32768)), \
+                float("{0:.2f}".format(gz*250/32768))]
         
     def get_compass(self):
         """Get the data from the magnetometer.
@@ -158,10 +162,12 @@ class Grove_IMU(object):
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
             pass
-        mx = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET))
-        my = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET+1))
-        mz = self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET+2))
-        return [mx, my, mz]
+        mx = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET))
+        my = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
+        mz = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+        return [float("{0:.2f}".format(mx*1200/4096)), \
+                float("{0:.2f}".format(my*1200/4096)), \
+                float("{0:.2f}".format(mz*1200/4096))]
         
     def get_heading(self):
         """Get the value of the heading.
@@ -180,7 +186,7 @@ class Grove_IMU(object):
         heading = 180 * math.atan2(my, mx) / math.pi
         if (heading < 0):
             heading += 360
-        return heading
+        return float("{0:.2f}".format(heading))
         
     def get_tiltheading(self):
         """Get the value of the tilt heading.
@@ -208,10 +214,10 @@ class Grove_IMU(object):
         tiltheading = 180 * math.atan2(yh, xh) / math.pi
         if (yh < 0):
             tiltheading += 360;
-        return tiltheading
+        return float("{0:.2f}".format(tiltheading))
         
     def get_temperature(self):
-        """Get the current temperature.
+        """Get the current temperature in degree C.
         
         Parameters
         ----------
@@ -232,7 +238,7 @@ class Grove_IMU(object):
         return self._reg2float(value)
         
     def get_pressure(self):
-        """Get the current pressure.
+        """Get the current pressure in Pa.
         
         Parameters
         ----------
@@ -252,6 +258,21 @@ class Grove_IMU(object):
         value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
         return self._reg2float(value)
         
+    def get_atm(self):
+        """Get the current pressure in relative atmosphere.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        float
+            The related atmosphere.
+        
+        """
+        return float("{0:.2f}".format(self.get_pressure()/101325))
+        
     def get_altitude(self):
         """Get the current altitude.
         
@@ -270,7 +291,7 @@ class Grove_IMU(object):
         B = 1/5.255;
         C = 1-pow(A,B);
         altitude = 44300 * C;
-        return altitude
+        return float("{0:.2f}".format(altitude))
         
     def _reg2float(self, reg):
         """Converts 32-bit register value to floats in Python.
@@ -296,4 +317,23 @@ class Grove_IMU(object):
             man = 1+(reg & 0x007fffff)/pow(2,23)
         result = pow(2,exp)*(man)*((sign*-2) +1)
         return float("{0:.2f}".format(result))
+        
+    def _reg2int(self, reg):
+        """Converts 32-bit register value to signed integer in Python.
+        
+        Parameters
+        ----------
+        reg: int
+            A 32-bit register value read from the mailbox.
+            
+        Returns
+        -------
+        int
+            A signed integer translated from the register value.
+        
+        """
+        result = -(reg>>31 & 0x1)*(1<<31)
+        for i in range(31):
+            result += (reg>>i & 0x1)*(1<<i)
+        return result
         

@@ -1,13 +1,5 @@
 /*
- * IOP code (MicroBlaze) for groveoled
- * Grove OLED is write only, and has IIC interface
- *
- * April 13, 2016
- * Author: Yun Rock Qu
-*/
-
-/* Grove OLED is based on OLE35046P
-http://www.seeedstudio.com/wiki/Grove_-_OLED_Display_0.96%22
+ * IOP code (MicroBlaze) for MPU9250
 */
 
 #ifndef _MPU9250_H_
@@ -376,40 +368,20 @@ http://www.seeedstudio.com/wiki/Grove_-_OLED_Display_0.96%22
 #define MPU9250_DMP_MEMORY_CHUNK_SIZE   16
 
 void mpu_init();
-bool mpu_testConnection();
 void mpu_setClockSource(uint8_t source);
 
 // GYRO_CONFIG register
-uint8_t mpu_getFullScaleGyroRange();
 void mpu_setFullScaleGyroRange(uint8_t range);
-uint8_t mpu_getFullScaleAccelRange();
 void mpu_setFullScaleAccelRange(uint8_t range);
 
 // ACCEL_*OUT_* registers
-void mpu_calibrateMotion9(float* Ax, float* Ay, float* Az, float* Gx, float* Gy, float* Gz, float* Mx, float* My, float* Mz);
 void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz);
-void mpu_getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz);
-void mpu_getAcceleration(int16_t* x, int16_t* y, int16_t* z);
-
-// TEMP_OUT_* registers
-int16_t mpu_getTemperature();
-
-// GYRO_*OUT_* registers
-void mpu_getRotation(int16_t* x, int16_t* y, int16_t* z);
 
 // PWR_MGMT_1 register
 void mpu_reset();
 void mpu_setSleepEnabled(uint8_t enabled);
 
-// WHO_AM_I register
-uint8_t mpu_getDeviceID();
-
 uint8_t mpuAddr;
 uint8_t buffer[14];
-
-// Calibration parameters
-static float mx_centre = 0;
-static float my_centre = 0;
-static float mz_centre = 0;
     
 #endif /* _MPU9250_H_ */

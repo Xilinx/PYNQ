@@ -1,13 +1,5 @@
 /*
- * IOP code (MicroBlaze) for groveoled
- * Grove OLED is write only, and has IIC interface
- *
- * April 13, 2016
- * Author: Yun Rock Qu
-*/
-
-/* Grove OLED is based on OLE35046P
-http://www.seeedstudio.com/wiki/Grove_-_OLED_Display_0.96%22
+ * IOP code (MicroBlaze) for BMP180
 */
 
 #ifndef __BAROMETER_H__
@@ -22,23 +14,23 @@ long bmpGetPressure(unsigned long up);
 float calcAltitude(float pressure);
 
 void bmp_init(void);
-char bmp_ReadByte(unsigned char address);
-int bmp_ReadInt(unsigned char address);
+uint8_t bmp_ReadByte(unsigned char address);
+uint16_t bmp_ReadBytes(unsigned char address);
 float bmp_GetTemperature();
 float bmp_GetPressure();
 float bmp_CalcAltitude();
 
-int ac1;
-int ac2;
-int ac3;
-unsigned int ac4;
-unsigned int ac5;
-unsigned int ac6;
-int b1;
-int b2;
-int mb;
-int mc;
-int md;
+short ac1;
+short ac2;
+short ac3;
+unsigned short ac4;
+unsigned short ac5;
+unsigned short ac6;
+short b1;
+short b2;
+short mb;
+short mc;
+short md;
 
 uint8_t bmpAddr;
 
