@@ -6,7 +6,7 @@ bitfile = ./$(overlay)/zybo/project_1.runs/impl_1/top.bit
 
 
 all: 
-	[ -f $(bitfile) ] && echo "Overlay exists - make clean if needed." || { cd $(overlay) ; vivado -mode batch -source ./zybo.tcl ; echo "Bitstream built" ; exit ; }
+	[ -f $(bitfile) ] && echo "Overlay exists - make clean if needed." || { cd $(overlay) ; make ; echo "Bitstream built" ; exit ; }
 
 clean:
 	@rm -rf ./$(overlay)/.Xil ./$(overlay)/zybo ./$(overlay)/*.mif \
