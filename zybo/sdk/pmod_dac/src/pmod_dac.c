@@ -4,8 +4,8 @@
 #include "pmod.h"
 
 #define SPI_BASEADDR XPAR_SPI_0_BASEADDR // base address of QSPI[0]
-#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB0
-#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007000+((x)*4)))
+//#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB0
+//#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007000+((x)*4)))
 // Passed parameters in MAILBOX_WRITE_CMD
 // bits 31:20 => delay in microsecond if wave generation mode is selected
 // bits 31:20 => 12-bit value to be output if fixed value mode is selected
