@@ -98,16 +98,12 @@ int main(void)
    u32 temp;
    u32 iop_switch_config;
    
-
+   // Initialize PMOD and timers
+   pmod_init();
    // Initialize switch
-   //configureSwitch(0,0,0,0,0,0,0,0);
-   /*while(MAILBOX_CMD_ADDR != 0x01); // Wait for switch command
-   configureSwitch(MAILBOX_DATA(0));
-   MAILBOX_CMD_ADDR = 0x0; 
-   */
-   //configureSwitch( BLANK, BLANK, SDA, BLANK, BLANK, BLANK, SCL, BLANK);
-   
-   write_adc(REG_ADDR_CONFIG, 0x20, 1); // Reset, set Tconvert x 32 (fconvert 27 ksps)
+   configureSwitch(GPIO_0, GPIO_1, SDA, GPIO_3, GPIO_4, GPIO_5, SCL, GPIO_7);
+   // Reset, set Tconvert x 32 (fconvert 27 ksps)
+   write_adc(REG_ADDR_CONFIG, 0x20, 1); 
    // Run application
    while(1){
 
