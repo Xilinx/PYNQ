@@ -31,7 +31,7 @@ __author__      = "Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
-
+from time import sleep
 from pynq.pmods import pmod_const
 from pynq.pmods.devmode import DevMode
 
@@ -94,7 +94,23 @@ class PMOD_IIC(object):
         self.iop.load_switch_config()
         
         self.iic_addr = iic_addr
-        self._iic_enable()
+
+        #: Useful IIC controller addresses
+        self.sr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
+                       pmod_const.IOPMM_XIIC_SR_REG_OFFSET
+
+        self.dtr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
+                        pmod_const.IOPMM_XIIC_DTR_REG_OFFSET
+
+        self.cr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
+                       pmod_const.IOPMM_XIIC_CR_REG_OFFSET
+    
+        self.rfd_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
+                        pmod_const.IOPMM_XIIC_RFD_REG_OFFSET
+
+        self.drr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
+                        pmod_const.IOPMM_XIIC_DRR_REG_OFFSET
+        
         
     def _iic_enable(self):
         """This method enables the IIC drivers.
@@ -118,26 +134,22 @@ class PMOD_IIC(object):
         None
         
         """
-        #: Disale the IIC core
-        self.iop.write_cmd(pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                            pmod_const.IOPMM_XIIC_CR_REG_OFFSET, 0x00)
+        #: Disable the IIC core
+        self.iop.write_cmd(self.cr_addr, 0x00)
         #: Set the Rx FIFO depth to maximum
-        self.iop.write_cmd(pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                            pmod_const.IOPMM_XIIC_RFD_REG_OFFSET, 0x0F)
+        self.iop.write_cmd(self.rfd_addr, 0x0F)       
         #: Reset the IIC core and flush the Tx FIFO
-        self.iop.write_cmd(pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                            pmod_const.IOPMM_XIIC_CR_REG_OFFSET, 0x02)
+        self.iop.write_cmd(self.cr_addr, 0x02)
         #: Enable the IIC core
-        self.iop.write_cmd(pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                            pmod_const.IOPMM_XIIC_CR_REG_OFFSET, 0x01)
+        self.iop.write_cmd(self.cr_addr, 0x01)
         
-    def send(self,iic_words):
+    def send(self,iic_bytes):
         """This method sends the command or data to the driver.
         
         Parameters
         ----------
-        iic_words : list
-            A list of 32-bit words to be sent to the driver.
+        iic_bytes : list
+            A list of 8-bit bytes to be sent to the driver.
             
         Returns
         -------
@@ -149,27 +161,73 @@ class PMOD_IIC(object):
             Timeout when waiting for the FIFO to be empty.
             
         """
+
+        self._iic_enable()
+        
         #: Transmit 7-bit address and Write bit (with START)
-        self.iop.write_cmd(pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                            pmod_const.IOPMM_XIIC_DTR_REG_OFFSET, 
+        self.iop.write_cmd(self.dtr_addr, 
                             0x100 | (self.iic_addr << 1))
         
-        #: Iteratively write into Tx FIFO, wait for it to be empty
-        sr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                    pmod_const.IOPMM_XIIC_SR_REG_OFFSET
-        for tx_cnt in range(len(iic_words)):
+
+        #: Iteratively write into Tx FIFO, wait for it to be empty        
+        for tx_cnt in range(len(iic_bytes)):
             timeout = 100
-            if (tx_cnt == len(iic_words) - 1):
-                tx_word = (0x200 | iic_words[tx_cnt])
+            if (tx_cnt == len(iic_bytes) - 1):
+                tx_word = (0x200 | iic_bytes[tx_cnt])
             else:
-                tx_word = iic_words[tx_cnt]
+                tx_word = iic_bytes[tx_cnt]
             
-            self.iop.write_cmd(pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                                pmod_const.IOPMM_XIIC_DTR_REG_OFFSET, 
-                                tx_word)
+            self.iop.write_cmd(self.dtr_addr,tx_word)
             while ((timeout > 0) and \
-                        ((self.iop.read_cmd(sr_addr) & 0x80) == 0x00)):
+                        ((self.iop.read_cmd(self.sr_addr) & 0x80) == 0x00)):
                 timeout -= 1
             if (timeout==0):
                 raise RuntimeError("Timeout when writing IIC.")
+
+
+    def receive(self,num_bytes):
+        """This method receives IIC bytes from the device.
+        
+        Parameters
+        ----------
+        num_bytes : int
+            Number of bytes to be received from the device.
+            
+        Returns
+        -------
+        iic_bytes : list
+            A list of 8-bit bytes received from the driver.
+        
+        Raises
+        ------
+        RuntimeError
+            Timeout when waiting for the RX FIFO to fill.
+            
+        """
+
+        #: Enable IIC Core
+        self._iic_enable()        
+
+        #: Transmit 7-bit address and Read bit
+        self.iop.write_cmd(self.dtr_addr, 0x101 | (self.iic_addr << 1))
+    
+        #: Program IIC Core to read num_bytes bytes and issue STOP
+        self.iop.write_cmd(self.dtr_addr, 0x200 + num_bytes)
+
+        #: Read num_bytes from RX FIFO
+        iic_bytes = list()
+        while(len(iic_bytes) < num_bytes):
+            timeout = 100
+            
+            #: Wait for data to be available in RX FIFO
+            while((self.iop.read_cmd(self.sr_addr) & 0x40) and (timeout > 0)):
+                timeout -= 1
                 
+            if(timeout==-1):
+                raise RuntimeError("Timeout when reading IIC.")
+
+            #: Read data 
+            iic_bytes.append((self.iop.read_cmd(self.drr_addr) & 0xff ))
+            sleep(.001)
+
+        return iic_bytes
