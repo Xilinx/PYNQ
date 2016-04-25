@@ -78,7 +78,7 @@ void write_adc(u8 reg, u32 data, u8 bytes){
    if(bytes ==2){
       data_buffer[1] = data & 0x0f; // Bits 11:8
       data_buffer[2] = data & 0xff; // Bits 7:0
-   }else if(bytes == 2){
+   }else if(bytes == 1){
       data_buffer[1] = data & 0xff; // Bits 11:8
    }
      
