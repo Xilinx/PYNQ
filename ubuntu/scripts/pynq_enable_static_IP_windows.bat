@@ -83,8 +83,13 @@ echo #############################
 echo.
 netsh interface ip show address "Local Area Connection"
 
-echo Setting static IP
-call cmd /c netsh interface ip set address name="Local Area Connection" source=static address=192.168.2.98 mask=255.255.255.0 gateway=192.168.2.97
+echo Flushing DNS and setting static IP
+:: call cmd /c netsh interface ip set address name="Local Area Connection" source=static address=192.168.2.98 mask=255.255.255.0 gateway=192.168.2.97
+:: call cmd /c netsh interface ip set address name="Local Area Connection" source=static address=192.168.2.98 mask=255.255.255.0 gateway=192.168.2.99
+call cmd /c netsh interface ip set address name="Local Area Connection" source=static address=192.168.2.98 mask=255.255.255.0
+call cmd /c ipconfig /flushdns
+
+
 echo   Finished... will now test new network interface (after short wait)
 echo.
 
@@ -101,7 +106,7 @@ echo ########################################
 echo # Checking if can communicate to board # 
 echo ######################################## 
 echo.
-echo   if board is turned off or unconnected
+echo   if board is turned on and connected
 echo     the following pings will be answered by Pynq platform
 echo.
 

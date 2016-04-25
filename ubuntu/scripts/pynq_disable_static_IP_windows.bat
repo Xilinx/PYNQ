@@ -66,9 +66,10 @@ echo #############################
 echo.
 netsh interface ip show address "Local Area Connection"
 
-echo Setting DHCP IP
+echo Setting DHCP IP and flushing DNS
 netsh interface ip set address name="Local Area Connection" source=static address=192.168.2.98 mask=255.255.255.0 gateway=192.168.2.97
 netsh interface ip set address name="Local Area Connection" source=dhcp   		       
+call cmd /c ipconfig /flushdns
 
 echo   Finished... will now display new settings (after short wait)
 
