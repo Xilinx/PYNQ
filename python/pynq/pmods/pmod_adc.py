@@ -69,8 +69,18 @@ class PMOD_ADC(object):
 
         self.iop.start()
     
-    def _value(self):   
+    def _value(self, channel=0, samples=4):   
         """Get the raw value from the ADC PMOD.
+        
+        All the 3 available channels are enabled. The default channel is 0, 
+        meaning only the first channel is read. Users can choose any channel
+        from 0 to 2. In each channel, this method reads multiple samples and 
+        returns the last sample. 
+        
+        Note
+        ----
+        For debug purpose, by setting "samples" to 0, the ADC can also read 
+        an infinite number of samples.
         
         Note
         ----
@@ -79,17 +89,21 @@ class PMOD_ADC(object):
         
         Parameters
         ----------
-        None
+        channel : int
+            The available channels, from 0 to 2.
+        samples : int
+            The number of samples read from each ADC channel.
         
         Returns
         -------
         int
             The value read from the ADC PMOD in its raw format.
         
-        """     
-        #: Set up ADC (3 samples of channel 10)
+        """
+        #: Set up ADC (multiple samples, all the 3 channels)
+        cmd_word = 0xa000F | (samples<<8)
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xa0403)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
         
         #: Wait for I/O processor to complete
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
@@ -97,14 +111,19 @@ class PMOD_ADC(object):
                               & 0x1) == 0x1:
             time.sleep(0.001)
 
-        return self.mmio.read(pmod_const.MAILBOX_OFFSET + 12)
+        #: Read the 4-th sample
+        return self.mmio.read(pmod_const.MAILBOX_OFFSET + \
+                                ((samples-1)*3 + channel)*4)
             
-    def read(self):
+    def read(self, channel=0, samples=4):
         """Read the value from the ADC PMOD as a string.
         
         Parameters
         ----------
-        None
+        channel : int
+            The available channels, from 0 to 2.
+        samples : int
+            The number of samples read from each ADC channel.
         
         Returns
         -------
@@ -112,9 +131,13 @@ class PMOD_ADC(object):
             An floating number expressed as a string.
         
         """
-        val = self._value()        
-        chars = ['0','.','0','0','0','0']
+        if not 0<=channel<=2:
+            raise ValueError("Available channels are 0, 1, and 2.")
+        if not 0<=samples<=255:
+            raise ValueError("Available number of samples is from 0 to 255.")
         
+        val = self._value(channel, samples)
+        chars = ['0','.','0','0','0','0']
         chars[0] = chr((val >> 24 ) & 0xff)
         chars[2] = chr((val >> 16 ) & 0xff)
         chars[3] = chr((val >> 8 )  & 0xff)
