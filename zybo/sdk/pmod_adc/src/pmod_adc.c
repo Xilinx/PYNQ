@@ -1,3 +1,56 @@
+/******************************************************************************
+ *  Copyright (c) 2016, Xilinx, Inc.
+ *  All rights reserved.
+ * 
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *  1.  Redistributions of source code must retain the above copyright notice, 
+ *     this list of conditions and the following disclaimer.
+ *
+ *  2.  Redistributions in binary form must reproduce the above copyright 
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *  3.  Neither the name of the copyright holder nor the names of its 
+ *      contributors may be used to endorse or promote products derived from 
+ *      this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ *  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+ *  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ *  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
+/******************************************************************************
+ *
+ *
+ * @file pmod_adc.c
+ *
+ * IOP code (MicroBlaze) for PMOD AD2 SKU410-217.
+ * The PmodAD2 is an analog-to-digital converter powered by the Analog Devices
+ * AD7991. Users may communicate with the board through I2C to configure up to
+ * 4 conversion channels at 12 bits of resolution.
+ * http://store.digilentinc.com/pmodad2-4-channel-12-bit-a-d-converter/
+ *
+ * <pre>
+ * MODIFICATION HISTORY:
+ *
+ * Ver   Who  Date     Changes
+ * ----- --- ------- -----------------------------------------------
+ * 1.00a pp  04/13/16 release
+ *
+ * </pre>
+ *
+ *****************************************************************************/
+
 #include "xparameters.h"
 #include "AD7991.h"
 #include "xil_io.h"
@@ -8,22 +61,8 @@
 /*****************************************************************************/
 
 #define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
-// Reference Voltage value
-// Actual value * 10000
-// E.g. VREF = 2.048 * 10000
+// Reference voltage value = actual value * 10000
 #define VREF 20480
-//#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC)) // command from A9 to MB0
-//#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007000+((x)*4)))
-// Passed parameters in MAILBOX_WRITE_CMD
-// bits 31:16 => delay between every channels samples in MS
-// bits 15:8 => number of channels samples if 0 then infinite and the result will be placed only at MAILBOX_DATA
-//              if non-zero then must be between 1 and 255 and the result will be placed starting at MAILBOX_DATA
-// bits 7:5 => not used
-// bit 4 => Channel 3 to be sampled (not used)
-// bit 3 => Channel 2 to be sampled
-// bit 2 => Channel 1 to be sampled
-// bit 1 => Channel 0 to be sampled
-// bit 0 => 1 command issued, 0 command completed
 
 u8 WriteBuffer[10];
 u8 ReadBuffer[10];
@@ -39,20 +78,29 @@ int main()
     u32 numofsamples;
     u8 numofchannels, i, j;
 
-    //  Configuring PMOD IO Switch to connect to I2C[0].SCLK to pmod bit 2, I2C[0].SDA to pmod bit 3
-    // rest of the bits are configured to default gpio channels, i.e. pmod bit[0] to gpio[0]
-    // pmod bit[1] to gpio[1], pmod bit[4] to gpio[4], pmod bit[5] to gpio[5]
-    // pmod bit[6] to gpio[6], pmod bit[7] to gpio[7]
-    Xil_Out32(SWITCH_BASEADDR+4,0x00000000); // isolate configuration port by writing 0 to slv_reg1[31]
-    Xil_Out32(SWITCH_BASEADDR,0x76549810); //
-    Xil_Out32(SWITCH_BASEADDR+4,0x80000000); // Enable configuration by writing 1 to slv_reg1[31]
+    /*  
+     *  Configuring PMOD IO Switch to connect to I2C[0].
+     *  SCLK to pmod bit 2, I2C[0].SDA to pmod bit 3
+     *  rest of the bits are configured to default gpio channels
+     *  i.e. pmod bit[0] to gpio[0], pmod bit[1] to gpio[1], etc.
+     */
+    // isolate configuration port by writing 0 to slv_reg1[31]
+    Xil_Out32(SWITCH_BASEADDR+4,0x00000000);
+    Xil_Out32(SWITCH_BASEADDR,0x76549810);
+    // Enable configuration by writing 1 to slv_reg1[31]
+    Xil_Out32(SWITCH_BASEADDR+4,0x80000000);
 
-//  configureSwitch( GPIO_1, GPIO_2, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
+    // initialize pmod
     pmod_init();
-    useVref=1;  // use internal VREF, make sure that JP1 is bridged between pin1 and center pin
-    useFILT=0;  // filtering on SDA and SCL is enabled
-    useBIT=0;   // use BIT delay enabled
-    useSample=0;    // use Sample delay enabled
+    // to use internal VREF, bridge JP1 accross pin1 and center pin
+    useVref=1;
+    // filtering on SDA and SCL is enabled
+    useFILT=0;
+    // use BIT delay enabled
+    useBIT=0;
+    // use Sample delay enabled
+    useSample=0;
+    
     while(1){
         while((MAILBOX_CMD_ADDR & 0x01)==0); // wait for bit[0] to become 1
         cmd = MAILBOX_CMD_ADDR;
@@ -89,7 +137,7 @@ int main()
             delay=(cmd >> 16) & 0x0ffff; 
         }
         
-        // set to number of samples; "0" indicates infinite number of samples.
+        // set to number of samples; "0" indicates infinite number of samples
         numofsamples=(cmd >> 8) & 0x0ff; 
         if(numofsamples==0) {
             // infinitely

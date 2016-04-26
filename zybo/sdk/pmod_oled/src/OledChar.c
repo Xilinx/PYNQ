@@ -1,28 +1,28 @@
 /************************************************************************/
-/*																		*/
-/*	OledChar.c	--	Character Output Routines for OLED Display			*/
-/*																		*/
+/*                                                                      */
+/*  OledChar.c  --  Character Output Routines for OLED Display          */
+/*                                                                      */
 /************************************************************************/
-/*	Author: 	Gene Apperson											*/
-/*	Copyright 2011, Digilent Inc.										*/
+/*  Author:     Gene Apperson                                           */
+/*  Copyright 2011, Digilent Inc.                                       */
 /************************************************************************/
-/*  Module Description: 												*/
-/*																		*/
-/*																		*/
+/*  Module Description:                                                 */
+/*                                                                      */
+/*                                                                      */
 /************************************************************************/
-/*  Revision History:													*/
-/*																		*/
-/*	06/01/2011(GeneA): created											*/
-/*																		*/
+/*  Revision History:                                                   */
+/*                                                                      */
+/*  06/01/2011(GeneA): created                                          */
+/*                                                                      */
 /************************************************************************/
 
 
 /* ------------------------------------------------------------ */
-/*				Include File Definitions						*/
+/*              Include File Definitions                        */
 /* ------------------------------------------------------------ */
 
 #include "xparameters.h"    /* SDK generated parameters */
-#include "xspi.h"	// axi qspi driver
+#include "xspi.h"   // axi qspi driver
 #include "xspi_l.h"
 
 #include "xil_printf.h"
@@ -30,359 +30,359 @@
 #include "OledChar.h"
 #include "OledGrph.h"
 /* ------------------------------------------------------------ */
-/*				Global Variables								*/
+/*              Global Variables                                */
 /* ------------------------------------------------------------ */
-extern int		xcoOledCur;
-extern int		ycoOledCur;
+extern int      xcoOledCur;
+extern int      ycoOledCur;
 
-extern u8 *	    pbOledCur;
-extern u8		mskOledCur;
-extern int		bnOledCur;
-extern int		fOledCharUpdate;
+extern u8 *     pbOledCur;
+extern u8       mskOledCur;
+extern int      bnOledCur;
+extern int      fOledCharUpdate;
 
-extern u8		rgbOledBmp[];
+extern u8       rgbOledBmp[];
 
-extern int		dxcoOledFontCur;
-extern int		dycoOledFontCur;
+extern int      dxcoOledFontCur;
+extern int      dycoOledFontCur;
 
-extern	u8 *	pbOledFontCur;
-extern	u8 *	pbOledFontUser;
-
-/* ------------------------------------------------------------ */
-/*				Local Variables									*/
-/* ------------------------------------------------------------ */
-
-int		xchOledCur;
-int		ychOledCur;
-
-int		xchOledMax;
-int		ychOledMax;
-
-u8 *	pbOledFontExt;
-
-u8	    rgbOledFontUser[cbOledFontUser];
+extern  u8 *    pbOledFontCur;
+extern  u8 *    pbOledFontUser;
 
 /* ------------------------------------------------------------ */
-/*				Forward Declarations							*/
+/*              Local Variables                                 */
 /* ------------------------------------------------------------ */
 
-void	OledDrawGlyph(char ch);
-void	OledAdvanceCursor();
+int     xchOledCur;
+int     ychOledCur;
+
+int     xchOledMax;
+int     ychOledMax;
+
+u8 *    pbOledFontExt;
+
+u8      rgbOledFontUser[cbOledFontUser];
 
 /* ------------------------------------------------------------ */
-/*				Procedure Definitions							*/
+/*              Forward Declarations                            */
 /* ------------------------------------------------------------ */
-/***	OledSetCursor
+
+void    OledDrawGlyph(char ch);
+void    OledAdvanceCursor();
+
+/* ------------------------------------------------------------ */
+/*              Procedure Definitions                           */
+/* ------------------------------------------------------------ */
+/***    OledSetCursor
 **
-**	Parameters:
-**		xch			- horizontal character position
-**		ych			- vertical character position
+**  Parameters:
+**      xch         - horizontal character position
+**      ych         - vertical character position
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Set the character cursor position to the specified location.
-**		If either the specified X or Y location is off the display, it
-**		is clamped to be on the display.
+**  Description:
+**      Set the character cursor position to the specified location.
+**      If either the specified X or Y location is off the display, it
+**      is clamped to be on the display.
 */
 
 void
 OledSetCursor(int xch, int ych)
-	{
+    {
 
-	/* Clamp the specified location to the display surface
-	*/
-	if (xch >= xchOledMax) {
-		xch = xchOledMax-1;
-	}
+    /* Clamp the specified location to the display surface
+    */
+    if (xch >= xchOledMax) {
+        xch = xchOledMax-1;
+    }
 
-	if (ych >= ychOledMax) {
-		ych = ychOledMax-1;
-	}
+    if (ych >= ychOledMax) {
+        ych = ychOledMax-1;
+    }
 
-	/* Save the given character location.
-	*/
-	xchOledCur = xch;
-	ychOledCur = ych;
+    /* Save the given character location.
+    */
+    xchOledCur = xch;
+    ychOledCur = ych;
 
-	/* Convert the character location to a frame buffer address.
-	*/
-	OledMoveTo(xch*dxcoOledFontCur, ych*dycoOledFontCur);
+    /* Convert the character location to a frame buffer address.
+    */
+    OledMoveTo(xch*dxcoOledFontCur, ych*dycoOledFontCur);
 
 }
 
 /* ------------------------------------------------------------ */
-/***	OledGetCursor
+/***    OledGetCursor
 **
-**	Parameters:
-**		pxch		- pointer to variable to receive horizontal position
-**		pych		- pointer to variable to receive vertical position
+**  Parameters:
+**      pxch        - pointer to variable to receive horizontal position
+**      pych        - pointer to variable to receive vertical position
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Fetch the current cursor position
+**  Description:
+**      Fetch the current cursor position
 */
 
 void
 OledGetCursor( int * pxch, int * pych)
-	{
+    {
 
-	*pxch = xchOledCur;
-	*pych = ychOledCur;
+    *pxch = xchOledCur;
+    *pych = ychOledCur;
 
 }
 
 /* ------------------------------------------------------------ */
-/***	OledDefUserChar
+/***    OledDefUserChar
 **
-**	Parameters:
-**		ch		- character code to define
-**		pbDef	- definition for the character
+**  Parameters:
+**      ch      - character code to define
+**      pbDef   - definition for the character
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		Returns TRUE if successful, FALSE if not
+**  Errors:
+**      Returns TRUE if successful, FALSE if not
 **
-**	Description:
-**		Give a definition for the glyph for the specified user
-**		character code. User definable character codes are in
-**		the range 0x00 - 0x1F. If the code specified by ch is
-**		outside this range, the function returns false.
+**  Description:
+**      Give a definition for the glyph for the specified user
+**      character code. User definable character codes are in
+**      the range 0x00 - 0x1F. If the code specified by ch is
+**      outside this range, the function returns false.
 */
 
 int
 OledDefUserChar(char ch, u8 * pbDef)
-	{
-	u8 *	pb;
-	int		ib;
+    {
+    u8 *    pb;
+    int     ib;
 
-	if (ch < chOledUserMax) {
-		pb = pbOledFontUser + ch * cbOledChar;
-		for (ib = 0; ib < cbOledChar; ib++) {
-			*pb++ = *pbDef++;
-		}
-		return 1;
-	}
-	else {
-		return 0;
-	}
+    if (ch < chOledUserMax) {
+        pb = pbOledFontUser + ch * cbOledChar;
+        for (ib = 0; ib < cbOledChar; ib++) {
+            *pb++ = *pbDef++;
+        }
+        return 1;
+    }
+    else {
+        return 0;
+    }
 
-	}
+    }
 
 /* ------------------------------------------------------------ */
-/***	OledSetCharUpdate
+/***    OledSetCharUpdate
 **
-**	Parameters:
-**		f		- enable/disable automatic update
+**  Parameters:
+**      f       - enable/disable automatic update
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Set the character update mode. This determines whether
-**		or not the display is automatically updated after a
-**		character or string is drawn. A non-zero value turns
-**		automatic updating on.
+**  Description:
+**      Set the character update mode. This determines whether
+**      or not the display is automatically updated after a
+**      character or string is drawn. A non-zero value turns
+**      automatic updating on.
 */
 
 void
 OledSetCharUpdate(int f)
-	{
+    {
 
-	fOledCharUpdate = (f != 0) ? 1 : 0;
+    fOledCharUpdate = (f != 0) ? 1 : 0;
 
 }
 
 /* ------------------------------------------------------------ */
-/***	OledGetCharUpdate
+/***    OledGetCharUpdate
 **
-**	Parameters:
-**		none
+**  Parameters:
+**      none
 **
-**	Return Value:
-**		returns current character update mode
+**  Return Value:
+**      returns current character update mode
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Return the current character update mode.
+**  Description:
+**      Return the current character update mode.
 */
 
 int
 OledGetCharUpdate()
-	{
+    {
 
-	return fOledCharUpdate;
+    return fOledCharUpdate;
 
 }
 
 /* ------------------------------------------------------------ */
-/***	OledPutChar
+/***    OledPutChar
 **
-**	Parameters:
-**		ch			- character to write to display
+**  Parameters:
+**      ch          - character to write to display
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Write the specified character to the display at the current
-**		cursor position and advance the cursor.
+**  Description:
+**      Write the specified character to the display at the current
+**      cursor position and advance the cursor.
 */
 
 void
 OledPutChar(char ch)
-	{
+    {
 
-	OledDrawGlyph(ch);
-	OledAdvanceCursor();
-	//if (fOledCharUpdate) {
-	//	OledUpdate();
-	//}
+    OledDrawGlyph(ch);
+    OledAdvanceCursor();
+    //if (fOledCharUpdate) {
+    //  OledUpdate();
+    //}
 
 }
 
 /* ------------------------------------------------------------ */
-/***	OledPutString
+/***    OledPutString
 **
-**	Parameters:
-**		sz		- pointer to the null terminated string
+**  Parameters:
+**      sz      - pointer to the null terminated string
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Write the specified null terminated character string to the
-**		display and advance the cursor.
+**  Description:
+**      Write the specified null terminated character string to the
+**      display and advance the cursor.
 */
 
 void
 OledPutString(char * sz)
-	{
+    {
 
-	while (*sz != '\0') {
-		if(*sz=='\n'){
-			OLEDNewline();
-		}
-		else{
-		OledDrawGlyph(*sz);
-		OledAdvanceCursor();
-		}
-		sz += 1;
+    while (*sz != '\0') {
+        if(*sz=='\n'){
+            OLEDNewline();
+        }
+        else{
+        OledDrawGlyph(*sz);
+        OledAdvanceCursor();
+        }
+        sz += 1;
 
-	}
-	}
+    }
+    }
 /* ------------------------------------------------------------ */
-/***	OledDrawGlyph
+/***    OledDrawGlyph
 **
-**	Parameters:
-**		ch		- character code of character to draw
+**  Parameters:
+**      ch      - character code of character to draw
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Renders the specified character into the display buffer
-**		at the current character cursor location. This does not
-**		affect the current character cursor location or the 
-**		current drawing position in the display buffer.
+**  Description:
+**      Renders the specified character into the display buffer
+**      at the current character cursor location. This does not
+**      affect the current character cursor location or the 
+**      current drawing position in the display buffer.
 */
 
 void
 OledDrawGlyph(char ch)
-	{
-	u8 *	pbFont;
-	u8 *	pbBmp;
-	int		ib;
+    {
+    u8 *    pbFont;
+    u8 *    pbBmp;
+    int     ib;
 
-	if ((ch & 0x80) != 0) {
-		return;
-	}
+    if ((ch & 0x80) != 0) {
+        return;
+    }
 
-	if (ch < chOledUserMax) {
-		pbFont = pbOledFontUser + ch*cbOledChar;
-	}
-	else if ((ch & 0x80) == 0) {
-		pbFont = pbOledFontCur + (ch-chOledUserMax) * cbOledChar;
-	}
+    if (ch < chOledUserMax) {
+        pbFont = pbOledFontUser + ch*cbOledChar;
+    }
+    else if ((ch & 0x80) == 0) {
+        pbFont = pbOledFontCur + (ch-chOledUserMax) * cbOledChar;
+    }
 
-	pbBmp = pbOledCur;
+    pbBmp = pbOledCur;
 
-	for (ib = 0; ib < dxcoOledFontCur; ib++) {
-		*pbBmp++ = *pbFont++;
-	}
+    for (ib = 0; ib < dxcoOledFontCur; ib++) {
+        *pbBmp++ = *pbFont++;
+    }
 
 }
 
 /* ------------------------------------------------------------ */
-/***	OledAdvanceCursor
+/***    OledAdvanceCursor
 **
-**	Parameters:
-**		none
+**  Parameters:
+**      none
 **
-**	Return Value:
-**		none
+**  Return Value:
+**      none
 **
-**	Errors:
-**		none
+**  Errors:
+**      none
 **
-**	Description:
-**		Advance the character cursor by one character location,
-**		wrapping at the end of line and back to the top at the
-**		end of the display.
+**  Description:
+**      Advance the character cursor by one character location,
+**      wrapping at the end of line and back to the top at the
+**      end of the display.
 */
 
 void
 OledAdvanceCursor()
-	{
+    {
 
-	xchOledCur += 1;
-	if (xchOledCur >= xchOledMax) {
-		xchOledCur = 0;
-		ychOledCur += 1;
-	}
-	if (ychOledCur >= ychOledMax) {
-		ychOledCur = 0;
-	}
+    xchOledCur += 1;
+    if (xchOledCur >= xchOledMax) {
+        xchOledCur = 0;
+        ychOledCur += 1;
+    }
+    if (ychOledCur >= ychOledMax) {
+        ychOledCur = 0;
+    }
 
-	OledSetCursor(xchOledCur, ychOledCur);
+    OledSetCursor(xchOledCur, ychOledCur);
 
 }
 
 /* ------------------------------------------------------------ */
-/***	ProcName
+/***    ProcName
 **
-**	Parameters:
+**  Parameters:
 **
-**	Return Value:
+**  Return Value:
 **
-**	Errors:
+**  Errors:
 **
-**	Description:
+**  Description:
 **
 */
 
@@ -390,11 +390,11 @@ OledAdvanceCursor()
 
 /************************************************************************/
 void OLEDNewline(void){
-	xchOledCur = 0;
-	ychOledCur += 1;
-	if(ychOledCur>=ychOledMax){ ychOledCur=0;}
-	OledSetCursor(xchOledCur, ychOledCur);
-	return;
+    xchOledCur = 0;
+    ychOledCur += 1;
+    if(ychOledCur>=ychOledMax){ ychOledCur=0;}
+    OledSetCursor(xchOledCur, ychOledCur);
+    return;
 }
 
 
