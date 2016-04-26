@@ -1,4 +1,4 @@
-Creating Overlays
+Working with Overlays
 ==============================================
 
 Creating overlays is done using traditional hardware design methods. This document will describe how overlays can be integrated into Pynq by FPGA/Zynq designers, but will not cover the hardware design process. 
