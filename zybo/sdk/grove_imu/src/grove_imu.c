@@ -1,14 +1,54 @@
-/*
- * IOP code (MicroBlaze) for groveoled
- * Grove OLED is write only, and has IIC interface
+/******************************************************************************
+ *  Copyright (c) 2016, Xilinx, Inc.
+ *  All rights reserved.
+ * 
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
  *
- * April 13, 2016
- * Author: Yun Rock Qu
-*/
-
-/* Grove OLED is based on OLE35046P
-http://www.seeedstudio.com/wiki/Grove_-_OLED_Display_0.96%22
-*/
+ *  1.  Redistributions of source code must retain the above copyright notice, 
+ *     this list of conditions and the following disclaimer.
+ *
+ *  2.  Redistributions in binary form must reproduce the above copyright 
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *  3.  Neither the name of the copyright holder nor the names of its 
+ *      contributors may be used to endorse or promote products derived from 
+ *      this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ *  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+ *  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ *  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
+/******************************************************************************
+ *
+ *
+ * @file grove_imu.c
+ *
+ * IOP code (MicroBlaze) for grove IMU 10DOF.
+ * Grove IMU is read only, and has IIC interface.
+ * Hardware version 1.1.
+ * http://www.seeedstudio.com/wiki/Grove_-_IMU_10DOF
+ *
+ * <pre>
+ * MODIFICATION HISTORY:
+ *
+ * Ver   Who  Date     Changes
+ * ----- --- ------- -----------------------------------------------
+ * 1.00a yrq 04/25/16 release
+ *
+ * </pre>
+ *
+ *****************************************************************************/
 
 #include "pmod.h"
 #include "MPU9250.h"
@@ -25,8 +65,9 @@ http://www.seeedstudio.com/wiki/Grove_-_OLED_Display_0.96%22
 #define GET_PRESSURE            0xD
 #define RESET                   0xF
 
-//// Byte operations ////
-int iic_readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data){
+/* Byte operations */
+int iic_readBytes(uint8_t devAddr, uint8_t regAddr, 
+                uint8_t length, uint8_t *data){
     iic_write(devAddr, &regAddr, 1);
     return iic_read(devAddr, data, length);
 }
@@ -36,7 +77,8 @@ int iic_readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
 	return iic_read(devAddr, data, 1);
 }
 
-int iic_writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data){
+int iic_writeBytes(uint8_t devAddr, uint8_t regAddr, 
+                uint8_t length, uint8_t *data){
 	int i;
 	int len_total = (int)length+1;
 	uint8_t temp[len_total];
@@ -54,8 +96,9 @@ int iic_writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
 	return iic_write(devAddr, temp, 2);
 }
 
-//// Bit operations ////
-int8_t iic_readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t width, uint8_t *data) {
+/* Bit operations */
+int8_t iic_readBits(uint8_t devAddr, uint8_t regAddr, 
+                    uint8_t bitStart, uint8_t width, uint8_t *data) {
     // 01101001 read byte
     // 76543210 bit numbers
     //    xxx   parameters: bitStart=4, width=3
@@ -71,11 +114,13 @@ int8_t iic_readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t 
     }
     return count;
 }
-int8_t iic_readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t *data) {
+int8_t iic_readBit(uint8_t devAddr, uint8_t regAddr, 
+                   uint8_t bitStart, uint8_t *data) {
     return iic_readBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
 }
     
-int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t width, uint8_t *data) {
+int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr, 
+                     uint8_t bitStart, uint8_t width, uint8_t *data) {
     //      010 value to write
     // 76543210 bit numbers
     //    xxx   parameters: bitStart=4, width=3
@@ -97,11 +142,12 @@ int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t
         return (int8_t)0;
     }
 }
-int8_t iic_writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t *data) {
+int8_t iic_writeBit(uint8_t devAddr, uint8_t regAddr, 
+                    uint8_t bitStart, uint8_t *data) {
     return iic_writeBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
 }
 
-//// MPU9250 Driver functions ////
+/* MPU9250 Driver functions */
 void mpu_init() {
     //device setup
     mpuAddr = MPU9250_DEFAULT_ADDRESS;
@@ -113,18 +159,24 @@ void mpu_init() {
 }
 
 void mpu_setClockSource(uint8_t source) {
-    iic_writeBits(mpuAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_CLKSEL_BIT, MPU9250_PWR1_CLKSEL_LENGTH, &source);
+    iic_writeBits(mpuAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_CLKSEL_BIT, 
+                    MPU9250_PWR1_CLKSEL_LENGTH, &source);
 }
 
 void mpu_setFullScaleGyroRange(uint8_t range) {
-    iic_writeBits(mpuAddr, MPU9250_RA_GYRO_CONFIG, MPU9250_GCONFIG_FS_SEL_BIT, MPU9250_GCONFIG_FS_SEL_LENGTH, &range);
+    iic_writeBits(mpuAddr, MPU9250_RA_GYRO_CONFIG, MPU9250_GCONFIG_FS_SEL_BIT, 
+                    MPU9250_GCONFIG_FS_SEL_LENGTH, &range);
 }
 
 void mpu_setFullScaleAccelRange(uint8_t range) {
-    iic_writeBits(mpuAddr, MPU9250_RA_ACCEL_CONFIG, MPU9250_ACONFIG_AFS_SEL_BIT, MPU9250_ACONFIG_AFS_SEL_LENGTH, &range);
+    iic_writeBits(mpuAddr, MPU9250_RA_ACCEL_CONFIG, 
+                    MPU9250_ACONFIG_AFS_SEL_BIT, 
+                    MPU9250_ACONFIG_AFS_SEL_LENGTH, &range);
 }
             
-void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) {
+void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, 
+                    int16_t* gx, int16_t* gy, int16_t* gz, 
+                    int16_t* mx, int16_t* my, int16_t* mz) {
     
     //get accel and gyro
     iic_readBytes(mpuAddr, MPU9250_RA_ACCEL_XOUT_H, 14, buffer);
@@ -139,10 +191,12 @@ void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t*
     //read mag
     uint8_t data;
     data = 0x02;
-    iic_writeByte(mpuAddr, MPU9250_RA_INT_PIN_CFG, &data); //set i2c bypass enable pin to access magnetometer
+    //set i2c bypass enable pin to access magnetometer
+    iic_writeByte(mpuAddr, MPU9250_RA_INT_PIN_CFG, &data);
     delay_ms(10);
     data = 0x01;
-    iic_writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, &data); //enable the magnetometer
+    //enable the magnetometer
+    iic_writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, &data);
     delay_ms(10);
     iic_readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
     delay_ms(60);
@@ -153,11 +207,13 @@ void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t*
 
 void mpu_reset() {
     uint8_t data = 0x01;
-    iic_writeBit(mpuAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_DEVICE_RESET_BIT, &data);
+    iic_writeBit(mpuAddr, MPU9250_RA_PWR_MGMT_1, 
+                    MPU9250_PWR1_DEVICE_RESET_BIT, &data);
 }
 
 void mpu_setSleepEnabled(uint8_t enabled) {
-    iic_writeBit(mpuAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_SLEEP_BIT, &enabled);
+    iic_writeBit(mpuAddr, MPU9250_RA_PWR_MGMT_1, 
+                    MPU9250_PWR1_SLEEP_BIT, &enabled);
 }
 
 uint16_t bmp_ReadBytes(uint8_t address)
@@ -237,7 +293,8 @@ float bmp_GetPressure()
     msb = bmp_ReadByte(0xF6);
     lsb = bmp_ReadByte(0xF7);
     xlsb = bmp_ReadByte(0xF8);
-    up = (((unsigned long)msb<<16)|((unsigned long) lsb << 8)|(unsigned long) xlsb)>>(8-OSS);
+    up = (((unsigned long)msb<<16)|((unsigned long) lsb << 8)|
+            (unsigned long) xlsb)>>(8-OSS);
     
     // calculate the  compensated pressure
     b6 = PressureCompensate - 4000;

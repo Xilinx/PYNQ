@@ -11,7 +11,8 @@ MBBINS = pmod_adc.bin \
 		grove_adc.bin \
 		grove_oled.bin \
 		grove_imu.bin \
-		grove_buzzer.bin
+		grove_buzzer.bin \
+		grove_ledbar.bin
 
 all: pmod_bins
 	@echo "Completed Microblaze Projects' Builds"

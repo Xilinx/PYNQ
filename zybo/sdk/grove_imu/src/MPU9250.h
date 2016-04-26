@@ -1,6 +1,54 @@
-/*
- * IOP code (MicroBlaze) for MPU9250
-*/
+/******************************************************************************
+ *  Copyright (c) 2016, Xilinx, Inc.
+ *  All rights reserved.
+ * 
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *  1.  Redistributions of source code must retain the above copyright notice, 
+ *     this list of conditions and the following disclaimer.
+ *
+ *  2.  Redistributions in binary form must reproduce the above copyright 
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *  3.  Neither the name of the copyright holder nor the names of its 
+ *      contributors may be used to endorse or promote products derived from 
+ *      this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ *  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+ *  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ *  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
+/******************************************************************************
+ *
+ *
+ * @file MPU9250.h
+ *
+ * Header file for MPU9250 on grove IMU DOF10.
+ * MPU9250 is a 9-axis MotionTracking device that combines a 3-axis gyroscope,
+ * 3-axis accelerometer, 3-axis magnetometer and a digital motion processor.
+ * http://www.seeedstudio.com/wiki/Grove_-_IMU_10DOF
+ *
+ * <pre>
+ * MODIFICATION HISTORY:
+ *
+ * Ver   Who  Date     Changes
+ * ----- --- ------- -----------------------------------------------
+ * 1.00a yrq 04/25/16 release
+ *
+ * </pre>
+ *
+ *****************************************************************************/
 
 #ifndef _MPU9250_H_
 #define _MPU9250_H_
@@ -15,28 +63,44 @@
 #define MPU9150_RA_MAG_ZOUT_L		0x07
 #define MPU9150_RA_MAG_ZOUT_H		0x08
 
-#define MPU9250_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
-#define MPU9250_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
+// address pin low (GND)
+#define MPU9250_ADDRESS_AD0_LOW     0x68
+// address pin high (VCC)
+#define MPU9250_ADDRESS_AD0_HIGH    0x69
+// default
 #define MPU9250_DEFAULT_ADDRESS     MPU9250_ADDRESS_AD0_LOW
 
-#define MPU9250_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU9250_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU9250_RA_ZG_OFFS_TC       0x02 //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU9250_RA_X_FINE_GAIN      0x03 //[7:0] X_FINE_GAIN
-#define MPU9250_RA_Y_FINE_GAIN      0x04 //[7:0] Y_FINE_GAIN
-#define MPU9250_RA_Z_FINE_GAIN      0x05 //[7:0] Z_FINE_GAIN
-#define MPU9250_RA_XA_OFFS_H        0x06 //[15:0] XA_OFFS
+//[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU9250_RA_XG_OFFS_TC       0x00
+//[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU9250_RA_YG_OFFS_TC       0x01
+//[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU9250_RA_ZG_OFFS_TC       0x02
+//[7:0] X_FINE_GAIN
+#define MPU9250_RA_X_FINE_GAIN      0x03
+//[7:0] Y_FINE_GAIN
+#define MPU9250_RA_Y_FINE_GAIN      0x04
+//[7:0] Z_FINE_GAIN
+#define MPU9250_RA_Z_FINE_GAIN      0x05
+//[15:0] XA_OFFS
+#define MPU9250_RA_XA_OFFS_H        0x06
 #define MPU9250_RA_XA_OFFS_L_TC     0x07
-#define MPU9250_RA_YA_OFFS_H        0x08 //[15:0] YA_OFFS
+//[15:0] YA_OFFS
+#define MPU9250_RA_YA_OFFS_H        0x08
 #define MPU9250_RA_YA_OFFS_L_TC     0x09
-#define MPU9250_RA_ZA_OFFS_H        0x0A //[15:0] ZA_OFFS
+//[15:0] ZA_OFFS
+#define MPU9250_RA_ZA_OFFS_H        0x0A
 #define MPU9250_RA_ZA_OFFS_L_TC     0x0B
-#define MPU9250_RA_XG_OFFS_USRH     0x13 //[15:0] XG_OFFS_USR
+//[15:0] XG_OFFS_USR
+#define MPU9250_RA_XG_OFFS_USRH     0x13
 #define MPU9250_RA_XG_OFFS_USRL     0x14
-#define MPU9250_RA_YG_OFFS_USRH     0x15 //[15:0] YG_OFFS_USR
+//[15:0] YG_OFFS_USR
+#define MPU9250_RA_YG_OFFS_USRH     0x15
 #define MPU9250_RA_YG_OFFS_USRL     0x16
-#define MPU9250_RA_ZG_OFFS_USRH     0x17 //[15:0] ZG_OFFS_USR
+//[15:0] ZG_OFFS_USR
+#define MPU9250_RA_ZG_OFFS_USRH     0x17
 #define MPU9250_RA_ZG_OFFS_USRL     0x18
+
 #define MPU9250_RA_SMPLRT_DIV       0x19
 #define MPU9250_RA_CONFIG           0x1A
 #define MPU9250_RA_GYRO_CONFIG      0x1B
@@ -375,7 +439,9 @@ void mpu_setFullScaleGyroRange(uint8_t range);
 void mpu_setFullScaleAccelRange(uint8_t range);
 
 // ACCEL_*OUT_* registers
-void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz);
+void mpu_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, 
+                    int16_t* gx, int16_t* gy, int16_t* gz, 
+                    int16_t* mx, int16_t* my, int16_t* mz);
 
 // PWR_MGMT_1 register
 void mpu_reset();
