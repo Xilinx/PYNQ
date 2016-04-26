@@ -126,10 +126,15 @@ class PMOD_OLED(object):
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
                         (0x10000 | 0x1 | 0x8))
         
+        #: Wait for the command to be cleared
+        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+            pass
+        
     def clear(self):
         """Clear the OLED screen.
         
-        This is done by writing empty strings into the OLED.
+        This is done by sending the clear command to the IOP.
         
         Parameters
         ----------
@@ -140,5 +145,13 @@ class PMOD_OLED(object):
         None
         
         """             
-        self._write_string(" " * 16 * 4)
-    
+        #: Write the clear command
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
+                        0x3)
+        
+        #: Wait for the command to be cleared
+        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+            pass
+        
