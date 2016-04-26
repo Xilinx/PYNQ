@@ -92,7 +92,7 @@ void cb_push_incr_ptrs(circular_buffer *cb);
 
 
 // Switch Configuration
-void configureSwitch(char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7, char pin8);
+void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7);
 
 // Initialize all PMOD IO Switch connected devices
 void pmod_init(void);
