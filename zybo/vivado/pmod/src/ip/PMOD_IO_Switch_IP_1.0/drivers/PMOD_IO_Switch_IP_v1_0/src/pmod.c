@@ -3,14 +3,14 @@
  * IIC, SPI, and IOP switch configuration functions
  * 
  * Author: cmccabe
- * Version 1.0 19 Nov 2015
+ * Version 1.1 26 April 2015
  *
  */
 
 #include "pmod.h"
 XTmrCtr TimerInst_0; 	// The Timer Counter instance
 
-void spi_delay(void) {
+void spi_delay(void){
 	int i=0;
 	for(i=0;i<7;i++);
 }
@@ -37,7 +37,7 @@ void spi_transfer(u32 BaseAddress, int bytecount, u8* readBuffer, u8* writeBuffe
     XSpi_WriteReg(BaseAddress, XSP_SSR_OFFSET, 0xff);
 }
 
-void spi_init(void) {
+void spi_init(void){
 	u32 Control;
 
 	// Soft reset SPI
@@ -51,54 +51,18 @@ void spi_init(void) {
 	XSpi_WriteReg(SPI_BASEADDR, XSP_CR_OFFSET, Control);
 }
 
-int iic_read(u32 addr, u8* buffer, u8 numbytes) 
-{
+int iic_read(u32 addr, u8* buffer, u8 numbytes){
     XIic_Recv(IIC_BASEADDR, addr, buffer, numbytes, XIIC_STOP);
     return 0;
 }
 
 
-int iic_write(u32 addr, u8* buffer, u8 numbytes)
-{
-
+int iic_write(u32 addr, u8* buffer, u8 numbytes){
 	   XIic_Send(IIC_BASEADDR, addr, buffer, numbytes, XIIC_STOP);
 	   return 0;
 }
 
-#if 0
-int iic_init(u8 IicSlaveAddr) {
-	XIic_Config *ConfigPtr;
-	int Status;
-
-	// Initialize the SPI driver so that it is  ready to use.
-	ConfigPtr = XIic_LookupConfig(XPAR_IIC_0_DEVICE_ID);
-	if (ConfigPtr == NULL) {
-		return XST_DEVICE_NOT_FOUND;
-	}
-
-	Status = XIic_CfgInitialize(&IicInstance, ConfigPtr,
-				  ConfigPtr->BaseAddress);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-
-	Status = XIic_Start(&IicInstance);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-
-	Status = XIic_SetAddress(&IicInstance, XII_ADDR_TO_SEND_TYPE, IicSlaveAddr);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-
-	return 0;
-
-}
-#endif
-
-int cb_init(circular_buffer *cb, volatile u32* log_start_addr, size_t capacity, size_t sz)
-{
+int cb_init(circular_buffer *cb, volatile u32* log_start_addr, size_t capacity, size_t sz){
   cb->buffer = (volatile char*) log_start_addr;
   if(cb->buffer == NULL)
     return -1;
@@ -114,11 +78,9 @@ int cb_init(circular_buffer *cb, volatile u32* log_start_addr, size_t capacity, 
   MAILBOX_DATA(3)  = (u32) cb->tail;
   
   return 0;
-
 }
 
-void cb_push_back(circular_buffer *cb, const void *item)
-{
+void cb_push_back(circular_buffer *cb, const void *item){
 
   u8 i;
   u8* tail_ptr = (u8*) cb->tail;
@@ -137,9 +99,7 @@ void cb_push_back(circular_buffer *cb, const void *item)
   MAILBOX_DATA(3)  = (u32) cb->tail;
 }
 
-void cb_push_back_float(circular_buffer *cb, const float *item)
-{
-
+void cb_push_back_float(circular_buffer *cb, const float *item){
   // update data 
   float* tail_ptr = (float*) cb->tail;
   *tail_ptr = *item;
@@ -148,7 +108,6 @@ void cb_push_back_float(circular_buffer *cb, const float *item)
 
   // Mailbox API Update
   MAILBOX_DATA_FLOAT(0)  = *item;
-
 }
 
 void cb_push_incr_ptrs(circular_buffer *cb){
@@ -167,15 +126,14 @@ void cb_push_incr_ptrs(circular_buffer *cb){
   MAILBOX_DATA(3)        = (u32) cb->tail;
 }
 
-void delay_us(int usdelay) {
+void delay_us(int usdelay){
 	XTmrCtr_SetResetValue(&TimerInst_0, 1, usdelay*100);	// us delay
 	XTmrCtr_Start(&TimerInst_0, 1); // start the timer0 for usdelay us delay
     while(!XTmrCtr_IsExpired(&TimerInst_0,1)); // wait for usdelay us to lapse
 	XTmrCtr_Stop(&TimerInst_0, 1); // stop the timer0
 }
 
-void delay_ms(u32 msdelay)
-{
+void delay_ms(u32 msdelay){
 	XTmrCtr_SetResetValue(&TimerInst_0, 1, msdelay*100*1000);	// ms delay
 	XTmrCtr_Start(&TimerInst_0, 1); // start the timer0 for usdelay us delay
     while(!XTmrCtr_IsExpired(&TimerInst_0,1)); // wait for usdelay us to lapse
@@ -199,7 +157,7 @@ void delay_ms(u32 msdelay)
  * PMOD pin 1 = bits [3:0]
  * e.g. Write GPIO 0 - 7 to PMOD 1-8 => switchConfigValue = 0x76543210
  */
-void configureSwitch(char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7, char pin8){
+void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7){
    u32 switchConfigValue;
 
    // Calculate switch configuration value
@@ -227,9 +185,7 @@ int tmrctr_init(void) {
 }
 
 void pmod_init(void) {
-//#ifdef USE_SPI
 	spi_init();
-//#endif
 	tmrctr_init();
 }
 
