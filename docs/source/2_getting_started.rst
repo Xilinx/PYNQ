@@ -20,7 +20,7 @@ Any issues can be submitted via the github site's `issue tracker <https://github
 Setup
 ================
 
-There are four main steps to getting started with Pynq and the ZYBO board.  These are:
+There are four main steps to getting started with Pynq and the ZYBO.  These are:
 
 1. **Get the image and prepare the micro-SD Card**
 
@@ -64,8 +64,8 @@ Prerequisites
 
 Additional external peripherals (PMods and Grove Peripherals) are optional and will be discussed later.
 
-Setup the ZYBO board
---------------------
+Setup the ZYBO 
+---------------
 
 .. image:: ./images/zybo_setup_config_600.jpeg
    :height: 600px

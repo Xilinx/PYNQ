@@ -86,8 +86,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../4_programming_zybo_in_python.html">Zynq A9 programming in Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay_pp.html">Programming on-board IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">Creating drivers and writing code for the IOP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay_pp.html">Peripherals and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IOPs: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Creating Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_test.html">Test</a></li>
@@ -357,11 +358,14 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mh">0x4</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">4</span><span class="p">,</span> 
                             <span class="nb">ord</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
                        
-        <span class="c">#: Finally write the print string command bit[3]: str, bit[0]: valid</span>
+        <span class="c">#: Finally write the print string command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x13</span><span class="p">)</span></div>
-        
-<div class="viewcode-block" id="Grove_OLED.clear_screen"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.clear_screen">[docs]</a>    <span class="k">def</span> <span class="nf">clear_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x13</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x13</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+            
+<div class="viewcode-block" id="Grove_OLED.clear"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Clear the OLED screen.</span>
 <span class="sd">        </span>
 <span class="sd">        This is done by writing empty strings into the OLED in Microblaze.</span>
@@ -376,8 +380,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xF</span><span class="p">)</span></div>
-                        
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xF</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0xF</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+            
 <div class="viewcode-block" id="Grove_OLED.set_position"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.set_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the position of the display.</span>
 <span class="sd">        </span>
@@ -401,8 +408,11 @@ div.nboutput  > :nth-child(2).stderr {
         
         <span class="c">#: Then write the command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xD</span><span class="p">)</span></div>
-                        
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xD</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0xD</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+            
 <div class="viewcode-block" id="Grove_OLED.set_normal_mode"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.set_normal_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_normal_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the display mode to normal.</span>
 <span class="sd">        </span>
@@ -416,7 +426,10 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x3</span><span class="p">)</span></div>
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x3</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x3</span><span class="p">):</span>
+            <span class="k">pass</span></div>
                         
 <div class="viewcode-block" id="Grove_OLED.set_inverse_mode"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.set_inverse_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_inverse_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the display mode to inverse.</span>
@@ -431,8 +444,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x5</span><span class="p">)</span></div>
-                        
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x5</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x5</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+            
 <div class="viewcode-block" id="Grove_OLED.set_page_mode"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.set_page_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_page_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the display mode to paged.</span>
 <span class="sd">        </span>
@@ -446,7 +462,10 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x9</span><span class="p">)</span></div>
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x9</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x9</span><span class="p">):</span>
+            <span class="k">pass</span></div>
                         
 <div class="viewcode-block" id="Grove_OLED.set_horizontal_mode"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.set_horizontal_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_horizontal_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the display mode to horizontal.</span>
@@ -461,8 +480,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xB</span><span class="p">)</span></div>
-                        
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xB</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0xB</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+            
 <div class="viewcode-block" id="Grove_OLED.set_contrast"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_oled.Grove_OLED.set_contrast">[docs]</a>    <span class="k">def</span> <span class="nf">set_contrast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">brightness</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the contrast level for the OLED display.</span>
 <span class="sd">        </span>
@@ -485,8 +507,11 @@ div.nboutput  > :nth-child(2).stderr {
         
         <span class="c">#: Then write the command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x11</span><span class="p">)</span></div></div>
-    
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x11</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                            <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x11</span><span class="p">):</span>
+            <span class="k">pass</span></div></div>
+            
 </pre></div>
 
            </div>

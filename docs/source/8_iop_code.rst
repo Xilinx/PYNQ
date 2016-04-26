@@ -1,34 +1,38 @@
-Creating drivers and writing code for the IOP
-==============================================
+IOPs: Writing Software
+=======================
 
 IOPs contain a soft `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, peripherals `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_, `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_, `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_, `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_ a configurable switch and an interface port to a Pmod. An IOP can be used as a flexible controller for different types of peripherals.
 
-For external peripherals, the intention is that any low-level control, or real-time requirements can be met by the IOP, rather than the main ARM A9 processor. The ARM A9 is an Aplication processor, not a real time processor. 
+.. image:: ./images/iop.jpg
+   :scale: 75%
+   :align: center
+   
+For external peripherals, low-level control, or real-time processing can be carried out by the IOP, rather than the main ARM A9 processor. The ARM A9 is an Aplication processor, not a real time processor. 
 
-The IOP switch can be configured to route signals between the Pmod interface, and the available peripherals. In this way, an IIC, SPI, or custom peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA to support a different peripherals. 
+The IOP switch can be configured to route signals between the physical Pmod interface (external pins), and the available internal peripherals. In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA to interface to different external peripherals. 
 
-IOPs can also be used standalone to offload some processing from the main processer. The IOPs are running at 100MHz compared to the Dual-Core ARM A9 running at 650MHz, which should be taken into account when offloading application code.
+IOPs can also be used standalone to offload some processing from the main processer. However, note that the IOPs are running at 100MHz, compared to the Dual-Core ARM A9 running at 650MHz. This should be taken into account when offloading application code.
 
 Xilinx Software installation
 ----------------------------
 
-Some of the following steps may require you to install Xilinx Vivado and/or Xilinx SDK.
+Some of the following steps require you to install Xilinx Vivado and/or Xilinx SDK.
 
-2015.3 should be used to build existing Vivado and SDK projects.  
+The current Pynq release is built using 2015.4. You should use the same version to rebuild existing Vivado and SDK projects.  
 
-`Download Xilinx Vivado and SDK 2015.3 <http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-3.html>`_
+`Download Xilinx Vivado and SDK 2015.4 <http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html>`_
 
 You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.
 
-Compiling code for the IOP
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Building IOP projects
+--------------------------
 
 Code for the MicroBlaze processor inside the IOP can be written in C or C++. 
 
-The Xilinx SDK (Software Development Kit) can be installed on a host computer and used to create a software project to build applications for the MicroBlaze inside the IOP. This is the standard way of developing software for a MicroBlaze.
+The Xilinx SDK (Software Development Kit) can be installed on a host computer and used to create a software project to build Application Projects for the MicroBlaze inside the IOP. This is the standard way of developing software for a MicroBlaze.
 
-Create SDK Project
-------------------
+Hardware Description File
+-------------------------
 
 To create a project in SDK for the IOP, the .hdf hardware definition file for the *OVERLAY*, which includes an instance of the IOP is required. 
 
@@ -36,21 +40,57 @@ A precompiled .hdf for the pmod_overlay is available here:
 
    Pynq/zybo/sdk
 
-The .hdf can also be generated from a Vivado project, but this step requires that you have Vivado installed on the host machine.
+The .hdf can be updated/regenerated from a Vivado overlay projects, but this step requires that you have Vivado installed on the host machine.
 
-You can do this by running the makefile here:
+If you have Vivado installed, you can build the Vivado project for an overlay by running the makefile here (cd to this directory and run make):
 
-    Pynq/zybo/vivado/makefile
+    Pynq/zybo/vivado/Makefile
     
-By default, this will build the Vivado project for the pmod_overlay, generate the .hdf, and copy it to: zybo/sdk
+Check the Makfile to determine which overlay you are building. By default, this will build the Vivado project for the _pmod_ overlay, generate the .hdf, and copy it to: zybo/sdk
 
-In SDK, create a *New Hardware Platfrom Specification* project, and link it to the .hdf file. 
+
+Build the SDK Hardware Platform and BSP 
+---------------------------------------
+
+Using makefiles
+^^^^^^^^^^^^^^^^
+
+The SDK projects in the GitHub contain makefiles to build the SDK Hardware Platform project, the Board Support Package, and the application projects. These step requires that you have SDK installed on the host machine.
+
+The SDK application project, and source code for each peripheral can be found here:
+
+    Pynq/zybo/sdk/
+    
+As described above, the .hdf file also exists here. 
+
+SDK requires a Hardware platfrom, and Board Support Pacakge, whcih are needed to build the application projects. The Board Support Package contains libraries for peripherals in the system. This includes internal peripherals and IP, and external peripherals. Some libraries are included in Vivado/SDK, and other libraries are user defined. e.g. custom driver for a peripheral. The source files for custom peripherals in the Overlay can be found in the Vivado project directory for an overlay. The source files also contain the drivers, which will be a compiled into a library and included in the BSP. 
+
+The Hardware Platform, BSP, and all application projects can be built by running make from:
+
+    Pynq/zybo/sdk/
+
+This will built all the projects set in the variable MBBINS at the top of the makefile.
+
+.. image:: ./images/make_sdk.jpg
+   :scale: 75%
+   :align: center
+   
+.. image:: ./images/make_sdk_results.jpg
+   :scale: 75%
+   :align: center
+   
+Individual projects can be build by navigating to the *<project directory>/Debug* and running make.
+
+Using the SDK GUI
+^^^^^^^^^^^^^^^^^
+
+In the SDK GUI, you can also manually create a *New Hardware Platfrom Specification* project, and link it to the .hdf file. 
 
 .. image:: ./images/new_hardware_platform_specification.jpg
    :scale: 75%
    :align: center
 
-Then, import the BSP from `the Pynq GitHub repository <https://github.com/Xilinx/Pynq/tree/master/zybo/sdk>`_. 
+You can then, import the BSP from `the Pynq GitHub repository <https://github.com/Xilinx/Pynq/tree/master/zybo/sdk>`_. 
 
 .. image:: ./images/sdk_import_existing_bsp.jpg
    :scale: 75%
@@ -60,47 +100,30 @@ Then, import the BSP from `the Pynq GitHub repository <https://github.com/Xilinx
    :scale: 75%
    :align: center
    
-A new Application can then be created. 
+A new Application Project can then be created in the GUI.   
 
-   
-Build existing projects with makefile
--------------------------------------
 
-The SDK projects in the GitHub contain makefiles to build the projects. This step requires that you have SDK installed on the host machine.
-
-The IOP code can be compiled by running make from:
-
-    Pynq/zybo/sdk/
-
-This will built all the projects set in MBBINS at the top of the makefile
-
-Individual projects can be build by navigating to the *<project directory>/Debug* and running make
-
-Copy existing project
----------------------
+Use existing project
+^^^^^^^^^^^^^^^^^^^^^^
 
 Rather than create your own project, you can use an existing project as a starting point for your code. This step requires that you have SDK installed on the host machine.
 
-To do this, copy the project directory and rename it to your application name. 
+To do this, copy the project directory and rename it. 
 
 Modify or replace the .c file in the src/ with your C code. The .bin file generated will have the same base name as your C file. 
-e.g. if you c code is my_peripheral.c, the generated .elf and .bin will be my_peripheral.elf or my_peripheral.bin.
 
-We encourage the following convention for naming drivers <pmod|grove>_<peripheral>
+e.g. if your C code is my_peripheral.c, the generated .elf and .bin will be my_peripheral.elf or my_peripheral.bin.
 
-You will need to updates references from the old project name to your new project name in <project directory>/Debug/makefile and <project directory>/Debug/src/subdir.mk
+We encourage the following naming convention for drivers <pmod|grove>_<peripheral>
+
+You will need to updates references from the old project name to your new project name in *<project directory>/Debug/makefile* and *<project directory>/Debug/src/subdir.mk*
 
 If you want your project to build as part of the main Pynq build (i.e. your project will get built with the same makefile as all the other peripherals), you should also append the bin name of your project to the MBBINS variable at the top of the makefile in:
 
     Pynq/zybo/sdk
 
-Compile on the board
---------------------
-
-You can also write C code, and compile it directly on the Zybo board. The compiler for MicroBlaze is available in xtools in the home area. 
-
-Binary file
------------
+Binary files
+^^^^^^^^^^^^^
 
 Compiling code results in an .elf executable file. A .bin file (binary file) is required to download to the IOP memory. 
 
@@ -108,10 +131,11 @@ A .bin file can be generated from an elf by running:
 
     mb-objcopy -O binary input_file.elf outputfile.bin
 
-This is included in the makefiles builds for existing peripheral projects. 
+This is done by the makefile for existing peripheral projects. The makefile also creates a *bins* directory, and copies all the .bin files from the peripheral projects to it.
+
 
 IOP Memory
-^^^^^^^^^^
+----------
 
 The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM A9. This allows an executable to be written from the ARM A9 (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. The IOP data memory, is also used to communicate between the Pynq environment and the IOP.
 
@@ -122,33 +146,30 @@ The IOP memory is 32K (0x8000). Instruction memory for the IOP starts at address
 Pynq and the application running on the IOP can write to anywhere in the shared memory space.  
 
 When building the software project, the compiler will only ensure that the application and allocated stack and heap fit into the BRAM, but for communication between the ARM A9 and IOP, and additional data area must be available.
+
 There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size, only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.
 
 It is recommended to follow the convention for data communication between the two processors. These MAILBOX values are defined in the pmod.h file.  
 
 
-* Instruction memory offset  = 0x0
-* Instruction memory size    = 0x6fff
+| Instruction memory start   = 0x0
+| Instruction memory size    = 0x6fff
 
-* MAILBOX_OFFSET             = 0x7000
-* MAILBOX_SIZE               = 0x1000
 
-Relative to Data area:
+| MAILBOX memmory start      = 0x7000
+| MAILBOX memory size        = 0x1000
+| MAILBOX Command Address    = 0x7ffc
 
-* MAILBOX_PY2IOP_CMD_OFFSET  = 0xffc
 
-* MAILBOX_PY2IOP_ADDR_OFFSET = 0xff8
-
-* MAILBOX_PY2IOP_DATA_OFFSET = 0xf00
-
-i.e. A command will be written from the Pynq environment to the address 0x0x8ffc
+i.e. A command will be written from the Pynq environment to the address 0x0x7ffc.
 
 The IOP must read this location, decode the command and carry out the required operation.
 
-If returning a single value (e.g. from pythong, .read() ) it should be written to location 0xf00
+If returning a single value (e.g. from python.read() ) it should be written to location 0x7000.
+
 The Pynq application should then read the value back from here. 
 
-There is also a larger data area, which could be used for example, to log data. 
+Thee data area is 0xffc in size (0x1000 - 4 bytes for command address), which could be used for example, to log data. 
 
 IOP Switch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -185,6 +206,10 @@ The IOP Address is:
 
 Pin 0 is controlled by the most significant 4 bits, and Pin 7 is the least significant 4 bits. 
 
+.. image:: ./images/ioswitch_pins.jpg
+   :scale: 75%
+   :align: center
+
 For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO_7, the value 0x01234567 should be written to the IOP Switch configuration register.
 
 Before configuring the switch, it should first be isolated. To do this, write '0' to the MSB of the SWITCH_BASEADDR+0x4 register. To reconnect it, write '1' to the MSB.
@@ -200,39 +225,36 @@ e.g.
 
 For the IOP, the following function, part of the provided SDK BSP (pmod.h/.c) can be used to configure the switch. 
 
-void configureSwitch(char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7, char pin8);
+void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7);
 
 From Python all the constants and addresses for the IOP can be found in:
 
     Pynq/python/pmods/pmod_const.py
 
-For the IOP, all constants and addresses can be found in the pmod.h and pmod.c code included int he BSP:
+Pmod driver
+-----------
+pmod.h and pmod.c driver contains an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-Pynq/zybo/sdk/standalone_bsp_mb1/mb_1_microblaze_1/libsrc/pmodiop_v0_1/src
+   Pynq/zybo/vivado/pmod/src/ip/PMOD_IO_Switch_IP_1.0/drivers/PMOD_IO_Switch_IP_v1_0/src
+   
+This code will be compiled into a library as part of the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
 
-Pmod board support package
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#include "pmod.h"
 
-pmod.h
-^^^^^^^^^^^^^^^^^^^^^
-pmod.h contains an API and definitions that can be used to write code for an IOP.
-
-   Pynq/zybo/sdk/standalone_bsp_mb1/mb_1_microblaze_1/libsrc/pmodiop_v0_1/src
+Any application that uses the Pmod driver shoudl also call pmod_init() at the beginning of the application. 
 
 Selecting which IOP to run the application
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------
 
 The shared memory is the only cocnnection between the ARM A9 and the IOPs. 
 
 The shared memory is mapped to the ARM A9 address space at the following locations:
 
-IOP 1 BRAM : 0x40000000
+| IOP 1 BRAM : 0x40000000
+| IOP 2 BRAM : 0x42000000
+| IOP 3 BRAM : 0x44000000
+| IOP 4 BRAM : 0x46000000
 
-IOP 2 BRAM : 0x42000000
-
-IOP 3 BRAM : 0x44000000
-
-IOP 4 BRAM : 0x46000000
 
 However, for each IOP, the MicroBlaze sees only its own address space. i.e. BRAM, Timer, IOP Switch, IIC, and SPI have the same addresses in each IOP's address space. 
 
@@ -240,8 +262,7 @@ This means, C code written for one IOP can run on any of the other IOPs simply b
 
 
 Example
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+--------
 
 Taking PMOD ALS as an example, first open the pmod_als.c file:
 
@@ -274,7 +295,7 @@ get_sample() is called and a value returned to the first position (0) of the MAI
 MAILBOX_CMD_ADDR is reset to 0x0 to acknowledge to the Pynq enviroment that the operation is complete and data is available in the mailbox. 
 
 Examine Python Code
--------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Next examine the Python code.
  
@@ -321,7 +342,7 @@ iop.start() resets the IOP. After this, the IOP will start running the new appli
     self.iop.start()
 
 Reading a Value
----------------
+^^^^^^^^^^^^^^^^
 
 The read() function 
 
