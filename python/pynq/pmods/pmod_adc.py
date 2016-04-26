@@ -41,7 +41,11 @@ PROGRAM = "pmod_adc.bin"
 
 class PMOD_ADC(object):
     """This class controls an Analog to Digital Converter PMOD.
-
+    
+    The PMOD AD2 (PB 200-217) is an analog-to-digital converter powered by 
+    AD7991. Users may configure up to 4 conversion channels at 12 bits of 
+    resolution.
+    
     Attributes
     ----------
     iop : _IOP

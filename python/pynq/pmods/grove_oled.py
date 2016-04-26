@@ -42,6 +42,9 @@ GROVE_OLED_PROGRAM = "grove_oled.bin"
 
 class Grove_OLED(object):
     """This class controls the Grove IIC OLED. 
+    
+    Grove LED 128×64 Display module is an OLED monochrome 128×64 matrix 
+    display module. Model: OLE35046P. Hardware version: v1.1.
 
     Attributes
     ----------

@@ -43,6 +43,9 @@ TMP2_LOG_END = TMP2_LOG_START+(1000*4)
 
 class PMOD_TMP2(object):
     """This class controls a temperature sensor PMOD.
+    
+    The PMOD TMP2 (PB 200-221) is an ambient temperature sensor powered by 
+    ADT7420.
 
     Attributes
     ----------

@@ -42,7 +42,10 @@ GROVE_LEDBAR_PROGRAM = "grove_ledbar.bin"
 
 class Grove_LEDbar(object):
     """This class controls the Grove LED BAR. 
-
+    
+    Grove LED Bar is comprised of a 10 segment LED gauge bar and an MY9221 LED
+    controlling chip. Model: LED05031P. Hardware version: v2.0.
+    
     Attributes
     ----------
     iop : _IOP

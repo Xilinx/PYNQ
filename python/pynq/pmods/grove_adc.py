@@ -44,7 +44,10 @@ GROVE_ADC_LOG_END = GROVE_ADC_LOG_START+(1000*4)
 
 class Grove_ADC(object):
     """This class controls the Grove IIC ADC. 
-
+    
+    Grove ADC is a 12-bit precision ADC module based on ADC121C021. Hardware
+    version: v1.2.
+    
     Attributes
     ----------
     iop : _IOP

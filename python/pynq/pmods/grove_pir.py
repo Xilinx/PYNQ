@@ -39,7 +39,7 @@ class Grove_PIR(PMOD_IO):
     """This class controls the PIR motion sensor.
     
     The grove PIR motion sensor is attached to a PMOD. This class inherits 
-    from the PMODIO class.
+    from the PMODIO class. Hardware version: v1.2.
     
     Attributes
     ----------

@@ -42,6 +42,9 @@ PROGRAM = "pmod_oled.bin"
 class PMOD_OLED(object):
     """This class controls an OLED PMOD.
 
+    The PMOD OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED) 
+    panel powered by the Solomon Systech SSD1306.
+    
     Attributes
     ----------
     iop : _IOP

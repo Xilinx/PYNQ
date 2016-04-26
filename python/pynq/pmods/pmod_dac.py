@@ -41,6 +41,9 @@ PROGRAM = "pmod_dac.bin"
 
 class PMOD_DAC(object):
     """This class controls a Digital to Analog Converter PMOD.
+    
+    The PMOD DA4 (PB 200-245) is an 8 channel 12-bit digital-to-analog 
+    converter run via AD5628.
 
     Attributes
     ----------
