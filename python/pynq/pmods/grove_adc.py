@@ -82,7 +82,7 @@ class Grove_ADC(object):
         self.log_interval_ms = 1000
         self.log_running  = 0
         self.iop.start()
- 
+        
         #: Configure IOP Switch
         #: SDA is configuration 0x9 
         #: SCL is configuration 0x8
@@ -319,7 +319,6 @@ class Grove_ADC(object):
         None
         
         """
-
         #: Send command and wait for acknowledge
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)      

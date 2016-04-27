@@ -54,6 +54,16 @@ class PMOD_IIC(object):
         The SDA pin number.
     iic_addr : int
         The IIC device address.
+    sr_addr : int
+        The IIC device SR address (base address + 0x104).
+    dtr_addr : int
+        The IIC device DTR address (base address + 0x108).
+    cr_addr : int
+        The IIC device CR address (base address + 0x100).
+    rfd_addr : int
+        The IIC device RFD address (base address + 0x120).
+    drr_addr : int
+        The IIC device DRR address (base address + 0x10C).
     
     """
     def __init__(self, pmod_id, scl_pin, sda_pin, iic_addr): 
@@ -143,7 +153,7 @@ class PMOD_IIC(object):
         #: Enable the IIC core
         self.iop.write_cmd(self.cr_addr, 0x01)
         
-    def send(self,iic_bytes):
+    def send(self, iic_bytes):
         """This method sends the command or data to the driver.
         
         Parameters
@@ -161,31 +171,32 @@ class PMOD_IIC(object):
             Timeout when waiting for the FIFO to be empty.
             
         """
-
+        #: Enable IIC Core
         self._iic_enable()
         
         #: Transmit 7-bit address and Write bit (with START)
-        self.iop.write_cmd(self.dtr_addr, 
-                            0x100 | (self.iic_addr << 1))
+        self.iop.write_cmd(self.dtr_addr, 0x100 | (self.iic_addr << 1))
         
-
         #: Iteratively write into Tx FIFO, wait for it to be empty        
         for tx_cnt in range(len(iic_bytes)):
             timeout = 100
+            
+            #: Construct the TX word
             if (tx_cnt == len(iic_bytes) - 1):
                 tx_word = (0x200 | iic_bytes[tx_cnt])
             else:
                 tx_word = iic_bytes[tx_cnt]
             
-            self.iop.write_cmd(self.dtr_addr,tx_word)
+            #: Write data
+            self.iop.write_cmd(self.dtr_addr, tx_word)
             while ((timeout > 0) and \
                         ((self.iop.read_cmd(self.sr_addr) & 0x80) == 0x00)):
                 timeout -= 1
-            if (timeout==0):
+            if (timeout == 0):
                 raise RuntimeError("Timeout when writing IIC.")
 
 
-    def receive(self,num_bytes):
+    def receive(self, num_bytes):
         """This method receives IIC bytes from the device.
         
         Parameters
@@ -204,9 +215,8 @@ class PMOD_IIC(object):
             Timeout when waiting for the RX FIFO to fill.
             
         """
-
         #: Enable IIC Core
-        self._iic_enable()        
+        self._iic_enable()
 
         #: Transmit 7-bit address and Read bit
         self.iop.write_cmd(self.dtr_addr, 0x101 | (self.iic_addr << 1))
@@ -222,12 +232,12 @@ class PMOD_IIC(object):
             #: Wait for data to be available in RX FIFO
             while((self.iop.read_cmd(self.sr_addr) & 0x40) and (timeout > 0)):
                 timeout -= 1
-                
-            if(timeout==-1):
+            if(timeout == 0):
                 raise RuntimeError("Timeout when reading IIC.")
 
             #: Read data 
-            iic_bytes.append((self.iop.read_cmd(self.drr_addr) & 0xff ))
+            iic_bytes.append((self.iop.read_cmd(self.drr_addr) & 0xff))
             sleep(.001)
 
         return iic_bytes
+        
