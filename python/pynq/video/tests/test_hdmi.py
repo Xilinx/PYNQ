@@ -51,8 +51,8 @@ def test_hdmi():
     """
     global hdmi
     hdmi = HDMI('in')
-    print("\nLoading (may take up to 10 seconds)...")
-    sleep(10)
+    print("\nLoading (may take up to 20 seconds)...")
+    sleep(20)
     assert hdmi.direction is 'in', 'Wrong direction for HDMI.'
     
     hdmi.start()

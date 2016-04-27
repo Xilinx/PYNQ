@@ -43,7 +43,13 @@ GROVE_IMU_PROGRAM = "grove_imu.bin"
 
 class Grove_IMU(object):
     """This class controls the Grove IIC IMU. 
-
+    
+    Grove IMU 10DOF is a combination of grove IMU 9DOF (MPU9250) and grove 
+    barometer sensor (BMP180). MPU-9250 is a 9-axis motion tracking device 
+    that combines a 3-axis gyroscope, 3-axis accelerometer, 3-axis 
+    magnetometer and a Digital Motion Processor (DMP). BMP180 is a high 
+    precision, low power digital pressure sensor. Hardware version: v1.1.
+    
     Attributes
     ----------
     iop : _IOP

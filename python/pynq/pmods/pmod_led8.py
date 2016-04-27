@@ -37,7 +37,10 @@ from .devmode import DevMode
 
 class PMOD_LED8(object):
     """This class controls a single LED on the LED8 PMOD.
-
+    
+    The PMOD LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be
+    individually illuminated from a logic high signal.
+    
     Attributes
     ----------
     iop : _IOP

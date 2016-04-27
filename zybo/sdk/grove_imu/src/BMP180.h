@@ -61,11 +61,10 @@ long bmpGetPressure(unsigned long up);
 float calcAltitude(float pressure);
 
 void bmp_init(void);
-uint8_t bmp_ReadByte(unsigned char address);
-uint16_t bmp_ReadBytes(unsigned char address);
-float bmp_GetTemperature();
-float bmp_GetPressure();
-float bmp_CalcAltitude();
+uint8_t bmp_readByte(unsigned char address);
+uint16_t bmp_readBytes(unsigned char address);
+float bmp_getTemperature();
+float bmp_getPressure();
 
 short ac1;
 short ac2;

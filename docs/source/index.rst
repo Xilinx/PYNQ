@@ -22,12 +22,12 @@ Contents:
    8_iop_code
    9_creating_overlays.rst
    10_libraries_and_overlays
-   11_test
-   12_glossary
-   13_references
-   14_faqs
-   modules
-   appendix
+   11_verification
+   12_modules
+   13_faqs
+   14_glossary
+   15_references
+   16_appendix
 
 
 Indices and tables

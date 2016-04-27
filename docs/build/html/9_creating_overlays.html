@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Working with Overlays &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="The Pynq (Python on Zynq) Package" href="10_libraries_and_overlays.html"/>
+        <link rel="prev" title="IO Processors: Writing Software" href="8_iop_code.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with Overlays</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#existing-overlays">Existing Overlays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integrating-new-overlays-into-pynq">Integrating new overlays into Pynq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loading-overlays">Loading Overlays</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Working with Overlays</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/9_creating_overlays.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="working-with-overlays">
+<h1>Working with Overlays<a class="headerlink" href="#working-with-overlays" title="Permalink to this headline">¶</a></h1>
+<p>Creating overlays is done using traditional hardware design methods. This document will describe how overlays can be integrated into Pynq by FPGA/Zynq designers, but will not cover the hardware design process.</p>
+<p>While FPGA fabric can be customized to very specific and optimized implementations, a high level of expertise is required to do this, and compared to creating software, is much more time consuming.</p>
+<p>In Pynq, the key concept when designing hardware overlays is that there should be few overlays used for many different applications.</p>
+<p>An overlay should be flexible rather than highly customized, even if this results in a less optimal hardware implementation. This is so that each overlay can be reused by many different applications.</p>
+<p>For example, it is recommended that IOPs are used for PMOD interfaces to make the overlay as widely applicable as possible, even where the designer intends to use a specific peripheral for a particular application.</p>
+<div class="section" id="existing-overlays">
+<h2>Existing Overlays<a class="headerlink" href="#existing-overlays" title="Permalink to this headline">¶</a></h2>
+<p>Two overlays are currently included in the Pynq repository; pmod, and audiovideo. Both can be found here:</p>
+<blockquote>
+<div>Pynq/zybo/vivado</div></blockquote>
+<p>A makefile exists in the same location that can be used to build the Vivado projects, and generate the bitstreams for the overlays.</p>
+<p>Once the projects have been built, they can be opened in Vivado and examined, or modified to create a new overlay.</p>
+<a class="reference internal image-reference" href="_images/pmodio_overlay.jpg"><img alt="_images/pmodio_overlay.jpg" class="align-center" src="_images/pmodio_overlay.jpg" style="width: 840.0px; height: 510.0px;" /></a>
+</div>
+<div class="section" id="integrating-new-overlays-into-pynq">
+<h2>Integrating new overlays into Pynq<a class="headerlink" href="#integrating-new-overlays-into-pynq" title="Permalink to this headline">¶</a></h2>
+<p>Once a new overlay has been created by an experienced FPGA/Zynq designer, the overlay needs to be integrated into the Pynq environment.</p>
+<p>It is recommended to use an existing overlay Vivado project as a starting point for a new peripheral. This will ensure the settings for the Zynq PS, and the existing PS/PL interfaces are used in the new project.</p>
+<p>As with any application running on Zynq, the interface between the software and hardware is via the memory map for the PS and PL.</p>
+<p>Pynq includes the MMIO Python class, which can be used to read and write from the PL memory system. Once the Overlay has been designed, the MMIO can be used to read and write data to the PL.</p>
+<p>The same design principles for Zynq designs apply to creating overlays when choosing PS/PL interfaces and transferring data. The MMIO does not currently use a DMA, and there will be an overhead using the MMIO to read and write data, so it is recommended that this is used for control signals.</p>
+<p>The Python code for the MMIO can be viewed here:</p>
+<blockquote>
+<div>Pynq/python/pynq/mmio.py</div></blockquote>
+</div>
+<div class="section" id="loading-overlays">
+<h2>Loading Overlays<a class="headerlink" href="#loading-overlays" title="Permalink to this headline">¶</a></h2>
+<p>The PL can be dynamically reconfigured with new overlays as the system is running. This allows Pynq to swap in and out different overlays to support different functionality in the PL.</p>
+<p>This can be in Python done using the Overlay class, part of the Pynq PL package here:</p>
+<blockquote>
+<div>Pynq/python/pynq/pl.py</div></blockquote>
+<p>To use this class, the Overlay class must first be imported:</p>
+<blockquote>
+<div>from pynq import Overlay</div></blockquote>
+<p>The Overlay bitstream can be specified:</p>
+<p>ol = Overlay(&#8220;audiovideo.bit&#8221;)</p>
+<p>Finally, the overlay can be downloaded and used to configure the Zynq PL:</p>
+<blockquote>
+<div>ol.download()</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="10_libraries_and_overlays.html" class="btn btn-neutral float-right" title="The Pynq (Python on Zynq) Package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="8_iop_code.html" class="btn btn-neutral" title="IO Processors: Writing Software" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

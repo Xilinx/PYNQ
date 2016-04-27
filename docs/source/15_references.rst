@@ -28,12 +28,12 @@ Python training:
 
 XPP Technical support:
 ======================
-* `XPP Technical support <https://github.com/Xilinx/XilinxPythonProject/issues>`_
+* `XPP Technical support <https://github.com/Xilinx/Pynq/issues>`_
 
 
-ZYBO reference manual:
+Zybo reference manual:
 ======================
-* `ZYBO Reference Manual <http://www.xilinx.com/support/documentation/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf>`_
+* `Zybo Reference Manual <http://www.xilinx.com/support/documentation/university/XUP%20Boards/XUPZybo/documentation/Zybo_RM_B_V6.pdf>`_
 
 
 Jupyter

@@ -41,6 +41,9 @@ PROGRAM = "pmod_dpot.bin"
 
 class PMOD_DPOT(object):
     """This class controls a digital potentiometer PMOD.
+    
+    The PMOD DPOT (PB 200-239) is a digital potentiometer powered by the 
+    AD5160. Users may set a desired resistance between 60 ~ 10k ohms.
 
     Attributes
     ----------

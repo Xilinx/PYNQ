@@ -84,19 +84,19 @@
 <li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Zynq A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the PModIO overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IOPs: Writing Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Creating Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_test.html">Test</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="13_references.html">Useful Reference Links</a></li>
-<li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_appendix.html">Appendix</a></li>
 </ul>
 
             
@@ -268,8 +268,8 @@ div.nboutput  > :nth-child(2).stderr {
 </li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#hardware-installation">Hardware installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#interacting-with-the-zynq-portal">Interacting with the Zynq Portal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#interacting-with-the-pynq">Interacting with the Pynq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#hardware-setup">Hardware setup</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a><ul>
@@ -281,7 +281,7 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="3_jupyter_notebook.html#Markdown">Markdown</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Zynq A9 programming in Python</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="4_programming_zybo_in_python.html#The-factors-and-primes-example">The factors and primes example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="4_programming_zybo_in_python.html#More-intensive-calculations">More intensive calculations</a></li>
 </ul>
@@ -292,10 +292,10 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html#Example:-Controlling-all-the-LEDs,-switches-and-buttons">Example: Controlling all the LEDs, switches and buttons</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the PModIO overlay</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="6_pmodio_overlay_pp.html#Pmod-peripherals">Pmod peripherals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="6_pmodio_overlay_pp.html#IO-Processors">IO Processors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6_pmodio_overlay_pp.html#ZYBO-Pmodio-Overlay">ZYBO Pmodio Overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6_pmodio_overlay_pp.html#Zybo-Pmod-I/O-overlay">Zybo Pmod I/O overlay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="6_pmodio_overlay_pp.html#Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)">Example: Using the OLED and the ambient light sensor (ALS)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="6_pmodio_overlay_pp.html#Example:-Using-the-ADC,-DAC-and-OLED">Example: Using the ADC, DAC and OLED</a></li>
 <li class="toctree-l2"><a class="reference internal" href="6_pmodio_overlay_pp.html#Going-further">Going further</a></li>
@@ -311,7 +311,7 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="7_audio_video_overlay_pp.html#Using-Audio-IO">Using Audio IO</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IOPs: Writing Software</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#xilinx-software-installation">Xilinx Software installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#building-iop-projects">Building IOP projects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#hardware-description-file">Hardware Description File</a></li>
@@ -319,17 +319,17 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#iop-memory">IOP Memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#memory-map">Memory map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#pmod-driver">Pmod driver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#selecting-which-iop-to-run-the-application">Selecting which IOP to run the application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#running-code-on-different-iops">Running code on different IOPs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#example">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Creating Overlays</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="9_creating_overlays.html#existing-overlays">Existing Overlays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="9_creating_overlays.html#integrating-new-overlays-into-pynq">Integrating new overlays into Pynq</a></li>
 <li class="toctree-l2"><a class="reference internal" href="9_creating_overlays.html#loading-overlays">Loading Overlays</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="10_libraries_and_overlays.html#python-pynq-package-structure">Python <code class="docutils literal"><span class="pre">pynq</span></code> Package Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_libraries_and_overlays.html#board">board</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_libraries_and_overlays.html#pmods-and-grove-peripherals">Pmods (and Grove Peripherals)</a></li>
@@ -337,39 +337,36 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="10_libraries_and_overlays.html#usage">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="11_test.html">Test</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="11_test.html#running-tests">Running Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_test.html#writing-tests">Writing Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_test.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="11_verification.html#running-tests">Running Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_verification.html#writing-tests">Writing Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_verification.html#miscellaneous">Miscellaneous</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="12_glossary.html">Glossary</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="12_glossary.html#a-g">A-G</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_glossary.html#h-r">H-R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_glossary.html#s-z">S-Z</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="13_references.html">Useful Reference Links</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#ftdi-software-drivers">FTDI software drivers:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#putty-terminal-emulation-software">PUTTY terminal emulation software:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#python-built-in-functions">Python built-in functions:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#python-training">Python training:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#xpp-technical-support">XPP Technical support:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#zybo-reference-manual">ZYBO reference manual:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#jupyter">Jupyter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_references.html#documentation">Documentation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="14_faqs.html#why">Why ...</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pynq.html">pynq package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="appendix.html#technology-backgrounder">Technology Backgrounder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="14_glossary.html#a-g">A-G</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_glossary.html#h-r">H-R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_glossary.html#s-z">S-Z</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#ftdi-software-drivers">FTDI software drivers:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#putty-terminal-emulation-software">PUTTY terminal emulation software:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#python-built-in-functions">Python built-in functions:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#python-training">Python training:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#xpp-technical-support">XPP Technical support:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#zybo-reference-manual">Zybo reference manual:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#jupyter">Jupyter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_references.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="16_appendix.html">Appendix</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="16_appendix.html#technology-backgrounder">Technology Backgrounder</a></li>
 </ul>
 </li>
 </ul>

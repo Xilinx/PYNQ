@@ -1,6 +1,6 @@
-****
-Test
-****
+************
+Verification
+************
 
 
 .. contents:: Table of Contents
@@ -43,7 +43,7 @@ For the answer to the first question, "yes", "YES", "Yes", "y", and "Y" are acce
 
 For the answer to the second question, since we are using the PMOD overlay, 1, 2, 3, and 4 are all acceptable answers, since there are only 4 IO processors in "pmod.bit".
 
-If we answer "no" to the first question, the corresponding tests wil be skipped during the testing phase.
+If we answer "no" to the first question, the corresponding tests will be skipped during the testing phase.
 
 Testing Phase
 -------------
@@ -60,7 +60,7 @@ At the end of the testing phase, a summary will be given to show users how many 
 
 Writing Tests
 =============
-This section follows the guide available on `Ussages and Examples - Pytest <https://pytest.org/latest/example/>`_. The users can write a test class with assertions on inputs and outputs to deliver automatic testing. The names of the test modules *must* start with `test_`; all the methods for tests in any test module *must* begin with `test_` as well. One reason to enforce this is to ensure the tests will be collected properly. More information can be found on `Full pytest documentation <https://pytest.org/latest/contents.html>`_.
+This section follows the guide available on `Usages and Examples - Pytest <https://pytest.org/latest/example/>`_. The users can write a test class with assertions on inputs and outputs to deliver automatic testing. The names of the test modules *must* start with `test_`; all the methods for tests in any test module *must* begin with `test_` as well. One reason to enforce this is to ensure the tests will be collected properly. More information can be found on `Full pytest documentation <https://pytest.org/latest/contents.html>`_.
 
 Step 1
 ------

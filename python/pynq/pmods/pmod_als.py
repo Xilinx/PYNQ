@@ -43,6 +43,10 @@ ALS_LOG_END = ALS_LOG_START+(1000*4)
 
 class PMOD_ALS(object):
     """This class controls a light sensor PMOD.
+    
+    The PMOD ALS (PB 200-286) demonstrates light-to-digital sensing through a
+    single ambient light sensor. This is based on ADC081S021 analog-to-digital
+    converter and TEMT6000X01.
 
     Attributes
     ----------

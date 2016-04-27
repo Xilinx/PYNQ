@@ -216,7 +216,7 @@ void mpu_setSleepEnabled(uint8_t enabled) {
                     MPU9250_PWR1_SLEEP_BIT, &enabled);
 }
 
-uint16_t bmp_ReadBytes(uint8_t address)
+uint16_t bmp_readBytes(uint8_t address)
 {
     // read 2 bytes from the address and return an int
     uint8_t msb, lsb;
@@ -227,7 +227,7 @@ uint16_t bmp_ReadBytes(uint8_t address)
     return (int) msb<<8 | lsb;
 }
 
-uint8_t bmp_ReadByte(unsigned char address)
+uint8_t bmp_readByte(unsigned char address)
 {
     // read a single byte from the address
     uint8_t data;
@@ -238,20 +238,20 @@ uint8_t bmp_ReadByte(unsigned char address)
 
 void bmp_init(){
     bmpAddr = DEFAULT_BMP_ADDRESS;
-    ac1 = bmp_ReadBytes(0xAA);
-    ac2 = bmp_ReadBytes(0xAC);
-    ac3 = bmp_ReadBytes(0xAE);
-    ac4 = bmp_ReadBytes(0xB0);
-    ac5 = bmp_ReadBytes(0xB2);
-    ac6 = bmp_ReadBytes(0xB4);
-    b1  = bmp_ReadBytes(0xB6);
-    b2  = bmp_ReadBytes(0xB8);
-    mb  = bmp_ReadBytes(0xBA);
-    mc  = bmp_ReadBytes(0xBC);
-    md  = bmp_ReadBytes(0xBE);
+    ac1 = bmp_readBytes(0xAA);
+    ac2 = bmp_readBytes(0xAC);
+    ac3 = bmp_readBytes(0xAE);
+    ac4 = bmp_readBytes(0xB0);
+    ac5 = bmp_readBytes(0xB2);
+    ac6 = bmp_readBytes(0xB4);
+    b1  = bmp_readBytes(0xB6);
+    b2  = bmp_readBytes(0xB8);
+    mb  = bmp_readBytes(0xBA);
+    mc  = bmp_readBytes(0xBC);
+    md  = bmp_readBytes(0xBE);
 }
 
-float bmp_GetTemperature()
+float bmp_getTemperature()
 {
     unsigned int ut;
     long x1, x2;
@@ -262,7 +262,7 @@ float bmp_GetTemperature()
     data = 0x2E;
     iic_writeByte(bmpAddr, 0xF4, &data);
     delay_ms(20);
-    ut = (long)bmp_ReadBytes(0xF6);
+    ut = (long)bmp_readBytes(0xF6);
     
     // calculate the compensated temperature
     x1 = ((ut - ac6)*(long)ac5) >> 15;
@@ -274,7 +274,7 @@ float bmp_GetTemperature()
     return temp;
 }
 
-float bmp_GetPressure()
+float bmp_getPressure()
 {
     long x1, x2, x3, b3, b6, p;
     unsigned long b4, b7;
@@ -284,15 +284,15 @@ float bmp_GetPressure()
     uint8_t data;
     
     // Read the temperature first to set PressureCompensate
-    bmp_GetTemperature();
+    bmp_getTemperature();
     
     // get the uncompensated pressure
     data = 0x34;
     iic_writeByte(bmpAddr, 0xF4, &data);
     delay_ms(20);
-    msb = bmp_ReadByte(0xF6);
-    lsb = bmp_ReadByte(0xF7);
-    xlsb = bmp_ReadByte(0xF8);
+    msb = bmp_readByte(0xF6);
+    lsb = bmp_readByte(0xF7);
+    xlsb = bmp_readByte(0xF8);
     up = (((unsigned long)msb<<16)|((unsigned long) lsb << 8)|
             (unsigned long) xlsb)>>(8-OSS);
     
@@ -367,12 +367,12 @@ int main()
             break;
             
          case GET_TEMPERATURE:
-            MAILBOX_DATA_FLOAT(0) = bmp_GetTemperature();
+            MAILBOX_DATA_FLOAT(0) = bmp_getTemperature();
             MAILBOX_CMD_ADDR = 0x0; 
             break;
             
          case GET_PRESSURE:
-            MAILBOX_DATA_FLOAT(0) = bmp_GetPressure();
+            MAILBOX_DATA_FLOAT(0) = bmp_getPressure();
             MAILBOX_CMD_ADDR = 0x0; 
             break;
             
