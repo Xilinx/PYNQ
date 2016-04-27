@@ -5,7 +5,7 @@
 // Module Name: top
 // Project Name: MIPY
 // Target Devices: ZC7010
-// Tool Versions: 2015.3
+// Tool Versions: 2015.4
 // Description: 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,6 @@ module top(
     ddc_sda_io,
     hdmi_hpd_tri_o,
     pmodJB,
-    pmodJC,
     vga_b,
     vga_g,
     vga_hs,
@@ -100,7 +99,6 @@ module top(
   output [0:0]hdmi_hpd_tri_o;
   input [3:0]sws_4bits_tri_i;
   inout [7:0]pmodJB;
-  inout [7:0]pmodJC;
   output [4:0]vga_b;
   output [5:0]vga_g;
   output vga_hs;
@@ -163,11 +161,7 @@ module top(
   wire [7:0]pmodJB_data_in;
   wire [7:0]pmodJB_data_out;
   wire [7:0]pmodJB_tri_out;
-  wire [7:0]pmodJC_data_in;
-  wire [7:0]pmodJC_data_out;
-  wire [7:0]pmodJC_tri_out;
   wire [7:0]pmodJB;
-  wire [7:0]pmodJC;
   wire [4:0]vga_b;
   wire [5:0]vga_g;
   wire vga_hs;
@@ -240,48 +234,6 @@ module top(
         .O(pmodJB_data_in[7]),
         .T(pmodJB_tri_out[7]));
 
-// pmodJC related iobufs
-  IOBUF pmodJC_data_iobuf_0
-       (.I(pmodJC_data_out[0]),
-        .IO(pmodJC[0]),
-        .O(pmodJC_data_in[0]),
-        .T(pmodJC_tri_out[0]));
-  IOBUF pmodJC_data_iobuf_1
-       (.I(pmodJC_data_out[1]),
-        .IO(pmodJC[1]),
-        .O(pmodJC_data_in[1]),
-        .T(pmodJC_tri_out[1]));
-  IOBUF pmodJC_data_iobuf2
-       (.I(pmodJC_data_out[2]),
-        .IO(pmodJC[2]),
-        .O(pmodJC_data_in[2]),
-        .T(pmodJC_tri_out[2]));
-  IOBUF pmodJC_data_iobuf_3
-       (.I(pmodJC_data_out[3]),
-        .IO(pmodJC[3]),
-        .O(pmodJC_data_in[3]),
-        .T(pmodJC_tri_out[3]));
-  IOBUF pmodJC_data_iobuf_4
-       (.I(pmodJC_data_out[4]),
-        .IO(pmodJC[4]),
-        .O(pmodJC_data_in[4]),
-        .T(pmodJC_tri_out[4]));
-  IOBUF pmodJC_data_iobuf_5
-       (.I(pmodJC_data_out[5]),
-        .IO(pmodJC[5]),
-        .O(pmodJC_data_in[5]),
-        .T(pmodJC_tri_out[5]));
-  IOBUF pmodJC_data_iobuf_6
-       (.I(pmodJC_data_out[6]),
-        .IO(pmodJC[6]),
-        .O(pmodJC_data_in[6]),
-        .T(pmodJC_tri_out[6]));
-  IOBUF pmodJC_data_iobuf_7
-       (.I(pmodJC_data_out[7]),
-        .IO(pmodJC[7]),
-        .O(pmodJC_data_in[7]),
-        .T(pmodJC_tri_out[7]));
-
   system system_i
        (.BCLK(BCLK),
         .DDC_scl_i(ddc_scl_i),
@@ -334,9 +286,6 @@ module top(
         .pmodJB_data_in(pmodJB_data_in),
         .pmodJB_data_out(pmodJB_data_out),
         .pmodJB_tri_out(pmodJB_tri_out),
-        .pmodJC_data_in(pmodJC_data_in),
-        .pmodJC_data_out(pmodJC_data_out),
-        .pmodJC_tri_out(pmodJC_tri_out),
         .vga_b(vga_b),
         .vga_g(vga_g),
         .vga_hs(vga_hs),

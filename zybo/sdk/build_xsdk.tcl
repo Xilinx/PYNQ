@@ -3,8 +3,13 @@
 
 
 sdk set_workspace .
-sdk create_hw_project -name hw_def -hwspec ./pmod.hdf
-sdk create_bsp_project -name bsp -hwproject hw_def -proc iop1_mb -os standalone
+if {![file exists "hw_def"]} {
+    sdk create_hw_project -name hw_def -hwspec ./pmod.hdf
+}
+if {![file exists "bsp"]} {
+    sdk create_bsp_project -name bsp -hwproject hw_def -proc iop1_mb -os standalone
+}
+
 sdk build all
 
 puts "To use SDK, from this folder execute"

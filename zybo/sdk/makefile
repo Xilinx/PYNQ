@@ -27,8 +27,7 @@ pmod_bins: $(MBBINS)
 	mkdir -p bins
 	@cp */Debug/*.bin bins
 
-sdk_workspace: pmod.hdf
-	rm -rf hw_def bsp .metadata/ .Xil/ 
+sdk_workspace: pmod.hdf 
 	xsdk -batch -source build_xsdk.tcl
 
 clean:
@@ -38,4 +37,4 @@ clean:
 	rm -f */Debug/src/*.o
 	rm -f */Debug/src/*.d
 	rm -f bins/*
-	rm -rf bsp hw_def
+	rm -rf bsp hw_def .Xil .metadata SDK.log
