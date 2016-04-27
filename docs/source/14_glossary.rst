@@ -28,7 +28,7 @@ A-G
    Field Programmable Gate Array
 
   FTDI
-   Future Technology Devices International Ltd, supplier of the FT2232HQ USB-UART bridge chip used on ZYBO.  Free USB-COM port
+   Future Technology Devices International Ltd, supplier of the FT2232HQ USB-UART bridge chip used on Zybo.  Free USB-COM port
    drivers, available from www.ftdichip.com under the "Virtual Com Port" or VCP heading, convert USB packets to
    UART/serial port data. Serial port data is exchanged with the Zynq using a two-wire serial port (TXD/RXD). After the
    drivers are installed, I/O commands can be used from the PC directed to the COM port to produce serial data
@@ -50,11 +50,11 @@ H-R
    Jupyter is an open source, interactive, web application that allows the user to create and share notebook documents that contain live code and the full range of rich media supported by modern browser. These include include text, images, videos, LaTeX, and interactive widgets. It is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities.
 
 
-  PMod
+  Pmod
    Peripheral Module - accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.
 
-  PModIO
-   PMod IO overlay
+  Pmod I/O
+   Pmod I/O overlay
 
   (Micro) SD
    Secure Digital (Memory Card standard)
@@ -86,7 +86,7 @@ S-Z
   XADC
    Xilinx ADC - Analog to Digital Converter found on all Xilinx 7 series devices
 
-  ZYBO
+  Zybo
    ZYnq BOard
 
   Zynq

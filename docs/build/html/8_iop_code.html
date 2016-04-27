@@ -1,0 +1,599 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>IO Processors: Writing Software &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="Working with Overlays" href="9_creating_overlays.html"/>
+        <link rel="prev" title="The Audio-Video Overlay" href="7_audio_video_overlay_pp.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IO Processors: Writing Software</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#xilinx-software-installation">Xilinx Software installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-iop-projects">Building IOP projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hardware-description-file">Hardware Description File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-the-sdk-hardware-platform-and-bsp">Build the SDK Hardware Platform and BSP</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-makefiles">Using makefiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-sdk-gui">Using the SDK GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-existing-project">Use existing project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#binary-files">Binary files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#iop-memory">IOP Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-map">Memory map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#iop-switch">IOP Switch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pmod-driver">Pmod driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-code-on-different-iops">Running code on different IOPs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examine-python-code">Examine Python Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-a-value">Reading a Value</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>IO Processors: Writing Software</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/8_iop_code.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="io-processors-writing-software">
+<h1>IO Processors: Writing Software<a class="headerlink" href="#io-processors-writing-software" title="Permalink to this headline">¶</a></h1>
+<p>IO Processors (IOPs) contain a soft <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, peripherals <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf">AXI Timer</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf">AXI IIC</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf">AXI SPI</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf">AXI GPIO</a> a configurable switch and an interface port to a Pmod. An IOP can be used as a flexible controller for different types of peripherals.</p>
+<a class="reference internal image-reference" href="_images/iop1.jpg"><img alt="_images/iop1.jpg" class="align-center" src="_images/iop1.jpg" style="width: 300.0px; height: 257.25px;" /></a>
+<p>For external peripherals, low-level control, or real-time processing can be carried out by the IOP, rather than the main ARM processor. The ARM Cortex-A9 is an Application processor, not a real time processor.</p>
+<p>The IOP switch can be configured to route signals between the physical Pmod interface (external pins), and the available internal peripherals. In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA to interface to different external peripherals.</p>
+<p>IOPs can also be used standalone to offload some processing from the main processer. However, note that the IOPs are running at 100MHz, compared to the Dual-Core ARM Cortex-A9 running at 650MHz. This should be taken into account when offloading application code.</p>
+<div class="section" id="xilinx-software-installation">
+<h2>Xilinx Software installation<a class="headerlink" href="#xilinx-software-installation" title="Permalink to this headline">¶</a></h2>
+<p>Some of the following steps require you to install Xilinx Vivado and/or Xilinx SDK.</p>
+<p>The current Pynq release is built using 2015.4. You should use the same version to rebuild existing Vivado and SDK projects.</p>
+<p><a class="reference external" href="http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html">Download Xilinx Vivado and SDK 2015.4</a></p>
+<p>You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.</p>
+</div>
+<div class="section" id="building-iop-projects">
+<h2>Building IOP projects<a class="headerlink" href="#building-iop-projects" title="Permalink to this headline">¶</a></h2>
+<p>Code for the MicroBlaze processor inside the IOP can be written in C or C++.</p>
+<p>The Xilinx SDK (Software Development Kit) can be installed on a host computer and used to create a software project to build Application Projects for the MicroBlaze inside the IOP. This is the standard way of developing software for a MicroBlaze.</p>
+</div>
+<div class="section" id="hardware-description-file">
+<h2>Hardware Description File<a class="headerlink" href="#hardware-description-file" title="Permalink to this headline">¶</a></h2>
+<p>To create a project in SDK for the IOP, the .hdf hardware definition file for the <em>OVERLAY</em>, which includes an instance of the IOP is required.</p>
+<p>A precompiled .hdf for the pmod_overlay is available here:</p>
+<blockquote>
+<div>Pynq/zybo/sdk</div></blockquote>
+<p>The .hdf can be updated/regenerated from a Vivado overlay projects, but this step requires that you have Vivado installed on the host machine.</p>
+<p>If you have Vivado installed, you can build the Vivado project for an overlay by running the makefile here (cd to this directory and run make):</p>
+<blockquote>
+<div>Pynq/zybo/vivado/Makefile</div></blockquote>
+<p>Check the Makfile to determine which overlay you are building. By default, this will build the Vivado project for the _pmod_ overlay, generate the .hdf, and copy it to: zybo/sdk</p>
+</div>
+<div class="section" id="build-the-sdk-hardware-platform-and-bsp">
+<h2>Build the SDK Hardware Platform and BSP<a class="headerlink" href="#build-the-sdk-hardware-platform-and-bsp" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-makefiles">
+<h3>Using makefiles<a class="headerlink" href="#using-makefiles" title="Permalink to this headline">¶</a></h3>
+<p>The SDK projects in the GitHub contain makefiles to build the SDK Hardware Platform project, the Board Support Package, and the application projects. These step requires that you have SDK installed on the host machine.</p>
+<p>The SDK application project, and source code for each peripheral can be found here:</p>
+<blockquote>
+<div>Pynq/zybo/sdk/</div></blockquote>
+<p>As described above, the .hdf file also exists here.</p>
+<p>SDK requires a Hardware platform, and Board Support Pacakge, which are needed to build the application projects. The Board Support Package contains libraries for peripherals in the system. This includes internal peripherals and IP, and external peripherals. Some libraries are included in Vivado/SDK, and other libraries are user defined. e.g. custom driver for a peripheral. The source files for custom peripherals in the Overlay can be found in the Vivado project directory for an overlay. The source files also contain the drivers, which will be a compiled into a library and included in the BSP.</p>
+<p>The Hardware Platform, BSP, and all application projects can be built by running make from:</p>
+<blockquote>
+<div>Pynq/zybo/sdk/</div></blockquote>
+<p>This will built all the projects set in the variable MBBINS at the top of the makefile.</p>
+<a class="reference internal image-reference" href="_images/make_sdk.jpg"><img alt="_images/make_sdk.jpg" class="align-center" src="_images/make_sdk.jpg" style="width: 506.25px; height: 378.0px;" /></a>
+<a class="reference internal image-reference" href="_images/make_sdk_results.jpg"><img alt="_images/make_sdk_results.jpg" class="align-center" src="_images/make_sdk_results.jpg" style="width: 506.25px; height: 378.0px;" /></a>
+<p>Individual projects can be build by navigating to the <em>&lt;project directory&gt;/Debug</em> and running make.</p>
+</div>
+<div class="section" id="using-the-sdk-gui">
+<h3>Using the SDK GUI<a class="headerlink" href="#using-the-sdk-gui" title="Permalink to this headline">¶</a></h3>
+<p>In the SDK GUI, you can also manually create a <em>New Hardware Platform Specification</em> project, and link it to the .hdf file.</p>
+<a class="reference internal image-reference" href="_images/new_hardware_platform_specification.jpg"><img alt="_images/new_hardware_platform_specification.jpg" class="align-center" src="_images/new_hardware_platform_specification.jpg" style="width: 405.75px; height: 359.25px;" /></a>
+<p>You can then, import the BSP from <a class="reference external" href="https://github.com/Xilinx/Pynq/tree/master/zybo/sdk">the Pynq GitHub repository</a>.</p>
+<a class="reference internal image-reference" href="_images/sdk_import_existing_bsp.jpg"><img alt="_images/sdk_import_existing_bsp.jpg" class="align-center" src="_images/sdk_import_existing_bsp.jpg" style="width: 642.0px; height: 493.5px;" /></a>
+<a class="reference internal image-reference" href="_images/sdk_bsp_imported.jpg"><img alt="_images/sdk_bsp_imported.jpg" class="align-center" src="_images/sdk_bsp_imported.jpg" style="width: 712.5px; height: 576.0px;" /></a>
+<p>A new Application Project can then be created in the GUI.</p>
+</div>
+<div class="section" id="use-existing-project">
+<h3>Use existing project<a class="headerlink" href="#use-existing-project" title="Permalink to this headline">¶</a></h3>
+<p>Rather than create your own project, you can use an existing project as a starting point for your code. This step requires that you have SDK installed on the host machine.</p>
+<p>To do this, copy the project directory and rename it.</p>
+<p>Modify or replace the .c file in the src/ with your C code. The .bin file generated will have the same base name as your C file.</p>
+<p>e.g. if your C code is my_peripheral.c, the generated .elf and .bin will be my_peripheral.elf or my_peripheral.bin.</p>
+<p>We encourage the following naming convention for drivers &lt;pmod|grove&gt;_&lt;peripheral&gt;</p>
+<p>You will need to updates references from the old project name to your new project name in <em>&lt;project directory&gt;/Debug/makefile</em> and <em>&lt;project directory&gt;/Debug/src/subdir.mk</em></p>
+<p>If you want your project to build as part of the main Pynq build (i.e. your project will get built with the same makefile as all the other peripherals), you should also append the bin name of your project to the MBBINS variable at the top of the makefile in:</p>
+<blockquote>
+<div>Pynq/zybo/sdk</div></blockquote>
+</div>
+<div class="section" id="binary-files">
+<h3>Binary files<a class="headerlink" href="#binary-files" title="Permalink to this headline">¶</a></h3>
+<p>Compiling code results in an .elf executable file. A .bin file (binary file) is required to download to the IOP memory.</p>
+<p>A .bin file can be generated from an elf by running:</p>
+<blockquote>
+<div>mb-objcopy -O binary input_file.elf outputfile.bin</div></blockquote>
+<p>This is done by the makefile for existing peripheral projects. The makefile also creates a <a href="#id1"><span class="problematic" id="id2">*</span></a>bins * directory, and copies all the .bin files from the peripheral projects to it.</p>
+</div>
+</div>
+<div class="section" id="iop-memory">
+<h2>IOP Memory<a class="headerlink" href="#iop-memory" title="Permalink to this headline">¶</a></h2>
+<p>The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. The IOP data memory, is also used to communicate between the Pynq environment and the IOP.</p>
+</div>
+<div class="section" id="memory-map">
+<h2>Memory map<a class="headerlink" href="#memory-map" title="Permalink to this headline">¶</a></h2>
+<p>The IOP memory is 32KB (0x8000) of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
+Pynq and the application running on the IOP can write to anywhere in the shared memory space.</p>
+<p>When building the MicroBlaze project, the compiler will only ensure that the application and allocated stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, an additional shared memory space must also be reserved within the MicroBlaze address space.</p>
+<p>There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size, only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.</p>
+<p>It is recommended to follow the convention for data communication between the two processors. These MAILBOX values are defined in the pmod.h file.</p>
+<div class="line-block">
+<div class="line">Instruction and data memory start = 0x0</div>
+<div class="line">Instruction and data memory size  = 0x6fff</div>
+</div>
+<div class="line-block">
+<div class="line">Shared mailbox memory start       = 0x7000</div>
+<div class="line">Shared mailbox memory size        = 0x1000</div>
+<div class="line">Shared mailbox Command Address    = 0x7ffc</div>
+</div>
+<p>i.e. A command will be written from the Pynq environment to the address 0x0x7ffc.</p>
+<p>The IOP must read this location, decode the command and carry out the required operation.</p>
+<p>If returning a single value (e.g. from python.read() ) it should be written to location 0x7000.</p>
+<p>The Pynq application should then read the value back from here.</p>
+<p>The data area is 0xffc in size (0x1000 - 4 bytes for command address), which could be used for example, to log data.</p>
+<div class="section" id="iop-switch">
+<h3>IOP Switch<a class="headerlink" href="#iop-switch" title="Permalink to this headline">¶</a></h3>
+<p>There are 8 data pins on a Pmod port, that can be connected to any of 16 internal peripheral signals (GPIO, SPI, IIC, Timer).</p>
+<p>Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register.
+The following function, part of the provided SDK BSP (pmod.h/.c) can be used to configure the switch.</p>
+<blockquote>
+<div>void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7);</div></blockquote>
+<p>While each parameter is a &#8220;char&#8221; only the lower 4-bits are currently used to configure each pin.</p>
+<p>Switch mappings used for IOP Switch configuration:</p>
+<ul class="simple">
+<li>#define GPIO_0 t0x0</li>
+<li>#define GPIO_1 t0x1</li>
+<li>#define GPIO_2 t0x2</li>
+<li>#define GPIO_3 t0x3</li>
+<li>#define GPIO_4 t0x4</li>
+<li>#define GPIO_5 t0x5</li>
+<li>#define GPIO_6 t0x6</li>
+<li>#define GPIO_7 t0x7</li>
+<li>#define SCL    t0x8</li>
+<li>#define SDA    t0x9</li>
+<li>#define SPICLK t0xa</li>
+<li>#define MISO   t0xb</li>
+<li>#define MOSI   t0xc</li>
+<li>#define SS     t0xd</li>
+<li>#define BLANK  t0xe</li>
+</ul>
+<p>If two or more pins are connected to the same signal, the pins are OR&#8217;d together.</p>
+<p>For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO_7:</p>
+<blockquote>
+<div>configureSwitch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, GPIO_4, GPIO_5, GPIO_6, GPIO_7)</div></blockquote>
+<p>From Python all the constants and addresses for the IOP can be found in:</p>
+<blockquote>
+<div>Pynq/python/pmods/pmod_const.py</div></blockquote>
+</div>
+</div>
+<div class="section" id="pmod-driver">
+<h2>Pmod driver<a class="headerlink" href="#pmod-driver" title="Permalink to this headline">¶</a></h2>
+<p>pmod.h and pmod.c driver contains an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
+<blockquote>
+<div>Pynq/zybo/vivado/pmod/src/ip/PMOD_IO_Switch_IP_1.0/drivers/PMOD_IO_Switch_IP_v1_0/src</div></blockquote>
+<p>This code will be compiled into a library as part of the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:</p>
+<p>#include &#8220;pmod.h&#8221;</p>
+<p>Any application that uses the Pmod driver shoudl also call pmod_init() at the beginning of the application.</p>
+</div>
+<div class="section" id="running-code-on-different-iops">
+<h2>Running code on different IOPs<a class="headerlink" href="#running-code-on-different-iops" title="Permalink to this headline">¶</a></h2>
+<p>The shared memory is the only connection between the ARM and the IOPs.</p>
+<p>The shared memory is mapped to the ARM address space at the following locations:</p>
+<div class="line-block">
+<div class="line">IOP 1 BRAM : 0x40000000</div>
+<div class="line">IOP 2 BRAM : 0x42000000</div>
+<div class="line">IOP 3 BRAM : 0x44000000</div>
+<div class="line">IOP 4 BRAM : 0x46000000</div>
+</div>
+<p>However, for each IOP, the MicroBlaze sees only its own address space. i.e. BRAM, Timer, IOP Switch, IIC, and SPI have the same addresses in each IOP&#8217;s address space.</p>
+<p>This means, C code written for one IOP can run on any of the other IOPs simply by writing the application (.bin file) to the appropriate IOP&#8217;s BRAM from the ARM.</p>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Taking PMOD ALS as an example, first open the pmod_als.c file:</p>
+<blockquote>
+<div>Pynq/zybo/sdk/pmodals/src/pmod_als.c</div></blockquote>
+<p>Note that the pmod.h header file is included.</p>
+<p>Some COMMANDS are defined by the user. These values can be chosen to be any value, but must correspond with the Python part of the driver.</p>
+<p>By convention, 0x0 is reserved for no command/idle/acknowledge, and operations for the IOP can start at command 0x1.</p>
+<p>The ALS peripheral has as SPI interface. Note the user defined function get_sample() which calls an SPI function spi_transfer().</p>
+<p>The SPI API is included in pmod.h.</p>
+<p>In main() notice configureSwitch() is called to initialize the switch with a static configuration. This means that if you want to use this code with a different pin configuration, the c code must be changed and recompiled.</p>
+<p>Next, the while(1) loop is entered. In this loop the IOP continually checks the MAILBOX_CMD_ADDR for a non-zero command. Once a command is received from Python, the command is decoded, and executed.</p>
+<p>Taking the first case, reading a value:</p>
+<blockquote>
+<div><p>case READ_SINGLE_VALUE:</p>
+<blockquote>
+<div><p>MAILBOX_DATA(0) = get_sample();</p>
+<p>MAILBOX_CMD_ADDR = 0x0;</p>
+</div></blockquote>
+</div></blockquote>
+<p>get_sample() is called and a value returned to the first position (0) of the MAILBOX_DATA.</p>
+<p>MAILBOX_CMD_ADDR is reset to 0x0 to acknowledge to the Pynq environment that the operation is complete and data is available in the mailbox.</p>
+<div class="section" id="examine-python-code">
+<h3>Examine Python Code<a class="headerlink" href="#examine-python-code" title="Permalink to this headline">¶</a></h3>
+<p>Next examine the Python code.</p>
+<blockquote>
+<div>Pynq/tree/master/python/pynq/pmods/pmod_als.py</div></blockquote>
+<p>First the _iop, pmod_const and MMIO are imported. These are all constituents of an IOP.</p>
+<p>from . import _iop
+from . import pmod_const
+from pynq import MMIO</p>
+<p>The IOP module is imported, along with the Pmod constant definitions (pin mappings) and the MMIO (interface to shared memory).</p>
+<p>The .bin for the IOP is declared. This is the application executable, and will be loaded into the IOP instruction memory.</p>
+<blockquote>
+<div>ALS_PROGRAM = &#8220;als.bin&#8221;</div></blockquote>
+<p>The ALS class is defined:</p>
+<p>class ALS(object):</p>
+<p>The initialization function for the module requires a pmod id/IOP number. For Grove peripherals and the StickIt connector, the StickIt port number could also be used for initialization.</p>
+<blockquote>
+<div>def __init__(self, pmod_id):</div></blockquote>
+<p>This will be used to load the application code into the appropriate IOP. The __init__ is called when a module is instantiated. e.g. from Python:</p>
+<blockquote>
+<div>als = ALS(1)</div></blockquote>
+<p>_iop.request_iop() instantiates an instance of the _iop on the specified pmod_id and loads the .bin file (ALS_PROGRAM) into the instruction memory of the appropriate IOP</p>
+<blockquote>
+<div>self.iop = _iop.request_iop(pmod_id, ALS_PROGRAM)</div></blockquote>
+<p>MMIO is used to read and write from the shared memory</p>
+<blockquote>
+<div>self.mmio = self.iop.mmio</div></blockquote>
+<p>log_interval_ms is a variable specific to this application.</p>
+<blockquote>
+<div>self.log_interval_ms = 1000</div></blockquote>
+<p>iop.start() resets the IOP. After this, the IOP will start running the new application.</p>
+<blockquote>
+<div>self.iop.start()</div></blockquote>
+</div>
+<div class="section" id="reading-a-value">
+<h3>Reading a Value<a class="headerlink" href="#reading-a-value" title="Permalink to this headline">¶</a></h3>
+<p>The read() function</p>
+<blockquote>
+<div>def read(self)</div></blockquote>
+<p>mmio.write() writes a value representing a command to the COMMAND area in the shared memory, in this case &#8220;3&#8221;. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>self.mmio.write(pmod_const.MAILBOX_OFFSET+\</dt>
+<dd>pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)</dd>
+</dl>
+</div></blockquote>
+<p>When the IOP is finished, it will write 0x0 to the command area. The code now uses mmio.read() to check if the command is still 3, and if it is, it loops.</p>
+<div class="line-block">
+<div class="line">while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\</div>
+<div class="line-block">
+<div class="line-block">
+<div class="line">pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3)</div>
+</div>
+<div class="line">pass</div>
+</div>
+</div>
+<p>Once the command is no longer 3, i.e. the acknowledge has been received, the result is read from the DATA area of the shared memory MAILBOX_OFFSET. Using mmio.read()</p>
+<blockquote>
+<div>return self.mmio.read(pmod_const.MAILBOX_OFFSET)</div></blockquote>
+<p>Notice the pmod_const values are used in these function calls.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="9_creating_overlays.html" class="btn btn-neutral float-right" title="Working with Overlays" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="7_audio_video_overlay_pp.html" class="btn btn-neutral" title="The Audio-Video Overlay" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
