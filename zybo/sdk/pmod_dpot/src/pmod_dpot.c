@@ -75,6 +75,7 @@ int main(void)
    u8 dpot_value;
    u32 step_size, delay;
 
+   pmod_init();
    configureSwitch(SS, MOSI, GPIO_2, SPICLK, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
 
    // Configure SPI

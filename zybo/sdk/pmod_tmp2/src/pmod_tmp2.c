@@ -83,6 +83,7 @@ int main(void)
    u32 delay;
    float temperature;
 
+   pmod_init();
    configureSwitch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
    
    // Run application

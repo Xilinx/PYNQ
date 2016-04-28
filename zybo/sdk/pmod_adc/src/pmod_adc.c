@@ -78,6 +78,7 @@ int main()
     u32 numofsamples;
     u8 numofchannels, i, j;
 
+    pmod_init();
     /*  
      *  Configuring PMOD IO Switch to connect to I2C[0].
      *  SCLK to pmod bit 2, I2C[0].SDA to pmod bit 3

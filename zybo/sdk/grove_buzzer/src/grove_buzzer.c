@@ -113,6 +113,8 @@ int main(void) {
 	int numberoftimes = 10;
 	u32 cmd;
 
+    // Initialize PMOD and timers
+    pmod_init();
     //	Configuring PMOD IO Switch to connect GPIO to pmod
 	// bit-0 will be controlled by the software to drive the speaker
 	// Buzzer is connected to bit[0] of the Channel 1 of AXI GPIO instance

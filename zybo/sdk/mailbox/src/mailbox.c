@@ -84,6 +84,7 @@ int main (void)
 {
 	int cmd, count, i;
 
+    pmod_init();
     while(1){
 		while((MAILBOX_CMD_ADDR & 0x01)==0);
 		cmd=MAILBOX_CMD_ADDR;

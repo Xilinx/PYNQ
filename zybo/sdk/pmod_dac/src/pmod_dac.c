@@ -425,6 +425,7 @@ int main(void)
     u16 fixedvalue;
     u8 mode, channels;
 
+    pmod_init();
     /*
      *  Configuring PMOD IO Switch to connect to SPI[0].SS to pmod bit 0
      *  SPI[0].MOSI to pmod bit 1, and SPI[0].SCLK to pmod bit 3
