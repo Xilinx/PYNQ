@@ -24,8 +24,7 @@ mb_bsp: sdk_workspace
 	cd $(subst .bin,,$@)/Debug; make clean ; make 
 
 pmod_bins: $(MBBINS)
-	mkdir -p bins
-	@cp */Debug/*.bin bins
+	@cp */Debug/*.bin ../../python/pynq/pmods/
 
 sdk_workspace: pmod.hdf 
 	xsdk -batch -source build_xsdk.tcl
