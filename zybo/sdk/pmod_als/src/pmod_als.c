@@ -73,8 +73,8 @@ u32 get_sample(){
    * Two bytes need to be read, and data extracted.
    */
   u8 raw_data[2];
-  spi_transfer(SPI_BASEADDR, 2, raw_data, NULL);
-  return ((raw_data[0]<<4)+(raw_data[1]>>4)); 
+  spi_transfer(SPI_BASEADDR, 2, raw_data, NULL); 
+  return ( ((raw_data[0] & 0xf0) >> 4) + ((raw_data[1] & 0x0f) << 4) );
 }
 
 
