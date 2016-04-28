@@ -5,13 +5,9 @@ All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-04-15-2016 - <graham.schelle@xilinx.com>
-            Performance setting - no clock scaling
-            python seaborn package
-            xpp home directory cleaned 
-              cross compiler moved to /usr/local
-              docs and scripts folders added
-              notebook structure cleaned
+04-27-2016 - <graham.schelle@xilinx.com>
+            Static IP fallback to 192.168.2.99
+            update_pynq.sh ran against current repository contents
 ```
 
 
