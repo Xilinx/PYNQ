@@ -51,11 +51,13 @@ class Grove_ADC(object):
     Attributes
     ----------
     iop : _IOP
-        I/O processor instance used by GROVE_ADC
+        I/O processor instance used by GROVE_ADC.
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
+    log_running : int
+        The state of the log (0: stopped, 1: started).
     log_interval_ms : int
-        Time in milliseconds between sampled reads of the GROVE_ADC sensor
+        Time in milliseconds between sampled reads of the GROVE_ADC sensor.
         
     """
     def __init__(self, pmod_id, gr_id): 
@@ -111,7 +113,6 @@ class Grove_ADC(object):
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
         
-        
     def read(self):
         """Read the ADC value from the GROVE_ADC peripheral.
         
@@ -154,7 +155,7 @@ class Grove_ADC(object):
         value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
         return self._reg2float(value)
         
-    def set_log_interval_ms(self,log_interval_ms):
+    def set_log_interval_ms(self, log_interval_ms):
         """Set the length of the log for the GROVE_ADC peripheral.
         
         This method can set the length of the log, so that users can read out
@@ -214,7 +215,7 @@ class Grove_ADC(object):
         self.log_running = 1
         self.set_log_interval_ms(self.log_interval_ms)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)   
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
                         
     def stop_log(self):
         """Stop recording multiple float values in a log.
@@ -235,8 +236,8 @@ class Grove_ADC(object):
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
             self.log_running = 0
         else:
-            raise ValueError("Error: No log running")   
-               
+            raise ValueError("No grove ADC log running.")   
+            
     def get_log(self):
         """Return list of logged samples.
         
@@ -270,6 +271,7 @@ class Grove_ADC(object):
             for i in range(GROVE_ADC_LOG_START,tail_ptr,4):            
                 readings.append(self.mmio.read(i))
         return readings
+        
     def get_log_voltage(self):
         """Return list of logged samples.
         

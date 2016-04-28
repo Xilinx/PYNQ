@@ -49,3 +49,4 @@ from .grove_adc import Grove_ADC
 from .grove_oled import Grove_OLED
 from .grove_imu import Grove_IMU
 from .grove_ledbar import Grove_LEDbar
+from .grove_tmp import Grove_TMP
