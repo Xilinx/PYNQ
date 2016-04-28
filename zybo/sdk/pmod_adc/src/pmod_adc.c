@@ -78,6 +78,7 @@ int main()
     u32 numofsamples;
     u8 numofchannels, i, j;
 
+    // initialize pmod
     pmod_init();
     /*  
      *  Configuring PMOD IO Switch to connect to I2C[0].
@@ -91,8 +92,6 @@ int main()
     // Enable configuration by writing 1 to slv_reg1[31]
     Xil_Out32(SWITCH_BASEADDR+4,0x80000000);
 
-    // initialize pmod
-    pmod_init();
     // to use internal VREF, bridge JP1 accross pin1 and center pin
     useVref=1;
     // filtering on SDA and SCL is enabled
