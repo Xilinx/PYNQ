@@ -62,22 +62,3 @@ def test_write_string1():
     
     del oled
     
-@pytest.mark.run(order=39)
-def test_write_string2():
-    """Test for the OLED PMOD.
-    
-    Writes on the OLED the string 'Welcome to Zybo.' and asks the user to 
-    confirm if it is shown on the OLED. After that, it clears the screen. 
-    This test is done on the audiovideo overlay, and is required.
-    
-    """
-    input("\nPress enter after plugging the PMOD OLED into PMOD 2 (JC).")
-    oled = PMOD_OLED(2)
-    
-    oled.write('Welcome to Zybo.')
-    assert user_answer_yes("Welcome message shown on the OLED?")
-    oled.clear()
-    assert user_answer_yes("OLED screen clear now?")      
-    
-    del oled
-    

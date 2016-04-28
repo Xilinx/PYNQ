@@ -142,7 +142,7 @@ def test_toggle_2():
     audiovideo overlay, and is required.
     
     """
-    input("\nPress enter after plugging the PMOD LED8 into PMOD 1 (JB).")
+    input("\nPress enter after plugging the LED8 into PMOD 1 (JB)...")
     leds = [PMOD_LED8(1,index) for index in range(8)]
     
     for led in leds:

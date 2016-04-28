@@ -143,7 +143,7 @@ def test_audiovideo():
     assert ol2.is_loaded(), \
             'Overlay (audiovideo.bit) should be loaded.'
 
-@pytest.mark.run(order=40)
+@pytest.mark.run(order=39)
 def test_end():
     """Wrapping up by changing the bitstream back to "pmod.bit".
     
