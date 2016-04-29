@@ -73,8 +73,8 @@ u32 get_sample(){
    * Two bytes need to be read, and data extracted.
    */
   u8 raw_data[2];
-  spi_transfer(SPI_BASEADDR, 2, raw_data, NULL); 
-  return ( ((raw_data[0] & 0xf0) >> 4) + ((raw_data[1] & 0x0f) << 4) );
+  spi_transfer(SPI_BASEADDR, 2, raw_data, NULL);
+  return (((raw_data[0] & 0xf0) >> 4) + ((raw_data[1] & 0x0f) << 4));
 }
 
 
@@ -97,29 +97,30 @@ int main(void)
      switch(cmd){
        
         case READ_SINGLE_VALUE:
-	  // write out reading, reset mailbox
-	  MAILBOX_DATA(0) = get_sample();
-	  MAILBOX_CMD_ADDR = 0x0;
+      // write out reading, reset mailbox
+      MAILBOX_DATA(0) = get_sample();
+      MAILBOX_CMD_ADDR = 0x0;
 
-	  break;
+      break;
 
          case READ_AND_LOG:
-	   // initialize logging variables, reset cmd
-	   cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
-	   delay = MAILBOX_DATA(1);
-	   MAILBOX_CMD_ADDR = 0x0; 
+       // initialize logging variables, reset cmd
+       cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+       delay = MAILBOX_DATA(1);
+       MAILBOX_CMD_ADDR = 0x0; 
 
             do{
                als_data = get_sample();
-	       cb_push_back(&pmod_log, &als_data);
-	       delay_ms(delay);
+           cb_push_back(&pmod_log, &als_data);
+           delay_ms(delay);
 
-            } while((MAILBOX_CMD_ADDR & 0x1)== 0); // do while no new command
+            } while((MAILBOX_CMD_ADDR & 0x1)== 0);
 
             break;
 
          default:
-            MAILBOX_CMD_ADDR = 0x0; // reset command
+            // reset command
+            MAILBOX_CMD_ADDR = 0x0;
             break;
       }
    }

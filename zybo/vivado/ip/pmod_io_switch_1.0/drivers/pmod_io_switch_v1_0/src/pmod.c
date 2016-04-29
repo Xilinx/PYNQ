@@ -1,34 +1,79 @@
-/*
- * PMOD API functions
- * IIC, SPI, and IOP switch configuration functions
+/******************************************************************************
+ *  Copyright (c) 2016, Xilinx, Inc.
+ *  All rights reserved.
  * 
- * Author: cmccabe
- * Version 1.1 26 April 2015
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
  *
- */
+ *  1.  Redistributions of source code must retain the above copyright notice, 
+ *     this list of conditions and the following disclaimer.
+ *
+ *  2.  Redistributions in binary form must reproduce the above copyright 
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *  3.  Neither the name of the copyright holder nor the names of its 
+ *      contributors may be used to endorse or promote products derived from 
+ *      this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ *  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+ *  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ *  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
+/******************************************************************************
+ *
+ *
+ * @file pmod.c
+ *
+ * Implementing useful functions, including the IIC read and write, 
+ * initialization functions for SPI devices, delay functions, timer setup, 
+ * etc.
+ *
+ * <pre>
+ * MODIFICATION HISTORY:
+ *
+ * Ver   Who  Date     Changes
+ * ----- --- ------- -----------------------------------------------
+ * 1.00a pp  04/29/16 release
+ *
+ * </pre>
+ *
+ *****************************************************************************/
 
 #include "pmod.h"
-XTmrCtr TimerInst_0; 	// The Timer Counter instance
+
+// The Timer Counter instance
+XTmrCtr TimerInst_0;
 
 void spi_delay(void){
-	int i=0;
-	for(i=0;i<7;i++);
+    int i=0;
+    for(i=0;i<7;i++);
 }
 
-void spi_transfer(u32 BaseAddress, int bytecount, u8* readBuffer, u8* writeBuffer) {
-	int i;
+void spi_transfer(u32 BaseAddress, int bytecount, 
+                    u8* readBuffer, u8* writeBuffer) {
+    int i;
 
-	XSpi_WriteReg(BaseAddress,XSP_CR_OFFSET,0x18e);
-	XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xfe);
-	for (i=0; i<bytecount; i++)
-	{
-		XSpi_WriteReg(BaseAddress,XSP_DTR_OFFSET, writeBuffer[i]);
-	}
-	XSpi_WriteReg(BaseAddress,XSP_CR_OFFSET,0x08e);
-	while(((XSpi_ReadReg(BaseAddress,XSP_SR_OFFSET) & 0x04)) != 0x04);
-	spi_delay();
-	// Slave de-select
-	XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xff);
+    XSpi_WriteReg(BaseAddress,XSP_CR_OFFSET,0x18e);
+    XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xfe);
+    for (i=0; i<bytecount; i++)
+    {
+        XSpi_WriteReg(BaseAddress,XSP_DTR_OFFSET, writeBuffer[i]);
+    }
+    XSpi_WriteReg(BaseAddress,XSP_CR_OFFSET,0x08e);
+    while(((XSpi_ReadReg(BaseAddress,XSP_SR_OFFSET) & 0x04)) != 0x04);
+    spi_delay();
+    // Slave de-select
+    XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xff);
     
     // Read SPI
     for(i=0;i< bytecount; i++){
@@ -38,17 +83,21 @@ void spi_transfer(u32 BaseAddress, int bytecount, u8* readBuffer, u8* writeBuffe
 }
 
 void spi_init(void){
-	u32 Control;
+    u32 Control;
 
-	// Soft reset SPI
-	XSpi_WriteReg(SPI_BASEADDR, XSP_SRR_OFFSET, 0xa);
-	// Master mode
-	Control = XSpi_ReadReg(SPI_BASEADDR, XSP_CR_OFFSET);
-	Control |= XSP_CR_MASTER_MODE_MASK; // Master Mode
-	Control |= XSP_CR_ENABLE_MASK; // Enable SPI
-	Control |= XSP_INTR_SLAVE_MODE_MASK; // Slave select manually
-	Control |= XSP_CR_TRANS_INHIBIT_MASK; // Disable Transmitter
-	XSpi_WriteReg(SPI_BASEADDR, XSP_CR_OFFSET, Control);
+    // Soft reset SPI
+    XSpi_WriteReg(SPI_BASEADDR, XSP_SRR_OFFSET, 0xa);
+    // Master mode
+    Control = XSpi_ReadReg(SPI_BASEADDR, XSP_CR_OFFSET);
+    // Master Mode
+    Control |= XSP_CR_MASTER_MODE_MASK;
+    // Enable SPI
+    Control |= XSP_CR_ENABLE_MASK;
+    // Slave select manually
+    Control |= XSP_INTR_SLAVE_MODE_MASK;
+    // Disable Transmitter
+    Control |= XSP_CR_TRANS_INHIBIT_MASK;
+    XSpi_WriteReg(SPI_BASEADDR, XSP_CR_OFFSET, Control);
 }
 
 int iic_read(u32 addr, u8* buffer, u8 numbytes){
@@ -58,11 +107,12 @@ int iic_read(u32 addr, u8* buffer, u8 numbytes){
 
 
 int iic_write(u32 addr, u8* buffer, u8 numbytes){
-	   XIic_Send(IIC_BASEADDR, addr, buffer, numbytes, XIIC_STOP);
-	   return 0;
+       XIic_Send(IIC_BASEADDR, addr, buffer, numbytes, XIIC_STOP);
+       return 0;
 }
 
-int cb_init(circular_buffer *cb, volatile u32* log_start_addr, size_t capacity, size_t sz){
+int cb_init(circular_buffer *cb, volatile u32* log_start_addr, 
+            size_t capacity, size_t sz){
   cb->buffer = (volatile char*) log_start_addr;
   if(cb->buffer == NULL)
     return -1;
@@ -112,7 +162,7 @@ void cb_push_back_float(circular_buffer *cb, const float *item){
 
 void cb_push_incr_ptrs(circular_buffer *cb){
 
-  // update pointers
+  // Update pointers
   cb->tail = (char*)cb->tail + cb->sz;
   if(cb->tail >= cb->buffer_end)
     cb->tail = cb->buffer;
@@ -121,23 +171,31 @@ void cb_push_incr_ptrs(circular_buffer *cb){
     cb->head  = (char*)cb->head + cb->sz;
   }
 
-  // update mailbox API
-  MAILBOX_DATA(2)        = (u32) cb->head;
-  MAILBOX_DATA(3)        = (u32) cb->tail;
+  // Update mailbox API
+  MAILBOX_DATA(2) = (u32) cb->head;
+  MAILBOX_DATA(3) = (u32) cb->tail;
 }
 
 void delay_us(int usdelay){
-	XTmrCtr_SetResetValue(&TimerInst_0, 1, usdelay*100);	// us delay
-	XTmrCtr_Start(&TimerInst_0, 1); // start the timer0 for usdelay us delay
-    while(!XTmrCtr_IsExpired(&TimerInst_0,1)); // wait for usdelay us to lapse
-	XTmrCtr_Stop(&TimerInst_0, 1); // stop the timer0
+    // us delay
+    XTmrCtr_SetResetValue(&TimerInst_0, 1, usdelay*100);
+    // Start the timer0 for usdelay us delay
+    XTmrCtr_Start(&TimerInst_0, 1);
+    // Wait for usdelay us to lapse
+    while(!XTmrCtr_IsExpired(&TimerInst_0,1));
+    // Stop the timer0
+    XTmrCtr_Stop(&TimerInst_0, 1);
 }
 
 void delay_ms(u32 msdelay){
-	XTmrCtr_SetResetValue(&TimerInst_0, 1, msdelay*100*1000);	// ms delay
-	XTmrCtr_Start(&TimerInst_0, 1); // start the timer0 for usdelay us delay
-    while(!XTmrCtr_IsExpired(&TimerInst_0,1)); // wait for usdelay us to lapse
-	XTmrCtr_Stop(&TimerInst_0, 1); // stop the timer0
+    // ms delay
+    XTmrCtr_SetResetValue(&TimerInst_0, 1, msdelay*100*1000);
+    // Start the timer0 for usdelay us delay
+    XTmrCtr_Start(&TimerInst_0, 1);
+    // Wait for usdelay us to lapse
+    while(!XTmrCtr_IsExpired(&TimerInst_0,1));
+    // Stop the timer0
+    XTmrCtr_Stop(&TimerInst_0, 1);
 }
 
 /*
@@ -146,7 +204,8 @@ void delay_ms(u32 msdelay){
  * Only the least significant 4-bits for each input char is used
  *
  * Configuration is done by writing a 32 bit value to the switch.
- * The 32-bit value represents 8 x 4-bit values concatenated; One 4-bit value to configure each PMOD pin.
+ * The 32-bit value represents 8 x 4-bit values concatenated.
+ * One 4-bit value is used to configure each PMOD pin.
  * PMOD pin 8 = bits [31:28]
  * PMOD pin 7 = bits [27:24]
  * PMOD pin 6 = bits [23:20]
@@ -157,35 +216,39 @@ void delay_ms(u32 msdelay){
  * PMOD pin 1 = bits [3:0]
  * e.g. Write GPIO 0 - 7 to PMOD 1-8 => switchConfigValue = 0x76543210
  */
-void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7){
+void configureSwitch(char pin0, char pin1, char pin2, char pin3, 
+                        char pin4, char pin5, char pin6, char pin7){
    u32 switchConfigValue;
 
    // Calculate switch configuration value
-   switchConfigValue = (pin7<<28)|(pin6<<24)|(pin5<<20)|(pin4<<16)|(pin3<<12)|(pin2<<8)|(pin1<<4)|(pin0);
+   switchConfigValue = (pin7<<28)|(pin6<<24)|(pin5<<20)|(pin4<<16)|\
+                        (pin3<<12)|(pin2<<8)|(pin1<<4)|(pin0);
 
-   Xil_Out32(SWITCH_BASEADDR+0x4,0x00000000); // isolate switch by writing 0 to bit 31
-   Xil_Out32(SWITCH_BASEADDR, switchConfigValue); // Set pin configuration
-   Xil_Out32(SWITCH_BASEADDR+0x4,0x80000000); // Re-enable Swtch by writing 1 to bit 31
+   // isolate switch by writing 0 to bit 31
+   Xil_Out32(SWITCH_BASEADDR+0x4,0x00000000);
+   // Set pin configuration
+   Xil_Out32(SWITCH_BASEADDR, switchConfigValue);
+   // Re-enable Swtch by writing 1 to bit 31
+   Xil_Out32(SWITCH_BASEADDR+0x4,0x80000000);
 }
 
 int tmrctr_init(void) {
-	int Status;
+    int Status;
 
-	// specify the device ID that is generated in xparameters.h
-	Status = XTmrCtr_Initialize(&TimerInst_0, XPAR_TMRCTR_0_DEVICE_ID); // timer 0
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
+    // specify the device ID that is generated in xparameters.h
+    Status = XTmrCtr_Initialize(&TimerInst_0, XPAR_TMRCTR_0_DEVICE_ID);
+    if (Status != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
 
-	XTmrCtr_SetOptions(&TimerInst_0, 1, XTC_AUTO_RELOAD_OPTION | XTC_CSR_LOAD_MASK | XTC_CSR_DOWN_COUNT_MASK );
-	XTmrCtr_Start(&TimerInst_0, 1);
+    XTmrCtr_SetOptions(&TimerInst_0, 1, XTC_AUTO_RELOAD_OPTION | \
+                            XTC_CSR_LOAD_MASK | XTC_CSR_DOWN_COUNT_MASK);
+    XTmrCtr_Start(&TimerInst_0, 1);
 
-	return 0;
-
+    return 0;
 }
 
 void pmod_init(void) {
-	spi_init();
-	tmrctr_init();
+    spi_init();
+    tmrctr_init();
 }
-
