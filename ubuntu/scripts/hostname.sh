@@ -13,3 +13,7 @@ else
     echo $1 > /etc/hostname
     echo "127.0.1.1    $1" >> /etc/hosts
 fi
+
+echo "Please manually reboot board for hostname changes to take effect:"
+echo "sudo shutdown -r now"
+echo ""
