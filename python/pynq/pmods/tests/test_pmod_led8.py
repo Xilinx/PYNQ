@@ -142,7 +142,7 @@ def test_toggle_2():
     audiovideo overlay, and is required.
     
     """
-    input("\nPress enter after plugging the LED8 into PMOD 1 (JB)...")
+    print("\nPlug the LED8 into PMOD 1 (JB)...", end="")
     leds = [PMOD_LED8(1,index) for index in range(8)]
     
     for led in leds:
@@ -152,11 +152,14 @@ def test_toggle_2():
     leds[4].on()
     leds[6].on()
     
-    print("Toggling PMOD LEDs for a few seconds...")
-    for i in range(30):
+    print("\nToggling PMOD LEDs. Press enter to stop toggling...", end="")
+    while True:
         for led in leds:
             led.toggle()
         sleep(0.2)
+        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            termios.tcflush(sys.stdin, termios.TCIOFLUSH)
+            break
             
     for led in leds:
         led.off()
