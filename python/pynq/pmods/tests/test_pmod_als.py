@@ -33,6 +33,7 @@ __email__       = "xpp_support@xilinx.com"
 
 
 import pytest
+from time import sleep
 from pynq import Overlay
 from pynq.pmods.pmod_als import PMOD_ALS
 from pynq.test.util import user_answer_yes
@@ -54,6 +55,8 @@ def test_readlight():
     global als
     als = PMOD_ALS(als_id)
     
+    #: Wait for the PMOD ALS to finish initialization
+    sleep(0.01)
     n = als.read()
     print("\nCurrent ALS reading: {}.".format(n))
     assert user_answer_yes("Is a reading between 0-255 displayed?")

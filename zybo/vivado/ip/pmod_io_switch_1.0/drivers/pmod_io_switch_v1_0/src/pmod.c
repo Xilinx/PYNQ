@@ -56,7 +56,7 @@ XTmrCtr TimerInst_0;
 
 void spi_delay(void){
     int i=0;
-    for(i=0;i<7;i++);
+    for(i=0;i<9;i++);
 }
 
 void spi_transfer(u32 BaseAddress, int bytecount, 

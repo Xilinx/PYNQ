@@ -143,8 +143,8 @@ def test_toggle_2():
     
     """
     print("\nPlug the LED8 into PMOD 1 (JB)...", end="")
-    leds = [PMOD_LED8(1,index) for index in range(8)]
     
+    leds = [PMOD_LED8(1, index) for index in range(8)]
     for led in leds:
         led.off()
     leds[0].on()
