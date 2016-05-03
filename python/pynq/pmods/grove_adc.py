@@ -219,10 +219,10 @@ class Grove_ADC(object):
         """
         if(self.log_running == 1):
             self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
             self.log_running = 0
         else:
-            raise ValueError("No grove ADC log running.")   
+            raise ValueError("No grove ADC log running.")
             
     def get_log(self):
         """Return list of logged samples.
@@ -309,7 +309,7 @@ class Grove_ADC(object):
         """
         #: Send command and wait for acknowledge
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)      
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 12):
             pass
