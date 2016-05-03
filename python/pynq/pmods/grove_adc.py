@@ -99,8 +99,8 @@ class Grove_ADC(object):
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
         
-    def read(self):
-        """Read the ADC value from the GROVE_ADC peripheral.
+    def read_raw(self):
+        """Read the ADC raw value from the Grove ADC peripheral.
         
         Parameters
         ----------
@@ -120,8 +120,8 @@ class Grove_ADC(object):
         value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
         return value
         
-    def read_voltage(self):
-        """Read the ADC voltage from the GROVE_ADC peripheral.
+    def read(self):
+        """Read the ADC voltage from the Grove ADC peripheral.
         
         Parameters
         ----------
@@ -163,7 +163,7 @@ class Grove_ADC(object):
         self.log_interval_ms = log_interval_ms
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_interval_ms)
 
-    def start_log(self):
+    def start_log_raw(self):
         """Start recording raw data in a log.
         
         This method will first call set_log_interval_ms() before writting to
@@ -183,7 +183,7 @@ class Grove_ADC(object):
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 4)
                         
-    def start_log_voltage(self):
+    def start_log(self):
         """Start recording multiple voltage values (float) in a log.
         
         This method will first call set_log_interval_ms() before writting to
@@ -203,8 +203,8 @@ class Grove_ADC(object):
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
                         
-    def stop_log(self):
-        """Stop recording multiple float values in a log.
+    def stop_log_raw(self):
+        """Stop recording the raw values in the log.
         
         Simply write 0 to the MMIO to stop the log.
         
@@ -224,8 +224,24 @@ class Grove_ADC(object):
         else:
             raise ValueError("No grove ADC log running.")
             
-    def get_log(self):
-        """Return list of logged samples.
+    def stop_log(self):
+        """Stop recording the voltage values in the log.
+        
+        This can be done by calling the stop_log_raw() method.
+        
+        Parameters
+        ----------
+        None
+            
+        Returns
+        -------
+        None
+        
+        """
+        self.stop_log_raw()
+        
+    def get_log_raw(self):
+        """Return list of logged raw samples.
         
         Parameters
         ----------
@@ -234,7 +250,7 @@ class Grove_ADC(object):
         Returns
         -------
         list
-            List of valid voltage samples (floats) from the GROVE_ADC sensor.
+            List of valid raw samples from the ADC sensor.
         
         """
         #: Stop logging
@@ -258,7 +274,7 @@ class Grove_ADC(object):
                 readings.append(self.mmio.read(i))
         return readings
         
-    def get_log_voltage(self):
+    def get_log(self):
         """Return list of logged samples.
         
         Parameters
@@ -268,7 +284,7 @@ class Grove_ADC(object):
         Returns
         -------
         list
-            List of valid voltage samples (floats) from the GROVE_ADC sensor.
+            List of valid voltage samples (floats) from the ADC sensor.
         
         """
         #: Stop logging
@@ -284,14 +300,14 @@ class Grove_ADC(object):
             return None
         elif head_ptr < tail_ptr:
             for i in range(head_ptr,tail_ptr,4):
-                readings.append(float("{0:.3f}"\
+                readings.append(float("{0:.4f}"\
                     .format(self._reg2float(self.mmio.read(i)))))
         else:
             for i in range(head_ptr,GROVE_ADC_LOG_END,4):
-                readings.append(float("{0:.3f}"\
+                readings.append(float("{0:.4f}"\
                     .format(self._reg2float(self.mmio.read(i)))))
             for i in range(GROVE_ADC_LOG_START,tail_ptr,4):
-                readings.append(float("{0:.3f}"\
+                readings.append(float("{0:.4f}"\
                     .format(self._reg2float(self.mmio.read(i)))))
         return readings
         

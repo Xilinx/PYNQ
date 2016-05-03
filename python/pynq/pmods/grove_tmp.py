@@ -37,6 +37,9 @@ from math import log
 from pynq.pmods import pmod_const
 from pynq.pmods import Grove_ADC
 
+GROVE_TMP_LOG_START = pmod_const.MAILBOX_OFFSET+16
+GROVE_TMP_LOG_END = GROVE_TMP_LOG_START+(1000*4)
+
 class Grove_TMP(Grove_ADC):
     """This class controls the grove temperature sensor.
     
@@ -113,9 +116,61 @@ class Grove_TMP(Grove_ADC):
         
         """
         #: Transform the ADC data into degree Celsius
-        val = super().read()
+        val = super().read_raw()
         return self._int2temp(val)
+        
+    def start_log(self):
+        """Start recording temperature in a log.
+        
+        This method will call the start_log_raw() in the parent class.
+        
+        Parameters
+        ----------
+        None
             
+        Returns
+        -------
+        None
+        
+        """
+        super().start_log_raw()
+        
+    def get_log(self):
+        """Return list of logged temperature samples.
+        
+        Parameters
+        ----------
+        None
+            
+        Returns
+        -------
+        list
+            List of valid temperature readings from the temperature sensor.
+        
+        """
+        #: Stop and get the log
+        tmp_log = super().get_log_raw()
+        
+        for i in range(len(tmp_log)):
+            tmp_log[i] = self._int2temp(tmp_log[i])
+        return tmp_log
+        
+    def stop_log(self):
+        """Stop recording temperature in a log.
+        
+        This method will call the stop_log_raw() in the parent class.
+        
+        Parameters
+        ----------
+        None
+            
+        Returns
+        -------
+        None
+        
+        """
+        super().stop_log_raw()
+        
     def _int2temp(self, val):
         """Convert the integer value to temperature in Celsius.
         
