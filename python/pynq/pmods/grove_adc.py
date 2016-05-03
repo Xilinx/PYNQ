@@ -85,30 +85,16 @@ class Grove_ADC(object):
         self.log_running  = 0
         self.iop.start()
         
-        #: Configure IOP Switch
-        #: SDA is configuration 0x9 
-        #: SCL is configuration 0x8
-        #: Format of data to be sent is [7:4] configuration, [3:0] is pin
-        SDA = 0x90
-        SCL = 0x80
-        
         #: Write SCL Pin Config
-        pin_config = SCL + pmod_const.STICKIT_PINS_GR[gr_id][0];   
-        #: Write Pin Config
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, pin_config)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)      
-        #: Wait for ACK
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
-            pass
+        scl_pin = pmod_const.STICKIT_PINS_GR[gr_id][0]
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, scl_pin)
         #: Write SDA Pin Config    
-        pin_config = SDA + pmod_const.STICKIT_PINS_GR[gr_id][1];   
-        #: Write Pin Config
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, pin_config)
+        sda_pin = pmod_const.STICKIT_PINS_GR[gr_id][1]
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, sda_pin)
+        
+        #: Write configuration and wait for ACK
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)      
-        #: Wait for ACK
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass

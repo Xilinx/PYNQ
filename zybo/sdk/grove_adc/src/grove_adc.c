@@ -48,6 +48,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a cmc 04/06/16 release
+ * 1.00b yrq 05/02/16 support 2 stickit sockets
  *
  * </pre>
  *
@@ -124,19 +125,17 @@ void write_adc(u8 reg, u32 data, u8 bytes){
 int main(void)
 {
    u32 cmd;
-   int i;
    u32 delay;
 
    u32 adc_raw_value;
    float adc_voltage;
    u8 iop_pins[8];
-   u32 temp;
-   u32 iop_switch_config;
+   u32 scl, sda;
    
    // Initialize PMOD and timers
    pmod_init();
-   // Initialize switch
-   configureSwitch(GPIO_0, GPIO_1, SDA, GPIO_3, GPIO_4, GPIO_5, SCL, GPIO_7);
+   // Initialize the default switch
+   configureSwitch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
    // Reset, set Tconvert x 32 (fconvert 27 ksps)
    write_adc(REG_ADDR_CONFIG, 0x20, 1); 
    // Run application
@@ -150,26 +149,24 @@ int main(void)
       switch(cmd){
 
          case CONFIG_IOP_SWITCH:
-            // Only one pin can be changed with each CONFIG_IOP_SWITCH command
-            // Pin number should be in the first 4 bits. 
-            // Pin configuration should be in the next 4 bits. 
-            
-            // Read existing IOP switch configuration
-            iop_switch_config = (*(volatile u32 *)(SWITCH_BASEADDR)); 
-            
             // read new pin configuration
-            temp = MAILBOX_DATA(0);
-            // Extract individual pin configurations from existing
-            for(i=0; i<8; i++){
-               iop_pins[i] = (iop_switch_config>>(i*4))&0xf;
-            }
+            scl = MAILBOX_DATA(0);
+            sda = MAILBOX_DATA(1);
+            iop_pins[0] = GPIO_0;
+            iop_pins[1] = GPIO_1;
+            iop_pins[2] = GPIO_2;
+            iop_pins[3] = GPIO_3;
+            iop_pins[4] = GPIO_4;
+            iop_pins[5] = GPIO_5;
+            iop_pins[6] = GPIO_6;
+            iop_pins[7] = GPIO_7;
             // set new pin configuration
-            // Pin configuration bits [7:0], Pin number bits [3:0]
-            iop_pins[temp & 0xf] = (temp >> 4) & 0xf; 
+            iop_pins[scl] = SCL;
+            iop_pins[sda] = SDA;
             configureSwitch(iop_pins[0], iop_pins[1], iop_pins[2], 
                             iop_pins[3], iop_pins[4], iop_pins[5], 
-                            iop_pins[6], iop_pins[7]);            
-            MAILBOX_CMD_ADDR = 0x0; 
+                            iop_pins[6], iop_pins[7]);
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case READ_RAW_DATA:
             // write out adc_value, reset mailbox
