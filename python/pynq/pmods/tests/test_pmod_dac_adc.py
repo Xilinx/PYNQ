@@ -36,8 +36,8 @@ from random import randint
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.pmods.pmod_adc import PMOD_ADC
-from pynq.pmods.pmod_dac import PMOD_DAC
+from pynq.pmods import PMOD_ADC
+from pynq.pmods import PMOD_DAC
 from pynq.test.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD ADC and PMOD DAC attached (straight cable)?")
@@ -70,7 +70,8 @@ def test_loop_single():
     assert value<=2.00, 'Input voltage should not be higher than 2.00V.'
     assert value>=0.00, 'Input voltage should not be lower than 0.00V.'
     dac.write(value)
-    assert abs(value-float(adc.read()))<0.06, 'Read value != write value.'
+    sleep(0.05)
+    assert round(abs(value-adc.read()),2)<0.1, 'Read value != write value.'
 
 @pytest.mark.run(order=26) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
@@ -91,10 +92,10 @@ def test_loop_random():
     global dac,adc
     
     for i in range(100):
-        value = 0.01*randint(0,200)
+        value = round(0.0001*randint(0,20000),4)
         dac.write(value)
-        sleep(0.001)
-        assert abs(value-float(adc.read()))<0.06, \
+        sleep(0.05)
+        assert round(abs(value-adc.read()),2)<0.1, \
             'Read value {} != write value {}.'.format(adc.read(), value)
     
     del dac,adc
