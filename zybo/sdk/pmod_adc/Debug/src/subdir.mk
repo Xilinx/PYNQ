@@ -7,15 +7,15 @@ LD_SRCS += \
 ../src/lscript.ld 
 
 C_SRCS += \
-../src/AD7991.c \
+../src/ad7991.c \
 ../src/pmod_adc.c 
 
 OBJS += \
-./src/AD7991.o \
+./src/ad7991.o \
 ./src/pmod_adc.o 
 
 C_DEPS += \
-./src/AD7991.d \
+./src/ad7991.d \
 ./src/pmod_adc.d 
 
 

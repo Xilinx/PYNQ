@@ -32,7 +32,7 @@
 /******************************************************************************
  *
  *
- * @file AD7991.c
+ * @file ad7991.c
  *
  * Required functions for PMOD AD2 SKU410-217.
  * The PmodAD2 is an analog-to-digital converter powered by the Analog Devices
@@ -46,18 +46,19 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/13/16 release
+ * 1.00b yrq 05/02/16 changed adc_read methods
  *
  * </pre>
  *
  *****************************************************************************/
 
 #include "xparameters.h"
-#include "AD7991.h"
+#include "ad7991.h"
 #include "pmod.h"
 
 #define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
 
-void AD7991_Init(void)
+void adc_init(void)
 {
     u8 cfgValue;
     u8 WriteBuffer[6];
@@ -79,8 +80,8 @@ void AD7991_Init(void)
                (1 << CH0)           |
                (0 << REF_SEL)       |
                (0 << FLTR)          |
-               (0 << bitTrialDelay) |
-               (0 << sampleDelay);
+               (0 << BitTrialDelay) |
+               (0 << SampleDelay);
                
     // Write to the Configuration Register
     WriteBuffer[0]=cfgValue;
@@ -98,7 +99,7 @@ void AD7991_Init(void)
  *    bit - BIT bit in control register.
  *    sample - SAMPLE bit in control register.
  */
-void AD7991_Config(char chan3, char chan2, char chan1, char chan0, 
+void adc_config(char chan3, char chan2, char chan1, char chan0, 
                     char ref, char filter, char bit, char sample)
 {
     u8 cfgValue;
@@ -111,65 +112,34 @@ void AD7991_Config(char chan3, char chan2, char chan1, char chan0,
                (chan0 << CH0)         | // Read Channel 0
                (ref << REF_SEL)       | // Select external reference / Vcc
                (filter << FLTR)       | // filter IIC Bus
-               (bit << bitTrialDelay) | // Delay IIC Commands
-               (sample << sampleDelay); // Delay IIC Messages
+               (bit << BitTrialDelay) | // Delay IIC Commands
+               (sample << SampleDelay); // Delay IIC Messages
                
     // Write to the Configuration Register
     WriteBuffer[0]=cfgValue;
     iic_write(AD7991IICAddr, WriteBuffer, 1);
 }
 
-unsigned int AD7991_Read(u32 nr_cnv, u32 vref)
+int adc_read_raw()
 {
     int rxData;
-    u8 rcvbuffer[10];
-    char c[7] = {'0','.','0','0','0',0};
-    u32 nr;
-	int i;
+    u8 rcvbuffer[2];
 
-	i = 5;
-	c[7]= 0;
-	c[6] = '0';
-	c[5] = '0';
-	c[4] = '0';
-	c[3] = '0';
-	c[2] = '0';
-	c[1] = '.';
-	c[0] = '0';
+    // Read data from AD7991
+    iic_read(AD7991IICAddr, rcvbuffer, 2);
+    // The first byte is MSB, while the second byte is LSB
+    rxData = ((rcvbuffer[0] << 8) | rcvbuffer[1]);
 
-	// Read data from AD7991
-	iic_read(AD7991IICAddr, rcvbuffer, 2);
-	rxData = ((rcvbuffer[0] << 8) | rcvbuffer[1]);
-
-	// Process read voltage value
-	nr = (rxData & ADCValue) * vref / 4096;
-	while(nr>0)
-	{
-		// Transform hex value into char for display purposes
-		c[i] = (nr % 10) + 48;
-		nr = nr / 10;
-		i -= 1;
-
-		// Skip the 2nd position (it is pre-loaded with '.')
-		if(i == 1)
-		{
-			i -= 1;
-		}
-	}
-
-	i = 5;
-
-	/*
-     * Determine if received data from AD7991 is correct 
-     * by checking the first 2 Leading zeros
+    // Process read voltage value
+    return (rxData & BitMask);
+    /*
+     * We can also check whether received data from AD7991 is correct 
+     * by checking the first 2 Leading zeros.
      */
-	if((rxData & LeadingZeros) == 0)
-	{
-		return ((c[0] << 24) | (c[2] << 16) | (c[3] << 8) | c[4]);
-	}
-	else
-	{
-		return -1;
-	}
 }
 
+float adc_read_voltage(u32 vref)
+{
+    // Process read voltage value
+    return (float)(adc_read_raw() * vref / 4096.0);
+}

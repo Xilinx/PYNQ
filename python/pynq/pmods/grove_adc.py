@@ -51,17 +51,17 @@ class Grove_ADC(object):
     Attributes
     ----------
     iop : _IOP
-        I/O processor instance used by GROVE_ADC.
+        I/O processor instance used by Grove_ADC.
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
     log_running : int
         The state of the log (0: stopped, 1: started).
     log_interval_ms : int
-        Time in milliseconds between sampled reads of the GROVE_ADC sensor.
+        Time in milliseconds between sampled reads of the Grove_ADC sensor.
         
     """
     def __init__(self, pmod_id, gr_id): 
-        """Return a new instance of an GROVE_ADC object. 
+        """Return a new instance of an Grove_ADC object. 
         
         Note
         ----
@@ -142,15 +142,15 @@ class Grove_ADC(object):
         return self._reg2float(value)
         
     def set_log_interval_ms(self, log_interval_ms):
-        """Set the length of the log for the GROVE_ADC peripheral.
+        """Set the length of the log for the Grove_ADC peripheral.
         
-        This method can set the length of the log, so that users can read out
-        multiple values in a single log. 
+        This method can set the time interval between two samples, so that 
+        users can read out multiple values in a single log. 
         
         Parameters
         ----------
         log_interval_ms : int
-            The length of the log in milliseconds, for debug only.
+            The time between two samples in milliseconds, for logging only.
             
         Returns
         -------
@@ -158,7 +158,7 @@ class Grove_ADC(object):
         
         """
         if (log_interval_ms < 0):
-            raise ValueError("Log length should not be less than 0.")
+            raise ValueError("Time between samples should be no less than 0.")
         
         self.log_interval_ms = log_interval_ms
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_interval_ms)
@@ -206,7 +206,7 @@ class Grove_ADC(object):
     def stop_log_raw(self):
         """Stop recording the raw values in the log.
         
-        Simply write 0 to the MMIO to stop the log.
+        Simply write 0xC to the MMIO to stop the log.
         
         Parameters
         ----------
@@ -222,7 +222,7 @@ class Grove_ADC(object):
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
             self.log_running = 0
         else:
-            raise ValueError("No grove ADC log running.")
+            raise RuntimeError("No grove ADC log running.")
             
     def stop_log(self):
         """Stop recording the voltage values in the log.
@@ -238,7 +238,12 @@ class Grove_ADC(object):
         None
         
         """
-        self.stop_log_raw()
+        if(self.log_running == 1):
+            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
+            self.log_running = 0
+        else:
+            raise RuntimeError("No grove ADC log running.")
         
     def get_log_raw(self):
         """Return list of logged raw samples.
@@ -311,8 +316,8 @@ class Grove_ADC(object):
                     .format(self._reg2float(self.mmio.read(i)))))
         return readings
         
-    def reset_adc(self):
-        """Resets/initializes the ADC
+    def reset(self):
+        """Resets/initializes the ADC.
         
         Parameters
         ----------

@@ -52,7 +52,7 @@
  *****************************************************************************/
 
 #include "xparameters.h"
-#include "AD7991.h"
+#include "ad7991.h"
 #include "xil_io.h"
 #include "pmod.h"
 
@@ -60,9 +60,20 @@
 /************************** Macros Definitions *******************************/
 /*****************************************************************************/
 
-#define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
 // Reference voltage value = actual value * 10000
-#define VREF 20480
+#define VREF 2.048
+#define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
+
+#define RESET_ADC              0x1
+#define READ_RAW_DATA          0x3
+#define READ_VOLTAGE           0x5
+#define READ_AND_LOG_RAW_DATA  0x7
+#define READ_AND_LOG_VOLTAGE   0x9
+
+// Log constants
+#define LOG_BASE_ADDRESS (MAILBOX_DATA_PTR(4))
+#define LOG_ITEM_SIZE sizeof(float)
+#define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
 u8 WriteBuffer[10];
 u8 ReadBuffer[10];
@@ -70,13 +81,15 @@ u16 SlaveAddress;
 
 int main()
 {
-    unsigned int sample;
     u8 useChan0, useChan1, useChan2, useChan3;
     u8 useVref, useFILT, useBIT, useSample;
     u32 delay;
     u32 cmd;
-    u32 numofsamples;
-    u8 numofchannels, i, j;
+    u32 num_samples, num_channels;
+    u32 channel;
+    u8 i, j;
+    u32 adc_raw_value;
+    float adc_voltage;
 
     // initialize pmod
     pmod_init();
@@ -100,68 +113,112 @@ int main()
     useBIT=0;
     // use Sample delay enabled
     useSample=0;
+    // all the 3 channels are enabled
+    useChan0 = 1;
+    useChan1 = 1;
+    useChan2 = 1; 
+    // Channel 3: since VREF is used, channel 3 cannot be sampled
+    useChan3 = 0;
+    num_channels = useChan0 + useChan1 + useChan2 + useChan1;
+    
+    adc_config(useChan3,useChan2,useChan1,useChan0,
+                    useVref,useFILT,useBIT,useSample);
     
     while(1){
         while((MAILBOX_CMD_ADDR & 0x01)==0); // wait for bit[0] to become 1
         cmd = MAILBOX_CMD_ADDR;
-        numofchannels=0;
-        // Channel 0
-        if((cmd >> 1) & 0x01) {
-            useChan0=1;
-            numofchannels++;
-        }
-        else
-            useChan0 = 0;
-        // Channel 1
-        if((cmd >> 2) & 0x01) {
-            useChan1=1;
-            numofchannels++;
-        }
-        else
-            useChan1=0;
-        // Channel 2
-        if((cmd >> 3) & 0x01) {
-            useChan2=1;
-            numofchannels++;
-        }
-        else
-            useChan2=0;
-        // Channel 3: since VREF is used, channel 3 cannot be sampled
-        useChan3=0;
         
-        if(((cmd >> 16) & 0x0ffff)==0){
-            // set delay to 1 second if the field is set to 0
-            delay = 1000;
-        }else{
-            // A few milliseconds
-            delay=(cmd >> 16) & 0x0ffff; 
-        }
-        
-        // set to number of samples; "0" indicates infinite number of samples
-        numofsamples=(cmd >> 8) & 0x0ff; 
-        if(numofsamples==0) {
-            // infinitely
-               AD7991_Config(useChan3,useChan2,useChan1,useChan0,
-                       useVref,useFILT,useBIT,useSample);
-               while(1) {
-                   for(j=0; j<numofchannels; j++) {
-                       sample = AD7991_Read(1, VREF);
-                       MAILBOX_DATA(j)=sample;
-                       delay_ms(delay);
+        switch(cmd){
+            case RESET_ADC:
+                adc_config(useChan3,useChan2,useChan1,useChan0,
+                                useVref,useFILT,useBIT,useSample);
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case READ_RAW_DATA:
+                adc_config(useChan3,useChan2,useChan1,useChan0,
+                            useVref,useFILT,useBIT,useSample);
+                // set the delay in ms between two samples
+                delay = MAILBOX_DATA(0);
+                // set to number of samples
+                num_samples = MAILBOX_DATA(1); 
+                for(i=0;i<num_samples;i++) {
+                    delay_ms(delay);
+                    for(j=0; j<num_channels; j++) {
+                        adc_raw_value = adc_read_raw();
+                        MAILBOX_DATA(num_channels*i+j) = adc_raw_value;
                    }
-               }
-        }else{
-               AD7991_Config(useChan3,useChan2,useChan1,useChan0,
-                       useVref,useFILT,useBIT,useSample);
-               for(i=0;i<numofsamples;i++) {
-                   for(j=0; j<numofchannels; j++) {
-                       sample = AD7991_Read(1, VREF);
-                       MAILBOX_DATA(i*numofchannels+j)=sample;
-                       delay_ms(delay);
+                }
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case READ_VOLTAGE:
+                adc_config(useChan3,useChan2,useChan1,useChan0,
+                            useVref,useFILT,useBIT,useSample);
+                // set the delay in ms between two samples
+                delay = MAILBOX_DATA(0);
+                // set to number of samples
+                num_samples = MAILBOX_DATA(1); 
+                for(i=0;i<num_samples;i++) {
+                    delay_ms(delay);
+                    for(j=0; j<num_channels; j++) {
+                        adc_voltage = adc_read_voltage(VREF);
+                        MAILBOX_DATA_FLOAT(num_channels*i+j) = adc_voltage;
                    }
-               }
+                }
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case READ_AND_LOG_RAW_DATA:
+                // set the delay in ms between samples
+                delay = MAILBOX_DATA(0);
+                // set the channel index, from 0 to 2
+                channel = MAILBOX_DATA(1);
+                // initialize logging variables, reset cmd
+                cb_init(&pmod_log, LOG_BASE_ADDRESS, 
+                            LOG_CAPACITY, LOG_ITEM_SIZE);
+                while(MAILBOX_CMD_ADDR != RESET_ADC){
+                    adc_config(useChan3,useChan2,useChan1,useChan0,
+                                useVref,useFILT,useBIT,useSample);
+                    for(j=0; j<num_channels; j++) {
+                        adc_raw_value = adc_read_raw();
+                        if (j == channel){
+                            // push samples only for specified channel
+                            cb_push_back(&pmod_log, &adc_raw_value);
+                        }
+                    }
+                    delay_ms(delay);
+                }
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case READ_AND_LOG_VOLTAGE:
+                // set the delay in ms between samples
+                delay = MAILBOX_DATA(0);
+                // set the channel index, from 0 to 2
+                channel = MAILBOX_DATA(1);
+                // initialize logging variables, reset cmd
+                cb_init(&pmod_log, LOG_BASE_ADDRESS, 
+                            LOG_CAPACITY, LOG_ITEM_SIZE);
+                while(MAILBOX_CMD_ADDR != RESET_ADC){
+                    adc_config(useChan3,useChan2,useChan1,useChan0,
+                                useVref,useFILT,useBIT,useSample);
+                    for(j=0; j<num_channels; j++) {
+                        adc_voltage = adc_read_voltage(VREF);
+                        if (j == channel){
+                            // push samples only for specified channel
+                            cb_push_back_float(&pmod_log, &adc_voltage);
+                        }
+                    }
+                    delay_ms(delay);
+                }
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            default:
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
         }
-        MAILBOX_CMD_ADDR = 0x0;
     }
    return 0;
 }

@@ -32,12 +32,15 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
-import time
+from time import sleep
+import struct
 from . import _iop
 from . import pmod_const
 from pynq import MMIO
 
 PROGRAM = "pmod_adc.bin"
+PMOD_ADC_LOG_START = pmod_const.MAILBOX_OFFSET+16
+PMOD_ADC_LOG_END = PMOD_ADC_LOG_START+(1000*4)
 
 class PMOD_ADC(object):
     """This class controls an Analog to Digital Converter PMOD.
@@ -52,6 +55,8 @@ class PMOD_ADC(object):
         I/O processor instance used by the ADC
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
+    log_running : int
+        The state of the log (0: stopped, 1: started).
         
     """
 
@@ -70,82 +75,342 @@ class PMOD_ADC(object):
         """
         self.iop = _iop.request_iop(pmod_id, PROGRAM)
         self.mmio = self.iop.mmio
-
+        self.log_running = 0
+        
         self.iop.start()
     
-    def _value(self, channel=0, samples=4):   
+    def reset(self):
+        """Reset the PMOD ADC.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
+            sleep(0.001)
+            
+    def read_raw(self, delay=1, channel=0, samples=4):
         """Get the raw value from the ADC PMOD.
         
         All the 3 available channels are enabled. The default channel is 0, 
         meaning only the first channel is read. Users can choose any channel
-        from 0 to 2. In each channel, this method reads multiple samples and 
+        from 0 to 2. 
+        
+        In each channel, this method reads multiple samples and 
         returns the last sample. 
         
-        Note
-        ----
-        For debug purpose, by setting "samples" to 0, the ADC can also read 
-        an infinite number of samples.
+        The delay specifies the time between two samples, in milliseconds.
         
         Note
         ----
-        This method should not be used directly. Users should use read() 
-        instead to read the value returned by the ADC PMOD.
+        The 4th channel is not available due to the jumper setting on ADC.
+        
+        Note
+        ----
+        This method reads the raw value from ADC.
         
         Parameters
         ----------
+        delay : int
+            The delay between samples on the same channel.
         channel : int
-            The available channels, from 0 to 2.
+            The channel number, from 0 to 2.
         samples : int
             The number of samples read from each ADC channel.
         
         Returns
         -------
         int
-            The value read from the ADC PMOD in its raw format.
+            The raw value read from the PMOD ADC.
         
         """
-        #: Set up ADC (multiple samples, all the 3 channels)
-        cmd_word = 0xa000F | (samples<<8)
+        if (delay < 0):
+            raise ValueError("Time between samples should be no less than 0.")
+        if not channel in range(3):
+            raise ValueError("Available channel is 0, 1, or 2.")
+            
+        #: Send the delay and the number of samples
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, delay)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, samples)
+        
+        #: Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
         
         #: Wait for I/O processor to complete
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) 
-                              & 0x1) == 0x1:
-            time.sleep(0.001)
+                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
+            sleep(0.001)
 
-        #: Read the 4-th sample
+        #: Read the last sample from ADC
         return self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                                ((samples-1)*3 + channel)*4)
-            
-    def read(self, channel=0, samples=4):
-        """Read the value from the ADC PMOD as a string.
+                        (3*samples+channel)*4)
+        
+    def read(self, delay=1, channel=0, samples=4):
+        """Get the voltage from the ADC PMOD.
+        
+        All the 3 available channels are enabled. The default channel is 0, 
+        meaning only the first channel is read. Users can choose any channel
+        from 0 to 2. 
+        
+        In each channel, this method reads multiple samples and 
+        returns the last sample. 
+        
+        The delay specifies the time between two samples, in milliseconds.
+        
+        Note
+        ----
+        The 4th channel is not available due to the jumper setting on ADC.
+        
+        Note
+        ----
+        This method reads the voltage values from ADC.
         
         Parameters
         ----------
+        delay : int
+            The delay between samples on the same channel.
         channel : int
-            The available channels, from 0 to 2.
+            The channel number, from 0 to 2.
         samples : int
             The number of samples read from each ADC channel.
         
         Returns
         -------
-        str
-            An floating number expressed as a string.
+        float
+            The voltage value read from the PMOD ADC.
         
         """
-        if not 0<=channel<=2:
-            raise ValueError("Available channels are 0, 1, and 2.")
-        if not 0<=samples<=255:
-            raise ValueError("Available number of samples is from 0 to 255.")
+        if (delay < 0):
+            raise ValueError("Time between samples should be no less than 0.")
+        if not channel in range(3):
+            raise ValueError("Available channel is 0, 1, or 2.")
+            
+        #: Send the delay and the number of samples
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, delay)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, samples)
         
-        val = self._value(channel, samples)
-        chars = ['0','.','0','0','0','0']
-        chars[0] = chr((val >> 24 ) & 0xff)
-        chars[2] = chr((val >> 16 ) & 0xff)
-        chars[3] = chr((val >> 8 )  & 0xff)
-        chars[4] = chr((val)        & 0xff)
+        #: Send the command
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
         
-        return  ''.join(chars)  
-    
+        #: Wait for I/O processor to complete
+        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
+            sleep(0.001)
+
+        #: Read the last sample from ADC
+        return self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET + \
+                    (3*samples+channel)*4))
+        
+    def start_log_raw(self, channel=0, log_interval_ms=100):
+        """Start the log of raw values with the interval specified.
+        
+        This parameter `log_interval_ms` can set the time interval between 
+        two samples, so that users can read out multiple values in a single 
+        log.  
+        
+        Parameters
+        ----------
+        channel : int
+            The channel number, from 0 to 2.
+        log_interval_ms : int
+            The length of the log in milliseconds, for debug only.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if (log_interval_ms < 0):
+            raise ValueError("Time between samples should be no less than 0.")
+        if not channel in range(3):
+            raise ValueError("Available channel is 0, 1, or 2.")
+        
+        self.log_running = 1
+        
+        #: Send log interval and the channel number
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_ms)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
+        
+        #: Send the command
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
+        
+    def start_log(self, channel=0, log_interval_ms=100):
+        """Start the log of voltage values with the interval specified.
+        
+        This parameter `log_interval_ms` can set the time interval between 
+        two samples, so that users can read out multiple values in a single 
+        log.  
+        
+        Parameters
+        ----------
+        channel : int
+            The channel number, from 0 to 2.
+        log_interval_ms : int
+            The length of the log in milliseconds, for debug only.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if (log_interval_ms < 0):
+            raise ValueError("Time between samples should be no less than 0.")
+        if not channel in range(3):
+            raise ValueError("Available channel is 0, 1, or 2.")
+        
+        self.log_running = 1
+        
+        #: Send log interval and the channel number
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_ms)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
+        
+        #: Send the command
+        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
+        
+    def stop_log_raw(self):
+        """Stop the log of raw values.
+        
+        This is done by sending the reset command to IOP. There is no need to
+        wait for the IOP.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        if(self.log_running == 1):
+            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+            self.log_running = 0
+        else:
+            raise RuntimeError("No grove ADC log running.")
+            
+    def stop_log(self):
+        """Stop the log of voltage values.
+        
+        This is done by sending the reset command to IOP. There is no need to
+        wait for the IOP.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        if(self.log_running == 1):
+            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+            self.log_running = 0
+        else:
+            raise RuntimeError("No grove ADC log running.")
+                        
+    def get_log_raw(self):
+        """Get the log of raw values.
+        
+        First stop the log before getting the log.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        list
+            List of valid raw samples from the ADC.
+        
+        """
+        #: Stop logging
+        self.stop_log_raw()
+
+        #: Prep iterators and results list
+        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        readings = list()
+
+        #: Sweep circular buffer for samples
+        if head_ptr == tail_ptr:
+            return None
+        elif head_ptr < tail_ptr:
+            for i in range(head_ptr,tail_ptr,4):
+                readings.append(self.mmio.read(i))
+        else:
+            for i in range(head_ptr,PMOD_ADC_LOG_END,4):
+                readings.append(self.mmio.read(i))
+            for i in range(PMOD_ADC_LOG_START,tail_ptr,4):
+                readings.append(self.mmio.read(i))
+        return readings
+        
+    def get_log(self):
+        """Get the log of voltage values.
+        
+        First stop the log before getting the log.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        list
+            List of valid raw samples from the ADC.
+        
+        """
+        #: Stop logging
+        self.stop_log()
+
+        #: Prep iterators and results list
+        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        readings = list()
+
+        #: Sweep circular buffer for samples
+        if head_ptr == tail_ptr:
+            return None
+        elif head_ptr < tail_ptr:
+            for i in range(head_ptr,tail_ptr,4):
+                readings.append(float("{0:.4f}"\
+                    .format(self._reg2float(self.mmio.read(i)))))
+        else:
+            for i in range(head_ptr,PMOD_ADC_LOG_END,4):
+                readings.append(float("{0:.4f}"\
+                    .format(self._reg2float(self.mmio.read(i)))))
+            for i in range(PMOD_ADC_LOG_START,tail_ptr,4):
+                readings.append(float("{0:.4f}"\
+                    .format(self._reg2float(self.mmio.read(i)))))
+        return readings
+        
+    def _reg2float(self, reg):
+        """Converts 32-bit register value to floats in Python.
+        
+        Parameters
+        ----------
+        reg: int
+            A 32-bit register value read from the mailbox.
+            
+        Returns
+        -------
+        float
+            A float number translated from the register value.
+        
+        """
+        s = struct.pack('>l', reg)
+        return round(struct.unpack('>f', s)[0], 4)
