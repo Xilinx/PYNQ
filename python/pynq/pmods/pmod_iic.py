@@ -35,6 +35,8 @@ from time import sleep
 from pynq.pmods import pmod_const
 from pynq.pmods.devmode import DevMode
 
+I2C_DELAY = .001
+
 class PMOD_IIC(object):
     """This class controls the PMOD IIC pins.
     
@@ -120,8 +122,7 @@ class PMOD_IIC(object):
 
         self.drr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
                         pmod_const.IOPMM_XIIC_DRR_REG_OFFSET
-        
-        
+
     def _iic_enable(self):
         """This method enables the IIC drivers.
         
@@ -153,6 +154,9 @@ class PMOD_IIC(object):
         #: Enable the IIC core
         self.iop.write_cmd(self.cr_addr, 0x01)
         
+        sleep(I2C_DELAY)
+
+
     def send(self, iic_bytes):
         """This method sends the command or data to the driver.
         
@@ -195,6 +199,7 @@ class PMOD_IIC(object):
             if (timeout == 0):
                 raise RuntimeError("Timeout when writing IIC.")
 
+        sleep(I2C_DELAY)
 
     def receive(self, num_bytes):
         """This method receives IIC bytes from the device.
@@ -215,29 +220,50 @@ class PMOD_IIC(object):
             Timeout when waiting for the RX FIFO to fill.
             
         """
-        #: Enable IIC Core
-        self._iic_enable()
+
+        #: Reset the IIC core and flush the Tx FIFO
+        self.iop.write_cmd(self.cr_addr, 0x02)
+
+        #: Set the Rx FIFO depth to one byte
+        self.iop.write_cmd(self.rfd_addr, 0x0) 
 
         #: Transmit 7-bit address and Read bit
         self.iop.write_cmd(self.dtr_addr, 0x101 | (self.iic_addr << 1))
-    
+
+        #: Enable the IIC core
+        cr_reg = 0x05
+        if num_bytes == 1:
+            cr_reg |= 0x10
+
+        self.iop.write_cmd(self.cr_addr,cr_reg)
+        sleep(I2C_DELAY)
+
         #: Program IIC Core to read num_bytes bytes and issue STOP
         self.iop.write_cmd(self.dtr_addr, 0x200 + num_bytes)
 
         #: Read num_bytes from RX FIFO
         iic_bytes = list()
         while(len(iic_bytes) < num_bytes):
-            timeout = 100
-            
+ 
+            #: special condition for last two bytes
+            if (num_bytes - len(iic_bytes)) == 1:
+                self.iop.write_cmd(self.cr_addr,0x1)
+            elif (num_bytes - len(iic_bytes)) == 2:
+                self.iop.write_cmd(self.cr_addr, \
+                                   self.iop.read_cmd(self.cr_addr) | 0x10)
+
             #: Wait for data to be available in RX FIFO
-            while((self.iop.read_cmd(self.sr_addr) & 0x40) and (timeout > 0)):
+            timeout = 100
+            while(((self.iop.read_cmd(self.sr_addr) & 0x40) == 0x40) and \
+                  (timeout > 0)):
                 timeout -= 1
+
             if(timeout == 0):
                 raise RuntimeError("Timeout when reading IIC.")
 
             #: Read data 
             iic_bytes.append((self.iop.read_cmd(self.drr_addr) & 0xff))
-            sleep(.001)
 
+        sleep(I2C_DELAY)
         return iic_bytes
         
