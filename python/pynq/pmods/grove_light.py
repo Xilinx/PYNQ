@@ -37,12 +37,12 @@ from math import log
 from pynq.pmods import pmod_const
 from pynq.pmods import Grove_ADC
 
-class Grove_TMP(Grove_ADC):
-    """This class controls the grove temperature sensor.
+class Grove_Light(Grove_ADC):
+    """This class controls the grove light sensor.
     
     This class inherits from the Grove_ADC class. To use this module, grove 
-    ADC has to be used as a bridge. The temperature sensor uses a thermistor 
-    to detect the ambient temperature. Hardware version: v1.2.
+    ADC has to be used as a bridge. The light sensor incorporates a Light 
+    Dependent Resistor (LDR) GL5528. Hardware version: v1.1.
     
     Note
     ----
@@ -60,12 +60,10 @@ class Grove_TMP(Grove_ADC):
         The state of the log (0: stopped, 1: started).
     log_interval_ms : int
         Time in milliseconds between sampled reads of the Grove ADC sensor.
-    bValue : int
-        The thermistor constant.
     
     """
-    def __init__(self, pmod_id, gr_id, version='v1.2'): 
-        """Return a new instance of a Grove_TMP object. 
+    def __init__(self, pmod_id, gr_id): 
+        """Return a new instance of an Grove ADC object. 
         
         Note
         ----
@@ -77,27 +75,15 @@ class Grove_TMP(Grove_ADC):
             The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
         gr_id: int
             The group ID on StickIt, from 1 to 4.
-        version : str
-            The hardware version number (can be found on device).
             
         """
         if (gr_id not in [3,4]):
             raise ValueError("Valid StickIt group IDs are 3 and 4.")
         
-        if version == 'v1.2':
-            #: v1.2 uses NCP18WF104F03RC
-            self.bValue = 4250
-        elif version == 'v1.1':
-            #: v1.1 uses thermistor NCP18WF104F03RC
-            self.bValue = 4250
-        else:
-            #: v1.0 uses thermistor TTC3A103*39H
-            self.bValue = 3975
-        
         super().__init__(pmod_id, gr_id)
         
     def read(self):
-        """Read temperature values in Celsius from temperature sensor.
+        """Read the light sensor resistance in from the light sensor.
         
         This method overrides the definition in Grove_ADC.
         
@@ -108,15 +94,15 @@ class Grove_TMP(Grove_ADC):
         Returns
         -------
         float
-            The temperature reading in Celsius.
+            The light reading in terms of the sensor resistance.
         
         """
-        #: Transform the ADC data into degree Celsius
+        #: Transform the ADC data into light value
         val = super().read_raw()
-        return self._int2temp(val)
+        return self._int2R(val)
         
     def start_log(self):
-        """Start recording temperature in a log.
+        """Start recording the light sensor resistance in a log.
         
         This method will call the start_log_raw() in the parent class.
         
@@ -132,7 +118,7 @@ class Grove_TMP(Grove_ADC):
         super().start_log_raw()
         
     def get_log(self):
-        """Return list of logged temperature samples.
+        """Return list of logged light sensor resistances.
         
         Parameters
         ----------
@@ -141,18 +127,18 @@ class Grove_TMP(Grove_ADC):
         Returns
         -------
         list
-            List of valid temperature readings from the temperature sensor.
+            List of valid light sensor resistances.
         
         """
         #: Stop and get the log
-        tmp_log = super().get_log_raw()
+        r_log = super().get_log_raw()
         
-        for i in range(len(tmp_log)):
-            tmp_log[i] = self._int2temp(tmp_log[i])
-        return tmp_log
+        for i in range(len(r_log)):
+            r_log[i] = self._int2R(r_log[i])
+        return r_log
         
     def stop_log(self):
-        """Stop recording temperature in a log.
+        """Stop recording light values in a log.
         
         This method will call the stop_log_raw() in the parent class.
         
@@ -167,10 +153,15 @@ class Grove_TMP(Grove_ADC):
         """
         super().stop_log_raw()
         
-    def _int2temp(self, val):
-        """Convert the integer value to temperature in Celsius.
+    def _int2R(self, val):
+        """Convert the integer value to the light sensor resistance.
         
         This method should only be used internally.
+        
+        Note
+        ----
+        A smaller returned value indicates a higher brightness. Resistance 
+        value ranges from 5.0 (brightest) to 35.0 (darkest).
         
         Parameters
         ----------
@@ -180,10 +171,9 @@ class Grove_TMP(Grove_ADC):
         Returns
         -------
         float
-            The temperature reading in Celsius.
+            The light sensor resistance indicating the light intensity.
         
         """
-        R = 4095.0/val - 1.0
-        temp = 1.0/(log(R)/self.bValue + 1/298.15)-273.15
-        return float("{0:.2f}".format(temp))
+        R_sensor = (4095.0 - val) * 10 / val
+        return float("{0:.2f}".format(R_sensor))
         

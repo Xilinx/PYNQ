@@ -143,11 +143,9 @@ int main(void)
 
       // wait and store valid command
       while((MAILBOX_CMD_ADDR)==0);
-      
       cmd = MAILBOX_CMD_ADDR;
       
       switch(cmd){
-
          case CONFIG_IOP_SWITCH:
             // read new pin configuration
             scl = MAILBOX_DATA(0);
@@ -174,74 +172,66 @@ int main(void)
             MAILBOX_CMD_ADDR = 0x0; 
 
             break;
-
          case READ_VOLTAGE:
             // write out adc_value, reset mailbox
             adc_voltage = (float)((read_adc(REG_ADDR_RESULT))*V_REF*2/4096);
             MAILBOX_DATA_FLOAT(0) = adc_voltage;
             MAILBOX_CMD_ADDR = 0x0; 
-
             break;
          case READ_AND_LOG_RAW_DATA:   
             // initialize logging variables, reset cmd
             cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
-            delay = MAILBOX_DATA(1);   
-            MAILBOX_CMD_ADDR = 0x0; 
-
-            do{   
+            delay = MAILBOX_DATA(1);
+            while(MAILBOX_CMD_ADDR != 0xC){   
                // push sample to log and delay
                adc_raw_value = 2*read_adc(REG_ADDR_RESULT);
                cb_push_back(&pmod_log, &adc_raw_value);
                delay_ms(delay);
-
-            } while((MAILBOX_CMD_ADDR & 0x1)== 0); // do while no new command
-
+            }
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case READ_AND_LOG_VOLTAGE:   
             // initialize logging variables, reset cmd
             cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
-            delay = MAILBOX_DATA(1);   
-            MAILBOX_CMD_ADDR = 0x0; 
-
-            do{   
+            delay = MAILBOX_DATA(1);
+            while(MAILBOX_CMD_ADDR != 0xC){   
                // push sample to log and delay
                adc_voltage = (float)((read_adc(REG_ADDR_RESULT))*V_REF*2/4096);
                cb_push_back_float(&pmod_log, &adc_voltage);
                delay_ms(delay);
-
-            } while((MAILBOX_CMD_ADDR & 0x1)== 0); // do while no new command
-
+            }
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case SET_LOW_LEVEL:
             write_adc(REG_ADDR_LIMITL, MAILBOX_DATA(0), 2);
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case SET_HIGH_LEVEL:   
             write_adc(REG_ADDR_LIMITH, MAILBOX_DATA(0), 2);
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case SET_HYSTERESIS_LEVEL:
             write_adc(REG_ADDR_HYST, MAILBOX_DATA(0), 2);
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case READ_LOWEST_LEVEL:
             MAILBOX_DATA_FLOAT(0) = read_adc(REG_ADDR_CONVL);
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case READ_HIGHEST_LEVEL:
             MAILBOX_DATA_FLOAT(0) = read_adc(REG_ADDR_CONVH);
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;           
          case READ_STATUS:
             MAILBOX_DATA_FLOAT(0) = read_adc(REG_ADDR_ALERT);
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case RESET_ADC:
             write_adc(REG_ADDR_CONFIG, 0x20, 1);
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          default:
-            MAILBOX_CMD_ADDR = 0x0; // reset command
+            MAILBOX_CMD_ADDR = 0x0;
             break;
       }
    }
