@@ -97,7 +97,7 @@ class PMOD_ADC(object):
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
             sleep(0.001)
             
-    def read_raw(self, delay=1, channel=0, samples=4):
+    def read_raw(self, delay=10, channel=0, samples=3):
         """Get the raw value from the ADC PMOD.
         
         All the 3 available channels are enabled. The default channel is 0, 
@@ -154,7 +154,7 @@ class PMOD_ADC(object):
         return self.mmio.read(pmod_const.MAILBOX_OFFSET + \
                         (3*samples+channel)*4)
         
-    def read(self, delay=1, channel=0, samples=4):
+    def read(self, delay=10, channel=0, samples=3):
         """Get the voltage from the ADC PMOD.
         
         All the 3 available channels are enabled. The default channel is 0, 
