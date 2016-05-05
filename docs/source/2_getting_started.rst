@@ -47,22 +47,21 @@ There are three main steps to getting started with Pynq and the Zybo.  These are
 
    * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_.  **pynq** is the default hostname of the board. If you have changed the hostname, you will need to change the address to match your hostname. It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ for how to change the hostname.  
    * To communicate with the board using a static IP address, please see the example Windows batch scripts in Pynq/ubuntu/scripts to enable a Windows machine's Ethernet port to also use static IP addressing.
-   |
 
    .. image:: ./images/portal_login.jpg
       :height: 600px
       :scale: 75%
       :align: center
-   
-   |
+
+
    * The Jupyter username/password is xpp/xpp
-   |
    
    .. image:: ./images/portal_homepage.jpg
       :height: 600px
       :scale: 75%
       :align: center
-   
+
+
 You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board by going to the *Getting Started* and *Example* Notebooks in the Pynq home area. 
 
 If you can't connect to the board, see the `Frequently asked questions <13_faqs.html>`_

@@ -248,7 +248,7 @@ Note that each Microblaze has the same address space, allowing any binary compil
 
 
 Example IOP Driver
---------
+------------------
 
 Taking PMOD ALS as an example IOP driver used to talk to the PMOD light sensor, first open the pmod_als.c file:
 
@@ -334,7 +334,7 @@ Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP wi
     self.iop.start()
 
 Example of Python Class Runtime Methods
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to Microblaze read transaction specfic to the ALS class.
 

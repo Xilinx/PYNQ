@@ -70,7 +70,7 @@ This folder contains the HDMI and VGA classes to video on Zybo.  Please see `The
 tests
 -----
 
-This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest<http://pytest.org/latest/>`_.  Please see `The Verification Section <11_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
+This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <11_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
 
 NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
 
