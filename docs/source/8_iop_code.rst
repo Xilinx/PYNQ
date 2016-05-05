@@ -176,6 +176,7 @@ There are 8 data pins on a Pmod port, that can be connected to any of 16 interna
 Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register. 
 The following function, part of the provided SDK BSP (pmod.h/.c) can be used to configure the switch. 
 
+.. code-block:: c
 
    void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7);
 
@@ -207,6 +208,7 @@ If two or more pins are connected to the same signal, the pins are OR'd together
 
 For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO_7:
 
+.. code-block:: c
 
    configureSwitch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, GPIO_4, GPIO_5, GPIO_6, GPIO_7)
 
@@ -222,15 +224,16 @@ pmod.h and pmod.c driver contains an API, addresses, and constant definitions th
 
 This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
 
-#include "pmod.h"
+.. code-block:: c
+
+   #include "pmod.h"
 
 Any application that uses the Pmod driver should also call pmod_init() at the beginning of the application. 
 
 Running code on different IOPs
 ------------------------------------------
 
-The shared memory is the only connection between the ARM and the IOPs. That shared memory of a Microblaze is mapped to the ARM address space.  Some example mappings are shown below to highlight the address translation between Microblaze and ARM's memory spaces.  Note that each Microblaze has the same address space, allowing any binary compiled for one Microblaze to run on any IOP in the overlay.
-
+The shared memory is the only connection between the ARM and the IOPs. That shared memory of a Microblaze is mapped to the ARM address space.  Some example mappings are shown below to highlight the address translation between Microblaze and ARM's memory spaces.  
 
 =================   =========================   ============================
 IOP Base Address    Microblaze Address Space    ARM Equivalent Address Space
@@ -241,16 +244,13 @@ IOP Base Address    Microblaze Address Space    ARM Equivalent Address Space
 0x4600_0000         0x0000_0000 - 0x0000_7fff   0x4600_0000 - 0x4600_7fff
 =================   =========================   ============================
 
-
-However, for each IOP, the MicroBlaze sees only its own address space. i.e. BRAM, Timer, IOP Switch, IIC, and SPI have the same addresses in each IOP's address space. 
-
-This means, C code written for one IOP can run on any of the other IOPs simply by writing the application (.bin file) to the appropriate IOP's BRAM from the ARM. 
+Note that each Microblaze has the same address space, allowing any binary compiled for one Microblaze to run on any IOP in the overlay.
 
 
-Example
+Example IOP Driver
 --------
 
-Taking PMOD ALS as an example, first open the pmod_als.c file:
+Taking PMOD ALS as an example IOP driver used to talk to the PMOD light sensor, first open the pmod_als.c file:
 
     Pynq/zybo/sdk/pmodals/src/pmod_als.c
 
@@ -258,11 +258,9 @@ Note that the pmod.h header file is included.
 
 Some COMMANDS are defined by the user. These values can be chosen to be any value, but must correspond with the Python part of the driver. 
 
-By convention, 0x0 is reserved for no command/idle/acknowledge, and operations for the IOP can start at command 0x1.
+By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands can be any non-zero value.
 
-The ALS peripheral has as SPI interface. Note the user defined function get_sample() which calls an SPI function spi_transfer().  
-
-The SPI API is included in pmod.h.
+The ALS peripheral has as SPI interface. Note the user defined function get_sample() which calls an SPI function spi_transfer() call defined in pmod.h.  
 
 In main() notice configureSwitch() is called to initialize the switch with a static configuration. This means that if you want to use this code with a different pin configuration, the c code must be changed and recompiled. 
 
@@ -270,83 +268,99 @@ Next, the while(1) loop is entered. In this loop the IOP continually checks the 
 
 Taking the first case, reading a value:
 
+.. code-block:: c
+
     case READ_SINGLE_VALUE:
-
         MAILBOX_DATA(0) = get_sample();
-
         MAILBOX_CMD_ADDR = 0x0;
 
 get_sample() is called and a value returned to the first position (0) of the MAILBOX_DATA.
 
-MAILBOX_CMD_ADDR is reset to 0x0 to acknowledge to the Pynq environment that the operation is complete and data is available in the mailbox. 
+MAILBOX_CMD_ADDR is reset to zero to acknowledge to the ARM processors that the operation is complete and data is available in the mailbox. 
 
 Examine Python Code
 ^^^^^^^^^^^^^^^^^^^^
 
-Next examine the Python code.
+With the IOP Driver written, the Python class can be built that will communicate with that IOP. 
  
    Pynq/tree/master/python/pynq/pmods/pmod_als.py
    
-First the _iop, pmod_const and MMIO are imported. These are all constituents of an IOP.
+First the _iop, pmod_const and MMIO are imported and the Microblaze executable defined. 
 
-from . import _iop
-from . import pmod_const
-from pynq import MMIO
+.. code-block:: python
+
+   from . import _iop
+   from . import pmod_const
+   from pynq import MMIO
+
+   ALS_PROGRAM = "als.bin"
 
 The IOP module is imported, along with the Pmod constant definitions (pin mappings) and the MMIO (interface to shared memory).
 
-The .bin for the IOP is declared. This is the application executable, and will be loaded into the IOP instruction memory. 
+The Microblaze binary for the IOP is also declared. This is the application executable, and will be loaded into the IOP instruction memory. 
 
-    ALS_PROGRAM = "als.bin"
 
-The ALS class is defined:
 
-class ALS(object):
+The ALS class and an initialization method are defined:
 
-The initialization function for the module requires a pmod id/IOP number. For Grove peripherals and the StickIt connector, the StickIt port number could also be used for initialization.
+.. code-block:: python
 
-    def __init__(self, pmod_id):
+   class PMOD_ALS(object):
+      def __init__(self, pmod_id):
 
-This will be used to load the application code into the appropriate IOP. The __init__ is called when a module is instantiated. e.g. from Python:
+The initialization function for the module requires a IOP index. For Grove peripherals and the StickIt connector, the StickIt port number is also used for initialization.  The __init__ is called when a module is instantiated. e.g. from Python:
 
-    als = ALS(1)
+.. code-block:: python
 
-_iop.request_iop() instantiates an instance of the _iop on the specified pmod_id and loads the .bin file (ALS_PROGRAM) into the instruction memory of the appropriate IOP
+    from pynq.pmods import PMOD_ALS
+    als = PMOD_ALS(1)
+
+Looking further into the initialization method, the _iop.request_iop() call instantiates an instance of an IOP on the specified pmod_id and loads the Microblaze executable (ALS_PROGRAM) into the instruction memory of the appropriate Microblaze.
+
+.. code-block:: python
 
     self.iop = _iop.request_iop(pmod_id, ALS_PROGRAM)
 
-MMIO is used to read and write from the shared memory
+An MMIO class is also instantiated to enable read and writes to the shared memory.  
+
+.. code-block:: python
 
     self.mmio = self.iop.mmio
 
-log_interval_ms is a variable specific to this application.
+Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP will be running the als.bin executable.    
 
-    self.log_interval_ms = 1000
-
-iop.start() resets the IOP. After this, the IOP will start running the new application.    
+.. code-block:: python
 
     self.iop.start()
 
-Reading a Value
+Example of Python Class Runtime Methods
 ^^^^^^^^^^^^^^^^
 
-The read() function 
+The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to Microblaze read transaction specfic to the ALS class.
 
-    def read(self)
+.. code-block:: python
 
-mmio.write() writes a value representing a command to the COMMAND area in the shared memory, in this case "3". This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.
+    def read(self):
 
-    self.mmio.write(pmod_const.MAILBOX_OFFSET+\\
+First, the comand is written to the Microblaze driver using mmio.write() calls to the shared memory, in this case "3". This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.
+
+.. code-block:: python
+
+    self.mmio.write(pmod_const.MAILBOX_OFFSET+
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)     
 
-When the IOP is finished, it will write 0x0 to the command area. The code now uses mmio.read() to check if the command is still 3, and if it is, it loops.  
+When the IOP is finished, it will write 0x0 to the command area. The Python code now uses mmio.read() to check if the command is still pending (in this case, when the 3 value is still present at the CMD_OFFSET).  While the command is pending, the Python class blocks.  
 
-|    while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\\
-|                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3)
-|        pass
+.. code-block:: python
+
+    while (self.mmio.read(pmod_const.MAILBOX_OFFSET+
+                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
+        pass
             
 Once the command is no longer 3, i.e. the acknowledge has been received, the result is read from the DATA area of the shared memory MAILBOX_OFFSET. Using mmio.read()
 
+.. code-block:: python
+
     return self.mmio.read(pmod_const.MAILBOX_OFFSET)
 
-Notice the pmod_const values are used in these function calls. 
+Notice the pmod_const values are used in these function calls, values that are predefined in pmod_const.py. 

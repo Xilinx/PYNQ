@@ -20,10 +20,12 @@ Frequently Asked Questions (FAQs)
    
    Check that you can ping the board from a command prompt or terminal on your host PC
    
-   ping pynq (or the hostname of your board)
+   .. code-block:: console
+      # replace pynq with correct hostname if you have changed it
+      ping pynq 
    
 ... My hostname is not resolving
-   If you know the IP address of the board, you can use it to navigate to the Pynq portal. e.g.  http://192.168.2.99:9090
+   If you know the IP address of Zybo, you can use it to navigate to the Pynq portal. e.g.  http://192.168.2.99:9090
 
 ... I have followed the Getting Started Guide, I see a Red Led, but not a green Led when I power on the board. 
    Check the Micro-SD card is inserted correctly (the socket is spring loaded, so push it in until you feel it click into place). Check or reflash the Micro SD card with eh pynq image. 
@@ -33,7 +35,7 @@ Frequently Asked Questions (FAQs)
    
    If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range.  
    
-... My board is connected, and I have verified the IP addresses on the board, and for my network interface, but I can connect to the board
+... My board is connected, and I have verified the IP addresses on the board, and for my network interface, but I cannot connect to the board
    If you are connected to a VPN, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.
 
 ... How do I connect to the board using a terminal?
@@ -52,11 +54,11 @@ Frequently Asked Questions (FAQs)
    
    Once you connect to the board, you can configure the network interface in Ubuntu
    
-... How to I change Ubuntu settings on the board?
-   Connect to the board using a terminal, and change the settings as you would for any other Ubuntu machine. See Ubuntu documentation for further information.   
+... How to I modify the Zybo Ubuntu operating system?
+   Connect to the board using a terminal, and change the settings as you would for any other Ubuntu machine.  Zybo comes with a standard Ubuntu 15.10 build.   
    
-... Find the IP address of the board
-   Connect to the board using a terminal (see above) and type 'ifconfig' to find the IP address for the eth0 Ethernet adapter
+... How to find the IP address of the board
+   Connect to the board using a terminal (see above) and type 'hostname -I' to find the IP address for the eth0 Ethernet adapter
    
 ... How do I set/change the static IP address on the board 
    The Static IP address is set in /etc/dhcp/dhclient.conf  - you can modify the board's static IP there
@@ -67,7 +69,7 @@ Frequently Asked Questions (FAQs)
 ... Change the hostname
    If you have multiple boards on the same network, you should give them different host names. 
    You can run the following script to change the hostname:
-   /home/xpp/scripts/hostname.sh <NEW HOST NAME>
+   sudo /home/xpp/scripts/hostname.sh NEW_HOST_NAME
    
-.. What is the user account and password?
-   Username and password are both: xpp
+...  What is the user account and password?
+   Username and password for all linux, jupyter and samba logins are: xpp/xpp
