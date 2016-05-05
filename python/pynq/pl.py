@@ -221,6 +221,23 @@ class PL:
         cls.gpio_dict = _get_dict_gpio(tcl_name)
         
     @classmethod
+    def reset(cls):
+        """Reset both the IP and GPIO dictionaries.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        tcl_name = _get_tcl_name(cls.bitfile_name)
+        cls.ip_dict = _get_dict_ip_addr(tcl_name)
+        cls.gpio_dict = _get_dict_gpio(tcl_name)
+        
+    @classmethod
     def get_ip_names(cls, ip_kwd=None):
         """This method returns the IP names in the PL.
         
