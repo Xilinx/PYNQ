@@ -21,8 +21,9 @@ Frequently Asked Questions (FAQs)
    Check that you can ping the board from a command prompt or terminal on your host PC
    
    .. code-block:: console
+   
       # replace pynq with correct hostname if you have changed it
-      ping pynq 
+      ping pynq
    
 * My hostname is not resolving
    If you know the IP address of Zybo, you can use it to navigate to the Pynq portal. e.g.  http://192.168.2.99:9090
@@ -71,5 +72,5 @@ Frequently Asked Questions (FAQs)
    You can run the following script to change the hostname:
    sudo /home/xpp/scripts/hostname.sh NEW_HOST_NAME
    
-*  What is the user account and password?
+* What is the user account and password?
    Username and password for all linux, jupyter and samba logins are: xpp/xpp
