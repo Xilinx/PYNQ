@@ -34,22 +34,29 @@ There are three main steps to getting started with Pynq and the Zybo.  These are
    * For now you will need to obtain the image, or a micro-SD card preloaded with the image directly from the Pynq team.
    * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_. The Micro-SD card must be at least 16GB.  
 
+
 2. **Configure Zybo and connect it to your host machine and network**
 
-   * See further detailed `Hardware Setup instructions <2_getting_started.html#hardware-setup>`_ below if necessary
+
+   * The board can be powered from a USB cable (default setting) or wall plug.  Additionally, the board must be connected to the network - on boot the board will automatically attempt to get an IP address using DHCP, falling back to a static IP address if DHCP fails.
+   * For board set up, see further detailed `Hardware Setup instructions <2_getting_started.html#hardware-setup>`_ below.
+
 
 3. **Open a web browser and connect to Pynq Jupyter Notebooks web portal**
 
-   * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_.  **pynq** is the default Ubuntu hostname of the board. If you have changed the hostname, you will need to change the address to match your hostname. It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ for how to change the hostname.
-   
+
+   * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_.  **pynq** is the default hostname of the board. If you have changed the hostname, you will need to change the address to match your hostname. It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ for how to change the hostname.  
+   * To communicate with the board using a static IP address, please see the example Windows batch scripts in Pynq/ubuntu/scripts to enable a Windows machine's Ethernet port to also use static IP addressing.
+   |
+
    .. image:: ./images/portal_login.jpg
       :height: 600px
       :scale: 75%
       :align: center
    
-   
-   * Log in with the username/password xpp/xpp
-   
+   |
+   * The Jupyter username/password is xpp/xpp
+   |
    
    .. image:: ./images/portal_homepage.jpg
       :height: 600px
@@ -94,7 +101,7 @@ Samba is running on the board, and the home area is shared and can be accessed l
 
 Users should go to *\\\\pynq\\xpp* to access the pynq home area.
 
-Login and password is xpp \ xpp
+The Samba username/password is xpp/xpp
 
 .. image:: ./images/samba_share.jpg
    :height: 600px

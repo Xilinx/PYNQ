@@ -7,7 +7,7 @@ IO Processors (IOPs) contain a soft `Xilinx MicroBlaze processor <https://en.wik
    :scale: 75%
    :align: center
    
-For external peripherals, low-level control, or real-time processing can be carried out by the IOP, rather than the main ARM processor. The ARM Cortex-A9 is an Application processor, not a real time processor. 
+For external peripheral control or real-time processing, the IOP is the best microcontroller in Pynq for this computation.  By contrast, the ARM Cortex-A9 is an application processor and will be running Linux, not well-suited for real time applications. 
 
 The IOP switch can be configured to route signals between the physical Pmod interface (external pins), and the available internal peripherals. In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA to interface to different external peripherals. 
 
@@ -16,9 +16,9 @@ IOPs can also be used standalone to offload some processing from the main proces
 Xilinx Software installation
 ----------------------------
 
-Some of the following steps require you to install Xilinx Vivado and/or Xilinx SDK.
+A Microblaze cross-compiler is necessary to build Microblaze software.  Xilinx SDK contains that cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with precompiled drivers for many devices - Xilinx software is only needed if you intend to build your own drivers.
 
-The current Pynq release is built using 2015.4. You should use the same version to rebuild existing Vivado and SDK projects.  
+The current Pynq release is built using SDK 2015.4. You should use the same version to rebuild existing Vivado and SDK projects.  
 
 `Download Xilinx Vivado and SDK 2015.4 <http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html>`_
 
@@ -34,19 +34,15 @@ The Xilinx SDK (Software Development Kit) can be installed on a host computer an
 Hardware Description File
 -------------------------
 
-To create a project in SDK for the IOP, the .hdf hardware definition file for the *OVERLAY*, which includes an instance of the IOP is required. 
+To create a project in SDK for the IOP, the .hdf hardware definition file from a Xilinx Vivado project that includes an IOP is required. 
 
-A precompiled .hdf for the pmod_overlay is available here:
+A precompiled pmod.hdf for the pmod overlay is available here:
 
    Pynq/zybo/sdk
 
-The .hdf can be updated/regenerated from a Vivado overlay projects, but this step requires that you have Vivado installed on the host machine.
+This hdf file was generated from a Vivado project and does not need to recreated.  If you do need to build the pmod.hdf file again, the pmod overlay can be rebuilt using the supplied makefile at:
 
-If you have Vivado installed, you can build the Vivado project for an overlay by running the makefile here (cd to this directory and run make):
-
-    Pynq/zybo/vivado/Makefile
-    
-Check the Makfile to determine which overlay you are building. By default, this will build the Vivado project for the _pmod_ overlay, generate the .hdf, and copy it to: zybo/sdk
+   Pynq/zybo/vivado/pmod/makefile  
 
 
 Build the SDK Hardware Platform and BSP 
@@ -61,15 +57,15 @@ The SDK application project, and source code for each peripheral can be found he
 
     Pynq/zybo/sdk/
     
-As described above, the .hdf file also exists here. 
+As described above, the pmod.hdf file also exists here. 
 
-SDK requires a Hardware platform, and Board Support Pacakge, which are needed to build the application projects. The Board Support Package contains libraries for peripherals in the system. This includes internal peripherals and IP, and external peripherals. Some libraries are included in Vivado/SDK, and other libraries are user defined. e.g. custom driver for a peripheral. The source files for custom peripherals in the Overlay can be found in the Vivado project directory for an overlay. The source files also contain the drivers, which will be a compiled into a library and included in the BSP. 
+SDK requires a Hardware platform, and Board Support Package, which are needed to build the application projects. The Board Support Package contains libraries for peripherals in the system. This includes internal peripherals and IP, and external peripherals. Some libraries are included in Vivado/SDK, and other libraries are user defined. e.g. custom driver for a peripheral. The source files for custom peripherals in the Overlay can be found in the Vivado project directory for an overlay. The source files also contain the drivers, which will be a compiled into a library and included in the BSP. 
 
 The Hardware Platform, BSP, and all application projects can be built by running make from:
 
     Pynq/zybo/sdk/
 
-This will built all the projects set in the variable MBBINS at the top of the makefile.
+This will build all the projects set in the variable MBBINS at the top of the makefile.
 
 .. image:: ./images/make_sdk.jpg
    :scale: 75%
@@ -131,13 +127,14 @@ A .bin file can be generated from an elf by running:
 
     mb-objcopy -O binary input_file.elf outputfile.bin
 
-This is done by the makefile for existing peripheral projects. The makefile also creates a *bins * directory, and copies all the .bin files from the peripheral projects to it.
+This is done by the makefile for existing peripheral projects. The makefile will additionally copy all Microblaze bin files into the Pynq/python/pynq/pmods folder.
 
 
 IOP Memory
 ----------
 
-The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. The IOP data memory, is also used to communicate between the Pynq environment and the IOP.
+The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. The IOP data memory is also used to communicate between the Pynq environment and the IOP.
+
 
 Memory map
 ----------
@@ -147,7 +144,7 @@ Pynq and the application running on the IOP can write to anywhere in the shared 
 
 When building the MicroBlaze project, the compiler will only ensure that the application and allocated stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, an additional shared memory space must also be reserved within the MicroBlaze address space. 
 
-There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size, only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.
+There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.
 
 It is recommended to follow the convention for data communication between the two processors. These MAILBOX values are defined in the pmod.h file.  
 
@@ -159,17 +156,17 @@ It is recommended to follow the convention for data communication between the tw
 | Shared mailbox memory start       = 0x7000
 | Shared mailbox memory size        = 0x1000
 | Shared mailbox Command Address    = 0x7ffc
+|
 
+A common scenario would be that Python wants to read a value from a PMOD attached device.  Below is a simple scenario where the Microblaze does that read on behalf of Python.  
 
-i.e. A command will be written from the Pynq environment to the address 0x0x7ffc.
+* Python writes address A to the mailbox command address (0x7ffc).
+* Microblaze sees that non-zero address and performs the read to address A.
+* Microblaze places the data at the mailbox base address (0x7000).
+* Micboblaze writes a zero to the mailbox command address (0x7ffc) to confirm transaction is complete.
+* Python polling on the command address (0x7ffc), sees that the Microblaze has written a zero, signifying read is complete.
+* Python reads the data held at the mailbox base address (0x7000), completing the read.
 
-The IOP must read this location, decode the command and carry out the required operation.
-
-If returning a single value (e.g. from python.read() ) it should be written to location 0x7000.
-
-The Pynq application should then read the value back from here. 
-
-The data area is 0xffc in size (0x1000 - 4 bytes for command address), which could be used for example, to log data. 
 
 IOP Switch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -179,31 +176,37 @@ There are 8 data pins on a Pmod port, that can be connected to any of 16 interna
 Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register. 
 The following function, part of the provided SDK BSP (pmod.h/.c) can be used to configure the switch. 
 
+
    void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, char pin5, char pin6, char pin7);
 
 While each parameter is a "char" only the lower 4-bits are currently used to configure each pin.
 
 Switch mappings used for IOP Switch configuration:
 
-* #define GPIO_0 \t0x0
-* #define GPIO_1 \t0x1
-* #define GPIO_2 \t0x2
-* #define GPIO_3 \t0x3
-* #define GPIO_4 \t0x4
-* #define GPIO_5 \t0x5
-* #define GPIO_6 \t0x6
-* #define GPIO_7 \t0x7
-* #define SCL    \t0x8
-* #define SDA    \t0x9
-* #define SPICLK \t0xa
-* #define MISO   \t0xb
-* #define MOSI   \t0xc
-* #define SS     \t0xd
-* #define BLANK  \t0xe
+========  ======= 
+ Pin      Value  
+========  =======
+ GPIO_0   0x0  
+ GPIO_1   0x1  
+ GPIO_2   0x2  
+ GPIO_3   0x3  
+ GPIO_4   0x4  
+ GPIO_5   0x5  
+ GPIO_6   0x6  
+ GPIO_7   0x7  
+ SCL      0x8  
+ SDA      0x9  
+ SPICLK   0xa  
+ MISO     0xb  
+ MOSI     0xc  
+ SS       0xd  
+ BLANK    0xe  
+========  =======
 
 If two or more pins are connected to the same signal, the pins are OR'd together. 
 
 For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO_7:
+
 
    configureSwitch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, GPIO_4, GPIO_5, GPIO_6, GPIO_7)
 
@@ -215,25 +218,28 @@ Pmod driver
 -----------
 pmod.h and pmod.c driver contains an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   Pynq/zybo/vivado/pmod/src/ip/PMOD_IO_Switch_IP_1.0/drivers/PMOD_IO_Switch_IP_v1_0/src
-   
-This code will be compiled into a library as part of the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
+   Pynq/zybo/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/
+
+This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
 
 #include "pmod.h"
 
-Any application that uses the Pmod driver shoudl also call pmod_init() at the beginning of the application. 
+Any application that uses the Pmod driver should also call pmod_init() at the beginning of the application. 
 
 Running code on different IOPs
 ------------------------------------------
 
-The shared memory is the only connection between the ARM and the IOPs. 
+The shared memory is the only connection between the ARM and the IOPs. That shared memory of a Microblaze is mapped to the ARM address space.  Some example mappings are shown below to highlight the address translation between Microblaze and ARM's memory spaces.  Note that each Microblaze has the same address space, allowing any binary compiled for one Microblaze to run on any IOP in the overlay.
 
-The shared memory is mapped to the ARM address space at the following locations:
 
-| IOP 1 BRAM : 0x40000000
-| IOP 2 BRAM : 0x42000000
-| IOP 3 BRAM : 0x44000000
-| IOP 4 BRAM : 0x46000000
+=================   =========================   ============================
+IOP Base Address    Microblaze Address Space    ARM Equivalent Address Space
+=================   =========================   ============================
+0x4000_0000         0x0000_0000 - 0x0000_7fff   0x4000_0000 - 0x4000_7fff
+0x4200_0000         0x0000_0000 - 0x0000_7fff   0x4200_0000 - 0x4200_7fff
+0x4400_0000         0x0000_0000 - 0x0000_7fff   0x4400_0000 - 0x4400_7fff
+0x4600_0000         0x0000_0000 - 0x0000_7fff   0x4600_0000 - 0x4600_7fff
+=================   =========================   ============================
 
 
 However, for each IOP, the MicroBlaze sees only its own address space. i.e. BRAM, Timer, IOP Switch, IIC, and SPI have the same addresses in each IOP's address space. 
