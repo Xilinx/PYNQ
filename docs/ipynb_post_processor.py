@@ -78,7 +78,7 @@ for file in ipynb_pp_files:
 #: Find all Jupyter notebook (.ipynb) files    
 ipynb_files = [file for file in os.listdir(target_dir) \
                     if file.endswith(".ipynb")]
-print('\nFound {} notebook (.ipynb) files in {}'.format(len(ipynb_files), \
+print('Found {} notebook (.ipynb) files in {}'.format(len(ipynb_files), \
                 os.path.abspath(target_dir)))
 
 #: Regex for the image reference pattern within markdown cells in *.ipynb 
@@ -88,7 +88,7 @@ image_ref_pattern = "\!\[].*/((.*[png jpeg]))"
 for file in ipynb_files:
     with open(target_dir + '/' + file, 'r+', encoding='utf-8') as f:
         notebook = json.load(f)
-        print('Scanning ..... file "{}"'.format(file))
+        print('Scanning... file {}'.format(file))
         f.close()
         
         #: Build markdown_cells with a string matching image_ref_pattern
@@ -123,7 +123,7 @@ for file in ipynb_files:
             # Create the new post-processed ipynb file with updated JSON 
             file_name, file_ext = os.path.splitext( os.path.basename(file))
             post_processed_file = file_name + '_pp' + file_ext
-            print('Writing changes to file: {}'.format(post_processed_file))
+            print('Writing...  file: {}'.format(post_processed_file))
             with open(target_dir + '/' + post_processed_file, 'a+') as f_pp:
                 f_pp.write(json.dumps(notebook, indent = 1, sort_keys=True))
                 f_pp.close()
