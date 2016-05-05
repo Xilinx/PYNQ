@@ -43,7 +43,7 @@ from pynq import GPIO
 from pynq import MMIO
 
 def _get_tcl_name(bitfile_name):
-    """This method returns the name of the *.tcl file.
+    """This method returns the name of the tcl file.
     
     For example, the input "/home/xpp/src/pynq/bitstream/pmod.bit" will lead 
     to the result "/home/xpp/src/pynq/bitstream/pmod.tcl".
@@ -337,7 +337,7 @@ class PL:
         
         Note
         ----
-        The data is assumed to be in binary format (*.bin). The data 
+        The data is assumed to be in binary format (.bin). The data 
         name will be stored as a state information in the IP dictionary.
         
         Parameters
@@ -783,7 +783,7 @@ class Overlay(PL):
         
         Note
         ----
-        The data is assumed to be in binary format (*.bin). The data name will
+        The data is assumed to be in binary format (.bin). The data name will
         be stored as a state information in the IP dictionary.
         
         Parameters
