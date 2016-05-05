@@ -12,7 +12,7 @@ An overlay should be flexible rather than highly customized, even if this result
 For example, it is recommended that IOPs are used for PMOD interfaces to make the overlay as widely applicable as possible, even where the designer intends to use a specific peripheral for a particular application. 
 
 
-
+ 
 
 
 Existing Overlays
@@ -20,8 +20,8 @@ Existing Overlays
 
 Two overlays are currently included in the Pynq repository; pmod, and audiovideo. These overlays can be rebuilt in their respective repository folders:
 
-   Pynq/zybo/vivado/pmod
-   Pynq/zybo/vivado/audiovideo
+   * Pynq/zybo/vivado/pmod
+   * Pynq/zybo/vivado/audiovideo
 
 A makefile exists in each folder that can be used to rebuild the Vivado projects and generate the bitstreams for the overlays. 
 
