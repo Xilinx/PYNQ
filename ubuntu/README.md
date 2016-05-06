@@ -5,9 +5,8 @@ All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-04-27-2016 - <graham.schelle@xilinx.com>
-            Static IP fallback to 192.168.2.99
-            update_pynq.sh ran against current repository contents
+05-05-2016 - <graham.schelle@xilinx.com>
+             milan release v1.0
 ```
 
 
@@ -16,11 +15,6 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-new /etc/environment to capture latest crosscompiler location
-C:\Users\grahams\Documents\PyXi\pynq_linux_files\environment
-
-new static IP fallback if DHCP fails
-C:\Users\grahams\Documents\PyXi\pynq_linux_files\dhclient.conf
 ```
 
 

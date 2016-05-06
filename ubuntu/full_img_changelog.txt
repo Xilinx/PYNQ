@@ -1,5 +1,8 @@
 latest image available at: file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/
 
+05-05-2016 - <graham.schelle@xilinx.com>
+            Milan Release v1.0
+
 04-27-2016 - <graham.schelle@xilinx.com>
             Static IP fallback to 192.168.2.99
             update_pynq.sh ran against current repository contents
