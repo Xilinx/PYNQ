@@ -715,10 +715,30 @@ class Overlay(PL):
         
         """
         tcl_name = _get_tcl_name(self.bitfile_name)
-        gpio_dict = _get_dict_gpio(tcl_name)
+        self.gpio_dict = _get_dict_gpio(tcl_name)
         if self.is_loaded():
             PL.reset_gpio_dict()
-                    
+            
+    def reset(self):
+        """This function resets the IP and GPIO dictionaries of the overlay.
+        
+        Note
+        ----
+        This function should be used with caution. If the overlay is loaded, 
+        it also resets the IP and GPIO dictionaries in the PL.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        
+        """
+        self.reset_ip_dict()
+        self.reset_gpio_dict()
+        
     def get_ip_addr_base(self, ip_name):
         """This method returns the base address of an IP in this overlay.
         

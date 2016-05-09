@@ -55,7 +55,7 @@ def test_devmode():
         assert DevMode(pmod_id, pmod_const.IOP_SWCFG_IIC0_BOTROW) is not None
         assert DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) is not None
     
-    ol.reset_ip_dict()
+    ol.reset()
 
 @pytest.mark.run(order=14)
 def test_devmode():
@@ -89,4 +89,4 @@ def test_devmode():
         iop.stop()
         assert iop.status()=="STOPPED"
         
-    ol.reset_ip_dict()
+    ol.reset()

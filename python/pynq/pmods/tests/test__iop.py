@@ -55,7 +55,7 @@ def test_request_iop():
         exception_raised = True
     assert not exception_raised, 'request_iop() should not raise exception.'
     
-    ol.reset_ip_dict()
+    ol.reset()
     
 @pytest.mark.run(order=11)
 def test_request_iop_same():
@@ -75,7 +75,7 @@ def test_request_iop_same():
         exception_raised = True
     assert not exception_raised, 'request_iop() should not raise exception.'
     
-    ol.reset_ip_dict()
+    ol.reset()
     
 @pytest.mark.run(order=12)
 def test_request_iop_conflict():
@@ -90,6 +90,6 @@ def test_request_iop_conflict():
     request_iop(fixed_id,'pmod_adc.bin')
     pytest.raises(LookupError, request_iop, fixed_id, 'pmod_dac.bin')
     
-    ol.reset_ip_dict()
+    ol.reset()
     
 

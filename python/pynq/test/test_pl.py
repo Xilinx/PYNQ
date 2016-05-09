@@ -70,16 +70,22 @@ def test_overlay():
             'Overlay gets wrong IP address range.'
         assert ol1.get_ip_state(i)==ol1.ip_dict[i][2]==None,\
             'Overlay gets wrong IP state.'
-        #: Set the test for the state
+        #: Set "TEST" for IP states
         ol1.ip_dict[i][2] = "TEST"
     for i in ol1.gpio_dict.keys():
         assert ol1.get_gpio_user_ix(i)==ol1.gpio_dict[i][0],\
             'Overlay gets wrong PS GPIO pin.'
-    ol1.reset_ip_dict()
+        #: Set "TEST" for GPIO states
+        ol1.gpio_dict[i][1] = "TEST"
+    ol1.reset()
     for i in ol1.ip_dict.keys():
-        #: "TEST" should have been cleared by reset_ip_dict()
+        #: "TEST" should have been cleared by reset()
         assert ol1.get_ip_state(i)==None,\
             'Overlay cannot reset IP dictionary.'
+    for i in ol1.gpio_dict.keys():
+        #: "TEST" should have been cleared by reset()
+        assert ol1.get_gpio_state(i)==None,\
+            'Overlay cannot reset GPIO dictionary.'
             
     ol2.download()
     assert 'audiovideo.bit' in ol2.bitfile_name, \
@@ -99,15 +105,21 @@ def test_overlay():
             'Overlay gets wrong IP address range.'
         assert ol2.get_ip_state(i)==ol2.ip_dict[i][2]==None,\
             'Overlay gets wrong IP state.'
-        #: Set the test for the state
+        #: Set "TEST" for IP states
         ol2.ip_dict[i][2] = "TEST"
     for i in ol2.gpio_dict.keys():
         assert ol2.get_gpio_user_ix(i)==ol2.gpio_dict[i][0],\
             'Overlay gets wrong PS GPIO pin.'
-    ol2.reset_ip_dict()
+        #: Set "TEST" for GPIO states
+        ol2.gpio_dict[i][1] = "TEST"
+    ol2.reset()
     for i in ol2.ip_dict.keys():
-        #: "TEST" should have been cleared by reset_ip_dict()
+        #: "TEST" should have been cleared by reset()
         assert ol2.get_ip_state(i)==None,\
+            'Overlay cannot reset IP dictionary.'
+    for i in ol2.gpio_dict.keys():
+        #: "TEST" should have been cleared by reset()
+        assert ol2.get_gpio_state(i)==None,\
             'Overlay cannot reset IP dictionary.'
 
 @pytest.mark.run(order=9)
