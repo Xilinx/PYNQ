@@ -90,7 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -300,7 +300,10 @@ div.nboutput  > :nth-child(2).stderr {
 
 <div class="viewcode-block" id="Grove_LEDbar"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar">[docs]</a><span class="k">class</span> <span class="nc">Grove_LEDbar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This class controls the Grove LED BAR. </span>
-
+<span class="sd">    </span>
+<span class="sd">    Grove LED Bar is comprised of a 10 segment LED gauge bar and an MY9221 LED</span>
+<span class="sd">    controlling chip. Model: LED05031P. Hardware version: v2.0.</span>
+<span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    iop : _IOP</span>
@@ -315,6 +318,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
 <span class="sd">        The pmod_id 0 is reserved for XADC (JA).</span>
+<span class="sd">        Valid StickIt group ID is currently only 1.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -322,10 +326,9 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).</span>
 <span class="sd">        gr_id: int</span>
 <span class="sd">            The group ID on StickIt, from 1 to 4.</span>
-<span class="sd">            Valid StickIt group ID is currently only 1</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">gr_id</span>  <span class="o">!=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">gr_id</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Valid StickIt group ID is currently only 1.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">_iop</span><span class="o">.</span><span class="n">request_iop</span><span class="p">(</span><span class="n">pmod_id</span><span class="p">,</span> <span class="n">GROVE_LEDBAR_PROGRAM</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">mmio</span>
@@ -350,13 +353,14 @@ div.nboutput  > :nth-child(2).stderr {
                         <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">)</span>
         <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
                                 <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x1</span><span class="p">):</span>
-            <span class="k">pass</span>        </div>
+            <span class="k">pass</span></div>
         
-<div class="viewcode-block" id="Grove_LEDbar.write_leds"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.write_leds">[docs]</a>    <span class="k">def</span> <span class="nf">write_leds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">):</span>
+<div class="viewcode-block" id="Grove_LEDbar.write_binary"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.write_binary">[docs]</a>    <span class="k">def</span> <span class="nf">write_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set individual LEDs in the LEDbar based on 10 bit binary input.</span>
 <span class="sd">        </span>
-<span class="sd">        Each bit in the 10-bit binary input points to a LED position on the</span>
-<span class="sd">        LEDbar. Direction is Red--&gt;Green = LSB--&gt;MSB </span>
+<span class="sd">        Each bit in the 10-bit `data_in` points to a LED position on the</span>
+<span class="sd">        LEDbar. Red LED corresponds to the LSB, while green LED corresponds</span>
+<span class="sd">        to the MSB.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -370,29 +374,30 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">data_in</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x3</span><span class="p">)</span>        
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x3</span><span class="p">)</span>
         <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
                                 <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x3</span><span class="p">):</span>
-            <span class="k">pass</span>                    </div>
+            <span class="k">pass</span></div>
             
-<div class="viewcode-block" id="Grove_LEDbar.set_brightness"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.set_brightness">[docs]</a>    <span class="k">def</span> <span class="nf">set_brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">data_in</span><span class="p">,</span> <span class="n">brightness</span> <span class="o">=</span> <span class="p">[]):</span>
+<div class="viewcode-block" id="Grove_LEDbar.write_brightness"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.write_brightness">[docs]</a>    <span class="k">def</span> <span class="nf">write_brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">brightness</span><span class="o">=</span><span class="p">[</span><span class="mh">0xAA</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set individual LEDs with 3 level brightness control.</span>
 <span class="sd">        </span>
-<span class="sd">        Each bit in the 10-bit binary input points to a LED position on the</span>
-<span class="sd">        LEDbar. Direction is Red--&gt;Green = LSB--&gt;MSB</span>
-<span class="sd">        Brightness of each LED is controlled by the brightness[] list</span>
-<span class="sd">        elements. Direction is Red--&gt;Green = brightness[9] --&gt; brightness[0]</span>
+<span class="sd">        Each bit in the 10-bit `data_in` points to a LED position on the</span>
+<span class="sd">        LEDbar. Red LED corresponds to the LSB, while green LED corresponds</span>
+<span class="sd">        to the MSB.</span>
+<span class="sd">        </span>
+<span class="sd">        Brightness of each LED is controlled by the brightness parameter.</span>
+<span class="sd">        There are 3 perceivable levels of brightness:</span>
+<span class="sd">        0xFF : HIGH</span>
+<span class="sd">        0xAA : MED</span>
+<span class="sd">        0x01 : LOW</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data_in : int</span>
 <span class="sd">            10 LSBs of this parameter control the LEDbar.</span>
-<span class="sd">        brightness : List[int]</span>
-<span class="sd">            Each List element controls a single LED</span>
-<span class="sd">            3 perceivable levels of brightness exist</span>
-<span class="sd">            HIGH = 0xFF</span>
-<span class="sd">            MED  = 0xAA</span>
-<span class="sd">            LOW  = 0x01</span>
+<span class="sd">        brightness : list</span>
+<span class="sd">            Each List element controls a single LED.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -400,43 +405,38 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">data_in</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">8</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">12</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">16</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">20</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">24</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">28</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">32</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">36</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">40</span><span class="p">,</span> <span class="n">brightness</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x5</span><span class="p">)</span>        
-        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> \
+                            <span class="n">brightness</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> \
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x5</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span> \
                                 <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x5</span><span class="p">):</span>
-            <span class="k">pass</span>                            </div>
-                        
-<div class="viewcode-block" id="Grove_LEDbar.set_level"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.set_level">[docs]</a>    <span class="k">def</span> <span class="nf">set_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">brightness</span><span class="p">,</span> <span class="n">red_to_green</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+        
+<div class="viewcode-block" id="Grove_LEDbar.write_level"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.write_level">[docs]</a>    <span class="k">def</span> <span class="nf">write_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">bright_level</span><span class="p">,</span> <span class="n">green_to_red</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the level to which the leds are to be lit in levels 1 - 10.</span>
 <span class="sd">        </span>
-<span class="sd">        Level can be set in both directions. set_level operates by setting</span>
+<span class="sd">        Level can be set in both directions. `set_level` operates by setting</span>
 <span class="sd">        all LEDs to the same brightness level.</span>
+<span class="sd">        </span>
+<span class="sd">        There are 4 preset brightness levels:</span>
+<span class="sd">        bright_level = 0: off</span>
+<span class="sd">        bright_level = 1: low</span>
+<span class="sd">        bright_level = 2: medium</span>
+<span class="sd">        bright_level = 3: maximum</span>
+<span class="sd">        </span>
+<span class="sd">        `green_to_red` indicates the direction, either from red to green when</span>
+<span class="sd">        it is 0, or green to red when it is 1.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        level : int</span>
-<span class="sd">            10 levels exist on the LEDbar.</span>
-<span class="sd">            1 is minimum and 10 is maximum</span>
-<span class="sd">        brightness : int</span>
-<span class="sd">            Controls brightness of all LEDs in the LEDbar</span>
-<span class="sd">            3 perceivable levels of brightness exist</span>
-<span class="sd">            HIGH = 0xFF</span>
-<span class="sd">            MED  = 0xAA</span>
-<span class="sd">            LOW  = 0x01</span>
-<span class="sd">        red_to_green : </span>
-<span class="sd">            Sets the direction of the sequence</span>
-<span class="sd">            0 - red to green</span>
-<span class="sd">            1 - green to red.    </span>
+<span class="sd">            10 levels exist, where 1 is minimum and 10 is maximum.</span>
+<span class="sd">        bright_level : int</span>
+<span class="sd">            Controls brightness of all LEDs in the LEDbar, from 0 to 3.</span>
+<span class="sd">        green_to_red : int</span>
+<span class="sd">            Sets the direction of the sequence.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -444,18 +444,23 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mh">0x4</span><span class="p">,</span> <span class="n">brightness</span><span class="p">)</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">,</span> <span class="n">red_to_green</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mh">0x4</span><span class="p">,</span> <span class="n">bright_level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">,</span> <span class="n">green_to_red</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x7</span><span class="p">)</span>        
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x7</span><span class="p">)</span>
         <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
                                 <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x7</span><span class="p">):</span>
             <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Grove_LEDbar.read_leds"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.read_leds">[docs]</a>    <span class="k">def</span> <span class="nf">read_leds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Grove_LEDbar.read"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.grove_ledbar.Grove_LEDbar.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads the current status of LEDbar.</span>
 <span class="sd">        </span>
-<span class="sd">        Reads the current status of LEDbar and returns a 10-bit binary string</span>
+<span class="sd">        Reads the current status of LEDbar and returns a 10-bit binary string.</span>
+<span class="sd">        Each bit position corresponds to a LED position in the LEDbar,</span>
+<span class="sd">        and bit value corresponds to the LED state.</span>
+<span class="sd">        </span>
+<span class="sd">        Red LED corresponds to the LSB, while green LED corresponds</span>
+<span class="sd">        to the MSB.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -465,19 +470,16 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
 <span class="sd">            String of 10 binary bits.</span>
-<span class="sd">            Each bit position corresponds to a LED position in the LEDbar,</span>
-<span class="sd">            and bit value corresponds to the LED state.</span>
-<span class="sd">            Direction is Red--&gt;Green = LSB--&gt;MSB            </span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x9</span><span class="p">)</span>        
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x9</span><span class="p">)</span>
         <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
                                 <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x9</span><span class="p">):</span>
-            <span class="k">pass</span>              
+            <span class="k">pass</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">bin</span><span class="p">(</span><span class="n">value</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span></div></div>
-    
+        
 </pre></div>
 
            </div>

@@ -107,7 +107,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -276,13 +276,13 @@ div.nboutput  > :nth-child(2).stderr {
 <h1>The Audio-Video Overlay<a class="headerlink" href="#The-Audio-Video-Overlay" title="Permalink to this headline">¶</a></h1>
 <p>The audio video overlay contains a HDMI video capture controller, a VGA
 video display controller, an audio controller that connects to the
-Headphone (HPH) and the Line In ports on the board, and 1 IO Processors
-connected to Pmod Port 1.</p>
+Headphone (HPH) and the Line In ports on the board, and a single IO
+Processor connected to Pmod Port 1.</p>
 <div class="figure align-center">
 <img alt="_images/zyboaudiovideo.jpg" src="_images/zyboaudiovideo.jpg" />
 </div>
 <p>The IO Processor is the same as in the Pmod I/O overlay. Please refer to
-the <a class="reference external" href="6_pmodio_overlay.html">Pmod I/O overlay</a> for more information
+the <a class="reference external" href="6_pmodio_overlay_pp.html">Pmod I/O overlay</a> for more information
 about the IO Processor.</p>
 <div class="section" id="Video-IO">
 <h2>Video IO<a class="headerlink" href="#Video-IO" title="Permalink to this headline">¶</a></h2>
@@ -305,10 +305,13 @@ In [1]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">HDMI</span>
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
-<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span>
-<span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">HDMI</span>
+
+<span class="c"># Download new bitstream with audiovideo IP</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+<span class="c"># Initialize HDMI as an input device</span>
 <span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s">&#39;in&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -338,7 +341,9 @@ In [3]:
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># add delay to allow time for HDMI to initialize before starting below (This allows whole workbook to be executed)</span>
+
+<span class="c"># HDMI delay to allow controller to initialize</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -496,7 +501,7 @@ Out[10]:
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/7_audio_video_overlay_pp_23_0.jpe" src="_images/7_audio_video_overlay_pp_23_0.jpe" />
+<img alt="_images/7_audio_video_overlay_pp_24_0.jpe" src="_images/7_audio_video_overlay_pp_24_0.jpe" />
 </div>
 </div>
 <p>This will dump the frame as a python list <em>frame[height, width][rgb]</em>.
@@ -528,7 +533,7 @@ Out[11]:
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/7_audio_video_overlay_pp_25_0.jpe" src="_images/7_audio_video_overlay_pp_25_0.jpe" />
+<img alt="_images/7_audio_video_overlay_pp_26_0.jpe" src="_images/7_audio_video_overlay_pp_26_0.jpe" />
 </div>
 </div>
 <p>This frame() method is a simple way to capture pixel data, but may be
@@ -915,8 +920,8 @@ In [31]:
 Done
 </pre></div></div>
 </div>
-<p>This example alternates between setting the left channel and the right
-channel to 0 approximately every 2 seconds</p>
+<p>This example alternates muting the left channel or right channel every 2
+seconds</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [32]:

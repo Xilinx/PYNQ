@@ -21,31 +21,38 @@ Setup
 Prerequisites
 -------------
 
-* Laptop or desktop with compatible browser (`Supported Browsers <http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility>`_)
-* Ethernet port
+* Laptop or desktop PC with compatible browser (`Supported Browsers <http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility>`_)
+* Available USB port (to power the board)
 * Zybo
-* USB port 
-
+* Micro-SD card (Minimum 16GB)
+* Micro USB cable or Zybo power adapter
+* Ethernet cable
 
 There are three main steps to getting started with Pynq and the Zybo.  These are:
 
 1. **Get the image and prepare the micro-SD Card**
 
-   * For now you will need to obtain the image, or a micro-SD card preloaded with the image directly from the Pynq team.
+   * For now you will need to obtain the image, or a micro-SD card preloaded with the image, directly from the Pynq team.
    * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_. The Micro-SD card must be at least 16GB.  
 
 
+   
 2. **Configure Zybo and connect it to your host machine and network**
 
-
-   * The board can be powered from a USB cable (default setting) or wall plug.  Additionally, the board must be connected to the network - on boot the board will automatically attempt to get an IP address using DHCP, falling back to a static IP address if DHCP fails.
+   * The board can be powered from a USB cable (default setting) or wall plug.  The board must be connected to the same network as your PC or laptop. During the boot process, the board will automatically attempt to get an IP address using DHCP, falling back to a static IP address if DHCP fails.
+   
+   You can connect to the board to the same network your PC is connected to (through a switch or router), or connect directly to the ethernet port of your PC.
+   
    * For board set up, see further detailed `Hardware Setup instructions <2_getting_started.html#hardware-setup>`_ below.
 
-
+   
+   
 3. **Open a web browser and connect to Pynq Jupyter Notebooks web portal**
 
-
-   * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_.  **pynq** is the default hostname of the board. If you have changed the hostname, you will need to change the address to match your hostname. It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ for how to change the hostname.  
+   * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_.  **pynq** is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname. 
+   
+   It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ to change the hostname. 
+   
    * To communicate with the board using a static IP address, please see the example Windows batch scripts in Pynq/ubuntu/scripts to enable a Windows machine's Ethernet port to also use static IP addressing.
 
    .. image:: ./images/portal_login.jpg
@@ -70,8 +77,6 @@ If you can't connect to the board, see the `Frequently asked questions <13_faqs.
 Interacting with the Pynq 
 ==========================
 
-You can click on a notebook (.ipynb) to open it. 
-
    
 Getting started notebooks
 ----------------------------
@@ -80,7 +85,7 @@ A powerful feature of Jupyter notebooks is the ability to render html webpages f
 
 You can view the webpage for documentation, or if you have a board running pynq, you can view the documentation interactively and try out some example code, by opening the corresponding notebook in the getting started folder. 
  
-.. image:: ./images/pynq_getting_started.jpg
+.. image:: ./images/getting_started_notebooks.jpg
    :height: 600px
    :scale: 75%
    :align: center
@@ -88,7 +93,7 @@ You can view the webpage for documentation, or if you have a board running pynq,
 
 There are also a number of example notebooks available showing examples of how to use different peripherals with the board. 
 
-.. image:: ./images/pynq_examples.jpg
+.. image:: ./images/example_notebooks.jpg
    :height: 600px
    :scale: 75%
    :align: center
@@ -96,11 +101,11 @@ There are also a number of example notebooks available showing examples of how t
    
 Accessing files on the board
 ----------------------------
-Samba is running on the board, and the home area is shared and can be accessed like a networked drive. 
+`Samba <https://www.samba.org/>`_, a file sharing service, is running on the board. The home area on the board can be accessed as a networked drive. 
 
-Users should go to *\\\\pynq\\xpp* to access the pynq home area.
+You can go to ``\\pynq\xpp`` to access the pynq home area. Remember to change the hostname if necessary.
 
-The Samba username/password is xpp/xpp
+The Samba username:password is ``xpp:xpp``
 
 .. image:: ./images/samba_share.jpg
    :height: 600px
@@ -115,7 +120,7 @@ Hardware setup
       :scale: 75%
       :align: center
 
-   *If you received a Zybo kit from the Pynq team, all jumpers will be set correctly.*
+   * If you received a Zybo kit from the Pynq team, all jumpers will be set correctly.*
 
    * Insert the *Micro SD* card into the Zybo. (The Micro-SD slot is underneath the board)
 

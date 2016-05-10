@@ -89,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -266,7 +266,7 @@ Inc</a> and other suppliers.</p>
 <div class="section" id="Pmod-peripherals">
 <h2>Pmod peripherals<a class="headerlink" href="#Pmod-peripherals" title="Permalink to this headline">¶</a></h2>
 <div class="figure">
-<img alt="" src="_images/Pmods_opt.png" />
+<img alt="" src="./images/Pmods_opt.png" />
 </div>
 <div class="section" id="Supported-peripherals">
 <h3>Supported peripherals<a class="headerlink" href="#Supported-peripherals" title="Permalink to this headline">¶</a></h3>
@@ -339,7 +339,7 @@ This allows the ARM processor to access the MicroBlaze memory and
 dynamically write a new program to the MicroBlaze instruction area. The
 data area can be used for communication and data transfer between the
 ARM processor and the IOP(s).</p>
-<p>Currently, one IOP can support one Pmod port. Inside the IOP are
+<p>Currently, one IOP is dedicated to each Pmod port. Inside the IOP are
 dedicated interface blocks; Timer, IIC, SPI and GPIO (General Purpose
 Input/Output). IIC and SPI are specialized interfaces used by many of
 the available Pmod, Grove and other peripherals, and GPIO can be used to
@@ -428,7 +428,7 @@ Out[4]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-4095
+42
 </pre></div>
 </div>
 </div>
@@ -470,7 +470,7 @@ Out[6]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-[4095]
+[42, 42, 42]
 </pre></div>
 </div>
 </div>
@@ -532,11 +532,14 @@ In [7]:
 <p>Scripts can be created and executed from the notebook.</p>
 <p>In this example, the code below will be copied to a script and saved on
 the board.</p>
-<p>Go back to the Pynq Portal <a class="reference external" href="http://pynq:9090">pynq:9090</a> * Navigate
-to the Getting_Started folder * Select New &gt; Text File (which opens in
-a new window) * Copy and paste the code from the cell below into the
-file * Rename the file dac_loop.py, and save it (verify it is in the
-Getting_Started folder)</p>
+<p>Go back to the Pynq Portal <a class="reference external" href="http://pynq:9090">pynq:9090</a></p>
+<ul class="simple">
+<li>Navigate to the Getting_Started folder</li>
+<li>Select New &gt; Text File (which opens in a new window)</li>
+<li>Copy and paste the code from the cell below into the file</li>
+<li>Rename the file dac_loop.py, and save it (verify it is in the
+Getting_Started folder)</li>
+</ul>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [8]:
@@ -621,34 +624,19 @@ Switch 3 is off. To run the loop, set Switch 3 to on before running
 <div class="line">To run from the script, first Restart the kernel (Kernel &gt; Restart) to
 clear the dac_loop function previously loaded Execute the cells below
 to run the script which will load the dac_loop() function into the
-notebook, and then execute the dac_loop() function</div>
+notebook, and then uncomment and execute the dac_loop() function in
+the cell below</div>
 </div>
-<div class="nbinput container">
+<div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [10]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="o">%</span><span class="k">run</span> dac_loop.py
-<span class="n">dac_loop</span><span class="p">()</span>
+<span class="c">#%run dac_loop.py</span>
+<span class="c">#dac_loop()</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput container">
-<div class="container">
-</div>
-<div class="container">
-<div class="highlight"><pre>
-Switch 3 is off. To run the loop, set Switch 3 to on before running
-</pre></div></div>
-</div>
-<div class="nboutput nblast container">
-<div class="container">
-</div>
-<div class="stderr container">
-<div class="highlight"><pre>
-ERROR: File &#96;&apos;dac_loop.py&apos;&#96; not found.
-</pre></div></div>
 </div>
 </div>
 </div>

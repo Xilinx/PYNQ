@@ -33,8 +33,8 @@ XPP Technical support:
 
 Zybo reference manual:
 ======================
-* `Zybo Reference Manual <http://www.xilinx.com/support/documentation/university/XUP%20Boards/XUPZybo/documentation/Zybo_RM_B_V6.pdf>`_
-
+* `Zybo Reference Manual <http://www.xilinx.com/support/documentation/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf>`_
+                          
 
 Jupyter
 =======

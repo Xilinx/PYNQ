@@ -89,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -264,10 +264,10 @@ photo of the Zybo below.</p>
 <div class="figure">
 <img alt="" src="_images/zybo_io_opt.jpeg" />
 </div>
-<p>(Note that two additional push-buttons and 1 LED are connected directly
-to Zybo’s processor system via memory IO pins. These are not highlighted
-in the figure and we will ignore them for now.)</p>
-<p>Each of the three banks of 4 IO devices can be controlled from Python.
+<p>Note that two additional push-buttons and 1 LED are visible on the
+board, but these devices are not user accessible. These are not
+highlighted in the figure and we will ignore them for now.</p>
+<p>Each of the highlighted devices can be controlled directly from Python.
 To demonstrate this, we first import the LED, Switch and Button classes
 from the module pynq.board</p>
 <div class="nbinput nblast container">
@@ -317,8 +317,8 @@ In [4]:
 </pre></div>
 </div>
 </div>
-<p>Let’s toggle <em>led0</em> ten times. The sleep() method from time will be used
-to allow us to see the led flashing.</p>
+<p>Let’s then toggle <em>led0</em> using the sleep() method to see the LED
+flashing.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [5]:
@@ -364,10 +364,9 @@ In [6]:
 </pre></div>
 </div>
 </div>
-<p>First, all <em>leds</em> are set to off. Then each switch is read, and if in
-the on position, the corresponding led is turned on. You can execute
-this cell a few times, changing the position of the switches on the
-board.</p>
+<p>First, all LEDs are set to off. Then each switch is read, and if in the
+on position, the corresponding led is turned on. You can execute this
+cell a few times, changing the position of the switches on the board.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [7]:

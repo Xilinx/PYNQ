@@ -157,7 +157,7 @@
     "\n",
     "Each IOP has a dedicated memory block for the MicroBlaze instruction and data memory. This memory block is dual-ported, with one port connected to the MicroBlaze, and the other connected to the Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area can be used for communication and data transfer between the ARM processor and the IOP(s).\n",
     "\n",
-    "Currently, one IOP can support one Pmod port. Inside the IOP are dedicated interface blocks; Timer, IIC, SPI and GPIO (General Purpose Input/Output). IIC and SPI are specialized interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod or other peripheral is plugged in to a port, the configurable switch allows the Pmod signals to be routed internally to the required interface block."
+    "Currently, one IOP is dedicated to each Pmod port. Inside the IOP are dedicated interface blocks; Timer, IIC, SPI and GPIO (General Purpose Input/Output). IIC and SPI are specialized interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod or other peripheral is plugged in to a port, the configurable switch allows the Pmod signals to be routed internally to the required interface block."
    ]
   },
   {
@@ -238,7 +238,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 1,
    "metadata": {
     "collapsed": false
    },
@@ -257,7 +257,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 2,
    "metadata": {
     "collapsed": true
    },
@@ -268,7 +268,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 3,
    "metadata": {
     "collapsed": true
    },
@@ -286,11 +286,22 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 4,
    "metadata": {
     "collapsed": false
    },
-   "outputs": [],
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "42"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
    "source": [
     "from pynq.pmods import PMOD_ALS\n",
     "als = PMOD_ALS(3)\n",
@@ -306,7 +317,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 5,
    "metadata": {
     "collapsed": false
    },
@@ -317,11 +328,22 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 6,
    "metadata": {
     "collapsed": false
    },
-   "outputs": [],
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[42, 42, 42]"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
    "source": [
     "from pynq.pmods import PMOD_ALS\n",
     "import time\n",
@@ -376,7 +398,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 7,
    "metadata": {
     "collapsed": false
    },
@@ -418,15 +440,16 @@
     "In this example, the code below will be copied to a script and saved on the board. \n",
     "\n",
     "Go back to the Pynq Portal [pynq:9090](http://pynq:9090)\n",
-    "* Navigate to the Getting_Started folder\n",
-    "* Select New > Text File (which opens in a new window)\n",
-    "* Copy and paste the code from the cell below into the file\n",
-    "* Rename the file dac_loop.py, and save it (verify it is in the Getting_Started folder)"
+    "\n",
+    "- Navigate to the Getting_Started folder\n",
+    "- Select New > Text File (which opens in a new window)\n",
+    "- Copy and paste the code from the cell below into the file\n",
+    "- Rename the file dac_loop.py, and save it (verify it is in the Getting_Started folder)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 8,
    "metadata": {
     "collapsed": false
    },
@@ -489,11 +512,19 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 9,
    "metadata": {
     "collapsed": false
    },
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Switch 3 is off. To run the loop, set Switch 3 to on before running\n"
+     ]
+    }
+   ],
    "source": [
     "dac_loop()"
    ]
@@ -504,19 +535,19 @@
    "source": [
     "The notebook also supports scripts.  \n",
     "To run from the script, first Restart the kernel (Kernel > Restart) to clear the dac_loop function previously loaded\n",
-    "Execute the cells below to run the script which will load the dac_loop() function into the notebook, and then execute the dac_loop() function "
+    "Execute the cells below to run the script which will load the dac_loop() function into the notebook, and then uncomment and execute the dac_loop() function in the cell below"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 10,
    "metadata": {
     "collapsed": false
    },
    "outputs": [],
    "source": [
-    "%run dac_loop.py\n",
-    "dac_loop()"
+    "#%run dac_loop.py\n",
+    "#dac_loop()"
    ]
   }
  ],

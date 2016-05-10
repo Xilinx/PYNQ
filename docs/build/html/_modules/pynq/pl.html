@@ -90,7 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../11_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -301,7 +301,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 
 <span class="k">def</span> <span class="nf">_get_tcl_name</span><span class="p">(</span><span class="n">bitfile_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This method returns the name of the *.tcl file.</span>
+    <span class="sd">&quot;&quot;&quot;This method returns the name of the tcl file.</span>
 <span class="sd">    </span>
 <span class="sd">    For example, the input &quot;/home/xpp/src/pynq/bitstream/pmod.bit&quot; will lead </span>
 <span class="sd">    to the result &quot;/home/xpp/src/pynq/bitstream/pmod.tcl&quot;.</span>
@@ -479,6 +479,23 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="n">cls</span><span class="o">.</span><span class="n">gpio_dict</span> <span class="o">=</span> <span class="n">_get_dict_gpio</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span></div>
         
     <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PL.reset"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset both the IP and GPIO dictionaries.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tcl_name</span> <span class="o">=</span> <span class="n">_get_tcl_name</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">bitfile_name</span><span class="p">)</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">ip_dict</span> <span class="o">=</span> <span class="n">_get_dict_ip_addr</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">gpio_dict</span> <span class="o">=</span> <span class="n">_get_dict_gpio</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">)</span></div>
+        
+    <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PL.get_ip_names"><a class="viewcode-back" href="../../pynq.html#pynq.pl.PL.get_ip_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip_names</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ip_kwd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This method returns the IP names in the PL.</span>
 <span class="sd">        </span>
@@ -595,7 +612,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        The data is assumed to be in binary format (*.bin). The data </span>
+<span class="sd">        The data is assumed to be in binary format (.bin). The data </span>
 <span class="sd">        name will be stored as a state information in the IP dictionary.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -1041,7 +1058,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        The data is assumed to be in binary format (*.bin). The data name will</span>
+<span class="sd">        The data is assumed to be in binary format (.bin). The data name will</span>
 <span class="sd">        be stored as a state information in the IP dictionary.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>

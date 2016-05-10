@@ -6,8 +6,14 @@
    "source": [
     "# The Audio-Video Overlay\n",
     "\n",
-    "The audio video overlay contains a HDMI video capture controller, a VGA video display controller, an audio controller that connects to the Headphone (HPH) and the Line In ports on the board, and 1 IO Processors connected to Pmod Port 1.\n"
+    "The audio video overlay contains a HDMI video capture controller, a VGA video display controller, an audio controller that connects to the Headphone (HPH) and the Line In ports on the board, and a single IO Processor connected to Pmod Port 1.\n",
+    "<br><br>"
    ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
   },
   {
    "cell_type": "raw",
@@ -23,7 +29,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The IO Processor is the same as in the Pmod I/O overlay. Please refer to the [Pmod I/O overlay](6_pmodio_overlay.html) for more information about the IO Processor. "
+    "The IO Processor is the same as in the Pmod I/O overlay. Please refer to the [Pmod I/O overlay](6_pmodio_overlay_pp.html) for more information about the IO Processor. "
    ]
   },
   {
@@ -52,10 +58,13 @@
    },
    "outputs": [],
    "source": [
-    "from pynq.video import HDMI\n",
     "from pynq import Overlay\n",
-    "ol = Overlay(\"audiovideo.bit\")\n",
-    "ol.download()\n",
+    "from pynq.video import HDMI\n",
+    "\n",
+    "# Download new bitstream with audiovideo IP\n",
+    "Overlay(\"audiovideo.bit\").download()\n",
+    "\n",
+    "# Initialize HDMI as an input device\n",
     "hdmi = HDMI('in')"
    ]
   },
@@ -92,7 +101,9 @@
    "outputs": [],
    "source": [
     "import time\n",
-    "time.sleep(2) # add delay to allow time for HDMI to initialize before starting below (This allows whole workbook to be executed)"
+    "\n",
+    "# HDMI delay to allow controller to initialize\n",
+    "time.sleep(2)"
    ]
   },
   {
@@ -817,7 +828,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "This example alternates between setting the left channel and the right channel to 0 approximately every 2 seconds"
+    "This example alternates muting the left channel or right channel every 2 seconds"
    ]
   },
   {

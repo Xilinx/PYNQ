@@ -90,7 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -290,22 +290,31 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="n">__email__</span>       <span class="o">=</span> <span class="s">&quot;xpp_support@xilinx.com&quot;</span>
 
 
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_iop</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">pmod_const</span>
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 
 <span class="n">PROGRAM</span> <span class="o">=</span> <span class="s">&quot;pmod_adc.bin&quot;</span>
+<span class="n">PMOD_ADC_LOG_START</span> <span class="o">=</span> <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">16</span>
+<span class="n">PMOD_ADC_LOG_END</span> <span class="o">=</span> <span class="n">PMOD_ADC_LOG_START</span><span class="o">+</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PMOD_ADC"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC">[docs]</a><span class="k">class</span> <span class="nc">PMOD_ADC</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This class controls an Analog to Digital Converter PMOD.</span>
-
+<span class="sd">    </span>
+<span class="sd">    The PMOD AD2 (PB 200-217) is an analog-to-digital converter powered by </span>
+<span class="sd">    AD7991. Users may configure up to 4 conversion channels at 12 bits of </span>
+<span class="sd">    resolution.</span>
+<span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    iop : _IOP</span>
 <span class="sd">        I/O processor instance used by the ADC</span>
 <span class="sd">    mmio : MMIO</span>
 <span class="sd">        Memory-mapped I/O instance to read and write instructions and data.</span>
+<span class="sd">    log_running : int</span>
+<span class="sd">        The state of the log (0: stopped, 1: started).</span>
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -324,41 +333,215 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">_iop</span><span class="o">.</span><span class="n">request_iop</span><span class="p">(</span><span class="n">pmod_id</span><span class="p">,</span> <span class="n">PROGRAM</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">mmio</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_running</span> <span class="o">=</span> <span class="mi">0</span>
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     
-    <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>   
-        <span class="sd">&quot;&quot;&quot;Get the raw value from the ADC PMOD.</span>
-<span class="sd">        </span>
-<span class="sd">        Note</span>
-<span class="sd">        ----</span>
-<span class="sd">        This method should not be used directly. Users should use read() </span>
-<span class="sd">        instead to read the value returned by the ADC PMOD.</span>
+<div class="viewcode-block" id="PMOD_ADC.reset"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the PMOD ADC.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> \
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x1</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                                <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x1</span><span class="p">):</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+            
+<div class="viewcode-block" id="PMOD_ADC.read_raw"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.read_raw">[docs]</a>    <span class="k">def</span> <span class="nf">read_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the raw value from the ADC PMOD.</span>
+<span class="sd">        </span>
+<span class="sd">        All the 3 available channels are enabled. The default channel is 0, </span>
+<span class="sd">        meaning only the first channel is read. Users can choose any channel</span>
+<span class="sd">        from 0 to 2. </span>
+<span class="sd">        </span>
+<span class="sd">        In each channel, this method reads multiple samples and </span>
+<span class="sd">        returns the last sample. </span>
+<span class="sd">        </span>
+<span class="sd">        The delay specifies the time between two samples, in milliseconds.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        The 4th channel is not available due to the jumper setting on ADC.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        This method reads the raw value from ADC.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        delay : int</span>
+<span class="sd">            The delay between samples on the same channel.</span>
+<span class="sd">        channel : int</span>
+<span class="sd">            The channel number, from 0 to 2.</span>
+<span class="sd">        samples : int</span>
+<span class="sd">            The number of samples read from each ADC channel.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        int</span>
-<span class="sd">            The value read from the ADC PMOD in its raw format.</span>
+<span class="sd">            The raw value read from the PMOD ADC.</span>
 <span class="sd">        </span>
-<span class="sd">        &quot;&quot;&quot;</span>     
-        <span class="c">#: Set up ADC (3 samples of channel 10)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">delay</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Time between samples should be no less than 0.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Available channel is 0, 1, or 2.&quot;</span><span class="p">)</span>
+            
+        <span class="c">#: Send the delay and the number of samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">samples</span><span class="p">)</span>
+        
+        <span class="c">#: Send the command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xa0403</span><span class="p">)</span>
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x3</span><span class="p">)</span>
         
         <span class="c">#: Wait for I/O processor to complete</span>
         <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
-                              <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> 
-                              <span class="o">&amp;</span> <span class="mh">0x1</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x1</span><span class="p">:</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+                              <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x3</span><span class="p">):</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="c">#: Read the last sample from ADC</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> \
+                        <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">samples</span><span class="o">+</span><span class="n">channel</span><span class="p">)</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="PMOD_ADC.read"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the voltage from the ADC PMOD.</span>
+<span class="sd">        </span>
+<span class="sd">        All the 3 available channels are enabled. The default channel is 0, </span>
+<span class="sd">        meaning only the first channel is read. Users can choose any channel</span>
+<span class="sd">        from 0 to 2. </span>
+<span class="sd">        </span>
+<span class="sd">        In each channel, this method reads multiple samples and </span>
+<span class="sd">        returns the last sample. </span>
+<span class="sd">        </span>
+<span class="sd">        The delay specifies the time between two samples, in milliseconds.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        The 4th channel is not available due to the jumper setting on ADC.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        This method reads the voltage values from ADC.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        delay : int</span>
+<span class="sd">            The delay between samples on the same channel.</span>
+<span class="sd">        channel : int</span>
+<span class="sd">            The channel number, from 0 to 2.</span>
+<span class="sd">        samples : int</span>
+<span class="sd">            The number of samples read from each ADC channel.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The voltage value read from the PMOD ADC.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">delay</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Time between samples should be no less than 0.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Available channel is 0, 1, or 2.&quot;</span><span class="p">)</span>
             
-<div class="viewcode-block" id="PMOD_ADC.read"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Read the value from the ADC PMOD as a string.</span>
+        <span class="c">#: Send the delay and the number of samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">samples</span><span class="p">)</span>
+        
+        <span class="c">#: Send the command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x5</span><span class="p">)</span>
+        
+        <span class="c">#: Wait for I/O processor to complete</span>
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                              <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x5</span><span class="p">):</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+
+        <span class="c">#: Read the last sample from ADC</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reg2float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> \
+                    <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">samples</span><span class="o">+</span><span class="n">channel</span><span class="p">)</span><span class="o">*</span><span class="mi">4</span><span class="p">))</span></div>
+        
+<div class="viewcode-block" id="PMOD_ADC.start_log_raw"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.start_log_raw">[docs]</a>    <span class="k">def</span> <span class="nf">start_log_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">log_interval_ms</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start the log of raw values with the interval specified.</span>
+<span class="sd">        </span>
+<span class="sd">        This parameter `log_interval_ms` can set the time interval between </span>
+<span class="sd">        two samples, so that users can read out multiple values in a single </span>
+<span class="sd">        log.  </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        channel : int</span>
+<span class="sd">            The channel number, from 0 to 2.</span>
+<span class="sd">        log_interval_ms : int</span>
+<span class="sd">            The length of the log in milliseconds, for debug only.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">log_interval_ms</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Time between samples should be no less than 0.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Available channel is 0, 1, or 2.&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_running</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="c">#: Send log interval and the channel number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">log_interval_ms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+        
+        <span class="c">#: Send the command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x7</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="PMOD_ADC.start_log"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.start_log">[docs]</a>    <span class="k">def</span> <span class="nf">start_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">log_interval_ms</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start the log of voltage values with the interval specified.</span>
+<span class="sd">        </span>
+<span class="sd">        This parameter `log_interval_ms` can set the time interval between </span>
+<span class="sd">        two samples, so that users can read out multiple values in a single </span>
+<span class="sd">        log.  </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        channel : int</span>
+<span class="sd">            The channel number, from 0 to 2.</span>
+<span class="sd">        log_interval_ms : int</span>
+<span class="sd">            The length of the log in milliseconds, for debug only.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">log_interval_ms</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Time between samples should be no less than 0.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Available channel is 0, 1, or 2.&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_running</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="c">#: Send log interval and the channel number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">log_interval_ms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+        
+        <span class="c">#: Send the command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x9</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="PMOD_ADC.stop_log_raw"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.stop_log_raw">[docs]</a>    <span class="k">def</span> <span class="nf">stop_log_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop the log of raw values.</span>
+<span class="sd">        </span>
+<span class="sd">        This is done by sending the reset command to IOP. There is no need to</span>
+<span class="sd">        wait for the IOP.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -366,20 +549,129 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            An floating number expressed as a string.</span>
+<span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">()</span>        
-        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;0&#39;</span><span class="p">,</span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="s">&#39;0&#39;</span><span class="p">,</span><span class="s">&#39;0&#39;</span><span class="p">,</span><span class="s">&#39;0&#39;</span><span class="p">,</span><span class="s">&#39;0&#39;</span><span class="p">]</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_running</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_running</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;No grove ADC log running.&quot;</span><span class="p">)</span></div>
+            
+<div class="viewcode-block" id="PMOD_ADC.stop_log"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.stop_log">[docs]</a>    <span class="k">def</span> <span class="nf">stop_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop the log of voltage values.</span>
+<span class="sd">        </span>
+<span class="sd">        This is done by sending the reset command to IOP. There is no need to</span>
+<span class="sd">        wait for the IOP.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_running</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_running</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;No grove ADC log running.&quot;</span><span class="p">)</span></div>
+                        
+<div class="viewcode-block" id="PMOD_ADC.get_log_raw"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.get_log_raw">[docs]</a>    <span class="k">def</span> <span class="nf">get_log_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the log of raw values.</span>
+<span class="sd">        </span>
+<span class="sd">        First stop the log before getting the log.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of valid raw samples from the ADC.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#: Stop logging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_log_raw</span><span class="p">()</span>
+
+        <span class="c">#: Prep iterators and results list</span>
+        <span class="n">head_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
+        <span class="n">tail_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0xC</span><span class="p">)</span>
+        <span class="n">readings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="c">#: Sweep circular buffer for samples</span>
+        <span class="k">if</span> <span class="n">head_ptr</span> <span class="o">==</span> <span class="n">tail_ptr</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="n">head_ptr</span> <span class="o">&lt;</span> <span class="n">tail_ptr</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">head_ptr</span><span class="p">,</span><span class="n">tail_ptr</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">head_ptr</span><span class="p">,</span><span class="n">PMOD_ADC_LOG_END</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PMOD_ADC_LOG_START</span><span class="p">,</span><span class="n">tail_ptr</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">readings</span></div>
         
-        <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">((</span><span class="n">val</span> <span class="o">&gt;&gt;</span> <span class="mi">24</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">)</span>
-        <span class="n">chars</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">((</span><span class="n">val</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">)</span>
-        <span class="n">chars</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">((</span><span class="n">val</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span> <span class="p">)</span>  <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">)</span>
-        <span class="n">chars</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">((</span><span class="n">val</span><span class="p">)</span>        <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">)</span>
+<div class="viewcode-block" id="PMOD_ADC.get_log"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_adc.PMOD_ADC.get_log">[docs]</a>    <span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the log of voltage values.</span>
+<span class="sd">        </span>
+<span class="sd">        First stop the log before getting the log.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of valid raw samples from the ADC.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#: Stop logging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_log</span><span class="p">()</span>
+
+        <span class="c">#: Prep iterators and results list</span>
+        <span class="n">head_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
+        <span class="n">tail_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0xC</span><span class="p">)</span>
+        <span class="n">readings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="c">#: Sweep circular buffer for samples</span>
+        <span class="k">if</span> <span class="n">head_ptr</span> <span class="o">==</span> <span class="n">tail_ptr</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="n">head_ptr</span> <span class="o">&lt;</span> <span class="n">tail_ptr</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">head_ptr</span><span class="p">,</span><span class="n">tail_ptr</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s">&quot;{0:.4f}&quot;</span>\
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reg2float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">)))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">head_ptr</span><span class="p">,</span><span class="n">PMOD_ADC_LOG_END</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s">&quot;{0:.4f}&quot;</span>\
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reg2float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">)))))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PMOD_ADC_LOG_START</span><span class="p">,</span><span class="n">tail_ptr</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s">&quot;{0:.4f}&quot;</span>\
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reg2float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">)))))</span>
+        <span class="k">return</span> <span class="n">readings</span></div>
         
-        <span class="k">return</span>  <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>  </div></div>
-    
+    <span class="k">def</span> <span class="nf">_reg2float</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts 32-bit register value to floats in Python.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reg: int</span>
+<span class="sd">            A 32-bit register value read from the mailbox.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            A float number translated from the register value.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">&#39;&gt;l&#39;</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s">&#39;&gt;f&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="pynq modules" href="12_modules.html"/>
-        <link rel="prev" title="The Pynq (Python on Zynq) Package" href="10_libraries_and_overlays.html"/> 
+        <link rel="prev" title="The Pynq (Python on Zynq) Platform" href="10_libraries_and_overlays.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Verification</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#running-tests">Running Tests</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#collection-phase">Collection Phase</a></li>
@@ -104,7 +104,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#step-3">Step 3</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#miscellaneous-test-setup">Miscellaneous Test Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#adc-jumper">ADC Jumper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cable-type">Cable Type</a></li>
 </ul>
@@ -282,7 +282,7 @@ div.nboutput  > :nth-child(2).stderr {
 <li><a class="reference internal" href="#verification" id="id1">Verification</a><ul>
 <li><a class="reference internal" href="#running-tests" id="id2">Running Tests</a></li>
 <li><a class="reference internal" href="#writing-tests" id="id3">Writing Tests</a></li>
-<li><a class="reference internal" href="#miscellaneous" id="id4">Miscellaneous</a></li>
+<li><a class="reference internal" href="#miscellaneous-test-setup" id="id4">Miscellaneous Test Setup</a></li>
 </ul>
 </li>
 </ul>
@@ -363,8 +363,8 @@ div.nboutput  > :nth-child(2).stderr {
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="k">global</span> <span class="n">dac</span><span class="p">,</span><span class="n">adc</span>
-<span class="n">dac</span> <span class="o">=</span> <span class="n">DAC</span><span class="p">(</span><span class="n">dac_id</span><span class="p">)</span>
-<span class="n">adc</span> <span class="o">=</span> <span class="n">ADC</span><span class="p">(</span><span class="n">adc_id</span><span class="p">)</span>
+<span class="n">dac</span> <span class="o">=</span> <span class="n">PMOD_DAC</span><span class="p">(</span><span class="n">dac_id</span><span class="p">)</span>
+<span class="n">adc</span> <span class="o">=</span> <span class="n">PMOD_ADC</span><span class="p">(</span><span class="n">adc_id</span><span class="p">)</span>
 
 <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Insert a voltage in the range of [0.00, 2.00]: &quot;</span><span class="p">))</span>
 <span class="k">assert</span> <span class="n">value</span><span class="o">&lt;=</span><span class="mf">2.00</span><span class="p">,</span> <span class="s">&#39;Input voltage should not be higher than 2.00V.&#39;</span>
@@ -376,11 +376,11 @@ div.nboutput  > :nth-child(2).stderr {
 <p>Note the <cite>assert</cite> statements specify the desired condition, and raise exceptions whenever that condition is not met. A customized exception message can be attached at the end of the <cite>assert</cite> methods, as shown above in the example.</p>
 </div>
 </div>
-<div class="section" id="miscellaneous">
-<h2><a class="toc-backref" href="#id4">Miscellaneous</a><a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="miscellaneous-test-setup">
+<h2><a class="toc-backref" href="#id4">Miscellaneous Test Setup</a><a class="headerlink" href="#miscellaneous-test-setup" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="adc-jumper">
 <h3>ADC Jumper<a class="headerlink" href="#adc-jumper" title="Permalink to this headline">¶</a></h3>
-<p>In our tests and demos, we have used a PMOD ADC. In order to make it work properly, users have to set a small jumper on the PMOD ADC as following. This setting will allow the ADC to use the correct reference voltage.</p>
+<p>In our tests and demos, we have used a PMOD ADC. In order to make it work properly with the testing environment, users have to set a small jumper on the PMOD ADC as following. This setting will allow the ADC to use the correct reference voltage.</p>
 <a class="reference internal image-reference" href="_images/adc_jumper.jpeg"><img alt="_images/adc_jumper.jpeg" src="_images/adc_jumper.jpeg" style="width: 200px;" /></a>
 </div>
 <div class="section" id="cable-type">
@@ -414,7 +414,7 @@ div.nboutput  > :nth-child(2).stderr {
         <a href="12_modules.html" class="btn btn-neutral float-right" title="pynq modules" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="10_libraries_and_overlays.html" class="btn btn-neutral" title="The Pynq (Python on Zynq) Package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="10_libraries_and_overlays.html" class="btn btn-neutral" title="The Pynq (Python on Zynq) Platform" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

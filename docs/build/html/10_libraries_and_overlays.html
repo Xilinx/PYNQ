@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>The Pynq (Python on Zynq) Package &mdash; Python on Zynq (Pynq) v1.0</title>
+  <title>The Pynq (Python on Zynq) Platform &mdash; Python on Zynq (Pynq) v1.0</title>
   
 
   
@@ -91,15 +91,14 @@
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#python-pynq-package-structure">Python <code class="docutils literal"><span class="pre">pynq</span></code> Package Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#board">board</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pmods-and-grove-peripherals">Pmods (and Grove Peripherals)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tests">tests</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#package-contents">Package contents</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pmods">pmods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#audio">audio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#video">video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tests">tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">documentation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
@@ -138,7 +137,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</li>
+    <li>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -266,95 +265,62 @@ div.nboutput  > :nth-child(2).stderr {
 
 .ansibold { font-weight: bold; }
 </style>
-<div class="section" id="the-pynq-python-on-zynq-package">
-<h1>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package<a class="headerlink" href="#the-pynq-python-on-zynq-package" title="Permalink to this headline">¶</a></h1>
-<p>The section describes the <code class="docutils literal"><span class="pre">pynq</span></code> (<strong>Py</strong>thon on <strong>Zy</strong>nq) Package - specifically the operating system support and preloaded Python <code class="docutils literal"><span class="pre">pynq</span></code> package.</p>
-<p>The Pynq platform itself is a preloaded SDCard that boots into Ubuntu Server 14.04.  Python3 is loaded with Jupyter notebook support and the needed Python package, also named pynq.  With the pynq package, users can access programmable logic overlays without ever leaving Python.</p>
-<p>You can explore the project code on GitHub, or you can navigate to the Python pynq package on your Zybo at /home/xpp/pynq.</p>
-<p>The board also has a Samba share which allows you map pynq as a network drive. In Windows, using Windows Explorer, navigate to or map <em>\\pynq\xpp</em></p>
-<p>You can browse to the directory in a similar way using other operating systems.</p>
+<div class="section" id="the-pynq-python-on-zynq-platform">
+<h1>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform<a class="headerlink" href="#the-pynq-python-on-zynq-platform" title="Permalink to this headline">¶</a></h1>
+<p>The section describes the <code class="docutils literal"><span class="pre">pynq</span></code> (<strong>Py</strong>thon on <strong>Zy</strong>nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the Zybo platform.</p>
+<p>On poweron with the preloaded SDCard, Zybo will boot into Ubuntu Server 15.10.  Python3 is loaded with Jupyter notebook support and the needed Python package, also named pynq.  With the pynq package, users can access programmable logic overlays without ever leaving Python.</p>
+<p>Some preloaded features of this Ubuntu image include:</p>
+<ul class="simple">
+<li>Networking is enabled and Ethernet port will attempt to use DHCP on boot.  If DHCP fails, the board will fallback to a static IP of 192.168.2.99.</li>
+<li>Samba is enabled and can be accessed from a Windows machine by navigating or mapping to <em>\\pynq\xpp</em>.  The username and password is xpp\xpp.  You can browse to the directory in a similar way using other operating systems allowing integration with any standard text editors like Sublime Text or Notepad++.</li>
+<li>A Jupyter notebook server is initialized on port 9090.</li>
+<li>The PMOD IO overlay is preloaded onto the programmable logic.</li>
+</ul>
 <div class="section" id="python-pynq-package-structure">
 <h2>Python <code class="docutils literal"><span class="pre">pynq</span></code> Package Structure<a class="headerlink" href="#python-pynq-package-structure" title="Permalink to this headline">¶</a></h2>
-<p>A package in Python is a folder which contains multiple Python modules (&#8221;.py&#8221; files) and a <code class="docutils literal"><span class="pre">__init__.py</span></code> file.</p>
-<p><code class="docutils literal"><span class="pre">__init__.py</span></code> makes Python treat the directory as a self-containing package. The initialization file can also execute the initialization code for the package. For instance, in <code class="docutils literal"><span class="pre">__init__.py</span></code>, the <code class="docutils literal"><span class="pre">__all__</span></code> variable can be used to define the subpackages or modules that will be imported by default when this package is imported.</p>
-<p>Pynq contains four _user_ subpackages: <code class="docutils literal"><span class="pre">board</span></code>, <code class="docutils literal"><span class="pre">pmods</span></code>, <code class="docutils literal"><span class="pre">audio</span></code>, and <code class="docutils literal"><span class="pre">video</span></code>; a <code class="docutils literal"><span class="pre">tests</span></code> subpackage is for testing the user subpackages. Please refer to the <a class="reference external" href="https://docs.python.org/3.5/tutorial/modules.html#packages">official python documentation</a>  for additional information.</p>
+<p>All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xpp/pynq.  This package is loaded from the Github repository and the latest version can always be installed from Pynq/python/pynq.</p>
+<p>Pynq contains four main subpackages: <code class="docutils literal"><span class="pre">board</span></code>, <code class="docutils literal"><span class="pre">pmods</span></code>, <code class="docutils literal"><span class="pre">audio</span></code>, and <code class="docutils literal"><span class="pre">video</span></code>; a <code class="docutils literal"><span class="pre">tests</span></code> subpackage is for testing the user subpackages.  Each of the five subpackages are described below.</p>
+<p>To learn more about Python package structuring, please refer to the <a class="reference external" href="https://docs.python.org/3.5/tutorial/modules.html#packages">official python documentation</a>.</p>
 </div>
 <div class="section" id="board">
 <h2>board<a class="headerlink" href="#board" title="Permalink to this headline">¶</a></h2>
-<p>This folder contains the <code class="docutils literal"><span class="pre">onboard</span></code> subpackage, i.e. libraries for peripherals available on Zybo: Buttons, Switches, LEDs. In this case, <cite>board</cite> contains the modules: <code class="docutils literal"><span class="pre">button</span></code>, <code class="docutils literal"><span class="pre">led</span></code>, and <code class="docutils literal"><span class="pre">switch</span></code>, which expose the corresponding lasses and their wrapper functions.</p>
+<p>This folder contains libraries for peripherals available on the Zybo board: Buttons, Switches, LEDs.  For example the following code will turn on one of Zybo&#8217;s LEDs:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span> <span class="n">LED</span>
+<span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
+</pre></div>
 </div>
-<div class="section" id="pmods-and-grove-peripherals">
-<h2>Pmods (and Grove Peripherals)<a class="headerlink" href="#pmods-and-grove-peripherals" title="Permalink to this headline">¶</a></h2>
-<p>This folder contains peripheral packages which includes the following Pmod modules <code class="docutils literal"><span class="pre">OLED</span></code>, <code class="docutils literal"><span class="pre">TMP2</span></code>, <code class="docutils literal"><span class="pre">ALS</span></code> <code class="docutils literal"><span class="pre">LED8</span></code>, <code class="docutils literal"><span class="pre">ADC</span></code>, and <code class="docutils literal"><span class="pre">DAC</span></code>.</p>
+</div>
+<div class="section" id="pmods">
+<h2>pmods<a class="headerlink" href="#pmods" title="Permalink to this headline">¶</a></h2>
+<p>This folder contains peripheral packages which includes the following Pmod devices <code class="docutils literal"><span class="pre">OLED</span></code>, <code class="docutils literal"><span class="pre">TMP2</span></code>, <code class="docutils literal"><span class="pre">ALS</span></code> <code class="docutils literal"><span class="pre">LED8</span></code>, <code class="docutils literal"><span class="pre">ADC</span></code>, and <code class="docutils literal"><span class="pre">DAC</span></code>.</p>
 <p>The following Grove peripherals are also supported: <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">ADC</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">PIR</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">OLED</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">Buzzer</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">Light</span> <span class="pre">Sensor</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">LED</span> <span class="pre">BAR</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">Temperature</span> <span class="pre">Sensor</span></code>. In addition, <code class="docutils literal"><span class="pre">Pmodio</span></code>, <code class="docutils literal"><span class="pre">PmodIic</span></code> and <code class="docutils literal"><span class="pre">DevMode</span></code> are developer classes allowing direct low level access to I/O controllers.</p>
-<p>There is also an additional module named <code class="docutils literal"><span class="pre">_iop.py</span></code>; this module acts like a wrapper to allow all the PMODs&#8217; classes to interface with the MicroBlaze objects.  The <code class="docutils literal"><span class="pre">_IOP</span></code> class prevents multiple device instantiations on the same PMOD. At the same time, <code class="docutils literal"><span class="pre">_IOP</span></code> keeps track of the status of all the PMODs.</p>
+<p>There is also an additional module named <code class="docutils literal"><span class="pre">_iop.py</span></code>; this module acts like a wrapper to allow all the PMODs&#8217; classes to interface with the MicroBlaze objects.  The <code class="docutils literal"><span class="pre">_IOP</span></code> class prevents multiple device instantiations on the same PMOD. At the same time, <code class="docutils literal"><span class="pre">_IOP</span></code> uses the Overlay class to track each IOP&#8217;s status.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><code class="docutils literal"><span class="pre">_iop.py</span></code> is an internal module, not intended for the end users. In Python, there is no concept of _public_ and _private_; we use <code class="docutils literal"><span class="pre">_</span></code> as a prefix to indicate internal definitions, variables, functions, and packages.</p>
 </div>
-<p><code class="docutils literal"><span class="pre">__init__.py</span></code> is used to raise the scope of all the classes at the package level. The following can be used to import everything in <code class="docutils literal"><span class="pre">pynq.pmods</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pynq.pmods</span>
+<p>For example, the following code will instantiate and write to the PMOD_OLED attached on PMOD 4.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">PMOD_OLED</span>
+<span class="n">PMOD_OLED</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;hello world&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Alternatively, users can also import each class individually:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">ADC</span>
-</pre></div>
 </div>
-<p>or</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.pmods.adc</span> <span class="kn">import</span> <span class="n">ADC</span>
-</pre></div>
+<div class="section" id="audio">
+<h2>audio<a class="headerlink" href="#audio" title="Permalink to this headline">¶</a></h2>
+<p>This folder contains the single audio class to use Line in and Headphone out.  Please see <a class="reference external" href="7_audio_video_overlay_pp.html">The Audio Video Overlay Section</a> to learn more about using audio on Zybo.</p>
 </div>
-<p>But the latter is verbose and not recommended.</p>
+<div class="section" id="video">
+<h2>video<a class="headerlink" href="#video" title="Permalink to this headline">¶</a></h2>
+<p>This folder contains the HDMI and VGA classes to video on Zybo.  Please see <a class="reference external" href="7_audio_video_overlay_pp.html">The Audio Video Overlay Section</a> to learn more about using video on Zybo.</p>
+</div>
 <div class="section" id="tests">
-<h3>tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h3>
-<p>This folder includes a tests package for use with all other pynq subpackages.</p>
+<h2>tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<p>This folder includes a tests package for use with all other pynq subpackages.  All testing is done using <a class="reference external" href="http://pytest.org/latest/">pytest</a>.  Please see <a class="reference external" href="11_verification.html">The Verification Section</a> to learn more about Pynq&#8217;s use of pytest to do automated testing.</p>
 <p>NOTE: The <code class="docutils literal"><span class="pre">tests`</span> <span class="pre">folders</span> <span class="pre">in</span> <span class="pre">``board</span></code>, <code class="docutils literal"><span class="pre">pmods</span></code>, and others rely on the functions implemented in the <code class="docutils literal"><span class="pre">test</span></code> folders of the pynq package. This common practice in Python where each subpackage has its own <code class="docutils literal"><span class="pre">tests</span></code>.  This practice can keep the source code modular and <em>self-contained</em>.</p>
 </div>
-</div>
-<div class="section" id="package-contents">
-<h2>Package contents<a class="headerlink" href="#package-contents" title="Permalink to this headline">¶</a></h2>
-<p>To find a list of modules, and to find documentation for each module, see the <a class="reference external" href="modules.html">Pynq Package</a></p>
-</div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>Refer to <a class="reference external" href="5_programming_onboard_peripherals.html">Programing Zybo&#8217;s onboard peripherals in Python</a> for more information on how to use Pynq.</p>
-<p>To use pynq, import the whole package:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pynq</span>
-</pre></div>
-</div>
-<p>or</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="o">*</span>
-</pre></div>
-</div>
-<p>Note the content of <code class="docutils literal"><span class="pre">__init__.py</span></code> in the <code class="docutils literal"><span class="pre">pynq</span></code> folder:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;board&#39;</span><span class="p">,</span> <span class="s">&#39;pmods&#39;</span><span class="p">,</span> <span class="s">&#39;audio&#39;</span><span class="p">,</span> <span class="s">&#39;video&#39;</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>This list shows the subpackages that will be loaded when using <cite>import *`</cite>. While it may seem convenient to import everything, it is good practice to only import the required packages.</p>
-<p>To access the _onboard_ packages, type:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">board</span>
-</pre></div>
-</div>
-<p>or</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pynq.board</span>
-</pre></div>
-</div>
-<p>or, to import specific packages:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span> <span class="n">Button</span><span class="p">,</span> <span class="n">LED</span>
-</pre></div>
-</div>
-<p>To access the Pmod overlay objects, type:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">pmods</span>
-</pre></div>
-</div>
-<p>or</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pynq.pmods</span>
-</pre></div>
-</div>
-<p>or, for a single object</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">ADC</span><span class="p">,</span> <span class="n">DAC</span>
-</pre></div>
-</div>
+<div class="section" id="documentation">
+<h2>documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>To find documentation for each module, see the <a class="reference external" href="modules.html">Pynq Package</a> for documentation built from the actual Python source code.</p>
 </div>
 </div>
 

@@ -92,7 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="12_modules.html">pynq modules</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="pynq.html">pynq package</a><ul class="current">
@@ -291,6 +291,9 @@ div.nboutput  > :nth-child(2).stderr {
 <em class="property">class </em><code class="descclassname">pynq.pmods.pmod_adc.</code><code class="descname">PMOD_ADC</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls an Analog to Digital Converter PMOD.</p>
+<p>The PMOD AD2 (PB 200-217) is an analog-to-digital converter powered by
+AD7991. Users may configure up to 4 conversion channels at 12 bits of
+resolution.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.pmod_adc.PMOD_ADC.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.iop" title="Permalink to this definition">¶</a></dt>
@@ -303,19 +306,235 @@ div.nboutput  > :nth-child(2).stderr {
 <dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.log_running">
+<code class="descname">log_running</code><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.log_running" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The state of the log (0: stopped, 1: started).</p>
+</dd></dl>
+
 <dl class="method">
-<dt id="pynq.pmods.pmod_adc.PMOD_ADC.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the value from the ADC PMOD as a string.</p>
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.get_log">
+<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.get_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the log of voltage values.</p>
+<p>First stop the log before getting the log.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An floating number expressed as a string.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid raw samples from the ADC.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.get_log_raw">
+<code class="descname">get_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.get_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.get_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the log of raw values.</p>
+<p>First stop the log before getting the log.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid raw samples from the ADC.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>delay=10</em>, <em>channel=0</em>, <em>samples=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the voltage from the ADC PMOD.</p>
+<p>All the 3 available channels are enabled. The default channel is 0,
+meaning only the first channel is read. Users can choose any channel
+from 0 to 2.</p>
+<p>In each channel, this method reads multiple samples and
+returns the last sample.</p>
+<p>The delay specifies the time between two samples, in milliseconds.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The 4th channel is not available due to the jumper setting on ADC.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method reads the voltage values from ADC.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>delay</strong> (<em>int</em>) &#8211; The delay between samples on the same channel.</li>
+<li><strong>channel</strong> (<em>int</em>) &#8211; The channel number, from 0 to 2.</li>
+<li><strong>samples</strong> (<em>int</em>) &#8211; The number of samples read from each ADC channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The voltage value read from the PMOD ADC.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.read_raw">
+<code class="descname">read_raw</code><span class="sig-paren">(</span><em>delay=10</em>, <em>channel=0</em>, <em>samples=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.read_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.read_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the raw value from the ADC PMOD.</p>
+<p>All the 3 available channels are enabled. The default channel is 0,
+meaning only the first channel is read. Users can choose any channel
+from 0 to 2.</p>
+<p>In each channel, this method reads multiple samples and
+returns the last sample.</p>
+<p>The delay specifies the time between two samples, in milliseconds.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The 4th channel is not available due to the jumper setting on ADC.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method reads the raw value from ADC.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>delay</strong> (<em>int</em>) &#8211; The delay between samples on the same channel.</li>
+<li><strong>channel</strong> (<em>int</em>) &#8211; The channel number, from 0 to 2.</li>
+<li><strong>samples</strong> (<em>int</em>) &#8211; The number of samples read from each ADC channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The raw value read from the PMOD ADC.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the PMOD ADC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.start_log">
+<code class="descname">start_log</code><span class="sig-paren">(</span><em>channel=0</em>, <em>log_interval_ms=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.start_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the log of voltage values with the interval specified.</p>
+<p>This parameter <cite>log_interval_ms</cite> can set the time interval between
+two samples, so that users can read out multiple values in a single
+log.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>channel</strong> (<em>int</em>) &#8211; The channel number, from 0 to 2.</li>
+<li><strong>log_interval_ms</strong> (<em>int</em>) &#8211; The length of the log in milliseconds, for debug only.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.start_log_raw">
+<code class="descname">start_log_raw</code><span class="sig-paren">(</span><em>channel=0</em>, <em>log_interval_ms=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.start_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.start_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the log of raw values with the interval specified.</p>
+<p>This parameter <cite>log_interval_ms</cite> can set the time interval between
+two samples, so that users can read out multiple values in a single
+log.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>channel</strong> (<em>int</em>) &#8211; The channel number, from 0 to 2.</li>
+<li><strong>log_interval_ms</strong> (<em>int</em>) &#8211; The length of the log in milliseconds, for debug only.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.stop_log">
+<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.stop_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the log of voltage values.</p>
+<p>This is done by sending the reset command to IOP. There is no need to
+wait for the IOP.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_adc.PMOD_ADC.stop_log_raw">
+<code class="descname">stop_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.stop_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.stop_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the log of raw values.</p>
+<p>This is done by sending the reset command to IOP. There is no need to
+wait for the IOP.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -331,6 +550,9 @@ div.nboutput  > :nth-child(2).stderr {
 <em class="property">class </em><code class="descclassname">pynq.pmods.pmod_als.</code><code class="descname">PMOD_ALS</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_als.html#PMOD_ALS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_als.PMOD_ALS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls a light sensor PMOD.</p>
+<p>The PMOD ALS (PB 200-286) demonstrates light-to-digital sensing through a
+single ambient light sensor. This is based on ADC081S021 analog-to-digital
+converter and TEMT6000X01.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.pmod_als.PMOD_ALS.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.pmod_als.PMOD_ALS.iop" title="Permalink to this definition">¶</a></dt>
@@ -552,6 +774,8 @@ cable can be recognized.</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.pmod_dac.</code><code class="descname">PMOD_DAC</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_dac.html#PMOD_DAC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_dac.PMOD_DAC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls a Digital to Analog Converter PMOD.</p>
+<p>The PMOD DA4 (PB 200-245) is an 8 channel 12-bit digital-to-analog
+converter run via AD5628.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.pmod_dac.PMOD_DAC.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.pmod_dac.PMOD_DAC.iop" title="Permalink to this definition">¶</a></dt>
@@ -807,6 +1031,8 @@ configure the switch with DevMode.iop_switch_config</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.pmod_dpot.</code><code class="descname">PMOD_DPOT</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_dpot.html#PMOD_DPOT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_dpot.PMOD_DPOT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls a digital potentiometer PMOD.</p>
+<p>The PMOD DPOT (PB 200-239) is a digital potentiometer powered by the
+AD5160. Users may set a desired resistance between 60 ~ 10k ohms.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.pmod_dpot.PMOD_DPOT.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.pmod_dpot.PMOD_DPOT.iop" title="Permalink to this definition">¶</a></dt>
@@ -857,6 +1083,8 @@ for debug; users can ignore this parameter.</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.pmod_led8.</code><code class="descname">PMOD_LED8</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_led8.html#PMOD_LED8"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_led8.PMOD_LED8" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls a single LED on the LED8 PMOD.</p>
+<p>The PMOD LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be
+individually illuminated from a logic high signal.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.pmod_led8.PMOD_LED8.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.pmod_led8.PMOD_LED8.iop" title="Permalink to this definition">¶</a></dt>
@@ -978,6 +1206,8 @@ on if it is off.</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.pmod_oled.</code><code class="descname">PMOD_OLED</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>text=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_oled.html#PMOD_OLED"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_oled.PMOD_OLED" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls an OLED PMOD.</p>
+<p>The PMOD OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED)
+panel powered by the Solomon Systech SSD1306.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.pmod_oled.PMOD_OLED.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.pmod_oled.PMOD_OLED.iop" title="Permalink to this definition">¶</a></dt>
@@ -994,7 +1224,7 @@ on if it is off.</p>
 <dt id="pynq.pmods.pmod_oled.PMOD_OLED.clear">
 <code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_oled.html#PMOD_OLED.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_oled.PMOD_OLED.clear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the OLED screen.</p>
-<p>This is done by writing empty strings into the OLED.</p>
+<p>This is done by sending the clear command to the IOP.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1137,15 +1367,65 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 <dd><p><em>int</em> &#8211; The IIC device address.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynq.pmods.pmod_iic.PMOD_IIC.sr_addr">
+<code class="descname">sr_addr</code><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.sr_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The IIC device SR address (base address + 0x104).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pmods.pmod_iic.PMOD_IIC.dtr_addr">
+<code class="descname">dtr_addr</code><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.dtr_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The IIC device DTR address (base address + 0x108).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pmods.pmod_iic.PMOD_IIC.cr_addr">
+<code class="descname">cr_addr</code><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.cr_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The IIC device CR address (base address + 0x100).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pmods.pmod_iic.PMOD_IIC.rfd_addr">
+<code class="descname">rfd_addr</code><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.rfd_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The IIC device RFD address (base address + 0x120).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pmods.pmod_iic.PMOD_IIC.drr_addr">
+<code class="descname">drr_addr</code><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.drr_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The IIC device DRR address (base address + 0x10C).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.pmod_iic.PMOD_IIC.receive">
+<code class="descname">receive</code><span class="sig-paren">(</span><em>num_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_iic.html#PMOD_IIC.receive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.receive" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method receives IIC bytes from the device.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num_bytes</strong> (<em>int</em>) &#8211; Number of bytes to be received from the device.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>iic_bytes</strong> &#8211; A list of 8-bit bytes received from the driver.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></code> &#8211; Timeout when waiting for the RX FIFO to fill.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynq.pmods.pmod_iic.PMOD_IIC.send">
-<code class="descname">send</code><span class="sig-paren">(</span><em>iic_words</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_iic.html#PMOD_IIC.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.send" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send</code><span class="sig-paren">(</span><em>iic_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_iic.html#PMOD_IIC.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_iic.PMOD_IIC.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method sends the command or data to the driver.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iic_words</strong> (<em>list</em>) &#8211; A list of 32-bit words to be sent to the driver.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iic_bytes</strong> (<em>list</em>) &#8211; A list of 8-bit bytes to be sent to the driver.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
@@ -1155,6 +1435,12 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">sr_addr</code><em class="property"> = None</em></dt>
+<dd><p>Useful IIC controller addresses</p>
 </dd></dl>
 
 </dd></dl>
@@ -1248,6 +1534,8 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.pmod_tmp2.</code><code class="descname">PMOD_TMP2</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_tmp2.html#PMOD_TMP2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_tmp2.PMOD_TMP2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls a temperature sensor PMOD.</p>
+<p>The PMOD TMP2 (PB 200-221) is an ambient temperature sensor powered by
+ADT7420.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.pmod_tmp2.PMOD_TMP2.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.pmod_tmp2.PMOD_TMP2.iop" title="Permalink to this definition">¶</a></dt>
@@ -1369,10 +1657,12 @@ the MMIO.</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.grove_adc.</code><code class="descname">Grove_ADC</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove IIC ADC.</p>
+<p>Grove ADC is a 12-bit precision ADC module based on ADC121C021. Hardware
+version: v1.2.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.grove_adc.Grove_ADC.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.iop" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>_IOP</em> &#8211; I/O processor instance used by GROVE_ADC</p>
+<dd><p><em>_IOP</em> &#8211; I/O processor instance used by Grove_ADC.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1382,9 +1672,15 @@ the MMIO.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pynq.pmods.grove_adc.Grove_ADC.log_running">
+<code class="descname">log_running</code><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.log_running" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The state of the log (0: stopped, 1: started).</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pynq.pmods.grove_adc.Grove_ADC.log_interval_ms">
 <code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.log_interval_ms" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the GROVE_ADC sensor</p>
+<dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the Grove_ADC sensor.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1397,7 +1693,7 @@ the MMIO.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid voltage samples (floats) from the GROVE_ADC sensor.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid voltage samples (floats) from the ADC sensor.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
 </tr>
@@ -1406,16 +1702,16 @@ the MMIO.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.pmods.grove_adc.Grove_ADC.get_log_voltage">
-<code class="descname">get_log_voltage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.get_log_voltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.get_log_voltage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return list of logged samples.</p>
+<dt id="pynq.pmods.grove_adc.Grove_ADC.get_log_raw">
+<code class="descname">get_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.get_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.get_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of logged raw samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid voltage samples (floats) from the GROVE_ADC sensor.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid raw samples from the ADC sensor.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
 </tr>
@@ -1426,25 +1722,7 @@ the MMIO.</p>
 <dl class="method">
 <dt id="pynq.pmods.grove_adc.Grove_ADC.read">
 <code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the ADC value from the GROVE_ADC peripheral.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The raw value from the sensor.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynq.pmods.grove_adc.Grove_ADC.read_voltage">
-<code class="descname">read_voltage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.read_voltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.read_voltage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the ADC voltage from the GROVE_ADC peripheral.</p>
+<dd><p>Read the ADC voltage from the Grove ADC peripheral.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1460,9 +1738,27 @@ the MMIO.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.pmods.grove_adc.Grove_ADC.reset_adc">
-<code class="descname">reset_adc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.reset_adc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.reset_adc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resets/initializes the ADC</p>
+<dt id="pynq.pmods.grove_adc.Grove_ADC.read_raw">
+<code class="descname">read_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.read_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.read_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the ADC raw value from the Grove ADC peripheral.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The raw value from the sensor.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.grove_adc.Grove_ADC.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets/initializes the ADC.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1477,17 +1773,29 @@ the MMIO.</p>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynq.pmods.grove_adc.Grove_ADC.scl_pin">
+<code class="descname">scl_pin</code><em class="property"> = None</em><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.scl_pin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write SCL Pin Config</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pmods.grove_adc.Grove_ADC.sda_pin">
+<code class="descname">sda_pin</code><em class="property"> = None</em><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.sda_pin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write SDA Pin Config</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynq.pmods.grove_adc.Grove_ADC.set_log_interval_ms">
 <code class="descname">set_log_interval_ms</code><span class="sig-paren">(</span><em>log_interval_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.set_log_interval_ms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.set_log_interval_ms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the length of the log for the GROVE_ADC peripheral.</p>
-<p>This method can set the length of the log, so that users can read out
-multiple values in a single log.</p>
+<dd><p>Set the length of the log for the Grove_ADC peripheral.</p>
+<p>This method can set the time interval between two samples, so that
+users can read out multiple values in a single log.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_interval_ms</strong> (<em>int</em>) &#8211; The length of the log in milliseconds, for debug only.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_interval_ms</strong> (<em>int</em>) &#8211; The time between two samples in milliseconds, for logging only.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
@@ -1500,7 +1808,7 @@ multiple values in a single log.</p>
 <dl class="method">
 <dt id="pynq.pmods.grove_adc.Grove_ADC.start_log">
 <code class="descname">start_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.start_log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start recording raw data in a log.</p>
+<dd><p>Start recording multiple voltage values (float) in a log.</p>
 <p>This method will first call set_log_interval_ms() before writting to
 the MMIO.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1518,9 +1826,9 @@ the MMIO.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.pmods.grove_adc.Grove_ADC.start_log_voltage">
-<code class="descname">start_log_voltage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.start_log_voltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.start_log_voltage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start recording multiple voltage values (float) in a log.</p>
+<dt id="pynq.pmods.grove_adc.Grove_ADC.start_log_raw">
+<code class="descname">start_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.start_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.start_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start recording raw data in a log.</p>
 <p>This method will first call set_log_interval_ms() before writting to
 the MMIO.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1540,8 +1848,27 @@ the MMIO.</p>
 <dl class="method">
 <dt id="pynq.pmods.grove_adc.Grove_ADC.stop_log">
 <code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.stop_log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop recording multiple float values in a log.</p>
-<p>Simply write 0 to the MMIO to stop the log.</p>
+<dd><p>Stop recording the voltage values in the log.</p>
+<p>This can be done by calling the stop_log_raw() method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.grove_adc.Grove_ADC.stop_log_raw">
+<code class="descname">stop_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_adc.html#Grove_ADC.stop_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.stop_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop recording the raw values in the log.</p>
+<p>Simply write 0xC to the MMIO to stop the log.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1559,8 +1886,74 @@ the MMIO.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="pynq-pmods-grove-buzzer-module">
-<h2>pynq.pmods.grove_buzzer module<a class="headerlink" href="#pynq-pmods-grove-buzzer-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pynq.pmods.grove_buzzer">
+<span id="pynq-pmods-grove-buzzer-module"></span><h2>pynq.pmods.grove_buzzer module<a class="headerlink" href="#module-pynq.pmods.grove_buzzer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pynq.pmods.grove_buzzer.Grove_Buzzer">
+<em class="property">class </em><code class="descclassname">pynq.pmods.grove_buzzer.</code><code class="descname">Grove_Buzzer</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_buzzer.html#Grove_Buzzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_buzzer.Grove_Buzzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class controls the Grove Buzzer.</p>
+<p>The grove buzzer module has a piezo buzzer as the main component.
+The piezo can be connected to digital outputs, and will emit a tone
+when the output is HIGH. Alternatively, it can be connected to an analog
+pulse-width modulation output to generate various tones and effects.
+Hardware version: v1.2.</p>
+<dl class="attribute">
+<dt id="pynq.pmods.grove_buzzer.Grove_Buzzer.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.grove_buzzer.Grove_Buzzer.iop" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>_IOP</em> &#8211; I/O processor instance used by GROVE_Buzzer</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pmods.grove_buzzer.Grove_Buzzer.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.pmods.grove_buzzer.Grove_Buzzer.mmio" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.pmods.grove_buzzer.Grove_Buzzer.log_interval_ms">
+<code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.pmods.grove_buzzer.Grove_Buzzer.log_interval_ms" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the GROVE_ADC sensor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.grove_buzzer.Grove_Buzzer.play_melody">
+<code class="descname">play_melody</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_buzzer.html#Grove_Buzzer.play_melody"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_buzzer.Grove_Buzzer.play_melody" title="Permalink to this definition">¶</a></dt>
+<dd><p>Play a melody.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.grove_buzzer.Grove_Buzzer.play_tone">
+<code class="descname">play_tone</code><span class="sig-paren">(</span><em>tone_period</em>, <em>num_cycles</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_buzzer.html#Grove_Buzzer.play_tone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_buzzer.Grove_Buzzer.play_tone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Play a single tone with tone_period for num_cycles</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-pynq.pmods.grove_imu">
 <span id="pynq-pmods-grove-imu-module"></span><h2>pynq.pmods.grove_imu module<a class="headerlink" href="#module-pynq.pmods.grove_imu" title="Permalink to this headline">¶</a></h2>
@@ -1569,6 +1962,11 @@ the MMIO.</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.grove_imu.</code><code class="descname">Grove_IMU</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_imu.html#Grove_IMU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_imu.Grove_IMU" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove IIC IMU.</p>
+<p>Grove IMU 10DOF is a combination of grove IMU 9DOF (MPU9250) and grove
+barometer sensor (BMP180). MPU-9250 is a 9-axis motion tracking device
+that combines a 3-axis gyroscope, 3-axis accelerometer, 3-axis
+magnetometer and a Digital Motion Processor (DMP). BMP180 is a high
+precision, low power digital pressure sensor. Hardware version: v1.1.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.grove_imu.Grove_IMU.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.grove_imu.Grove_IMU.iop" title="Permalink to this definition">¶</a></dt>
@@ -1771,6 +2169,8 @@ the MMIO.</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.grove_ledbar.</code><code class="descname">Grove_LEDbar</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove LED BAR.</p>
+<p>Grove LED Bar is comprised of a 10 segment LED gauge bar and an MY9221 LED
+controlling chip. Model: LED05031P. Hardware version: v2.0.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.iop" title="Permalink to this definition">¶</a></dt>
@@ -1784,20 +2184,21 @@ the MMIO.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.read_leds">
-<code class="descname">read_leds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.read_leds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.read_leds" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the current status of LEDbar.</p>
-<p>Reads the current status of LEDbar and returns a 10-bit binary string</p>
+<p>Reads the current status of LEDbar and returns a 10-bit binary string.
+Each bit position corresponds to a LED position in the LEDbar,
+and bit value corresponds to the LED state.</p>
+<p>Red LED corresponds to the LSB, while green LED corresponds
+to the MSB.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">String of 10 binary bits.
-Each bit position corresponds to a LED position in the LEDbar,
-and bit value corresponds to the LED state.
-Direction is Red&#8211;&gt;Green = LSB&#8211;&gt;MSB</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">String of 10 binary bits.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -1825,77 +2226,12 @@ Direction is Red&#8211;&gt;Green = LSB&#8211;&gt;MSB</td>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.set_brightness">
-<code class="descname">set_brightness</code><span class="sig-paren">(</span><em>data_in</em>, <em>brightness=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.set_brightness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.set_brightness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set individual LEDs with 3 level brightness control.</p>
-<p>Each bit in the 10-bit binary input points to a LED position on the
-LEDbar. Direction is Red&#8211;&gt;Green = LSB&#8211;&gt;MSB
-Brightness of each LED is controlled by the brightness[] list
-elements. Direction is Red&#8211;&gt;Green = brightness[9] &#8211;&gt; brightness[0]</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_in</strong> (<em>int</em>) &#8211; 10 LSBs of this parameter control the LEDbar.</li>
-<li><strong>brightness</strong> (<em>List[int]</em>) &#8211; Each List element controls a single LED
-3 perceivable levels of brightness exist
-HIGH = 0xFF
-MED  = 0xAA
-LOW  = 0x01</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.set_level">
-<code class="descname">set_level</code><span class="sig-paren">(</span><em>level</em>, <em>brightness</em>, <em>red_to_green</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.set_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.set_level" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the level to which the leds are to be lit in levels 1 - 10.</p>
-<p>Level can be set in both directions. set_level operates by setting
-all LEDs to the same brightness level.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>level</strong> (<em>int</em>) &#8211; 10 levels exist on the LEDbar.
-1 is minimum and 10 is maximum</li>
-<li><strong>brightness</strong> (<em>int</em>) &#8211; Controls brightness of all LEDs in the LEDbar
-3 perceivable levels of brightness exist
-HIGH = 0xFF
-MED  = 0xAA
-LOW  = 0x01</li>
-<li><strong>red_to_green</strong> &#8211; Sets the direction of the sequence
-0 - red to green
-1 - green to red.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.write_leds">
-<code class="descname">write_leds</code><span class="sig-paren">(</span><em>data_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.write_leds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.write_leds" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.write_binary">
+<code class="descname">write_binary</code><span class="sig-paren">(</span><em>data_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.write_binary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.write_binary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set individual LEDs in the LEDbar based on 10 bit binary input.</p>
-<p>Each bit in the 10-bit binary input points to a LED position on the
-LEDbar. Direction is Red&#8211;&gt;Green = LSB&#8211;&gt;MSB</p>
+<p>Each bit in the 10-bit <cite>data_in</cite> points to a LED position on the
+LEDbar. Red LED corresponds to the LSB, while green LED corresponds
+to the MSB.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1905,6 +2241,72 @@ LEDbar. Direction is Red&#8211;&gt;Green = LSB&#8211;&gt;MSB</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.write_brightness">
+<code class="descname">write_brightness</code><span class="sig-paren">(</span><em>data_in, brightness=[170, 170, 170, 170, 170, 170, 170, 170, 170, 170]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.write_brightness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.write_brightness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set individual LEDs with 3 level brightness control.</p>
+<p>Each bit in the 10-bit <cite>data_in</cite> points to a LED position on the
+LEDbar. Red LED corresponds to the LSB, while green LED corresponds
+to the MSB.</p>
+<p>Brightness of each LED is controlled by the brightness parameter.
+There are 3 perceivable levels of brightness:
+0xFF : HIGH
+0xAA : MED
+0x01 : LOW</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_in</strong> (<em>int</em>) &#8211; 10 LSBs of this parameter control the LEDbar.</li>
+<li><strong>brightness</strong> (<em>list</em>) &#8211; Each List element controls a single LED.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.pmods.grove_ledbar.Grove_LEDbar.write_level">
+<code class="descname">write_level</code><span class="sig-paren">(</span><em>level</em>, <em>bright_level</em>, <em>green_to_red</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_ledbar.html#Grove_LEDbar.write_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_ledbar.Grove_LEDbar.write_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the level to which the leds are to be lit in levels 1 - 10.</p>
+<p>Level can be set in both directions. <cite>set_level</cite> operates by setting
+all LEDs to the same brightness level.</p>
+<p>There are 4 preset brightness levels:
+bright_level = 0: off
+bright_level = 1: low
+bright_level = 2: medium
+bright_level = 3: maximum</p>
+<p><cite>green_to_red</cite> indicates the direction, either from red to green when
+it is 0, or green to red when it is 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>level</strong> (<em>int</em>) &#8211; 10 levels exist, where 1 is minimum and 10 is maximum.</li>
+<li><strong>bright_level</strong> (<em>int</em>) &#8211; Controls brightness of all LEDs in the LEDbar, from 0 to 3.</li>
+<li><strong>green_to_red</strong> (<em>int</em>) &#8211; Sets the direction of the sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1920,6 +2322,8 @@ LEDbar. Direction is Red&#8211;&gt;Green = LSB&#8211;&gt;MSB</p>
 <em class="property">class </em><code class="descclassname">pynq.pmods.grove_oled.</code><code class="descname">Grove_OLED</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/grove_oled.html#Grove_OLED"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.grove_oled.Grove_OLED" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove IIC OLED.</p>
+<p>Grove LED 128×64 Display module is an OLED monochrome 128×64 matrix
+display module. Model: OLE35046P. Hardware version: v1.1.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.grove_oled.Grove_OLED.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.grove_oled.Grove_OLED.iop" title="Permalink to this definition">¶</a></dt>
@@ -2097,7 +2501,7 @@ LEDbar. Direction is Red&#8211;&gt;Green = LSB&#8211;&gt;MSB</p>
 <dd><p>Bases: <a class="reference internal" href="#pynq.pmods.pmod_io.PMOD_IO" title="pynq.pmods.pmod_io.PMOD_IO"><code class="xref py py-class docutils literal"><span class="pre">pynq.pmods.pmod_io.PMOD_IO</span></code></a></p>
 <p>This class controls the PIR motion sensor.</p>
 <p>The grove PIR motion sensor is attached to a PMOD. This class inherits
-from the PMODIO class.</p>
+from the PMODIO class. Hardware version: v1.2.</p>
 <dl class="attribute">
 <dt id="pynq.pmods.grove_pir.Grove_PIR.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.pmods.grove_pir.Grove_PIR.iop" title="Permalink to this definition">¶</a></dt>

@@ -92,7 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="12_modules.html">pynq modules</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">pynq package</a><ul>
@@ -314,7 +314,7 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.pmod_io">pynq.pmods.pmod_io module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.pmod_tmp2">pynq.pmods.pmod_tmp2 module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.grove_adc">pynq.pmods.grove_adc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#pynq-pmods-grove-buzzer-module">pynq.pmods.grove_buzzer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.grove_buzzer">pynq.pmods.grove_buzzer module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.grove_imu">pynq.pmods.grove_imu module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.grove_ledbar">pynq.pmods.grove_ledbar module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.pmods.html#module-pynq.pmods.grove_oled">pynq.pmods.grove_oled module</a></li>
@@ -898,7 +898,7 @@ be used to program the IP. For example, users can use this method to
 load the program to the Microblaze processors on PL.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The data is assumed to be in binary format (<a href="#id1"><span class="problematic" id="id2">*</span></a>.bin). The data name will
+<p class="last">The data is assumed to be in binary format (.bin). The data name will
 be stored as a state information in the IP dictionary.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1209,12 +1209,12 @@ E.g., can specify what program is running on a soft processor.</p>
 
 <dl class="attribute">
 <dt>
-<code class="descname">gpio_dict</code><em class="property"> = {'mb_2_reset/Din': [1, None], 'mb_4_reset/Din': [3, None], 'processing_system7_0/GPIO_O': [4, None], 'tracebuffer_sel/Din': [5, None], 'mb_1_reset/Din': [0, None], 'mb_3_reset/Din': [2, None]}</em></dt>
+<code class="descname">gpio_dict</code><em class="property"> = {'mb_3_reset/Din': [2, None], 'mb_1_reset/Din': [0, None], 'tracebuffer_sel/Din': [5, None], 'mb_4_reset/Din': [3, None], 'processing_system7_0/GPIO_O': [4, None], 'mb_2_reset/Din': [1, None]}</em></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt>
-<code class="descname">ip_dict</code><em class="property"> = {'SEG_xadc_wiz_0_Reg': ['0x43C10000', '0x10000', None], 'SEG_mb_bram_ctrl_1_Mem0': ['0x40000000', '0x8000', None], 'SEG_btns_gpio_Reg': ['0x41210000', '0x10000', None], 'SEG_axi_traceBuffer_v1_0_0_reg0': ['0x43C00000', '0x10000', None], 'SEG_mb_bram_ctrl_4_Mem0': ['0x46000000', '0x8000', None], 'SEG_mb_bram_ctrl_3_Mem0': ['0x44000000', '0x8000', None], 'SEG_mb_bram_ctrl_2_Mem0': ['0x42000000', '0x8000', None], 'SEG_swsleds_gpio_Reg': ['0x41200000', '0x10000', None]}</em></dt>
+<code class="descname">ip_dict</code><em class="property"> = {'SEG_btns_gpio_Reg': ['0x41210000', '0x10000', None], 'SEG_mb_bram_ctrl_4_Mem0': ['0x46000000', '0x8000', None], 'SEG_mb_bram_ctrl_1_Mem0': ['0x40000000', '0x8000', None], 'SEG_xadc_wiz_0_Reg': ['0x43C10000', '0x10000', None], 'SEG_mb_bram_ctrl_2_Mem0': ['0x42000000', '0x8000', None], 'SEG_axi_traceBuffer_v1_0_0_reg0': ['0x43C00000', '0x10000', None], 'SEG_swsleds_gpio_Reg': ['0x41200000', '0x10000', None], 'SEG_mb_bram_ctrl_3_Mem0': ['0x44000000', '0x8000', None]}</em></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -1223,7 +1223,7 @@ E.g., can specify what program is running on a soft processor.</p>
 <dd><p>This method writes data to the addressable IP.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The data is assumed to be in binary format (<a href="#id3"><span class="problematic" id="id4">*</span></a>.bin). The data
+<p class="last">The data is assumed to be in binary format (.bin). The data
 name will be stored as a state information in the IP dictionary.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1241,6 +1241,24 @@ name will be stored as a state information in the IP dictionary.</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pynq.pl.PL.reset">
+<em class="property">classmethod </em><code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pl.html#PL.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pl.PL.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset both the IP and GPIO dictionaries.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>

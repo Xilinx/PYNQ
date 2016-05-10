@@ -90,7 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing Software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -300,6 +300,9 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="viewcode-block" id="PMOD_OLED"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_oled.PMOD_OLED">[docs]</a><span class="k">class</span> <span class="nc">PMOD_OLED</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This class controls an OLED PMOD.</span>
 
+<span class="sd">    The PMOD OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED) </span>
+<span class="sd">    panel powered by the Solomon Systech SSD1306.</span>
+<span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    iop : _IOP</span>
@@ -384,10 +387,15 @@ div.nboutput  > :nth-child(2).stderr {
                         <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> 
                         <span class="p">(</span><span class="mh">0x10000</span> <span class="o">|</span> <span class="mh">0x1</span> <span class="o">|</span> <span class="mh">0x8</span><span class="p">))</span>
         
+        <span class="c">#: Wait for the command to be cleared</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x0</span><span class="p">):</span>
+            <span class="k">pass</span>
+        
 <div class="viewcode-block" id="PMOD_OLED.clear"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.pmods.pmod_oled.PMOD_OLED.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Clear the OLED screen.</span>
 <span class="sd">        </span>
-<span class="sd">        This is done by writing empty strings into the OLED.</span>
+<span class="sd">        This is done by sending the clear command to the IOP.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -398,8 +406,16 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>             
-        <span class="bp">self</span><span class="o">.</span><span class="n">_write_string</span><span class="p">(</span><span class="s">&quot; &quot;</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span></div></div>
-    
+        <span class="c">#: Write the clear command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> 
+                        <span class="mh">0x3</span><span class="p">)</span>
+        
+        <span class="c">#: Wait for the command to be cleared</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x0</span><span class="p">):</span>
+            <span class="k">pass</span></div></div>
+        
 </pre></div>
 
            </div>

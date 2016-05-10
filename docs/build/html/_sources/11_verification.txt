@@ -102,8 +102,8 @@ Right below the decorators, users can write some assertions/tests. Below is an e
    
    """
    global dac,adc
-   dac = DAC(dac_id)
-   adc = ADC(adc_id)
+   dac = PMOD_DAC(dac_id)
+   adc = PMOD_ADC(adc_id)
     
    value = float(input("\nInsert a voltage in the range of [0.00, 2.00]: "))
    assert value<=2.00, 'Input voltage should not be higher than 2.00V.'
@@ -113,13 +113,13 @@ Right below the decorators, users can write some assertions/tests. Below is an e
 
 Note the `assert` statements specify the desired condition, and raise exceptions whenever that condition is not met. A customized exception message can be attached at the end of the `assert` methods, as shown above in the example.
 
-Miscellaneous
-=============
+Miscellaneous Test Setup
+========================
 
 ADC Jumper
 ----------
 
-In our tests and demos, we have used a PMOD ADC. In order to make it work properly, users have to set a small jumper on the PMOD ADC as following. This setting will allow the ADC to use the correct reference voltage.
+In our tests and demos, we have used a PMOD ADC. In order to make it work properly with the testing environment, users have to set a small jumper on the PMOD ADC as following. This setting will allow the ADC to use the correct reference voltage.
  
 .. image:: ./images/adc_jumper.jpeg
    :width: 200

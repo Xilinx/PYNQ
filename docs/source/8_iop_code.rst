@@ -1,15 +1,15 @@
 IO Processors: Writing Software
 ===============================
 
-IO Processors (IOPs) contain a soft `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, peripherals `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_, `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_, `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_, `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_ a configurable switch and an interface port to a Pmod. An IOP can be used as a flexible controller for different types of peripherals.
+IO Processors (IOPs) contain a soft `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, peripherals `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_, `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_, `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_, `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_ a custom Configurable Switch IP block, and an interface port to a Pmod. An IOP can be used as a flexible controller for different types of peripherals.
 
 .. image:: ./images/iop.jpg
    :scale: 75%
    :align: center
    
-For external peripheral control or real-time processing, the IOP is the best microcontroller in Pynq for this computation.  By contrast, the ARM Cortex-A9 is an application processor and will be running Linux, not well-suited for real time applications. 
+The ARM Cortex-A9 is an application processor running Linux, which is not well-suited for real time applications. An IOP can be used to control external peripheral control or to meet real-time processing requirements.  
 
-The IOP switch can be configured to route signals between the physical Pmod interface (external pins), and the available internal peripherals. In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA to interface to different external peripherals. 
+The IOP switch can be configured to route signals between the physical Pmod interface (external pins), and the available internal peripherals. In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA design to interface to different external peripherals. 
 
 IOPs can also be used standalone to offload some processing from the main processer. However, note that the IOPs are running at 100MHz, compared to the Dual-Core ARM Cortex-A9 running at 650MHz. This should be taken into account when offloading application code.
 
@@ -18,95 +18,88 @@ Xilinx Software installation
 
 A Microblaze cross-compiler is necessary to build Microblaze software.  Xilinx SDK contains that cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with precompiled drivers for many devices - Xilinx software is only needed if you intend to build your own drivers.
 
-The current Pynq release is built using SDK 2015.4. You should use the same version to rebuild existing Vivado and SDK projects.  
+The current Pynq release is built using Vivado and SDK 2015.4. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays. 
 
 `Download Xilinx Vivado and SDK 2015.4 <http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html>`_
 
 You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.
 
-Building IOP projects
+Compiling projects
 --------------------------
 
-Code for the MicroBlaze processor inside the IOP can be written in C or C++. 
+An IOP contains a MicroBlaze processor. All software runs on the MicroBlaze. Code for the MicroBlaze processor inside the IOP can be written in C or C++ and compiled using the `Xilinx SDK (Software Development Kit) <http://www.xilinx.com/products/design-tools/embedded-software/sdk.html>`_. 
 
-The Xilinx SDK (Software Development Kit) can be installed on a host computer and used to create a software project to build Application Projects for the MicroBlaze inside the IOP. This is the standard way of developing software for a MicroBlaze.
+There are two ways to build projects using SDK.
+You can use the command line and Makefiles, or use the SDK GUI. 
+All the existing IOP projects, which can be found in ``Pynq\zybo\sdk`` can be compiled using Makefiles, or imported into the SDK GUI. You can use this projects as a starting point to create your own project. 
 
-Hardware Description File
--------------------------
+HDF file
+^^^^^^^^
 
-To create a project in SDK for the IOP, the .hdf hardware definition file from a Xilinx Vivado project that includes an IOP is required. 
+To create an MicroBlaze project in SDK, a HDF *Hardware Definition File* from a Xilinx Vivado project, and a Board Support Package (created with SDK) are required. A HDF file defines the peripherals that exist in the processor subsystem and the memory map. A precompiled .hdf file is provided here:
 
-A precompiled pmod.hdf for the pmod overlay is available here:
+   ``<Pynq GitHub Repository>/Pynq/zybo/sdk/``
 
-   Pynq/zybo/sdk
+Board Support Package
+^^^^^^^^^^^^^^^^^^^^^
 
-This hdf file was generated from a Vivado project and does not need to recreated.  If you do need to build the pmod.hdf file again, the pmod overlay can be rebuilt using the supplied makefile at:
+The BSP (Board Support Package) contains software libraries and drivers for peripherals in the system.   
 
-   Pynq/zybo/vivado/pmod/makefile  
+A BSP is linked to a Hardware Platform. An Application Project is then linked to a BSP, and can use the libraries available in the BSP.
 
+Building the projects
+^^^^^^^^^^^^^^^^^^^^^
 
-Build the SDK Hardware Platform and BSP 
----------------------------------------
+A Makefile is provided, and can be found in the same location as the .hdf file. The Makefile can be used to build the Hardware Platform and the BSP
 
-Using makefiles
-^^^^^^^^^^^^^^^^
+    ``<Pynq GitHub Repository>Pynq/zybo/sdk/Makefile``
 
-The SDK projects in the GitHub contain makefiles to build the SDK Hardware Platform project, the Board Support Package, and the application projects. These step requires that you have SDK installed on the host machine.
+Application projects, or the drivers for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is in a separate folder. 
+   
+In the next steps, you will execute the Makefile. The Makefile uses the .hdf file to create the Hardware Platform, and then creates the Board Support Package. The Makefile can be run from Windows, or Linux, but requires SDK to be installed.
 
-The SDK application project, and source code for each peripheral can be found here:
+In Windows, open SDK, and choose a temporary workspace (make sure this is not in the GitHub repository). From the *Xilinx Tools* menu, select *Launch Shell*
 
-    Pynq/zybo/sdk/
-    
-As described above, the pmod.hdf file also exists here. 
+.. image:: ./images/sdk_launch_shell.jpg
+   :scale: 75%
+   :align: center
 
-SDK requires a Hardware platform, and Board Support Package, which are needed to build the application projects. The Board Support Package contains libraries for peripherals in the system. This includes internal peripherals and IP, and external peripherals. Some libraries are included in Vivado/SDK, and other libraries are user defined. e.g. custom driver for a peripheral. The source files for custom peripherals in the Overlay can be found in the Vivado project directory for an overlay. The source files also contain the drivers, which will be a compiled into a library and included in the BSP. 
+In Linux, open a terminal, and source the SDK tools
 
-The Hardware Platform, BSP, and all application projects can be built by running make from:
+From either the Windows Shell, or the Linux terminal, navigate to the sdk folder in your local copy of the GitHub repository: 
 
-    Pynq/zybo/sdk/
-
-This will build all the projects set in the variable MBBINS at the top of the makefile.
+   cd to ``<Pynq GitHub Repository>Pynq/zybo/sdk`` and run ``make``
 
 .. image:: ./images/make_sdk.jpg
    :scale: 75%
    :align: center
-   
+
 .. image:: ./images/make_sdk_results.jpg
    :scale: 75%
    :align: center
    
-Individual projects can be build by navigating to the *<project directory>/Debug* and running make.
+This will create the Hardware Platform Project (*hw_def*), the Board Support Package (*bsp*). 
+The Makefile will also compile the peripheral projects. If you examine the Makefile, you can see how the *MBBINS* variable at the top of the makefile is used to compile the peripheral projects. If you want to add your own custom project to the build process, you need to add the project name to the *MBBINS* variable. 
 
-Using the SDK GUI
-^^^^^^^^^^^^^^^^^
+Individual projects can be built by navigating to the ``<project directory>/Debug`` and running ``make``.
 
-In the SDK GUI, you can also manually create a *New Hardware Platform Specification* project, and link it to the .hdf file. 
+Binary files
+^^^^^^^^^^^^^
 
-.. image:: ./images/new_hardware_platform_specification.jpg
-   :scale: 75%
-   :align: center
+Compiling code results in an .elf executable file. A .bin file (binary file) is required to download to the IOP memory. 
 
-You can then, import the BSP from `the Pynq GitHub repository <https://github.com/Xilinx/Pynq/tree/master/zybo/sdk>`_. 
+A .bin file can be generated from an elf by running:
 
-.. image:: ./images/sdk_import_existing_bsp.jpg
-   :scale: 75%
-   :align: center
+    ``mb-objcopy -O binary input_file.elf outputfile.bin``
 
-.. image:: ./images/sdk_bsp_imported.jpg
-   :scale: 75%
-   :align: center
-   
-A new Application Project can then be created in the GUI.   
+This is done by the makefile for existing peripheral projects. The makefile will additionally copy all Microblaze bin files into the ``<Pynq GitHub Repository>/Pynq/python/pynq/pmods`` folder.
 
+Creating your own Application project
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use existing project
-^^^^^^^^^^^^^^^^^^^^^^
+Using the Makefile flow, you can use an existing project as a starting point for your own project. 
 
-Rather than create your own project, you can use an existing project as a starting point for your code. This step requires that you have SDK installed on the host machine.
-
-To do this, copy the project directory and rename it. 
-
-Modify or replace the .c file in the src/ with your C code. The .bin file generated will have the same base name as your C file. 
+Copy and rename the project, and modify or replace the .c file in the src/ with your C code. The .bin file generated will have the same base name as your C file. 
 
 e.g. if your C code is my_peripheral.c, the generated .elf and .bin will be my_peripheral.elf or my_peripheral.bin.
 
@@ -116,20 +109,17 @@ You will need to updates references from the old project name to your new projec
 
 If you want your project to build as part of the main Pynq build (i.e. your project will get built with the same makefile as all the other peripherals), you should also append the bin name of your project to the MBBINS variable at the top of the makefile in:
 
-    Pynq/zybo/sdk
+    ``<Pynq GitHub Repository>/Pynq/zybo/sdk``
 
-Binary files
-^^^^^^^^^^^^^
+If you are using the SDK Gui, you can import the HDF, BSP, and any application projects into your SDK workspace.
 
-Compiling code results in an .elf executable file. A .bin file (binary file) is required to download to the IOP memory. 
-
-A .bin file can be generated from an elf by running:
-
-    mb-objcopy -O binary input_file.elf outputfile.bin
-
-This is done by the makefile for existing peripheral projects. The makefile will additionally copy all Microblaze bin files into the Pynq/python/pynq/pmods folder.
+.. image:: ./images/sdk_import_existing_bsp.jpg
+   :scale: 75%
+   :align: center
 
 
+The SDK GUI can be used to debug and profile your code.  
+    
 IOP Memory
 ----------
 
@@ -148,24 +138,28 @@ There is no memory management in the IOP. You must ensure the application, inclu
 
 It is recommended to follow the convention for data communication between the two processors. These MAILBOX values are defined in the pmod.h file.  
 
+.. code-block:: console
+   ================================= = ========
+   Instruction and data memory start = 0x0
+   Instruction and data memory size  = 0x6fff
 
-| Instruction and data memory start = 0x0
-| Instruction and data memory size  = 0x6fff
+
+   Shared mailbox memory start       = 0x7000
+   Shared mailbox memory size        = 0x1000
+   Shared mailbox Command Address    = 0x7ffc
+   ================================= = ========
 
 
-| Shared mailbox memory start       = 0x7000
-| Shared mailbox memory size        = 0x1000
-| Shared mailbox Command Address    = 0x7ffc
-|
+The following example explains how Python can initiate a read from a peripheral connected to an IOP. 
 
-A common scenario would be that Python wants to read a value from a PMOD attached device.  Below is a simple scenario where the Microblaze does that read on behalf of Python.  
+.. code-block:: console
 
-* Python writes address A to the mailbox command address (0x7ffc).
-* Microblaze sees that non-zero address and performs the read to address A.
-* Microblaze places the data at the mailbox base address (0x7000).
-* Micboblaze writes a zero to the mailbox command address (0x7ffc) to confirm transaction is complete.
-* Python polling on the command address (0x7ffc), sees that the Microblaze has written a zero, signifying read is complete.
-* Python reads the data held at the mailbox base address (0x7000), completing the read.
+   Python writes a command A representing a read to the mailbox command address (0x7ffc).
+   Microblaze sees that non-zero command and performs the read action from the peripheral.
+   Microblaze places the data at the mailbox base address (0x7000).
+   Micboblaze writes a zero to the mailbox command address (0x7ffc) to confirm transaction is complete.
+   Python checks the command address (0x7ffc), and sees that the Microblaze has written a zero, signifying read is complete.
+   Python reads the data held at the mailbox base address (0x7000), completing the read.
 
 
 IOP Switch
@@ -204,23 +198,23 @@ Switch mappings used for IOP Switch configuration:
  BLANK    0xe  
 ========  =======
 
-If two or more pins are connected to the same signal, the pins are OR'd together. 
-
 For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO_7:
 
 .. code-block:: c
 
-   configureSwitch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, GPIO_4, GPIO_5, GPIO_6, GPIO_7)
+   configureSwitch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
 
 From Python all the constants and addresses for the IOP can be found in:
 
-    Pynq/python/pmods/pmod_const.py
+    ``<Pynq GitHub Repository>/Pynq/python/pmods/pmod_const.py``
 
+Note that if two or more pins are connected to the same signal, the pins are OR'd together internally. This is not recommended. 
+    
 Pmod driver
 -----------
 pmod.h and pmod.c driver contains an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   Pynq/zybo/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/
+   ``<Pynq GitHub Repository>/Pynq/zybo/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
 
 This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
 
@@ -252,7 +246,7 @@ Example IOP Driver
 
 Taking PMOD ALS as an example IOP driver used to talk to the PMOD light sensor, first open the pmod_als.c file:
 
-    Pynq/zybo/sdk/pmodals/src/pmod_als.c
+``<Pynq GitHub Repository>/Pynq/zybo/sdk/pmodals/src/pmod_als.c``
 
 Note that the pmod.h header file is included.
 
@@ -283,8 +277,8 @@ Examine Python Code
 
 With the IOP Driver written, the Python class can be built that will communicate with that IOP. 
  
-   Pynq/tree/master/python/pynq/pmods/pmod_als.py
-   
+''<Pynq GitHub Repository>/Pynq/tree/master/python/pynq/pmods/pmod_als.py''
+  
 First the _iop, pmod_const and MMIO are imported and the Microblaze executable defined. 
 
 .. code-block:: python

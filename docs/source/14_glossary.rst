@@ -25,7 +25,7 @@ A-G
    Digital Potentiometer
 
   FPGA
-   Field Programmable Gate Array
+   Field Programmable Gate Array `https://en.wikipedia.org/wiki/Field-programmable_gate_array <https://en.wikipedia.org/wiki/Field-programmable_gate_array>`_
 
   FTDI
    Future Technology Devices International Ltd, supplier of the FT2232HQ USB-UART bridge chip used on Zybo.  Free USB-COM port
@@ -49,7 +49,10 @@ H-R
   Jupyter (Jupyter Notebooks) (www.jupyter.org)
    Jupyter is an open source, interactive, web application that allows the user to create and share notebook documents that contain live code and the full range of rich media supported by modern browser. These include include text, images, videos, LaTeX, and interactive widgets. It is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities.
 
-
+  MicroBlaze
+   The MicroBlaze is a soft microprocessor core designed for Xilinx FPGAs from Xilinx. As a soft-core processor, MicroBlaze is implemented entirely in the general-purpose memory and logic fabric of an FPGA.
+   `https://en.wikipedia.org/wiki/MicroBlaze <https://en.wikipedia.org/wiki/MicroBlaze>`
+   
   Pmod
    Peripheral Module - accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.
 
