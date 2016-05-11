@@ -16,11 +16,11 @@ Contents:
    2_getting_started
    3_jupyter_notebook
    4_programming_zybo_in_python
-   5_programming_onboard_peripherals_pp
-   6_pmodio_overlay_pp
-   7_audio_video_overlay_pp
+   5_programming_onboard_peripherals
+   6_pmodio_overlay
+   7_audio_video_overlay
    8_iop_code
-   9_creating_overlays.rst
+   9_creating_overlays
    10_libraries_and_overlays
    11_verification
    12_modules

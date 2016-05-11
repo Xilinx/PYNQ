@@ -23,6 +23,8 @@ sphinx-apidoc -f -o ./source $PYNQ_DIR
 python3 ipynb_post_processor.py
 make clean ; make html
 
+cp -rf $REPO_DIR/docs/source/temp/*.ipynb $REPO_DIR/docs/source
+rm -rf $REPO_DIR/docs/source/temp
 rm -rf $FINAL_DOCS_DIR/*
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
 chmod -R a+rw $FINAL_DOCS_DIR

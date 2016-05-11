@@ -77,6 +77,8 @@ cp -r $REPO_DIR/ubuntu/scripts/*.bat $FINAL_SCRIPTS_DIR
 pushd $FINAL_NOTEBOOKS_DIR ; ln -s $FINAL_DOCS_DIR ; popd
 
 # Jupyer_notebooks/Getting Started derived contents
+cp -rf $REPO_DIR/docs/source/temp/*.ipynb $REPO_DIR/docs/source
+rm -rf $REPO_DIR/docs/source/temp
 rm -rf $FINAL_NOTEBOOKS_DIR/Getting_Started/*
 cp $REPO_DIR/docs/source/3_jupyter_notebook.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/1_jupyter_notebook.ipynb
@@ -86,7 +88,7 @@ cp $REPO_DIR/docs/source/5_programming_onboard_peripherals.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/3_programming_onboard_peripherals.ipynb
 cp $REPO_DIR/docs/source/6_pmodio_overlay.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/4_pmodio_overlay.ipynb
-cp $REPO_DIR/docs/source/7_audio_video_overlay.ipynb
+cp $REPO_DIR/docs/source/7_audio_video_overlay.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/5_jupyter_notebook.ipynb
 
 mkdir $FINAL_NOTEBOOKS_DIR/Getting_Started/images

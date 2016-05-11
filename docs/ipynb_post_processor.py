@@ -52,8 +52,9 @@ directive for the image with center alignment.
 3. It repeats this for all markdown cells with markdown image references as 
 their last line.
 
-4. Finally it writes out the <original_file.ipynb> as files of type 
-<original_file_pp.ipynb>. They are then processed by the nbsphinx-Sphinx flow.
+4. Finally it rewrites the <.ipynb> as files. The original files will be 
+saved in a temporary folder. The new files can then be processed by 
+the nbsphinx-Sphinx flow.
 
 It is expected that the script will be run in the docs directory of teh Sphinx
 project (beside the makefile). The target_dir variable should be set to 
@@ -65,15 +66,13 @@ project (beside the makefile). The target_dir variable should be set to
 import os
 import json
 import re
+import shutil
 
 #: Set target_directory and create list of *.ipynb files within it
 target_dir = "./source"
-
-#: Remove previously post-processed (_pp.ipynb) files from target directory
-ipynb_pp_files = [file for file in os.listdir(target_dir) \
-                    if file.endswith("_pp.ipynb")]
-for file in ipynb_pp_files:
-    os.remove(target_dir + '/' + file)
+temp_dir = "./source/temp"
+if not os.path.exists(temp_dir):
+    os.makedirs(temp_dir)
 
 #: Find all Jupyter notebook (.ipynb) files    
 ipynb_files = [file for file in os.listdir(target_dir) \
@@ -86,10 +85,11 @@ image_ref_pattern = "\!\[].*/((.*[png jpeg]))"
 
 #: Load each of the identified *.ipynb (JSON-formatted) files as a dict
 for file in ipynb_files:
+    #: Make a copy
+    shutil.copyfile(target_dir + '/' + file, temp_dir + '/' + file)
     with open(target_dir + '/' + file, 'r+', encoding='utf-8') as f:
         notebook = json.load(f)
         print('Scanning... file {}'.format(file))
-        f.close()
         
         #: Build markdown_cells with a string matching image_ref_pattern
         match_count = 0
@@ -120,11 +120,8 @@ for file in ipynb_files:
                             notebook['cells'].insert(i+1, reST_cell)
                             
         if match_count != 0:
-            # Create the new post-processed ipynb file with updated JSON 
-            file_name, file_ext = os.path.splitext( os.path.basename(file))
-            post_processed_file = file_name + '_pp' + file_ext
-            print('Writing...  file: {}'.format(post_processed_file))
-            with open(target_dir + '/' + post_processed_file, 'a+') as f_pp:
+            # Create the new post-processed ipynb file with updated JSON
+            file_name, file_ext = os.path.splitext(os.path.basename(file))
+            post_processed_file = file_name + file_ext
+            with open(target_dir + '/' + post_processed_file, 'w') as f_pp:
                 f_pp.write(json.dumps(notebook, indent = 1, sort_keys=True))
-                f_pp.close()
-
