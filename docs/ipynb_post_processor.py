@@ -120,9 +120,8 @@ for file in ipynb_files:
                             notebook['cells'].insert(i+1, reST_cell)
                             
         if match_count != 0:
-            # Create the new post-processed ipynb file with updated JSON 
+            # Create the new post-processed ipynb file with updated JSON
             file_name, file_ext = os.path.splitext(os.path.basename(file))
             post_processed_file = file_name + file_ext
-            with open(target_dir + '/' + post_processed_file, 'a+') as f_pp:
+            with open(target_dir + '/' + post_processed_file, 'w') as f_pp:
                 f_pp.write(json.dumps(notebook, indent = 1, sort_keys=True))
-                f_pp.close()
