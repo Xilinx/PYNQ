@@ -90,7 +90,6 @@ for file in ipynb_files:
     with open(target_dir + '/' + file, 'r+', encoding='utf-8') as f:
         notebook = json.load(f)
         print('Scanning... file {}'.format(file))
-        f.close()
         
         #: Build markdown_cells with a string matching image_ref_pattern
         match_count = 0
