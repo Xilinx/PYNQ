@@ -78,8 +78,16 @@ pushd $FINAL_NOTEBOOKS_DIR ; ln -s $FINAL_DOCS_DIR ; popd
 
 # Jupyer_notebooks/Getting Started derived contents
 rm -rf $FINAL_NOTEBOOKS_DIR/Getting_Started/*
-cp $REPO_DIR/docs/source/*.ipynb $FINAL_NOTEBOOKS_DIR/Getting_Started
-rm -rf $FINAL_NOTEBOOKS_DIR/Getting_Started/*_pp.ipynb
+cp $REPO_DIR/docs/source/3_jupyter_notebook.ipynb \
+    $FINAL_NOTEBOOKS_DIR/Getting_Started/1_jupyter_notebook.ipynb
+cp $REPO_DIR/docs/source/4_programming_zybo_in_python.ipynb \
+    $FINAL_NOTEBOOKS_DIR/Getting_Started/2_programming_zybo_in_python.ipynb
+cp $REPO_DIR/docs/source/5_programming_onboard_peripherals.ipynb \
+    $FINAL_NOTEBOOKS_DIR/Getting_Started/3_programming_onboard_peripherals.ipynb
+cp $REPO_DIR/docs/source/6_pmodio_overlay.ipynb \
+    $FINAL_NOTEBOOKS_DIR/Getting_Started/4_pmodio_overlay.ipynb
+cp $REPO_DIR/docs/source/7_audio_video_overlay.ipynb
+    $FINAL_NOTEBOOKS_DIR/Getting_Started/5_jupyter_notebook.ipynb
 
 mkdir $FINAL_NOTEBOOKS_DIR/Getting_Started/images
 for f in $GS_NOTEBOOK_IMAGES
