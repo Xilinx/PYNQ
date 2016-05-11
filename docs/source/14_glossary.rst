@@ -18,6 +18,9 @@ A-G
   ADC
    Analog to Digital Converter
 
+  BSP 
+   SDK Board Support Package - This is an SDK project that contains a collection of software libraries that can be used by an Application project
+   
   DAC
    Digital to Analog Converter
 
@@ -36,6 +39,12 @@ A-G
 
 H-R
 ===
+
+  Hardware Platform
+   An SDK project
+   
+  HDF
+   Hardware Definition File (.hdf). This file is created by Vivado and contains information about a processor system in an FPGA overlay. The HDF specifies the peripherals that exist in the system, and the memory map. This is used by the BSP to build software librariesto support the availabel peripherals.
 
   I2C
     See IIC
@@ -73,7 +82,10 @@ H-R
 
 S-Z
 ===
-
+  SDK
+   Xilinx SDK - Software Development Kit. Software development environment including cross-compiles for ARM, and MicroBlaze processors. Also includes debug, and profiling tools. 
+   Required to build software for a MicroBlaze processor inside an IOP. 
+   
   SOC
    System On Chip
 
@@ -86,6 +98,9 @@ S-Z
   UART
    Universal asynchronous receiver/transmitter; Serial communication protocol
 
+  Vivado
+   Xilinx software for creating FPGA overlays. 
+   
   XADC
    Xilinx ADC - Analog to Digital Converter found on all Xilinx 7 series devices
 
@@ -99,4 +114,4 @@ S-Z
    Programmable Logic - FPGA fabric
 
   Zynq PS
-   Processing System - SOC processing subsystem built around dual-core, Cortex-A9 processors
+   Processing System - SOC processing subsystem built around dual-core, ARM Cortex-A9 processor
