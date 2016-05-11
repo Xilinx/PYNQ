@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="The Pynq (Python on Zynq) Platform" href="10_libraries_and_overlays.html"/>
-        <link rel="prev" title="IO Processors: Writing Software" href="8_iop_code.html"/> 
+        <link rel="prev" title="IO Processors: Writing your own software" href="8_iop_code.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -89,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Working with Overlays</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#existing-overlays">Existing Overlays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#loading-overlays">Loading Overlays</a></li>
@@ -264,7 +264,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="working-with-overlays">
 <h1>Working with Overlays<a class="headerlink" href="#working-with-overlays" title="Permalink to this headline">¶</a></h1>
 <p>Creating overlays is done using traditional hardware design methods. This document will describe how overlays can be integrated into Pynq by FPGA/Zynq designers, but will not cover the hardware design process.</p>
-<p>While FPGA fabric can be customized to very specific and optimized implementations, a high level of expertise is required to do this, and compared to creating software, is much more time consuming.</p>
+<p>While FPGA fabric can be customized to very specific and optimized implementations, a high level of expertise is required to do this, and is much more time consuming compared to creating software.</p>
 <p>In Pynq, the key concept when designing hardware overlays is that there should be few overlays used for many different applications.</p>
 <p>An overlay should be flexible rather than highly customized, even if this results in a less optimal hardware implementation. This is so that each overlay can be reused by many different applications.</p>
 <p>For example, it is recommended that IOPs are used for PMOD interfaces to make the overlay as widely applicable as possible, even where the designer intends to use a specific peripheral for a particular application.</p>
@@ -273,12 +273,12 @@ div.nboutput  > :nth-child(2).stderr {
 <p>Two overlays are currently included in the Pynq repository; pmod, and audiovideo. These overlays can be rebuilt in their respective repository folders:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Pynq/zybo/vivado/pmod</li>
-<li>Pynq/zybo/vivado/audiovideo</li>
+<li><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq/zybo/vivado/pmod</span></code></li>
+<li><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq/zybo/vivado/audiovideo</span></code></li>
 </ul>
 </div></blockquote>
-<p>A makefile exists in each folder that can be used to rebuild the Vivado projects and generate the bitstreams for the overlays.</p>
-<p>Once the projects have been built, they can be opened in Vivado and examined, or modified to create a new overlay.</p>
+<p>A makefile exists in each folder that can be used to rebuild the Vivado projects and generate the bitstreams for the overlays. The precompiled overlays are available in <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/python/pynq/bitstream/</span></code> so it is not necessary to rebuild the overlays, which requires a full Vivado installation.</p>
+<p>Building a project allows it to be opened in Vivado and examined, or modified to create a new overlay.</p>
 <a class="reference internal image-reference" href="_images/pmodio_overlay.jpg"><img alt="_images/pmodio_overlay.jpg" class="align-center" src="_images/pmodio_overlay.jpg" style="width: 840.0px; height: 510.0px;" /></a>
 </div>
 <div class="section" id="loading-overlays">
@@ -286,8 +286,8 @@ div.nboutput  > :nth-child(2).stderr {
 <p>The PL can be dynamically reconfigured with new overlays as the system is running. This allows Pynq to swap in and out different overlays to support different functionality required by software applications.</p>
 <p>This can be in Python done using the Overlay class, part of the Pynq PL package here:</p>
 <blockquote>
-<div>Pynq/python/pynq/pl.py</div></blockquote>
-<p>To download a new bitstream, only two lines of Python are required:</p>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/python/pynq/pl.py</span></code></div></blockquote>
+<p>A Bitstream can be downloaded from Python using the overlay class:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
 <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 </pre></div>
@@ -295,12 +295,13 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <div class="section" id="integrating-new-overlays-into-pynq">
 <h2>Integrating new overlays into Pynq<a class="headerlink" href="#integrating-new-overlays-into-pynq" title="Permalink to this headline">¶</a></h2>
-<p>Once a new overlay has been created, the overlay needs to be integrated into the Pynq environment.  It is recommended to use an existing overlay Vivado project as a starting point for a new peripheral. This will ensure the settings for the Zynq PS, and the existing PS/PL interfaces are used in the new project.</p>
+<p>Once a new overlay has been created, the overlay needs to be integrated into the Pynq environment.  It is recommended to use an existing Vivado <em>Overlay project</em> as a starting point for a new overlay. This will ensure the settings for the Zynq PS, and the existing PS/PL interfaces are used in the new project.</p>
 <p>As with any application running on Zynq, the interface between the software and hardware is via the memory map for the PS and PL.</p>
-<p>To help ease the effort to communicate between the ARM A9s and programmable logic, Pynq includes the MMIO Python class, which can be used to read and write from the PL memory system. Once the Overlay has been designed, the MMIO can be used to read and write data to the PL.  The Python code for the MMIO can be viewed here:</p>
+<p>To help ease the effort to communicate between the ARM Cortex-A9 and programmable logic, Pynq includes the <em>MMIO</em> Python class. Once the Overlay has been created, and the memory map is know, <em>MMIO</em> can be used to read/write to/from the PL memory system.</p>
+<p>The Python code for the MMIO can be viewed here:</p>
 <blockquote>
-<div>Pynq/python/pynq/mmio.py</div></blockquote>
-<p>An example use of the mmio class to read a PL address of 0x4000_0000 is shown below:</p>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/python/pynq/mmio.py</span></code></div></blockquote>
+<p>An example use of the MMIO class to access an area of 4096 bytes in the PL, starting at address 0x4000_0000 is shown below.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 
 <span class="c"># an IP is located at 0x4000_0000</span>
@@ -310,6 +311,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="n">myip</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Any accesses outside the range (4096 bytes) will cause an error.</p>
 </div>
 </div>
 
@@ -323,7 +325,7 @@ div.nboutput  > :nth-child(2).stderr {
         <a href="10_libraries_and_overlays.html" class="btn btn-neutral float-right" title="The Pynq (Python on Zynq) Platform" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="8_iop_code.html" class="btn btn-neutral" title="IO Processors: Writing Software" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="8_iop_code.html" class="btn btn-neutral" title="IO Processors: Writing your own software" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

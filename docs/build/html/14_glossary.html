@@ -89,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
@@ -284,6 +284,8 @@ div.nboutput  > :nth-child(2).stderr {
 <dd>All Programmable System on Chip</dd>
 <dt>ADC</dt>
 <dd>Analog to Digital Converter</dd>
+<dt>BSP</dt>
+<dd>SDK Board Support Package - This is an SDK project that contains a collection of software libraries that can be used by an Application project</dd>
 <dt>DAC</dt>
 <dd>Digital to Analog Converter</dd>
 <dt>DPOT</dt>
@@ -303,6 +305,10 @@ traffic on the Zynq pins.</dd>
 <h2><a class="toc-backref" href="#id3">H-R</a><a class="headerlink" href="#h-r" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><dl class="docutils">
+<dt>Hardware Platform</dt>
+<dd>An SDK project</dd>
+<dt>HDF</dt>
+<dd>Hardware Definition File (.hdf). This file is created by Vivado and contains information about a processor system in an FPGA overlay. The HDF specifies the peripherals that exist in the system, and the memory map. This is used by the BSP to build software librariesto support the availabel peripherals.</dd>
 <dt>I2C</dt>
 <dd>See IIC</dd>
 <dt>IIC</dt>
@@ -336,6 +342,9 @@ traffic on the Zynq pins.</dd>
 <h2><a class="toc-backref" href="#id4">S-Z</a><a class="headerlink" href="#s-z" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><dl class="docutils">
+<dt>SDK</dt>
+<dd>Xilinx SDK - Software Development Kit. Software development environment including cross-compiles for ARM, and MicroBlaze processors. Also includes debug, and profiling tools.
+Required to build software for a MicroBlaze processor inside an IOP.</dd>
 <dt>SOC</dt>
 <dd>System On Chip</dd>
 <dt>Sphinx</dt>
@@ -344,6 +353,8 @@ traffic on the Zynq pins.</dd>
 <dd>Serial Peripheral Interface; synchronous serial communication interface specification</dd>
 <dt>UART</dt>
 <dd>Universal asynchronous receiver/transmitter; Serial communication protocol</dd>
+<dt>Vivado</dt>
+<dd>Xilinx software for creating FPGA overlays.</dd>
 <dt>XADC</dt>
 <dd>Xilinx ADC - Analog to Digital Converter found on all Xilinx 7 series devices</dd>
 <dt>Zybo</dt>
@@ -353,7 +364,7 @@ traffic on the Zynq pins.</dd>
 <dt>Zynq PL</dt>
 <dd>Programmable Logic - FPGA fabric</dd>
 <dt>Zynq PS</dt>
-<dd>Processing System - SOC processing subsystem built around dual-core, Cortex-A9 processors</dd>
+<dd>Processing System - SOC processing subsystem built around dual-core, ARM Cortex-A9 processor</dd>
 </dl>
 </div></blockquote>
 </div>

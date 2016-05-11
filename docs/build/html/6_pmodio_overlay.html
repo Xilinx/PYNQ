@@ -87,7 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
@@ -266,7 +266,7 @@ Inc</a> and other suppliers.</p>
 <div class="section" id="Pmod-peripherals">
 <h2>Pmod peripherals<a class="headerlink" href="#Pmod-peripherals" title="Permalink to this headline">¶</a></h2>
 <div class="figure">
-<img alt="" src="./images/Pmods_opt.png" />
+<img alt="" src="_images/PMods_opt.png" />
 </div>
 <div class="section" id="Supported-peripherals">
 <h3>Supported peripherals<a class="headerlink" href="#Supported-peripherals" title="Permalink to this headline">¶</a></h3>
@@ -368,9 +368,9 @@ specified.</p>
 </div>
 <div class="section" id="Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)">
 <h2>Example: Using the OLED and the ambient light sensor (ALS)<a class="headerlink" href="#Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)" title="Permalink to this headline">¶</a></h2>
-<p>Plug the PmodOLED into Port 1, and PmodALS (Ambient Light Sensor) into
-the top row of Port 2. (The PmodALS can currently only be used in the
-top row of a port.)</p>
+<p>This examples requires the PmodOLED, and PmodALS. Plug the PmodOLED into
+Port 1, and PmodALS (Ambient Light Sensor) into the top row of Port 2.
+(The PmodALS can currently only be used in the top row of a port.)</p>
 <p>OLED displaying light reading from ambient light sensor:</p>
 <div class="figure">
 <img alt="" src="_images/als_oled_Demo_opt.jpeg" />
@@ -382,8 +382,11 @@ In [1]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
 <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_OLED</span>
-<span class="n">oled</span> <span class="o">=</span> <span class="n">PMOD_OLED</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span>
+<span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="n">oled</span> <span class="o">=</span> <span class="n">PMOD_OLED</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -417,7 +420,7 @@ In [4]:
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_ALS</span>
-<span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -428,7 +431,7 @@ Out[4]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-42
+47
 </pre></div>
 </div>
 </div>
@@ -452,13 +455,13 @@ In [6]:
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_ALS</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
 <span class="n">als</span><span class="o">.</span><span class="n">set_log_interval_ms</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 
 <span class="n">als</span><span class="o">.</span><span class="n">start_log</span><span class="p">()</span> <span class="c"># start logging values at intervals of delay</span>
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">als</span><span class="o">.</span><span class="n">stop_log</span><span class="p">()</span>
 <span class="n">als</span><span class="o">.</span><span class="n">get_log</span><span class="p">()</span>
 </pre></div>
@@ -470,16 +473,17 @@ Out[6]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-[42, 42, 42]
+[41, 33, 32, 32, 32, 16, 31, 31, 31, 31, 30]
 </pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="Example:-Using-the-ADC,-DAC-and-OLED">
 <h2>Example: Using the ADC, DAC and OLED<a class="headerlink" href="#Example:-Using-the-ADC,-DAC-and-OLED" title="Permalink to this headline">¶</a></h2>
-<p>This example connects the DAC to the ADC. You will write a value to the
-DAC which the ADC will measure, and also write the value to the OLED for
-display.</p>
+<p>This example requires the PmodAD2, PmodDA4 and PmodOLED. You will
+connect the output of the DAC to the input of the ADC, write a value to
+the DAC which the ADC will measure, and finally, write the value to the
+OLED for display.</p>
 <ul class="simple">
 <li>Set the jumper (JP1) on the PmodAD2 to Ref</li>
 </ul>
@@ -518,7 +522,7 @@ In [7]:
 
 <span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span> <span class="c"># Set the DAC output voltage</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Measure output of DAC with ADC</span>
-<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="c"># Display measured value on OLED</span>
+<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="c"># Display measured value on OLED</span>
 </pre></div>
 </div>
 </div>
@@ -585,7 +589,7 @@ In [8]:
             <span class="n">measured</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s">&#39;Measurement {} equals: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">measured</span><span class="p">))</span>
-            <span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">measured</span><span class="p">)</span>
+            <span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">measured</span><span class="p">))</span>
     <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 </pre></div>
@@ -603,7 +607,7 @@ loads dac_loop() into the notebook</p>
 then run the cell below:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [9]:
+In [10]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -616,7 +620,17 @@ In [9]:
 </div>
 <div class="container">
 <div class="highlight"><pre>
-Switch 3 is off. To run the loop, set Switch 3 to on before running
+Turn Switch 3 off to stop the program
+Measurement 1 equals: 0.1016
+Measurement 2 equals: 0.1953
+Measurement 3 equals: 0.3047
+Measurement 4 equals: 0.3984
+Measurement 5 equals: 0.4922
+Measurement 6 equals: 0.5898
+Measurement 7 equals: 0.6836
+Measurement 8 equals: 0.7773
+Measurement 9 equals: 0.8711
+Measurement 10 equals: 1.0078
 </pre></div></div>
 </div>
 <div class="line-block">
@@ -629,7 +643,7 @@ the cell below</div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [10]:
+In [ ]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
