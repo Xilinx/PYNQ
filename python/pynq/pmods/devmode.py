@@ -66,6 +66,9 @@ class DevMode(object):
             IO Processor switch configuration (8 32-bit values).
             
         """
+
+        self.mailbox_op_addr_offest = 0xff8
+        
         self.iop = _iop.request_iop(pmod_id, pmod_const.MAILBOX_PROGRAM)
         self.iop_switch_config = list(switch_config)
         self.mmio = MMIO(self.iop.mmio.base_addr + pmod_const.MAILBOX_OFFSET, 
@@ -297,7 +300,7 @@ class DevMode(object):
 
 
         """
-        self.mmio.write(pmod_const.MAILBOX_PY2IOP_ADDR_OFFSET, address)
+        self.mmio.write(self.mailbox_op_addr_offest, address)
         if data != None:
             self.mmio.write(pmod_const.MAILBOX_PY2IOP_DATA_OFFSET, data)
         
