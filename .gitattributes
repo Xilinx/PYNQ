@@ -8,6 +8,12 @@
 # These are binary so should never be modified by git.
 *.png binary
 *.jpg binary
+*.jpe binary
+*.jpeg binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.inv binary
 *.dxf binary
 *.mp4 binary
 *.hdf binary
