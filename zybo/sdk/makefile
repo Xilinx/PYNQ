@@ -36,4 +36,5 @@ clean:
 	rm -f */Debug/src/*.o
 	rm -f */Debug/src/*.d
 	rm -f bins/*
-	rm -rf bsp hw_def .Xil .metadata SDK.log
+	rm -rf bsp hw_def .Xil .metadata SDK.log	
+	rm -rf sdk_import
