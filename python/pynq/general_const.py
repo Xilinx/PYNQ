@@ -34,17 +34,17 @@ __email__       = "xpp_support@xilinx.com"
 
 import os
 
-#: GPIO constants
+# GPIO constants
 GPIO_MIN_USER_PIN = 54
 
-#: Overlay constants
+# Overlay constants
 BS_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))+"/bitstream/"
 BS_BOOT = BS_SEARCH_PATH + 'pmod.bit'
 TCL_BOOT = BS_SEARCH_PATH + 'pmod.tcl'
 BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
 BS_XDEVCFG = "/dev/xdevcfg"
 
-#: MMIO constants
+# MMIO constants
 MMIO_FILE_NAME = '/dev/mem'
 MMIO_WORD_LENGTH = 4
 MMIO_WORD_MASK = ~(MMIO_WORD_LENGTH - 1)

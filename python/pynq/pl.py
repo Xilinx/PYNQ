@@ -92,7 +92,7 @@ def _get_dict_ip_addr(tcl_name):
                     '(\[.+?\]) '+\
                     '([A-Za-z0-9_]+)',line,re.IGNORECASE)
             if m:
-                #: Each entry is [base, range, state]
+                # Each entry is [base, range, state]
                 result[m.group(5)] = [m.group(2), m.group(1), None]
     
     if result=={}:
@@ -519,15 +519,15 @@ class Bitstream(PL):
         None
             
         """
-        #: Compose bitfile name, open bitfile
+        # Compose bitfile name, open bitfile
         with open(self.bitfile_name, 'rb') as f:
             buf = f.read()
         
-        #: Set is_partial_bitfile device attribute to 0        
+        # Set is_partial_bitfile device attribute to 0        
         with open(general_const.BS_IS_PARTIAL, 'w') as fd:
             fd.write('0')
         
-        #: Write bitfile to xdevcfg device
+        # Write bitfile to xdevcfg device
         with open(general_const.BS_XDEVCFG, 'wb') as f:
             f.write(buf)
         
@@ -590,7 +590,7 @@ class Overlay(PL):
         """
         super().__init__()
         
-        #: Set the bitfile name
+        # Set the bitfile name
         if not isinstance(bitfile_name, str):
             raise TypeError("Bitstream name has to be a string.")
         if os.path.isfile(bitfile_name):
@@ -601,14 +601,14 @@ class Overlay(PL):
             raise IOError('Bitstream file {} does not exist.'\
                             .format(bitfile_name))
         
-        #: Set the bitstream
+        # Set the bitstream
         self.bitstream = Bitstream(self.bitfile_name)
         tcl_name = _get_tcl_name(self.bitfile_name)
         
-        #: Set the IP dictionary
+        # Set the IP dictionary
         self.ip_dict = _get_dict_ip_addr(tcl_name)
                         
-        #: Set the GPIO dictionary
+        # Set the GPIO dictionary
         self.gpio_dict = _get_dict_gpio(tcl_name)
         
     def download(self):

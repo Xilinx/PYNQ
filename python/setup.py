@@ -34,7 +34,7 @@ __email__       = "xpp_support@xilinx.com"
 
 from setuptools import setup, Extension, find_packages
 
-#: Audio and video source files
+# Audio and video source files
 _audio_src = ['pynq/_pynq/_audio/_audio.c', 'pynq/_pynq/src/audio.c', 
               'pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/i2cps.c', 
               'pynq/_pynq/src/utils.c']
@@ -47,7 +47,7 @@ _video_src = ['pynq/_pynq/_video/_video.c', 'pynq/_pynq/_video/_capture.c',
               'pynq/_pynq/src/video_capture.c', 
               'pynq/_pynq/src/video_display.c']
 
-#: BSP source files
+# BSP source files
 bsp_axivdma = \
   ['pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma.c',
    'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_channel.c', 
@@ -72,12 +72,12 @@ bsp_standalone = \
    'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
 
 
-#: Merge BSP src to _audio src
+# Merge BSP src to _audio src
 audio = []
 audio.extend(bsp_standalone)
 audio.extend(_audio_src)
 
-#: Merge BSP src to _video src
+# Merge BSP src to _video src
 video = []
 video.extend(bsp_standalone)
 video.extend(bsp_axivdma)

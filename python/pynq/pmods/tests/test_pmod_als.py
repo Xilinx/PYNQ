@@ -55,7 +55,7 @@ def test_readlight():
     global als
     als = PMOD_ALS(als_id)
     
-    #: Wait for the PMOD ALS to finish initialization
+    # Wait for the PMOD ALS to finish initialization
     sleep(0.01)
     n = als.read()
     print("\nCurrent ALS reading: {}.".format(n))

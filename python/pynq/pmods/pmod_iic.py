@@ -107,7 +107,7 @@ class PMOD_IIC(object):
         
         self.iic_addr = iic_addr
 
-        #: Useful IIC controller addresses
+        # Useful IIC controller addresses
         self.sr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
                        pmod_const.IOPMM_XIIC_SR_REG_OFFSET
 
@@ -145,13 +145,13 @@ class PMOD_IIC(object):
         None
         
         """
-        #: Disable the IIC core
+        # Disable the IIC core
         self.iop.write_cmd(self.cr_addr, 0x00)
-        #: Set the Rx FIFO depth to maximum
+        # Set the Rx FIFO depth to maximum
         self.iop.write_cmd(self.rfd_addr, 0x0F)       
-        #: Reset the IIC core and flush the Tx FIFO
+        # Reset the IIC core and flush the Tx FIFO
         self.iop.write_cmd(self.cr_addr, 0x02)
-        #: Enable the IIC core
+        # Enable the IIC core
         self.iop.write_cmd(self.cr_addr, 0x01)
         
         sleep(I2C_DELAY)
@@ -175,23 +175,23 @@ class PMOD_IIC(object):
             Timeout when waiting for the FIFO to be empty.
             
         """
-        #: Enable IIC Core
+        # Enable IIC Core
         self._iic_enable()
         
-        #: Transmit 7-bit address and Write bit (with START)
+        # Transmit 7-bit address and Write bit (with START)
         self.iop.write_cmd(self.dtr_addr, 0x100 | (self.iic_addr << 1))
         
-        #: Iteratively write into Tx FIFO, wait for it to be empty        
+        # Iteratively write into Tx FIFO, wait for it to be empty        
         for tx_cnt in range(len(iic_bytes)):
             timeout = 100
             
-            #: Construct the TX word
+            # Construct the TX word
             if (tx_cnt == len(iic_bytes) - 1):
                 tx_word = (0x200 | iic_bytes[tx_cnt])
             else:
                 tx_word = iic_bytes[tx_cnt]
             
-            #: Write data
+            # Write data
             self.iop.write_cmd(self.dtr_addr, tx_word)
             while ((timeout > 0) and \
                         ((self.iop.read_cmd(self.sr_addr) & 0x80) == 0x00)):
@@ -221,16 +221,16 @@ class PMOD_IIC(object):
             
         """
 
-        #: Reset the IIC core and flush the Tx FIFO
+        # Reset the IIC core and flush the Tx FIFO
         self.iop.write_cmd(self.cr_addr, 0x02)
 
-        #: Set the Rx FIFO depth to one byte
+        # Set the Rx FIFO depth to one byte
         self.iop.write_cmd(self.rfd_addr, 0x0) 
 
-        #: Transmit 7-bit address and Read bit
+        # Transmit 7-bit address and Read bit
         self.iop.write_cmd(self.dtr_addr, 0x101 | (self.iic_addr << 1))
 
-        #: Enable the IIC core
+        # Enable the IIC core
         cr_reg = 0x05
         if num_bytes == 1:
             cr_reg |= 0x10
@@ -238,21 +238,21 @@ class PMOD_IIC(object):
         self.iop.write_cmd(self.cr_addr,cr_reg)
         sleep(I2C_DELAY)
 
-        #: Program IIC Core to read num_bytes bytes and issue STOP
+        # Program IIC Core to read num_bytes bytes and issue STOP
         self.iop.write_cmd(self.dtr_addr, 0x200 + num_bytes)
 
-        #: Read num_bytes from RX FIFO
+        # Read num_bytes from RX FIFO
         iic_bytes = list()
         while(len(iic_bytes) < num_bytes):
  
-            #: Special condition for last two bytes
+            # Special condition for last two bytes
             if (num_bytes - len(iic_bytes)) == 1:
                 self.iop.write_cmd(self.cr_addr,0x1)
             elif (num_bytes - len(iic_bytes)) == 2:
                 self.iop.write_cmd(self.cr_addr, \
                                    self.iop.read_cmd(self.cr_addr) | 0x10)
 
-            #: Wait for data to be available in RX FIFO
+            # Wait for data to be available in RX FIFO
             timeout = 100
             while(((self.iop.read_cmd(self.sr_addr) & 0x40) == 0x40) and \
                   (timeout > 0)):
@@ -261,7 +261,7 @@ class PMOD_IIC(object):
             if(timeout == 0):
                 raise RuntimeError("Timeout when reading IIC.")
 
-            #: Read data 
+            # Read data 
             iic_bytes.append((self.iop.read_cmd(self.drr_addr) & 0xff))
 
         sleep(I2C_DELAY)

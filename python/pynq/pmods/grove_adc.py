@@ -75,7 +75,7 @@ class Grove_ADC(object):
             The group ID on StickIt, from 1 to 4.
             
         """
-        #: IOP Switch Configuration
+        # IOP Switch Configuration
         if (gr_id not in range(3,5)):
             raise ValueError("Valid StickIt ID for ADC (IIC) is 4. ")
 
@@ -85,14 +85,14 @@ class Grove_ADC(object):
         self.log_running  = 0
         self.iop.start()
         
-        #: Write SCL Pin Config
+        # Write SCL Pin Config
         scl_pin = pmod_const.STICKIT_PINS_GR[gr_id][0]
         self.mmio.write(pmod_const.MAILBOX_OFFSET, scl_pin)
-        #: Write SDA Pin Config    
+        # Write SDA Pin Config    
         sda_pin = pmod_const.STICKIT_PINS_GR[gr_id][1]
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, sda_pin)
         
-        #: Write configuration and wait for ACK
+        # Write configuration and wait for ACK
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
@@ -258,15 +258,15 @@ class Grove_ADC(object):
             List of valid raw samples from the ADC sensor.
         
         """
-        #: Stop logging
+        # Stop logging
         self.stop_log()
 
-        #: Prep iterators and results list
+        # Prep iterators and results list
         head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
-        #: Sweep circular buffer for samples
+        # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
@@ -292,15 +292,15 @@ class Grove_ADC(object):
             List of valid voltage samples (floats) from the ADC sensor.
         
         """
-        #: Stop logging
+        # Stop logging
         self.stop_log()
 
-        #: Prep iterators and results list
+        # Prep iterators and results list
         head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
-        #: Sweep circular buffer for samples
+        # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
@@ -328,7 +328,7 @@ class Grove_ADC(object):
         None
         
         """
-        #: Send command and wait for acknowledge
+        # Send command and wait for acknowledge
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\

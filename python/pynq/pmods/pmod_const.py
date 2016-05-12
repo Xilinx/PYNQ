@@ -34,22 +34,22 @@ __email__ = "xpp_support@xilinx.com"
 
 import os
 
-#: Microblaze program location
+# Microblaze program location
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__))+"/"
 MAILBOX_PROGRAM = 'mailbox.bin'
 
-#: IOP mailbox constants
+# IOP mailbox constants
 MAILBOX_OFFSET = 0x7000
 MAILBOX_SIZE   = 0x1000
 MAILBOX_PY2IOP_CMD_OFFSET  = 0xffc
 MAILBOX_PY2IOP_DATA_OFFSET = 0xf00
 
-#: IOP mailbox commands
+# IOP mailbox commands
 WRITE_CMD = 0
 READ_CMD  = 1
 IOP_MMIO_REGSIZE = 0x8000
 
-#: IOP Switch Register Map
+# IOP Switch Register Map
 IOPMM_SWITCHCONFIG_BASEADDR    = 0x44A00000
 IOPMM_SWITCHCONFIG_IO_0_OFFSET = 0
 IOPMM_SWITCHCONFIG_IO_1_OFFSET = 4
@@ -61,7 +61,7 @@ IOPMM_SWITCHCONFIG_IO_6_OFFSET = 24
 IOPMM_SWITCHCONFIG_IO_7_OFFSET = 28
 IOPMM_SWITCHCONFIG_NUMREGS     = 8
 
-#: Each PMOD Pin can be tied to PMODIO,SPI,IIC pins
+# Each PMOD Pin can be tied to PMODIO,SPI,IIC pins
 IOP_SWCFG_PMODIO0 = 0
 IOP_SWCFG_PMODIO1 = 1
 IOP_SWCFG_PMODIO2 = 2
@@ -73,25 +73,25 @@ IOP_SWCFG_PMODIO7 = 7
 IOP_SWCFG_IIC0_SDA = 0x9
 IOP_SWCFG_IIC0_SCL = 0x8
 
-#: Switch config - All PMODIOs
+# Switch config - All PMODIOs
 IOP_SWCFG_PMODIOALL = [ IOP_SWCFG_PMODIO0,  IOP_SWCFG_PMODIO1,
                         IOP_SWCFG_PMODIO2,  IOP_SWCFG_PMODIO3,
                         IOP_SWCFG_PMODIO4,  IOP_SWCFG_PMODIO5, 
                         IOP_SWCFG_PMODIO6,  IOP_SWCFG_PMODIO7]
 
-#: Switch config - IIC0, Top Row
+# Switch config - IIC0, Top Row
 IOP_SWCFG_IIC0_TOPROW = [   IOP_SWCFG_PMODIO0,  IOP_SWCFG_PMODIO1,
                             IOP_SWCFG_IIC0_SCL, IOP_SWCFG_IIC0_SDA,
                             IOP_SWCFG_PMODIO2,  IOP_SWCFG_PMODIO3,                            
                             IOP_SWCFG_PMODIO4,  IOP_SWCFG_PMODIO5]
 
-#: Switch config - IIC0, Bottom Row
+# Switch config - IIC0, Bottom Row
 IOP_SWCFG_IIC0_BOTROW = [   IOP_SWCFG_PMODIO0,  IOP_SWCFG_PMODIO1,
                             IOP_SWCFG_PMODIO2,  IOP_SWCFG_PMODIO3,
                             IOP_SWCFG_PMODIO4,  IOP_SWCFG_PMODIO5, 
                             IOP_SWCFG_IIC0_SCL, IOP_SWCFG_IIC0_SDA]
 
-#: IIC register map
+# IIC register map
 IOPMM_XIIC_0_BASEADDR       = 0x40800000
 IOPMM_XIIC_DGIER_OFFSET     = 0x1C
 IOPMM_XIIC_IISR_OFFSET      = 0x20
@@ -108,7 +108,7 @@ IOPMM_XIIC_TBA_REG_OFFSET   = 0x11C
 IOPMM_XIIC_RFD_REG_OFFSET   = 0x120
 IOPMM_XIIC_GPO_REG_OFFSET   = 0x124
 
-#: SPI register map
+# SPI register map
 IOPMM_SPI_0_BASEADDR        = 0x44A10000
 IOPMM_XSP_DGIER_OFFSET      = 0x1C
 IOPMM_XSP_IISR_OFFSET       = 0x20
@@ -122,7 +122,7 @@ IOPMM_XSP_SSR_OFFSET        = 0x70
 IOPMM_XSP_TFO_OFFSET        = 0x74
 IOPMM_XSP_RFO_OFFSET        = 0x78
 
-#: PMODIO register map
+# PMODIO register map
 IOPMM_PMODIO_BASEADDR        = 0x40000000
 IOPMM_PMODIO_DATA_OFFSET     = 0x0
 IOPMM_PMODIO_TRI_OFFSET      = 0x4

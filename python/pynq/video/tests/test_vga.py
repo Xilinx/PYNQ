@@ -74,7 +74,7 @@ def test_pattern_colorbar():
     index = vga.frame_index()
     vga.frame_index_next()
         
-    #: Constructing colorbar test pattern
+    # Constructing colorbar test pattern
     xint = int(frame.width / 8)
     xinc = 256.0 / xint
     fcolor =  0.0
@@ -124,7 +124,7 @@ def test_pattern_blended():
     index = vga.frame_index()             
     vga.frame_index_next() 
 
-    #: Constructing blended test pattern
+    # Constructing blended test pattern
     hint = vga.frame_width() / 4
     xleft = hint * 3
     xmid = hint * 2 * 3

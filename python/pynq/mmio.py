@@ -77,23 +77,23 @@ class MMIO:
         if euid != 0:
             raise EnvironmentError('Root permissions required.')
         
-        #: Align the base address with the pages
+        # Align the base address with the pages
         self.base_addr = base_addr & ~(mmap.PAGESIZE - 1)
-        #: Calculate base address offset w.r.t the base address
+        # Calculate base address offset w.r.t the base address
         self.base_addr_offset = base_addr - self.base_addr
-        #: Align the stop address with the words
+        # Align the stop address with the words
         stop = base_addr + length
         if (stop % general_const.MMIO_WORD_MASK):
             stop = (stop + general_const.MMIO_WORD_LENGTH) \
                     & general_const.MMIO_WORD_MASK
-        #: Calculate the length between the base address and the stop address
+        # Calculate the length between the base address and the stop address
         self.length = stop - self.base_addr
         
         self.debug = debug
         self._debug('MMIO(address, size) = ({0}, {1} bytes).'.
                 format(hex(self.base_addr), hex(self.length)))
                 
-        #: Open file and mmap
+        # Open file and mmap
         f = os.open(general_const.MMIO_FILE_NAME, os.O_RDWR | os.O_SYNC)
         self.mem = mmap.mmap(f, self.length, mmap.MAP_SHARED,
                     mmap.PROT_READ | mmap.PROT_WRITE,
@@ -121,17 +121,17 @@ class MMIO:
         if offset + length > self.length:
             raise MemoryError('Read operation exceeds the MMIO length.')
 
-        #: Make reading faster
+        # Make reading faster
         mem = self.mem
 
         self._debug('Reading {0} bytes from offset {1}'\
                     .format(length, hex(offset)))
 
-        #: Compensate for the base_address and seek to the aligned offset
+        # Compensate for the base_address and seek to the aligned offset
         virt_base_addr = self.base_addr_offset & general_const.MMIO_WORD_MASK
         mem.seek(virt_base_addr + offset)
 
-        #: Read data out
+        # Read data out
         return (struct.unpack('I', mem.read(length))[0])
 
 

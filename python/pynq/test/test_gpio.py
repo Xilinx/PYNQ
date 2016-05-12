@@ -48,7 +48,7 @@ def test_gpio():
     The gpio_max is the smallest power of 2 greater than the GPIO base.
     
     """
-    #: Find the GPIO base pin
+    # Find the GPIO base pin
     for root, dirs, files in os.walk('/sys/class/gpio'):
             for name in dirs:
                 if 'gpiochip' in name:
@@ -60,18 +60,18 @@ def test_gpio():
     for index in range(gpio_min, gpio_max):
         g = GPIO(index, 'in')
         with pytest.raises(Exception) as error_infor:
-            #: GPIO type is 'in'. Hence g.write() is illegal. 
-            #: Test will pass if exception is raised.
+            # GPIO type is 'in'. Hence g.write() is illegal. 
+            # Test will pass if exception is raised.
             g.write()
         
         g = GPIO(index, 'out')
         with pytest.raises(Exception) as error_infor:
-            #: GPIO type is 'out'. Hence g.read() is illegal. 
-            #: Test will pass if exception is raised.
+            # GPIO type is 'out'. Hence g.read() is illegal. 
+            # Test will pass if exception is raised.
             g.read()
         with pytest.raises(Exception) as error_infor:
-            #: write() only accepts integer 0 or 1 (not 'str'). 
-            #: Test will pass if exception is raised.
+            # write() only accepts integer 0 or 1 (not 'str'). 
+            # Test will pass if exception is raised.
             g.write('1')
         
         del g

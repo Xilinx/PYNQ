@@ -74,9 +74,9 @@ class Frame(object):
             self._framebuffer = None
             self.frame = frame
         else:
-            #: Create a framebuffer with just 1 frame
+            # Create a framebuffer with just 1 frame
             self._framebuffer = _video._frame(1)
-            #: Create an empty frame
+            # Create an empty frame
             self.frame = self._framebuffer(0)
         self.width = width
         self.height = height

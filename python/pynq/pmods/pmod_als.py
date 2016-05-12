@@ -163,15 +163,15 @@ class PMOD_ALS(object):
         List of valid samples from the ALS sensor [0-255]
         
         """
-        #: Stop logging
+        # Stop logging
         self.stop_log()
 
-        #: Prep iterators and results list
+        # Prep iterators and results list
         head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
-        #: Sweep circular buffer for samples
+        # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:

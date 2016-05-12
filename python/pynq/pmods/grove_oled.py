@@ -77,7 +77,7 @@ class Grove_OLED(object):
         
         self.iop.start()
         
-        #: Use the default of horizontal mode
+        # Use the default of horizontal mode
         self.set_horizontal_mode()
         
     def write(self, text):
@@ -95,15 +95,15 @@ class Grove_OLED(object):
         None
         
         """
-        #: First write length
+        # First write length
         self.mmio.write(pmod_const.MAILBOX_OFFSET, len(text))
         
-        #: Then write rest of string
+        # Then write rest of string
         for i in range(len(text)):
             self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4 + i*4, 
                             ord(text[i]))
                        
-        #: Finally write the print string command
+        # Finally write the print string command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x13)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
@@ -147,11 +147,11 @@ class Grove_OLED(object):
         None
         
         """
-        #: First write row and column positions
+        # First write row and column positions
         self.mmio.write(pmod_const.MAILBOX_OFFSET, row)
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, column)
         
-        #: Then write the command
+        # Then write the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
@@ -245,12 +245,12 @@ class Grove_OLED(object):
         None
         
         """
-        #: First write the brightness
+        # First write the brightness
         if (brightness not in range(0,256)):
             raise ValueError("Valid brightness is between 0 and 255.")
         self.mmio.write(pmod_const.MAILBOX_OFFSET, brightness)
         
-        #: Then write the command
+        # Then write the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x11)
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\

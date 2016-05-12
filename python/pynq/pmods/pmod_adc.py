@@ -137,20 +137,20 @@ class PMOD_ADC(object):
         if not channel in range(3):
             raise ValueError("Available channel is 0, 1, or 2.")
             
-        #: Send the delay and the number of samples
+        # Send the delay and the number of samples
         self.mmio.write(pmod_const.MAILBOX_OFFSET, delay)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, samples)
         
-        #: Send the command
+        # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
         
-        #: Wait for I/O processor to complete
+        # Wait for I/O processor to complete
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
                               pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
             sleep(0.001)
 
-        #: Read the last sample from ADC
+        # Read the last sample from ADC
         return self.mmio.read(pmod_const.MAILBOX_OFFSET + \
                         (3*samples+channel)*4)
         
@@ -194,20 +194,20 @@ class PMOD_ADC(object):
         if not channel in range(3):
             raise ValueError("Available channel is 0, 1, or 2.")
             
-        #: Send the delay and the number of samples
+        # Send the delay and the number of samples
         self.mmio.write(pmod_const.MAILBOX_OFFSET, delay)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, samples)
         
-        #: Send the command
+        # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
         
-        #: Wait for I/O processor to complete
+        # Wait for I/O processor to complete
         while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
                               pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
             sleep(0.001)
 
-        #: Read the last sample from ADC
+        # Read the last sample from ADC
         return self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET + \
                     (3*samples+channel)*4))
         
@@ -237,11 +237,11 @@ class PMOD_ADC(object):
         
         self.log_running = 1
         
-        #: Send log interval and the channel number
+        # Send log interval and the channel number
         self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
         
-        #: Send the command
+        # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
         
@@ -271,11 +271,11 @@ class PMOD_ADC(object):
         
         self.log_running = 1
         
-        #: Send log interval and the channel number
+        # Send log interval and the channel number
         self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
         
-        #: Send the command
+        # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
         
@@ -338,15 +338,15 @@ class PMOD_ADC(object):
             List of valid raw samples from the ADC.
         
         """
-        #: Stop logging
+        # Stop logging
         self.stop_log_raw()
 
-        #: Prep iterators and results list
+        # Prep iterators and results list
         head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
-        #: Sweep circular buffer for samples
+        # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
@@ -374,15 +374,15 @@ class PMOD_ADC(object):
             List of valid raw samples from the ADC.
         
         """
-        #: Stop logging
+        # Stop logging
         self.stop_log()
 
-        #: Prep iterators and results list
+        # Prep iterators and results list
         head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
-        #: Sweep circular buffer for samples
+        # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:

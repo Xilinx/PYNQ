@@ -88,7 +88,7 @@ def test_audio_mute():
         'Cannot mute audio.'
     print("Audio is muted. Wait for a few seconds...")
     for i in range(100000):
-        #: Users should not be able to hear sound in this loop
+        # Users should not be able to hear sound in this loop
         headphone(linein())
     assert user_answer_yes("Audio on the headphone (HPH) port muted?"),\
         'Cannot mute audio.'

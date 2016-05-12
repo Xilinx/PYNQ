@@ -123,12 +123,12 @@ class DevMode(object):
                         'list of 8 integers.'.format(config))
             self.iop_switch_config = config
 
-        #: Build switch config word 
+        # Build switch config word 
         sw_config_word = 0
         for ix, cfg in enumerate(self.iop_switch_config): 
             sw_config_word |= (cfg << ix*4)
 
-        #: Disable, configure, enable switch
+        # Disable, configure, enable switch
         self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR + 4, 0)
         self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR, \
                         sw_config_word)
@@ -304,22 +304,22 @@ class DevMode(object):
         if data != None:
             self.mmio.write(pmod_const.MAILBOX_PY2IOP_DATA_OFFSET, data)
         
-        #: Build the write command
+        # Build the write command
         cmd_word = self.get_cmd_word(cmd, dWidth, dLength)
 
         self.mmio.write(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
 
-        #: Wait for ACK in steps of 1ms
+        # Wait for ACK in steps of 1ms
         cntdown = timeout
         while not self.is_cmd_mailbox_idle() and cntdown > 0:
             time.sleep(0.001)
             cntdown -= 1
 
-        #: If ACK is not received, alert users.
+        # If ACK is not received, alert users.
         if cntdown == 0:
             raise LookupError("DevMode _send_cmd() not acknowledged.")
 
-        #: Return data if expected from read, otherwise return None
+        # Return data if expected from read, otherwise return None
         if cmd == pmod_const.WRITE_CMD: 
             return None
         else:

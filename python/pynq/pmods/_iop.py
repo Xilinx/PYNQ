@@ -204,11 +204,11 @@ def request_iop(pmod_id, mb_program):
     if (PL.get_ip_state(iop_name) is None) or \
         (PL.get_ip_state(iop_name)== \
                 (pmod_const.BIN_LOCATION + mb_program)):
-        #: case 1
+        # case 1
         return _IOP(iop_name, addr_base, addr_range, \
                     gpio_uix, mb_program)
     else:
-        #: case 2
+        # case 2
         raise LookupError('Another program {} already running on IOP.'\
                 .format(PL.get_ip_state(iop_name)))
         return None

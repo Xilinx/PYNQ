@@ -66,11 +66,11 @@ def test_devmode():
     
     """
     for pmod_id in range(1,5):
-        #: Initiate the IOP
+        # Initiate the IOP
         iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL)
         iop.start()
         assert iop.status()=="RUNNING"
-        #: Test whether writing is successful
+        # Test whether writing is successful
         data_1 = 0
         iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
                         pmod_const.IOPMM_PMODIO_TRI_OFFSET,
@@ -78,14 +78,14 @@ def test_devmode():
         iop.load_switch_config()
         iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
                         pmod_const.IOPMM_PMODIO_DATA_OFFSET, data_1)
-        #: Test whether reading is successful
+        # Test whether reading is successful
         iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
                         pmod_const.IOPMM_PMODIO_TRI_OFFSET,
                         pmod_const.IOCFG_PMODIO_ALLOUTPUT)
         iop.load_switch_config()
         data_2 = iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
                                 pmod_const.IOPMM_PMODIO_DATA_OFFSET)
-        #: Stop the IOP
+        # Stop the IOP
         iop.stop()
         assert iop.status()=="STOPPED"
         

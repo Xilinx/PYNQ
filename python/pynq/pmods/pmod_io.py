@@ -118,14 +118,14 @@ class PMOD_IO(object):
             raise ValueError('PMOD IO used as output, but declared as input.')
 
         if value:
-            #: Set 1 to a PMOD IO pin.
+            # Set 1 to a PMOD IO pin.
             currVal = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
                                         pmod_const.IOPMM_PMODIO_DATA_OFFSET)
             newVal = currVal | (0x1<<self.index)
             self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
                                 pmod_const.IOPMM_PMODIO_DATA_OFFSET, newVal)
         else:
-            #: Set 0 to a PMOD IO pin.
+            # Set 0 to a PMOD IO pin.
             currVal = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
                                         pmod_const.IOPMM_PMODIO_DATA_OFFSET)
             newVal = currVal & (0xff ^ (0x1<<self.index))

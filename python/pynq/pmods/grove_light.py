@@ -97,7 +97,7 @@ class Grove_Light(Grove_ADC):
             The light reading in terms of the sensor resistance.
         
         """
-        #: Transform the ADC data into light value
+        # Transform the ADC data into light value
         val = super().read_raw()
         return self._int2R(val)
         
@@ -130,7 +130,7 @@ class Grove_Light(Grove_ADC):
             List of valid light sensor resistances.
         
         """
-        #: Stop and get the log
+        # Stop and get the log
         r_log = super().get_log_raw()
         
         for i in range(len(r_log)):

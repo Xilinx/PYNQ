@@ -114,22 +114,22 @@ class PMOD_OLED(object):
         None
         
         """
-        #: First write length, x-pos, y-pos
+        # First write length, x-pos, y-pos
         self.mmio.write(pmod_const.MAILBOX_OFFSET, len(text))
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 4, 0)
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 8, 0)
         
-        #: Then write rest of string
+        # Then write rest of string
         for i in range(len(text)):
             self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC + i*4, 
                             ord(text[i]))
                        
-        #: Finally write the print string command bit[3]: str, bit[0]: valid
+        # Finally write the print string command bit[3]: str, bit[0]: valid
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
                         (0x10000 | 0x1 | 0x8))
         
-        #: Wait for the command to be cleared
+        # Wait for the command to be cleared
         while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
             pass
@@ -148,12 +148,12 @@ class PMOD_OLED(object):
         None
         
         """             
-        #: Write the clear command
+        # Write the clear command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
                         0x3)
         
-        #: Wait for the command to be cleared
+        # Wait for the command to be cleared
         while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
             pass

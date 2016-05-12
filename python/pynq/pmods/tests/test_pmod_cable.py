@@ -73,11 +73,11 @@ def test_cable_type():
     tx[7].write(1)
     
     if [rx[0].read(),rx[3].read(),rx[4].read(),rx[7].read()]==[0,0,1,1]:
-        #: Using a loop-back cable
+        # Using a loop-back cable
         for i in range(8):
             rx[i].set_cable('loopback')
     elif [rx[0].read(),rx[3].read(),rx[4].read(),rx[7].read()]==[1,1,0,0]:
-        #: Using a straight cable
+        # Using a straight cable
         for i in range(8):
             rx[i].set_cable('straight')
     else:

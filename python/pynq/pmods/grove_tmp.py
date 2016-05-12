@@ -85,13 +85,13 @@ class Grove_TMP(Grove_ADC):
             raise ValueError("Valid StickIt group IDs are 3 and 4.")
         
         if version == 'v1.2':
-            #: v1.2 uses NCP18WF104F03RC
+            # v1.2 uses NCP18WF104F03RC
             self.bValue = 4250
         elif version == 'v1.1':
-            #: v1.1 uses thermistor NCP18WF104F03RC
+            # v1.1 uses thermistor NCP18WF104F03RC
             self.bValue = 4250
         else:
-            #: v1.0 uses thermistor TTC3A103*39H
+            # v1.0 uses thermistor TTC3A103*39H
             self.bValue = 3975
         
         super().__init__(pmod_id, gr_id)
@@ -111,7 +111,7 @@ class Grove_TMP(Grove_ADC):
             The temperature reading in Celsius.
         
         """
-        #: Transform the ADC data into degree Celsius
+        # Transform the ADC data into degree Celsius
         val = super().read_raw()
         return self._int2temp(val)
         
@@ -144,7 +144,7 @@ class Grove_TMP(Grove_ADC):
             List of valid temperature readings from the temperature sensor.
         
         """
-        #: Stop and get the log
+        # Stop and get the log
         tmp_log = super().get_log_raw()
         
         for i in range(len(tmp_log)):
