@@ -86,10 +86,12 @@ image_ref_pattern = "\!\[].*/((.*[png jpeg]))"
 #: Load each of the identified *.ipynb (JSON-formatted) files as a dict
 for file in ipynb_files:
     #: Make a copy
-    shutil.copyfile(target_dir + '/' + file, temp_dir + '/' + file)
+    file_name, file_ext = os.path.splitext(os.path.basename(file))
+    temp_file = file_name + ".tmp"
+    shutil.copyfile(target_dir + '/' + file, temp_dir + '/' + temp_file)
     with open(target_dir + '/' + file, 'r+', encoding='utf-8') as f:
         notebook = json.load(f)
-        print('Scanning... file {}'.format(file))
+        print('Scanning file {}'.format(file))
         
         #: Build markdown_cells with a string matching image_ref_pattern
         match_count = 0
@@ -121,7 +123,5 @@ for file in ipynb_files:
                             
         if match_count != 0:
             # Create the new post-processed ipynb file with updated JSON
-            file_name, file_ext = os.path.splitext(os.path.basename(file))
-            post_processed_file = file_name + file_ext
-            with open(target_dir + '/' + post_processed_file, 'w') as f_pp:
+            with open(target_dir + '/' + file, 'w') as f_pp:
                 f_pp.write(json.dumps(notebook, indent = 1, sort_keys=True))

@@ -77,7 +77,10 @@ cp -r $REPO_DIR/ubuntu/scripts/*.bat $FINAL_SCRIPTS_DIR
 pushd $FINAL_NOTEBOOKS_DIR ; ln -s $FINAL_DOCS_DIR ; popd
 
 # Jupyer_notebooks/Getting Started derived contents
-cp -rf $REPO_DIR/docs/source/temp/*.ipynb $REPO_DIR/docs/source
+for f in $REPO_DIR/docs/source/temp/*.tmp
+do 
+    mv -- "$f" "$REPO_DIR/docs/source/${f%.tmp}.ipynb"
+done
 rm -rf $REPO_DIR/docs/source/temp
 rm -rf $FINAL_NOTEBOOKS_DIR/Getting_Started/*
 cp $REPO_DIR/docs/source/3_jupyter_notebook.ipynb \
