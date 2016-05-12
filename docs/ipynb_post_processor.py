@@ -68,24 +68,24 @@ import json
 import re
 import shutil
 
-#: Set target_directory and create list of *.ipynb files within it
+# Set target_directory and create list of *.ipynb files within it
 target_dir = "./source"
 temp_dir = "./source/temp"
 if not os.path.exists(temp_dir):
     os.makedirs(temp_dir)
 
-#: Find all Jupyter notebook (.ipynb) files    
+# Find all Jupyter notebook (.ipynb) files    
 ipynb_files = [file for file in os.listdir(target_dir) \
                     if file.endswith(".ipynb")]
 print('Found {} notebook (.ipynb) files in {}'.format(len(ipynb_files), \
                 os.path.abspath(target_dir)))
 
-#: Regex for the image reference pattern within markdown cells in *.ipynb 
+# Regex for the image reference pattern within markdown cells in *.ipynb 
 image_ref_pattern = "\!\[].*/((.*[png jpeg]))"
 
-#: Load each of the identified *.ipynb (JSON-formatted) files as a dict
+# Load each of the identified *.ipynb (JSON-formatted) files as a dict
 for file in ipynb_files:
-    #: Make a copy
+    # Make a copy
     file_name, file_ext = os.path.splitext(os.path.basename(file))
     temp_file = file_name + ".tmp"
     shutil.copyfile(target_dir + '/' + file, temp_dir + '/' + temp_file)
@@ -93,7 +93,7 @@ for file in ipynb_files:
         notebook = json.load(f)
         print('Scanning file {}'.format(file))
         
-        #: Build markdown_cells with a string matching image_ref_pattern
+        # Build markdown_cells with a string matching image_ref_pattern
         match_count = 0
         for i, notebook_cell in enumerate(notebook['cells']):
             if notebook_cell['cell_type'] == 'markdown':
@@ -118,7 +118,7 @@ for file in ipynb_files:
                                     "   :align: center"
                                     ]
                             }
-                            #: Create new notebook cell after the current one
+                            # Create new notebook cell after the current one
                             notebook['cells'].insert(i+1, reST_cell)
                             
         if match_count != 0:
