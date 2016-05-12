@@ -94,7 +94,7 @@ cp $REPO_DIR/docs/source/5_programming_onboard_peripherals.ipynb \
 cp $REPO_DIR/docs/source/6_pmodio_overlay.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/4_pmodio_overlay.ipynb
 cp $REPO_DIR/docs/source/7_audio_video_overlay.ipynb \
-    $FINAL_NOTEBOOKS_DIR/Getting_Started/5_jupyter_notebook.ipynb
+    $FINAL_NOTEBOOKS_DIR/Getting_Started/5_audio_video_overlay.ipynb
 
 mkdir $FINAL_NOTEBOOKS_DIR/Getting_Started/images
 for f in $GS_NOTEBOOK_IMAGES
