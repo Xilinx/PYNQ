@@ -15,7 +15,9 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-Use the new update_pynq.sh
+Use the new update_pynq.sh in /home/xpp/scripts
+Update the pynq package by removing pmod_iic.old.py and pmod_iic.new.py in the symbolic link 'pynq'.
+
 ```
 
 
