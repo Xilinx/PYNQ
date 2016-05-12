@@ -23,10 +23,12 @@ sphinx-apidoc -f -o ./source $PYNQ_DIR
 python3 ipynb_post_processor.py
 make clean ; make html
 
-for f in $REPO_DIR/docs/source/temp/*.tmp
+pushd $REPO_DIR/docs/source/temp
+for f in *.tmp
 do 
     mv -- "$f" "$REPO_DIR/docs/source/${f%.tmp}.ipynb"
 done
+popd
 rm -rf $REPO_DIR/docs/source/temp
 rm -rf $FINAL_DOCS_DIR/*
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR

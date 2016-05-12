@@ -245,7 +245,7 @@ class PMOD_IIC(object):
         iic_bytes = list()
         while(len(iic_bytes) < num_bytes):
  
-            #: special condition for last two bytes
+            #: Special condition for last two bytes
             if (num_bytes - len(iic_bytes)) == 1:
                 self.iop.write_cmd(self.cr_addr,0x1)
             elif (num_bytes - len(iic_bytes)) == 2:
