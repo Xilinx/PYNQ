@@ -93,17 +93,8 @@ int main()
 
     // initialize pmod
     pmod_init();
-    /*  
-     *  Configuring PMOD IO Switch to connect to I2C[0].
-     *  SCLK to pmod bit 2, I2C[0].SDA to pmod bit 3
-     *  rest of the bits are configured to default gpio channels
-     *  i.e. pmod bit[0] to gpio[0], pmod bit[1] to gpio[1], etc.
-     */
-    // isolate configuration port by writing 0 to slv_reg1[31]
-    Xil_Out32(SWITCH_BASEADDR+4,0x00000000);
-    Xil_Out32(SWITCH_BASEADDR,0x76549810);
-    // Enable configuration by writing 1 to slv_reg1[31]
-    Xil_Out32(SWITCH_BASEADDR+4,0x80000000);
+    // Initialize the default switch
+    configureSwitch(GPIO_0,GPIO_1,SCL,SDA,GPIO_4,GPIO_5,GPIO_6,GPIO_7);
 
     // to use internal VREF, bridge JP1 accross pin1 and center pin
     useVref=1;
@@ -138,12 +129,12 @@ int main()
             case READ_RAW_DATA:
                 adc_config(useChan3,useChan2,useChan1,useChan0,
                             useVref,useFILT,useBIT,useSample);
-                // set the delay in ms between two samples
+                // set the delay in us between two samples
                 delay = MAILBOX_DATA(0);
                 // set to number of samples
                 num_samples = MAILBOX_DATA(1); 
                 for(i=0;i<num_samples;i++) {
-                    delay_ms(delay);
+                    delay_us(delay);
                     for(j=0; j<num_channels; j++) {
                         adc_raw_value = adc_read_raw();
                         MAILBOX_DATA(num_channels*i+j) = adc_raw_value;
@@ -160,7 +151,7 @@ int main()
                 // set to number of samples
                 num_samples = MAILBOX_DATA(1); 
                 for(i=0;i<num_samples;i++) {
-                    delay_ms(delay);
+                    delay_us(delay);
                     for(j=0; j<num_channels; j++) {
                         adc_voltage = adc_read_voltage(VREF);
                         MAILBOX_DATA_FLOAT(num_channels*i+j) = adc_voltage;
@@ -187,7 +178,7 @@ int main()
                             cb_push_back(&pmod_log, &adc_raw_value);
                         }
                     }
-                    delay_ms(delay);
+                    delay_us(delay);
                 }
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
@@ -210,7 +201,7 @@ int main()
                             cb_push_back_float(&pmod_log, &adc_voltage);
                         }
                     }
-                    delay_ms(delay);
+                    delay_us(delay);
                 }
                 MAILBOX_CMD_ADDR = 0x0;
                 break;

@@ -211,10 +211,10 @@ class PMOD_ADC(object):
         return self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET + \
                     (3*samples+channel)*4))
         
-    def start_log_raw(self, channel=0, log_interval_ms=100):
+    def start_log_raw(self, channel=0, log_interval_us=100):
         """Start the log of raw values with the interval specified.
         
-        This parameter `log_interval_ms` can set the time interval between 
+        This parameter `log_interval_us` can set the time interval between 
         two samples, so that users can read out multiple values in a single 
         log.  
         
@@ -222,7 +222,7 @@ class PMOD_ADC(object):
         ----------
         channel : int
             The channel number, from 0 to 2.
-        log_interval_ms : int
+        log_interval_us : int
             The length of the log in milliseconds, for debug only.
             
         Returns
@@ -230,7 +230,7 @@ class PMOD_ADC(object):
         None
         
         """
-        if (log_interval_ms < 0):
+        if (log_interval_us < 0):
             raise ValueError("Time between samples should be no less than 0.")
         if not channel in range(3):
             raise ValueError("Available channel is 0, 1, or 2.")
@@ -238,17 +238,17 @@ class PMOD_ADC(object):
         self.log_running = 1
         
         #: Send log interval and the channel number
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_ms)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
         
         #: Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
         
-    def start_log(self, channel=0, log_interval_ms=100):
+    def start_log(self, channel=0, log_interval_us=100):
         """Start the log of voltage values with the interval specified.
         
-        This parameter `log_interval_ms` can set the time interval between 
+        This parameter `log_interval_us` can set the time interval between 
         two samples, so that users can read out multiple values in a single 
         log.  
         
@@ -256,7 +256,7 @@ class PMOD_ADC(object):
         ----------
         channel : int
             The channel number, from 0 to 2.
-        log_interval_ms : int
+        log_interval_us : int
             The length of the log in milliseconds, for debug only.
             
         Returns
@@ -264,7 +264,7 @@ class PMOD_ADC(object):
         None
         
         """
-        if (log_interval_ms < 0):
+        if (log_interval_us < 0):
             raise ValueError("Time between samples should be no less than 0.")
         if not channel in range(3):
             raise ValueError("Available channel is 0, 1, or 2.")
@@ -272,7 +272,7 @@ class PMOD_ADC(object):
         self.log_running = 1
         
         #: Send log interval and the channel number
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_ms)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
         
         #: Send the command
