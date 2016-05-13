@@ -480,6 +480,9 @@ CONFIG.G_TEMPLATE_LIST {1} \
   set mb1_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 mb1_gpio ]
   set_property -dict [ list \
 CONFIG.C_GPIO_WIDTH {8} \
+CONFIG.C_GPIO2_WIDTH {1} \
+CONFIG.C_IS_DUAL {1} \
+CONFIG.C_ALL_OUTPUTS_2 {1} \
  ] $mb1_gpio
 
   # Create instance: mb1_iic, and set properties
@@ -540,7 +543,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net ARESETN_1 [get_bd_pins mb_1_axi_periph/ARESETN] [get_bd_pins proc_sys_reset_0/interconnect_aresetn]
   connect_bd_net -net aux_reset_in_1 [get_bd_pins aux_reset_in] [get_bd_pins proc_sys_reset_0/aux_reset_in]
   connect_bd_net -net ext_reset_in_1 [get_bd_pins ext_reset_in] [get_bd_pins proc_sys_reset_0/ext_reset_in]
-  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb1_pmod_io_switch/gen0_t_in] [get_bd_pins mb1_pmod_io_switch/pwm_t_in]
+  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb1_pmod_io_switch/pwm_t_in]
   connect_bd_net -net mb1_pmod_io_switch_cap0_i_in [get_bd_pins mb1_pmod_io_switch/cap0_i_in] [get_bd_pins mb1_timer/capturetrig0]
   connect_bd_net -net mb1_pmod_io_switch_miso_i_in [get_bd_pins mb1_pmod_io_switch/miso_i_in] [get_bd_pins mb1_spi/io1_i]
   connect_bd_net -net mb1_pmod_io_switch_mosi_i_in [get_bd_pins mb1_pmod_io_switch/mosi_i_in] [get_bd_pins mb1_spi/io0_i]
@@ -577,7 +580,8 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net proc_sys_reset_0_bus_struct_reset [get_bd_pins mb_1_local_memory/SYS_Rst] [get_bd_pins proc_sys_reset_0/bus_struct_reset]
   connect_bd_net -net proc_sys_reset_0_mb_reset [get_bd_pins mb/Reset] [get_bd_pins proc_sys_reset_0/mb_reset]
   connect_bd_net -net s_axi_aresetn_1 [get_bd_pins mb1_pmod_io_switch/s00_axi_aresetn] [get_bd_pins mb1_gpio/s_axi_aresetn] [get_bd_pins mb1_iic/s_axi_aresetn] [get_bd_pins mb1_intc/s_axi_aresetn] [get_bd_pins mb1_spi/s_axi_aresetn] [get_bd_pins mb1_timer/s_axi_aresetn] [get_bd_pins mb_1_axi_periph/M00_ARESETN] [get_bd_pins mb_1_axi_periph/M01_ARESETN] [get_bd_pins mb_1_axi_periph/M02_ARESETN] [get_bd_pins mb_1_axi_periph/M03_ARESETN] [get_bd_pins mb_1_axi_periph/M04_ARESETN] [get_bd_pins mb_1_axi_periph/M05_ARESETN] [get_bd_pins mb_1_axi_periph/S00_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
-
+  connect_bd_net -net mb1_gpio_gpio2_io_o [get_bd_pins mb1_pmod_io_switch/gen0_t_in] [get_bd_pins mb1_gpio/gpio2_io_o]
+   
   # Restore current instance
   current_bd_instance $oldCurInst
 }

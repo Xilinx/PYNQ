@@ -493,6 +493,9 @@ CONFIG.NUM_PORTS {3} \
   set mb4_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 mb4_gpio ]
   set_property -dict [ list \
 CONFIG.C_GPIO_WIDTH {8} \
+CONFIG.C_GPIO2_WIDTH {1} \
+CONFIG.C_IS_DUAL {1} \
+CONFIG.C_ALL_OUTPUTS_2 {1} \
  ] $mb4_gpio
 
   # Create instance: mb4_iic, and set properties
@@ -549,7 +552,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net pmod_io_switch_0_sw2pl_data_in [get_bd_pins mb4_pmod_io_switch/sw2pl_data_in] [get_bd_pins mb4_gpio/gpio_io_i]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_data_out [get_bd_pins sw2pmod_data_out] [get_bd_pins mb4_pmod_io_switch/sw2pmod_data_out]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_tri_out [get_bd_pins sw2pmod_tri_out] [get_bd_pins mb4_pmod_io_switch/sw2pmod_tri_out]
-  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb4_pmod_io_switch/gen0_t_in] [get_bd_pins mb4_pmod_io_switch/pwm_t_in]
+  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb4_pmod_io_switch/pwm_t_in]
   connect_bd_net -net logic_1_dout [get_bd_pins ext_reset_in] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
   connect_bd_net -net mb1_gpio_gpio_io_o [get_bd_pins mb4_pmod_io_switch/pl2sw_data_o] [get_bd_pins mb4_gpio/gpio_io_o]
   connect_bd_net -net mb1_gpio_gpio_io_t [get_bd_pins mb4_pmod_io_switch/pl2sw_tri_o] [get_bd_pins mb4_gpio/gpio_io_t]
@@ -580,7 +583,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net rst_clk_wiz_1_100M_interconnect_aresetn [get_bd_pins microblaze_0_axi_periph/ARESETN] [get_bd_pins rst_clk_wiz_1_100M/interconnect_aresetn]
   connect_bd_net -net rst_clk_wiz_1_100M_mb_reset [get_bd_pins mb/Reset] [get_bd_pins rst_clk_wiz_1_100M/mb_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_peripheral_aresetn [get_bd_pins mb4_pmod_io_switch/s00_axi_aresetn] [get_bd_pins mb4_gpio/s_axi_aresetn] [get_bd_pins mb4_iic/s_axi_aresetn] [get_bd_pins mb4_intc/s_axi_aresetn] [get_bd_pins mb4_spi/s_axi_aresetn] [get_bd_pins mb4_timer/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/peripheral_aresetn]
-
+  connect_bd_net -net mb4_gpio_gpio2_io_o [get_bd_pins mb4_pmod_io_switch/gen0_t_in] [get_bd_pins mb4_gpio/gpio2_io_o]
   # Restore current instance
   current_bd_instance $oldCurInst
 }
@@ -658,6 +661,9 @@ CONFIG.NUM_PORTS {3} \
   set mb3_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 mb3_gpio ]
   set_property -dict [ list \
 CONFIG.C_GPIO_WIDTH {8} \
+CONFIG.C_GPIO2_WIDTH {1} \
+CONFIG.C_IS_DUAL {1} \
+CONFIG.C_ALL_OUTPUTS_2 {1} \
  ] $mb3_gpio
 
   # Create instance: mb3_iic, and set properties
@@ -714,7 +720,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net pmod_io_switch_0_sw2pl_data_in [get_bd_pins mb3_pmod_io_switch/sw2pl_data_in] [get_bd_pins mb3_gpio/gpio_io_i]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_data_out [get_bd_pins sw2pmod_data_out] [get_bd_pins mb3_pmod_io_switch/sw2pmod_data_out]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_tri_out [get_bd_pins sw2pmod_tri_out] [get_bd_pins mb3_pmod_io_switch/sw2pmod_tri_out]
-  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb3_pmod_io_switch/gen0_t_in] [get_bd_pins mb3_pmod_io_switch/pwm_t_in]
+  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb3_pmod_io_switch/pwm_t_in]
   connect_bd_net -net logic_1_dout [get_bd_pins ext_reset_in] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
   connect_bd_net -net mb1_gpio_gpio_io_o [get_bd_pins mb3_pmod_io_switch/pl2sw_data_o] [get_bd_pins mb3_gpio/gpio_io_o]
   connect_bd_net -net mb1_gpio_gpio_io_t [get_bd_pins mb3_pmod_io_switch/pl2sw_tri_o] [get_bd_pins mb3_gpio/gpio_io_t]
@@ -745,6 +751,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net rst_clk_wiz_1_100M_interconnect_aresetn [get_bd_pins microblaze_0_axi_periph/ARESETN] [get_bd_pins rst_clk_wiz_1_100M/interconnect_aresetn]
   connect_bd_net -net rst_clk_wiz_1_100M_mb_reset [get_bd_pins mb/Reset] [get_bd_pins rst_clk_wiz_1_100M/mb_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_peripheral_aresetn [get_bd_pins mb3_pmod_io_switch/s00_axi_aresetn] [get_bd_pins mb3_gpio/s_axi_aresetn] [get_bd_pins mb3_iic/s_axi_aresetn] [get_bd_pins mb3_intc/s_axi_aresetn] [get_bd_pins mb3_spi/s_axi_aresetn] [get_bd_pins mb3_timer/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/peripheral_aresetn]
+  connect_bd_net -net mb3_gpio_gpio2_io_o [get_bd_pins mb3_pmod_io_switch/gen0_t_in] [get_bd_pins mb3_gpio/gpio2_io_o]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -823,6 +830,9 @@ CONFIG.NUM_PORTS {3} \
   set mb2_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 mb2_gpio ]
   set_property -dict [ list \
 CONFIG.C_GPIO_WIDTH {8} \
+CONFIG.C_GPIO2_WIDTH {1} \
+CONFIG.C_IS_DUAL {1} \
+CONFIG.C_ALL_OUTPUTS_2 {1} \
  ] $mb2_gpio
 
   # Create instance: mb2_iic, and set properties
@@ -879,7 +889,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net pmod_io_switch_0_sw2pl_data_in [get_bd_pins mb2_pmod_io_switch/sw2pl_data_in] [get_bd_pins mb2_gpio/gpio_io_i]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_data_out [get_bd_pins sw2pmod_data_out] [get_bd_pins mb2_pmod_io_switch/sw2pmod_data_out]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_tri_out [get_bd_pins sw2pmod_tri_out] [get_bd_pins mb2_pmod_io_switch/sw2pmod_tri_out]
-  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb2_pmod_io_switch/gen0_t_in] [get_bd_pins mb2_pmod_io_switch/pwm_t_in]
+  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb2_pmod_io_switch/pwm_t_in]
   connect_bd_net -net logic_1_dout [get_bd_pins ext_reset_in] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
   connect_bd_net -net mb1_gpio_gpio_io_o [get_bd_pins mb2_pmod_io_switch/pl2sw_data_o] [get_bd_pins mb2_gpio/gpio_io_o]
   connect_bd_net -net mb1_gpio_gpio_io_t [get_bd_pins mb2_pmod_io_switch/pl2sw_tri_o] [get_bd_pins mb2_gpio/gpio_io_t]
@@ -910,6 +920,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net rst_clk_wiz_1_100M_interconnect_aresetn [get_bd_pins microblaze_0_axi_periph/ARESETN] [get_bd_pins rst_clk_wiz_1_100M/interconnect_aresetn]
   connect_bd_net -net rst_clk_wiz_1_100M_mb_reset [get_bd_pins mb/Reset] [get_bd_pins rst_clk_wiz_1_100M/mb_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_peripheral_aresetn [get_bd_pins mb2_pmod_io_switch/s00_axi_aresetn] [get_bd_pins mb2_gpio/s_axi_aresetn] [get_bd_pins mb2_iic/s_axi_aresetn] [get_bd_pins mb2_intc/s_axi_aresetn] [get_bd_pins mb2_spi/s_axi_aresetn] [get_bd_pins mb2_timer/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/peripheral_aresetn]
+  connect_bd_net -net mb2_gpio_gpio2_io_o [get_bd_pins mb2_pmod_io_switch/gen0_t_in] [get_bd_pins mb2_gpio/gpio2_io_o]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -982,6 +993,9 @@ CONFIG.C_I_LMB {1} \
   set mb1_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 mb1_gpio ]
   set_property -dict [ list \
 CONFIG.C_GPIO_WIDTH {8} \
+CONFIG.C_GPIO2_WIDTH {1} \
+CONFIG.C_IS_DUAL {1} \
+CONFIG.C_ALL_OUTPUTS_2 {1} \
  ] $mb1_gpio
 
   # Create instance: mb1_iic, and set properties
@@ -1044,7 +1058,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net pmod_io_switch_0_sw2pl_data_in [get_bd_pins mb1_pmod_io_switch/sw2pl_data_in] [get_bd_pins mb1_gpio/gpio_io_i]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_data_out [get_bd_pins sw2pmod_data_out] [get_bd_pins mb1_pmod_io_switch/sw2pmod_data_out]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_tri_out [get_bd_pins sw2pmod_tri_out] [get_bd_pins mb1_pmod_io_switch/sw2pmod_tri_out]
-  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb1_pmod_io_switch/gen0_t_in] [get_bd_pins mb1_pmod_io_switch/pwm_t_in]
+  connect_bd_net -net logic_0_dout [get_bd_pins logic_0/dout] [get_bd_pins mb1_pmod_io_switch/pwm_t_in]
   connect_bd_net -net logic_1_dout [get_bd_pins ext_reset_in] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
   connect_bd_net -net mb1_pmod_io_switch_cap0_i_in [get_bd_pins mb1_pmod_io_switch/cap0_i_in] [get_bd_pins mb1_timer/capturetrig0]
   connect_bd_net -net mb1_gpio_gpio_io_o [get_bd_pins mb1_pmod_io_switch/pl2sw_data_o] [get_bd_pins mb1_gpio/gpio_io_o]
@@ -1075,6 +1089,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net rst_clk_wiz_1_100M_interconnect_aresetn [get_bd_pins microblaze_0_axi_periph/ARESETN] [get_bd_pins rst_clk_wiz_1_100M/interconnect_aresetn]
   connect_bd_net -net rst_clk_wiz_1_100M_mb_reset [get_bd_pins mb/Reset] [get_bd_pins rst_clk_wiz_1_100M/mb_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_peripheral_aresetn [get_bd_pins mb1_pmod_io_switch/s00_axi_aresetn] [get_bd_pins mb1_gpio/s_axi_aresetn] [get_bd_pins mb1_iic/s_axi_aresetn] [get_bd_pins mb1_intc/s_axi_aresetn] [get_bd_pins mb1_spi/s_axi_aresetn] [get_bd_pins mb1_timer/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/peripheral_aresetn]
+  connect_bd_net -net mb1_gpio_gpio2_io_o [get_bd_pins mb1_pmod_io_switch/gen0_t_in] [get_bd_pins mb1_gpio/gpio2_io_o]
 
   # Restore current instance
   current_bd_instance $oldCurInst

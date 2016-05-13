@@ -52,3 +52,4 @@ from .grove_ledbar import Grove_LEDbar
 from .grove_tmp import Grove_TMP
 from .grove_light import Grove_Light
 from .grove_buzzer import Grove_Buzzer
+from .pmod_timer import PMOD_Timer

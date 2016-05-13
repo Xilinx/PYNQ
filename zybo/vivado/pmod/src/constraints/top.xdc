@@ -118,15 +118,6 @@ set_property PACKAGE_PIN K14 [get_ports pmodJA4_p]
 set_property PACKAGE_PIN J14 [get_ports pmodJA4_n]
 set_property IOSTANDARD LVCMOS33 [get_ports pmodJA4_p]
 
-set_property BMM_INFO_PROCESSOR {microblaze-le > system mb_JB/mb1_lmb/lmb_bram_if_cntlr} [get_cells system_i/mb_JB/mb_1]
-set_property BMM_INFO_ADDRESS_SPACE {byte 0x0 32 > system mb_JB/mb1_lmb/lmb_bram} [get_cells system_i/mb_JB/mb1_lmb/lmb_bram_if_cntlr]
-set_property BMM_INFO_PROCESSOR {microblaze-le > system mb_JC/mb2_lmb/lmb_bram_if_cntlr} [get_cells system_i/mb_JC/mb_2]
-set_property BMM_INFO_ADDRESS_SPACE {byte 0x0 32 > system mb_JC/mb2_lmb/lmb_bram} [get_cells system_i/mb_JC/mb2_lmb/lmb_bram_if_cntlr]
-set_property BMM_INFO_PROCESSOR {microblaze-le > system mb_JD/mb3_lmb/lmb_bram_if_cntlr} [get_cells system_i/mb_JD/mb_3]
-set_property BMM_INFO_ADDRESS_SPACE {byte 0x0 32 > system mb_JD/mb3_lmb/lmb_bram} [get_cells system_i/mb_JD/mb3_lmb/lmb_bram_if_cntlr]
-set_property BMM_INFO_PROCESSOR {microblaze-le > system mb_JE/mb4_lmb/lmb_bram_if_cntlr} [get_cells system_i/mb_JE/mb_4]
-set_property BMM_INFO_ADDRESS_SPACE {byte 0x0 32 > system mb_JE/mb4_lmb/lmb_bram} [get_cells system_i/mb_JE/mb4_lmb/lmb_bram_if_cntlr]
-
 #I2C 1 interface
 set_property PACKAGE_PIN N18 [get_ports iic_1_scl_io]
 set_property IOSTANDARD LVCMOS33 [get_ports iic_1_scl_io]

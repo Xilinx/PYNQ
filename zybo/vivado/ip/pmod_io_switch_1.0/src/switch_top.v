@@ -64,7 +64,7 @@ module switch_top(
     switch_bit bit0(.gpio_sel(pl2sw_gpio_sel[3:0]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in0), // input, input, output
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in0), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in0), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in0), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in0), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in0), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in0), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in0), // input, input, output
@@ -75,7 +75,7 @@ module switch_top(
     switch_bit bit1(.gpio_sel(pl2sw_gpio_sel[7:4]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in1),
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in1), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in1), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in1), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in1), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in1), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in1), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in1), // input, input, output
@@ -86,7 +86,7 @@ module switch_top(
     switch_bit bit2(.gpio_sel(pl2sw_gpio_sel[11:8]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in2),
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in2), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in2), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in2), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in2), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in2), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in2), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in2), // input, input, output
@@ -97,7 +97,7 @@ module switch_top(
     switch_bit bit3(.gpio_sel(pl2sw_gpio_sel[15:12]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in3),
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in3), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in3), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in3), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in3), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in3), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in3), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in3), // input, input, output
@@ -108,7 +108,7 @@ module switch_top(
     switch_bit bit4(.gpio_sel(pl2sw_gpio_sel[19:16]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in4),
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in4), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in4), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in4), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in4), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in4), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in4), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in4), // input, input, output
@@ -119,7 +119,7 @@ module switch_top(
     switch_bit bit5(.gpio_sel(pl2sw_gpio_sel[23:20]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in5),
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in5), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in5), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in5), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in5), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in5), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in5), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in5), // input, input, output
@@ -130,7 +130,7 @@ module switch_top(
     switch_bit bit6(.gpio_sel(pl2sw_gpio_sel[27:24]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in6),
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in6), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in6), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in6), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in6), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in6), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in6), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in6), // input, input, output
@@ -141,7 +141,7 @@ module switch_top(
     switch_bit bit7(.gpio_sel(pl2sw_gpio_sel[31:28]), .tri_o_in(pl2sw_data_o), .tri_t_in(pl2sw_tri_o), .tri_i_in(sw2pl_data_in7),
         .sda_o_in(sda_o_in), .sda_t_in(sda_t_in), .sda_i_in(sda_i_in7), // input, input, output
         .pwm_o_in(pwm_o_in), .pwm_t_in(pwm_t_in), .pwm_i_in(pwm_i_in7), // input, input, output
-        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0m_t_in), .cap0_i_in(cap0_i_in7), // input, input, output
+        .gen0_o_in(gen0_o_in), .gen0_t_in(gen0_t_in), .cap0_i_in(cap0_i_in7), // input, input, output
         .spick_o_in(spick_o_in), .spick_t_in(spick_t_in), .spick_i_in(spick_i_in7), // input, input, output
         .mosi_o_in(mosi_o_in), .mosi_t_in(mosi_t_in), .mosi_i_in(mosi_i_in7), // input, input, output
         .miso_o_in(miso_o_in), .miso_t_in(miso_t_in), .miso_i_in(miso_i_in7), // input, input, output
