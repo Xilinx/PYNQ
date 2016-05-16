@@ -31,7 +31,7 @@ __author__ = "Giuseppe Natale, Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "xpp_support@xilinx.com"
 
-
+from time import sleep
 from .frame import Frame
 from . import video_const
 from . import _video
@@ -97,20 +97,7 @@ class HDMI(object):
                                                 frame_buffer)
                                                 
             self.frame_buffer = self._capture.framebuffer
-            
-            self.start = self._capture.start
-            """Start the video controller.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            None
-            
-            """
-            
+                  
             self.stop = self._capture.stop
             """Stop the video controller.
             
@@ -235,6 +222,32 @@ class HDMI(object):
                 The height of the frame.
                 
             """
+
+    def start(self,timeout=20):
+        """Start the video controller.
+            
+        Parameters
+        ----------
+        timeout : optional[int]
+        HDMI controller response timeout in seconds.
+        
+        Returns
+        -------
+        None
+        
+        """
+        if timeout<=0:
+            raise ValueError("timeout must be greater than 0.")
+      
+        while self.state() != 1:
+            try:        
+                self._capture.start()
+            except Exception as e:
+                if timeout > 0:
+                    sleep(1)
+                    timeout -= 1
+                else:
+                    raise e         
 
     def _frame_in(self, index=None):
         """Returns the specified frame or the active frame.
