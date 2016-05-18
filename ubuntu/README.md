@@ -17,6 +17,7 @@ Staging - to be added in next image
 ```
 Use the new update_pynq.sh in /home/xpp/scripts
 Update the pynq package by removing pmod_iic.old.py and pmod_iic.new.py in the symbolic link 'pynq'.
+Pynq_git checkins should not cache user as schelleg
 
 ```
 
