@@ -84,7 +84,7 @@ do
 done
 popd
 rm -rf $REPO_DIR/docs/source/temp
-rm -rf $FINAL_NOTEBOOKS_DIR/Getting_Started/*
+mkdir $FINAL_NOTEBOOKS_DIR/Getting_Started
 cp $REPO_DIR/docs/source/3_jupyter_notebook.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/1_jupyter_notebook.ipynb
 cp $REPO_DIR/docs/source/4_programming_zybo_in_python.ipynb \
