@@ -85,14 +85,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../15_references.html">Useful Reference Links</a></li>
@@ -333,7 +333,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            The group ID on StickIt, from 1 to 4.</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#: IOP Switch Configuration</span>
+        <span class="c"># IOP Switch Configuration</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">gr_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Valid StickIt ID for ADC (IIC) is 4. &quot;</span><span class="p">)</span>
 
@@ -343,14 +343,14 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="bp">self</span><span class="o">.</span><span class="n">log_running</span>  <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         
-        <span class="c">#: Write SCL Pin Config</span>
+        <span class="c"># Write SCL Pin Config</span>
         <span class="n">scl_pin</span> <span class="o">=</span> <span class="n">pmod_const</span><span class="o">.</span><span class="n">STICKIT_PINS_GR</span><span class="p">[</span><span class="n">gr_id</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">scl_pin</span><span class="p">)</span>
-        <span class="c">#: Write SDA Pin Config    </span>
+        <span class="c"># Write SDA Pin Config    </span>
         <span class="n">sda_pin</span> <span class="o">=</span> <span class="n">pmod_const</span><span class="o">.</span><span class="n">STICKIT_PINS_GR</span><span class="p">[</span><span class="n">gr_id</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">sda_pin</span><span class="p">)</span>
         
-        <span class="c">#: Write configuration and wait for ACK</span>
+        <span class="c"># Write configuration and wait for ACK</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
                         <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
@@ -516,15 +516,15 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            List of valid raw samples from the ADC sensor.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#: Stop logging</span>
+        <span class="c"># Stop logging</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop_log</span><span class="p">()</span>
 
-        <span class="c">#: Prep iterators and results list</span>
+        <span class="c"># Prep iterators and results list</span>
         <span class="n">head_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
         <span class="n">tail_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0xC</span><span class="p">)</span>
         <span class="n">readings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-        <span class="c">#: Sweep circular buffer for samples</span>
+        <span class="c"># Sweep circular buffer for samples</span>
         <span class="k">if</span> <span class="n">head_ptr</span> <span class="o">==</span> <span class="n">tail_ptr</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
         <span class="k">elif</span> <span class="n">head_ptr</span> <span class="o">&lt;</span> <span class="n">tail_ptr</span><span class="p">:</span>
@@ -550,15 +550,15 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            List of valid voltage samples (floats) from the ADC sensor.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#: Stop logging</span>
+        <span class="c"># Stop logging</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop_log</span><span class="p">()</span>
 
-        <span class="c">#: Prep iterators and results list</span>
+        <span class="c"># Prep iterators and results list</span>
         <span class="n">head_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
         <span class="n">tail_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0xC</span><span class="p">)</span>
         <span class="n">readings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-        <span class="c">#: Sweep circular buffer for samples</span>
+        <span class="c"># Sweep circular buffer for samples</span>
         <span class="k">if</span> <span class="n">head_ptr</span> <span class="o">==</span> <span class="n">tail_ptr</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
         <span class="k">elif</span> <span class="n">head_ptr</span> <span class="o">&lt;</span> <span class="n">tail_ptr</span><span class="p">:</span>
@@ -586,7 +586,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#: Send command and wait for acknowledge</span>
+        <span class="c"># Send command and wait for acknowledge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
                         <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
         <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\

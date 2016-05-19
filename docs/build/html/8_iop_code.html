@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Working with Overlays" href="9_creating_overlays.html"/>
-        <link rel="prev" title="The Audio-Video Overlay" href="7_audio_video_overlay_pp.html"/> 
+        <link rel="prev" title="The Audio-Video Overlay" href="7_audio_video_overlay.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -86,16 +86,16 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">IO Processors: Writing your own software</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#iop-processors">IOP Processors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xilinx-software-installation">Xilinx Software installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#compiling-projects">Compiling projects</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#hdf-file">HDF file</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#board-support-package">Board Support Package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#building-the-hardware-platform-bsp-and-application-projects">Building the Hardware Platform, BSP, and Application projects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-projects">Building the projects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#binary-files">Binary files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-your-own-application-project">Creating your own Application project</a></li>
 </ul>
@@ -117,7 +117,7 @@
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
@@ -319,8 +319,8 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 <p>As already explained, the BSP (Board Support Package) contains software libraries and drivers to support the underlying peripherals in the system.</p>
 <p>A BSP must be linked to a Hardware Platform, as this is where the peripherals in the system are defined. An Application Project is then linked to a BSP, and can use the libraries available in the BSP.</p>
 </div>
-<div class="section" id="building-the-hardware-platform-bsp-and-application-projects">
-<h3>Building the Hardware Platform, BSP, and Application projects<a class="headerlink" href="#building-the-hardware-platform-bsp-and-application-projects" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="building-the-projects">
+<h3>Building the projects<a class="headerlink" href="#building-the-projects" title="Permalink to this headline">¶</a></h3>
 <p>A Makefile to automatically create and build the Hardware Platform and the BSP can be found in the same location as the .hdf file.</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq/zybo/sdk/Makefile</span></code></div></blockquote>
@@ -633,7 +633,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
         <a href="9_creating_overlays.html" class="btn btn-neutral float-right" title="Working with Overlays" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="7_audio_video_overlay_pp.html" class="btn btn-neutral" title="The Audio-Video Overlay" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="7_audio_video_overlay.html" class="btn btn-neutral" title="The Audio-Video Overlay" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

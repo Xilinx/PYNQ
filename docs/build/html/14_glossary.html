@@ -86,14 +86,14 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Glossary</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#a-g">A-G</a></li>
@@ -285,13 +285,13 @@ div.nboutput  > :nth-child(2).stderr {
 <dt>ADC</dt>
 <dd>Analog to Digital Converter</dd>
 <dt>BSP</dt>
-<dd>SDK Board Support Package - This is an SDK project that contains a collection of software libraries that can be used by an Application project</dd>
+<dd>A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx software developmnet Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package</dd>
 <dt>DAC</dt>
 <dd>Digital to Analog Converter</dd>
 <dt>DPOT</dt>
-<dd>Digital Potentiometer</dd>
+<dd>A <a class="reference external" href="https://en.wikipedia.org/wiki/Digital_potentiometer">Digital POTentiometer</a> is a digitally-controlled electronic component that mimics the analog functions of a potentiometer.</dd>
 <dt>FPGA</dt>
-<dd>Field Programmable Gate Array <a class="reference external" href="https://en.wikipedia.org/wiki/Field-programmable_gate_array">https://en.wikipedia.org/wiki/Field-programmable_gate_array</a></dd>
+<dd><a class="reference external" href="http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm">Field Programmable Gate Arrays (FPGAs)</a> are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks</dd>
 <dt>FTDI</dt>
 <dd>Future Technology Devices International Ltd, supplier of the FT2232HQ USB-UART bridge chip used on Zybo.  Free USB-COM port
 drivers, available from www.ftdichip.com under the &#8220;Virtual Com Port&#8221; or VCP heading, convert USB packets to
@@ -315,19 +315,18 @@ traffic on the Zynq pins.</dd>
 <dd>Inter-Integrated Circuit; multi-master, multi-slave, single-ended, serial computer bus protocol</dd>
 <dt>IOPs</dt>
 <dd>Input/Output Processors</dd>
-<dt>Jupyter (Jupyter Notebooks) (www.jupyter.org)</dt>
-<dd>Jupyter is an open source, interactive, web application that allows the user to create and share notebook documents that contain live code and the full range of rich media supported by modern browser. These include include text, images, videos, LaTeX, and interactive widgets. It is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities.</dd>
+<dt>Jupyter (Notebooks)</dt>
+<dd><a class="reference external" href="www.jupyter.org">Jupyter</a> is an open source project consisting of an interactive, web application that allows users to create and share notebook documents that contain live code and the full range of rich media supported by modern browsers. These include include text, images, videos, LaTeX-styled equations, and interactive widgets. The Jupyter framework is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities. Its uses include: data cleaning and transformation, numerical simulation, statistical modeling, machine learning and much more.</dd>
 <dt>MicroBlaze</dt>
-<dd>The MicroBlaze is a soft microprocessor core designed for Xilinx FPGAs from Xilinx. As a soft-core processor, MicroBlaze is implemented entirely in the general-purpose memory and logic fabric of an FPGA.
-<cite>https://en.wikipedia.org/wiki/MicroBlaze &lt;https://en.wikipedia.org/wiki/MicroBlaze&gt;</cite></dd>
-<dt>Pmod</dt>
-<dd>Peripheral Module - accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.</dd>
+<dd><a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">MicroBlaze</a> is a soft microprocessor core designed for Xilinx FPGAs. As a soft-core processor, MicroBlaze is implemented entirely in the general-purpose memory and logic fabric of an FPGA.</dd>
+<dt>Pmod Interface</dt>
+<dd>The Pmod or <a class="reference external" href="www.digilentinc.com/Pmods/Digilent-Pmod_%20Interface_Specification.pdf">Peripheral Module</a> interface is used to connect low frequency, low I/O pin count peripheral modules to host controller boards.accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.</dd>
 <dt>Pmod I/O</dt>
 <dd>Pmod I/O overlay</dd>
 <dt>(Micro) SD</dt>
 <dd>Secure Digital (Memory Card standard)</dd>
 <dt>readthedocs.org</dt>
-<dd>A popular website which hosts the documentation for open source projects at no cost.  It can automatically generate both the website and PDF versions of project documentation from a GitHub repository when new updates are pushed to that site.</dd>
+<dd><a class="reference external" href="https://readthedocs.org">readthedocs.org</a> is a popular website that hosts the documentation for open source projects at no cost.  readthedocs.org uses Sphinx document geneation tools to automatically generate both the website and PDF versions of project documentation from a GitHub repository when new updates are pushed to that site.</dd>
 <dt>REPL</dt>
 <dd><p class="first">A read–eval–print loop (REPL), also known as an interactive toplevel or language shell, is a simple, interactive computer     programming environment that takes single user inputs (i.e. single expressions), evaluates them, and returns the result to the user; a program written in a REPL environment is executed piecewise. The term is most usually used to refer to programming interfaces similar to the classic Lisp machine interactive environment. Common examples include command line shells and similar environments for programming languages, and is particularly characteristic of scripting languages <a class="reference external" href="https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">wikipedia</a></p>
 <dl class="last docutils">
@@ -354,13 +353,13 @@ Required to build software for a MicroBlaze processor inside an IOP.</dd>
 <dt>UART</dt>
 <dd>Universal asynchronous receiver/transmitter; Serial communication protocol</dd>
 <dt>Vivado</dt>
-<dd>Xilinx software for creating FPGA overlays.</dd>
+<dd><a class="reference external" href="http://www.xilinx.com/products/design-tools/vivado.html">Vivado Design Suite</a> is a suite of computer-aided design tools provided by Xilinx for creating FPGA designs.  It is used to design and implement the overlays used in Pynq.</dd>
 <dt>XADC</dt>
-<dd>Xilinx ADC - Analog to Digital Converter found on all Xilinx 7 series devices</dd>
+<dd>An <a class="reference external" href="http://www.xilinx.com/support/documentation/user_guides/ug480_7Series_XADC.pdf">XADC</a> is a hard IP block that consists of dual 12-bit, 1 Mega sample per second (MSPS), analog-to-digital converters and on-chip sensors which are integrated into Xilinx 7 series FPGA devices</dd>
 <dt>Zybo</dt>
 <dd>ZYnq BOard</dd>
-<dt>Zynq</dt>
-<dd>Xilinx device with ARM processor and FPGA fabric on the same chip</dd>
+<dt>Zynq®</dt>
+<dd><a class="reference external" href="http://www.xilinx.com/products/silicon-devices/soc/zynq-7000.html">Zynq-7000 All Programmable SoC (APSoC) devices</a> integrate the software programmability of an ARM®-based processor with the hardware programmability of an FPGA, enabling key analytics and hardware acceleration while integrating CPU, DSP, ASSP, and mixed signal functionality on a single device. Zynq-7000 AP SoCs infuse customizable intelligence into today’s embedded systems to suit your unique application requirements</dd>
 <dt>Zynq PL</dt>
 <dd>Programmable Logic - FPGA fabric</dd>
 <dt>Zynq PS</dt>

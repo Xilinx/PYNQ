@@ -85,14 +85,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../15_references.html">Useful Reference Links</a></li>
@@ -324,6 +324,9 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            IO Processor switch configuration (8 32-bit values).</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_op_addr_offest</span> <span class="o">=</span> <span class="mh">0xff8</span>
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">_iop</span><span class="o">.</span><span class="n">request_iop</span><span class="p">(</span><span class="n">pmod_id</span><span class="p">,</span> <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PROGRAM</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop_switch_config</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">switch_config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span> <span class="o">=</span> <span class="n">MMIO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">base_addr</span> <span class="o">+</span> <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> 
@@ -378,12 +381,12 @@ div.nboutput  > :nth-child(2).stderr {
                         <span class="s">&#39;list of 8 integers.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">iop_switch_config</span> <span class="o">=</span> <span class="n">config</span>
 
-        <span class="c">#: Build switch config word </span>
+        <span class="c"># Build switch config word </span>
         <span class="n">sw_config_word</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iop_switch_config</span><span class="p">):</span> 
             <span class="n">sw_config_word</span> <span class="o">|=</span> <span class="p">(</span><span class="n">cfg</span> <span class="o">&lt;&lt;</span> <span class="n">ix</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
 
-        <span class="c">#: Disable, configure, enable switch</span>
+        <span class="c"># Disable, configure, enable switch</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">IOPMM_SWITCHCONFIG_BASEADDR</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">IOPMM_SWITCHCONFIG_BASEADDR</span><span class="p">,</span> \
                         <span class="n">sw_config_word</span><span class="p">)</span>
@@ -555,26 +558,26 @@ div.nboutput  > :nth-child(2).stderr {
 
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_ADDR_OFFSET</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mailbox_op_addr_offest</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_DATA_OFFSET</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         
-        <span class="c">#: Build the write command</span>
+        <span class="c"># Build the write command</span>
         <span class="n">cmd_word</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cmd_word</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">dWidth</span><span class="p">,</span> <span class="n">dLength</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="n">cmd_word</span><span class="p">)</span>
 
-        <span class="c">#: Wait for ACK in steps of 1ms</span>
+        <span class="c"># Wait for ACK in steps of 1ms</span>
         <span class="n">cntdown</span> <span class="o">=</span> <span class="n">timeout</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cmd_mailbox_idle</span><span class="p">()</span> <span class="ow">and</span> <span class="n">cntdown</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
             <span class="n">cntdown</span> <span class="o">-=</span> <span class="mi">1</span>
 
-        <span class="c">#: If ACK is not received, alert users.</span>
+        <span class="c"># If ACK is not received, alert users.</span>
         <span class="k">if</span> <span class="n">cntdown</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s">&quot;DevMode _send_cmd() not acknowledged.&quot;</span><span class="p">)</span>
 
-        <span class="c">#: Return data if expected from read, otherwise return None</span>
+        <span class="c"># Return data if expected from read, otherwise return None</span>
         <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="n">pmod_const</span><span class="o">.</span><span class="n">WRITE_CMD</span><span class="p">:</span> 
             <span class="k">return</span> <span class="bp">None</span>
         <span class="k">else</span><span class="p">:</span>

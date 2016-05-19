@@ -85,14 +85,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../15_references.html">Useful Reference Links</a></li>
@@ -365,7 +365,7 @@ div.nboutput  > :nth-child(2).stderr {
         
         <span class="bp">self</span><span class="o">.</span><span class="n">iic_addr</span> <span class="o">=</span> <span class="n">iic_addr</span>
 
-        <span class="c">#: Useful IIC controller addresses</span>
+        <span class="c"># Useful IIC controller addresses</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sr_addr</span> <span class="o">=</span> <span class="n">pmod_const</span><span class="o">.</span><span class="n">IOPMM_XIIC_0_BASEADDR</span> <span class="o">+</span> \
                        <span class="n">pmod_const</span><span class="o">.</span><span class="n">IOPMM_XIIC_SR_REG_OFFSET</span>
 
@@ -403,13 +403,13 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#: Disable the IIC core</span>
+        <span class="c"># Disable the IIC core</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
-        <span class="c">#: Set the Rx FIFO depth to maximum</span>
+        <span class="c"># Set the Rx FIFO depth to maximum</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rfd_addr</span><span class="p">,</span> <span class="mh">0x0F</span><span class="p">)</span>       
-        <span class="c">#: Reset the IIC core and flush the Tx FIFO</span>
+        <span class="c"># Reset the IIC core and flush the Tx FIFO</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
-        <span class="c">#: Enable the IIC core</span>
+        <span class="c"># Enable the IIC core</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">)</span>
         
         <span class="n">sleep</span><span class="p">(</span><span class="n">I2C_DELAY</span><span class="p">)</span>
@@ -433,23 +433,23 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            Timeout when waiting for the FIFO to be empty.</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#: Enable IIC Core</span>
+        <span class="c"># Enable IIC Core</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iic_enable</span><span class="p">()</span>
         
-        <span class="c">#: Transmit 7-bit address and Write bit (with START)</span>
+        <span class="c"># Transmit 7-bit address and Write bit (with START)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtr_addr</span><span class="p">,</span> <span class="mh">0x100</span> <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iic_addr</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">))</span>
         
-        <span class="c">#: Iteratively write into Tx FIFO, wait for it to be empty        </span>
+        <span class="c"># Iteratively write into Tx FIFO, wait for it to be empty        </span>
         <span class="k">for</span> <span class="n">tx_cnt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iic_bytes</span><span class="p">)):</span>
             <span class="n">timeout</span> <span class="o">=</span> <span class="mi">100</span>
             
-            <span class="c">#: Construct the TX word</span>
+            <span class="c"># Construct the TX word</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">tx_cnt</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">iic_bytes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">tx_word</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0x200</span> <span class="o">|</span> <span class="n">iic_bytes</span><span class="p">[</span><span class="n">tx_cnt</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">tx_word</span> <span class="o">=</span> <span class="n">iic_bytes</span><span class="p">[</span><span class="n">tx_cnt</span><span class="p">]</span>
             
-            <span class="c">#: Write data</span>
+            <span class="c"># Write data</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtr_addr</span><span class="p">,</span> <span class="n">tx_word</span><span class="p">)</span>
             <span class="k">while</span> <span class="p">((</span><span class="n">timeout</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> \
                         <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sr_addr</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x80</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">)):</span>
@@ -479,16 +479,16 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c">#: Reset the IIC core and flush the Tx FIFO</span>
+        <span class="c"># Reset the IIC core and flush the Tx FIFO</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
 
-        <span class="c">#: Set the Rx FIFO depth to one byte</span>
+        <span class="c"># Set the Rx FIFO depth to one byte</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rfd_addr</span><span class="p">,</span> <span class="mh">0x0</span><span class="p">)</span> 
 
-        <span class="c">#: Transmit 7-bit address and Read bit</span>
+        <span class="c"># Transmit 7-bit address and Read bit</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtr_addr</span><span class="p">,</span> <span class="mh">0x101</span> <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iic_addr</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">))</span>
 
-        <span class="c">#: Enable the IIC core</span>
+        <span class="c"># Enable the IIC core</span>
         <span class="n">cr_reg</span> <span class="o">=</span> <span class="mh">0x05</span>
         <span class="k">if</span> <span class="n">num_bytes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">cr_reg</span> <span class="o">|=</span> <span class="mh">0x10</span>
@@ -496,21 +496,21 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">,</span><span class="n">cr_reg</span><span class="p">)</span>
         <span class="n">sleep</span><span class="p">(</span><span class="n">I2C_DELAY</span><span class="p">)</span>
 
-        <span class="c">#: Program IIC Core to read num_bytes bytes and issue STOP</span>
+        <span class="c"># Program IIC Core to read num_bytes bytes and issue STOP</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtr_addr</span><span class="p">,</span> <span class="mh">0x200</span> <span class="o">+</span> <span class="n">num_bytes</span><span class="p">)</span>
 
-        <span class="c">#: Read num_bytes from RX FIFO</span>
+        <span class="c"># Read num_bytes from RX FIFO</span>
         <span class="n">iic_bytes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">while</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iic_bytes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_bytes</span><span class="p">):</span>
  
-            <span class="c">#: special condition for last two bytes</span>
+            <span class="c"># Special condition for last two bytes</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">num_bytes</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">iic_bytes</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">,</span><span class="mh">0x1</span><span class="p">)</span>
             <span class="k">elif</span> <span class="p">(</span><span class="n">num_bytes</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">iic_bytes</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">,</span> \
                                    <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cr_addr</span><span class="p">)</span> <span class="o">|</span> <span class="mh">0x10</span><span class="p">)</span>
 
-            <span class="c">#: Wait for data to be available in RX FIFO</span>
+            <span class="c"># Wait for data to be available in RX FIFO</span>
             <span class="n">timeout</span> <span class="o">=</span> <span class="mi">100</span>
             <span class="k">while</span><span class="p">(((</span><span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sr_addr</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x40</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x40</span><span class="p">)</span> <span class="ow">and</span> \
                   <span class="p">(</span><span class="n">timeout</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)):</span>
@@ -519,7 +519,7 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">if</span><span class="p">(</span><span class="n">timeout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Timeout when reading IIC.&quot;</span><span class="p">)</span>
 
-            <span class="c">#: Read data </span>
+            <span class="c"># Read data </span>
             <span class="n">iic_bytes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drr_addr</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">))</span>
 
         <span class="n">sleep</span><span class="p">(</span><span class="n">I2C_DELAY</span><span class="p">)</span>

@@ -31,7 +31,7 @@
 
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
-        <link rel="up" title="pynq package" href="pynq.html"/>
+        <link rel="up" title="Pynq package" href="pynq.html"/>
         <link rel="next" title="pynq.video package" href="pynq.video.html"/>
         <link rel="prev" title="pynq.board package" href="pynq.board.html"/> 
 
@@ -87,15 +87,15 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="12_modules.html">pynq modules</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pynq.html">pynq package</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="12_modules.html">Pynq modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pynq.html">Pynq package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynq.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pynq.audio.html">pynq.audio package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.board.html">pynq.board package</a></li>
@@ -147,9 +147,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-          <li><a href="12_modules.html">pynq modules</a> &raquo;</li>
+          <li><a href="12_modules.html">Pynq modules</a> &raquo;</li>
       
-          <li><a href="pynq.html">pynq package</a> &raquo;</li>
+          <li><a href="pynq.html">Pynq package</a> &raquo;</li>
       
     <li>pynq.pmods package</li>
       <li class="wy-breadcrumbs-aside">
@@ -448,9 +448,9 @@ returns the last sample.</p>
 
 <dl class="method">
 <dt id="pynq.pmods.pmod_adc.PMOD_ADC.start_log">
-<code class="descname">start_log</code><span class="sig-paren">(</span><em>channel=0</em>, <em>log_interval_ms=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.start_log" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start_log</code><span class="sig-paren">(</span><em>channel=0</em>, <em>log_interval_us=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.start_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the log of voltage values with the interval specified.</p>
-<p>This parameter <cite>log_interval_ms</cite> can set the time interval between
+<p>This parameter <cite>log_interval_us</cite> can set the time interval between
 two samples, so that users can read out multiple values in a single
 log.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -459,7 +459,7 @@ log.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>channel</strong> (<em>int</em>) &#8211; The channel number, from 0 to 2.</li>
-<li><strong>log_interval_ms</strong> (<em>int</em>) &#8211; The length of the log in milliseconds, for debug only.</li>
+<li><strong>log_interval_us</strong> (<em>int</em>) &#8211; The length of the log in milliseconds, for debug only.</li>
 </ul>
 </td>
 </tr>
@@ -475,9 +475,9 @@ log.</p>
 
 <dl class="method">
 <dt id="pynq.pmods.pmod_adc.PMOD_ADC.start_log_raw">
-<code class="descname">start_log_raw</code><span class="sig-paren">(</span><em>channel=0</em>, <em>log_interval_ms=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.start_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.start_log_raw" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start_log_raw</code><span class="sig-paren">(</span><em>channel=0</em>, <em>log_interval_us=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/pmods/pmod_adc.html#PMOD_ADC.start_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.pmods.pmod_adc.PMOD_ADC.start_log_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the log of raw values with the interval specified.</p>
-<p>This parameter <cite>log_interval_ms</cite> can set the time interval between
+<p>This parameter <cite>log_interval_us</cite> can set the time interval between
 two samples, so that users can read out multiple values in a single
 log.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -486,7 +486,7 @@ log.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>channel</strong> (<em>int</em>) &#8211; The channel number, from 0 to 2.</li>
-<li><strong>log_interval_ms</strong> (<em>int</em>) &#8211; The length of the log in milliseconds, for debug only.</li>
+<li><strong>log_interval_us</strong> (<em>int</em>) &#8211; The length of the log in milliseconds, for debug only.</li>
 </ul>
 </td>
 </tr>
@@ -1266,7 +1266,7 @@ panel powered by the Solomon Systech SSD1306.</p>
 <dl class="data">
 <dt id="pynq.pmods.pmod_const.BIN_LOCATION">
 <code class="descclassname">pynq.pmods.pmod_const.</code><code class="descname">BIN_LOCATION</code><em class="property"> = '/usr/local/lib/python3.4/dist-packages/pynq/pmods/'</em><a class="headerlink" href="#pynq.pmods.pmod_const.BIN_LOCATION" title="Permalink to this definition">¶</a></dt>
-<dd><p>Microblaze program location</p>
+<dd><p>Microblaze constants</p>
 </dd></dl>
 
 <dl class="data">
@@ -1435,12 +1435,6 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">sr_addr</code><em class="property"> = None</em></dt>
-<dd><p>Useful IIC controller addresses</p>
 </dd></dl>
 
 </dd></dl>
@@ -1771,18 +1765,6 @@ version: v1.2.</p>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.pmods.grove_adc.Grove_ADC.scl_pin">
-<code class="descname">scl_pin</code><em class="property"> = None</em><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.scl_pin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write SCL Pin Config</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.pmods.grove_adc.Grove_ADC.sda_pin">
-<code class="descname">sda_pin</code><em class="property"> = None</em><a class="headerlink" href="#pynq.pmods.grove_adc.Grove_ADC.sda_pin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write SDA Pin Config</p>
 </dd></dl>
 
 <dl class="method">

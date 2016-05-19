@@ -58,13 +58,13 @@ For example, the following code will instantiate and write to the PMOD_OLED atta
 audio
 -----
 
-This folder contains the single audio class to use Line in and Headphone out.  Please see `The Audio Video Overlay Section <7_audio_video_overlay_pp.html>`_ to learn more about using audio on Zybo.
+This folder contains the single audio class to use Line in and Headphone out.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using audio on Zybo.
 
 
 video
 -----
 
-This folder contains the HDMI and VGA classes to video on Zybo.  Please see `The Audio Video Overlay Section <7_audio_video_overlay_pp.html>`_ to learn more about using video on Zybo.
+This folder contains the HDMI and VGA classes to video on Zybo.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using video on Zybo.
 
 
 tests
@@ -76,5 +76,5 @@ NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the funct
 
 documentation
 -----------------------------
-To find documentation for each module, see the `Pynq Package <modules.html>`_ for documentation built from the actual Python source code.
+To find documentation for each module, see the `Pynq Package <12_modules.html>`_ for documentation built from the actual Python source code.
 

@@ -74,8 +74,10 @@ An example use of the MMIO class to access an area of 4096 bytes in the PL, star
    myip.read(0)
 
 
-Any accesses outside the range (4096 bytes) will cause an error. 
+In the example above, any accesses outside the range (4096 bytes) will cause an error. When creating the python driver for a new hardware function, the MMIO can be wrapped inside a Python module. 
    
-
-
-
+   
+   
+New overlay example
+-------------------------------------
+An example notebook ``writing_python_for_overlays.ipynb`` is available in the *examples* folder, showing how to write Python to interface to an overlay. 

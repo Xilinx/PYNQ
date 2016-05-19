@@ -86,14 +86,14 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-the-image-and-prepare-the-micro-sd-card">Get the image and prepare the micro-SD Card</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hardware-setup">Hardware setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal">Open a web browser and connect to Pynq Jupyter Notebooks web portal</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#interacting-with-the-pynq">Interacting with the Pynq</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#getting-started-notebooks">Getting started notebooks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#accessing-files-on-the-board">Accessing files on the board</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#hardware-setup">Hardware setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
@@ -101,14 +101,14 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
@@ -279,7 +279,6 @@ div.nboutput  > :nth-child(2).stderr {
 <li><a class="reference internal" href="#getting-started" id="id3">Getting Started</a><ul>
 <li><a class="reference internal" href="#setup" id="id4">Setup</a></li>
 <li><a class="reference internal" href="#interacting-with-the-pynq" id="id5">Interacting with the Pynq</a></li>
-<li><a class="reference internal" href="#hardware-setup" id="id6">Hardware setup</a></li>
 </ul>
 </li>
 </ul>
@@ -299,44 +298,61 @@ div.nboutput  > :nth-child(2).stderr {
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Laptop or desktop PC with compatible browser (<a class="reference external" href="http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility">Supported Browsers</a>)</li>
-<li>Available USB port (to power the board)</li>
+<li>Available USB port</li>
 <li>Zybo</li>
 <li>Micro-SD card (Minimum 16GB)</li>
-<li>Micro USB cable or Zybo power adapter</li>
+<li>Micro USB cable</li>
 <li>Ethernet cable</li>
 </ul>
-<p>There are three main steps to getting started with Pynq and the Zybo.  These are:</p>
-<ol class="arabic">
-<li><p class="first"><strong>Get the image and prepare the micro-SD Card</strong></p>
-<ul class="simple">
+</div>
+<div class="section" id="get-the-image-and-prepare-the-micro-sd-card">
+<h3>Get the image and prepare the micro-SD Card<a class="headerlink" href="#get-the-image-and-prepare-the-micro-sd-card" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
 <li>For now you will need to obtain the image, or a micro-SD card preloaded with the image, directly from the Pynq team.</li>
 <li>The image can be copied to a Micro-SD card using <a class="reference external" href="https://sourceforge.net/projects/win32diskimager/">Win32DiskImager</a>. The Micro-SD card must be at least 16GB.</li>
 </ul>
-</li>
-<li><p class="first"><strong>Configure Zybo and connect it to your host machine and network</strong></p>
+</div></blockquote>
+</div>
+<div class="section" id="hardware-setup">
+<h3>Hardware setup<a class="headerlink" href="#hardware-setup" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/zybo_setup_config_600.jpeg"><img alt="_images/zybo_setup_config_600.jpeg" class="align-center" src="_images/zybo_setup_config_600.jpeg" style="width: 450.0px; height: 450.0px;" /></a>
 <ul class="simple">
-<li>The board can be powered from a USB cable (default setting) or wall plug.  The board must be connected to the same network as your PC or laptop. During the boot process, the board will automatically attempt to get an IP address using DHCP, falling back to a static IP address if DHCP fails.</li>
+<li>If you received a Zybo kit from the Pynq team, all jumpers will be set correctly.*</li>
+<li>Change the <em>JP5</em> jumper to <strong>SD</strong> (Set the board to boot from the Micro SD card)</li>
+<li>Insert the <em>Micro SD</em> card into the Zybo. (The Micro-SD slot is underneath the board)</li>
+<li>Set the <em>JP7</em> jumper to <strong>USB</strong> (Power the board from the USB cable)</li>
+<li>Plug the USB cable to your PC/Laptop, and connect to <strong>PROG UART</strong> (J11) on the board</li>
+<li>Connect the board via an Ethernet cable to the same network that your host is connected to. You can also connect the board directly to the Ethernet port of your PC</li>
 </ul>
-<p>You can connect to the board to the same network your PC is connected to (through a switch or router), or connect directly to the ethernet port of your PC.</p>
+<p>If you connect to your network, the board should be assigned an IP address from DHCP. If you connect directly to the Ethernet port of your PC, your board should be assigned a static IP address (&#8216;&#8216;192.168.2.99&#8217;&#8216;)</p>
 <ul class="simple">
-<li>For board set up, see further detailed <a class="reference external" href="2_getting_started.html#hardware-setup">Hardware Setup instructions</a> below.</li>
+<li><strong>Turn on</strong> the power switch on the board</li>
 </ul>
-</li>
-<li><p class="first"><strong>Open a web browser and connect to Pynq Jupyter Notebooks web portal</strong></p>
-<ul class="simple">
+<p>When you power on the board, you should see a <em>RED LED</em> (PGOOD) and a <em>GREEN LED</em> (DONE) indicating the boot process has started correctly.</p>
+</div></blockquote>
+</div>
+<div class="section" id="open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal">
+<h3>Open a web browser and connect to Pynq Jupyter Notebooks web portal<a class="headerlink" href="#open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
 <li>Using a web browser, open the address  <a class="reference external" href="http://pynq:9090">http://pynq:9090</a>.  <strong>pynq</strong> is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname.</li>
 </ul>
-<p>It is recommended to change Zybo hostnames if multiple boards are on the same network. e.g. classroom teaching. See the <a class="reference external" href="13_faqs.html">Frequently asked questions</a> to change the hostname.</p>
-<ul class="simple">
-<li>To communicate with the board using a static IP address, please see the example Windows batch scripts in Pynq/ubuntu/scripts to enable a Windows machine&#8217;s Ethernet port to also use static IP addressing.</li>
-</ul>
-<a class="reference internal image-reference" href="_images/portal_login.jpg"><img alt="_images/portal_login.jpg" class="align-center" src="_images/portal_login.jpg" style="width: 465.0px; height: 450.0px;" /></a>
-<ul class="simple">
+</div></blockquote>
+<p>It is recommended to change the hostname if multiple boards will be used on the same network. e.g. classroom teaching. See the <a class="reference external" href="13_faqs.html">Frequently asked questions</a> to change the hostname.</p>
+<blockquote>
+<div><ul class="simple">
 <li>The Jupyter username/password is xpp/xpp</li>
 </ul>
 <a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 455.25px; height: 450.0px;" /></a>
-</li>
-</ol>
+</div></blockquote>
+<p>If you are using a static IP address, you may need to manually configure your network port. You can do this manually be setting the IP to an address in the same range as the board. (The board is &#8216;&#8216;192.168.2.99&#8217;&#8217; by default. For example, select &#8216;&#8216;192.168.2.1&#8217;&#8216;)</p>
+<blockquote>
+<div><ul class="simple">
+<li>You can also browse to the board using the IP address. e.g.: <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a></li>
+</ul>
+</div></blockquote>
 <p>You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board by going to the <em>Getting Started</em> and <em>Example</em> Notebooks in the Pynq home area.</p>
 <p>If you can&#8217;t connect to the board, see the <a class="reference external" href="13_faqs.html">Frequently asked questions</a></p>
 </div>
@@ -345,39 +361,19 @@ div.nboutput  > :nth-child(2).stderr {
 <h2><a class="toc-backref" href="#id5">Interacting with the Pynq</a><a class="headerlink" href="#interacting-with-the-pynq" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="getting-started-notebooks">
 <h3>Getting started notebooks<a class="headerlink" href="#getting-started-notebooks" title="Permalink to this headline">¶</a></h3>
-<p>A powerful feature of Jupyter notebooks is the ability to render html webpages from the source documents. Some of this documentation has been generated directly from notebooks.</p>
-<p>You can view the webpage for documentation, or if you have a board running pynq, you can view the documentation interactively and try out some example code, by opening the corresponding notebook in the getting started folder.</p>
+<p>Jupyter notebooks can save notebooks as html webpages. Some of the Pynq getting started documentation has been generated directly from Jupyter notebooks.</p>
+<p>You can view the documentation as a webpage, or if you have a board running Pynq, you can view the notebook documentation interactively and try out some example code by opening the corresponding notebook in the getting started folder.</p>
 <a class="reference internal image-reference" href="_images/getting_started_notebooks.jpg"><img alt="_images/getting_started_notebooks.jpg" class="align-center" src="_images/getting_started_notebooks.jpg" style="width: 458.25px; height: 450.0px;" /></a>
 <p>There are also a number of example notebooks available showing examples of how to use different peripherals with the board.</p>
 <a class="reference internal image-reference" href="_images/example_notebooks.jpg"><img alt="_images/example_notebooks.jpg" class="align-center" src="_images/example_notebooks.jpg" style="width: 447.0px; height: 450.0px;" /></a>
 </div>
 <div class="section" id="accessing-files-on-the-board">
 <h3>Accessing files on the board<a class="headerlink" href="#accessing-files-on-the-board" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference external" href="https://www.samba.org/">Samba</a>, a file sharing service, is running on the board. The home area on the board can be accessed as a networked drive.</p>
+<p><a class="reference external" href="https://www.samba.org/">Samba</a>, a file sharing service, is running on the board. The home area on the board can be accessed, and you can transfer files to and from the board as a network drive.</p>
 <p>You can go to <code class="docutils literal"><span class="pre">\\pynq\xpp</span></code> to access the pynq home area. Remember to change the hostname if necessary.</p>
 <p>The Samba username:password is <code class="docutils literal"><span class="pre">xpp:xpp</span></code></p>
 <a class="reference internal image-reference" href="_images/samba_share.jpg"><img alt="_images/samba_share.jpg" class="align-center" src="_images/samba_share.jpg" style="width: 514.5px; height: 450.0px;" /></a>
 </div>
-</div>
-<div class="section" id="hardware-setup">
-<h2><a class="toc-backref" href="#id6">Hardware setup</a><a class="headerlink" href="#hardware-setup" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><a class="reference internal image-reference" href="_images/zybo_setup_config_600.jpeg"><img alt="_images/zybo_setup_config_600.jpeg" class="align-center" src="_images/zybo_setup_config_600.jpeg" style="width: 450.0px; height: 450.0px;" /></a>
-<ul class="simple">
-<li>If you received a Zybo kit from the Pynq team, all jumpers will be set correctly.*</li>
-<li>Insert the <em>Micro SD</em> card into the Zybo. (The Micro-SD slot is underneath the board)</li>
-<li>Change the <em>JP5</em> jumper to <strong>SD</strong> (Set the board to boot from the Micro SD card)</li>
-<li>Set the <em>JP7</em> jumper to <strong>USB</strong> (Power the board from the USB cable)</li>
-<li>Plug the USB cable to your PC/Laptop, and connect to <strong>PROG UART</strong> (J11) on the board</li>
-<li>Connect the board via an Ethernet cable to the same network that your host is connected to</li>
-<li><strong>Turn on</strong> the power switch on the board</li>
-</ul>
-<p>When you power on the board, you should see a <em>RED LED</em> (PGOOD) and a <em>GREEN LED</em> (DONE) indicating the system has booted successfully.</p>
-<ul class="simple">
-<li>Switch on Zybo and verify that the status LEDs indicate successful boot-up</li>
-</ul>
-</div></blockquote>
-<p>Additional external peripherals (Pmods and Grove Peripherals) are optional and will be discussed later.</p>
 <div class="section" id="troubleshooting">
 <h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h3>
 <p>If you are having problems getting the board set up, please see the <a class="reference external" href="13_faqs.html">Frequently asked questions</a></p>

@@ -86,14 +86,14 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
@@ -273,39 +273,26 @@ div.nboutput  > :nth-child(2).stderr {
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>I can&#8217;t connect to the board</dt>
-<dd><p class="first">Check the <a class="reference external" href="2_getting_started.html">Getting Started Guide</a></p>
+<li><p class="first">I can&#8217;t connect to the board</p>
+<blockquote>
+<div><p>After you power on the board, it usually takes about 30-40 seconds for the board to boot. Make sure you leave enough time to connect to the board. It may also take some additional time for your PC to resolve the hostname to the IP address of the board.</p>
+<ol class="arabic simple">
+<li>Check the <a class="reference external" href="2_getting_started.html">Getting Started Guide</a> to make sure you have set up the hardware correctly</li>
+<li>Determine if you are using a Dynamic IP address, or a Static IP address</li>
+</ol>
+<p>If you connect directly to the Ethernet port of your PC, you should have a Static IP address. The default static IP address for the board is &#8216;&#8216;192.168.2.99&#8217;&#8216;.</p>
 <p>Check that you can ping the board from a command prompt or terminal on your host PC</p>
-<div class="last highlight-console"><div class="highlight"><pre><span class="gp">#</span> replace pynq with correct hostname <span class="k">if</span> you have changed it
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> replace pynq with correct hostname <span class="k">if</span> you have changed it
 <span class="go">ping pynq</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>My hostname is not resolving</dt>
-<dd><p class="first last">If you know the IP address of Zybo, you can use it to navigate to the Pynq portal. e.g.  <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a></p>
-</dd>
-</dl>
+<p>If you need to change your IP address on your host PC, see the instructions below.</p>
+<p>You can connect to the board using a terminal for trouble shooting, and to check the IP address and hostname. See connecting using a terminal below.</p>
+</div></blockquote>
 </li>
 <li><dl class="first docutils">
 <dt>I have followed the Getting Started Guide, I see a Red Led, but not a green Led when I power on the board.</dt>
 <dd><p class="first last">Check the Micro-SD card is inserted correctly (the socket is spring loaded, so push it in until you feel it click into place). Check or reflash the Micro SD card with eh pynq image.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>My Board is powered on, and I see the Red and Green LEDs, but I can&#8217;t connect to the Pynq Portal, or see the Samba shared drive.</dt>
-<dd><p class="first">By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of 192.168.2.99</p>
-<p class="last">If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>My board is connected, and I have verified the IP addresses on the board, and for my network interface, but I cannot connect to the board</dt>
-<dd><p class="first last">If you are connected to a VPN, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.</p>
 </dd>
 </dl>
 </li>
@@ -323,6 +310,35 @@ Plug in a USB cable, and connect to the board using a terminal emulator.</p>
 <li>No Flow Control</li>
 </ul>
 <p class="last">Once you connect to the board, you can configure the network interface in Ubuntu</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">How do I configure my network interface/Ethernet Port?</p>
+</li>
+</ul>
+<p>Windows:</p>
+<p>You can manually configure the IP address of your ethernet port to be in the same range as the board. e.g. The board default IP address is 192.168.2.99. Choose 192.168.2.1 for your PC&#8217;s IP address.</p>
+<p>You can also use the provided Windows batch scripts in Pynq/ubuntu/scripts to enable a Windows machine&#8217;s Ethernet port to also use static IP addressing.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/portal_login.jpg"><img alt="_images/portal_login.jpg" class="align-center" src="_images/portal_login.jpg" style="width: 465.0px; height: 450.0px;" /></a>
+</div></blockquote>
+<ul>
+<li><dl class="first docutils">
+<dt>My hostname is not resolving</dt>
+<dd><p class="first last">If you know the IP address of Zybo, you can use it to navigate to the Pynq portal. e.g.  <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a></p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>My Board is powered on, and I see the Red and Green LEDs, but I can&#8217;t connect to the Pynq Portal, or see the Samba shared drive.</dt>
+<dd><p class="first">By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of 192.168.2.99</p>
+<p class="last">If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>My board is connected, and I have verified the IP addresses on the board, and for my network interface, but I cannot connect to the board</dt>
+<dd><p class="first last">If you are connected to a VPN, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.</p>
 </dd>
 </dl>
 </li>

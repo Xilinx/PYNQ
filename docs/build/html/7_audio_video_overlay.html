@@ -30,7 +30,9 @@
   
 
   
-    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/> 
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="IO Processors: Writing your own software" href="8_iop_code.html"/>
+        <link rel="prev" title="Peripherals and the Pmod I/O overlay" href="6_pmodio_overlay.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -79,19 +81,33 @@
           
             
             
-                <ul>
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals_pp.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay_pp.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay_pp.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The Audio-Video Overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Video-IO">Video IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#The-HDMI-video-capture-controller">The HDMI video capture controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Starting-and-stopping-the-controller">Starting and stopping the controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Readback-from-the-controller">Readback from the controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#HDMI-Frame-buffer">HDMI Frame buffer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Access-the-current-frame">Access the current frame</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#The-VGA-video-display-controller">The VGA video display controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Frame-Buffers">Frame Buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Using-HDMI-and-VGA-in-combination">Using HDMI and VGA in combination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Using-Audio-IO">Using Audio IO</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">Pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
@@ -318,19 +334,6 @@ In [2]:
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [3]:
-</pre></div>
-</div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">time</span>
-
-<span class="c"># HDMI delay to allow controller to initialize</span>
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
 In [4]:
 </pre></div>
 </div>
@@ -339,9 +342,6 @@ In [4]:
 </pre></div>
 </div>
 </div>
-<p>If you see an error message: SystemError: Unable to start capture device
-[13]</p>
-<p>Wait a few seconds and rerun the hdmi.start() cell</p>
 </div>
 <div class="section" id="Readback-from-the-controller">
 <h2>Readback from the controller<a class="headerlink" href="#Readback-from-the-controller" title="Permalink to this headline">¶</a></h2>
@@ -472,8 +472,9 @@ In [10]:
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">Image</span>
 <span class="n">frame</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
-<span class="n">frame</span><span class="o">.</span><span class="n">save_as_jpeg</span><span class="p">(</span><span class="s">&#39;audio_video.jpg&#39;</span><span class="p">)</span>
-<span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;audio_video.jpg&#39;</span><span class="p">)</span>
+<span class="n">orig_img_path</span> <span class="o">=</span> <span class="s">&#39;/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_0.jpg&#39;</span>
+<span class="n">frame</span><span class="o">.</span><span class="n">save_as_jpeg</span><span class="p">(</span><span class="n">orig_img_path</span><span class="p">)</span>
+<span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">orig_img_path</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -483,7 +484,7 @@ Out[10]:
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/7_audio_video_overlay_23_0.jpg" src="_images/7_audio_video_overlay_23_0.jpg" />
+<img alt="_images/7_audio_video_overlay_21_0.jpg" src="_images/7_audio_video_overlay_21_0.jpg" />
 </div>
 </div>
 <p>This will dump the frame as a python list <em>frame[height, width][rgb]</em>.
@@ -504,8 +505,9 @@ In [11]:
             <span class="n">green</span> <span class="o">=</span> <span class="mi">255</span>
         <span class="n">frame</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">)</span>
 
-<span class="n">frame</span><span class="o">.</span><span class="n">save_as_jpeg</span><span class="p">(</span><span class="s">&#39;audio_video1.jpg&#39;</span><span class="p">)</span>
-<span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;audio_video1.jpg&#39;</span><span class="p">)</span>
+<span class="n">new_img_path</span> <span class="o">=</span> <span class="s">&#39;/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_1.jpg&#39;</span>
+<span class="n">frame</span><span class="o">.</span><span class="n">save_as_jpeg</span><span class="p">(</span><span class="n">new_img_path</span><span class="p">)</span>
+<span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">new_img_path</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -515,7 +517,7 @@ Out[11]:
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/7_audio_video_overlay_25_0.jpg" src="_images/7_audio_video_overlay_25_0.jpg" />
+<img alt="_images/7_audio_video_overlay_23_0.jpg" src="_images/7_audio_video_overlay_23_0.jpg" />
 </div>
 </div>
 <p>This frame() method is a simple way to capture pixel data, but may be
@@ -783,16 +785,16 @@ In [26]:
 </pre></div>
 </div>
 </div>
-<div class="section" id="Smooth-Display">
-<h3>Smooth Display<a class="headerlink" href="#Smooth-Display" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="Frame-Buffers">
+<h2>Frame Buffers<a class="headerlink" href="#Frame-Buffers" title="Permalink to this headline">¶</a></h2>
 <p>To draw or display smooth animations/video, note the following:</p>
-<p>When you want to draw a new frame, copy it to a frame location not
-currently used (an index different from the one at vga.frame_index()) .
-Once the copy is done, change the current frame index to point to the
-index where you copied the new frame you want to display.</p>
+<p>Draw a new frame to a frame location not currently in use (an index
+different to the current vga.frame_index()) . Once finished writing the
+new frame, change the current frame index to the new frame index.</p>
 </div>
 <div class="section" id="Using-HDMI-and-VGA-in-combination">
-<h3>Using HDMI and VGA in combination<a class="headerlink" href="#Using-HDMI-and-VGA-in-combination" title="Permalink to this headline">¶</a></h3>
+<h2>Using HDMI and VGA in combination<a class="headerlink" href="#Using-HDMI-and-VGA-in-combination" title="Permalink to this headline">¶</a></h2>
 <p>To use the HDMI and VGA to capture and display an image, make both the
 HDMI and VGA share the same frame buffer. The frame buffer in both cases
 can be accessed using the frame_buffer() method. You can make the two
@@ -804,6 +806,14 @@ In [27]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">HDMI</span>
+<span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">VGA</span>
+
+<span class="c"># Download new bitstream with audiovideo IP</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+<span class="c"># Initialize HDMI as an input device</span>
 <span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s">&#39;in&#39;</span><span class="p">)</span>
 <span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_buffer</span><span class="p">)</span>
 </pre></div>
@@ -812,7 +822,7 @@ In [27]:
 <p>or equivalently:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [28]:
+In [ ]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -821,15 +831,21 @@ In [28]:
 </pre></div>
 </div>
 </div>
-<p>Once this is done, start() the VGA object and if you should see the
-input HDMI on the VGA output. Remember, both the object must have the
-same active frame_index. Initially, both frame indexes start from 0.</p>
-<p>You can use the two objects for most interesting applications. For
-example, a frame captured from HDMI can be processed using python and
-displayed on the VGA. For an example of a sobel filter (edge detection),
-see audiovideo_sobel notebook in the examples directory in the Pynq
-homepage.</p>
+<p>The last step is to set the controllers:</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [28]:
+</pre></div>
 </div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="n">hdmi</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">vga</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Once this is done, you should see the input HDMI on the VGA output.
+Remember, both objects must have the same active frame_index.
+Initially, both frame indexes start at 0.</p>
 </div>
 <div class="section" id="Using-Audio-IO">
 <h2>Using Audio IO<a class="headerlink" href="#Using-Audio-IO" title="Permalink to this headline">¶</a></h2>
@@ -936,6 +952,18 @@ In [32]:
 Done
 </pre></div></div>
 </div>
+<p>To switch back to the Pmod I/O overlay, we can do:</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [ ]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 
@@ -943,6 +971,15 @@ Done
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="8_iop_code.html" class="btn btn-neutral float-right" title="IO Processors: Writing your own software" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="6_pmodio_overlay.html" class="btn btn-neutral" title="Peripherals and the Pmod I/O overlay" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

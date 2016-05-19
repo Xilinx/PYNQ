@@ -86,20 +86,6 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
-   "metadata": {
-    "collapsed": false
-   },
-   "outputs": [],
-   "source": [
-    "import time\n",
-    "\n",
-    "# HDMI delay to allow controller to initialize\n",
-    "time.sleep(2)"
-   ]
-  },
-  {
-   "cell_type": "code",
    "execution_count": 4,
    "metadata": {
     "collapsed": false
@@ -107,15 +93,6 @@
    "outputs": [],
    "source": [
     "hdmi.start()"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "If you see an error message: SystemError: Unable to start capture device [13]\n",
-    "\n",
-    "Wait a few seconds and rerun the hdmi.start() cell"
    ]
   },
   {
@@ -296,8 +273,9 @@
    "source": [
     "from IPython.display import Image\n",
     "frame = hdmi.frame()\n",
-    "frame.save_as_jpeg('audio_video.jpg')\n",
-    "Image(filename='audio_video.jpg')"
+    "orig_img_path = '/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_0.jpg'\n",
+    "frame.save_as_jpeg(orig_img_path)\n",
+    "Image(filename=orig_img_path)"
    ]
   },
   {
@@ -335,8 +313,9 @@
     "            green = 255\n",
     "        frame[x,y] = (red, green, blue)\n",
     "\n",
-    "frame.save_as_jpeg('audio_video1.jpg')\n",
-    "Image(filename='audio_video1.jpg')"
+    "new_img_path = '/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_1.jpg'\n",
+    "frame.save_as_jpeg(new_img_path)\n",
+    "Image(filename=new_img_path)"
    ]
   },
   {
@@ -677,17 +656,17 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "### Smooth Display\n",
+    "## Frame Buffers\n",
     "To draw or display smooth animations/video, note the following:\n",
     "\n",
-    "When you want to draw a new frame, copy it to a frame location not currently used (an index different from the one at vga.frame_index()) . Once the copy is done, change the current frame index to point to the index where you copied the new frame you want to display."
+    "Draw a new frame to a frame location not currently in use (an index different to the current vga.frame_index()) . Once finished writing the new frame, change the current frame index to the new frame index."
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "### Using HDMI and VGA in combination\n",
+    "## Using HDMI and VGA in combination\n",
     "To use the HDMI and VGA to capture and display an image, make both the HDMI and VGA share the same frame buffer. The frame buffer in both cases can be accessed using the frame_buffer() method. You can make the two object share the same frame buffer passing the first declared object's frame buffer as an argument of the second object’s constructor:"
    ]
   },
@@ -699,6 +678,14 @@
    },
    "outputs": [],
    "source": [
+    "from pynq import Overlay\n",
+    "from pynq.video import HDMI\n",
+    "from pynq.video import VGA\n",
+    "\n",
+    "# Download new bitstream with audiovideo IP\n",
+    "Overlay(\"audiovideo.bit\").download()\n",
+    "\n",
+    "# Initialize HDMI as an input device\n",
     "hdmi = HDMI('in')\n",
     "vga = VGA('out', hdmi.frame_buffer)"
    ]
@@ -712,9 +699,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 28,
+   "execution_count": null,
    "metadata": {
-    "collapsed": false
+    "collapsed": true
    },
    "outputs": [],
    "source": [
@@ -726,11 +713,27 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Once this is done, start() the VGA object and if you should see the input HDMI on the VGA output. Remember, both the object must have the same active frame_index. \n",
-    "Initially, both frame indexes start from 0.\n",
-    "\n",
-    "You can use the two objects for most interesting applications. For example, a frame captured from HDMI can be processed using python and displayed on the VGA. \n",
-    "For an example of a sobel filter (edge detection), see audiovideo_sobel notebook in the examples directory in the Pynq homepage. "
+    "The last step is to set the controllers:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "hdmi.start()\n",
+    "vga.start()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Once this is done, you should see the input HDMI on the VGA output. Remember, both objects must have the same active frame_index. \n",
+    "Initially, both frame indexes start at 0."
    ]
   },
   {
@@ -854,6 +857,25 @@
     "        left = 0\n",
     "    headphone([left, right])\n",
     "print(\"Done\") "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To switch back to the Pmod I/O overlay, we can do:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "from pynq import Overlay\n",
+    "Overlay(\"pmod.bit\").download()"
    ]
   }
  ],

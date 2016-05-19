@@ -141,6 +141,7 @@
    "source": [
     "## Example: Using the OLED and the ambient light sensor (ALS)\n",
     "\n",
+    "This examples requires the PmodOLED, and PmodALS. \n",
     "Plug the PmodOLED into Port 1, and PmodALS (Ambient Light Sensor) into the top row of Port 2. (The PmodALS can currently only be used in the top row of a port.)\n",
     "\n",
     "OLED displaying light reading from ambient light sensor:\n",
@@ -163,8 +164,11 @@
    },
    "outputs": [],
    "source": [
+    "from pynq import Overlay\n",
     "from pynq.pmods import PMOD_OLED\n",
-    "oled = PMOD_OLED(4)"
+    "ol = Overlay(\"pmod.bit\")\n",
+    "ol.download()\n",
+    "oled = PMOD_OLED(1)"
    ]
   },
   {
@@ -213,7 +217,7 @@
     {
      "data": {
       "text/plain": [
-       "42"
+       "47"
       ]
      },
      "execution_count": 4,
@@ -223,7 +227,7 @@
    ],
    "source": [
     "from pynq.pmods import PMOD_ALS\n",
-    "als = PMOD_ALS(3)\n",
+    "als = PMOD_ALS(2)\n",
     "als.read()"
    ]
   },
@@ -255,7 +259,7 @@
     {
      "data": {
       "text/plain": [
-       "[42, 42, 42]"
+       "[41, 33, 32, 32, 32, 16, 31, 31, 31, 31, 30]"
       ]
      },
      "execution_count": 6,
@@ -266,13 +270,13 @@
    "source": [
     "from pynq.pmods import PMOD_ALS\n",
     "import time\n",
-    "als = PMOD_ALS(3)\n",
+    "als = PMOD_ALS(2)\n",
     "als.read()\n",
     "\n",
     "als.set_log_interval_ms(100)\n",
     "\n",
     "als.start_log() # start logging values at intervals of delay\n",
-    "time.sleep(.2)\n",
+    "time.sleep(1)\n",
     "als.stop_log()\n",
     "als.get_log()"
    ]
@@ -282,7 +286,7 @@
    "metadata": {},
    "source": [
     "## Example: Using the ADC, DAC and OLED\n",
-    "This example connects the DAC to the ADC. You will write a value to the DAC which the ADC will measure, and also write the value to the OLED for display.\n",
+    "This example requires the PmodAD2, PmodDA4 and PmodOLED. You will connect the output of the DAC to the input of the ADC, write a value to the DAC which the ADC will measure, and finally, write the value to the OLED for display.\n",
     "\n",
     "* Set the jumper (JP1) on the PmodAD2 to Ref\n",
     "\n",
@@ -325,7 +329,7 @@
     "\n",
     "dac.write(0.75) # Set the DAC output voltage\n",
     "value = adc.read() # Measure output of DAC with ADC\n",
-    "oled.write(value) # Display measured value on OLED"
+    "oled.write(str(value)) # Display measured value on OLED"
    ]
   },
   {
@@ -404,7 +408,7 @@
     "            measured = adc.read()\n",
     "            time.sleep(.1)\n",
     "            print('Measurement {} equals: {}'.format(i, measured))\n",
-    "            oled.write(measured)\n",
+    "            oled.write(str(measured))\n",
     "    LED(Switch_nmbr).write(0)\n",
     "    "
    ]
@@ -422,7 +426,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 9,
+   "execution_count": 10,
    "metadata": {
     "collapsed": false
    },
@@ -431,7 +435,17 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Switch 3 is off. To run the loop, set Switch 3 to on before running\n"
+      "Turn Switch 3 off to stop the program\n",
+      "Measurement 1 equals: 0.1016\n",
+      "Measurement 2 equals: 0.1953\n",
+      "Measurement 3 equals: 0.3047\n",
+      "Measurement 4 equals: 0.3984\n",
+      "Measurement 5 equals: 0.4922\n",
+      "Measurement 6 equals: 0.5898\n",
+      "Measurement 7 equals: 0.6836\n",
+      "Measurement 8 equals: 0.7773\n",
+      "Measurement 9 equals: 0.8711\n",
+      "Measurement 10 equals: 1.0078\n"
      ]
     }
    ],
@@ -450,7 +464,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": null,
    "metadata": {
     "collapsed": false
    },

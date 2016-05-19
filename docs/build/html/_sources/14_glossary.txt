@@ -5,7 +5,6 @@ Glossary
 .. contents:: Table of Contents
    :depth: 2
 
-
 .. glossary::
 
 
@@ -18,14 +17,17 @@ A-G
   ADC
    Analog to Digital Converter
 
+  BSP 
+   A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx software developmnet Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package
+   
   DAC
    Digital to Analog Converter
 
   DPOT
-   Digital Potentiometer
+   A `Digital POTentiometer <https://en.wikipedia.org/wiki/Digital_potentiometer>`_ is a digitally-controlled electronic component that mimics the analog functions of a potentiometer.
 
   FPGA
-   Field Programmable Gate Array `https://en.wikipedia.org/wiki/Field-programmable_gate_array <https://en.wikipedia.org/wiki/Field-programmable_gate_array>`_
+   `Field Programmable Gate Arrays (FPGAs) <http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm>`_ are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks
 
   FTDI
    Future Technology Devices International Ltd, supplier of the FT2232HQ USB-UART bridge chip used on Zybo.  Free USB-COM port
@@ -37,6 +39,12 @@ A-G
 H-R
 ===
 
+  Hardware Platform
+   An SDK project
+   
+  HDF
+   Hardware Definition File (.hdf). This file is created by Vivado and contains information about a processor system in an FPGA overlay. The HDF specifies the peripherals that exist in the system, and the memory map. This is used by the BSP to build software librariesto support the availabel peripherals.
+
   I2C
     See IIC
 
@@ -46,15 +54,16 @@ H-R
   IOPs
    Input/Output Processors
 
-  Jupyter (Jupyter Notebooks) (www.jupyter.org)
-   Jupyter is an open source, interactive, web application that allows the user to create and share notebook documents that contain live code and the full range of rich media supported by modern browser. These include include text, images, videos, LaTeX, and interactive widgets. It is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities.
+  Jupyter (Notebooks)
+   `Jupyter <www.jupyter.org>`_ is an open source project consisting of an interactive, web application that allows users to create and share notebook documents that contain live code and the full range of rich media supported by modern browsers. These include include text, images, videos, LaTeX-styled equations, and interactive widgets. The Jupyter framework is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities. Its uses include: data cleaning and transformation, numerical simulation, statistical modeling, machine learning and much more.
+   
 
   MicroBlaze
-   The MicroBlaze is a soft microprocessor core designed for Xilinx FPGAs from Xilinx. As a soft-core processor, MicroBlaze is implemented entirely in the general-purpose memory and logic fabric of an FPGA.
-   `https://en.wikipedia.org/wiki/MicroBlaze <https://en.wikipedia.org/wiki/MicroBlaze>`
+   `MicroBlaze <https://en.wikipedia.org/wiki/MicroBlaze>`_ is a soft microprocessor core designed for Xilinx FPGAs. As a soft-core processor, MicroBlaze is implemented entirely in the general-purpose memory and logic fabric of an FPGA.
    
-  Pmod
-   Peripheral Module - accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.
+   
+  Pmod Interface
+   The Pmod or `Peripheral Module <www.digilentinc.com/Pmods/Digilent-Pmod_%20Interface_Specification.pdf>`_ interface is used to connect low frequency, low I/O pin count peripheral modules to host controller boards.accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.
 
   Pmod I/O
    Pmod I/O overlay
@@ -63,7 +72,7 @@ H-R
    Secure Digital (Memory Card standard)
 
   readthedocs.org
-   A popular website which hosts the documentation for open source projects at no cost.  It can automatically generate both the website and PDF versions of project documentation from a GitHub repository when new updates are pushed to that site. 
+   `readthedocs.org <https://readthedocs.org>`_ is a popular website that hosts the documentation for open source projects at no cost.  readthedocs.org uses Sphinx document geneation tools to automatically generate both the website and PDF versions of project documentation from a GitHub repository when new updates are pushed to that site. 
 
   REPL
    A read–eval–print loop (REPL), also known as an interactive toplevel or language shell, is a simple, interactive computer     programming environment that takes single user inputs (i.e. single expressions), evaluates them, and returns the result to the user; a program written in a REPL environment is executed piecewise. The term is most usually used to refer to programming interfaces similar to the classic Lisp machine interactive environment. Common examples include command line shells and similar environments for programming languages, and is particularly characteristic of scripting languages `wikipedia <https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop>`_
@@ -73,7 +82,10 @@ H-R
 
 S-Z
 ===
-
+  SDK
+   Xilinx SDK - Software Development Kit. Software development environment including cross-compiles for ARM, and MicroBlaze processors. Also includes debug, and profiling tools. 
+   Required to build software for a MicroBlaze processor inside an IOP. 
+   
   SOC
    System On Chip
 
@@ -86,17 +98,21 @@ S-Z
   UART
    Universal asynchronous receiver/transmitter; Serial communication protocol
 
+  Vivado
+   `Vivado Design Suite <http://www.xilinx.com/products/design-tools/vivado.html>`_ is a suite of computer-aided design tools provided by Xilinx for creating FPGA designs.  It is used to design and implement the overlays used in Pynq.
+   
+   
   XADC
-   Xilinx ADC - Analog to Digital Converter found on all Xilinx 7 series devices
+   An `XADC <http://www.xilinx.com/support/documentation/user_guides/ug480_7Series_XADC.pdf>`_ is a hard IP block that consists of dual 12-bit, 1 Mega sample per second (MSPS), analog-to-digital converters and on-chip sensors which are integrated into Xilinx 7 series FPGA devices
 
   Zybo
    ZYnq BOard
 
-  Zynq
-   Xilinx device with ARM processor and FPGA fabric on the same chip
+  Zynq®
+   `Zynq-7000 All Programmable SoC (APSoC) devices <http://www.xilinx.com/products/silicon-devices/soc/zynq-7000.html>`_ integrate the software programmability of an ARM®-based processor with the hardware programmability of an FPGA, enabling key analytics and hardware acceleration while integrating CPU, DSP, ASSP, and mixed signal functionality on a single device. Zynq-7000 AP SoCs infuse customizable intelligence into today’s embedded systems to suit your unique application requirements
 
   Zynq PL
    Programmable Logic - FPGA fabric
 
   Zynq PS
-   Processing System - SOC processing subsystem built around dual-core, Cortex-A9 processors
+   Processing System - SOC processing subsystem built around dual-core, ARM Cortex-A9 processor
