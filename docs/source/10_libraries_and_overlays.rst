@@ -3,14 +3,14 @@ The ``Pynq`` (Python on Zynq) Platform
 
 The section describes the ``pynq`` (**Py**\thon on **Zy**\nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the Zybo platform. 
 
-On poweron with the preloaded SDCard, Zybo will boot into Ubuntu Server 15.10.  Python3 is loaded with Jupyter notebook support and the needed Python package, also named pynq.  With the pynq package, users can access programmable logic overlays without ever leaving Python.   
+After powering the board with the Pynq image on the SDCard in place, Zybo will boot into Ubuntu Server 15.10.  Python3 is installed with Jupyter notebook support and the Pynq Python Package. With the pynq package, users can access programmable logic overlays from Python.   
 
-Some preloaded features of this Ubuntu image include:
+Some preinstalled features of this Ubuntu image include:
 
 * Networking is enabled and Ethernet port will attempt to use DHCP on boot.  If DHCP fails, the board will fallback to a static IP of 192.168.2.99.
-* Samba is enabled and can be accessed from a Windows machine by navigating or mapping to *\\\\pynq\\xpp*.  The username and password is xpp\\xpp.  You can browse to the directory in a similar way using other operating systems allowing integration with any standard text editors like Sublime Text or Notepad++.
-* A Jupyter notebook server is initialized on port 9090.
-* The PMOD IO overlay is preloaded onto the programmable logic.
+* Samba is enabled and can be accessed from a Windows machine by navigating or mapping to ``\\pynq\xpp``.  The ``username:password`` is ``xpp:xpp``.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
+* A Jupyter notebook server is initialized on port 9090 and automatically starts after boot.
+* The PMOD IO overlay is preloaded onto the programmable logic. 
 
 
 
@@ -19,17 +19,17 @@ Some preloaded features of this Ubuntu image include:
 
 Python ``pynq`` Package Structure
 ---------------------------------
-All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xpp/pynq.  This package is loaded from the Github repository and the latest version can always be installed from Pynq/python/pynq.
+All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xpp/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/Pynq/python/pynq``.
 
 Pynq contains four main subpackages: ``board``, ``pmods``, ``audio``, and ``video``; a ``tests`` subpackage is for testing the user subpackages.  Each of the five subpackages are described below.
 
-To learn more about Python package structuring, please refer to the `official python documentation <https://docs.python.org/3.5/tutorial/modules.html#packages>`_.
+To learn more about Python package structure, please refer to the `official python documentation <https://docs.python.org/3.5/tutorial/modules.html#packages>`_.
 
 
 
 board
 -----
-This folder contains libraries for peripherals available on the Zybo board: Buttons, Switches, LEDs.  For example the following code will turn on one of Zybo's LEDs:
+This folder contains libraries or python packages for peripherals available on the Zybo board: Buttons, Switches, and LEDs.  For example the following code will turn on one of Zybo's LEDs:
 
 .. code-block:: python
 
@@ -39,13 +39,13 @@ This folder contains libraries for peripherals available on the Zybo board: Butt
 
 pmods
 -----
-This folder contains peripheral packages which includes the following Pmod devices ``OLED``, ``TMP2``, ``ALS`` ``LED8``, ``ADC``, and ``DAC``.  
+This folder contains libraries for the following Pmod devices ``OLED``, ``TMP2``, ``ALS`` ``LED8``, ``ADC``, and ``DAC``.  
 
 The following Grove peripherals are also supported: ``Grove ADC``, ``Grove PIR``, ``Grove OLED``, ``Grove Buzzer``, ``Grove Light Sensor``, ``Grove LED BAR``, ``Grove Temperature Sensor``. In addition, ``Pmodio``, ``PmodIic`` and ``DevMode`` are developer classes allowing direct low level access to I/O controllers.
 
-There is also an additional module named ``_iop.py``; this module acts like a wrapper to allow all the PMODs' classes to interface with the MicroBlaze objects.  The ``_IOP`` class prevents multiple device instantiations on the same PMOD. At the same time, ``_IOP`` uses the Overlay class to track each IOP's status. 
+There is also an additional module named ``_iop.py``; this module acts like a wrapper to allow all the PMOD classes to interface with the MicroBlaze inside an IOP.  The ``_IOP`` class prevents multiple device instantiations on the same PMOD at the same time. (i.e. This prevents the user assigning more devices to a port than can be physically connected.)  ``_IOP`` uses the Overlay class to track each IOP's status. 
 
-.. note:: ``_iop.py`` is an internal module, not intended for the end users. In Python, there is no concept of _public_ and _private_; we use ``_`` as a prefix to indicate internal definitions, variables, functions, and packages.
+.. note:: ``_iop.py`` is an internal module, not intended for the end user. In Python, there is no concept of _public_ and _private_; we use ``_`` as a prefix to indicate internal definitions, variables, functions, and packages.
 
 
 For example, the following code will instantiate and write to the PMOD_OLED attached on PMOD 4.
@@ -58,13 +58,13 @@ For example, the following code will instantiate and write to the PMOD_OLED atta
 audio
 -----
 
-This folder contains the single audio class to use Line in and Headphone out.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using audio on Zybo.
+This folder contains the single audio class to use Line in and Headphone out.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using audio.
 
 
 video
 -----
 
-This folder contains the HDMI and VGA classes to video on Zybo.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using video on Zybo.
+This folder contains the HDMI and VGA classes.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using video.
 
 
 tests
