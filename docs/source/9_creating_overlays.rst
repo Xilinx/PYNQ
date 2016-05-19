@@ -66,6 +66,7 @@ This will show the IP dictionary of the overlay. Each entry in this IP dictionar
     ``'SEG_mb_bram_ctrl_1_Mem0': ['0x40000000', '0x8000', None]``
 
 The key of the entry is the IP instance name; all the IP instance names are parsed from the `*.tcl` file (e.g. `audiovideo.tcl`) in the address segment section. The value of the entry is a list of 3 items:
+
    - The first item shows the base address of the addressable IP (hex).
    - The second item shows the address range in bytes (hex).
    - The third item records the state associated with the IP. It is `None` by default, but can be used flexibly by the users.
@@ -115,8 +116,9 @@ An example of the entry in a GPIO dictionary can be:
     ``'mb_1_reset/Din': [0, None]``
 
 The key of the entry is the GPIO instance name; all the GPIO instance names are parsed from the `*.tcl` file (e.g. `audiovideo.tcl`) in the GPIO connection section. The value of the entry is a list of 2 items:
-- The first item shows the user index of the GPIO.
-- The second item records the state associated with the GPIO. It is `None` by default, but can be used flexibly by the users.
+
+  - The first item shows the user index of the GPIO.
+  - The second item records the state associated with the GPIO. It is `None` by default, but   can be used flexibly by the users.
 
 Similarly, to check the GPIO currently on the programmable logic:
 
