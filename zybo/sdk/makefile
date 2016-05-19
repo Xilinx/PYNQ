@@ -19,10 +19,10 @@ all: pmod_bins
 	@echo "Completed Microblaze Projects' Builds"
 
 mb_bsp: sdk_workspace
-	cd bsp ; make
+	cd bsp && make
 
 %.bin: mb_bsp
-	cd $(subst .bin,,$@)/Debug; make clean ; make 
+	cd $(subst .bin,,$@)/Debug && make clean && make 
 
 pmod_bins: $(MBBINS)
 	@cp */Debug/*.bin ../../python/pynq/pmods/
