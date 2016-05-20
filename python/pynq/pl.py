@@ -88,16 +88,14 @@ def _get_dict_ip_addr(tcl_name):
         for line in f:
             m = re.search('create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) '+\
                     '-offset (0[xX][0-9a-fA-F]+) '+\
-                    '(\[get_bd_addr_spaces processing_system7_0/Data\]) '+\
-                    '(\[.+?\]) '+\
+                    '(\[get_bd_addr_spaces processing_system7_0/Data\]|\
+                        \[get_bd_addr_spaces ps7/Data\])'+\
+                    '( \[.+?\]) '+\
                     '([A-Za-z0-9_]+)',line,re.IGNORECASE)
             if m:
                 # Each entry is [base, range, state]
                 result[m.group(5)] = [m.group(2), m.group(1), None]
-    
-    if result=={}:
-        raise ValueError('No such addressable IP in file {}.'\
-                        .format(tcl_name))
+                
     return result
     
 def _get_dict_gpio(tcl_name):
@@ -121,20 +119,19 @@ def _get_dict_gpio(tcl_name):
         The dictionary storing the GPIO user indices, starting from 0.
     
     """
-    pattern = 'connect_bd_net -net processing_system7_0_GPIO_O'
+    pattern1 = 'connect_bd_net -net processing_system7_0_GPIO_O'
+    pattern2 = 'connect_bd_net -net ps7_GPIO_O'
     result = {}
+    gpio_list = []
     with open(tcl_name, 'r') as f:
         for line in f:
-            if pattern in line:
+            if (pattern1 in line) or (pattern2 in line):
                 gpio_list = re.findall('\[get_bd_pins (.+?)\]',\
                                         line,re.IGNORECASE)
                                         
     for i in range(len(gpio_list)):
         result[gpio_list[i]] = [i, None]
-            
-    if result=={}:
-        raise ValueError('No such GPIO instances in file {}.'\
-                        .format(tcl_name))
+        
     return result
     
 class PL:
@@ -536,8 +533,8 @@ class Bitstream(PL):
                                 t.hour,t.minute,t.second,t.microsecond)
         PL.bitfile_name = self.bitfile_name
         PL.timestamp = self.timestamp
-        PL.reset_ip_dict()
-        PL.reset_gpio_dict()
+        PL.ip_dict = {}
+        PL.gpio_dict = {}
         
 class Overlay(PL):
     """The Overlay class keeps track of a single bitstream's state and contents.
@@ -630,6 +627,8 @@ class Overlay(PL):
         
         """
         self.bitstream.download()
+        PL.reset_ip_dict()
+        PL.reset_gpio_dict()
         
     def get_timestamp(self):
         """This method returns the timestamp of the bitstream.
