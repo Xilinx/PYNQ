@@ -45,20 +45,12 @@ grove_buzzer.elf.size: grove_buzzer.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
-grove_buzzer.bin: grove_buzzer.elf
-	@echo 'Invoking: MicroBlaze Bin Gen'
-	mb-objcopy -O binary grove_buzzer.elf grove_buzzer.bin
-	@echo 'Finished building: $@'
-	@echo ' '
-
-
-
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_buzzer.elf grove_buzzer.bin
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_buzzer.elf
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE) grove_buzzer.bin
+secondary-outputs: $(ELFSIZE)
 
 .PHONY: all clean dependents
 .SECONDARY:

@@ -176,7 +176,7 @@ int main(void)
             // write out adc_value, reset mailbox
             adc_voltage = (float)((read_adc(REG_ADDR_RESULT))*V_REF*2/4096);
             MAILBOX_DATA_FLOAT(0) = adc_voltage;
-            MAILBOX_CMD_ADDR = 0x0; 
+            MAILBOX_CMD_ADDR = 0x0;
             break;
          case READ_AND_LOG_RAW_DATA:   
             // initialize logging variables, reset cmd
@@ -190,40 +190,16 @@ int main(void)
             }
             MAILBOX_CMD_ADDR = 0x0;
             break;
-         case READ_AND_LOG_VOLTAGE:   
+         case READ_AND_LOG_VOLTAGE:
             // initialize logging variables, reset cmd
             cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
-            while(MAILBOX_CMD_ADDR != 0xC){   
+            while(MAILBOX_CMD_ADDR != 0xC){
                // push sample to log and delay
                adc_voltage = (float)((read_adc(REG_ADDR_RESULT))*V_REF*2/4096);
                cb_push_back_float(&pmod_log, &adc_voltage);
                delay_ms(delay);
             }
-            MAILBOX_CMD_ADDR = 0x0;
-            break;
-         case SET_LOW_LEVEL:
-            write_adc(REG_ADDR_LIMITL, MAILBOX_DATA(0), 2);
-            MAILBOX_CMD_ADDR = 0x0;
-            break;
-         case SET_HIGH_LEVEL:   
-            write_adc(REG_ADDR_LIMITH, MAILBOX_DATA(0), 2);
-            MAILBOX_CMD_ADDR = 0x0;
-            break;
-         case SET_HYSTERESIS_LEVEL:
-            write_adc(REG_ADDR_HYST, MAILBOX_DATA(0), 2);
-            MAILBOX_CMD_ADDR = 0x0;
-            break;
-         case READ_LOWEST_LEVEL:
-            MAILBOX_DATA_FLOAT(0) = read_adc(REG_ADDR_CONVL);
-            MAILBOX_CMD_ADDR = 0x0;
-            break;
-         case READ_HIGHEST_LEVEL:
-            MAILBOX_DATA_FLOAT(0) = read_adc(REG_ADDR_CONVH);
-            MAILBOX_CMD_ADDR = 0x0;
-            break;           
-         case READ_STATUS:
-            MAILBOX_DATA_FLOAT(0) = read_adc(REG_ADDR_ALERT);
             MAILBOX_CMD_ADDR = 0x0;
             break;
          case RESET_ADC:

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>pmod_timer</name>
-	<comment>Created by SDK v2015.4. standalone_bsp_mb1 - iop1_mb</comment>
+	<comment>Created by SDK v2015.4. bsp - iop1_mb</comment>
 	<projects>
-		<project>standalone_bsp_mb1</project>
+		<project>bsp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

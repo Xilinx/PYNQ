@@ -29,7 +29,7 @@
 
 __author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
-__email__       = "xpp_support@xilinx.com"
+__email__       = "xpp_support@xilinx.com" 
 
 
 from time import sleep
@@ -97,21 +97,19 @@ class PMOD_ADC(object):
                                 pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
             sleep(0.001)
             
-    def read_raw(self, delay=10, channel=0, samples=3):
+    def read_raw(self, ch1=1, ch2=0, ch3=0):
         """Get the raw value from the ADC PMOD.
         
-        All the 3 available channels are enabled. The default channel is 0, 
-        meaning only the first channel is read. Users can choose any channel
-        from 0 to 2. 
+        When ch1, ch2, and ch3 values are 1 then the corresponding channel
+        is included. 
         
-        In each channel, this method reads multiple samples and 
-        returns the last sample. 
+        For each channel selected, this method reads and returns one sample. 
         
-        The delay specifies the time between two samples, in milliseconds.
-        
+                
         Note
         ----
-        The 4th channel is not available due to the jumper setting on ADC.
+        The 4th channel is not available due to the jumper (JP1)setting on ADC 
+        to VREF.
         
         Note
         ----
@@ -119,53 +117,54 @@ class PMOD_ADC(object):
         
         Parameters
         ----------
-        delay : int
-            The delay between samples on the same channel.
-        channel : int
-            The channel number, from 0 to 2.
-        samples : int
-            The number of samples read from each ADC channel.
+        ch1 : int
+            1 means include channel 1, 0 means do not include.
+        ch2 : int
+            1 means include channel 2, 0 means do not include.
+        ch3 : int
+            1 means include channel 3, 0 means do not include.
         
         Returns
         -------
-        int
-            The raw value read from the PMOD ADC.
+        list
+            The raw values read from the 3 channels of the PMOD ADC.
         
         """
-        if (delay < 0):
-            raise ValueError("Time between samples should be no less than 0.")
-        if not channel in range(3):
-            raise ValueError("Available channel is 0, 1, or 2.")
-            
-        # Send the delay and the number of samples
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, delay)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, samples)
-        
+        if (ch1 not in range(2)):
+            raise ValueError("Valid value for ch1 is 0 or 1.")
+        if (ch2 not in range(2)):
+            raise ValueError("Valid value for ch2 is 0 or 1.")
+        if (ch3 not in range(2)):
+            raise ValueError("Valid value for ch3 is 0 or 1.")
+        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 3    
+       
         # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
         # Wait for I/O processor to complete
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
-            sleep(0.001)
+        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+            pass
 
-        # Read the last sample from ADC
-        return self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                        (3*samples+channel)*4)
+        # Read the samples from ADC
+        readings=[]
+        if (ch1):
+            readings.append(self.mmio.read(pmod_const.MAILBOX_OFFSET))
+        if (ch2):
+            readings.append(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
+        if (ch3):
+            readings.append(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+        return readings
         
-    def read(self, delay=10, channel=0, samples=3):
+    def read(self, ch1=1, ch2=0, ch3=0):
         """Get the voltage from the ADC PMOD.
         
-        All the 3 available channels are enabled. The default channel is 0, 
-        meaning only the first channel is read. Users can choose any channel
-        from 0 to 2. 
+        When ch1, ch2, and ch3 values are 1 then the corresponding channel
+        is included. 
         
-        In each channel, this method reads multiple samples and 
-        returns the last sample. 
-        
-        The delay specifies the time between two samples, in milliseconds.
-        
+        For each channel selected, this method reads and returns one sample. 
+               
         Note
         ----
         The 4th channel is not available due to the jumper setting on ADC.
@@ -176,42 +175,50 @@ class PMOD_ADC(object):
         
         Parameters
         ----------
-        delay : int
-            The delay between samples on the same channel.
-        channel : int
-            The channel number, from 0 to 2.
-        samples : int
-            The number of samples read from each ADC channel.
+        ch1 : int
+            1 means include channel 1, 0 means do not include.
+        ch2 : int
+            1 means include channel 2, 0 means do not include.
+        ch3 : int
+            1 means include channel 3, 0 means do not include.
         
         Returns
         -------
-        float
-            The voltage value read from the PMOD ADC.
+        list
+            The voltage values read from the 3 channels of the PMOD ADC.
         
         """
-        if (delay < 0):
-            raise ValueError("Time between samples should be no less than 0.")
-        if not channel in range(3):
-            raise ValueError("Available channel is 0, 1, or 2.")
-            
-        # Send the delay and the number of samples
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, delay)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, samples)
-        
+        if (ch1 not in range(2)):
+            raise ValueError("Valid value for ch1 is 0 or 1.")
+        if (ch2 not in range(2)):
+            raise ValueError("Valid value for ch2 is 0 or 1.")
+        if (ch3 not in range(2)):
+            raise ValueError("Valid value for ch3 is 0 or 1.")
+        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 5    
+       
         # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
         # Wait for I/O processor to complete
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
-            sleep(0.001)
+        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+            pass
 
         # Read the last sample from ADC
-        return self._reg2float(self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                    (3*samples+channel)*4))
+        readings=[]
+        if (ch1):
+            readings.append(self._reg2float(self.mmio.read(
+                                        pmod_const.MAILBOX_OFFSET)))
+        if (ch2):
+            readings.append(self._reg2float(self.mmio.read(
+                                        pmod_const.MAILBOX_OFFSET+4)))
+        if (ch3):
+            readings.append(self._reg2float(self.mmio.read(
+                                        pmod_const.MAILBOX_OFFSET+8)))
+        return readings
         
-    def start_log_raw(self, channel=0, log_interval_us=100):
+    def start_log_raw(self, ch1, ch2, ch3, log_interval_us=100):
         """Start the log of raw values with the interval specified.
         
         This parameter `log_interval_us` can set the time interval between 
@@ -220,8 +227,12 @@ class PMOD_ADC(object):
         
         Parameters
         ----------
-        channel : int
-            The channel number, from 0 to 2.
+        ch1 : int
+            1 means include channel 1, 0 means do not include.
+        ch2 : int
+            1 means include channel 2, 0 means do not include.
+        ch3 : int
+            1 means include channel 3, 0 means do not include.
         log_interval_us : int
             The length of the log in milliseconds, for debug only.
             
@@ -232,20 +243,25 @@ class PMOD_ADC(object):
         """
         if (log_interval_us < 0):
             raise ValueError("Time between samples should be no less than 0.")
-        if not channel in range(3):
-            raise ValueError("Available channel is 0, 1, or 2.")
+        if (ch1 not in range(2)):
+            raise ValueError("Valid value for ch1 is 0 or 1.")
+        if (ch2 not in range(2)):
+            raise ValueError("Valid value for ch2 is 0 or 1.")
+        if (ch3 not in range(2)):
+            raise ValueError("Valid value for ch3 is 0 or 1.")
+        
+        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 7    
         
         self.log_running = 1
         
-        # Send log interval and the channel number
+        # Send log interval
         self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
         
         # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
-    def start_log(self, channel=0, log_interval_us=100):
+    def start_log(self, ch1, ch2, ch3, log_interval_us=100):
         """Start the log of voltage values with the interval specified.
         
         This parameter `log_interval_us` can set the time interval between 
@@ -254,8 +270,12 @@ class PMOD_ADC(object):
         
         Parameters
         ----------
-        channel : int
-            The channel number, from 0 to 2.
+        ch1 : int
+            1 means include channel 1, 0 means do not include.
+        ch2 : int
+            1 means include channel 2, 0 means do not include.
+        ch3 : int
+            1 means include channel 3, 0 means do not include.
         log_interval_us : int
             The length of the log in milliseconds, for debug only.
             
@@ -266,18 +286,23 @@ class PMOD_ADC(object):
         """
         if (log_interval_us < 0):
             raise ValueError("Time between samples should be no less than 0.")
-        if not channel in range(3):
-            raise ValueError("Available channel is 0, 1, or 2.")
+        if (ch1 not in range(2)):
+            raise ValueError("Valid value for ch1 is 0 or 1.")
+        if (ch2 not in range(2)):
+            raise ValueError("Valid value for ch2 is 0 or 1.")
+        if (ch3 not in range(2)):
+            raise ValueError("Valid value for ch3 is 0 or 1.")
+        
+        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 9    
         
         self.log_running = 1
         
         # Send log interval and the channel number
         self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, channel)
         
         # Send the command
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
     def stop_log_raw(self):
         """Stop the log of raw values.
@@ -335,7 +360,7 @@ class PMOD_ADC(object):
         Returns
         -------
         list
-            List of valid raw samples from the ADC.
+            List of raw samples from the ADC.
         
         """
         # Stop logging
@@ -371,7 +396,7 @@ class PMOD_ADC(object):
         Returns
         -------
         list
-            List of valid raw samples from the ADC.
+            List of voltage samples from the ADC.
         
         """
         # Stop logging

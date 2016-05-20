@@ -78,8 +78,6 @@ int main(void)
    pmod_init();
    configureSwitch(SS, MOSI, GPIO_2, SPICLK, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
 
-   // Configure SPI
-   spi_init();
    // Run application
    while(1){
       while((MAILBOX_CMD_ADDR & 0x01)==0);

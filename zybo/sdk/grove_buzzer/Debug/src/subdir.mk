@@ -7,7 +7,7 @@ LD_SRCS += \
 ../src/lscript.ld 
 
 C_SRCS += \
-../src/grove_buzzer.c
+../src/grove_buzzer.c 
 
 OBJS += \
 ./src/grove_buzzer.o 

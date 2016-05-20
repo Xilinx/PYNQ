@@ -71,7 +71,7 @@ def test_loop_single():
     assert value>=0.00, 'Input voltage should not be lower than 0.00V.'
     dac.write(value)
     sleep(0.05)
-    assert round(abs(value-adc.read()),2)<0.1, 'Read value != write value.'
+    assert round(abs(value-adc.read()[0]),2)<0.1, 'Read value != write value.'
 
 @pytest.mark.run(order=26) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
@@ -95,7 +95,7 @@ def test_loop_random():
         value = round(0.0001*randint(0,20000),4)
         dac.write(value)
         sleep(0.05)
-        assert round(abs(value-adc.read()),2)<0.1, \
+        assert round(abs(value-adc.read()[0]),2)<0.1, \
             'Read value {} != write value {}.'.format(adc.read(), value)
     
     del dac,adc

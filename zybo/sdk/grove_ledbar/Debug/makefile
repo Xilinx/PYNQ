@@ -45,20 +45,12 @@ grove_ledbar.elf.size: grove_ledbar.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
-grove_ledbar.bin: grove_ledbar.elf
-	@echo 'Invoking: MicroBlaze Bin Gen'
-	mb-objcopy -O binary grove_ledbar.elf grove_ledbar.bin
-	@echo 'Finished building: $@'
-	@echo ' '
-
-
-
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_ledbar.elf grove_ledbar.bin
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_ledbar.elf
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE) grove_ledbar.bin
+secondary-outputs: $(ELFSIZE)
 
 .PHONY: all clean dependents
 .SECONDARY:

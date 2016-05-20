@@ -54,8 +54,6 @@
  *****************************************************************************/
 
 #include "xparameters.h"
-#include "xspi.h"
-#include "xspi_l.h"
 #include "pmod.h"
 
 #define SPI_BASEADDR XPAR_SPI_0_BASEADDR // base address of QSPI[0]
@@ -130,46 +128,6 @@ static int sinetable[256] = {
 		0x67, 0x6A, 0x6D, 0x70, 0x74, 0x77, 0x7A, 0x7D
 		 };
 
-
-void delay(void) {
-	int i=0;
-	for(i=0;i<7;i++);
-}
-
-void my_spi_transfer(u32 BaseAddress, int bytecount) {
-	int i;
-
-	Xil_Out32(BaseAddress+XSP_CR_OFFSET,0x18e);
-	Xil_Out32(BaseAddress+XSP_SSR_OFFSET, 0xfe);
-	for (i=0; i<bytecount; i++)
-	{
-		Xil_Out32(BaseAddress+XSP_DTR_OFFSET, WriteBuffer[i]);
-	}
-	Xil_Out32(BaseAddress+XSP_CR_OFFSET,0x08e);
-	while(((Xil_In32(BaseAddress+XSP_SR_OFFSET) & 0x04)) != 0x04);
-	delay();
-	// Slave de-select
-	Xil_Out32(BaseAddress+XSP_SSR_OFFSET, 0xff);
-}
-
-void SpiInit(void) {
-	u32 Control;
-
-	// Reset SPI
-	XSpi_WriteReg(SPI_BASEADDR, XSP_SRR_OFFSET, 0xa);
-	// Master mode
-	Control = Xil_In32(SPI_BASEADDR+XSP_CR_OFFSET);
-    // Master Mode
-	Control |= XSP_CR_MASTER_MODE_MASK;
-    // Enable SPI
-	Control |= XSP_CR_ENABLE_MASK;
-    // Slave select manually
-	Control |= XSP_INTR_SLAVE_MODE_MASK;
-    // Disable Transmitter
-	Control |= XSP_CR_TRANS_INHIBIT_MASK;
-	Xil_Out32(SPI_BASEADDR+XSP_CR_OFFSET, Control);
-}
-
 void RefOn(void) {
     // Turn ON internal reference voltage
 	WriteBuffer[3]=0x01;
@@ -179,7 +137,7 @@ void RefOn(void) {
 	WriteBuffer[1]=0x00;
     // write to and update requested channel
 	WriteBuffer[0]=0x08;
-	my_spi_transfer(SPI_BASEADDR, 4);
+	spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 }
 
 void RefOFF(void) {
@@ -191,7 +149,7 @@ void RefOFF(void) {
 	WriteBuffer[1]=0x00;
     // write to and update requested channel
 	WriteBuffer[0]=0x08;
-	my_spi_transfer(SPI_BASEADDR, 4);
+	spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 }
 
 void FixedGen(u8 channels, u16 fixedvalue) {
@@ -204,7 +162,7 @@ void FixedGen(u8 channels, u16 fixedvalue) {
 	// 4 most significant bits don't care | write and update DAC command
     WriteBuffer[0] = 0x03;
 
-	my_spi_transfer(SPI_BASEADDR, 4);
+	spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 }
 
 void SqWaveGen(u8 channels, u8 numofcycles, u16 delay) {
@@ -218,14 +176,14 @@ void SqWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 			WriteBuffer[2] = 0xff;
 			WriteBuffer[1] = (channels << 4) | 0x0f;
 			for(j=0; j< 4096; j++) {
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay>2)
 					delay_us(delay/2);
 			}
 			WriteBuffer[2] = 0x00;
 			WriteBuffer[1] = (channels << 4) | 0x00;
 			for(j=0; j< 4096; j++) {
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay>2)
 					delay_us(delay/2);
 			}
@@ -236,14 +194,14 @@ void SqWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 			WriteBuffer[2] = 0xff;
 			WriteBuffer[1] = (channels << 4) | 0x0f;
 			for(j=0; j< 4096; j++) {
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay>2)
 					delay_us(delay/2);
 			}
 			WriteBuffer[2] = 0x00;
 			WriteBuffer[1] = (channels << 4) | 0x00;
 			for(j=0; j< 4096; j++) {
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay>2)
 					delay_us(delay/2);
 			}
@@ -262,13 +220,13 @@ void SawToothWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 			for(j=0; j< 4096; j++) {
 				WriteBuffer[2] = j & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
 			WriteBuffer[2] = 0x00;
 			WriteBuffer[1] = (channels << 4) | 0x00;
-			my_spi_transfer(SPI_BASEADDR, 4);
+			spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 			if(delay)
 				delay_us(delay);
 		}
@@ -278,13 +236,13 @@ void SawToothWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 			for(j=0; j< 4096; j++) {
 				WriteBuffer[2] = j & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
 			WriteBuffer[2] = 0x00;
 			WriteBuffer[1] = (channels << 4) | 0x00;
-			my_spi_transfer(SPI_BASEADDR, 4);
+			spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 			if(delay)
 				delay_us(delay);
 		}
@@ -302,14 +260,14 @@ void TriangleWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 			for(j=0; j< 4096; j++) {
 				WriteBuffer[2] = j & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
 			for(j=4095; j>=0; j--) {
 				WriteBuffer[2] = j & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
@@ -320,14 +278,14 @@ void TriangleWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 			for(j=0; j< 4096; j++) {
 				WriteBuffer[2] = j & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
 			for(j=4095; j>=0; j--) {
 				WriteBuffer[2] = j & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
@@ -348,7 +306,7 @@ void SineWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 				num = (sinetable[j%256] << 4);
 				WriteBuffer[2] = num & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
@@ -360,7 +318,7 @@ void SineWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 				num = (sinetable[j%256] << 4);
 				WriteBuffer[2] = num & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
@@ -383,7 +341,7 @@ void RandomWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 				num = MAILBOX_DATA((j%256)+1);
 				WriteBuffer[2] = num & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
@@ -395,7 +353,7 @@ void RandomWaveGen(u8 channels, u8 numofcycles, u16 delay) {
 				num = MAILBOX_DATA((j%256)+1);
 				WriteBuffer[2] = num & 0xff;
 				WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-				my_spi_transfer(SPI_BASEADDR, 4);
+				spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
 				if(delay)
 					delay_us(delay);
 			}
@@ -432,13 +390,8 @@ int main(void)
      *  rest of the bits are configured to default gpio channels 
      *  i.e. gpio[0] to pmod bit 2, gpio[1] to pmod bit 4, etc.
      */
-    // isolate configuration port by writing 0 to slv_reg1[31]
-	Xil_Out32(SWITCH_BASEADDR+4,0x00000000);
-	Xil_Out32(SWITCH_BASEADDR,0xA0CDA0CD);
-    // Enable configuration by writing 1 to slv_reg1[31]
-	Xil_Out32(SWITCH_BASEADDR+4,0x80000000);
+    configureSwitch(SS,MOSI,GPIO_2,SPICLK,GPIO_4, GPIO_5, GPIO_6, GPIO_7);
 
-	SpiInit();
 	RefOn();
 	while(1){
 		while((MAILBOX_CMD_ADDR & 0x01)==0);

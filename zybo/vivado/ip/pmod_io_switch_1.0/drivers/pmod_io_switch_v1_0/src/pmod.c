@@ -54,11 +54,6 @@
 // The Timer Counter instance
 XTmrCtr TimerInst_0;
 
-void spi_delay(void){
-    int i=0;
-    for(i=0;i<9;i++);
-}
-
 void spi_transfer(u32 BaseAddress, int bytecount, 
                     u8* readBuffer, u8* writeBuffer) {
     int i;
@@ -71,9 +66,14 @@ void spi_transfer(u32 BaseAddress, int bytecount,
     }
     XSpi_WriteReg(BaseAddress,XSP_CR_OFFSET,0x08e);
     while(((XSpi_ReadReg(BaseAddress,XSP_SR_OFFSET) & 0x04)) != 0x04);
-    spi_delay();
-    // Slave de-select
-    XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xff);
+    // delay for about 100 ns
+    XTmrCtr_SetResetValue(&TimerInst_0, 1, 10);
+    // Start the timer0
+    XTmrCtr_Start(&TimerInst_0, 1);
+    // Wait for the delay to lapse
+    while(!XTmrCtr_IsExpired(&TimerInst_0,1));
+    // Stop the timer0
+    XTmrCtr_Stop(&TimerInst_0, 1);
     
     // Read SPI
     for(i=0;i< bytecount; i++){

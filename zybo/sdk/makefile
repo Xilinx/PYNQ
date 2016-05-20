@@ -8,6 +8,7 @@ MBBINS = pmod_adc.bin \
 		pmod_tmp2.bin \
 		pmod_dpot.bin \
 		pmod_timer.bin \
+		pmod_pwm.bin \
 		mailbox.bin \
 		grove_adc.bin \
 		grove_oled.bin \

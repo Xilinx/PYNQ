@@ -53,3 +53,4 @@ from .grove_tmp import Grove_TMP
 from .grove_light import Grove_Light
 from .grove_buzzer import Grove_Buzzer
 from .pmod_timer import PMOD_Timer
+from .pmod_pwm import PMOD_PWM

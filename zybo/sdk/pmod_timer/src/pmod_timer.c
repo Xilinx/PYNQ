@@ -1,31 +1,31 @@
 /******************************************************************************
  *  Copyright (c) 2016, Xilinx, Inc.
  *  All rights reserved.
- * 
- *  Redistribution and use in source and binary forms, with or without 
+ *
+ *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
  *
- *  1.  Redistributions of source code must retain the above copyright notice, 
+ *  1.  Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *
- *  2.  Redistributions in binary form must reproduce the above copyright 
- *      notice, this list of conditions and the following disclaimer in the 
+ *  2.  Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
  *      documentation and/or other materials provided with the distribution.
  *
- *  3.  Neither the name of the copyright holder nor the names of its 
- *      contributors may be used to endorse or promote products derived from 
+ *  3.  Neither the name of the copyright holder nor the names of its
+ *      contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
- *  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
- *  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
- *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- *  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
- *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
- *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ *  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
@@ -70,12 +70,12 @@
 // Mailbox commands
 // Command passed in MAILBOX_WRITE_CMD
 #define STOP_TIMER          0x1
-#define GENERATE_FOREVER   0x2
+#define GENERATE_FOREVER    0x2
 #define GENERATE_N_TIMES    0x4
 #define EVENT_OCCURED       0x8
 #define COUNT_EVENTS        0x10
 #define MEASURE_PERIOD      0x20
-/* 
+/*
  * Parameters passed in MAILBOX_DATA(0):
  * STOP_TIMER: None
  * GENERATE_FOREVER: Period in multiple number of 10 ns
@@ -105,7 +105,7 @@ int main(void) {
     u32 count1, count2;
     u32 status;
 
-    /* 
+    /*
      * Configuring PMOD IO Switch to connect GPIO to pmod
      * Timer is connected to bit[0] of the Channel 1 of AXI GPIO instance
      */
@@ -115,7 +115,7 @@ int main(void) {
     pmod_init();
     // by default tristate timer output
     Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
-    
+
     while(1){
         while(MAILBOX_CMD_ADDR==0); // wait for CMD to be issued
         cmd = MAILBOX_CMD_ADDR;
@@ -125,7 +125,7 @@ int main(void) {
                 XTmrCtr_Stop(&TimerInst_0, 1);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
-                
+
             case GENERATE_FOREVER:
                 // tri-state control negated so output can be driven
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,0);
@@ -138,7 +138,7 @@ int main(void) {
                 XTmrCtr_Start(&TimerInst_0, 0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
-                
+
             case GENERATE_N_TIMES:
                 // tri-state control negated so output can be driven
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,0);
@@ -155,7 +155,7 @@ int main(void) {
                     status=XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0);
                     if(status & 0x100){
                         // wait for the asserted edge, reset the flag
-                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                         TCSR0, status);
                         NumberOfTimes--;
                     }
@@ -163,7 +163,7 @@ int main(void) {
                 XTmrCtr_Stop(&TimerInst_0, 0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
-                
+
             case EVENT_OCCURED:
                 // tri-state control asserted to enable input to capture
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
@@ -174,15 +174,15 @@ int main(void) {
                  * Use timer module 1 for the duration
                  * Load timer 1's Load register
                  */
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, 
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1,
                                     TLR0, CaptureDuration);
-                /* 
-                 * 0001 0010 0010 =>  no cascade, no all timers, 
+                /*
+                 * 0001 0010 0010 =>  no cascade, no all timers,
                  *                    no pwm, clear interrupt status,
-                 *                    disable timer, no interrupt, 
+                 *                    disable timer, no interrupt,
                  *                    load timer, hold capture value,
-                 *                    disable external capture, 
-                 *                    disable external generate, 
+                 *                    disable external capture,
+                 *                    disable external generate,
                  *                    down counter, generate mode
                  */
                 // clear int flag and load counter
@@ -190,28 +190,28 @@ int main(void) {
                 // enable timer 1 in compare mode, no load counter
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0x082);
                 /*
-                 * 0001 1000 1001 =>  no cascade, no all timers, 
+                 * 0001 1000 1001 =>  no cascade, no all timers,
                  *                    no pwm, clear interrupt status,
-                 *                    enable timer, no interrupt, 
+                 *                    enable timer, no interrupt,
                  *                    no load timer, hold capture value,
-                 *                    enable external capture, 
-                 *                    disable external generate, 
+                 *                    enable external capture,
+                 *                    disable external generate,
                  *                    up counter, capture mode
                  */
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x189);
                 while(1) {
-                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 1, 
+                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 1,
                                         TCSR0) & 0x100)){
                         // if duration over then get out, disable counter 1
-                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, 
+                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1,
                                             TCSR0, 0x100);
                         MAILBOX_DATA(0)=0;
                         break;
                     }
-                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                         TCSR0) & 0x100)){
                         // wait for the asserted edge, disable counter 0
-                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                             TCSR0, 0x100);
                         MAILBOX_DATA(0)=1;
                         break;
@@ -219,7 +219,7 @@ int main(void) {
                 }
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
-                
+
             case COUNT_EVENTS:
                 // tri-state control asserted to enable input to capture
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
@@ -231,42 +231,42 @@ int main(void) {
                  * Use timer module 1 for the duration
                  * Load timer 1's Load register
                  */
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, 
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1,
                                     TLR0, CaptureDuration);
                 /*
-                 * 0001 0010 0010 =>  no cascade, no all timers, no pwm, 
-                 *                    clear interrupt status, disable timer, 
+                 * 0001 0010 0010 =>  no cascade, no all timers, no pwm,
+                 *                    clear interrupt status, disable timer,
                  *                    no interrupt, load timer,
                  *                    hold capture value,
-                 *                    disable external capture, 
-                 *                    disable external generate, 
+                 *                    disable external capture,
+                 *                    disable external generate,
                  *                    down counter, generate mode
                  */
                 // clear int flag and load counter
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0x122);
                 // enable timer 1 in compare mode, no load counter
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0x082);
-                /* 0001 1000 1001 =>  no cascade, no all timers, no pwm, 
-                 *                    clear interrupt status, enable timer, 
-                 *                    no interrupt, no load timer, 
+                /* 0001 1000 1001 =>  no cascade, no all timers, no pwm,
+                 *                    clear interrupt status, enable timer,
+                 *                    no interrupt, no load timer,
                  *                    hold capture value,
-                 *                    enable external capture, 
-                 *                    disable external generate, up counter, 
+                 *                    enable external capture,
+                 *                    disable external generate, up counter,
                  *                    capture mode
                  */
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x189);
                 while(1) {
-                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 1, 
+                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 1,
                                         TCSR0) & 0x100)){
                         // if duration over then get out, disable counter 1
-                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, 
+                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1,
                                         TCSR0, 0x100);
                         break;
                     }
-                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                    if((XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                         TCSR0) & 0x100)){
                         // wait for the asserted edge
-                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                        XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                         TCSR0, 0x189);
                         count++;
                     }
@@ -274,7 +274,7 @@ int main(void) {
                 MAILBOX_DATA(0)=count;
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
-                
+
             case MEASURE_PERIOD:
                 // tri-state control asserted to enable input to capture
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
@@ -285,32 +285,32 @@ int main(void) {
                 count1=0;
                 count2=0;
                 /*
-                 * 0001 1000 1001 =>  no cascade, no all timers, no pwm, 
-                 *                    clear interrupt status, enable timer, 
-                 *                    no interrupt, no load timer, 
+                 * 0001 1000 1001 =>  no cascade, no all timers, no pwm,
+                 *                    clear interrupt status, enable timer,
+                 *                    no interrupt, no load timer,
                  *                    hold capture value,
-                 *                    enable external capture, 
-                 *                    disable external generate, 
+                 *                    enable external capture,
+                 *                    disable external generate,
                  *                    up counter, capture mode
                  */
                 // clear capture flag and enable capture mode
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x189);
                 // skip high or 1st asserted edge
-                while(!(XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                while(!(XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                         TCSR0) & 0x100));
                 // dummy read
                 XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, TLR0);
                 // clear capture flag and enable capture mode
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x189);
                 // wait for 1st asserted edge
-                while(!(XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                while(!(XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                         TCSR0) & 0x100));
                 // read counter value
                 count1=XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, TLR0);
                 // reset interrupt flag
                 XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x189);
                 // wait for 2nd asserted edge
-                while(!(XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, 
+                while(!(XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0,
                                         TCSR0) & 0x100));
                 // read counter value
                 count2=XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, TLR0);
@@ -326,3 +326,5 @@ int main(void) {
     }
     return 0;
 }
+
+
