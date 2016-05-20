@@ -88,9 +88,8 @@ def _get_dict_ip_addr(tcl_name):
         for line in f:
             m = re.search('create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) '+\
                     '-offset (0[xX][0-9a-fA-F]+) '+\
-                    '(\[get_bd_addr_spaces processing_system7_0/Data\]|\
-                        \[get_bd_addr_spaces ps7/Data\])'+\
-                    '( \[.+?\]) '+\
+                    '\[get_bd_addr_spaces (processing_system7_0|ps7)/Data\] '+\
+                    '(\[.+?\]) '+\
                     '([A-Za-z0-9_]+)',line,re.IGNORECASE)
             if m:
                 # Each entry is [base, range, state]
