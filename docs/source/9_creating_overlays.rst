@@ -131,4 +131,4 @@ Similarly, to check the GPIO currently on the programmable logic:
 
 New overlay example
 -------------------------------------
-An example notebook ``overlay_mmio_gpio.ipynb`` is available in the *examples* folder, showing how to write Python to interface to an overlay. 
+An example notebook ``overlay_integration.ipynb`` is available in the *examples* folder, showing how to write Python to interface to an overlay. 

@@ -47,35 +47,89 @@ The Bitstream can then be downloaded from Python:
 
 
 
-Integrating new overlays into Pynq
--------------------------------------
+Using new overlays with MMIO
+-----------------------------------
 Once a new overlay has been created, the overlay needs to be integrated into the Pynq environment.  It is recommended to use an existing Vivado *Overlay project* as a starting point for a new overlay. This will ensure the settings for the Zynq PS, and the existing PS/PL interfaces are used in the new project. 
 
 As with any application running on Zynq, the interface between the software and hardware is via the Zynq memory map. 
 
-To help ease the effort to communicate between the ARM Cortex-A9 and programmable logic, Pynq includes the *MMIO* Python class. Once the Overlay has been created, and the memory map is known, the *MMIO* can be used to read/write to/from memory mapped locations in the PL. 
+An overlay can have many IP blocks mapped to the ARM system memory. A memory mapped IP can be accessed from Python. ``ip_dict`` can be used to to discover memory mapped IPs in a specific overlay (e.g. `audiovideo.bit`):
+
+.. code-block:: python
+
+   from pynq import Overlay
+   Overlay("audiovideo.bit").ip_dict
+
+
+   
+This will show the IP dictionary of the overlay. Each entry in this IP dictionary is a key-value pair. For example, the following is the entry for the IOP Block memory (MicroBlaze Block Memory Controller): 
+
+    ``'SEG_mb_bram_ctrl_1_Mem0': ['0x40000000', '0x8000', None]``
+
+Where SEG_mb_bram_ctrl_1_Mem0 is the IP instance name; all  IP instance names are parsed from the `*.tcl` file used to build the VIvado project (e.g. `audiovideo.tcl`).
+
+   - 0x40000000 is the base address of the IP.
+   - 0x8000 is the address range in bytes.
+   - The third item records the state associated with the IP. It is `None` by default, but can be defined by the user.
+
+Similarly, to find the addressable IPs currently on the programmable logic, users can do:
+
+.. code-block:: python
+
+   from pynq import PL
+   PL.ip_dict
+
+Pynq includes the *MMIO* class, which can be used to communicate between the ARM processor and programmable logic. Once the Overlay has been created, and the memory map is known, the *MMIO* can be used to read/write to/from memory mapped locations in the PL. 
 
 The Python code for the MMIO can be viewed here:
 
     ``<Pynq GitHub Repository>/Pynq/python/pynq/mmio.py``
 
-An example use of the MMIO class to access an area of 4096 bytes in the PL, starting at address 0x4000_0000 is shown below. 
+As an example, the MMIO class can be used to access an area of 0x8000 bytes in the PL, starting at address 0x40000000 (`SEG_mb_bram_ctrl_1_Mem0`): 
 
 .. code-block:: python
 
    from pynq import MMIO
 
-   # an IP is located at 0x4000_0000
-   myip = MMIO(0x40000000,4096)
+   # an IP is located at 0x40000000
+   myip = MMIO(0x40000000,0x8000)
 
    # Read from the IP at offset 0
    myip.read(0)
 
 
-In the example above, any accesses outside the range (4096 bytes) will cause an error. When creating the python driver for a new hardware function, the MMIO can be wrapped inside a Python module. 
-   
-   
-   
+In the example above, any accesses outside the address range 0x8000 (32768 bytes) will cause an error. When creating the python driver for a new hardware function, the MMIO can be wrapped inside a Python module. 
+
+
+
+Using new overlays with GPIO
+-----------------------------------
+The control interface between the ARM processor and programmable logic is via the Zynq GPIO. The information about a GPIO is kept in the GPIO dictionary of an overlay. 
+
+.. code-block:: python
+
+   from pynq import Overlay
+   Overlay("audiovideo.bit").gpio_dict
+
+
+An example of the entry in a GPIO dictionary can be:
+
+    ``'mb_1_reset/Din': [0, None]``
+
+The key of the entry is the GPIO instance name; all the GPIO instance names are parsed from the `*.tcl` file (e.g. `audiovideo.tcl`) in the GPIO connection section. The value of the entry is a list of 2 items:
+
+  - The first item shows the user index of the GPIO.
+  - The second item records the state associated with the GPIO. It is `None` by default, but   can be used flexibly by the users.
+
+Similarly, to check the GPIO currently on the programmable logic:
+
+.. code-block:: python
+
+   from pynq import PL
+   PL.gpio_dict
+
+
+
 New overlay example
 -------------------------------------
-An example notebook ``writing_python_for_overlays.ipynb`` is available in the *examples* folder, showing how to write Python to interface to an overlay. 
+An example notebook ``overlay_integration.ipynb`` is available in the *examples* folder, showing how to write Python to interface to an overlay. 

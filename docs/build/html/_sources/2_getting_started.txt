@@ -114,7 +114,7 @@ There are also a number of example notebooks available showing examples of how t
    
 Accessing files on the board
 ----------------------------
-`Samba <https://www.samba.org/>`_, a file sharing service, is running on the board. The home area on the board can be accessed, and you can transfer files to and from the board as a network drive. 
+`Samba <https://www.samba.org/>`_, a file sharing service, is running on the board. The home area on the board can be accessed as a network drive, and you can transfer files to and from the board. 
 
 You can go to ``\\pynq\xpp`` to access the pynq home area. Remember to change the hostname if necessary.
 

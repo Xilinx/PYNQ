@@ -1,22 +1,22 @@
 IO Processors: Writing your own software
 ========================================
 
-There are a number of steps required before you can start writing your own software for an IOP. This document aims to describe the IOP architecture, and how to set up the required SDK projects to allow you to write your own application for MicroBlaze. This can be done automatically using provided Makefiles. 
+There are a number of steps required before you can start writing your own software for an IOP. This document will describe the IOP architecture, and how to set up and build the required SDK projects to allow you to write your own application for the MicroBlaze inside an IOP. The SDK projects can be set up manually using the SDK GUI, or automatically using provided Makefiles. 
 
 IOP Processors
 --------------
 
-IO Processors (IOPs) contain a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, an `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_, `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_, `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_, `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_, and a Configurable Switch which connects to a Pmod port/ An 
+IO Processors (IOPs) contain a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, an `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_, `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_, `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_, `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_. the interface peripherals are connected to a Configurable Switch which connects to a Pmod port.
 
 .. image:: ./images/iop.jpg
    :scale: 75%
    :align: center
    
 An IOP can be used as a flexible controller for different types of external peripherals.
-The ARM Cortex-A9 is an application processor, running Linux, and is not well-suited for real time applications. An IOP can also be used as a real-time controller. 
+The ARM Cortex-A9 is an application processor, running Linux, and is not well-suited for real time applications. An IOP can be used as a real-time controller. 
 
-The IOP switch can be configured to route signals between the physical Pmod interface (external pins), and the available internal peripherals in the IOP sub-system (listed above and showing in the figure). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA design to support a different interface standard. 
-
+The IOP's configurable switch can be used to route signals between the physical Pmod interface (external pins), and the available interface peripherals in the IOP sub-system (IIC, SPI, GPIO, Timer). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA design to support a different interface standard. 
+     
 IOPs can also be used standalone to offload some processing from the main processer. However, note that the MicroBlaze processor inside an IOP is running at 100 MHz, compared to the Dual-Core ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor architectures and features should be taken into account when offloading application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing unit will be much more efficient than running on the MicroBlaze. The MicroBlaze is most appropriate for low-level or real-time applications.
 
 Xilinx Software installation
@@ -154,15 +154,13 @@ There is no memory management in the IOP. You must ensure the application, inclu
 It is recommended to follow the convention for data communication between the two processors. These MAILBOX values are defined in the pmod.h file.  
 
 
-   ================================= = ========
-   Instruction and data memory start = 0x0
-   Instruction and data memory size  = 0x6fff
-
-
-   Shared mailbox memory start       = 0x7000
-   Shared mailbox memory size        = 0x1000
-   Shared mailbox Command Address    = 0x7ffc
-   ================================= = ========
+   ================================= ========
+   Instruction and data memory start 0x0
+   Instruction and data memory size  0x6fff
+   Shared mailbox memory start       0x7000
+   Shared mailbox memory size        0x1000
+   Shared mailbox Command Address    0x7ffc
+   ================================= ========
 
 
 The following example explains how Python can initiate a read from a peripheral connected to an IOP. 

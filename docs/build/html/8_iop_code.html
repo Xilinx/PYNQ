@@ -117,7 +117,7 @@
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_modules.html">Pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
@@ -282,14 +282,14 @@ div.nboutput  > :nth-child(2).stderr {
 </style>
 <div class="section" id="io-processors-writing-your-own-software">
 <h1>IO Processors: Writing your own software<a class="headerlink" href="#io-processors-writing-your-own-software" title="Permalink to this headline">¶</a></h1>
-<p>There are a number of steps required before you can start writing your own software for an IOP. This document aims to describe the IOP architecture, and how to set up the required SDK projects to allow you to write your own application for MicroBlaze. This can be done automatically using provided Makefiles.</p>
+<p>There are a number of steps required before you can start writing your own software for an IOP. This document will describe the IOP architecture, and how to set up and build the required SDK projects to allow you to write your own application for the MicroBlaze inside an IOP. The SDK projects can be set up manually using the SDK GUI, or automatically using provided Makefiles.</p>
 <div class="section" id="iop-processors">
 <h2>IOP Processors<a class="headerlink" href="#iop-processors" title="Permalink to this headline">¶</a></h2>
-<p>IO Processors (IOPs) contain a <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, an <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf">AXI Timer</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf">AXI IIC</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf">AXI SPI</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf">AXI GPIO</a>, and a Configurable Switch which connects to a Pmod port/ An</p>
+<p>IO Processors (IOPs) contain a <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, a Debug module, an <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf">AXI Timer</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf">AXI IIC</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf">AXI SPI</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf">AXI GPIO</a>. the interface peripherals are connected to a Configurable Switch which connects to a Pmod port.</p>
 <a class="reference internal image-reference" href="_images/iop1.jpg"><img alt="_images/iop1.jpg" class="align-center" src="_images/iop1.jpg" style="width: 300.0px; height: 257.25px;" /></a>
 <p>An IOP can be used as a flexible controller for different types of external peripherals.
-The ARM Cortex-A9 is an application processor, running Linux, and is not well-suited for real time applications. An IOP can also be used as a real-time controller.</p>
-<p>The IOP switch can be configured to route signals between the physical Pmod interface (external pins), and the available internal peripherals in the IOP sub-system (listed above and showing in the figure). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA design to support a different interface standard.</p>
+The ARM Cortex-A9 is an application processor, running Linux, and is not well-suited for real time applications. An IOP can be used as a real-time controller.</p>
+<p>The IOP&#8217;s configurable switch can be used to route signals between the physical Pmod interface (external pins), and the available interface peripherals in the IOP sub-system (IIC, SPI, GPIO, Timer). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA design to support a different interface standard.</p>
 <p>IOPs can also be used standalone to offload some processing from the main processer. However, note that the MicroBlaze processor inside an IOP is running at 100 MHz, compared to the Dual-Core ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor architectures and features should be taken into account when offloading application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing unit will be much more efficient than running on the MicroBlaze. The MicroBlaze is most appropriate for low-level or real-time applications.</p>
 </div>
 <div class="section" id="xilinx-software-installation">
@@ -374,29 +374,23 @@ Pynq and the application running on the IOP can write to anywhere in the shared 
 <blockquote>
 <div><table border="1" class="docutils">
 <colgroup>
-<col width="79%" />
-<col width="2%" />
-<col width="19%" />
+<col width="80%" />
+<col width="20%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>Instruction and data memory start</td>
-<td>=</td>
 <td>0x0</td>
 </tr>
 <tr class="row-even"><td>Instruction and data memory size</td>
-<td>=</td>
 <td>0x6fff</td>
 </tr>
 <tr class="row-odd"><td>Shared mailbox memory start</td>
-<td>=</td>
 <td>0x7000</td>
 </tr>
 <tr class="row-even"><td>Shared mailbox memory size</td>
-<td>=</td>
 <td>0x1000</td>
 </tr>
 <tr class="row-odd"><td>Shared mailbox Command Address</td>
-<td>=</td>
 <td>0x7ffc</td>
 </tr>
 </tbody>

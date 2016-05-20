@@ -92,13 +92,14 @@
 <li class="toctree-l3"><a class="reference internal" href="#Supported-peripherals">Supported peripherals</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Pmod-Connector">Pmod Connector</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Pmod-pin-numbers-and-assignment">Pmod pin numbers and assignment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Pmod-Grove-Adapter">Pmod-Grove Adapter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Pmod-Pin-configuration">Pmod Pin configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Pmod-Grove-Adapter">Pmod-Grove Adapter</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#IO-Processors">IO Processors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Zybo-Pmod-I/O-overlay">Zybo Pmod I/O overlay</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)">Example: Using the OLED and the ambient light sensor (ALS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Using-Pmods-with-an-overlay">Using Pmods with an overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Example:-Using-the-OLED-and-the-Ambient-Light-Sensor-(ALS)">Example: Using the OLED and the Ambient Light Sensor (ALS)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Example:-Using-the-ADC,-DAC-and-OLED">Example: Using the ADC, DAC and OLED</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Going-further">Going further</a></li>
 </ul>
@@ -108,7 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="12_modules.html">Pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_references.html">Useful Reference Links</a></li>
@@ -273,12 +274,10 @@ div.nboutput  > :nth-child(2).stderr {
 </style>
 <div class="section" id="Peripherals-and-the-Pmod-I/O-overlay">
 <h1>Peripherals and the Pmod I/O overlay<a class="headerlink" href="#Peripherals-and-the-Pmod-I/O-overlay" title="Permalink to this headline">¶</a></h1>
-<p>The Zybo can be extended with additional peripherals by connecting to
-the Pmod interfaces available on the board. Pmod stands for Peripheral
-Module, and can be used to connect peripherals and other accessories to
-the board.</p>
-<p>Pmod peripherals are accessory boards that plug directly into the Pmod
-port and are available from <a class="reference external" href="http://www.digilentinc.com">Digilent
+<p>The Zybo has 6 <em>Peripheral Module</em> (Pmod) interfaces available on the
+board. A Pmod interface is a 12-pin connector that can be used to
+connect peripherals and other accessories to the board.</p>
+<p>Pmod peripherals are available from <a class="reference external" href="http://www.digilentinc.com">Digilent
 Inc</a> and other suppliers.</p>
 <div class="section" id="Pmod-peripherals">
 <h2>Pmod peripherals<a class="headerlink" href="#Pmod-peripherals" title="Permalink to this headline">¶</a></h2>
@@ -287,15 +286,14 @@ Inc</a> and other suppliers.</p>
 </div>
 <div class="section" id="Supported-peripherals">
 <h3>Supported peripherals<a class="headerlink" href="#Supported-peripherals" title="Permalink to this headline">¶</a></h3>
-<p>Pynq current supports a number of Pmods which can be found in the pynq
-documentation <a class="reference external" href="pynq.pmods.html">pynq.pmods package</a></p>
-<p>As the PMOD interface connects to FPGA pins, any accessory or peripheral
-supported by the FPGA IO standard (i.e. that works at the correct
-voltages) that can be wired or connected to a Pmod port can be used.
-Pynq current supports a number of Grove peripherals which can be
-connected to a Pmod port through and interface board.</p>
-<p>Other peripherals can be supported by writing a custom driver using
-existing drivers as starting points.</p>
+<p>Pynq current supports a number of Pmods and Grove Peripherals. See the
+<em>pynq.pmods package</em> section of the documentation.</p>
+<p>Pmods can be plugged directly into the Pmod port. Grove Peripherals can
+be connected to the Pmod Port through a
+<a class="reference external" href="http://www.xess.com/shop/product/stickit-grove/">*StickIt*</a> adapter
+board.</p>
+<p>As the PMOD interface connects to FPGA pins, other peripherals can be
+wired to a Pmod port.</p>
 </div>
 <div class="section" id="Pmod-Connector">
 <h3>Pmod Connector<a class="headerlink" href="#Pmod-Connector" title="Permalink to this headline">¶</a></h3>
@@ -313,24 +311,35 @@ existing drivers as starting points.</p>
 </div>
 <p>Note the Pmod data pins are labelled 0-7.</p>
 </div>
-<div class="section" id="Pmod-Grove-Adapter">
-<h3>Pmod-Grove Adapter<a class="headerlink" href="#Pmod-Grove-Adapter" title="Permalink to this headline">¶</a></h3>
-<p>With a Pmod-to-Grove adapter a wide range of Grove peripherals can be
-connected to the board. Each Grove connector has 4 pins, one each for
-VCC and GND leaving 2 pins on each connector for signal wires.</p>
-<div class="figure">
-<img alt="" src="_images/Pmod_Grove_Adapter_opt.jpeg" />
-</div>
-</div>
 <div class="section" id="Pmod-Pin-configuration">
 <h3>Pmod Pin configuration<a class="headerlink" href="#Pmod-Pin-configuration" title="Permalink to this headline">¶</a></h3>
-<p>Pmods have different pin configurations depending on the number of data
-pins required. Pmod peripherals with only a single row of pins can be
-plugged into the top row or the bottom row of the Pmod connector.</p>
-<p>Some Pmods use both rows (2x4, 2x6 pins), and in general should be
+<p>Pmods come in different configurations depending on the number of data
+pins required (single row, double row, e.g. 1x6 pins, 2x4 pins, 2x6
+pins). Pmod peripherals with only a single row of pins can be plugged
+into the top row or the bottom row of the Pmod connector.</p>
+<p>Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be
 aligned to the upper-left of the connector (to align with VCC and GND).</p>
 <div class="figure">
 <img alt="" src="_images/tmp2_8pin_opt.jpeg" />
+</div>
+</div>
+<div class="section" id="Pmod-Grove-Adapter">
+<h3>Pmod-Grove Adapter<a class="headerlink" href="#Pmod-Grove-Adapter" title="Permalink to this headline">¶</a></h3>
+<p>Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins
+on each connector for signal wires. The Pmod-to-Grove StickIt adapter
+has 4 connectors for Grove devices, GR1, GR2, GR3, GR4.</p>
+<div class="figure">
+<img alt="" src="_images/Pmod_Grove_Adapter_opt.jpeg" />
+</div>
+<p>All pins operate at 3.3V. Due to different pull-up/pull-down I/O
+requirements for different peripherals (e.g. IIC requires pull-up, and
+SPI requires pull-down), Grove peripherals must be plugged into the
+appropriate connector.</p>
+<p>GR 1 and 2 pins are connected to pins with pull-down resistors, and GR3
+and GR4 are connected to pins with pull-up resistors, as indicated in
+the image. This doesn&#8217;t affect Pmods.</p>
+<div class="figure">
+<img alt="" src="_images/stickit_mapping_opt.jpg" />
 </div>
 </div>
 </div>
@@ -379,20 +388,32 @@ the IOP.</p>
 <div class="figure">
 <img alt="" src="_images/pmodio_overlay_1_opt.png" />
 </div>
-<p>A Pmod module is provided in Python, the module must be imported. For
-Pmod modules, the port that the Pmod is plugged into must also be
-specified.</p>
 </div>
-<div class="section" id="Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)">
-<h2>Example: Using the OLED and the ambient light sensor (ALS)<a class="headerlink" href="#Example:-Using-the-OLED-and-the-ambient-light-sensor-(ALS)" title="Permalink to this headline">¶</a></h2>
-<p>This examples requires the PmodOLED, and PmodALS. Plug the PmodOLED into
-Port 1, and PmodALS (Ambient Light Sensor) into the top row of Port 2.
-(The PmodALS can currently only be used in the top row of a port.)</p>
+<div class="section" id="Using-Pmods-with-an-overlay">
+<h2>Using Pmods with an overlay<a class="headerlink" href="#Using-Pmods-with-an-overlay" title="Permalink to this headline">¶</a></h2>
+<p>To use a peripheral two software components are required; a driver
+application written in C for the IOP, and a Python module. These
+components are provided as part of the Pynq pacakge for supported
+peripherals. See the <em>IO Processors: Writing your own software</em> section
+of the documentation for writing drivers for your own periphals.</p>
+<p>The Python module instantiates the peripheral, and loads the driver
+application to the appropriate IOP. The IOP will also be reset and start
+executing the new application.</p>
+<p>The Python module will send commands which the IOP, and read and write
+data from the shared memory area.</p>
+</div>
+<div class="section" id="Example:-Using-the-OLED-and-the-Ambient-Light-Sensor-(ALS)">
+<h2>Example: Using the OLED and the Ambient Light Sensor (ALS)<a class="headerlink" href="#Example:-Using-the-OLED-and-the-Ambient-Light-Sensor-(ALS)" title="Permalink to this headline">¶</a></h2>
+<p>This examples requires the PmodOLED (OLED), and PmodALS (Ambient Light
+Sensor). Plug the PmodOLED into Port 1, and PmodALS into the top row of
+Port 2. (Currently, the PmodALS can only be used in the top row of a
+Pmod port.)</p>
 <p>OLED displaying light reading from ambient light sensor:</p>
 <div class="figure">
 <img alt="" src="_images/als_oled_Demo_opt.jpeg" />
 </div>
-<p>Run the following code to import the OLED module and instantiate it:</p>
+<p>Execute the next cell to load the FPGA Overlay, and then import the OLED
+module and instantiate it on port 1/IOP 1:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [1]:
@@ -428,8 +449,8 @@ In [3]:
 </pre></div>
 </div>
 </div>
-<p>Import the ALS library, create an instance, and read the value from the
-sensor</p>
+<p>Import the ALS library, create an instance of the ALS Pmod, and read the
+value from the sensor</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [4]:
@@ -497,31 +518,30 @@ Out[6]:
 </div>
 <div class="section" id="Example:-Using-the-ADC,-DAC-and-OLED">
 <h2>Example: Using the ADC, DAC and OLED<a class="headerlink" href="#Example:-Using-the-ADC,-DAC-and-OLED" title="Permalink to this headline">¶</a></h2>
-<p>This example requires the PmodAD2, PmodDA4 and PmodOLED. You will
-connect the output of the DAC to the input of the ADC, write a value to
-the DAC which the ADC will measure, and finally, write the value to the
-OLED for display.</p>
+<p>This example requires the PmodAD2 (Analog to Digital Converter), PmodDA4
+(Digital to Analog Converter) and PmodOLED (OLED). You will connect the
+output of the DAC to the input of the ADC, write a value to the DAC
+which the ADC will measure, and finally, write the value to the OLED for
+display.</p>
 <ul class="simple">
 <li>Set the jumper (JP1) on the PmodAD2 to Ref</li>
 </ul>
 <p>Insert the following Pmods: * DAC to Port 1 (Top Row) * ADC to Port 2
 (Align to the left of the port) * OLED to Port 4</p>
 <ul class="simple">
-<li>Connect a wire from PmodA4 Pin A to PmodAD2 V1</li>
+<li>Connect a wire from PmodA4, pin: A to PmodAD2, pin: V1</li>
 </ul>
 <div class="figure">
 <img alt="" src="_images/adc_dac_demo_opt.jpeg" />
 </div>
-<ul class="simple">
-<li>Power on the board, and open the Pynq portal
-<a class="reference external" href="http://pynq:9090">pynq:9090</a></li>
-<li>Run Python script below.</li>
-</ul>
-<p>Note the overlay will be reloaded to reset the IOPs if the code at the
-top of this notebook was run. You can change the value written to the
-DAC (must be between 0 and 2.0) and rerun the cell. The return value
-from the ADC and displayed on the LED is the measured value. There may
-be some small error between this and the value written to the DAC.</p>
+<p>Execute the cell below. Note that if you executed the cells above, you
+already loaded the overlay. However, it is good practice to load your
+overlay at the start of your code each time.</p>
+<p>You can set a different DAC output voltae by modifying the value in the
+cell below (must be between 0 and 2.0) and executing the cell again. The
+return value from the ADC and displayed on the LED is the measured
+value. There may be some small error between this and the value written
+to the DAC.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 In [7]:
@@ -543,31 +563,24 @@ In [7]:
 </pre></div>
 </div>
 </div>
-<p>For documentation on other supported peripherals, see</p>
-<ul class="simple">
-<li><a class="reference external" href="pynq.pmods.html">Pmods pynq.pmods package</a></li>
-</ul>
+<p>For information on other supported peripherals and their API, see the
+<em>Pmods pynq.pmods package</em> section of the documentation.</p>
 </div>
 <div class="section" id="Going-further">
 <h2>Going further<a class="headerlink" href="#Going-further" title="Permalink to this headline">¶</a></h2>
 <p>Scripts can be created and executed from the notebook.</p>
-<p>In this example, the code below will be copied to a script and saved on
-the board.</p>
-<p>Go back to the Pynq Portal <a class="reference external" href="http://pynq:9090">pynq:9090</a></p>
+<p>In this example, the code below should be copied to a script and saved
+on the board.</p>
 <ul class="simple">
-<li>Navigate to the Getting_Started folder</li>
-<li>Select New &gt; Text File (which opens in a new window)</li>
-<li>Copy and paste the code from the cell below into the file</li>
-<li>Rename the file dac_loop.py, and save it (verify it is in the
-Getting_Started folder)</li>
+<li>In the Pynq Portal home area <a class="reference external" href="http://pynq:9090">pynq:9090</a> go to
+the <em>Getting Started</em> folder and select New &gt; Text File (which opens
+in a new window)</li>
+<li>Copy and paste the code below into the file</li>
+<li>Rename the file dac_loop.py (File &gt; Rename), and save it (File
+Rename).</li>
+<li>In the Pynq portal Getting_Started folder verify the file exists</li>
 </ul>
-<div class="nbinput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
-In [8]:
-</pre></div>
-</div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="c">#### dac_loop.py</span>
 <span class="k">def</span> <span class="nf">dac_loop</span><span class="p">(</span><span class="n">DAC_Port</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ADC_Port</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">OLED_Port</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span><span class="n">Switch_nmbr</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">delay_secs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
@@ -577,9 +590,9 @@ In [8]:
     <span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span>
     <span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
     <span class="c"># Import PMOD classes from library PythonXilinx (pynq.pmods)</span>
-    <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_OLED</span><span class="p">,</span> <span class="n">PMOD_ADC</span><span class="p">,</span> <span class="n">PMOD_DAC</span>
+    <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">PMOD_OLED</span><span class="p">,</span> <span class="n">PMOD_ADC</span><span class="p">,</span> <span class="n">PMOD_DAC</span>
 
-    <span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span>  <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span>
+    <span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span>  <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span>
 
     <span class="c"># Match PMOD instances to PMOD Connectors</span>
 
@@ -595,9 +608,9 @@ In [8]:
     <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">if</span><span class="p">(</span><span class="n">Switch</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s">&quot;Switch 3 is off. To run the loop, set Switch 3 to on before running&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Switch 3 is off. To run the loop, set Switch 3 to on before running&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s">&quot;Turn Switch 3 off to stop the program&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Turn Switch 3 off to stop the program&quot;</span><span class="p">)</span>
 
     <span class="k">while</span> <span class="n">Switch</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
         <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -605,30 +618,30 @@ In [8]:
             <span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
             <span class="n">measured</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s">&#39;Measurement {} equals: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">measured</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Measurement {} equals: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">measured</span><span class="p">))</span>
             <span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">measured</span><span class="p">))</span>
     <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
 </pre></div>
 </div>
-</div>
-<p>By default, DAC is connected to Port 1 (Top Row), ADC is connected to
-Port 2, and OLED is connected to Port 4. The function reads <em>Switch</em> 4
-on the board. If the switch is on, it will run a loop that writes to the
-DAC, reads the value on the ADC and writes to the OLED. This is the same
-as the previous example, but this time executing from a script, and
-inside a loop controlled by a switch.</p>
-<p>To run this code from the notebook, the cell above can be executed which
-loads dac_loop() into the notebook</p>
-<p>Try executing the cell above, set Switch 3 on the board to &#8220;on&#8221;, and
-then run the cell below:</p>
+<p>By default, the DAC is be connected to Port 1 (Top Row), the ADC is
+connected to Port 2, and OLED is connected to Port 4. The function reads
+<em>Switch</em> 3 on the board. If the switch is on, it will run a loop that
+writes to the DAC, reads the value on the ADC and writes to the OLED.
+This is the same functionality as the previous example, but this time
+executing from a script, and inside a loop controlled by a switch.</p>
+<p>Set Switch 3 on the board to &#8220;on&#8221; (or up), and then execute the cell
+below. This will run the script which will load the dac_loop() function
+into the notebook, and then execute the dac_loop() function in the cell
+below. You can change the ports the Pmods are attached to by passing the
+port numbers as parameters to the function.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [10]:
+In [4]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">dac_loop</span><span class="p">()</span>
+<span class="o">%</span><span class="k">run</span> dac_loop.py
+<span class="n">dac_loop</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -649,25 +662,6 @@ Measurement 8 equals: 0.7773
 Measurement 9 equals: 0.8711
 Measurement 10 equals: 1.0078
 </pre></div></div>
-</div>
-<div class="line-block">
-<div class="line">The notebook also supports scripts.</div>
-<div class="line">To run from the script, first Restart the kernel (Kernel &gt; Restart) to
-clear the dac_loop function previously loaded Execute the cells below
-to run the script which will load the dac_loop() function into the
-notebook, and then uncomment and execute the dac_loop() function in
-the cell below</div>
-</div>
-<div class="nbinput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
-In [ ]:
-</pre></div>
-</div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="c">#%run dac_loop.py</span>
-<span class="c">#dac_loop()</span>
-</pre></div>
-</div>
 </div>
 </div>
 </div>

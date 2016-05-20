@@ -1,4 +1,4 @@
-Pynq modules
+pynq modules
 =============
 
 .. toctree::
