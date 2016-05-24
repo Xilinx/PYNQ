@@ -15,5 +15,6 @@
 /root/0_network.sh
 /root/1_jupyter_config.sh
 /root/2_jupyter_server.sh
+/root/3_pl_server.sh
 
 exit 0
