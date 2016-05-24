@@ -115,6 +115,8 @@ class MMIO:
             A list of data read out from MMIO
         
         """
+        if not length==4:
+            raise ValueError("MMIO currently only supports 4-byte reads.")
         if offset < 0 or length < 0: 
             raise ValueError("Negative offset or negative length.")
 
