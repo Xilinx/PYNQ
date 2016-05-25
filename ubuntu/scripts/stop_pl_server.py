@@ -34,9 +34,9 @@ __email__       = "xpp_support@xilinx.com"
 
 from pynq import PL
 
-# Start or stop the PL server
+# Stop the PL server
 try:
     PL._recv()
     PL._send(0)
 except ConnectionRefusedError:
-    PL._setup()
+    pass

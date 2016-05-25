@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python3.4 /home/xpp/scripts/pl_server.py &
+python3.4 /home/xpp/scripts/start_pl_server.py &
 
 script_name=`readlink -f "$0"`
 
