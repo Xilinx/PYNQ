@@ -45,12 +45,18 @@ pmod_dac.elf.size: pmod_dac.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+pmod_dac.bin: pmod_dac.elf
+	@echo 'Invoking: MicroBlaze Bin Gen'
+	mb-objcopy -O binary pmod_dac.elf pmod_dac.bin
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_dac.elf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_dac.elf pmod_dac.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE)
+secondary-outputs: $(ELFSIZE) pmod_dac.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

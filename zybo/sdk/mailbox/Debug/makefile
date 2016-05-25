@@ -42,6 +42,11 @@ mailbox.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
 mailbox.elf.size: mailbox.elf
 	@echo 'Invoking: MicroBlaze Print Size'
 	mb-size mailbox.elf  |tee "mailbox.elf.size"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+mailbox.bin: mailbox.elf
+	@echo 'Invoking: MicroBlaze Bin Gen'
 	mb-objcopy -O binary mailbox.elf mailbox.bin
 	@echo 'Finished building: $@'
 	@echo ' '
@@ -51,7 +56,7 @@ clean:
 	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) mailbox.elf mailbox.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE)
+secondary-outputs: $(ELFSIZE) mailbox.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

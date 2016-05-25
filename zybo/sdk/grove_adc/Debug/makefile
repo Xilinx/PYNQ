@@ -45,12 +45,18 @@ grove_adc.elf.size: grove_adc.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+grove_adc.bin: grove_adc.elf
+	@echo 'Invoking: MicroBlaze Bin Gen'
+	mb-objcopy -O binary grove_adc.elf grove_adc.bin
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_adc.elf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_adc.elf grove_adc.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE)
+secondary-outputs: $(ELFSIZE) grove_adc.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

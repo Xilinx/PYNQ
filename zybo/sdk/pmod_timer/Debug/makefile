@@ -45,12 +45,18 @@ pmod_timer.elf.size: pmod_timer.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+pmod_timer.bin: pmod_timer.elf
+	@echo 'Invoking: MicroBlaze Bin Gen'
+	mb-objcopy -O binary pmod_timer.elf pmod_timer.bin
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_timer.elf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_timer.elf pmod_timer.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE)
+secondary-outputs: $(ELFSIZE) pmod_timer.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

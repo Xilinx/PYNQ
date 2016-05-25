@@ -45,12 +45,18 @@ pmod_als.elf.size: pmod_als.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+pmod_als.bin: pmod_als.elf
+	@echo 'Invoking: MicroBlaze Bin Gen'
+	mb-objcopy -O binary pmod_als.elf pmod_als.bin
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_als.elf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_als.elf pmod_als.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE)
+secondary-outputs: $(ELFSIZE) pmod_als.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

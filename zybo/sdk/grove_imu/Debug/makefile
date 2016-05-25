@@ -45,12 +45,18 @@ grove_imu.elf.size: grove_imu.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+grove_imu.bin: grove_imu.elf
+	@echo 'Invoking: MicroBlaze Bin Gen'
+	mb-objcopy -O binary grove_imu.elf grove_imu.bin
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_imu.elf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) grove_imu.elf grove_imu.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE)
+secondary-outputs: $(ELFSIZE) grove_imu.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

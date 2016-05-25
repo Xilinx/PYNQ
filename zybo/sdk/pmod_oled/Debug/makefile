@@ -51,10 +51,6 @@ pmod_oled.bin: pmod_oled.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
-
-
-
-
 # Other Targets
 clean:
 	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_oled.elf pmod_oled.bin
