@@ -44,7 +44,7 @@ Frequently Asked Questions (FAQs)
 * My Board is powered on, and I see the Red and Green LEDs, but I can't connect to the Pynq Portal, or see the Samba shared drive.
    By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of 192.168.2.99
    
-   If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range.  
+   If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range. e.g. 192.168.2.1
    
 * My board is connected, and I have verified the IP addresses on the board, and for my network interface, but I cannot connect to the board
    If you are connected to a VPN, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.
