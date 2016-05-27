@@ -42,4 +42,5 @@ try:
 except ConnectionRefusedError:
     pass
     
-os.remove("/home/xpp/pynq/bitstream/.log")
+if os.path.isfile("/home/xpp/pynq/bitstream/.log"):
+    os.remove("/home/xpp/pynq/bitstream/.log")
