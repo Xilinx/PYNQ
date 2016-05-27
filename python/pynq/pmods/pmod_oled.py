@@ -73,67 +73,11 @@ class PMOD_OLED(object):
         self.mmio = self.iop.mmio
 
         self.iop.start()
-   
+        self.clear()
+        
         if text:
             self.write(text)
-                   
-    def write(self, text):
-        """Write a new text string on the OLED.
-        
-        Clear the screen first to correctly show the new text.
-
-        Parameters
-        ----------
-        text : str
-            The text string to be displayed on the OLED screen.
             
-        Returns
-        -------
-        None
-        
-        """
-        self.clear()
-        time.sleep(0.01)
-        self._write_string(text)
-                
-    def _write_string(self, text):
-        """Write a new text string on the OLED.
-
-        Note
-        ----
-        This should not be used directly to write a new string on the OLED. 
-        Use write() instead.
-
-        Parameters
-        ----------
-        text : str
-            The text string to be displayed on the OLED.
-            
-        Returns
-        -------
-        None
-        
-        """
-        # First write length, x-pos, y-pos
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, len(text))
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 4, 0)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 8, 0)
-        
-        # Then write rest of string
-        for i in range(len(text)):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC + i*4, 
-                            ord(text[i]))
-                       
-        # Finally write the print string command bit[3]: str, bit[0]: valid
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
-                        (0x10000 | 0x1 | 0x8))
-        
-        # Wait for the command to be cleared
-        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
-            pass
-        
     def clear(self):
         """Clear the OLED screen.
         
@@ -150,11 +94,130 @@ class PMOD_OLED(object):
         """             
         # Write the clear command
         self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
-                        0x3)
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+        
+        # Wait for the command to be cleared
+        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+            pass
+            
+    def write(self, text, x=0, y=0):
+        """Write a new text string on the OLED.
+        
+        Parameters
+        ----------
+        text : str
+            The text string to be displayed on the OLED screen.
+        x : int
+            The x-position of the display.
+        y : int
+            The y-position of the display.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if not 0 <= x <= 255:
+            raise ValueError("X-position should be in [0, 255]")
+        if not 0 <= y <= 255:
+            raise ValueError("Y-position should be in [0, 255]")
+            
+        # First write length, x, y
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, len(text))
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, x)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, y)
+        
+        # Then write rest of string
+        for i in range(len(text)):
+            self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC + i*4, 
+                            ord(text[i]))
+                       
+        # Finally write the print string command
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
         
         # Wait for the command to be cleared
         while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
             pass
         
+    def draw_line(self, x1, y1, x2, y2):
+        """Draw a straight line on the OLED.
+        
+        Parameters
+        ----------
+        x1 : int
+            The x-position of the starting point.
+        y1 : int
+            The y-position of the starting point.
+        x2 : int
+            The x-position of the ending point.
+        y2 : int
+            The y-position of the ending point.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if not 0 <= x1 <= 255:
+            raise ValueError("X-position should be in [0, 255]")
+        if not 0 <= x2 <= 255:
+            raise ValueError("X-position should be in [0, 255]")
+        if not 0 <= y1 <= 255:
+            raise ValueError("Y-position should be in [0, 255]")
+        if not 0 <= y2 <= 255:
+            raise ValueError("Y-position should be in [0, 255]")
+            
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, x1)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, y1)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, x2)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC, y2)
+                    
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
+                        
+        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+            pass
+            
+    def draw_rect(self, x1, y1, x2, y2):
+        """Draw a rectangle on the OLED.
+        
+        Parameters
+        ----------
+        x1 : int
+            The x-position of the starting point.
+        y1 : int
+            The y-position of the starting point.
+        x2 : int
+            The x-position of the ending point.
+        y2 : int
+            The y-position of the ending point.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if not 0 <= x1 <= 255:
+            raise ValueError("X-position should be in [0, 255]")
+        if not 0 <= x2 <= 255:
+            raise ValueError("X-position should be in [0, 255]")
+        if not 0 <= y1 <= 255:
+            raise ValueError("Y-position should be in [0, 255]")
+        if not 0 <= y2 <= 255:
+            raise ValueError("Y-position should be in [0, 255]")
+            
+        self.mmio.write(pmod_const.MAILBOX_OFFSET, x1)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, y1)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, x2)
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC, y2)
+                    
+        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
+                        
+        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+            pass
