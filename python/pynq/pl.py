@@ -266,7 +266,7 @@ class PL(metaclass=PL_Meta):
             raise EnvironmentError('Root permissions required.')
             
     @classmethod
-    def _setup(cls, address='/home/xpp/pynq/bitstream/.pl_log', key=b'xilinx'):
+    def _setup(cls, address='/home/xpp/pynq/bitstream/.pl_log', key=b'xpp'):
         """Start the PL server and accept client connections.
         
         This method should not be used by the users directly. To check open
@@ -304,8 +304,8 @@ class PL(metaclass=PL_Meta):
         cls._server.close()
         
     @classmethod
-    def _client_request(cls, address='/home/xpp/pynq/bitstream/.pl_log', 
-                        key=b'xilinx'):
+    def _client_request(cls, address='/home/xpp/pynq/bitstream/.pl_log',
+                        key=b'xpp'):
         """Client connects to the PL server and receives the attributes.
         
         This method should not be used by the users directly. To check open
@@ -333,13 +333,13 @@ class PL(metaclass=PL_Meta):
         """Client sends the attributes to the server.
         
         This method should not be used by the users directly. To check open
-        pipes in the system, use `lsof | grep 25000` and `kill -9 <pid>` to
-        manually delete them.
+        pipes in the system, use `lsof | grep <address>` and `kill -9 <pid>` 
+        to manually delete them.
         
         Parameters
         ----------
         continued : int
-            Status for the PL server. 1 means to continue; 0 means to stop.
+            Continue (1) or stop (0) the PL server.
             
         Returns
         -------
@@ -728,7 +728,7 @@ class Bitstream(PL):
         PL._gpio_dict = {}
         
 class Overlay(PL):
-    """The Overlay class keeps track of a single bitstream's state and contents.
+    """This class keeps track of a single bitstream's state and contents.
     
     The overlay class holds the state of the bitstream and enables run-time 
     protection of bindlings. 
@@ -767,8 +767,8 @@ class Overlay(PL):
         
         Note
         ----
-        This class requires a Vivado '.tcl' file to be next to bitstream file with same
-        base name (e.g. pmod.bit and pmod.tcl).
+        This class requires a Vivado '.tcl' file to be next to bitstream file 
+        with same base name (e.g. pmod.bit and pmod.tcl).
         
         Parameters
         ----------
