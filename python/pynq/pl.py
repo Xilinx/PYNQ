@@ -160,8 +160,8 @@ class PL_Meta(type):
             The absolute path of the bitstream currently on PL.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._bitfile_name
         
     @property
@@ -178,8 +178,8 @@ class PL_Meta(type):
             Bitstream download timestamp.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._timestamp
         
     @property
@@ -196,8 +196,8 @@ class PL_Meta(type):
             The dictionary storing addressable IP instances; can be empty.
             
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._ip_dict
         
     @property
@@ -214,8 +214,8 @@ class PL_Meta(type):
             The dictionary storing the PS GPIO pins.
             
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._gpio_dict
         
 class PL(metaclass=PL_Meta):
@@ -266,7 +266,7 @@ class PL(metaclass=PL_Meta):
             raise EnvironmentError('Root permissions required.')
             
     @classmethod
-    def _setup(cls, socket=('', 25000), key=b'xilinx'):
+    def _setup(cls, address='/home/xpp/pynq/bitstream/.pl_log', key=b'xilinx'):
         """Start the PL server and accept client connections.
         
         This method should not be used by the users directly. To check open
@@ -275,8 +275,8 @@ class PL(metaclass=PL_Meta):
         
         Parameters
         ----------
-        socket : tuple
-            The socket tuple of (ip address, port number) of the PL server.
+        address : str
+            The filename on the file system.
         key : bytes
             The authentication key of connection.
         
@@ -285,23 +285,18 @@ class PL(metaclass=PL_Meta):
         None
         
         """
-        cls._server = Listener(socket, authkey=key)
+        cls._server = Listener(address, family='AF_UNIX', authkey=key)
         cls._status = 1
         
         while cls._status:
             # Accept connections
             cls._host = cls._server.accept()
             # Send the PL attrib utes
-            cls._host.send(cls._bitfile_name)
-            cls._host.send(cls._timestamp)
-            cls._host.send(cls._ip_dict)
-            cls._host.send(cls._gpio_dict)
+            cls._host.send([cls._bitfile_name, cls._timestamp, \
+                            cls._ip_dict, cls._gpio_dict])
             # Receive the PL attributes
-            cls._bitfile_name = cls._host.recv()
-            cls._timestamp = cls._host.recv()
-            cls._ip_dict = cls._host.recv()
-            cls._gpio_dict = cls._host.recv()
-            cls._status = cls._host.recv()
+            [cls._bitfile_name, cls._timestamp, cls._ip_dict, \
+                        cls._gpio_dict, cls._status] = cls._host.recv()
             # Close the connection
             cls._host.close()
             
@@ -309,8 +304,9 @@ class PL(metaclass=PL_Meta):
         cls._server.close()
         
     @classmethod
-    def _recv(cls, socket=('localhost', 25000), key=b'xilinx'):
-        """Connect to the PL server and receive the attributes.
+    def _client_request(cls, address='/home/xpp/pynq/bitstream/.pl_log', 
+                        key=b'xilinx'):
+        """Client connects to the PL server and receives the attributes.
         
         This method should not be used by the users directly. To check open
         pipes in the system, use `lsof | grep 25000` and `kill -9 <pid>` to
@@ -318,8 +314,8 @@ class PL(metaclass=PL_Meta):
         
         Parameters
         ----------
-        socket : tuple
-            The socket tuple of (ip address, port number) of the PL server.
+        address : str
+            The filename on the file system.
         key : bytes
             The authentication key of connection.
             
@@ -328,15 +324,13 @@ class PL(metaclass=PL_Meta):
         None
         
         """
-        cls._remote = Client(socket, authkey=key)
-        cls._bitfile_name = cls._remote.recv()
-        cls._timestamp = cls._remote.recv()
-        cls._ip_dict = cls._remote.recv()
-        cls._gpio_dict = cls._remote.recv()
+        cls._remote = Client(address, family='AF_UNIX', authkey=key)
+        [cls._bitfile_name, cls._timestamp, \
+                cls._ip_dict, cls._gpio_dict] = cls._remote.recv()
     
     @classmethod
-    def _send(cls,continued=1):
-        """Receive the attributes and close the connection.
+    def _server_update(cls,continued=1):
+        """Client sends the attributes to the server.
         
         This method should not be used by the users directly. To check open
         pipes in the system, use `lsof | grep 25000` and `kill -9 <pid>` to
@@ -352,12 +346,8 @@ class PL(metaclass=PL_Meta):
         None
         
         """
-        cls._remote.send(cls._bitfile_name)
-        cls._remote.send(cls._timestamp)
-        cls._remote.send(cls._ip_dict)
-        cls._remote.send(cls._gpio_dict)
-        # Continue to run the server but close the client
-        cls._remote.send(continued)
+        cls._remote.send([cls._bitfile_name, cls._timestamp, \
+                            cls._ip_dict, cls._gpio_dict, continued])
         cls._remote.close()
         
     @classmethod
@@ -375,10 +365,10 @@ class PL(metaclass=PL_Meta):
         None
         
         """
-        cls._recv()
+        cls._client_request()
         tcl_name = _get_tcl_name(cls._bitfile_name)
         cls._ip_dict = _get_dict_ip_addr(tcl_name)
-        cls._send()
+        cls._server_update()
         
     @classmethod
     def reset_gpio_dict(cls):
@@ -395,10 +385,10 @@ class PL(metaclass=PL_Meta):
         None
         
         """
-        cls._recv()
+        cls._client_request()
         tcl_name = _get_tcl_name(cls._bitfile_name)
         cls._gpio_dict = _get_dict_gpio(tcl_name)
-        cls._send()
+        cls._server_update()
         
     @classmethod
     def reset(cls):
@@ -413,11 +403,11 @@ class PL(metaclass=PL_Meta):
         None
         
         """
-        cls._recv()
+        cls._client_request()
         tcl_name = _get_tcl_name(cls._bitfile_name)
         cls._ip_dict = _get_dict_ip_addr(tcl_name)
         cls._gpio_dict = _get_dict_gpio(tcl_name)
-        cls._send()
+        cls._server_update()
         
     @classmethod
     def get_ip_names(cls, ip_kwd=None):
@@ -446,8 +436,8 @@ class PL(metaclass=PL_Meta):
             A list of the addressable IPs containing the ip_kwd.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         if ip_kwd==None:
             return list(cls._ip_dict.keys())
         else:
@@ -476,8 +466,8 @@ class PL(metaclass=PL_Meta):
             The base address in hex format.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._ip_dict[ip_name][0]
         
     @classmethod
@@ -503,8 +493,8 @@ class PL(metaclass=PL_Meta):
             The address range in hex format.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._ip_dict[ip_name][1]
         
     @classmethod
@@ -534,8 +524,8 @@ class PL(metaclass=PL_Meta):
             The state of the addressable IP.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._ip_dict[ip_name][2]
         
     @classmethod
@@ -559,7 +549,7 @@ class PL(metaclass=PL_Meta):
         None
         
         """
-        cls._recv()
+        cls._client_request()
         with open(data, 'rb') as bin:
             size = (math.ceil(os.fstat(bin.fileno()).st_size/ \
                     mmap.PAGESIZE))*mmap.PAGESIZE
@@ -568,7 +558,7 @@ class PL(metaclass=PL_Meta):
             mmio.write(0, buf)
             
         cls._ip_dict[ip_name][2] = data
-        cls._send()
+        cls._server_update()
         
     @classmethod
     def get_gpio_names(cls, gpio_kwd=None):
@@ -596,8 +586,8 @@ class PL(metaclass=PL_Meta):
             A list of the GPIO instance names containing the gpio_kwd.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         if gpio_kwd==None:
             return list(cls._gpio_dict.keys())
         else:
@@ -625,8 +615,8 @@ class PL(metaclass=PL_Meta):
             The user index of the GPIO, starting from 0.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._gpio_dict[gpio_name][0]
         
     @classmethod
@@ -651,8 +641,8 @@ class PL(metaclass=PL_Meta):
             The state of the GPIO pin.
         
         """
-        cls._recv()
-        cls._send()
+        cls._client_request()
+        cls._server_update()
         return cls._gpio_dict[gpio_name][1]
         
 class Bitstream(PL):
@@ -827,9 +817,9 @@ class Overlay(PL):
         None
         
         """
-        PL._recv()
+        PL._client_request()
         self.bitstream.download()
-        PL._send()
+        PL._server_update()
         PL.reset_ip_dict()
         PL.reset_gpio_dict()
         
@@ -866,8 +856,8 @@ class Overlay(PL):
             True if bitstream is loaded.
             
         """
-        PL._recv()
-        PL._send()
+        PL._client_request()
+        PL._server_update()
         if not self.bitstream.timestamp=='':
             return self.bitstream.timestamp==PL._timestamp
         else:

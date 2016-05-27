@@ -36,7 +36,7 @@ from pynq import PL
 
 # Stop the PL server
 try:
-    PL._recv()
-    PL._send(0)
+    PL._client_request()
+    PL._server_update(0)
 except ConnectionRefusedError:
     pass
