@@ -50,7 +50,8 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
- * 1.00a cmc  11/19/15 release
+ * 1.00a cmc 11/19/15 release
+ * 1.00b pp  05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -75,7 +76,7 @@ int main(void)
    u8 dpot_value;
    u32 step_size, delay;
 
-   pmod_init();
+   pmod_init(0,1);
    configureSwitch(SS, MOSI, GPIO_2, SPICLK, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
 
    // Run application

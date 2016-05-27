@@ -44,7 +44,7 @@ if flag:
 
 @pytest.mark.run(order=24)
 @pytest.mark.skipif(not flag, reason="need OLED attached in order to run")
-def test_write_string1():
+def test_write_string():
     """Test for the OLED PMOD.
     
     Writes on the OLED the string 'Welcome to Zybo.' and asks the user to 
@@ -55,7 +55,12 @@ def test_write_string1():
     global oled
     oled = PMOD_OLED(oled_id)
     
-    oled.write('Welcome to Zybo.')
+    oled.draw_line(0,0,255,0)
+    oled.draw_line(0,2,255,2)
+    oled.write('Welcome to Zybo.',0,1)
+    oled.draw_line(0,20,255,20)
+    oled.draw_line(0,22,255,22)
+
     assert user_answer_yes("\nWelcome message shown on the OLED?")
     oled.clear()
     assert user_answer_yes("OLED screen clear now?")      

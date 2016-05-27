@@ -49,6 +49,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00a cmc 04/06/16 release
  * 1.00b yrq 05/02/16 support 2 stickit sockets
+ * 1.00c yrq 05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -133,7 +134,7 @@ int main(void)
    u32 scl, sda;
    
    // Initialize PMOD and timers
-   pmod_init();
+   pmod_init(0,1);
    // Initialize the default switch
    configureSwitch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
    // Reset, set Tconvert x 32 (fconvert 27 ksps)

@@ -46,6 +46,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/13/16 release
+ * 1.00b pp  05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -87,12 +88,11 @@ int main()
     u8 useVref, useFILT, useBIT, useSample;
     u32 delay;
     u32 cmd;
-    u32 num;
     u32 adc_raw_value;
     float adc_voltage;
 
     // initialize pmod
-    pmod_init();
+    pmod_init(0,1);
     /*  
      *  Configuring PMOD IO Switch to connect to I2C[0].
      *  SCLK to pmod pin 3 and 7, I2C[0].SDA to pmod pin 4 and 8

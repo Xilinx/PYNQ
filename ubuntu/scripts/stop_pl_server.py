@@ -32,6 +32,7 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
+import os
 from pynq import PL
 
 # Stop the PL server
@@ -40,3 +41,5 @@ try:
     PL._server_update(0)
 except ConnectionRefusedError:
     pass
+    
+os.remove("/home/xpp/pynq/bitstream/.log")

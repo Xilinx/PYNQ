@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/29/16 release
+ * 1.00b pp  05/27/16 patch to spi_transfer() and spi_init()
  *
  * </pre>
  *
@@ -58,15 +59,12 @@ void spi_transfer(u32 BaseAddress, int bytecount,
                     u8* readBuffer, u8* writeBuffer) {
     int i;
 
-    XSpi_WriteReg(BaseAddress,XSP_CR_OFFSET,0x18e);
     XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xfe);
-    for (i=0; i<bytecount; i++)
-    {
+    for (i=0; i<bytecount; i++){
         XSpi_WriteReg(BaseAddress,XSP_DTR_OFFSET, writeBuffer[i]);
     }
-    XSpi_WriteReg(BaseAddress,XSP_CR_OFFSET,0x08e);
     while(((XSpi_ReadReg(BaseAddress,XSP_SR_OFFSET) & 0x04)) != 0x04);
-    // delay for about 100 ns
+    // delay for 10 clocks
     XTmrCtr_SetResetValue(&TimerInst_0, 1, 10);
     // Start the timer0
     XTmrCtr_Start(&TimerInst_0, 1);
@@ -74,7 +72,7 @@ void spi_transfer(u32 BaseAddress, int bytecount,
     while(!XTmrCtr_IsExpired(&TimerInst_0,1));
     // Stop the timer0
     XTmrCtr_Stop(&TimerInst_0, 1);
-    
+
     // Read SPI
     for(i=0;i< bytecount; i++){
        readBuffer[i] = XSpi_ReadReg(BaseAddress,XSP_DRR_OFFSET);
@@ -82,7 +80,7 @@ void spi_transfer(u32 BaseAddress, int bytecount,
     XSpi_WriteReg(BaseAddress, XSP_SSR_OFFSET, 0xff);
 }
 
-void spi_init(void){
+void spi_init(u32 clk_phase, u32 clk_polarity){
     u32 Control;
 
     // Soft reset SPI
@@ -95,8 +93,16 @@ void spi_init(void){
     Control |= XSP_CR_ENABLE_MASK;
     // Slave select manually
     Control |= XSP_INTR_SLAVE_MODE_MASK;
-    // Disable Transmitter
-    Control |= XSP_CR_TRANS_INHIBIT_MASK;
+    // Enable Transmitter
+    Control &= ~XSP_CR_TRANS_INHIBIT_MASK;
+    // XSP_CR_CLK_PHASE_MASK
+    if(clk_phase){
+        Control |= XSP_CR_CLK_PHASE_MASK;
+    }
+    // XSP_CR_CLK_POLARITY_MASK
+    if(clk_polarity){
+        Control |= XSP_CR_CLK_POLARITY_MASK;
+    }
     XSpi_WriteReg(SPI_BASEADDR, XSP_CR_OFFSET, Control);
 }
 
@@ -189,13 +195,7 @@ void delay_us(int usdelay){
 
 void delay_ms(u32 msdelay){
     // ms delay
-    XTmrCtr_SetResetValue(&TimerInst_0, 1, msdelay*100*1000);
-    // Start the timer0 for usdelay us delay
-    XTmrCtr_Start(&TimerInst_0, 1);
-    // Wait for usdelay us to lapse
-    while(!XTmrCtr_IsExpired(&TimerInst_0,1));
-    // Stop the timer0
-    XTmrCtr_Stop(&TimerInst_0, 1);
+    delay_us(msdelay*1000);
 }
 
 /*
@@ -248,7 +248,7 @@ int tmrctr_init(void) {
     return 0;
 }
 
-void pmod_init(void) {
-    spi_init();
+void pmod_init(u32 clk_phase, u32 clk_polarity) {
+    spi_init(clk_phase, clk_polarity);
     tmrctr_init();
 }

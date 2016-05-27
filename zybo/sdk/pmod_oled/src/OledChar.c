@@ -25,7 +25,6 @@
 #include "xspi.h"   // axi qspi driver
 #include "xspi_l.h"
 
-#include "xil_printf.h"
 #include "xgpio.h"
 #include "OledChar.h"
 #include "OledGrph.h"
@@ -39,8 +38,6 @@ extern u8 *     pbOledCur;
 extern u8       mskOledCur;
 extern int      bnOledCur;
 extern int      fOledCharUpdate;
-
-extern u8       rgbOledBmp[];
 
 extern int      dxcoOledFontCur;
 extern int      dycoOledFontCur;
@@ -59,7 +56,6 @@ int     xchOledMax;
 int     ychOledMax;
 
 u8 *    pbOledFontExt;
-
 u8      rgbOledFontUser[cbOledFontUser];
 
 /* ------------------------------------------------------------ */
@@ -142,45 +138,6 @@ OledGetCursor( int * pxch, int * pych)
 }
 
 /* ------------------------------------------------------------ */
-/***    OledDefUserChar
-**
-**  Parameters:
-**      ch      - character code to define
-**      pbDef   - definition for the character
-**
-**  Return Value:
-**      none
-**
-**  Errors:
-**      Returns TRUE if successful, FALSE if not
-**
-**  Description:
-**      Give a definition for the glyph for the specified user
-**      character code. User definable character codes are in
-**      the range 0x00 - 0x1F. If the code specified by ch is
-**      outside this range, the function returns false.
-*/
-
-int
-OledDefUserChar(char ch, u8 * pbDef)
-    {
-    u8 *    pb;
-    int     ib;
-
-    if (ch < chOledUserMax) {
-        pb = pbOledFontUser + ch * cbOledChar;
-        for (ib = 0; ib < cbOledChar; ib++) {
-            *pb++ = *pbDef++;
-        }
-        return 1;
-    }
-    else {
-        return 0;
-    }
-
-    }
-
-/* ------------------------------------------------------------ */
 /***    OledSetCharUpdate
 **
 **  Parameters:
@@ -254,9 +211,6 @@ OledPutChar(char ch)
 
     OledDrawGlyph(ch);
     OledAdvanceCursor();
-    //if (fOledCharUpdate) {
-    //  OledUpdate();
-    //}
 
 }
 

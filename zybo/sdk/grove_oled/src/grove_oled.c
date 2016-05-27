@@ -45,6 +45,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a yrq 04/13/16 release
+ * 1.00b yrq 05/27/16 fix pmod_init(), clean up the code
  *
  * </pre>
  *
@@ -55,8 +56,6 @@
 #define V_REF 3.30
 
 // Mailbox commands
-// Mailbox commands
-// bit 1 always needs to be set
 #define SET_NORMAL_DISPLAY      0x3 
 #define SET_INVERSE_DISPLAY     0x5 
 #define SET_GRAY_LEVEL          0x7 
@@ -98,7 +97,7 @@
 #define Scroll_128Frames        0x2
 #define Scroll_256Frames        0x3
 
-void init(void);
+void oled_init(void);
 
 void sendCommand(unsigned char command);
 void sendData(unsigned char Data);
@@ -117,10 +116,12 @@ void setHorizontalScrollProperties();
 void activateScroll();
 void deactivateScroll();
 
-// 8x8 Font ASCII 32 - 127 Implemented
-// Users can modify this to support more characters(glyphs)
-// BasicFont is placed in code memory.
-// This font can be freely used without any restriction.
+/*
+ * 8x8 Font ASCII 32 - 127 Implemented
+ * Users can modify this to support more characters(glyphs)
+ * BasicFont is placed in code memory.
+ * This font can be freely used without any restriction.
+ */
 const unsigned char BasicFont[][8]=
 {
   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
@@ -239,8 +240,7 @@ void sendData(u8 data){
    iic_write(OLED_Address, buffer, 2);
 }
 
-void init()
-{
+void oled_init(){
     // Unlock OLED driver IC MCU interface
     sendCommand(0xFD);
     sendCommand(0x12);
@@ -255,37 +255,32 @@ void init()
     grayL= 0x0F;
 }
 
-void setContrastLevel()
-{
+void setContrastLevel(){
     unsigned char ContrastLevel;
     ContrastLevel = (u8) MAILBOX_DATA(0);
     sendCommand(OLED_Set_ContrastLevel_Cmd);
     sendCommand(ContrastLevel);
 }
 
-void setHorizontalMode()
-{
+void setHorizontalMode(){
     addressingMode = HORIZONTAL_MODE;
     sendCommand(0x20);             //set addressing mode
     sendCommand(0x00);             //set horizontal addressing mode
 }
 
-void setPageMode()
-{
+void setPageMode(){
     addressingMode = PAGE_MODE;
     sendCommand(0x20);             //set addressing mode
     sendCommand(0x02);             //set page addressing mode
 }
 
-void setTextXY(int Row, int Column)
-{
+void setTextXY(int Row, int Column){
     sendCommand(0xB0 + Row);                   //set page address
     sendCommand(0x00 + (8*Column & 0x0F));     //set column lower address
     sendCommand(0x10 + ((8*Column>>4)&0x0F));  //set column higher address
 }
 
-void clearDisplay()
-{
+void clearDisplay(){
     int i,j;
     sendCommand(OLED_Display_Off_Cmd);     //display off
     for(j=0;j<8;j++)
@@ -302,16 +297,14 @@ void clearDisplay()
     setTextXY(0,0);
 }
 
-void setGrayLevel()
-{
+void setGrayLevel(){
     unsigned char grayLevel;
     grayLevel = (u8) MAILBOX_DATA(0);
     grayH = (grayLevel << 4) & 0xF0;
     grayL =  grayLevel & 0x0F;
 }
 
-void putChar(unsigned char C)
-{
+void putChar(unsigned char C){
     if(C < 32 || C > 127) //Ignore non-printable ASCII characters.
     {
         C=' '; //Space
@@ -323,8 +316,7 @@ void putChar(unsigned char C)
     }
 }
 
-void putString()
-{
+void putString(){
     int length;
     char ch;
     int i;
@@ -337,8 +329,7 @@ void putString()
 
 }
 
-void setHorizontalScrollProperties()
-{
+void setHorizontalScrollProperties(){
     unsigned char direction;
     unsigned char startPage;
     unsigned char endPage;
@@ -365,23 +356,19 @@ void setHorizontalScrollProperties()
     sendCommand(0xFF);
 }
 
-void activateScroll()
-{
+void activateScroll(){
     sendCommand(OLED_Activate_Scroll_Cmd);
 }
 
-void deactivateScroll()
-{
+void deactivateScroll(){
     sendCommand(OLED_Dectivate_Scroll_Cmd);
 }
 
-void setNormalDisplay()
-{
+void setNormalDisplay(){
     sendCommand(OLED_Normal_Display_Cmd);
 }
 
-void setInverseDisplay()
-{
+void setInverseDisplay(){
     sendCommand(OLED_Inverse_Display_Cmd);
 }
 
@@ -390,10 +377,10 @@ int main(void)
    int cmd;
    int Row, Column;
 
-   pmod_init();
+   pmod_init(0,1);
    configureSwitch(GPIO_0, GPIO_1, SDA, GPIO_3, GPIO_4, GPIO_5, SCL, GPIO_7);
    // Initialization
-   init();
+   oled_init();
    // Run application
    while(1){
 

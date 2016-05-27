@@ -55,11 +55,14 @@ def test_loop_single():
     to write a voltage on the DAC, read from the ADC, and compares the two 
     voltages.
     
+    The exception is raised when the difference is more than 10% and more than
+    0.1V.
+    
     Note
     ----
     Users can use a straight cable (instead of wires) to do this test.
-    For the 6-pin DAC PMOD, it has to be plugged into the upper row of the PMOD
-    interface.
+    For the 6-pin DAC PMOD, it has to be plugged into the upper row of the 
+    PMOD interface.
     
     """
     global dac,adc
@@ -71,7 +74,8 @@ def test_loop_single():
     assert value>=0.00, 'Input voltage should not be lower than 0.00V.'
     dac.write(value)
     sleep(0.05)
-    assert round(abs(value-adc.read()[0]),2)<0.1, 'Read value != write value.'
+    assert round(abs(value-adc.read()[0]),2)<max(0.1, 0.1*value), \
+            'Read value != write value.'
 
 @pytest.mark.run(order=26) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
@@ -79,13 +83,13 @@ def test_loop_random():
     """Test for writing multiple random values via the loop.
     
     This test writes a sequence of voltages on the DAC and read from the ADC, 
-    then checks whether they are approximately the same (with a delta of .06).
+    then checks whether they are approximately the same (with a delta of 10%).
     
     Note
     ----
     Users can use a straight cable (instead of wires) to do this test.
-    For the 6-pin DAC PMOD, it has to be plugged into the upper row of the PMOD
-    interface.
+    For the 6-pin DAC PMOD, it has to be plugged into the upper row of the 
+    PMOD interface.
     
     """
     print('\nGenerating 100 random voltages from 0.00V to 2.00V...')
@@ -95,7 +99,7 @@ def test_loop_random():
         value = round(0.0001*randint(0,20000),4)
         dac.write(value)
         sleep(0.05)
-        assert round(abs(value-adc.read()[0]),2)<0.1, \
+        assert round(abs(value-adc.read()[0]),2)<max(0.1, 0.1*value), \
             'Read value {} != write value {}.'.format(adc.read(), value)
     
     del dac,adc

@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/13/16 release
+ * 1.00b pp  05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -82,42 +83,42 @@
 
 int main (void)
 {
-	int cmd, count, i;
+    int cmd, count, i;
 
-    pmod_init();
+    pmod_init(0,1);
     while(1){
-		while((MAILBOX_CMD_ADDR & 0x01)==0);
-		cmd=MAILBOX_CMD_ADDR;
+        while((MAILBOX_CMD_ADDR & 0x01)==0);
+        cmd=MAILBOX_CMD_ADDR;
         
-		count = (cmd & 0x0000ff00) >> 8;
-		if((count==0) || (count>253)) {
+        count = (cmd & 0x0000ff00) >> 8;
+        if((count==0) || (count>253)) {
             // clear bit[0] to indicate cmd processed,
             // set rest to 1s to indicate error in cmd word
-			MAILBOX_CMD_ADDR = 0xfffffffe;
-			return -1;
-		}
-		for(i=0; i<count; i++) {
-			if (cmd & 0x08) // Python issues read
-			{
-				switch ((cmd & 0x06) >> 1) { // use bit[2:1]
-					case 0 : MAILBOX_DATA(i) = *(u8 *) MAILBOX_ADDR; break;
-					case 1 : MAILBOX_DATA(i) = *(u16 *) MAILBOX_ADDR; break;
-					case 2 : break;
-					case 3 : MAILBOX_DATA(i) = *(u32 *) MAILBOX_ADDR; break;
-				}
-			}
-			else // Python issues write
-			{
-				switch ((cmd & 0x06) >> 1) { // use bit[2:1]
-				case 0 : *(u8 *)MAILBOX_ADDR = (u8 *) MAILBOX_DATA(i); break;
-				case 1 : *(u16 *)MAILBOX_ADDR = (u16 *) MAILBOX_DATA(i); break;
-				case 2 : break;
-				case 3 : *(u32 *)MAILBOX_ADDR = (u32 *)MAILBOX_DATA(i); break;
-				}
-			}
+            MAILBOX_CMD_ADDR = 0xfffffffe;
+            return -1;
+        }
+        for(i=0; i<count; i++) {
+            if (cmd & 0x08) // Python issues read
+            {
+                switch ((cmd & 0x06) >> 1) { // use bit[2:1]
+                    case 0 : MAILBOX_DATA(i) = *(u8 *) MAILBOX_ADDR; break;
+                    case 1 : MAILBOX_DATA(i) = *(u16 *) MAILBOX_ADDR; break;
+                    case 2 : break;
+                    case 3 : MAILBOX_DATA(i) = *(u32 *) MAILBOX_ADDR; break;
+                }
+            }
+            else // Python issues write
+            {
+                switch ((cmd & 0x06) >> 1) { // use bit[2:1]
+                case 0 : *(u8 *)MAILBOX_ADDR = (u8 *) MAILBOX_DATA(i); break;
+                case 1 : *(u16 *)MAILBOX_ADDR = (u16 *) MAILBOX_DATA(i); break;
+                case 2 : break;
+                case 3 : *(u32 *)MAILBOX_ADDR = (u32 *)MAILBOX_DATA(i); break;
+                }
+            }
 
-		}
-		MAILBOX_CMD_ADDR = 0x0;
-	}
-	return 0;
+        }
+        MAILBOX_CMD_ADDR = 0x0;
+    }
+    return 0;
 }

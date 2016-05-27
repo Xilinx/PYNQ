@@ -45,6 +45,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  05/10/16 release
+ * 1.00b pp  05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -105,14 +106,14 @@ int main(void) {
     u32 count1, count2;
     u32 status;
 
+    // Initialize PMOD
+    pmod_init(0,1);
     /*
      * Configuring PMOD IO Switch to connect GPIO to pmod
      * Timer is connected to bit[0] of the Channel 1 of AXI GPIO instance
      */
     configureSwitch(TIMER, GPIO_1, GPIO_2, GPIO_3, \
                     GPIO_4, GPIO_5, GPIO_6, GPIO_7);
-    // Initialize PMOD
-    pmod_init();
     // by default tristate timer output
     Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
 

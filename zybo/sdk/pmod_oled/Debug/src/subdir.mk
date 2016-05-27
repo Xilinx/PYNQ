@@ -8,21 +8,18 @@ LD_SRCS += \
 
 C_SRCS += \
 ../src/ChrFont0.c \
-../src/FillPat.c \
 ../src/OledChar.c \
 ../src/OledGrph.c \
 ../src/pmod_oled.c 
 
 OBJS += \
 ./src/ChrFont0.o \
-./src/FillPat.o \
 ./src/OledChar.o \
 ./src/OledGrph.o \
 ./src/pmod_oled.o 
 
 C_DEPS += \
 ./src/ChrFont0.d \
-./src/FillPat.d \
 ./src/OledChar.d \
 ./src/OledGrph.d \
 ./src/pmod_oled.d 
@@ -32,7 +29,7 @@ C_DEPS += \
 src/%.o: ../src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MicroBlaze gcc compiler'
-	mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"$@" -I../../bsp/iop1_mb/include -mlittle-endian -mcpu=v9.5 -mxl-soft-mul -Wl,--no-relax -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	mb-gcc -Wall -O1 -g3 -c -fmessage-length=0 -MT"$@" -I../../bsp/iop1_mb/include -mlittle-endian -mcpu=v9.5 -mxl-soft-mul -Wl,--no-relax -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

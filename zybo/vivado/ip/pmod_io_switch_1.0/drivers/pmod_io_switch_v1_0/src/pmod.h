@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/29/16 release
+ * 1.00b pp  05/27/16 patch to spi_transfer() and spi_init()
  *
  * </pre>
  *
@@ -53,7 +54,7 @@
 #define PMOD_H_
 
 #include "xparameters.h"
-#include "xspi.h"      /* SPI device driver */
+#include "xspi.h"
 #include "xspi_l.h"
 #include "xtmrctr.h"
 #include "xiic.h"
@@ -91,7 +92,7 @@
 #define MISO   0xb
 #define MOSI   0xc
 #define SS     0xd
-#define PWM	   0xe
+#define PWM    0xe
 #define TIMER  0xf
 
 void delay_us(int usdelay);
@@ -106,7 +107,7 @@ void delay_ms(u32 ms_count);
 #define SPI_RELEASE (XSP_CR_MANUAL_SS_MASK| \
             XSP_CR_MASTER_MODE_MASK|XSP_CR_ENABLE_MASK)
 
-void spi_init(void);
+void spi_init(u32 clk_phase, u32 clk_polarity);
 void spi_transfer(u32 BaseAddress, int bytecount, 
                     u8* readBuffer, u8* writeBuffer);
 
@@ -150,6 +151,6 @@ void configureSwitch(char pin0, char pin1, char pin2, char pin3,
 /*
  * Initialize all PMOD IO Switch connected devices
  */
-void pmod_init(void);
+void pmod_init(u32 clk_phase, u32 clk_polarity);
 
 #endif

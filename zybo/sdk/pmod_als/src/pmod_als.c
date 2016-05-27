@@ -51,6 +51,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a cmc  03/29/16 release
+ * 1.00b pp  05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -85,7 +86,7 @@ int main(void)
    u16 als_data;
    u32 delay;
 
-   pmod_init();
+   pmod_init(0,1);
    configureSwitch(SS, GPIO_1, MISO, SPICLK, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
    // to initialize the device
    get_sample();

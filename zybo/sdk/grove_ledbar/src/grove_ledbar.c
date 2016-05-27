@@ -45,6 +45,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a np  04/13/16 release
+ * 1.00b yrq 05/27/16 fix pmod_init(), clean up the code
  *
  * </pre>
  *
@@ -63,55 +64,59 @@
 #define SET_LEVEL                   0x7 // 0111
 #define READ_LEDS                   0x9 // 1001
 
-// Green-to-Red direction contains slight transparency to one led distance.
-// i.e. A LED that is OFF will glow slightly if a LED  beside it is ON
+/*
+ * Green-to-Red direction contains slight transparency to one led distance.
+ * i.e. A LED that is OFF will glow slightly if a LED  beside it is ON
+ */
 #define HIGH                        0xFF
 #define LOW                         0x01
 #define MED                         0xAA
 #define OFF                         0x00
 
-/**
+/*
  * The XGpio driver instance data. The user is required to allocate a
  * variable of this type for every GPIO device in the system. A pointer
  * to a variable of this type is then passed to the driver API functions.
  */
 XGpio gpo;
 
-// LED state, Brightness for each LED in
-// Order {Red, Orange, Green, Green, Green, Green, Green, Green, Green, Green}
+/* 
+ * LED state, Brightness for each LED in
+ * {Red, Orange, Green, Green, Green, Green, Green, Green, Green, Green}
+ */
 char ledbar_state[10] = {OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF};
 char current_state[10] = {OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF};
 
-// Variable to Hold current Level
+// Current Level
 int level_holder = 0;
 
-// Variable to current direction of Level Indication
-// 0 - Red-to-Green, 1 - Green-to-Red
+// Current direction: 0 => Red-to-Green, 1 => Green-to-Red
 int prev_inverse = 0;
 
-// Initialize GPIO driver instance
-// Set data direction for two pins
-// Pin 0 = Data   - LSB of the XGpio register
-// Pin 1 = Clock  - LSB + 1 of the XGpio register
-void ledbar_init()
-{
+void ledbar_init(){
+    /*
+     * Initialize GPIO driver instance
+     * Set data direction for two pins
+     * Pin 0 = Data   - LSB of the XGpio register
+     * Pin 1 = Clock  - LSB + 1 of the XGpio register
+     */
     XGpio_Initialize(&gpo, XPAR_GPIO_0_DEVICE_ID);
     // Both pins set as Outputs
     XGpio_SetDataDirection(&gpo, 1, 0);
 }
 
-void send_data(u8 data)
-{
+void send_data(u8 data){
     int i;
     u8 data_state, clk_state, detect, data_internal;
 
     data_internal = data;
 
     // Working in 8-bit mode
-    for (i = 0; i < 8; i++)
-    {
-        // Read each bit of the data to be sent LSB first
-        // Write it to the data_pin
+    for (i = 0; i < 8; i++){
+        /*
+         * Read each bit of the data to be sent LSB first
+         * Write it to the data_pin
+         */
         data_state = (data_internal & 0x80) ? 0x00000001 : 0x00000000;
         XGpio_DiscreteWrite(&gpo, 1, data_state);
 
@@ -126,53 +131,48 @@ void send_data(u8 data)
     }
 }
 
-void latch_data()
-{
+void latch_data(){
     int i;
 
     XGpio_DiscreteWrite(&gpo, 1, 0);
     delay_ms(10);
 
     // Generate four pulses on the data pin as per data sheet
-    for (i = 0; i < 4; i++)
-    {
+    for (i = 0; i < 4; i++){
         XGpio_DiscreteWrite(&gpo, 1, 1);
         XGpio_DiscreteWrite(&gpo, 1, 0);
     }
 }
 
-// Function to reverse incoming data
-// Allows LEDbar to be lit in reverse order
-u16 reverse_data(u16 c)
-{
-   int shift;
-   u16 result = 0;
+u16 reverse_data(u16 c){
+    /*
+     * Function to reverse incoming data
+     * Allows LEDbar to be lit in reverse order
+     */
+    int shift;
+    u16 result = 0;
 
-   for (shift = 0; shift < 16; shift++)
-   {
-      if (c & (0x0001 << shift))
-          result |= (0x8000 >> shift);
-   }
+    for (shift = 0; shift < 16; shift++){
+        if (c & (0x0001 << shift))
+            result |= (0x8000 >> shift);
+    }
 
-   // 10 LSBs are used as LED Control 6 MSBs are ignored
-   result = result >> 6;
-   return result;
+    // 10 LSBs are used as LED Control 6 MSBs are ignored
+    result = result >> 6;
+    return result;
 }
 
-void set_bits(u16 data)
-{
+void set_bits(u16 data){
     int h,i;
     int data_internal = data;
 
-    for(h=0; h<10; h++)
-    {
+    for(h=0; h<10; h++){
         ledbar_state[h] = HIGH;
     }
 
     send_data(GLB_CMDMODE);
 
-    for (i = 0; i < 10; i++)
-    {
+    for (i = 0; i < 10; i++){
         if ((data_internal & 0x0001) == 1) {
             send_data(ledbar_state[i]);
         } else {
@@ -188,26 +188,22 @@ void set_bits(u16 data)
 
     latch_data();
     // Store LEBbar state for reading purpose.
-    for(h=0; h<10; h++)
-    {
+    for(h=0; h<10; h++){
         current_state[h] = ledbar_state[h];
     }
 }
 
-void set_led_brightness(u16 data, char set_brightness[])
-{
+void set_led_brightness(u16 data, char set_brightness[]){
     int h,i;
     int data_internal = data;
 
-    for(h=0; h<10; h++)
-    {
+    for(h=0; h<10; h++){
         ledbar_state[h] = set_brightness[h];
     }
 
     send_data(GLB_CMDMODE);
 
-    for (i = 0; i < 10; i++)
-    {
+    for (i = 0; i < 10; i++){
         if ((data_internal & 0x0001) == 1) {
             send_data(ledbar_state[i]);
         } else {
@@ -222,14 +218,12 @@ void set_led_brightness(u16 data, char set_brightness[])
 
     latch_data();
     // Store LEBbar state for reading purpose.
-    for(h=0; h<10; h++)
-    {
+    for(h=0; h<10; h++){
         current_state[h] = ledbar_state[h];
     }
 }
 
-void set_level(int level, int intensity, int inverse)
-{
+void set_level(int level, int intensity, int inverse){
     int h,i;
     int prev_inv ;
 
@@ -237,16 +231,15 @@ void set_level(int level, int intensity, int inverse)
 
     // Clear LED states from previous writes
     if (inverse != prev_inv) {
-        for(h=0; h<10; h++)
-        {
+        for(h=0; h<10; h++){
             ledbar_state[h] = OFF;
         }
     }
 
-    if (inverse == 0) { // Execute when direction is Red-to-Green
+    if (inverse == 0) { 
+        // Execute when direction is Red-to-Green
         if (level < level_holder) {
-            for(h=level_holder-1; h>level-1; h--)
-            {
+            for(h=level_holder-1; h>level-1; h--){
                 ledbar_state[h] = OFF;
             }
         }
@@ -291,16 +284,14 @@ void set_level(int level, int intensity, int inverse)
             }
         }
     } else { // Execute when direction is Invalid Integer
-        for(h=0; h<10; h++)
-        {
+        for(h=0; h<10; h++){
             ledbar_state[h] = OFF;
         }
     }
 
     send_data(GLB_CMDMODE);
 
-    for (i = 0; i < 10; i++)
-    {
+    for (i = 0; i < 10; i++){
         send_data(ledbar_state[i]);
     }
     // Two extra empty bits for padding the command to the correct length
@@ -314,20 +305,17 @@ void set_level(int level, int intensity, int inverse)
     // Store LEBbar direction for resetting direction
     prev_inverse = inverse;
     // Store LEBbar state for reading purpose.
-    for(h=0; h<10; h++)
-    {
+    for(h=0; h<10; h++){
         current_state[h] = ledbar_state[h];
     }
 }
 
-u16 ledbar_read()
-{
+u16 ledbar_read(){
     int h;
     u16 bits;
 
     bits = 0x0000;
-    for(h=0; h<10; h++)
-    {
+    for(h=0; h<10; h++){
         if (current_state[h] != 0x00) {
             bits |= 0x0001 << h;
         }
@@ -339,24 +327,22 @@ u16 ledbar_read()
 
 int main(void)
 {
-   int cmd,level,brightness,red_to_green;
-   char set_brightness[10];
-   u16 get_bits;
-   configureSwitch(GPIO_0, GPIO_4, GPIO_2, GPIO_3, 
-                   GPIO_1, GPIO_5, GPIO_6, GPIO_7);
-   u16 data;
+    int cmd,level,brightness,red_to_green;
+    char set_brightness[10];
+    u16 get_bits;
+    configureSwitch(GPIO_0, GPIO_4, GPIO_2, GPIO_3, 
+                    GPIO_1, GPIO_5, GPIO_6, GPIO_7);
+    u16 data;
 
-   // Run application - Initialization
-   pmod_init();
-   ledbar_init();
-  
+    // Run application - Initialization
+    pmod_init(0,1);
+    ledbar_init();
+    while(1){
+        // wait and store valid command
+        while((MAILBOX_CMD_ADDR & 0x01)==0);
+        cmd = MAILBOX_CMD_ADDR;
 
-   while(1){
-       // wait and store valid command
-       while((MAILBOX_CMD_ADDR & 0x01)==0);
-       cmd = MAILBOX_CMD_ADDR;
-
-       switch(cmd){
+        switch(cmd){
               case RESET:
                   set_bits(0x0000);
                   level_holder = 0;

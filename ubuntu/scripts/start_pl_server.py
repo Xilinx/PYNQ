@@ -35,7 +35,4 @@ __email__       = "xpp_support@xilinx.com"
 from pynq import PL
 
 # Start the PL server
-try:
-    PL._setup()
-except OSError:
-    pass
+PL._setup()

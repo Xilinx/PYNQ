@@ -4,6 +4,8 @@
 # These will always have CRLF line endings on checkout.
 *.vcxproj text eol=crlf
 *.props text eol=crlf
+*.project text eol=crlf
+*.cproject text eol=crlf
 
 # These are binary so should never be modified by git.
 *.png binary

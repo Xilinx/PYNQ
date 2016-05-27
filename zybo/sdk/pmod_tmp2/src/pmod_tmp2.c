@@ -49,6 +49,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a cmc  03/29/16 release
+ * 1.00b pp  05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -83,7 +84,7 @@ int main(void)
    u32 delay;
    float temperature;
 
-   pmod_init();
+   pmod_init(0,1);
    configureSwitch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
    
    // Run application

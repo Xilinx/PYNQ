@@ -45,6 +45,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a yrq 04/25/16 release
+ * 1.00b yrq 05/27/16 fix pmod_init(), clean up the code
  *
  * </pre>
  *
@@ -57,7 +58,6 @@
 #define NUM_SAMPLES              100
 
 // Mailbox commands
-// bit 1 always needs to be set
 #define GET_ACCL_DATA           0x3
 #define GET_GYRO_DATA           0x5
 #define GET_COMPASS_DATA        0x7
@@ -65,7 +65,7 @@
 #define GET_PRESSURE            0xD
 #define RESET                   0xF
 
-/* Byte operations */
+// Byte operations
 int iic_readBytes(uint8_t devAddr, uint8_t regAddr, 
                 uint8_t length, uint8_t *data){
     iic_write(devAddr, &regAddr, 1);
@@ -73,37 +73,39 @@ int iic_readBytes(uint8_t devAddr, uint8_t regAddr,
 }
 
 int iic_readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
-	iic_write(devAddr, &regAddr, 1);
-	return iic_read(devAddr, data, 1);
+    iic_write(devAddr, &regAddr, 1);
+    return iic_read(devAddr, data, 1);
 }
 
 int iic_writeBytes(uint8_t devAddr, uint8_t regAddr, 
                 uint8_t length, uint8_t *data){
-	int i;
-	int len_total = (int)length+1;
-	uint8_t temp[len_total];
-	temp[0] = regAddr;
-	for (i=1;i<len_total;i++){
-		temp[i]=data[i-1];
-	}
-	return iic_write(devAddr, temp, len_total);
+    int i;
+    int len_total = (int)length+1;
+    uint8_t temp[len_total];
+    temp[0] = regAddr;
+    for (i=1;i<len_total;i++){
+        temp[i]=data[i-1];
+    }
+    return iic_write(devAddr, temp, len_total);
 }
 
 int iic_writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
-	uint8_t temp[2];
-	temp[0] = regAddr;
-	temp[1] = *data;
-	return iic_write(devAddr, temp, 2);
+    uint8_t temp[2];
+    temp[0] = regAddr;
+    temp[1] = *data;
+    return iic_write(devAddr, temp, 2);
 }
 
-/* Bit operations */
+// Bit operations
 int8_t iic_readBits(uint8_t devAddr, uint8_t regAddr, 
                     uint8_t bitStart, uint8_t width, uint8_t *data) {
-    // 01101001 read byte
-    // 76543210 bit numbers
-    //    xxx   parameters: bitStart=4, width=3
-    //    010   masked
-    //   -> 010 shifted
+    /*
+     * 01101001 read byte
+     * 76543210 bit numbers
+     *    xxx   parameters: bitStart=4, width=3
+     *    010   masked
+     *   -> 010 shifted
+     */
     uint8_t count, b;
     uint8_t mask;
     if ((count = iic_readBytes(devAddr, regAddr, 1, &b)) != 0) {
@@ -121,21 +123,27 @@ int8_t iic_readBit(uint8_t devAddr, uint8_t regAddr,
     
 int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr, 
                      uint8_t bitStart, uint8_t width, uint8_t *data) {
-    //      010 value to write
-    // 76543210 bit numbers
-    //    xxx   parameters: bitStart=4, width=3
-    // 00011100 mask byte
-    // 10101111 original value (sample)
-    // 10100011 original & ~mask
-    // 10101011 masked | value
+    /*
+     * 010 value to write
+     * 76543210 bit numbers
+     *    xxx   parameters: bitStart=4, width=3
+     * 00011100 mask byte
+     * 10101111 original value (sample)
+     * 10100011 original & ~mask
+     * 10101011 masked | value
+     */
     uint8_t b, temp;
     temp = *data;
     if (iic_readBytes(devAddr, regAddr, 1, &b) != 0) {
         uint8_t mask = ((1 << width) - 1) << (bitStart - width + 1);
-        temp <<= (bitStart - width + 1); // shift data into correct position
-        temp &= mask; // zero all non-important bits in data
-        b &= ~(mask); // zero all important bits in existing byte
-        b |= temp; // combine data with existing byte
+        // shift data into correct position
+        temp <<= (bitStart - width + 1);
+        // zero all non-important bits in data
+        temp &= mask;
+        // zero all important bits in existing byte
+        b &= ~(mask);
+        // combine data with existing byte
+        b |= temp;
         return iic_writeByte(devAddr, regAddr, &b);
     }
     else{
@@ -147,7 +155,7 @@ int8_t iic_writeBit(uint8_t devAddr, uint8_t regAddr,
     return iic_writeBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
 }
 
-/* MPU9250 Driver functions */
+// MPU9250 driver functions
 void mpu_init() {
     //device setup
     mpuAddr = MPU9250_DEFAULT_ADDRESS;
@@ -216,6 +224,7 @@ void mpu_setSleepEnabled(uint8_t enabled) {
                     MPU9250_PWR1_SLEEP_BIT, &enabled);
 }
 
+// BMP180 driver functions
 uint16_t bmp_readBytes(uint8_t address)
 {
     // read 2 bytes from the address and return an int
@@ -330,7 +339,7 @@ int main()
    int16_t gx, gy, gz;
    int16_t mx, my, mz;
    
-   pmod_init();
+   pmod_init(0,1);
    configureSwitch(GPIO_0, GPIO_1, SDA, GPIO_3, GPIO_4, GPIO_5, SCL, GPIO_7);
    // Initialization
    mpu_init();

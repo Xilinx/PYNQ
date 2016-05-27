@@ -266,12 +266,12 @@ class PL(metaclass=PL_Meta):
             raise EnvironmentError('Root permissions required.')
             
     @classmethod
-    def _setup(cls, address='/home/xpp/pynq/bitstream/.pl_log', key=b'xpp'):
+    def _setup(cls, address='/home/xpp/pynq/bitstream/.log', key=b'xpp'):
         """Start the PL server and accept client connections.
         
         This method should not be used by the users directly. To check open
-        pipes in the system, use `lsof | grep 25000` and `kill -9 <pid>` to
-        manually delete them.
+        pipes in the system, use `lsof | grep <address>` and 
+        `kill -9 <pid>` to manually delete them.
         
         Parameters
         ----------
@@ -304,13 +304,13 @@ class PL(metaclass=PL_Meta):
         cls._server.close()
         
     @classmethod
-    def _client_request(cls, address='/home/xpp/pynq/bitstream/.pl_log',
+    def _client_request(cls, address='/home/xpp/pynq/bitstream/.log',
                         key=b'xpp'):
         """Client connects to the PL server and receives the attributes.
         
         This method should not be used by the users directly. To check open
-        pipes in the system, use `lsof | grep 25000` and `kill -9 <pid>` to
-        manually delete them.
+        pipes in the system, use `lsof | grep <address>` and 
+        `kill -9 <pid>` to manually delete them.
         
         Parameters
         ----------

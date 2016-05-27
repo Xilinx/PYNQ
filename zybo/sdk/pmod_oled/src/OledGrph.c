@@ -31,7 +31,6 @@
 
 #include "OledChar.h"
 #include "OledGrph.h"
-#include "FillPat.h"
 
 /* ------------------------------------------------------------ */
 /*              Global Variables                                */
@@ -40,10 +39,8 @@ extern int      xcoOledCur;
 extern int      ycoOledCur;
 extern u8 *     pbOledCur;
 extern u8       rgbOledBmp[];
-extern u8       rgbFillPat[];
 extern int      bnOledCur;
 extern u8       clrOledCur;
-extern u8 *     pbOledPatCur;
 extern u8 *     pbOledFontUser;
 extern u8 *     pbOledFontCur;
 extern int      dxcoOledFontCur;
@@ -135,80 +132,6 @@ OledGetPos(int * pxco, int * pyco)
 
     *pxco = xcoOledCur;
     *pyco = ycoOledCur;
-
-}
-
-/* ------------------------------------------------------------ */
-/***    OledSetDrawColor
-**
-**  Parameters:
-**      clr     - drawing color to set
-**
-**  Return Value:
-**      none
-**
-**  Errors:
-**      none
-**
-**  Description:
-**      Set the foreground color used for pixel draw operations.
-*/
-
-void
-OledSetDrawColor(u8 clr)
-    {
-
-    clrOledCur = clr & 0x01;
-
-}
-
-/* ------------------------------------------------------------ */
-/***    OledGetStdPattern
-**
-**  Parameters:
-**      ipat        - index to standard fill pattern
-**
-**  Return Value:
-**      returns a pointer to the standard fill pattern
-**
-**  Errors:
-**      returns pattern 0 if index out of range
-**
-**  Description:
-**      Return a pointer to the byte array for the specified
-**      standard fill pattern.
-*/
-
-u8 *
-OledGetStdPattern(int ipat)
-    {
-
-    return rgbFillPat + 8*ipat;
-
-}
-
-/* ------------------------------------------------------------ */
-/***    OledSetFillPattern
-**
-**  Parameters:
-**      pbPat   - pointer to the fill pattern
-**
-**  Return Value:
-**      none
-**
-**  Errors:
-**      none
-**
-**  Description:
-**      Set a pointer to the current fill pattern to use. A fill
-**      pattern is an array of 8 bytes.
-*/
-
-void
-OledSetFillPattern(u8 * pbPat)
-    {
-
-    pbOledPatCur = pbPat;
 
 }
 
@@ -475,108 +398,6 @@ OledDrawRect(int xco, int yco)
 }
 
 /* ------------------------------------------------------------ */
-/***    OledFillRect
-**
-**  Parameters:
-**      xco     - x coordinate of other corner
-**      yco     - y coordinate of other corner
-**
-**  Return Value:
-**      none
-**
-**  Errors:
-**      none
-**
-**  Description:
-**      Fill a rectangle bounded by the current location and
-**      the specified location.
-*/
-
-void
-OledFillRect(int xco, int yco)
-    {
-    int     xcoLeft;
-    int     xcoRight;
-    int     ycoTop;
-    int     ycoBottom;
-    int     ibPat;
-    u8 *    pbCur;
-    u8 *    pbLeft;
-    int     xcoCur;
-//  u8  bTmp;
-    u8  mskPat;
-
-    /* Clamp the point to be on the display.
-    */
-    xco = OledClampXco(xco);
-    yco = OledClampYco(yco);
-
-    /* Set up the four sides of the rectangle.
-    */
-    if (xcoOledCur < xco) {
-        xcoLeft = xcoOledCur;
-        xcoRight = xco;
-    }
-    else {
-        xcoLeft = xco;
-        xcoRight = xcoOledCur;
-    }
-
-    if (ycoOledCur < yco) {
-        ycoTop = ycoOledCur;
-        ycoBottom = yco;
-    }
-    else {
-        ycoTop = yco;
-        ycoBottom = ycoOledCur;
-    }
-
-
-    while (ycoTop <= ycoBottom) {
-        /* Compute the address of the left edge of the rectangle for this
-        ** stripe across the rectangle.
-        */
-        pbLeft = &rgbOledBmp[((ycoTop/8) * ccolOledMax) + xcoLeft];
-
-        /* Generate a mask to preserve any low bits in the byte that aren't
-        ** part of the rectangle being filled.
-        */
-        mskPat = (1 << (ycoTop & 0x07)) - 1;
-
-        /* Combine with a mask to preserve any upper bits in the byte that aren't
-        ** part of the rectangle being filled.
-        ** This mask will end up not preserving any bits for bytes that are in
-        ** the middle of the rectangle vertically.
-        */
-        if ((ycoTop / 8) == (ycoBottom / 8)) {
-            mskPat |= ~((1 << ((ycoBottom&0x07)+1)) - 1);
-        }                                           
-        ibPat = xcoLeft & 0x07;     //index to first pattern byte
-        xcoCur = xcoLeft;
-        pbCur = pbLeft;
-
-        /* Loop through all of the bytes horizontally making up this stripe
-        ** of the rectangle.
-        */
-        while (xcoCur <= xcoRight) {
-            *pbCur = (*pfnDoRop)(*(pbOledPatCur+ibPat), *pbCur, ~mskPat);
-            xcoCur += 1;
-            pbCur += 1;
-            ibPat += 1;
-            if (ibPat > 7) {
-                ibPat = 0;
-            }
-        }
-
-        /* Advance to the next horizontal stripe.
-        */
-        ycoTop = 8*((ycoTop/8)+1);
-
-    }
-
-}
-
-/* ------------------------------------------------------------ */
 /***    OledGetBmp
 **
 **  Parameters:
@@ -612,7 +433,6 @@ OledGetBmp(int dxco, int dyco, u8 * pbBits)
     int     xcoCur;
     int     bnAlign;
     u8  mskEnd;
-//  u8  bTmp;
 
     /* Set up the four sides of the source rectangle.
     */
@@ -658,8 +478,6 @@ OledGetBmp(int dxco, int dyco, u8 * pbBits)
         }
         else {
             while (xcoCur < xcoRight) {
-//              bTmp = *pbDspCur;
-//              bTmp = *(pbDspCur+ccolOledMax);
                 *pbBmpCur = ((*pbDspCur >> bnAlign) |
                             ((*(pbDspCur+ccolOledMax)) << (8-bnAlign))) & mskEnd;
                 xcoCur += 1;
@@ -670,7 +488,6 @@ OledGetBmp(int dxco, int dyco, u8 * pbBits)
 
         /* Advance to the next horizontal stripe.
         */
-    //  ycoTop = 8*((ycoTop/8)+1);
         ycoTop += 8;
         pbDspLeft += ccolOledMax;
         pbBmpLeft += dxco;
@@ -710,14 +527,12 @@ OledPutBmp(int dxco, int dyco, u8 * pbBits)
     u8 *    pbBmpCur;
     u8 *    pbBmpLeft;
     int     xcoCur;
-//  u8  bDsp;
     u8  bBmp;
     u8  mskEnd;
     u8  mskUpper;
     u8  mskLower;
     int     bnAlign;
     int     fTop;
-//  u8  bTmp;
 
     /* Set up the four sides of the destination rectangle.
     */
@@ -817,8 +632,6 @@ void
 OledDrawChar(char ch)
     {
     u8 *    pbFont;
-//  u8 *    pbBmp;
-//  int     ib;
 
     if ((ch & 0x80) != 0) {
         return;
@@ -830,8 +643,6 @@ OledDrawChar(char ch)
     else if ((ch & 0x80) == 0) {
         pbFont = pbOledFontCur + (ch-chOledUserMax) * cbOledChar;
     }
-
-//  pbBmp = pbOledCur;
 
     OledPutBmp(dxcoOledFontCur, dycoOledFontCur, pbFont);
 
