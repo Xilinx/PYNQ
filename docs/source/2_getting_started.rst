@@ -56,7 +56,12 @@ Hardware setup
    
    * Connect the board via an Ethernet cable to the same network that your host is connected to. You can also connect the board directly to the Ethernet port of your PC
 
-   If you connect to your network, the board should be assigned an IP address from DHCP. If you connect directly to the Ethernet port of your PC, your board should be assigned a static IP address (''192.168.2.99'')
+IP Address
+   To connect to your board, you need to make sure that it can connect to your computer or network correctly, and you will need to know the hostname or the IP address of the board. By default,  the board will be given an IP address automaticlly via DHCP if connected to a router or network. You can then connect to it using the hostname. (``pynq`` by default).
+
+   If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address. You can then connect to it using the IP address (``192.168.2.99`` by default). If you are using a static IP address, you will need to configure the Ethernet settings on your PC and manually assign an IP address to your computer that is in the same range as the board's IP. e.g. You could assign you PC the IP address (``192.168.2.98``)
+   
+   You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet settings. See the FAQ for more details on connecting to the board, and changing the IP settings. 
    
    * **Turn on** the power switch on the board
 
@@ -66,7 +71,7 @@ Hardware setup
 Open a web browser and connect to Pynq Jupyter Notebooks web portal
 ---------------------------------------------------------------------------
 
-   * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_.  **pynq** is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname. 
+   * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ if using a static IP.  **pynq** is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname. 
    
 It is recommended to change the hostname if multiple boards will be used on the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ to change the hostname. 
    
@@ -78,8 +83,6 @@ It is recommended to change the hostname if multiple boards will be used on the 
       :height: 600px
       :scale: 75%
       :align: center
-
-If you are using a static IP address, you may need to manually configure your network port. You can do this manually be setting the IP to an address in the same range as the board. (The board is ''192.168.2.99'' by default. For example, select ''192.168.2.1'')
 
    * You can also browse to the board using the IP address. e.g.: http://192.168.2.99:9090
 
@@ -116,7 +119,7 @@ Accessing files on the board
 ----------------------------
 `Samba <https://www.samba.org/>`_, a file sharing service, is running on the board. The home area on the board can be accessed as a network drive, and you can transfer files to and from the board. 
 
-You can go to ``\\pynq\xpp`` to access the pynq home area. Remember to change the hostname if necessary.
+You can go to ``\\pynq\xpp`` (DHCP) or ``\\192.168.2.99\xpp`` (static IP) to access the pynq home area. Remember to change the hostname if necessary.
 
 The Samba username:password is ``xpp:xpp``
 
