@@ -56,12 +56,17 @@ Hardware setup
    
    * Connect the board via an Ethernet cable to the same network that your host is connected to. You can also connect the board directly to the Ethernet port of your PC
 
-IP Address
    To connect to your board, you need to make sure that it can connect to your computer or network correctly, and you will need to know the hostname or the IP address of the board. By default,  the board will be given an IP address automaticlly via DHCP if connected to a router or network. You can then connect to it using the hostname. (``pynq`` by default).
 
-   If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address. You can then connect to it using the IP address (``192.168.2.99`` by default). If you are using a static IP address, you will need to configure the Ethernet settings on your PC and manually assign an IP address to your computer that is in the same range as the board's IP. e.g. You could assign you PC the IP address (``192.168.2.98``)
+   If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address. You can then connect to it using the IP address (``192.168.2.99`` by default). 
+   
    
    You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet settings. See the FAQ for more details on connecting to the board, and changing the IP settings. 
+   
+   If you are using a static IP address, you will need to configure the Ethernet settings on your PC and manually assign an IP address to your computer that is in the same range as the board's IP. e.g. You could assign you PC the IP address (``192.168.2.98``)
+   
+   Two scripts are provided, ``pynq_enable_static_IP_windows.bat`` and ``pynq_disable_static_IP_windows.bat`` available in the ``<GitHub respository>\Pynq\Ubuntu`` folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt.
+   
    
    * **Turn on** the power switch on the board
 
