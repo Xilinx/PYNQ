@@ -168,30 +168,15 @@ int main()
                         adc_raw_value = adc_read_raw();
                         cb_push_back(&pmod_log, &adc_raw_value);
                    }
-                   else
-                   {
-                        adc_raw_value = 0;
-                        cb_push_back(&pmod_log, &adc_raw_value);
-                   }
                    if(useChan1)
                    {
                         adc_raw_value = adc_read_raw();
-                        cb_push_back(&pmod_log, &adc_raw_value);
-                   }
-                   else
-                   {
-                        adc_raw_value = 0;
                         cb_push_back(&pmod_log, &adc_raw_value);
                    }
                    if(useChan2)
                    {
                     adc_raw_value = adc_read_raw();
                     cb_push_back(&pmod_log, &adc_raw_value);
-                   }
-                   else
-                   {
-                        adc_raw_value = 0;
-                        cb_push_back(&pmod_log, &adc_raw_value);
                    }
                    delay_us(delay);
                 }
@@ -209,30 +194,15 @@ int main()
                         adc_voltage = adc_read_voltage(VREF);
                         cb_push_back_float(&pmod_log, &adc_voltage);
                     }
-                    else
-                    {
-                        adc_voltage = 0;
-                        cb_push_back(&pmod_log, &adc_voltage);
-                    }
                     if(useChan1)
                     {
                         adc_voltage = adc_read_voltage(VREF);
                         cb_push_back_float(&pmod_log, &adc_voltage);
                     }
-                    else
-                    {
-                        adc_voltage = 0;
-                        cb_push_back(&pmod_log, &adc_voltage);
-                    }
                     if(useChan2)
                     {
                         adc_voltage = adc_read_voltage(VREF);
                         cb_push_back_float(&pmod_log, &adc_voltage);
-                    }
-                    else
-                    {
-                        adc_voltage = 0;
-                        cb_push_back(&pmod_log, &adc_voltage);
                     }
                     delay_us(delay);
                 }

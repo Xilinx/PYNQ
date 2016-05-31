@@ -108,8 +108,8 @@ class PMOD_ADC(object):
                 
         Note
         ----
-        The 4th channel is not available due to the jumper (JP1)setting on ADC 
-        to VREF.
+        The 4th channel is not available due to the jumper (JP1) setting on 
+        ADC.
         
         Note
         ----
@@ -218,7 +218,7 @@ class PMOD_ADC(object):
                                         pmod_const.MAILBOX_OFFSET+8)))
         return readings
         
-    def start_log_raw(self, ch1, ch2, ch3, log_interval_us=100):
+    def start_log_raw(self, ch1=1, ch2=0, ch3=0, log_interval_us=100):
         """Start the log of raw values with the interval specified.
         
         This parameter `log_interval_us` can set the time interval between 
@@ -261,7 +261,7 @@ class PMOD_ADC(object):
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
-    def start_log(self, ch1, ch2, ch3, log_interval_us=100):
+    def start_log(self, ch1=1, ch2=0, ch3=0, log_interval_us=100):
         """Start the log of voltage values with the interval specified.
         
         This parameter `log_interval_us` can set the time interval between 
