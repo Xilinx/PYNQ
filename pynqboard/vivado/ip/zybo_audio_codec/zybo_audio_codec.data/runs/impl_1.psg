@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Strategy Version="1" Minor="2">
+	<StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2013">
+		<Desc>Vivado Implementation Defaults</Desc>
+	</StratHandle>
+	<Step Id="init_design">
+	</Step>
+	<Step Id="opt_design">
+	</Step>
+	<Step Id="power_opt_design">
+	</Step>
+	<Step Id="place_design">
+	</Step>
+	<Step Id="post_place_power_opt_design">
+	</Step>
+	<Step Id="phys_opt_design">
+	</Step>
+	<Step Id="route_design">
+	</Step>
+	<Step Id="write_bitstream">
+	</Step>
+</Strategy>
+
