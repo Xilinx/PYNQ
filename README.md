@@ -2,9 +2,14 @@
 (Py)thon on Zy(nq)
 
 
-## Zybo image files
+## SDCard image files
 
-- All images including the latest are available here: 
+- All Pynq Board images including the latest are available here: 
+```
+file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-pynqboard/
+``` 
+
+- All Zybo images including the latest are available here: 
 ```
 file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/
 ```
