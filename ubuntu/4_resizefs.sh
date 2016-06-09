@@ -8,6 +8,7 @@
 
 TGTDEV=/dev/mmcblk0
 TGTPART=/dev/mmcblk0p2
+source /etc/environment
 
 if [[ ${RESIZED} == "1" ]]; then
 	echo "filesystem already resized!"
