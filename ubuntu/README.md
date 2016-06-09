@@ -23,7 +23,7 @@ Add `start_pl_server.py` and `stop_pl_server.py` into /home/xpp/scripts folder
 Add `3_pl_server.sh` into /root folder and change owner, group, and read/write permissions. 
 Add `4_resizefs.sh` into /root folder to resize the filesystem.
 Use the new `rc.local` file in /etc folder.
-
+Modify username/password to xilinx/xilinx
 ```
 
 
