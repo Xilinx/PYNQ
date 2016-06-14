@@ -384,4 +384,16 @@ An easy alternative to script #3 is to install the pynq package using `pip` dire
 sudo -H pip install -e 'git+https://github.com/Xilinx/Pynq@master#egg=pynq&subdirectory=python'
 ```
 
+
+## VNC Server Installation
+https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-vnc-on-ubuntu-14-04 
+
+```
+# in /etc/apt/sources.list uncomment 'universe' repository entries
+sudo apt-get update
+sudo apt-get install xfce4 xfce4-goodies tightvncserver
+vncserver
+```
+
+
 ------------------------------------------------------------------------------------------------------
