@@ -35,43 +35,40 @@ __email__       = "xpp_support@xilinx.com"
 from pynq import dma_const
 
 class DMA():
-    
+ 
     def __init__(self,address,direction = DMA_TO_DEV):
         # Pick a random direction
         self.info = ffi.new("axi_dma_simple_info_t *")
         global device_id
-        global DMA_ADDR_RANGE
         self.info.device_id = device_id
         device_id = device_id + 1
         self.info.phys_base_addr = address
-        self.info.addr_range = DMA_ADDR_RANGE
+        self.info.addr_range = 0x10000
         self.info.dir = direction
         self.channel = ffi.new("axi_dma_simple_channel_info_t *")
         self.channel.dma_info = self.info
-        self.channel. in_use = 0
+        self.channel.in_use = 0
         self.channel.needs_cache_flush_invalidate = 0
-        self.num_recd = ffi.new("int *")
         self.sent_data = 0
-        
+
     def register(self):
-        dmalib.custom_dma_register(self.info.device_id)
-        
-    def unregister(self):
-        dmalib.custom_dma_unregister(self.info.device_id)
-    
-    def open(self):
-        dmalib.custom_dma_open(self.channel, self.info.device_id)
+        dmalib.reg_and_open(self.channel)
 
     def close(self):
-        dmalib.custom_dma_close(self.channel, self.info.device_id)
-        
+        dmalib.unreg_and_close(self.channel)
+
     def send(self,buf,length):
-        dmalib.custom_dma_send_i(self.channel,buf,length,self.info.device_id)
-        
+        dmalib._dma_send(self.channel,buf,length,self.info.device_id)
+
     def recv(self,buf,length):
         self.info.dir = DMA_FROM_DEV
-        self.sent_data = length
-        dmalib.custom_dma_recv_i(self.channel,buf,length,self.num_recd,self.info.device_id)
+        dmalib._dma_recv(self.channel,buf,length,self.info.device_id)
 
     def wait(self):
-        dmalib.custom_dma_wait(self.info.device_id)
+        dmalib._dma_wait(self.info.device_id)
+
+    def alloc(self,length):
+        return dmalib.sds_alloc(length)
+
+    def free(self,pointer):
+        dmalib.sds_free(pointer)

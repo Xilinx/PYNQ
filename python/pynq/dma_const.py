@@ -39,7 +39,6 @@ ffi = cffi.FFI()
 DMA_TO_DEV = 0
 DMA_FROM_DEV = 1
 device_id = 0
-DMA_ADDR_RANGE = 0x10000
 
 ffi.cdef("""
 typedef struct axi_dma_simple_info_struct {
@@ -60,42 +59,42 @@ typedef struct axi_dma_simple_channel_info_struct {
 """)
 
 ffi.cdef("""
-void custom_dma_register(int id);
-""")
-
-ffi.cdef("""
-void custom_dma_unregister(int id);
-""")
-
-ffi.cdef("""
-int custom_dma_open(
-        axi_dma_simple_channel_info_t * dstruct, int id
+void reg_and_open(
+        axi_dma_simple_channel_info_t * dmainfo
         );
 """)
 
 ffi.cdef("""
-int custom_dma_close(
-        axi_dma_simple_channel_info_t * dstruct, int id
+void unreg_and_close(
+        axi_dma_simple_channel_info_t * dmainfo
         );
 """)
 
 ffi.cdef("""
-int custom_dma_send_i(
-        axi_dma_simple_channel_info_t * dstruct,
-        void *buf, int len,int id
-        );
-
-""")
-
-ffi.cdef("""
-int custom_dma_recv_i(
-        axi_dma_simple_channel_info_t * dstruct,
-        void *buf, int len,int *num_recd,int id
+void  _dma_send(
+        axi_dma_simple_channel_info_t * dmainfo, 
+        void * data,int len, int handle_id
         );
 """)
 
 ffi.cdef("""
-void custom_dma_wait(int id);
+void _dma_recv(
+        axi_dma_simple_channel_info_t * dmainfo, 
+        void * data,int len, int handle_id
+        );
 """)
 
-dmalib = ffi.dlopen("/home/xpp/dma/libdma.so")
+ffi.cdef("""
+void *sds_alloc( size_t size);
+""")
+
+ffi.cdef("""
+void sds_free(void *memptr);
+""")
+
+ffi.cdef("""
+void _dma_wait(int handle_id);
+""")
+
+LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
+dmalib = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
