@@ -54,7 +54,7 @@ class DMA():
     def register(self):
         dmalib.reg_and_open(self.channel)
 
-    def close(self):
+    def unregister(self):
         dmalib.unreg_and_close(self.channel)
 
     def send(self,buf,length):
