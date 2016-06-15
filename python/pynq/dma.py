@@ -35,9 +35,19 @@ __email__       = "xpp_support@xilinx.com"
 from pynq import dma_const
 
 class DMA():
- 
+
     def __init__(self,address,direction = DMA_TO_DEV):
-        # Pick a random direction
+        self._get_channel(address,direction)
+        self._register()
+        self.readbuf = ffi.new_handle("void")
+        self._readalloc = False
+        self.writebuf = ffi.new_handle("void")
+        self._writealloc = False
+
+    def __del__(self):
+        self._unregister()
+
+    def _get_channel(self,address,direction):
         self.info = ffi.new("axi_dma_simple_info_t *")
         global device_id
         self.info.device_id = device_id
@@ -49,26 +59,51 @@ class DMA():
         self.channel.dma_info = self.info
         self.channel.in_use = 0
         self.channel.needs_cache_flush_invalidate = 0
-        self.sent_data = 0
 
-    def register(self):
+    def _register(self):
         dmalib.reg_and_open(self.channel)
 
-    def unregister(self):
+    def _unregister(self):
         dmalib.unreg_and_close(self.channel)
 
-    def send(self,buf,length):
+    def _send(self,buf,length):
         dmalib._dma_send(self.channel,buf,length,self.info.device_id)
 
-    def recv(self,buf,length):
+    def _recv(self,buf,length):
         self.info.dir = DMA_FROM_DEV
         dmalib._dma_recv(self.channel,buf,length,self.info.device_id)
 
     def wait(self):
         dmalib._dma_wait(self.info.device_id)
 
-    def alloc(self,length):
+    def _alloc(self,length):
         return dmalib.sds_alloc(length)
 
-    def free(self,pointer):
+    def _free(self,pointer):
         dmalib.sds_free(pointer)
+
+    def get_read_buf(self):
+        return ffi.cast("int *",self.readbuf)
+
+    def read(self,length,wait = True):
+        if self._readalloc is True:
+            self._free(self.readbuf)
+        self.readbuf = self._alloc(length * 4)
+        self._readalloc = True
+        self._recv(self.readbuf,length)
+        if wait is False:
+            return
+        self.wait()
+        buf = ffi.cast("int *",self.readbuf)
+        return buf
+
+    def write(self,buf, wait = True):
+        if self._writealloc is True:
+            self._free(self.writebuf)
+        length = len(buf) * 4
+        self.writebuf = self._alloc(length)
+        self._writealloc = True
+        self._send(self.writebuf,length)
+        if wait is False:
+            return
+        self.wait()
