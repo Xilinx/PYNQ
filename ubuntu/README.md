@@ -24,6 +24,7 @@ Add `3_pl_server.sh` into /root folder and change owner, group, and read/write p
 Add `4_resizefs.sh` into /root folder to resize the filesystem.
 Use the new `rc.local` file in /etc folder.
 Modify username/password to xilinx/xilinx
+Install sigrok-cli and PulseView (rock sent out slides on the steps.)
 ```
 
 
