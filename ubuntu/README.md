@@ -25,6 +25,8 @@ Add `4_resizefs.sh` into /root folder to resize the filesystem.
 Use the new `rc.local` file in /etc folder.
 Modify username/password to xilinx/xilinx
 Install sigrok-cli and PulseView (rock sent out slides on the steps.)
+Enable the X11 forwarding on the target; by default, in /etc/ssh/ssh_config, set ForwardingX11 to yes.
+Make sure there is a file .Xauthority in /home/xpp/, and its mode should be 0600.
 ```
 
 
