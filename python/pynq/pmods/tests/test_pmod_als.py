@@ -36,7 +36,7 @@ import pytest
 from time import sleep
 from pynq import Overlay
 from pynq.pmods.pmod_als import PMOD_ALS
-from pynq.test.util import user_answer_yes
+from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nALS attached to the board?")
 if flag:

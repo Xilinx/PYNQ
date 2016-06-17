@@ -39,7 +39,7 @@ from time import sleep
 import pytest
 from pynq import Overlay
 from pynq.pmods.pmod_led8 import PMOD_LED8
-from pynq.test.util import user_answer_yes
+from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD LED8 attached to the board?")
 if flag:
