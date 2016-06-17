@@ -39,7 +39,7 @@ import pytest
 from pynq import Overlay
 from pynq.drivers import LineIn
 from pynq.drivers import Headphone
-from pynq.test.util import user_answer_yes
+from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nBoth LineIn and Headphone (HPH) jacks connected?")
 

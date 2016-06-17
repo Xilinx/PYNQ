@@ -38,7 +38,7 @@ import termios
 from time import sleep
 import pytest
 from pynq.board.led import LED
-from pynq.test.util import user_answer_yes
+from pynq.tests.util import user_answer_yes
 
 @pytest.mark.run(order=5)
 def test_led0():

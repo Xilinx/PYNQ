@@ -38,7 +38,7 @@ import pytest
 from pynq import Overlay
 from pynq.pmods import PMOD_ADC
 from pynq.pmods import PMOD_DAC
-from pynq.test.util import user_answer_yes
+from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD ADC and PMOD DAC attached (straight cable)?")
 if flag:
