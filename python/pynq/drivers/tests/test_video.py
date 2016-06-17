@@ -28,20 +28,48 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2015, Xilinx"
-__email__       = "giuseppe.natale@xilinx.com"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "xpp_support@xilinx.com"
 
 
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.video import VGA
+from pynq.drivers import HDMI
+from pynq.drivers import VGA
 from pynq.test.util import user_answer_yes
 
-flag = user_answer_yes("\nVGA port connected to a screen?")
+flag_hdmi = user_answer_yes("\nHDMI port connected to a video source?")
+flag_vga = user_answer_yes("\nVGA port connected to a screen?")
 
+@pytest.mark.run(order=32)
+@pytest.mark.skipif(not flag_hdmi, reason="need HDMI connected")
+def test_hdmi():
+    """Test for the HDMI class with direction set as input.
+    
+    It may take some time to load the frames. After that, the direction, 
+    frame size, and the frame index will all be tested.
+    
+    """
+    global hdmi
+    hdmi = HDMI('in')
+    print("\nLoading (may take up to 10 seconds)...")
+    sleep(20)
+    assert hdmi.direction is 'in', 'Wrong direction for HDMI.'
+    
+    hdmi.start()
+    frame_raw = hdmi.frame_raw()
+    assert len(frame_raw)==1920*1080*3, 'Wrong frame size for HDMI.'
+    
+    index = hdmi.frame_index()
+    hdmi.frame_index(index+1)
+    assert not hdmi.frame_index()==index, 'HDMI frame index is not changed.'
+    
+    hdmi.stop()
+    del hdmi
+    
 @pytest.mark.run(order=33)
-@pytest.mark.skipif(not flag, reason="need VGA connected")
+@pytest.mark.skipif(not flag_vga, reason="need VGA connected")
 def test_vga():
     """Test for the VGA class with direction set as output.
     
@@ -61,7 +89,7 @@ def test_vga():
     vga.frame_index_next()
 
 @pytest.mark.run(order=34)
-@pytest.mark.skipif(not flag, reason="need VGA connected")
+@pytest.mark.skipif(not flag_vga, reason="need VGA connected")
 def test_pattern_colorbar():
     """Test for the VGA class with color bar pattern.
     
@@ -111,7 +139,7 @@ def test_pattern_colorbar():
     assert user_answer_yes("\nColor bar pattern showing on screen?")        
 
 @pytest.mark.run(order=35)
-@pytest.mark.skipif(not flag, reason="need VGA connected")
+@pytest.mark.skipif(not flag_vga, reason="need VGA connected")
 def test_pattern_blended():
     """Test for the VGA class with color bar pattern.
     
@@ -181,7 +209,7 @@ def test_pattern_blended():
     assert user_answer_yes("\nBlended pattern showing on screen?")               
 
 @pytest.mark.run(order=36)
-@pytest.mark.skipif(not flag, reason="need VGA connected")
+@pytest.mark.skipif(not flag_vga, reason="need VGA connected")
 def test_vga_mode():
     global vga
     
@@ -192,7 +220,7 @@ def test_vga_mode():
     assert vga.mode(4) == "1920x1080@60Hz", 'Wrong display mode for VGA.'
 
 @pytest.mark.run(order=37)
-@pytest.mark.skipif(not flag, reason="need VGA connected")
+@pytest.mark.skipif(not flag_vga, reason="need VGA connected")
 def test_vga_state():
     global vga
     

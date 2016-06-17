@@ -39,4 +39,4 @@ from .pl import PL
 from .pl import Bitstream
 from .pl import Overlay
 
-__all__ = ['test', 'board', 'pmods', 'audio', 'video']
+__all__ = ['test', 'board', 'pmods', 'drivers']

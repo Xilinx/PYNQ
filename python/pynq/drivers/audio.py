@@ -32,8 +32,11 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "xpp_support@xilinx.com"
 
 
-from . import audio_const
 from . import _audio
+
+AUDIO_BASE_ADDRESS = 0x60000000
+AUDIO_GPIO_PIN = 194
+IICPS_INDEX = 1
 
 class Audio(object):
     """Class for the audio controller.
@@ -61,9 +64,9 @@ class Audio(object):
             
         """
         if Audio._audio_ctrl is None:
-            Audio._audio_ctrl = _audio._audio(audio_const.AUDIO_BASE_ADDRESS,
-                                              audio_const.AUDIO_GPIO_PIN,
-                                              audio_const.IICPS_INDEX)
+            Audio._audio_ctrl = _audio._audio(AUDIO_BASE_ADDRESS,
+                                            AUDIO_GPIO_PIN,
+                                            IICPS_INDEX)
 
 class LineIn(Audio):
     """Class for the audio LineIn channel.

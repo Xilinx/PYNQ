@@ -34,3 +34,9 @@ __email__ = "xpp_support@xilinx.com"
 
 from .audio import LineIn
 from .audio import Headphone
+
+from .video import HDMI
+from .video import VGA
+from .video import Frame
+
+from .dma import DMA

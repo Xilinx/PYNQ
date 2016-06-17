@@ -32,7 +32,73 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
-from pynq import dma_const
+import cffi
+
+
+LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
+dmalib = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
+
+DMA_TO_DEV = 0
+DMA_FROM_DEV = 1
+device_id = 0
+
+ffi = cffi.FFI()
+
+ffi.cdef("""
+typedef struct axi_dma_simple_info_struct {
+        int device_id;
+        int phys_base_addr;
+        int addr_range;
+        int virt_base_addr;
+        int dir; // either DMA_TO_DEV or DMA_FROM_DEV 
+} axi_dma_simple_info_t;
+""")
+
+ffi.cdef("""
+typedef struct axi_dma_simple_channel_info_struct {
+                axi_dma_simple_info_t *dma_info;
+                int in_use;
+                int needs_cache_flush_invalidate;
+} axi_dma_simple_channel_info_t;
+""")
+
+ffi.cdef("""
+void reg_and_open(
+        axi_dma_simple_channel_info_t * dmainfo
+        );
+""")
+
+ffi.cdef("""
+void unreg_and_close(
+        axi_dma_simple_channel_info_t * dmainfo
+        );
+""")
+
+ffi.cdef("""
+void  _dma_send(
+        axi_dma_simple_channel_info_t * dmainfo, 
+        void * data,int len, int handle_id
+        );
+""")
+
+ffi.cdef("""
+void _dma_recv(
+        axi_dma_simple_channel_info_t * dmainfo, 
+        void * data,int len, int handle_id
+        );
+""")
+
+ffi.cdef("""
+void *sds_alloc( size_t size);
+""")
+
+ffi.cdef("""
+void sds_free(void *memptr);
+""")
+
+ffi.cdef("""
+void _dma_wait(int handle_id);
+""")
 
 class DMA():
 
