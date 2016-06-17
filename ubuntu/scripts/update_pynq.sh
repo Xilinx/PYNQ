@@ -54,12 +54,13 @@ fi
 echo "1. Backing up files into ${BACKUP_DIR}"
 mkdir $BACKUP_DIR
 cp -r $FINAL_DOCS_DIR $FINAL_NOTEBOOKS_DIR $FINAL_SCRIPTS_DIR $BACKUP_DIR
-python3.4 /home/xpp/scripts/stop_pl_server.py &
 
 echo "2. Clone Pynq repository into ${REPO_DIR}"
 git clone https://github.com/Xilinx/Pynq $REPO_DIR
 
 echo "3. Pip install latest pynq python package"
+python3.4 /home/xpp/scripts/stop_pl_server.py &
+rm -rf $PYNQ_DIR/*
 cd $REPO_DIR/python
 sudo -H pip install --upgrade .
 python3.4 /home/xpp/scripts/start_pl_server.py &

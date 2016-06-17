@@ -32,15 +32,9 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
+import os
 import cffi
 
-
-LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
-dmalib = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
-
-DMA_TO_DEV = 0
-DMA_FROM_DEV = 1
-device_id = 0
 
 ffi = cffi.FFI()
 
@@ -99,6 +93,13 @@ void sds_free(void *memptr);
 ffi.cdef("""
 void _dma_wait(int handle_id);
 """)
+
+LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
+dmalib = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
+
+DMA_TO_DEV = 0
+DMA_FROM_DEV = 1
+device_id = 0
 
 class DMA():
 
