@@ -39,4 +39,4 @@ from .video import HDMI
 from .video import VGA
 from .video import Frame
 
-#from .dma import DMA
+from .dma import DMA
