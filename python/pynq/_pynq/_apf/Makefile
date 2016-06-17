@@ -1,14 +1,14 @@
 CC = arm-linux-gnueabihf-gcc
 CPP = arm-linux-gnueabihf-g++
 
-OBJS = dmadefs.o dma.o
+OBJS = devreg.o portinfo.o 
 LIBS = -l pthread libsds_lib.a
 INC = -I include/
 
 all:	
-	$(CPP) -fPIC $(INC)  -Wall -O3 -D __SDSOC__ -c dmadefs.c
-	$(CPP) -fPIC $(INC)  -Wall -O3 -D __SDSOC__ -c dma.c
-	$(CPP) -shared -fPIC -rdynamic $(OBJS)  -Wl,--start-group $(LIBS) -Wl,--end-group -o libdma.so
-
+	$(CC) -fPIC $(INC) -c devreg.c
+	$(CC) -fPIC $(INC) -c portinfo.c
+	$(CC) -shared -fPIC -rdynamic $(OBJS)  -Wl,--start-group $(LIBS) -Wl,--end-group -o libdma.so
+	rm *.o
 clean:
-	rm *.o *.so -fr
+	rm *.o *.so -r
