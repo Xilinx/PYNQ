@@ -197,7 +197,7 @@ class DMA():
         dmalib.unreg_and_close(self.channel)
 
     def _send(self,buf,length):
-        """Basic DMA send method (Non- Blocking).
+        """Basic DMA send method (Non-Blocking).
 
         This method takes a buffer in physically contiguous memory locations
         and sends it via DMA into the PL. The buffer can be allocated using
@@ -220,7 +220,7 @@ class DMA():
         dmalib._dma_send(self.channel,buf,length,self.info.device_id)
 
     def _recv(self,buf,length):
-        """Basic DMA receive method (Non- Blocking).
+        """Basic DMA receive method (Non-Blocking).
 
         This method takes a buffer in physically contiguous memory locations
         and fills it with data received from PL. The buffer can be allocated using
@@ -284,7 +284,7 @@ class DMA():
 
         Use this to free a previously allocated buffer memory. There is a 
         limit on size of physically contiguous memory which can be allocated 
-        and thus, it is important to free up any unrequired memory.
+        and thus, it is important to free up any unneeded memory.
 
         Parameters
         ----------
