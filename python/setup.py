@@ -33,6 +33,9 @@ __email__       = "xpp_support@xilinx.com"
 
 
 from setuptools import setup, Extension, find_packages
+import shutil
+import subprocess
+import sys
 
 # Audio and video source files
 _audio_src = ['pynq/_pynq/_audio/_audio.c', 'pynq/_pynq/src/audio.c', 
@@ -84,6 +87,18 @@ video.extend(bsp_axivdma)
 video.extend(bsp_gpio)
 video.extend(bsp_vtc)
 video.extend(_video_src)
+
+# Run Makefiles here
+
+def run_make(src_path,dst_path, output_lib):
+    status = subprocess.check_call(["make", "-C", src_path])
+    if status is not 0:
+        print("Error while running make for",output_lib,"Exiting..")
+        sys.exit(1)
+    shutil.copyfile( src_path + output_lib, dst_path +  output_lib )
+
+if len(sys.argv) > 1 and sys.argv[1] == 'install':
+    run_make("pynq/_pynq/_apf/", "pynq/drivers/" ,"libdma.so")
 
 setup(  name='pynq',
         version='0.1',

@@ -24,3 +24,4 @@
 *.elf binary -crlf
 *.bin binary -crlf
 *.bit binary -crlf
+*.a binary -crlf

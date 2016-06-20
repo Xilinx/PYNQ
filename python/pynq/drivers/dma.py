@@ -100,16 +100,26 @@ dmalib = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
 DMA_TO_DEV = 0
 DMA_FROM_DEV = 1
 device_id = 0
+_address_table = {}
 
 class DMA():
 
+    def __new__(cls,address,direction = DMA_TO_DEV):
+        if address in _address_table.keys():
+            return _address_table[address]
+        new_obj =  super(DMA, cls).__new__(cls)
+        return new_obj
+
     def __init__(self,address,direction = DMA_TO_DEV):
+        if address in _address_table.keys():
+            return
         self._get_channel(address,direction)
         self._register()
         self.readbuf = ffi.new_handle("void")
         self._readalloc = False
         self.writebuf = ffi.new_handle("void")
         self._writealloc = False
+        _address_table[address] = self
 
     def __del__(self):
         self._unregister()
@@ -117,6 +127,7 @@ class DMA():
     def _get_channel(self,address,direction):
         self.info = ffi.new("axi_dma_simple_info_t *")
         global device_id
+        global _address_table
         self.info.device_id = device_id
         device_id = device_id + 1
         self.info.phys_base_addr = address

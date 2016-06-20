@@ -37,10 +37,10 @@ import pytest
 from pynq import Overlay
 from pynq.drivers import HDMI
 from pynq.drivers import VGA
-from pynq.test.util import user_answer_yes
+from pynq.tests.util import user_answer_yes
 
 flag_hdmi = user_answer_yes("\nHDMI port connected to a video source?")
-flag_vga = user_answer_yes("\nVGA port connected to a screen?")
+flag_vga = user_answer_yes("VGA port connected to a screen?")
 
 @pytest.mark.run(order=32)
 @pytest.mark.skipif(not flag_hdmi, reason="need HDMI connected")

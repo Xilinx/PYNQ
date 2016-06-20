@@ -1,10 +1,6 @@
 #ifndef D_sds_lib
 #define D_sds_lib
 
-#ifndef size_t
-#define size_t unsigned int
-#endif
-
 
 #ifdef __cplusplus
 extern "C" {
