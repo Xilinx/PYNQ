@@ -328,7 +328,7 @@ class DMA():
         return ffi.cast("int *",self.readbuf)
 
     def read(self,length,wait = True):
-        """ Read 'length' 4 byte elements from the PL
+        """ Read "length" bytes from the PL
 
         This method is intended for anyone who doesn't want to deal
         with memory allocations. They can simply pass length of an array
@@ -338,7 +338,7 @@ class DMA():
         Parameters
         ----------
         length : integer
-            length of the array to be read. Each element is 4 bytes in size.
+            Number of bytes to be read (prefer a multiple of 4)
         wait : bool (=True)
             if wait is True then the DMA call is blocking. It 
             can be made non-blocking by setting wait to False.
@@ -363,14 +363,13 @@ class DMA():
         """
         if self._readalloc is True:
             self._free(self.readbuf)
-        self.readbuf = self._alloc(length * 4)
+        self.readbuf = self._alloc(length)
         self._readalloc = True
         self._recv(self.readbuf,length)
         if wait is False:
             return
         self.wait()
-        buf = ffi.cast("int *",self.readbuf)
-        return buf
+        return ffi.cast("int *",self.readbuf)
 
     def write(self,buf, wait = True):
         """Write a python integer list into PL using DMA.
@@ -395,7 +394,7 @@ class DMA():
             self._free(self.writebuf)
         length = len(buf) * 4
         self.writebuf = self._alloc(length)
-        ffi.cast("int *",self.writebuf)
+        self.writebuf = ffi.cast("int *",self.writebuf)
         for i in range(0,len(buf)):
             self.writebuf[i] = buf[i]
         self._writealloc = True
