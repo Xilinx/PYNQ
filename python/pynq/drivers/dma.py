@@ -363,7 +363,8 @@ class DMA():
         """
         if self._readalloc is True:
             self._free(self.readbuf)
-        self.readbuf = self._alloc(length * 4)
+        length = length * 4
+        self.readbuf = self._alloc(length)
         self._readalloc = True
         self._recv(self.readbuf,length)
         if wait is False:
