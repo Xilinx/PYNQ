@@ -320,7 +320,8 @@ class Trace_Buffer:
         os.system("cd "+ name +"; zip -rq " + self.trace_sr + " * ; cd ..")
         os.system("rm -rf " + name)
         
-    def parse(self, data, length, mask=0xFFFFFFFF):
+    def parse(self, data, length, mask=0xFFFFFFFF, 
+              tri_select=[], tri_0=[], tri_1=[]):
         """Parse the input data and generate a `*.csv` file.
         
         This method can be used along with the DMA. The input data is assumed
@@ -328,12 +329,18 @@ class Trace_Buffer:
         file.
         
         To extract certain bits from the 32-bit data, use the parameter
-        `mask`. The mask always uses the big endian.
+        `mask`. The probes selected by `mask` does not include any tristate 
+        probe.
+        
+        To specify a set of tristate probes, e.g., users can set 
+        tri_select = [0x00000004], tri_0 = [0x00000010], tri_1 = [0x00000100].
+        In this example, the 3rd probe from the LSB is the selection probe; 
+        the 5th probe is selected if selection probe is 0, otherwise the 9th
+        probe is selected. There can be multiple sets of tristate probes.
         
         Note
         ----
-        The parsed data will be stored in the same folder as this file. 
-        
+        The parsed data will be stored in the same folder as this file.
         
         Parameters
         ----------
@@ -342,7 +349,13 @@ class Trace_Buffer:
         length : int
             The length of the data, in number of 32-bit integers.
         mask : int
-            The mask to be applied to the 32-bit data.
+            A 32-bit mask to be applied to the 32-bit data.
+        tri_select : list
+            The list of tristate selection probes.
+        tri_0 : list
+            The list of probes selected when the selection probe is 0.
+        tri_1 : list
+            The list probes selected when the selection probe is 1.
         
         Return
         ------
@@ -357,8 +370,35 @@ class Trace_Buffer:
             raise ValueError("Data length has to be in [1,0x100000]")
         if not isinstance(mask, int):
             raise TypeError("Data mask has to be an integer.")
-        if not 0< mask <=0xFFFFFFFF:
+        if not 0<mask<=0xFFFFFFFF:
             raise ValueError("Data mask out of range.")
+        if not isinstance(tri_select, list):
+            raise TypeError("Selection probes has to be in a list.")
+        if not isinstance(tri_0, list) or not isinstance(tri_1, list):
+            raise TypeError("Data probes has to be in a list.")
+        if not len(tri_select)==len(tri_0)==len(tri_1):
+            raise ValueError("Inconsistent length for tristate lists.")
+        for element in tri_select:
+            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+                raise TypeError("Selection probe has to be an integer.")
+            if not (element & element-1)==0:
+                raise ValueError("Selection probe can only have 1-bit set.")
+            if not (element & mask)==0:
+                raise ValueError("Selection probe has be excluded from mask.")
+        for element in tri_0:
+            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+                raise TypeError("Data probe has to be an integer.")
+            if not (element & element-1)==0:
+                raise ValueError("Data probe can only have 1-bit set.")
+            if not (element & mask)==0:
+                raise ValueError("Data probe has be excluded from mask.")
+        for element in tri_1:
+            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+                raise TypeError("Data probe has to be an integer.")
+            if not (element & element-1)==0:
+                raise ValueError("Data probe can only have 1-bit set.")
+            if not (element & mask)==0:
+                raise ValueError("Data probe has be excluded from mask.")
             
         parsed = os.path.dirname(os.path.realpath(__file__)) + '/trace.csv'
         with open(parsed, 'w') as f:
@@ -368,6 +408,19 @@ class Trace_Buffer:
                 for j in range(31,-1,-1):
                     if (mask & 1<<j)>>j:
                         list_val.append(str((raw_val & 1<<j)>>j))
+                    else:
+                        for selection in tri_select:
+                            idx = tri_select.index(selection)
+                            if (selection & 1<<j)>>j:
+                                if ((raw_val & 1<<j)>>j)==0:
+                                    log = tri_0[idx].bit_length()-1
+                                    list_val.append(
+                                        str((raw_val & 1<<log)>>log))
+                                else:
+                                    log = tri_1[idx].bit_length()-1
+                                    list_val.append(
+                                        str((raw_val & 1<<log)>>log))
+                                
                 temp = ','.join(list_val)
                 f.write(temp + '\n')
                 
