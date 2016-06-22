@@ -89,7 +89,6 @@ video.extend(bsp_vtc)
 video.extend(_video_src)
 
 # Run Makefiles here
-
 def run_make(src_path,dst_path, output_lib):
     status = subprocess.check_call(["make", "-C", src_path])
     if status is not 0:

@@ -83,7 +83,7 @@ IOP_SWCFG_PMODIOALL = [ IOP_SWCFG_PMODIO0,  IOP_SWCFG_PMODIO1,
 #: Switch config - IIC0, Top Row
 IOP_SWCFG_IIC0_TOPROW = [   IOP_SWCFG_PMODIO0,  IOP_SWCFG_PMODIO1,
                             IOP_SWCFG_IIC0_SCL, IOP_SWCFG_IIC0_SDA,
-                            IOP_SWCFG_PMODIO2,  IOP_SWCFG_PMODIO3,                            
+                            IOP_SWCFG_PMODIO2,  IOP_SWCFG_PMODIO3,
                             IOP_SWCFG_PMODIO4,  IOP_SWCFG_PMODIO5]
 
 #: Switch config - IIC0, Bottom Row
