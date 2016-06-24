@@ -5,6 +5,8 @@
 # document what we're doing in-line with the actual commands
 # Note that a blank line (commented as "defualt" will send a empty
 # line terminated with a newline to take the fdisk default.
+exec >> /var/log/syslog
+exec 2>&1
 
 TGTDEV=/dev/mmcblk0
 TGTPART=/dev/mmcblk0p2
