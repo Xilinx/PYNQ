@@ -35,7 +35,7 @@ __email__       = "xpp_support@xilinx.com"
 import os
 from pynq import PL
 
+# Start the PL server
 if os.path.isfile("/home/xpp/pynq/bitstream/.log"):
     os.remove("/home/xpp/pynq/bitstream/.log")
-# Start the PL server
 PL._setup()

@@ -33,14 +33,18 @@ __email__       = "xpp_support@xilinx.com"
 
 
 import os
-from pynq import PL
+
+try:
+    from pynq import PL
+except ImportError:
+    pass
 
 # Stop the PL server
-try:
-    PL._client_request()
-    PL._server_update(0)
-except ConnectionRefusedError:
-    pass
-    
 if os.path.isfile("/home/xpp/pynq/bitstream/.log"):
+    try:
+        PL._client_request()
+        PL._server_update(0)
+    except ConnectionRefusedError:
+        pass
+    
     os.remove("/home/xpp/pynq/bitstream/.log")
