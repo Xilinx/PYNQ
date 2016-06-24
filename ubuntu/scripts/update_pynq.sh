@@ -76,7 +76,6 @@ rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/*
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
 cp -r $REPO_DIR/python/notebooks/* $FINAL_NOTEBOOKS_DIR
 cp -r $REPO_DIR/ubuntu/scripts/hostname.sh $FINAL_SCRIPTS_DIR
-cp -r $REPO_DIR/ubuntu/scripts/*.bat $FINAL_SCRIPTS_DIR
 pushd $FINAL_NOTEBOOKS_DIR ; ln -s $FINAL_DOCS_DIR ; popd
 
 # Jupyer_notebooks/Getting Started derived contents
