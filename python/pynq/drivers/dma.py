@@ -278,7 +278,11 @@ class DMA():
             like a C array.
 
         """
-        return dmalib.sds_alloc(length)
+        allocated = dmalib.sds_alloc(length)
+        if allocated != ffi.NULL:
+            return allocated
+        else:
+            print("Memory Allocation Failed!")
 
     def _free(self,pointer):
         """Free previously allocated buffer memory.
@@ -297,7 +301,8 @@ class DMA():
         None
 
         """
-        dmalib.sds_free(pointer)
+        if pointer != ffi.NULL and pointer != None:
+            dmalib.sds_free(pointer)
 
     def get_read_buf(self):
         """Return a previously read buffer
