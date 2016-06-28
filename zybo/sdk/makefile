@@ -16,7 +16,7 @@ MBBINS = pmod_adc.bin \
 		grove_buzzer.bin \
 		grove_ledbar.bin
 
-all: pmod_bins
+all: iop_bins
 	@echo "Completed Microblaze Projects' Builds"
 
 mb_bsp: sdk_workspace
@@ -25,10 +25,11 @@ mb_bsp: sdk_workspace
 %.bin: mb_bsp
 	cd $(subst .bin,,$@)/Debug && make clean && make 
 
-pmod_bins: $(MBBINS)
-	@cp */Debug/*.bin ../../python/pynq/pmods/
+iop_bins: $(MBBINS)
+	@cp */Debug/*.bin ./bin/
 
-sdk_workspace: pmod.hdf 
+
+sdk_workspace: iop.hdf 
 	xsdk -batch -source build_xsdk.tcl
 
 clean:

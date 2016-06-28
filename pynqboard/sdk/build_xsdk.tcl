@@ -4,7 +4,7 @@
 
 sdk setws .
 if {![file exists "hw_def"]} {
-    sdk createhw -name hw_def -hwspec ./pmod_arduino.hdf
+    sdk createhw -name hw_def -hwspec ./iop.hdf
 }
 if {![file exists "bsp"]} {
     sdk createbsp -name bsp -hwproject hw_def -proc iop1_mb -os standalone
