@@ -1113,6 +1113,4 @@ launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
 
 # move and rename bitstream to final location
-file copy -force ./pmod.trace.runs/impl_1/top.bit ../../../python/pynq/bitstream/pmod.trace.bit
-
-
+file copy -force ./pmod.trace.runs/impl_1/top.bit ../../../zybo/bitstream/iop_trace.bit

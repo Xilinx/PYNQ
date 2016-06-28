@@ -1167,4 +1167,4 @@ file mkdir ./audiovideo.sdk
 write_hwdef -force  -file ./audiovideo.sdk/audiovideo.hdf
 
 # move and rename bitstream to final location
-file copy -force ./audiovideo.runs/impl_1/top.bit ../../../python/pynq/bitstream/audiovideo.bit
+file copy -force ./audiovideo.runs/impl_1/top.bit ../../../zybo/bitstream/audiovideo.bit

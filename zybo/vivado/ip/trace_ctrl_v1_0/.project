@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>trace_ip</name>
+	<name>trace_ctrl_v1_0</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -29,37 +29,37 @@
 		<link>
 			<name>source</name>
 			<type>2</type>
-			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace/trace_ip/.apc/.src</location>
+			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/ip/trace_ctrl_v1_0/.apc/.src</location>
 		</link>
 		<link>
 			<name>testbench</name>
 			<type>2</type>
-			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace/trace_ip/.apc/.tb</location>
+			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/ip/trace_ctrl_v1_0/.apc/.tb</location>
 		</link>
 		<link>
 			<name>solution1/constraints</name>
 			<type>2</type>
-			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace/trace_ip/solution1/.tcls</location>
+			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/ip/trace_ctrl_v1_0/solution1/.tcls</location>
 		</link>
 		<link>
 			<name>source/trace_controller.cpp</name>
 			<type>1</type>
-			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace/trace_ip/trace_controller.cpp</location>
+			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/ip/trace_ctrl_v1_0/trace_controller.cpp</location>
 		</link>
 		<link>
 			<name>solution1/constraints/.xml.directive</name>
 			<type>1</type>
-			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace/trace_ip/solution1/solution1.directive</location>
+			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/ip/trace_ctrl_v1_0/solution1/solution1.directive</location>
 		</link>
 		<link>
 			<name>solution1/constraints/directives.tcl</name>
 			<type>1</type>
-			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace/trace_ip/solution1/directives.tcl</location>
+			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/ip/trace_ctrl_v1_0/solution1/directives.tcl</location>
 		</link>
 		<link>
 			<name>solution1/constraints/script.tcl</name>
 			<type>1</type>
-			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace/trace_ip/solution1/script.tcl</location>
+			<location>/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/ip/trace_ctrl_v1_0/solution1/script.tcl</location>
 		</link>
 	</linkedResources>
 </projectDescription>

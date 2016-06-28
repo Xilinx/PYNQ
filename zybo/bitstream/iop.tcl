@@ -1858,4 +1858,4 @@ write_hwdef -force  -file ./pmod.sdk/pmod.hdf
 file copy -force ./pmod.sdk/pmod.hdf ../../sdk/
 
 # move and rename bitstream to final location
-file copy -force ./pmod.runs/impl_1/top.bit ../../../python/pynq/bitstream/pmod.bit
+file copy -force ./pmod.runs/impl_1/top.bit ../../../zybo/bitstream/iop.bit

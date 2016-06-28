@@ -19,7 +19,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1624881440." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.1342045106" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.PE;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.exe.debug.846880103" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
-							<builder buildPath="${workspace_loc:/trace_ip}/Debug" id="cdt.managedbuild.target.gnu.builder.exe.debug.628072048" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
+							<builder buildPath="${workspace_loc:/trace_ctrl_v1_0}/Debug" id="cdt.managedbuild.target.gnu.builder.exe.debug.628072048" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.15599345" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.878584211" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
 								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.2034474452" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
@@ -30,7 +30,7 @@
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include/ap_sysc"/>
-									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace"/>
+									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/iop_trace"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1970624105" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="AESL_TB"/>
@@ -48,7 +48,7 @@
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include/ap_sysc"/>
-									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace"/>
+									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/iop_trace"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.841562805" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="AESL_TB"/>
@@ -105,7 +105,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.1381386826." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.551044208" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.PE;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.exe.release.1412338690" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
-							<builder buildPath="${workspace_loc:/trace_ip}/Release" id="cdt.managedbuild.target.gnu.builder.exe.release.1149477911" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<builder buildPath="${workspace_loc:/trace_ctrl_v1_0}/Release" id="cdt.managedbuild.target.gnu.builder.exe.release.1149477911" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.330064333" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1296378712" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
 								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1399430400" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
@@ -116,7 +116,7 @@
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include/ap_sysc"/>
-									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace"/>
+									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/iop_trace"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.607382995" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -129,7 +129,7 @@
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/proj/gsd/vivado/Vivado_HLS/2015.4/include/ap_sysc"/>
-									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/pmod.trace"/>
+									<listOptionValue builtIn="false" value="/group/xrlabs2/grahams/Python/Pynq/zybo/vivado/iop_trace"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1493107715" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -165,7 +165,7 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="trace_ip.cdt.managedbuild.target.gnu.exe.548112337" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
+		<project id="trace_ctrl_v1_0.cdt.managedbuild.target.gnu.exe.548112337" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
