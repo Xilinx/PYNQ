@@ -1,0 +1,533 @@
+#-----------------------------------------------------------
+# Vivado v2013.4 (64-bit)
+# SW Build 353583 on Mon Dec  9 17:49:19 MST 2013
+# IP Build 208076 on Mon Dec  2 12:38:17 MST 2013
+# Start of session at: Wed Feb 05 14:44:42 2014
+# Process ID: 8792
+# Log file: C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.runs/synth_1/i2s_ctrl.rds
+# Journal file: C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.runs/synth_1\vivado.jou
+#-----------------------------------------------------------
+Attempting to get a license: Implementation
+Feature available: Implementation
+Loading parts and site information from C:/Xilinx/Vivado/2013.4/data/parts/arch.xml
+Parsing RTL primitives file [C:/Xilinx/Vivado/2013.4/data/parts/xilinx/rtl/prims/rtl_prims.xml]
+Finished parsing RTL primitives file [C:/Xilinx/Vivado/2013.4/data/parts/xilinx/rtl/prims/rtl_prims.xml]
+source i2s_ctrl.tcl
+# set_param gui.test TreeTableDev
+# set_msg_config -id {HDL 9-1061} -limit 100000
+# set_msg_config -id {HDL 9-1654} -limit 100000
+# create_project -in_memory -part xc7z010clg400-1
+# set_property target_language VHDL [current_project]
+# set_param project.compositeFile.enableAutoGeneration 0
+# read_vhdl {
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/family_support.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/common_types.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/address_decoder.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/slave_attachment.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_ser.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_deser.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/user_logic.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/axi_lite_ipif.vhd
+#   C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/i2s_ctrl.vhd
+# }
+# set_param synth.vivado.isSynthRun true
+# set_property webtalk.parent_dir C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.data/wt [current_project]
+# set_property parent.project_dir C:/xup/hls/labs/lab4/zybo_audio_codec [current_project]
+# synth_design -top i2s_ctrl -part xc7z010clg400-1
+Command: synth_design -top i2s_ctrl -part xc7z010clg400-1
+
+Starting synthesis...
+
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7z010'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z010'
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 232.309 ; gain = 85.730
+---------------------------------------------------------------------------------
+INFO: [Synth 8-638] synthesizing module 'i2s_ctrl' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/i2s_ctrl.vhd:174]
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_MIN_SIZE bound to: 32'b00000000000000000000000111111111 
+	Parameter C_USE_WSTRB bound to: 0 - type: integer 
+	Parameter C_DPHASE_TIMEOUT bound to: 8 - type: integer 
+	Parameter C_BASEADDR bound to: 32'b11111111111111111111111111111111 
+	Parameter C_HIGHADDR bound to: 32'b00000000000000000000000000000000 
+	Parameter C_FAMILY bound to: virtex6 - type: string 
+	Parameter C_NUM_REG bound to: 1 - type: integer 
+	Parameter C_NUM_MEM bound to: 1 - type: integer 
+	Parameter C_SLV_AWIDTH bound to: 32 - type: integer 
+	Parameter C_SLV_DWIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-4472] Detected and applied attribute max_fanout = 10000 [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/i2s_ctrl.vhd:140]
+INFO: [Synth 8-4472] Detected and applied attribute max_fanout = 10000 [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/i2s_ctrl.vhd:141]
+INFO: [Synth 8-638] synthesizing module 'axi_lite_ipif' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/axi_lite_ipif.vhd:240]
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_MIN_SIZE bound to: 511 - type: integer 
+	Parameter C_USE_WSTRB bound to: 0 - type: integer 
+	Parameter C_DPHASE_TIMEOUT bound to: 8 - type: integer 
+	Parameter C_ARD_ADDR_RANGE_ARRAY bound to: 128'b00000000000000000000000000000000111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000 
+	Parameter C_ARD_NUM_CE_ARRAY bound to: 32'b00000000000000000000000000000101 
+	Parameter C_FAMILY bound to: virtex6 - type: string 
+INFO: [Synth 8-638] synthesizing module 'slave_attachment' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/slave_attachment.vhd:226]
+	Parameter C_ARD_ADDR_RANGE_ARRAY bound to: 128'b00000000000000000000000000000000111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000 
+	Parameter C_ARD_NUM_CE_ARRAY bound to: 32'b00000000000000000000000000000101 
+	Parameter C_IPIF_ABUS_WIDTH bound to: 32 - type: integer 
+	Parameter C_IPIF_DBUS_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_MIN_SIZE bound to: 511 - type: integer 
+	Parameter C_USE_WSTRB bound to: 0 - type: integer 
+	Parameter C_DPHASE_TIMEOUT bound to: 8 - type: integer 
+	Parameter C_FAMILY bound to: virtex6 - type: string 
+INFO: [Synth 8-638] synthesizing module 'address_decoder' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/address_decoder.vhd:176]
+	Parameter C_BUS_AWIDTH bound to: 9 - type: integer 
+	Parameter C_S_AXI_MIN_SIZE bound to: 511 - type: integer 
+	Parameter C_ARD_ADDR_RANGE_ARRAY bound to: 128'b00000000000000000000000000000000111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000 
+	Parameter C_ARD_NUM_CE_ARRAY bound to: 32'b00000000000000000000000000000101 
+	Parameter C_FAMILY bound to: nofamily - type: string 
+INFO: [Synth 8-638] synthesizing module 'pselect_f' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+	Parameter C_AB bound to: 3 - type: integer 
+	Parameter C_AW bound to: 3 - type: integer 
+	Parameter C_BAR bound to: 3'b000 
+	Parameter C_FAMILY bound to: nofamily - type: string 
+INFO: [Synth 8-256] done synthesizing module 'pselect_f' (1#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+INFO: [Synth 8-638] synthesizing module 'pselect_f__parameterized0' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+	Parameter C_AB bound to: 3 - type: integer 
+	Parameter C_AW bound to: 3 - type: integer 
+	Parameter C_BAR bound to: 3'b001 
+	Parameter C_FAMILY bound to: nofamily - type: string 
+INFO: [Synth 8-256] done synthesizing module 'pselect_f__parameterized0' (1#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+INFO: [Synth 8-638] synthesizing module 'pselect_f__parameterized1' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+	Parameter C_AB bound to: 3 - type: integer 
+	Parameter C_AW bound to: 3 - type: integer 
+	Parameter C_BAR bound to: 3'b010 
+	Parameter C_FAMILY bound to: nofamily - type: string 
+INFO: [Synth 8-256] done synthesizing module 'pselect_f__parameterized1' (1#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+INFO: [Synth 8-638] synthesizing module 'pselect_f__parameterized2' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+	Parameter C_AB bound to: 3 - type: integer 
+	Parameter C_AW bound to: 3 - type: integer 
+	Parameter C_BAR bound to: 3'b011 
+	Parameter C_FAMILY bound to: nofamily - type: string 
+INFO: [Synth 8-256] done synthesizing module 'pselect_f__parameterized2' (1#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+INFO: [Synth 8-638] synthesizing module 'pselect_f__parameterized3' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+	Parameter C_AB bound to: 3 - type: integer 
+	Parameter C_AW bound to: 3 - type: integer 
+	Parameter C_BAR bound to: 3'b100 
+	Parameter C_FAMILY bound to: nofamily - type: string 
+INFO: [Synth 8-256] done synthesizing module 'pselect_f__parameterized3' (1#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/pselect_f.vhd:165]
+INFO: [Synth 8-256] done synthesizing module 'address_decoder' (2#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/address_decoder.vhd:176]
+INFO: [Synth 8-226] default block is never used [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/slave_attachment.vhd:379]
+INFO: [Synth 8-256] done synthesizing module 'slave_attachment' (3#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/slave_attachment.vhd:226]
+INFO: [Synth 8-256] done synthesizing module 'axi_lite_ipif' (4#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/axi_lite_ipif.vhd:240]
+INFO: [Synth 8-638] synthesizing module 'user_logic' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/user_logic.vhd:131]
+	Parameter C_NUM_REG bound to: 5 - type: integer 
+	Parameter C_SLV_DWIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-3491] module 'iis_deser' declared at 'C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_deser.vhd:24' bound to instance 'Inst_iis_deser' of component 'iis_deser' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/user_logic.vhd:206]
+INFO: [Synth 8-638] synthesizing module 'iis_deser' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_deser.vhd:35]
+INFO: [Synth 8-4512] found unpartitioned construct node [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_deser.vhd:127]
+INFO: [Synth 8-256] done synthesizing module 'iis_deser' (5#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_deser.vhd:35]
+INFO: [Synth 8-3491] module 'iis_ser' declared at 'C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_ser.vhd:24' bound to instance 'Inst_iis_ser' of component 'iis_ser' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/user_logic.vhd:227]
+INFO: [Synth 8-638] synthesizing module 'iis_ser' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_ser.vhd:34]
+INFO: [Synth 8-256] done synthesizing module 'iis_ser' (6#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_ser.vhd:34]
+INFO: [Synth 8-256] done synthesizing module 'user_logic' (7#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/user_logic.vhd:131]
+INFO: [Synth 8-256] done synthesizing module 'i2s_ctrl' (8#1) [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/i2s_ctrl.vhd:174]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 297.191 ; gain = 150.613
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start RTL Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization : Time (s): cpu = 00:00:07 ; elapsed = 00:00:09 . Memory (MB): peak = 297.191 ; gain = 150.613
+---------------------------------------------------------------------------------
+
+INFO: [Synth 8-802] inferred FSM for state register 'iis_state_reg' in module 'iis_deser'
+INFO: [Synth 8-802] inferred FSM for state register 'iis_state_reg' in module 'iis_ser'
+INFO: [Synth 8-3354] encoded FSM with state register 'iis_state_reg' using encoding 'one-hot' in module 'iis_deser'
+INFO: [Synth 8-3354] encoded FSM with state register 'iis_state_reg' using encoding 'one-hot' in module 'iis_ser'
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z010clg400-1
+Loading clock regions from C:/Xilinx/Vivado/2013.4/data\parts/xilinx/zynq/zynq/xc7z010/ClockRegion.xml
+Loading clock buffers from C:/Xilinx/Vivado/2013.4/data\parts/xilinx/zynq/zynq/xc7z010/ClockBuffers.xml
+Loading clock placement rules from C:/Xilinx/Vivado/2013.4/data/parts/xilinx/zynq/ClockPlacerRules.xml
+Loading package pin functions from C:/Xilinx/Vivado/2013.4/data\parts/xilinx/zynq/PinFunctions.xml...
+Loading package from C:/Xilinx/Vivado/2013.4/data\parts/xilinx/zynq/zynq/xc7z010/clg400/Package.xml
+Loading io standards from C:/Xilinx/Vivado/2013.4/data\./parts/xilinx/zynq/IOStandards.xml
+Part Resources:
+DSPs: 80 (col length:40)
+BRAMs: 120 (col length: RAMB18 40 RAMB36 20)
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:29 ; elapsed = 00:00:31 . Memory (MB): peak = 530.043 ; gain = 383.465
+---------------------------------------------------------------------------------
+
+No constraint files found.
+
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input     11 Bit       Adders := 1     
+	   2 Input      5 Bit       Adders := 2     
+	   2 Input      4 Bit       Adders := 1     
++---Registers : 
+	               32 Bit    Registers := 5     
+	               24 Bit    Registers := 4     
+	               11 Bit    Registers := 1     
+	                5 Bit    Registers := 2     
+	                4 Bit    Registers := 1     
+	                2 Bit    Registers := 3     
+	                1 Bit    Registers := 16    
++---Muxes : 
+	   4 Input     32 Bit        Muxes := 2     
+	   6 Input     32 Bit        Muxes := 1     
+	   2 Input     32 Bit        Muxes := 1     
+	   2 Input     24 Bit        Muxes := 4     
+	   2 Input      9 Bit        Muxes := 1     
+	   7 Input      8 Bit        Muxes := 1     
+	   2 Input      8 Bit        Muxes := 6     
+	   2 Input      6 Bit        Muxes := 4     
+	   5 Input      6 Bit        Muxes := 1     
+	   8 Input      3 Bit        Muxes := 1     
+	   6 Input      3 Bit        Muxes := 2     
+	   2 Input      2 Bit        Muxes := 3     
+	   4 Input      2 Bit        Muxes := 1     
+	   4 Input      1 Bit        Muxes := 2     
+	   6 Input      1 Bit        Muxes := 1     
+	   8 Input      1 Bit        Muxes := 1     
+	   2 Input      1 Bit        Muxes := 28    
+
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start RTL Hierarchical Component Statistics 
+---------------------------------------------------------------------------------
+Hierarchical RTL Component report 
+Module i2s_ctrl 
+Detailed RTL Component Info : 
+Module pselect_f 
+Detailed RTL Component Info : 
++---Muxes : 
+	   2 Input      1 Bit        Muxes := 1     
+Module pselect_f__parameterized0 
+Detailed RTL Component Info : 
++---Muxes : 
+	   2 Input      1 Bit        Muxes := 1     
+Module pselect_f__parameterized1 
+Detailed RTL Component Info : 
++---Muxes : 
+	   2 Input      1 Bit        Muxes := 1     
+Module pselect_f__parameterized2 
+Detailed RTL Component Info : 
++---Muxes : 
+	   2 Input      1 Bit        Muxes := 1     
+Module pselect_f__parameterized3 
+Detailed RTL Component Info : 
++---Muxes : 
+	   2 Input      1 Bit        Muxes := 1     
+Module address_decoder 
+Detailed RTL Component Info : 
++---Registers : 
+	                1 Bit    Registers := 7     
+Module slave_attachment 
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input      4 Bit       Adders := 1     
++---Registers : 
+	               32 Bit    Registers := 1     
+	                4 Bit    Registers := 1     
+	                2 Bit    Registers := 3     
+	                1 Bit    Registers := 3     
++---Muxes : 
+	   2 Input      9 Bit        Muxes := 1     
+	   4 Input      2 Bit        Muxes := 1     
+	   2 Input      2 Bit        Muxes := 3     
+	   2 Input      1 Bit        Muxes := 9     
+Module axi_lite_ipif 
+Detailed RTL Component Info : 
+Module iis_deser 
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input      5 Bit       Adders := 1     
++---Registers : 
+	               24 Bit    Registers := 2     
+	                5 Bit    Registers := 1     
+	                1 Bit    Registers := 2     
++---Muxes : 
+	   2 Input     24 Bit        Muxes := 2     
+	   2 Input      8 Bit        Muxes := 6     
+	   7 Input      8 Bit        Muxes := 1     
+	   8 Input      3 Bit        Muxes := 1     
+	   8 Input      1 Bit        Muxes := 1     
+	   2 Input      1 Bit        Muxes := 6     
+Module iis_ser 
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input      5 Bit       Adders := 1     
++---Registers : 
+	               24 Bit    Registers := 2     
+	                5 Bit    Registers := 1     
+	                1 Bit    Registers := 3     
++---Muxes : 
+	   2 Input     24 Bit        Muxes := 2     
+	   2 Input      6 Bit        Muxes := 4     
+	   5 Input      6 Bit        Muxes := 1     
+	   6 Input      3 Bit        Muxes := 1     
+	   6 Input      1 Bit        Muxes := 1     
+	   2 Input      1 Bit        Muxes := 8     
+Module user_logic 
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input     11 Bit       Adders := 1     
++---Registers : 
+	               32 Bit    Registers := 4     
+	               11 Bit    Registers := 1     
+	                1 Bit    Registers := 1     
++---Muxes : 
+	   2 Input     32 Bit        Muxes := 1     
+	   6 Input     32 Bit        Muxes := 1     
+	   4 Input     32 Bit        Muxes := 2     
+	   6 Input      3 Bit        Muxes := 1     
+	   4 Input      1 Bit        Muxes := 2     
+
+---------------------------------------------------------------------------------
+Finished RTL Hierarchical Component Statistics
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start Cross Boundary Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-3332] Sequential element (\AXI_LITE_IPIF_I/I_SLAVE_ATTACHMENT/I_DECODER/MEM_DECODE_GEN[0].cs_out_i_reg[0] ) is unused and will be removed from module i2s_ctrl.
+INFO: [Synth 8-4471] merging register 'USER_LOGIC_I/Inst_iis_ser/lrclk_d1_reg' into 'USER_LOGIC_I/Inst_iis_deser/lrclk_d1_reg' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_ser.vhd:63]
+INFO: [Synth 8-4471] merging register 'USER_LOGIC_I/Inst_iis_ser/sclk_d1_reg' into 'USER_LOGIC_I/Inst_iis_deser/sclk_d1_reg' [C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.srcs/sources_1/imports/i2s_audio/iis_ser.vhd:62]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[31]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[30]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[29]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[28]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[27]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[26]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[25]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[24]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[23]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[22]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[21]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[20]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[19]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[18]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[17]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[16]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[15]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[14]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[13]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[12]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[11]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[10]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[9]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[8]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[7]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[6]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_AWADDR[5]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_WSTRB[3]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_WSTRB[2]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_WSTRB[1]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_WSTRB[0]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[31]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[30]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[29]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[28]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[27]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[26]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[25]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[24]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[23]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[22]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[21]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[20]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[19]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[18]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[17]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[16]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[15]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[14]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[13]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[12]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[11]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[10]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[9]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[8]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[7]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[6]
+WARNING: [Synth 8-3331] design i2s_ctrl has unconnected port S_AXI_ARADDR[5]
+---------------------------------------------------------------------------------
+Finished Cross Boundary Optimization : Time (s): cpu = 00:00:29 ; elapsed = 00:00:31 . Memory (MB): peak = 539.734 ; gain = 393.156
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start RAM, DSP and Shift Register Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RAM, DSP and Shift Register Reporting
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start Area Optimization
+---------------------------------------------------------------------------------
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (i_0/\USER_LOGIC_I/Inst_iis_deser/FSM_onehot_iis_state_reg[7] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (i_1/\USER_LOGIC_I/Inst_iis_ser/FSM_onehot_iis_state_reg[5] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\AXI_LITE_IPIF_I/I_SLAVE_ATTACHMENT/s_axi_bresp_i_reg[1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\AXI_LITE_IPIF_I/I_SLAVE_ATTACHMENT/s_axi_rresp_i_reg[1] )
+WARNING: [Synth 8-3332] Sequential element (\USER_LOGIC_I/Inst_iis_deser/FSM_onehot_iis_state_reg[7] ) is unused and will be removed from module i2s_ctrl.
+WARNING: [Synth 8-3332] Sequential element (\USER_LOGIC_I/Inst_iis_ser/FSM_onehot_iis_state_reg[5] ) is unused and will be removed from module i2s_ctrl.
+WARNING: [Synth 8-3332] Sequential element (\AXI_LITE_IPIF_I/I_SLAVE_ATTACHMENT/s_axi_bresp_i_reg[1] ) is unused and will be removed from module i2s_ctrl.
+WARNING: [Synth 8-3332] Sequential element (\AXI_LITE_IPIF_I/I_SLAVE_ATTACHMENT/s_axi_bresp_i_reg[0] ) is unused and will be removed from module i2s_ctrl.
+WARNING: [Synth 8-3332] Sequential element (\AXI_LITE_IPIF_I/I_SLAVE_ATTACHMENT/s_axi_rresp_i_reg[1] ) is unused and will be removed from module i2s_ctrl.
+WARNING: [Synth 8-3332] Sequential element (\AXI_LITE_IPIF_I/I_SLAVE_ATTACHMENT/s_axi_rresp_i_reg[0] ) is unused and will be removed from module i2s_ctrl.
+No constraint files found.
+---------------------------------------------------------------------------------
+Finished Area Optimization : Time (s): cpu = 00:00:30 ; elapsed = 00:00:32 . Memory (MB): peak = 570.086 ; gain = 423.508
+---------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:30 ; elapsed = 00:00:32 . Memory (MB): peak = 570.086 ; gain = 423.508
+---------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:30 ; elapsed = 00:00:32 . Memory (MB): peak = 570.086 ; gain = 423.508
+---------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+Gated Clock Conversion mode: off
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:31 ; elapsed = 00:00:33 . Memory (MB): peak = 570.086 ; gain = 423.508
+---------------------------------------------------------------------------------
+
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:31 ; elapsed = 00:00:33 . Memory (MB): peak = 570.086 ; gain = 423.508
+---------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:31 ; elapsed = 00:00:33 . Memory (MB): peak = 570.086 ; gain = 423.508
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start RAM, DSP and Shift Register Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RAM, DSP and Shift Register Reporting
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-----+------+
+|      |Cell |Count |
++------+-----+------+
+|1     |BUFG |     1|
+|2     |LUT1 |     5|
+|3     |LUT2 |    39|
+|4     |LUT3 |    55|
+|5     |LUT4 |    86|
+|6     |LUT5 |    18|
+|7     |LUT6 |    69|
+|8     |FDRE |   292|
+|9     |IBUF |    46|
+|10    |OBUF |    45|
++------+-----+------+
+
+Report Instance Areas: 
++------+-----------------------+-----------------+------+
+|      |Instance               |Module           |Cells |
++------+-----------------------+-----------------+------+
+|1     |top                    |                 |   656|
+|2     |  USER_LOGIC_I         |user_logic       |   456|
+|3     |    Inst_iis_deser     |iis_deser        |    96|
+|4     |    Inst_iis_ser       |iis_ser          |   128|
+|5     |  AXI_LITE_IPIF_I      |axi_lite_ipif    |   108|
+|6     |    I_SLAVE_ATTACHMENT |slave_attachment |   108|
+|7     |      I_DECODER        |address_decoder  |    56|
++------+-----------------------+-----------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:31 ; elapsed = 00:00:33 . Memory (MB): peak = 570.086 ; gain = 423.508
+---------------------------------------------------------------------------------
+
+Synthesis finished with 0 errors, 0 critical warnings and 65 warnings.
+Synthesis Optimization Complete : Time (s): cpu = 00:00:31 ; elapsed = 00:00:33 . Memory (MB): peak = 570.086 ; gain = 423.508
+INFO: [Netlist 29-17] Analyzing 46 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Opt 31-140] Inserted 0 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 0 OBUFs to IO ports without IO buffers.
+INFO: [Opt 31-138] Pushed 0 inverter(s).
+INFO: [Memdata 28-144] Successfully populated the BRAM INIT strings from the following elf files: 
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Common 17-83] Releasing license: Synthesis
+49 Infos, 65 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:44 ; elapsed = 00:00:46 . Memory (MB): peak = 944.969 ; gain = 759.672
+# write_checkpoint i2s_ctrl.dcp
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+# report_utilization -file i2s_ctrl_utilization_synth.rpt -pb i2s_ctrl_utilization_synth.pb
+report_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.057 . Memory (MB): peak = 944.969 ; gain = 0.000
+INFO: [Common 17-206] Exiting Vivado at Wed Feb 05 14:45:31 2014...
