@@ -48,6 +48,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a gs  11/19/15 release
+ * 1.00b yrq 05/27/16 reduce program size, use pmod_init()
  *
  * </pre>
  *
@@ -58,7 +59,6 @@
 #include "xspi_l.h"
 #include "OledChar.h"
 #include "OledGrph.h"
-#include "FillPat.h"
 #include "pmod.h"
 
 #define SPI_BASEADDR XPAR_SPI_0_BASEADDR // base address of QSPI[0]
@@ -100,7 +100,7 @@
 #define COMMAND_MODE_LOW 1
 
 #define GPIO_CHANNEL     1
-#define BUFFER_SIZE      6
+#define BUFFER_SIZE      1
 
 u8 WriteBuffer[BUFFER_SIZE];
 
@@ -113,7 +113,6 @@ void OledDvrInit(void);
 /************************** Global Variables *****************************/
 extern u8 rgbOledFont0[];
 extern u8 rgbOledFontUser[];
-extern u8 rgbFillPat[];
 
 extern int xchOledMax;
 extern int ychOledMax;
@@ -133,7 +132,6 @@ int bnOledCur;
 //drawing color to use
 u8 clrOledCur;
 //current fill pattern
-u8 * pbOledPatCur;
 int fOledCharUpdate;
 int dxcoOledFontCur;
 int dycoOledFontCur;
@@ -204,15 +202,14 @@ int main (void) {
     // set data direction for GPIO
     XGpio_SetDataDirection(&Gpio, GPIO_CHANNEL, ~(VBAT | VDDC | RST | DC));
     
+    // Initialize pmod
+    pmod_init(0,0);
     /*
      *  Configuring PMOD IO Switch to connect to SPI[0].SS to pmod bit 0,
      *  SPI[0].MOSI to pmod bit 1, and SPI[0].SCLK to pmod bit 3
      *  rest of the bits are configured to default gpio channels
      */
     configureSwitch(SS,MOSI,GPIO_7,SPICLK,GPIO_0,GPIO_1,GPIO_2,GPIO_3);
-
-    // Initialize pmod
-    pmod_init(0,0);
     
     // initialize OLED device and driver code
     pinmask=0;
@@ -374,9 +371,8 @@ void OledDvrInit() {
     // Set the default character cursor position
     OledSetCursor(0, 0);
 
-    // Set the default foreground draw color and fill pattern
+    // Set the default foreground draw color
     clrOledCur = 0x01;
-    pbOledPatCur = rgbFillPat;
     OledSetDrawMode(modOledSet);
 
     // Default the character routines to automatically update the display

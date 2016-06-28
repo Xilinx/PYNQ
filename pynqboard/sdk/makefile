@@ -2,13 +2,21 @@
 
 
 MBBINS = pmod_adc.bin \
-	 pmod_dac.bin \
-	 pmod_als.bin \
-	 pmod_dpot.bin \
-	 pmod_oled.bin \
+		pmod_dac.bin \
+		pmod_oled.bin \
+		pmod_als.bin \
+		pmod_tmp2.bin \
+		pmod_dpot.bin \
+		pmod_timer.bin \
+		pmod_pwm.bin \
+		mailbox.bin \
+		grove_adc.bin \
+		grove_oled.bin \
+		grove_imu.bin \
+		grove_buzzer.bin \
+		grove_ledbar.bin
 
-
-all: pmod_bins
+all: iop_bins
 	@echo "Completed Microblaze Projects' Builds"
 
 mb_bsp: sdk_workspace
@@ -17,13 +25,11 @@ mb_bsp: sdk_workspace
 %.bin: mb_bsp
 	cd $(subst .bin,,$@)/Debug && make clean && make 
 
-pmod_bins: $(MBBINS)
-	@echo ""
-	@echo "+++ To complete delivery of binaries to pynq/pmods folder, please run:"
-	@echo "+++ cp */Debug/*.bin ../../python/pynq/pmods"
-	@echo ""
+iop_bins: $(MBBINS)
+	@cp */Debug/*.bin ./bin/
 
-sdk_workspace: pmod_arduino.hdf 
+
+sdk_workspace: iop.hdf 
 	xsdk -batch -source build_xsdk.tcl
 
 clean:

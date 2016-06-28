@@ -17,7 +17,7 @@ _HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x800;
 
 MEMORY
 {
-   iop1_mb1_lmb_lmb_bram_if_cntlr : ORIGIN = 0x50, LENGTH = 0xFFB0
+   iop1_mb1_lmb_lmb_bram_if_cntlr : ORIGIN = 0x50, LENGTH = 0x7FB0
 }
 
 /* Specify the default entry point to the program */

@@ -46,6 +46,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/13/16 release
+ * 1.00b pp  05/27/16 fix pmod_init()
  *
  * </pre>
  *
@@ -87,12 +88,11 @@ int main()
     u8 useVref, useFILT, useBIT, useSample;
     u32 delay;
     u32 cmd;
-    u32 num;
     u32 adc_raw_value;
     float adc_voltage;
 
     // initialize pmod
-    pmod_init(0,0);
+    pmod_init(0,1);
     /*  
      *  Configuring PMOD IO Switch to connect to I2C[0].
      *  SCLK to pmod pin 3 and 7, I2C[0].SDA to pmod pin 4 and 8
@@ -100,8 +100,8 @@ int main()
      *  i.e. pmod pin 1 to gpio[0], pmod pin 2 to gpio[1],
      *  pmod pin 5 to gpio[4], and pmod pin 6 to gpio[5]
      */
-    configureSwitch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, GPIO_6, GPIO_7); //  SCL, SDA);
-
+    configureSwitch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+    
     // to use internal VREF, bridge JP1 accross pin1 and center pin
     useVref=1;
     // filtering on SDA and SCL is enabled
@@ -116,9 +116,6 @@ int main()
     useChan2 = 1; 
     // Channel 3: since VREF is used, channel 3 cannot be sampled
     useChan3 = 0;
-//    num_channels = useChan0 + useChan1 + useChan2 + useChan3;
-//    adc_config(useChan3,useChan2,useChan1,useChan0,
-//                useVref,useFILT,useBIT,useSample);
 
     while(1){
         while((MAILBOX_CMD_ADDR & 0x01)==0); // wait for bit[0] to become 1
@@ -135,28 +132,28 @@ int main()
                 break;
                 
             case READ_RAW_DATA:
-            	MAILBOX_DATA(0)=0;
-            	MAILBOX_DATA(1)=0;
-            	MAILBOX_DATA(2)=0;
+                MAILBOX_DATA(0)=0;
+                MAILBOX_DATA(1)=0;
+                MAILBOX_DATA(2)=0;
                 if(useChan0)
-                	MAILBOX_DATA(0) = adc_read_raw();
+                    MAILBOX_DATA(0) = adc_read_raw();
                 if(useChan1)
-                	MAILBOX_DATA(1) = adc_read_raw();
+                    MAILBOX_DATA(1) = adc_read_raw();
                 if(useChan2)
-                	MAILBOX_DATA(2) = adc_read_raw();
+                    MAILBOX_DATA(2) = adc_read_raw();
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
                 
             case READ_VOLTAGE:
-            	MAILBOX_DATA_FLOAT(0)=0;
-            	MAILBOX_DATA_FLOAT(1)=0;
-            	MAILBOX_DATA_FLOAT(2)=0;
-				if(useChan0)
-					MAILBOX_DATA_FLOAT(0) = adc_read_voltage(VREF);
-			    if(useChan1)
-			    	MAILBOX_DATA_FLOAT(1) = adc_read_voltage(VREF);
-			    if(useChan2)
-			    	MAILBOX_DATA_FLOAT(2) = adc_read_voltage(VREF);
+                MAILBOX_DATA_FLOAT(0)=0;
+                MAILBOX_DATA_FLOAT(1)=0;
+                MAILBOX_DATA_FLOAT(2)=0;
+                if(useChan0)
+                    MAILBOX_DATA_FLOAT(0) = adc_read_voltage(VREF);
+                if(useChan1)
+                    MAILBOX_DATA_FLOAT(1) = adc_read_voltage(VREF);
+                if(useChan2)
+                    MAILBOX_DATA_FLOAT(2) = adc_read_voltage(VREF);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
                 
@@ -166,36 +163,21 @@ int main()
                 cb_init(&pmod_log, LOG_BASE_ADDRESS, 
                             LOG_CAPACITY, LOG_ITEM_SIZE);
                 while((MAILBOX_CMD_ADDR & 0xf) != RESET_ADC){
-				   if(useChan0)
-				   {
-						adc_raw_value = adc_read_raw();
-						cb_push_back(&pmod_log, &adc_raw_value);
-				   }
-				   else
-				   {
-						adc_raw_value = 0;
-						cb_push_back(&pmod_log, &adc_raw_value);
-				   }
-				   if(useChan1)
-				   {
-						adc_raw_value = adc_read_raw();
-						cb_push_back(&pmod_log, &adc_raw_value);
-				   }
-				   else
-				   {
-						adc_raw_value = 0;
-						cb_push_back(&pmod_log, &adc_raw_value);
-				   }
-				   if(useChan2)
-				   {
-					adc_raw_value = adc_read_raw();
-					cb_push_back(&pmod_log, &adc_raw_value);
-				   }
-				   else
-				   {
-						adc_raw_value = 0;
-						cb_push_back(&pmod_log, &adc_raw_value);
-				   }
+                   if(useChan0)
+                   {
+                        adc_raw_value = adc_read_raw();
+                        cb_push_back(&pmod_log, &adc_raw_value);
+                   }
+                   if(useChan1)
+                   {
+                        adc_raw_value = adc_read_raw();
+                        cb_push_back(&pmod_log, &adc_raw_value);
+                   }
+                   if(useChan2)
+                   {
+                    adc_raw_value = adc_read_raw();
+                    cb_push_back(&pmod_log, &adc_raw_value);
+                   }
                    delay_us(delay);
                 }
                 MAILBOX_CMD_ADDR = 0x0;
@@ -209,34 +191,19 @@ int main()
                 while((MAILBOX_CMD_ADDR & 0x0f) != RESET_ADC){
                     if(useChan0)
                     {
-                    	adc_voltage = adc_read_voltage(VREF);
-                     	cb_push_back_float(&pmod_log, &adc_voltage);
+                        adc_voltage = adc_read_voltage(VREF);
+                        cb_push_back_float(&pmod_log, &adc_voltage);
                     }
- 				    else
- 				    {
- 					    adc_voltage = 0;
- 						cb_push_back(&pmod_log, &adc_voltage);
- 				    }
                     if(useChan1)
                     {
-                    	adc_voltage = adc_read_voltage(VREF);
-                     	cb_push_back_float(&pmod_log, &adc_voltage);
+                        adc_voltage = adc_read_voltage(VREF);
+                        cb_push_back_float(&pmod_log, &adc_voltage);
                     }
-  				    else
-  				    {
-  					    adc_voltage = 0;
-  						cb_push_back(&pmod_log, &adc_voltage);
-  				    }
                     if(useChan2)
                     {
-                    	adc_voltage = adc_read_voltage(VREF);
-                    	cb_push_back_float(&pmod_log, &adc_voltage);
+                        adc_voltage = adc_read_voltage(VREF);
+                        cb_push_back_float(&pmod_log, &adc_voltage);
                     }
-  				    else
-  				    {
-  					    adc_voltage = 0;
-  						cb_push_back(&pmod_log, &adc_voltage);
-  				    }
                     delay_us(delay);
                 }
                 MAILBOX_CMD_ADDR = 0x0;
