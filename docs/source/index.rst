@@ -15,9 +15,10 @@ Contents:
    1_pynq
    2_getting_started
    3_jupyter_notebook
-   4_programming_zybo_in_python
+   4_programming_in_python
    5_programming_onboard_peripherals
    6_pmodio_overlay
+   6a_arduino_overlay.rst
    7_audio_video_overlay
    8_iop_code
    9_creating_overlays
