@@ -32,8 +32,8 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 from time import sleep
-from pynq.pmods import pmod_const
-from pynq.pmods.devmode import DevMode
+from pynq.iop import pmod_const
+from pynq.iop.devmode import DevMode
 
 I2C_DELAY = .001
 

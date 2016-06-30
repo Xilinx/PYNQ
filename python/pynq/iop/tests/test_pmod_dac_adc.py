@@ -36,8 +36,8 @@ from random import randint
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.pmods import PMOD_ADC
-from pynq.pmods import PMOD_DAC
+from pynq.iop import PMOD_ADC
+from pynq.iop import PMOD_DAC
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD ADC and PMOD DAC attached (straight cable)?")

@@ -36,7 +36,7 @@ import time
 from . import _iop
 from . import pmod_const
 from pynq import MMIO
-from pynq.pmods import pmod_const
+from pynq.iop import pmod_const
 
 
 class DevMode(object):

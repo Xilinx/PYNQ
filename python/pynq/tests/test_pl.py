@@ -36,7 +36,7 @@ import os
 import pytest
 from pynq import Overlay
 
-ol1 = Overlay('pmod.bit')
+ol1 = Overlay('iop.bit')
 ol2 = Overlay('audiovideo.bit')
     
 @pytest.mark.run(order=2)
@@ -53,7 +53,7 @@ def test_overlay():
     global ol1, ol2
     
     ol1.download()
-    assert 'pmod.bit' in ol1.bitfile_name, \
+    assert 'iop.bit' in ol1.bitfile_name, \
             'Bitstream is not in the overlay.'
     assert len(ol1.ip_dict)>0,\
             'Overlay gets empty IP dictionary.'
@@ -124,7 +124,7 @@ def test_overlay():
 
 @pytest.mark.run(order=9)
 def test_pmod():
-    """Download the bitstream "pmod.bit", and then test.
+    """Download the bitstream "iop.bit", and then test.
     
     Need the corresponding "pmod.bxml" and "pmod.tcl" files to pass the tests.
     
@@ -132,9 +132,9 @@ def test_pmod():
     global ol1,ol2
     ol1.download()
     assert not ol1.get_timestamp()=='', \
-            'Overlay (pmod.bit) has an empty timestamp.'
+            'Overlay (iop.bit) has an empty timestamp.'
     assert ol1.is_loaded(), \
-            'Overlay (pmod.bit) should be loaded.'
+            'Overlay (iop.bit) should be loaded.'
     assert not ol2.is_loaded(), \
             'Overlay (audiovideo.bit) should not be loaded.'
 
@@ -151,13 +151,13 @@ def test_audiovideo():
     assert not ol2.get_timestamp()=='', \
             'Overlay (audiovideo.bit) has an empty timestamp.'
     assert not ol1.is_loaded(), \
-            'Overlay (pmod.bit) should not be loaded.'
+            'Overlay (iop.bit) should not be loaded.'
     assert ol2.is_loaded(), \
             'Overlay (audiovideo.bit) should be loaded.'
 
 @pytest.mark.run(order=39)
 def test_end():
-    """Wrapping up by changing the bitstream back to "pmod.bit".
+    """Wrapping up by changing the bitstream back to "iop.bit".
     
     This is the last test to be performed.
     
@@ -165,9 +165,9 @@ def test_end():
     global ol1,ol2
     ol1.download()
     assert not ol1.get_timestamp()=='', \
-            'Overlay (pmod.bit) has an empty timestamp.'
+            'Overlay (iop.bit) has an empty timestamp.'
     assert ol1.is_loaded(), \
-            'Overlay (pmod.bit) should be loaded.'
+            'Overlay (iop.bit) should be loaded.'
     assert not ol2.is_loaded(), \
             'Overlay (audiovideo.bit) should not be loaded.'
     del ol1

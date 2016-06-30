@@ -38,7 +38,7 @@ import math
 from pynq import MMIO
 from pynq import GPIO
 from pynq import PL
-from pynq.pmods import pmod_const
+from pynq.iop import pmod_const
 
 class _IOP:
     """This class controls the active IOP instances in the system.

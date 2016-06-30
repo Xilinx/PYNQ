@@ -34,9 +34,9 @@ __email__       = "xpp_support@xilinx.com"
 
 from random import randint
 import pytest
-from pynq.pmods.devmode import DevMode
-from pynq.pmods import _iop
-from pynq.pmods import pmod_const
+from pynq.iop.devmode import DevMode
+from pynq.iop import _iop
+from pynq.iop import pmod_const
 from pynq import Overlay
 
 global ol

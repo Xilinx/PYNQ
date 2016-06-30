@@ -34,8 +34,8 @@ __email__       = "xpp_support@xilinx.com"
 
 from time import sleep
 from math import log
-from pynq.pmods import pmod_const
-from pynq.pmods import Grove_ADC
+from pynq.iop import pmod_const
+from pynq.iop import Grove_ADC
 
 class Grove_TMP(Grove_ADC):
     """This class controls the grove temperature sensor.

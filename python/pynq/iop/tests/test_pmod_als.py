@@ -35,7 +35,7 @@ __email__       = "xpp_support@xilinx.com"
 import pytest
 from time import sleep
 from pynq import Overlay
-from pynq.pmods.pmod_als import PMOD_ALS
+from pynq.iop.pmod_als import PMOD_ALS
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nALS attached to the board?")
