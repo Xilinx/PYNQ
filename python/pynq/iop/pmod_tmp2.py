@@ -71,7 +71,7 @@ class PMOD_TMP2(object):
         self.log_interval_ms = 1000
         
         self.iop.start()
-
+        
     def read(self):
         """Read current temperature value measured by the TMP2 PMOD.
         
@@ -94,7 +94,7 @@ class PMOD_TMP2(object):
 
         value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
         return self._reg2float(value)
-
+        
     def set_log_interval_ms(self,log_interval_ms):
         """Set the sampling interval for the TMP2 PMOD.
         
@@ -113,7 +113,7 @@ class PMOD_TMP2(object):
         
         self.log_interval_ms = log_interval_ms
         self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_interval_ms)
-
+        
     def start_log(self):
         """Start recording multiple values in a log.
         
@@ -132,7 +132,7 @@ class PMOD_TMP2(object):
         self.set_log_interval_ms(self.log_interval_ms)
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
                         pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
-
+                        
     def stop_log(self):
         """Stop recording multiple values in a log.
         
@@ -148,8 +148,8 @@ class PMOD_TMP2(object):
         
         """
         self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)    
-
+                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+                        
     def get_log(self):
         """Return list of logged samples.
         
@@ -181,10 +181,8 @@ class PMOD_TMP2(object):
                 temps.append(self._reg2float(self.mmio.read(i)))
             for i in range(TMP2_LOG_START,tail_ptr,4):            
                 temps.append(self._reg2float(self.mmio.read(i))) 
-
         return temps
-            
-      
+        
     def _reg2float(self, reg):
         """Translate the register value to a floating-point number.
         
