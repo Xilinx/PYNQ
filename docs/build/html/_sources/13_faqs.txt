@@ -24,6 +24,16 @@ Frequently Asked Questions (FAQs)
    
       # replace pynq with correct hostname if you have changed it
       ping pynq
+      
+   Check the ACT and Link LEDs on the Zybo board (near the Ethenet Port) for activity. You can also check the activity lights on the Ethernet port on your PC or Laptop (most ethernet ports will have an orange and green LED indicating connectivity). 
+   The Ethernet LEDs on the Zybo should flash periodically when there is activity on the network connection. 
+   
+   If you are using a docking station, when your laptop is docked, the Ethernet port on the PC may be disabled.  
+
+* I don't have an Ethernet port on my Laptop or PC
+   USB to Ethernet adapters are available. You can also use a USB to Ethernet adapter if you want to maintain a wired network connection, or if you do not want to change the network settings for your existing Ethernet port. 
+   
+   You can also connect your Pynq board to a network switch (your LAN), and connect to it wirelessly. (You may need to change settings on your Router to enable the Wireless network to communicate with your LAN - check your equipment documentation for details.)
    
 * My hostname is not resolving
    If you know the IP address of Zybo, you can use it to navigate to the Pynq portal. e.g.  http://192.168.2.99:9090
@@ -34,7 +44,7 @@ Frequently Asked Questions (FAQs)
 * My Board is powered on, and I see the Red and Green LEDs, but I can't connect to the Pynq Portal, or see the Samba shared drive.
    By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of 192.168.2.99
    
-   If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range.  
+   If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range. e.g. 192.168.2.1
    
 * My board is connected, and I have verified the IP addresses on the board, and for my network interface, but I cannot connect to the board
    If you are connected to a VPN, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.
@@ -74,3 +84,4 @@ Frequently Asked Questions (FAQs)
    
 * What is the user account and password?
    Username and password for all linux, jupyter and samba logins are: xpp/xpp
+   

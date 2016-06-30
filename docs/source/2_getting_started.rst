@@ -37,13 +37,14 @@ Get the image and prepare the micro-SD Card
    * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_. The Micro-SD card should be at least 16GB.  
    
 Pynq-z1 setup
+---------------
+
 
    .. image:: ./images/pynqz1_setup_config_600.jpeg
-      :height: 600px
-      :scale: 75%
       :align: center
 
-      Change the *boot* jumper to **SD** (Set the board to boot from the Micro SD card)  
+
+   * Change the *boot* jumper to **SD** (Set the board to boot from the Micro SD card)  
    
    * Insert the *Micro SD* card into the board. (The Micro-SD slot is underneath the board)
 
@@ -53,7 +54,7 @@ Pynq-z1 setup
    
    * **Turn on** the power switch on the board
 
-   When you power on the board, you should see a *RED LED* (PGOOD) after a few seconds, indicating the boot process has started correctly.
+   When you power on the board, you should see a *LED* (PGOOD) after a few seconds, indicating the boot process has started correctly.
    
    
 Zybo setup

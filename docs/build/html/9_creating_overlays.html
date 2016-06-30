@@ -85,9 +85,10 @@
 <li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_arduino_overlay.html">Arduino IO Processor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Working with Overlays</a><ul>
@@ -298,20 +299,20 @@ div.nboutput  > :nth-child(2).stderr {
 <h2>Using new overlays with MMIO<a class="headerlink" href="#using-new-overlays-with-mmio" title="Permalink to this headline">¶</a></h2>
 <p>Once a new overlay has been created, the overlay needs to be integrated into the Pynq environment.  It is recommended to use an existing Vivado <em>Overlay project</em> as a starting point for a new overlay. This will ensure the settings for the Zynq PS, and the existing PS/PL interfaces are used in the new project.</p>
 <p>As with any application running on Zynq, the interface between the software and hardware is via the Zynq memory map.</p>
-<p>An overlay can have many IP blocks mapped to the ARM system memory. A memory mapped IP can be accessed from Python. <code class="docutils literal"><span class="pre">ip_dict</span></code> can be used to to discover memory mapped IPs in a specific overlay (e.g. <cite>audiovideo.bit</cite>):</p>
+<p>An overlay can have many addressable IPs. These addressable IPs can be accessed by the ARM processor using the memory map. To find the addressable IPs of a specific overlay (e.g. <cite>audiovideo.bit</cite>), users can do:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
 <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ip_dict</span>
 </pre></div>
 </div>
-<p>This will show the IP dictionary of the overlay. Each entry in this IP dictionary is a key-value pair. For example, the following is the entry for the IOP Block memory (MicroBlaze Block Memory Controller):</p>
+<p>This will show the IP dictionary of the overlay. Each entry in this IP dictionary is a key-value pair. For example, an entry can be:</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">'SEG_mb_bram_ctrl_1_Mem0':</span> <span class="pre">['0x40000000',</span> <span class="pre">'0x8000',</span> <span class="pre">None]</span></code></div></blockquote>
-<p>Where SEG_mb_bram_ctrl_1_Mem0 is the IP instance name; all  IP instance names are parsed from the <cite>*.tcl</cite> file used to build the VIvado project (e.g. <cite>audiovideo.tcl</cite>).</p>
+<p>The key of the entry is the IP instance name; all the IP instance names are parsed from the <cite>*.tcl</cite> file (e.g. <cite>audiovideo.tcl</cite>) in the address segment section. The value of the entry is a list of 3 items:</p>
 <blockquote>
 <div><ul class="simple">
-<li>0x40000000 is the base address of the IP.</li>
-<li>0x8000 is the address range in bytes.</li>
-<li>The third item records the state associated with the IP. It is <cite>None</cite> by default, but can be defined by the user.</li>
+<li>The first item shows the base address of the addressable IP (hex).</li>
+<li>The second item shows the address range in bytes (hex).</li>
+<li>The third item records the state associated with the IP. It is <cite>None</cite> by default, but can be used flexibly by the users.</li>
 </ul>
 </div></blockquote>
 <p>Similarly, to find the addressable IPs currently on the programmable logic, users can do:</p>
@@ -319,11 +320,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="n">PL</span><span class="o">.</span><span class="n">ip_dict</span>
 </pre></div>
 </div>
-<p>Pynq includes the <em>MMIO</em> class, which can be used to communicate between the ARM processor and programmable logic. Once the Overlay has been created, and the memory map is known, the <em>MMIO</em> can be used to read/write to/from memory mapped locations in the PL.</p>
+<p>To help ease the effort to communicate between the ARM processor and programmable logic, Pynq includes the <em>MMIO</em> Python class. Once the Overlay has been created, and the memory map is known, the <em>MMIO</em> can be used to read/write to/from memory mapped locations in the PL.</p>
 <p>The Python code for the MMIO can be viewed here:</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/python/pynq/mmio.py</span></code></div></blockquote>
-<p>As an example, the MMIO class can be used to access an area of 0x8000 bytes in the PL, starting at address 0x40000000 (<cite>SEG_mb_bram_ctrl_1_Mem0</cite>):</p>
+<p>Continuing the example shown above, we show a use case where the MMIO class can access an area of 0x8000 bytes in the PL, starting at address 0x40000000 (<cite>SEG_mb_bram_ctrl_1_Mem0</cite>):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 
 <span class="c"># an IP is located at 0x40000000</span>
