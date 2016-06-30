@@ -64,6 +64,7 @@ rm -rf $PYNQ_DIR/*
 cp -rf $REPO_DIR/$BOARD/board/board_const.py $REPO_DIR/python/pynq/board/
 rm -rf $REPO_DIR/python/pynq/iop/*.bin
 cp -rf $REPO_DIR/$BOARD/sdk/bin/*.bin $REPO_DIR/python/pynq/iop/
+cp -rf $REPO_DIR/$BOARD/bitstream $REPO_DIR/python/pynq/
 cd $REPO_DIR/python
 sudo -H pip install --upgrade .
 python3.4 /home/xpp/scripts/start_pl_server.py &
