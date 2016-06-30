@@ -61,6 +61,9 @@ git clone https://github.com/Xilinx/Pynq $REPO_DIR
 
 echo "3. Pip install latest pynq python package"
 rm -rf $PYNQ_DIR/*
+cp -rf $REPO_DIR/$BOARD/board/board_const.py $REPO_DIR/python/pynq/board/
+rm -rf $REPO_DIR/python/pynq/iop/*.bin
+cp -rf $REPO_DIR/$BOARD/sdk/bin/*.bin $REPO_DIR/python/pynq/iop/
 cd $REPO_DIR/python
 sudo -H pip install --upgrade .
 python3.4 /home/xpp/scripts/start_pl_server.py &
@@ -74,8 +77,9 @@ make clean ; make html
 echo "5. Transfer Git files into final filesystem locations with correct ownership"
 rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/* 
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
-cp -r $REPO_DIR/python/notebooks/* $FINAL_NOTEBOOKS_DIR
-cp -r $REPO_DIR/ubuntu/scripts/hostname.sh $FINAL_SCRIPTS_DIR
+cp -r $REPO_DIR/$BOARD/notebooks/* $FINAL_NOTEBOOKS_DIR
+cp -r $REPO_DIR/ubuntu/scripts/*.sh $FINAL_SCRIPTS_DIR
+cp -r $REPO_DIR/ubuntu/scripts/*.py $FINAL_SCRIPTS_DIR
 pushd $FINAL_NOTEBOOKS_DIR ; ln -s $FINAL_DOCS_DIR ; popd
 
 # Jupyer_notebooks/Getting Started derived contents
