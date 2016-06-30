@@ -78,7 +78,8 @@ echo "5. Transfer Git files into final filesystem locations with correct ownersh
 rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/* 
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
 cp -r $REPO_DIR/$BOARD/notebooks/* $FINAL_NOTEBOOKS_DIR
-cp -r $REPO_DIR/ubuntu/scripts/*.sh $FINAL_SCRIPTS_DIR
+cp -r $REPO_DIR/ubuntu/scripts/hostname.sh $FINAL_SCRIPTS_DIR
+cp -r $REPO_DIR/ubuntu/scripts/update_pynq_docs.sh $FINAL_SCRIPTS_DIR
 cp -r $REPO_DIR/ubuntu/scripts/*.py $FINAL_SCRIPTS_DIR
 pushd $FINAL_NOTEBOOKS_DIR ; ln -s $FINAL_DOCS_DIR ; popd
 
