@@ -40,7 +40,7 @@ from pynq.iop import pmod_const
 from pynq import Overlay
 
 global ol
-ol = Overlay("pmod.bit")
+ol = Overlay("iop.bit")
 
 @pytest.mark.run(order=13)
 def test_devmode():

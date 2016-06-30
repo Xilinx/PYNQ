@@ -126,7 +126,7 @@ def test_overlay():
 def test_pmod():
     """Download the bitstream "iop.bit", and then test.
     
-    Need the corresponding "pmod.bxml" and "pmod.tcl" files to pass the tests.
+    Need the corresponding "iop.tcl" files to pass the tests.
     
     """
     global ol1,ol2
