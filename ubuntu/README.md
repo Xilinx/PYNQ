@@ -15,18 +15,75 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-Use the new update_pynq.sh in /home/xpp/scripts
-Update the pynq package by removing pmod_iic.old.py and pmod_iic.new.py (and all cached changes on these files, e.g. ~pmod_iic.new.py) in the symbolic link 'pynq'.
-Pynq_git checkins should not cache user as schelleg
 Add revision text in /home/xpp folder
-Add `start_pl_server.py` and `stop_pl_server.py` into /home/xpp/scripts folder
-Add `3_pl_server.sh` into /root folder and change owner, group, and read/write permissions. 
-Add `4_resizefs.sh` into /root folder to resize the filesystem.
-Use the new `rc.local` file in /etc folder.
 Modify username/password to xilinx/xilinx
-Install sigrok-cli and PulseView (rock sent out slides on the steps.)
-Enable the X11 forwarding on the target; by default, in /etc/ssh/ssh_config, set ForwardingX11 to yes.
-Make sure there is a file .Xauthority in /home/xpp/, and its mode should be 0600.
+Remove the redundant folder `source` in scripts folder
+Remove the `*.bat` files in the scripts folder
+Update all the shell scripts with the latest version
+Use update_pynq.sh to update the pynq package
+Then remove pynq_git and pynq_update_backup after that
+
+# Add board environment variable
+vi /home/xpp/.profile
+Add at the end of the file: export BOARD=Zybo
+sudo shutdown -r now
+
+# Install zip and unzip 
+sudo apt-get install zip
+sudo apt-get install unzip
+```
+
+06-24-2016
+```
+# use the latest update_pynq.sh in /home/xpp/scripts
+sudo ./scripts/update_pynq.sh
+
+# add `start_pl_server.py` and `stop_pl_server.py` into /home/xpp/scripts
+sudo chown xpp:xpp /home/xpp/scripts/start_pl_server.py
+sudo chown xpp:xpp /home/xpp/scripts/stop_pl_server.py
+sudo chmod 755 /home/xpp/scripts/start_pl_server.py
+sudo chmod 755 /home/xpp/scripts/stop_pl_server.py
+
+# add `3_pl_server.sh` and `4_resizefs.sh` into /home/xpp/scripts
+sudo mv -rf ./scripts/3_pl_server.sh /root/
+sudo mv -rf ./scripts/4_resizefs.sh /root/
+sudo chown xpp:xpp /root/3_pl_server.sh
+sudo chown xpp:xpp /root/4_resizefs.sh
+sudo chmod 755 /root/3_pl_server.sh
+sudo chmod 755 /root/4_resizefs.sh
+
+# use the new `rc.local` file in /etc folder
+sudo vi /etc/rc.local
+add `/root/3_pl_server.sh`
+add `/root/4_resizefs.sh`
+
+# install sigrok-cli with superuser privilege
+sudo apt-get install git-core gcc make autoconf automake libtool pkg-config libglib2.0-dev
+download the sigrok-cli package
+tar xzf <sigrok-cli tar file>
+pushd <sigrok-cli folder>
+./configure
+make
+sudo make install
+popd
+
+# install PulseView with superuser privilege
+sudo apt-get install git-core g++ make cmake libtool pkg-config libglib2.0-dev libqt4-dev libboost-test-dev libboost-thread-dev libboost-filesystem-dev libboost-system-dev
+download the sigrok-cli package
+tar xzf <pulseview tar file>
+pushd <pulseview folder>
+cmake .
+make
+sudo make install
+popd
+
+# enable the X11 forwarding on the target
+sudo vi /etc/ssh/ssh_config
+set ForwardingX11 to yes
+
+# make sure there is a file .Xauthority in /home/xpp/ with mode 0600
+sudo chmod 0600 /home/xpp/.Xauthority
+
 ```
 
 

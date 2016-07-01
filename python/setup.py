@@ -27,7 +27,7 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale"
+__author__      = "Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
@@ -36,6 +36,7 @@ from setuptools import setup, Extension, find_packages
 import shutil
 import subprocess
 import sys
+import os
 
 # Audio and video source files
 _audio_src = ['pynq/_pynq/_audio/_audio.c', 'pynq/_pynq/src/audio.c', 
@@ -98,15 +99,15 @@ def run_make(src_path,dst_path, output_lib):
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install':
     run_make("pynq/_pynq/_apf/", "pynq/drivers/" ,"libdma.so")
-
+    
 setup(  name='pynq',
         version='0.1',
         description='Python for Xilinx package',
         author='XilinxPythonProject',
         author_email='xpp_support@xilinx.com',
-        url='https://github.com/Xilinx/Pynq',
+        url='https://github.com/Xilinx/PYNQ',
         packages = find_packages(),
-        download_url = 'https://github.com/Xilinx/Pynq',
+        download_url = 'https://github.com/Xilinx/PYNQ',
         package_data = {
           '': ['tests/*', '*.bin','bitstream/*','*.so'],
         },

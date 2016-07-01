@@ -56,12 +56,17 @@ class Trace_Buffer:
         
     """
     
-    def __init__(self, protocol, trace, data=None, length=None, mask=None):
+    def __init__(self, protocol, trace, data=None, length=None, 
+                 mask=0xFFFFFFFF, tri_sel=[], tri_0=[], tri_1=[]):
         """Return a new trace buffer object. 
         
         Users have to specify the location of the traces, even if no trace 
         has been imported from DMA yet. This method will construct the trace
         from the DMA data.
+        
+        Note
+        ----
+        The probes selected by `mask` does not include any tristate probe.
         
         Parameters
         ----------
@@ -75,6 +80,12 @@ class Trace_Buffer:
             The length of the data, in number of 32-bit integers.
         mask : int
             The mask to be applied to the 32-bit data.
+        tri_sel : list
+            The list of tristate selection probes.
+        tri_0 : list
+            The list of probes selected when the selection probe is 0.
+        tri_1 : list
+            The list probes selected when the selection probe is 1.
         
         """
         if os.geteuid() != 0:
@@ -92,11 +103,38 @@ class Trace_Buffer:
                 raise TypeError("Data length has to be an integer.")
             if not 1<=length<=0x100000:
                 raise ValueError("Data length has to be in [1,0x100000].")
-        if mask != None:
-            if not isinstance(mask, int):
-                raise TypeError("Data mask has to be an integer.")
-            if not 0< mask <=0xFFFFFFFF:
-                raise ValueError("Data mask out of range.")
+        if not isinstance(mask, int):
+            raise TypeError("Data mask has to be an integer.")
+        if not 0<= mask <=0xFFFFFFFF:
+            raise ValueError("Data mask out of range.")
+            
+        if not isinstance(tri_sel, list):
+            raise TypeError("Selection probes has to be in a list.")
+        if not isinstance(tri_0, list) or not isinstance(tri_1, list):
+            raise TypeError("Data probes has to be in a list.")
+        if not len(tri_sel)==len(tri_0)==len(tri_1):
+            raise ValueError("Inconsistent length for tristate lists.")
+        for element in tri_sel:
+            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+                raise TypeError("Selection probe has to be an integer.")
+            if not (element & element-1)==0:
+                raise ValueError("Selection probe can only have 1-bit set.")
+            if not (element & mask)==0:
+                raise ValueError("Selection probe has be excluded from mask.")
+        for element in tri_0:
+            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+                raise TypeError("Data probe has to be an integer.")
+            if not (element & element-1)==0:
+                raise ValueError("Data probe can only have 1-bit set.")
+            if not (element & mask)==0:
+                raise ValueError("Data probe has be excluded from mask.")
+        for element in tri_1:
+            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+                raise TypeError("Data probe has to be an integer.")
+            if not (element & element-1)==0:
+                raise ValueError("Data probe can only have 1-bit set.")
+            if not (element & mask)==0:
+                raise ValueError("Data probe has be excluded from mask.")
         
         if os.path.isfile(trace) or os.path.isfile(
                 os.path.dirname(os.path.realpath(__file__)) + '/' + trace):
@@ -114,7 +152,7 @@ class Trace_Buffer:
                 raise ValueError("Currently only supporting csv or sr files.")
         elif data != None and length != None and mask != None:
             # Trace does not exist, but can be constructed
-            self.parse(data, length, mask)
+            self.parse(trace, data, length, mask, tri_sel, tri_0, tri_1)
         else:
             # Trace does not exist, and can't be constructed
             raise IOError('Trace {} does not exist or cannot be constructed.'\
@@ -134,9 +172,11 @@ class Trace_Buffer:
         None
         
         """
-        os.system("sigrok-cli --protocol-decoders "+self.protocol+" --show")
+        if os.system("sigrok-cli --protocol-decoders " + \
+                    self.protocol+" --show"):
+            raise RuntimeError('Sigrok-cli show failed.')
         
-    def _csv2sr(self):
+    def csv2sr(self):
         """Translate the `*.csv` file to `*.sr` file.
         
         The translated `*.sr` files can be directly used in PulseView to show 
@@ -173,9 +213,10 @@ class Trace_Buffer:
         
         command = "sigrok-cli -i " + self.trace_csv + \
                     " -I csv -o " + self.trace_sr
-        os.system(command)
+        if os.system(command):
+            raise RuntimeError('Sigrok-cli csv to sr failed.')
         
-    def _sr2csv(self):
+    def sr2csv(self):
         """Translate the `*.sr` file to `*.csv` file.
         
         The translated `*.csv` files can be used for interactive plotting. 
@@ -200,7 +241,8 @@ class Trace_Buffer:
         temp = name + ".temp"
         command = "sigrok-cli -i " + self.trace_sr + \
                     " -O csv > " + temp
-        os.system(command)
+        if os.system(command):
+            raise RuntimeError('Sigrok-cli sr to csv failed.')
         
         in_file = open(temp, 'r')
         out_file = open(self.trace_csv, 'w')
@@ -212,7 +254,7 @@ class Trace_Buffer:
         out_file.close()
         os.remove(temp)
         
-    def decode(self, file_name, samplerate, probes, transactions=None):
+    def decode(self, file_name, transactions=None):
         """Decode and record the trace based on the protocol specified.
         
         Example transaction names can be `address-read`, `data-write`, etc. 
@@ -234,10 +276,6 @@ class Trace_Buffer:
         ----------
         file_name : str
             The name of the file recording the outputs.
-        samplerate : int
-            The rate of the samples.
-        probes : list
-            A list of probe names.
         transactions : list
             A list of strings specifying the channel names.
         
@@ -249,7 +287,6 @@ class Trace_Buffer:
         if not isinstance(file_name, str):
             raise TypeError("'file_name' has to be a string.")
         
-        self.set_metadata(samplerate, probes)
         command = "sigrok-cli -i " + self.trace_sr + " -P " + self.protocol
         
         # Select transactions, if specified
@@ -267,7 +304,8 @@ class Trace_Buffer:
         command += ('> ' + ext)
         
         # Execute command
-        os.system(command)
+        if os.system(command):
+            raise RuntimeError('Sigrok-cli decode failed.')
         
     def set_metadata(self, samplerate, probes):
         """Set metadata for the trace.
@@ -294,10 +332,13 @@ class Trace_Buffer:
             
         # Convert csv file to sr file, if necessary
         if self.trace_sr == '':
-            self._csv2sr()
+            self.csv2sr()
             
         name, _ = os.path.splitext(self.trace_sr)
-        os.system("unzip -q "+ self.trace_sr + " -d " + name)
+        if os.system("mkdir " + name):
+            raise RuntimeError('Directory cannot be created.')
+        if os.system("unzip -q "+ self.trace_sr + " -d " + name):
+            raise RuntimeError('Unzip sr file failed.')
         
         metadata = open(name + '/metadata', 'r')
         temp = open(name + '/temp', 'w')
@@ -315,13 +356,18 @@ class Trace_Buffer:
         metadata.close()
         temp.close()
         
-        os.remove(name + '/metadata')
-        os.rename(name + '/temp', name + '/metadata')
-        os.system("cd "+ name +"; zip -rq " + self.trace_sr + " * ; cd ..")
-        os.system("rm -rf " + name)
+        if os.system("rm -rf "+ name + '/metadata'):
+            raise RuntimeError('Cannot remove metadata folder.')
+        if os.system("mv " + name + '/temp ' + name + '/metadata'):
+            raise RuntimeError('Cannot rename metadata folder.')
+        if os.system("cd "+ name +"; zip -rq " + \
+                    self.trace_sr + " * ; cd .."):
+            raise RuntimeError('Zip sr file failed.')
+        if os.system("rm -rf " + name):
+            raise RuntimeError('Cannnot remove temporary folder.')
         
-    def parse(self, data, length, mask=0xFFFFFFFF, 
-              tri_select=[], tri_0=[], tri_1=[]):
+    def parse(self, parse_out, data, length, mask=0xFFFFFFFF, 
+              tri_sel=[], tri_0=[], tri_1=[]):
         """Parse the input data and generate a `*.csv` file.
         
         This method can be used along with the DMA. The input data is assumed
@@ -329,11 +375,14 @@ class Trace_Buffer:
         file.
         
         To extract certain bits from the 32-bit data, use the parameter
-        `mask`. The probes selected by `mask` does not include any tristate 
-        probe.
+        `mask`. 
+        
+        Note
+        ----
+        The probes selected by `mask` does not include any tristate probe.
         
         To specify a set of tristate probes, e.g., users can set 
-        tri_select = [0x00000004], tri_0 = [0x00000010], tri_1 = [0x00000100].
+        tri_sel = [0x00000004], tri_0 = [0x00000010], tri_1 = [0x00000100].
         In this example, the 3rd probe from the LSB is the selection probe; 
         the 5th probe is selected if selection probe is 0, otherwise the 9th
         probe is selected. There can be multiple sets of tristate probes.
@@ -344,13 +393,15 @@ class Trace_Buffer:
         
         Parameters
         ----------
+        parse_out : str
+            The file name of the parsed output.
         data : cffi.FFI.CData
             The pointer to the starting address of the data.
         length : int
             The length of the data, in number of 32-bit integers.
         mask : int
             A 32-bit mask to be applied to the 32-bit data.
-        tri_select : list
+        tri_sel : list
             The list of tristate selection probes.
         tri_0 : list
             The list of probes selected when the selection probe is 0.
@@ -370,15 +421,15 @@ class Trace_Buffer:
             raise ValueError("Data length has to be in [1,0x100000]")
         if not isinstance(mask, int):
             raise TypeError("Data mask has to be an integer.")
-        if not 0<mask<=0xFFFFFFFF:
+        if not 0<=mask<=0xFFFFFFFF:
             raise ValueError("Data mask out of range.")
-        if not isinstance(tri_select, list):
+        if not isinstance(tri_sel, list):
             raise TypeError("Selection probes has to be in a list.")
         if not isinstance(tri_0, list) or not isinstance(tri_1, list):
             raise TypeError("Data probes has to be in a list.")
-        if not len(tri_select)==len(tri_0)==len(tri_1):
+        if not len(tri_sel)==len(tri_0)==len(tri_1):
             raise ValueError("Inconsistent length for tristate lists.")
-        for element in tri_select:
+        for element in tri_sel:
             if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
                 raise TypeError("Selection probe has to be an integer.")
             if not (element & element-1)==0:
@@ -400,7 +451,9 @@ class Trace_Buffer:
             if not (element & mask)==0:
                 raise ValueError("Data probe has be excluded from mask.")
             
-        parsed = os.path.dirname(os.path.realpath(__file__)) + '/trace.csv'
+        parsed = os.path.dirname(os.path.realpath(__file__)) + '/' + parse_out
+        if os.system('rm -rf ' + parsed):
+            raise RuntimeError("Cannot remove parsed file.")
         with open(parsed, 'w') as f:
             for i in range(0,length):
                 raw_val = data[i] & 0xFFFFFFFF
@@ -409,8 +462,8 @@ class Trace_Buffer:
                     if (mask & 1<<j)>>j:
                         list_val.append(str((raw_val & 1<<j)>>j))
                     else:
-                        for selection in tri_select:
-                            idx = tri_select.index(selection)
+                        for selection in tri_sel:
+                            idx = tri_sel.index(selection)
                             if (selection & 1<<j)>>j:
                                 if ((raw_val & 1<<j)>>j)==0:
                                     log = tri_0[idx].bit_length()-1
@@ -424,3 +477,5 @@ class Trace_Buffer:
                 temp = ','.join(list_val)
                 f.write(temp + '\n')
                 
+        self.trace_csv = parsed
+        self.trace_sr = ''

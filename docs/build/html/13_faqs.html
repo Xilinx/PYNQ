@@ -82,12 +82,14 @@
             
             
                 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="4_programming_zybo_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_arduino_overlay.html">Arduino IO Processor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
@@ -277,10 +279,20 @@ div.nboutput  > :nth-child(2).stderr {
 <dt>I can&#8217;t connect to the board</dt>
 <dd><p class="first">Check the <a class="reference external" href="2_getting_started.html">Getting Started Guide</a></p>
 <p>Check that you can ping the board from a command prompt or terminal on your host PC</p>
-<div class="last highlight-console"><div class="highlight"><pre><span class="gp">#</span> replace pynq with correct hostname <span class="k">if</span> you have changed it
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> replace pynq with correct hostname <span class="k">if</span> you have changed it
 <span class="go">ping pynq</span>
 </pre></div>
 </div>
+<p>Check the ACT and Link LEDs on the Zybo board (near the Ethenet Port) for activity. You can also check the activity lights on the Ethernet port on your PC or Laptop (most ethernet ports will have an orange and green LED indicating connectivity).
+The Ethernet LEDs on the Zybo should flash periodically when there is activity on the network connection.</p>
+<p class="last">If you are using a docking station, when your laptop is docked, the Ethernet port on the PC may be disabled.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>I don&#8217;t have an Ethernet port on my Laptop or PC</dt>
+<dd><p class="first">USB to Ethernet adapters are available. You can also use a USB to Ethernet adapter if you want to maintain a wired network connection, or if you do not want to change the network settings for your existing Ethernet port.</p>
+<p class="last">You can also connect your Pynq board to a network switch (your LAN), and connect to it wirelessly. (You may need to change settings on your Router to enable the Wireless network to communicate with your LAN - check your equipment documentation for details.)</p>
 </dd>
 </dl>
 </li>
@@ -299,7 +311,7 @@ div.nboutput  > :nth-child(2).stderr {
 <li><dl class="first docutils">
 <dt>My Board is powered on, and I see the Red and Green LEDs, but I can&#8217;t connect to the Pynq Portal, or see the Samba shared drive.</dt>
 <dd><p class="first">By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of 192.168.2.99</p>
-<p class="last">If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range.</p>
+<p class="last">If you plug the Ethernet cable directly to your computer, you will need to change the configure your network card to have an IP in the same address range. e.g. 192.168.2.1</p>
 </dd>
 </dl>
 </li>

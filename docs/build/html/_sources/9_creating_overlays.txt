@@ -53,7 +53,7 @@ Once a new overlay has been created, the overlay needs to be integrated into the
 
 As with any application running on Zynq, the interface between the software and hardware is via the Zynq memory map. 
 
-An overlay can have many IP blocks mapped to the ARM system memory. A memory mapped IP can be accessed from Python. ``ip_dict`` can be used to to discover memory mapped IPs in a specific overlay (e.g. `audiovideo.bit`):
+An overlay can have many addressable IPs. These addressable IPs can be accessed by the ARM processor using the memory map. To find the addressable IPs of a specific overlay (e.g. `audiovideo.bit`), users can do:
 
 .. code-block:: python
 
@@ -61,16 +61,15 @@ An overlay can have many IP blocks mapped to the ARM system memory. A memory map
    Overlay("audiovideo.bit").ip_dict
 
 
-   
-This will show the IP dictionary of the overlay. Each entry in this IP dictionary is a key-value pair. For example, the following is the entry for the IOP Block memory (MicroBlaze Block Memory Controller): 
+This will show the IP dictionary of the overlay. Each entry in this IP dictionary is a key-value pair. For example, an entry can be: 
 
     ``'SEG_mb_bram_ctrl_1_Mem0': ['0x40000000', '0x8000', None]``
 
-Where SEG_mb_bram_ctrl_1_Mem0 is the IP instance name; all  IP instance names are parsed from the `*.tcl` file used to build the VIvado project (e.g. `audiovideo.tcl`).
+The key of the entry is the IP instance name; all the IP instance names are parsed from the `*.tcl` file (e.g. `audiovideo.tcl`) in the address segment section. The value of the entry is a list of 3 items:
 
-   - 0x40000000 is the base address of the IP.
-   - 0x8000 is the address range in bytes.
-   - The third item records the state associated with the IP. It is `None` by default, but can be defined by the user.
+   - The first item shows the base address of the addressable IP (hex).
+   - The second item shows the address range in bytes (hex).
+   - The third item records the state associated with the IP. It is `None` by default, but can be used flexibly by the users.
 
 Similarly, to find the addressable IPs currently on the programmable logic, users can do:
 
@@ -79,13 +78,13 @@ Similarly, to find the addressable IPs currently on the programmable logic, user
    from pynq import PL
    PL.ip_dict
 
-Pynq includes the *MMIO* class, which can be used to communicate between the ARM processor and programmable logic. Once the Overlay has been created, and the memory map is known, the *MMIO* can be used to read/write to/from memory mapped locations in the PL. 
+To help ease the effort to communicate between the ARM processor and programmable logic, Pynq includes the *MMIO* Python class. Once the Overlay has been created, and the memory map is known, the *MMIO* can be used to read/write to/from memory mapped locations in the PL. 
 
 The Python code for the MMIO can be viewed here:
 
     ``<Pynq GitHub Repository>/Pynq/python/pynq/mmio.py``
 
-As an example, the MMIO class can be used to access an area of 0x8000 bytes in the PL, starting at address 0x40000000 (`SEG_mb_bram_ctrl_1_Mem0`): 
+Continuing the example shown above, we show a use case where the MMIO class can access an area of 0x8000 bytes in the PL, starting at address 0x40000000 (`SEG_mb_bram_ctrl_1_Mem0`): 
 
 .. code-block:: python
 

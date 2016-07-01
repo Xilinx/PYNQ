@@ -54,7 +54,7 @@ def test_mmio():
     4. Change to the next offset and repeat.
     
     """
-    ol1 = Overlay('pmod.bit')
+    ol1 = Overlay('iop.bit')
     ol2 = Overlay('audiovideo.bit')
     
     ol1.download()

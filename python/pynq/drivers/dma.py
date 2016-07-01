@@ -101,6 +101,7 @@ DMA_TO_DEV = 0
 DMA_FROM_DEV = 1
 device_id = 0
 _address_table = {}
+DMA_TRANSFER_LIMIT_BYTES = 8388607
 
 class DMA():
 
@@ -277,7 +278,11 @@ class DMA():
             like a C array.
 
         """
-        return dmalib.sds_alloc(length)
+        allocated = dmalib.sds_alloc(length)
+        if allocated != ffi.NULL:
+            return allocated
+        else:
+            print("Memory Allocation Failed!")
 
     def _free(self,pointer):
         """Free previously allocated buffer memory.
@@ -296,7 +301,8 @@ class DMA():
         None
 
         """
-        dmalib.sds_free(pointer)
+        if pointer != ffi.NULL and pointer != None:
+            dmalib.sds_free(pointer)
 
     def get_read_buf(self):
         """Return a previously read buffer
@@ -361,6 +367,12 @@ class DMA():
             0b11011110101011011011111011101111
 
         """
+
+        # Check if Size is Less than 8MB
+        if length > DMA_TRANSFER_LIMIT_BYTES:
+            print("ERROR: read input length exceeds the DMA transfer size.")
+            return None
+
         if self._readalloc is True:
             self._free(self.readbuf)
         self.readbuf = self._alloc(length)
@@ -390,9 +402,15 @@ class DMA():
         None
 
         """
+        length = len(buf) * 4
+
+        # Check if Size is less than 8MB
+        if length > DMA_TRANSFER_LIMIT_BYTES:
+            print("ERROR: write input length exceeds the DMA transfer size.")
+            return None
+
         if self._writealloc is True:
             self._free(self.writebuf)
-        length = len(buf) * 4
         self.writebuf = self._alloc(length)
         self.writebuf = ffi.cast("int *",self.writebuf)
         for i in range(0,len(buf)):
