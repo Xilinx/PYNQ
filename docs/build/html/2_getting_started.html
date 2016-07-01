@@ -82,13 +82,13 @@
             
             
                 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#get-the-image-and-prepare-the-micro-sd-card">Get the image and prepare the micro-SD Card</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pynq-z1-setup">Pynq-z1 setup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zybo-setup">Zybo setup</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#connect-to-the-board">Connect to the board</a><ul>
@@ -289,7 +289,7 @@ div.nboutput  > :nth-child(2).stderr {
 </li>
 </ul>
 </div>
-<p>There are two platforms supported by Pynq; the Pynq-z1 board, and Zybo. A Pynq boot image that can be loaded onto a Micro-SD card is needed.
+<p>Pynq is currently supported on the Pynq-z1 board. To start using Pynq, you will need a Pynq boot image loaded onto a Micro-SD card.
 The full build steps and Python packages will be available on the  <a class="reference external" href="https://github.com/Xilinx/Pynq">Pynq project GitHub</a> after the official beta release.</p>
 <p>Any Pynq related issues can be submitted via the github site&#8217;s <a class="reference external" href="https://github.com/Xilinx/Pynq/issues">issue tracker</a> once the site is live.</p>
 <div class="admonition note">
@@ -306,8 +306,8 @@ The full build steps and Python packages will be available on the  <a class="ref
 <ul class="simple">
 <li>Laptop or desktop PC with compatible browser (<a class="reference external" href="http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility">Supported Browsers</a>)</li>
 <li>Available USB port</li>
-<li>Pynq or Zybo board</li>
-<li>Micro-SD card (Minimum 16GB)</li>
+<li>Pynq-z1 board</li>
+<li>Micro-SD card (Minimum 4GB)</li>
 <li>Micro USB cable</li>
 <li>Ethernet cable</li>
 </ul>
@@ -317,47 +317,31 @@ The full build steps and Python packages will be available on the  <a class="ref
 <blockquote>
 <div><ul class="simple">
 <li>For now you will need to obtain the image, or a micro-SD card preloaded with the image, directly from the Pynq team.</li>
-<li>The image can be copied to a Micro-SD card using <a class="reference external" href="https://sourceforge.net/projects/win32diskimager/">Win32DiskImager</a>. The Micro-SD card should be at least 16GB.</li>
+<li>The image can be copied to a Micro-SD card using <a class="reference external" href="https://sourceforge.net/projects/win32diskimager/">Win32DiskImager</a>. The Micro-SD card should be at least 4GB.</li>
 </ul>
 </div></blockquote>
 </div>
 <div class="section" id="pynq-z1-setup">
 <h3>Pynq-z1 setup<a class="headerlink" href="#pynq-z1-setup" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><img alt="_images/pynqz1_setup_config_600.jpeg" class="align-center" src="_images/pynqz1_setup_config_600.jpeg" />
+<div><img alt="_images/pynq-z1_setup.jpg" class="align-center" src="_images/pynq-z1_setup.jpg" />
 <ul class="simple">
 <li>Change the <em>boot</em> jumper to <strong>SD</strong> (Set the board to boot from the Micro SD card)</li>
 <li>Insert the <em>Micro SD</em> card into the board. (The Micro-SD slot is underneath the board)</li>
-<li>Plug the USB cable to your PC/Laptop, and connect to <strong>UART</strong> (J14) on the board</li>
+<li>Plug the USB cable to your PC/Laptop, and connect to the <strong>UART</strong> (J14) on the board</li>
+<li>Plug the Ethernet cable into your board, and connect it directly to your laptop/PC or to a router, or network switch your computer is connected to.</li>
 <li><strong>Turn on</strong> the power switch on the board</li>
 </ul>
 <p>When you power on the board, you should see a <em>LED</em> (PGOOD) after a few seconds, indicating the boot process has started correctly.</p>
 </div></blockquote>
 </div>
-<div class="section" id="zybo-setup">
-<h3>Zybo setup<a class="headerlink" href="#zybo-setup" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><a class="reference internal image-reference" href="_images/zybo_setup_config_600.jpeg"><img alt="_images/zybo_setup_config_600.jpeg" class="align-center" src="_images/zybo_setup_config_600.jpeg" style="width: 450.0px; height: 450.0px;" /></a>
-<ul class="simple">
-<li>If you received a Zybo kit from the Pynq team, all jumpers will be set correctly.*</li>
-<li>Change the <em>JP5</em> jumper to <strong>SD</strong> (Set the board to boot from the Micro SD card)</li>
-<li>Insert the <em>Micro SD</em> card into the Zybo. (The Micro-SD slot is underneath the board)</li>
-<li>Set the <em>JP7</em> jumper to <strong>USB</strong> (Power the board from the USB cable)</li>
-<li>Plug the USB cable to your PC/Laptop, and connect to <strong>PROG UART</strong> (J11) on the board</li>
-<li><strong>Turn on</strong> the power switch on the board</li>
-</ul>
-<p>When you power on the board, you should see a <em>RED LED</em> (PGOOD) and a <em>GREEN LED</em> (DONE) indicating the boot process has started correctly.</p>
-</div></blockquote>
-</div>
 </div>
 <div class="section" id="connect-to-the-board">
 <h2><a class="toc-backref" href="#id5">Connect to the board</a><a class="headerlink" href="#connect-to-the-board" title="Permalink to this headline">¶</a></h2>
-<p>Connect an ethernet cable directly from your laptop/PC to the board, or connect the board to the same network that your laptop/PC is connected to. i.e. The board can also be plugged into a home router, or network switch.</p>
-<p>To connect to your board, you need to make sure that it can connect to your computer or network correctly, and you will need to know the hostname or the IP address of the board. By default, if the board is connected to a router or network with a DHCP server, it will get an IP address automaticlly. You can then connect to it using the hostname. (<code class="docutils literal"><span class="pre">pynq</span></code> by default).</p>
-<p>If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address (<code class="docutils literal"><span class="pre">192.168.2.99</span></code> by default). You can then connect to it using the IP address.</p>
-<p>You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet and any other settings. See the FAQ for more details on connecting to the board, and changing the IP settings.</p>
-<p>If you are using a static IP address, you will need to configure the Ethernet settings on your laptop/PC and make sure your computer has an IP address that is in the same range as the board&#8217;s IP. e.g. You could assign you PC the IP address (<code class="docutils literal"><span class="pre">192.168.2.98</span></code>) is the board&#8217;s address is (<code class="docutils literal"><span class="pre">192.168.2.99</span></code>)</p>
-<p>Two scripts are available if you need help configuring the ethernet on a Windows computer, <code class="docutils literal"><span class="pre">pynq_enable_static_IP_windows.bat</span></code> and <code class="docutils literal"><span class="pre">pynq_disable_static_IP_windows.bat</span></code> available in the <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">respository&gt;\Pynq\Ubuntu</span></code> folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt. You can also check the internet for innstructions on how to configure your computer.</p>
+<p>You need to make sure your board can connect to your computer or network correctly, and you will need to know the hostname or the IP address of the board. By default, if the board is connected to a router or network with a DHCP server, it will get an IP address automaticlly. You can then use the board hostname to connect to it. The hostname is <code class="docutils literal"><span class="pre">pynq</span></code> by default.</p>
+<p>If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address (<code class="docutils literal"><span class="pre">192.168.2.99</span></code> by default). You will need to conigure your computer to have an IP address in the same range (e.g. 192.168.2.98). You can then connect to it using this IP address.</p>
+<p>You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet/IP and any other settings. See the FAQ for more details on connecting to the board, and changing the IP settings.</p>
+<p>Two scripts are available if you need help configuring the ethernet on a Windows computer, <code class="docutils literal"><span class="pre">pynq_enable_static_IP_windows.bat</span></code> and <code class="docutils literal"><span class="pre">pynq_disable_static_IP_windows.bat</span></code> available in the <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">respository&gt;\Pynq\Ubuntu</span></code> folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt. You can also check the internet for instructions on how to configure your computer.</p>
 <div class="section" id="open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal">
 <h3>Open a web browser and connect to Pynq Jupyter Notebooks web portal<a class="headerlink" href="#open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal" title="Permalink to this headline">¶</a></h3>
 <blockquote>

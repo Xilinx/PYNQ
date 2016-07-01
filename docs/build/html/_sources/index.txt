@@ -11,7 +11,8 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-
+   
+   quick_start
    1_pynq
    2_getting_started
    3_jupyter_notebook
