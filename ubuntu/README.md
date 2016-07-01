@@ -17,6 +17,9 @@ Staging - to be added in next image
 ```
 Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
+Remove the redundant folder `source` in scripts folder
+Remove the `*.bat` files in the scripts folder
+Update all the shell scripts with the latest version
 
 # Add board environment variable
 vi /home/xpp/.profile
