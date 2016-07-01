@@ -49,3 +49,15 @@ void _p0_cf_framework_close(int);
 void switch_to_next_partition(int);
 void init_first_partition();
 void close_last_partition();
+
+
+struct axi_dma_simple_request_struct {
+    cf_request_info_t req;
+    void * dma_virt_base_addr;
+    int needs_cache_flush_invalidate;
+    void *buf;
+    size_t len;
+    int *num_recd;
+    int timeout_sec;
+};
+typedef struct axi_dma_simple_request_struct axi_dma_simple_request_t;

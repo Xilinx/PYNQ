@@ -25,7 +25,6 @@ typedef struct axi_dma_simple_channel_info_struct axi_dma_simple_channel_info_t;
 
 void axi_dma_simple_register (void *info);
 void axi_dma_simple_unregister (void *info);
-void axi_dma_simple_wait (void *info);
 
 int axi_dma_simple_open (cf_port_base_t *port, cf_request_handle_t *request);
 int axi_dma_simple_close (cf_port_base_t *port, cf_request_handle_t *request);

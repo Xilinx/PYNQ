@@ -154,10 +154,12 @@ void  _dma_send(axi_dma_simple_channel_info_t * dmainfo, void * data,int len, in
     printf("%p\n", &custom_request[i]);
 }
 
-void _dma_wait(int handle_id);
-void _dma_wait(int handle_id)
+int _dma_wait(int handle_id, int timeout_sec);
+int _dma_wait(int handle_id, int timeout_sec)
 {
-    cf_wait(custom_request[handle_id]);
+    axi_dma_simple_request_t * axi_dma_simple_request = (axi_dma_simple_request_t * ) custom_request[handle_id];
+    axi_dma_simple_request->timeout_sec = timeout_sec;
+    return cf_wait(custom_request[handle_id]);
 }
 
 void _dma_recv(axi_dma_simple_channel_info_t * dmainfo, void * data,int len, int handle_id);
