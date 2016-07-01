@@ -34,7 +34,7 @@ __email__       = "xpp_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
-from pynq.pmods.pmod_oled import PMOD_OLED
+from pynq.iop.pmod_oled import PMOD_OLED
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD OLED attached to the board?")

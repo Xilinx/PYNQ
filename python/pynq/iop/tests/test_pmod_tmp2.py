@@ -34,7 +34,7 @@ __email__       = "xpp_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
-from pynq.pmods.pmod_tmp2 import PMOD_TMP2
+from pynq.iop.pmod_tmp2 import PMOD_TMP2
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD TMP2 attached to the board?")

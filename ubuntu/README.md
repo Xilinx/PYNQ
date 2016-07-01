@@ -17,6 +17,13 @@ Staging - to be added in next image
 ```
 Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
+
+# Add board environment variable
+vi /home/xpp/.profile
+Add at the end of the file: export BOARD=Zybo
+sudo shutdown -r now
+
+# Install zip and unzip 
 sudo apt-get install zip
 sudo apt-get install unzip
 ```

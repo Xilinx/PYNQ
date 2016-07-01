@@ -36,8 +36,8 @@ from random import randint
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.pmods import pmod_const
-from pynq.pmods.pmod_cable import PMOD_Cable
+from pynq.iop import pmod_const
+from pynq.iop.pmod_cable import PMOD_Cable
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nTwo PMOD interfaces connected by a cable?")

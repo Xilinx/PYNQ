@@ -100,18 +100,14 @@ def run_make(src_path,dst_path, output_lib):
 if len(sys.argv) > 1 and sys.argv[1] == 'install':
     run_make("pynq/_pynq/_apf/", "pynq/drivers/" ,"libdma.so")
     
-# Copy board-specific files
-os.system("cp -rf ../$BOARD/bitstream pynq/")
-os.system("cp -rf ../$BOARD/board/board_const.py pynq/board/")
-
 setup(  name='pynq',
         version='0.1',
         description='Python for Xilinx package',
         author='XilinxPythonProject',
         author_email='xpp_support@xilinx.com',
-        url='https://github.com/Xilinx/Pynq',
+        url='https://github.com/Xilinx/PYNQ',
         packages = find_packages(),
-        download_url = 'https://github.com/Xilinx/Pynq',
+        download_url = 'https://github.com/Xilinx/PYNQ',
         package_data = {
           '': ['tests/*', '*.bin','bitstream/*','*.so'],
         },

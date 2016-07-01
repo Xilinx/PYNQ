@@ -32,8 +32,8 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "xpp_support@xilinx.com"
 
 
-from pynq.pmods import pmod_const
-from pynq.pmods.pmod_io import PMOD_IO
+from pynq.iop import pmod_const
+from pynq.iop.pmod_io import PMOD_IO
 
 class Grove_PIR(PMOD_IO):
     """This class controls the PIR motion sensor.

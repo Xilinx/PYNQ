@@ -38,6 +38,6 @@ clean:
 	rm -f */Debug/*.elf.size
 	rm -f */Debug/src/*.o
 	rm -f */Debug/src/*.d
-	rm -f bins/*
+	rm -f bin/*
 	rm -rf bsp hw_def .Xil .metadata SDK.log	
 	rm -rf sdk_import
