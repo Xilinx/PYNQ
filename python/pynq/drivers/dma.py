@@ -35,7 +35,6 @@ __email__       = "xpp_support@xilinx.com"
 import os
 import cffi
 
-
 ffi = cffi.FFI()
 
 ffi.cdef("""
@@ -91,7 +90,7 @@ void sds_free(void *memptr);
 """)
 
 ffi.cdef("""
-void _dma_wait(int handle_id);
+int _dma_wait(int handle_id, int timeout_sec);
 """)
 
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -244,22 +243,26 @@ class DMA():
         self.info.dir = DMA_FROM_DEV
         dmalib._dma_recv(self.channel,buf,length,self.info.device_id)
 
-    def wait(self):
+    def wait(self, timeout=0):
         """Wait on DMA transfer to complete.
 
         Call this function if you want to block till the DMA transfer
-        is complete.
+        is complete. Note that timing out a wait operation does not
+        reset the underlying hardware.
 
         Parameters
         ----------
-        None
+        timeout : integer
+            Timeout the wait after these many seconds. Set this to 0
+            for unlimited timeout.
 
         Returns
         -------
         None
 
         """
-        dmalib._dma_wait(self.info.device_id)
+        if dmalib._dma_wait(self.info.device_id,timeout) == -1:
+            raise Exception("ERROR: DMA wait timed out. Please restart the program/python kernel.")
 
     def _alloc(self,length):
         """Allocate physically contiguous memory locations in memory.
@@ -333,7 +336,7 @@ class DMA():
         """
         return ffi.cast("int *",self.readbuf)
 
-    def read(self,length,wait = True):
+    def read(self,length,wait = True, timeout = 0):
         """ Read "length" bytes from the PL
 
         This method is intended for anyone who doesn't want to deal
@@ -348,6 +351,9 @@ class DMA():
         wait : bool (=True)
             if wait is True then the DMA call is blocking. It 
             can be made non-blocking by setting wait to False.
+        timeout : integer
+            Timeout the wait after these many seconds. Set this to 0
+            for unlimited timeout.
 
         Returns
         -------
@@ -380,10 +386,10 @@ class DMA():
         self._recv(self.readbuf,length)
         if wait is False:
             return
-        self.wait()
+        self.wait(timeout)
         return ffi.cast("int *",self.readbuf)
 
-    def write(self,buf, wait = True):
+    def write(self,buf, wait = True, timeout = 0):
         """Write a python integer list into PL using DMA.
 
         This method is intended for anyone who doesn't want to deal
@@ -396,6 +402,9 @@ class DMA():
         wait : bool (=True)
             if wait is True then the DMA call is blocking. It 
             can be made non-blocking by setting wait to False.
+        timeout : integer
+            Timeout the wait after these many seconds. Set this to 0
+            for unlimited timeout.
 
         Returns
         -------
@@ -419,4 +428,4 @@ class DMA():
         self._send(self.writebuf,length)
         if wait is False:
             return
-        self.wait()
+        self.wait(timeout)
