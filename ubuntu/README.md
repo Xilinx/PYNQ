@@ -20,6 +20,8 @@ Modify username/password to xilinx/xilinx
 Remove the redundant folder `source` in scripts folder
 Remove the `*.bat` files in the scripts folder
 Update all the shell scripts with the latest version
+Use update_pynq.sh to update the pynq package
+Then remove pynq_git and pynq_update_backup after that
 
 # Add board environment variable
 vi /home/xpp/.profile
