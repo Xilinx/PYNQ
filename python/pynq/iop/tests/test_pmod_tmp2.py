@@ -29,7 +29,7 @@
 
 __author__      = "Naveen Purushotham, Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
-__email__       = "xpp_support@xilinx.com"
+__email__       = "pynq_support@xilinx.com"
 
 
 import pytest

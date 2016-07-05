@@ -29,7 +29,7 @@
 
 __author__      = "Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2016, Xilinx"
-__email__       = "xpp_support@xilinx.com"
+__email__       = "pynq_support@xilinx.com"
 
 
 from setuptools import setup, Extension, find_packages
@@ -104,7 +104,7 @@ setup(  name='pynq',
         version='0.1',
         description='Python for Xilinx package',
         author='XilinxPythonProject',
-        author_email='xpp_support@xilinx.com',
+        author_email='pynq_support@xilinx.com',
         url='https://github.com/Xilinx/PYNQ',
         packages = find_packages(),
         download_url = 'https://github.com/Xilinx/PYNQ',

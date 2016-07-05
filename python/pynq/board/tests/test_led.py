@@ -29,7 +29,7 @@
 
 __author__      = "Giuseppe Natale, Yun Rock Qu"
 __copyright__   = "Copyright 2015, Xilinx"
-__email__       = "xpp_support@xilinx.com"
+__email__       = "pynq_support@xilinx.com"
 
 
 import sys
