@@ -29,7 +29,7 @@
 
 __author__ = "Patrick Lysaght"
 __copyright__ = "Copyright 2016, Xilinx"
-__email__ = "xpp_support@xilinx.com"
+__email__ = "pynq_support@xilinx.com"
 
 """Script to overcome bug in current nbsphinx-Sphinx flow.
 
