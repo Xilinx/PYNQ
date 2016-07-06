@@ -24,6 +24,8 @@ sudo shutdown -r now
 sudo apt-get install zip
 sudo apt-get install unzip
 
+# Fix broken ghc and haskell packages in dpkg
+
 Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
 Remove the redundant folder `source` in scripts folder
