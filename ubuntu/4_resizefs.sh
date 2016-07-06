@@ -3,8 +3,9 @@
 # space available in the SDCard. Run as root if running manually.
 # The sed script strips off all the comments so that we can 
 # document what we're doing in-line with the actual commands
-# Note that a blank line (commented as "defualt" will send a empty
+# Note that a blank line (commented as "default" will send a empty
 # line terminated with a newline to take the fdisk default.
+
 exec >> /var/log/syslog
 exec 2>&1
 
