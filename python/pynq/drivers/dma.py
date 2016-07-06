@@ -250,11 +250,12 @@ class DMA():
         is complete. Note that timing out a wait operation does not
         reset the underlying hardware.
 
+        Set wait to 0 for unlimited timeout
+
         Parameters
         ----------
         timeout : integer
-            Timeout the wait after these many seconds. Set this to 0
-            for unlimited timeout.
+            Timeout the wait after these many seconds.
 
         Returns
         -------
@@ -277,8 +278,7 @@ class DMA():
         Returns
         -------
         cffi.FFI.CData
-            This contains a pointer to the buffer which can be accessed in python
-            like a C array.
+            A pointer to the buffer which can be accessed like an array.
 
         """
         allocated = dmalib.sds_alloc(length)
@@ -349,11 +349,9 @@ class DMA():
         length : integer
             Number of bytes to be read (prefer a multiple of 4)
         wait : bool (=True)
-            if wait is True then the DMA call is blocking. It 
-            can be made non-blocking by setting wait to False.
+            Set to False to make DMA call non-blocking.
         timeout : integer
-            Timeout the wait after these many seconds. Set this to 0
-            for unlimited timeout.
+            Timeout the wait after these many seconds. (0 for unlimited)
 
         Returns
         -------
@@ -400,11 +398,9 @@ class DMA():
         buf : list
             list containing integers to be written into the PL
         wait : bool (=True)
-            if wait is True then the DMA call is blocking. It 
-            can be made non-blocking by setting wait to False.
+            Set to False to make DMA call non-blocking.
         timeout : integer
-            Timeout the wait after these many seconds. Set this to 0
-            for unlimited timeout.
+            Timeout the wait after these many seconds. (0 for unlimited)
 
         Returns
         -------
