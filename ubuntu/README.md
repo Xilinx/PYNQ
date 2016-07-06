@@ -15,14 +15,6 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-Add revision text in /home/xpp folder
-Modify username/password to xilinx/xilinx
-Remove the redundant folder `source` in scripts folder
-Remove the `*.bat` files in the scripts folder
-Update all the shell scripts with the latest version
-Use update_pynq.sh to update the pynq package
-Then remove pynq_git and pynq_update_backup after that
-
 # Add board environment variable
 vi /home/xpp/.profile
 Add at the end of the file: export BOARD=Zybo
@@ -31,6 +23,14 @@ sudo shutdown -r now
 # Install zip and unzip 
 sudo apt-get install zip
 sudo apt-get install unzip
+
+Add revision text in /home/xpp folder
+Modify username/password to xilinx/xilinx
+Remove the redundant folder `source` in scripts folder
+Remove the `*.bat` files in the scripts folder
+Update all the shell scripts with the latest version
+Use update_pynq.sh to update the pynq package
+Then remove pynq_git and pynq_update_backup after that
 ```
 
 06-24-2016
