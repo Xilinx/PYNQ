@@ -29,7 +29,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # If you do not already have a project created,
 # you can create a project using the following command:
-#    create_project <project name> -part xc7z010clg400-1
+#    create_project project_1 myproj -part xc7z010clg400-1
 
 # CHECKING IF PROJECT EXISTS
 if { [get_projects -quiet] eq "" } {
@@ -455,25 +455,6 @@ CONFIG.NUM_MI {2} \
 CONFIG.NUM_SI {1} \
  ] $axis_switch_0
 
-  # Create instance: ila_asis_tb2dma, and set properties
-  set ila_asis_tb2dma [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.0 ila_asis_tb2dma ]
-  set_property -dict [ list \
-CONFIG.C_DATA_DEPTH {2048} \
-CONFIG.C_ENABLE_ILA_AXI_MON {false} \
-CONFIG.C_MONITOR_TYPE {Native} \
-CONFIG.C_NUM_OF_PROBES {5} \
-CONFIG.C_PROBE0_WIDTH {64} \
- ] $ila_asis_tb2dma
-
-  # Create instance: ila_hls2switch, and set properties
-  set ila_hls2switch [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.0 ila_hls2switch ]
-  set_property -dict [ list \
-CONFIG.C_ENABLE_ILA_AXI_MON {false} \
-CONFIG.C_MONITOR_TYPE {Native} \
-CONFIG.C_NUM_OF_PROBES {5} \
-CONFIG.C_PROBE0_WIDTH {32} \
- ] $ila_hls2switch
-
   # Create instance: trace_controller_0, and set properties
   set trace_controller_0 [ create_bd_cell -type ip -vlnv xilinx.com:hls:trace_controller:1.0 trace_controller_0 ]
 
@@ -502,24 +483,15 @@ CONFIG.CONST_WIDTH {1} \
   connect_bd_intf_net -intf_net trace_controller_0_B [get_bd_intf_pins axis_switch_0/S00_AXIS] [get_bd_intf_pins trace_controller_0/B]
 
   # Create port connections
-  connect_bd_net -net Net [get_bd_pins axi_dma_0/s_axis_s2mm_tready] [get_bd_pins axis_clock_converter_0/m_axis_tready] [get_bd_pins ila_asis_tb2dma/probe2]
-  connect_bd_net -net Net1 [get_bd_pins axis_switch_0/s_axis_tdata] [get_bd_pins ila_hls2switch/probe0] [get_bd_pins trace_controller_0/B_TDATA]
-  connect_bd_net -net Net2 [get_bd_pins axis_switch_0/s_axis_tvalid] [get_bd_pins ila_hls2switch/probe1] [get_bd_pins trace_controller_0/B_TVALID]
-  connect_bd_net -net Net3 [get_bd_pins axis_switch_0/s_axis_tlast] [get_bd_pins ila_hls2switch/probe3] [get_bd_pins trace_controller_0/B_TLAST]
-  connect_bd_net -net Net4 [get_bd_pins axis_switch_0/s_axis_tdest] [get_bd_pins ila_hls2switch/probe4] [get_bd_pins trace_controller_0/B_TDEST]
   connect_bd_net -net aresetn_fastclk_1 [get_bd_pins aresetn_fastclk] [get_bd_pins axis_clock_converter_0/m_axis_aresetn]
   connect_bd_net -net aresetn_slowclk_1 [get_bd_pins aresetn_slowclk] [get_bd_pins axi_dma_0/axi_resetn] [get_bd_pins axis_accelerator_adapter_0/s_axi_aresetn] [get_bd_pins axis_clock_converter_0/s_axis_aresetn] [get_bd_pins axis_data_fifo_0/s_axis_aresetn] [get_bd_pins axis_dwidth_converter_0/aresetn] [get_bd_pins axis_switch_0/aresetn]
-  connect_bd_net -net axi_dma_0_s2mm_introut [get_bd_pins s2mm_introut] [get_bd_pins axi_dma_0/s2mm_introut] [get_bd_pins ila_asis_tb2dma/probe4]
+  connect_bd_net -net axi_dma_0_s2mm_introut [get_bd_pins s2mm_introut] [get_bd_pins axi_dma_0/s2mm_introut]
   connect_bd_net -net axis_accelerator_adapter_0_ap_iscalar_0_dout [get_bd_pins axis_accelerator_adapter_0/ap_iscalar_0_dout] [get_bd_pins trace_controller_0/length_r]
   connect_bd_net -net axis_accelerator_adapter_0_ap_iscalar_1_dout [get_bd_pins axis_accelerator_adapter_0/ap_iscalar_1_dout] [get_bd_pins trace_controller_0/sample_rate]
   connect_bd_net -net axis_accelerator_adapter_0_aresetn [get_bd_pins axis_accelerator_adapter_0/aresetn] [get_bd_pins trace_controller_0/ap_rst_n]
-  connect_bd_net -net axis_clock_converter_0_m_axis_tdata [get_bd_pins axi_dma_0/s_axis_s2mm_tdata] [get_bd_pins axis_clock_converter_0/m_axis_tdata] [get_bd_pins ila_asis_tb2dma/probe0]
-  connect_bd_net -net axis_clock_converter_0_m_axis_tlast [get_bd_pins axi_dma_0/s_axis_s2mm_tlast] [get_bd_pins axis_clock_converter_0/m_axis_tlast] [get_bd_pins ila_asis_tb2dma/probe3]
-  connect_bd_net -net axis_clock_converter_0_m_axis_tvalid [get_bd_pins axi_dma_0/s_axis_s2mm_tvalid] [get_bd_pins axis_clock_converter_0/m_axis_tvalid] [get_bd_pins ila_asis_tb2dma/probe1]
   connect_bd_net -net axis_data_fifo_0_s_axis_tready [get_bd_pins axis_data_fifo_0/s_axis_tready] [get_bd_pins xlconcat_2/In0]
-  connect_bd_net -net axis_switch_0_s_axis_tready [get_bd_pins axis_switch_0/s_axis_tready] [get_bd_pins ila_hls2switch/probe2] [get_bd_pins trace_controller_0/B_TREADY]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins aclk_slowclk] [get_bd_pins axi_dma_0/s_axi_lite_aclk] [get_bd_pins axis_accelerator_adapter_0/aclk] [get_bd_pins axis_accelerator_adapter_0/s_axi_aclk] [get_bd_pins axis_clock_converter_0/s_axis_aclk] [get_bd_pins axis_data_fifo_0/s_axis_aclk] [get_bd_pins axis_dwidth_converter_0/aclk] [get_bd_pins axis_switch_0/aclk] [get_bd_pins ila_hls2switch/clk] [get_bd_pins trace_controller_0/ap_clk]
-  connect_bd_net -net processing_system7_0_FCLK_CLK2 [get_bd_pins aclk_fastclk] [get_bd_pins axi_dma_0/m_axi_s2mm_aclk] [get_bd_pins axis_clock_converter_0/m_axis_aclk] [get_bd_pins ila_asis_tb2dma/clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins aclk_slowclk] [get_bd_pins axi_dma_0/s_axi_lite_aclk] [get_bd_pins axis_accelerator_adapter_0/aclk] [get_bd_pins axis_accelerator_adapter_0/s_axi_aclk] [get_bd_pins axis_clock_converter_0/s_axis_aclk] [get_bd_pins axis_data_fifo_0/s_axis_aclk] [get_bd_pins axis_dwidth_converter_0/aclk] [get_bd_pins axis_switch_0/aclk] [get_bd_pins trace_controller_0/ap_clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK2 [get_bd_pins aclk_fastclk] [get_bd_pins axi_dma_0/m_axi_s2mm_aclk] [get_bd_pins axis_clock_converter_0/m_axis_aclk]
   connect_bd_net -net s_axis_tdata_1 [get_bd_pins s_axis_tdata] [get_bd_pins trace_controller_0/A_TDATA]
   connect_bd_net -net xlconcat_2_dout [get_bd_pins axis_switch_0/m_axis_tready] [get_bd_pins xlconcat_2/dout]
   connect_bd_net -net xlconstant0_1b_1_dout [get_bd_pins xlconcat_2/In1] [get_bd_pins xlconstant0_1b_1/dout]
@@ -585,16 +557,6 @@ CONFIG.NUM_SI {1} \
 CONFIG.S00_HAS_REGSLICE {1} \
  ] $axi_hp3_intercon
 
-  # Create instance: axi_traceBuffer_v1_0_0, and set properties
-  set axi_traceBuffer_v1_0_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:axi_traceBuffer_v1_0:1.0 axi_traceBuffer_v1_0_0 ]
-
-  # Create instance: bit8_logic_0, and set properties
-  set bit8_logic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 bit8_logic_0 ]
-  set_property -dict [ list \
-CONFIG.CONST_VAL {0} \
-CONFIG.CONST_WIDTH {8} \
- ] $bit8_logic_0
-
   # Create instance: btns_gpio, and set properties
   set btns_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 btns_gpio ]
   set_property -dict [ list \
@@ -604,9 +566,6 @@ CONFIG.C_GPIO_WIDTH {4} \
 
   # Create instance: hier_tracebuffer
   create_hier_cell_hier_tracebuffer [current_bd_instance .] hier_tracebuffer
-
-  # Create instance: ila_aximm_dma2hp3, and set properties
-  set ila_aximm_dma2hp3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.0 ila_aximm_dma2hp3 ]
 
   # Create instance: iop1
   create_hier_cell_iop1 [current_bd_instance .] iop1
@@ -801,15 +760,6 @@ CONFIG.C_GPIO_WIDTH {4} \
 CONFIG.C_IS_DUAL {1} \
  ] $swsleds_gpio
 
-  # Create instance: tracebuffer_sel, and set properties
-  set tracebuffer_sel [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 tracebuffer_sel ]
-  set_property -dict [ list \
-CONFIG.DIN_FROM {5} \
-CONFIG.DIN_TO {4} \
-CONFIG.DIN_WIDTH {6} \
-CONFIG.DOUT_WIDTH {2} \
- ] $tracebuffer_sel
-
   # Create instance: xadc_wiz_0, and set properties
   set xadc_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xadc_wiz:3.2 xadc_wiz_0 ]
   set_property -dict [ list \
@@ -840,12 +790,6 @@ CONFIG.VCCINT_ALARM {false} \
 CONFIG.XADC_STARUP_SELECTION {channel_sequencer} \
  ] $xadc_wiz_0
 
-  # Create instance: xlconcat_0, and set properties
-  set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
-  set_property -dict [ list \
-CONFIG.NUM_PORTS {4} \
- ] $xlconcat_0
-
   # Create instance: xlconcat_1, and set properties
   set xlconcat_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_1 ]
   set_property -dict [ list \
@@ -863,18 +807,6 @@ CONFIG.CONST_VAL {0} \
 CONFIG.CONST_WIDTH {8} \
  ] $xlconstant_8b_0
 
-  # Create instance: xup_mux_data_out, and set properties
-  set xup_mux_data_out [ create_bd_cell -type ip -vlnv xilinx.com:XUP:xup_4_to_1_mux_vector:1.0 xup_mux_data_out ]
-  set_property -dict [ list \
-CONFIG.SIZE {8} \
- ] $xup_mux_data_out
-
-  # Create instance: xup_mux_tri_out, and set properties
-  set xup_mux_tri_out [ create_bd_cell -type ip -vlnv xilinx.com:XUP:xup_4_to_1_mux_vector:1.0 xup_mux_tri_out ]
-  set_property -dict [ list \
-CONFIG.SIZE {8} \
- ] $xup_mux_tri_out
-
   # Create interface connections
   connect_bd_intf_net -intf_net Vaux14_1 [get_bd_intf_ports Vaux14] [get_bd_intf_pins xadc_wiz_0/Vaux14]
   connect_bd_intf_net -intf_net Vaux15_1 [get_bd_intf_ports Vaux15] [get_bd_intf_pins xadc_wiz_0/Vaux15]
@@ -884,7 +816,6 @@ CONFIG.SIZE {8} \
   connect_bd_intf_net -intf_net axi_mem_intercon_M00_AXI [get_bd_intf_pins axi_hp3_intercon/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP3]
   connect_bd_intf_net -intf_net btns_gpio_GPIO [get_bd_intf_ports btns_4bits] [get_bd_intf_pins btns_gpio/GPIO]
   connect_bd_intf_net -intf_net hier_tracebuffer_M_AXI_S2MM [get_bd_intf_pins axi_hp3_intercon/S00_AXI] [get_bd_intf_pins hier_tracebuffer/M_AXI_S2MM]
-connect_bd_intf_net -intf_net [get_bd_intf_nets hier_tracebuffer_M_AXI_S2MM] [get_bd_intf_pins hier_tracebuffer/M_AXI_S2MM] [get_bd_intf_pins ila_aximm_dma2hp3/SLOT_0_AXI]
   connect_bd_intf_net -intf_net mb_bram_ctrl_1_BRAM_PORTA [get_bd_intf_pins iop1/BRAM_PORTB] [get_bd_intf_pins mb_bram_ctrl_1/BRAM_PORTA]
   connect_bd_intf_net -intf_net microblaze_0_debug [get_bd_intf_pins iop1/DEBUG] [get_bd_intf_pins mdm_1/MBDEBUG_0]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
@@ -897,7 +828,6 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets hier_tracebuffer_M_AXI_S2MM] [ge
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M03_AXI [get_bd_intf_pins hier_tracebuffer/S_AXI_GPIO] [get_bd_intf_pins processing_system7_0_axi_periph/M03_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M04_AXI [get_bd_intf_pins hier_tracebuffer/S_AXI_LITE_DMA] [get_bd_intf_pins processing_system7_0_axi_periph/M04_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M05_AXI [get_bd_intf_pins hier_tracebuffer/S_AXI] [get_bd_intf_pins processing_system7_0_axi_periph/M05_AXI]
-  connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M06_AXI [get_bd_intf_pins axi_traceBuffer_v1_0_0/s00_axi] [get_bd_intf_pins processing_system7_0_axi_periph/M06_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M07_AXI [get_bd_intf_pins processing_system7_0_axi_periph/M07_AXI] [get_bd_intf_pins xadc_wiz_0/s_axi_lite]
   connect_bd_intf_net -intf_net swsleds_gpio_GPIO [get_bd_intf_ports sws_4bits] [get_bd_intf_pins swsleds_gpio/GPIO]
   connect_bd_intf_net -intf_net swsleds_gpio_GPIO2 [get_bd_intf_ports leds_4bits] [get_bd_intf_pins swsleds_gpio/GPIO2]
@@ -905,30 +835,24 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets hier_tracebuffer_M_AXI_S2MM] [ge
   # Create port connections
   connect_bd_net -net ARESETN_1 [get_bd_pins axi_hp3_intercon/ARESETN] [get_bd_pins rst_processing_system7_0_200M/interconnect_aresetn]
   connect_bd_net -net M00_ARESETN_1 [get_bd_pins axi_hp3_intercon/M00_ARESETN] [get_bd_pins axi_hp3_intercon/S00_ARESETN] [get_bd_pins hier_tracebuffer/aresetn_fastclk] [get_bd_pins rst_processing_system7_0_200M/peripheral_aresetn]
-  connect_bd_net -net bit8_logic_0_dout [get_bd_pins bit8_logic_0/dout] [get_bd_pins xlconcat_0/In2] [get_bd_pins xlconcat_0/In3] [get_bd_pins xup_mux_data_out/b] [get_bd_pins xup_mux_data_out/c] [get_bd_pins xup_mux_data_out/d] [get_bd_pins xup_mux_tri_out/b] [get_bd_pins xup_mux_tri_out/c] [get_bd_pins xup_mux_tri_out/d]
   connect_bd_net -net hier_tracebuffer_s2mm_introut [get_bd_pins hier_tracebuffer/s2mm_introut] [get_bd_pins processing_system7_0/IRQ_F2P]
   connect_bd_net -net logic_1_dout [get_bd_pins iop1/ext_reset_in] [get_bd_pins logic_1/dout]
   connect_bd_net -net mb_1_reset_Dout [get_bd_pins iop1/aux_reset_in] [get_bd_pins mb_1_reset/Dout]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins iop1/mb_debug_sys_rst] [get_bd_pins mdm_1/Debug_SYS_Rst]
   connect_bd_net -net pmod2sw_data_in_1 [get_bd_ports pmodJB_data_in] [get_bd_pins iop1/pmod2sw_data_in] [get_bd_pins xlconcat_1/In1]
-  connect_bd_net -net pmod_io_switch_0_sw2pmod_data_out [get_bd_ports pmodJB_data_out] [get_bd_pins iop1/sw2pmod_data_out] [get_bd_pins xlconcat_1/In0] [get_bd_pins xup_mux_data_out/a]
-  connect_bd_net -net pmod_io_switch_0_sw2pmod_tri_out [get_bd_ports pmodJB_tri_out] [get_bd_pins iop1/sw2pmod_tri_out] [get_bd_pins xlconcat_1/In2] [get_bd_pins xup_mux_tri_out/a]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_traceBuffer_v1_0_0/s00_axi_aclk] [get_bd_pins btns_gpio/s_axi_aclk] [get_bd_pins hier_tracebuffer/aclk_slowclk] [get_bd_pins iop1/clk] [get_bd_pins mb_bram_ctrl_1/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/M03_ACLK] [get_bd_pins processing_system7_0_axi_periph/M04_ACLK] [get_bd_pins processing_system7_0_axi_periph/M05_ACLK] [get_bd_pins processing_system7_0_axi_periph/M06_ACLK] [get_bd_pins processing_system7_0_axi_periph/M07_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK] [get_bd_pins rst_processing_system7_0_100M/slowest_sync_clk] [get_bd_pins swsleds_gpio/s_axi_aclk] [get_bd_pins xadc_wiz_0/s_axi_aclk]
-  connect_bd_net -net processing_system7_0_FCLK_CLK2 [get_bd_pins axi_hp3_intercon/ACLK] [get_bd_pins axi_hp3_intercon/M00_ACLK] [get_bd_pins axi_hp3_intercon/S00_ACLK] [get_bd_pins hier_tracebuffer/aclk_fastclk] [get_bd_pins ila_aximm_dma2hp3/clk] [get_bd_pins processing_system7_0/FCLK_CLK2] [get_bd_pins processing_system7_0/S_AXI_HP3_ACLK] [get_bd_pins rst_processing_system7_0_200M/slowest_sync_clk]
+  connect_bd_net -net pmod_io_switch_0_sw2pmod_data_out [get_bd_ports pmodJB_data_out] [get_bd_pins iop1/sw2pmod_data_out] [get_bd_pins xlconcat_1/In0]
+  connect_bd_net -net pmod_io_switch_0_sw2pmod_tri_out [get_bd_ports pmodJB_tri_out] [get_bd_pins iop1/sw2pmod_tri_out] [get_bd_pins xlconcat_1/In2]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins btns_gpio/s_axi_aclk] [get_bd_pins hier_tracebuffer/aclk_slowclk] [get_bd_pins iop1/clk] [get_bd_pins mb_bram_ctrl_1/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/M03_ACLK] [get_bd_pins processing_system7_0_axi_periph/M04_ACLK] [get_bd_pins processing_system7_0_axi_periph/M05_ACLK] [get_bd_pins processing_system7_0_axi_periph/M06_ACLK] [get_bd_pins processing_system7_0_axi_periph/M07_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK] [get_bd_pins rst_processing_system7_0_100M/slowest_sync_clk] [get_bd_pins swsleds_gpio/s_axi_aclk] [get_bd_pins xadc_wiz_0/s_axi_aclk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK2 [get_bd_pins axi_hp3_intercon/ACLK] [get_bd_pins axi_hp3_intercon/M00_ACLK] [get_bd_pins axi_hp3_intercon/S00_ACLK] [get_bd_pins hier_tracebuffer/aclk_fastclk] [get_bd_pins processing_system7_0/FCLK_CLK2] [get_bd_pins processing_system7_0/S_AXI_HP3_ACLK] [get_bd_pins rst_processing_system7_0_200M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_processing_system7_0_100M/ext_reset_in] [get_bd_pins rst_processing_system7_0_200M/ext_reset_in]
-  connect_bd_net -net processing_system7_0_GPIO_O [get_bd_pins mb_1_reset/Din] [get_bd_pins processing_system7_0/GPIO_O] [get_bd_pins tracebuffer_sel/Din]
+  connect_bd_net -net processing_system7_0_GPIO_O [get_bd_pins mb_1_reset/Din] [get_bd_pins processing_system7_0/GPIO_O]
   connect_bd_net -net rst_processing_system7_0_100M_interconnect_aresetn [get_bd_pins processing_system7_0_axi_periph/ARESETN] [get_bd_pins rst_processing_system7_0_100M/interconnect_aresetn]
-  connect_bd_net -net rst_processing_system7_0_100M_peripheral_aresetn [get_bd_pins axi_traceBuffer_v1_0_0/s00_axi_aresetn] [get_bd_pins btns_gpio/s_axi_aresetn] [get_bd_pins hier_tracebuffer/aresetn_slowclk] [get_bd_pins mb_bram_ctrl_1/s_axi_aresetn] [get_bd_pins processing_system7_0_axi_periph/M00_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M01_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M02_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M03_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M04_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M05_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M06_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M07_ARESETN] [get_bd_pins processing_system7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn] [get_bd_pins swsleds_gpio/s_axi_aresetn] [get_bd_pins xadc_wiz_0/s_axi_aresetn]
-  connect_bd_net -net tracebuffer_sel_Dout [get_bd_pins tracebuffer_sel/Dout] [get_bd_pins xup_mux_data_out/sel] [get_bd_pins xup_mux_tri_out/sel]
-  connect_bd_net -net xlconcat_0_dout [get_bd_pins axi_traceBuffer_v1_0_0/MONITOR_DATAIN] [get_bd_pins xlconcat_0/dout]
+  connect_bd_net -net rst_processing_system7_0_100M_peripheral_aresetn [get_bd_pins btns_gpio/s_axi_aresetn] [get_bd_pins hier_tracebuffer/aresetn_slowclk] [get_bd_pins mb_bram_ctrl_1/s_axi_aresetn] [get_bd_pins processing_system7_0_axi_periph/M00_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M01_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M02_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M03_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M04_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M05_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M06_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M07_ARESETN] [get_bd_pins processing_system7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn] [get_bd_pins swsleds_gpio/s_axi_aresetn] [get_bd_pins xadc_wiz_0/s_axi_aresetn]
   connect_bd_net -net xlconcat_1_dout [get_bd_pins hier_tracebuffer/s_axis_tdata] [get_bd_pins xlconcat_1/dout]
   connect_bd_net -net xlconstant_8b_0_dout [get_bd_pins xlconcat_1/In3] [get_bd_pins xlconstant_8b_0/dout]
-  connect_bd_net -net xup_mux_data_out_y [get_bd_pins xlconcat_0/In0] [get_bd_pins xup_mux_data_out/y]
-  connect_bd_net -net xup_mux_tri_out_y [get_bd_pins xlconcat_0/In1] [get_bd_pins xup_mux_tri_out/y]
 
   # Create address segments
   create_bd_addr_seg -range 0x10000 -offset 0x40400000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs hier_tracebuffer/axi_dma_0/S_AXI_LITE/Reg] SEG_axi_dma_0_Reg
-  create_bd_addr_seg -range 0x10000 -offset 0x43C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_traceBuffer_v1_0_0/s00_axi/reg0] SEG_axi_traceBuffer_v1_0_0_reg0
   create_bd_addr_seg -range 0x10000 -offset 0x43C20000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs hier_tracebuffer/axis_accelerator_adapter_0/S_AXI/Reg] SEG_axis_accelerator_adapter_0_Reg
   create_bd_addr_seg -range 0x10000 -offset 0x41210000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs btns_gpio/S_AXI/Reg] SEG_btns_gpio_Reg
   create_bd_addr_seg -range 0x8000 -offset 0x40000000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs mb_bram_ctrl_1/S_AXI/Mem0] SEG_mb_bram_ctrl_1_Mem0
@@ -948,134 +872,89 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets hier_tracebuffer_M_AXI_S2MM] [ge
   regenerate_bd_layout -layout_string {
    guistr: "# # String gsaved with Nlview 6.5.5  2015-06-26 bk=1.3371 VDI=38 GEI=35 GUI=JA:1.8
 #  -string -flagsOSRD
-preplace port btns_4bits -pg 1 -y 1340 -defaultsOSRD
+preplace port btns_4bits -pg 1 -y 220 -defaultsOSRD
 preplace port DDR -pg 1 -y 80 -defaultsOSRD
-preplace port Vp_Vn -pg 1 -y 980 -defaultsOSRD
-preplace port sws_4bits -pg 1 -y 1010 -defaultsOSRD
-preplace port leds_4bits -pg 1 -y 1030 -defaultsOSRD
+preplace port Vp_Vn -pg 1 -y 860 -defaultsOSRD
+preplace port sws_4bits -pg 1 -y 330 -defaultsOSRD
+preplace port leds_4bits -pg 1 -y 350 -defaultsOSRD
 preplace port FIXED_IO -pg 1 -y 100 -defaultsOSRD
-preplace port Vaux6 -pg 1 -y 460 -defaultsOSRD
+preplace port Vaux6 -pg 1 -y 880 -defaultsOSRD
 preplace port IIC_1 -pg 1 -y 120 -defaultsOSRD
-preplace port Vaux14 -pg 1 -y 1020 -defaultsOSRD
-preplace port Vaux7 -pg 1 -y 1000 -defaultsOSRD
-preplace port Vaux15 -pg 1 -y 1040 -defaultsOSRD
-preplace portBus pmodJB_tri_out -pg 1 -y 1620 -defaultsOSRD
-preplace portBus pmodJB_data_out -pg 1 -y 1470 -defaultsOSRD
-preplace portBus pmodJB_data_in -pg 1 -y 1960 -defaultsOSRD
-preplace inst hier_tracebuffer -pg 1 -lvl 3 -y -240 -defaultsOSRD
-preplace inst xlconstant_8b_0 -pg 1 -lvl 2 -y -1040 -defaultsOSRD
-preplace inst rst_processing_system7_0_100M -pg 1 -lvl 6 -y 610 -defaultsOSRD
-preplace inst hier_tracebuffer|xlconcat_2 -pg 1 -lvl 3 -y 160 -defaultsOSRD
-preplace inst hier_tracebuffer|xlconstant0_1b_1 -pg 1 -lvl 3 -y -230 -defaultsOSRD
-preplace inst hier_tracebuffer|xlconstant_1b_1 -pg 1 -lvl 1 -y -130 -defaultsOSRD
-preplace inst hier_tracebuffer|axis_clock_converter_0 -pg 1 -lvl 6 -y 220 -defaultsOSRD
-preplace inst rst_processing_system7_0_200M -pg 1 -lvl 6 -y 840 -defaultsOSRD
-preplace inst xadc_wiz_0 -pg 1 -lvl 8 -y 1998 -defaultsOSRD
-preplace inst swsleds_gpio -pg 1 -lvl 9 -y 1020 -defaultsOSRD
-preplace inst mb_1_reset -pg 1 -lvl 9 -y 1770 -defaultsOSRD
-preplace inst iop1 -pg 1 -lvl 9 -y 1580 -defaultsOSRD
-preplace inst bit8_logic_0 -pg 1 -lvl 6 -y 1870 -defaultsOSRD
-preplace inst xup_mux_tri_out -pg 1 -lvl 6 -y 2010 -defaultsOSRD -resize 220 140
-preplace inst xlconcat_0 -pg 1 -lvl 7 -y 1670 -defaultsOSRD
-preplace inst logic_1 -pg 1 -lvl 9 -y 1880 -defaultsOSRD
-preplace inst xlconcat_1 -pg 1 -lvl 1 -y -890 -defaultsOSRD
-preplace inst hier_tracebuffer|axis_accelerator_adapter_0 -pg 1 -lvl 1 -y 10 -defaultsOSRD
-preplace inst hier_tracebuffer|axi_dma_0 -pg 1 -lvl 7 -y 190 -defaultsOSRD
-preplace inst mdm_1 -pg 1 -lvl 9 -y 1990 -defaultsOSRD
-preplace inst hier_tracebuffer|axis_switch_0 -pg 1 -lvl 3 -y -20 -defaultsOSRD
-preplace inst hier_tracebuffer|axis_dwidth_converter_0 -pg 1 -lvl 5 -y 20 -defaultsOSRD
-preplace inst xup_mux_data_out -pg 1 -lvl 6 -y 1650 -defaultsOSRD
-preplace inst btns_gpio -pg 1 -lvl 9 -y 1340 -defaultsOSRD
-preplace inst hier_tracebuffer|ila_hls2switch -pg 1 -lvl 4 -y -250 -defaultsOSRD
-preplace inst hier_tracebuffer|ila_asis_tb2dma -pg 1 -lvl 8 -y 360 -defaultsOSRD
-preplace inst mb_bram_ctrl_1 -pg 1 -lvl 9 -y 1150 -defaultsOSRD
-preplace inst axi_hp3_intercon -pg 1 -lvl 4 -y -730 -defaultsOSRD
-preplace inst tracebuffer_sel -pg 1 -lvl 5 -y 1710 -defaultsOSRD
-preplace inst hier_tracebuffer|trace_controller_0 -pg 1 -lvl 2 -y -50 -defaultsOSRD
-preplace inst ila_aximm_dma2hp3 -pg 1 -lvl 4 -y -550 -defaultsOSRD
-preplace inst hier_tracebuffer|axis_data_fifo_0 -pg 1 -lvl 4 -y 110 -defaultsOSRD
-preplace inst processing_system7_0_axi_periph -pg 1 -lvl 7 -y 440 -defaultsOSRD
-preplace inst processing_system7_0 -pg 1 -lvl 3 -y 1160 -defaultsOSRD
-preplace inst axi_traceBuffer_v1_0_0 -pg 1 -lvl 8 -y 2198 -defaultsOSRD
-preplace netloc hier_tracebuffer|xlconcat_2_dout 1 3 1 1360
-preplace netloc hier_tracebuffer|axis_clock_converter_0_m_axis_tlast 1 6 2 2390 390 NJ
-preplace netloc xup_mux_data_out_y 1 6 1 NJ
-preplace netloc processing_system7_0_FIXED_IO 1 3 7 NJ 100 NJ 100 NJ 100 NJ 100 NJ 100 NJ 100 NJ
-preplace netloc hier_tracebuffer|axis_dwidth_converter_0_M_AXIS 1 5 1 2020
-preplace netloc swsleds_gpio_GPIO2 1 9 1 N
-preplace netloc hier_tracebuffer|axis_accelerator_adapter_0_ap_iscalar_1_dout 1 1 1 520
-preplace netloc xlconcat_1_dout 1 1 2 NJ -890 -310
-preplace netloc hier_tracebuffer|axis_accelerator_adapter_0_aresetn 1 1 1 520
-preplace netloc hier_tracebuffer|axis_clock_converter_0_m_axis_tvalid 1 6 2 2350 350 NJ
-preplace netloc xlconcat_0_dout 1 7 1 10320
-preplace netloc bit8_logic_0_dout 1 5 2 NJ 1740 NJ
-preplace netloc hier_tracebuffer|Conn1 1 0 1 180
-preplace netloc processing_system7_0_axi_periph_M06_AXI 1 7 1 10380
-preplace netloc processing_system7_0_DDR 1 3 7 NJ 80 NJ 80 NJ 80 NJ 80 NJ 80 NJ 80 NJ
-preplace netloc hier_tracebuffer|processing_system7_0_FCLK_CLK0 1 0 7 200 -200 530 -170 940 -310 1400 -50 1800 -50 2010 100 NJ
-preplace netloc hier_tracebuffer|processing_system7_0_FCLK_CLK2 1 0 8 NJ 260 NJ 260 NJ 220 NJ 480 NJ 260 2040 130 2360 320 NJ
-preplace netloc Vaux15_1 1 0 8 NJ 1040 NJ 1040 NJ 1320 NJ 1320 NJ 1320 NJ 1320 NJ 1320 NJ
-preplace netloc processing_system7_0_axi_periph_M05_AXI 1 2 6 NJ 530 NJ 160 NJ 160 NJ 160 NJ 160 10320
-preplace netloc hier_tracebuffer|axis_clock_converter_0_M_AXIS 1 6 1 2370
-preplace netloc mdm_1_debug_sys_rst 1 8 2 10730 1460 11140
-preplace netloc hier_tracebuffer|Net1 1 2 2 930 -330 NJ
-preplace netloc processing_system7_0_FCLK_RESET0_N 1 3 3 NJ 820 NJ 820 NJ
-preplace netloc hier_tracebuffer|axi_dma_0_M_AXI_S2MM1 1 7 2 N 170 NJ
-preplace netloc hier_tracebuffer|axis_switch_0_M00_AXIS 1 3 1 1370
-preplace netloc hier_tracebuffer|axis_accelerator_adapter_0_ap_iscalar_0_dout 1 1 1 530
-preplace netloc hier_tracebuffer|Net2 1 2 2 960 -320 NJ
-preplace netloc hier_tracebuffer|Net3 1 2 2 920 -180 NJ
-preplace netloc hier_tracebuffer|axis_clock_converter_0_m_axis_tdata 1 6 2 2410 330 NJ
-preplace netloc processing_system7_0_axi_periph_M02_AXI 1 7 2 NJ 410 NJ
-preplace netloc xlconstant_8b_0_dout 1 0 3 -690 -810 N -810 NJ
-preplace netloc processing_system7_0_axi_periph_M03_AXI 1 2 6 NJ 540 NJ 130 NJ 130 NJ 130 NJ 130 10400
-preplace netloc hier_tracebuffer|Net4 1 2 2 980 -170 NJ
-preplace netloc hier_tracebuffer|s_axis_tdata_1 1 0 2 NJ -80 520
-preplace netloc processing_system7_0_axi_periph_M07_AXI 1 7 1 10400
-preplace netloc mb_bram_ctrl_1_BRAM_PORTA 1 8 2 10720 1220 11160
-preplace netloc Vaux7_1 1 0 8 NJ 1000 NJ 1000 NJ 1000 NJ 1000 NJ 1000 NJ 1000 NJ 1000 NJ
-preplace netloc hier_tracebuffer|axis_data_fifo_0_s_axis_tready 1 2 2 1000 -140 NJ
-preplace netloc hier_tracebuffer|aresetn_fastclk_1 1 0 6 NJ -180 NJ -180 NJ -160 NJ -150 NJ -150 2030
-preplace netloc hier_tracebuffer|Net 1 6 2 2420 370 NJ
-preplace netloc hier_tracebuffer|trace_controller_0_B 1 2 1 910
-preplace netloc Vp_Vn_1 1 0 8 NJ 980 NJ 980 NJ 980 NJ 980 NJ 980 NJ 980 NJ 980 NJ
-preplace netloc processing_system7_0_axi_periph_M01_AXI 1 7 2 NJ 390 NJ
-preplace netloc processing_system7_0_IIC_1 1 3 7 NJ 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ
-preplace netloc hier_tracebuffer_s2mm_introut 1 2 2 -240 570 3150
-preplace netloc pmod2sw_data_in_1 1 0 9 NJ 1560 NJ 1560 NJ 1560 NJ 1560 NJ 1560 NJ 1560 NJ 1560 NJ 1560 NJ
-preplace netloc hier_tracebuffer|axis_accelerator_adapter_0_AP_CTRL 1 1 1 510
-preplace netloc processing_system7_0_FCLK_CLK0 1 2 7 NJ 590 NJ 590 NJ 590 9550 520 NJ 700 10360 1020 10710
-preplace netloc microblaze_0_debug 1 8 2 10740 1690 11130
-preplace netloc hier_tracebuffer_M_AXI_S2MM 1 3 1 3150
-preplace netloc processing_system7_0_FCLK_CLK2 1 2 4 NJ 560 NJ 800 NJ 800 N
-preplace netloc rst_processing_system7_0_100M_interconnect_aresetn 1 6 1 10000
-preplace netloc hier_tracebuffer|aresetn_slowclk_1 1 0 7 190 -210 NJ -210 900 100 1370 270 1800 110 2050 110 NJ
-preplace netloc processing_system7_0_axi_periph_M00_AXI 1 7 2 NJ 370 NJ
-preplace netloc hier_tracebuffer|axis_switch_0_s_axis_tready 1 2 2 970 -280 NJ
-preplace netloc hier_tracebuffer|xlconstant0_1b_1_dout 1 2 2 990 -300 1390
-preplace netloc mb_1_reset_Dout 1 8 2 10750 1700 11120
-preplace netloc Vaux6_1 1 0 8 NJ 460 NJ 460 NJ 510 NJ 180 NJ 180 NJ 180 NJ 180 NJ
-preplace netloc hier_tracebuffer|processing_system7_0_axi_periph_M04_AXI 1 0 7 NJ -230 NJ -230 NJ -150 NJ -140 NJ -140 NJ -140 2410
-preplace netloc hier_tracebuffer|xlconstant_1b_1_dout 1 1 1 NJ
-preplace netloc M00_ARESETN_1 1 2 5 -270 -470 3230 -470 NJ -470 NJ -470 NJ
-preplace netloc Vaux14_1 1 0 8 NJ 1020 NJ 1020 NJ 1310 NJ 1310 NJ 1310 NJ 1310 NJ 1310 NJ
-preplace netloc hier_tracebuffer|axi_dma_0_s2mm_introut 1 7 2 2820 460 NJ
-preplace netloc pmod_io_switch_0_sw2pmod_tri_out 1 0 10 -700 1450 N 1450 N 1450 N 1450 N 1450 NJ 1450 NJ 1450 NJ 1450 NJ 1450 NJ
-preplace netloc processing_system7_0_M_AXI_GP0 1 3 4 NJ 240 NJ 240 NJ 240 NJ
-preplace netloc hier_tracebuffer|axis_data_fifo_0_M_AXIS 1 4 1 1790
-preplace netloc logic_1_dout 1 8 2 10760 1820 11120
-preplace netloc tracebuffer_sel_Dout 1 5 1 NJ
-preplace netloc axi_mem_intercon_M00_AXI 1 2 3 NJ -850 NJ -850 NJ
-preplace netloc ARESETN_1 1 3 4 3250 -480 NJ -480 NJ -480 NJ
-preplace netloc processing_system7_0_GPIO_O 1 3 6 NJ 1080 NJ 1770 NJ 1770 NJ 1770 NJ 1770 NJ
-preplace netloc xup_mux_tri_out_y 1 6 1 9990
-preplace netloc processing_system7_0_axi_periph_M04_AXI 1 2 6 NJ 520 NJ 150 NJ 150 NJ 150 NJ 150 10330
-preplace netloc swsleds_gpio_GPIO 1 9 1 N
-preplace netloc rst_processing_system7_0_100M_peripheral_aresetn 1 2 7 NJ 550 NJ 510 NJ 510 NJ 510 10020 710 10340 1040 10700
-preplace netloc pmod_io_switch_0_sw2pmod_data_out 1 0 10 -710 1440 N 1440 N 1440 N 1440 N 1440 NJ 1440 NJ 1440 NJ 1440 NJ 1440 NJ
+preplace port Vaux14 -pg 1 -y 1090 -defaultsOSRD
+preplace port Vaux7 -pg 1 -y 900 -defaultsOSRD
+preplace port Vaux15 -pg 1 -y 1110 -defaultsOSRD
+preplace portBus pmodJB_tri_out -pg 1 -y 570 -defaultsOSRD
+preplace portBus pmodJB_data_out -pg 1 -y 550 -defaultsOSRD
+preplace portBus pmodJB_data_in -pg 1 -y 980 -defaultsOSRD
+preplace inst xlconstant_8b_0 -pg 1 -lvl 1 -y 1030 -defaultsOSRD
+preplace inst rst_processing_system7_0_100M -pg 1 -lvl 2 -y 680 -defaultsOSRD
+preplace inst hier_tracebuffer -pg 1 -lvl 3 -y 440 -defaultsOSRD
+preplace inst xadc_wiz_0 -pg 1 -lvl 7 -y 910 -defaultsOSRD
+preplace inst swsleds_gpio -pg 1 -lvl 9 -y 340 -defaultsOSRD
+preplace inst rst_processing_system7_0_200M -pg 1 -lvl 2 -y 490 -defaultsOSRD
+preplace inst mb_1_reset -pg 1 -lvl 8 -y 1070 -defaultsOSRD
+preplace inst iop1 -pg 1 -lvl 9 -y 560 -defaultsOSRD
+preplace inst bit8_logic_0 -pg 1 -lvl 4 -y 730 -defaultsOSRD
+preplace inst xup_mux_tri_out -pg 1 -lvl 5 -y 990 -defaultsOSRD -resize 220 140
+preplace inst xlconcat_0 -pg 1 -lvl 6 -y 970 -defaultsOSRD
+preplace inst logic_1 -pg 1 -lvl 8 -y 620 -defaultsOSRD
+preplace inst xlconcat_1 -pg 1 -lvl 2 -y 1000 -defaultsOSRD
+preplace inst mdm_1 -pg 1 -lvl 8 -y 530 -defaultsOSRD
+preplace inst xup_mux_data_out -pg 1 -lvl 5 -y 770 -defaultsOSRD
+preplace inst btns_gpio -pg 1 -lvl 9 -y 220 -defaultsOSRD
+preplace inst mb_bram_ctrl_1 -pg 1 -lvl 8 -y 390 -defaultsOSRD
+preplace inst tracebuffer_sel -pg 1 -lvl 4 -y 810 -defaultsOSRD
+preplace inst axi_hp3_intercon -pg 1 -lvl 4 -y 170 -defaultsOSRD
+preplace inst processing_system7_0_axi_periph -pg 1 -lvl 6 -y 390 -defaultsOSRD
+preplace inst processing_system7_0 -pg 1 -lvl 5 -y 140 -defaultsOSRD
+preplace inst axi_traceBuffer_v1_0_0 -pg 1 -lvl 7 -y 470 -defaultsOSRD
 preplace netloc btns_gpio_GPIO 1 9 1 NJ
-levelinfo -pg 1 -740 -590 -400 340 7128 9459 9807 10170 10550 10940 11180 -top -1080 -bot 2280
-levelinfo -hier hier_tracebuffer * 360 720 1190 1610 1910 2200 2620 2920 *
+preplace netloc Vaux6_1 1 0 7 NJ 880 NJ 880 NJ 880 NJ 880 NJ 880 NJ 880 NJ
+preplace netloc processing_system7_0_DDR 1 5 5 NJ 80 NJ 80 NJ 80 NJ 80 NJ
+preplace netloc xup_mux_tri_out_y 1 5 1 1740
+preplace netloc hier_tracebuffer_s2mm_introut 1 3 2 900 300 NJ
+preplace netloc pmod_io_switch_0_sw2pmod_data_out 1 1 9 190 920 NJ 920 NJ 920 1250 680 NJ 690 NJ 690 NJ 690 NJ 690 3050
+preplace netloc processing_system7_0_axi_periph_M03_AXI 1 2 5 600 310 NJ 310 NJ 310 NJ 130 2040
+preplace netloc processing_system7_0_axi_periph_M00_AXI 1 6 3 N 320 NJ 320 NJ
+preplace netloc xup_mux_data_out_y 1 5 1 1680
+preplace netloc processing_system7_0_GPIO_O 1 3 5 900 910 NJ 1080 1710 1080 NJ 1070 NJ
+preplace netloc Vaux7_1 1 0 7 NJ 900 NJ 900 NJ 900 NJ 900 NJ 890 NJ 890 NJ
+preplace netloc processing_system7_0_axi_periph_M07_AXI 1 6 1 2060
+preplace netloc processing_system7_0_M_AXI_GP0 1 5 1 1740
+preplace netloc mb_bram_ctrl_1_BRAM_PORTA 1 8 1 2650
+preplace netloc xlconstant_8b_0_dout 1 1 1 NJ
+preplace netloc pmod_io_switch_0_sw2pmod_tri_out 1 1 9 190 1080 NJ 1080 NJ 1080 1210 1120 NJ 1120 NJ 1120 NJ 1120 NJ 1120 3040
+preplace netloc Vp_Vn_1 1 0 7 NJ 860 NJ 860 NJ 860 NJ 860 NJ 860 NJ 860 NJ
+preplace netloc processing_system7_0_axi_periph_M05_AXI 1 2 5 590 670 NJ 670 NJ 670 NJ 670 2040
+preplace netloc hier_tracebuffer_M_AXI_S2MM 1 3 1 880
+preplace netloc xlconcat_1_dout 1 2 1 580
+preplace netloc processing_system7_0_FCLK_RESET0_N 1 1 5 180 590 NJ 590 NJ 590 NJ 590 1670
+preplace netloc mb_1_reset_Dout 1 8 1 NJ
+preplace netloc ARESETN_1 1 2 2 530 150 NJ
+preplace netloc axi_mem_intercon_M00_AXI 1 4 1 1230
+preplace netloc swsleds_gpio_GPIO2 1 9 1 NJ
+preplace netloc processing_system7_0_IIC_1 1 5 5 NJ 120 NJ 120 NJ 120 NJ 120 NJ
+preplace netloc processing_system7_0_axi_periph_M02_AXI 1 6 2 NJ 360 2370
+preplace netloc rst_processing_system7_0_100M_peripheral_aresetn 1 2 7 560 650 NJ 650 NJ 650 1730 680 2090 390 2370 460 2640
+preplace netloc processing_system7_0_axi_periph_M06_AXI 1 6 1 N
+preplace netloc xlconcat_0_dout 1 6 1 2070
+preplace netloc swsleds_gpio_GPIO 1 9 1 NJ
+preplace netloc Vaux14_1 1 0 7 NJ 1090 NJ 1090 NJ 1090 NJ 1090 NJ 1090 NJ 1050 NJ
+preplace netloc processing_system7_0_FIXED_IO 1 5 5 NJ 100 NJ 100 NJ 100 NJ 100 NJ
+preplace netloc logic_1_dout 1 8 1 NJ
+preplace netloc rst_processing_system7_0_100M_interconnect_aresetn 1 2 4 570 600 NJ 600 NJ 600 NJ
+preplace netloc processing_system7_0_FCLK_CLK0 1 1 8 190 580 550 580 NJ 580 1250 290 1740 650 2110 550 2380 470 2660
+preplace netloc M00_ARESETN_1 1 2 2 570 570 910
+preplace netloc microblaze_0_debug 1 8 1 N
+preplace netloc pmod2sw_data_in_1 1 0 9 NJ 980 180 1100 NJ 1100 NJ 1100 NJ 1100 NJ 1060 NJ 1030 NJ 1020 2680
+preplace netloc mdm_1_debug_sys_rst 1 8 1 2640
+preplace netloc bit8_logic_0_dout 1 4 2 1230 900 1670
+preplace netloc Vaux15_1 1 0 7 NJ 1110 NJ 1110 NJ 1110 NJ 1110 NJ 1110 NJ 1070 NJ
+preplace netloc processing_system7_0_axi_periph_M04_AXI 1 2 5 600 660 NJ 660 NJ 660 NJ 660 2050
+preplace netloc processing_system7_0_axi_periph_M01_AXI 1 6 3 2090 200 NJ 200 NJ
+preplace netloc tracebuffer_sel_Dout 1 4 1 1240
+preplace netloc processing_system7_0_FCLK_CLK2 1 1 5 180 400 540 560 890 290 1240 300 1680
+levelinfo -pg 1 0 100 360 740 1060 1460 1890 2240 2510 2860 3070 -top 0 -bot 1130
 ",
 }
 

@@ -3,7 +3,7 @@ PYNQ_ROOT = ../../..
 
 
 all:
-	vivado_hls ${PYNQ_ROOT}/Zybo/vivado/ip/trace_ctrl_v1_0/solution1/script.tcl
+	cd ${PYNQ_ROOT}/Zybo/vivado/ip/trace_ctrl_v1_0 ; vivado_hls solution1/script.tcl
 	vivado -mode batch -source ${PYNQ_ROOT}/Zybo/bitstream/iop_trace.tcl
 
 
