@@ -20,6 +20,11 @@ vi /home/xpp/.profile
 Add at the end of the file: export BOARD=Zybo
 sudo shutdown -r now
 
+# Purge ghc package
+sudo dpkg --purge --force-all ghc
+sudo apt-get install ghc
+(The above commands generate too many warnings; needs a fix)
+
 # Install zip and unzip 
 sudo apt-get install zip
 sudo apt-get install unzip
