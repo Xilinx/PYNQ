@@ -34,6 +34,13 @@ __email__       = "pynq_support@xilinx.com"
 
 import os
 import cffi
+from pynq import PL
+from pynq import MMIO
+from pynq.drivers.dma import DMA
+
+ADAPTER_CONFIG = [0x00000100, 0x00000001, 0x00020000]
+MAX_SAMPLE_RATE = 100000000
+MAX_NUM_WORDS = 262144
 
 class Trace_Buffer:
     """Class for the trace buffer, leveraging the sigrok libraries.
@@ -53,16 +60,25 @@ class Trace_Buffer:
         The absolute path of the trace file `*.csv`.
     trace_sr: str
         The absolute path of the trace file `*.sr`, translated from `*.csv`.
+    dma : DMA
+        The DMA object associated with the trace buffer.
+    adapter : MMIO
+        The MMIO class used for HLS.
+    samplerate: int
+        The samplerate of the traces.
+    data : cffi.FFI.CData
+        The pointer to the starting address of the trace data.
         
     """
     
-    def __init__(self, protocol, trace, data=None, length=None, 
-                 mask=0xFFFFFFFF, tri_sel=[], tri_0=[], tri_1=[]):
+    def __init__(self, protocol, trace=None, data=None, samplerate=500000):
         """Return a new trace buffer object. 
         
         Users have to specify the location of the traces, even if no trace 
         has been imported from DMA yet. This method will construct the trace
         from the DMA data.
+        
+        The maximum sample rate is 100MHz.
         
         Note
         ----
@@ -76,90 +92,102 @@ class Trace_Buffer:
             The relative/absolute path of the trace file.
         data : cffi.FFI.CData
             The pointer to the starting address of the data.
-        length : int
-            The length of the data, in number of 32-bit integers.
-        mask : int
-            The mask to be applied to the 32-bit data.
-        tri_sel : list
-            The list of tristate selection probes.
-        tri_0 : list
-            The list of probes selected when the selection probe is 0.
-        tri_1 : list
-            The list probes selected when the selection probe is 1.
+        samplerate : int
+            The rate of the samples.
         
         """
         if os.geteuid() != 0:
             raise EnvironmentError('Root permissions required.')
         if not isinstance(protocol, str):
             raise TypeError("Protocol name has to be a string.")
-        if not isinstance(trace, str):
-            raise TypeError("Trace path has to be a string.")
         
         if data != None:
             if not isinstance(data, cffi.FFI.CData):
                 raise TypeError("Data pointer has wrong type.")
-        if length != None:
-            if not isinstance(length, int):
-                raise TypeError("Data length has to be an integer.")
-            if not 1<=length<=0x100000:
-                raise ValueError("Data length has to be in [1,0x100000].")
-        if not isinstance(mask, int):
-            raise TypeError("Data mask has to be an integer.")
-        if not 0<= mask <=0xFFFFFFFF:
-            raise ValueError("Data mask out of range.")
-            
-        if not isinstance(tri_sel, list):
-            raise TypeError("Selection probes has to be in a list.")
-        if not isinstance(tri_0, list) or not isinstance(tri_1, list):
-            raise TypeError("Data probes has to be in a list.")
-        if not len(tri_sel)==len(tri_0)==len(tri_1):
-            raise ValueError("Inconsistent length for tristate lists.")
-        for element in tri_sel:
-            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
-                raise TypeError("Selection probe has to be an integer.")
-            if not (element & element-1)==0:
-                raise ValueError("Selection probe can only have 1-bit set.")
-            if not (element & mask)==0:
-                raise ValueError("Selection probe has be excluded from mask.")
-        for element in tri_0:
-            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
-                raise TypeError("Data probe has to be an integer.")
-            if not (element & element-1)==0:
-                raise ValueError("Data probe can only have 1-bit set.")
-            if not (element & mask)==0:
-                raise ValueError("Data probe has be excluded from mask.")
-        for element in tri_1:
-            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
-                raise TypeError("Data probe has to be an integer.")
-            if not (element & element-1)==0:
-                raise ValueError("Data probe can only have 1-bit set.")
-            if not (element & mask)==0:
-                raise ValueError("Data probe has be excluded from mask.")
+        if not isinstance(samplerate, int):
+            raise TypeError("Sample rate has to be an integer.")
+        if not 1 <= samplerate <= 100000000:
+            raise ValueError("Sample rate out of range.")
         
-        if os.path.isfile(trace) or os.path.isfile(
-                os.path.dirname(os.path.realpath(__file__)) + '/' + trace):
-            # Trace file exists
-            _, format = os.path.splitext(trace)
-            if format == '.csv':
-                self.trace_csv = os.path.dirname(
-                                    os.path.realpath(trace)) + '/' + trace
-                self.trace_sr = ''
-            elif format == '.sr':
-                self.trace_sr = os.path.dirname(
-                                    os.path.realpath(trace)) + '/' + trace
-                self.trace_csv = ''
-            else:
-                raise ValueError("Currently only supporting csv or sr files.")
-        elif data != None and length != None and mask != None:
-            # Trace does not exist, but can be constructed
-            self.parse(trace, data, length, mask, tri_sel, tri_0, tri_1)
-        else:
-            # Trace does not exist, and can't be constructed
-            raise IOError('Trace {} does not exist or cannot be constructed.'\
-                            .format(trace))
-                            
+        dma_base = int(PL.ip_dict["SEG_axi_dma_0_Reg"][0],16)
+        adp_base = int(PL.ip_dict["SEG_axis_accelerator_adapter_0_Reg"][0],16)
+        adp_range = int(PL.ip_dict["SEG_axis_accelerator_adapter_0_Reg"][1],16)
+        
+        self.dma = DMA(dma_base)
+        self.adapter = MMIO(adp_base, adp_range)
+        self.samplerate = samplerate
         self.protocol = protocol
+        self.data = data
+        
+        if trace != None: 
+            if not isinstance(trace, str):
+                raise TypeError("Trace path has to be a string.")
+            if os.path.isfile(trace):
+                _, format = os.path.splitext(trace)
+                if format == '.csv':
+                    self.trace_csv = trace
+                    self.trace_sr = ''
+                elif format == '.sr':
+                    self.trace_sr = trace
+                    self.trace_csv = ''
+                else:
+                    raise ValueError("Only supporting csv or sr files.")
+        
+    def __del__(self):
+        """Destructor for trace buffer object.
+
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+
+        """
+        del(self.dma)
+        
+    def start(self):
+        """Start the DMA to capture the traces.
+        
+        Parameters
+        ----------
+        None
+        
+        Return
+        ------
+        None
+        
+        """
+        # Start non-blocking DMA
+        self.dma.read(MAX_NUM_WORDS*4, False)
+        
+        # Start HLS 
+        for i in range(len(ADAPTER_CONFIG)):
+            self.adapter.write(0x28, ADAPTER_CONFIG[i])
+        self.adapter.write(0x80, MAX_NUM_WORDS)
+        self.adapter.write(0x84, int(MAX_SAMPLE_RATE / self.samplerate))
+    
+    def stop(self, timeout=0):
+        """Stop the DMA after capture is done.
+        
+        Note
+        ----
+        Set `timeout` to 0 for unlimited timeout.
+        
+        Parameters
+        ----------
+        timeout : integer
+            Wait time in seconds.
             
+        Return
+        ------
+        None
+        
+        """
+        self.dma.wait(timeout)
+        self.data = self.dma.get_read_buf()
+        
     def show(self):
         """Show information about the specified protocol.
         
@@ -200,6 +228,9 @@ class Trace_Buffer:
         self.trace_sr = name + ".sr"
         temp = name + ".temp"
         
+        if os.system("rm -rf " + self.trace_sr):
+            raise RuntimeError('Trace sr file cannot be deleted.')
+            
         in_file = open(self.trace_csv, 'r')
         out_file = open(temp, 'w')
         # Copy only the contents; ignore comments
@@ -239,6 +270,10 @@ class Trace_Buffer:
         name, _ = os.path.splitext(self.trace_sr)
         self.trace_csv = name + ".csv"
         temp = name + ".temp"
+        
+        if os.system("rm -rf " + self.trace_csv):
+            raise RuntimeError('Trace csv file cannot be deleted.')
+            
         command = "sigrok-cli -i " + self.trace_sr + \
                     " -O csv > " + temp
         if os.system(command):
@@ -307,7 +342,7 @@ class Trace_Buffer:
         if os.system(command):
             raise RuntimeError('Sigrok-cli decode failed.')
         
-    def set_metadata(self, samplerate, probes):
+    def set_metadata(self, probes):
         """Set metadata for the trace.
         
         A `*.sr` file directly generated from `*.csv` will not have any 
@@ -315,8 +350,6 @@ class Trace_Buffer:
         
         Parameters
         ----------
-        samplerate : int
-            The rate of the samples.
         probes : list
             A list of probe names.
         
@@ -325,8 +358,6 @@ class Trace_Buffer:
         None
         
         """
-        if not isinstance(samplerate, int):
-            raise TypeError("Sample rate has to be an integer.")
         if not isinstance(probes, list):
             raise TypeError("Probes have to be in a list.")
             
@@ -335,6 +366,8 @@ class Trace_Buffer:
             self.csv2sr()
             
         name, _ = os.path.splitext(self.trace_sr)
+        if os.system("rm -rf " + name):
+            raise RuntimeError('Directory cannot be deleted.')
         if os.system("mkdir " + name):
             raise RuntimeError('Directory cannot be created.')
         if os.system("unzip -q "+ self.trace_sr + " -d " + name):
@@ -343,7 +376,7 @@ class Trace_Buffer:
         metadata = open(name + '/metadata', 'r')
         temp = open(name + '/temp', 'w')
         pat = "samplerate=0 Hz"
-        subst = "samplerate=" + str(samplerate) +" Hz"
+        subst = "samplerate=" + str(self.samplerate) +" Hz"
         j = 0
         for i, line in enumerate(metadata):
             if line.startswith("probe"):
@@ -366,7 +399,7 @@ class Trace_Buffer:
         if os.system("rm -rf " + name):
             raise RuntimeError('Cannnot remove temporary folder.')
         
-    def parse(self, parse_out, data, length, mask=0xFFFFFFFF, 
+    def parse(self, parsed, length=262144, mask=0xFFFFFFFF,
               tri_sel=[], tri_0=[], tri_1=[]):
         """Parse the input data and generate a `*.csv` file.
         
@@ -393,12 +426,10 @@ class Trace_Buffer:
         
         Parameters
         ----------
-        parse_out : str
+        parsed : str
             The file name of the parsed output.
-        data : cffi.FFI.CData
-            The pointer to the starting address of the data.
         length : int
-            The length of the data, in number of 32-bit integers.
+            The length of the trace, in number of 32-bit integers.
         mask : int
             A 32-bit mask to be applied to the 32-bit data.
         tri_sel : list
@@ -413,12 +444,12 @@ class Trace_Buffer:
         None
         
         """
-        if not isinstance(data, cffi.FFI.CData):
-            raise TypeError("Data pointer has wrong type.")
+        if not isinstance(parsed, str):
+            raise TypeError("File name of the output has to be an string.")
         if not isinstance(length, int):
             raise TypeError("Data length has to be an integer.")
-        if not 1<=length<=0x100000:
-            raise ValueError("Data length has to be in [1,0x100000]")
+        if not 1 <= length <= 262144:
+            raise ValueError("Data length has to be in [1,262144].")
         if not isinstance(mask, int):
             raise TypeError("Data mask has to be an integer.")
         if not 0<=mask<=0xFFFFFFFF:
@@ -451,12 +482,11 @@ class Trace_Buffer:
             if not (element & mask)==0:
                 raise ValueError("Data probe has be excluded from mask.")
             
-        parsed = os.path.dirname(os.path.realpath(__file__)) + '/' + parse_out
         if os.system('rm -rf ' + parsed):
             raise RuntimeError("Cannot remove parsed file.")
         with open(parsed, 'w') as f:
-            for i in range(0,length):
-                raw_val = data[i] & 0xFFFFFFFF
+            for i in range(0, length):
+                raw_val = self.data[i] & 0xFFFFFFFF
                 list_val = []
                 for j in range(31,-1,-1):
                     if (mask & 1<<j)>>j:
