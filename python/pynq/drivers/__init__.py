@@ -40,3 +40,5 @@ from .video import VGA
 from .video import Frame
 
 from .dma import DMA
+
+from .trace_buffer import Trace_Buffer
