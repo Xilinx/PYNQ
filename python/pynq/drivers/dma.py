@@ -104,13 +104,16 @@ DMA_TRANSFER_LIMIT_BYTES = 8388607
 
 class DMA():
 
-    def __new__(cls,address,direction = DMA_TO_DEV):
-        """ Return a DMA object.
+    def __new__(cls, address, direction=DMA_TO_DEV):
+        """Return a DMA object.
+
+        NOTE
+        ----
+        Users should not touch this function directly.
 
         This function is called before __init__ and is responsible for
         actually creating the object. If the object is already present in
         the address table, a reference to the old object is returned.
-        IMPORTANT: DO NOT TOUCH THIS FUNCTION
 
         """
         if address in _address_table.keys():
@@ -118,13 +121,20 @@ class DMA():
         new_obj =  super(DMA, cls).__new__(cls)
         return new_obj
 
-    def __init__(self,address,direction = DMA_TO_DEV):
-        """Returns a new DMA Object.
+    def __init__(self, address, direction=DMA_TO_DEV):
+        """Return a new DMA Object.
 
         Initialization process also checks for address conflics
         and registers and opens the DMA port.
+
         Only single instance of a particular DMA address should be present
-        to avoid conflicts
+        to avoid conflicts.
+
+        Note
+        ----
+        Possible values of direction are:
+        0 : DMA sends data to PL.
+        1 : DMA receives data from PL.
 
         Parameters
         ----------
@@ -132,9 +142,6 @@ class DMA():
             Physical address of the DMA
         direction : integer
             DMA can either send or receive data based on direction.
-            Possible values of direction are:
-            0 : DMA sends data to PL
-            1 : DMA receives data from PL
 
         """
         if address in _address_table.keys():
@@ -150,21 +157,33 @@ class DMA():
     def __del__(self):
         """Destructor for DMA Object.
 
-        Unregisters and closes the DMA port
+        Unregisters and closes the DMA port.
 
         Parameters
         ----------
         None
 
+        Returns
+        -------
+        None
+
         """
         self._unregister()
 
-    def _get_channel(self,address,direction):
+    def _get_channel(self, address, direction):
         """Setups the DMA channel during initialization.
 
         Should not be called by user as the program might crash.
         This internal function returns dmalib compatible C structs
         which are passed to dmalib functions.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
 
         """
         self.info = ffi.new("axi_dma_simple_info_t *")
@@ -185,6 +204,14 @@ class DMA():
 
         Should not be called by user as the program might crash.
 
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
         """
         dmalib.reg_and_open(self.channel)
 
@@ -193,10 +220,18 @@ class DMA():
 
         Should not be called by user as the program might crash.
 
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
         """
         dmalib.unreg_and_close(self.channel)
 
-    def _send(self,buf,length):
+    def _send(self, buf, length):
         """Basic DMA send method (Non-Blocking).
 
         This method takes a buffer in physically contiguous memory locations
@@ -219,12 +254,12 @@ class DMA():
         """
         dmalib._dma_send(self.channel,buf,length,self.info.device_id)
 
-    def _recv(self,buf,length):
+    def _recv(self, buf, length):
         """Basic DMA receive method (Non-Blocking).
 
         This method takes a buffer in physically contiguous memory locations
-        and fills it with data received from PL. The buffer can be allocated using
-        "_alloc" method. If you don't want to do it manually, then use
+        and fills it with data received from PL. The buffer can be allocated
+        using "_alloc" method. If you don't want to do it manually, then use
         "read" method instead. This is a non blocking function as it.
         returns immediately.
 
@@ -250,7 +285,9 @@ class DMA():
         is complete. Note that timing out a wait operation does not
         reset the underlying hardware.
 
-        Set wait to 0 for unlimited timeout
+        Note
+        ----
+        Set `timeout` to 0 for unlimited timeout.
 
         Parameters
         ----------
@@ -263,9 +300,9 @@ class DMA():
 
         """
         if dmalib._dma_wait(self.info.device_id,timeout) == -1:
-            raise Exception("ERROR: DMA wait timed out. Please restart the program/python kernel.")
+            raise RuntimeError("DMA wait timed out.")
 
-    def _alloc(self,length):
+    def _alloc(self, length):
         """Allocate physically contiguous memory locations in memory.
 
         This method generates the buffers needed for DMA transfers.
@@ -278,16 +315,17 @@ class DMA():
         Returns
         -------
         cffi.FFI.CData
-            A pointer to the buffer which can be accessed like an array.
+            A pointer to the buffer which can be accessed like a C array.
 
         """
         allocated = dmalib.sds_alloc(length)
         if allocated != ffi.NULL:
             return allocated
         else:
-            print("Memory Allocation Failed!")
+            raise RuntimeError("Memory allocation failed.")
+            return
 
-    def _free(self,pointer):
+    def _free(self, pointer):
         """Free previously allocated buffer memory.
 
         Use this to free a previously allocated buffer memory. There is a 
@@ -313,6 +351,18 @@ class DMA():
         Use this to get the read buffer if you called a non-blocking
         read and then later called a "wait".
 
+        The returned data is cast as integer and the raw hex/binary can be 
+        accessed just like the following examples:
+
+        >>> print(output[0] & 0xffffffff)
+        3735928559
+
+        >>> print(hex(output[0] & 0xffffffff))
+        0xdeadbeef
+
+        >>> print(bin(output[0] & 0xffffffff))
+        0b11011110101011011011111011101111
+
         Parameters
         ----------
         None
@@ -320,87 +370,93 @@ class DMA():
         Returns
         -------
         cffi.FFI.CData
-            An CFFI object which can be accessed similar to arrays in Python.
-            The data is cast as integer and the raw hex/binary can be accessed
-            like the following example:
-
-            >> print(output[0] & 0xffffffff)
-            3735928559
-
-            >> print(hex(output[0] & 0xffffffff))
-            0xdeadbeef
-
-            >> print(bin(output[0] & 0xffffffff))
-            0b11011110101011011011111011101111
+            An CFFI object which can be accessed similar to arrays in C.
 
         """
         return ffi.cast("int *",self.readbuf)
 
-    def read(self,length,wait = True, timeout = 0):
-        """ Read "length" bytes from the PL
+    def read(self, length, blocking=True, timeout=0):
+        """ Read `length` bytes from the PL
 
         This method is intended for anyone who doesn't want to deal
         with memory allocations. They can simply pass length of an array
         that they want to receive from PL. Each array element is 4 bytes 
         in size.
 
+        An CFFI object can be accessed similar to arrays in C. The data is 
+        cast as integer and the raw hex/binary can be accessed just like the 
+        following example:
+
+        >>> print(output[0] & 0xffffffff)
+        3735928559
+
+        >>> print(hex(output[0] & 0xffffffff))
+        0xdeadbeef
+
+        >>> print(bin(output[0] & 0xffffffff))
+        0b11011110101011011011111011101111
+
+        Note
+        ----
+        Set `blocking` to False to make DMA non-blocking.
+
+        Note
+        ----
+        Set `timeout` to 0 for unlimited timeout.
+
         Parameters
         ----------
         length : integer
             Number of bytes to be read (prefer a multiple of 4)
-        wait : bool (=True)
-            Set to False to make DMA call non-blocking.
+        blocking : bool
+            Indicate whether or not the DMA call is blocking.
         timeout : integer
-            Timeout the wait after these many seconds. (0 for unlimited)
+            Timeout the wait after these many seconds.
 
         Returns
         -------
-        cffi.FFI.CData : if Blocking read else None
-
-            An CFFI object which can be accessed similar to arrays in Python.
-            The data is cast as integer and the raw hex/binary can be accessed
-            like the following example:
-
-            >> print(output[0] & 0xffffffff)
-            3735928559
-
-            >> print(hex(output[0] & 0xffffffff))
-            0xdeadbeef
-
-            >> print(bin(output[0] & 0xffffffff))
-            0b11011110101011011011111011101111
+        cffi.FFI.CData
+            Only returns for blocking reads.
 
         """
 
         # Check if Size is Less than 8MB
         if length > DMA_TRANSFER_LIMIT_BYTES:
-            print("ERROR: read input length exceeds the DMA transfer size.")
-            return None
+            raise ValueError("Read input length exceeds the DMA size.")
 
         if self._readalloc is True:
             self._free(self.readbuf)
         self.readbuf = self._alloc(length)
         self._readalloc = True
         self._recv(self.readbuf,length)
-        if wait is False:
+        if blocking == False:
             return
-        self.wait(timeout)
-        return ffi.cast("int *",self.readbuf)
+        else:
+            self.wait(timeout)
+            return ffi.cast("int *",self.readbuf)
 
-    def write(self,buf, wait = True, timeout = 0):
+    def write(self, buf, blocking=True, timeout=0):
         """Write a python integer list into PL using DMA.
 
         This method is intended for anyone who doesn't want to deal
         with memory allocations while writing data into PL.
 
+        Note
+        ----
+        Set `blocking` to False to make DMA non-blocking.
+
+        Note
+        ----
+        Set `timeout` to 0 for unlimited timeout.
+
         Parameters
         ----------
         buf : list
             list containing integers to be written into the PL
-        wait : bool (=True)
-            Set to False to make DMA call non-blocking.
+        blocking : bool
+            Indicate whether or not the DMA call is blocking.
         timeout : integer
-            Timeout the wait after these many seconds. (0 for unlimited)
+            Timeout the wait after these many seconds.
 
         Returns
         -------
@@ -411,8 +467,7 @@ class DMA():
 
         # Check if Size is less than 8MB
         if length > DMA_TRANSFER_LIMIT_BYTES:
-            print("ERROR: write input length exceeds the DMA transfer size.")
-            return None
+            raise ValueError("Write input length exceeds the DMA size.")
 
         if self._writealloc is True:
             self._free(self.writebuf)
@@ -422,6 +477,5 @@ class DMA():
             self.writebuf[i] = buf[i]
         self._writealloc = True
         self._send(self.writebuf,length)
-        if wait is False:
-            return
-        self.wait(timeout)
+        if blocking is True:
+            self.wait(timeout)
