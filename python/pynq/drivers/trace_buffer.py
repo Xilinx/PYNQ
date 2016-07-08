@@ -34,6 +34,9 @@ __email__       = "pynq_support@xilinx.com"
 
 import os
 import cffi
+import json
+import csv
+import IPython.core.display
 from pynq import PL
 from pynq import MMIO
 from pynq.drivers.dma import DMA
@@ -509,3 +512,92 @@ class Trace_Buffer:
                 
         self.trace_csv = parsed
         self.trace_sr = ''
+        
+    def draw_notebook(self, probes, start_pos, stop_pos):
+        """Provide digital waveform drawing in ipython notebook.
+        
+        It utilises the wavedrom java script library, documentation for which 
+        can be found here: https://code.google.com/p/wavedrom/.
+        
+        Note
+        ----
+        Only use this method in Jupyter notebook.
+        
+        Note
+        ----
+        WaveDrom.js and WaveDromSkin.js are required under the subdirectory js.
+        
+        Example of the data format to draw waveform:
+        >>> data = {'signal': [
+            {'name': 'clk', 'wave': 'p.....|...'},
+            {'name': 'dat', 'wave': 'x.345x|=.x', 'data': ['D','A','T','A']},
+            {'name': 'req', 'wave': '0.1..0|1.0'},
+            {},
+            {'name': 'ack', 'wave': '1.....|01.'}
+            ]}
+        
+        Parameters
+        ----------
+        probes : list
+            A list of probe names.
+        start_pos : int
+            The start position of the waveform.
+        stop_pos : int
+            The stop position of the waveform.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if not isinstance(probes, list):
+            raise TypeError("Probes have to be in a list.")
+        if not isinstance(start_pos, int):
+            raise TypeError("Start position has to be an integer.")
+        if not 1 <= start_pos <= 262144:
+            raise ValueError("Start position out of range.")
+        if not isinstance(stop_pos, int):
+            raise TypeError("Stop position has to be an integer.")
+        if not 1 <= stop_pos <= 262144:
+            raise ValueError("Stop position out of range.")
+        
+        # Copy the javascript to the notebook location
+        if os.system("cp -rf " + \
+                    os.path.dirname(os.path.realpath(__file__)) + \
+                    '/js' + ' js/'):
+            raise RuntimeError('Cannnot copy wavedrom javascripts.')
+        
+        # Convert sr file to csv file, if necessary
+        if self.trace_csv == '':
+            self.sr2csv()
+            
+        # Read csv trace file
+        with open(self.trace_csv, 'r') as data_file:
+            csv_data = list(csv.reader(data_file))
+        
+        # Construct the jason format data
+        data = {}
+        data['signal']=[]
+        for signal_name in probes:
+            index = probes.index(signal_name)
+            temp_val = {'name': signal_name, 'wave': ''}
+            for i in range(start_pos, stop_pos):
+                if i==start_pos:
+                    ref = csv_data[i][index]
+                    temp_val['wave'] += str(csv_data[i][index])
+                else:
+                    if csv_data[i][index] == ref:
+                        temp_val['wave'] += '.'
+                    else:
+                        ref = csv_data[i][index]
+                        temp_val['wave'] += str(csv_data[i][index])
+            data['signal'].append(temp_val)
+        
+        htmldata = '<script type="WaveDrom">' + json.dumps(data) + '</script>'
+        IPython.core.display.display_html(IPython.core.display.HTML(htmldata))
+        jsdata = 'WaveDrom.ProcessAll();'
+        IPython.core.display.display_javascript(
+            IPython.core.display.Javascript(
+                data=jsdata, \
+                lib=['files/js/WaveDrom.js', 'files/js/WaveDromSkin.js']))
+    
