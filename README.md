@@ -6,7 +6,7 @@
 
 - All Pynq-z1 images including the latest are available here: 
 ```
-file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-pynqboard/
+file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-pynq-z1/
 ``` 
 
 - All Zybo images including the latest are available here: 
