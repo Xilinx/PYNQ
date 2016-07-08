@@ -31,12 +31,6 @@ sudo apt-get install unzip
 
 # Fix broken ghc and haskell packages in dpkg
 
-pulseview and sigrok-cli are out-dated.
-from http://sigrok.org/wiki/Downloads 
-download and install the latest versions of the following libraries in order: 
-libsigrok (0.4.0), libsigrokdecode (0.4.0), sigrok-cli (0.6.0), 
-(Tried pulseview (0.3.0) but it failed to install; okay not to install it)
-
 Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
 Remove the redundant folder `source` in scripts folder
