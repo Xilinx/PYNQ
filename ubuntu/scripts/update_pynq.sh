@@ -95,7 +95,7 @@ mkdir $FINAL_NOTEBOOKS_DIR/Getting_Started
 cp $REPO_DIR/docs/source/3_jupyter_notebook.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/1_jupyter_notebook.ipynb
 cp $REPO_DIR/docs/source/4_programming_zybo_in_python.ipynb \
-    $FINAL_NOTEBOOKS_DIR/Getting_Started/2_programming_zybo_in_python.ipynb
+    $FINAL_NOTEBOOKS_DIR/Getting_Started/2_programming_in_python.ipynb
 cp $REPO_DIR/docs/source/5_programming_onboard_peripherals.ipynb \
     $FINAL_NOTEBOOKS_DIR/Getting_Started/3_programming_onboard_peripherals.ipynb
 cp $REPO_DIR/docs/source/6_pmodio_overlay.ipynb \
