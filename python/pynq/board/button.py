@@ -33,7 +33,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 from pynq import MMIO
-from pynq.board import board_const
+from pynq import PL
 
 class Button(object):
     """This class controls the onboard push-buttons.
@@ -56,7 +56,7 @@ class Button(object):
             
         """
         if Button._mmio is None:
-            Button._mmio = MMIO(board_const.BTNS_ADDR)
+            Button._mmio = MMIO(int(PL.ip_dict["SEG_btns_gpio_Reg"][0],16))
         self.index = index
 
     def read(self):

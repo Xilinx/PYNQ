@@ -167,7 +167,7 @@ class GPIO:
                     return int(''.join(x for x in name if x.isdigit()))
                     
     @staticmethod
-    def get_gpio_pin(ps_gpio_index):
+    def get_gpio_pin(gpio_user_index):
         """This method returns a GPIO instance for PS GPIO pins.
         
         Users only need to specify an index starting from 0; this static 
@@ -182,7 +182,7 @@ class GPIO:
         
         Parameters
         ----------
-        ps_pl_gpio_index : int
+        gpio_user_index : int
             The index specified by users, starting from 0.
         
         Returns
@@ -192,4 +192,4 @@ class GPIO:
             
         """
         return (GPIO.get_gpio_base() + general_const.GPIO_MIN_USER_PIN\
-                + ps_gpio_index)
+                + gpio_user_index)

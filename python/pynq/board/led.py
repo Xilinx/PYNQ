@@ -33,7 +33,10 @@ __email__ = "pynq_support@xilinx.com"
 
 
 from pynq import MMIO
-from pynq.board import board_const
+from pynq import PL
+
+LEDS_OFFSET0 = 0x8
+LEDS_OFFSET1 = 0xC
 
 class LED(object):
     """This class controls the onboard LEDs.
@@ -57,8 +60,8 @@ class LED(object):
         """
         self.index = index
         if LED._mmio is None:
-            LED._mmio = MMIO(board_const.LEDS_ADDR, 16)
-        LED._mmio.write(board_const.LEDS_OFFSET + 0x4, 0x0)
+            LED._mmio = MMIO(int(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],16),16)
+        LED._mmio.write(LEDS_OFFSET1, 0x0)
 
     def toggle(self):
         """Flip the state of a single LED.
@@ -155,4 +158,4 @@ class LED(object):
         
         """
         LED._leds_value = value
-        LED._mmio.write(board_const.LEDS_OFFSET, value)
+        LED._mmio.write(LEDS_OFFSET0, value)

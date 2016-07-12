@@ -61,7 +61,6 @@ git clone https://github.com/Xilinx/Pynq $REPO_DIR
 
 echo "3. Pip install latest pynq python package"
 rm -rf $PYNQ_DIR/*
-cp -rf $REPO_DIR/$BOARD/board/board_const.py $REPO_DIR/python/pynq/board/
 cp -rf $REPO_DIR/$BOARD/sdk/bin/*.bin $REPO_DIR/python/pynq/iop/
 cp -rf $REPO_DIR/$BOARD/bitstream $REPO_DIR/python/pynq/
 cd $REPO_DIR/python

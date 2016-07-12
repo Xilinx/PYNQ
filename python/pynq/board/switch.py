@@ -33,7 +33,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 from pynq import MMIO
-from pynq.board import board_const
+from pynq import PL
 
 class Switch(object):
     """This class controls the onboard switches.
@@ -56,7 +56,7 @@ class Switch(object):
         
         """
         if Switch._mmio is None:
-            Switch._mmio = MMIO(board_const.SWS_ADDR)
+            Switch._mmio = MMIO(int(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],16))
         self.index = index
 
     def read(self):

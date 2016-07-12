@@ -34,10 +34,11 @@ __email__ = "pynq_support@xilinx.com"
 from time import sleep
 from itertools import chain
 from PIL import Image
+from pynq import PL
 from . import _video
 
 VDMA_DICT = {
-    'BASEADDR': 0x43000000,
+    'BASEADDR': int(PL.ip_dict["SEG_axi_vdma_0_Reg"][0],16),
     'NUM_FSTORES': 3,
     'INCLUDE_MM2S': 1,
     'INCLUDE_MM2S_DRE': 0,
@@ -69,12 +70,12 @@ VDMA_DICT = {
     'ADDR_WIDTH': 32,
 }
 
-VTC_DISPLAY_ADDR = 0x43C00000
-VTC_CAPTURE_ADDR = 0x43C20000
-DYN_CLK_ADDR = 0x43C10000
+VTC_DISPLAY_ADDR = int(PL.ip_dict["SEG_v_tc_0_Reg"][0],16)
+VTC_CAPTURE_ADDR = int(PL.ip_dict["SEG_v_tc_1_Reg"][0],16)
+DYN_CLK_ADDR = int(PL.ip_dict["SEG_axi_dynclk_0_reg0"][0],16)
 
 GPIO_DICT = {
-    'BASEADDR': 0x41230000,
+    'BASEADDR': int(PL.ip_dict["SEG_axi_gpio_hpd_Reg"][0],16),
     'INTERRUPT_PRESENT': 1,
     'IS_DUAL': 1,
 }
