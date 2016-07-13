@@ -564,7 +564,7 @@ class Trace_Buffer:
         # Copy the javascript to the notebook location
         if os.system("cp -rf " + \
                     os.path.dirname(os.path.realpath(__file__)) + \
-                    '/js' + ' js/'):
+                    '/js' + ' ./'):
             raise RuntimeError('Cannnot copy wavedrom javascripts.')
         
         # Convert sr file to csv file, if necessary
