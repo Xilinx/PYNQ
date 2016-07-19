@@ -3,11 +3,13 @@ WaveSkin.default = ["svg", {
         "id": "svg",
         "xmlns": "http://www.w3.org/2000/svg",
         "xmlns:xlink": "http://www.w3.org/1999/xlink",
-        "height": "0"
+        "width": "100",
+        "height": "100",
+        "viewbox": "0 0 50 50",
     },
     ["style", {
         "type": "text/css"
-    }, "text{font-size:11pt;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;fill-opacity:1;font-family:Helvetica}.muted{fill:#aaa}.warning{fill:#f6b900}.error{fill:#f60000}.info{fill:#0041c4}.success{fill:#00ab00}.h1{font-size:33pt;font-weight:bold}.h2{font-size:27pt;font-weight:bold}.h3{font-size:20pt;font-weight:bold}.h4{font-size:14pt;font-weight:bold}.h5{font-size:11pt;font-weight:bold}.h6{font-size:8pt;font-weight:bold}.s6{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#ffffb4;marker:none;overflow:visible;stroke-width:1px;stroke:none;visibility:visible}.s12{fill:none;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#0041c4}.s9{fill-opacity:1;fill:#000;stroke:none}.s1{fill:none;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#000}.s10{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#fff;marker:none;overflow:visible;stroke-width:1px;stroke:none;visibility:visible}.s2{fill:none;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:0.5;stroke:#000}.s7{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#ffe0b9;marker:none;overflow:visible;stroke-width:1px;stroke:none;visibility:visible}.s8{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#b9e0ff;marker:none;overflow:visible;stroke-width:1px;stroke:none;visibility:visible}.s5{fill:#fff;stroke:none}.s11{fill-opacity:1;fill:#0041c4;stroke:none}.s3{color:#000;display:inline;enable-background:accumulate;fill:none;marker:none;overflow:visible;stroke-dasharray:1, 3;stroke-dashoffset:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#000;visibility:visible}.s4{color:#000;display:inline;fill:none;marker:none;overflow:visible;stroke-dasharray:none;stroke-dashoffset:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#000;visibility:visible}"],
+    }, "text{width:500;overflow:auto;font-size:11pt;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;fill-opacity:1;font-family:Helvetica}.muted{fill:#aaa}.warning{fill:#f6b900}.error{fill:#f60000}.info{fill:#0041c4}.success{fill:#00ab00}.h1{font-size:33pt;font-weight:bold}.h2{font-size:27pt;font-weight:bold}.h3{font-size:20pt;font-weight:bold}.h4{font-size:14pt;font-weight:bold}.h5{font-size:11pt;font-weight:bold}.h6{font-size:8pt;font-weight:bold}.s6{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#ffffb4;marker:none;overflow:auto;stroke-width:1px;stroke:none;visibility:visible}.s12{fill:none;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#0041c4}.s9{fill-opacity:1;fill:#000;stroke:none}.s1{fill:none;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#000}.s10{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#fff;marker:none;overflow:auto;stroke-width:1px;stroke:none;visibility:visible}.s2{fill:none;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:0.5;stroke:#000}.s7{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#ffe0b9;marker:none;overflow:auto;stroke-width:1px;stroke:none;visibility:visible}.s8{color:#000;display:inline;enable-background:accumulate;fill-opacity:1;fill-rule:nonzero;fill:#b9e0ff;marker:none;overflow:auto;stroke-width:1px;stroke:none;visibility:visible}.s5{fill:#fff;stroke:none}.s11{fill-opacity:1;fill:#0041c4;stroke:none}.s3{color:#000;display:inline;enable-background:accumulate;fill:none;marker:none;overflow:auto;stroke-dasharray:1, 3;stroke-dashoffset:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#000;visibility:visible}.s4{color:#000;display:inline;fill:none;marker:none;overflow:auto;stroke-dasharray:none;stroke-dashoffset:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;stroke:#000;visibility:visible}"],
     ["defs", ["g", {
                 "id": "socket"
             },
@@ -2106,10 +2108,14 @@ WaveSkin.default = ["svg", {
         ]
     ],
     ["g", {
-            "id": "waves"
+            "id": "waves",
+            "width":"100",
+            "overflow":"auto"
         },
         ["g", {
-            "id": "lanes"
+            "id": "lanes",
+            "width":"100",
+            "overflow":"auto"
         }],
         ["g", {
             "id": "groups"
