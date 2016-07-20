@@ -31,6 +31,13 @@ sudo apt-get install unzip
 
 # Fix broken ghc and haskell packages in dpkg
 
+# Rebuild all the sigrok decoders (Rock will provide the project)
+```
+./configure
+make
+sudo make install
+```
+
 Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
 Remove the redundant folder `source` in scripts folder
