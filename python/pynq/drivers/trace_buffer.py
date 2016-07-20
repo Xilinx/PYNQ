@@ -33,6 +33,7 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import os
+import re
 import cffi
 import json
 import csv
@@ -63,6 +64,10 @@ class Trace_Buffer:
         The absolute path of the trace file `*.csv`.
     trace_sr: str
         The absolute path of the trace file `*.sr`, translated from `*.csv`.
+    trace_pd : str
+        The absolute path of the decoded file by sigrok.
+    probes : list
+        The list of probes used for the trace.
     dma : DMA
         The DMA object associated with the trace buffer.
     adapter : MMIO
@@ -121,6 +126,8 @@ class Trace_Buffer:
         self.samplerate = samplerate
         self.protocol = protocol
         self.data = data
+        self.probes = []
+        self.trace_pd = ''
         
         if trace != None: 
             if not isinstance(trace, str):
@@ -292,64 +299,73 @@ class Trace_Buffer:
         out_file.close()
         os.remove(temp)
         
-    def decode(self, file_name, transactions=None):
+    def decode(self, decoded_file):
         """Decode and record the trace based on the protocol specified.
         
-        Example transaction names can be `address-read`, `data-write`, etc. 
-        To show all the reads and writes, users can specify:
-        transactions = ['address-read','address-write','data-read',
-        'data-write'].
-        
-        `file_name` is only the name, not the path of the output file. The 
-        output file will be put into the same folder as the trace file.
-        
-        `probes` are names associated with all the tracks in PulseView.
+        The `decoded_file` is the full path of the output file.
         
         Note
         ----
-        If `transactions` are left None (by default), this method will return 
-        all the raw transactions.
+        The output file will have `*.pd` extension.
         
         Parameters
         ----------
-        file_name : str
+        decoded_file : str
             The name of the file recording the outputs.
-        transactions : list
-            A list of strings specifying the channel names.
         
         Return
         ------
         None
         
         """
-        if not isinstance(file_name, str):
-            raise TypeError("'file_name' has to be a string.")
+        if not isinstance(decoded_file, str):
+            raise TypeError("File name has to be a string.")
+        if self.probes == []:
+            raise ValueError("Cannot decode without metadata.")
         
-        command = "sigrok-cli -i " + self.trace_sr + " -P " + self.protocol
-        
-        # Select transactions, if specified
-        if transactions == None:
-            pass
-        elif not isinstance(transactions, list):
-            raise TypeError("'transactions' has to be a list.")
-        else:
-            channel_list = ':'.join(transactions)
-            command += (" -A " + self.protocol + "=" + channel_list)
-        
-        # Write to output file
-        ext = os.path.dirname(os.path.realpath(self.trace_csv)) + \
-                    '/' + file_name
-        command += ('> ' + ext)
-        
-        # Execute command
+        name, _ = os.path.splitext(self.trace_sr)
+        temp_file = name + '.temp'
+        if os.system('rm -rf ' + temp_file):
+            raise RuntimeError("Cannot remove temporary file.")
+        self.trace_pd = ''
+        if os.system('rm -rf ' + decoded_file):
+            raise RuntimeError("Cannot remove old decoded file.")
+            
+        pd_annotation = ''
+        for i in self.probes:
+            pd_annotation += (':'+i.lower()+'='+i)
+        command = "sigrok-cli -i " + self.trace_sr + " -P " + \
+            self.protocol + pd_annotation + (' > ' + temp_file)
         if os.system(command):
             raise RuntimeError('Sigrok-cli decode failed.')
+            
+        f_decoded = open(decoded_file, 'w')
+        f_temp = open(temp_file, 'r')
+        j = 0
+        for line in f_temp:
+            m = re.search('([0-9]+)-([0-9]+)  (.*)', line)
+            if m:
+                while (j < int(m.group(1))):
+                    f_decoded.write('\n')
+                    j += 1
+                while (j <= int(m.group(2))):
+                    f_decoded.write(m.group(3) + '\n')
+                    j += 1
+        f_temp.close()
+        f_decoded.close()
+        self.trace_pd = decoded_file
+        
+        if os.system('rm -rf ' + temp_file):
+            raise RuntimeError("Cannot remove temporary file.")
         
     def set_metadata(self, probes):
         """Set metadata for the trace.
         
         A `*.sr` file directly generated from `*.csv` will not have any 
         metadata. This method helps to set the sample rate, probe names, etc.
+        
+        The list `probes` depends on the protocol. For instance, the I2C
+        protocol requires a list of ['SDA','SCL'].
         
         Parameters
         ----------
@@ -367,6 +383,7 @@ class Trace_Buffer:
         # Convert csv file to sr file, if necessary
         if self.trace_sr == '':
             self.csv2sr()
+        self.probes = probes
             
         name, _ = os.path.splitext(self.trace_sr)
         if os.system("rm -rf " + name):
@@ -415,13 +432,13 @@ class Trace_Buffer:
         
         Note
         ----
-        The probes selected by `mask` does not include any tristate probe.
+        The probe pins selected by `mask` does not include any tristate probe.
         
-        To specify a set of tristate probes, e.g., users can set 
+        To specify a set of tristate probe pins, e.g., users can set 
         tri_sel = [0x00000004], tri_0 = [0x00000010], tri_1 = [0x00000100].
         In this example, the 3rd probe from the LSB is the selection probe; 
         the 5th probe is selected if selection probe is 0, otherwise the 9th
-        probe is selected. There can be multiple sets of tristate probes.
+        probe is selected. There can be multiple sets of tristate probe pins.
         
         Note
         ----
@@ -436,11 +453,11 @@ class Trace_Buffer:
         mask : int
             A 32-bit mask to be applied to the 32-bit data.
         tri_sel : list
-            The list of tristate selection probes.
+            The list of tristate selection probe pins.
         tri_0 : list
-            The list of probes selected when the selection probe is 0.
+            The list of probe pins selected when the selection probe is 0.
         tri_1 : list
-            The list probes selected when the selection probe is 1.
+            The list probe pins selected when the selection probe is 1.
         
         Return
         ------
@@ -448,7 +465,7 @@ class Trace_Buffer:
         
         """
         if not isinstance(parsed, str):
-            raise TypeError("File name of the output has to be an string.")
+            raise TypeError("File name has to be an string.")
         if not isinstance(length, int):
             raise TypeError("Data length has to be an integer.")
         if not 1 <= length <= 262144:
@@ -458,9 +475,9 @@ class Trace_Buffer:
         if not 0<=mask<=0xFFFFFFFF:
             raise ValueError("Data mask out of range.")
         if not isinstance(tri_sel, list):
-            raise TypeError("Selection probes has to be in a list.")
+            raise TypeError("Selection probe pins have to be in a list.")
         if not isinstance(tri_0, list) or not isinstance(tri_1, list):
-            raise TypeError("Data probes has to be in a list.")
+            raise TypeError("Data probe pins have to be in a list.")
         if not len(tri_sel)==len(tri_0)==len(tri_1):
             raise ValueError("Inconsistent length for tristate lists.")
         for element in tri_sel:
@@ -486,7 +503,7 @@ class Trace_Buffer:
                 raise ValueError("Data probe has be excluded from mask.")
             
         if os.system('rm -rf ' + parsed):
-            raise RuntimeError("Cannot remove parsed file.")
+            raise RuntimeError("Cannot remove old parsed file.")
         with open(parsed, 'w') as f:
             for i in range(0, length):
                 raw_val = self.data[i] & 0xFFFFFFFF
@@ -513,8 +530,8 @@ class Trace_Buffer:
         self.trace_csv = parsed
         self.trace_sr = ''
         
-    def draw_notebook(self, probes, start_pos, stop_pos):
-        """Provide digital waveform drawing in ipython notebook.
+    def display(self, start_pos, stop_pos):
+        """Draw digital waveforms in ipython notebook.
         
         It utilises the wavedrom java script library, documentation for which 
         can be found here: https://code.google.com/p/wavedrom/.
@@ -538,8 +555,6 @@ class Trace_Buffer:
         
         Parameters
         ----------
-        probes : list
-            A list of probe names.
         start_pos : int
             The start position of the waveform.
         stop_pos : int
@@ -550,8 +565,8 @@ class Trace_Buffer:
         None
         
         """
-        if not isinstance(probes, list):
-            raise TypeError("Probes have to be in a list.")
+        if self.probes == []:
+            raise ValueError("Cannot display without metadata.")
         if not isinstance(start_pos, int):
             raise TypeError("Start position has to be an integer.")
         if not 1 <= start_pos <= 262144:
@@ -574,12 +589,39 @@ class Trace_Buffer:
         # Read csv trace file
         with open(self.trace_csv, 'r') as data_file:
             csv_data = list(csv.reader(data_file))
+            
+        # Read decoded file
+        with open(self.trace_pd, 'r') as pd_file:
+            pd_data = list(csv.reader(pd_file))
         
-        # Construct the jason format data
+        # Construct the decoded transactions
         data = {}
         data['signal']=[]
-        for signal_name in probes:
-            index = probes.index(signal_name)
+        if self.trace_pd != '':
+            temp_val = {'name': '', 'wave': '', 'data': []}
+            for i in range(start_pos, stop_pos):
+                if i==start_pos:
+                    ref = pd_data[i]
+                    if not ref:
+                        temp_val['wave'] += 'x'
+                    else:
+                        temp_val['wave'] += '4'
+                        temp_val['data'].append(''.join(pd_data[i]))
+                else:
+                    if pd_data[i] == ref:
+                        temp_val['wave'] += '.'
+                    else:
+                        ref = pd_data[i]
+                        if not ref:
+                            temp_val['wave'] += 'x'
+                        else:
+                            temp_val['wave'] += '4'
+                            temp_val['data'].append(''.join(pd_data[i]))
+            data['signal'].append(temp_val)
+        
+        # Construct the jason format data
+        for signal_name in self.probes:
+            index = self.probes.index(signal_name)
             temp_val = {'name': signal_name, 'wave': ''}
             for i in range(start_pos, stop_pos):
                 if i==start_pos:
