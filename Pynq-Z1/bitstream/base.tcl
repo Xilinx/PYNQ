@@ -33,7 +33,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # CHECKING IF PROJECT EXISTS
 if { [get_projects -quiet] eq "" } {
-   create_project iop . -part xc7z020clg400-1
+   create_project base . -part xc7z020clg400-1
 }
 
 set_property  ip_repo_paths  ../ip [current_project]
@@ -2045,10 +2045,10 @@ CONFIG.SIZE {8} \
 create_root_design ""
 
 # Additional steps to get to bitstream
-make_wrapper -files [get_files ./iop.srcs/sources_1/bd/system/system.bd] -top
+make_wrapper -files [get_files ./base.srcs/sources_1/bd/system/system.bd] -top
 
 # generate toplevel wrapper files
-add_files -norecurse ./iop.srcs/sources_1/bd/system/hdl/system_wrapper.v
+add_files -norecurse ./base.srcs/sources_1/bd/system/hdl/system_wrapper.v
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
 add_files -fileset constrs_1 -norecurse ./src/constraints/top.xdc
@@ -2064,9 +2064,9 @@ launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
 
 # This PMOD's hwardware definition file will be used for microblaze projects
-file mkdir ./iop.sdk
-write_hwdef -force  -file ./iop.sdk/iop.hdf
-file copy -force ./iop.sdk/iop.hdf ../../sdk/
+file mkdir ./base.sdk
+write_hwdef -force  -file ./base.sdk/base.hdf
+file copy -force ./base.sdk/base.hdf ../../sdk/
 
 # move and rename bitstream to final location
-file copy -force ./iop.runs/impl_1/top.bit ../../../Pynq-Z1/bitstream/iop.bit
+file copy -force ./base.runs/impl_1/top.bit ../../../Pynq-Z1/bitstream/base.bit

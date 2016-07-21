@@ -37,7 +37,7 @@ from pynq import Overlay
 from pynq.iop._iop import request_iop
 
 global ol
-ol = Overlay("iop.bit")
+ol = Overlay("base.bit")
 
 @pytest.mark.run(order=10)
 def test_request_iop():

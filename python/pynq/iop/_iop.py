@@ -61,7 +61,7 @@ class _IOP:
         
         Note
         ----
-        For "iop.bit", PMOD ID = IOP ID + 1. This mapping may be changed for 
+        For `base.bit`, PMOD ID = IOP ID + 1. This mapping may be changed for 
         other bitstreams.
         
         Parameters
@@ -162,7 +162,7 @@ def request_iop(pmod_id, mb_program):
     When another IOP is in the system with the same PMOD ID, users are in 
     danger of losing the old instances associated with this PMOD.
     
-    For bitstream "iop.bit", the PMOD IDs are 
+    For bitstream `base.bit`, the PMOD IDs are 
     {1, 2, 3, 4} <=> {JB, JC, JD, JE}. 
     For different bitstreams, this mapping can be different.
     

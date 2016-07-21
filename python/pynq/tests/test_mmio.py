@@ -45,8 +45,9 @@ from pynq import general_const
 def test_mmio():
     """Test whether MMIO class is working properly.
     
-    Generate random tests to swipe through the entire range. 
-    mmio.write(all offsets, random data)
+    Generate random tests to swipe through the entire range:
+    >>> mmio.write(all offsets, random data)
+    
     Steps:
     1. Initialize an instance with length in bytes
     2. Write an integer to a given offset.
@@ -54,13 +55,12 @@ def test_mmio():
     4. Change to the next offset and repeat.
     
     """
-    ol1 = Overlay('iop.bit')
-    ol2 = Overlay('audiovideo.bit')
+    ol = Overlay('base.bit')
     
-    ol1.download()
+    ol.download()
     sleep(0.1)
-    mmio_base = int(ol1.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16)
-    mmio_range = int(ol1.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16)
+    mmio_base = int(ol.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16)
+    mmio_range = int(ol.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16)
     mmio = MMIO(mmio_base, mmio_range)
     for offset in range(0, 100, general_const.MMIO_WORD_LENGTH):
         data1 = randint(0, pow(2,32)-1)
@@ -73,24 +73,5 @@ def test_mmio():
         sleep(0.02)
         assert mmio.read(offset)==0, \
             'MMIO read back a wrong fixed value at offset {}.'.format(offset)
-        
-    ol2.download()
-    sleep(0.1)
-    mmio_base = int(ol2.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16)
-    mmio_range = int(ol2.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16)
-    mmio = MMIO(mmio_base, mmio_range)
-    for offset in range(0, 100, general_const.MMIO_WORD_LENGTH):
-        data1 = randint(0, pow(2,32)-1)
-        mmio.write(offset, data1)
-        sleep(0.02)
-        data2 = mmio.read(offset)
-        assert data1==data2, \
-            'MMIO read back a wrong random value at offset {}.'.format(offset)
-        mmio.write(offset, 0)
-        sleep(0.02)
-        assert mmio.read(offset)==0, \
-            'MMIO read back a wrong fixed value at offset {}.'.format(offset)
-    
-    ol1.download()
-    del ol1
-    del ol2
+            
+    del ol
