@@ -1,0 +1,10 @@
+#-----------------------------------------------------------
+# Vivado v2013.4 (64-bit)
+# SW Build 353583 on Mon Dec  9 17:49:19 MST 2013
+# IP Build 208076 on Mon Dec  2 12:38:17 MST 2013
+# Start of session at: Wed Feb 05 14:44:42 2014
+# Process ID: 8792
+# Log file: C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.runs/synth_1/i2s_ctrl.rds
+# Journal file: C:/xup/hls/labs/lab4/zybo_audio_codec/zybo_audio_codec.runs/synth_1\vivado.jou
+#-----------------------------------------------------------
+source i2s_ctrl.tcl

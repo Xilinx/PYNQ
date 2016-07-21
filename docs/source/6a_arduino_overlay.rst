@@ -4,7 +4,7 @@ Arduino IO Processor
 Arduino Interface
 -------------------
 
-The Pynq-z1 board has an Arduino interface. 
+The Pynq-Z1 board has an Arduino interface. 
 
 .. image:: ./images/arduino_interface.jpg
    :align: center
@@ -30,7 +30,7 @@ Timer        D3-D6 and D8-D11
 For example, a shield with a UART and 5 Digital IO can connect the UART to pins D0, D1, and the Digital IO can be connected to pins D2 - D6.
 
 Limitations:
-The analog compare feature of the Arduino is not supported on the Pynq-z1 board.
+The analog compare feature of the Arduino is not supported on the Pynq-Z1 board.
 
 Arduino IOP 
 --------------

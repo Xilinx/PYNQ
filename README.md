@@ -4,7 +4,7 @@
 
 ## SDCard Image Files
 
-- All Pynq-z1 images including the latest are available here: 
+- All Pynq-Z1 images including the latest are available here: 
 ```
 file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-pynq-z1/
 ``` 
@@ -36,7 +36,7 @@ To run this script, first verify the `$BOARD` environment variable has been set 
 echo $BOARD
 ```
 
-* If `$BOARD` is not set, add `export BOARD=<board_name>` (e.g., `<board_name>` can be `Zybo` or `Pynq-z1`) to
+* If `$BOARD` is not set, add `export BOARD=<board_name>` (e.g., `<board_name>` can be `Zybo` or `Pynq-Z1`) to
 `/home/xpp/.profile`.
 Then either reboot the board, or run the following:
 ```

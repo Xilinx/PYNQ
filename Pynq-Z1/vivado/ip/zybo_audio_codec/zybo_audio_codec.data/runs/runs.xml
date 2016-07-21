@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Runs Version="1" Minor="9">
+	<Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7z010clg400-1" LaunchPart="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Vivado Synthesis Defaults" State="current" Dir="$PRUNDIR/synth_1" LaunchTime="1391640279">
+		<File Type="RDS-UTIL" Name="i2s_ctrl_utilization_synth.rpt"/>
+		<File Type="RUN-STRAT" Name="$PDATADIR/runs/synth_1/synth_1.psg"/>
+		<File Type="RDS-UTIL-PB" Name="i2s_ctrl_utilization_synth.pb"/>
+		<File Type="RDS-DCP" Name="i2s_ctrl.dcp"/>
+		<File Type="VDS-TIMINGSUMMARY" Name="i2s_ctrl_timing_summary_synth.rpt"/>
+		<File Type="VDS-TIMING-PB" Name="i2s_ctrl_timing_summary_synth.pb"/>
+		<File Type="PA-TCL" Name="i2s_ctrl.tcl"/>
+		<File Type="RUN-SRCS" Name="$PDATADIR/runs/synth_1/sources.xml"/>
+		<File Type="RDS-RDS" Name="i2s_ctrl.rds"/>
+		<File Type="RUN-CONSTRS" Name="$PDATADIR/runs/synth_1/constrs_in.xml"/>
+	</Run>
+	<Run Id="impl_1" Type="Ft2:EntireDesign" SynthRun="synth_1" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Vivado Implementation Defaults" State="current"/>
+</Runs>
+
