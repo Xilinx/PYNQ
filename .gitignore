@@ -9,6 +9,11 @@
 # Packages 
 ############
 
+# Windows Thumbnail
+############
+Thumbs.db
+thumbs.db
+
 # Logs and Databases
 ######################
 *.log

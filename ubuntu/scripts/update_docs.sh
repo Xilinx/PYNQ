@@ -2,6 +2,7 @@
 
 REPO_DIR=/home/xpp/pynq_git
 PYNQ_DIR=/usr/local/lib/python3.4/dist-packages/pynq
+BACKUP_DIR=/home/xpp/pynq_backup
 
 FINAL_DOCS_DIR=/home/xpp/docs
 FINAL_NOTEBOOKS_DIR=/home/xpp/jupyter_notebooks
@@ -36,21 +37,26 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
  
-if [ -d $REPO_DIR ]; then
-   echo "plesae manually remove ${REPO_DIR} before running this script."
-   echo "rm -rf ${REPO_DIR}"
+if [ -d $REPO_DIR ] || [ -d $BACKUP_DIR ] ; then
+   echo ""
+   echo "please manually remove git backup folders before running this script."
+   echo "rm -rf ${REPO_DIR} ${BACKUP_DIR}"
    echo ""
    exit 1
 fi
- 
-echo "1. Build docs"
+
+echo "1. Backing up files into ${BACKUP_DIR}"
+mkdir $BACKUP_DIR
+cp -r $FINAL_DOCS_DIR $FINAL_NOTEBOOKS_DIR $FINAL_SCRIPTS_DIR $BACKUP_DIR
+
+echo "2. Build docs"
 git clone https://github.com/Xilinx/PYNQ $REPO_DIR
 cd $REPO_DIR/docs
 sphinx-apidoc -f -o ./source $PYNQ_DIR
 python3 ipynb_post_processor.py
 make clean ; make html
 
-echo "2. Transfer Git files into final filesystem with correct ownership"
+echo "3. Transfer Git files into final filesystem with correct ownership"
 rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/* 
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
 cp -r $REPO_DIR/$BOARD/notebooks/* $FINAL_NOTEBOOKS_DIR

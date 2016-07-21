@@ -1,8 +1,7 @@
 #!/bin/bash
 
-
 SCRIPT_NAME=`basename "$0"`
-BACKUP_DIR=/home/xpp/pynq_update_backup
+BACKUP_DIR=/home/xpp/pynq_backup
 REPO_DIR=/home/xpp/pynq_git
 PYNQ_DIR=/usr/local/lib/python3.4/dist-packages/pynq
 
