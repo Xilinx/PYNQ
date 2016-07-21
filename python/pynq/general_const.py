@@ -39,8 +39,8 @@ GPIO_MIN_USER_PIN = 54
 
 # Overlay constants
 BS_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))+"/bitstream/"
-BS_BOOT = BS_SEARCH_PATH + 'iop.bit'
-TCL_BOOT = BS_SEARCH_PATH + 'iop.tcl'
+BS_BOOT = BS_SEARCH_PATH + 'base.bit'
+TCL_BOOT = BS_SEARCH_PATH + 'base.tcl'
 BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
 BS_XDEVCFG = "/dev/xdevcfg"
 
