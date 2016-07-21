@@ -47,8 +47,8 @@ from pynq import MMIO
 def _get_tcl_name(bitfile_name):
     """This method returns the name of the tcl file.
     
-    For example, the input "/home/xpp/src/pynq/bitstream/iop.bit" will lead 
-    to the result "/home/xpp/src/pynq/bitstream/iop.tcl".
+    For example, the input "/home/xpp/src/pynq/bitstream/base.bit" will lead 
+    to the result "/home/xpp/src/pynq/bitstream/base.tcl".
     
     Parameters
     ----------
@@ -662,9 +662,9 @@ class Bitstream(PL):
         """Return a new Bitstream object. 
         
         Users can either specify an absolute path to the bitstream file 
-        (e.g. '/home/xpp/src/pynq/bitstream/iop.bit'),
+        (e.g. '/home/xpp/src/pynq/bitstream/base.bit'),
         or only a relative path.
-        (e.g. 'iop.bit').
+        (e.g. 'base.bit').
         
         Note
         ----
@@ -768,7 +768,7 @@ class Overlay(PL):
         Note
         ----
         This class requires a Vivado '.tcl' file to be next to bitstream file 
-        with same base name (e.g. iop.bit and iop.tcl).
+        with same base name (e.g. base.bit and base.tcl).
         
         Parameters
         ----------
