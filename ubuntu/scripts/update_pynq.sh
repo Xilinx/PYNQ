@@ -39,17 +39,17 @@ cp -rf $REPO_DIR/$BOARD/bitstream $REPO_DIR/python/pynq/
 cd $REPO_DIR/python
 sudo -H pip install --upgrade .
 python3.4 /home/xpp/scripts/start_pl_server.py &
+chown -R xpp:xpp $PYNQ_DIR/*
 
 echo "4. Update scripts and notebooks"
 cp -r $REPO_DIR/$BOARD/notebooks/* $FINAL_NOTEBOOKS_DIR
 cp -r $REPO_DIR/ubuntu/scripts/hostname.sh $FINAL_SCRIPTS_DIR
 cp -r $REPO_DIR/ubuntu/scripts/*.py $FINAL_SCRIPTS_DIR
 
-echo ""
-echo "Completed build."
 echo "Notebooks     folder is at: $FINAL_NOTEBOOKS_DIR"
 echo "Scripts       folder is at: $FINAL_SCRIPTS_DIR"
-echo ""
 echo "To update this file, manually replace it from local git:"
 echo "cp -r $REPO_DIR/ubuntu/scripts/$SCRIPT_NAME $FINAL_SCRIPTS_DIR"
+echo ""
+echo "Completed build."
 echo ""
