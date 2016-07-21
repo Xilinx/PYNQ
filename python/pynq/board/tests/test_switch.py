@@ -39,17 +39,17 @@ from pynq.board.switch import Switch
 def test_switch_all():
     """Test for the Switch class and its wrapper functions.
     
-    Instantiates 4 Switch objects on index 0 ~ 3 and performs some 
+    Instantiates 2 Switch objects on index 0 ~ 1 and performs some 
     actions on it, requesting user confirmation.
     
     """ 
-    print("\nSet all the 4 switches (SW0 ~ SW3) off (lower position).") 
+    print("\nSet the 2 switches (SW0 ~ SW1) off (lower position).") 
     input("Then hit enter...")
-    switches = [Switch(index) for index in range(0, 4)] 
-    for index in range(4):
+    switches = [Switch(index) for index in range(2)] 
+    for index in range(2):
         assert switches[index].read()==0, \
             "Switch {} reads wrong values.".format(index)
     input("Now switch them on (upper position) and hit enter...")
-    for index in range(4):
+    for index in range(2):
         assert switches[index].read()==1, \
             "Switch {} reads wrong values.".format(index)

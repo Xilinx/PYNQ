@@ -134,7 +134,7 @@ def test_toggle_1():
     
     del leds
 
-@pytest.mark.run(order=38)
+@pytest.mark.run(order=36)
 def test_toggle_2():
     """Test for all the LEDs on LED8.
     

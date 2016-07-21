@@ -36,15 +36,15 @@ import os
 import pytest
 from pynq import Overlay
 
-ol1 = Overlay('iop.bit')
-ol2 = Overlay('audiovideo.bit')
-    
+ol1 = Overlay('base.bit')
+ol2 = Overlay('base.bit')
+
 @pytest.mark.run(order=2)
 def test_overlay():
     """Test whether the overlay is properly set.
     
-    Each overlay has its own bitstream. Also need the corresponding ".bxml" 
-    and ".tcl" files to pass the tests.
+    Each overlay has its own bitstream. Also need the corresponding ".tcl" 
+    files to pass the tests.
     
     The entries in Microblaze dictionary use the following format:
     mb_instance[key] = {base address, program, gpio pin}.
@@ -53,7 +53,7 @@ def test_overlay():
     global ol1, ol2
     
     ol1.download()
-    assert 'iop.bit' in ol1.bitfile_name, \
+    assert 'base.bit' in ol1.bitfile_name, \
             'Bitstream is not in the overlay.'
     assert len(ol1.ip_dict)>0,\
             'Overlay gets empty IP dictionary.'
@@ -88,7 +88,7 @@ def test_overlay():
             'Overlay cannot reset GPIO dictionary.'
             
     ol2.download()
-    assert 'audiovideo.bit' in ol2.bitfile_name, \
+    assert 'base.bit' in ol2.bitfile_name, \
             'Bitstream is not in the overlay.'
     assert len(ol2.ip_dict)>0,\
             'Overlay gets empty IP dictionary.'
@@ -123,41 +123,40 @@ def test_overlay():
             'Overlay cannot reset IP dictionary.'
 
 @pytest.mark.run(order=9)
-def test_pmod():
-    """Download the bitstream "iop.bit", and then test.
+def test_overlay1():
+    """Download the bitstream for the first overlay, and then test.
     
-    Need the corresponding "iop.tcl" files to pass the tests.
+    Need the corresponding `*.tcl` file to pass the tests.
     
     """
     global ol1,ol2
     ol1.download()
     assert not ol1.get_timestamp()=='', \
-            'Overlay (iop.bit) has an empty timestamp.'
+            'Overlay (base.bit) has an empty timestamp.'
     assert ol1.is_loaded(), \
-            'Overlay (iop.bit) should be loaded.'
+            'Overlay (base.bit) should be loaded.'
     assert not ol2.is_loaded(), \
-            'Overlay (audiovideo.bit) should not be loaded.'
+            'Overlay (base.bit) should not be loaded.'
 
 @pytest.mark.run(order=29)
-def test_audiovideo():
-    """Change the bitstream to "audiovideo.bit", and then test.
+def test_overlay2():
+    """Change to another overlay, and then test.
     
-    Need the corresponding "audiovideo.bxml" and "audiovideo.tcl" files to 
-    pass the tests.
+    Need the corresponding `*.tcl` file to pass the tests.
     
     """
     global ol1,ol2
     ol2.download()
     assert not ol2.get_timestamp()=='', \
-            'Overlay (audiovideo.bit) has an empty timestamp.'
+            'Overlay 2 has an empty timestamp.'
     assert not ol1.is_loaded(), \
-            'Overlay (iop.bit) should not be loaded.'
+            'Overlay 1 should not be loaded.'
     assert ol2.is_loaded(), \
-            'Overlay (audiovideo.bit) should be loaded.'
+            'Overlay 2 should be loaded.'
 
-@pytest.mark.run(order=39)
+@pytest.mark.run(order=37)
 def test_end():
-    """Wrapping up by changing the bitstream back to "iop.bit".
+    """Wrapping up by changing the overlay back.
     
     This is the last test to be performed.
     
@@ -165,10 +164,10 @@ def test_end():
     global ol1,ol2
     ol1.download()
     assert not ol1.get_timestamp()=='', \
-            'Overlay (iop.bit) has an empty timestamp.'
+            'Overlay 1 has an empty timestamp.'
     assert ol1.is_loaded(), \
-            'Overlay (iop.bit) should be loaded.'
+            'Overlay 1 should be loaded.'
     assert not ol2.is_loaded(), \
-            'Overlay (audiovideo.bit) should not be loaded.'
+            'Overlay 2 should not be loaded.'
     del ol1
     del ol2

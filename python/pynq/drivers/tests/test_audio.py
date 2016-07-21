@@ -50,19 +50,9 @@ def test_audio_loop():
     
     This test will use the __call__() methods of the two classes, and ask for
     the confirmation from the users.
-    
+        
     """
-    headphone = Headphone()
-    linein = LineIn()
-    print("\nMake sure LineIn is receiveing audio. Hit enter to stop...", \
-            end="")
-    while True:
-        headphone(linein())
-        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-            termios.tcflush(sys.stdin, termios.TCIOFLUSH)
-            break
-    assert user_answer_yes("Heard audio on the headphone (HPH) port?"),\
-        'Audio loop is not working.'
+    pass
 
 @pytest.mark.run(order=31)
 @pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")
@@ -72,24 +62,5 @@ def test_audio_mute():
     The test will mute and unmute the volume, then ask for the confirmation
     from the users.
     
-    """ 
-    headphone = Headphone()
-    linein = LineIn()
-    print("\nMake sure LineIn is receiveing audio. Hit enter to mute...", \
-            end="")
-    while True:
-        headphone(linein())
-        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-            termios.tcflush(sys.stdin, termios.TCIOFLUSH)
-            break
-    is_muted = headphone.controller.muted
-    headphone.controller.toggle_mute()
-    assert not is_muted is headphone.controller.muted, \
-        'Cannot mute audio.'
-    print("Audio is muted. Wait for a few seconds...")
-    for i in range(100000):
-        # Users should not be able to hear sound in this loop
-        headphone(linein())
-    assert user_answer_yes("Audio on the headphone (HPH) port muted?"),\
-        'Cannot mute audio.'
-    
+    """
+    pass
