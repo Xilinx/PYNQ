@@ -26,6 +26,7 @@ fi
 echo "1. Backing up files into ${BACKUP_DIR}"
 mkdir $BACKUP_DIR
 cp -r $FINAL_DOCS_DIR $FINAL_NOTEBOOKS_DIR $FINAL_SCRIPTS_DIR $BACKUP_DIR
+rm -rf $FINAL_NOTEBOOKS_DIR/* 
 python3.4 /home/xpp/scripts/stop_pl_server.py &
 
 echo "2. Clone PYNQ repository into ${REPO_DIR}"
@@ -39,13 +40,16 @@ cd $REPO_DIR/python
 sudo -H pip install --upgrade .
 python3.4 /home/xpp/scripts/start_pl_server.py &
 
+echo "4. Update scripts and notebooks"
+cp -r $REPO_DIR/$BOARD/notebooks/* $FINAL_NOTEBOOKS_DIR
+cp -r $REPO_DIR/ubuntu/scripts/hostname.sh $FINAL_SCRIPTS_DIR
+cp -r $REPO_DIR/ubuntu/scripts/*.py $FINAL_SCRIPTS_DIR
+
 echo ""
 echo "Completed build."
-echo "Documentation folder is at: $FINAL_DOCS_DIR"
 echo "Notebooks     folder is at: $FINAL_NOTEBOOKS_DIR"
 echo "Scripts       folder is at: $FINAL_SCRIPTS_DIR"
 echo ""
-echo "If needed, please manually replace this script from local git"
+echo "To update this file, manually replace it from local git:"
 echo "cp -r $REPO_DIR/ubuntu/scripts/$SCRIPT_NAME $FINAL_SCRIPTS_DIR"
-echo ""
 echo ""

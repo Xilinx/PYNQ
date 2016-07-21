@@ -61,7 +61,6 @@ rm -rf $FINAL_DOCS_DIR/* $FINAL_NOTEBOOKS_DIR/*
 cp -r $REPO_DIR/docs/build/html/* $FINAL_DOCS_DIR
 cp -r $REPO_DIR/$BOARD/notebooks/* $FINAL_NOTEBOOKS_DIR
 cp -r $REPO_DIR/ubuntu/scripts/hostname.sh $FINAL_SCRIPTS_DIR
-cp -r $REPO_DIR/ubuntu/scripts/update_pynq_docs.sh $FINAL_SCRIPTS_DIR
 cp -r $REPO_DIR/ubuntu/scripts/*.py $FINAL_SCRIPTS_DIR
 pushd $FINAL_NOTEBOOKS_DIR ; ln -s $FINAL_DOCS_DIR ; popd
 pushd $REPO_DIR/docs/source/temp
@@ -99,4 +98,6 @@ echo ""
 echo "Completed build."
 echo "Documentation folder is at: $FINAL_DOCS_DIR"
 echo ""
+echo "To update this file, manually replace it from local git:"
+echo "cp -r $REPO_DIR/ubuntu/scripts/$SCRIPT_NAME $FINAL_SCRIPTS_DIR"
 echo ""
