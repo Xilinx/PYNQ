@@ -40,9 +40,9 @@ ffi = cffi.FFI()
 ffi.cdef("""
 typedef struct axi_dma_simple_info_struct {
         int device_id;
-        int phys_base_addr;
-        int addr_range;
-        int virt_base_addr;
+        unsigned int phys_base_addr;
+        unsigned int addr_range;
+        unsigned int virt_base_addr;
         int dir; // either DMA_TO_DEV or DMA_FROM_DEV 
 } axi_dma_simple_info_t;
 """)
