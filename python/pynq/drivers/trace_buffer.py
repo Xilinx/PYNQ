@@ -556,9 +556,9 @@ class Trace_Buffer:
         Parameters
         ----------
         start_pos : int
-            The start position of the waveform.
+            The starting sample number of the waveform.
         stop_pos : int
-            The stop position of the waveform.
+            The stopping sample number of the waveform.
             
         Returns
         -------
@@ -634,6 +634,19 @@ class Trace_Buffer:
                         ref = csv_data[i][index]
                         temp_val['wave'] += str(csv_data[i][index])
             data['signal'].append(temp_val)
+            
+        # Construct the sample numbers and headers
+        head = {}
+        head['text'] = ['tspan', {'class':'info h4'}, \
+            'Protocol decoder: ' + self.protocol + \
+            '; Sample rate: ' + str(self.samplerate) + ' samples/s']
+        head['tock'] = ''
+        for i in range(start_pos, stop_pos):
+            if i%2:
+                head['tock'] += ' '
+            else:
+                head['tock'] += (str(i)+' ')
+        data['head'] = head
         
         htmldata = '<script type="WaveDrom">' + json.dumps(data) + '</script>'
         IPython.core.display.display_html(IPython.core.display.HTML(htmldata))
