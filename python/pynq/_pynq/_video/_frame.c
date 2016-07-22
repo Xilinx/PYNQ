@@ -92,7 +92,7 @@ PyObject *get_frame(videoframeObject *self, unsigned int index){
                      index, 0, NUM_FRAMES-1);
         return NULL;
     }
-  return PyMemoryView_FromMemory((char *)self->frame_buffer[index],                                                 │
+  return PyMemoryView_FromMemory((char *)self->frame_buffer[index],
                                          MAX_FRAME,PyBUF_READ);
 }
 
