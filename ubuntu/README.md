@@ -38,6 +38,13 @@ make
 sudo make install
 ```
 
+# Update ipython to version 5: https://blog.jupyter.org/2016/07/08/ipython-5-0-released/
+pip install ipython --upgrade
+
+# Add notebook extension: https://github.com/ipython-contrib/IPython-notebook-extensions
+pip install https://github.com/ipython-contrib/IPython-notebook-extensions/tarball/master
+sudo shutdown -r now
+
 Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
 Remove the redundant folder `source` in scripts folder
