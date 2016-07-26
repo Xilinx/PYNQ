@@ -32,11 +32,9 @@ sudo apt-get install unzip
 # Fix broken ghc and haskell packages in dpkg
 
 # Rebuild all the sigrok decoders (Rock will provide the project)
-```
 ./configure
 make
 sudo make install
-```
 
 # Update ipython to version 5: https://blog.jupyter.org/2016/07/08/ipython-5-0-released/
 pip install ipython --upgrade
