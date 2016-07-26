@@ -1,7 +1,7 @@
 the_ROM_image:
 {
 	[bootloader]fsbl.elf
-	../../../python/pynq/bitstream/pynqboard_pmod_arduino.bit
+	../../bitstream/base.bit
 	u-boot.elf
 }
 
