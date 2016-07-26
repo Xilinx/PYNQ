@@ -20,6 +20,8 @@ IPython5 upgrade
 Staging - to be added in next image
 
 ```
+MAC address generation (temporary fix)
+
 opencv addition
 
 xterm.js addition
