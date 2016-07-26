@@ -5,8 +5,13 @@ All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
-05-05-2016 - <graham.schelle@xilinx.com>
-             milan release v1.0
+
+07-26-2016 - <anurag.dubey@xilinx.com>
+             pynq-z1 RevB checkin
+
+BOARD environment variable set to PYNQ-Z1
+GHC Package added back in
+IPython5 upgrade
 ```
 
 
@@ -15,29 +20,14 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 Staging - to be added in next image
 
 ```
-# Add board environment variable
-vi /home/xpp/.profile
-Add at the end of the file: export BOARD=Zybo
-sudo shutdown -r now
+opencv addition
 
-# Purge ghc package
-sudo dpkg --purge --force-all ghc
-sudo apt-get install ghc
-(The above commands generate too many warnings; needs a fix)
-
-# Install zip and unzip 
-sudo apt-get install zip
-sudo apt-get install unzip
-
-# Fix broken ghc and haskell packages in dpkg
+xterm.js addition
 
 # Rebuild all the sigrok decoders (Rock will provide the project)
 ./configure
 make
 sudo make install
-
-# Update ipython to version 5: https://blog.jupyter.org/2016/07/08/ipython-5-0-released/
-pip install ipython --upgrade
 
 # Add notebook extension: https://github.com/ipython-contrib/IPython-notebook-extensions
 pip install https://github.com/ipython-contrib/IPython-notebook-extensions/tarball/master
@@ -47,9 +37,7 @@ Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
 Remove the redundant folder `source` in scripts folder
 Remove the `*.bat` files in the scripts folder
-Update all the shell scripts with the latest version
-Use update_pynq.sh to update the pynq package
-Then remove pynq_git and pynq_update_backup after that
+
 ```
 
 06-24-2016
