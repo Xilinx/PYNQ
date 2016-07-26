@@ -6,12 +6,12 @@
 
 - All Pynq-Z1 images including the latest are available here: 
 ```
-file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-pynq-z1/
+file://xsj-pvstd2t01-w/xrlabs/grahams/public/pynq-z1_images/
 ``` 
 
 - All Zybo images including the latest are available here: 
 ```
-file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/
+file://xsj-pvstd2t01-w/xrlabs/grahams/public/zybo_images/
 ```
 
 - After imaging, change Zybo's hostname to avoid network conflicts
