@@ -324,6 +324,37 @@ class HDMI(object):
                 The height of the frame.
                 
             """
+
+            self.frame_addr = self._display.frame_addr
+            """Get the current frame address.
+            
+            Parameters
+            ----------
+            i : optional[int]
+                Index of the current frame buffer.
+            
+            Returns
+            -------
+            int
+                Address of the frame, thus current frame buffer.
+                
+            """
+
+            self.frame_phyaddr = self._display.frame_phyaddr
+            """Get the current physical frame address.
+            
+            Parameters
+            ----------
+            i : optional[int]
+                Index of the current frame buffer.
+            
+            Returns
+            -------
+            int
+                Physical address of the frame, thus current frame buffer.
+                
+            """
+
         else:
             self.direction = 'in'
             if frame_buffer == None:
@@ -462,6 +493,37 @@ class HDMI(object):
                 The height of the frame.
                 
             """
+
+            self.frame_addr = self._capture.frame_addr
+            """Get the current frame address.
+            
+            Parameters
+            ----------
+            i : optional[int]
+                Index of the current frame buffer.
+            
+            Returns
+            -------
+            int
+                Address of the frame, thus current frame buffer.
+                
+            """
+
+            self.frame_phyaddr = self._capture.frame_phyaddr
+            """Get the current physical frame address.
+            
+            Parameters
+            ----------
+            i : optional[int]
+                Index of the current frame buffer.
+            
+            Returns
+            -------
+            int
+                Physical address of the frame, thus current frame buffer.
+                
+            """
+
 
     def start(self,timeout=20):
         """Start the video controller.

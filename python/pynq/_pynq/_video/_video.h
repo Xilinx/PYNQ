@@ -15,6 +15,8 @@ typedef struct{
 } videoframeObject;
 
 extern PyObject *get_frame(videoframeObject *self, unsigned int index);
+extern PyObject *get_frame_addr(videoframeObject *self, unsigned int index);
+extern PyObject *get_frame_phyaddr(videoframeObject *self, unsigned int index);
 extern PyObject *set_frame(videoframeObject *self, unsigned int index, 
                            PyByteArrayObject *new_frame);
 

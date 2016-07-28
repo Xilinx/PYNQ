@@ -15,6 +15,8 @@
 #include "utils.h"
 #include "video_commons.h"
 #include "_video.h"
+#include <stdint.h> //for uintptr_t 
+#include "video_display.h"
 
 
 /*****************************************************************************/
@@ -79,8 +81,36 @@ static PyMemberDef videoframe_members[] = {
 };
 
 /*****************************************************************************/
-/* functions used to set or get a frame - used by the frame member           */
-/* functions and by _capture.c and _display.c                                */
+/* functions used to set or get a frame or get (physical) frame address      */
+/* used by the frame member functions and by _capture.c and _display.c       */
+
+/*
+ * get a frame address as long
+ */
+PyObject *get_frame_addr(videoframeObject *self, unsigned int index){
+    if(index < 0 || index >= NUM_FRAMES){
+        PyErr_Format(PyExc_ValueError, 
+                     "Index %d out of range [%d,%d]",
+                     index, 0, NUM_FRAMES-1);
+        return NULL;
+    }
+    int ret = (uintptr_t) self->frame_buffer[index];
+    return PyLong_FromUnsignedLong(ret);
+}
+
+/*
+ * get a physical frame address as long
+ */
+PyObject *get_frame_phyaddr(videoframeObject *self, unsigned int index){
+    if(index < 0 || index >= NUM_FRAMES){
+        PyErr_Format(PyExc_ValueError, 
+                     "Index %d out of range [%d,%d]",
+                     index, 0, NUM_FRAMES-1);
+        return NULL;
+    }
+    unsigned int ret = frame_getPhyAddr(self->frame_buffer[index]);
+    return PyLong_FromUnsignedLong(ret);
+}
 
 /*
  * get a bytearray object holding the frame at index
@@ -92,8 +122,8 @@ PyObject *get_frame(videoframeObject *self, unsigned int index){
                      index, 0, NUM_FRAMES-1);
         return NULL;
     }
-  return PyMemoryView_FromMemory((char *)self->frame_buffer[index],
-                                         MAX_FRAME,PyBUF_READ);
+    return PyByteArray_FromStringAndSize((char *)self->frame_buffer[index], 
+                                         MAX_FRAME);
 }
 
 /*

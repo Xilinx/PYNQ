@@ -239,6 +239,41 @@ static PyObject *videocapture_frame(videocaptureObject *self, PyObject *args){
     }
 }
 
+/*
+ * frame_addr([index])
+ * 
+ * just a wrapper of get_frame_addr().
+ */
+static PyObject *videocapture_frame_addr(videocaptureObject *self, PyObject *args){
+    unsigned int index = self->capture->curFrame;
+    Py_ssize_t nargs = PyTuple_Size(args);
+    if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
+        return get_frame_addr(self->frame, index);
+    }
+    else {
+        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
+        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
+        return NULL;        
+    }     
+}
+
+/*
+ * frame_phyaddr([index])
+ * 
+ * just a wrapper of get_frame_phyaddr().
+ */
+static PyObject *videocapture_frame_phyaddr(videocaptureObject *self, PyObject *args){
+    unsigned int index = self->capture->curFrame;
+    Py_ssize_t nargs = PyTuple_Size(args);
+    if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
+        return get_frame_phyaddr(self->frame, index);
+    }
+    else {
+        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
+        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
+        return NULL;        
+    }     
+}
 /*****************************************************************************/
 /* Defining the methods struct                                               */
 
@@ -267,6 +302,12 @@ static PyMethodDef videocapture_methods[] = {
     },
     {"frame", (PyCFunction)videocapture_frame, METH_VARARGS,
      "Get the current frame (or the one at 'index' if specified)."
+    },
+    {"frame_addr", (PyCFunction)videocapture_frame_addr, METH_VARARGS,
+     "Get the current frame buffer's address (or the one at 'index' if specified)."
+    },
+    {"frame_phyaddr", (PyCFunction)videocapture_frame_phyaddr, METH_VARARGS,
+     "Get the current frame buffer's physicals address (or the one at 'index' if specified)."
     },
     {NULL}  /* Sentinel */
 };

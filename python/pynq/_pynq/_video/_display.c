@@ -17,10 +17,9 @@
 
 typedef struct{
     PyObject_HEAD
-    DisplayCtrl *display;
-    videoframeObject *frame;
+    DisplayCtrl *display;       //see inc/video_display.h
+    videoframeObject *frame;    //see _video.h
 } videodisplayObject;
-
 
 /*****************************************************************************/
 /* Defining the dunder methods                                               */
@@ -288,6 +287,41 @@ static PyObject *videodisplay_frame(videodisplayObject *self, PyObject *args){
     return set_frame(self->frame, index, (PyByteArrayObject *)new_frame);
 }
 
+/*
+ * frame_addr([index])
+ * 
+ * just a wrapper of get_frame_addr().
+ */
+static PyObject *videodisplay_frame_addr(videodisplayObject *self, PyObject *args){
+    unsigned int index = self->display->curFrame;
+    Py_ssize_t nargs = PyTuple_Size(args);
+    if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
+        return get_frame_addr(self->frame, index);
+    }
+    else {
+        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
+        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
+        return NULL;        
+    }     
+}
+
+/*
+ * frame_phyaddr([index])
+ * 
+ * just a wrapper of get_frame_phyaddr().
+ */
+static PyObject *videodisplay_frame_phyaddr(videodisplayObject *self, PyObject *args){
+    unsigned int index = self->display->curFrame;
+    Py_ssize_t nargs = PyTuple_Size(args);
+    if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
+        return get_frame_phyaddr(self->frame, index);
+    }
+    else {
+        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
+        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
+        return NULL;        
+    }     
+}
 /*****************************************************************************/
 /* Defining the methods struct                                               */
 
@@ -321,6 +355,12 @@ static PyMethodDef videodisplay_methods[] = {
     {"frame", (PyCFunction)videodisplay_frame, METH_VARARGS,
      "Get the current frame (or the one at 'index' if specified) or set \
       the frame if 'new_frame' is specified."
+    },
+    {"frame_addr", (PyCFunction)videodisplay_frame_addr, METH_VARARGS,
+     "Get the current frame buffer's address (or the one at 'index' if specified)."
+    },
+    {"frame_phyaddr", (PyCFunction)videodisplay_frame_phyaddr, METH_VARARGS,
+     "Get the current frame buffers's physical address (or the one at 'index' if specified)."
     },
     {NULL}  /* Sentinel */
 };
