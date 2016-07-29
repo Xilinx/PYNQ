@@ -418,13 +418,13 @@ Pmod port.)</p>
 module and instantiate it on port 1/IOP 1:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [1]:
+<span></span>In [1]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
 <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_OLED</span>
-<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span>
+<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;pmod.bit&quot;</span><span class="p">)</span>
 <span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 <span class="n">oled</span> <span class="o">=</span> <span class="n">PMOD_OLED</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -433,21 +433,21 @@ In [1]:
 <p>Try writing a message to the OLED.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [2]:
+<span></span>In [2]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Hello World&quot;</span><span class="p">)</span>
+<span></span><span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [3]:
+<span></span>In [3]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">oled</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span></span><span class="n">oled</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -455,11 +455,11 @@ In [3]:
 value from the sensor</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [4]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_ALS</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_ALS</span>
 <span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </pre></div>
@@ -467,11 +467,11 @@ In [4]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[4]:
+<span></span>Out[4]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-47
+<span></span>47
 </pre></div>
 </div>
 </div>
@@ -479,28 +479,28 @@ Out[4]:
 8-bit value. 0 = Darkest, 255 = Brightest</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [5]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Light value : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+<span></span><span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Light value : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [6]:
+<span></span>In [6]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_ALS</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_ALS</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">als</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
 <span class="n">als</span><span class="o">.</span><span class="n">set_log_interval_ms</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 
-<span class="n">als</span><span class="o">.</span><span class="n">start_log</span><span class="p">()</span> <span class="c"># start logging values at intervals of delay</span>
+<span class="n">als</span><span class="o">.</span><span class="n">start_log</span><span class="p">()</span> <span class="c1"># start logging values at intervals of delay</span>
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">als</span><span class="o">.</span><span class="n">stop_log</span><span class="p">()</span>
 <span class="n">als</span><span class="o">.</span><span class="n">get_log</span><span class="p">()</span>
@@ -509,11 +509,11 @@ In [6]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[6]:
+<span></span>Out[6]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-[41, 33, 32, 32, 32, 16, 31, 31, 31, 31, 30]
+<span></span>[41, 33, 32, 32, 32, 16, 31, 31, 31, 31, 30]
 </pre></div>
 </div>
 </div>
@@ -546,22 +546,22 @@ value. There may be some small error between this and the value written
 to the DAC.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [7]:
+<span></span>In [7]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_OLED</span><span class="p">,</span> <span class="n">PMOD_ADC</span><span class="p">,</span> <span class="n">PMOD_DAC</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="k">import</span> <span class="n">PMOD_OLED</span><span class="p">,</span> <span class="n">PMOD_ADC</span><span class="p">,</span> <span class="n">PMOD_DAC</span>
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
-<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span>
+<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;pmod.bit&quot;</span><span class="p">)</span>
 <span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 
 <span class="n">dac</span> <span class="o">=</span> <span class="n">PMOD_DAC</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">adc</span> <span class="o">=</span> <span class="n">PMOD_ADC</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">oled</span> <span class="o">=</span> <span class="n">PMOD_OLED</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 
-<span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span> <span class="c"># Set the DAC output voltage</span>
-<span class="n">value</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Measure output of DAC with ADC</span>
-<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="c"># Display measured value on OLED</span>
+<span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span> <span class="c1"># Set the DAC output voltage</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c1"># Measure output of DAC with ADC</span>
+<span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="c1"># Display measured value on OLED</span>
 </pre></div>
 </div>
 </div>
@@ -582,37 +582,37 @@ in a new window)</li>
 Rename).</li>
 <li>In the Pynq portal Getting_Started folder verify the file exists</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="c">#### dac_loop.py</span>
+<span class="c1">#### dac_loop.py</span>
 <span class="k">def</span> <span class="nf">dac_loop</span><span class="p">(</span><span class="n">DAC_Port</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ADC_Port</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">OLED_Port</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span><span class="n">Switch_nmbr</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">delay_secs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    DAC -&gt; ADC -&gt; OLED -- LOOP OVER 10 Values</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span>
+    <span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;pmod.bit&quot;</span><span class="p">)</span>
     <span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
-    <span class="c"># Import PMOD classes from library PythonXilinx (pynq.pmods)</span>
+    <span class="c1"># Import PMOD classes from library PythonXilinx (pynq.pmods)</span>
     <span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">PMOD_OLED</span><span class="p">,</span> <span class="n">PMOD_ADC</span><span class="p">,</span> <span class="n">PMOD_DAC</span>
 
     <span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span>  <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span>
 
-    <span class="c"># Match PMOD instances to PMOD Connectors</span>
+    <span class="c1"># Match PMOD instances to PMOD Connectors</span>
 
-    <span class="c"># Instantiate OLED</span>
+    <span class="c1"># Instantiate OLED</span>
     <span class="n">oled</span> <span class="o">=</span> <span class="n">PMOD_OLED</span><span class="p">(</span><span class="n">OLED_Port</span><span class="p">)</span>
 
-    <span class="c"># Instantiate Digital to Analog Converter</span>
+    <span class="c1"># Instantiate Digital to Analog Converter</span>
     <span class="n">dac</span> <span class="o">=</span> <span class="n">PMOD_DAC</span><span class="p">(</span><span class="n">DAC_Port</span><span class="p">)</span>
 
-    <span class="c"># Instantiate Analog to Digital Converter</span>
+    <span class="c1"># Instantiate Analog to Digital Converter</span>
     <span class="n">adc</span> <span class="o">=</span> <span class="n">PMOD_ADC</span><span class="p">(</span><span class="n">ADC_Port</span><span class="p">)</span>
 
     <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">if</span><span class="p">(</span><span class="n">Switch</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Switch 3 is off. To run the loop, set Switch 3 to on before running&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Switch 3 is off. To run the loop, set Switch 3 to on before running&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Turn Switch 3 off to stop the program&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Turn Switch 3 off to stop the program&quot;</span><span class="p">)</span>
 
     <span class="k">while</span> <span class="n">Switch</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
         <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -620,7 +620,7 @@ Rename).</li>
             <span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
             <span class="n">measured</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Measurement {} equals: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">measured</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Measurement {} equals: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">measured</span><span class="p">))</span>
             <span class="n">oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">measured</span><span class="p">))</span>
     <span class="n">LED</span><span class="p">(</span><span class="n">Switch_nmbr</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
@@ -638,11 +638,11 @@ below. You can change the ports the Pmods are attached to by passing the
 port numbers as parameters to the function.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [4]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="o">%</span><span class="k">run</span> dac_loop.py
+<span></span><span class="o">%</span><span class="k">run</span> dac_loop.py
 <span class="n">dac_loop</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>

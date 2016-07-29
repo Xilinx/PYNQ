@@ -4,14 +4,6 @@ pynq.board package
 Submodules
 ----------
 
-pynq.board.board_const module
------------------------------
-
-.. automodule:: pynq.board.board_const
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pynq.board.button module
 ------------------------
 
@@ -37,10 +29,4 @@ pynq.board.switch module
     :show-inheritance:
 
 
-Module contents
----------------
 
-.. automodule:: pynq.board
-    :members:
-    :undoc-members:
-    :show-inheritance:

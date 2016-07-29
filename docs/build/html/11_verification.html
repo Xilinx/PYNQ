@@ -299,7 +299,7 @@ div.nboutput  > :nth-child(2).stderr {
 <h2><a class="toc-backref" href="#id2">Running Tests</a><a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
 <p>The <em>pynq</em> package provides tests for most python modules.</p>
 <p>To run all the tests together, we can directly run pytest in the Linux terminal. All the tests will be automatically collected in the current directory and all of its child directories.</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="go">cd /usr/local/lib/python3.4/dist-packages/pynq</span>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">cd /usr/local/lib/python3.4/dist-packages/pynq</span>
 <span class="go">py.test –vsrw</span>
 </pre></div>
 </div>
@@ -308,7 +308,7 @@ div.nboutput  > :nth-child(2).stderr {
 <h3>Collection Phase<a class="headerlink" href="#collection-phase" title="Permalink to this headline">¶</a></h3>
 <p>During this phase, the pytest will collect all the test modules in the current directory and all of its child directories. The users will be asked if a PMOD is connected, and to which port it is connected.</p>
 <p>For example:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="go">Is LED8 attached to the board? ([yes]/no)&gt;&gt;&gt; yes</span>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">Is LED8 attached to the board? ([yes]/no)&gt;&gt;&gt; yes</span>
 <span class="go">Type in the PMOD ID of the LED8 (1 ~ 4):</span>
 </pre></div>
 </div>
@@ -319,7 +319,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="testing-phase">
 <h3>Testing Phase<a class="headerlink" href="#testing-phase" title="Permalink to this headline">¶</a></h3>
 <p>The test suite will guide the users through all the tests implemented in the pynq package. As part of the tests, the user will be prompted for confirmation the tests have passed, for example:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="go">test_led0 ...</span>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">test_led0 ...</span>
 <span class="go">Onboard LED 0 on? ([yes]/no)&gt;&gt;&gt;</span>
 </pre></div>
 </div>
@@ -333,23 +333,23 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="step-1">
 <h3>Step 1<a class="headerlink" href="#step-1" title="Permalink to this headline">¶</a></h3>
 <p>First of all, the pytest package has to be imported:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pytest</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="step-2">
 <h3>Step 2<a class="headerlink" href="#step-2" title="Permalink to this headline">¶</a></h3>
 <p>Then users can specify decorators right above the methods. For example, users can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More decorators can be found on <a class="reference external" href="https://pytest.org/latest/mark.html">Marking test functions with attributes - Pytest</a>.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@pytest.mark.run</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-<span class="nd">@pytest.mark.skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">flag</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s">&quot;need both ADC and DAC attached&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@pytest.mark.run</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="nd">@pytest.mark.skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">flag</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;need both ADC and DAC attached&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="step-3">
 <h3>Step 3<a class="headerlink" href="#step-3" title="Permalink to this headline">¶</a></h3>
 <p>Right below the decorators, users can write some assertions/tests. Below is an example taken from <cite>test_dac_adc.py</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@pytest.mark.run</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-<span class="nd">@pytest.mark.skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">flag</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s">&quot;need both ADC and DAC attached&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@pytest.mark.run</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="nd">@pytest.mark.skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">flag</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;need both ADC and DAC attached&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_loop_single</span><span class="p">():</span>
 <span class="sd">&quot;&quot;&quot;Test for writing a single value via the loop.</span>
 
@@ -368,11 +368,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="n">dac</span> <span class="o">=</span> <span class="n">PMOD_DAC</span><span class="p">(</span><span class="n">dac_id</span><span class="p">)</span>
 <span class="n">adc</span> <span class="o">=</span> <span class="n">PMOD_ADC</span><span class="p">(</span><span class="n">adc_id</span><span class="p">)</span>
 
-<span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Insert a voltage in the range of [0.00, 2.00]: &quot;</span><span class="p">))</span>
-<span class="k">assert</span> <span class="n">value</span><span class="o">&lt;=</span><span class="mf">2.00</span><span class="p">,</span> <span class="s">&#39;Input voltage should not be higher than 2.00V.&#39;</span>
-<span class="k">assert</span> <span class="n">value</span><span class="o">&gt;=</span><span class="mf">0.00</span><span class="p">,</span> <span class="s">&#39;Input voltage should not be lower than 0.00V.&#39;</span>
+<span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Insert a voltage in the range of [0.00, 2.00]: &quot;</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">value</span><span class="o">&lt;=</span><span class="mf">2.00</span><span class="p">,</span> <span class="s1">&#39;Input voltage should not be higher than 2.00V.&#39;</span>
+<span class="k">assert</span> <span class="n">value</span><span class="o">&gt;=</span><span class="mf">0.00</span><span class="p">,</span> <span class="s1">&#39;Input voltage should not be lower than 0.00V.&#39;</span>
 <span class="n">dac</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span><span class="o">&lt;</span><span class="mf">0.06</span><span class="p">,</span> <span class="s">&#39;Read value != write value.&#39;</span>
+<span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span><span class="o">&lt;</span><span class="mf">0.06</span><span class="p">,</span> <span class="s1">&#39;Read value != write value.&#39;</span>
 </pre></div>
 </div>
 <p>Note the <cite>assert</cite> statements specify the desired condition, and raise exceptions whenever that condition is not met. A customized exception message can be attached at the end of the <cite>assert</cite> methods, as shown above in the example.</p>

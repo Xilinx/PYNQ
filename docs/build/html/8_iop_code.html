@@ -412,7 +412,7 @@ Pynq and the application running on the IOP can write to anywhere in the shared 
 <p>There are 8 data pins on a Pmod port, that can be connected to any of 16 internal peripheral signals (8x GPIO, 2x SPI, 4x IIC, 2x Timer).</p>
 <p>Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register.
 The following function, part of the provided pmod_io_switch_v1_0 driver (<code class="docutils literal"><span class="pre">pmod.h</span></code>) can be used to configure the switch.</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">configureSwitch</span><span class="p">(</span><span class="kt">char</span> <span class="n">pin0</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin2</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin3</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin4</span><span class="p">,</span> \
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">configureSwitch</span><span class="p">(</span><span class="kt">char</span> <span class="n">pin0</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin2</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin3</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin4</span><span class="p">,</span> \
     <span class="kt">char</span> <span class="n">pin5</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin6</span><span class="p">,</span> <span class="kt">char</span> <span class="n">pin7</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -480,7 +480,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </tbody>
 </table>
 <p>For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO_7:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">configureSwitch</span><span class="p">(</span><span class="n">GPIO_0</span><span class="p">,</span> <span class="n">GPIO_1</span><span class="p">,</span> <span class="n">GPIO_2</span><span class="p">,</span> <span class="n">GPIO_3</span><span class="p">,</span> <span class="n">GPIO_4</span><span class="p">,</span> \
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">configureSwitch</span><span class="p">(</span><span class="n">GPIO_0</span><span class="p">,</span> <span class="n">GPIO_1</span><span class="p">,</span> <span class="n">GPIO_2</span><span class="p">,</span> <span class="n">GPIO_3</span><span class="p">,</span> <span class="n">GPIO_4</span><span class="p">,</span> \
     <span class="n">GPIO_5</span><span class="p">,</span> <span class="n">GPIO_6</span><span class="p">,</span> <span class="n">GPIO_7</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -496,7 +496,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <blockquote>
 <div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/zybo/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
 <p>This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;pmod.h&quot;</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;pmod.h&quot;</span><span class="cp"></span>
 </pre></div>
 </div>
 <p>Any application that uses the Pmod driver should also call pmod_init() at the beginning of the application.</p>
@@ -549,7 +549,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <p>In <code class="docutils literal"><span class="pre">main()</span></code> notice <code class="docutils literal"><span class="pre">configureSwitch()</span></code> is called to initialize the switch with a static configuration. This means that if you want to use this code with a different pin configuration, the C code must be modified and recompiled.</p>
 <p>Next, the <code class="docutils literal"><span class="pre">while(1)</span></code> loop is entered. In this loop the IOP continually checks the <code class="docutils literal"><span class="pre">MAILBOX_CMD_ADDR</span></code> for a non-zero command. Once a command is received from Python, the command is decoded, and executed.</p>
 <p>Taking the first case, reading a single value:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">case</span> <span class="nl">READ_SINGLE_VALUE</span><span class="p">:</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">case</span> <span class="nl">READ_SINGLE_VALUE</span><span class="p">:</span>
     <span class="n">MAILBOX_DATA</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="n">get_sample</span><span class="p">();</span>
     <span class="n">MAILBOX_CMD_ADDR</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>
 </pre></div>
@@ -561,57 +561,57 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <p>With the IOP Driver written, the Python class can be built that will communicate with that IOP.</p>
 <p><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/tree/master/python/pynq/pmods/pmod_als.py</span></code></p>
 <p>First the _iop, pmod_const and MMIO are imported and the Microblaze executable defined.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_iop</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_iop</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">pmod_const</span>
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 
-<span class="n">ALS_PROGRAM</span> <span class="o">=</span> <span class="s">&quot;als.bin&quot;</span>
+<span class="n">ALS_PROGRAM</span> <span class="o">=</span> <span class="s2">&quot;als.bin&quot;</span>
 </pre></div>
 </div>
 <p>The IOP module is imported, along with the Pmod constant definitions (pin mappings) and the <em>MMIO</em> (interface to shared memory).</p>
 <p>The Microblaze binary for the IOP is also declared. This is the application executable, and will be loaded into the IOP instruction memory.</p>
 <p>The ALS class and an initialization method are defined:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">PMOD_ALS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PMOD_ALS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pmod_id</span><span class="p">):</span>
 </pre></div>
 </div>
 <p>The initialization function for the module requires an IOP index. For Grove peripherals and the StickIt connector, the StickIt port number can also be used for initialization.  The <code class="docutils literal"><span class="pre">__init__</span></code> is called when a module is instantiated. e.g. from Python:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">PMOD_ALS</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">PMOD_ALS</span>
 <span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Looking further into the initialization method, the <code class="docutils literal"><span class="pre">_iop.request_iop()</span></code> call instantiates an instance of an IOP on the specified pmod_id and loads the Microblaze executable (ALS_PROGRAM) into the instruction memory of the appropriate Microblaze.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">_iop</span><span class="o">.</span><span class="n">request_iop</span><span class="p">(</span><span class="n">pmod_id</span><span class="p">,</span> <span class="n">ALS_PROGRAM</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">_iop</span><span class="o">.</span><span class="n">request_iop</span><span class="p">(</span><span class="n">pmod_id</span><span class="p">,</span> <span class="n">ALS_PROGRAM</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>An MMIO class is also instantiated to enable read and writes to the shared memory.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">mmio</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">mmio</span>
 </pre></div>
 </div>
 <p>Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP will be running the als.bin executable.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="example-of-python-class-runtime-methods">
 <h3>Example of Python Class Runtime Methods<a class="headerlink" href="#example-of-python-class-runtime-methods" title="Permalink to this headline">¶</a></h3>
 <p>The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to Microblaze read transaction specfic to the ALS class.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </pre></div>
 </div>
 <p>First, the comand is written to the Microblaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>
                     <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>When the IOP is finished, it will write 0x0 to the command area. The Python code now uses mmio.read() to check if the command is still pending (in this case, when the 0x3 value is still present at the <code class="docutils literal"><span class="pre">CMD_OFFSET</span></code>).  While the command is pending, the Python class blocks.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>
                             <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
     <span class="k">pass</span>
 </pre></div>
 </div>
 <p>Once the command is no longer 0x3, i.e. the acknowledge has been received, the result is read from the <code class="docutils literal"><span class="pre">DATA</span></code> area of the shared memory <code class="docutils literal"><span class="pre">MAILBOX_OFFSET</span></code> using <cite>mmio.read()</cite></p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Notice the pmod_const values are used in these function calls, values that are predefined in <code class="docutils literal"><span class="pre">pmod_const.py</span></code>.</p>

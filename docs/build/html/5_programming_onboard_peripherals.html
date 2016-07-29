@@ -281,11 +281,11 @@ To demonstrate this, we first import the LED, Switch and Button classes
 from the module pynq.board</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [1]:
+<span></span>In [1]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">Button</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">Button</span>
 </pre></div>
 </div>
 </div>
@@ -297,32 +297,32 @@ manipulate them. Let’s start by instantiating a single LED and turning
 it on and off.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [2]:
+<span></span>In [2]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">led0</span> <span class="o">=</span> <span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span></span><span class="n">led0</span> <span class="o">=</span> <span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [3]:
+<span></span>In [3]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">led0</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
+<span></span><span class="n">led0</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <p>Check the board and confirm the Led is on</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [4]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">led0</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+<span></span><span class="n">led0</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -330,11 +330,11 @@ In [4]:
 flashing.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [5]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">Button</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">Button</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="n">led0</span> <span class="o">=</span> <span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
@@ -350,11 +350,11 @@ In [5]:
 buttons.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [6]:
+<span></span>In [6]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="c"># Set the number of Switches</span>
+<span></span><span class="c1"># Set the number of Switches</span>
 <span class="n">MAX_LEDS</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">MAX_SWITCHES</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">MAX_BUTTONS</span> <span class="o">=</span> <span class="mi">4</span>
@@ -363,7 +363,7 @@ In [6]:
 <span class="n">switches</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">MAX_SWITCHES</span>
 <span class="n">buttons</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">MAX_BUTTONS</span>
 
-<span class="c"># Create lists for each of the IO component groups</span>
+<span class="c1"># Create lists for each of the IO component groups</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
     <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">LED</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_SWITCHES</span><span class="p">):</span>
@@ -378,15 +378,15 @@ on position, the corresponding led is turned on. You can execute this
 cell a few times, changing the position of the switches on the board.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [7]:
+<span></span>In [7]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="c"># LEDs start in the off state</span>
+<span></span><span class="c1"># LEDs start in the off state</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
     <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 
-<span class="c"># if a slide-switch is on, light the corresponding LED</span>
+<span class="c1"># if a slide-switch is on, light the corresponding LED</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">switches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
         <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
@@ -400,11 +400,11 @@ is pressed. You can execute this cell a few times pressing different
 pushbuttons each time.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [8]:
+<span></span>In [8]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="c"># if a button is depressed, toggle the state of the corresponding LED</span>
+<span></span><span class="c1"># if a button is depressed, toggle the state of the corresponding LED</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">buttons</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
         <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>

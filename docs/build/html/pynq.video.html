@@ -32,8 +32,8 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="up" title="pynq package" href="pynq.html"/>
-        <link rel="next" title="Frequently Asked Questions (FAQs)" href="13_faqs.html"/>
-        <link rel="prev" title="pynq.pmods package" href="pynq.pmods.html"/> 
+        <link rel="next" title="pynq.trace_buffer package" href="pynq.trace_buffer.html"/>
+        <link rel="prev" title="pynq.audio package" href="pynq.audio.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -99,10 +99,11 @@
 <li class="toctree-l1 current"><a class="reference internal" href="12_modules.html">pynq modules</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="pynq.html">pynq package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynq.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="pynq.audio.html">pynq.audio package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.board.html">pynq.board package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.pmods.html">pynq.pmods package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.audio.html">pynq.audio package</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">pynq.video package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.trace_buffer.html">pynq.trace_buffer package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
@@ -283,14 +284,11 @@ div.nboutput  > :nth-child(2).stderr {
 </style>
 <div class="section" id="pynq-video-package">
 <h1>pynq.video package<a class="headerlink" href="#pynq-video-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pynq.video.frame">
-<span id="pynq-video-frame-module"></span><h2>pynq.video.frame module<a class="headerlink" href="#module-pynq.video.frame" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pynq.drivers.video">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq.drivers.video" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.video.frame.Frame">
-<em class="property">class </em><code class="descclassname">pynq.video.frame.</code><code class="descname">Frame</code><span class="sig-paren">(</span><em>width</em>, <em>height</em>, <em>frame=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/video/frame.html#Frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.video.frame.Frame" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.Frame">
+<em class="property">class </em><code class="descclassname">pynq.drivers.video.</code><code class="descname">Frame</code><span class="sig-paren">(</span><em>width</em>, <em>height</em>, <em>frame=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/video.html#Frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.video.Frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class exposes the bytearray of the video frame buffer.</p>
 <div class="admonition note">
@@ -298,26 +296,26 @@ div.nboutput  > :nth-child(2).stderr {
 <p class="last">The maximum frame width is 1920, while the maximum frame height is 1080.</p>
 </div>
 <dl class="attribute">
-<dt id="pynq.video.frame.Frame.frame">
-<code class="descname">frame</code><a class="headerlink" href="#pynq.video.frame.Frame.frame" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.Frame.frame">
+<code class="descname">frame</code><a class="headerlink" href="#pynq.drivers.video.Frame.frame" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>bytearray</em> &#8211; The bytearray of the video frame buffer.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.frame.Frame.width">
-<code class="descname">width</code><a class="headerlink" href="#pynq.video.frame.Frame.width" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.Frame.width">
+<code class="descname">width</code><a class="headerlink" href="#pynq.drivers.video.Frame.width" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The width of a frame.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.frame.Frame.height">
-<code class="descname">height</code><a class="headerlink" href="#pynq.video.frame.Frame.height" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.Frame.height">
+<code class="descname">height</code><a class="headerlink" href="#pynq.drivers.video.Frame.height" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The height of a frame.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.video.frame.Frame.save_as_jpeg">
-<code class="descname">save_as_jpeg</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/video/frame.html#Frame.save_as_jpeg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.video.frame.Frame.save_as_jpeg" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.Frame.save_as_jpeg">
+<code class="descname">save_as_jpeg</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/video.html#Frame.save_as_jpeg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.video.Frame.save_as_jpeg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a video frame to a JPEG image.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -331,15 +329,15 @@ div.nboutput  > :nth-child(2).stderr {
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="pynq.video.frame.Frame.save_raw_as_jpeg">
-<em class="property">static </em><code class="descname">save_raw_as_jpeg</code><span class="sig-paren">(</span><em>path</em>, <em>frame_raw</em>, <em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/video/frame.html#Frame.save_raw_as_jpeg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.video.frame.Frame.save_raw_as_jpeg" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.Frame.save_raw_as_jpeg">
+<em class="property">static </em><code class="descname">save_raw_as_jpeg</code><span class="sig-paren">(</span><em>path</em>, <em>frame_raw</em>, <em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/video.html#Frame.save_raw_as_jpeg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.video.Frame.save_raw_as_jpeg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a video frame (in bytearray) to a JPEG image.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -360,7 +358,7 @@ div.nboutput  > :nth-child(2).stderr {
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
 </td>
 </tr>
 </tbody>
@@ -369,33 +367,31 @@ div.nboutput  > :nth-child(2).stderr {
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-pynq.video.hdmi">
-<span id="pynq-video-hdmi-module"></span><h2>pynq.video.hdmi module<a class="headerlink" href="#module-pynq.video.hdmi" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.video.hdmi.HDMI">
-<em class="property">class </em><code class="descclassname">pynq.video.hdmi.</code><code class="descname">HDMI</code><span class="sig-paren">(</span><em>direction</em>, <em>frame_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/video/hdmi.html#HDMI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.video.hdmi.HDMI" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI">
+<em class="property">class </em><code class="descclassname">pynq.drivers.video.</code><code class="descname">HDMI</code><span class="sig-paren">(</span><em>direction</em>, <em>frame_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/video.html#HDMI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.video.HDMI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class for an HDMI controller.</p>
 <p>The frame buffer in an HDMI object can be shared among different objects.
-For example, a VGA object and an HDMI object can use the same frame buffer.</p>
+e.g., a VGA object and an HDMI object can use the same frame buffer.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Currently HDMI only supports direction &#8216;in&#8217;.</p>
+<p class="last">HDMI supports direction &#8216;in&#8217; and &#8216;out&#8217;.</p>
 </div>
 <p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s">&#39;in&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.direction">
-<code class="descname">direction</code><a class="headerlink" href="#pynq.video.hdmi.HDMI.direction" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; Can only be &#8216;in&#8217; for HDMI to be input.</p>
+<dt id="pynq.drivers.video.HDMI.direction">
+<code class="descname">direction</code><a class="headerlink" href="#pynq.drivers.video.HDMI.direction" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Can be &#8216;in&#8217; for HDMI to be input or &#8216;out&#8217; for HDMI to be output.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.frame_buffer">
-<code class="descname">frame_buffer</code><a class="headerlink" href="#pynq.video.hdmi.HDMI.frame_buffer" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.frame_buffer">
+<code class="descname">frame_buffer</code><a class="headerlink" href="#pynq.drivers.video.HDMI.frame_buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_framebuffer</em> &#8211; A frame buffer storing at most 3 frames.</p>
 </dd></dl>
 
@@ -403,13 +399,13 @@ For example, a VGA object and an HDMI object can use the same frame buffer.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; If direction is not set to &#8216;in&#8217;.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code></td>
 </tr>
 </tbody>
 </table>
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.frame">
-<code class="descname">frame</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.frame" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.frame">
+<code class="descname">frame</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps the raw version using the Frame object.</p>
 <p>Use frame([index]) to read the frame more easily.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -420,15 +416,15 @@ For example, a VGA object and an HDMI object can use the same frame buffer.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Frame object with accessible pixels.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.video.frame.Frame" title="pynq.video.frame.Frame">Frame</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.drivers.video.Frame" title="pynq.drivers.video.Frame">Frame</a></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.frame_height">
-<code class="descname">frame_height</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.frame_height" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.frame_height">
+<code class="descname">frame_height</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.frame_height" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current frame height.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -445,8 +441,8 @@ For example, a VGA object and an HDMI object can use the same frame buffer.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.frame_index">
-<code class="descname">frame_index</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.frame_index" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.frame_index">
+<code class="descname">frame_index</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.frame_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the frame index.</p>
 <p>Use frame_index([new_frame_index]) to access the frame index.
 If <cite>new_frame_index</cite> is not specified, get the current frame index.
@@ -467,8 +463,8 @@ new index.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.frame_index_next">
-<code class="descname">frame_index_next</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.frame_index_next" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.frame_index_next">
+<code class="descname">frame_index_next</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.frame_index_next" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the frame index to the next one.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -485,8 +481,8 @@ new index.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.frame_raw">
-<code class="descname">frame_raw</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.frame_raw" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.frame_raw">
+<code class="descname">frame_raw</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.frame_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the frame as a bytearray.</p>
 <p>User may use frame([index]) to access the frame, which may
 introduce some overhead in rare cases. The method frame_raw([i])
@@ -506,8 +502,8 @@ is faster, but the parameter <cite>i</cite> has to be calculated manually.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.frame_width">
-<code class="descname">frame_width</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.frame_width" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.frame_width">
+<code class="descname">frame_width</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.frame_width" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current frame width.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -523,33 +519,55 @@ is faster, but the parameter <cite>i</cite> has to be calculated manually.</p>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynq.drivers.video.HDMI.mode">
+<code class="descname">mode</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the resolution of the display.</p>
+<p>Users can use mode(new_mode) to change the resolution.
+Specifically, with <cite>new_mode</cite> to be:
+0 : <a class="reference external" href="mailto:'640x480&#37;&#52;&#48;60Hz">'640x480<span>&#64;</span>60Hz</a>&#8216;
+1 : <a class="reference external" href="mailto:'800x600&#37;&#52;&#48;60Hz">'800x600<span>&#64;</span>60Hz</a>&#8216;
+2 : <a class="reference external" href="mailto:'1280x720&#37;&#52;&#48;60Hz">'1280x720<span>&#64;</span>60Hz</a>&#8216;
+3 : <a class="reference external" href="mailto:'1280x1024&#37;&#52;&#48;60Hz">'1280x1024<span>&#64;</span>60Hz</a>&#8216;
+4 : <a class="reference external" href="mailto:'1920x1080&#37;&#52;&#48;60Hz">'1920x1080<span>&#64;</span>60Hz</a>&#8216;</p>
+<p>If <cite>new_mode</cite> is not specified, return the current mode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_mode</strong> (<em>int</em>) &#8211; A mode index from 0 to 4.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The resolution of the VGA display.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; If <cite>new_mode</cite> is out of range.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
-<dt id="pynq.video.hdmi.HDMI.start">
-<code class="descname">start</code><span class="sig-paren">(</span><em>timeout=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/video/hdmi.html#HDMI.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.video.hdmi.HDMI.start" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.start">
+<code class="descname">start</code><span class="sig-paren">(</span><em>timeout=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/video.html#HDMI.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.video.HDMI.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the video controller.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>timeout</strong> (<em>optional[int]</em>) &#8211; </li>
-<li><strong>controller response timeout in seconds.</strong> (<a class="reference internal" href="#pynq.video.hdmi.HDMI" title="pynq.video.hdmi.HDMI"><em>HDMI</em></a>) &#8211; </li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.state">
-<code class="descname">state</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.state" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.state">
+<code class="descname">state</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the state of the device as an integer value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -566,8 +584,8 @@ is faster, but the parameter <cite>i</cite> has to be calculated manually.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.hdmi.HDMI.stop">
-<code class="descname">stop</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.hdmi.HDMI.stop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.HDMI.stop">
+<code class="descname">stop</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop the video controller.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -577,7 +595,7 @@ is faster, but the parameter <cite>i</cite> has to be calculated manually.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -585,33 +603,30 @@ is faster, but the parameter <cite>i</cite> has to be calculated manually.</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-pynq.video.vga">
-<span id="pynq-video-vga-module"></span><h2>pynq.video.vga module<a class="headerlink" href="#module-pynq.video.vga" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.video.vga.VGA">
-<em class="property">class </em><code class="descclassname">pynq.video.vga.</code><code class="descname">VGA</code><span class="sig-paren">(</span><em>direction</em>, <em>frame_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/video/vga.html#VGA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.video.vga.VGA" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA">
+<em class="property">class </em><code class="descclassname">pynq.drivers.video.</code><code class="descname">VGA</code><span class="sig-paren">(</span><em>direction</em>, <em>frame_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/video.html#VGA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.video.VGA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class for a VGA controller.</p>
 <p>The frame buffer in a VGA object can be shared among different objects.
-For example, a VGA object and an HDMI object can use the same frame buffer.</p>
+e.g., a VGA object and an HDMI object can use the same frame buffer.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Currently VGA only supports direction &#8216;out&#8217;.</p>
 </div>
 <p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">frame_buffer</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">,</span> <span class="n">frame_buffer</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.direction">
-<code class="descname">direction</code><a class="headerlink" href="#pynq.video.vga.VGA.direction" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.direction">
+<code class="descname">direction</code><a class="headerlink" href="#pynq.drivers.video.VGA.direction" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em> &#8211; Can only be &#8216;out&#8217; for VGA to be output.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.frame_buffer">
-<code class="descname">frame_buffer</code><a class="headerlink" href="#pynq.video.vga.VGA.frame_buffer" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.frame_buffer">
+<code class="descname">frame_buffer</code><a class="headerlink" href="#pynq.drivers.video.VGA.frame_buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_framebuffer</em> &#8211; A frame buffer storing at most 3 frames.</p>
 </dd></dl>
 
@@ -624,8 +639,8 @@ For example, a VGA object and an HDMI object can use the same frame buffer.</p>
 </tbody>
 </table>
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.frame">
-<code class="descname">frame</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.frame" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.frame">
+<code class="descname">frame</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps the raw version using the Frame object.</p>
 <p>Use frame([index], [new_frame]) to write the frame more easily.</p>
 <div class="admonition note">
@@ -645,7 +660,7 @@ For example, a VGA object and an HDMI object can use the same frame buffer.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A Frame object with accessible pixels.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.video.frame.Frame" title="pynq.video.frame.Frame">Frame</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.drivers.video.Frame" title="pynq.drivers.video.Frame">Frame</a></p>
 </td>
 </tr>
 </tbody>
@@ -653,8 +668,8 @@ For example, a VGA object and an HDMI object can use the same frame buffer.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.frame_height">
-<code class="descname">frame_height</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.frame_height" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.frame_height">
+<code class="descname">frame_height</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_height" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current frame height.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -671,8 +686,8 @@ For example, a VGA object and an HDMI object can use the same frame buffer.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.frame_index">
-<code class="descname">frame_index</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.frame_index" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.frame_index">
+<code class="descname">frame_index</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the frame index.</p>
 <p>Use frame_index([new_frame_index]) to access the frame index.
 If <cite>new_frame_index</cite> is not specified, get the current frame index.
@@ -693,8 +708,8 @@ new index.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.frame_index_next">
-<code class="descname">frame_index_next</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.frame_index_next" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.frame_index_next">
+<code class="descname">frame_index_next</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_index_next" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the frame index to the next one.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -711,8 +726,8 @@ new index.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.frame_raw">
-<code class="descname">frame_raw</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.frame_raw" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.frame_raw">
+<code class="descname">frame_raw</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a bytearray of the frame.</p>
 <p>User may use frame([index]) to access the frame, which may
 introduce some overhead in rare cases. The method
@@ -746,8 +761,8 @@ be returned.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.frame_width">
-<code class="descname">frame_width</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.frame_width" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.frame_width">
+<code class="descname">frame_width</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_width" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current frame width.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -764,8 +779,8 @@ be returned.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.mode">
-<code class="descname">mode</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.mode" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.mode">
+<code class="descname">mode</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the resolution of the display.</p>
 <p>Users can use mode(new_mode) to change the resolution.
 Specifically, with <cite>new_mode</cite> to be:
@@ -792,8 +807,8 @@ Specifically, with <cite>new_mode</cite> to be:
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.start">
-<code class="descname">start</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.start" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.start">
+<code class="descname">start</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the video controller.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -803,15 +818,15 @@ Specifically, with <cite>new_mode</cite> to be:
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.state">
-<code class="descname">state</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.state" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.state">
+<code class="descname">state</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the state of the device as an integer value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -828,8 +843,8 @@ Specifically, with <cite>new_mode</cite> to be:
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.video.vga.VGA.stop">
-<code class="descname">stop</code><em class="property"> = None</em><a class="headerlink" href="#pynq.video.vga.VGA.stop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.video.VGA.stop">
+<code class="descname">stop</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop the video controller.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -839,7 +854,7 @@ Specifically, with <cite>new_mode</cite> to be:
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -847,12 +862,6 @@ Specifically, with <cite>new_mode</cite> to be:
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-pynq.video.video_const">
-<span id="pynq-video-video-const-module"></span><h2>pynq.video.video_const module<a class="headerlink" href="#module-pynq.video.video_const" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pynq.video">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq.video" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -863,10 +872,10 @@ Specifically, with <cite>new_mode</cite> to be:
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="13_faqs.html" class="btn btn-neutral float-right" title="Frequently Asked Questions (FAQs)" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pynq.trace_buffer.html" class="btn btn-neutral float-right" title="pynq.trace_buffer package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="pynq.pmods.html" class="btn btn-neutral" title="pynq.pmods package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pynq.audio.html" class="btn btn-neutral" title="pynq.audio package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

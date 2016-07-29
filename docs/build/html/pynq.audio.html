@@ -32,8 +32,8 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="up" title="pynq package" href="pynq.html"/>
-        <link rel="next" title="pynq.board package" href="pynq.board.html"/>
-        <link rel="prev" title="pynq package" href="pynq.html"/> 
+        <link rel="next" title="pynq.video package" href="pynq.video.html"/>
+        <link rel="prev" title="pynq.pmods package" href="pynq.pmods.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -99,10 +99,11 @@
 <li class="toctree-l1 current"><a class="reference internal" href="12_modules.html">pynq modules</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="pynq.html">pynq package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynq.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">pynq.audio package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.board.html">pynq.board package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.pmods.html">pynq.pmods package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynq.audio package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.video.html">pynq.video package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.trace_buffer.html">pynq.trace_buffer package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
@@ -283,60 +284,51 @@ div.nboutput  > :nth-child(2).stderr {
 </style>
 <div class="section" id="pynq-audio-package">
 <h1>pynq.audio package<a class="headerlink" href="#pynq-audio-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pynq.audio.audio">
-<span id="pynq-audio-audio-module"></span><h2>pynq.audio.audio module<a class="headerlink" href="#module-pynq.audio.audio" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pynq.drivers.audio">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq.drivers.audio" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.audio.audio.Audio">
-<em class="property">class </em><code class="descclassname">pynq.audio.audio.</code><code class="descname">Audio</code><a class="reference internal" href="_modules/pynq/audio/audio.html#Audio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.audio.audio.Audio" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.audio.Audio">
+<em class="property">class </em><code class="descclassname">pynq.drivers.audio.</code><code class="descname">Audio</code><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class for the audio controller.</p>
 <p>This class just sets the static <cite>_audio_ctrl</cite> variable if not yet set.
 The <cite>_audio_ctrl</cite> in <cite>LineIn</cite> and <cite>Headpone</cite> classes inherits from <cite>Audio</cite>.</p>
 <dl class="attribute">
-<dt id="pynq.audio.audio.Audio._audio_ctrl">
-<code class="descname">_audio_ctrl</code><a class="headerlink" href="#pynq.audio.audio.Audio._audio_ctrl" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.audio.Audio._audio_ctrl">
+<code class="descname">_audio_ctrl</code><a class="headerlink" href="#pynq.drivers.audio.Audio._audio_ctrl" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>object</em> &#8211; An audio control object from C-API.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="pynq.audio.audio.Headphone">
-<em class="property">class </em><code class="descclassname">pynq.audio.audio.</code><code class="descname">Headphone</code><a class="reference internal" href="_modules/pynq/audio/audio.html#Headphone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.audio.audio.Headphone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pynq.audio.audio.Audio" title="pynq.audio.audio.Audio"><code class="xref py py-class docutils literal"><span class="pre">pynq.audio.audio.Audio</span></code></a></p>
+<dt id="pynq.drivers.audio.Headphone">
+<em class="property">class </em><code class="descclassname">pynq.drivers.audio.</code><code class="descname">Headphone</code><a class="reference internal" href="_modules/pynq/drivers/audio.html#Headphone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Headphone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pynq.drivers.audio.Audio" title="pynq.drivers.audio.Audio"><code class="xref py py-class docutils literal"><span class="pre">pynq.drivers.audio.Audio</span></code></a></p>
 <p>Class for the audio headphone (HPH) channel.</p>
 <p>This is a child class of Audio.</p>
 <dl class="attribute">
-<dt id="pynq.audio.audio.Headphone.controller">
-<code class="descname">controller</code><a class="headerlink" href="#pynq.audio.audio.Headphone.controller" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.audio.Headphone.controller">
+<code class="descname">controller</code><a class="headerlink" href="#pynq.drivers.audio.Headphone.controller" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>object</em> &#8211; Uses the audio controller in its parent class (C-API).</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="pynq.audio.audio.LineIn">
-<em class="property">class </em><code class="descclassname">pynq.audio.audio.</code><code class="descname">LineIn</code><a class="reference internal" href="_modules/pynq/audio/audio.html#LineIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.audio.audio.LineIn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pynq.audio.audio.Audio" title="pynq.audio.audio.Audio"><code class="xref py py-class docutils literal"><span class="pre">pynq.audio.audio.Audio</span></code></a></p>
+<dt id="pynq.drivers.audio.LineIn">
+<em class="property">class </em><code class="descclassname">pynq.drivers.audio.</code><code class="descname">LineIn</code><a class="reference internal" href="_modules/pynq/drivers/audio.html#LineIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.LineIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pynq.drivers.audio.Audio" title="pynq.drivers.audio.Audio"><code class="xref py py-class docutils literal"><span class="pre">pynq.drivers.audio.Audio</span></code></a></p>
 <p>Class for the audio LineIn channel.</p>
 <p>This is a child class of Audio.</p>
 <dl class="attribute">
-<dt id="pynq.audio.audio.LineIn.controller">
-<code class="descname">controller</code><a class="headerlink" href="#pynq.audio.audio.LineIn.controller" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.audio.LineIn.controller">
+<code class="descname">controller</code><a class="headerlink" href="#pynq.drivers.audio.LineIn.controller" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>object</em> &#8211; Uses the audio controller in its parent class (C-API).</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-pynq.audio.audio_const">
-<span id="pynq-audio-audio-const-module"></span><h2>pynq.audio.audio_const module<a class="headerlink" href="#module-pynq.audio.audio_const" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pynq.audio">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq.audio" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -347,10 +339,10 @@ The <cite>_audio_ctrl</cite> in <cite>LineIn</cite> and <cite>Headpone</cite> cl
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pynq.board.html" class="btn btn-neutral float-right" title="pynq.board package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pynq.video.html" class="btn btn-neutral float-right" title="pynq.video package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="pynq.html" class="btn btn-neutral" title="pynq package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pynq.pmods.html" class="btn btn-neutral" title="pynq.pmods package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

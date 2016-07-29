@@ -287,7 +287,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="board">
 <h2>board<a class="headerlink" href="#board" title="Permalink to this headline">¶</a></h2>
 <p>This folder contains libraries or python packages for peripherals available on the Zybo board: Buttons, Switches, and LEDs.  For example the following code will turn on one of Zybo&#8217;s LEDs:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span> <span class="n">LED</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span> <span class="n">LED</span>
 <span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -302,8 +302,8 @@ div.nboutput  > :nth-child(2).stderr {
 <p class="last"><code class="docutils literal"><span class="pre">_iop.py</span></code> is an internal module, not intended for the end user. In Python, there is no concept of _public_ and _private_; we use <code class="docutils literal"><span class="pre">_</span></code> as a prefix to indicate internal definitions, variables, functions, and packages.</p>
 </div>
 <p>For example, the following code will instantiate and write to the PMOD_OLED attached on PMOD 4.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">PMOD_OLED</span>
-<span class="n">PMOD_OLED</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;hello world&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq.pmods</span> <span class="kn">import</span> <span class="n">PMOD_OLED</span>
+<span class="n">PMOD_OLED</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

@@ -301,18 +301,18 @@ execute the next cell. If a valid HDMI source is not detected, the
 kernel will hang and restart.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [1]:
+<span></span>In [1]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
 <span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">HDMI</span>
 
-<span class="c"># Download new bitstream with audiovideo IP</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="c1"># Download new bitstream with audiovideo IP</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 
-<span class="c"># Initialize HDMI as an input device</span>
-<span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s">&#39;in&#39;</span><span class="p">)</span>
+<span class="c1"># Initialize HDMI as an input device</span>
+<span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -326,21 +326,21 @@ recognize it and start automatically.</p>
 <p>You can manually start/stop the controller</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [2]:
+<span></span>In [2]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">hdmi</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span></span><span class="n">hdmi</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [4]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">hdmi</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span></span><span class="n">hdmi</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -350,11 +350,11 @@ In [4]:
 <p>To check the state of the controller:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [5]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">state</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+<span></span><span class="n">state</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -378,13 +378,13 @@ values:</p>
 source is connected):</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [6]:
+<span></span>In [6]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">width</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_width</span><span class="p">()</span>
+<span></span><span class="n">width</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_width</span><span class="p">()</span>
 <span class="n">height</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_height</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&#39;HDMI is capturing a video source of resolution {}x{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;HDMI is capturing a video source of resolution </span><span class="si">{}</span><span class="s1">x</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -405,21 +405,21 @@ instantiation, the current frame is the one at index 0. You can check at
 any time which frame index is active:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [7]:
+<span></span>In [7]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">hdmi</span><span class="o">.</span><span class="n">frame_index</span><span class="p">()</span>
+<span></span><span class="n">hdmi</span><span class="o">.</span><span class="n">frame_index</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[7]:
+<span></span>Out[7]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-0
+<span></span>0
 </pre></div>
 </div>
 </div>
@@ -427,11 +427,11 @@ Out[7]:
 specify an argument with the method call. For instance:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [8]:
+<span></span>In [8]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">index</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_index</span><span class="p">()</span>
+<span></span><span class="n">index</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_index</span><span class="p">()</span>
 <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_index</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -442,21 +442,21 @@ cause an exception. If you want to set the next frame in the sequence,
 use:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [9]:
+<span></span>In [9]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">hdmi</span><span class="o">.</span><span class="n">frame_index_next</span><span class="p">()</span>
+<span></span><span class="n">hdmi</span><span class="o">.</span><span class="n">frame_index_next</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[9]:
+<span></span>Out[9]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-2
+<span></span>2
 </pre></div>
 </div>
 </div>
@@ -468,13 +468,13 @@ index as an integer.</p>
 <em>hdmi.frame_raw()</em></p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [10]:
+<span></span>In [10]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">Image</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">Image</span>
 <span class="n">frame</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
-<span class="n">orig_img_path</span> <span class="o">=</span> <span class="s">&#39;/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_0.jpg&#39;</span>
+<span class="n">orig_img_path</span> <span class="o">=</span> <span class="s1">&#39;/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_0.jpg&#39;</span>
 <span class="n">frame</span><span class="o">.</span><span class="n">save_as_jpeg</span><span class="p">(</span><span class="n">orig_img_path</span><span class="p">)</span>
 <span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">orig_img_path</span><span class="p">)</span>
 </pre></div>
@@ -482,11 +482,11 @@ In [10]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[10]:
+<span></span>Out[10]:
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/7_audio_video_overlay_21_0.jpe" src="_images/7_audio_video_overlay_21_0.jpe" />
+<img alt="_images/7_audio_video_overlay_21_0.jpg" src="_images/7_audio_video_overlay_21_0.jpg" />
 </div>
 </div>
 <p>This will dump the frame as a python list <em>frame[height, width][rgb]</em>.
@@ -495,11 +495,11 @@ of a pixel, you can do it as shown below. In the example, the top left
 quarter of the image will have the green component increased.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [11]:
+<span></span>In [11]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">)):</span>
+<span></span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">)):</span>
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">)):</span>
         <span class="p">(</span><span class="n">red</span><span class="p">,</span><span class="n">green</span><span class="p">,</span><span class="n">blue</span><span class="p">)</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span>
         <span class="n">green</span> <span class="o">=</span> <span class="n">green</span><span class="o">*</span><span class="mi">2</span>
@@ -507,7 +507,7 @@ In [11]:
             <span class="n">green</span> <span class="o">=</span> <span class="mi">255</span>
         <span class="n">frame</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">)</span>
 
-<span class="n">new_img_path</span> <span class="o">=</span> <span class="s">&#39;/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_1.jpg&#39;</span>
+<span class="n">new_img_path</span> <span class="o">=</span> <span class="s1">&#39;/home/xpp/jupyter_notebooks/Getting_Started/images/audiovideo_1.jpg&#39;</span>
 <span class="n">frame</span><span class="o">.</span><span class="n">save_as_jpeg</span><span class="p">(</span><span class="n">new_img_path</span><span class="p">)</span>
 <span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">new_img_path</span><span class="p">)</span>
 </pre></div>
@@ -515,11 +515,11 @@ In [11]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[11]:
+<span></span>Out[11]:
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/7_audio_video_overlay_23_0.jpe" src="_images/7_audio_video_overlay_23_0.jpe" />
+<img alt="_images/7_audio_video_overlay_23_0.jpg" src="_images/7_audio_video_overlay_23_0.jpg" />
 </div>
 </div>
 <p>This frame() method is a simple way to capture pixel data, but may be
@@ -527,23 +527,23 @@ slow. If you want to dump a frame at a specific index, just pass the
 index as an argument of the frame() method:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [12]:
+<span></span>In [12]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">frame</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># dumping frame at index 2</span>
+<span></span><span class="n">frame</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># dumping frame at index 2</span>
 </pre></div>
 </div>
 </div>
 <p>If higher performance is required, the frame_raw() method can be used:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [13]:
+<span></span>In [13]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">frame_raw</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">()</span> <span class="c"># dumping frame at current index</span>
-<span class="n">frame_raw</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># dumping frame at index 2</span>
+<span></span><span class="n">frame_raw</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">()</span> <span class="c1"># dumping frame at current index</span>
+<span class="n">frame_raw</span> <span class="o">=</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># dumping frame at index 2</span>
 </pre></div>
 </div>
 </div>
@@ -561,13 +561,13 @@ frame_raw[1920<em>i</em>3] to frame_raw[(1920<em>i + 799)</em>3] for each i
 contain invalid data.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [14]:
+<span></span>In [14]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="nb">print</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c"># printing the green component of pixel (0,0)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">[</span><span class="mi">1920</span> <span class="o">+</span> <span class="mi">399</span> <span class="o">+</span> <span class="mi">0</span><span class="p">])</span> <span class="c"># printing the blue component of pixel (1,399)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">[</span><span class="mi">1920</span><span class="o">*</span><span class="mi">599</span> <span class="o">+</span> <span class="mi">799</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span> <span class="c"># printing the red component of the last pixel (599,799)</span>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># printing the green component of pixel (0,0)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">[</span><span class="mi">1920</span> <span class="o">+</span> <span class="mi">399</span> <span class="o">+</span> <span class="mi">0</span><span class="p">])</span> <span class="c1"># printing the blue component of pixel (1,399)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">[</span><span class="mi">1920</span><span class="o">*</span><span class="mi">599</span> <span class="o">+</span> <span class="mi">799</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span> <span class="c1"># printing the red component of the last pixel (599,799)</span>
 </pre></div>
 </div>
 </div>
@@ -590,44 +590,44 @@ on-board VGA port to a monitor, or other VGA display device.</p>
 <p>To instantiate the VGA controller:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [15]:
+<span></span>In [15]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">VGA</span>
-<span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">)</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">VGA</span>
+<span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>For the VGA controller, you have to start/stop the device explicitly:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [16]:
+<span></span>In [16]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span></span><span class="n">vga</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [17]:
+<span></span>In [17]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span></span><span class="n">vga</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <p>To check the state of the controller:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [18]:
+<span></span>In [18]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">state</span> <span class="o">=</span> <span class="n">vga</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+<span></span><span class="n">state</span> <span class="o">=</span> <span class="n">vga</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -650,11 +650,11 @@ In [18]:
 <p>To check the current resolution:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [19]:
+<span></span>In [19]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="nb">print</span><span class="p">(</span><span class="n">vga</span><span class="o">.</span><span class="n">mode</span><span class="p">())</span>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">vga</span><span class="o">.</span><span class="n">mode</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -670,21 +670,21 @@ In [19]:
 a valid index as an argument when calling mode():</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [20]:
+<span></span>In [20]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># 1280x720@60Hz</span>
+<span></span><span class="n">vga</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># 1280x720@60Hz</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[20]:
+<span></span>Out[20]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-&#39;1280x720@60Hz&#39;
+<span></span>&#39;1280x720@60Hz&#39;
 </pre></div>
 </div>
 </div>
@@ -699,13 +699,13 @@ Out[20]:
 <p>Similar to HDMI, you can access the current resolution width and height:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [21]:
+<span></span>In [21]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">width</span> <span class="o">=</span> <span class="n">vga</span><span class="o">.</span><span class="n">frame_width</span><span class="p">()</span>
+<span></span><span class="n">width</span> <span class="o">=</span> <span class="n">vga</span><span class="o">.</span><span class="n">frame_width</span><span class="p">()</span>
 <span class="n">height</span> <span class="o">=</span> <span class="n">vga</span><span class="o">.</span><span class="n">frame_height</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&#39;VGA resolution is {}x{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;VGA resolution is </span><span class="si">{}</span><span class="s1">x</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -720,11 +720,11 @@ VGA resolution is 1280x720
 <p>and access the current frame, or change it using the same methods:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [22]:
+<span></span>In [22]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">index</span> <span class="o">=</span> <span class="n">vga</span><span class="o">.</span><span class="n">frame_index</span><span class="p">()</span>
+<span></span><span class="n">index</span> <span class="o">=</span> <span class="n">vga</span><span class="o">.</span><span class="n">frame_index</span><span class="p">()</span>
 <span class="n">vga</span><span class="o">.</span><span class="n">frame_index</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">vga</span><span class="o">.</span><span class="n">frame_index_next</span><span class="p">()</span>
 </pre></div>
@@ -732,11 +732,11 @@ In [22]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[22]:
+<span></span>Out[22]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-0
+<span></span>0
 </pre></div>
 </div>
 </div>
@@ -749,41 +749,41 @@ frame(index). The faster frame_raw() is also available.</p>
 frame content to the VGA’s frame buffer.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [23]:
+<span></span>In [23]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="c"># copying new frame at current index</span>
+<span></span><span class="n">vga</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="c1"># copying new frame at current index</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [24]:
+<span></span>In [24]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span> <span class="c"># copying new frame at index 2</span>
+<span></span><span class="n">vga</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span> <span class="c1"># copying new frame at index 2</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [25]:
+<span></span>In [25]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">)</span> <span class="c"># copying new frame_raw at current index</span>
+<span></span><span class="n">vga</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">)</span> <span class="c1"># copying new frame_raw at current index</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [26]:
+<span></span>In [26]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frame_raw</span><span class="p">)</span> <span class="c"># copying new frame_raw at index 1</span>
+<span></span><span class="n">vga</span><span class="o">.</span><span class="n">frame_raw</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frame_raw</span><span class="p">)</span> <span class="c1"># copying new frame_raw at index 1</span>
 </pre></div>
 </div>
 </div>
@@ -804,43 +804,43 @@ object share the same frame buffer passing the first declared object&#8217;s
 frame buffer as an argument of the second object’s constructor:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [27]:
+<span></span>In [27]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
 <span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">HDMI</span>
 <span class="kn">from</span> <span class="nn">pynq.video</span> <span class="k">import</span> <span class="n">VGA</span>
 
-<span class="c"># Download new bitstream with audiovideo IP</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="c1"># Download new bitstream with audiovideo IP</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 
-<span class="c"># Initialize HDMI as an input device</span>
-<span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s">&#39;in&#39;</span><span class="p">)</span>
-<span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_buffer</span><span class="p">)</span>
+<span class="c1"># Initialize HDMI as an input device</span>
+<span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+<span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">,</span> <span class="n">hdmi</span><span class="o">.</span><span class="n">frame_buffer</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>or equivalently:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [ ]:
+<span></span>In [ ]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">)</span>
-<span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">vga</span><span class="o">.</span><span class="n">frame_buffer</span><span class="p">)</span>
+<span></span><span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
+<span class="n">hdmi</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">vga</span><span class="o">.</span><span class="n">frame_buffer</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>The last step is to set the controllers:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [28]:
+<span></span>In [28]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">hdmi</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span></span><span class="n">hdmi</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="n">vga</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -856,11 +856,11 @@ the HPH output port and the Line In input port of the Zybo. To
 instantiate the two objects:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [29]:
+<span></span>In [29]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.audio</span> <span class="k">import</span> <span class="n">LineIn</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.audio</span> <span class="k">import</span> <span class="n">LineIn</span>
 <span class="kn">from</span> <span class="nn">pynq.audio</span> <span class="k">import</span> <span class="n">Headphone</span>
 <span class="n">headphone</span> <span class="o">=</span> <span class="n">Headphone</span><span class="p">()</span>
 <span class="n">linein</span> <span class="o">=</span> <span class="n">LineIn</span><span class="p">()</span>
@@ -873,13 +873,13 @@ input (Line In) to output (HPH) read the input, and write the value to
 the output</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [30]:
+<span></span>In [30]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="n">audio_sample</span> <span class="o">=</span> <span class="n">linein</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&#39;left channel: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">audio_sample</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&#39;right channel: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">audio_sample</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span></span><span class="n">audio_sample</span> <span class="o">=</span> <span class="n">linein</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;left channel: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">audio_sample</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;right channel: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">audio_sample</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -899,16 +899,16 @@ the output, carry out some processing on the data, or write your own
 samples to hph():</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [31]:
+<span></span>In [31]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="mi">15</span> <span class="c"># set end time to current time + 15 seconds</span>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="mi">15</span> <span class="c1"># set end time to current time + 15 seconds</span>
 <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">time_end</span><span class="p">:</span>
     <span class="n">audio_sample</span> <span class="o">=</span> <span class="n">linein</span><span class="p">()</span>
     <span class="n">headphone</span><span class="p">(</span><span class="n">audio_sample</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&quot;Done&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -924,16 +924,16 @@ Done
 seconds</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [32]:
+<span></span>In [32]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq.audio</span> <span class="k">import</span> <span class="n">LineIn</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq.audio</span> <span class="k">import</span> <span class="n">LineIn</span>
 <span class="kn">from</span> <span class="nn">pynq.audio</span> <span class="k">import</span> <span class="n">Headphone</span>
 <span class="n">headphone</span> <span class="o">=</span> <span class="n">Headphone</span><span class="p">()</span>
 <span class="n">linein</span> <span class="o">=</span> <span class="n">LineIn</span><span class="p">()</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="mi">15</span> <span class="c"># set end time to current time + 15 seconds</span>
+<span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="mi">15</span> <span class="c1"># set end time to current time + 15 seconds</span>
 <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">time_end</span><span class="p">:</span>
     <span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">)</span> <span class="o">=</span> <span class="n">linein</span><span class="p">()</span>
     <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">%</span><span class="k">4</span>)
@@ -942,7 +942,7 @@ In [32]:
     <span class="k">else</span><span class="p">:</span>
         <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">headphone</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&quot;Done&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -957,12 +957,12 @@ Done
 <p>To switch back to the Pmod I/O overlay, we can do:</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [ ]:
+<span></span>In [ ]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;pmod.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;pmod.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>

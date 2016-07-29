@@ -6,10 +6,11 @@ Subpackages
 
 .. toctree::
 
-    pynq.audio
     pynq.board
     pynq.pmods
+    pynq.audio
     pynq.video
+    pynq.trace_buffer
 
 Submodules
 ----------

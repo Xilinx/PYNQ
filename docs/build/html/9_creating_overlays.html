@@ -291,8 +291,8 @@ div.nboutput  > :nth-child(2).stderr {
 <blockquote>
 <div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/python/pynq/pl.py</span></code></div></blockquote>
 <p>The Bitstream can then be downloaded from Python:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -301,8 +301,8 @@ div.nboutput  > :nth-child(2).stderr {
 <p>Once a new overlay has been created, the overlay needs to be integrated into the Pynq environment.  It is recommended to use an existing Vivado <em>Overlay project</em> as a starting point for a new overlay. This will ensure the settings for the Zynq PS, and the existing PS/PL interfaces are used in the new project.</p>
 <p>As with any application running on Zynq, the interface between the software and hardware is via the Zynq memory map.</p>
 <p>An overlay can have many addressable IPs. These addressable IPs can be accessed by the ARM processor using the memory map. To find the addressable IPs of a specific overlay (e.g. <cite>audiovideo.bit</cite>), users can do:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ip_dict</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ip_dict</span>
 </pre></div>
 </div>
 <p>This will show the IP dictionary of the overlay. Each entry in this IP dictionary is a key-value pair. For example, an entry can be:</p>
@@ -317,7 +317,7 @@ div.nboutput  > :nth-child(2).stderr {
 </ul>
 </div></blockquote>
 <p>Similarly, to find the addressable IPs currently on the programmable logic, users can do:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">PL</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">PL</span>
 <span class="n">PL</span><span class="o">.</span><span class="n">ip_dict</span>
 </pre></div>
 </div>
@@ -326,12 +326,12 @@ div.nboutput  > :nth-child(2).stderr {
 <blockquote>
 <div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/python/pynq/mmio.py</span></code></div></blockquote>
 <p>Continuing the example shown above, we show a use case where the MMIO class can access an area of 0x8000 bytes in the PL, starting at address 0x40000000 (<cite>SEG_mb_bram_ctrl_1_Mem0</cite>):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 
-<span class="c"># an IP is located at 0x40000000</span>
+<span class="c1"># an IP is located at 0x40000000</span>
 <span class="n">myip</span> <span class="o">=</span> <span class="n">MMIO</span><span class="p">(</span><span class="mh">0x40000000</span><span class="p">,</span><span class="mh">0x8000</span><span class="p">)</span>
 
-<span class="c"># Read from the IP at offset 0</span>
+<span class="c1"># Read from the IP at offset 0</span>
 <span class="n">myip</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -340,8 +340,8 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="using-new-overlays-with-gpio">
 <h2>Using new overlays with GPIO<a class="headerlink" href="#using-new-overlays-with-gpio" title="Permalink to this headline">¶</a></h2>
 <p>The control interface between the ARM processor and programmable logic is via the Zynq GPIO. The information about a GPIO is kept in the GPIO dictionary of an overlay.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gpio_dict</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;audiovideo.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gpio_dict</span>
 </pre></div>
 </div>
 <p>An example of the entry in a GPIO dictionary can be:</p>
@@ -355,7 +355,7 @@ div.nboutput  > :nth-child(2).stderr {
 </ul>
 </div></blockquote>
 <p>Similarly, to check the GPIO currently on the programmable logic:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">PL</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">PL</span>
 <span class="n">PL</span><span class="o">.</span><span class="n">gpio_dict</span>
 </pre></div>
 </div>
