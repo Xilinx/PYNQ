@@ -1,0 +1,131 @@
+
+
+
+BACKUP_DIR = /home/xpp/pynq_backup
+REPO_DIR = /home/xpp/pynq_git
+PYNQ_DIR = /usr/local/lib/python3.4/dist-packages/pynq
+
+FINAL_DOCS_DIR = /home/xpp/docs
+FINAL_NOTEBOOKS_DIR = /home/xpp/jupyter_notebooks
+FINAL_SCRIPTS_DIR = /home/xpp/scripts
+
+NOTEBOOK_IMAGES=edit_mode.png \
+dashboard_running_tab.png \
+python_logo.svg \
+dashboard_files_tab_run.png \
+zybo_io_opt.jpeg \
+command_mode.png \
+zybo_io.jpeg \
+dashboard_files_tab_new.png \
+dashboard_files_tab.png \
+menubar_toolbar.png \
+dashboard_files_tab_btns.png \
+zyboaudiovideo.jpg \
+Pmods_opt.png \
+pmod_closeup_opt.jpeg \
+pmod_pins_opt.png \
+Pmod_Grove_Adapter_opt.jpeg \
+tmp2_8pin_opt.jpeg \
+iop.jpg \
+zybopmods_opt.jpeg \
+pmodio_overlay_1_opt.png \
+als_oled_Demo_opt.jpeg \
+adc_dac_demo_opt.jpeg 
+
+DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
+4_programming_in_python.tmp  \
+5_programming_onboard_peripherals.tmp \
+6_pmodio_overlay.tmp  \
+7_audio_video_overlay.tmp  
+
+update_pynq: backup git_clone pynq_package scripts_notebooks pynq_permissions
+	@echo "Completed PYNQ update."
+	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
+	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
+	@echo ""
+	@echo "Completed PYNQ update."
+	@echo ""
+
+update_docs: backup git_clone scripts_notebooks doc_sphinx doc_notebooks pynq_permissions
+	@echo	
+	@echo "Completed PYNQ documentation build."
+	@echo "Documentation folder is at: ${FINAL_DOCS_DIR}"
+	@echo
+
+backup:
+	@echo
+	@echo "Backing up files into ${{BACKUP_DIR}"
+	@echo
+	mkdir ${BACKUP_DIR}
+	cp -r ${FINAL_DOCS_DIR} ${FINAL_NOTEBOOKS_DIR} ${FINAL_SCRIPTS_DIR} ${BACKUP_DIR}
+
+git_clone:
+	@echo
+	@echo "Clone PYNQ repository into ${REPO_DIR}"
+	@echo
+	git clone https://github.com/Xilinx/PYNQ ${REPO_DIR}
+
+pynq_package:
+	@echo
+	@echo "Pip install latest pynq python package"
+	@echo
+	python3.4 /home/xpp/scripts/stop_pl_server.py	
+	rm -rf ${PYNQ_DIR}/*
+	cp -rf ${REPO_DIR}/${BOARD}/sdk/bin/*.bin ${REPO_DIR}/python/pynq/iop/
+	cp -rf ${REPO_DIR}/${BOARD}/bitstream ${REPO_DIR}/python/pynq/
+	cd ${REPO_DIR}/python ; sudo -H pip install --upgrade .
+	python3.4 /home/xpp/scripts/start_pl_server.py &
+
+pynq_permissions:
+	chown -R xpp:xpp ${PYNQ_DIR}/*
+	chmod -R a+rw ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${PYNQ_DIR}
+	chmod -R a+x ${FINAL_SCRIPTS_DIR}/*
+	chown -R xpp:xpp ${REPO_DIR} ${BACKUP_DIR}
+	chown -R xpp:xpp ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${FINAL_SCRIPTS_DIR} ${PYNQ_DIR} 
+
+scripts_notebooks:
+	@echo
+	@echo "Update scripts and notebooks"
+	@echo
+	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
+	cp -r ${REPO_DIR}/${BOARD}/notebooks/* ${FINAL_NOTEBOOKS_DIR}
+	cd ${FINAL_NOTEBOOKS_DIR} ; ln -s /home/xpp/docs
+	cp -r ${REPO_DIR}/ubuntu/scripts/hostname.sh ${FINAL_SCRIPTS_DIR}
+	cp -r ${REPO_DIR}/ubuntu/scripts/*.py ${FINAL_SCRIPTS_DIR}
+
+doc_sphinx:
+	@echo
+	@echo "Building docs"
+	@echo
+	cd ${REPO_DIR}/docs ; sphinx-apidoc -f -o ./source ${PYNQ_DIR}
+	cd ${REPO_DIR}/docs ; python3 ipynb_post_processor.py
+	cd ${REPO_DIR}/docs ; make clean ; make html
+	rm -rf ${FINAL_DOCS_DIR}/*
+	cp -r ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
+
+doc_notebooks: doc_temp_notebooks
+	mkdir ${FINAL_NOTEBOOKS_DIR}/Getting_Started
+	mkdir ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images	
+	cp ${REPO_DIR}/docs/source/3_jupyter_notebook.ipynb \
+		${FINAL_NOTEBOOKS_DIR}/Getting_Started/1_jupyter_notebook.ipynb
+	cp ${REPO_DIR}/docs/source/4_programming_in_python.ipynb \
+		${FINAL_NOTEBOOKS_DIR}/Getting_Started/2_programming_in_python.ipynb
+	cp ${REPO_DIR}/docs/source/5_programming_onboard_peripherals.ipynb \
+		${FINAL_NOTEBOOKS_DIR}/Getting_Started/3_programming_onboard_peripherals.ipynb
+	cp ${REPO_DIR}/docs/source/6_pmodio_overlay.ipynb \
+		${FINAL_NOTEBOOKS_DIR}/Getting_Started/4_pmodio_overlay.ipynb
+	cp ${REPO_DIR}/docs/source/7_audio_video_overlay.ipynb \
+		${FINAL_NOTEBOOKS_DIR}/Getting_Started/5_audio_video_overlay.ipynb
+
+doc_temp_notebooks: 
+	@for f in ${DOC_TEMP_NOTEBOOKS} ; do \
+		cp ${REPO_DIR}/docs/source/temp/$$f  ${REPO_DIR}/docs/source/${f%.tmp}.ipynb ; \
+	done
+
+doc_images: 
+	@for f in ${NOTEBOOK_IMAGES} ; do \
+		cp ${REPO_DIR}/docs/source/images/$$f ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images/ ; \
+	done
+
+
+
