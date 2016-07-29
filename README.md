@@ -16,7 +16,7 @@ file://xsj-pvstd2t01-w/xrlabs/grahams/public/zybo_images/
 
 - After imaging, change Zybo's hostname to avoid network conflicts
 ```
-sudo /home/xpp/hostname.sh A_UNIQUE_HOSTNAME
+sudo /home/xpp/scripts/hostname.sh A_UNIQUE_HOSTNAME
 ```
 
 
