@@ -7,9 +7,9 @@
 module arduino_switch(
 // configuration
     input [31:0] analog_uart_gpio_sel,  // bit 31- UART or digital IO on D0 and D1, bit 1:0- analog or IO on A5-A0 channels
-    input [11:0] digital_gpio_sel1,     // configures Digital I/O bits 2 through 5
-    input [11:0] digital_gpio_sel2,     // configures Digital I/O bits 6 through 9
-    input [11:0] digital_gpio_sel3,     // configures Digital I/O bits 10 through 13
+    input [15:0] digital_gpio_sel1,     // configures Digital I/O bits 2 through 5
+    input [15:0] digital_gpio_sel2,     // configures Digital I/O bits 6 through 9
+    input [15:0] digital_gpio_sel3,     // configures Digital I/O bits 10 through 13
    
 // Shield side
     // analog channels

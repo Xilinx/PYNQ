@@ -9,9 +9,9 @@
 		// Do not modify the parameters beyond this line
 
 
-		// Parameters of Axi Slave Bus Interface S00_AXI
-		parameter integer C_S00_AXI_DATA_WIDTH	= 32,
-		parameter integer C_S00_AXI_ADDR_WIDTH	= 4
+		// Parameters of Axi Slave Bus Interface S_AXI
+		parameter integer C_S_AXI_DATA_WIDTH	= 32,
+		parameter integer C_S_AXI_ADDR_WIDTH	= 4
 	)
 	(
 		// Users to add ports here
@@ -20,8 +20,6 @@
         input [5:0] shield2sw_data_in_a5_a0,
         output [5:0] sw2shield_data_out_a5_a0,
         output [5:0] sw2shield_tri_out_a5_a0,  
-//        input [5:0] analog_p_in, 
-//        input [5:0] analog_n_in, 
         // digital channels
         input [1:0] shield2sw_data_in_d1_d0,
         output [1:0] sw2shield_data_out_d1_d0,
@@ -55,8 +53,6 @@
         output [5:0] sw2pl_data_in_a5_a0,
         input [5:0] pl2sw_data_o_a5_a0,
         input [5:0] pl2sw_tri_o_a5_a0,
-//        output [5:0] analog_p_out,            // analog output to XADC
-//        output [5:0] analog_n_out,            // analog output to XADC
         output sda_i_in_a4,
         input sda_o_in_a4,
         input sda_t_in_a4,
@@ -117,44 +113,41 @@
         // Timer
         output [7:0]  timer_i_in, // Input capture
         input [7:0]  timer_o_in,  // output compare
-//        input [7:0] timer_t_in,    
 		// User ports ends
 		// Do not modify the ports beyond this line
 
 
-		// Ports of Axi Slave Bus Interface S00_AXI
-		input wire  s00_axi_aclk,
-		input wire  s00_axi_aresetn,
-		input wire [C_S00_AXI_ADDR_WIDTH-1 : 0] s00_axi_awaddr,
-		input wire [2 : 0] s00_axi_awprot,
-		input wire  s00_axi_awvalid,
-		output wire  s00_axi_awready,
-		input wire [C_S00_AXI_DATA_WIDTH-1 : 0] s00_axi_wdata,
-		input wire [(C_S00_AXI_DATA_WIDTH/8)-1 : 0] s00_axi_wstrb,
-		input wire  s00_axi_wvalid,
-		output wire  s00_axi_wready,
-		output wire [1 : 0] s00_axi_bresp,
-		output wire  s00_axi_bvalid,
-		input wire  s00_axi_bready,
-		input wire [C_S00_AXI_ADDR_WIDTH-1 : 0] s00_axi_araddr,
-		input wire [2 : 0] s00_axi_arprot,
-		input wire  s00_axi_arvalid,
-		output wire  s00_axi_arready,
-		output wire [C_S00_AXI_DATA_WIDTH-1 : 0] s00_axi_rdata,
-		output wire [1 : 0] s00_axi_rresp,
-		output wire  s00_axi_rvalid,
-		input wire  s00_axi_rready
+		// Ports of Axi Slave Bus Interface S_AXI
+		input wire  s_axi_aclk,
+		input wire  s_axi_aresetn,
+		input wire [C_S_AXI_ADDR_WIDTH-1 : 0] s_axi_awaddr,
+		input wire [2 : 0] s_axi_awprot,
+		input wire  s_axi_awvalid,
+		output wire  s_axi_awready,
+		input wire [C_S_AXI_DATA_WIDTH-1 : 0] s_axi_wdata,
+		input wire [(C_S_AXI_DATA_WIDTH/8)-1 : 0] s_axi_wstrb,
+		input wire  s_axi_wvalid,
+		output wire  s_axi_wready,
+		output wire [1 : 0] s_axi_bresp,
+		output wire  s_axi_bvalid,
+		input wire  s_axi_bready,
+		input wire [C_S_AXI_ADDR_WIDTH-1 : 0] s_axi_araddr,
+		input wire [2 : 0] s_axi_arprot,
+		input wire  s_axi_arvalid,
+		output wire  s_axi_arready,
+		output wire [C_S_AXI_DATA_WIDTH-1 : 0] s_axi_rdata,
+		output wire [1 : 0] s_axi_rresp,
+		output wire  s_axi_rvalid,
+		input wire  s_axi_rready
 	);
-// Instantiation of Axi Bus Interface S00_AXI
-	arduino_io_switch_v1_0_S00_AXI # ( 
-		.C_S_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
-		.C_S_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH)
-	) arduino_io_switch_v1_0_S00_AXI_inst (
+// Instantiation of Axi Bus Interface S_AXI
+	arduino_io_switch_v1_0_S_AXI # ( 
+		.C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
+		.C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)
+	) arduino_io_switch_v1_0_S_AXI_inst (
         .shield2sw_data_in_a5_a0(shield2sw_data_in_a5_a0),
         .sw2shield_data_out_a5_a0(sw2shield_data_out_a5_a0),
         .sw2shield_tri_out_a5_a0(sw2shield_tri_out_a5_a0),  
-//        .analog_p_in(analog_p_in), 
-//        .analog_n_in(analog_n_in), 
         // digital channels
         .shield2sw_data_in_d1_d0(shield2sw_data_in_d1_d0),
         .sw2shield_data_out_d1_d0(sw2shield_data_out_d1_d0),
@@ -182,14 +175,12 @@
         .shield2sw_ss_i(shield2sw_ss_i),
         .sw2shield_ss_o(sw2shield_ss_o),
         .sw2shield_ss_t(sw2shield_ss_t),    
-       
+   
         // PL Side
         // analog channels related
         .sw2pl_data_in_a5_a0(sw2pl_data_in_a5_a0),
         .pl2sw_data_o_a5_a0(pl2sw_data_o_a5_a0),
         .pl2sw_tri_o_a5_a0(pl2sw_tri_o_a5_a0),
-//        .analog_p_out(analog_p_out),            // analog output to XADC
-//        .analog_n_out(analog_n_out),            // analog output to XADC
         .sda_i_in_a4(sda_i_in_a4),
         .sda_o_in_a4(sda_o_in_a4),
         .sda_t_in_a4(sda_t_in_a4),
@@ -250,29 +241,28 @@
         // Timer
         .timer_i_in(timer_i_in), // Input capture
         .timer_o_in(timer_o_in),  // output compare
-//        .timer_t_in(timer_t_in),       
-
-		.S_AXI_ACLK(s00_axi_aclk),
-		.S_AXI_ARESETN(s00_axi_aresetn),
-		.S_AXI_AWADDR(s00_axi_awaddr),
-		.S_AXI_AWPROT(s00_axi_awprot),
-		.S_AXI_AWVALID(s00_axi_awvalid),
-		.S_AXI_AWREADY(s00_axi_awready),
-		.S_AXI_WDATA(s00_axi_wdata),
-		.S_AXI_WSTRB(s00_axi_wstrb),
-		.S_AXI_WVALID(s00_axi_wvalid),
-		.S_AXI_WREADY(s00_axi_wready),
-		.S_AXI_BRESP(s00_axi_bresp),
-		.S_AXI_BVALID(s00_axi_bvalid),
-		.S_AXI_BREADY(s00_axi_bready),
-		.S_AXI_ARADDR(s00_axi_araddr),
-		.S_AXI_ARPROT(s00_axi_arprot),
-		.S_AXI_ARVALID(s00_axi_arvalid),
-		.S_AXI_ARREADY(s00_axi_arready),
-		.S_AXI_RDATA(s00_axi_rdata),
-		.S_AXI_RRESP(s00_axi_rresp),
-		.S_AXI_RVALID(s00_axi_rvalid),
-		.S_AXI_RREADY(s00_axi_rready)
+        
+		.S_AXI_ACLK(s_axi_aclk),
+		.S_AXI_ARESETN(s_axi_aresetn),
+		.S_AXI_AWADDR(s_axi_awaddr),
+		.S_AXI_AWPROT(s_axi_awprot),
+		.S_AXI_AWVALID(s_axi_awvalid),
+		.S_AXI_AWREADY(s_axi_awready),
+		.S_AXI_WDATA(s_axi_wdata),
+		.S_AXI_WSTRB(s_axi_wstrb),
+		.S_AXI_WVALID(s_axi_wvalid),
+		.S_AXI_WREADY(s_axi_wready),
+		.S_AXI_BRESP(s_axi_bresp),
+		.S_AXI_BVALID(s_axi_bvalid),
+		.S_AXI_BREADY(s_axi_bready),
+		.S_AXI_ARADDR(s_axi_araddr),
+		.S_AXI_ARPROT(s_axi_arprot),
+		.S_AXI_ARVALID(s_axi_arvalid),
+		.S_AXI_ARREADY(s_axi_arready),
+		.S_AXI_RDATA(s_axi_rdata),
+		.S_AXI_RRESP(s_axi_rresp),
+		.S_AXI_RVALID(s_axi_rvalid),
+		.S_AXI_RREADY(s_axi_rready)
 	);
 
 	// Add user logic here

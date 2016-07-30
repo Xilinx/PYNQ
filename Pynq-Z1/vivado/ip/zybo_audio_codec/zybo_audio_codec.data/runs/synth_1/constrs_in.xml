@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<DARoots Version="1" Minor="30">
-  <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
-    <Filter Type="Constrs"/>
-    <Config>
-      <Option Name="ConstrsType" Val="XDC"/>
-    </Config>
-  </FileSet>
-</DARoots>

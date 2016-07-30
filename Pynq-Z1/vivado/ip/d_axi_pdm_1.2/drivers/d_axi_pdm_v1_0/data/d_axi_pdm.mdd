@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER d_axi_pdm
+	OPTION supported_peripherals = (d_axi_pdm);
+	OPTION copyfiles = all;
+	OPTION VERSION = 1.0;
+	OPTION NAME = d_axi_pdm;
+END DRIVER

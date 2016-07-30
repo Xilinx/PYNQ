@@ -44,7 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/29/16 release
- *
+ * 1.00a pp  07/05/16 updated to be consistent with arduino io switch driver
  * </pre>
  *
  *****************************************************************************/
@@ -106,15 +106,15 @@ void delay_ms(u32 ms_count);
 #define SPI_RELEASE (XSP_CR_MANUAL_SS_MASK| \
             XSP_CR_MASTER_MODE_MASK|XSP_CR_ENABLE_MASK)
 
-void spi_init(u32 clk_phase, u32 clk_polarity);
+void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity);
 void spi_transfer(u32 BaseAddress, int bytecount, 
                     u8* readBuffer, u8* writeBuffer);
 
 /* 
  * IIC API
  */
-int iic_read(u32 addr, u8* buffer, u8 numbytes); 
-int iic_write(u32 addr, u8* buffer, u8 numbytes);
+int iic_read(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes); 
+int iic_write(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes);
 
 /*
  * Logging API for sensor PMODs
@@ -144,7 +144,7 @@ void cb_push_incr_ptrs(circular_buffer *cb);
 /*
  * Switch Configuration
  */
-void configureSwitch(char pin0, char pin1, char pin2, char pin3, 
+void config_pmod_switch(char pin0, char pin1, char pin2, char pin3, 
                         char pin4, char pin5, char pin6, char pin7);
 
 /*

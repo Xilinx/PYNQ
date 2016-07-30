@@ -6,9 +6,9 @@
 
 module arduino_switch_digital_13_2_top(
 // configuration
-    input [11:0] gpio_sel1,     // configures Digital I/O bits 2 through 5
-    input [11:0] gpio_sel2,     // configures Digital I/O bits 6 through 9
-    input [11:0] gpio_sel3,     // configures Digital I/O bits 10 through 13
+    input [15:0] gpio_sel1,     // configures Digital I/O bits 2 through 5
+    input [15:0] gpio_sel2,     // configures Digital I/O bits 6 through 9
+    input [15:0] gpio_sel3,     // configures Digital I/O bits 10 through 13
 // Shield connector side
     input [11:0] shield2sw_data_in,     // data from shield connector pin to switch
     output [11:0] sw2shield_data_out,   // data from switch to shield connector pin
@@ -45,7 +45,7 @@ module arduino_switch_digital_13_2_top(
 // selected by gpio_sel1    
     arduino_switch_digital_bit d2(
     // configuration
-    .gpio_sel(gpio_sel1[2:0]),
+    .gpio_sel(gpio_sel1[3:0]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[0]), .tri_t_out(sw2shield_tri_out[0]), .tri_i_out(shield2sw_data_in[0]), // output, output, input
     // PL side
@@ -61,7 +61,7 @@ module arduino_switch_digital_13_2_top(
 
     arduino_switch_digital_bit d3(
     // configuration
-    .gpio_sel(gpio_sel1[5:3]),
+    .gpio_sel(gpio_sel1[7:4]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[1]), .tri_t_out(sw2shield_tri_out[1]), .tri_i_out(shield2sw_data_in[1]), // output, output, input
     // PL side
@@ -77,7 +77,7 @@ module arduino_switch_digital_13_2_top(
 
     arduino_switch_digital_bit d4(
     // configuration
-    .gpio_sel(gpio_sel1[8:6]),
+    .gpio_sel(gpio_sel1[11:8]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[2]), .tri_t_out(sw2shield_tri_out[2]), .tri_i_out(shield2sw_data_in[2]), // output, output, input
     // PL side
@@ -93,7 +93,7 @@ module arduino_switch_digital_13_2_top(
 
     arduino_switch_digital_bit d5(
     // configuration
-    .gpio_sel(gpio_sel1[11:9]),
+    .gpio_sel(gpio_sel1[15:12]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[3]), .tri_t_out(sw2shield_tri_out[3]), .tri_i_out(shield2sw_data_in[3]), // output, output, input
     // PL side
@@ -110,7 +110,7 @@ module arduino_switch_digital_13_2_top(
 // selected by gpio_sel2
     arduino_switch_digital_bit d6(
     // configuration
-    .gpio_sel(gpio_sel2[2:0]),
+    .gpio_sel(gpio_sel2[3:0]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[4]), .tri_t_out(sw2shield_tri_out[4]), .tri_i_out(shield2sw_data_in[4]), // output, output, input
     // PL side
@@ -126,7 +126,7 @@ module arduino_switch_digital_13_2_top(
     
     arduino_switch_digital_bit d7(
     // configuration
-    .gpio_sel(gpio_sel2[5:3]),
+    .gpio_sel(gpio_sel2[7:4]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[5]), .tri_t_out(sw2shield_tri_out[5]), .tri_i_out(shield2sw_data_in[5]), // output, output, input
     // PL side
@@ -142,7 +142,7 @@ module arduino_switch_digital_13_2_top(
 
     arduino_switch_digital_bit d8(
     // configuration
-    .gpio_sel(gpio_sel2[8:6]),
+    .gpio_sel(gpio_sel2[11:8]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[6]), .tri_t_out(sw2shield_tri_out[6]), .tri_i_out(shield2sw_data_in[6]), // output, output, input
     // PL side
@@ -158,7 +158,7 @@ module arduino_switch_digital_13_2_top(
     
     arduino_switch_digital_bit d9(
     // configuration
-    .gpio_sel(gpio_sel2[11:9]),
+    .gpio_sel(gpio_sel2[15:12]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[7]), .tri_t_out(sw2shield_tri_out[7]), .tri_i_out(shield2sw_data_in[7]), // output, output, input
     // PL side
@@ -175,7 +175,7 @@ module arduino_switch_digital_13_2_top(
 // selected by gpio_sel3 
     arduino_switch_digital_bit d10(
     // configuration
-    .gpio_sel(gpio_sel3[2:0]),
+    .gpio_sel(gpio_sel3[3:0]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[8]), .tri_t_out(sw2shield_tri_out[8]), .tri_i_out(shield2sw_data_in[8]), // output, output, input
     // PL side
@@ -191,7 +191,7 @@ module arduino_switch_digital_13_2_top(
 
     arduino_switch_digital_bit d11(
     // configuration
-    .gpio_sel(gpio_sel3[5:3]),
+    .gpio_sel(gpio_sel3[7:4]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[9]), .tri_t_out(sw2shield_tri_out[9]), .tri_i_out(shield2sw_data_in[9]), // output, output, input
     // PL side
@@ -207,7 +207,7 @@ module arduino_switch_digital_13_2_top(
 
     arduino_switch_digital_bit d12(
     // configuration
-    .gpio_sel(gpio_sel3[8:6]),
+    .gpio_sel(gpio_sel3[11:8]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[10]), .tri_t_out(sw2shield_tri_out[10]), .tri_i_out(shield2sw_data_in[10]), // output, output, input
     // PL side
@@ -223,7 +223,7 @@ module arduino_switch_digital_13_2_top(
     
     arduino_switch_digital_bit d13(
     // configuration
-    .gpio_sel(gpio_sel3[11:9]),
+    .gpio_sel(gpio_sel3[15:12]),
     // Shield connector side
     .tri_o_out(sw2shield_data_out[11]), .tri_t_out(sw2shield_tri_out[11]), .tri_i_out(shield2sw_data_in[11]), // output, output, input
     // PL side

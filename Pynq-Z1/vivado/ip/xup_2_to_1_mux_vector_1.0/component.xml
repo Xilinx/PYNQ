@@ -192,14 +192,6 @@
         <spirit:userFileType>text</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
-    <spirit:fileSet>
-      <spirit:name>xilinx_utilityxitfiles_view_fileset</spirit:name>
-      <spirit:file>
-        <spirit:name>misc/2_1_vec_mux.png</spirit:name>
-        <spirit:userFileType>image</spirit:userFileType>
-        <spirit:userFileType>LOGO</spirit:userFileType>
-      </spirit:file>
-    </spirit:fileSet>
   </spirit:fileSets>
   <spirit:description>N-bit Wide 2 to 1 Mulitplexer with DELAY and SIZE configuration parameters</spirit:description>
   <spirit:parameters>

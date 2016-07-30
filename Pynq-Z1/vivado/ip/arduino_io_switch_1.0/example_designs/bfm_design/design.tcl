@@ -17,11 +17,11 @@ proc create_ipi_design { offsetfile design_name } {
 	set_property -dict [ list CONFIG.C_PROTOCOL_SELECTION {2} ] $master_0
 
 	# Create interface connections
-	connect_bd_intf_net [get_bd_intf_pins master_0/M_AXI_LITE] [get_bd_intf_pins arduino_io_switch_0/S00_AXI]
+	connect_bd_intf_net [get_bd_intf_pins master_0/M_AXI_LITE] [get_bd_intf_pins arduino_io_switch_0/S_AXI]
 
 	# Create port connections
-	connect_bd_net -net aclk_net [get_bd_ports ACLK] [get_bd_pins master_0/M_AXI_LITE_ACLK] [get_bd_pins arduino_io_switch_0/S00_AXI_ACLK]
-	connect_bd_net -net aresetn_net [get_bd_ports ARESETN] [get_bd_pins master_0/M_AXI_LITE_ARESETN] [get_bd_pins arduino_io_switch_0/S00_AXI_ARESETN]
+	connect_bd_net -net aclk_net [get_bd_ports ACLK] [get_bd_pins master_0/M_AXI_LITE_ACLK] [get_bd_pins arduino_io_switch_0/S_AXI_ACLK]
+	connect_bd_net -net aresetn_net [get_bd_ports ARESETN] [get_bd_pins master_0/M_AXI_LITE_ARESETN] [get_bd_pins arduino_io_switch_0/S_AXI_ARESETN]
 
 	# Auto assign address
 	assign_bd_address
@@ -40,7 +40,7 @@ proc create_ipi_design { offsetfile design_name } {
 
 	set offset [get_property OFFSET [get_bd_addr_segs -of_objects [get_bd_addr_spaces master_0/Data_lite]]]
 	set offset_hex [string replace $offset 0 1 "32'h"]
-	puts $fp "`define S00_AXI_SLAVE_ADDRESS ${offset_hex}"
+	puts $fp "`define S_AXI_SLAVE_ADDRESS ${offset_hex}"
 
 	puts $fp "`endif"
 	close $fp

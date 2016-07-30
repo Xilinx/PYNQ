@@ -11,10 +11,10 @@
 `define BURST_TYPE_WRAP  2'b10
 
 // AMBA AXI4 Lite Range Constants
-`define S00_AXI_MAX_BURST_LENGTH 1
-`define S00_AXI_DATA_BUS_WIDTH 32
-`define S00_AXI_ADDRESS_BUS_WIDTH 32
-`define S00_AXI_MAX_DATA_SIZE (`S00_AXI_DATA_BUS_WIDTH*`S00_AXI_MAX_BURST_LENGTH)/8
+`define S_AXI_MAX_BURST_LENGTH 1
+`define S_AXI_DATA_BUS_WIDTH 32
+`define S_AXI_ADDRESS_BUS_WIDTH 32
+`define S_AXI_MAX_DATA_SIZE (`S_AXI_DATA_BUS_WIDTH*`S_AXI_MAX_BURST_LENGTH)/8
 
 module arduino_io_switch_v1_0_tb;
 	reg tb_ACLK;
@@ -26,14 +26,14 @@ module arduino_io_switch_v1_0_tb;
 
 	// Local Variables
 
-	// AMBA S00_AXI AXI4 Lite Local Reg
-	reg [`S00_AXI_DATA_BUS_WIDTH-1:0] S00_AXI_rd_data_lite;
-	reg [`S00_AXI_DATA_BUS_WIDTH-1:0] S00_AXI_test_data_lite [3:0];
-	reg [`RESP_BUS_WIDTH-1:0] S00_AXI_lite_response;
-	reg [`S00_AXI_ADDRESS_BUS_WIDTH-1:0] S00_AXI_mtestAddress;
-	reg [3-1:0]   S00_AXI_mtestProtection_lite;
-	integer S00_AXI_mtestvectorlite; // Master side testvector
-	integer S00_AXI_mtestdatasizelite;
+	// AMBA S_AXI AXI4 Lite Local Reg
+	reg [`S_AXI_DATA_BUS_WIDTH-1:0] S_AXI_rd_data_lite;
+	reg [`S_AXI_DATA_BUS_WIDTH-1:0] S_AXI_test_data_lite [3:0];
+	reg [`RESP_BUS_WIDTH-1:0] S_AXI_lite_response;
+	reg [`S_AXI_ADDRESS_BUS_WIDTH-1:0] S_AXI_mtestAddress;
+	reg [3-1:0]   S_AXI_mtestProtection_lite;
+	integer S_AXI_mtestvectorlite; // Master side testvector
+	integer S_AXI_mtestdatasizelite;
 	integer result_slave_lite;
 
 
@@ -106,42 +106,42 @@ module arduino_io_switch_v1_0_tb;
 		end
 	endtask
 
-	task automatic S00_AXI_TEST;
+	task automatic S_AXI_TEST;
 		begin
 			$display("---------------------------------------------------------");
-			$display("EXAMPLE TEST : S00_AXI");
+			$display("EXAMPLE TEST : S_AXI");
 			$display("Simple register write and read example");
 			$display("---------------------------------------------------------");
 
-			S00_AXI_mtestvectorlite = 0;
-			S00_AXI_mtestAddress = `S00_AXI_SLAVE_ADDRESS;
-			S00_AXI_mtestProtection_lite = 0;
-			S00_AXI_mtestdatasizelite = `S00_AXI_MAX_DATA_SIZE;
+			S_AXI_mtestvectorlite = 0;
+			S_AXI_mtestAddress = `S_AXI_SLAVE_ADDRESS;
+			S_AXI_mtestProtection_lite = 0;
+			S_AXI_mtestdatasizelite = `S_AXI_MAX_DATA_SIZE;
 
 			 result_slave_lite = 1;
 
-			for (S00_AXI_mtestvectorlite = 0; S00_AXI_mtestvectorlite <= 3; S00_AXI_mtestvectorlite = S00_AXI_mtestvectorlite + 1)
+			for (S_AXI_mtestvectorlite = 0; S_AXI_mtestvectorlite <= 3; S_AXI_mtestvectorlite = S_AXI_mtestvectorlite + 1)
 			begin
-			  dut.`BD_INST_NAME.master_0.cdn_axi4_lite_master_bfm_inst.WRITE_BURST_CONCURRENT( S00_AXI_mtestAddress,
-				                     S00_AXI_mtestProtection_lite,
-				                     S00_AXI_test_data_lite[S00_AXI_mtestvectorlite],
-				                     S00_AXI_mtestdatasizelite,
-				                     S00_AXI_lite_response);
-			  $display("EXAMPLE TEST %d write : DATA = 0x%h, lite_response = 0x%h",S00_AXI_mtestvectorlite,S00_AXI_test_data_lite[S00_AXI_mtestvectorlite],S00_AXI_lite_response);
-			  CHECK_RESPONSE_OKAY(S00_AXI_lite_response);
-			  dut.`BD_INST_NAME.master_0.cdn_axi4_lite_master_bfm_inst.READ_BURST(S00_AXI_mtestAddress,
-				                     S00_AXI_mtestProtection_lite,
-				                     S00_AXI_rd_data_lite,
-				                     S00_AXI_lite_response);
-			  $display("EXAMPLE TEST %d read : DATA = 0x%h, lite_response = 0x%h",S00_AXI_mtestvectorlite,S00_AXI_rd_data_lite,S00_AXI_lite_response);
-			  CHECK_RESPONSE_OKAY(S00_AXI_lite_response);
-			  COMPARE_LITE_DATA(S00_AXI_test_data_lite[S00_AXI_mtestvectorlite],S00_AXI_rd_data_lite);
-			  $display("EXAMPLE TEST %d : Sequential write and read burst transfers complete from the master side. %d",S00_AXI_mtestvectorlite,S00_AXI_mtestvectorlite);
-			  S00_AXI_mtestAddress = S00_AXI_mtestAddress + 32'h00000004;
+			  dut.`BD_INST_NAME.master_0.cdn_axi4_lite_master_bfm_inst.WRITE_BURST_CONCURRENT( S_AXI_mtestAddress,
+				                     S_AXI_mtestProtection_lite,
+				                     S_AXI_test_data_lite[S_AXI_mtestvectorlite],
+				                     S_AXI_mtestdatasizelite,
+				                     S_AXI_lite_response);
+			  $display("EXAMPLE TEST %d write : DATA = 0x%h, lite_response = 0x%h",S_AXI_mtestvectorlite,S_AXI_test_data_lite[S_AXI_mtestvectorlite],S_AXI_lite_response);
+			  CHECK_RESPONSE_OKAY(S_AXI_lite_response);
+			  dut.`BD_INST_NAME.master_0.cdn_axi4_lite_master_bfm_inst.READ_BURST(S_AXI_mtestAddress,
+				                     S_AXI_mtestProtection_lite,
+				                     S_AXI_rd_data_lite,
+				                     S_AXI_lite_response);
+			  $display("EXAMPLE TEST %d read : DATA = 0x%h, lite_response = 0x%h",S_AXI_mtestvectorlite,S_AXI_rd_data_lite,S_AXI_lite_response);
+			  CHECK_RESPONSE_OKAY(S_AXI_lite_response);
+			  COMPARE_LITE_DATA(S_AXI_test_data_lite[S_AXI_mtestvectorlite],S_AXI_rd_data_lite);
+			  $display("EXAMPLE TEST %d : Sequential write and read burst transfers complete from the master side. %d",S_AXI_mtestvectorlite,S_AXI_mtestvectorlite);
+			  S_AXI_mtestAddress = S_AXI_mtestAddress + 32'h00000004;
 			end
 
 			$display("---------------------------------------------------------");
-			$display("EXAMPLE TEST S00_AXI: PTGEN_TEST_FINISHED!");
+			$display("EXAMPLE TEST S_AXI: PTGEN_TEST_FINISHED!");
 				if ( result_slave_lite ) begin                                        
 					$display("PTGEN_TEST: PASSED!");                 
 				end	else begin                                         
@@ -163,10 +163,10 @@ module arduino_io_switch_v1_0_tb;
 		dut.`BD_INST_NAME.master_0.cdn_axi4_lite_master_bfm_inst.set_channel_level_info(1);
 
 		// Create test data vectors
-		S00_AXI_test_data_lite[0] = 32'h0101FFFF;
-		S00_AXI_test_data_lite[1] = 32'habcd0001;
-		S00_AXI_test_data_lite[2] = 32'hdead0011;
-		S00_AXI_test_data_lite[3] = 32'hbeef0011;
+		S_AXI_test_data_lite[0] = 32'h0101FFFF;
+		S_AXI_test_data_lite[1] = 32'habcd0001;
+		S_AXI_test_data_lite[2] = 32'hdead0011;
+		S_AXI_test_data_lite[3] = 32'hbeef0011;
 	end
 
 	// Drive the BFM
@@ -178,7 +178,7 @@ module arduino_io_switch_v1_0_tb;
 		wait(tb_ARESETn === 1) @(posedge tb_ACLK);     
 		wait(tb_ARESETn === 1) @(posedge tb_ACLK);     
 
-		S00_AXI_TEST();
+		S_AXI_TEST();
 
 	end
 

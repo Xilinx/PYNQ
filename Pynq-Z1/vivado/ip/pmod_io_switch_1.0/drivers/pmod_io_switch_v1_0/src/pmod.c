@@ -44,7 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/29/16 release
- *
+ * 1.00a pp  07/05/16 updated to be consistent with arduino io switch driver
  * </pre>
  *
  *****************************************************************************/
@@ -80,13 +80,13 @@ void spi_transfer(u32 BaseAddress, int bytecount,
     XSpi_WriteReg(BaseAddress, XSP_SSR_OFFSET, 0xff);
 }
 
-void spi_init(u32 clk_phase, u32 clk_polarity){
+void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity){
     u32 Control;
 
     // Soft reset SPI
-    XSpi_WriteReg(SPI_BASEADDR, XSP_SRR_OFFSET, 0xa);
+    XSpi_WriteReg(BaseAddress, XSP_SRR_OFFSET, 0xa);
     // Master mode
-    Control = XSpi_ReadReg(SPI_BASEADDR, XSP_CR_OFFSET);
+    Control = XSpi_ReadReg(BaseAddress, XSP_CR_OFFSET);
     // Master Mode
     Control |= XSP_CR_MASTER_MODE_MASK;
     // Enable SPI
@@ -101,17 +101,17 @@ void spi_init(u32 clk_phase, u32 clk_polarity){
     // XSP_CR_CLK_POLARITY_MASK
     if(clk_polarity)
     	Control |= XSP_CR_CLK_POLARITY_MASK;
-    XSpi_WriteReg(SPI_BASEADDR, XSP_CR_OFFSET, Control);
+    XSpi_WriteReg(BaseAddress, XSP_CR_OFFSET, Control);
 }
 
-int iic_read(u32 addr, u8* buffer, u8 numbytes){
-    XIic_Recv(IIC_BASEADDR, addr, buffer, numbytes, XIIC_STOP);
+int iic_read(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes){
+    XIic_Recv(iic_BaseAddress, addr, buffer, numbytes, XIIC_STOP);
     return 0;
 }
 
 
-int iic_write(u32 addr, u8* buffer, u8 numbytes){
-       XIic_Send(IIC_BASEADDR, addr, buffer, numbytes, XIIC_STOP);
+int iic_write(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes){
+       XIic_Send(iic_BaseAddress, addr, buffer, numbytes, XIIC_STOP);
        return 0;
 }
 
@@ -220,7 +220,7 @@ void delay_ms(u32 msdelay){
  * PMOD pin 1 = bits [3:0]
  * e.g. Write GPIO 0 - 7 to PMOD 1-8 => switchConfigValue = 0x76543210
  */
-void configureSwitch(char pin0, char pin1, char pin2, char pin3, 
+void config_pmod_switch(char pin0, char pin1, char pin2, char pin3, 
                         char pin4, char pin5, char pin6, char pin7){
    u32 switchConfigValue;
 
@@ -253,6 +253,6 @@ int tmrctr_init(void) {
 }
 
 void pmod_init(u32 clk_phase, u32 clk_polarity) {
-    spi_init(clk_phase, clk_polarity);
+    spi_init(SPI_BASEADDR, clk_phase, clk_polarity);
     tmrctr_init();
 }
