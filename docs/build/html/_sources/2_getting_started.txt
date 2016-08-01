@@ -121,7 +121,7 @@ Accessing files on the board
 
 You can go to ``\\pynq\xpp`` (DHCP) or ``\\192.168.2.99\xpp`` (static IP) to access the pynq home area. Remember to change the hostname if necessary.
 
-The Samba username:password is ``xpp:xpp``
+The Samba username:password is ``xilinx:xilinx``
 
 .. image:: ./images/samba_share.jpg
    :height: 600px

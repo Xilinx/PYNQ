@@ -80,7 +80,7 @@ Frequently Asked Questions (FAQs)
 * Change the hostname
    If you have multiple boards on the same network, you should give them different host names. 
    You can run the following script to change the hostname:
-   sudo /home/xpp/scripts/hostname.sh NEW_HOST_NAME
+   sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME
    
 * What is the user account and password?
    Username and password for all linux, jupyter and samba logins are: xpp/xpp

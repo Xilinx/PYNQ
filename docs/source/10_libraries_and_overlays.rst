@@ -8,7 +8,7 @@ After powering the board with the Pynq image on the SDCard in place, Zybo will b
 Some preinstalled features of this Ubuntu image include:
 
 * Networking is enabled and Ethernet port will attempt to use DHCP on boot.  If DHCP fails, the board will fallback to a static IP of 192.168.2.99.
-* Samba is enabled and can be accessed from a Windows machine by navigating or mapping to ``\\pynq\xpp``.  The ``username:password`` is ``xpp:xpp``.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
+* Samba is enabled and can be accessed from a Windows machine by navigating or mapping to ``\\pynq\xilinx``.  The ``username:password`` is ``xilinx:xilinx``.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
 * A Jupyter notebook server is initialized on port 9090 and automatically starts after boot.
 * The PMOD IO overlay is preloaded onto the programmable logic. 
 
@@ -19,7 +19,7 @@ Some preinstalled features of this Ubuntu image include:
 
 Python ``pynq`` Package Structure
 ---------------------------------
-All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xpp/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/Pynq/python/pynq``.
+All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/Pynq/python/pynq``.
 
 Pynq contains four main subpackages: ``board``, ``pmods``, ``audio``, and ``video``; a ``tests`` subpackage is for testing the user subpackages.  Each of the five subpackages are described below.
 
