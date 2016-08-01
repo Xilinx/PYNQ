@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BACKUP_DIR=/home/xpp/pynq_backup
-REPO_DIR=/home/xpp/pynq_git
+BACKUP_DIR=/home/xilinx/pynq_backup
+REPO_DIR=/home/xilinx/pynq_git
 
 if ! [ $(id -u) = 0 ]; then
    echo "to be run with sudo"

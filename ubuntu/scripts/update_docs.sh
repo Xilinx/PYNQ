@@ -1,12 +1,12 @@
 #!/bin/bash
 
-REPO_DIR=/home/xpp/pynq_git
+REPO_DIR=/home/xilinx/pynq_git
 PYNQ_DIR=/usr/local/lib/python3.4/dist-packages/pynq
-BACKUP_DIR=/home/xpp/pynq_backup
+BACKUP_DIR=/home/xilinx/pynq_backup
 
-FINAL_DOCS_DIR=/home/xpp/docs
-FINAL_NOTEBOOKS_DIR=/home/xpp/jupyter_notebooks
-FINAL_SCRIPTS_DIR=/home/xpp/scripts
+FINAL_DOCS_DIR=/home/xilinx/docs
+FINAL_NOTEBOOKS_DIR=/home/xilinx/jupyter_notebooks
+FINAL_SCRIPTS_DIR=/home/xilinx/scripts
 
 
 if ! [ $(id -u) = 0 ]; then
