@@ -47,8 +47,8 @@ from pynq import MMIO
 def _get_tcl_name(bitfile_name):
     """This method returns the name of the tcl file.
     
-    For example, the input "/home/xpp/src/pynq/bitstream/base.bit" will lead 
-    to the result "/home/xpp/src/pynq/bitstream/base.tcl".
+    For example, the input "/home/xilinx/src/pynq/bitstream/base.bit" will lead
+    to the result "/home/xilinx/src/pynq/bitstream/base.tcl".
     
     Parameters
     ----------
@@ -266,7 +266,7 @@ class PL(metaclass=PL_Meta):
             raise EnvironmentError('Root permissions required.')
             
     @classmethod
-    def _setup(cls, address='/home/xpp/pynq/bitstream/.log', key=b'xpp'):
+    def _setup(cls, address='/home/xilinx/pynq/bitstream/.log', key=b'xpp'):
         """Start the PL server and accept client connections.
         
         This method should not be used by the users directly. To check open
@@ -304,7 +304,7 @@ class PL(metaclass=PL_Meta):
         cls._server.close()
         
     @classmethod
-    def _client_request(cls, address='/home/xpp/pynq/bitstream/.log',
+    def _client_request(cls, address='/home/xilinx/pynq/bitstream/.log',
                         key=b'xpp'):
         """Client connects to the PL server and receives the attributes.
         
@@ -662,7 +662,7 @@ class Bitstream(PL):
         """Return a new Bitstream object. 
         
         Users can either specify an absolute path to the bitstream file 
-        (e.g. '/home/xpp/src/pynq/bitstream/base.bit'),
+        (e.g. '/home/xilinx/src/pynq/bitstream/base.bit'),
         or only a relative path.
         (e.g. 'base.bit').
         
