@@ -16,7 +16,7 @@ file://xsj-pvstd2t01-w/xrlabs/grahams/public/zybo_images/
 
 - After imaging, change Zybo's hostname to avoid network conflicts
 ```
-sudo /home/xpp/scripts/hostname.sh A_UNIQUE_HOSTNAME
+sudo /home/xilinx/scripts/hostname.sh A_UNIQUE_HOSTNAME
 ```
 
 
@@ -37,15 +37,15 @@ echo $BOARD
 ```
 
 * If `$BOARD` is not set, add `export BOARD=<board_name>` (e.g., `<board_name>` can be `Zybo` or `Pynq-Z1`) to
-`/home/xpp/.profile`.
+`/home/xilinx/.profile`.
 Then either reboot the board, or run the following:
 ```
-source /home/xpp/.profile
+source /home/xilinx/.profile
 ```
 
 * If `$BOARD` has already been set, just run:
 ```
-sudo /home/xpp/script/update_pynq.sh
+sudo /home/xilinx/script/update_pynq.sh
 ```
 
 ## Updating `pynq` using `pip` 

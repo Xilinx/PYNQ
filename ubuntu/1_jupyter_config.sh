@@ -32,7 +32,7 @@ done
 #echo 'To connect to Jupyter, launch it first by typing "sudo jupyter notebook"'
 #echo 'in this terminal, and then go to "'$ip':9090" on your browser.'
 #echo 'The password to access is "xpp".'
-#echo 'Notebooks will be saved in the folder "/home/xpp/jupyter_notebooks".'
+#echo 'Notebooks will be saved in the folder "/home/xilinx/jupyter_notebooks".'
 
 script_name=`readlink -f "$0"`
 
