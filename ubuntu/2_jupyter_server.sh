@@ -1,6 +1,6 @@
 #!/bin/bash
 
-su -c "jupyter notebook 2> /root/jupyter.log &" -s /bin/bash root
+su -c "cd ~xpp ; jupyter notebook --allow-root 2> /root/jupyter.log &" -s /bin/bash root
 
 script_name=`readlink -f "$0"`
 

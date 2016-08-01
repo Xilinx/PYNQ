@@ -12,8 +12,8 @@ arr+=(["$app.open_browser"]="$app.open_browser = False")
 arr+=(["$app.ip"]="$app.ip ='$ip'")
 arr+=(["$app.port"]="$app.port = 9090")
 arr+=(["$app.enable_mathjax"]="$app.enable_mathjax = True")
-arr+=(["$app.notebook_dir"]="$app.notebook_dir = '/home/xpp/jupyter_notebooks'")
-arr+=(["$app.password"]="$app.password='sha1:67c61684d867:8dd8806765cffc12c6b601836b3e342daeb2f0ad'")
+arr+=(["$app.notebook_dir"]="$app.notebook_dir = '/home/xilinx/jupyter_notebooks'")
+arr+=(["$app.password"]="$app.password='sha1:5f92e9750a36:e012b5438b703f13b73cccdbc82d151b1013668a'")
 arr+=(["$app.server_extensions.append"]="$app.server_extensions.append('ipyparallel.nbextension')")
 
 # apply changes to jupyter_notebook_config.py
@@ -37,7 +37,3 @@ done
 script_name=`readlink -f "$0"`
 
 echo "${script_name}: Jupyter configuration complete"
-
-
-
-
