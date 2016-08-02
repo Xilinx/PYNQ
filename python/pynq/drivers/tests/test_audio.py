@@ -37,16 +37,14 @@ import select
 import termios
 import pytest
 from pynq import Overlay
-from pynq.drivers import LineIn
-from pynq.drivers import Headphone
 from pynq.tests.util import user_answer_yes
 
-flag = user_answer_yes("\nBoth LineIn and Headphone (HPH) jacks connected?")
+flag = user_answer_yes("\nAUDIO OUT connected?")
 
 @pytest.mark.run(order=30)
-@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")
+@pytest.mark.skipif(not flag, reason="need audio out attached")
 def test_audio_loop():
-    """Test whether LineIn and Headphone work properly.
+    """Test whether audio out work properly.
     
     This test will use the __call__() methods of the two classes, and ask for
     the confirmation from the users.
@@ -55,7 +53,7 @@ def test_audio_loop():
     pass
 
 @pytest.mark.run(order=31)
-@pytest.mark.skipif(not flag, reason="need both LineIn and HPH attached")
+@pytest.mark.skipif(not flag, reason="need audio out attached")
 def test_audio_mute():
     """Test is_muted() and toggle_mute() methods.
     

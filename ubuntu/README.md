@@ -20,6 +20,8 @@ IPython5 upgrade
 Staging - to be added in next image
 
 ```
+remove the docs folder in jupyter notebook folder
+
 MAC address generation (temporary fix)
 
 opencv addition
