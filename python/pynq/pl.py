@@ -266,7 +266,7 @@ class PL(metaclass=PL_Meta):
             raise EnvironmentError('Root permissions required.')
             
     @classmethod
-    def _setup(cls, address='/home/xilinx/pynq/bitstream/.log', key=b'xpp'):
+    def _setup(cls, address='/home/xilinx/pynq/bitstream/.log', key=b'xilinx'):
         """Start the PL server and accept client connections.
         
         This method should not be used by the users directly. To check open
@@ -305,7 +305,7 @@ class PL(metaclass=PL_Meta):
         
     @classmethod
     def _client_request(cls, address='/home/xilinx/pynq/bitstream/.log',
-                        key=b'xpp'):
+                        key=b'xilinx'):
         """Client connects to the PL server and receives the attributes.
         
         This method should not be used by the users directly. To check open
