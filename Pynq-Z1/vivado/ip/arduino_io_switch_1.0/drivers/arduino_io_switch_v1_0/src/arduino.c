@@ -236,7 +236,7 @@ void cb_push_incr_ptrs(circular_buffer *cb){
  * Arduino Digital pin 12 = bits [11:8]
  * Arduino Digital pin 13 = bits [15:12]
  */
-void configureArduinoSwitch(char A_pin0, char A_pin1, char A_pin2, char A_pin3,
+void config_arduino_switch(char A_pin0, char A_pin1, char A_pin2, char A_pin3,
                         char A_pin4, char A_pin5, char D_pin0_1,
 						char D_pin2, char D_pin3, char D_pin4, char D_pin5,
 						char D_pin6, char D_pin7, char D_pin8, char D_pin9,

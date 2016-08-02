@@ -114,7 +114,7 @@ int iic_read(u32 iic_baseaddr, u32 addr, u8* buffer, u8 numbytes);
 int iic_write(u32 iic_baseaddr, u32 addr, u8* buffer, u8 numbytes);
 
 /*
- * Logging API for sensor
+ * Logging API
  * Using mailbox as a circular buffer
  * Modified to match mailbox API
  */
