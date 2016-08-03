@@ -1,17 +1,28 @@
-## Ubuntu Core image for Zybo
+## Ubuntu Core image for Pynq-Z1
 
-All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/](file://xsj-pvstd2t01-w/xrlabs/grahams/public/ubuntu-core-zybo/)
+All images including the latest are available at: [file://xsj-pvstd2t01-w/xrlabs/grahams/public/pynq-z1_images/](file://xsj-pvstd2t01-w/xrlabs/grahams/public/pynq-z1_images/)
 
 ```
 LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 
 
-07-26-2016 - <anurag.dubey@xilinx.com>
-             pynq-z1 RevB checkin
+08-02-2016 - <anurag.dubey@xilinx.com>
+             software upgrades and Pynq-Z1 revB fixes
 
-BOARD environment variable set to PYNQ-Z1
-GHC Package added back in
-IPython5 upgrade
+MAC address generation (temporary fix)
+opencv added
+xterm.js addition (build of Jupyter from github)
+Latest version of notebook/ipython with an pre alpha release of Jupyterlab
+New Sigrok decoders with source in /opt
+Username/Password changed to xilinx/xilinx.
+New configuration for Jupyter which doesn’t require restart on any network related change
+Removed redundant source files and *.bat files and updated scripts
+Added REVISION in /home/xilinx folder
+
+
+Add revision text in /home/xpp folder
+Modify username/password to xilinx/xilinx
+Samba username/password to samba/samba
 ```
 
 
@@ -20,28 +31,14 @@ IPython5 upgrade
 Staging - to be added in next image
 
 ```
-remove the docs folder in jupyter notebook folder
+Digilent u-boot with MAC address generation (removal of temporary MAC address generation)
+clean up unneeded packages
+```
 
-MAC address generation (temporary fix)
-
-opencv addition
-
-xterm.js addition
-
-# Rebuild all the sigrok decoders (Rock will provide the project)
-./configure
-make
-sudo make install
-
-# Add notebook extension: https://github.com/ipython-contrib/IPython-notebook-extensions
-pip install https://github.com/ipython-contrib/IPython-notebook-extensions/tarball/master
-sudo shutdown -r now
-
-Add revision text in /home/xpp folder
-Modify username/password to xilinx/xilinx
-Remove the redundant folder `source` in scripts folder
-Remove the `*.bat` files in the scripts folder
-
+08-02-2016
+```
+opencv steps TO BE ADDED
+sigrok steps TO BE ADDED
 ```
 
 06-24-2016
