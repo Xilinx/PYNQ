@@ -16,4 +16,4 @@ if [ -d $REPO_DIR ] || [ -d $BACKUP_DIR ] ; then
    exit 1
 fi
 
-make -f makefile.pynq update_all
+make -f makefile.pynq update_pynq
