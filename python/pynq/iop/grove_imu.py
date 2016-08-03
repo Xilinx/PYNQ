@@ -35,11 +35,18 @@ __email__       = "pynq_support@xilinx.com"
 import struct
 import math
 from time import sleep
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
+from pynq.iop import XESS_STICKIT_GR
+from pynq.iop import DIGILENT_STICKIT_GR
+from pynq.iop import ARDUINO_SHIELD_GR
 
-GROVE_IMU_PROGRAM = "grove_imu.bin"
+PMOD_GROVE_IMU_PROGRAM = "pmod_grove_imu.bin"
+ARDUINO_GROVE_IMU_PROGRAM = "arduino_grove_imu.bin"
 
 class Grove_IMU(object):
     """This class controls the Grove IIC IMU. 
@@ -58,30 +65,51 @@ class Grove_IMU(object):
         Memory-mapped I/O instance to read and write instructions and data.
         
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, if_id, gr_pin): 
         """Return a new instance of an Grove IMU object. 
-        
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        gr_id: int
-            The group ID on StickIt, from 1 to 4.
+        if_id : int
+            IOP ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).
+        gr_pin: list
+            A group of pins on stickit connector or arduino shield.
             
         """
-        if (gr_id not in range(4,5)):
-            raise ValueError("Valid StickIt group ID is currently only 4.")
+        if if_id in [PMODA, PMODB]:
+            if (not gr_pin in [XESS_STICKIT_GR["GR3"], \
+                               XESS_STICKIT_GR["GR4"]]) and \
+                (not gr_pin in [DIGILENT_STICKIT_GR["G3"], \
+                                DIGILENT_STICKIT_GR["G4"]]):
+                raise ValueError("Invalid pin assignment.")
+            GROVE_IMU_PROGRAM = PMOD_GROVE_IMU_PROGRAM
+        elif if_id in [ARDUINO]:
+            if not gr_pin in [ARDUINO_SHIELD_GR["I2C"]]:
+                raise ValueError("Invalid pin assignment.")
+            GROVE_IMU_PROGRAM = ARDUINO_GROVE_IMU_PROGRAM
+        else:
+            raise ValueError("No such IOP for grove device.")
 
-        self.iop = _iop.request_iop(pmod_id, GROVE_IMU_PROGRAM)
+
+        self.iop = iop.request_iop(if_id, GROVE_IMU_PROGRAM)
         self.mmio = self.iop.mmio
-        
         self.iop.start()
         self.reset()
         
+        if if_id in [PMODA, PMODB]:
+            # Write SCL and SDA pin config
+            scl_pin = gr_pin[0]
+            self.mmio.write(iop_const.MAILBOX_OFFSET, scl_pin)
+            sda_pin = gr_pin[1]
+            self.mmio.write(iop_const.MAILBOX_OFFSET+4, sda_pin)
+        
+            # Write configuration and wait for ACK
+            self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+            while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
+                pass
+                
     def reset(self):
         """Reset all the sensors on the grove IMU.
 
@@ -94,10 +122,10 @@ class Grove_IMU(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xF)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xF):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xF)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xF):
             pass
         
     def get_accl(self):
@@ -113,14 +141,14 @@ class Grove_IMU(object):
             A list of the acceleration data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
             pass
-        ax = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET))
-        ay = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
-        az = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+        ax = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET))
+        ay = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
+        az = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
         return [float("{0:.2f}".format(ax/16384)), \
                 float("{0:.2f}".format(ay/16384)), \
                 float("{0:.2f}".format(az/16384))]
@@ -138,14 +166,14 @@ class Grove_IMU(object):
             A list of the gyro data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
             pass
-        gx = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET))
-        gy = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
-        gz = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+        gx = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET))
+        gy = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
+        gz = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
         return [float("{0:.2f}".format(gx*250/32768)), \
                 float("{0:.2f}".format(gy*250/32768)), \
                 float("{0:.2f}".format(gz*250/32768))]
@@ -163,14 +191,14 @@ class Grove_IMU(object):
             A list of the compass data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
             pass
-        mx = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET))
-        my = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
-        mz = self._reg2int(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+        mx = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET))
+        my = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
+        mz = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
         return [float("{0:.2f}".format(mx*1200/4096)), \
                 float("{0:.2f}".format(my*1200/4096)), \
                 float("{0:.2f}".format(mz*1200/4096))]
@@ -235,12 +263,12 @@ class Grove_IMU(object):
             The temperature value.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
             pass
-        value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
+        value = self.mmio.read(iop_const.MAILBOX_OFFSET)
         return self._reg2float(value)
         
     def get_pressure(self):
@@ -256,12 +284,12 @@ class Grove_IMU(object):
             The pressure value.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xD):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xD):
             pass
-        value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
+        value = self.mmio.read(iop_const.MAILBOX_OFFSET)
         return self._reg2float(value)
         
     def get_atm(self):

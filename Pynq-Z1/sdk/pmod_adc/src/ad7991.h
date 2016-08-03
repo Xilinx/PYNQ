@@ -34,7 +34,7 @@
  *
  * @file ad7991.h
  *
- * Header for PMOD AD2 SKU410-217.
+ * Header for Pmod AD2 SKU410-217.
  * The PmodAD2 is an analog-to-digital converter powered by the Analog Devices
  * AD7991. Users may communicate with the board through I2C to configure up to
  * 4 conversion channels at 12 bits of resolution.

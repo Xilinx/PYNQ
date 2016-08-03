@@ -34,10 +34,10 @@ __email__       = "pynq_support@xilinx.com"
 
 from random import randint
 import pytest
-from pynq.iop.devmode import DevMode
-from pynq.iop import _iop
-from pynq.iop import pmod_const
 from pynq import Overlay
+from pynq.iop import iop
+from pynq.iop import iop_const
+from pynq.iop import DevMode
 
 global ol
 ol = Overlay("base.bit")
@@ -50,10 +50,10 @@ def test_devmode():
     configurations. The returned objects should not be None.
     
     """
-    for pmod_id in range(1,3):
-        assert DevMode(pmod_id, pmod_const.IOP_SWCFG_IIC0_TOPROW) is not None
-        assert DevMode(pmod_id, pmod_const.IOP_SWCFG_IIC0_BOTROW) is not None
-        assert DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) is not None
+    for iop_id in range(1,3):
+        assert DevMode(iop_id, iop_const.PMOD_SWCFG_IIC0_TOPROW) is not None
+        assert DevMode(iop_id, iop_const.PMOD_SWCFG_IIC0_BOTROW) is not None
+        assert DevMode(iop_id, iop_const.PMOD_SWCFG_DIOALL) is not None
     
     ol.reset()
 
@@ -65,26 +65,24 @@ def test_devmode():
     from the mailbox. Test whether the write and the read are successful.
     
     """
-    for pmod_id in range(1,3):
+    for iop_id in range(1,3):
         # Initiate the IOP
-        iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL)
+        iop = DevMode(iop_id, iop_const.PMOD_SWCFG_DIOALL)
         iop.start()
         assert iop.status()=="RUNNING"
         # Test whether writing is successful
-        data_1 = 0
-        iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                        pmod_const.IOPMM_PMODIO_TRI_OFFSET,
-                        pmod_const.IOCFG_PMODIO_ALLINPUT)
-        iop.load_switch_config()
-        iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                        pmod_const.IOPMM_PMODIO_DATA_OFFSET, data_1)
+        data = 0
+        iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                      iop_const.PMOD_DIO_TRI_OFFSET,
+                      iop_const.PMOD_CFG_DIO_ALLINPUT)
+        iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                      iop_const.PMOD_DIO_DATA_OFFSET, data)
         # Test whether reading is successful
-        iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                        pmod_const.IOPMM_PMODIO_TRI_OFFSET,
-                        pmod_const.IOCFG_PMODIO_ALLOUTPUT)
-        iop.load_switch_config()
-        data_2 = iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                                pmod_const.IOPMM_PMODIO_DATA_OFFSET)
+        iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                      iop_const.PMOD_DIO_TRI_OFFSET,
+                      iop_const.PMOD_CFG_DIO_ALLOUTPUT)
+        data = iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                            iop_const.PMOD_DIO_DATA_OFFSET)
         # Stop the IOP
         iop.stop()
         assert iop.status()=="STOPPED"

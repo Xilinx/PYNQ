@@ -57,10 +57,10 @@
 #define XPAR_PMOD_IO_SWITCH_BASEADDR XPAR_MB_1_MB1_SWITCH_S00_AXI_BASEADDR
 
 // command from A9 to MB0
-#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x00007FFC))
+#define MAILBOX_CMD_ADDR (*(volatile unsigned *)(0x0000FFFC))
 // address of MB0
-#define MAILBOX_ADDR (*(volatile unsigned *)(0x00007FF8))
-#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x00007F00+((x)*4)))
+#define MAILBOX_ADDR (*(volatile unsigned *)(0x0000FFF8))
+#define MAILBOX_DATA(x) (*(volatile unsigned *)(0x0000FF00+((x)*4)))
 /* Command format
  *  bit[0] : MP issued command when 1
  *  bit[2:1] : Data width => 00 : byte (8 bits)

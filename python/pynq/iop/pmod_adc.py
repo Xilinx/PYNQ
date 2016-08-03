@@ -32,20 +32,22 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com" 
 
 
-from time import sleep
 import struct
-from . import _iop
-from . import pmod_const
+from time import sleep
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-PROGRAM = "pmod_adc.bin"
-PMOD_ADC_LOG_START = pmod_const.MAILBOX_OFFSET+16
+PMOD_ADC_PROGRAM = "pmod_adc.bin"
+PMOD_ADC_LOG_START = iop_const.MAILBOX_OFFSET+16
 PMOD_ADC_LOG_END = PMOD_ADC_LOG_START+(1000*4)
 
-class PMOD_ADC(object):
-    """This class controls an Analog to Digital Converter PMOD.
+class Pmod_ADC(object):
+    """This class controls an Analog to Digital Converter Pmod.
     
-    The PMOD AD2 (PB 200-217) is an analog-to-digital converter powered by 
+    The Pmod AD2 (PB 200-217) is an analog-to-digital converter powered by 
     AD7991. Users may configure up to 4 conversion channels at 12 bits of 
     resolution.
     
@@ -60,27 +62,26 @@ class PMOD_ADC(object):
         
     """
 
-    def __init__(self, pmod_id):
+    def __init__(self, if_id):
         """Return a new instance of an ADC object.
-    
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA). 
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+            
+        self.iop = request_iop(if_id, PMOD_ADC_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_running = 0
         
         self.iop.start()
     
     def reset(self):
-        """Reset the PMOD ADC.
+        """Reset the Pmod ADC.
         
         Parameters
         ----------
@@ -91,14 +92,14 @@ class PMOD_ADC(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + 
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
             sleep(0.001)
             
     def read_raw(self, ch1=1, ch2=0, ch3=0):
-        """Get the raw value from the ADC PMOD.
+        """Get the raw value from the Pmod ADC.
         
         When ch1, ch2, and ch3 values are 1 then the corresponding channel
         is included. 
@@ -127,7 +128,7 @@ class PMOD_ADC(object):
         Returns
         -------
         list
-            The raw values read from the 3 channels of the PMOD ADC.
+            The raw values read from the 3 channels of the Pmod ADC.
         
         """
         if (ch1 not in range(2)):
@@ -139,26 +140,26 @@ class PMOD_ADC(object):
         cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 3    
        
         # Send the command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
         # Wait for I/O processor to complete
-        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
+                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
 
         # Read the samples from ADC
         readings=[]
         if (ch1):
-            readings.append(self.mmio.read(pmod_const.MAILBOX_OFFSET))
+            readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET))
         if (ch2):
-            readings.append(self.mmio.read(pmod_const.MAILBOX_OFFSET+4))
+            readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
         if (ch3):
-            readings.append(self.mmio.read(pmod_const.MAILBOX_OFFSET+8))
+            readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
         return readings
         
     def read(self, ch1=1, ch2=0, ch3=0):
-        """Get the voltage from the ADC PMOD.
+        """Get the voltage from the Pmod ADC.
         
         When ch1, ch2, and ch3 values are 1 then the corresponding channel
         is included. 
@@ -185,7 +186,7 @@ class PMOD_ADC(object):
         Returns
         -------
         list
-            The voltage values read from the 3 channels of the PMOD ADC.
+            The voltage values read from the 3 channels of the Pmod ADC.
         
         """
         if (ch1 not in range(2)):
@@ -197,25 +198,25 @@ class PMOD_ADC(object):
         cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 5    
        
         # Send the command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
         # Wait for I/O processor to complete
-        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
+                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
 
         # Read the last sample from ADC
         readings=[]
         if (ch1):
             readings.append(self._reg2float(self.mmio.read(
-                                        pmod_const.MAILBOX_OFFSET)))
+                                        iop_const.MAILBOX_OFFSET)))
         if (ch2):
             readings.append(self._reg2float(self.mmio.read(
-                                        pmod_const.MAILBOX_OFFSET+4)))
+                                        iop_const.MAILBOX_OFFSET+4)))
         if (ch3):
             readings.append(self._reg2float(self.mmio.read(
-                                        pmod_const.MAILBOX_OFFSET+8)))
+                                        iop_const.MAILBOX_OFFSET+8)))
         return readings
         
     def start_log_raw(self, ch1=1, ch2=0, ch3=0, log_interval_us=100):
@@ -255,11 +256,11 @@ class PMOD_ADC(object):
         self.log_running = 1
         
         # Send log interval
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, log_interval_us)
         
         # Send the command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
     def start_log(self, ch1=1, ch2=0, ch3=0, log_interval_us=100):
         """Start the log of voltage values with the interval specified.
@@ -298,11 +299,11 @@ class PMOD_ADC(object):
         self.log_running = 1
         
         # Send log interval and the channel number
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, log_interval_us)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, log_interval_us)
         
         # Send the command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
         
     def stop_log_raw(self):
         """Stop the log of raw values.
@@ -320,8 +321,8 @@ class PMOD_ADC(object):
         
         """
         if(self.log_running == 1):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -342,8 +343,8 @@ class PMOD_ADC(object):
         
         """
         if(self.log_running == 1):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -367,8 +368,8 @@ class PMOD_ADC(object):
         self.stop_log_raw()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
         # Sweep circular buffer for samples
@@ -403,8 +404,8 @@ class PMOD_ADC(object):
         self.stop_log()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
         # Sweep circular buffer for samples

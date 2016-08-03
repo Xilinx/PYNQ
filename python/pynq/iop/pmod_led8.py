@@ -32,13 +32,15 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-from . import pmod_const
-from .devmode import DevMode
+from pynq.iop import iop_const
+from pynq.iop import DevMode
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-class PMOD_LED8(object):
-    """This class controls a single LED on the LED8 PMOD.
+class Pmod_LED8(object):
+    """This class controls a single LED on the LED8 Pmod.
     
-    The PMOD LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be
+    The Pmod LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be
     individually illuminated from a logic high signal.
     
     Attributes
@@ -50,26 +52,29 @@ class PMOD_LED8(object):
         
     """
 
-    def __init__(self, pmod_id, index):
+    def __init__(self, if_id, index):
         """Return a new instance of a LED object.
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
         index: int
-            The index of the pin in a PMOD, from 0 to 7.
+            The index of the pin in a Pmod, from 0 to 7.
             
         """
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
         if not index in range(8):
             raise ValueError("Valid pin indexes are 0 - 7.")
-        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL) 
+            
+        self.iop = DevMode(if_id, iop_const.PMOD_SWCFG_DIOALL) 
         self.index = index
-
+        
         self.iop.start()
-        self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                            pmod_const.IOPMM_PMODIO_TRI_OFFSET, 
-                            pmod_const.IOCFG_PMODIO_ALLOUTPUT)    
+        self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                            iop_const.PMOD_DIO_TRI_OFFSET, \
+                            iop_const.PMOD_CFG_DIO_ALLOUTPUT)
 
         self.iop.load_switch_config()
                   
@@ -90,9 +95,9 @@ class PMOD_LED8(object):
         None
         
         """
-        curr_val = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
-        new_val  = (curr_val) ^ (0x1 << self.index)        
+        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                        iop_const.PMOD_DIO_DATA_OFFSET)
+        new_val  = (curr_val) ^ (0x1 << self.index)
         self._set_leds_values(new_val)
         
     def on(self):  
@@ -107,9 +112,9 @@ class PMOD_LED8(object):
         None
         
         """
-        curr_val = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
-        new_val  = (curr_val) | (0x1 << self.index)            
+        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                        iop_const.PMOD_DIO_DATA_OFFSET)
+        new_val  = (curr_val) | (0x1 << self.index)
         self._set_leds_values(new_val)
      
     def off(self):    
@@ -124,8 +129,8 @@ class PMOD_LED8(object):
         None
         
         """
-        curr_val = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
+        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                        iop_const.PMOD_DIO_DATA_OFFSET)
         new_val  = (curr_val) & (0xff ^ (0x1 << self.index))    
         self._set_leds_values(new_val)
 
@@ -166,8 +171,8 @@ class PMOD_LED8(object):
             The data (0 or 1) read out from the selected pin.
         
         """
-        curr_val = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
+        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                        iop_const.PMOD_DIO_DATA_OFFSET)
         return (curr_val >> self.index) & 0x1 
     
     def _set_leds_values(self, value):
@@ -188,6 +193,6 @@ class PMOD_LED8(object):
         None
         
         """
-        self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                            pmod_const.IOPMM_PMODIO_DATA_OFFSET, value)
+        self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                            iop_const.PMOD_DIO_DATA_OFFSET, value)
                          

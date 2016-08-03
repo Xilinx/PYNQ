@@ -32,18 +32,20 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-from . import pmod_const
-from .devmode import DevMode
+from pynq.iop import iop_const
+from pynq.iop import DevMode
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-class PMOD_IO(object):
-    """This class controls the PMOD IO pins as inputs or outputs.
+class Pmod_IO(object):
+    """This class controls the Pmod IO pins as inputs or outputs.
     
     Note
     ----
     The parameter 'direction' determines whether the instance is input/output:
     'in'  : receiving input from offchip to onchip. 
     'out' : sending output from onchip to offchip.
-    The index of the PMOD pins:
+    The index of the Pmod pins:
     upper row, from left to right: {vdd,gnd,3,2,1,0}.
     lower row, from left to right: {vdd,gnd,7,6,5,4}.
     
@@ -52,60 +54,58 @@ class PMOD_IO(object):
     iop : _IOP
         The _IOP object returned from the DevMode.
     index : int
-        The index of the PMOD pin, from 0 to 7.
+        The index of the Pmod pin, from 0 to 7.
     direction : str
         Input 'in' or output 'out'.
     
     """
-    def __init__(self, pmod_id, index, direction): 
-        """Return a new instance of a PMOD IO object.
-    
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
+    def __init__(self, if_id, index, direction): 
+        """Return a new instance of a Pmod IO object.
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
         index: int
-            The index of the PMOD pin, from 0 to 7.
+            The index of the Pmod pin, from 0 to 7.
         direction : str
             Input 'in' or output 'out'.
             
         """
-        if (index not in range(8)):
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+        if not index in range(8):
             raise ValueError("Valid pin indexes are 0 - 7.")
-        if (direction not in ['in', 'out']):
+        if not direction in ['in', 'out']:
             raise ValueError("Direction can only be 'in', or 'out'.")
             
-        self.iop = DevMode(pmod_id, pmod_const.IOP_SWCFG_PMODIOALL)
+        self.iop = DevMode(if_id, iop_const.PMOD_SWCFG_DIOALL)
         self.index = index
         self.direction = direction
         
         self.iop.start()
         if (self.direction == 'in'):
-            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                                pmod_const.IOPMM_PMODIO_TRI_OFFSET,
-                                pmod_const.IOCFG_PMODIO_ALLINPUT)
+            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                               iop_const.PMOD_DIO_TRI_OFFSET, \
+                               iop_const.PMOD_DIO_ALLINPUT)
         else:
-            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                                pmod_const.IOPMM_PMODIO_TRI_OFFSET,
-                                pmod_const.IOCFG_PMODIO_ALLOUTPUT)
+            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                               iop_const.PMOD_DIO_TRI_OFFSET, \
+                               iop_const.PMOD_DIO_ALLOUTPUT)
                                 
         self.iop.load_switch_config()
     
     def write(self, value): 
-        """Send the value to the offboard PMOD IO device.
+        """Send the value to the offboard Pmod IO device.
 
         Note
         ----
-        Only use this function when direction = 'out'.
+        Only use this function when direction is 'out'.
         
         Parameters
         ----------
         value : int
-            The value to be written to the PMOD IO device.
+            The value to be written to the Pmod IO device.
             
         Returns
         -------
@@ -113,31 +113,29 @@ class PMOD_IO(object):
             
         """
         if not value in (0,1):
-            raise ValueError("PMOD IO can only write 0 or 1.")
-        if not self.direction is 'out':
-            raise ValueError('PMOD IO used as output, but declared as input.')
+            raise ValueError("Pmod IO can only write 0 or 1.")
+        if not self.direction == 'out':
+            raise ValueError('Pmod IO used as output, declared as input.')
 
         if value:
-            # Set 1 to a PMOD IO pin.
-            currVal = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
-            newVal = currVal | (0x1<<self.index)
-            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                pmod_const.IOPMM_PMODIO_DATA_OFFSET, newVal)
+            curVal = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                        iop_const.PMOD_DIO_DATA_OFFSET)
+            newVal = curVal | (0x1<<self.index)
+            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                iop_const.PMOD_DIO_DATA_OFFSET, newVal)
         else:
-            # Set 0 to a PMOD IO pin.
-            currVal = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
-            newVal = currVal & (0xff ^ (0x1<<self.index))
-            self.iop.write_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                pmod_const.IOPMM_PMODIO_DATA_OFFSET, newVal)
+            curVal = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                        iop_const.PMOD_DIO_DATA_OFFSET)
+            newVal = curVal & (0xff ^ (0x1<<self.index))
+            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                iop_const.PMOD_DIO_DATA_OFFSET, newVal)
 
     def read(self):
-        """Receive the value from the offboard PMOD IO device.
+        """Receive the value from the offboard Pmod IO device.
 
         Note
         ----
-        Only use this function when direction = 'in'.
+        Only use this function when direction is 'in'.
         
         Parameters
         ----------
@@ -146,18 +144,18 @@ class PMOD_IO(object):
         Returns
         -------
         int
-            The data (0 or 1) on the specified PMOD IO pin.
+            The data (0 or 1) on the specified Pmod IO pin.
         
         """  
-        if not self.direction is 'in':
-            raise ValueError('PMOD IO used as input, but declared as output.')
+        if not self.direction == 'in':
+            raise ValueError('Pmod IO used as input, but declared as output.')
         
-        raw_value = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
+        raw_value = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                      iop_const.PMOD_DIO_DATA_OFFSET)
         return (raw_value >> (self.index)) & 0x1
         
     def _state(self):
-        """Retrieve the current state of the PMOD IO.
+        """Retrieve the current state of the Pmod IO.
         
         This function is usually used for debug purpose. Users should still
         rely on read() or write() to get/put a value.
@@ -169,10 +167,10 @@ class PMOD_IO(object):
         Returns
         -------
         int
-            The data (0 or 1) on the specified PMOD IO pin.
+            The data (0 or 1) on the specified Pmod IO pin.
         
         """
-        raw_value = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR + 
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
+        raw_value = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+                                      iop_const.PMOD_DIO_DATA_OFFSET)
         return (raw_value >> (self.index)) & 0x1
         

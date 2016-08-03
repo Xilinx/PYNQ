@@ -34,14 +34,14 @@
  *
  * @file pmod_als.c
  *
- * IOP code (MicroBlaze) for PMOD ALS
- * PMOD ALS is read only, and has SPI with MISO only (no MOSI)
+ * IOP code (MicroBlaze) for Pmod ALS
+ * Pmod ALS is read only, and has SPI with MISO only (no MOSI)
  * Operations implemented in this application:
  *   1. Simple, single read from sensor, and write to data area
  *   2. Continuous read from sensor and log to data area
- * Switch configuration is done within this program, PMOD should 
+ * Switch configuration is done within this program, Pmod should 
  * be plugged into upper row of connector.
- * The PMOD ALS is based on ADC081S021 analog-to-digital converter and 
+ * The Pmod ALS is based on ADC081S021 analog-to-digital converter and 
  * Vishay Semiconductor's TEMT6000X01.
  * http://store.digilentinc.com/pmodals-ambient-light-sensor/
  *
@@ -87,7 +87,8 @@ int main(void)
    u32 delay;
 
    pmod_init(0,1);
-   configureSwitch(SS, GPIO_1, MISO, SPICLK, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+   config_pmod_switch(SS, GPIO_1, MISO, SPICLK, 
+                      GPIO_4, GPIO_5, GPIO_6, GPIO_7);
    // to initialize the device
    get_sample();
 

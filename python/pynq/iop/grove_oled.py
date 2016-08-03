@@ -34,11 +34,18 @@ __email__       = "pynq_support@xilinx.com"
 
 import time
 import struct
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
+from pynq.iop import XESS_STICKIT_GR
+from pynq.iop import DIGILENT_STICKIT_GR
+from pynq.iop import ARDUINO_SHIELD_GR
 
-GROVE_OLED_PROGRAM = "grove_oled.bin"
+PMOD_GROVE_OLED_PROGRAM = "pmod_grove_oled.bin"
+ARDUINO_GROVE_OLED_PROGRAM = "arduino_grove_oled.bin"
 
 class Grove_OLED(object):
     """This class controls the Grove IIC OLED. 
@@ -54,29 +61,53 @@ class Grove_OLED(object):
         Memory-mapped I/O instance to read and write instructions and data.
         
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, if_id, gr_pin): 
         """Return a new instance of an Grove OLED object. 
         
         Note
         ----
-        The pmod_id 0 is reserved for XADC (JA).
+        The parameter `gr_pin` is a list organized as [scl_pin, sda_pin].
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        gr_id: int
-            The group ID on StickIt, from 1 to 4.
+        if_id : int
+            IOP ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).
+        gr_pin: list
+            A group of pins on stickit connector or arduino shield.
             
         """
-        if (gr_id not in range(4,5)):
-            raise ValueError("Valid StickIt group ID is currently only 4.")
-
-        self.iop = _iop.request_iop(pmod_id, GROVE_OLED_PROGRAM)
+        if if_id in [PMODA, PMODB]:
+            if (not gr_pin in [XESS_STICKIT_GR["GR3"], \
+                               XESS_STICKIT_GR["GR4"]]) and \
+                (not gr_pin in [DIGILENT_STICKIT_GR["G3"], \
+                                DIGILENT_STICKIT_GR["G4"]]):
+                raise ValueError("Invalid pin assignment.")
+            GROVE_OLED_PROGRAM = PMOD_GROVE_OLED_PROGRAM
+        elif if_id in [ARDUINO]:
+            if not gr_pin in [ARDUINO_SHIELD_GR["I2C"]]:
+                raise ValueError("Invalid pin assignment.")
+            GROVE_OLED_PROGRAM = ARDUINO_GROVE_OLED_PROGRAM
+        else:
+            raise ValueError("No such IOP for grove device.")
+            
+        self.iop = request_iop(if_id, GROVE_OLED_PROGRAM)
         self.mmio = self.iop.mmio
-        
         self.iop.start()
         
+        if if_id in [PMODA, PMODB]:
+            # Write SCL and SDA pin config
+            scl_pin = gr_pin[0]
+            self.mmio.write(iop_const.MAILBOX_OFFSET, scl_pin)
+            sda_pin = gr_pin[1]
+            self.mmio.write(iop_const.MAILBOX_OFFSET+4, sda_pin)
+        
+            # Write configuration and wait for ACK
+            self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+            while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
+                pass
+            
         # Use the default of horizontal mode
         self.set_horizontal_mode()
         
@@ -96,18 +127,18 @@ class Grove_OLED(object):
         
         """
         # First write length
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, len(text))
+        self.mmio.write(iop_const.MAILBOX_OFFSET, len(text))
         
         # Then write rest of string
         for i in range(len(text)):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4 + i*4, 
+            self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4 + i*4, 
                             ord(text[i]))
                        
         # Finally write the print string command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x13)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x13):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x13)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x13):
             pass
             
     def clear(self):
@@ -124,10 +155,10 @@ class Grove_OLED(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xF)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xF):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xF)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xF):
             pass
             
     def set_position(self, row, column):
@@ -148,14 +179,14 @@ class Grove_OLED(object):
         
         """
         # First write row and column positions
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, row)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, column)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, row)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, column)
         
         # Then write the command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xD):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xD):
             pass
             
     def set_normal_mode(self):
@@ -170,10 +201,10 @@ class Grove_OLED(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
             pass
                         
     def set_inverse_mode(self):
@@ -188,10 +219,10 @@ class Grove_OLED(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
             pass
             
     def set_page_mode(self):
@@ -206,10 +237,10 @@ class Grove_OLED(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
             pass
                         
     def set_horizontal_mode(self):
@@ -224,10 +255,10 @@ class Grove_OLED(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
             pass
             
     def set_contrast(self, brightness):
@@ -248,12 +279,12 @@ class Grove_OLED(object):
         # First write the brightness
         if (brightness not in range(0,256)):
             raise ValueError("Valid brightness is between 0 and 255.")
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, brightness)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, brightness)
         
         # Then write the command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x11)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x11):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x11)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x11):
             pass
             

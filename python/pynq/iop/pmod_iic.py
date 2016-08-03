@@ -32,17 +32,19 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 from time import sleep
-from pynq.iop import pmod_const
-from pynq.iop.devmode import DevMode
+from pynq.iop import iop_const
+from pynq.iop import DevMode
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
 I2C_DELAY = .001
 
-class PMOD_IIC(object):
-    """This class controls the PMOD IIC pins.
+class Pmod_IIC(object):
+    """This class controls the Pmod IIC pins.
     
     Note
     ----
-    The index of the PMOD pins:
+    The index of the Pmod pins:
     upper row, from left to right: {vdd,gnd,3,2,1,0}.
     lower row, from left to right: {vdd,gnd,7,6,5,4}.
     
@@ -68,17 +70,13 @@ class PMOD_IIC(object):
         The IIC device DRR address (base address + 0x10C).
     
     """
-    def __init__(self, pmod_id, scl_pin, sda_pin, iic_addr): 
-        """Return a new instance of a PMODIIC object.
-    
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
+    def __init__(self, if_id, scl_pin, sda_pin, iic_addr): 
+        """Return a new instance of a Pmod IIC object.
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
         scl_pin : int
             The SCL pin number.
         sda_pin : int
@@ -87,6 +85,8 @@ class PMOD_IIC(object):
             The IIC device address.
             
         """
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
         if (scl_pin not in range(8)):
             raise ValueError("Valid SCL pin numbers are 0 - 7.")
         if (sda_pin not in range(8)):
@@ -95,33 +95,33 @@ class PMOD_IIC(object):
         switchconfig = []
         for i in range(8):
             if i == sda_pin:
-                switchconfig.append(pmod_const.IOP_SWCFG_IIC0_SDA)
+                switchconfig.append(iop_const.PMOD_SWCFG_IIC0_SDA)
             elif i == scl_pin:
-                switchconfig.append(pmod_const.IOP_SWCFG_IIC0_SCL)
+                switchconfig.append(iop_const.PMOD_SWCFG_IIC0_SCL)
             else:
-                switchconfig.append(pmod_const.IOP_SWCFG_PMODIO0)
+                switchconfig.append(iop_const.PMOD_SWCFG_DIO0)
         
-        self.iop = DevMode(pmod_id, switchconfig)
+        self.iop = DevMode(if_id, switchconfig)
         self.iop.start()
         self.iop.load_switch_config()
         
         self.iic_addr = iic_addr
 
         # Useful IIC controller addresses
-        self.sr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                       pmod_const.IOPMM_XIIC_SR_REG_OFFSET
+        self.sr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
+                       iop_const.IOPMM_XIIC_SR_REG_OFFSET
 
-        self.dtr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                        pmod_const.IOPMM_XIIC_DTR_REG_OFFSET
+        self.dtr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
+                        iop_const.IOPMM_XIIC_DTR_REG_OFFSET
 
-        self.cr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                       pmod_const.IOPMM_XIIC_CR_REG_OFFSET
+        self.cr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
+                       iop_const.IOPMM_XIIC_CR_REG_OFFSET
     
-        self.rfd_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                        pmod_const.IOPMM_XIIC_RFD_REG_OFFSET
+        self.rfd_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
+                        iop_const.IOPMM_XIIC_RFD_REG_OFFSET
 
-        self.drr_addr = pmod_const.IOPMM_XIIC_0_BASEADDR + \
-                        pmod_const.IOPMM_XIIC_DRR_REG_OFFSET
+        self.drr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
+                        iop_const.IOPMM_XIIC_DRR_REG_OFFSET
 
     def _iic_enable(self):
         """This method enables the IIC drivers.
@@ -155,8 +155,7 @@ class PMOD_IIC(object):
         self.iop.write_cmd(self.cr_addr, 0x01)
         
         sleep(I2C_DELAY)
-
-
+        
     def send(self, iic_bytes):
         """This method sends the command or data to the driver.
         
@@ -198,7 +197,7 @@ class PMOD_IIC(object):
                 timeout -= 1
             if (timeout == 0):
                 raise RuntimeError("Timeout when writing IIC.")
-
+                
         sleep(I2C_DELAY)
 
     def receive(self, num_bytes):

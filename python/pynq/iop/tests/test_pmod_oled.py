@@ -34,13 +34,13 @@ __email__       = "pynq_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
-from pynq.iop.pmod_oled import PMOD_OLED
+from pynq.iop import Pmod_OLED
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD OLED attached to the board?")
 if flag:
     global oled_id
-    oled_id = int(input("Type in the PMOD ID of the OLED (1 ~ 4): "))
+    oled_id = int(input("Type in the IOP ID of the PMOD OLED (1 ~ 2): "))
 
 @pytest.mark.run(order=24)
 @pytest.mark.skipif(not flag, reason="need OLED attached in order to run")
@@ -53,11 +53,11 @@ def test_write_string():
     
     """
     global oled
-    oled = PMOD_OLED(oled_id)
+    oled = Pmod_OLED(oled_id)
     
     oled.draw_line(0,0,255,0)
     oled.draw_line(0,2,255,2)
-    oled.write('Welcome to Zybo.',0,1)
+    oled.write('Welcome to PYNQ.',0,1)
     oled.draw_line(0,20,255,20)
     oled.draw_line(0,22,255,22)
 

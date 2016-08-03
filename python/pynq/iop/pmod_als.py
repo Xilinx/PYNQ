@@ -33,18 +33,20 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import time
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-ALS_PROGRAM = "pmod_als.bin"
-ALS_LOG_START = pmod_const.MAILBOX_OFFSET+16
-ALS_LOG_END = ALS_LOG_START+(1000*4)
+PMOD_ALS_PROGRAM = "pmod_als.bin"
+PMOD_ALS_LOG_START = iop_const.MAILBOX_OFFSET+16
+PMOD_ALS_LOG_END = PMOD_ALS_LOG_START+(1000*4)
 
-class PMOD_ALS(object):
-    """This class controls a light sensor PMOD.
+class Pmod_ALS(object):
+    """This class controls a light sensor Pmod.
     
-    The PMOD ALS (PB 200-286) demonstrates light-to-digital sensing through a
+    The Pmod ALS (PB 200-286) demonstrates light-to-digital sensing through a
     single ambient light sensor. This is based on ADC081S021 analog-to-digital
     converter and TEMT6000X01.
 
@@ -58,23 +60,26 @@ class PMOD_ALS(object):
         Time in milliseconds between sampled reads of the ALS sensor
         
     """
-    def __init__(self, pmod_id):
+    def __init__(self, if_id):
         """Return a new instance of an ALS object. 
         
         Parameters
         ----------
-        pmod_id : int
-            PMOD index in the programmable logic, starting at 1.
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
             
         """
-        self.iop = _iop.request_iop(pmod_id, ALS_PROGRAM)
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+            
+        self.iop = request_iop(if_id, PMOD_ALS_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         
         self.iop.start()
         
     def read(self):
-        """Read current light value measured by the ALS PMOD.
+        """Read current light value measured by the ALS Pmod.
         
         Parameters
         ----------
@@ -86,15 +91,15 @@ class PMOD_ALS(object):
             The current sensor value.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)      
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)      
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
-        return self.mmio.read(pmod_const.MAILBOX_OFFSET)
+        return self.mmio.read(iop_const.MAILBOX_OFFSET)
 
     def set_log_interval_ms(self,log_interval_ms):
-        """Set the length of the log in the ALS PMOD.
+        """Set the length of the log in the ALS Pmod.
         
         This method can set the length of the log, so that users can read out
         multiple values in a single log. 
@@ -113,7 +118,7 @@ class PMOD_ALS(object):
             raise ValueError("Log length should not be less than 0.")
         
         self.log_interval_ms = log_interval_ms
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_interval_ms)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+4, self.log_interval_ms)
 
     def start_log(self):
         """Start recording multiple values in a log.
@@ -131,8 +136,8 @@ class PMOD_ALS(object):
         
         """
         self.set_log_interval_ms(self.log_interval_ms)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
 
     def stop_log(self):
         """Stop recording multiple values in a log.
@@ -148,8 +153,8 @@ class PMOD_ALS(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)    
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
 
     def get_log(self):
         """Return list of logged samples.
@@ -167,8 +172,8 @@ class PMOD_ALS(object):
         self.stop_log()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
         # Sweep circular buffer for samples
@@ -178,9 +183,9 @@ class PMOD_ALS(object):
             for i in range(head_ptr,tail_ptr,4):
                 readings.append(self.mmio.read(i))
         else:
-            for i in range(head_ptr,ALS_LOG_END,4):
+            for i in range(head_ptr,PMOD_ALS_LOG_END,4):
                 readings.append(self.mmio.read(i))
-            for i in range(ALS_LOG_START,tail_ptr,4):            
+            for i in range(PMOD_ALS_LOG_START,tail_ptr,4):
                 readings.append(self.mmio.read(i)) 
 
         return readings

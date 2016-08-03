@@ -34,11 +34,15 @@ __email__       = "pynq_support@xilinx.com"
 
 import time
 import struct
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
 
-GROVE_LEDBAR_PROGRAM = "grove_ledbar.bin"
+PMOD_GROVE_LEDBAR_PROGRAM = "pmod_grove_ledbar.bin"
+ARDUINO_GROVE_LEDBAR_PROGRAM = "arduino_grove_ledbar.bin"
 
 class Grove_LEDbar(object):
     """This class controls the Grove LED BAR. 
@@ -54,29 +58,46 @@ class Grove_LEDbar(object):
         Memory-mapped I/O instance to read and write instructions and data.
         
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, if_id, gr_pin): 
         """Return a new instance of an Grove LEDbar object. 
         
         Note
         ----
-        The pmod_id 0 is reserved for XADC (JA).
         Valid StickIt group ID is currently only 1.
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        gr_id: int
-            The group ID on StickIt, from 1 to 4.
+        if_id : int
+            IOP ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).
+        gr_pin: list
+            A group of pins on stickit connector or arduino shield.
             
         """
-        if (gr_id != 1):
-            raise ValueError("Valid StickIt group ID is currently only 1.")
-        self.iop = _iop.request_iop(pmod_id, GROVE_LEDBAR_PROGRAM)
+        if if_id in [PMODA, PMODB]:
+            if (not gr_pin in [XESS_STICKIT_GR["GR1"], \
+                               XESS_STICKIT_GR["GR2"]]) and \
+                (not gr_pin in [DIGILENT_STICKIT_GR["G1"], \
+                                DIGILENT_STICKIT_GR["G2"]]):
+                raise ValueError("Invalid pin assignment.")
+            GROVE_LEDBAR_PROGRAM = PMOD_GROVE_LEDBAR_PROGRAM
+        elif if_id in [ARDUINO]:
+            if not gr_pin in [ARDUINO_SHIELD_GR["UART"], \
+                              ARDUINO_SHIELD_GR["G1"], \
+                              ARDUINO_SHIELD_GR["G2"], \
+                              ARDUINO_SHIELD_GR["G3"], \
+                              ARDUINO_SHIELD_GR["G4"], \
+                              ARDUINO_SHIELD_GR["G5"], \
+                              ARDUINO_SHIELD_GR["G6"], \
+                              ARDUINO_SHIELD_GR["G7"]]:
+                raise ValueError("Invalid pin assignment.")
+            GROVE_LEDBAR_PROGRAM = ARDUINO_GROVE_LEDBAR_PROGRAM
+        else:
+            raise ValueError("No such IOP for grove device.")
+            
+        self.iop = request_iop(if_id, GROVE_LEDBAR_PROGRAM)
         self.mmio = self.iop.mmio
-        
         self.iop.start()
-
+            
     def reset(self):
         """Resets the LEDbar.
         
@@ -91,10 +112,10 @@ class Grove_LEDbar(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x01)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
             pass
         
     def write_binary(self, data_in):
@@ -114,11 +135,11 @@ class Grove_LEDbar(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, data_in)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
+        self.mmio.write(iop_const.MAILBOX_OFFSET, data_in)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
             pass
             
     def write_brightness(self, data_in, brightness=[0xAA]*10):
@@ -146,14 +167,14 @@ class Grove_LEDbar(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, data_in)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, data_in)
         for i in range(0,10):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET + 4*(i+1), \
+            self.mmio.write(iop_const.MAILBOX_OFFSET + 4*(i+1), \
                             brightness[i])
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + \
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+ \
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+ \
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
             pass
         
     def write_level(self, level, bright_level, green_to_red):
@@ -185,13 +206,13 @@ class Grove_LEDbar(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, level)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, bright_level)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, green_to_red)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
+        self.mmio.write(iop_const.MAILBOX_OFFSET, level)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, bright_level)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, green_to_red)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
             pass
 
     def read(self):
@@ -214,11 +235,11 @@ class Grove_LEDbar(object):
             String of 10 binary bits.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
             pass
-        value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
+        value = self.mmio.read(iop_const.MAILBOX_OFFSET)
         return (bin(value)[2:].zfill(10))
         

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>pmod_tmp2</name>
-	<comment>Created by SDK v2015.4. bsp - iop1_mb</comment>
+	<comment>Created by SDK v2015.4. bsp_pmod - iop1_mb</comment>
 	<projects>
-		<project>bsp</project>
+		<project>bsp_pmod</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

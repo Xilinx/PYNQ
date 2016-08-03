@@ -34,13 +34,13 @@
  *
  * @file pmod_tmp2.c
  *
- * IOP code (MicroBlaze) for PMOD TMP2
- * PMOD TMP2 is read only, and has IIC interface
+ * IOP code (MicroBlaze) for Pmod TMP2
+ * Pmod TMP2 is read only, and has IIC interface
  * Operations implemented:
  *   1. Simple, single read from sensor, and write to data area
  *   2. Continuous read from sensor and log to data area
  * Switch configuration is done within this program.
- * The PMOD TMP2 is an ambient temperature sensor powered by the ADT7420.
+ * The Pmod TMP2 is an ambient temperature sensor powered by the ADT7420.
  * http://store.digilentinc.com/pmodtmp2-temperature-sensor/
  *
  * <pre>
@@ -71,8 +71,8 @@ float get_sample(){
   u32 sample;
   
   // TMP2 get sample in Celsius (x2 reads to clear stale data)
-  iic_read(0x4b,raw_data,2);
-  iic_read(0x4b,raw_data,2);
+  iic_read(XPAR_IIC_0_BASEADDR,0x4b,raw_data,2);
+  iic_read(XPAR_IIC_0_BASEADDR,0x4b,raw_data,2);
   sample = (raw_data[0] << 8) | raw_data[1];
   return (((float)sample)*0.0625)/8; 
 }
@@ -85,7 +85,7 @@ int main(void)
    float temperature;
 
    pmod_init(0,1);
-   configureSwitch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
+   config_pmod_switch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
    
    // Run application
    while(1){

@@ -33,16 +33,18 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import time
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-PROGRAM = "pmod_dac.bin"
+PMOD_DAC_PROGRAM = "pmod_dac.bin"
 
-class PMOD_DAC(object):
-    """This class controls a Digital to Analog Converter PMOD.
+class Pmod_DAC(object):
+    """This class controls a Digital to Analog Converter Pmod.
     
-    The PMOD DA4 (PB 200-245) is an 8 channel 12-bit digital-to-analog 
+    The Pmod DA4 (PB 200-245) is an 8 channel 12-bit digital-to-analog 
     converter run via AD5628.
 
     Attributes
@@ -54,23 +56,26 @@ class PMOD_DAC(object):
         
     """
 
-    def __init__(self, pmod_id, value=None):
+    def __init__(self, if_id, value=None):
         """Return a new instance of a DAC object.
     
         Note
         ----
-        The pmod_id 0 is reserved for XADC (JA). The floating point number
-        to be written should be in the range of [0.00, 2.00]. 
+        The floating point number to be written should be in the range 
+        of [0.00, 2.00]. 
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
         value: float
-            The value to be written to the DAC PMOD.
+            The value to be written to the DAC Pmod.
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+            
+        self.iop = request_iop(if_id, PMOD_DAC_PROGRAM)
         self.mmio = self.iop.mmio
 
         self.iop.start()
@@ -79,7 +84,7 @@ class PMOD_DAC(object):
             self.write(value)
 
     def write(self, value):
-        """Write a floating point number onto the DAC PMOD.
+        """Write a floating point number onto the DAC Pmod.
 
         Note
         ----
@@ -89,7 +94,7 @@ class PMOD_DAC(object):
         Parameters
         ----------
         value : float
-            The value to be written to the DAC PMOD
+            The value to be written to the DAC Pmod
             
         Returns
         -------
@@ -101,13 +106,13 @@ class PMOD_DAC(object):
         
         # Calculate the voltage value and write to DAC
         intVal = int(value / (0.000610351))
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 
                         (intVal << 20) | (0x3))
         
         # Wait for I/O Processor to complete
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET + \
-                              pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) \
                               & 0x1) == 0x1:
             time.sleep(0.001)
             

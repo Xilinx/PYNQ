@@ -35,13 +35,13 @@ __email__       = "pynq_support@xilinx.com"
 import pytest
 from time import sleep
 from pynq import Overlay
-from pynq.iop.pmod_als import PMOD_ALS
+from pynq.iop import Pmod_ALS
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nALS attached to the board?")
 if flag:
     global als_id
-    als_id = int(input("Type in the PMOD ID of the ALS (1 ~ 4): "))
+    als_id = int(input("Type in the IOP ID of the PMOD ALS (1 ~ 2): "))
 
 @pytest.mark.run(order=28)  
 @pytest.mark.skipif(not flag, reason="need ALS attached in order to run")
@@ -53,7 +53,7 @@ def test_readlight():
     
     """
     global als
-    als = PMOD_ALS(als_id)
+    als = Pmod_ALS(als_id)
     
     # Wait for the PMOD ALS to finish initialization
     sleep(0.01)

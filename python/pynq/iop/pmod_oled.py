@@ -32,17 +32,18 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-import time
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-PROGRAM = "pmod_oled.bin"
+PMOD_OLED_PROGRAM = "pmod_oled.bin"
 
-class PMOD_OLED(object):
-    """This class controls an OLED PMOD.
+class Pmod_OLED(object):
+    """This class controls an OLED Pmod.
 
-    The PMOD OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED) 
+    The Pmod OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED) 
     panel powered by the Solomon Systech SSD1306.
     
     Attributes
@@ -54,24 +55,23 @@ class PMOD_OLED(object):
         
     """
 
-    def __init__(self, pmod_id, text=None):
+    def __init__(self, if_id, text=None):
         """Return a new instance of an OLED object. 
-    
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
         text: str
             The text to be displayed after initialization.
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+            
+        self.iop = request_iop(if_id, PMOD_OLED_PROGRAM)
         self.mmio = self.iop.mmio
-
+        
         self.iop.start()
         self.clear()
         
@@ -93,12 +93,12 @@ class PMOD_OLED(object):
         
         """             
         # Write the clear command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
         
         # Wait for the command to be cleared
-        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
             pass
             
     def write(self, text, x=0, y=0):
@@ -124,22 +124,22 @@ class PMOD_OLED(object):
             raise ValueError("Y-position should be in [0, 255]")
             
         # First write length, x, y
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, len(text))
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, x)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, y)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, len(text))
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, x)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, y)
         
         # Then write rest of string
         for i in range(len(text)):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC + i*4, 
+            self.mmio.write(iop_const.MAILBOX_OFFSET + 0xC + i*4, 
                             ord(text[i]))
                        
         # Finally write the print string command
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
         
         # Wait for the command to be cleared
-        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
             pass
         
     def draw_line(self, x1, y1, x2, y2):
@@ -170,16 +170,16 @@ class PMOD_OLED(object):
         if not 0 <= y2 <= 255:
             raise ValueError("Y-position should be in [0, 255]")
             
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, x1)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, y1)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, x2)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC, y2)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, x1)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, y1)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, x2)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0xC, y2)
                     
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
                         
-        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
             pass
             
     def draw_rect(self, x1, y1, x2, y2):
@@ -210,14 +210,14 @@ class PMOD_OLED(object):
         if not 0 <= y2 <= 255:
             raise ValueError("Y-position should be in [0, 255]")
             
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, x1)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x4, y1)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0x8, x2)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 0xC, y2)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, x1)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, y1)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, x2)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 0xC, y2)
                     
-        self.mmio.write(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
                         
-        while not (self.mmio.read(pmod_const.MAILBOX_OFFSET + 
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
             pass

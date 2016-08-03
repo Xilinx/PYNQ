@@ -34,9 +34,9 @@
  *
  * @file pmod_oled.c
  *
- * IOP code (MicroBlaze) for PMOD OLED.
- * PMOD OLED is write only, and has IIC interface.
- * Switch configuration is done within this program, PMOD should
+ * IOP code (MicroBlaze) for Pmod OLED.
+ * Pmod OLED is write only, and has IIC interface.
+ * Switch configuration is done within this program, Pmod should
  * be plugged into upper row of connector
  * The PmodOLED is 128x32 pixel monochrome organic LED (OLED) panel powered by
  * SSD1306. Users can program the device through SPI.
@@ -205,11 +205,12 @@ int main (void) {
     // Initialize pmod
     pmod_init(0,0);
     /*
-     *  Configuring PMOD IO Switch to connect to SPI[0].SS to pmod bit 0,
+     *  Configuring Pmod IO Switch to connect to SPI[0].SS to pmod bit 0,
      *  SPI[0].MOSI to pmod bit 1, and SPI[0].SCLK to pmod bit 3
      *  rest of the bits are configured to default gpio channels
      */
-    configureSwitch(SS,MOSI,GPIO_7,SPICLK,GPIO_0,GPIO_1,GPIO_2,GPIO_3);
+    config_pmod_switch(SS,MOSI,GPIO_7,SPICLK,
+                       GPIO_0,GPIO_1,GPIO_2,GPIO_3);
     
     // initialize OLED device and driver code
     pinmask=0;

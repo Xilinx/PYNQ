@@ -33,16 +33,18 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import time
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-PROGRAM = "pmod_dpot.bin"
+PMOD_DPOT_PROGRAM = "pmod_dpot.bin"
 
-class PMOD_DPOT(object):
-    """This class controls a digital potentiometer PMOD.
+class Pmod_DPOT(object):
+    """This class controls a digital potentiometer Pmod.
     
-    The PMOD DPOT (PB 200-239) is a digital potentiometer powered by the 
+    The Pmod DPOT (PB 200-239) is a digital potentiometer powered by the 
     AD5160. Users may set a desired resistance between 60 ~ 10k ohms.
 
     Attributes
@@ -53,20 +55,19 @@ class PMOD_DPOT(object):
         Memory-mapped I/O instance to read and write instructions and data.
         
     """
-    def __init__(self, pmod_id):
+    def __init__(self, if_id):
         """Return a new instance of a DPOT object. 
-    
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
             
         """
-        self.iop = _iop.request_iop(pmod_id, PROGRAM)
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+            
+        self.iop = request_iop(if_id, PMOD_DPOT_PROGRAM)
         self.mmio = self.iop.mmio
         
         self.iop.start()
@@ -75,7 +76,7 @@ class PMOD_DPOT(object):
         """Write the value into the DPOT.
         
         This method will write the parameters "value", "step", and "log_ms" 
-        all together into the DPOT PMOD. The parameter "log_ms" is only used
+        all together into the DPOT Pmod. The parameter "log_ms" is only used
         for debug; users can ignore this parameter.
         
         Parameters
@@ -100,19 +101,19 @@ class PMOD_DPOT(object):
         if log_ms<0:
             raise ValueError("Requested log_ms value cannot be less than 0.")
         
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
                         
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, val)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, step)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+8, log_ms)
+        self.mmio.write(iop_const.MAILBOX_OFFSET, val)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+4, step)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+8, log_ms)
       
         if step == 0:
-            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
+            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
         else:
-            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                            pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
+            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
 
     def _read_hex(self, addr_offset):
         """Read Hex value from Microblaze address space.

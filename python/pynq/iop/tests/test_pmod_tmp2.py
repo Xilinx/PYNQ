@@ -34,13 +34,13 @@ __email__       = "pynq_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
-from pynq.iop.pmod_tmp2 import PMOD_TMP2
+from pynq.iop import Pmod_TMP2
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD TMP2 attached to the board?")
 if flag:
     global tmp2_id
-    tmp2_id = int(input("Type in the PMOD ID of the TMP2 (1 ~ 4): "))
+    tmp2_id = int(input("Type in the IOP ID of the PMOD TMP2 (1 ~ 2): "))
 
 @pytest.mark.run(order=27)
 @pytest.mark.skipif(not flag, reason="need TMP2 attached in order to run")
@@ -51,7 +51,7 @@ def test_readtemp():
     
     """
     global tmp2
-    tmp2 = PMOD_TMP2(tmp2_id)
+    tmp2 = Pmod_TMP2(tmp2_id)
     n = tmp2.read()
     print("\nCurrent temperature: {} C.".format(n))
     assert user_answer_yes("Reading in celsius displayed?")

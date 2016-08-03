@@ -10,17 +10,23 @@ MBBINS = pmod_adc.bin \
 		pmod_timer.bin \
 		pmod_pwm.bin \
 		mailbox.bin \
-		grove_adc.bin \
-		grove_oled.bin \
-		grove_imu.bin \
-		grove_buzzer.bin \
-		grove_ledbar.bin
+		pmod_grove_adc.bin \
+		pmod_grove_oled.bin \
+		pmod_grove_imu.bin \
+		pmod_grove_buzzer.bin \
+		pmod_grove_ledbar.bin \
+		arduino_grove_adc.bin \
+		arduino_grove_oled.bin \
+		arduino_grove_imu.bin \
+		arduino_grove_buzzer.bin \
+		arduino_grove_ledbar.bin
 
 all: iop_bins
 	@echo "Completed Microblaze Projects' Builds"
 
 mb_bsp: sdk_workspace
-	cd bsp && make
+	cd bsp_pmod && make && cd ..
+	cd bsp_arduino && make && cd ..
 
 %.bin: mb_bsp
 	cd $(subst .bin,,$@)/Debug && make clean && make 
@@ -29,7 +35,7 @@ iop_bins: $(MBBINS)
 	@cp */Debug/*.bin ./bin/
 
 
-sdk_workspace: iop.hdf 
+sdk_workspace: base.hdf 
 	xsdk -batch -source build_xsdk.tcl
 
 clean:
@@ -39,5 +45,5 @@ clean:
 	rm -f */Debug/src/*.o
 	rm -f */Debug/src/*.d
 	rm -f bin/*
-	rm -rf bsp hw_def .Xil .metadata SDK.log	
+	rm -rf bsp_pmod bsp_arduino hw_def .Xil .metadata SDK.log	
 	rm -rf sdk_import

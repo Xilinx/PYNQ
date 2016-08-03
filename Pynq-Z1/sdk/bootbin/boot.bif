@@ -4,4 +4,3 @@ the_ROM_image:
 	../../bitstream/base.bit
 	u-boot.elf
 }
-

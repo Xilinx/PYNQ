@@ -36,15 +36,14 @@ from random import randint
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.iop import pmod_const
-from pynq.iop.pmod_cable import PMOD_Cable
+from pynq.iop import Pmod_Cable
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nTwo PMOD interfaces connected by a cable?")
 if flag:
     global TX_PORT,RX_PORT
-    TX_PORT = int(input("Type in the PMOD ID of the sender (1 ~ 4): "))
-    RX_PORT = int(input("Type in the PMOD ID of the receiver (1 ~ 4): "))
+    TX_PORT = int(input("Type in the IOP ID of the sender (1 ~ 2): "))
+    RX_PORT = int(input("Type in the IOP ID of the receiver (1 ~ 2): "))
     
 @pytest.mark.run(order=15) 
 @pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
@@ -65,8 +64,8 @@ def test_cable_type():
     assert not TX_PORT == RX_PORT, \
         "The sender port cannot be the receiver port."
     global tx,rx
-    tx = [PMOD_Cable(TX_PORT,k,'out','loopback') for k in range(8)]
-    rx = [PMOD_Cable(RX_PORT,k,'in','loopback') for k in range(8)]
+    tx = [Pmod_Cable(TX_PORT,k,'out','loopback') for k in range(8)]
+    rx = [Pmod_Cable(RX_PORT,k,'in','loopback') for k in range(8)]
     tx[0].write(0)
     tx[3].write(0)
     tx[4].write(1)

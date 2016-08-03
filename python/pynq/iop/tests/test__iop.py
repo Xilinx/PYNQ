@@ -34,7 +34,7 @@ __email__       = "pynq_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
-from pynq.iop._iop import request_iop
+from pynq.iop import request_iop
 
 global ol
 ol = Overlay("base.bit")

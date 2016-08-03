@@ -34,7 +34,7 @@
  *
  * @file ad7991.c
  *
- * Required functions for PMOD AD2 SKU410-217.
+ * Required functions for Pmod AD2 SKU410-217.
  * The PmodAD2 is an analog-to-digital converter powered by the Analog Devices
  * AD7991. Users may communicate with the board through I2C to configure up to
  * 4 conversion channels at 12 bits of resolution.
@@ -85,7 +85,7 @@ void adc_init(void)
                
     // Write to the Configuration Register
     WriteBuffer[0]=cfgValue;
-    iic_write(AD7991IICAddr, WriteBuffer, 1);
+    iic_write(XPAR_IIC_0_BASEADDR, AD7991IICAddr, WriteBuffer, 1);
 }
 
 /*  
@@ -117,7 +117,7 @@ void adc_config(char chan3, char chan2, char chan1, char chan0,
                
     // Write to the Configuration Register
     WriteBuffer[0]=cfgValue;
-    iic_write(AD7991IICAddr, WriteBuffer, 1);
+    iic_write(XPAR_IIC_0_BASEADDR, AD7991IICAddr, WriteBuffer, 1);
 }
 
 int adc_read_raw()
@@ -126,7 +126,7 @@ int adc_read_raw()
     u8 rcvbuffer[2];
 
     // Read data from AD7991
-    iic_read(AD7991IICAddr, rcvbuffer, 2);
+    iic_read(XPAR_IIC_0_BASEADDR, AD7991IICAddr, rcvbuffer, 2);
     // The first byte is MSB, while the second byte is LSB
     rxData = ((rcvbuffer[0] << 8) | rcvbuffer[1]);
 

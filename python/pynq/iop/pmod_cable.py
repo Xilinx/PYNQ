@@ -32,59 +32,59 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-from . import pmod_const
-from .pmod_io import PMOD_IO
+from pynq.iop import iop_const
+from pynq.iop import Pmod_IO
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-class PMOD_Cable(PMOD_IO):
-    """This class can be used for a cable connecting PMOD interfaces.
+class Pmod_Cable(Pmod_IO):
+    """This class can be used for a cable connecting Pmod interfaces.
     
-    This class inherits from the PMODIO class.
+    This class inherits from the Pmod IO class.
     
     Note
     ----
-    When 2 PMODs are connected using a cable, the parameter 'cable' decides 
+    When 2 Pmods are connected using a cable, the parameter 'cable' decides 
     whether the cable is a 'loopback' or 'straight' cable.
     The default is a straight cable (no internal wire twisting).
-    For pin mapping, please check the PMODIO class.
+    For pin mapping, please check the Pmod IO class.
     
     Attributes
     ----------
     iop : _IOP
         The _IOP object returned from the DevMode.
     index : int
-        The index of the PMOD pin, from 0 to 7.
+        The index of the Pmod pin, from 0 to 7.
     direction : str
         Input 'in' or output 'out'.
     cable : str
         Either 'straight' or 'loopback'.
     
     """
-    def __init__(self, pmod_id, index, direction, cable): 
+    def __init__(self, if_id, index, direction, cable): 
         """Return a new instance of a Cable object.
     
         Only the cable type is checked during initialization, since all the
-        other parameters are checked by PMODIO class.
-        
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
+        other parameters are checked by Pmod IO class.
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
         index: int
-            The index of the pin in a PMOD, from 0 to 7.
+            The index of the pin in a Pmod, from 0 to 7.
         direction : str
             Input 'in' or output 'out'.
         cable : str
             Either 'straight' or 'loopback'.
             
         """
-        if (cable not in ['straight', 'loopback']):
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+        if not cable in ['straight', 'loopback']:
             raise ValueError("Cable can only be 'straight', or 'loopback'.")
         
-        super().__init__(pmod_id, index, direction)
+        super().__init__(if_id, index, direction)
         self.cable = cable
         
     def set_cable(self, cable):
@@ -110,23 +110,23 @@ class PMOD_Cable(PMOD_IO):
         self.cable = cable
 
     def read(self):
-        """Receive the value from the PMOD cable.
+        """Receive the value from the Pmod cable.
         
-        This class overrides the read() method in the PMODIO class.
+        This class overrides the read() method in the Pmod IO class.
         
         Note
         ----
         Only use this function when direction = 'in'.
         
-        When two PMODs are connected on the same board, for any received raw 
+        When two Pmods are connected on the same board, for any received raw 
         value, a "straignt" cable flips the upper 4 pins and the lower 4 pins:
-        A PMOD interface       <=>      Another PMOD interface
+        A Pmod interface       <=>      Another Pmod interface
         {vdd,gnd,3,2,1,0}      <=>      {vdd,gnd,7,6,5,4}
         {vdd,gnd,7,6,5,4}      <=>      {vdd,gnd,3,2,1,0}
         
         A "loop-back" cable satisfies the following mapping 
-        between two PMODs:
-        A PMOD interface       <=>      Another PMOD interface
+        between two Pmods:
+        A Pmod interface       <=>      Another Pmod interface
         {vdd,gnd,3,2,1,0}      <=>      {vdd,gnd,3,2,1,0}
         {vdd,gnd,7,6,5,4}      <=>      {vdd,gnd,7,6,5,4}
         
@@ -137,11 +137,11 @@ class PMOD_Cable(PMOD_IO):
         Returns
         -------
         int
-            The data (0 or 1) on the specified PMOD IO pin.
+            The data (0 or 1) on the specified Pmod IO pin.
         
         """
-        raw_value = self.iop.read_cmd(pmod_const.IOPMM_PMODIO_BASEADDR+
-                                        pmod_const.IOPMM_PMODIO_DATA_OFFSET)
+        raw_value = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR+
+                                        iop_const.PMOD_DIO_DATA_OFFSET)
                                         
         if self.cable=='straight':
             if (self.index < 4):

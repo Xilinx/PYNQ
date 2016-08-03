@@ -34,12 +34,19 @@ __email__       = "pynq_support@xilinx.com"
 
 import time
 import struct
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
+from pynq.iop import XESS_STICKIT_GR
+from pynq.iop import DIGILENT_STICKIT_GR
+from pynq.iop import ARDUINO_SHIELD_GR
 
-GROVE_ADC_PROGRAM = "grove_adc.bin"
-GROVE_ADC_LOG_START = pmod_const.MAILBOX_OFFSET+16
+PMOD_GROVE_ADC_PROGRAM = "pmod_grove_adc.bin"
+ARDUINO_GROVE_ADC_PROGRAM = "arduino_grove_adc.bin"
+GROVE_ADC_LOG_START = iop_const.MAILBOX_OFFSET+16
 GROVE_ADC_LOG_END = GROVE_ADC_LOG_START+(1000*4)
 
 class Grove_ADC(object):
@@ -60,45 +67,55 @@ class Grove_ADC(object):
         Time in milliseconds between sampled reads of the Grove_ADC sensor.
         
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, if_id, gr_pin): 
         """Return a new instance of an Grove_ADC object. 
         
         Note
         ----
-        The pmod_id 0 is reserved for XADC (JA).
+        The parameter `gr_pin` is a list organized as [scl_pin, sda_pin].
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        gr_id: int
-            The group ID on StickIt, from 1 to 4.
+        if_id : int
+            The interface ID (1,2,3) corresponding to (PMODA,PMODB,arduino).
+        gr_pin: list
+            A group of pins on stickit connector or arduino shield.
             
         """
-        # IOP Switch Configuration
-        if (gr_id not in range(3,5)):
-            raise ValueError("Valid StickIt ID for ADC (IIC) is 4. ")
-
-        self.iop = _iop.request_iop(pmod_id, GROVE_ADC_PROGRAM)
+        if if_id in [PMODA, PMODB]:
+            if (not gr_pin in [XESS_STICKIT_GR["GR3"], \
+                               XESS_STICKIT_GR["GR4"]]) and \
+                (not gr_pin in [DIGILENT_STICKIT_GR["G3"], \
+                                DIGILENT_STICKIT_GR["G4"]]):
+                raise ValueError("Invalid pin assignment.")
+            GROVE_ADC_PROGRAM = PMOD_GROVE_ADC_PROGRAM
+        elif if_id in [ARDUINO]:
+            if not gr_pin in [ARDUINO_SHIELD_GR["I2C"]]:
+                raise ValueError("Invalid pin assignment.")
+            GROVE_ADC_PROGRAM = ARDUINO_GROVE_ADC_PROGRAM
+        else:
+            raise ValueError("No such IOP for grove device.")
+            
+        self.iop = request_iop(if_id, GROVE_ADC_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         self.log_running  = 0
         self.iop.start()
         
-        # Write SCL Pin Config
-        scl_pin = pmod_const.STICKIT_PINS_GR[gr_id][0]
-        self.mmio.write(pmod_const.MAILBOX_OFFSET, scl_pin)
-        # Write SDA Pin Config    
-        sda_pin = pmod_const.STICKIT_PINS_GR[gr_id][1]
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, sda_pin)
-        
-        # Write configuration and wait for ACK
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
-            pass
-        
+        if if_id in [PMODA, PMODB]:
+            # Write SCL and SDA pin config
+            scl_pin = gr_pin[0]
+            self.mmio.write(iop_const.MAILBOX_OFFSET, scl_pin)
+            sda_pin = gr_pin[1]
+            self.mmio.write(iop_const.MAILBOX_OFFSET+4, sda_pin)
+            
+            # Write configuration and wait for ACK
+            self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+            while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
+                pass
+                
     def read_raw(self):
         """Read the ADC raw value from the Grove ADC peripheral.
         
@@ -112,12 +129,12 @@ class Grove_ADC(object):
             The raw value from the sensor.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 2)      
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 2):
+        self.mmio.write(iop_const.MAILBOX_OFFSET+ \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 2)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 2):
             pass
-        value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
+        value = self.mmio.read(iop_const.MAILBOX_OFFSET)
         return value
         
     def read(self):
@@ -133,12 +150,12 @@ class Grove_ADC(object):
             The float value after translation.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)      
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
-        value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
+        value = self.mmio.read(iop_const.MAILBOX_OFFSET)
         return self._reg2float(value)
         
     def set_log_interval_ms(self, log_interval_ms):
@@ -161,7 +178,7 @@ class Grove_ADC(object):
             raise ValueError("Time between samples should be no less than 0.")
         
         self.log_interval_ms = log_interval_ms
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_interval_ms)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+4, self.log_interval_ms)
 
     def start_log_raw(self):
         """Start recording raw data in a log.
@@ -180,8 +197,8 @@ class Grove_ADC(object):
         """
         self.log_running = 1
         self.set_log_interval_ms(self.log_interval_ms)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 4)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 4)
                         
     def start_log(self):
         """Start recording multiple voltage values (float) in a log.
@@ -200,8 +217,8 @@ class Grove_ADC(object):
         """
         self.log_running = 1
         self.set_log_interval_ms(self.log_interval_ms)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
                         
     def stop_log_raw(self):
         """Stop recording the raw values in the log.
@@ -218,8 +235,8 @@ class Grove_ADC(object):
         
         """
         if(self.log_running == 1):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
+            self.mmio.write(iop_const.MAILBOX_OFFSET+ \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -239,8 +256,8 @@ class Grove_ADC(object):
         
         """
         if(self.log_running == 1):
-            self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
+            self.mmio.write(iop_const.MAILBOX_OFFSET+ \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -262,8 +279,8 @@ class Grove_ADC(object):
         self.stop_log()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
         # Sweep circular buffer for samples
@@ -275,7 +292,7 @@ class Grove_ADC(object):
         else:
             for i in range(head_ptr,GROVE_ADC_LOG_END,4):
                 readings.append(self.mmio.read(i))
-            for i in range(GROVE_ADC_LOG_START,tail_ptr,4):            
+            for i in range(GROVE_ADC_LOG_START,tail_ptr,4):
                 readings.append(self.mmio.read(i))
         return readings
         
@@ -296,8 +313,8 @@ class Grove_ADC(object):
         self.stop_log()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
         # Sweep circular buffer for samples
@@ -329,10 +346,10 @@ class Grove_ADC(object):
         
         """
         # Send command and wait for acknowledge
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 12):
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 12)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 12):
             pass
             
     def _reg2float(self, reg):

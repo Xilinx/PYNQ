@@ -38,13 +38,13 @@ import termios
 from time import sleep
 import pytest
 from pynq import Overlay
-from pynq.iop.pmod_led8 import PMOD_LED8
+from pynq.iop import Pmod_LED8
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nPMOD LED8 attached to the board?")
 if flag:
     global led_id
-    led_id = int(input("Type in the PMOD ID of the LED8 (1 ~ 4): "))
+    led_id = int(input("Type in the IOP ID of the PMOD LED8 (1 ~ 2): "))
 
 @pytest.mark.run(order=21)
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")
@@ -56,7 +56,7 @@ def test_led0():
     
     """
     global leds
-    leds = [PMOD_LED8(led_id,index) for index in range(8)]
+    leds = [Pmod_LED8(led_id,index) for index in range(8)]
     
     led = leds[0]
     led.on()
@@ -142,9 +142,9 @@ def test_toggle_2():
     audiovideo overlay, and is required.
     
     """
-    print("\nPlug the LED8 into PMOD 1 (JB)...", end="")
+    print("\nPlug the LED8 into PMODA...", end="")
     
-    leds = [PMOD_LED8(1, index) for index in range(8)]
+    leds = [Pmod_LED8(1, index) for index in range(8)]
     for led in leds:
         led.off()
     leds[0].on()

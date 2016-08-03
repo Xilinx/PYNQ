@@ -34,14 +34,14 @@
  *
  * @file pmod_dpot.c
  *
- * IOP code (MicroBlaze) for PMOD DPOT.
- * PMOD DPOT is write only, and has SPI with MOSI only
+ * IOP code (MicroBlaze) for Pmod DPOT.
+ * Pmod DPOT is write only, and has SPI with MOSI only
  * Operations implemented in this application:
  *   1. Simple, single write to DPOT from data area
  *   2. Continuous write to DPOT with RAMP, DELAY and STEP SIZE
- * Switch configuration is done within this program, PMOD should
+ * Switch configuration is done within this program, Pmod should
  * be plugged into upper row of connector
- * The PMOD DPOT is a digital potentiometer powered by AD5160. Users may set 
+ * The Pmod DPOT is a digital potentiometer powered by AD5160. Users may set 
  * a desired resistance between 60Ω and 10kΩ by programming through SPI. 
  * http://store.digilentinc.com/pmoddpot-digital-potentiometer/
  *
@@ -77,7 +77,8 @@ int main(void)
    u32 step_size, delay;
 
    pmod_init(0,1);
-   configureSwitch(SS, MOSI, GPIO_2, SPICLK, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+   config_pmod_switch(SS, MOSI, GPIO_2, SPICLK, 
+                      GPIO_4, GPIO_5, GPIO_6, GPIO_7);
 
    // Run application
    while(1){

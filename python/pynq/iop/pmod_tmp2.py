@@ -33,47 +33,52 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import time
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 
-TMP2_PROGRAM = "pmod_tmp2.bin"
-TMP2_LOG_START = pmod_const.MAILBOX_OFFSET+16
-TMP2_LOG_END = TMP2_LOG_START+(1000*4)
+PMOD_TMP2_PROGRAM = "pmod_tmp2.bin"
+PMOD_TMP2_LOG_START = iop_const.MAILBOX_OFFSET+16
+PMOD_TMP2_LOG_END = PMOD_TMP2_LOG_START+(1000*4)
 
-class PMOD_TMP2(object):
-    """This class controls a temperature sensor PMOD.
+class Pmod_TMP2(object):
+    """This class controls a temperature sensor Pmod.
     
-    The PMOD TMP2 (PB 200-221) is an ambient temperature sensor powered by 
+    The Pmod TMP2 (PB 200-221) is an ambient temperature sensor powered by 
     ADT7420.
 
     Attributes
     ----------
     iop : _IOP
-        I/O processor instance used by TMP2
+        I/O processor instance used by TMP2.
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
     log_interval_ms : int
-        Time in milliseconds between sampled reads of the TMP2 sensor
+        Time in milliseconds between sampled reads of the TMP2 sensor.
         
     """
-    def __init__(self, pmod_id):
+    def __init__(self, if_id):
         """Return a new instance of a TMP2 object. 
         
         Parameters
         ----------
-        pmod_id : int
-            PMOD index in the programmable logic, starting at 1.
-        
+        if_id : int
+            The interface ID (1, 2) corresponding to (PMODA, PMODB).
+            
         """
-        self.iop = _iop.request_iop(pmod_id, TMP2_PROGRAM)
+        if not if_id in [PMODA, PMODB]:
+            raise ValueError("No such IOP for Pmod device.")
+            
+        self.iop = request_iop(if_id, PMOD_TMP2_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         
         self.iop.start()
         
     def read(self):
-        """Read current temperature value measured by the TMP2 PMOD.
+        """Read current temperature value measured by the Pmod TMP2.
         
         Parameters
         ----------
@@ -85,18 +90,18 @@ class PMOD_TMP2(object):
             The current sensor value.
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)     
-
-        while (self.mmio.read(pmod_const.MAILBOX_OFFSET+\
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
+                        
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
-
-        value = self.mmio.read(pmod_const.MAILBOX_OFFSET)
+            
+        value = self.mmio.read(iop_const.MAILBOX_OFFSET)
         return self._reg2float(value)
         
     def set_log_interval_ms(self,log_interval_ms):
-        """Set the sampling interval for the TMP2 PMOD.
+        """Set the sampling interval for the Pmod TMP2.
         
         Parameters
         ----------
@@ -112,7 +117,7 @@ class PMOD_TMP2(object):
             raise ValueError("Log length should not be less than 0.")
         
         self.log_interval_ms = log_interval_ms
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+4, self.log_interval_ms)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+4, self.log_interval_ms)
         
     def start_log(self):
         """Start recording multiple values in a log.
@@ -130,8 +135,8 @@ class PMOD_TMP2(object):
         
         """
         self.set_log_interval_ms(self.log_interval_ms)
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
                         
     def stop_log(self):
         """Stop recording multiple values in a log.
@@ -147,8 +152,8 @@ class PMOD_TMP2(object):
         None
         
         """
-        self.mmio.write(pmod_const.MAILBOX_OFFSET+\
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
                         
     def get_log(self):
         """Return list of logged samples.
@@ -166,8 +171,8 @@ class PMOD_TMP2(object):
         self.stop_log()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(pmod_const.MAILBOX_OFFSET+0xC)
+        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
+        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         temps = list()
 
         # Sweep circular buffer for samples
@@ -177,10 +182,10 @@ class PMOD_TMP2(object):
             for i in range(head_ptr,tail_ptr,4):
                 temps.append(self._reg2float(self.mmio.read(i)))
         else:
-            for i in range(head_ptr,TMP2_LOG_END,4):
+            for i in range(head_ptr,PMOD_TMP2_LOG_END,4):
                 temps.append(self._reg2float(self.mmio.read(i)))
-            for i in range(TMP2_LOG_START,tail_ptr,4):            
-                temps.append(self._reg2float(self.mmio.read(i))) 
+            for i in range(PMOD_TMP2_LOG_START,tail_ptr,4):
+                temps.append(self._reg2float(self.mmio.read(i)))
         return temps
         
     def _reg2float(self, reg):

@@ -33,46 +33,50 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import time
-from . import _iop
-from . import pmod_const
 from pynq import MMIO
-from pynq.iop import pmod_const
-
+from pynq.iop import request_iop
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
 
 class DevMode(object):
     """Control an IO processor running the developer mode program. 
     
-    This class will wait for Python to send commands to PMOD IO, IIC, or SPI.
+    This class will wait for Python to send commands to PMOD / Arduino IO, 
+    IIC, or SPI.
 
     Attributes
     ----------
+    if_id : int
+        The interface ID (1,2,3) corresponding to (PMODA,PMODB,ARDUINO).
     iop : _IOP
         IO processor instance used by DevMode.
     iop_switch_config :list
-        IO processor switch configuration (8 32-bit values).
+        IO processor switch configuration (8 or 19 integers).
     mmio : MMIO
         Memory-mapped IO instance to read and write instructions and data.
     
     """
-
-    def __init__(self, pmod_id, switch_config):
+    def __init__(self, if_id, switch_config):
         """Return a new instance of a DevMode object.
         
         Parameters
         ----------
-        pmod_id : int
-            ID of the PMOD to which the IO processor is attached.
+        if_id : int
+            The interface ID (1,2,3) corresponding to (PMODA,PMODB,ARDUINO).
         switch_config : list
-            IO Processor switch configuration (8 32-bit values).
+            IO Processor switch configuration (8 or 19 integers).
             
         """
-
-        self.mailbox_op_addr_offest = 0xff8
-        
-        self.iop = _iop.request_iop(pmod_id, pmod_const.MAILBOX_PROGRAM)
+        if not if_id in [PMODA, PMODB, ARDUINO]:
+            raise ValueError("No such IOP for DevMode.")
+            
+        self.if_id = if_id
+        self.iop = request_iop(if_id, iop_const.MAILBOX_PROGRAM)
         self.iop_switch_config = list(switch_config)
-        self.mmio = MMIO(self.iop.mmio.base_addr + pmod_const.MAILBOX_OFFSET, 
-                            pmod_const.MAILBOX_SIZE)
+        self.mmio = MMIO(self.iop.mmio.base_addr + iop_const.MAILBOX_OFFSET, \
+                         iop_const.MAILBOX_SIZE)
                         
     def start(self):
         """Start the IO Processor.
@@ -86,8 +90,8 @@ class DevMode(object):
         
         """
         self.iop.start()
-        self.mmio.write(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 0)
-        self.load_switch_config()
+        self.mmio.write(iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0)
+        self.load_switch_config(self.iop_switch_config)
 
     def stop(self):
         """Put the IO Processor into Reset.
@@ -98,18 +102,14 @@ class DevMode(object):
         self.iop.stop()
 
     def load_switch_config(self, config=None):
-        """Load the IO processor's switch configuration 
+        """Load the IO processor's switch configuration.
         
-        Note
-        ----
-        This method will update switch config first if the configuration is
-        provided (a list of 8 32-bit values). Otherwise, this method will 
-        configure the switch with DevMode.iop_switch_config 
+        This method will update switch config.
         
         Parameters
         ----------
         config: list
-            A switch configuration list of 8 32-bit values.
+            A switch configuration list of integers.
 
         Raises
         ----------
@@ -117,43 +117,54 @@ class DevMode(object):
             If the config argument is not of the correct type.
             
         """
-        if config:
-            if len(config) != pmod_const.IOPMM_SWITCHCONFIG_NUMREGS:
-                raise TypeError('User supplied config {} is not a ' +
-                        'list of 8 integers.'.format(config))
+        if self.if_id in [PMODA, PMODB]:
+            if config == None:
+                config = iop_const.PMOD_SWCFG_DIOALL
+            elif not len(config) == iop_const.PMOD_SWITCHCONFIG_NUMREGS:
+                raise TypeError('Invalid switch config {}.'.format(config))
+                
+            # Build switch config word 
             self.iop_switch_config = config
-
-        # Build switch config word 
-        sw_config_word = 0
-        for ix, cfg in enumerate(self.iop_switch_config): 
-            sw_config_word |= (cfg << ix*4)
-
-        # Disable, configure, enable switch
-        self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR + 4, 0)
-        self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR, \
-                        sw_config_word)
-        self.write_cmd(pmod_const.IOPMM_SWITCHCONFIG_BASEADDR + 7, \
-                        0x80, dWidth=1)     
-
-    def get_switch_config(self):
-        """Print the IO processor's switch configuration.
-        
-        Parameters
-        ----------
-        None
-        
-        Returns
-        -------
-        list
-            A switch configuration list of 8 32-bit values.
-        
-        """
-        sw_config = list()
-        for ix, cfg in enumerate(self.iop_switch_config):
-            sw_config.append(self.read_cmd(
-                pmod_const.IOPMM_switch_config_BASEADDR + ix*4, dWidth=1))
-        return sw_config
-
+            sw_config_word = 0
+            for ix, cfg in enumerate(self.iop_switch_config): 
+                sw_config_word |= (cfg << ix*4)
+                
+            # Disable, configure, enable switch
+            self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR + 4, 0)
+            self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR, \
+                           sw_config_word)
+            self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR + 7, \
+                           0x80, dWidth=1)
+                           
+        elif self.if_id in [ARDUINO]:
+            if config == None:
+                config = iop_const.ARDUINO_SWCFG_DIOALL
+            elif not len(config) == iop_const.ARDUINO_SWITCHCONFIG_NUMREGS:
+                raise TypeError('Invalid switch config {}.'.format(config))
+                
+            # Build switch config word 
+            self.iop_switch_config = config
+            sw_config_words = [0, 0, 0, 0]
+            for ix, cfg in enumerate(self.iop_switch_config): 
+                if ix < 6:
+                    sw_config_words[0] |= (cfg << ix*2)
+                elif ix == 6:
+                    sw_config_words[0] |= (cfg << 31)
+                elif 7 <= ix < 11:
+                    sw_config_words[1] |= (cfg << (ix-7)*4)
+                elif 11 <= ix < 15:
+                    sw_config_words[2] |= (cfg << (ix-11)*4)
+                else:
+                    sw_config_words[3] |= (cfg << (ix-15)*4)
+                
+                # Configure switch
+                for i in range(4):
+                    self.write_cmd(iop_const.ARDUINO_SWITCHCONFIG_BASEADDR + \
+                                   4*i, sw_config_words[i])
+                                   
+        else:
+            raise ValueError("Cannot load switch for unknown IOP.")
+            
     def status(self):
         """Returns the status of the IO processor.
         
@@ -190,7 +201,7 @@ class DevMode(object):
         None
         
         """
-        return self._send_cmd(pmod_const.WRITE_CMD, address, data, 
+        return self._send_cmd(iop_const.WRITE_CMD, address, data, 
                                 dWidth=dWidth, timeout=timeout)
 
     def read_cmd(self, address, dWidth=4, dLength=1, timeout=10):
@@ -213,7 +224,7 @@ class DevMode(object):
             A list of data returned by MMIO read.
         
         """
-        return self._send_cmd(pmod_const.READ_CMD, address, None, 
+        return self._send_cmd(iop_const.READ_CMD, address, None, 
                                 dWidth=dWidth, timeout=timeout)
 
     def is_cmd_mailbox_idle(self): 
@@ -229,7 +240,7 @@ class DevMode(object):
             True if IOP command mailbox idle.
         
         """
-        mb_cmd_word = self.mmio.read(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET)
+        mb_cmd_word = self.mmio.read(iop_const.MAILBOX_PY2IOP_CMD_OFFSET)
         return (mb_cmd_word & 0x1) == 0
 
     def get_cmd_word(self, cmd, dWidth, dLength):
@@ -298,16 +309,14 @@ class DevMode(object):
         LookupError
             If it takes too long to receive the ACK from the IOP.
 
-
         """
-        self.mmio.write(self.mailbox_op_addr_offest, address)
+        self.mmio.write(iop_const.MAILBOX_PY2IOP_ADDR_OFFSET, address)
         if data != None:
-            self.mmio.write(pmod_const.MAILBOX_PY2IOP_DATA_OFFSET, data)
+            self.mmio.write(iop_const.MAILBOX_PY2IOP_DATA_OFFSET, data)
         
         # Build the write command
         cmd_word = self.get_cmd_word(cmd, dWidth, dLength)
-
-        self.mmio.write(pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
+        self.mmio.write(iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
 
         # Wait for ACK in steps of 1ms
         cntdown = timeout
@@ -320,8 +329,8 @@ class DevMode(object):
             raise LookupError("DevMode _send_cmd() not acknowledged.")
 
         # Return data if expected from read, otherwise return None
-        if cmd == pmod_const.WRITE_CMD: 
+        if cmd == iop_const.WRITE_CMD: 
             return None
         else:
-            return self.mmio.read(pmod_const.MAILBOX_PY2IOP_DATA_OFFSET)
+            return self.mmio.read(iop_const.MAILBOX_PY2IOP_DATA_OFFSET)
             

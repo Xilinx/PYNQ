@@ -34,7 +34,7 @@
  *
  * @file pmod_adc.c
  *
- * IOP code (MicroBlaze) for PMOD AD2 SKU410-217.
+ * IOP code (MicroBlaze) for Pmod AD2 SKU410-217.
  * The PmodAD2 is an analog-to-digital converter powered by the Analog Devices
  * AD7991. Users may communicate with the board through I2C to configure up to
  * 4 conversion channels at 12 bits of resolution.
@@ -91,16 +91,17 @@ int main()
     u32 adc_raw_value;
     float adc_voltage;
 
-    // initialize pmod
+    // initialize Pmod
     pmod_init(0,1);
     /*  
-     *  Configuring PMOD IO Switch to connect to I2C[0].
+     *  Configuring Pmod IO Switch to connect to I2C[0].
      *  SCLK to pmod pin 3 and 7, I2C[0].SDA to pmod pin 4 and 8
      *  rest of the bits are configured to default gpio channels
      *  i.e. pmod pin 1 to gpio[0], pmod pin 2 to gpio[1],
      *  pmod pin 5 to gpio[4], and pmod pin 6 to gpio[5]
      */
-    configureSwitch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+    config_pmod_switch(GPIO_0, GPIO_1, SCL, SDA, 
+                       GPIO_4, GPIO_5, GPIO_6, GPIO_7);
     
     // to use internal VREF, bridge JP1 accross pin1 and center pin
     useVref=1;

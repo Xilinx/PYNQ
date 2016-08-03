@@ -32,47 +32,62 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-from pynq.iop import pmod_const
-from pynq.iop.pmod_io import PMOD_IO
+from pynq.iop import iop_const
+from pynq.iop import Pmod_IO
+from pynq.iop import Arduino_IO
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
+from pynq.iop import XESS_STICKIT_GR
+from pynq.iop import DIGILENT_STICKIT_GR
+from pynq.iop import ARDUINO
 
-class Grove_PIR(PMOD_IO):
+class Grove_PIR(object):
     """This class controls the PIR motion sensor.
     
-    The grove PIR motion sensor is attached to a PMOD. This class inherits 
-    from the PMODIO class. Hardware version: v1.2.
+    The grove PIR motion sensor is attached to a Pmod or an Arduino interface. 
+    Hardware version: v1.2.
     
     Attributes
     ----------
-    iop : _IOP
-        The _IOP object returned from the DevMode.
-    index : int
-        The index of the PMOD pin {0, 1, 7, 6}.
+    pir_iop : object
+        The Pmod IO or Arduino IO object.
     
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __new__(self, if_id, gr_pin): 
         """Return a new instance of a PIR object. 
-        
-        Only checks the gr_id, since other parameters can be checked by the 
-        PMODIO class. The gr_id starts from 1, at the StickIt socket farthest
-        away from the board.
-        
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        gr_id: int
-            The group ID on StickIt, from 1 to 4.
+        if_id : int
+            IOP ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).
+        gr_pin: list
+            A group of pins on stickit connector or arduino shield.
             
         """
-        if (gr_id not in range(1,5)):
-            raise ValueError("Valid StickIt group IDs are 1 - 4.")
+        if if_id in [PMODA, PMODB]:
+            if not gr_pin in [XESS_STICKIT_GR["GR1"], \
+                              XESS_STICKIT_GR["GR2"], \
+                              DIGILENT_STICKIT_GR["G1"], \
+                              DIGILENT_STICKIT_GR["G2"]]:
+                raise ValueError("Invalid pin assignment.")
+            self.pir_iop = Pmod_IO(if_id, gr_pin[0], 'in')
+            return self.pir_iop
+        elif if_id in [ARDUINO]:
+            if not gr_pin in [ARDUINO_SHIELD_GR["UART"], \
+                              ARDUINO_SHIELD_GR["G1"], \
+                              ARDUINO_SHIELD_GR["G2"], \
+                              ARDUINO_SHIELD_GR["G3"], \
+                              ARDUINO_SHIELD_GR["G4"], \
+                              ARDUINO_SHIELD_GR["G5"], \
+                              ARDUINO_SHIELD_GR["G6"], \
+                              ARDUINO_SHIELD_GR["G7"]]:
+                raise ValueError("Invalid pin assignment.")
+            self.pir_iop = Arduino_IO(if_id, gr_pin[0], 'in')
+            return self.pir_iop
+        else:
+            raise ValueError("No such IOP for grove device.")
             
-        super().__init__(pmod_id, pmod_const.STICKIT_PINS_GR[gr_id][0],'in')
-        
     def read(self):
         """Receive the value from the PIR sensor.
         
@@ -88,4 +103,4 @@ class Grove_PIR(PMOD_IO):
             The data (0 or 1) read from the PIR sensor.
         
         """
-        return super().read()
+        return self.pir_iop.read()

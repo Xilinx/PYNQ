@@ -59,10 +59,10 @@ def test_overlay():
             'Overlay gets empty IP dictionary.'
     assert len(ol1.gpio_dict)>0,\
             'Overlay gets empty GPIO dictionary.'
-    assert ol1.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0')=='0x40000000',\
-            'Overlay gets wrong IP base address.'
-    assert ol1.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0')=='0x10000',\
-            'Overlay gets wrong IP address range.'
+    assert int(ol1.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16) == \
+           int('0x40000000',16), 'Overlay gets wrong IP base address.'
+    assert int(ol1.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16) == \
+           int('0x10000',16), 'Overlay gets wrong IP address range.'
     for i in ol1.ip_dict.keys():
         assert ol1.get_ip_addr_base(i)==ol1.ip_dict[i][0],\
             'Overlay gets wrong IP base address.'
@@ -94,10 +94,10 @@ def test_overlay():
             'Overlay gets empty IP dictionary.'
     assert len(ol2.gpio_dict)>0,\
             'Overlay gets empty GPIO dictionary.'
-    assert ol2.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0')=='0x40000000',\
-            'Overlay gets wrong IP base address.'
-    assert ol2.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0')=='0x10000',\
-            'Overlay gets wrong IP address range.'
+    assert int(ol2.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16) == \
+           int('0x40000000',16), 'Overlay gets wrong IP base address.'
+    assert int(ol2.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16) == \
+           int('0x10000',16), 'Overlay gets wrong IP address range.'
     for i in ol2.ip_dict.keys():
         assert ol2.get_ip_addr_base(i)==ol2.ip_dict[i][0],\
             'Overlay gets wrong IP base address.'

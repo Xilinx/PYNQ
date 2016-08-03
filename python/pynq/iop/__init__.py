@@ -32,18 +32,34 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-from . import pmod_const
+from . import iop_const
+from .iop_const import PMODA
+from .iop_const import PMODB
+from .iop_const import ARDUINO
+from .iop_const import XESS_STICKIT_GR
+from .iop_const import DIGILENT_STICKIT_GR
+from .iop_const import ARDUINO_SHIELD_GR
+from .iop import request_iop
 from .devmode import DevMode
-from .pmod_adc import PMOD_ADC 
-from .pmod_dac import PMOD_DAC 
-from .pmod_oled import PMOD_OLED
-from .pmod_led8 import PMOD_LED8
-from .pmod_io import PMOD_IO
-from .pmod_iic import PMOD_IIC
-from .pmod_dpot import PMOD_DPOT
-from .pmod_tmp2 import PMOD_TMP2
-from .pmod_als import PMOD_ALS
-from .pmod_cable import PMOD_Cable
+
+# Pmod devices
+from .pmod_adc import Pmod_ADC 
+from .pmod_dac import Pmod_DAC 
+from .pmod_oled import Pmod_OLED
+from .pmod_led8 import Pmod_LED8
+from .pmod_io import Pmod_IO
+from .pmod_iic import Pmod_IIC
+from .pmod_dpot import Pmod_DPOT
+from .pmod_tmp2 import Pmod_TMP2
+from .pmod_als import Pmod_ALS
+from .pmod_cable import Pmod_Cable
+from .pmod_timer import Pmod_Timer
+from .pmod_pwm import Pmod_PWM
+
+# Arduino devices
+from .arduino_io import Arduino_IO
+
+# Grove devices
 from .grove_pir import Grove_PIR
 from .grove_adc import Grove_ADC
 from .grove_oled import Grove_OLED
@@ -52,5 +68,3 @@ from .grove_ledbar import Grove_LEDbar
 from .grove_tmp import Grove_TMP
 from .grove_light import Grove_Light
 from .grove_buzzer import Grove_Buzzer
-from .pmod_timer import PMOD_Timer
-from .pmod_pwm import PMOD_PWM

@@ -34,11 +34,11 @@
  *
  * @file pmod_dac.c
  *
- * IOP code (MicroBlaze) for PMOD DA4
- * PMOD DA4 is write only, and has SPI interface.
- * Switch configuration is done within this program, PMOD can be plugged 
+ * IOP code (MicroBlaze) for Pmod DA4
+ * Pmod DA4 is write only, and has SPI interface.
+ * Switch configuration is done within this program, Pmod can be plugged 
  * into upper row or lower row of the connector.
- * The PMOD DA4 is an 8 channel 12-bit digital-to-analog converter run via 
+ * The Pmod DA4 is an 8 channel 12-bit digital-to-analog converter run via 
  * the analog devices AD5628. 
  * http://store.digilentinc.com/pmodda4-eight-12-bit-d-a-outputs/
  *
@@ -386,12 +386,13 @@ int main(void)
 
     pmod_init(0,1);
     /*
-     *  Configuring PMOD IO Switch to connect to SPI[0].SS to pmod bit 0
+     *  Configuring Pmod IO Switch to connect to SPI[0].SS to pmod bit 0
      *  SPI[0].MOSI to pmod bit 1, and SPI[0].SCLK to pmod bit 3
      *  rest of the bits are configured to default gpio channels 
      *  i.e. gpio[0] to pmod bit 2, gpio[1] to pmod bit 4, etc.
      */
-    configureSwitch(SS,MOSI,GPIO_2,SPICLK,GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+    config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,
+                       GPIO_4,GPIO_5, GPIO_6, GPIO_7);
 
     RefOn();
     while(1){

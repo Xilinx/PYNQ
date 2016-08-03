@@ -34,8 +34,10 @@ __email__       = "pynq_support@xilinx.com"
 
 from time import sleep
 from math import log
-from pynq.iop import pmod_const
 from pynq.iop import Grove_ADC
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
 
 class Grove_TMP(Grove_ADC):
     """This class controls the grove temperature sensor.
@@ -43,12 +45,6 @@ class Grove_TMP(Grove_ADC):
     This class inherits from the Grove_ADC class. To use this module, grove 
     ADC has to be used as a bridge. The temperature sensor uses a thermistor 
     to detect the ambient temperature. Hardware version: v1.2.
-    
-    Note
-    ----
-    The index of the PMOD pins:
-    upper row, from left to right: {vdd,gnd,3,2,1,0}.
-    lower row, from left to right: {vdd,gnd,7,6,5,4}.
     
     Attributes
     ----------
@@ -64,26 +60,26 @@ class Grove_TMP(Grove_ADC):
         The thermistor constant.
     
     """
-    def __init__(self, pmod_id, gr_id, version='v1.2'): 
+    def __init__(self, if_id, gr_pin, version='v1.2'): 
         """Return a new instance of a Grove_TMP object. 
         
         Note
         ----
-        The pmod_id 0 is reserved for XADC (JA).
+        The parameter `gr_pin` is a list organized as [scl_pin, sda_pin].
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        gr_id: int
-            The group ID on StickIt, from 1 to 4.
+        if_id : int
+            The interface ID (1,2,3) corresponding to (PMODA,PMODB,arduino).
+        gr_pin: list
+            A group of pins on stickit connector or arduino shield.
         version : str
             The hardware version number (can be found on device).
             
         """
-        if (gr_id not in [3,4]):
-            raise ValueError("Valid StickIt group IDs are 3 and 4.")
-        
+        if not if_id in [PMODA, PMODB, ARDUINO]:
+            raise ValueError("No such IOP for grove device.")
+            
         if version == 'v1.2':
             # v1.2 uses NCP18WF104F03RC
             self.bValue = 4250
@@ -94,7 +90,7 @@ class Grove_TMP(Grove_ADC):
             # v1.0 uses thermistor TTC3A103*39H
             self.bValue = 3975
         
-        super().__init__(pmod_id, gr_id)
+        super().__init__(if_id, gr_pin)
         
     def read(self):
         """Read temperature values in Celsius from temperature sensor.

@@ -34,8 +34,11 @@ __email__       = "pynq_support@xilinx.com"
 
 from time import sleep
 from math import log
-from pynq.iop import pmod_const
 from pynq.iop import Grove_ADC
+from pynq.iop import iop_const
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
 
 class Grove_Light(Grove_ADC):
     """This class controls the grove light sensor.
@@ -43,12 +46,6 @@ class Grove_Light(Grove_ADC):
     This class inherits from the Grove_ADC class. To use this module, grove 
     ADC has to be used as a bridge. The light sensor incorporates a Light 
     Dependent Resistor (LDR) GL5528. Hardware version: v1.1.
-    
-    Note
-    ----
-    The index of the PMOD pins:
-    upper row, from left to right: {vdd,gnd,3,2,1,0}.
-    lower row, from left to right: {vdd,gnd,7,6,5,4}.
     
     Attributes
     ----------
@@ -62,25 +59,21 @@ class Grove_Light(Grove_ADC):
         Time in milliseconds between sampled reads of the Grove ADC sensor.
     
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, if_id, gr_pin): 
         """Return a new instance of an Grove ADC object. 
-        
-        Note
-        ----
-        The pmod_id 0 is reserved for XADC (JA).
         
         Parameters
         ----------
-        pmod_id : int
-            The PMOD ID (1, 2, 3, 4) corresponding to (JB, JC, JD, JE).
-        gr_id: int
-            The group ID on StickIt, from 1 to 4.
+        if_id : int
+            IOP ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).
+        gr_pin: list
+            A group of pins on stickit connector or arduino shield.
             
         """
-        if (gr_id not in [3,4]):
-            raise ValueError("Valid StickIt group IDs are 3 and 4.")
-        
-        super().__init__(pmod_id, gr_id)
+        if not if_id in [PMODA, PMODB, ARDUINO]:
+            raise ValueError("No such IOP for grove device.")
+            
+        super().__init__(if_id, gr_pin)
         
     def read(self):
         """Read the light sensor resistance in from the light sensor.
@@ -97,7 +90,6 @@ class Grove_Light(Grove_ADC):
             The light reading in terms of the sensor resistance.
         
         """
-        # Transform the ADC data into light value
         val = super().read_raw()
         return self._int2R(val)
         
@@ -130,7 +122,6 @@ class Grove_Light(Grove_ADC):
             List of valid light sensor resistances.
         
         """
-        # Stop and get the log
         r_log = super().get_log_raw()
         
         for i in range(len(r_log)):
