@@ -375,6 +375,8 @@ int main()
             config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
                                iop_pins[3], iop_pins[4], iop_pins[5], 
                                iop_pins[6], iop_pins[7]);
+            mpu_init();
+            bmp_init();
             MAILBOX_CMD_ADDR = 0x0;
             break;
             

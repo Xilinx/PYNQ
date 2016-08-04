@@ -58,18 +58,18 @@
 #include "xgpio.h"
 
 // Work on 8-bit mode
-#define GLB_CMDMODE                 0x00
-
-#define RESET                       0x1 // 0001
-#define WRITE_LEDS                  0x3 // 0011
-#define SET_BRIGHTNESS              0x5 // 0101
-#define SET_LEVEL                   0x7 // 0111
-#define READ_LEDS                   0x9 // 1001
+#define CONFIG_IOP_SWITCH           0x1
+#define RESET                       0x3
+#define WRITE_LEDS                  0x5
+#define SET_BRIGHTNESS              0x7
+#define SET_LEVEL                   0x9
+#define READ_LEDS                   0xB
 
 /*
  * Green-to-Red direction contains slight transparency to one led distance.
  * i.e. A LED that is OFF will glow slightly if a LED  beside it is ON
  */
+#define GLB_CMDMODE                 0x00
 #define HIGH                        0xFF
 #define LOW                         0x01
 #define MED                         0xAA
@@ -81,6 +81,7 @@
  * to a variable of this type is then passed to the driver API functions.
  */
 XGpio gpo;
+u32 shift = 0;
 
 /* 
  * LED state, Brightness for each LED in
@@ -120,13 +121,12 @@ void send_data(u8 data){
          * Write it to the data_pin
          */
         data_state = (data_internal & 0x80) ? 0x00000001 : 0x00000000;
-        XGpio_DiscreteWrite(&gpo, 1, data_state);
+        XGpio_DiscreteWrite(&gpo, 1, data_state<<shift);
 
         // Read Clock pin and regenerate clock
         detect = XGpio_DiscreteRead(&gpo, 1);
-        clk_state = (detect & 0x02) ? 0x00000000 : 0x00000001;
-        clk_state = clk_state << 1;
-        XGpio_DiscreteWrite(&gpo, 1, (clk_state & 2));
+        clk_state = detect ^ (2 << shift);
+        XGpio_DiscreteWrite(&gpo, 1, clk_state);
 
         // Shift Incoming data to fetch next bit
         data_internal = data_internal << 1;
@@ -141,7 +141,7 @@ void latch_data(){
 
     // Generate four pulses on the data pin as per data sheet
     for (i = 0; i < 4; i++){
-        XGpio_DiscreteWrite(&gpo, 1, 1);
+        XGpio_DiscreteWrite(&gpo, 1, 1<<shift);
         XGpio_DiscreteWrite(&gpo, 1, 0);
     }
 }
@@ -348,6 +348,17 @@ int main(void)
         cmd = MAILBOX_CMD_ADDR;
 
         switch(cmd){
+              case CONFIG_IOP_SWITCH:
+                  // read new pin configuration
+                  config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
+                                        A_GPIO, A_GPIO, A_GPIO,
+                                        D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+                                        D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+                                        D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+                  shift = MAILBOX_DATA(0)-2;
+                  MAILBOX_CMD_ADDR = 0x0;
+                  break;
+                  
               case RESET:
                   set_bits(0x0000);
                   level_holder = 0;

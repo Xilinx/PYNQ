@@ -89,19 +89,15 @@ class Grove_IMU(object):
             GROVE_IMU_PROGRAM = ARDUINO_GROVE_IMU_PROGRAM
         else:
             raise ValueError("No such IOP for grove device.")
-
-
-        self.iop = iop.request_iop(if_id, GROVE_IMU_PROGRAM)
+            
+        self.iop = request_iop(if_id, GROVE_IMU_PROGRAM)
         self.mmio = self.iop.mmio
         self.iop.start()
-        self.reset()
         
         if if_id in [PMODA, PMODB]:
             # Write SCL and SDA pin config
-            scl_pin = gr_pin[0]
-            self.mmio.write(iop_const.MAILBOX_OFFSET, scl_pin)
-            sda_pin = gr_pin[1]
-            self.mmio.write(iop_const.MAILBOX_OFFSET+4, sda_pin)
+            self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
+            self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
         
             # Write configuration and wait for ACK
             self.mmio.write(iop_const.MAILBOX_OFFSET + \
@@ -109,6 +105,8 @@ class Grove_IMU(object):
             while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
                 pass
+                
+        self.reset()
                 
     def reset(self):
         """Reset all the sensors on the grove IMU.

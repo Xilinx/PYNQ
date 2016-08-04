@@ -103,25 +103,25 @@ class Pmod_IIC(object):
         
         self.iop = DevMode(if_id, switchconfig)
         self.iop.start()
-        self.iop.load_switch_config()
+        self.iop.load_switch_config(switchconfig)
         
         self.iic_addr = iic_addr
 
         # Useful IIC controller addresses
-        self.sr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
-                       iop_const.IOPMM_XIIC_SR_REG_OFFSET
+        self.sr_addr = iop_const.PMOD_XIIC_0_BASEADDR + \
+                       iop_const.PMOD_XIIC_SR_REG_OFFSET
 
-        self.dtr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
-                        iop_const.IOPMM_XIIC_DTR_REG_OFFSET
+        self.dtr_addr = iop_const.PMOD_XIIC_0_BASEADDR + \
+                        iop_const.PMOD_XIIC_DTR_REG_OFFSET
 
-        self.cr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
-                       iop_const.IOPMM_XIIC_CR_REG_OFFSET
+        self.cr_addr = iop_const.PMOD_XIIC_0_BASEADDR + \
+                       iop_const.PMOD_XIIC_CR_REG_OFFSET
     
-        self.rfd_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
-                        iop_const.IOPMM_XIIC_RFD_REG_OFFSET
+        self.rfd_addr = iop_const.PMOD_XIIC_0_BASEADDR + \
+                        iop_const.PMOD_XIIC_RFD_REG_OFFSET
 
-        self.drr_addr = iop_const.IOPMM_XIIC_0_BASEADDR + \
-                        iop_const.IOPMM_XIIC_DRR_REG_OFFSET
+        self.drr_addr = iop_const.PMOD_XIIC_0_BASEADDR + \
+                        iop_const.PMOD_XIIC_DRR_REG_OFFSET
 
     def _iic_enable(self):
         """This method enables the IIC drivers.

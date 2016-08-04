@@ -365,6 +365,8 @@ int main()
                                   D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                                   D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                                   D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+            mpu_init();
+            bmp_init();
             MAILBOX_CMD_ADDR = 0x0;
             break;
             

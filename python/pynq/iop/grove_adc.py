@@ -77,7 +77,7 @@ class Grove_ADC(object):
         Parameters
         ----------
         if_id : int
-            The interface ID (1,2,3) corresponding to (PMODA,PMODB,arduino).
+            The interface ID (1,2,3) corresponding to (PMODA,PMODB,ARDUINO).
         gr_pin: list
             A group of pins on stickit connector or arduino shield.
             
@@ -104,10 +104,8 @@ class Grove_ADC(object):
         
         if if_id in [PMODA, PMODB]:
             # Write SCL and SDA pin config
-            scl_pin = gr_pin[0]
-            self.mmio.write(iop_const.MAILBOX_OFFSET, scl_pin)
-            sda_pin = gr_pin[1]
-            self.mmio.write(iop_const.MAILBOX_OFFSET+4, sda_pin)
+            self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
+            self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
             
             # Write configuration and wait for ACK
             self.mmio.write(iop_const.MAILBOX_OFFSET + \

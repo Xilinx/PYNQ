@@ -96,10 +96,8 @@ class Grove_OLED(object):
         
         if if_id in [PMODA, PMODB]:
             # Write SCL and SDA pin config
-            scl_pin = gr_pin[0]
-            self.mmio.write(iop_const.MAILBOX_OFFSET, scl_pin)
-            sda_pin = gr_pin[1]
-            self.mmio.write(iop_const.MAILBOX_OFFSET+4, sda_pin)
+            self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
+            self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
         
             # Write configuration and wait for ACK
             self.mmio.write(iop_const.MAILBOX_OFFSET + \

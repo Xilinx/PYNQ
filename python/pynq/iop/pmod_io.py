@@ -87,11 +87,11 @@ class Pmod_IO(object):
         if (self.direction == 'in'):
             self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                iop_const.PMOD_DIO_TRI_OFFSET, \
-                               iop_const.PMOD_DIO_ALLINPUT)
+                               iop_const.PMOD_CFG_DIO_ALLINPUT)
         else:
             self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                iop_const.PMOD_DIO_TRI_OFFSET, \
-                               iop_const.PMOD_DIO_ALLOUTPUT)
+                               iop_const.PMOD_CFG_DIO_ALLOUTPUT)
                                 
         self.iop.load_switch_config()
     

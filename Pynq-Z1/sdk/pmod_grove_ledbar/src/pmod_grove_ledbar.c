@@ -333,11 +333,13 @@ int main(void)
     int cmd,level,brightness,red_to_green;
     char set_brightness[10];
     u16 get_bits;
-    config_pmod_switch(GPIO_0, GPIO_4, GPIO_2, GPIO_3, 
-                       GPIO_1, GPIO_5, GPIO_6, GPIO_7);
     u16 data;
+    u8 iop_pins[8];
+    u32 gpin0, gpin1;
 
     pmod_init(0,1);
+    config_pmod_switch(GPIO_0, GPIO_0, GPIO_1, GPIO_1, 
+                       GPIO_1, GPIO_1, GPIO_0, GPIO_0);
     ledbar_init();
     while(1){
         // wait and store valid command
@@ -345,6 +347,28 @@ int main(void)
         cmd = MAILBOX_CMD_ADDR;
 
         switch(cmd){
+              case CONFIG_IOP_SWITCH:
+                  // read new pin configuration
+                  gpin0 = MAILBOX_DATA(0);
+                  gpin1 = MAILBOX_DATA(1);
+                  iop_pins[0] = GPIO_0;
+                  iop_pins[1] = GPIO_0;
+                  iop_pins[2] = GPIO_0;
+                  iop_pins[3] = GPIO_0;
+                  iop_pins[4] = GPIO_0;
+                  iop_pins[5] = GPIO_0;
+                  iop_pins[6] = GPIO_0;
+                  iop_pins[7] = GPIO_0;
+                  // set new pin configuration
+                  iop_pins[gpin0] = GPIO_0;
+                  iop_pins[gpin1] = GPIO_1;
+                  config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
+                                     iop_pins[3], iop_pins[4], iop_pins[5], 
+                                     iop_pins[6], iop_pins[7]);
+                  ledbar_init();
+                  MAILBOX_CMD_ADDR = 0x0;
+                  break;
+                  
               case RESET:
                   set_bits(0x0000);
                   level_holder = 0;

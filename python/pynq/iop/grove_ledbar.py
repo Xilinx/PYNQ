@@ -40,6 +40,9 @@ from pynq.iop import iop_const
 from pynq.iop import PMODA
 from pynq.iop import PMODB
 from pynq.iop import ARDUINO
+from pynq.iop import XESS_STICKIT_GR
+from pynq.iop import DIGILENT_STICKIT_GR
+from pynq.iop import ARDUINO_SHIELD_GR
 
 PMOD_GROVE_LEDBAR_PROGRAM = "pmod_grove_ledbar.bin"
 ARDUINO_GROVE_LEDBAR_PROGRAM = "arduino_grove_ledbar.bin"
@@ -75,14 +78,17 @@ class Grove_LEDbar(object):
         """
         if if_id in [PMODA, PMODB]:
             if (not gr_pin in [XESS_STICKIT_GR["GR1"], \
-                               XESS_STICKIT_GR["GR2"]]) and \
+                               XESS_STICKIT_GR["GR2"], \
+                               XESS_STICKIT_GR["GR3"], \
+                               XESS_STICKIT_GR["GR4"]]) and \
                 (not gr_pin in [DIGILENT_STICKIT_GR["G1"], \
-                                DIGILENT_STICKIT_GR["G2"]]):
+                                DIGILENT_STICKIT_GR["G2"], \
+                                DIGILENT_STICKIT_GR["G3"], \
+                                DIGILENT_STICKIT_GR["G4"]]):
                 raise ValueError("Invalid pin assignment.")
             GROVE_LEDBAR_PROGRAM = PMOD_GROVE_LEDBAR_PROGRAM
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_SHIELD_GR["UART"], \
-                              ARDUINO_SHIELD_GR["G1"], \
+            if not gr_pin in [ARDUINO_SHIELD_GR["G1"], \
                               ARDUINO_SHIELD_GR["G2"], \
                               ARDUINO_SHIELD_GR["G3"], \
                               ARDUINO_SHIELD_GR["G4"], \
@@ -97,6 +103,17 @@ class Grove_LEDbar(object):
         self.iop = request_iop(if_id, GROVE_LEDBAR_PROGRAM)
         self.mmio = self.iop.mmio
         self.iop.start()
+        
+        # Write GPIO pin config
+        self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
+        self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
+            
+        # Write configuration and wait for ACK
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
+            pass
             
     def reset(self):
         """Resets the LEDbar.
