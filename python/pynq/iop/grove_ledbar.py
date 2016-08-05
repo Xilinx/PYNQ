@@ -40,9 +40,21 @@ from pynq.iop import iop_const
 from pynq.iop import PMODA
 from pynq.iop import PMODB
 from pynq.iop import ARDUINO
-from pynq.iop import XESS_STICKIT_GR
-from pynq.iop import DIGILENT_STICKIT_GR
-from pynq.iop import ARDUINO_SHIELD_GR
+from pynq.iop import XESS_STICKIT_GR1
+from pynq.iop import XESS_STICKIT_GR2
+from pynq.iop import XESS_STICKIT_GR3
+from pynq.iop import XESS_STICKIT_GR4
+from pynq.iop import DIGILENT_STICKIT_G1
+from pynq.iop import DIGILENT_STICKIT_G2
+from pynq.iop import DIGILENT_STICKIT_G3
+from pynq.iop import DIGILENT_STICKIT_G4
+from pynq.iop import ARDUINO_SHIELD_G1
+from pynq.iop import ARDUINO_SHIELD_G2
+from pynq.iop import ARDUINO_SHIELD_G3
+from pynq.iop import ARDUINO_SHIELD_G4
+from pynq.iop import ARDUINO_SHIELD_G5
+from pynq.iop import ARDUINO_SHIELD_G6
+from pynq.iop import ARDUINO_SHIELD_G7
 
 PMOD_GROVE_LEDBAR_PROGRAM = "pmod_grove_ledbar.bin"
 ARDUINO_GROVE_LEDBAR_PROGRAM = "arduino_grove_ledbar.bin"
@@ -77,24 +89,24 @@ class Grove_LEDbar(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if (not gr_pin in [XESS_STICKIT_GR["GR1"], \
-                               XESS_STICKIT_GR["GR2"], \
-                               XESS_STICKIT_GR["GR3"], \
-                               XESS_STICKIT_GR["GR4"]]) and \
-                (not gr_pin in [DIGILENT_STICKIT_GR["G1"], \
-                                DIGILENT_STICKIT_GR["G2"], \
-                                DIGILENT_STICKIT_GR["G3"], \
-                                DIGILENT_STICKIT_GR["G4"]]):
+            if (not gr_pin in [XESS_STICKIT_GR1, \
+                               XESS_STICKIT_GR2, \
+                               XESS_STICKIT_GR3, \
+                               XESS_STICKIT_GR4]) and \
+                (not gr_pin in [DIGILENT_STICKIT_G1, \
+                                DIGILENT_STICKIT_G2, \
+                                DIGILENT_STICKIT_G3, \
+                                DIGILENT_STICKIT_G4]):
                 raise ValueError("Invalid pin assignment.")
             GROVE_LEDBAR_PROGRAM = PMOD_GROVE_LEDBAR_PROGRAM
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_SHIELD_GR["G1"], \
-                              ARDUINO_SHIELD_GR["G2"], \
-                              ARDUINO_SHIELD_GR["G3"], \
-                              ARDUINO_SHIELD_GR["G4"], \
-                              ARDUINO_SHIELD_GR["G5"], \
-                              ARDUINO_SHIELD_GR["G6"], \
-                              ARDUINO_SHIELD_GR["G7"]]:
+            if not gr_pin in [ARDUINO_SHIELD_G1, \
+                              ARDUINO_SHIELD_G2, \
+                              ARDUINO_SHIELD_G3, \
+                              ARDUINO_SHIELD_G4, \
+                              ARDUINO_SHIELD_G5, \
+                              ARDUINO_SHIELD_G6, \
+                              ARDUINO_SHIELD_G7]:
                 raise ValueError("Invalid pin assignment.")
             GROVE_LEDBAR_PROGRAM = ARDUINO_GROVE_LEDBAR_PROGRAM
         else:

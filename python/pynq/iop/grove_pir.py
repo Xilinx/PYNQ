@@ -38,9 +38,17 @@ from pynq.iop import Arduino_IO
 from pynq.iop import PMODA
 from pynq.iop import PMODB
 from pynq.iop import ARDUINO
-from pynq.iop import XESS_STICKIT_GR
-from pynq.iop import DIGILENT_STICKIT_GR
-from pynq.iop import ARDUINO
+from pynq.iop import XESS_STICKIT_GR1
+from pynq.iop import XESS_STICKIT_GR2
+from pynq.iop import DIGILENT_STICKIT_G1
+from pynq.iop import DIGILENT_STICKIT_G2
+from pynq.iop import ARDUINO_SHIELD_G1
+from pynq.iop import ARDUINO_SHIELD_G2
+from pynq.iop import ARDUINO_SHIELD_G3
+from pynq.iop import ARDUINO_SHIELD_G4
+from pynq.iop import ARDUINO_SHIELD_G5
+from pynq.iop import ARDUINO_SHIELD_G6
+from pynq.iop import ARDUINO_SHIELD_G7
 
 class Grove_PIR(object):
     """This class controls the PIR motion sensor.
@@ -66,22 +74,21 @@ class Grove_PIR(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [XESS_STICKIT_GR["GR1"], \
-                              XESS_STICKIT_GR["GR2"], \
-                              DIGILENT_STICKIT_GR["G1"], \
-                              DIGILENT_STICKIT_GR["G2"]]:
+            if not gr_pin in [XESS_STICKIT_GR1, \
+                              XESS_STICKIT_GR2, \
+                              DIGILENT_STICKIT_G1, \
+                              DIGILENT_STICKIT_G2]:
                 raise ValueError("Invalid pin assignment.")
             self.pir_iop = Pmod_IO(if_id, gr_pin[0], 'in')
             return self.pir_iop
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_SHIELD_GR["UART"], \
-                              ARDUINO_SHIELD_GR["G1"], \
-                              ARDUINO_SHIELD_GR["G2"], \
-                              ARDUINO_SHIELD_GR["G3"], \
-                              ARDUINO_SHIELD_GR["G4"], \
-                              ARDUINO_SHIELD_GR["G5"], \
-                              ARDUINO_SHIELD_GR["G6"], \
-                              ARDUINO_SHIELD_GR["G7"]]:
+            if not gr_pin in [ARDUINO_SHIELD_G1, \
+                              ARDUINO_SHIELD_G2, \
+                              ARDUINO_SHIELD_G3, \
+                              ARDUINO_SHIELD_G4, \
+                              ARDUINO_SHIELD_G5, \
+                              ARDUINO_SHIELD_G6, \
+                              ARDUINO_SHIELD_G7]:
                 raise ValueError("Invalid pin assignment.")
             self.pir_iop = Arduino_IO(if_id, gr_pin[0], 'in')
             return self.pir_iop

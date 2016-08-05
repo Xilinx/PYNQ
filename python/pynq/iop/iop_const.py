@@ -175,11 +175,11 @@ ARDUINO_UART_TRI_OFFSET     = 0x4
 
 # AXI IO direction constants
 ARDUINO_CFG_AIO_ALLOUTPUT   = 0x0
-ARDUINO_CFG_AIO_ALLINPUT    = 0xff
+ARDUINO_CFG_AIO_ALLINPUT    = 0xffffffff
 ARDUINO_CFG_DIO_ALLOUTPUT   = 0x0
-ARDUINO_CFG_DIO_ALLINPUT    = 0xff
+ARDUINO_CFG_DIO_ALLINPUT    = 0xffffffff
 ARDUINO_CFG_UART_ALLOUTPUT  = 0x0
-ARDUINO_CFG_UART_ALLINPUT   = 0xff
+ARDUINO_CFG_UART_ALLINPUT   = 0xffffffff
 
 # IOP mapping
 PMODA = 1
@@ -187,24 +187,23 @@ PMODB = 2
 ARDUINO = 3
 
 # Stickit Pmod to grove pin mapping
-XESS_STICKIT_GR  = {"GR1": [0,4],
-                    "GR2": [1,5],
-                    "GR3": [7,3],
-                    "GR4": [6,2]}
+XESS_STICKIT_GR1 = [0,4]
+XESS_STICKIT_GR2 = [1,5]
+XESS_STICKIT_GR3 = [7,3]
+XESS_STICKIT_GR4 = [6,2]
                     
-DIGILENT_STICKIT_GR  = {"G1": [0,4],
-                        "G2": [1,5],
-                        "G3": [7,3],
-                        "G4": [6,2]}
+DIGILENT_STICKIT_G1 = [0,4]
+DIGILENT_STICKIT_G2 = [1,5]
+DIGILENT_STICKIT_G3 = [7,3]
+DIGILENT_STICKIT_G4 = [6,2]
                         
 # Arduino shield to grove pin mapping
-ARDUINO_SHIELD_GR  = {"I2C"  : [],
-                      "UART" : [0,1],
-                      "G1"   : [2,3],
-                      "G2"   : [3,4],
-                      "G3"   : [4,5],
-                      "G4"   : [6,7],
-                      "G5"   : [8,9],
-                      "G6"   : [10,11],
-                      "G7"   : [12,13]}
-                      
+ARDUINO_SHIELD_I2C    =  []
+ARDUINO_SHIELD_UART   =  [0,1]
+ARDUINO_SHIELD_G1     =  [2,3]
+ARDUINO_SHIELD_G2     =  [3,4]
+ARDUINO_SHIELD_G3     =  [4,5]
+ARDUINO_SHIELD_G4     =  [6,7]
+ARDUINO_SHIELD_G5     =  [8,9]
+ARDUINO_SHIELD_G6     =  [10,11]
+ARDUINO_SHIELD_G7     =  [12,13]

@@ -148,7 +148,7 @@ class Arduino_IO(object):
             else:
                 curVal = self.iop.read_cmd(iop_const.ARDUINO_UART_BASEADDR + \
                                            iop_const.ARDUINO_UART_DATA_OFFSET)
-                newVal = curVal & (0xff ^ (0x1<<self.index))
+                newVal = curVal & (0xffffffff ^ (0x1<<self.index))
                 self.iop.write_cmd(iop_const.ARDUINO_UART_BASEADDR + \
                                    iop_const.ARDUINO_UART_DATA_OFFSET, newVal)
         elif self.index in range(2,14):
@@ -161,7 +161,7 @@ class Arduino_IO(object):
             else:
                 curVal = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                            iop_const.ARDUINO_DIO_DATA_OFFSET)
-                newVal = curVal & (0xff ^ (0x1<<(self.index-2)))
+                newVal = curVal & (0xffffffff ^ (0x1<<(self.index-2)))
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                    iop_const.ARDUINO_DIO_DATA_OFFSET, newVal)
         else:
@@ -174,7 +174,7 @@ class Arduino_IO(object):
             else:
                 curVal = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                            iop_const.ARDUINO_DIO_DATA_OFFSET)
-                newVal = curVal & (0xff ^ (0x1<<(self.index-14)))
+                newVal = curVal & (0xffffffff ^ (0x1<<(self.index-14)))
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                    iop_const.ARDUINO_DIO_DATA_OFFSET, newVal)
             

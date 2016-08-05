@@ -40,6 +40,21 @@ from pynq.iop import iop_const
 from pynq.iop import PMODA
 from pynq.iop import PMODB
 from pynq.iop import ARDUINO
+from pynq.iop import XESS_STICKIT_GR1
+from pynq.iop import XESS_STICKIT_GR2
+from pynq.iop import XESS_STICKIT_GR3
+from pynq.iop import XESS_STICKIT_GR4
+from pynq.iop import DIGILENT_STICKIT_G1
+from pynq.iop import DIGILENT_STICKIT_G2
+from pynq.iop import DIGILENT_STICKIT_G3
+from pynq.iop import DIGILENT_STICKIT_G4
+from pynq.iop import ARDUINO_SHIELD_G1
+from pynq.iop import ARDUINO_SHIELD_G2
+from pynq.iop import ARDUINO_SHIELD_G3
+from pynq.iop import ARDUINO_SHIELD_G4
+from pynq.iop import ARDUINO_SHIELD_G5
+from pynq.iop import ARDUINO_SHIELD_G6
+from pynq.iop import ARDUINO_SHIELD_G7
 
 PMOD_GROVE_BUZZER_PROGRAM = "pmod_grove_buzzer.bin"
 ARDUINO_GROVE_BUZZER_PROGRAM = "arduino_grove_buzzer.bin"
@@ -75,8 +90,25 @@ class Grove_Buzzer(object):
             
         """
         if if_id in [PMODA, PMODB]:
+            if (not gr_pin in [XESS_STICKIT_GR1, \
+                               XESS_STICKIT_GR2, \
+                               XESS_STICKIT_GR3, \
+                               XESS_STICKIT_GR4]) and \
+                (not gr_pin in [DIGILENT_STICKIT_G1, \
+                                DIGILENT_STICKIT_G2, \
+                                DIGILENT_STICKIT_G3, \
+                                DIGILENT_STICKIT_G4]):
+                raise ValueError("Invalid pin assignment.")
             GROVE_BUZZER_PROGRAM = PMOD_GROVE_BUZZER_PROGRAM
         elif if_id in [ARDUINO]:
+            if not gr_pin in [ARDUINO_SHIELD_G1, \
+                              ARDUINO_SHIELD_G2, \
+                              ARDUINO_SHIELD_G3, \
+                              ARDUINO_SHIELD_G4, \
+                              ARDUINO_SHIELD_G5, \
+                              ARDUINO_SHIELD_G6, \
+                              ARDUINO_SHIELD_G7]:
+                raise ValueError("Invalid pin assignment.")
             GROVE_BUZZER_PROGRAM = ARDUINO_GROVE_BUZZER_PROGRAM
         else:
             raise ValueError("No such IOP for grove device.")
@@ -85,6 +117,47 @@ class Grove_Buzzer(object):
         self.mmio = self.iop.mmio
         self.iop.start()
         
+        if if_id in [PMODA, PMODB]:
+            # Write SCL and SDA pin config
+            self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
+            self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
+            
+            # Write configuration and wait for ACK
+            self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+            while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
+                pass
+        
+    def play_tone(self, tone_period, num_cycles):
+        """Play a single tone with tone_period for num_cycles
+        
+        Parameters
+        ----------
+        tone_period : int
+            The period of the tone in microsecond.
+        num_cycles : int
+            The number of cycles for the tone to be played.
+            
+        Returns
+        -------
+        None
+        
+        """
+        if (tone_period not in range(1,32768)):
+            raise ValueError("Valid tone period is between 1 and 32767.")
+        if (num_cycles not in range(1,32768)): 
+            raise ValueError("Valid number of cycles is between 1 and 32767.")
+        
+        self.mmio.write(iop_const.MAILBOX_OFFSET, tone_period)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+4, num_cycles)
+        
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+            pass
+            
     def play_melody(self):
         """Play a melody.
         
@@ -98,32 +171,8 @@ class Grove_Buzzer(object):
                 
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET + \
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
-                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
-        
-    def play_tone(self, tone_period, num_cycles):
-        """Play a single tone with tone_period for num_cycles
-        
-        Parameters
-        ----------
-        None
-            
-        Returns
-        -------
-        None
-        
-        """
-        if (tone_period not in range(1,32768)):
-            raise ValueError("Valid tone period is between 1 and 32767.")
-        if (num_cycles not in range(1,32768)): 
-            raise ValueError("Valid number of cycles is between 1 and 32767.")
-        
-        cmd_word = (tone_period << 16) | (num_cycles << 1) | 0x0
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
-            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
-            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
