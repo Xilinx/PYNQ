@@ -355,6 +355,10 @@ class PL(metaclass=PL_Meta):
         """Reset the IP dictionary.
         
         This method must be called after a bitstream download.
+        1. In case there is a `*.tcl` file, this method will set the IP 
+        dictionary to what is provided by the tcl file.
+        2. In case there is no `*.tcl` file, this method will simply clear
+        the state information stored in the IP dictionary.
         
         Parameters
         ----------
@@ -367,7 +371,11 @@ class PL(metaclass=PL_Meta):
         """
         cls._client_request()
         tcl_name = _get_tcl_name(cls._bitfile_name)
-        cls._ip_dict = _get_dict_ip_addr(tcl_name)
+        if os.path.isfile(tcl_name):
+            cls._ip_dict = _get_dict_ip_addr(tcl_name)
+        else:
+            for i in cls._ip_dict.keys():
+                cls._ip_dict[i][2] = None
         cls._server_update()
         
     @classmethod
@@ -375,6 +383,10 @@ class PL(metaclass=PL_Meta):
         """Reset the GPIO dictionary.
         
         This method must be called after a bitstream download.
+        1. In case there is a `*.tcl` file, this method will set the GPIO 
+        dictionary to what is provided by the tcl file.
+        2. In case there is no `*.tcl` file, this method will simply clear
+        the state information stored in the GPIO dictionary.
         
         Parameters
         ----------
@@ -387,7 +399,11 @@ class PL(metaclass=PL_Meta):
         """
         cls._client_request()
         tcl_name = _get_tcl_name(cls._bitfile_name)
-        cls._gpio_dict = _get_dict_gpio(tcl_name)
+        if os.path.isfile(tcl_name):
+            cls._gpio_dict = _get_dict_gpio(tcl_name)
+        else:
+            for i in cls._gpio_dict.keys():
+                cls._gpio_dict[i][1] = None
         cls._server_update()
         
     @classmethod
@@ -405,8 +421,14 @@ class PL(metaclass=PL_Meta):
         """
         cls._client_request()
         tcl_name = _get_tcl_name(cls._bitfile_name)
-        cls._ip_dict = _get_dict_ip_addr(tcl_name)
-        cls._gpio_dict = _get_dict_gpio(tcl_name)
+        if os.path.isfile(tcl_name):
+            cls._ip_dict = _get_dict_ip_addr(tcl_name)
+            cls._gpio_dict = _get_dict_gpio(tcl_name)
+        else:
+            for i in cls._ip_dict.keys():
+                cls._ip_dict[i][2] = None
+            for i in cls._gpio_dict.keys():
+                cls._gpio_dict[i][1] = None
         cls._server_update()
         
     @classmethod
