@@ -722,10 +722,14 @@ class Bitstream(PL):
         t = datetime.now()
         self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(t.year,t.month,t.day,\
                                 t.hour,t.minute,t.second,t.microsecond)
+        
+        # Update PL information
+        PL._client_request()
         PL._bitfile_name = self.bitfile_name
         PL._timestamp = self.timestamp
         PL._ip_dict = {}
         PL._gpio_dict = {}
+        PL._server_update()
         
 class Overlay(PL):
     """This class keeps track of a single bitstream's state and contents.
@@ -817,9 +821,7 @@ class Overlay(PL):
         None
         
         """
-        PL._client_request()
         self.bitstream.download()
-        PL._server_update()
         PL.reset_ip_dict()
         PL.reset_gpio_dict()
         
