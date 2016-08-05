@@ -100,10 +100,10 @@ void ledbar_init(){
     /*
      * Initialize GPIO driver instance
      * Set data direction for two pins
-     * Pin 0 = Data   - LSB of the XGpio register
-     * Pin 1 = Clock  - LSB + 1 of the XGpio register
+     * Pin 0 = Data
+     * Pin 1 = Clock
      */
-    XGpio_Initialize(&gpo, XPAR_GPIO_0_DEVICE_ID);
+    XGpio_Initialize(&gpo, XPAR_GPIO_1_DEVICE_ID);
     // Both pins set as Outputs
     XGpio_SetDataDirection(&gpo, 1, 0);
 }

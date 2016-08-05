@@ -126,10 +126,9 @@ int main(void) {
     int num_cycles = 10;
     u32 cmd;
 
-    // Initialize Pmod
     arduino_init(0,0,0,0);
     /* 
-     * Configuring Pmod IO Switch to connect GPIO to pmod
+     * Configuring IO Switch to connect GPIO
      * bit-0 will be controlled by the software to drive the speaker
      * Buzzer is connected to bit[0] of the Channel 1 of AXI GPIO instance
      */
