@@ -117,17 +117,16 @@ class Grove_Buzzer(object):
         self.mmio = self.iop.mmio
         self.iop.start()
         
-        if if_id in [PMODA, PMODB]:
-            # Write SCL and SDA pin config
-            self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
-            self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
-            
-            # Write configuration and wait for ACK
-            self.mmio.write(iop_const.MAILBOX_OFFSET + \
-                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-            while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
-                pass
+        # Write SCL and SDA pin config
+        self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
+        self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
+        
+        # Write configuration and wait for ACK
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
+            pass
         
     def play_tone(self, tone_period, num_cycles):
         """Play a single tone with tone_period for num_cycles

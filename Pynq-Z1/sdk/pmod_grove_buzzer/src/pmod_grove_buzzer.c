@@ -49,6 +49,7 @@
  * 1.00a pp  04/13/16 release
  * 1.00b yrq 05/27/16 fix pmod_init()
  * 1.00d yrq 07/26/16 separate pmod and arduino
+ * 1.00e yrq 08/05/16 support arduino shield
  *
  * </pre>
  *
@@ -58,23 +59,24 @@
 #include "pmod.h"
 #include "xgpio.h"
 
-/*
- * Passed parameters in MAILBOX_WRITE_CMD
- * bits 31:16 => period in us
- * bits 15:1 => number of times to generate
- * bit 0 => 0=tone generation, 1=melody demo
- */
+// Mailbox commands
+#define CONFIG_IOP_SWITCH       0x1
+#define PLAY_TONE               0x3
+#define PLAY_DEMO               0x5
+
+// Speaker channel
 #define SPEAKER_CHANNEL 1
+
 // The driver instance for GPIO Devices
 XGpio pb_speaker;
 
-void generateTone(int PeriodInUS) {
+void generateTone(int period_us) {
     // turn-ON speaker
     XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 1);
-    delay_us(PeriodInUS>>1);
+    delay_us(period_us>>1);
     // turn-OFF speaker
     XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 0);
-    delay_us(PeriodInUS>>1);
+    delay_us(period_us>>1);
 }
 
 void playTone(int tone, int duration) { 
@@ -120,9 +122,11 @@ void melody_demo(void) {
 
 int main(void) {
     int i=0;
-    int PeriodInUS = 0x55;
-    int numberoftimes = 10;
+    int period_us = 0x55;
+    int num_cycles = 10;
     u32 cmd;
+    u8 iop_pins[8];
+    u32 gpio0, gpio1;
 
     // Initialize Pmod
     pmod_init(0,1);
@@ -131,28 +135,60 @@ int main(void) {
      * bit-0 will be controlled by the software to drive the speaker
      * Buzzer is connected to bit[0] of the Channel 1 of AXI GPIO instance
      */
-    config_pmod_switch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, 
-                       GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+    config_pmod_switch(GPIO_0, GPIO_0, GPIO_1, GPIO_1, 
+                       GPIO_1, GPIO_1, GPIO_0, GPIO_0);
     XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
     XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
     // initially keep it OFF
     XGpio_DiscreteWrite(&pb_speaker, 1, 0);
 
     while(1){
-        while(MAILBOX_CMD_ADDR==0);
+        while((MAILBOX_CMD_ADDR & 0x01)==0);
         cmd = MAILBOX_CMD_ADDR;
-        if(cmd & 0x1)
-            melody_demo();
-        else {
-            // period in us
-            PeriodInUS = (cmd >> 16) & 0x0ffff;
-            // number of times
-            numberoftimes = (cmd >> 1) & 0x07fff;
-            for(i=0; i<numberoftimes; i++)
-                generateTone(PeriodInUS);
+        
+        switch(cmd){
+            case CONFIG_IOP_SWITCH:
+                // read new pin configuration
+                  gpio0 = MAILBOX_DATA(0);
+                  gpio1 = MAILBOX_DATA(1);
+                  iop_pins[0] = GPIO_0;
+                  iop_pins[1] = GPIO_0;
+                  iop_pins[2] = GPIO_0;
+                  iop_pins[3] = GPIO_0;
+                  iop_pins[4] = GPIO_0;
+                  iop_pins[5] = GPIO_0;
+                  iop_pins[6] = GPIO_0;
+                  iop_pins[7] = GPIO_0;
+                  // set new pin configuration
+                  iop_pins[gpio0] = GPIO_0;
+                  iop_pins[gpio1] = GPIO_1;
+                  config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
+                                     iop_pins[3], iop_pins[4], iop_pins[5], 
+                                     iop_pins[6], iop_pins[7]);
+                  XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
+                  XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
+                  XGpio_DiscreteWrite(&pb_speaker, 1, 0);
+                  MAILBOX_CMD_ADDR = 0x0;
+                  break;
+                  
+            case PLAY_TONE:
+                period_us = MAILBOX_DATA(0);
+                num_cycles = MAILBOX_DATA(1);
+                for(i=0; i<num_cycles; i++){
+                    generateTone(period_us);
+                }
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case PLAY_DEMO: 
+                melody_demo();
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                    
+            default:
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
         }
-        MAILBOX_CMD_ADDR = 0x0;
     }
     return 0;
-
 }

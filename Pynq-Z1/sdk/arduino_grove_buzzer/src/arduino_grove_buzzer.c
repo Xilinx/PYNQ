@@ -48,6 +48,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  04/13/16 release
  * 1.00d yrq 07/26/16 separate pmod and arduino
+ * 1.00e yrq 08/05/16 support arduino shield
  *
  * </pre>
  *
@@ -57,23 +58,25 @@
 #include "arduino.h"
 #include "xgpio.h"
 
-/*
- * Passed parameters in MAILBOX_WRITE_CMD
- * bits 31:16 => period in us
- * bits 15:1 => number of times to generate
- * bit 0 => 0=tone generation, 1=melody demo
- */
+// Mailbox commands
+#define CONFIG_IOP_SWITCH       0x1
+#define PLAY_TONE               0x3
+#define PLAY_DEMO               0x5
+
+// Speaker channel
 #define SPEAKER_CHANNEL 1
+
 // The driver instance for GPIO Devices
 XGpio pb_speaker;
+u32 shift;
 
-void generateTone(int PeriodInUS) {
+void generateTone(int period_us) {
     // turn-ON speaker
-    XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 1);
-    delay_us(PeriodInUS>>1);
+    XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 1<<shift);
+    delay_us(period_us>>1);
     // turn-OFF speaker
     XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 0);
-    delay_us(PeriodInUS>>1);
+    delay_us(period_us>>1);
 }
 
 void playTone(int tone, int duration) { 
@@ -119,13 +122,14 @@ void melody_demo(void) {
 
 int main(void) {
     int i=0;
-    int PeriodInUS = 0x55;
-    int numberoftimes = 10;
+    int period_us = 0x55;
+    int num_cycles = 10;
     u32 cmd;
 
+    // Initialize Pmod
     arduino_init(0,0,0,0);
     /* 
-     * Configuring IO Switch to connect GPIO
+     * Configuring Pmod IO Switch to connect GPIO to pmod
      * bit-0 will be controlled by the software to drive the speaker
      * Buzzer is connected to bit[0] of the Channel 1 of AXI GPIO instance
      */
@@ -134,26 +138,47 @@ int main(void) {
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-    XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
+    XGpio_Initialize(&pb_speaker, XPAR_GPIO_1_DEVICE_ID);
     XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
     // initially keep it OFF
     XGpio_DiscreteWrite(&pb_speaker, 1, 0);
 
     while(1){
-        while(MAILBOX_CMD_ADDR==0);
+        while((MAILBOX_CMD_ADDR & 0x01)==0);
         cmd = MAILBOX_CMD_ADDR;
-        if(cmd & 0x1)
-            melody_demo();
-        else {
-            // period in us
-            PeriodInUS = (cmd >> 16) & 0x0ffff;
-            // number of times
-            numberoftimes = (cmd >> 1) & 0x07fff;
-            for(i=0; i<numberoftimes; i++)
-                generateTone(PeriodInUS);
+        
+        switch(cmd){
+            case CONFIG_IOP_SWITCH:
+                shift = MAILBOX_DATA(0)-2;
+                config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
+                                      A_GPIO, A_GPIO, A_GPIO,
+                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+                XGpio_Initialize(&pb_speaker, XPAR_GPIO_1_DEVICE_ID);
+                XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
+                XGpio_DiscreteWrite(&pb_speaker, 1, 0);
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case PLAY_TONE:
+                period_us = MAILBOX_DATA(0);
+                num_cycles = MAILBOX_DATA(1);
+                for(i=0; i<num_cycles; i++){
+                    generateTone(period_us);
+                }
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case PLAY_DEMO: 
+                melody_demo();
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                    
+            default:
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
         }
-        MAILBOX_CMD_ADDR = 0x0;
     }
     return 0;
-
 }
