@@ -33,7 +33,7 @@ Summary
 
 PYNQ is the first project to combine the following elements to simplify and improve APSoC design:
 
-#. FPGA overlays with extensive APIs exposed as Python libraries 
 #. a high-level productivity language (Python in this case)
+#. FPGA overlays with extensive APIs exposed as Python libraries 
 #. a web-based architecture served from the embedded processors
 #. and the Jupyter Notebook framework deployed in an embedded context 
