@@ -55,13 +55,15 @@ class Pmod_Timer(object):
         The clock period of the IOP in ns.
             
     """
-    def __init__(self, if_id): 
+    def __init__(self, if_id, index): 
         """Return a new instance of an Pmod_Timer object. 
         
         Parameters
         ----------
         if_id : int
             The interface ID (1, 2) corresponding to (PMODA, PMODB).
+        index : int
+            The specific pin that runs timer.
             
         """
         if not if_id in [PMODA, PMODB]:
@@ -70,8 +72,17 @@ class Pmod_Timer(object):
         self.iop = request_iop(if_id, PMOD_TIMER_PROGRAM)
         self.mmio = self.iop.mmio
         self.clk = int(pow(10,9)/iop_const.IOP_FREQUENCY)
-        
         self.iop.start()
+        
+        # Write PWM pin config
+        self.mmio.write(iop_const.MAILBOX_OFFSET, index)
+        
+        # Write configuration and wait for ACK
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+            pass
         
     def stop(self):
         """This method stops the timer.
@@ -86,9 +97,9 @@ class Pmod_Timer(object):
         
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                    iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
     def generate_pulse(self, period, times=0):
@@ -116,9 +127,9 @@ class Pmod_Timer(object):
                 
             self.mmio.write(iop_const.MAILBOX_OFFSET, period)
             self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x2)
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
             while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
                 pass
                 
         elif 1 <= times < 255:
@@ -128,9 +139,9 @@ class Pmod_Timer(object):
                 
             self.mmio.write(iop_const.MAILBOX_OFFSET, (period << 8) | times)
             self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x4)
+                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
             while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
                 pass
                 
         else:
@@ -155,9 +166,9 @@ class Pmod_Timer(object):
         
         self.mmio.write(iop_const.MAILBOX_OFFSET, period)
         self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x8)
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                    iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET)
         
@@ -180,9 +191,9 @@ class Pmod_Timer(object):
             
         self.mmio.write(iop_const.MAILBOX_OFFSET, period)
         self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x10)
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                    iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET)
         
@@ -200,9 +211,9 @@ class Pmod_Timer(object):
         
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x20)
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                    iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET) * self.clk
         
