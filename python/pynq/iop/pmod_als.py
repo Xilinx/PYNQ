@@ -46,7 +46,7 @@ PMOD_ALS_LOG_END = PMOD_ALS_LOG_START+(1000*4)
 class Pmod_ALS(object):
     """This class controls a light sensor Pmod.
     
-    The Pmod ALS (PB 200-286) demonstrates light-to-digital sensing through a
+    The Digilent Pmod ALS demonstrates light-to-digital sensing through a
     single ambient light sensor. This is based on an ADC081S021 analog-to-digital
     converter and a TEMT6000X01 ambient light sensor.
 
@@ -174,7 +174,7 @@ class Pmod_ALS(object):
         # Prep iterators and results list
         head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
-        readings = list()
+        readings = []
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
