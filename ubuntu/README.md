@@ -34,6 +34,7 @@ Staging - to be added in next image
 Digilent u-boot with MAC address generation (removal of temporary MAC address generation)
 clean up unneeded packages
 Fix/Remove broken symlinks in linux headers
+new devicetree with usb0 and fclk3 enabled 
 ```
 
 08-02-2016
