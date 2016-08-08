@@ -47,8 +47,8 @@ class Pmod_ALS(object):
     """This class controls a light sensor Pmod.
     
     The Pmod ALS (PB 200-286) demonstrates light-to-digital sensing through a
-    single ambient light sensor. This is based on ADC081S021 analog-to-digital
-    converter and TEMT6000X01.
+    single ambient light sensor. This is based on an ADC081S021 analog-to-digital
+    converter and a TEMT6000X01 ambient light sensor.
 
     Attributes
     ----------
