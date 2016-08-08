@@ -123,8 +123,8 @@ class Grove_LEDbar(object):
         # Write configuration and wait for ACK
         self.mmio.write(iop_const.MAILBOX_OFFSET + \
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
-                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
     def reset(self):
@@ -143,8 +143,8 @@ class Grove_LEDbar(object):
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         
     def write_binary(self, data_in):
@@ -167,8 +167,8 @@ class Grove_LEDbar(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET, data_in)
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
     def write_brightness(self, data_in, brightness=[0xAA]*10):
@@ -202,8 +202,8 @@ class Grove_LEDbar(object):
                             brightness[i])
         self.mmio.write(iop_const.MAILBOX_OFFSET + \
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+ \
-                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+ \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         
     def write_level(self, level, bright_level, green_to_red):
@@ -240,8 +240,8 @@ class Grove_LEDbar(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, green_to_red)
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
 
     def read(self):
@@ -266,8 +266,8 @@ class Grove_LEDbar(object):
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         value = self.mmio.read(iop_const.MAILBOX_OFFSET)
         return (bin(value)[2:].zfill(10))
