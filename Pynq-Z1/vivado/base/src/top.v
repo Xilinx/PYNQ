@@ -76,6 +76,7 @@ module top(
     pdm_m_clk,
     pdm_m_data_i,
     pwm_audio_o,
+    rgbleds_6bits_tri_o,
     sws_2bits_tri_i);
     
   inout [14:0]DDR_addr;
@@ -144,6 +145,7 @@ module top(
   output [0:0]pdm_audio_shutdown;
   output [0:0]pdm_m_clk;
   input pdm_m_data_i;
+  output [5:0]rgbleds_6bits_tri_o;
   output [0:0]pwm_audio_o;
   
   wire [14:0]DDR_addr;
@@ -342,6 +344,7 @@ module top(
   wire [0:0]pdm_audio_shutdown;
   wire [0:0]pdm_m_clk;
   wire pdm_m_data_i;
+  wire [5:0]rgbleds_6bits_tri_o;
   wire [0:0]pwm_audio_o;
 
 // for HDMI in
@@ -681,6 +684,7 @@ system system_i
     .pdm_audio_shutdown(pdm_audio_shutdown),
     .pdm_m_clk(pdm_m_clk),
     .pdm_m_data_i(pdm_m_data_i),
+    .rgbleds_6bits_tri_o(rgbleds_6bits_tri_o),    
     .pwm_audio_o(pwm_audio_o),
     .spi_sw_shield_io0_i(spi_sw_shield_io0_i),
     .spi_sw_shield_io0_o(spi_sw_shield_io0_o),
