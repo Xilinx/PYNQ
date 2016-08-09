@@ -167,16 +167,14 @@ class DMA():
             else:
                 print("Warning: Expecting 3rd Arg to be a dict.")
         self.buf = None
-        self.direction = None
+        self.direction = direction
         self.bufLength = None
+        self.phyAddress = address
 
         virt = libdma.getMemoryMap(address,0x10000)
         if virt == -1:
             raise RuntimeError("Memory map of driver failed!")
-        DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
-        if direction == DMA_TO_DEV:
-            DMAinstance.HasS2Mm = 0
-            DMAinstance.HasMm2S = 1
+        self.DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
         self.DMAinstance.DeviceId = device_id
         device_id += 1
 
@@ -241,4 +239,4 @@ class DMA():
 
     def ReInitializeDMA(AttrDict=None):
         self.FreeBuf()
-        self.__init__(AttrDict)
+        self.__init__(self.phyAddress,self.direction,AttrDict)
