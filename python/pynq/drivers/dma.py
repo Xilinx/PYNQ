@@ -35,6 +35,7 @@ __email__       = "pynq_support@xilinx.com"
 import os
 import sys
 import cffi
+import signal
 
 ffi = cffi.FFI()
 
@@ -50,11 +51,11 @@ typedef struct {
         int Addr_ext;
         uint32_t MaxTransferLen;
 
-        uint32_t * FirstBdPhysAddr;        /**< Physical address of 1st BD in list */
-        uint32_t * FirstBdAddr;    /**< Virtual address of 1st BD in list */
-        uint32_t * LastBdAddr;             /**< Virtual address of last BD in the list */
-        uint32_t Length;             /**< Total size of ring in bytes */
-        uint32_t * Separation;             /**< Number of bytes between the starting
+        uint32_t * FirstBdPhysAddr; /**< Physical address of 1st BD in list */
+        uint32_t * FirstBdAddr;  /**< Virtual address of 1st BD in list */
+        uint32_t * LastBdAddr;  /**< Virtual address of last BD in the list */
+        uint32_t Length;         /**< Total size of ring in bytes */
+        uint32_t * Separation;  /**< Number of bytes between the starting
                                      address of adjacent BDs */
         XAxiDma_Bd *FreeHead;   /**< First BD in the free group */
         XAxiDma_Bd *PreHead;    /**< First BD in the pre-work group */
@@ -94,8 +95,8 @@ typedef struct XAxiDma {
         int HasS2Mm;            /* Has receive channel */
         int Initialized;        /* Driver has been initialized */
         int HasSg;
-        XAxiDma_BdRing TxBdRing;     /* BD container management for TX channel */
-        XAxiDma_BdRing RxBdRing[16]; /* BD container management for RX channel */
+        XAxiDma_BdRing TxBdRing;     /* BD container management */
+        XAxiDma_BdRing RxBdRing[16]; /* BD container management */
         int TxNumChannels;
         int RxNumChannels;
         int MicroDmaMode;
@@ -111,7 +112,8 @@ int XAxiDma_ResetIsDone(XAxiDma * InstancePtr);
 int XAxiDma_Pause(XAxiDma * InstancePtr);
 int XAxiDma_Resume(XAxiDma * InstancePtr);
 uint32_t XAxiDma_Busy(XAxiDma *InstancePtr,int Direction);
-uint32_t XAxiDma_SimpleTransfer(XAxiDma *InstancePtr, uint32_t * BuffAddr, uint32_t Length,int Direction);
+uint32_t XAxiDma_SimpleTransfer(XAxiDma *InstancePtr,\
+uint32_t * BuffAddr, uint32_t Length,int Direction);
 int XAxiDma_SelectKeyHole(XAxiDma *InstancePtr, int Direction, int Select);
 int XAxiDma_SelectCyclicMode(XAxiDma *InstancePtr, int Direction, int Select);
 int XAxiDma_Selftest(XAxiDma * InstancePtr);
@@ -121,122 +123,157 @@ void DisableInterruptsAll(XAxiDma * InstancePtr);
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
 libdma = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
 
-# This is a template
-DMAinstance = ffi.new("XAxiDma_Config *")
-DMAinstance.DeviceId = 0
-DMAinstance.BaseAddr = ffi.cast("uint32_t *",0x00000000)
-DMAinstance.HasStsCntrlStrm = 0
-DMAinstance.HasMm2S = 0
-DMAinstance.HasMm2SDRE = 0
-DMAinstance.Mm2SDataWidth = 32
-DMAinstance.HasS2Mm = 1
-DMAinstance.HasS2MmDRE = 0
-DMAinstance.S2MmDataWidth = 64
-DMAinstance.HasSg = 0
-DMAinstance.Mm2sNumChannels = 1
-DMAinstance.S2MmNumChannels = 1
-DMAinstance.Mm2SBurstSize = 16
-DMAinstance.S2MmBurstSize = 64
-DMAinstance.MicroDmaMode = 0
-DMAinstance.AddrWidth = 32
+DefaultConfig = {
+    'DeviceId' : 0,
+    'BaseAddr' : ffi.cast("uint32_t *",0x00000000),
+    'HasStsCntrlStrm' : 0,
+    'HasMm2S' : 0,
+    'HasMm2SDRE' : 0,
+    'Mm2SDataWidth' : 32,
+    'HasS2Mm' : 1,
+    'HasS2MmDRE' : 0,
+    'S2MmDataWidth' : 64,
+    'HasSg' : 0,
+    'Mm2sNumChannels' : 1,
+    'S2MmNumChannels' : 1,
+    'Mm2SBurstSize' : 16,
+    'S2MmBurstSize' : 64,
+    'MicroDmaMode' : 0,
+    'AddrWidth' : 32
+}
 
 DMA_TO_DEV = 0
 DMA_FROM_DEV = 1
-device_id = 0
+DMA_BIDIRECTIONAL = 3
+
+DeviceId = 0
 DMA_TRANSFER_LIMIT_BYTES = 8388607
 
-class DMA():
+# For internal use to timeout functions
+class timeout:
 
-    def __init__(self, address, direction='r',AttrDict= None):
-        global DMAinstance
-        global device_id
-        self.DMAengine = ffi.new("XAxiDma *")
-        self.DMAinstance = DMAinstance
-        if direction == 'w':
-            DMAinstance.HasS2Mm = 0
-            DMAinstance.HasMm2S = 1
-        elif direction == 'rw':
-            DMAinstance.HasS2Mm = 1
-            DMAinstance.HasMm2S = 1 
-        self._bufPtr = None
-        self._TransferInitiated = 0
-        if AttrDict is not None:
-            if type(AttrDict) == dict:
-                for key in AttrDict.keys():
-                    self.DMAinstance.__setattr__(key,AttrDict[key])
-            else:
-                print("Warning: Expecting 3rd Arg to be a dict.")
+    def __init__(self, seconds=1, error_message='Timeout'):
+        self.seconds = seconds
+        self.error_message = error_message
+
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(self.error_message)
+
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
+
+class DMA:
+
+    def __init__(self, address, direction=DMA_FROM_DEV,attr_dict= None):
         self.buf = None
         self.direction = direction
         self.bufLength = None
         self.phyAddress = address
-
-        virt = libdma.getMemoryMap(address,0x10000)
-        if virt == -1:
-            raise RuntimeError("Memory map of driver failed!")
-        self.DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
-        self.DMAinstance.DeviceId = device_id
-        device_id += 1
-
+        self.DMAengine = ffi.new("XAxiDma *")
+        self.DMAinstance = ffi.new("XAxiDma_Config *")
+        self.Configuration = {}
+        self._genConfig(address,direction,attr_dict)
+        # Reset the DMA
         status = libdma.XAxiDma_CfgInitialize(self.DMAengine,self.DMAinstance)
         if status != 0:
             raise RuntimeError("Failed to initialize DMA!")
         libdma.XAxiDma_Reset(self.DMAengine)
         libdma.DisableInterruptsAll(self.DMAengine)
+
+    def _genConfig(self, address, direction, attr_dict):
+        global DefaultConfig
+        global DeviceId
+        self.Configuration = DefaultConfig
+        for key in DefaultConfig.keys():
+            self.DMAinstance.__setattr__(key,DefaultConfig[key])
+        if direction == DMA_TO_DEV:
+            DMAinstance.HasS2Mm = 0
+            DMAinstance.HasMm2S = 1
+        elif direction == DMA_BIDIRECTIONAL:
+            DMAinstance.HasS2Mm = 1
+            DMAinstance.HasMm2S = 1 
+        self._bufPtr = None
+        self._TransferInitiated = 0
+        if attr_dict is not None:
+            if type(attr_dict) == dict:
+                for key in attr_dict.keys():
+                    self.DMAinstance.__setattr__(key,attr_dict[key])
+            else:
+                print("Warning: Expecting 3rd Arg to be a dict.")
+
+        virt = libdma.getMemoryMap(address,0x10000)
+        if virt == -1:
+            raise RuntimeError("Memory map of driver failed!")
+        self.DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
+        self.DMAinstance.DeviceId = DeviceId
+        DeviceId += 1
+
+        for key in self.Configuration.keys():
+            self.Configuration[key] = self.DMAinstance.__getattribute__(key)
         
     def __del__(self):
         if self.buf != None and self.buf != ffi.NULL:
-            self.FreeBuf()
+            self.free_buffer()
         libdma.XAxiDma_Reset(self.DMAengine)
 
-    def SimpleTransfer(self,numBytes,direction='r'):
-        if numBytes > self.bufLength:
+    def transfer(self,num_bytes,direction=DMA_FROM_DEV):
+        if num_bytes > self.bufLength:
             raise RuntimeError("Buffer Size Smaller than the transfer size")
-        if numBytes > DMA_TRANSFER_LIMIT_BYTES:
+        if num_bytes > DMA_TRANSFER_LIMIT_BYTES:
             raise RuntimeError("DMA Transfer Size Exceeds the max of",\
                 DMA_TRANSFER_LIMIT_BYTES)
-        if direction == 'r':
-            self.direction = DMA_FROM_DEV
-        elif direction == 'w':
-            self.direction = DMA_TO_DEV 
+        if direction not in [DMA_FROM_DEV, DMA_TO_DEV]:
+            raise RuntimeError("Invalid Direction for Transfer!")
+        self.direction = direction
         if self.buf is not None:
             libdma.XAxiDma_SimpleTransfer(\
-                self.DMAengine,\
-                self._bufPtr,\
-                numBytes,\
-                self.direction\
+                self.DMAengine,
+                self._bufPtr,
+                num_bytes,
+                self.direction
                 )
             self._TransferInitiated = 1
         else:
             print("Transfer Error! Please allocate a buffer first.")
 
-    def CreateBuf(self, numBytes):
+    def create_buffer(self, num_bytes):
         if self.buf is None:
-            self.buf = libdma.frame_alloc(numBytes)
+            self.buf = libdma.frame_alloc(num_bytes)
             if self.buf == ffi.NULL:
                 raise RuntimeError("Memory allocation failed.")
         else:
             libdma.frame_free(self.buf)
-            self.buf = libdma.frame_alloc(numBytes)
+            self.buf = libdma.frame_alloc(num_bytes)
         bufPhyAddr = libdma.getPhyAddr(self.buf)
         self._bufPtr = ffi.cast("uint32_t *",bufPhyAddr)
-        self.bufLength = numBytes
+        self.bufLength = num_bytes
 
-    def FreeBuf(self):
+    def free_buffer(self):
+        if self.buf == None or self.buf == ffi.NULL:
+            return
         libdma.frame_free(self.buf)
 
-    def SimpleWait(self):
+    def wait(self, wait_timeout=10):
         if self._TransferInitiated == 0:
             return
-        while True:
-            if libdma.XAxiDma_Busy(self.DMAengine,self.direction) == 0:
-                break
+        Error = "DMA wait timed out!"
+        with timeout(seconds = wait_timeout, error_message = Error):
+            while True:
+                if libdma.XAxiDma_Busy(self.DMAengine,self.direction) == 0:
+                    break
 
-    def GetBuf(self):
+    def get_buf(self, width=32):
         if self.buf is not None:
-            return ffi.cast("unsigned int *",self.buf)
+            if width == 32:
+                return ffi.cast("unsigned int *",self.buf)
+            elif width == 64:
+                return ffi.cast("long long *",self.buf)
         print("Buffer not created!")
 
-    def ReInitializeDMA(AttrDict=None):
-        self.FreeBuf()
-        self.__init__(self.phyAddress,self.direction,AttrDict)
+    def configure(self, attr_dict=None):
+        self.free_buffer()
+        self.__init__(self.phyAddress,self.direction,attr_dict)
