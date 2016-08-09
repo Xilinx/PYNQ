@@ -187,7 +187,8 @@ class DMA():
         libdma.DisableInterruptsAll(self.DMAengine)
         
     def __del__(self):
-        self.FreeBuf()
+        if self.buf != None and self.buf != ffi.NULL:
+            self.FreeBuf()
         libdma.XAxiDma_Reset(self.DMAengine)
 
     def SimpleTransfer(self,numBytes,direction='r'):
