@@ -160,7 +160,7 @@ class DMA():
             DMAinstance.HasMm2S = 1 
         self._bufPtr = None
         self._TransferInitiated = 0
-        if self.AttrDict is not None:
+        if AttrDict is not None:
             if type(AttrDict) == dict:
                 for key in AttrDict.keys():
                     self.DMAinstance.__setattr__(key,AttrDict[key])
@@ -173,7 +173,6 @@ class DMA():
         virt = libdma.getMemoryMap(address,0x10000)
         if virt == -1:
             raise RuntimeError("Memory map of driver failed!")
-        print("virt : ",hex(virt))
         DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
         if direction == DMA_TO_DEV:
             DMAinstance.HasS2Mm = 0
