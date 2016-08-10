@@ -53,23 +53,36 @@ class Pmod_PWM(object):
         Memory-mapped I/O instance to read and write instructions and data.
             
     """
-    def __init__(self, if_id): 
+    def __init__(self, if_id, index): 
         """Return a new instance of an GROVE_PWM object. 
         
         Parameters
         ----------
         if_id : int
             The interface ID (1, 2) corresponding to (PMODA, PMODB).
+        index : int
+            The specific pin that runs PWM.
             
         """
         if not if_id in [PMODA, PMODB]:
             raise ValueError("No such IOP for Pmod device.")
+        if not index in range(8):
+            raise ValueError("Valid pin indexes are 0 - 7.")
             
         self.iop = request_iop(if_id, PMOD_PWM_PROGRAM)
         self.mmio = self.iop.mmio
-        
         self.iop.start()
-               
+        
+        # Write PWM pin config
+        self.mmio.write(iop_const.MAILBOX_OFFSET, index)
+        
+        # Write configuration and wait for ACK
+        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+            pass
+            
     def generate(self,period,duty_cycle):
         """Generate pwm signal with desired period and percent duty cycle.
         
@@ -90,13 +103,14 @@ class Pmod_PWM(object):
         if (duty_cycle not in range(1,99)): 
             raise ValueError("Valid duty cycle is between 1 and 99.")
             
-        cmd_word = (period << 16) | (duty_cycle << 1) 
+        self.mmio.write(iop_const.MAILBOX_OFFSET, period)
+        self.mmio.write(iop_const.MAILBOX_OFFSET+0x4, duty_cycle)
         self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
-        
+            
     def stop(self):
         """Stops PWM generation.
         
@@ -109,10 +123,9 @@ class Pmod_PWM(object):
         None
         
         """
-        cmd_word = 1
         self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
+                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             

@@ -46,6 +46,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  05/10/16 release
  * 1.00b pp  05/27/16 fix pmod_init()
+ * 1.00c yrq 08/08/16 change coding style
  *
  * </pre>
  *
@@ -70,12 +71,13 @@
 
 // Mailbox commands
 // Command passed in MAILBOX_WRITE_CMD
-#define STOP_TIMER          0x1
-#define GENERATE_FOREVER    0x2
-#define GENERATE_N_TIMES    0x4
-#define EVENT_OCCURED       0x8
-#define COUNT_EVENTS        0x10
-#define MEASURE_PERIOD      0x20
+#define CONFIG_IOP_SWITCH       0x1
+#define STOP_TIMER              0x3
+#define GENERATE_FOREVER        0x5
+#define GENERATE_N_TIMES        0x7
+#define EVENT_OCCURED           0x9
+#define COUNT_EVENTS            0xB
+#define MEASURE_PERIOD          0xD
 /*
  * Parameters passed in MAILBOX_DATA(0):
  * STOP_TIMER: None
@@ -105,12 +107,15 @@ int main(void) {
     u8 NumberOfTimes;
     u32 count1, count2;
     u32 status;
+    u8 iop_pins[8];
+    u32 timer_pin;
 
     // Initialize Pmod
     pmod_init(0,1);
     /*
      * Configuring Pmod IO switch
      * Timer is connected to bit[0] of the Channel 1 of AXI GPIO instance
+     * This configuration is changed later
      */
     config_pmod_switch(TIMER, GPIO_1, GPIO_2, GPIO_3,
                        GPIO_4, GPIO_5, GPIO_6, GPIO_7);
@@ -120,7 +125,28 @@ int main(void) {
     while(1){
         while(MAILBOX_CMD_ADDR==0); // wait for CMD to be issued
         cmd = MAILBOX_CMD_ADDR;
+        
         switch(cmd){
+            case CONFIG_IOP_SWITCH:
+                // read new pin configuration
+                timer_pin = MAILBOX_DATA(0);
+                iop_pins[0] = GPIO_0;
+                iop_pins[1] = GPIO_1;
+                iop_pins[2] = GPIO_2;
+                iop_pins[3] = GPIO_3;
+                iop_pins[4] = GPIO_4;
+                iop_pins[5] = GPIO_5;
+                iop_pins[6] = GPIO_6;
+                iop_pins[7] = GPIO_7;
+                // set new pin configuration
+                iop_pins[timer_pin] = TIMER;
+                config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
+                                   iop_pins[3], iop_pins[4], iop_pins[5], 
+                                   iop_pins[6], iop_pins[7]);
+                Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
             case STOP_TIMER:
                 XTmrCtr_Stop(&TimerInst_0, 0);
                 XTmrCtr_Stop(&TimerInst_0, 1);
@@ -320,6 +346,7 @@ int main(void) {
                 MAILBOX_DATA(0)=count2-count1;
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
+                
              default:
                 MAILBOX_CMD_ADDR = 0x0;
                 break;

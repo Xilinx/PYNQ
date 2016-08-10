@@ -50,6 +50,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  05/10/16 release
  * 1.00b yrq 05/27/16 clean up the codes
+ * 1.00c yrq 08/08/16 change coding style
  *
  * </pre>
  *
@@ -58,6 +59,11 @@
 #include "xtmrctr_l.h"
 #include "xgpio.h"
 #include "pmod.h"
+
+// Mailbox commands
+#define CONFIG_IOP_SWITCH       0x1
+#define GENERATE                0x3
+#define STOP                    0x5
 
 /*
  * TIMING_INTERVAL = (TLRx + 2) * AXI_CLOCK_PERIOD
@@ -90,7 +96,7 @@
  */
 
 /************************** Function Prototypes ******************************/
-void setupTimers(void) {
+void setup_timers(void) {
 
     // Load timer's Load registers (period, high time)
     XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TLR0, MS1_VALUE);
@@ -109,38 +115,67 @@ void setupTimers(void) {
 int main(void) {
     u32 cmd;
     u32 Timer1Value, Timer2Value;
+    u8 iop_pins[8];
+    u32 pwm_pin;
 
-    setupTimers();
     /*
      * Configuring Pmod IO switch
      * bit-0 is controlled by the pwm
      */
     config_pmod_switch(PWM,GPIO_1,GPIO_2,GPIO_3,
                        GPIO_4,GPIO_5,GPIO_6,GPIO_7);
+    setup_timers();
 
     while(1){
         while(MAILBOX_CMD_ADDR==0);
         cmd = MAILBOX_CMD_ADDR;
-        // bit[0]==1 => stop both timers; bit[1]==1 => generate
-        if(cmd & 0x01) {
-            // disable timer 0
-            XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0);
-            // disable timer 1
-            XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0);
+        
+        switch(cmd){
+            case CONFIG_IOP_SWITCH:
+                // read new pin configuration
+                pwm_pin = MAILBOX_DATA(0);
+                iop_pins[0] = GPIO_0;
+                iop_pins[1] = GPIO_1;
+                iop_pins[2] = GPIO_2;
+                iop_pins[3] = GPIO_3;
+                iop_pins[4] = GPIO_4;
+                iop_pins[5] = GPIO_5;
+                iop_pins[6] = GPIO_6;
+                iop_pins[7] = GPIO_7;
+                // set new pin configuration
+                iop_pins[pwm_pin] = PWM;
+                config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
+                                   iop_pins[3], iop_pins[4], iop_pins[5], 
+                                   iop_pins[6], iop_pins[7]);
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                  
+            case GENERATE:
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x296);
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0x296);
+                // period in us
+                Timer1Value = MAILBOX_DATA(0) & 0x0ffff;
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR,0,
+                                 TLR0,Timer1Value*100);
+                // pulse in us
+                Timer2Value = (MAILBOX_DATA(1) & 0x07f)*Timer1Value/100;
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR,1,
+                                 TLR0,Timer2Value*100);
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+                
+            case STOP:
+                // disable timer 0
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0);
+                // disable timer 1
+                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0);
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
+            
+            default:
+                MAILBOX_CMD_ADDR = 0x0;
+                break;
         }
-        else {
-            XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x296);
-            XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0x296);
-            // period in us
-            Timer1Value = (cmd >> 16) & 0x0ffff;
-            // high value in us
-            Timer2Value = ((cmd >> 1) & 0x07f)*Timer1Value/100;
-            // period
-            XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR,0,TLR0,Timer1Value*100);
-            // high time
-            XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR,1,TLR0,Timer2Value*100);
-        }
-        MAILBOX_CMD_ADDR = 0x0;
     }
     return 0;
 }

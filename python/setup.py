@@ -109,7 +109,7 @@ setup(  name='pynq',
         packages = find_packages(),
         download_url = 'https://github.com/Xilinx/PYNQ',
         package_data = {
-          '': ['tests/*','js/*','*.bin','bitstream/*','*.so'],
+          '': ['tests/*','js/*','*.bin','*.so','bitstream/*','*.wav'],
         },
         ext_modules = [
             Extension('pynq.drivers._audio', audio, 

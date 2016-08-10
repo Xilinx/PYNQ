@@ -1,13 +1,10 @@
-CC = arm-linux-gnueabihf-gcc
-CPP = arm-linux-gnueabihf-g++
+all:
+	cd axidma_v9_1 && make
+	cd standalone_v5_4 && make
+	cd utils && make
+	gcc -fPIC -shared -rdynamic  xil_io.o xaxidma.o utils_xlnk.o -o  libdma.so
+	rm -f *.o
 
-OBJS =  dma.o 
-LIBS = -l pthread libsds_lib.a
-INC = -I include/
-
-all:	
-	$(CC) -fPIC $(INC) -c dma.c
-	$(CC) -shared -fPIC -rdynamic $(OBJS)  -Wl,--start-group $(LIBS) -Wl,--end-group -o libdma.so
-	rm *.o
 clean:
-	rm *.o *.so -r
+	rm -f *.o
+	rm -f *.so

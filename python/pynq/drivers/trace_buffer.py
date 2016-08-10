@@ -37,14 +37,23 @@ import re
 import cffi
 import json
 import csv
+from time import sleep
 import IPython.core.display
 from pynq import PL
 from pynq import MMIO
-from pynq.drivers.dma import DMA
+from pynq.drivers import DMA
+from pynq.iop import PMODA
+from pynq.iop import PMODB
+from pynq.iop import ARDUINO
 
-ADAPTER_CONFIG = [0x00000100, 0x00000001, 0x00020000]
-MAX_SAMPLE_RATE = 100000000
-MAX_NUM_WORDS = 262144
+MAX_SAMPLE_RATE             = 100000000
+MAX_NUM_SAMPLES             = 524288
+TRACE_CTRL_OFFSET           = 0x00
+TRACE_CMP_LSW_OFFSET        = 0x10
+TRACE_CMP_MSW_OFFSET        = 0x14
+TRACE_LENGTH_OFFSET         = 0x1C
+TRACE_SAMPLE_RATE_OFFSET    = 0x24
+MASK_ALL                    = 0xFFFFFFFFFFFFFFFF
 
 class Trace_Buffer:
     """Class for the trace buffer, leveraging the sigrok libraries.
@@ -70,8 +79,8 @@ class Trace_Buffer:
         The list of probes used for the trace.
     dma : DMA
         The DMA object associated with the trace buffer.
-    adapter : MMIO
-        The MMIO class used for HLS.
+    ctrl : MMIO
+        The MMIO class used to control the DMA.
     samplerate: int
         The samplerate of the traces.
     data : cffi.FFI.CData
@@ -79,7 +88,8 @@ class Trace_Buffer:
         
     """
     
-    def __init__(self, protocol, trace=None, data=None, samplerate=500000):
+    def __init__(self, if_id, protocol, trace=None, data=None, 
+                 samplerate=500000):
         """Return a new trace buffer object. 
         
         Users have to specify the location of the traces, even if no trace 
@@ -94,6 +104,8 @@ class Trace_Buffer:
         
         Parameters
         ----------
+        if_id : int
+            The interface ID (PMODA, PMODB, ARDUINO).
         protocol : str
             The protocol the sigrok decoder are using.
         trace: str
@@ -117,12 +129,19 @@ class Trace_Buffer:
         if not 1 <= samplerate <= 100000000:
             raise ValueError("Sample rate out of range.")
         
-        dma_base = int(PL.ip_dict["SEG_axi_dma_0_Reg"][0],16)
-        adp_base = int(PL.ip_dict["SEG_axis_accelerator_adapter_0_Reg"][0],16)
-        adp_range = int(PL.ip_dict["SEG_axis_accelerator_adapter_0_Reg"][1],16)
-        
-        self.dma = DMA(dma_base)
-        self.adapter = MMIO(adp_base, adp_range)
+        if if_id in [PMODA, PMODB]:
+            dma_base = int(PL.ip_dict["SEG_axi_dma_0_Reg"][0],16)
+            ctrl_base = int(PL.ip_dict["SEG_trace_cntrl_0_Reg2"][0],16)
+            ctrl_range = int(PL.ip_dict["SEG_trace_cntrl_0_Reg2"][1],16)
+        elif if_id in [ARDUINO]:
+            dma_base = int(PL.ip_dict["SEG_axi_dma_0_Reg1"][0],16)
+            ctrl_base = int(PL.ip_dict["SEG_trace_cntrl_0_Reg"][0],16)
+            ctrl_range = int(PL.ip_dict["SEG_trace_cntrl_0_Reg"][1],16)
+        else:
+            raise ValueError("No such IOP for instrumentation.")
+            
+        self.dma = DMA(dma_base, direction=1)
+        self.ctrl = MMIO(ctrl_base, ctrl_range)
         self.samplerate = samplerate
         self.protocol = protocol
         self.data = data
@@ -157,46 +176,63 @@ class Trace_Buffer:
         """
         del(self.dma)
         
-    def start(self):
+    def start(self, timeout=10):
         """Start the DMA to capture the traces.
         
         Parameters
         ----------
-        None
-        
-        Return
-        ------
-        None
-        
-        """
-        # Start non-blocking DMA
-        self.dma.read(MAX_NUM_WORDS*4, False)
-        
-        # Start HLS 
-        for i in range(len(ADAPTER_CONFIG)):
-            self.adapter.write(0x28, ADAPTER_CONFIG[i])
-        self.adapter.write(0x80, MAX_NUM_WORDS)
-        self.adapter.write(0x84, int(MAX_SAMPLE_RATE / self.samplerate))
-    
-    def stop(self, timeout=0):
-        """Stop the DMA after capture is done.
-        
-        Note
-        ----
-        Set `timeout` to 0 for unlimited timeout.
-        
-        Parameters
-        ----------
-        timeout : integer
-            Wait time in seconds.
+        timeout : int
+            The time in number of milliseconds to wait for DMA to be idle.
             
         Return
         ------
         None
         
         """
-        self.dma.wait(timeout)
-        self.data = self.dma.get_read_buf()
+        # Create buffer
+        self.dma.create_buf(MAX_NUM_SAMPLES*8)
+        self.dma.transfer(MAX_NUM_SAMPLES*8, direction=1)
+        
+        # Wait for DMA to be idle
+        timer = timeout
+        while (self.ctrl.read(0x00) & 0x04)==0:
+            sleep(0.001)
+            timer -= 1
+            if (timer==0):
+                raise RuntimeError("Timeout when waiting DMA to be idle.")
+                
+        # Configuration
+        self.ctrl.write(TRACE_LENGTH_OFFSET, MAX_NUM_SAMPLES)
+        self.ctrl.write(TRACE_SAMPLE_RATE_OFFSET, \
+                        int(MAX_SAMPLE_RATE / self.samplerate * 2))
+        self.ctrl.write(TRACE_CMP_LSW_OFFSET, 0x00000)
+        self.ctrl.write(TRACE_CMP_MSW_OFFSET, 0x00000)
+        
+        # Start the DMA
+        self.ctrl.write(TRACE_CTRL_OFFSET,0x01)
+        self.ctrl.write(TRACE_CTRL_OFFSET,0x00)
+    
+    def stop(self):
+        """Stop the DMA after capture is done.
+        
+        Note
+        ----
+        There is an internal timeout mechanism in the DMA class.
+        
+        Parameters
+        ----------
+        None
+            
+        Return
+        ------
+        None
+        
+        """
+        # Wait for the DMA
+        self.dma.wait()
+        
+        # Get 64-bit samples from DMA
+        self.data = self.dma.get_buf(64)
         
     def show(self):
         """Show information about the specified protocol.
@@ -419,15 +455,15 @@ class Trace_Buffer:
         if os.system("rm -rf " + name):
             raise RuntimeError('Cannnot remove temporary folder.')
         
-    def parse(self, parsed, length=262144, mask=0xFFFFFFFF,
+    def parse(self, parsed, length=MAX_NUM_SAMPLES, mask=MASK_ALL,
               tri_sel=[], tri_0=[], tri_1=[]):
         """Parse the input data and generate a `*.csv` file.
         
         This method can be used along with the DMA. The input data is assumed
-        to be 32-bit. The generated `*.csv` file can be then used as the trace
+        to be 64-bit. The generated `*.csv` file can be then used as the trace
         file.
         
-        To extract certain bits from the 32-bit data, use the parameter
+        To extract certain bits from the 64-bit data, use the parameter
         `mask`. 
         
         Note
@@ -435,7 +471,9 @@ class Trace_Buffer:
         The probe pins selected by `mask` does not include any tristate probe.
         
         To specify a set of tristate probe pins, e.g., users can set 
-        tri_sel = [0x00000004], tri_0 = [0x00000010], tri_1 = [0x00000100].
+        tri_sel = [0x0000000000000004],
+        tri_0   = [0x0000000000000010], and
+        tri_1   = [0x0000000000000100].
         In this example, the 3rd probe from the LSB is the selection probe; 
         the 5th probe is selected if selection probe is 0, otherwise the 9th
         probe is selected. There can be multiple sets of tristate probe pins.
@@ -449,9 +487,9 @@ class Trace_Buffer:
         parsed : str
             The file name of the parsed output.
         length : int
-            The length of the trace, in number of 32-bit integers.
+            The length of the trace, in number of 64-bit samples.
         mask : int
-            A 32-bit mask to be applied to the 32-bit data.
+            A 64-bit mask to be applied to the 64-bit samples.
         tri_sel : list
             The list of tristate selection probe pins.
         tri_0 : list
@@ -468,11 +506,12 @@ class Trace_Buffer:
             raise TypeError("File name has to be an string.")
         if not isinstance(length, int):
             raise TypeError("Data length has to be an integer.")
-        if not 1 <= length <= 262144:
-            raise ValueError("Data length has to be in [1,262144].")
+        if not 1 <= length <= MAX_NUM_SAMPLES:
+            raise ValueError("Data length has to be in [1,{}]."\
+                            .format(MAX_NUM_SAMPLES))
         if not isinstance(mask, int):
             raise TypeError("Data mask has to be an integer.")
-        if not 0<=mask<=0xFFFFFFFF:
+        if not 0<=mask<=MASK_ALL:
             raise ValueError("Data mask out of range.")
         if not isinstance(tri_sel, list):
             raise TypeError("Selection probe pins have to be in a list.")
@@ -481,21 +520,21 @@ class Trace_Buffer:
         if not len(tri_sel)==len(tri_0)==len(tri_1):
             raise ValueError("Inconsistent length for tristate lists.")
         for element in tri_sel:
-            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+            if not isinstance(element, int) or not 0<element<=MASK_ALL:
                 raise TypeError("Selection probe has to be an integer.")
             if not (element & element-1)==0:
                 raise ValueError("Selection probe can only have 1-bit set.")
             if not (element & mask)==0:
                 raise ValueError("Selection probe has be excluded from mask.")
         for element in tri_0:
-            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+            if not isinstance(element, int) or not 0<element<=MASK_ALL:
                 raise TypeError("Data probe has to be an integer.")
             if not (element & element-1)==0:
                 raise ValueError("Data probe can only have 1-bit set.")
             if not (element & mask)==0:
                 raise ValueError("Data probe has be excluded from mask.")
         for element in tri_1:
-            if not isinstance(element, int) or not 0<element<=0xFFFFFFFF:
+            if not isinstance(element, int) or not 0<element<=MASK_ALL:
                 raise TypeError("Data probe has to be an integer.")
             if not (element & element-1)==0:
                 raise ValueError("Data probe can only have 1-bit set.")
@@ -506,9 +545,9 @@ class Trace_Buffer:
             raise RuntimeError("Cannot remove old parsed file.")
         with open(parsed, 'w') as f:
             for i in range(0, length):
-                raw_val = self.data[i] & 0xFFFFFFFF
+                raw_val = self.data[i] & MASK_ALL
                 list_val = []
-                for j in range(31,-1,-1):
+                for j in range(63,-1,-1):
                     if (mask & 1<<j)>>j:
                         list_val.append(str((raw_val & 1<<j)>>j))
                     else:
@@ -569,11 +608,11 @@ class Trace_Buffer:
             raise ValueError("Cannot display without metadata.")
         if not isinstance(start_pos, int):
             raise TypeError("Start position has to be an integer.")
-        if not 1 <= start_pos <= 262144:
+        if not 1 <= start_pos <= MAX_NUM_SAMPLES:
             raise ValueError("Start position out of range.")
         if not isinstance(stop_pos, int):
             raise TypeError("Stop position has to be an integer.")
-        if not 1 <= stop_pos <= 262144:
+        if not 1 <= stop_pos <= MAX_NUM_SAMPLES:
             raise ValueError("Stop position out of range.")
         
         # Copy the javascript to the notebook location
