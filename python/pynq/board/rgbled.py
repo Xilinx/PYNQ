@@ -35,10 +35,10 @@ __email__ = "pynq_support@xilinx.com"
 from pynq import MMIO
 from pynq import PL
 
-
 RGBLEDS_XGPIO_OFFSET = 0x0
 
-""" Reference Color Values for RGB LED"""
+""" Reference Color Values for RGB LED """
+RGB_CLEAR = 0
 RGB_BLUE = 1
 RGB_GREEN = 2
 RGB_CYAN = 3
@@ -47,16 +47,18 @@ RGB_MAGENTA = 5
 RGB_YELLOW = 6
 RGB_WHITE = 7
 
-
 class RGBLED(object):
     """This class controls the onboard RGB LEDs.
 
     Attributes
     ----------
+    index : int
+        The index of the RGB LED, from 0 (LD4) to 1 (LD5).
     _mmio : MMIO
-        Shared memory map for the RGBLED GPIO controller
+        Shared memory map for the RGBLED GPIO controller.
     _gpio_val : int
-        Global value of the RGBLED GPIO pins
+        Global value of the RGBLED GPIO pins.
+        
     """
     _mmio = None
     _gpio_val = 0
@@ -67,15 +69,16 @@ class RGBLED(object):
         Parameters
         ----------
         index : int
-            Index of the RGBLED, from 0 to 1.
+            Index of the RGBLED, from 0 (LD4) to 1 (LD5).
         
         """
         self.index = index
         if RGBLED._mmio is None:
-            RGBLED._mmio = MMIO(int(PL.ip_dict["SEG_rgbled_gpio_Reg"][0],16),16)
+            base_addr = int(PL.ip_dict["SEG_rgbled_gpio_Reg"][0],16)
+            RGBLED._mmio = MMIO(base_addr,16)
 
     def on(self,color):
-        """Turn on a single RGB LED with a color value (see color constants).  
+        """Turn on a single RGB LED with a color value (see color constants).
         
         Parameters
         ----------
@@ -87,11 +90,11 @@ class RGBLED(object):
         None
         
         """
-        if color not in range(0, 8):
+        if color not in range(8):
             raise ValueError("RGB values should be between 0 and 7.")
 
         rgb_mask = 0x7 << (self.index*3)
-        new_val = (RGBLED._gpio_val & ~rgb_mask  ) | (color << (self.index*3))
+        new_val = (RGBLED._gpio_val & ~rgb_mask) | (color << (self.index*3))
         self._set_rgbleds_value(new_val)
 
     def off(self):
@@ -116,12 +119,12 @@ class RGBLED(object):
         Note
         ----
         This function should not be used directly. User should call 
-        `on()`, `off()`,  instead
+        `on()`, `off()`, instead.
         
         Parameters
         ----------
         value : int 
-            The value of all the RGBLEDs encoded in a single variable
+            The value of all the RGBLEDs encoded in a single variable.
         
         """
         RGBLED._gpio_val = value

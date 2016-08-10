@@ -176,7 +176,7 @@ class DMA:
         self.DMAengine = ffi.new("XAxiDma *")
         self.DMAinstance = ffi.new("XAxiDma_Config *")
         self.Configuration = {}
-        self._genConfig(address,direction,attr_dict)
+        self._gen_config(address,direction,attr_dict)
         # Reset the DMA
         status = libdma.XAxiDma_CfgInitialize(self.DMAengine,self.DMAinstance)
         if status != 0:
@@ -184,7 +184,7 @@ class DMA:
         libdma.XAxiDma_Reset(self.DMAengine)
         libdma.DisableInterruptsAll(self.DMAengine)
 
-    def _genConfig(self, address, direction, attr_dict):
+    def _gen_config(self, address, direction, attr_dict):
         global DefaultConfig
         global DeviceId
         self.Configuration = DefaultConfig
@@ -217,7 +217,7 @@ class DMA:
         
     def __del__(self):
         if self.buf != None and self.buf != ffi.NULL:
-            self.free_buffer()
+            self.free_buf()
         libdma.XAxiDma_Reset(self.DMAengine)
 
     def transfer(self,num_bytes,direction=DMA_FROM_DEV):
@@ -240,7 +240,7 @@ class DMA:
         else:
             print("Transfer Error! Please allocate a buffer first.")
 
-    def create_buffer(self, num_bytes):
+    def create_buf(self, num_bytes):
         if self.buf is None:
             self.buf = libdma.frame_alloc(num_bytes)
             if self.buf == ffi.NULL:
@@ -252,7 +252,7 @@ class DMA:
         self._bufPtr = ffi.cast("uint32_t *",bufPhyAddr)
         self.bufLength = num_bytes
 
-    def free_buffer(self):
+    def free_buf(self):
         if self.buf == None or self.buf == ffi.NULL:
             return
         libdma.frame_free(self.buf)
@@ -275,5 +275,5 @@ class DMA:
         print("Buffer not created!")
 
     def configure(self, attr_dict=None):
-        self.free_buffer()
+        self.free_buf()
         self.__init__(self.phyAddress,self.direction,attr_dict)
