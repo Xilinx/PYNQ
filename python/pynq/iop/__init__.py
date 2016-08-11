@@ -37,23 +37,19 @@ from . import iop_const
 from .iop_const import PMODA
 from .iop_const import PMODB
 from .iop_const import ARDUINO
-from .iop_const import XESS_STICKIT_GR1
-from .iop_const import XESS_STICKIT_GR2
-from .iop_const import XESS_STICKIT_GR3
-from .iop_const import XESS_STICKIT_GR4
-from .iop_const import DIGILENT_STICKIT_G1
-from .iop_const import DIGILENT_STICKIT_G2
-from .iop_const import DIGILENT_STICKIT_G3
-from .iop_const import DIGILENT_STICKIT_G4
-from .iop_const import ARDUINO_SHIELD_I2C
-from .iop_const import ARDUINO_SHIELD_UART
-from .iop_const import ARDUINO_SHIELD_G1
-from .iop_const import ARDUINO_SHIELD_G2
-from .iop_const import ARDUINO_SHIELD_G3
-from .iop_const import ARDUINO_SHIELD_G4
-from .iop_const import ARDUINO_SHIELD_G5
-from .iop_const import ARDUINO_SHIELD_G6
-from .iop_const import ARDUINO_SHIELD_G7
+from .iop_const import PMOD_GROVE_G1
+from .iop_const import PMOD_GROVE_G2
+from .iop_const import PMOD_GROVE_G3
+from .iop_const import PMOD_GROVE_G4
+from .iop_const import ARDUINO_GROVE_I2C
+from .iop_const import ARDUINO_GROVE_UART
+from .iop_const import ARDUINO_GROVE_G1
+from .iop_const import ARDUINO_GROVE_G2
+from .iop_const import ARDUINO_GROVE_G3
+from .iop_const import ARDUINO_GROVE_G4
+from .iop_const import ARDUINO_GROVE_G5
+from .iop_const import ARDUINO_GROVE_G6
+from .iop_const import ARDUINO_GROVE_G7
 
 # IOP
 from .iop import request_iop
