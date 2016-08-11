@@ -41,11 +41,9 @@ from pynq.iop import iop_const
 from pynq.iop import PMODA
 from pynq.iop import PMODB
 from pynq.iop import ARDUINO
-from pynq.iop import XESS_STICKIT_GR3
-from pynq.iop import XESS_STICKIT_GR4
-from pynq.iop import DIGILENT_STICKIT_G3
-from pynq.iop import DIGILENT_STICKIT_G4
-from pynq.iop import ARDUINO_SHIELD_I2C
+from pynq.iop import PMOD_GROVE_G3
+from pynq.iop import PMOD_GROVE_G4
+from pynq.iop import ARDUINO_GROVE_I2C
 
 PMOD_GROVE_IMU_PROGRAM = "pmod_grove_imu.bin"
 ARDUINO_GROVE_IMU_PROGRAM = "arduino_grove_imu.bin"
@@ -79,15 +77,13 @@ class Grove_IMU(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if (not gr_pin in [XESS_STICKIT_GR3, \
-                               XESS_STICKIT_GR4]) and \
-                (not gr_pin in [DIGILENT_STICKIT_G3, \
-                                DIGILENT_STICKIT_G4]):
-                raise ValueError("Invalid pin assignment.")
+            if not gr_pin in [PMOD_GROVE_G3, \
+                              PMOD_GROVE_G4]:
+                raise ValueError("IMU group number can only be G3 - G4.")
             GROVE_IMU_PROGRAM = PMOD_GROVE_IMU_PROGRAM
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_SHIELD_I2C]:
-                raise ValueError("Invalid pin assignment.")
+            if not gr_pin in [ARDUINO_GROVE_I2C]:
+                raise ValueError("IMU group number can only be I2C.")
             GROVE_IMU_PROGRAM = ARDUINO_GROVE_IMU_PROGRAM
         else:
             raise ValueError("No such IOP for grove device.")

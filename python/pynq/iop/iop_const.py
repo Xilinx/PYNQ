@@ -187,23 +187,18 @@ PMODB = 2
 ARDUINO = 3
 
 # Stickit Pmod to grove pin mapping
-XESS_STICKIT_GR1 = [0,4]
-XESS_STICKIT_GR2 = [1,5]
-XESS_STICKIT_GR3 = [7,3]
-XESS_STICKIT_GR4 = [6,2]
-                    
-DIGILENT_STICKIT_G1 = [0,4]
-DIGILENT_STICKIT_G2 = [1,5]
-DIGILENT_STICKIT_G3 = [7,3]
-DIGILENT_STICKIT_G4 = [6,2]
-                        
+PMOD_GROVE_G1 = [0,4]
+PMOD_GROVE_G2 = [1,5]
+PMOD_GROVE_G3 = [7,3]
+PMOD_GROVE_G4 = [6,2]
+
 # Arduino shield to grove pin mapping
-ARDUINO_SHIELD_I2C    =  []
-ARDUINO_SHIELD_UART   =  [0,1]
-ARDUINO_SHIELD_G1     =  [2,3]
-ARDUINO_SHIELD_G2     =  [3,4]
-ARDUINO_SHIELD_G3     =  [4,5]
-ARDUINO_SHIELD_G4     =  [6,7]
-ARDUINO_SHIELD_G5     =  [8,9]
-ARDUINO_SHIELD_G6     =  [10,11]
-ARDUINO_SHIELD_G7     =  [12,13]
+ARDUINO_GROVE_I2C    =  []
+ARDUINO_GROVE_UART   =  [0,1]
+ARDUINO_GROVE_G1     =  [2,3]
+ARDUINO_GROVE_G2     =  [3,4]
+ARDUINO_GROVE_G3     =  [4,5]
+ARDUINO_GROVE_G4     =  [6,7]
+ARDUINO_GROVE_G5     =  [8,9]
+ARDUINO_GROVE_G6     =  [10,11]
+ARDUINO_GROVE_G7     =  [12,13]
