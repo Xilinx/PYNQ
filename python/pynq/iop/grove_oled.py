@@ -106,6 +106,7 @@ class Grove_OLED(object):
             
         # Use the default of horizontal mode
         self.set_horizontal_mode()
+        self.clear()
         
     def write(self, text):
         """Write a new text string on the OLED.
