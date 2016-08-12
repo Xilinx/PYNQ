@@ -46,7 +46,7 @@ from pynq.iop import PMODA
 from pynq.iop import PMODB
 from pynq.iop import ARDUINO
 
-MAX_SAMPLE_RATE             = 100000000
+MAX_SAMPLE_RATE             = 166666667
 MAX_NUM_SAMPLES             = 524288
 TRACE_CTRL_OFFSET           = 0x00
 TRACE_CMP_LSW_OFFSET        = 0x10
@@ -204,7 +204,7 @@ class Trace_Buffer:
         # Configuration
         self.ctrl.write(TRACE_LENGTH_OFFSET, MAX_NUM_SAMPLES)
         self.ctrl.write(TRACE_SAMPLE_RATE_OFFSET, \
-                        int(MAX_SAMPLE_RATE / self.samplerate * 2))
+                        int(MAX_SAMPLE_RATE / self.samplerate))
         self.ctrl.write(TRACE_CMP_LSW_OFFSET, 0x00000)
         self.ctrl.write(TRACE_CMP_MSW_OFFSET, 0x00000)
         
@@ -335,10 +335,17 @@ class Trace_Buffer:
         out_file.close()
         os.remove(temp)
         
-    def decode(self, decoded_file):
+    def decode(self, decoded_file, options=''):
         """Decode and record the trace based on the protocol specified.
         
-        The `decoded_file` is the full path of the output file.
+        The `decoded_file` is the full path of the output file. 
+        
+        The `option` specifies additional options to be passed to sigrok-cli.
+        For example, users can use option=':wordsize=9:cpol=1:cpha=0' to add 
+        these options for the SPI decoder.
+        
+        The decoder will also ignore the pin collected but not required for 
+        decoding.
         
         Note
         ----
@@ -348,6 +355,8 @@ class Trace_Buffer:
         ----------
         decoded_file : str
             The name of the file recording the outputs.
+        options : str
+            Additional options to be passed to sigrok-cli.
         
         Return
         ------
@@ -369,9 +378,11 @@ class Trace_Buffer:
             
         pd_annotation = ''
         for i in self.probes:
-            pd_annotation += (':'+i.lower()+'='+i)
+            if not i=='NC':
+                # Ignore pins not connected to device
+                pd_annotation += (':'+i.lower()+'='+i)
         command = "sigrok-cli -i " + self.trace_sr + " -P " + \
-            self.protocol + pd_annotation + (' > ' + temp_file)
+            self.protocol + options + pd_annotation + (' > ' + temp_file)
         if os.system(command):
             raise RuntimeError('Sigrok-cli decode failed.')
             
@@ -455,7 +466,7 @@ class Trace_Buffer:
         if os.system("rm -rf " + name):
             raise RuntimeError('Cannnot remove temporary folder.')
         
-    def parse(self, parsed, length=MAX_NUM_SAMPLES, mask=MASK_ALL,
+    def parse(self, parsed, start=0, stop=MAX_NUM_SAMPLES, mask=MASK_ALL,
               tri_sel=[], tri_0=[], tri_1=[]):
         """Parse the input data and generate a `*.csv` file.
         
@@ -486,8 +497,10 @@ class Trace_Buffer:
         ----------
         parsed : str
             The file name of the parsed output.
-        length : int
-            The length of the trace, in number of 64-bit samples.
+        start : int
+            The first 64-bit sample of the trace.
+        stop : int
+            The last 64-bit sample of the trace.
         mask : int
             A 64-bit mask to be applied to the 64-bit samples.
         tri_sel : list
@@ -504,9 +517,11 @@ class Trace_Buffer:
         """
         if not isinstance(parsed, str):
             raise TypeError("File name has to be an string.")
-        if not isinstance(length, int):
-            raise TypeError("Data length has to be an integer.")
-        if not 1 <= length <= MAX_NUM_SAMPLES:
+        if not isinstance(start, int):
+            raise TypeError("Sample number has to be an integer.")
+        if not isinstance(stop, int):
+            raise TypeError("Sample number has to be an integer.")
+        if not 1 <= (stop-start) <= MAX_NUM_SAMPLES:
             raise ValueError("Data length has to be in [1,{}]."\
                             .format(MAX_NUM_SAMPLES))
         if not isinstance(mask, int):
@@ -544,7 +559,7 @@ class Trace_Buffer:
         if os.system('rm -rf ' + parsed):
             raise RuntimeError("Cannot remove old parsed file.")
         with open(parsed, 'w') as f:
-            for i in range(0, length):
+            for i in range(start, stop):
                 raw_val = self.data[i] & MASK_ALL
                 list_val = []
                 for j in range(63,-1,-1):
@@ -595,9 +610,9 @@ class Trace_Buffer:
         Parameters
         ----------
         start_pos : int
-            The starting sample number of the waveform.
+            The starting sample number (relative to the trace).
         stop_pos : int
-            The stopping sample number of the waveform.
+            The stopping sample number (relative to the trace).
             
         Returns
         -------
