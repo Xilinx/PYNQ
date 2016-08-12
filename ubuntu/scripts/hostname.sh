@@ -17,11 +17,7 @@ else
     fi
     echo $1 > /etc/hostname
     echo "127.0.1.1    $1" >> /etc/hosts
-    exit 0
 fi
-
-echo "Calling dhclient ..."
-dhclient
 
 echo "Please manually reboot board:"
 echo "sudo shutdown -r now"
