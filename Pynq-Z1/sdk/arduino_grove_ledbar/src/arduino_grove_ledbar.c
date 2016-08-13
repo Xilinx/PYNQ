@@ -110,7 +110,7 @@ void ledbar_init(){
 
 void send_data(u8 data){
     int i;
-    u8 data_state, clk_state, detect, data_internal;
+    u32 data_state, clk_state, detect, data_internal;
 
     data_internal = data;
 
@@ -151,12 +151,12 @@ u16 reverse_data(u16 c){
      * Function to reverse incoming data
      * Allows LEDbar to be lit in reverse order
      */
-    int shift;
+    int shift0;
     u16 result = 0;
 
-    for (shift = 0; shift < 16; shift++){
-        if (c & (0x0001 << shift))
-            result |= (0x8000 >> shift);
+    for (shift0 = 0; shift0 < 16; shift0++){
+        if (c & (0x0001 << shift0))
+            result |= (0x8000 >> shift0);
     }
 
     // 10 LSBs are used as LED Control 6 MSBs are ignored
