@@ -154,7 +154,7 @@ def test_overlay2():
     assert ol2.is_loaded(), \
             'Overlay 2 should be loaded.'
 
-@pytest.mark.run(order=37)
+@pytest.mark.run(order=38)
 def test_end():
     """Wrapping up by changing the overlay back.
     
