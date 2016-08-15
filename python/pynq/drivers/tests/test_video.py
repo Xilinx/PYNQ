@@ -42,7 +42,7 @@ flag_hdmi_in = user_answer_yes("\nHDMI IN connected to a video source?")
 flag_hdmi_out = user_answer_yes("HDMI OUT connected to a monitor?")
 flag_hdmi = flag_hdmi_in and flag_hdmi_out
 
-@pytest.mark.run(order=32)
+@pytest.mark.run(order=33)
 @pytest.mark.skipif(not flag_hdmi_in, reason="need HDMI IN connected")
 def test_hdmi_in():
     """Test for the HDMI class with direction set as input.
@@ -67,7 +67,7 @@ def test_hdmi_in():
     hdmi_in.stop()
     del hdmi_in
     
-@pytest.mark.run(order=33)
+@pytest.mark.run(order=34)
 @pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
 def test_hdmi_out():
     """Test for the HDMI class with direction set as output.
@@ -91,7 +91,7 @@ def test_hdmi_out():
     hdmi_out.stop()
     del hdmi_out
 
-@pytest.mark.run(order=34)
+@pytest.mark.run(order=35)
 @pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
 def test_pattern_colorbar():
     """Test for the HDMI class with color bar pattern.
@@ -146,7 +146,7 @@ def test_pattern_colorbar():
     hdmi_out.stop()
     del hdmi_out
     
-@pytest.mark.run(order=35)
+@pytest.mark.run(order=36)
 @pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
 def test_pattern_blended():
     """Test for the HDMI class with blended color pattern.
@@ -221,7 +221,7 @@ def test_pattern_blended():
     hdmi_out.stop()
     del hdmi_out
     
-@pytest.mark.run(order=36)
+@pytest.mark.run(order=37)
 @pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
 def test_hdmi_state():
     """Test the state information of an HDMI object.
@@ -249,7 +249,7 @@ def test_hdmi_state():
     
     del hdmi_out
     
-@pytest.mark.run(order=37)
+@pytest.mark.run(order=38)
 @pytest.mark.skipif(not flag_hdmi, reason="need HDMI IN and OUT connected")
 def test_hdmi_state():
     """Test the HDMI streaming video.

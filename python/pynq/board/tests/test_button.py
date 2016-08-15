@@ -33,9 +33,9 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import pytest
-from pynq.board.button import Button
+from pynq.board import Button
 
-@pytest.mark.run(order=8)
+@pytest.mark.run(order=9)
 def test_btn_all():
     """Test for the Button class and its wrapper functions.
     

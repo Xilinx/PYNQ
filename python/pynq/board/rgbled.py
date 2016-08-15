@@ -53,15 +53,15 @@ class RGBLED(object):
     Attributes
     ----------
     index : int
-        The index of the RGB LED, from 0 (LD4) to 1 (LD5).
+        The index of the RGB LED, from 4 (LD4) to 5 (LD5).
     _mmio : MMIO
         Shared memory map for the RGBLED GPIO controller.
-    _gpio_val : int
+    _rgbleds_val : int
         Global value of the RGBLED GPIO pins.
         
     """
     _mmio = None
-    _gpio_val = 0
+    _rgbleds_val = 0
 
     def __init__(self, index):
         """Create a new RGB LED object.
@@ -69,15 +69,18 @@ class RGBLED(object):
         Parameters
         ----------
         index : int
-            Index of the RGBLED, from 0 (LD4) to 1 (LD5).
+            Index of the RGBLED, from 4 (LD4) to 5 (LD5).
         
         """
+        if not index in [4,5]:
+            raise Value("Index for onboard RGBLEDs should be 4 - 5.")
+            
         self.index = index
         if RGBLED._mmio is None:
             base_addr = int(PL.ip_dict["SEG_rgbled_gpio_Reg"][0],16)
             RGBLED._mmio = MMIO(base_addr,16)
 
-    def on(self,color):
+    def on(self, color):
         """Turn on a single RGB LED with a color value (see color constants).
         
         Parameters
@@ -90,11 +93,12 @@ class RGBLED(object):
         None
         
         """
-        if color not in range(8):
+        if not color in range(8):
             raise ValueError("RGB values should be between 0 and 7.")
 
-        rgb_mask = 0x7 << (self.index*3)
-        new_val = (RGBLED._gpio_val & ~rgb_mask) | (color << (self.index*3))
+        rgb_mask = 0x7 << ((self.index-4)*3)
+        new_val = (RGBLED._rgbleds_val & ~rgb_mask) | \
+                  (color << ((self.index-4)*3))
         self._set_rgbleds_value(new_val)
 
     def off(self):
@@ -109,10 +113,36 @@ class RGBLED(object):
         None
         
         """
-        rgb_mask = 0x7 << (self.index*3)
-        new_val = RGBLED._gpio_val & ~rgb_mask
+        rgb_mask = 0x7 << ((self.index-4)*3)
+        new_val = RGBLED._rgbleds_val & ~rgb_mask
         self._set_rgbleds_value(new_val)
+        
+    def write(self, color):
+        """Set the RGBLED state according to the input value.
 
+        Parameters
+        ----------
+        color : int
+            Color of RGB specified by a 3-bit RGB integer value.
+            
+        Returns
+        -------
+        None
+        
+        """
+        self.on(color)
+
+    def read(self):
+        """Retrieve the RGBLED state.
+
+        Returns
+        -------
+        int
+            The color value stored in the RGBLED.
+            
+        """
+        return (RGBLED._rgbleds_val >> ((self.index-4)*3)) & 0x7
+        
     def _set_rgbleds_value(self, value):
         """Set the state of all RGBLEDs.
         
@@ -127,5 +157,6 @@ class RGBLED(object):
             The value of all the RGBLEDs encoded in a single variable.
         
         """
-        RGBLED._gpio_val = value
+        RGBLED._rgbleds_val = value
         RGBLED._mmio.write(RGBLEDS_XGPIO_OFFSET, value) 
+        

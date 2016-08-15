@@ -33,9 +33,9 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import pytest
-from pynq.board.switch import Switch
+from pynq.board import Switch
     
-@pytest.mark.run(order=7)
+@pytest.mark.run(order=8)
 def test_switch_all():
     """Test for the Switch class and its wrapper functions.
     

@@ -46,7 +46,7 @@ if flag:
         dac_id = int(input("Type in the IOP ID of the PMOD DAC (1 ~ 2): "))
         adc_id = int(input("Type in the IOP ID of the PMOD ADC (1 ~ 2): "))
 
-@pytest.mark.run(order=25) 
+@pytest.mark.run(order=26) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
 def test_loop_single():
     """Test for writing a single value via the loop.
@@ -77,7 +77,7 @@ def test_loop_single():
     assert round(abs(value-adc.read()[0]),2)<max(0.1, 0.1*value), \
             'Read value != write value.'
 
-@pytest.mark.run(order=26) 
+@pytest.mark.run(order=27) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
 def test_loop_random():
     """Test for writing multiple random values via the loop.

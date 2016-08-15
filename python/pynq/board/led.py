@@ -58,6 +58,9 @@ class LED(object):
             Index of the LED, from 0 to 3.
         
         """
+        if not index in range(4):
+            raise Value("Index for onboard LEDs should be 0 - 3.")
+            
         self.index = index
         if LED._mmio is None:
             LED._mmio = MMIO(int(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],16),16)

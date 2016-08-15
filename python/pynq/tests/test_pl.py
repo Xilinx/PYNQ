@@ -122,7 +122,7 @@ def test_overlay():
         assert ol2.get_gpio_state(i)==None,\
             'Overlay cannot reset IP dictionary.'
 
-@pytest.mark.run(order=9)
+@pytest.mark.run(order=10)
 def test_overlay1():
     """Download the bitstream for the first overlay, and then test.
     
@@ -138,7 +138,7 @@ def test_overlay1():
     assert not ol2.is_loaded(), \
             'Overlay (base.bit) should not be loaded.'
 
-@pytest.mark.run(order=29)
+@pytest.mark.run(order=30)
 def test_overlay2():
     """Change to another overlay, and then test.
     
@@ -154,7 +154,7 @@ def test_overlay2():
     assert ol2.is_loaded(), \
             'Overlay 2 should be loaded.'
 
-@pytest.mark.run(order=38)
+@pytest.mark.run(order=39)
 def test_end():
     """Wrapping up by changing the overlay back.
     

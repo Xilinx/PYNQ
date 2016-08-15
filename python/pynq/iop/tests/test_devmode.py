@@ -42,7 +42,7 @@ from pynq.iop import DevMode
 global ol
 ol = Overlay("base.bit")
 
-@pytest.mark.run(order=13)
+@pytest.mark.run(order=14)
 def test_devmode():
     """Tests whether DevMode returns an _IOP for PMOD 1 and 2.
     
@@ -57,7 +57,7 @@ def test_devmode():
     
     ol.reset()
 
-@pytest.mark.run(order=14)
+@pytest.mark.run(order=15)
 def test_devmode():
     """Tests whether DevMode write and read work for PMOD 1 and 2.
     

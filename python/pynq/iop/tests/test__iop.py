@@ -39,7 +39,7 @@ from pynq.iop import request_iop
 global ol
 ol = Overlay("base.bit")
 
-@pytest.mark.run(order=10)
+@pytest.mark.run(order=11)
 def test_request_iop():
     """Test for the _IOP class and the method request_iop().
     
@@ -57,7 +57,7 @@ def test_request_iop():
     
     ol.reset()
     
-@pytest.mark.run(order=11)
+@pytest.mark.run(order=12)
 def test_request_iop_same():
     """Test for the _IOP class and the method request_iop().
     
@@ -77,7 +77,7 @@ def test_request_iop_same():
     
     ol.reset()
     
-@pytest.mark.run(order=12)
+@pytest.mark.run(order=13)
 def test_request_iop_conflict():
     """Test for the _IOP class and the method request_iop().
     

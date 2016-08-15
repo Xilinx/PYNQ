@@ -27,42 +27,47 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Naveen Purushotham, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
+__author__      = "Yun Rock Qu"
+__copyright__   = "Copyright 2015, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-import pytest
+import sys
+import select
+import termios
 from time import sleep
-from pynq import Overlay
-from pynq.iop import Pmod_ALS
+import pytest
+from pynq.board import RGBLED
 from pynq.tests.util import user_answer_yes
 
-flag = user_answer_yes("\nALS attached to the board?")
-if flag:
-    global als_id
-    als_id = int(input("Type in the IOP ID of the PMOD ALS (1 ~ 2): "))
-
-@pytest.mark.run(order=29)  
-@pytest.mark.skipif(not flag, reason="need ALS attached in order to run")
-def test_readlight():
-    """Test for the ALS class.
+@pytest.mark.run(order=7)
+def test_rgbleds():
+    """Test for the RGBLED class and its wrapper functions.
     
-    This test reads the ALS and asks the user to dim light manually. Then
-    verify that a lower reading is displayed.
+    Instantiates two RGBLED objects and performs some actions 
+    on it to test the API, requesting user confirmation.
     
-    """
-    global als
-    als = Pmod_ALS(als_id)
+    """     
+    rgbleds = [RGBLED(index) for index in [4,5]]
     
-    # Wait for the PMOD ALS to finish initialization
-    sleep(0.01)
-    n = als.read()
-    print("\nCurrent ALS reading: {}.".format(n))
-    assert user_answer_yes("Is a reading between 0-255 displayed?")
-    input("Dim light by placing palm over the ALS and hit enter...")
-    n = als.read()
-    print("Current ALS reading: {}.".format(n))
-    assert user_answer_yes("Is a lower reading displayed?")
-    
-    del als
+    for rgbled in rgbleds:
+        rgbled.off()
+        assert rgbled.read()==0, 'Wrong state for RGBLED.'
+        
+    print("\nShowing 7 colors of RGBLED. Press enter to stop...", end="")
+    color = 0
+    while True:
+        color = (color + 1) % 8
+        for rgbled in rgbleds:
+            rgbled.write(color)
+            assert rgbled.read()==color, 'Wrong state for RGBLED.'
+        sleep(0.5)
+        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            termios.tcflush(sys.stdin, termios.TCIOFLUSH)
+            break
+            
+    for rgbled in rgbleds:
+        rgbled.off()
+        assert rgbled.read()==0, 'Wrong state for RGBLED.'
+        
+    assert user_answer_yes("RGBLEDs showing 7 colors during the test?")

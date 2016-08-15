@@ -46,7 +46,7 @@ if flag:
     global led_id
     led_id = int(input("Type in the IOP ID of the PMOD LED8 (1 ~ 2): "))
 
-@pytest.mark.run(order=21)
+@pytest.mark.run(order=22)
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")
 def test_led0():
     """Test for a single LED8.
@@ -73,7 +73,7 @@ def test_led0():
     assert led.read() is 1
     led.off()
 
-@pytest.mark.run(order=22) 
+@pytest.mark.run(order=23) 
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run") 
 def test_shifts():
     """Test for all the LEDs on LED8.
@@ -100,7 +100,7 @@ def test_shifts():
 
     assert user_answer_yes("PMOD LEDs were shifting from LD0 to LD7?")
 
-@pytest.mark.run(order=23) 
+@pytest.mark.run(order=24) 
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")  
 def test_toggle():
     """Test for all the LEDs on LED8.

@@ -41,7 +41,7 @@ from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nAUDIO OUT connected?")
 
-@pytest.mark.run(order=30)
+@pytest.mark.run(order=31)
 @pytest.mark.skipif(not flag, reason="need audio out attached")
 def test_audio_loop():
     """Test whether audio out work properly.
@@ -52,7 +52,7 @@ def test_audio_loop():
     """
     pass
 
-@pytest.mark.run(order=31)
+@pytest.mark.run(order=32)
 @pytest.mark.skipif(not flag, reason="need audio out attached")
 def test_audio_mute():
     """Test is_muted() and toggle_mute() methods.

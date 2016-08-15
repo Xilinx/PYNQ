@@ -45,7 +45,7 @@ if flag:
     TX_PORT = int(input("Type in the IOP ID of the sender (1 ~ 2): "))
     RX_PORT = int(input("Type in the IOP ID of the receiver (1 ~ 2): "))
     
-@pytest.mark.run(order=15) 
+@pytest.mark.run(order=16) 
 @pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_cable_type():
     """Tests for the PMOD cable type.
@@ -82,7 +82,7 @@ def test_cable_type():
     else:
         raise AssertionError("Cable unrecognizable.")
 
-@pytest.mark.run(order=16) 
+@pytest.mark.run(order=17) 
 @pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_rshift1():
     """Test for right shifting the bit "1".
@@ -105,7 +105,7 @@ def test_rshift1():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i)
 
-@pytest.mark.run(order=17) 
+@pytest.mark.run(order=18) 
 @pytest.mark.skipif(not flag, reason="need PMOD cable connected to run") 
 def test_rshift0():
     """Test for right shifting the bit "0".
@@ -128,7 +128,7 @@ def test_rshift0():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i) 
 
-@pytest.mark.run(order=18) 
+@pytest.mark.run(order=19) 
 @pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_lshift1():
     """Test for left shifting the bit "1".
@@ -151,7 +151,7 @@ def test_lshift1():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
-@pytest.mark.run(order=19) 
+@pytest.mark.run(order=20) 
 @pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_lshift0():
     """Test for left shifting the bit "0".
@@ -174,7 +174,7 @@ def test_lshift0():
         assert data1==data2,\
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
-@pytest.mark.run(order=20) 
+@pytest.mark.run(order=21) 
 @pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
 def test_random():
     """Test for random patterns.

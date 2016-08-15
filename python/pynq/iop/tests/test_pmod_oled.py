@@ -42,7 +42,7 @@ if flag:
     global oled_id
     oled_id = int(input("Type in the IOP ID of the PMOD OLED (1 ~ 2): "))
 
-@pytest.mark.run(order=24)
+@pytest.mark.run(order=25)
 @pytest.mark.skipif(not flag, reason="need OLED attached in order to run")
 def test_write_string():
     """Test for the OLED PMOD.
