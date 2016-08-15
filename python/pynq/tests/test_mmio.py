@@ -58,7 +58,7 @@ def test_mmio():
     ol = Overlay('base.bit')
     
     ol.download()
-    sleep(0.1)
+    sleep(0.2)
     mmio_base = int(ol.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16)
     mmio_range = int(ol.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16)
     mmio = MMIO(mmio_base, mmio_range)
