@@ -167,8 +167,55 @@ class timeout:
         signal.alarm(0)
 
 class DMA:
+    """Python class which controls DMA.
 
+    Attributes
+    ----------
+    buf : cffi.FFI.CData
+        A pointer to Physically contiguous buffer managed by the
+        object. This can be accesed like an array in python.
+    bufLength : int
+        Length of internal buffer in bytes.
+    phyAddress : unsigned int
+        Physical address of the DMA device.
+    DMAengine : cdata 'XAxiDma *'
+        DMA engine instance defined in C. Not to be directly modified.
+    DMAinstance : cdata 'XAxiDma_Config *'
+        DMA configuration instance struct. Not to be directly modified.
+    direction : int
+            dma.DMA_FROM_DEV : DMA sends data to PL.
+            dma.DMA_TO_DEV : DMA receives data from PL.
+            dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.
+    Configuration : dict
+        Current DMAinstance configuration values.
+
+    """
     def __init__(self, address, direction=DMA_FROM_DEV,attr_dict= None):
+        """Initializes a new DMA object.
+
+        Uses the Default configuration parameters to initialize
+        a DMA. After initialization, the DMA is reset and the
+        interrupts are disabled for DMA.
+
+        Parameters
+        ----------
+        address: unsigned int
+            Physical address of the DMA IP.
+        direction : int
+            Direction in which DMA transfers data. Possible values are:
+            dma.DMA_FROM_DEV : DMA sends data to PL.
+            dma.DMA_TO_DEV : DMA receives data from PL.
+            dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.
+        attr_dict : dict
+            An optional dictionary specifying DMA configuration values to
+            use instead of default values. The keys should exactly match
+            the ones used in default config. All the keys are not required.
+            The default configuration is defined in dma.DefaultConfig
+            dict. If user wants, he can reinitialize the DMA with new
+            configuratiuon after he has created the object using
+            'configure' method.
+
+        """
         self.buf = None
         self.direction = direction
         self.bufLength = None
@@ -185,6 +232,12 @@ class DMA:
         libdma.DisableInterruptsAll(self.DMAengine)
 
     def _gen_config(self, address, direction, attr_dict):
+        """Build configuration and map memory.
+
+        This is an internal method used for initialization and
+        should not be called by user.
+
+        """
         global DefaultConfig
         global DeviceId
         self.Configuration = DefaultConfig
@@ -216,11 +269,45 @@ class DMA:
             self.Configuration[key] = self.DMAinstance.__getattribute__(key)
         
     def __del__(self):
+        """Destructor for DMA object.
+
+        Frees the internal buffer and Resets the DMA.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
         if self.buf != None and self.buf != ffi.NULL:
             self.free_buf()
         libdma.XAxiDma_Reset(self.DMAengine)
 
     def transfer(self,num_bytes,direction=DMA_FROM_DEV):
+        """Transfer data using DMA (Non-blocking).
+
+        Used to initiate transfer of data between a physicaally contiguous
+        buffer and PL. The buffer should be allocated using create_buf
+        before this call.
+
+        Parameters
+        ----------
+        num_bytes : unsigned int
+            Number of bytes to transfer. This should be less than buffer
+            size and dma.DMA_TRANSFER_LIMIT_BYTES.
+        direction : int
+            Direction in which DMA transfers data. Possible values are:
+            dma.DMA_FROM_DEV : DMA sends data to PL.
+            dma.DMA_TO_DEV : DMA receives data from PL.
+
+        Returns
+        -------
+        None
+
+        """
         if num_bytes > self.bufLength:
             raise RuntimeError("Buffer Size Smaller than the transfer size")
         if num_bytes > DMA_TRANSFER_LIMIT_BYTES:
@@ -241,6 +328,27 @@ class DMA:
             print("Transfer Error! Please allocate a buffer first.")
 
     def create_buf(self, num_bytes):
+        """Allocate physically contiguous memory buffer.
+
+        Allocates/Reallocates buffer needed for DMA operations.
+
+        Parameters
+        ----------
+        length : unsigned int
+            Length of the allocated array in bytes.
+
+        Returns
+        -------
+        None
+
+        Note
+        ----
+        This buffer is allocated inside the kernel space using
+        xlnk driver. The maximum allocatable memory is defined
+        at kernel build time using the CMA memory parameters.
+        For Pynq kernel, it is specified as 128MB.
+
+        """
         if self.buf is None:
             self.buf = libdma.frame_alloc(num_bytes)
             if self.buf == ffi.NULL:
@@ -253,11 +361,38 @@ class DMA:
         self.bufLength = num_bytes
 
     def free_buf(self):
+        """Free the memory buffer associated with this object.
+
+        Use this to free a previously allocated memory buffer.
+        This is specially useful for reallocations.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
         if self.buf == None or self.buf == ffi.NULL:
             return
         libdma.frame_free(self.buf)
 
     def wait(self, wait_timeout=10):
+        """Block till DMA is busy or a timeout occurs.
+
+        Parameters
+        ----------
+        wait_timeout : int
+            Time to wait in seconds before timing out wait operation.
+            Default value of timeout is 10 seconds.
+
+        Returns
+        -------
+        None
+
+        """
         if self._TransferInitiated == 0:
             return
         Error = "DMA wait timed out!"
@@ -267,6 +402,21 @@ class DMA:
                     break
 
     def get_buf(self, width=32):
+        """Get a CFFI pointer to object's internal buffer.
+
+        This can be accessed like a regular array in python.
+
+        Parameters
+        ----------
+        width : int
+            Can be either 32 or 64.
+
+        Returns
+        -------
+        cffi.FFI.CData
+            An CFFI object which can be accessed similar to arrays in C.
+
+        """
         if self.buf is not None:
             if width == 32:
                 return ffi.cast("unsigned int *",self.buf)
@@ -275,5 +425,25 @@ class DMA:
         print("Buffer not created!")
 
     def configure(self, attr_dict=None):
+        """Reconfigure and Reinitialize the DMA IP.
+
+        Uses a user provided dict to reinitialize the DMA.
+        This method also frees the internal buffer
+        associated with current object.
+
+        Parameters
+        ----------
+        attr_dict : dict
+            A dictionary specifying DMA configuration values to
+            use instead of default values. The keys should exactly match
+            the ones used in default config. All the keys are not required.
+            The default configuration is defined in dma.DefaultConfig
+            dict.
+
+        Returns
+        -------
+        None
+
+        """
         self.free_buf()
         self.__init__(self.phyAddress,self.direction,attr_dict)
