@@ -47,8 +47,6 @@ def test_leds_on():
     Instantiates a LED object on index 0 and performs some actions 
     on it to test LED's API, requesting user confirmation.
     
-    Then instantiates 4 LED objects and toggles them.
-    
     """
     leds = [LED(index) for index in range(4)]
     for led in leds:
@@ -73,10 +71,7 @@ def test_leds_on():
 def test_leds_toggle():
     """Test for the LED class and its wrapper functions.
     
-    Instantiates a LED object on index 0 and performs some actions 
-    on it to test LED's API, requesting user confirmation.
-    
-    Then instantiates 4 LED objects and toggles them.
+    Instantiates 4 LED objects and toggles them.
     
     """
     leds = [LED(index) for index in range(4)]
