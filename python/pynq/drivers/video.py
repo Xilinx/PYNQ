@@ -31,6 +31,7 @@ __author__ = "Giuseppe Natale, Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
+from pynq import PL
 from time import sleep
 from itertools import chain
 from PIL import Image
@@ -69,9 +70,9 @@ VDMA_DICT = {
     'ADDR_WIDTH': 32,
 }
 
-VTC_DISPLAY_ADDR = 0x43C20000
-VTC_CAPTURE_ADDR = 0x43C30000
-DYN_CLK_ADDR = 0x43C10000
+VTC_DISPLAY_ADDR = int(PL.ip_dict["SEG_v_tc_0_Reg"][0],16)#0x43C20000
+VTC_CAPTURE_ADDR = int(PL.ip_dict["SEG_v_tc_1_Reg"][0],16)#0x43C30000
+DYN_CLK_ADDR = int(PL.ip_dict["SEG_axi_dynclk_0_reg0"][0],16)#0x43C10000
 
 GPIO_DICT = {
     'BASEADDR': 0x41220000,
