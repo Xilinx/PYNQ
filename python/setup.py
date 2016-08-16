@@ -39,8 +39,7 @@ import sys
 import os
 
 # Audio and video source files
-_audio_src = ['pynq/_pynq/_audio/_audio.c', 'pynq/_pynq/src/audio.c', 
-              'pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/i2cps.c', 
+_audio_src = ['pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/i2cps.c', 
               'pynq/_pynq/src/utils.c']
 
 _video_src = ['pynq/_pynq/_video/_video.c', 'pynq/_pynq/_video/_capture.c', 
@@ -99,6 +98,7 @@ def run_make(src_path,dst_path, output_lib):
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install':
     run_make("pynq/_pynq/_apf/", "pynq/drivers/" ,"libdma.so")
+    run_make("pynq/_pynq/_audio/", "pynq/drivers/" ,"libaudio.so")
     
 setup(  name='pynq',
         version='1.0',

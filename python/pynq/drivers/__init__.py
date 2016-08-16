@@ -31,9 +31,7 @@ __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-
-from .audio import LineIn
-from .audio import Headphone
+from .audio import Audio
 
 from .video import HDMI
 from .video import VGA
