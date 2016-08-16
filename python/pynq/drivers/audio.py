@@ -33,6 +33,7 @@ __email__       = "pynq_support@xilinx.com"
 
 import os
 import math
+from pynq import PL
 from pynq import GPIO
 from pynq import MMIO
 import numpy as np
@@ -69,12 +70,12 @@ class Audio:
         """
         # Create MMIO object
         if base_addr == None:
-            base_addr = 0x43C00000
+            base_addr = int(PL.ip_dict["SEG_d_axi_pdm_1_S_AXI_reg"][0],16)
         if length == None:
-            length = 0x10000
+            length = int(PL.ip_dict["SEG_d_axi_pdm_1_S_AXI_reg"][1],16)
         
         # Create MMIO object
-        self._AudioMMIO = MMIO(0x43C00000, 0x10000)
+        self._AudioMMIO = MMIO(base_addr, length)
 
         # Import C functions
         self._ffi = cffi.FFI()
