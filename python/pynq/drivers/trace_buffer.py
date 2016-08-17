@@ -151,16 +151,22 @@ class Trace_Buffer:
         if trace != None: 
             if not isinstance(trace, str):
                 raise TypeError("Trace path has to be a string.")
-            if os.path.isfile(trace):
-                _, format = os.path.splitext(trace)
-                if format == '.csv':
-                    self.trace_csv = trace
-                    self.trace_sr = ''
-                elif format == '.sr':
-                    self.trace_sr = trace
-                    self.trace_csv = ''
-                else:
-                    raise ValueError("Only supporting csv or sr files.")
+            if not os.path.isfile(trace):
+                trace_abs = os.getcwd() + '/' + trace
+            else:
+                trace_abs = trace
+            if not os.path.isfile(trace_abs):
+                raise ValueError("Specified trace file does not exist.")
+            
+            _, format = os.path.splitext(trace_abs)
+            if format == '.csv':
+                self.trace_csv = trace_abs
+                self.trace_sr = ''
+            elif format == '.sr':
+                self.trace_sr = trace_abs
+                self.trace_csv = ''
+            else:
+                raise ValueError("Only supporting csv or sr files.")
         
     def __del__(self):
         """Destructor for trace buffer object.
@@ -338,7 +344,8 @@ class Trace_Buffer:
     def decode(self, decoded_file, options=''):
         """Decode and record the trace based on the protocol specified.
         
-        The `decoded_file` is the full path of the output file. 
+        The `decoded_file` is the name of the output file. The decoded file
+        will be put into the same directory where this method is called.
         
         The `option` specifies additional options to be passed to sigrok-cli.
         For example, users can use option=':wordsize=9:cpol=1:cpha=0' to add 
@@ -368,12 +375,13 @@ class Trace_Buffer:
         if self.probes == []:
             raise ValueError("Cannot decode without metadata.")
         
+        decoded_abs = os.getcwd() + '/' + decoded_file
         name, _ = os.path.splitext(self.trace_sr)
         temp_file = name + '.temp'
         if os.system('rm -rf ' + temp_file):
             raise RuntimeError("Cannot remove temporary file.")
         self.trace_pd = ''
-        if os.system('rm -rf ' + decoded_file):
+        if os.system('rm -rf ' + decoded_abs):
             raise RuntimeError("Cannot remove old decoded file.")
             
         pd_annotation = ''
@@ -386,7 +394,7 @@ class Trace_Buffer:
         if os.system(command):
             raise RuntimeError('Sigrok-cli decode failed.')
             
-        f_decoded = open(decoded_file, 'w')
+        f_decoded = open(decoded_abs, 'w')
         f_temp = open(temp_file, 'r')
         j = 0
         for line in f_temp:
@@ -400,10 +408,12 @@ class Trace_Buffer:
                     j += 1
         f_temp.close()
         f_decoded.close()
-        self.trace_pd = decoded_file
+        self.trace_pd = decoded_abs
         
         if os.system('rm -rf ' + temp_file):
             raise RuntimeError("Cannot remove temporary file.")
+        if os.path.getsize(self.trace_pd)==0:
+            raise RuntimeError("No transactions and decoded file is empty.")
         
     def set_metadata(self, probes):
         """Set metadata for the trace.
@@ -556,9 +566,10 @@ class Trace_Buffer:
             if not (element & mask)==0:
                 raise ValueError("Data probe has be excluded from mask.")
             
-        if os.system('rm -rf ' + parsed):
+        parsed_abs = os.getcwd() + '/' + parsed
+        if os.system('rm -rf ' + parsed_abs):
             raise RuntimeError("Cannot remove old parsed file.")
-        with open(parsed, 'w') as f:
+        with open(parsed_abs, 'w') as f:
             for i in range(start, stop):
                 raw_val = self.data[i] & MASK_ALL
                 list_val = []
@@ -581,7 +592,7 @@ class Trace_Buffer:
                 temp = ','.join(list_val)
                 f.write(temp + '\n')
                 
-        self.trace_csv = parsed
+        self.trace_csv = parsed_abs
         self.trace_sr = ''
         
     def display(self, start_pos, stop_pos):
