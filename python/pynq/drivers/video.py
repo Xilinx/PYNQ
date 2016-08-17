@@ -33,12 +33,13 @@ __email__ = "pynq_support@xilinx.com"
 
 from pynq import PL
 from time import sleep
-from itertools import chain
+#from itertools import chain
+import numpy as np
 from PIL import Image
 from . import _video
 
 VDMA_DICT = {
-    'BASEADDR': 0x43000000,
+    'BASEADDR': int(PL.ip_dict["SEG_axi_vdma_0_Reg"][0],16),
     'NUM_FSTORES': 3,
     'INCLUDE_MM2S': 1,
     'INCLUDE_MM2S_DRE': 0,
@@ -70,12 +71,12 @@ VDMA_DICT = {
     'ADDR_WIDTH': 32,
 }
 
-VTC_DISPLAY_ADDR = int(PL.ip_dict["SEG_v_tc_0_Reg"][0],16)#0x43C20000
-VTC_CAPTURE_ADDR = int(PL.ip_dict["SEG_v_tc_1_Reg"][0],16)#0x43C30000
-DYN_CLK_ADDR = int(PL.ip_dict["SEG_axi_dynclk_0_reg0"][0],16)#0x43C10000
+VTC_DISPLAY_ADDR = int(PL.ip_dict["SEG_v_tc_0_Reg"][0],16)
+VTC_CAPTURE_ADDR = int(PL.ip_dict["SEG_v_tc_1_Reg"][0],16)
+DYN_CLK_ADDR = int(PL.ip_dict["SEG_axi_dynclk_0_reg0"][0],16)
 
 GPIO_DICT = {
-    'BASEADDR': 0x41220000,
+    'BASEADDR': int(PL.ip_dict["SEG_axi_gpio_video_Reg"][0],16),
     'INTERRUPT_PRESENT': 1,
     'IS_DUAL': 1,
 }
@@ -1095,15 +1096,17 @@ class Frame(object):
         None
         
         """
-        rgb = bytearray()
-        for i in range(self.height):
-            row = self.frame[i * MAX_FRAME_WIDTH * 3 :\
-                                (i * MAX_FRAME_WIDTH + self.width) * 3]
-            rgb.extend(bytearray(
-                        chain.from_iterable((row[j+2], row[j], row[j+1])\
-                            for j in range(0, len(row)-1, 3))))
+        #rgb = bytearray()
+        #for i in range(self.height):
+        #    row = self.frame[i * MAX_FRAME_WIDTH * 3 :\
+        #                        (i * MAX_FRAME_WIDTH + self.width) * 3]
+        #    rgb.extend(bytearray(
+        #                chain.from_iterable((row[j+2], row[j], row[j+1])\
+        #                    for j in range(0, len(row)-1, 3))))
+        rgb = (np.frombuffer(self.frame, dtype=np.uint8)).reshape(self.width,self.height,3) 
 
-        image = Image.frombytes('RGB', (self.width,self.height), bytes(rgb))
+
+        image = Image.frombytes('RGB', (self.width,self.height), bytes(bytearray(rgb)))
         image.save(path, 'JPEG')
 
     @staticmethod
@@ -1130,14 +1133,15 @@ class Frame(object):
         None
         
         """
-        rgb = bytearray()
-        for i in range(height):
-            row = frame_raw[i * MAX_FRAME_WIDTH * 3 :\
-                            (i * MAX_FRAME_WIDTH + width) * 3]
-            rgb.extend(bytearray(
-                        chain.from_iterable((row[j+2], row[j], row[j+1])\
-                           for j in range(0, len(row)-1, 3))))
+        #rgb = bytearray()
+        #for i in range(height):
+        #    row = frame_raw[i * MAX_FRAME_WIDTH * 3 :\
+        #                    (i * MAX_FRAME_WIDTH + width) * 3]
+        #    rgb.extend(bytearray(
+        #                chain.from_iterable((row[j+2], row[j], row[j+1])\
+        #                   for j in range(0, len(row)-1, 3))))
+        rgb = (np.frombuffer(self.frame, dtype=np.uint8)).reshape(width,height,3) 
 
-        image = Image.frombytes('RGB', (width, height), bytes(rgb))
+        image = Image.frombytes('RGB', (width, height), bytes(bytearray(rgb)))
         image.save(path, 'JPEG')
         
