@@ -2,7 +2,7 @@ CC = arm-linux-gnueabihf-gcc
 CPP = arm-linux-gnueabihf-g++
 
 OBJSC = audio.o 
-INC = -I include/
+INC = -I ../inc/
 
 all:	
 	$(CC) -fPIC $(INC) -c -g3 -gstabs audio.cpp
