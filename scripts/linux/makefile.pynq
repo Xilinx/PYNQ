@@ -8,6 +8,7 @@ PYNQ_DIR = /usr/local/lib/python3.4/dist-packages/pynq
 FINAL_DOCS_DIR = /home/xilinx/docs
 FINAL_NOTEBOOKS_DIR = /home/xilinx/jupyter_notebooks
 FINAL_SCRIPTS_DIR = /home/xilinx/scripts
+ROOT_DIR = /root
 
 NOTEBOOK_IMAGES=edit_mode.png \
 dashboard_running_tab.png \
@@ -38,6 +39,19 @@ DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 6_pmodio_overlay.tmp  \
 7_audio_video_overlay.tmp  
 
+USER_SCRIPTS := hostname.sh  \
+start_pl_server.py  \
+update_docs.sh  \
+makefile.pynq \
+stop_pl_server.py \
+update_pynq.sh
+
+ROOT_SCRIPTS := 0_network.sh   \
+1_jupyter_server.sh   \
+2_pl_server.sh   \
+3_resizefs.sh \
+
+
 update_pynq: backup git_clone pynq_package scripts_notebooks pynq_permissions
 	@echo "Completed PYNQ update."
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
@@ -57,7 +71,7 @@ backup:
 	@echo "Backing up files into ${{BACKUP_DIR}"
 	@echo
 	mkdir ${BACKUP_DIR}
-	cp -r ${FINAL_DOCS_DIR} ${FINAL_NOTEBOOKS_DIR} ${FINAL_SCRIPTS_DIR} ${BACKUP_DIR}
+	cp -r ${FINAL_DOCS_DIR} ${FINAL_NOTEBOOKS_DIR} ${FINAL_SCRIPTS_DIR} ${ROOT_DIR} ${BACKUP_DIR}
 
 git_clone:
 	@echo
@@ -80,6 +94,7 @@ pynq_permissions:
 	chown -R xilinx:xilinx ${PYNQ_DIR}/*
 	chmod -R a+rw ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${PYNQ_DIR}
 	chmod -R a+x ${FINAL_SCRIPTS_DIR}/*
+	chmod    a+x ${ROOT_DIR}/*.sh
 	chown -R xilinx:xilinx ${REPO_DIR} ${BACKUP_DIR}
 	chown -R xilinx:xilinx ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${FINAL_SCRIPTS_DIR} ${PYNQ_DIR}
 
@@ -90,8 +105,14 @@ scripts_notebooks:
 	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
 	cp -r ${REPO_DIR}/${BOARD}/notebooks/* ${FINAL_NOTEBOOKS_DIR}
 	cd ${FINAL_NOTEBOOKS_DIR} ; ln -s /home/xilinx/docs
-	cp -r ${REPO_DIR}/ubuntu/scripts/hostname.sh ${FINAL_SCRIPTS_DIR}
-	cp -r ${REPO_DIR}/ubuntu/scripts/*.py ${FINAL_SCRIPTS_DIR}
+
+	@for f in ${USER_SCRIPTS} ; do \
+		cp ${REPO_DIR}/scripts/linux/$$f  ${FINAL_SCRIPTS_DIR}  ; \
+	done
+
+	@for f in ${ROOT_SCRIPTS} ; do \
+		cp ${REPO_DIR}/scripts/linux/$$f  ${ROOT_DIR} ; \
+	done
 
 doc_sphinx:
 	@echo
