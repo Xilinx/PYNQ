@@ -9,16 +9,12 @@ LATEST CHANGELOG (for a full list, check full_img_changelog.txt):
 08-02-2016 - <anurag.dubey@xilinx.com>
              software upgrades and Pynq-Z1 revB fixes
 
-MAC address generation (temporary fix)
+Digilent u-boot with MAC address generation (removal of temporary MAC address generation)
+clean up unneeded packages
+Fix/Remove broken symlinks in linux headers
+new devicetree with usb0 and fclk3 enabled
 opencv added
-xterm.js addition (build of Jupyter from github)
-Latest version of notebook/ipython with an pre alpha release of Jupyterlab
-New Sigrok decoders with source in /opt
-Username/Password changed to xilinx/xilinx.
-New configuration for Jupyter which doesn’t require restart on any network related change
-Removed redundant source files and *.bat files and updated scripts
-Added REVISION in /home/xilinx folder
-
+New Sigrok decoders with SPI support
 
 Add revision text in /home/xpp folder
 Modify username/password to xilinx/xilinx
@@ -31,10 +27,8 @@ Samba username/password to samba/samba
 Staging - to be added in next image
 
 ```
-Digilent u-boot with MAC address generation (removal of temporary MAC address generation)
-clean up unneeded packages
-Fix/Remove broken symlinks in linux headers
-new devicetree with usb0 and fclk3 enabled 
+Kernel driver support for multiple dongles
+CMA Memory management libraries
 ```
 
 08-02-2016
