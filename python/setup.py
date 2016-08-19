@@ -38,10 +38,7 @@ import subprocess
 import sys
 import os
 
-# Audio and video source files
-_audio_src = ['pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/i2cps.c', 
-              'pynq/_pynq/src/utils.c']
-
+# Video source files
 _video_src = ['pynq/_pynq/_video/_video.c', 'pynq/_pynq/_video/_capture.c', 
               'pynq/_pynq/_video/_display.c', 'pynq/_pynq/_video/_frame.c', 
               'pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/py_xaxivdma.c', 
@@ -74,12 +71,6 @@ bsp_standalone = \
    'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_io.c',
    'pynq/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
 
-
-# Merge BSP src to _audio src
-audio = []
-audio.extend(bsp_standalone)
-audio.extend(_audio_src)
-
 # Merge BSP src to _video src
 video = []
 video.extend(bsp_standalone)
@@ -109,13 +100,9 @@ setup(  name='pynq',
         packages = find_packages(),
         download_url = 'https://github.com/Xilinx/PYNQ',
         package_data = {
-          '': ['tests/*','js/*','*.bin','*.so','bitstream/*','*.wav'],
+          '': ['tests/*','js/*','*.bin','*.so','bitstream/*','*.pdm'],
         },
         ext_modules = [
-            Extension('pynq.drivers._audio', audio, 
-                      include_dirs = ['pynq/_pynq/inc', 
-                                      'pynq/_pynq/bsp/ps7_cortexa9_0/include'],
-                     ),
             Extension('pynq.drivers._video', video, 
                       include_dirs = ['pynq/_pynq/inc', 
                                       'pynq/_pynq/bsp/ps7_cortexa9_0/include'],
