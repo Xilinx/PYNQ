@@ -193,8 +193,8 @@ end generate DataDecoders;
 -- RGB Output conform DVI 1.0
 -- except that it sends blank pixel during blanking
 -- for some reason video_data uses RBG packing
-pData(23 downto 16) <= pDataIn(0); -- red is channel 2
-pData(7 downto 0) <= pDataIn(2); -- green is channel 1
+pData(23 downto 16) <= pDataIn(2); -- red is channel 2
+pData(7 downto 0) <= pDataIn(0); -- green is channel 1
 pData(15 downto 8) <= pDataIn(1); -- blue is channel 0
 pHSync <= pC0(0); -- channel 0 carries control signals too
 pVSync <= pC1(0); -- channel 0 carries control signals too

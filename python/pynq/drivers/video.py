@@ -33,7 +33,6 @@ __email__ = "pynq_support@xilinx.com"
 
 from pynq import PL
 from time import sleep
-#from itertools import chain
 import numpy as np
 from PIL import Image
 from . import _video
@@ -86,9 +85,9 @@ MAX_FRAME_HEIGHT = 1080
 
 class HDMI(object):
     """Class for an HDMI controller.
-
+    
     The frame buffer in an HDMI object can be shared among different objects.
-    e.g., a VGA object and an HDMI object can use the same frame buffer.
+    e.g., HDMI in and HDMI out objects can use the same frame buffer.
     
     Note
     ----
@@ -106,17 +105,12 @@ class HDMI(object):
     frame_buffer : _framebuffer
         A frame buffer storing at most 3 frames.
         
-    Raises
-    ------
-    ValueError
-        
     """
-
     def __init__(self, direction, frame_buffer=None):
         """Returns a new instance of an HDMI object. 
         
         Assign the given frame buffer if specified, otherwise create a new 
-        frame buffer.
+        frame buffer. The parameter `frame_buffer` is optional.
         
         Note
         ----
@@ -125,12 +119,15 @@ class HDMI(object):
         Parameters
         ----------
         direction : str
-        frame_buffer : optional[_framebuffer] 
+        frame_buffer : _framebuffer, optional
             A frame buffer storing at most 3 frames.
-        
+            
         """
-        if not direction.lower() == 'in':
-            self.direction = 'out'
+        if not direction.lower() in ['in', 'out']:
+            raise ValueError("HDMI direction should be in or out.")
+        
+        self.direction = direction.lower()
+        if self.direction == 'out':
             if frame_buffer == None:
                 self._display = _video._display(VDMA_DICT,
                                                 VTC_DISPLAY_ADDR,
@@ -155,7 +152,7 @@ class HDMI(object):
             None
             
             """
-
+            
             self.stop = self._display.stop
             """Stop the video controller.
             
@@ -168,7 +165,7 @@ class HDMI(object):
             None
             
             """
-
+            
             self.state = self._display.state
             """Get the state of the device as an integer value.
             
@@ -182,7 +179,7 @@ class HDMI(object):
                 The state 0 (STOPPED), or 1 (RUNNING).
                 
             """
-
+            
             self.mode = self._display.mode
             """Change the resolution of the display. 
             
@@ -195,7 +192,7 @@ class HDMI(object):
             4 : '1920x1080@60Hz'           
             
             If `new_mode` is not specified, return the current mode.
-
+            
             Parameters
             ----------
             new_mode : int
@@ -204,7 +201,7 @@ class HDMI(object):
             Returns
             -------
             str
-                The resolution of the VGA display.
+                The resolution of the display.
                 
             Raises
             ------
@@ -212,7 +209,7 @@ class HDMI(object):
                 If `new_mode` is out of range.
                 
             """
-
+            
             self.frame_raw = self._display.frame
             """Returns a bytearray of the frame.
             
@@ -220,7 +217,7 @@ class HDMI(object):
             introduce some overhead in rare cases. The method 
             frame_raw([i],[new_frame]) is faster, but the parameter `i` has 
             to be calculated manually.
-
+            
             Note
             ----
             If `new_frame` is set, this method will take the bytearray 
@@ -230,10 +227,10 @@ class HDMI(object):
             
             Parameters
             ----------
-            i : optional[int]
+            i : int, optional
                 A location in the bytearray.
-            new_frame: optional[bytearray]
-                A bytearray that can be used to overwrite the frame.
+            new_frame: bytearray, optional
+                A bytearray used to overwrite the frame.
                 
             Returns
             -------
@@ -241,7 +238,7 @@ class HDMI(object):
                 The frame in its raw bytearray form.
                 
             """
-
+            
             self.frame = self._frame_out
             """Wraps the raw version using the Frame object.
             
@@ -253,9 +250,9 @@ class HDMI(object):
             
             Parameters
             ----------
-            index : optional[int]
+            index : int, optional
                 Index of the frames, from 0 to 2.
-            new_frame : optional[Frame]
+            new_frame : Frame, optional
                 A new frame to copy into the frame buffer.
                 
             Returns
@@ -264,7 +261,7 @@ class HDMI(object):
                 A Frame object with accessible pixels.
                 
             """
-
+            
             self.frame_index = self._display.frame_index
             """Get the frame index.
             
@@ -272,10 +269,10 @@ class HDMI(object):
             If `new_frame_index` is not specified, get the current frame index.
             If `new_frame_index` is specified, set the current frame to the 
             new index. 
-
+            
             Parameters
             ----------
-            new_frame_index : optional[int]
+            new_frame_index : int, optional
                 Index of the frames, from 0 to 2.
                 
             Returns
@@ -284,10 +281,10 @@ class HDMI(object):
                 The index of the active frame.
                 
             """
-
+            
             self.frame_index_next = self._display.frame_index_next
             """Change the frame index to the next one.
-
+            
             Parameters
             ----------
             None
@@ -298,10 +295,10 @@ class HDMI(object):
                 The index of the active frame.
             
             """
-
+            
             self.frame_width = self._display.frame_width
             """Get the current frame width.
-
+            
             Parameters
             ----------
             None
@@ -312,7 +309,7 @@ class HDMI(object):
                 The width of the frame.
                 
             """
-
+            
             self.frame_height = self._display.frame_height
             """Get the current frame height.
             
@@ -326,13 +323,13 @@ class HDMI(object):
                 The height of the frame.
                 
             """
-
+            
             self.frame_addr = self._display.frame_addr
             """Get the current frame address.
             
             Parameters
             ----------
-            i : optional[int]
+            i : int, optional
                 Index of the current frame buffer.
             
             Returns
@@ -341,13 +338,13 @@ class HDMI(object):
                 Address of the frame, thus current frame buffer.
                 
             """
-
+            
             self.frame_phyaddr = self._display.frame_phyaddr
             """Get the current physical frame address.
             
             Parameters
             ----------
-            i : optional[int]
+            i : int, optional
                 Index of the current frame buffer.
             
             Returns
@@ -356,9 +353,8 @@ class HDMI(object):
                 Physical address of the frame, thus current frame buffer.
                 
             """
-
+            
         else:
-            self.direction = 'in'
             if frame_buffer == None:
                 self._capture = _video._capture(VDMA_DICT,
                                                 GPIO_DICT,
@@ -407,7 +403,7 @@ class HDMI(object):
             
             Parameters
             ----------
-            i : optional[int]
+            i : int, optional
                 A location in the bytearray.
                 
             Returns
@@ -424,7 +420,7 @@ class HDMI(object):
             
             Parameters
             ----------
-            index : optional[int]
+            index : int, optional
                 Index of the frames, from 0 to 2.
                 
             Returns
@@ -433,7 +429,7 @@ class HDMI(object):
                 A Frame object with accessible pixels.
                 
             """
-
+            
             self.frame_index = self._capture.frame_index
             """Get the frame index.
             
@@ -441,22 +437,22 @@ class HDMI(object):
             If `new_frame_index` is not specified, get the current frame index.
             If `new_frame_index` is specified, set the current frame to the 
             new index.
-
+            
             Parameters
             ----------
-            new_frame_index : optional[int]
+            new_frame_index : int, optional
                 Index of the frames, from 0 to 2.
-
+            
             Returns
             -------
             int
                 The index of the active frame.
                 
             """
-
+            
             self.frame_index_next = self._capture.frame_index_next
             """Change the frame index to the next one.
-
+            
             Parameters
             ----------
             None
@@ -467,10 +463,10 @@ class HDMI(object):
                 The index of the active frame.
             
             """
-
+            
             self.frame_width = self._capture.frame_width
             """Get the current frame width.
-
+            
             Parameters
             ----------
             None
@@ -481,7 +477,7 @@ class HDMI(object):
                 The width of the frame.
                 
             """
-
+            
             self.frame_height = self._capture.frame_height
             """Get the current frame height.
             
@@ -495,13 +491,13 @@ class HDMI(object):
                 The height of the frame.
                 
             """
-
+            
             self.frame_addr = self._capture.frame_addr
             """Get the current frame address.
             
             Parameters
             ----------
-            i : optional[int]
+            i : int, optional
                 Index of the current frame buffer.
             
             Returns
@@ -510,13 +506,13 @@ class HDMI(object):
                 Address of the frame, thus current frame buffer.
                 
             """
-
+            
             self.frame_phyaddr = self._capture.frame_phyaddr
             """Get the current physical frame address.
             
             Parameters
             ----------
-            i : optional[int]
+            i : int, optional
                 Index of the current frame buffer.
             
             Returns
@@ -525,15 +521,14 @@ class HDMI(object):
                 Physical address of the frame, thus current frame buffer.
                 
             """
-
-
+            
     def start(self,timeout=20):
         """Start the video controller.
             
         Parameters
         ----------
-        timeout : optional[int]
-        HDMI controller response timeout in seconds.
+        timeout : int, optional
+            HDMI controller response timeout in seconds.
         
         Returns
         -------
@@ -542,17 +537,17 @@ class HDMI(object):
         """
         if timeout<=0:
             raise ValueError("timeout must be greater than 0.")
-      
+            
         while self.state() != 1:
-            try:        
+            try:
                 self._capture.start()
-            except Exception as e:
+            except Exception as err:
                 if timeout > 0:
                     sleep(1)
                     timeout -= 1
                 else:
-                    raise e  
-           
+                    raise err
+                    
     def _frame_out(self, *args):
         """Returns the specified frame or the active frame.
         
@@ -579,20 +574,20 @@ class HDMI(object):
             self._display.frame(args[0], args[1].frame)
         elif len(args) == 1:
             if type(args[0]) is int:
-                return Frame(self.frame_width(), self.frame_height(),
-                                self._display.frame(args[0]))
+                return Frame(self.frame_width(), self.frame_height(),\
+                             self._display.frame(args[0]))
             else:
                 self._display.frame(args[0].frame)
         else:
             return Frame(self.frame_width(), self.frame_height(),
                          self._display.frame())
-    
+                        
     def _frame_in(self, index=None):
         """Returns the specified frame or the active frame.
         
         Parameters
         ----------
-        index : optional[int]
+        index : int, optional
             The index of a frame in the frame buffer, from 0 to 2.
             
         Returns
@@ -607,7 +602,7 @@ class HDMI(object):
         else:
             buf = self._capture.frame(index)
         return Frame(self.frame_width(), self.frame_height(), buf)
-
+        
     def __del__(self):
         """Delete the HDMI object.
         
@@ -628,309 +623,9 @@ class HDMI(object):
         elif hasattr(self, '_display'):
             del self._display
             
-class VGA(object):
-    """Class for a VGA controller.
-
-    The frame buffer in a VGA object can be shared among different objects.
-    e.g., a VGA object and an HDMI object can use the same frame buffer.
-    
-    Note
-    ----
-    Currently VGA only supports direction 'out'.
-    
-    Examples
-    --------
-    >>> vga = VGA('out', frame_buffer)
-    
-    Attributes
-    ----------
-    direction : str
-        Can only be 'out' for VGA to be output.
-    frame_buffer : _framebuffer
-        A frame buffer storing at most 3 frames.
-        
-    Raises
-    ------
-    ValueError
-        If direction is not set to 'out'.
-        
-    """
-
-    def __init__(self, direction, frame_buffer=None):
-        """Returns a new instance of a VGA object. 
-        
-        Assign the given frame buffer if specified, otherwise create a new 
-        frame buffer.
-        
-        Note
-        ----
-        Currently VGA only supports direction 'out'.
-        
-        Parameters
-        ----------
-        direction : str
-            Can only be 'out' for VGA to be output.
-        frame_buffer : optional[_framebuffer] 
-            A frame buffer storing at most 3 frames.
-        
-        """
-        if not direction.lower() == 'out':
-            raise ValueError("Currently VGA only supports output.")
-        else:
-            self.direction = 'out'
-            if frame_buffer == None:
-                self._display = _video._display(VDMA_DICT,
-                                                VTC_DISPLAY_ADDR,
-                                                DYN_CLK_ADDR, 1)
-            else:
-                self._display = _video._display(VDMA_DICT,
-                                                VTC_DISPLAY_ADDR,
-                                                DYN_CLK_ADDR, 1,
-                                                frame_buffer)
-                                                
-            self.frame_buffer = self._display.framebuffer
-            
-            self.start = self._display.start
-            """Start the video controller.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            None
-            
-            """
-
-            self.stop = self._display.stop
-            """Stop the video controller.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            None
-            
-            """
-
-            self.state = self._display.state
-            """Get the state of the device as an integer value.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The state 0 (STOPPED), or 1 (RUNNING).
-                
-            """
-
-            self.mode = self._display.mode
-            """Change the resolution of the display. 
-            
-            Users can use mode(new_mode) to change the resolution.
-            Specifically, with `new_mode` to be:
-            0 : '640x480@60Hz'
-            1 : '800x600@60Hz'
-            2 : '1280x720@60Hz'
-            3 : '1280x1024@60Hz'
-            4 : '1920x1080@60Hz'           
-            
-            If `new_mode` is not specified, return the current mode.
-
-            Parameters
-            ----------
-            new_mode : int
-                A mode index from 0 to 4.
-                
-            Returns
-            -------
-            str
-                The resolution of the VGA display.
-                
-            Raises
-            ------
-            ValueError
-                If `new_mode` is out of range.
-                
-            """
-
-            self.frame_raw = self._display.frame
-            """Returns a bytearray of the frame.
-            
-            User may use frame([index]) to access the frame, which may 
-            introduce some overhead in rare cases. The method 
-            frame_raw([i],[new_frame]) is faster, but the parameter `i` has 
-            to be calculated manually.
-
-            Note
-            ----
-            If `new_frame` is set, this method will take the bytearray 
-            (`new_frame`) and overwrites the current frame (or the frame 
-            specified by `i`). Also, if `new_frame` is set, nothing will 
-            be returned.
-            
-            Parameters
-            ----------
-            i : optional[int]
-                A location in the bytearray.
-            new_frame: optional[bytearray]
-                A bytearray that can be used to overwrite the frame.
-                
-            Returns
-            -------
-            bytearray
-                The frame in its raw bytearray form.
-                
-            """
-
-            self.frame = self._frame_out
-            """Wraps the raw version using the Frame object.
-            
-            Use frame([index], [new_frame]) to write the frame more easily.
-            
-            Note
-            ----
-            if `new_frame` is set, nothing will be returned.
-            
-            Parameters
-            ----------
-            index : optional[int]
-                Index of the frames, from 0 to 2.
-            new_frame : optional[Frame]
-                A new frame to copy into the frame buffer.
-                
-            Returns
-            -------
-            Frame
-                A Frame object with accessible pixels.
-                
-            """
-
-            self.frame_index = self._display.frame_index
-            """Get the frame index.
-            
-            Use frame_index([new_frame_index]) to access the frame index.
-            If `new_frame_index` is not specified, get the current frame index.
-            If `new_frame_index` is specified, set the current frame to the 
-            new index. 
-
-            Parameters
-            ----------
-            new_frame_index : optional[int]
-                Index of the frames, from 0 to 2.
-                
-            Returns
-            -------
-            int
-                The index of the active frame.
-                
-            """
-
-            self.frame_index_next = self._display.frame_index_next
-            """Change the frame index to the next one.
-
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The index of the active frame.
-            
-            """
-
-            self.frame_width = self._display.frame_width
-            """Get the current frame width.
-
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The width of the frame.
-                
-            """
-
-            self.frame_height = self._display.frame_height
-            """Get the current frame height.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The height of the frame.
-                
-            """
-
-    def _frame_out(self, *args):
-        """Returns the specified frame or the active frame.
-        
-        Note
-        ----
-        With no parameter specified, this method returns a new Frame object.
-        With 1 parameter specified, this method uses it as the index or frame
-        to create the Frame object. 
-        With 2 parameters specified, this method treats the first argument as 
-        index, while treating the second argument as a frame.
-        
-        Parameters
-        ----------
-        *args
-            Variable length argument list.
-            
-        Returns
-        -------
-        Frame
-            An object of a frame in the frame buffer.
-            
-        """
-        if len(args) == 2:
-            self._display.frame(args[0], args[1].frame)
-        elif len(args) == 1:
-            if type(args[0]) is int:
-                return Frame(self.frame_width(), self.frame_height(),
-                                self._display.frame(args[0]))
-            else:
-                self._display.frame(args[0].frame)
-        else:
-            return Frame(self.frame_width(), self.frame_height(),
-                         self._display.frame())
-
-    def __del__(self):
-        """Delete the HDMI object.
-        
-        Stop the video controller first to avoid odd behaviors of the DMA.
-        
-        Parameters
-        ----------
-        None
-        
-        Returns
-        -------
-        None
-        
-        """
-        self.stop()
-        if hasattr(self, '_capture'):
-            del self._capture
-        elif hasattr(self, '_display'):
-            del self._display
-            
 class Frame(object):
     """This class exposes the bytearray of the video frame buffer.
-
+    
     Note
     ----
     The maximum frame width is 1920, while the maximum frame height is 1080.
@@ -945,7 +640,6 @@ class Frame(object):
         The height of a frame.
         
     """
-
     def __init__(self, width, height, frame=None):
         """Returns a new Frame object.
         
@@ -965,16 +659,16 @@ class Frame(object):
             self._framebuffer = None
             self.frame = frame
         else:
-            # Create a framebuffer with just 1 frame
+            # Create a framebuffer with 1 frame
             self._framebuffer = _video._frame(1)
             # Create an empty frame
             self.frame = self._framebuffer(0)
         self.width = width
         self.height = height
-
+        
     def __getitem__(self, pixel):
         """Get one pixel in a frame.
-
+        
         The pixel is accessed in the following way: 
             `frame[x, y]` to get the tuple (r,g,b) 
         or 
@@ -987,7 +681,7 @@ class Frame(object):
         
         >>> frame[48,32]
         (128,64,12)
-
+        
         Access the green component of pixel (48,32):
         >>> frame[48,32][1]
         64
@@ -1017,15 +711,15 @@ class Frame(object):
                     self.frame[offset+1]
         else:
             raise ValueError("Pixel is out of the frame range.")
-
+            
     def __setitem__(self, pixel, value):
         """Set one pixel in a frame.
-
+        
         The pixel is accessed in the following way: 
             `frame[x, y] = (r,g,b)` to set the entire tuple
         or 
             `frame[x, y][rgb] = value` to set a specific color.
-
+        
         Examples
         --------
         Set pixel (0,0), assuming the object is called `frame`:
@@ -1060,7 +754,7 @@ class Frame(object):
             self.frame[offset + 1] = value[2]
         else:
             raise ValueError("Pixel is out of the frame range.")
-
+            
     def __del__(self):
         """Delete the frame buffer.
         
@@ -1078,10 +772,10 @@ class Frame(object):
         """
         if self._framebuffer is not None:
             del self._framebuffer
-
+            
     def save_as_jpeg(self, path):
         """Save a video frame to a JPEG image.
-
+        
         Note
         ----
         The JPEG filename must be included in the path.
@@ -1096,19 +790,13 @@ class Frame(object):
         None
         
         """
-        #rgb = bytearray()
-        #for i in range(self.height):
-        #    row = self.frame[i * MAX_FRAME_WIDTH * 3 :\
-        #                        (i * MAX_FRAME_WIDTH + self.width) * 3]
-        #    rgb.extend(bytearray(
-        #                chain.from_iterable((row[j+2], row[j], row[j+1])\
-        #                    for j in range(0, len(row)-1, 3))))
-        rgb = (np.frombuffer(self.frame, dtype=np.uint8)).reshape(self.width,self.height,3) 
-
-
-        image = Image.frombytes('RGB', (self.width,self.height), bytes(bytearray(rgb)))
+        frame = (np.frombuffer(self.frame, dtype=np.uint8)).\
+                    reshape(self.width,self.height,3)
+        frame[:,:,[0,1,2]] = frame[:,:,[2,1,0]] 
+        image = Image.frombytes('RGB', \
+                    (self.width,self.height), bytes(bytearray(frame)))
         image.save(path, 'JPEG')
-
+        
     @staticmethod
     def save_raw_as_jpeg(path, frame_raw, width, height):
         """Save a video frame (in bytearray) to a JPEG image.
@@ -1116,7 +804,7 @@ class Frame(object):
         Note
         ----
         This is a static method of the class.
-
+        
         Parameters
         ----------
         path : str
@@ -1133,15 +821,10 @@ class Frame(object):
         None
         
         """
-        #rgb = bytearray()
-        #for i in range(height):
-        #    row = frame_raw[i * MAX_FRAME_WIDTH * 3 :\
-        #                    (i * MAX_FRAME_WIDTH + width) * 3]
-        #    rgb.extend(bytearray(
-        #                chain.from_iterable((row[j+2], row[j], row[j+1])\
-        #                   for j in range(0, len(row)-1, 3))))
-        rgb = (np.frombuffer(self.frame, dtype=np.uint8)).reshape(width,height,3) 
-
-        image = Image.frombytes('RGB', (width, height), bytes(bytearray(rgb)))
+        frame = (np.frombuffer(self.frame, dtype=np.uint8)).\
+                    reshape(width,height,3)
+        frame[:,:,[0,1,2]] = frame[:,:,[2,1,0]] 
+        image = Image.frombytes('RGB', \
+                    (width, height), bytes(bytearray(frame)))
         image.save(path, 'JPEG')
         

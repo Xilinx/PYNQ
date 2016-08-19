@@ -32,11 +32,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 from .audio import Audio
-
 from .video import HDMI
-from .video import VGA
 from .video import Frame
-
 from .dma import DMA
-
 from .trace_buffer import Trace_Buffer
