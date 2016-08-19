@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Working with Overlays" href="9_creating_overlays.html"/>
-        <link rel="prev" title="The Audio-Video Overlay" href="7_audio_video_overlay.html"/> 
+        <link rel="prev" title="Video using the base Overlay" href="7_base_overlay_video.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,14 +83,15 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_arduino_overlay.html">Arduino IO Processor</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_video.html">Video using the base Overlay</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">IO Processors: Writing your own software</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#iop-processors">IOP Processors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xilinx-software-installation">Xilinx Software installation</a></li>
@@ -287,8 +288,16 @@ div.nboutput  > :nth-child(2).stderr {
 <p>There are a number of steps required before you can start writing your own software for an IOP. This document will describe the IOP architecture, and how to set up and build the required SDK projects to allow you to write your own application for the MicroBlaze inside an IOP. The SDK projects can be set up manually using the SDK GUI, or automatically using provided Makefiles.</p>
 <div class="section" id="iop-processors">
 <h2>IOP Processors<a class="headerlink" href="#iop-processors" title="Permalink to this headline">¶</a></h2>
-<p>IO Processors (IOPs) contain a <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, a Debug module, an <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf">AXI Timer</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf">AXI IIC</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf">AXI SPI</a>, <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf">AXI GPIO</a>. the interface peripherals are connected to a Configurable Switch which connects to a Pmod port.</p>
-<a class="reference internal image-reference" href="_images/iop1.jpg"><img alt="_images/iop1.jpg" class="align-center" src="_images/iop1.jpg" style="width: 300.0px; height: 257.25px;" /></a>
+<p>There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two overlays is the number of peripherals in the IOP, and the switch and port the the IOP can connect to. Pmod IOPs connect to PMOD ports, and Arduino IOPs connect to the Arduino interface on the board.</p>
+<p>Both IO Processors (IOPs) contain a <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, a Debug module, and one or more of the following interface peripherals:
+* <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf">AXI Timer</a>
+* <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf">AXI IIC</a>
+* <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf">AXI SPI</a>
+* <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf">AXI GPIO</a>.</p>
+<p>The interface peripherals are connected to a Configurable Switch. The Switch is different for the Pmod and the Arduino IOPs. The Pmod configurable switch connects to a Pmod port, and the Arduino configurable switch connects to a Pmod port.</p>
+<p>Pmod IOP:</p>
+<img alt="_images/pmod_iop.jpg" class="align-center" src="_images/pmod_iop.jpg" />
+<p>Arduino IOP:</p>
 <p>An IOP can be used as a flexible controller for different types of external peripherals.
 The ARM Cortex-A9 is an application processor, running Linux, and is not well-suited for real time applications. An IOP can be used as a real-time controller.</p>
 <p>The IOP&#8217;s configurable switch can be used to route signals between the physical Pmod interface (external pins), and the available interface peripherals in the IOP sub-system (IIC, SPI, GPIO, Timer). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA design to support a different interface standard.</p>
@@ -296,8 +305,8 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 </div>
 <div class="section" id="xilinx-software-installation">
 <h2>Xilinx Software installation<a class="headerlink" href="#xilinx-software-installation" title="Permalink to this headline">¶</a></h2>
-<p>A Microblaze cross-compiler is required to build software for the Microblaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see Pynq Modules &lt;12_modules.html&gt;`_). Xilinx software is only needed if you intend to build your own drivers.</p>
-<p>The current Pynq release is built using Vivado and SDK 2015.4. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays.</p>
+<p>A Microblaze cross-compiler is required to build software for the Microblaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see <a class="reference external" href="12_modules.html">Pynq Modules</a>). Xilinx software is only needed if you intend to build your own drivers.</p>
+<p>The current Pynq release is built using Vivado and SDK 2016.1. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays.</p>
 <p><a class="reference external" href="http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html">Download Xilinx Vivado and SDK 2015.4</a></p>
 <p>You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.</p>
 </div>
@@ -629,7 +638,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
         <a href="9_creating_overlays.html" class="btn btn-neutral float-right" title="Working with Overlays" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="7_audio_video_overlay.html" class="btn btn-neutral" title="The Audio-Video Overlay" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="7_base_overlay_video.html" class="btn btn-neutral" title="Video using the base Overlay" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

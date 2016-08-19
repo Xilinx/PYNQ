@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Programming Zybo’s onboard peripherals &mdash; Python on Zynq (Pynq) v1.0</title>
+  <title>Programming PYNQ-Z1’s onboard peripherals &mdash; Python on Zynq (Pynq) v1.0</title>
   
 
   
@@ -31,7 +31,7 @@
 
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
-        <link rel="next" title="Peripherals and the Pmod I/O overlay" href="6_pmodio_overlay.html"/>
+        <link rel="next" title="Hardware Libraries and Overlays" href="6_overlays.html"/>
         <link rel="prev" title="Cortex-A9 programming in Python" href="4_programming_in_python.html"/> 
 
   
@@ -83,19 +83,20 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Programming Zybo&#8217;s onboard peripherals</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Programming PYNQ-Z1&#8217;s onboard peripherals</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#LEDs,-switches-and-buttons">LEDs, switches and buttons</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Controlling-a-single-LED">Controlling a single LED</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Example:-Controlling-all-the-LEDs,-switches-and-buttons">Example: Controlling all the LEDs, switches and buttons</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_arduino_overlay.html">Arduino IO Processor</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_video.html">Video using the base Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
@@ -135,7 +136,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Programming Zybo&#8217;s onboard peripherals</li>
+    <li>Programming PYNQ-Z1&#8217;s onboard peripherals</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -263,19 +264,25 @@ div.nboutput  > :nth-child(2).stderr {
 
 .ansibold { font-weight: bold; }
 </style>
-<div class="section" id="Programming-Zybo's-onboard-peripherals">
-<h1>Programming Zybo&#8217;s onboard peripherals<a class="headerlink" href="#Programming-Zybo's-onboard-peripherals" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Programming-PYNQ-Z1's-onboard-peripherals">
+<h1>Programming PYNQ-Z1&#8217;s onboard peripherals<a class="headerlink" href="#Programming-PYNQ-Z1's-onboard-peripherals" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="LEDs,-switches-and-buttons">
 <h2>LEDs, switches and buttons<a class="headerlink" href="#LEDs,-switches-and-buttons" title="Permalink to this headline">¶</a></h2>
-<p>Zybo has four LEDs, four slide-switches and four push-buttons that are
-connected to the Zynq’s programmable logic. These are highlighted in the
-photo of the Zybo below.</p>
-<div class="figure">
-<img alt="" src="_images/zybo_io_opt.jpeg" />
+<p>PYNQ-Z1 has the following on-board LEDs, pushbuttons and switches:</p>
+<ul class="simple">
+<li>4 monochrome LEDs (LD3-LD0)</li>
+<li>4 push-button switches (BTN3-BTN0)</li>
+<li>2 RGB LEDs (LD5-LD4)</li>
+<li>2 Slide-switches (SW1-SW0)</li>
+</ul>
+<p>All of these peripherals are connected to the PYNQ-Z1’s programmable
+logic. They are highlighted in the image of the PYNQ-Z1 below.</p>
+<div class="figure align-center">
+<img alt="_images/pynq_io_opt.png" src="_images/pynq_io_opt.png" />
 </div>
-<p>Note that two additional push-buttons and 1 LED are visible on the
-board, but these devices are not user accessible. These are not
-highlighted in the figure and we will ignore them for now.</p>
+<p>Note that there are additional push-buttons and LEDs on the board, but
+these devices are not user accessible. They are not highlighted in the
+figure and we will ignore them for now.</p>
 <p>Each of the highlighted devices can be controlled directly from Python.
 To demonstrate this, we first import the LED, Switch and Button classes
 from the module pynq.board</p>
@@ -292,9 +299,9 @@ from the module pynq.board</p>
 </div>
 <div class="section" id="Controlling-a-single-LED">
 <h2>Controlling a single LED<a class="headerlink" href="#Controlling-a-single-LED" title="Permalink to this headline">¶</a></h2>
-<p>Now we can instantiate each of these classes and use their methods to
-manipulate them. Let’s start by instantiating a single LED and turning
-it on and off.</p>
+<p>Now we can instantiate objects of each of these classes and use their
+methods to manipulate the corresponding peripherals. Let’s start by
+instantiating a single LED and turning it on and off.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 <span></span>In [2]:
@@ -334,8 +341,9 @@ flashing.</p>
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">Button</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Button</span>
+
 <span class="n">led0</span> <span class="o">=</span> <span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
     <span class="n">led0</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
@@ -356,7 +364,7 @@ buttons.</p>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="c1"># Set the number of Switches</span>
 <span class="n">MAX_LEDS</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">MAX_SWITCHES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">MAX_SWITCHES</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">MAX_BUTTONS</span> <span class="o">=</span> <span class="mi">4</span>
 
 <span class="n">leds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">MAX_LEDS</span>
@@ -373,41 +381,69 @@ buttons.</p>
 </pre></div>
 </div>
 </div>
-<p>First, all LEDs are set to off. Then each switch is read, and if in the
-on position, the corresponding led is turned on. You can execute this
-cell a few times, changing the position of the switches on the board.</p>
+<p>It will be useful to be able to turn off selected LEDs so we will create
+a helper function to do that. It either clears the LEDs whose numbers we
+list in the parameter, or by default clears LD3-LD0.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 <span></span>In [7]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="c1"># LEDs start in the off state</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
-    <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
-
-<span class="c1"># if a slide-switch is on, light the corresponding LED</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">switches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
-        <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
+<span></span><span class="c1"># Helper function to clear LEDs</span>
+<span class="k">def</span> <span class="nf">clear_LEDs</span><span class="p">(</span><span class="n">LED_nos</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">))):</span>
+    <span class="sd">&quot;&quot;&quot;Clear LEDS LD3-0 or the LEDs whose numbers appear in the parameter list&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">LED_nos</span><span class="p">:</span>
         <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+
+<span class="n">clear_LEDs</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
-<p>The last part toggles the corresponding led (on or off) if a pushbutton
-is pressed. You can execute this cell a few times pressing different
-pushbuttons each time.</p>
+<p>First, all LEDs are set to off. Then each switch is read, and if in the
+on position, the corresponding led is turned on. You can execute this
+cell a few times, changing the position of the switches on the board.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 <span></span>In [8]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="c1"># if a button is depressed, toggle the state of the corresponding LED</span>
+<span></span><span class="c1"># LEDs start in the off state</span>
+<span class="n">clear_LEDs</span><span class="p">()</span>
+
+<span class="c1"># if a SW0 is on: LD2 and LD0 are on; if SW1 is on: LD3 and LD1 are on</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">buttons</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
-        <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">switches</span><span class="p">[</span><span class="n">i</span><span class="o">%</span><span class="k">2</span>].read():
+        <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The last example toggles an led (on or off) if its corresponding
+pushbutton is pressed for so long as SW0 is switched on. To end the
+program, slide SW0 to the off position.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+<span></span>In [9]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># LD3-LD0 start in the off state</span>
+<span class="n">clear_LEDs</span><span class="p">()</span>
+
+<span class="c1"># While SW0 is on,</span>
+<span class="c1"># if a button is depressed, toggle the state of the corresponding LED</span>
+<span class="k">while</span> <span class="n">switches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">buttons</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
+            <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">clear_LEDs</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -421,7 +457,7 @@ pushbuttons each time.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="6_pmodio_overlay.html" class="btn btn-neutral float-right" title="Peripherals and the Pmod I/O overlay" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="6_overlays.html" class="btn btn-neutral float-right" title="Hardware Libraries and Overlays" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="4_programming_in_python.html" class="btn btn-neutral" title="Cortex-A9 programming in Python" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

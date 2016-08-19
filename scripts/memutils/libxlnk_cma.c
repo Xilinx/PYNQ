@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "libxlnk_cma.h"
 
 void *cma_alloc(uint32_t len, uint32_t cacheable){
     if(xlnkBufCnt == XLNK_BUFPOOL_SIZE){

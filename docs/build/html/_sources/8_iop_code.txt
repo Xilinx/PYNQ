@@ -6,12 +6,25 @@ There are a number of steps required before you can start writing your own softw
 IOP Processors
 --------------
 
-IO Processors (IOPs) contain a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, an `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_, `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_, `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_, `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_. the interface peripherals are connected to a Configurable Switch which connects to a Pmod port.
+There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two overlays is the number of peripherals in the IOP, and the switch and port the the IOP can connect to. Pmod IOPs connect to PMOD ports, and Arduino IOPs connect to the Arduino interface on the board. 
 
-.. image:: ./images/iop.jpg
-   :scale: 75%
+Both IO Processors (IOPs) contain a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following interface peripherals:
+* `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_
+* `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_
+* `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_
+* `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_. 
+
+The interface peripherals are connected to a Configurable Switch. The Switch is different for the Pmod and the Arduino IOPs. The Pmod configurable switch connects to a Pmod port, and the Arduino configurable switch connects to a Pmod port.
+
+Pmod IOP:
+
+
+.. image:: ./images/pmod_iop.jpg
    :align: center
+
    
+Arduino IOP:
+
 An IOP can be used as a flexible controller for different types of external peripherals.
 The ARM Cortex-A9 is an application processor, running Linux, and is not well-suited for real time applications. An IOP can be used as a real-time controller. 
 
@@ -22,9 +35,9 @@ IOPs can also be used standalone to offload some processing from the main proces
 Xilinx Software installation
 ----------------------------
 
-A Microblaze cross-compiler is required to build software for the Microblaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see Pynq Modules <12_modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
+A Microblaze cross-compiler is required to build software for the Microblaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see `Pynq Modules <12_modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
 
-The current Pynq release is built using Vivado and SDK 2015.4. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays. 
+The current Pynq release is built using Vivado and SDK 2016.1. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays. 
 
 `Download Xilinx Vivado and SDK 2015.4 <http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html>`_
 

@@ -18,9 +18,9 @@ Contents:
    3_jupyter_notebook
    4_programming_in_python
    5_programming_onboard_peripherals
-   6_pmodio_overlay
-   6a_arduino_overlay.rst
-   7_audio_video_overlay
+   6_overlays
+   6a_peripherals_and_base_overlay.ipynb
+   7_base_overlay_video
    8_iop_code
    9_creating_overlays
    10_libraries_and_overlays

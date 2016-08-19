@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Introduction to Jupyter Notebook" href="3_jupyter_notebook.html"/>
-        <link rel="prev" title="Pynq Overview" href="1_pynq.html"/> 
+        <link rel="prev" title="PYNQ Overview" href="1_pynq.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,7 +83,7 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
@@ -105,10 +105,11 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_arduino_overlay.html">Arduino IO Processor</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_video.html">Video using the base Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
@@ -289,8 +290,9 @@ div.nboutput  > :nth-child(2).stderr {
 </li>
 </ul>
 </div>
-<p>Pynq is currently supported on the Pynq-Z1 board. To start using Pynq, you will need a Pynq boot image loaded onto a Micro-SD card.
-The full build steps and Python packages will be available on the  <a class="reference external" href="https://github.com/Xilinx/Pynq">Pynq project GitHub</a> after the official beta release.</p>
+<p>Pynq is currently supported on the Pynq-Z1 board. To start using Pynq, you will need a Micro-SD card loaded with the Pynq image.
+The Pynq image will be available to download from the Digilent website.</p>
+<p>You do not need to build the image from scratch for the Pynq board, but there is some information on the build steps on the <a class="reference external" href="https://github.com/Xilinx/PYNQ/blob/master/ubuntu/README.md">Pynq project GitHub</a></p>
 <p>Any Pynq related issues can be submitted via the github site&#8217;s <a class="reference external" href="https://github.com/Xilinx/Pynq/issues">issue tracker</a> once the site is live.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -311,12 +313,13 @@ The full build steps and Python packages will be available on the  <a class="ref
 <li>Micro USB cable</li>
 <li>Ethernet cable</li>
 </ul>
+<p>* It is also possible to connect to the board via Wifi instead of ethernet.</p>
 </div>
 <div class="section" id="get-the-image-and-prepare-the-micro-sd-card">
 <h3>Get the image and prepare the micro-SD Card<a class="headerlink" href="#get-the-image-and-prepare-the-micro-sd-card" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
-<li>For now you will need to obtain the image, or a micro-SD card preloaded with the image, directly from the Pynq team.</li>
+<li>The Pynq image will be available from the Digilent website.</li>
 <li>The image can be copied to a Micro-SD card using <a class="reference external" href="https://sourceforge.net/projects/win32diskimager/">Win32DiskImager</a>. The Micro-SD card should be at least 4GB.</li>
 </ul>
 </div></blockquote>
@@ -325,7 +328,10 @@ The full build steps and Python packages will be available on the  <a class="ref
 <h3>Pynq-Z1 setup<a class="headerlink" href="#pynq-z1-setup" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><img alt="_images/pynq-z1_setup.jpg" class="align-center" src="_images/pynq-z1_setup.jpg" />
-<ul class="simple">
+</div></blockquote>
+<p>To set up the board:</p>
+<blockquote>
+<div><ul class="simple">
 <li>Change the <em>boot</em> jumper to <strong>SD</strong> (Set the board to boot from the Micro SD card)</li>
 <li>Insert the <em>Micro SD</em> card into the board. (The Micro-SD slot is underneath the board)</li>
 <li>Plug the USB cable to your PC/Laptop, and connect to the <strong>UART</strong> (J14) on the board</li>
@@ -339,8 +345,8 @@ The full build steps and Python packages will be available on the  <a class="ref
 <div class="section" id="connect-to-the-board">
 <h2><a class="toc-backref" href="#id5">Connect to the board</a><a class="headerlink" href="#connect-to-the-board" title="Permalink to this headline">¶</a></h2>
 <p>You need to make sure your board can connect to your computer or network correctly, and you will need to know the hostname or the IP address of the board. By default, if the board is connected to a router or network with a DHCP server, it will get an IP address automaticlly. You can then use the board hostname to connect to it. The hostname is <code class="docutils literal"><span class="pre">pynq</span></code> by default.</p>
-<p>If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address (<code class="docutils literal"><span class="pre">192.168.2.99</span></code> by default). You will need to conigure your computer to have an IP address in the same range (e.g. 192.168.2.98). You can then connect to it using this IP address.</p>
-<p>You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet/IP and any other settings. See the FAQ for more details on connecting to the board, and changing the IP settings.</p>
+<p>If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address (<code class="docutils literal"><span class="pre">192.168.2.99</span></code> by default), and start a DHCP server and configure your PC with an IP address in the same range as the board. You can also manually configure your computer to have an IP address in the same range (e.g. 192.168.2.98).</p>
+<p>You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet/IP and any other operating system settings. See the FAQ for more details on connecting to the board, and changing the IP settings of the board.</p>
 <p>Two scripts are available if you need help configuring the ethernet on a Windows computer, <code class="docutils literal"><span class="pre">pynq_enable_static_IP_windows.bat</span></code> and <code class="docutils literal"><span class="pre">pynq_disable_static_IP_windows.bat</span></code> available in the <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">respository&gt;\Pynq\Ubuntu</span></code> folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt. You can also check the internet for instructions on how to configure your computer.</p>
 <div class="section" id="open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal">
 <h3>Open a web browser and connect to Pynq Jupyter Notebooks web portal<a class="headerlink" href="#open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal" title="Permalink to this headline">¶</a></h3>
@@ -349,10 +355,10 @@ The full build steps and Python packages will be available on the  <a class="ref
 <li>Using a web browser, open the address  <a class="reference external" href="http://pynq:9090">http://pynq:9090</a> or <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a> if using a static IP.  <strong>pynq</strong> is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname.</li>
 </ul>
 </div></blockquote>
-<p>It is recommended to change the hostname if multiple boards will be used on the same network. e.g. classroom teaching. See the <a class="reference external" href="13_faqs.html">Frequently asked questions</a> to change the hostname.</p>
+<p>You will need to to change the hostname if multiple boards will be used on the same network. e.g. classroom teaching. See the <a class="reference external" href="13_faqs.html">Frequently asked questions</a> to change the hostname.</p>
 <blockquote>
 <div><ul class="simple">
-<li>The Jupyter username/password is xpp/xpp</li>
+<li>The Jupyter username/password is xilinx/xilinx</li>
 </ul>
 <a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 455.25px; height: 450.0px;" /></a>
 <ul class="simple">
@@ -360,7 +366,7 @@ The full build steps and Python packages will be available on the  <a class="ref
 </ul>
 </div></blockquote>
 <p>You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board by going to the <em>Getting Started</em> and <em>Example</em> Notebooks in the Pynq home area.</p>
-<p>If you can&#8217;t connect to the board, see the <a class="reference external" href="13_faqs.html">Frequently asked questions</a></p>
+<p>If you cannot connect to the board, see the <a class="reference external" href="13_faqs.html">Frequently asked questions</a></p>
 </div>
 </div>
 <div class="section" id="interacting-with-the-pynq">
@@ -376,8 +382,8 @@ The full build steps and Python packages will be available on the  <a class="ref
 <div class="section" id="accessing-files-on-the-board">
 <h3>Accessing files on the board<a class="headerlink" href="#accessing-files-on-the-board" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="https://www.samba.org/">Samba</a>, a file sharing service, is running on the board. The home area on the board can be accessed as a network drive, and you can transfer files to and from the board.</p>
-<p>You can go to <code class="docutils literal"><span class="pre">\\pynq\xpp</span></code> (DHCP) or <code class="docutils literal"><span class="pre">\\192.168.2.99\xpp</span></code> (static IP) to access the pynq home area. Remember to change the hostname if necessary.</p>
-<p>The Samba username:password is <code class="docutils literal"><span class="pre">xilinx:xilinx</span></code></p>
+<p>You can go to <code class="docutils literal"><span class="pre">\\pynq\xilinx</span></code> (DHCP) or <code class="docutils literal"><span class="pre">\\192.168.2.99\xilinx</span></code> (static IP) to access the pynq home area. Remember to change the hostname if necessary.</p>
+<p>The Samba username:password is <code class="docutils literal"><span class="pre">samba:samba</span></code></p>
 <a class="reference internal image-reference" href="_images/samba_share.jpg"><img alt="_images/samba_share.jpg" class="align-center" src="_images/samba_share.jpg" style="width: 514.5px; height: 450.0px;" /></a>
 </div>
 <div class="section" id="troubleshooting">
@@ -397,7 +403,7 @@ The full build steps and Python packages will be available on the  <a class="ref
         <a href="3_jupyter_notebook.html" class="btn btn-neutral float-right" title="Introduction to Jupyter Notebook" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="1_pynq.html" class="btn btn-neutral" title="Pynq Overview" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="1_pynq.html" class="btn btn-neutral" title="PYNQ Overview" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

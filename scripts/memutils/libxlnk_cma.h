@@ -22,11 +22,13 @@ static uint32_t xlnkBufPhyPool[2 * XLNK_BUFPOOL_SIZE];
 
 /*
  * Get the virtual address referencing the physical address resulting from
- * mmaping /dev/mem
+ * mmaping /dev/mem.
  * Required to use bare-metal drivers on linux. Return -1 in case of error.
- * munmap invalidates the mapping
  */
 uint32_t cma_mmap(uint32_t phyAddr, uint32_t len);
+/*
+ * Unmap a previously mapped memory space.
+ */
 uint32_t cma_munmap(void *buf, uint32_t len);
 /*
  * Allocate a physically contiguos chunk of CMA memory and map it into
@@ -42,6 +44,8 @@ uint32_t cma_get_phy_addr(void *buf);
  * Free a previously allocated CMA memory chunk
  */
 void cma_free(void *buf);
-
+/*
+ * Extra functions in case user needs to flush or invalidate Cache.
+ */
 void xlnkFlushCache(void *buf, int size);
 void xlnkInvalidateCache(void *buf, int size);
