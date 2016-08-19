@@ -201,7 +201,7 @@ class HDMI(object):
             Returns
             -------
             str
-                The resolution of the VGA display.
+                The resolution of the display.
                 
             Raises
             ------
@@ -790,10 +790,11 @@ class Frame(object):
         None
         
         """
-        rgb = (np.frombuffer(self.frame, dtype=np.uint8)).\
+        frame = (np.frombuffer(self.frame, dtype=np.uint8)).\
                     reshape(self.width,self.height,3)
+        frame[:,:,[0,1,2]] = frame[:,:,[2,1,0]] 
         image = Image.frombytes('RGB', \
-                    (self.width,self.height), bytes(bytearray(rgb)))
+                    (self.width,self.height), bytes(bytearray(frame)))
         image.save(path, 'JPEG')
         
     @staticmethod
@@ -820,9 +821,10 @@ class Frame(object):
         None
         
         """
-        rgb = (np.frombuffer(self.frame, dtype=np.uint8)).\
+        frame = (np.frombuffer(self.frame, dtype=np.uint8)).\
                     reshape(width,height,3)
+        frame[:,:,[0,1,2]] = frame[:,:,[2,1,0]] 
         image = Image.frombytes('RGB', \
-                    (width, height), bytes(bytearray(rgb)))
+                    (width, height), bytes(bytearray(frame)))
         image.save(path, 'JPEG')
         
