@@ -344,8 +344,7 @@ class Trace_Buffer:
     def decode(self, decoded_file, options=''):
         """Decode and record the trace based on the protocol specified.
         
-        The `decoded_file` is the name of the output file. The decoded file
-        will be put into the same directory where this method is called.
+        The `decoded_file` contains the name of the output file.
         
         The `option` specifies additional options to be passed to sigrok-cli.
         For example, users can use option=':wordsize=9:cpol=1:cpha=0' to add 
@@ -357,6 +356,11 @@ class Trace_Buffer:
         Note
         ----
         The output file will have `*.pd` extension.
+        
+        Note
+        ----
+        The decoded file will be put into the specified path, or in the 
+        working directory in case the path does not exist.
         
         Parameters
         ----------
@@ -375,7 +379,11 @@ class Trace_Buffer:
         if self.probes == []:
             raise ValueError("Cannot decode without metadata.")
         
-        decoded_abs = os.getcwd() + '/' + decoded_file
+        if os.path.isdir(os.path.dirname(decoded_file)):
+            decoded_abs = decoded_file
+        else:
+            decoded_abs = os.getcwd() + '/' + decoded_file
+            
         name, _ = os.path.splitext(self.trace_sr)
         temp_file = name + '.temp'
         if os.system('rm -rf ' + temp_file):
@@ -501,7 +509,8 @@ class Trace_Buffer:
         
         Note
         ----
-        The parsed data will be stored in the same folder as this file.
+        The parsed file will be put into the specified path, or in the 
+        working directory in case the path does not exist.
         
         Parameters
         ----------
@@ -566,7 +575,11 @@ class Trace_Buffer:
             if not (element & mask)==0:
                 raise ValueError("Data probe has be excluded from mask.")
             
-        parsed_abs = os.getcwd() + '/' + parsed
+        if os.path.isdir(os.path.dirname(parsed)):
+            parsed_abs = parsed
+        else:
+            parsed_abs = os.getcwd() + '/' + parsed
+            
         if os.system('rm -rf ' + parsed_abs):
             raise RuntimeError("Cannot remove old parsed file.")
         with open(parsed_abs, 'w') as f:

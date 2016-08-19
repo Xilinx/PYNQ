@@ -32,33 +32,68 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
+import os
 import sys
 import select
 import termios
 import pytest
-from pynq import Overlay
+from pynq import PL
+from pynq.drivers import Audio 
 from pynq.tests.util import user_answer_yes
 
 flag = user_answer_yes("\nAUDIO OUT connected?")
 
 @pytest.mark.run(order=31)
 @pytest.mark.skipif(not flag, reason="need audio out attached")
-def test_audio_loop():
-    """Test whether audio out work properly.
+def test_audio_out():
+    """Test whether audio out works properly.
     
-    This test will use the __call__() methods of the two classes, and ask for
-    the confirmation from the users.
-        
+    Test whether sound can be heard from the audio out jack. Record a 5-second 
+    sample and play it back.
+    
     """
-    pass
+    audio_t = Audio()
+    
+    assert audio_t.base_addr==int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][0],\
+                                    16), 'Wrong base address for audio IP.'
+    assert audio_t.length==int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][1],\
+                                    16), 'Wrong address range for audio IP.'
+    
+    print("\nSpeaking into the MIC for 5 seconds...")
+    audio_t.record(5)
+    input("Hit enter to play back...")
+    audio_t.play()
+    assert user_answer_yes("Heard playback on AUDIO OUT?")
+    
+    del audio_t
 
 @pytest.mark.run(order=32)
 @pytest.mark.skipif(not flag, reason="need audio out attached")
-def test_audio_mute():
-    """Test is_muted() and toggle_mute() methods.
+def test_audio_playback():
+    """Test the functionality of handling wave files.
     
-    The test will mute and unmute the volume, then ask for the confirmation
-    from the users.
+    Test whether the `*.wav` file can be handled properly.
+    
+    There are 2 steps in this test:
+    1. Load and play a pre-stored wave file.
+    2. Record a wave file and play it back.
     
     """
-    pass
+    audio_t = Audio()
+    
+    print("\nPlaying a wave file...")
+    audio_t.load("/home/xilinx/pynq/drivers/tests/welcome.pdm")
+    audio_t.play()
+    assert user_answer_yes("Heard welcome message?")
+    
+    print("Speaking into the MIC for 5 seconds...")
+    audio_t.record(5)
+    audio_t.save("/home/xilinx/pynq/drivers/tests/recorded.pdm")
+    input("Audio file saved. Hit enter to play back...")
+    audio_t.load("/home/xilinx/pynq/drivers/tests/recorded.pdm")
+    audio_t.play()
+    assert user_answer_yes("Heard recorded sound?")
+    
+    os.remove("/home/xilinx/pynq/drivers/tests/recorded.pdm")
+    del audio_t
+    
