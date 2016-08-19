@@ -84,14 +84,15 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_arduino_overlay.html">Arduino IO Processor</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_video.html">Video using the base Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
@@ -290,34 +291,34 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="module-pynq.iop.pmod_adc">
 <span id="pynq-iop-pmod-adc-module"></span><h2>pynq.iop.pmod_adc module<a class="headerlink" href="#module-pynq.iop.pmod_adc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_adc.</code><code class="descname">PMOD_ADC</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_adc.</code><code class="descname">Pmod_ADC</code><span class="sig-paren">(</span><em>if_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls an Analog to Digital Converter PMOD.</p>
-<p>The PMOD AD2 (PB 200-217) is an analog-to-digital converter powered by
+<p>This class controls an Analog to Digital Converter Pmod.</p>
+<p>The Pmod AD2 (PB 200-217) is an analog-to-digital converter powered by
 AD7991. Users may configure up to 4 conversion channels at 12 bits of
 resolution.</p>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; I/O processor instance used by the ADC</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.mmio">
-<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.mmio" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.mmio" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.log_running">
-<code class="descname">log_running</code><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.log_running" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.log_running">
+<code class="descname">log_running</code><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.log_running" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The state of the log (0: stopped, 1: started).</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.get_log">
-<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.get_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.get_log">
+<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.get_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the log of voltage values.</p>
 <p>First stop the log before getting the log.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -335,8 +336,8 @@ resolution.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.get_log_raw">
-<code class="descname">get_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.get_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.get_log_raw" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.get_log_raw">
+<code class="descname">get_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.get_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.get_log_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the log of raw values.</p>
 <p>First stop the log before getting the log.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -354,9 +355,9 @@ resolution.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.read">
-<code class="descname">read</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the voltage from the ADC PMOD.</p>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the voltage from the Pmod ADC.</p>
 <p>When ch1, ch2, and ch3 values are 1 then the corresponding channel
 is included.</p>
 <p>For each channel selected, this method reads and returns one sample.</p>
@@ -379,7 +380,7 @@ is included.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The voltage values read from the 3 channels of the PMOD ADC.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The voltage values read from the 3 channels of the Pmod ADC.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
@@ -390,9 +391,9 @@ is included.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.read_raw">
-<code class="descname">read_raw</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.read_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.read_raw" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the raw value from the ADC PMOD.</p>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.read_raw">
+<code class="descname">read_raw</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.read_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.read_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the raw value from the Pmod ADC.</p>
 <p>When ch1, ch2, and ch3 values are 1 then the corresponding channel
 is included.</p>
 <p>For each channel selected, this method reads and returns one sample.</p>
@@ -416,7 +417,7 @@ ADC.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The raw values read from the 3 channels of the PMOD ADC.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The raw values read from the 3 channels of the Pmod ADC.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
@@ -427,9 +428,9 @@ ADC.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.reset">
-<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.reset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset the PMOD ADC.</p>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the Pmod ADC.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -445,8 +446,8 @@ ADC.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.start_log">
-<code class="descname">start_log</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em>, <em>log_interval_us=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.start_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.start_log">
+<code class="descname">start_log</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em>, <em>log_interval_us=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.start_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the log of voltage values with the interval specified.</p>
 <p>This parameter <cite>log_interval_us</cite> can set the time interval between
 two samples, so that users can read out multiple values in a single
@@ -474,8 +475,8 @@ log.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.start_log_raw">
-<code class="descname">start_log_raw</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em>, <em>log_interval_us=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.start_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.start_log_raw" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.start_log_raw">
+<code class="descname">start_log_raw</code><span class="sig-paren">(</span><em>ch1=1</em>, <em>ch2=0</em>, <em>ch3=0</em>, <em>log_interval_us=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.start_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.start_log_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the log of raw values with the interval specified.</p>
 <p>This parameter <cite>log_interval_us</cite> can set the time interval between
 two samples, so that users can read out multiple values in a single
@@ -503,8 +504,8 @@ log.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.stop_log">
-<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.stop_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.stop_log">
+<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.stop_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop the log of voltage values.</p>
 <p>This is done by sending the reset command to IOP. There is no need to
 wait for the IOP.</p>
@@ -523,8 +524,8 @@ wait for the IOP.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_adc.PMOD_ADC.stop_log_raw">
-<code class="descname">stop_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#PMOD_ADC.stop_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.PMOD_ADC.stop_log_raw" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_adc.Pmod_ADC.stop_log_raw">
+<code class="descname">stop_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_adc.html#Pmod_ADC.stop_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_adc.Pmod_ADC.stop_log_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop the log of raw values.</p>
 <p>This is done by sending the reset command to IOP. There is no need to
 wait for the IOP.</p>
@@ -548,34 +549,34 @@ wait for the IOP.</p>
 <div class="section" id="module-pynq.iop.pmod_als">
 <span id="pynq-iop-pmod-als-module"></span><h2>pynq.iop.pmod_als module<a class="headerlink" href="#module-pynq.iop.pmod_als" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_als.PMOD_ALS">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_als.</code><code class="descname">PMOD_ALS</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#PMOD_ALS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_als.Pmod_ALS">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_als.</code><code class="descname">Pmod_ALS</code><span class="sig-paren">(</span><em>if_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#Pmod_ALS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls a light sensor PMOD.</p>
-<p>The PMOD ALS (PB 200-286) demonstrates light-to-digital sensing through a
-single ambient light sensor. This is based on ADC081S021 analog-to-digital
-converter and TEMT6000X01.</p>
+<p>This class controls a light sensor Pmod.</p>
+<p>The Digilent Pmod ALS demonstrates light-to-digital sensing through a
+single ambient light sensor. This is based on an ADC081S021 analog-to-digital
+converter and a TEMT6000X01 ambient light sensor.</p>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; I/O processor instance used by ALS</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.mmio">
-<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.mmio" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.mmio" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.log_interval_ms">
-<code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.log_interval_ms" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.log_interval_ms">
+<code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.log_interval_ms" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the ALS sensor</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.get_log">
-<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#PMOD_ALS.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.get_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.get_log">
+<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#Pmod_ALS.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.get_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return list of logged samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -592,9 +593,9 @@ converter and TEMT6000X01.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#PMOD_ALS.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read current light value measured by the ALS PMOD.</p>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#Pmod_ALS.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read current light value measured by the ALS Pmod.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -610,9 +611,9 @@ converter and TEMT6000X01.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.set_log_interval_ms">
-<code class="descname">set_log_interval_ms</code><span class="sig-paren">(</span><em>log_interval_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#PMOD_ALS.set_log_interval_ms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.set_log_interval_ms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the length of the log in the ALS PMOD.</p>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.set_log_interval_ms">
+<code class="descname">set_log_interval_ms</code><span class="sig-paren">(</span><em>log_interval_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#Pmod_ALS.set_log_interval_ms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.set_log_interval_ms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the length of the log in the ALS Pmod.</p>
 <p>This method can set the length of the log, so that users can read out
 multiple values in a single log.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -630,8 +631,8 @@ multiple values in a single log.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.start_log">
-<code class="descname">start_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#PMOD_ALS.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.start_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.start_log">
+<code class="descname">start_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#Pmod_ALS.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.start_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start recording multiple values in a log.</p>
 <p>This method will first call set_log_interval_ms() before writting to
 the MMIO.</p>
@@ -650,8 +651,8 @@ the MMIO.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_als.PMOD_ALS.stop_log">
-<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#PMOD_ALS.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.PMOD_ALS.stop_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_als.Pmod_ALS.stop_log">
+<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_als.html#Pmod_ALS.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_als.Pmod_ALS.stop_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop recording multiple values in a log.</p>
 <p>Simply write to the MMIO to stop the log.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -674,58 +675,58 @@ the MMIO.</p>
 <div class="section" id="module-pynq.iop.pmod_cable">
 <span id="pynq-iop-pmod-cable-module"></span><h2>pynq.iop.pmod_cable module<a class="headerlink" href="#module-pynq.iop.pmod_cable" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_cable.PMOD_Cable">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_cable.</code><code class="descname">PMOD_Cable</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>index</em>, <em>direction</em>, <em>cable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_cable.html#PMOD_Cable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_cable.PMOD_Cable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pynq.iop.pmod_io.PMOD_IO" title="pynq.iop.pmod_io.PMOD_IO"><code class="xref py py-class docutils literal"><span class="pre">pynq.iop.pmod_io.PMOD_IO</span></code></a></p>
-<p>This class can be used for a cable connecting PMOD interfaces.</p>
-<p>This class inherits from the PMODIO class.</p>
+<dt id="pynq.iop.pmod_cable.Pmod_Cable">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_cable.</code><code class="descname">Pmod_Cable</code><span class="sig-paren">(</span><em>if_id</em>, <em>index</em>, <em>direction</em>, <em>cable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_cable.html#Pmod_Cable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_cable.Pmod_Cable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pynq.iop.pmod_io.Pmod_IO" title="pynq.iop.pmod_io.Pmod_IO"><code class="xref py py-class docutils literal"><span class="pre">pynq.iop.pmod_io.Pmod_IO</span></code></a></p>
+<p>This class can be used for a cable connecting Pmod interfaces.</p>
+<p>This class inherits from the Pmod IO class.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">When 2 PMODs are connected using a cable, the parameter &#8216;cable&#8217; decides
+<p class="last">When 2 Pmods are connected using a cable, the parameter &#8216;cable&#8217; decides
 whether the cable is a &#8216;loopback&#8217; or &#8216;straight&#8217; cable.
 The default is a straight cable (no internal wire twisting).
-For pin mapping, please check the PMODIO class.</p>
+For pin mapping, please check the Pmod IO class.</p>
 </div>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_cable.PMOD_Cable.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_cable.PMOD_Cable.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_cable.Pmod_Cable.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_cable.Pmod_Cable.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; The _IOP object returned from the DevMode.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_cable.PMOD_Cable.index">
-<code class="descname">index</code><a class="headerlink" href="#pynq.iop.pmod_cable.PMOD_Cable.index" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; The index of the PMOD pin, from 0 to 7.</p>
+<dt id="pynq.iop.pmod_cable.Pmod_Cable.index">
+<code class="descname">index</code><a class="headerlink" href="#pynq.iop.pmod_cable.Pmod_Cable.index" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The index of the Pmod pin, from 0 to 7.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_cable.PMOD_Cable.direction">
-<code class="descname">direction</code><a class="headerlink" href="#pynq.iop.pmod_cable.PMOD_Cable.direction" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_cable.Pmod_Cable.direction">
+<code class="descname">direction</code><a class="headerlink" href="#pynq.iop.pmod_cable.Pmod_Cable.direction" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em> &#8211; Input &#8216;in&#8217; or output &#8216;out&#8217;.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_cable.PMOD_Cable.cable">
-<code class="descname">cable</code><a class="headerlink" href="#pynq.iop.pmod_cable.PMOD_Cable.cable" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_cable.Pmod_Cable.cable">
+<code class="descname">cable</code><a class="headerlink" href="#pynq.iop.pmod_cable.Pmod_Cable.cable" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em> &#8211; Either &#8216;straight&#8217; or &#8216;loopback&#8217;.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_cable.PMOD_Cable.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_cable.html#PMOD_Cable.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_cable.PMOD_Cable.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Receive the value from the PMOD cable.</p>
-<p>This class overrides the read() method in the PMODIO class.</p>
+<dt id="pynq.iop.pmod_cable.Pmod_Cable.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_cable.html#Pmod_Cable.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_cable.Pmod_Cable.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive the value from the Pmod cable.</p>
+<p>This class overrides the read() method in the Pmod IO class.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>Only use this function when direction = &#8216;in&#8217;.</p>
-<p>When two PMODs are connected on the same board, for any received raw
+<p>When two Pmods are connected on the same board, for any received raw
 value, a &#8220;straignt&#8221; cable flips the upper 4 pins and the lower 4 pins:
-A PMOD interface       &lt;=&gt;      Another PMOD interface
+A Pmod interface       &lt;=&gt;      Another Pmod interface
 {vdd,gnd,3,2,1,0}      &lt;=&gt;      {vdd,gnd,7,6,5,4}
 {vdd,gnd,7,6,5,4}      &lt;=&gt;      {vdd,gnd,3,2,1,0}</p>
 <p class="last">A &#8220;loop-back&#8221; cable satisfies the following mapping
-between two PMODs:
-A PMOD interface       &lt;=&gt;      Another PMOD interface
+between two Pmods:
+A Pmod interface       &lt;=&gt;      Another Pmod interface
 {vdd,gnd,3,2,1,0}      &lt;=&gt;      {vdd,gnd,3,2,1,0}
 {vdd,gnd,7,6,5,4}      &lt;=&gt;      {vdd,gnd,7,6,5,4}</p>
 </div>
@@ -735,7 +736,7 @@ A PMOD interface       &lt;=&gt;      Another PMOD interface
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The data (0 or 1) on the specified PMOD IO pin.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The data (0 or 1) on the specified Pmod IO pin.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
 </tr>
@@ -744,8 +745,8 @@ A PMOD interface       &lt;=&gt;      Another PMOD interface
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_cable.PMOD_Cable.set_cable">
-<code class="descname">set_cable</code><span class="sig-paren">(</span><em>cable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_cable.html#PMOD_Cable.set_cable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_cable.PMOD_Cable.set_cable" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_cable.Pmod_Cable.set_cable">
+<code class="descname">set_cable</code><span class="sig-paren">(</span><em>cable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_cable.html#Pmod_Cable.set_cable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_cable.Pmod_Cable.set_cable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the type for the cable.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -772,28 +773,28 @@ cable can be recognized.</p>
 <div class="section" id="module-pynq.iop.pmod_dac">
 <span id="pynq-iop-pmod-dac-module"></span><h2>pynq.iop.pmod_dac module<a class="headerlink" href="#module-pynq.iop.pmod_dac" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_dac.PMOD_DAC">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_dac.</code><code class="descname">PMOD_DAC</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dac.html#PMOD_DAC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dac.PMOD_DAC" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_dac.Pmod_DAC">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_dac.</code><code class="descname">Pmod_DAC</code><span class="sig-paren">(</span><em>if_id</em>, <em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dac.html#Pmod_DAC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dac.Pmod_DAC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls a Digital to Analog Converter PMOD.</p>
-<p>The PMOD DA4 (PB 200-245) is an 8 channel 12-bit digital-to-analog
+<p>This class controls a Digital to Analog Converter Pmod.</p>
+<p>The Pmod DA4 (PB 200-245) is an 8 channel 12-bit digital-to-analog
 converter run via AD5628.</p>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_dac.PMOD_DAC.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_dac.PMOD_DAC.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_dac.Pmod_DAC.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_dac.Pmod_DAC.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; I/O processor instance used by the DAC</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_dac.PMOD_DAC.mmio">
-<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_dac.PMOD_DAC.mmio" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_dac.Pmod_DAC.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_dac.Pmod_DAC.mmio" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_dac.PMOD_DAC.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dac.html#PMOD_DAC.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dac.PMOD_DAC.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a floating point number onto the DAC PMOD.</p>
+<dt id="pynq.iop.pmod_dac.Pmod_DAC.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dac.html#Pmod_DAC.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dac.Pmod_DAC.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a floating point number onto the DAC Pmod.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">User is not allowed to use a number outside of the range [0.00, 2.00]
@@ -803,7 +804,7 @@ as the input value.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>float</em>) &#8211; The value to be written to the DAC PMOD</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>float</em>) &#8211; The value to be written to the DAC Pmod</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
@@ -820,10 +821,17 @@ as the input value.</p>
 <span id="pynq-iop-devmode-module"></span><h2>pynq.iop.devmode module<a class="headerlink" href="#module-pynq.iop.devmode" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.iop.devmode.DevMode">
-<em class="property">class </em><code class="descclassname">pynq.iop.devmode.</code><code class="descname">DevMode</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>switch_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/devmode.html#DevMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.devmode.DevMode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynq.iop.devmode.</code><code class="descname">DevMode</code><span class="sig-paren">(</span><em>if_id</em>, <em>switch_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/devmode.html#DevMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.devmode.DevMode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Control an IO processor running the developer mode program.</p>
-<p>This class will wait for Python to send commands to PMOD IO, IIC, or SPI.</p>
+<p>This class will wait for Python to send commands to PMOD / Arduino IO,
+IIC, or SPI.</p>
+<dl class="attribute">
+<dt id="pynq.iop.devmode.DevMode.if_id">
+<code class="descname">if_id</code><a class="headerlink" href="#pynq.iop.devmode.DevMode.if_id" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The interface ID (1,2,3) corresponding to (PMODA,PMODB,ARDUINO).</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pynq.iop.devmode.DevMode.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.iop.devmode.DevMode.iop" title="Permalink to this definition">¶</a></dt>
@@ -833,7 +841,7 @@ as the input value.</p>
 <dl class="attribute">
 <dt id="pynq.iop.devmode.DevMode.iop_switch_config">
 <code class="descname">iop_switch_config</code><a class="headerlink" href="#pynq.iop.devmode.DevMode.iop_switch_config" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list</em> &#8211; IO processor switch configuration (8 32-bit values).</p>
+<dd><p><em>list</em> &#8211; IO processor switch configuration (8 or 19 integers).</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -877,24 +885,6 @@ Bit [31:16] : unused.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.devmode.DevMode.get_switch_config">
-<code class="descname">get_switch_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/devmode.html#DevMode.get_switch_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.devmode.DevMode.get_switch_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print the IO processor&#8217;s switch configuration.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A switch configuration list of 8 32-bit values.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="pynq.iop.devmode.DevMode.is_cmd_mailbox_idle">
 <code class="descname">is_cmd_mailbox_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/devmode.html#DevMode.is_cmd_mailbox_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.devmode.DevMode.is_cmd_mailbox_idle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check whether the IOP command mailbox is idle.</p>
@@ -915,18 +905,13 @@ Bit [31:16] : unused.</p>
 <dl class="method">
 <dt id="pynq.iop.devmode.DevMode.load_switch_config">
 <code class="descname">load_switch_config</code><span class="sig-paren">(</span><em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/devmode.html#DevMode.load_switch_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.devmode.DevMode.load_switch_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load the IO processor&#8217;s switch configuration</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method will update switch config first if the configuration is
-provided (a list of 8 32-bit values). Otherwise, this method will
-configure the switch with DevMode.iop_switch_config</p>
-</div>
+<dd><p>Load the IO processor&#8217;s switch configuration.</p>
+<p>This method will update switch config.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> (<em>list</em>) &#8211; A switch configuration list of 8 32-bit values.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> (<em>list</em>) &#8211; A switch configuration list of integers.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> &#8211; If the config argument is not of the correct type.</td>
 </tr>
@@ -1029,30 +1014,30 @@ configure the switch with DevMode.iop_switch_config</p>
 <div class="section" id="module-pynq.iop.pmod_dpot">
 <span id="pynq-iop-pmod-dpot-module"></span><h2>pynq.iop.pmod_dpot module<a class="headerlink" href="#module-pynq.iop.pmod_dpot" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_dpot.PMOD_DPOT">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_dpot.</code><code class="descname">PMOD_DPOT</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dpot.html#PMOD_DPOT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dpot.PMOD_DPOT" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_dpot.Pmod_DPOT">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_dpot.</code><code class="descname">Pmod_DPOT</code><span class="sig-paren">(</span><em>if_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dpot.html#Pmod_DPOT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dpot.Pmod_DPOT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls a digital potentiometer PMOD.</p>
-<p>The PMOD DPOT (PB 200-239) is a digital potentiometer powered by the
+<p>This class controls a digital potentiometer Pmod.</p>
+<p>The Pmod DPOT (PB 200-239) is a digital potentiometer powered by the
 AD5160. Users may set a desired resistance between 60 ~ 10k ohms.</p>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_dpot.PMOD_DPOT.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_dpot.PMOD_DPOT.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_dpot.Pmod_DPOT.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_dpot.Pmod_DPOT.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; I/O processor instance used by DPOT</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_dpot.PMOD_DPOT.mmio">
-<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_dpot.PMOD_DPOT.mmio" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_dpot.Pmod_DPOT.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_dpot.Pmod_DPOT.mmio" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_dpot.PMOD_DPOT.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>val</em>, <em>step=0</em>, <em>log_ms=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dpot.html#PMOD_DPOT.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dpot.PMOD_DPOT.write" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_dpot.Pmod_DPOT.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>val</em>, <em>step=0</em>, <em>log_ms=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_dpot.html#Pmod_DPOT.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_dpot.Pmod_DPOT.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the value into the DPOT.</p>
 <p>This method will write the parameters &#8220;value&#8221;, &#8220;step&#8221;, and &#8220;log_ms&#8221;
-all together into the DPOT PMOD. The parameter &#8220;log_ms&#8221; is only used
+all together into the DPOT Pmod. The parameter &#8220;log_ms&#8221; is only used
 for debug; users can ignore this parameter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1081,27 +1066,27 @@ for debug; users can ignore this parameter.</p>
 <div class="section" id="module-pynq.iop.pmod_led8">
 <span id="pynq-iop-pmod-led8-module"></span><h2>pynq.iop.pmod_led8 module<a class="headerlink" href="#module-pynq.iop.pmod_led8" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_led8.</code><code class="descname">PMOD_LED8</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#PMOD_LED8"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_led8.</code><code class="descname">Pmod_LED8</code><span class="sig-paren">(</span><em>if_id</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#Pmod_LED8"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls a single LED on the LED8 PMOD.</p>
-<p>The PMOD LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be
+<p>This class controls a single LED on the LED8 Pmod.</p>
+<p>The Pmod LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be
 individually illuminated from a logic high signal.</p>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; I/O processor instance used by LED8.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8.index">
-<code class="descname">index</code><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8.index" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8.index">
+<code class="descname">index</code><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8.index" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; Index of the pin on LED8, from 0 to 7.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8.off">
-<code class="descname">off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#PMOD_LED8.off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8.off" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8.off">
+<code class="descname">off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#Pmod_LED8.off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8.off" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turn off a single LED.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1118,8 +1103,8 @@ individually illuminated from a logic high signal.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8.on">
-<code class="descname">on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#PMOD_LED8.on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8.on" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8.on">
+<code class="descname">on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#Pmod_LED8.on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8.on" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turn on a single LED.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1136,8 +1121,8 @@ individually illuminated from a logic high signal.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#PMOD_LED8.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8.read" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#Pmod_LED8.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8.read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve the LED state.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1154,8 +1139,8 @@ individually illuminated from a logic high signal.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8.toggle">
-<code class="descname">toggle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#PMOD_LED8.toggle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8.toggle" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8.toggle">
+<code class="descname">toggle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#Pmod_LED8.toggle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8.toggle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flip the bit of a single LED.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1177,8 +1162,8 @@ on if it is off.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_led8.PMOD_LED8.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#PMOD_LED8.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.PMOD_LED8.write" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_led8.Pmod_LED8.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_led8.html#Pmod_LED8.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_led8.Pmod_LED8.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the LED state according to the input value</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1204,27 +1189,27 @@ on if it is off.</p>
 <div class="section" id="module-pynq.iop.pmod_oled">
 <span id="pynq-iop-pmod-oled-module"></span><h2>pynq.iop.pmod_oled module<a class="headerlink" href="#module-pynq.iop.pmod_oled" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_oled.PMOD_OLED">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_oled.</code><code class="descname">PMOD_OLED</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>text=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#PMOD_OLED"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.PMOD_OLED" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_oled.Pmod_OLED">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_oled.</code><code class="descname">Pmod_OLED</code><span class="sig-paren">(</span><em>if_id</em>, <em>text=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#Pmod_OLED"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.Pmod_OLED" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls an OLED PMOD.</p>
-<p>The PMOD OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED)
+<p>This class controls an OLED Pmod.</p>
+<p>The Pmod OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED)
 panel powered by the Solomon Systech SSD1306.</p>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_oled.PMOD_OLED.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_oled.PMOD_OLED.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_oled.Pmod_OLED.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_oled.Pmod_OLED.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; I/O processor instance used by the OLED</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_oled.PMOD_OLED.mmio">
-<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_oled.PMOD_OLED.mmio" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_oled.Pmod_OLED.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_oled.Pmod_OLED.mmio" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_oled.PMOD_OLED.clear">
-<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#PMOD_OLED.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.PMOD_OLED.clear" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_oled.Pmod_OLED.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#Pmod_OLED.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.Pmod_OLED.clear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the OLED screen.</p>
 <p>This is done by sending the clear command to the IOP.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1242,8 +1227,8 @@ panel powered by the Solomon Systech SSD1306.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_oled.PMOD_OLED.draw_line">
-<code class="descname">draw_line</code><span class="sig-paren">(</span><em>x1</em>, <em>y1</em>, <em>x2</em>, <em>y2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#PMOD_OLED.draw_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.PMOD_OLED.draw_line" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_oled.Pmod_OLED.draw_line">
+<code class="descname">draw_line</code><span class="sig-paren">(</span><em>x1</em>, <em>y1</em>, <em>x2</em>, <em>y2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#Pmod_OLED.draw_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.Pmod_OLED.draw_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a straight line on the OLED.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1268,8 +1253,8 @@ panel powered by the Solomon Systech SSD1306.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_oled.PMOD_OLED.draw_rect">
-<code class="descname">draw_rect</code><span class="sig-paren">(</span><em>x1</em>, <em>y1</em>, <em>x2</em>, <em>y2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#PMOD_OLED.draw_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.PMOD_OLED.draw_rect" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_oled.Pmod_OLED.draw_rect">
+<code class="descname">draw_rect</code><span class="sig-paren">(</span><em>x1</em>, <em>y1</em>, <em>x2</em>, <em>y2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#Pmod_OLED.draw_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.Pmod_OLED.draw_rect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a rectangle on the OLED.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1294,8 +1279,8 @@ panel powered by the Solomon Systech SSD1306.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_oled.PMOD_OLED.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>text</em>, <em>x=0</em>, <em>y=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#PMOD_OLED.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.PMOD_OLED.write" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_oled.Pmod_OLED.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>text</em>, <em>x=0</em>, <em>y=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_oled.html#Pmod_OLED.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_oled.Pmod_OLED.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a new text string on the OLED.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1393,73 +1378,73 @@ panel powered by the Solomon Systech SSD1306.</p>
 <div class="section" id="module-pynq.iop.pmod_iic">
 <span id="pynq-iop-pmod-iic-module"></span><h2>pynq.iop.pmod_iic module<a class="headerlink" href="#module-pynq.iop.pmod_iic" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_iic.</code><code class="descname">PMOD_IIC</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>scl_pin</em>, <em>sda_pin</em>, <em>iic_addr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_iic.html#PMOD_IIC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_iic.</code><code class="descname">Pmod_IIC</code><span class="sig-paren">(</span><em>if_id</em>, <em>scl_pin</em>, <em>sda_pin</em>, <em>iic_addr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_iic.html#Pmod_IIC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls the PMOD IIC pins.</p>
+<p>This class controls the Pmod IIC pins.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The index of the PMOD pins:
+<p class="last">The index of the Pmod pins:
 upper row, from left to right: {vdd,gnd,3,2,1,0}.
 lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 </div>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; The _IOP object returned from the DevMode.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.scl_pin">
-<code class="descname">scl_pin</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.scl_pin" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.scl_pin">
+<code class="descname">scl_pin</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.scl_pin" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The SCL pin number.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.sda_pin">
-<code class="descname">sda_pin</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.sda_pin" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.sda_pin">
+<code class="descname">sda_pin</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.sda_pin" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The SDA pin number.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.iic_addr">
-<code class="descname">iic_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.iic_addr" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.iic_addr">
+<code class="descname">iic_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.iic_addr" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The IIC device address.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.sr_addr">
-<code class="descname">sr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.sr_addr" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.sr_addr">
+<code class="descname">sr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.sr_addr" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The IIC device SR address (base address + 0x104).</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.dtr_addr">
-<code class="descname">dtr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.dtr_addr" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.dtr_addr">
+<code class="descname">dtr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.dtr_addr" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The IIC device DTR address (base address + 0x108).</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.cr_addr">
-<code class="descname">cr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.cr_addr" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.cr_addr">
+<code class="descname">cr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.cr_addr" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The IIC device CR address (base address + 0x100).</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.rfd_addr">
-<code class="descname">rfd_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.rfd_addr" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.rfd_addr">
+<code class="descname">rfd_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.rfd_addr" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The IIC device RFD address (base address + 0x120).</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.drr_addr">
-<code class="descname">drr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.drr_addr" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.drr_addr">
+<code class="descname">drr_addr</code><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.drr_addr" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; The IIC device DRR address (base address + 0x10C).</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.receive">
-<code class="descname">receive</code><span class="sig-paren">(</span><em>num_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_iic.html#PMOD_IIC.receive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.receive" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.receive">
+<code class="descname">receive</code><span class="sig-paren">(</span><em>num_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_iic.html#Pmod_IIC.receive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.receive" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method receives IIC bytes from the device.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1478,8 +1463,8 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_iic.PMOD_IIC.send">
-<code class="descname">send</code><span class="sig-paren">(</span><em>iic_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_iic.html#PMOD_IIC.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_iic.PMOD_IIC.send" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_iic.Pmod_IIC.send">
+<code class="descname">send</code><span class="sig-paren">(</span><em>iic_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_iic.html#Pmod_IIC.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_iic.Pmod_IIC.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method sends the command or data to the driver.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1503,44 +1488,44 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 <div class="section" id="module-pynq.iop.pmod_io">
 <span id="pynq-iop-pmod-io-module"></span><h2>pynq.iop.pmod_io module<a class="headerlink" href="#module-pynq.iop.pmod_io" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_io.PMOD_IO">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_io.</code><code class="descname">PMOD_IO</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>index</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_io.html#PMOD_IO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_io.PMOD_IO" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_io.Pmod_IO">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_io.</code><code class="descname">Pmod_IO</code><span class="sig-paren">(</span><em>if_id</em>, <em>index</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_io.html#Pmod_IO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_io.Pmod_IO" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls the PMOD IO pins as inputs or outputs.</p>
+<p>This class controls the Pmod IO pins as inputs or outputs.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The parameter &#8216;direction&#8217; determines whether the instance is input/output:
 &#8216;in&#8217;  : receiving input from offchip to onchip.
 &#8216;out&#8217; : sending output from onchip to offchip.
-The index of the PMOD pins:
+The index of the Pmod pins:
 upper row, from left to right: {vdd,gnd,3,2,1,0}.
 lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 </div>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_io.PMOD_IO.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_io.PMOD_IO.iop" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_io.Pmod_IO.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_io.Pmod_IO.iop" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>_IOP</em> &#8211; The _IOP object returned from the DevMode.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_io.PMOD_IO.index">
-<code class="descname">index</code><a class="headerlink" href="#pynq.iop.pmod_io.PMOD_IO.index" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; The index of the PMOD pin, from 0 to 7.</p>
+<dt id="pynq.iop.pmod_io.Pmod_IO.index">
+<code class="descname">index</code><a class="headerlink" href="#pynq.iop.pmod_io.Pmod_IO.index" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The index of the Pmod pin, from 0 to 7.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_io.PMOD_IO.direction">
-<code class="descname">direction</code><a class="headerlink" href="#pynq.iop.pmod_io.PMOD_IO.direction" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_io.Pmod_IO.direction">
+<code class="descname">direction</code><a class="headerlink" href="#pynq.iop.pmod_io.Pmod_IO.direction" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em> &#8211; Input &#8216;in&#8217; or output &#8216;out&#8217;.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_io.PMOD_IO.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_io.html#PMOD_IO.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_io.PMOD_IO.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Receive the value from the offboard PMOD IO device.</p>
+<dt id="pynq.iop.pmod_io.Pmod_IO.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_io.html#Pmod_IO.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_io.Pmod_IO.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive the value from the offboard Pmod IO device.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Only use this function when direction = &#8216;in&#8217;.</p>
+<p class="last">Only use this function when direction is &#8216;in&#8217;.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1548,7 +1533,7 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The data (0 or 1) on the specified PMOD IO pin.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The data (0 or 1) on the specified Pmod IO pin.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
 </tr>
@@ -1557,18 +1542,18 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_io.PMOD_IO.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_io.html#PMOD_IO.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_io.PMOD_IO.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send the value to the offboard PMOD IO device.</p>
+<dt id="pynq.iop.pmod_io.Pmod_IO.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_io.html#Pmod_IO.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_io.Pmod_IO.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send the value to the offboard Pmod IO device.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Only use this function when direction = &#8216;out&#8217;.</p>
+<p class="last">Only use this function when direction is &#8216;out&#8217;.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>int</em>) &#8211; The value to be written to the PMOD IO device.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>int</em>) &#8211; The value to be written to the Pmod IO device.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
@@ -1584,33 +1569,33 @@ lower row, from left to right: {vdd,gnd,7,6,5,4}.</p>
 <div class="section" id="module-pynq.iop.pmod_tmp2">
 <span id="pynq-iop-pmod-tmp2-module"></span><h2>pynq.iop.pmod_tmp2 module<a class="headerlink" href="#module-pynq.iop.pmod_tmp2" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2">
-<em class="property">class </em><code class="descclassname">pynq.iop.pmod_tmp2.</code><code class="descname">PMOD_TMP2</code><span class="sig-paren">(</span><em>pmod_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#PMOD_TMP2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2">
+<em class="property">class </em><code class="descclassname">pynq.iop.pmod_tmp2.</code><code class="descname">Pmod_TMP2</code><span class="sig-paren">(</span><em>if_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#Pmod_TMP2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls a temperature sensor PMOD.</p>
-<p>The PMOD TMP2 (PB 200-221) is an ambient temperature sensor powered by
+<p>This class controls a temperature sensor Pmod.</p>
+<p>The Pmod TMP2 (PB 200-221) is an ambient temperature sensor powered by
 ADT7420.</p>
 <dl class="attribute">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.iop" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>_IOP</em> &#8211; I/O processor instance used by TMP2</p>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.iop" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>_IOP</em> &#8211; I/O processor instance used by TMP2.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.mmio">
-<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.mmio" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.mmio" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.log_interval_ms">
-<code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.log_interval_ms" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the TMP2 sensor</p>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.log_interval_ms">
+<code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.log_interval_ms" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the TMP2 sensor.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.get_log">
-<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#PMOD_TMP2.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.get_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.get_log">
+<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#Pmod_TMP2.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.get_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return list of logged samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1627,9 +1612,9 @@ ADT7420.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#PMOD_TMP2.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read current temperature value measured by the TMP2 PMOD.</p>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#Pmod_TMP2.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read current temperature value measured by the Pmod TMP2.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1645,9 +1630,9 @@ ADT7420.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.set_log_interval_ms">
-<code class="descname">set_log_interval_ms</code><span class="sig-paren">(</span><em>log_interval_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#PMOD_TMP2.set_log_interval_ms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.set_log_interval_ms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the sampling interval for the TMP2 PMOD.</p>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.set_log_interval_ms">
+<code class="descname">set_log_interval_ms</code><span class="sig-paren">(</span><em>log_interval_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#Pmod_TMP2.set_log_interval_ms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.set_log_interval_ms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the sampling interval for the Pmod TMP2.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1663,8 +1648,8 @@ ADT7420.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.start_log">
-<code class="descname">start_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#PMOD_TMP2.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.start_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.start_log">
+<code class="descname">start_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#Pmod_TMP2.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.start_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start recording multiple values in a log.</p>
 <p>This method will first call set_log_interval_ms() before writting to
 the MMIO.</p>
@@ -1683,8 +1668,8 @@ the MMIO.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynq.iop.pmod_tmp2.PMOD_TMP2.stop_log">
-<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#PMOD_TMP2.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.PMOD_TMP2.stop_log" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.iop.pmod_tmp2.Pmod_TMP2.stop_log">
+<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/pmod_tmp2.html#Pmod_TMP2.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.pmod_tmp2.Pmod_TMP2.stop_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop recording multiple values in a log.</p>
 <p>Simply write to the MMIO to stop the log.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1708,7 +1693,7 @@ the MMIO.</p>
 <span id="pynq-iop-grove-adc-module"></span><h2>pynq.iop.grove_adc module<a class="headerlink" href="#module-pynq.iop.grove_adc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.iop.grove_adc.Grove_ADC">
-<em class="property">class </em><code class="descclassname">pynq.iop.grove_adc.</code><code class="descname">Grove_ADC</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_adc.html#Grove_ADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_adc.Grove_ADC" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynq.iop.grove_adc.</code><code class="descname">Grove_ADC</code><span class="sig-paren">(</span><em>if_id</em>, <em>gr_pin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_adc.html#Grove_ADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_adc.Grove_ADC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove IIC ADC.</p>
 <p>Grove ADC is a 12-bit precision ADC module based on ADC121C021. Hardware
@@ -1932,7 +1917,7 @@ the MMIO.</p>
 <span id="pynq-iop-grove-buzzer-module"></span><h2>pynq.iop.grove_buzzer module<a class="headerlink" href="#module-pynq.iop.grove_buzzer" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.iop.grove_buzzer.Grove_Buzzer">
-<em class="property">class </em><code class="descclassname">pynq.iop.grove_buzzer.</code><code class="descname">Grove_Buzzer</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_buzzer.html#Grove_Buzzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_buzzer.Grove_Buzzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynq.iop.grove_buzzer.</code><code class="descname">Grove_Buzzer</code><span class="sig-paren">(</span><em>if_id</em>, <em>gr_pin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_buzzer.html#Grove_Buzzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_buzzer.Grove_Buzzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove Buzzer.</p>
 <p>The grove buzzer module has a piezo buzzer as the main component.
@@ -1943,7 +1928,7 @@ Hardware version: v1.2.</p>
 <dl class="attribute">
 <dt id="pynq.iop.grove_buzzer.Grove_Buzzer.iop">
 <code class="descname">iop</code><a class="headerlink" href="#pynq.iop.grove_buzzer.Grove_Buzzer.iop" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>_IOP</em> &#8211; I/O processor instance used by GROVE_Buzzer</p>
+<dd><p><em>_IOP</em> &#8211; I/O processor instance used by Grove Buzzer.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1955,7 +1940,7 @@ Hardware version: v1.2.</p>
 <dl class="attribute">
 <dt id="pynq.iop.grove_buzzer.Grove_Buzzer.log_interval_ms">
 <code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.iop.grove_buzzer.Grove_Buzzer.log_interval_ms" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the GROVE_ADC sensor</p>
+<dd><p><em>int</em> &#8211; Time in milliseconds between sampled reads of the GROVE_BUZZER sensor.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1984,11 +1969,17 @@ Hardware version: v1.2.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tone_period</strong> (<em>int</em>) &#8211; The period of the tone in microsecond.</li>
+<li><strong>num_cycles</strong> (<em>int</em>) &#8211; The number of cycles for the tone to be played.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -2001,7 +1992,7 @@ Hardware version: v1.2.</p>
 <span id="pynq-iop-grove-imu-module"></span><h2>pynq.iop.grove_imu module<a class="headerlink" href="#module-pynq.iop.grove_imu" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.iop.grove_imu.Grove_IMU">
-<em class="property">class </em><code class="descclassname">pynq.iop.grove_imu.</code><code class="descname">Grove_IMU</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_imu.html#Grove_IMU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_imu.Grove_IMU" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynq.iop.grove_imu.</code><code class="descname">Grove_IMU</code><span class="sig-paren">(</span><em>if_id</em>, <em>gr_pin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_imu.html#Grove_IMU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_imu.Grove_IMU" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove IIC IMU.</p>
 <p>Grove IMU 10DOF is a combination of grove IMU 9DOF (MPU9250) and grove
@@ -2208,7 +2199,7 @@ precision, low power digital pressure sensor. Hardware version: v1.1.</p>
 <span id="pynq-iop-grove-ledbar-module"></span><h2>pynq.iop.grove_ledbar module<a class="headerlink" href="#module-pynq.iop.grove_ledbar" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.iop.grove_ledbar.Grove_LEDbar">
-<em class="property">class </em><code class="descclassname">pynq.iop.grove_ledbar.</code><code class="descname">Grove_LEDbar</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_ledbar.html#Grove_LEDbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_ledbar.Grove_LEDbar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynq.iop.grove_ledbar.</code><code class="descname">Grove_LEDbar</code><span class="sig-paren">(</span><em>if_id</em>, <em>gr_pin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_ledbar.html#Grove_LEDbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_ledbar.Grove_LEDbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove LED BAR.</p>
 <p>Grove LED Bar is comprised of a 10 segment LED gauge bar and an MY9221 LED
@@ -2361,7 +2352,7 @@ it is 0, or green to red when it is 1.</p>
 <span id="pynq-iop-grove-oled-module"></span><h2>pynq.iop.grove_oled module<a class="headerlink" href="#module-pynq.iop.grove_oled" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.iop.grove_oled.Grove_OLED">
-<em class="property">class </em><code class="descclassname">pynq.iop.grove_oled.</code><code class="descname">Grove_OLED</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_oled.html#Grove_OLED"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_oled.Grove_OLED" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynq.iop.grove_oled.</code><code class="descname">Grove_OLED</code><span class="sig-paren">(</span><em>if_id</em>, <em>gr_pin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_oled.html#Grove_OLED"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_oled.Grove_OLED" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the Grove IIC OLED.</p>
 <p>Grove LED 128×64 Display module is an OLED monochrome 128×64 matrix
@@ -2539,21 +2530,15 @@ display module. Model: OLE35046P. Hardware version: v1.1.</p>
 <span id="pynq-iop-grove-pir-module"></span><h2>pynq.iop.grove_pir module<a class="headerlink" href="#module-pynq.iop.grove_pir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.iop.grove_pir.Grove_PIR">
-<em class="property">class </em><code class="descclassname">pynq.iop.grove_pir.</code><code class="descname">Grove_PIR</code><span class="sig-paren">(</span><em>pmod_id</em>, <em>gr_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/grove_pir.html#Grove_PIR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_pir.Grove_PIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pynq.iop.pmod_io.PMOD_IO" title="pynq.iop.pmod_io.PMOD_IO"><code class="xref py py-class docutils literal"><span class="pre">pynq.iop.pmod_io.PMOD_IO</span></code></a></p>
+<em class="property">class </em><code class="descclassname">pynq.iop.grove_pir.</code><code class="descname">Grove_PIR</code><a class="reference internal" href="_modules/pynq/iop/grove_pir.html#Grove_PIR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.grove_pir.Grove_PIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class controls the PIR motion sensor.</p>
-<p>The grove PIR motion sensor is attached to a PMOD. This class inherits
-from the PMODIO class. Hardware version: v1.2.</p>
+<p>The grove PIR motion sensor is attached to a Pmod or an Arduino interface.
+Hardware version: v1.2.</p>
 <dl class="attribute">
-<dt id="pynq.iop.grove_pir.Grove_PIR.iop">
-<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.grove_pir.Grove_PIR.iop" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>_IOP</em> &#8211; The _IOP object returned from the DevMode.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.iop.grove_pir.Grove_PIR.index">
-<code class="descname">index</code><a class="headerlink" href="#pynq.iop.grove_pir.Grove_PIR.index" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; The index of the PMOD pin {0, 1, 7, 6}.</p>
+<dt id="pynq.iop.grove_pir.Grove_PIR.pir_iop">
+<code class="descname">pir_iop</code><a class="headerlink" href="#pynq.iop.grove_pir.Grove_PIR.pir_iop" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>object</em> &#8211; The Pmod IO or Arduino IO object.</p>
 </dd></dl>
 
 <dl class="method">

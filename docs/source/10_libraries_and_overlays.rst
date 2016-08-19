@@ -52,7 +52,7 @@ For example, the following code will instantiate and write to the PMOD_OLED atta
 
 .. code-block:: python
 
-   from pynq.pmods import PMOD_OLED 
+   from pynq.iop import PMOD_OLED 
    PMOD_OLED(4).write("hello world")
 
 audio
@@ -64,7 +64,7 @@ This folder contains the single audio class to use Line in and Headphone out.  P
 video
 -----
 
-This folder contains the HDMI and VGA classes.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using video.
+This folder contains the HDMI class.  Please see the `Base Overlay Video Section <7_base_overlay_video.html>`_ to learn more about using video.
 
 
 tests

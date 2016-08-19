@@ -84,14 +84,15 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">Pynq Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming Zybo&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_pmodio_overlay.html">Peripherals and the Pmod I/O overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_arduino_overlay.html">Arduino IO Processor</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_audio_video_overlay.html">The Audio-Video Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_video.html">Video using the base Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
@@ -288,43 +289,148 @@ div.nboutput  > :nth-child(2).stderr {
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq.drivers.audio" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pynq.drivers.audio.Audio">
-<em class="property">class </em><code class="descclassname">pynq.drivers.audio.</code><code class="descname">Audio</code><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynq.drivers.audio.</code><code class="descname">Audio</code><span class="sig-paren">(</span><em>base_addr=None</em>, <em>length=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class for the audio controller.</p>
-<p>This class just sets the static <cite>_audio_ctrl</cite> variable if not yet set.
-The <cite>_audio_ctrl</cite> in <cite>LineIn</cite> and <cite>Headpone</cite> classes inherits from <cite>Audio</cite>.</p>
+<p>Class to interact with audio controller.
+Each audio sample is a 32bit width integer.
+The audio controller supports only mono mode,
+and uses pulse density modulation (PDM).</p>
 <dl class="attribute">
-<dt id="pynq.drivers.audio.Audio._audio_ctrl">
-<code class="descname">_audio_ctrl</code><a class="headerlink" href="#pynq.drivers.audio.Audio._audio_ctrl" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>object</em> &#8211; An audio control object from C-API.</p>
+<dt id="pynq.drivers.audio.Audio.sample_rate">
+<code class="descname">sample_rate</code><a class="headerlink" href="#pynq.drivers.audio.Audio.sample_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Sample rate of the current buffer content.</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="class">
-<dt id="pynq.drivers.audio.Headphone">
-<em class="property">class </em><code class="descclassname">pynq.drivers.audio.</code><code class="descname">Headphone</code><a class="reference internal" href="_modules/pynq/drivers/audio.html#Headphone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Headphone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pynq.drivers.audio.Audio" title="pynq.drivers.audio.Audio"><code class="xref py py-class docutils literal"><span class="pre">pynq.drivers.audio.Audio</span></code></a></p>
-<p>Class for the audio headphone (HPH) channel.</p>
-<p>This is a child class of Audio.</p>
 <dl class="attribute">
-<dt id="pynq.drivers.audio.Headphone.controller">
-<code class="descname">controller</code><a class="headerlink" href="#pynq.drivers.audio.Headphone.controller" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>object</em> &#8211; Uses the audio controller in its parent class (C-API).</p>
+<dt id="pynq.drivers.audio.Audio.sample_len">
+<code class="descname">sample_len</code><a class="headerlink" href="#pynq.drivers.audio.Audio.sample_len" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Sample length of the current buffer content.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pynq.drivers.audio.Audio.bypass_start">
+<code class="descname">bypass_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio.bypass_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio.bypass_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream audio controller input directly to output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="class">
-<dt id="pynq.drivers.audio.LineIn">
-<em class="property">class </em><code class="descclassname">pynq.drivers.audio.</code><code class="descname">LineIn</code><a class="reference internal" href="_modules/pynq/drivers/audio.html#LineIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.LineIn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pynq.drivers.audio.Audio" title="pynq.drivers.audio.Audio"><code class="xref py py-class docutils literal"><span class="pre">pynq.drivers.audio.Audio</span></code></a></p>
-<p>Class for the audio LineIn channel.</p>
-<p>This is a child class of Audio.</p>
-<dl class="attribute">
-<dt id="pynq.drivers.audio.LineIn.controller">
-<code class="descname">controller</code><a class="headerlink" href="#pynq.drivers.audio.LineIn.controller" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>object</em> &#8211; Uses the audio controller in its parent class (C-API).</p>
+<dl class="method">
+<dt id="pynq.drivers.audio.Audio.bypass_stop">
+<code class="descname">bypass_stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio.bypass_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio.bypass_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop streaming input to output directly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.drivers.audio.Audio.load_file">
+<code class="descname">load_file</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio.load_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio.load_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads file into internal audio buffer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>string</em>) &#8211; File name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.drivers.audio.Audio.play">
+<code class="descname">play</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Play audio buffer via audio jack.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None.</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.drivers.audio.Audio.print_file_info">
+<code class="descname">print_file_info</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio.print_file_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio.print_file_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints information about .wav files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>string</em>) &#8211; File name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.drivers.audio.Audio.record">
+<code class="descname">record</code><span class="sig-paren">(</span><em>seconds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio.record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio.record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record data from audio controller to audio buffer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>seconds</strong> (<em>float</em>) &#8211; The number of seconds to be recorded.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.drivers.audio.Audio.save_file">
+<code class="descname">save_file</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/audio.html#Audio.save_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.audio.Audio.save_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save audio buffer content to &lt;file&gt; in WAV fomat</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>string</em>) &#8211; File name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
