@@ -70,18 +70,18 @@ def test_audio_out():
 @pytest.mark.run(order=32)
 @pytest.mark.skipif(not flag, reason="need audio out attached")
 def test_audio_playback():
-    """Test the functionality of handling wave files.
+    """Test the functionality of handling pdm files.
     
-    Test whether the `*.wav` file can be handled properly.
+    Test whether the `*.pdm` file can be handled properly.
     
     There are 2 steps in this test:
-    1. Load and play a pre-stored wave file.
-    2. Record a wave file and play it back.
+    1. Load and play a pre-stored pdm file.
+    2. Record a pdm file and play it back.
     
     """
     audio_t = Audio()
     
-    print("\nPlaying a wave file...")
+    print("\nPlaying an audio file...")
     audio_t.load("/home/xilinx/pynq/drivers/tests/welcome.pdm")
     audio_t.play()
     assert user_answer_yes("Heard welcome message?")
