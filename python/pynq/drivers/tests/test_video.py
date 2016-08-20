@@ -188,9 +188,9 @@ def test_pattern_blended():
                 wgreen = 255
             else:
                 wgreen = int(fgreen)
-            frame_raw[ipixeladdr + 0] = wred
+            frame_raw[ipixeladdr] = wblue
             frame_raw[ipixeladdr + 1] = wgreen
-            frame_raw[ipixeladdr + 2] = wblue
+            frame_raw[ipixeladdr + 2] = wred
             if wcoi < yint:
                 fgreen += yinc
             elif wcoi < 2*yint:
@@ -199,7 +199,7 @@ def test_pattern_blended():
                 fgreen += yinc
             else:
                 fgreen -= yinc
-            ipixeladdr += 1920*3 # stride
+            ipixeladdr += 1920*3
         if hcoi < xleft:
             fblue = 0.0
             fred -= xinc
