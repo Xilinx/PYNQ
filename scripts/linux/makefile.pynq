@@ -83,7 +83,7 @@ memutils:
 	@echo
 	@echo "Build libxlnk_cma"
 	@echo
-	cd ${REPO_DIR}/memutils && make && make install
+	cd ${REPO_DIR}/scripts/memutils && make && make install
 
 pynq_package:
 	@echo
