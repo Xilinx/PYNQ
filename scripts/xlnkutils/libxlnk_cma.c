@@ -32,7 +32,6 @@ void _cma_fin()
 {
     _xlnk_free();
     close(fd);
-    remove(tmp_file);
 }
 
 uint32_t cma_pages_available()
