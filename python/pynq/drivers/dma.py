@@ -38,6 +38,7 @@ import cffi
 import signal
 
 ffi = cffi.FFI()
+memapi = cffi.FFI()
 
 ffi.cdef("""
 typedef unsigned int* XAxiDma_Bd[20];
@@ -120,8 +121,19 @@ int XAxiDma_Selftest(XAxiDma * InstancePtr);
 void DisableInterruptsAll(XAxiDma * InstancePtr);
 """)
 
+memapi.cdef("""
+static uint32_t xlnkBufCnt = 0;
+uint32_t cma_mmap(uint32_t phyAddr, uint32_t len);
+uint32_t cma_munmap(void *buf, uint32_t len);
+void *cma_alloc(uint32_t len, uint32_t cacheable);
+uint32_t cma_get_phy_addr(void *buf);
+void cma_free(void *buf);
+uint32_t cma_pages_available();
+""")
+
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
 libdma = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
+libxlnk = memapi.dlopen("/usr/lib/libxlnk_cma.so")
 
 DefaultConfig = {
     'DeviceId' : 0,
@@ -258,7 +270,7 @@ class DMA:
             else:
                 print("Warning: Expecting 3rd Arg to be a dict.")
 
-        virt = libdma.getMemoryMap(address,0x10000)
+        virt = libxlnk.cma_mmap(address,0x10000)
         if virt == -1:
             raise RuntimeError("Memory map of driver failed!")
         self.DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
@@ -327,7 +339,7 @@ class DMA:
         else:
             print("Transfer Error! Please allocate a buffer first.")
 
-    def create_buf(self, num_bytes):
+    def create_buf(self, num_bytes, cacheable = 0):
         """Allocate physically contiguous memory buffer.
 
         Allocates/Reallocates buffer needed for DMA operations.
@@ -336,6 +348,9 @@ class DMA:
         ----------
         length : unsigned int
             Length of the allocated array in bytes.
+        cacheable : int
+            1 if the memory buffer is cacheable
+            0 if the memory buffer is non-cacheable
 
         Returns
         -------
@@ -350,13 +365,13 @@ class DMA:
 
         """
         if self.buf is None:
-            self.buf = libdma.frame_alloc(num_bytes)
+            self.buf = libxlnk.cma_alloc(num_bytes, cacheable)
             if self.buf == ffi.NULL:
                 raise RuntimeError("Memory allocation failed.")
         else:
-            libdma.frame_free(self.buf)
-            self.buf = libdma.frame_alloc(num_bytes)
-        bufPhyAddr = libdma.getPhyAddr(self.buf)
+            libxlnk.cma_free(self.buf)
+            self.buf = libxlnk.cma_alloc(num_bytes)
+        bufPhyAddr = libxlnk.cma_get_phy_addr(self.buf)
         self._bufPtr = ffi.cast("uint32_t *",bufPhyAddr)
         self.bufLength = num_bytes
 
@@ -377,7 +392,7 @@ class DMA:
         """
         if self.buf == None or self.buf == ffi.NULL:
             return
-        libdma.frame_free(self.buf)
+        libxlnk.cma_free(self.buf)
 
     def wait(self, wait_timeout=10):
         """Block till DMA is busy or a timeout occurs.
