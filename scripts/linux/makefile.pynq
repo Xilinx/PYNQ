@@ -53,7 +53,7 @@ ROOT_SCRIPTS := 0_network.sh   \
 2_pl_server.sh   \
 3_resizefs.sh \
 
-update_pynq: backup git_clone pynq_package scripts_notebooks pynq_permissions memutils
+update_pynq: backup git_clone pynq_package scripts_notebooks pynq_permissions xlnkutils
 	@echo "Completed PYNQ update."
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
@@ -80,11 +80,11 @@ git_clone:
 	@echo
 	git clone https://github.com/Xilinx/PYNQ ${REPO_DIR}
 
-memutils:
+xlnkutils:
 	@echo
 	@echo "Build libxlnk_cma"
 	@echo
-	cd ${REPO_DIR}/scripts/memutils && make && make install
+	cd ${REPO_DIR}/scripts/xlnkutils && make && make install
 
 pynq_package:
 	@echo
