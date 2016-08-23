@@ -1,5 +1,7 @@
 
-
+ifndef BOARD
+    $(error BOARD environment variable is undefined)
+endif
 
 BACKUP_DIR = /home/xilinx/pynq_backup
 REPO_DIR = /home/xilinx/pynq_git
@@ -50,7 +52,6 @@ ROOT_SCRIPTS := 0_network.sh   \
 1_jupyter_server.sh   \
 2_pl_server.sh   \
 3_resizefs.sh \
-
 
 update_pynq: backup git_clone pynq_package scripts_notebooks pynq_permissions memutils
 	@echo "Completed PYNQ update."
