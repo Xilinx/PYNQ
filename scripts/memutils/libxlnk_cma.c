@@ -1,21 +1,53 @@
 #include "libxlnk_cma.h"
 
-void *cma_alloc(uint32_t len, uint32_t cacheable){
-    if(xlnkBufCnt == XLNK_BUFPOOL_SIZE){
+// Global handle to Xlnk Driver.
+int fd;
+// Internal Function to Reset Xlnk.
+void _xlnk_reset();
+// Internal Function to free all buffers.
+void _xlnk_free();
+
+__attribute__((constructor))
+void _cma_init()
+{
+    fd = open(XLNK_DRIVER_PATH, O_RDWR);
+    if (fd < 0) {
+        exit(-1);
+    }
+    _xlnk_reset();
+}
+
+__attribute__((destructor))
+void _cma_fin()
+{
+    _xlnk_free();
+    close(fd);
+}
+
+void _xlnk_free()
+{
+    if (xlnkBufCnt == 0) {
+        return;
+    }
+    for (int i = 0; i < XLNK_BUFPOOL_SIZE; ++i) {
+        if (xlnkBufLens[i] > 0) {
+            cma_free(xlnkBufPool[i]);
+        }
+    }
+}
+
+void _xlnk_reset()
+{
+    xlnk_args xlnkArgs;
+    ioctl(fd, XLNK_IOCRECRES, &xlnkArgs);
+    ioctl(fd, XLNK_IOCRESET, &xlnkArgs);
+}
+
+void *cma_alloc(uint32_t len, uint32_t cacheable)
+{
+    if(xlnkBufCnt == XLNK_BUFPOOL_SIZE) {
         printf("Buffer pool size exceeded.\n");
         return NULL;
-    }
-
-    int fd = open(XLNK_DRIVER_PATH, O_RDWR);
-    if (fd < 0){  
-        printf("unable to open %s\n", XLNK_DRIVER_PATH);
-        return NULL;
-    }  
-
-    if(xlnkBufCnt == 0){
-        xlnk_args xlnkArgs;
-        ioctl(fd, XLNK_IOCRECRES, &xlnkArgs);
-        ioctl(fd, XLNK_IOCRESET, &xlnkArgs);
     }
 
     if (len <= 0)
@@ -47,9 +79,9 @@ void *cma_alloc(uint32_t len, uint32_t cacheable){
     }
     xlnkBufPool[bufId] = addr;
     xlnkBufLens[bufId] = len;
+    bufIDs[bufId] = 1;
     xlnkBufPhyPool[bufId] = bufPhyAddr;
     xlnkBufCnt++;
-    close(fd);
     return addr;
 }
 
@@ -68,7 +100,7 @@ static int findBuf(void *buf, uint32_t *offset)
     return -1;
 }
 
-uint32_t cma_get_phy_addr(void *buf){
+uint32_t cma_get_phy_addr(void *buf) {
     uint32_t offset;
     int bufId = findBuf(buf, &offset);
     if (bufId < 0) 
@@ -76,7 +108,7 @@ uint32_t cma_get_phy_addr(void *buf){
     return xlnkBufPhyPool[bufId] + offset;
 }
 
-void cma_free(void *buf){
+void cma_free(void *buf) {
     if (xlnkBufCnt == 0)
         return;
 
@@ -103,20 +135,16 @@ void cma_free(void *buf){
     xlnkBufCnt--;
 
     if(xlnkBufCnt == 0)
-        ioctl(fd, XLNK_IOCSHUTDOWN, &xlnkArgs);       
-
-    int err = close(fd);
-    if(err < 0)
-        printf("error while closing %s\n", XLNK_DRIVER_PATH);
+        ioctl(fd, XLNK_IOCSHUTDOWN, &xlnkArgs);
 }
 
 uint32_t cma_mmap(uint32_t phyAddr, uint32_t len)
 {
-   uint32_t * addr;int fd,pa_offset;
+   uint32_t * addr;int memfd,pa_offset;
    pa_offset = phyAddr & ~(sysconf(_SC_PAGE_SIZE) - 1);
-   fd = open("/dev/mem", O_RDWR); 
+   memfd = open("/dev/mem", O_RDWR); 
     addr = mmap(NULL, len, PROT_READ | PROT_WRITE,
-            MAP_SHARED, fd, pa_offset);
+            MAP_SHARED, memfd, pa_offset);
     if (addr == MAP_FAILED) {
         printf("mmap failed.\n");
         return -1;
@@ -131,12 +159,6 @@ uint32_t cma_munmap(void *buf, uint32_t len)
 
 void xlnkFlushCache(void *buf, int size)
 {
-    int fd = open(XLNK_DRIVER_PATH, O_RDWR);
-    if (fd < 0){  
-        printf("unable to open %s\n", XLNK_DRIVER_PATH);
-        return;
-    }
-
     int ioctl_status;
     xlnk_args ccargs;
     ccargs.cachecontrol.phys_addr = buf;
@@ -144,19 +166,13 @@ void xlnkFlushCache(void *buf, int size)
     ccargs.cachecontrol.action = 0;
 
     ioctl_status = ioctl(fd, XLNK_IOCCACHECTRL, &ccargs);
-    if (ioctl_status < 0)
-    {
+    if (ioctl_status < 0) {
         printf("ERROR: ioctl_status = %d Failed to flush cache\n", ioctl_status);
     }
 }
 
 void xlnkInvalidateCache(void *buf, int size)
 {
-    int fd = open(XLNK_DRIVER_PATH, O_RDWR);
-    if (fd < 0){  
-        printf("unable to open %s\n", XLNK_DRIVER_PATH);
-        return;
-    }
     int ioctl_status;
     xlnk_args ccargs;
     ccargs.cachecontrol.phys_addr = buf;
@@ -164,8 +180,7 @@ void xlnkInvalidateCache(void *buf, int size)
     ccargs.cachecontrol.action = 1;
 
     ioctl_status = ioctl(fd, XLNK_IOCCACHECTRL, &ccargs);
-    if (ioctl_status < 0)
-    {
+    if (ioctl_status < 0) {
         printf("ERROR: ioctl_status = %d Failed to invalidate cache\n", ioctl_status);
     }
 }
