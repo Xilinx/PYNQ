@@ -30,7 +30,7 @@ Pmods
 ------------
 A Pmod interface is a 12-pin connector that can be used to connect peripherals like and other accessories to the board. 
 
-A range of Pmod peripherals are available from Digilent Inc and other suppliers. Typical Pmod peripherals include ADCs, DACs, sensors (tempterature, light), communication interfaces (ethernet, serial), and input and output interfaces (buttons, switches, LEDs).
+A range of Pmod peripherals are available from Digilent Inc and other suppliers. Typical Pmod peripherals include ADCs, DACs, sensors (temperature, light), communication interfaces (Ethernet, serial), and input and output interfaces (buttons, switches, LEDs).
 
 .. image:: ./images/Pmods_opt.png
    :align: center
@@ -46,7 +46,7 @@ Supported peripherals
 
 Pynq current supports a number of Pmods and Grove Peripherals. See the *pynq.pmods package* section of the documentation. 
 
-Pmods can be plugged directly into the Pmod port. Grove Peripherals can be connected to the Pmod Port through a [*StickIt*](http://www.xess.com/shop/product/stickit-grove/) adapter board.
+Pmods can be plugged directly into the Pmod port. Grove Peripherals can be connected to the Pmod Port through a *pmod2Grove* adapter board.
 
 As the PMOD interface connects to FPGA pins, other peripherals can be wired to a Pmod port.
 
@@ -79,7 +79,7 @@ Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be aligned
 Pmod-Grove Adapter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The Pmod-to-Grove StickIt adapter has 4 connectors for Grove devices, G1, G2, G3, G4.
+Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The pmod2Grove adapter has 4 connectors for Grove devices, G1, G2, G3, G4.
 
 .. image:: ./images/Pmod_Grove_Adapter_opt.jpg
    :align: center
@@ -100,7 +100,7 @@ The IOP gives flexibility to connect to and control a range of different externa
 
 Each IOP contains a MicroBlaze processor and a dedicated memory block for the MicroBlaze instruction and data memory. This memory block is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area can be used for communication and data transfer between the ARM processor and the IOP(s).
 
-In the Base overlay on the Pynq-Z1 board, one IOP controls each of the two Pmod innterfaces, and another IOP controls the Arduino interface. Inside the IOP are interface blocks; Timer, IIC, SPI, GPIO (General Purpose Input/Output) and Configurable switch. IIC and SPI are specialized interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the Pmod signals to be routed internally to the required interface block.
+In the Base overlay on the Pynq-Z1 board, one IOP controls each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are interface blocks; Timer, IIC, SPI, GPIO (General Purpose Input/Output) and Configurable switch. IIC and SPI are specialized interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the Pmod signals to be routed internally to the required interface block.
 
 Pmod IO Processor
 ------------------
@@ -155,7 +155,7 @@ pmod_io_switch driver
 --------------------------
 ``pmod_io_switch.h`` and ``pmod_io_switch.c`` are part of the *pmod_io_switch* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<Pynq GitHub Repository>/Pynq/zybo/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_1.0/src/``
+   ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_1.0/src/``
 
 This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
 
@@ -191,7 +191,7 @@ PWM          D3, D5, D6, D9, D10, D11
 Timer        D3-D6 and D8-D11
 ==========   =========================
 
-\* There are also dedicated pins for a seprate SPI. 
+\* There are also dedicated pins for a separate SPI. 
 
 For example, a shield with a UART and 5 Digital IO can connect the UART to pins D0, D1, and the Digital IO can be connected to pins D2 - D6.
 
@@ -283,7 +283,7 @@ arduino_io_switch driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ``arduino_io_switch.h`` and ``arduino_io_switch.c`` are part of the *arduino_io_switch* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<Pynq GitHub Repository>/Pynq/zybo/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_1.0/src/``
+   ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_1.0/src/``
 
 This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
 
