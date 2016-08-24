@@ -21,6 +21,7 @@
 *.mp4 binary
 *.hdf binary
 *.bat binary
+*.pdm binary
 *.elf binary -crlf
 *.bin binary -crlf
 *.bit binary -crlf
