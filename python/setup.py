@@ -104,8 +104,10 @@ setup(  name='pynq',
         },
         ext_modules = [
             Extension('pynq.drivers._video', video, 
-                      include_dirs = ['pynq/_pynq/inc', 
-                                      'pynq/_pynq/bsp/ps7_cortexa9_0/include'],
+                       include_dirs = ['pynq/_pynq/inc', 
+                                       'pynq/_pynq/bsp/ps7_cortexa9_0/include'],
+                       libraries = ['xlnk_cma'],
+                       library_dirs = ['/usr/lib'],
                      ),
         ]
     )

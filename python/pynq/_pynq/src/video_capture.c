@@ -173,7 +173,7 @@ int VideoStart(VideoCapture *videoPtr)
     for (i = 0; i < VIDEO_NUM_FRAMES; i++)
     {
         videoPtr->vdmaConfig.FrameStoreStartAddr[i] =  
-                                (u32) frame_getPhyAddr(videoPtr->framePtr[i]);
+                                (u32) cma_get_phy_addr(videoPtr->framePtr[i]);
     }
     videoPtr->vdmaConfig.EnableFrameCounter = 0;
 

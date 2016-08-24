@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "xil_types.h"
-#include "utils.h"
 #include "video_commons.h"
 #include "_video.h"
 #include <stdint.h> //for uintptr_t 
@@ -27,7 +26,7 @@
  */
 static void videoframe_dealloc(videoframeObject* self){
     for(int i = 0; i < NUM_FRAMES; i++)
-        frame_free(self->frame_buffer[i]);
+        cma_free(self->frame_buffer[i]);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -53,8 +52,8 @@ static int videoframe_init(videoframeObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "|I", &self->single_frame))
         return -1;
     if (self->single_frame == 1) // allocate just the frame at position 0
-    {
-        if((self->frame_buffer[0] = (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME))
+    { 
+        if((self->frame_buffer[0] = (u8 *)cma_alloc(sizeof(u8)*MAX_FRAME,0))
            == NULL){
             PyErr_Format(PyExc_MemoryError,"Unable to allocate memory");
             return -1; 
@@ -63,7 +62,7 @@ static int videoframe_init(videoframeObject *self, PyObject *args){
     }
     self->single_frame = 0; // reset to 0 in case user specified a non valid value
     for(int i = 0; i < NUM_FRAMES; i++)
-        if((self->frame_buffer[i] = (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME))
+        if((self->frame_buffer[i] = (u8 *)cma_alloc(sizeof(u8)*MAX_FRAME,0))
            == NULL){
             PyErr_Format(PyExc_MemoryError,"Unable to allocate memory");
             return -1; 
@@ -108,7 +107,7 @@ PyObject *get_frame_phyaddr(videoframeObject *self, unsigned int index){
                      index, 0, NUM_FRAMES-1);
         return NULL;
     }
-    unsigned int ret = frame_getPhyAddr(self->frame_buffer[index]);
+    unsigned int ret = cma_get_phy_addr(self->frame_buffer[index]);
     return PyLong_FromUnsignedLong(ret);
 }
 

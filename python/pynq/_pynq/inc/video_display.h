@@ -58,7 +58,6 @@
 #include "xvtc.h"
 #include "py_xaxivdma.h"
 #include "py_xvtc.h"
-#include "utils.h"
 #include "vga_modes.h"
 
 /* ------------------------------------------------------------ */

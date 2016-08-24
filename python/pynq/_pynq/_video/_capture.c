@@ -72,7 +72,7 @@ static int videocapture_init(videocaptureObject *self, PyObject *args){
         self->frame = PyObject_New(videoframeObject, &videoframeType);
         for(int i = 0; i < NUM_FRAMES; i++)
             if((self->frame->frame_buffer[i] = 
-                (u8 *)frame_alloc(sizeof(u8)*MAX_FRAME)) == NULL){
+                (u8 *)cma_alloc(sizeof(u8)*MAX_FRAME, 0)) == NULL){
                 PyErr_Format(PyExc_MemoryError, "Unable to allocate memory");
                 return -1;            
             }

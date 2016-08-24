@@ -57,7 +57,6 @@
 #include "xaxivdma.h"
 #include "xvtc.h"
 #include "xgpio.h"
-#include "utils.h"
 #include "py_xaxivdma.h"
 #include "py_xvtc.h"
 #include "py_xgpio.h"

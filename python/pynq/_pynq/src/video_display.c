@@ -268,7 +268,7 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
 	{
 		dispPtr->vdmaConfig.FrameStoreStartAddr[i] = 
-		                         (u32) frame_getPhyAddr(dispPtr->framePtr[i]);
+		                         (u32) cma_get_phy_addr(dispPtr->framePtr[i]);
 	}
 
 	/*
