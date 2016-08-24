@@ -6,7 +6,7 @@ There are a number of steps required before you can start writing your own softw
 IOP Processors
 --------------
 
-There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two overlays is the number of peripherals in the IOP, and the switch and port the the IOP can connect to. Pmod IOPs connect to PMOD ports, and Arduino IOPs connect to the Arduino interface on the board. 
+There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two overlays is the number of peripherals in the IOP, and the switch and port the IOP can connect to. Pmod IOPs connect to PMOD ports, and Arduino IOPs connect to the Arduino interface on the board. 
 
 Both IO Processors (IOPs) contain a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following interface peripherals:
 * `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_
@@ -35,7 +35,7 @@ IOPs can also be used standalone to offload some processing from the main proces
 Xilinx Software installation
 ----------------------------
 
-A Microblaze cross-compiler is required to build software for the Microblaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see `Pynq Modules <12_modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
+A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see `Pynq Modules <12_modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
 
 The current Pynq release is built using Vivado and SDK 2016.1. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays. 
 
@@ -48,7 +48,7 @@ Compiling projects
 
 Software runs on the MicroBlaze inside the IOP. Code for the MicroBlaze can be written in C or C++ and compiled using the `Xilinx SDK (Software Development Kit) <http://www.xilinx.com/products/design-tools/embedded-software/sdk.html>`_. 
 
-All the driver source and project files can be found in ``<Pynq GitHub Repository>Pynq\zybo\sdk``,  (Where ``<Pynq GitHub Repository>`` is the location you saved the Pynq repository).  
+All the driver source and project files can be found in ``<Pynq GitHub Repository>\Pynq\Pynq-Z1\sdk``,  (Where ``<Pynq GitHub Repository>`` is the location you saved the Pynq repository).  
 
 These projects are considered SDK *Application* projects and contain the top level application. Any software libraries are included in a Board Support Package (BSP) project, and are linked to from the Application project. 
 
@@ -59,13 +59,13 @@ You can also use these projects as a starting point to create your own project.
 HDF file
 ^^^^^^^^
 
-Before an Application project and a Board Support Package can be created or compiled in SDK, a *Hardware Platform* project is required. A Hardware Platform defines the peripherals in the IOP subsystem, and the memory map of the system, and is used by the BSP to build software libraries to support the underlying hardware. 
+Before an Application project and a Board Support Package can be created or compiled in SDK, a *Hardware Platform*  project is required. A Hardware Platform defines the peripherals in the IOP subsystem, and the memory map of the system, and is used by the BSP to build software libraries to support the underlying hardware. 
 
-A Hardware Description File (.hdf), created by Vivado, is used to create the *Hardware Platfrom* project in SDK.
+A Hardware Description File (.hdf), created by Vivado, is used to create the *Hardware Platfrom*  project in SDK.
 
 A precompiled .hdf file is provided, so it is not necessary to run Vivado to generate a .hdf file:
 
-   ``<Pynq GitHub Repository>/Pynq/zybo/sdk/``
+   ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/sdk/``
 
 Board Support Package
 ^^^^^^^^^^^^^^^^^^^^^
@@ -79,7 +79,7 @@ Building the projects
 
 A Makefile to automatically create and build the Hardware Platform and the BSP can be found in the same location as the .hdf file. 
 
-    ``<Pynq GitHub Repository>Pynq/zybo/sdk/Makefile``
+    ``<Pynq GitHub Repository>Pynq/Pynq-Z1/sdk/Makefile``
 
 Application projects for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder. 
    
@@ -97,7 +97,7 @@ In Linux, open a terminal, and source the SDK tools
 
 From either the Windows Shell, or the Linux terminal, navigate to the sdk folder in your local copy of the GitHub repository: 
 
-   cd to ``<Pynq GitHub Repository>Pynq/zybo/sdk`` and run ``make``
+   cd to ``<Pynq GitHub Repository>Pynq/Pynq-Z1/sdk`` and run ``make``
 
 .. image:: ./images/make_sdk.jpg
    :scale: 75%
@@ -116,7 +116,7 @@ Individual projects can be built by navigating to the ``<project directory>/Debu
 Binary files
 ^^^^^^^^^^^^^
 
-Compiling code produces an executable file (.elf)which needs to be converted to binary format (.bin) to download and run on an IOP. 
+Compiling code produces an executable file (.elf) which needs to be converted to binary format (.bin) to download and run on an IOP. 
 
 A .bin file can be generated from a .elf by running:
 
@@ -139,7 +139,7 @@ You will need to updates references from the old project name to your new projec
 
 If you want your project to build in the main Makefile, you should also append the .bin name of your project to the *MBBINS* variable at the top of the makefile.
 
-If you are using the SDK Gui, you can import the Hardwave Platform, BSP, and any application projects into your SDK workspace.
+If you are using the SDK Gui, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.
 
 .. image:: ./images/sdk_import_existing_bsp.jpg
    :scale: 75%
@@ -179,10 +179,10 @@ It is recommended to follow the convention for data communication between the tw
 The following example explains how Python can initiate a read from a peripheral connected to an IOP. 
 
 1. Python writes a read command (e.g. 0x3) to the mailbox command address (0x7ffc).
-2. Microblaze sees non-zero command and performs a read from the peripheral.
-3. Microblaze places the peripheral data at the mailbox base address (0x7000).
+2. MicroBlaze sees non-zero command and performs a read from the peripheral.
+3. MicroBlaze places the peripheral data at the mailbox base address (0x7000).
 4. Micboblaze writes 0x0 to the mailbox command address (0x7ffc) to confirm transaction is complete.
-5. Python checks the command address (0x7ffc), and sees that the Microblaze has written 0x0, indicating the read is complete, and data is available.
+5. Python checks the command address (0x7ffc), and sees that the MicroBlaze has written 0x0, indicating the read is complete, and data is available.
 6. Python reads the data in the mailbox base address (0x7000), completing the read.
 
 
@@ -241,7 +241,7 @@ pmod_io_switch_v1_0 driver
 --------------------------
 ``pmod.h`` and ``pmod.c`` are part of the *pmod_io_switch_v1_0* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<Pynq GitHub Repository>/Pynq/zybo/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
+   ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
 
 This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
 
@@ -254,10 +254,10 @@ Any application that uses the Pmod driver should also call pmod_init() at the be
 Running code on different IOPs
 ------------------------------------------
 
-The shared memory is the only connection between the ARM and the IOPs. That shared memory of a Microblaze is mapped to the ARM address space.  Some example mappings are shown below to highlight the address translation between Microblaze and ARM's memory spaces.  
+The shared memory is the only connection between the ARM and the IOPs. That shared memory of a MicroBlaze is mapped to the ARM address space.  Some example mappings are shown below to highlight the address translation between MicroBlaze and ARM's memory spaces.  
 
 =================   =========================   ============================
-IOP Base Address    Microblaze Address Space    ARM Equivalent Address Space
+IOP Base Address    MicroBlaze Address Space    ARM Equivalent Address Space
 =================   =========================   ============================
 0x4000_0000         0x0000_0000 - 0x0000_7fff   0x4000_0000 - 0x4000_7fff
 0x4200_0000         0x0000_0000 - 0x0000_7fff   0x4200_0000 - 0x4200_7fff
@@ -265,7 +265,7 @@ IOP Base Address    Microblaze Address Space    ARM Equivalent Address Space
 0x4600_0000         0x0000_0000 - 0x0000_7fff   0x4600_0000 - 0x4600_7fff
 =================   =========================   ============================
 
-Note that each Microblaze has the same address space. However, the ARM Equivalent Address Space will be different for each IOP. Any binary compiled for one Microblaze to run on any IOP in the overlay as the MicroBlaze address space is identical, but the binary must be written to the corresponding ARM equivalent address space. 
+Note that each MicroBlaze has the same address space. However, the ARM Equivalent Address Space will be different for each IOP. Any binary compiled for one MicroBlaze to run on any IOP in the overlay as the MicroBlaze address space is identical, but the binary must be written to the corresponding ARM equivalent address space. 
 
 e.g. if IOP1 exists at 0x4000_0000, and IOP2 (a second instance of an IOP) exists at 0x4008_0000, the same binary can run on IOP1 by writing the binary from python to the 0x4000_0000 address space, and on IOP2 by writing to the 0x40080_000. 
 
@@ -275,7 +275,7 @@ Example IOP Driver
 
 Taking PMOD ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:
 
-``<Pynq GitHub Repository>/Pynq/zybo/sdk/pmodals/src/pmod_als.c``
+``<Pynq GitHub Repository>/Pynq/Pynq-Z1/sdk/pmodals/src/pmod_als.c``
 
 Note that the ``pmod.h`` header file is included.
 
@@ -308,7 +308,7 @@ With the IOP Driver written, the Python class can be built that will communicate
  
 ``<Pynq GitHub Repository>/Pynq/tree/master/python/pynq/pmods/pmod_als.py``
   
-First the _iop, pmod_const and MMIO are imported and the Microblaze executable defined. 
+First the _iop, pmod_const and MMIO are imported and the MicroBlaze executable defined. 
 
 .. code-block:: python
 
@@ -320,7 +320,7 @@ First the _iop, pmod_const and MMIO are imported and the Microblaze executable d
 
 The IOP module is imported, along with the Pmod constant definitions (pin mappings) and the *MMIO* (interface to shared memory).
 
-The Microblaze binary for the IOP is also declared. This is the application executable, and will be loaded into the IOP instruction memory. 
+The MicroBlaze binary for the IOP is also declared. This is the application executable, and will be loaded into the IOP instruction memory. 
 
 
 
@@ -338,7 +338,7 @@ The initialization function for the module requires an IOP index. For Grove peri
     from pynq.pmods import PMOD_ALS
     als = PMOD_ALS(1)
 
-Looking further into the initialization method, the ``_iop.request_iop()`` call instantiates an instance of an IOP on the specified pmod_id and loads the Microblaze executable (ALS_PROGRAM) into the instruction memory of the appropriate Microblaze.
+Looking further into the initialization method, the ``_iop.request_iop()`` call instantiates an instance of an IOP on the specified pmod_id and loads the MicroBlaze executable (ALS_PROGRAM) into the instruction memory of the appropriate MicroBlaze.
 
 .. code-block:: python
 
@@ -359,13 +359,13 @@ Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP wi
 Example of Python Class Runtime Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to Microblaze read transaction specfic to the ALS class.
+The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to MicroBlaze read transaction specfic to the ALS class.
 
 .. code-block:: python
 
     def read(self):
 
-First, the comand is written to the Microblaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.
+First, the comand is written to the MicroBlaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.
 
 .. code-block:: python
 

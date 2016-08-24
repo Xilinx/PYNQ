@@ -16,7 +16,7 @@ Set up the board
 
 * Connect the other end of Ethernet cable to your laptop or router, and the USB cable to your laptop or a powered USB port
 
-* Power on the board, and wait ~20s for the board to boot
+* Power on the board, and wait ~30s for the board to boot
 
 Connect
 ========
@@ -24,9 +24,9 @@ Connect
 * Open a browser and go to `http://pynq:8080 <http://pynq:8080>`_ or `http://192.168.2.99 <http://192.168.2.99>`_ \* 
 
 
-The password is ``xpp``
+The password is ``xilinx``
 
-\* If you are connecting directly to your laptop or PC, configure your ethernet adapter IP to be in the same range as the board e.g. 192.168.2.98
+\* If you are connecting directly to your laptop or PC, configure your ethernet adapter IP to be in the same range as the board e.g. 192.168.2.1
 
 Pynq Portal
 =============
