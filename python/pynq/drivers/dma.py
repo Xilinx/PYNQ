@@ -256,11 +256,11 @@ class DMA:
         for key in DefaultConfig.keys():
             self.DMAinstance.__setattr__(key,DefaultConfig[key])
         if direction == DMA_TO_DEV:
-            DMAinstance.HasS2Mm = 0
-            DMAinstance.HasMm2S = 1
+            self.DMAinstance.HasS2Mm = 0
+            self.DMAinstance.HasMm2S = 1
         elif direction == DMA_BIDIRECTIONAL:
-            DMAinstance.HasS2Mm = 1
-            DMAinstance.HasMm2S = 1 
+            self.DMAinstance.HasS2Mm = 1
+            self.DMAinstance.HasMm2S = 1 
         self._bufPtr = None
         self._TransferInitiated = 0
         if attr_dict is not None:
@@ -370,7 +370,7 @@ class DMA:
                 raise RuntimeError("Memory allocation failed.")
         else:
             libxlnk.cma_free(self.buf)
-            self.buf = libxlnk.cma_alloc(num_bytes)
+            self.buf = libxlnk.cma_alloc(num_bytes, cacheable)
         bufPhyAddr = libxlnk.cma_get_phy_addr(self.buf)
         self._bufPtr = ffi.cast("uint32_t *",bufPhyAddr)
         self.bufLength = num_bytes
