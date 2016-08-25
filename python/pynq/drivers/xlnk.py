@@ -33,3 +33,67 @@ __email__       = "pynq_support@xilinx.com"
 
 import os
 import cffi
+import resource
+
+ffi = cffi.FFI()
+
+ffi.cdef("""
+static uint32_t xlnkBufCnt = 0;
+uint32_t cma_mmap(uint32_t phyAddr, uint32_t len);
+uint32_t cma_munmap(void *buf, uint32_t len);
+void *cma_alloc(uint32_t len, uint32_t cacheable);
+uint32_t cma_get_phy_addr(void *buf);
+void cma_free(void *buf);
+uint32_t cma_pages_available();
+void _xlnk_reset();
+""")
+
+libxlnk = ffi.dlopen("/usr/lib/libxlnk_cma.so")
+
+class xlnk:
+
+    def __init__(self):
+        self.bufmap = {}
+
+    def __del__(self):
+        for key in self.bufmap.keys():
+            libxlnk.cma_free(key)
+    
+    def __check_buftype(self, buf):
+        if type(buf) != type(ffi.new("char *")) or\
+          type(buf) != type(ffi.new_handle('void')):
+            raise RuntimeError("Unknown buffer type")
+        
+    def cma_alloc(self, length, cacheable = 0):
+        buf = libxlnk.cma_alloc(length, cacheable)
+        if buf == ffi.NULL:
+            raise RuntimeError("Failed to allocate Memory!")
+        bufmap[buf] = length
+        return buf
+
+    def cma_get_buffer_object(self, buf):
+        self.__check_buftype(buf)
+        return(memoryview(ffi.buffer(buf)))
+    
+    def cma_cast(self, type, data):
+        return ffi.cast(type+"*", data)
+      
+    def cma_free(self, buf):
+        if buf in self.bufmap:
+            self.bufmap.pop(buf, None)
+        self.__check_buftype(buf)
+        libxlnk.cma_free(buf)
+    
+    def cma_stats(self):
+        stats = {}
+        free_pages = libxlnk.cma_pages_available()
+        stats['CMA Memory Available'] = resource.getpagesize() * free_pages
+        memused = 0
+        for key in self.bufmap:
+            memused += self.bufmap[key]
+        stats['CMA Memory Usage'] = memused
+        stats['Buffer Count'] = len(self.bufmap)
+        return stats
+
+    def xlnk_reset(self):
+        libxlnk._xlnk_reset();'_cffi_backend.CDataOwn'
