@@ -8,3 +8,4 @@ clean:
 
 install:
 	cp -avf libxlnk_cma.so /usr/lib/
+	cp -arvf libxlnk_cma.h /usr/include/
