@@ -195,8 +195,8 @@ class DMA:
     DMAinstance : cdata 'XAxiDma_Config *'
         DMA configuration instance struct. Not to be directly modified.
     direction : int
-            dma.DMA_FROM_DEV : DMA sends data to PL.
-            dma.DMA_TO_DEV : DMA receives data from PL.
+            dma.DMA_TO_DEV : DMA sends data to PL.
+            dma.DMA_FROM_DEV : DMA receives data from PL.
             dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.
     Configuration : dict
         Current DMAinstance configuration values.
@@ -215,8 +215,8 @@ class DMA:
             Physical address of the DMA IP.
         direction : int
             Direction in which DMA transfers data. Possible values are:
-            dma.DMA_FROM_DEV : DMA sends data to PL.
-            dma.DMA_TO_DEV : DMA receives data from PL.
+            dma.DMA_TO_DEV : DMA sends data to PL.
+            dma.DMA_FROM_DEV : DMA receives data from PL.
             dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.
         attr_dict : dict
             An optional dictionary specifying DMA configuration values to
@@ -252,7 +252,6 @@ class DMA:
         """
         global DefaultConfig
         global DeviceId
-        self.Configuration = DefaultConfig
         for key in DefaultConfig.keys():
             self.DMAinstance.__setattr__(key,DefaultConfig[key])
         if direction == DMA_TO_DEV:
@@ -277,7 +276,7 @@ class DMA:
         self.DMAinstance.DeviceId = DeviceId
         DeviceId += 1
 
-        for key in self.Configuration.keys():
+        for key in DefaultConfig.keys():
             self.Configuration[key] = self.DMAinstance.__getattribute__(key)
         
     def __del__(self):
@@ -312,8 +311,8 @@ class DMA:
             size and dma.DMA_TRANSFER_LIMIT_BYTES.
         direction : int
             Direction in which DMA transfers data. Possible values are:
-            dma.DMA_FROM_DEV : DMA sends data to PL.
-            dma.DMA_TO_DEV : DMA receives data from PL.
+            dma.DMA_TO_DEV : DMA sends data to PL.
+            dma.DMA_FROM_DEV : DMA receives data from PL.
 
         Returns
         -------
