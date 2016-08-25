@@ -19,6 +19,8 @@
 *.inv binary
 *.dxf binary
 *.mp4 binary
+*.wav binary -crlf
+*.mp3 binary
 *.hdf binary
 *.bat binary
 *.pdm binary
@@ -26,3 +28,5 @@
 *.bin binary -crlf
 *.bit binary -crlf
 *.a binary -crlf
+*.pdf binary -crlf
+*.pptx binary -crlf
