@@ -1,6 +1,6 @@
 #!/bin/bash
 
-jupyter notebook > /root/jupyter.log 2>&1 &
+su -c 'cd ~xilinx ; jupyter notebook > jupyter.log  2>&1 &' -s /bin/bash root
 
 script_name=`readlink -f "$0"`
 
