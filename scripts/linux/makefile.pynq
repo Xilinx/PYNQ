@@ -53,7 +53,7 @@ ROOT_SCRIPTS := 0_network.sh   \
 2_pl_server.sh   \
 3_resizefs.sh \
 
-update_pynq: backup git_clone pynq_package scripts_notebooks pynq_permissions xlnkutils
+update_pynq: backup git_clone xlnkutils pynq_package scripts_notebooks pynq_permissions
 	@echo "Completed PYNQ update."
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
