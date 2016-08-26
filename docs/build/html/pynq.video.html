@@ -374,7 +374,7 @@ div.nboutput  > :nth-child(2).stderr {
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class for an HDMI controller.</p>
 <p>The frame buffer in an HDMI object can be shared among different objects.
-e.g., a VGA object and an HDMI object can use the same frame buffer.</p>
+e.g., HDMI in and HDMI out objects can use the same frame buffer.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">HDMI supports direction &#8216;in&#8217; and &#8216;out&#8217;.</p>
@@ -396,14 +396,6 @@ e.g., a VGA object and an HDMI object can use the same frame buffer.</p>
 <dd><p><em>_framebuffer</em> &#8211; A frame buffer storing at most 3 frames.</p>
 </dd></dl>
 
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code></td>
-</tr>
-</tbody>
-</table>
 <dl class="attribute">
 <dt id="pynq.drivers.video.HDMI.frame">
 <code class="descname">frame</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.frame" title="Permalink to this definition">¶</a></dt>
@@ -413,7 +405,7 @@ e.g., a VGA object and an HDMI object can use the same frame buffer.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>optional[int]</em>) &#8211; Index of the frames, from 0 to 2.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int, optional</em>) &#8211; Index of the frames, from 0 to 2.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Frame object with accessible pixels.</td>
 </tr>
@@ -431,7 +423,7 @@ e.g., a VGA object and an HDMI object can use the same frame buffer.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>optional[int]</em>) &#8211; Index of the current frame buffer.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>int, optional</em>) &#8211; Index of the current frame buffer.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Address of the frame, thus current frame buffer.</td>
 </tr>
@@ -471,7 +463,7 @@ new index.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_frame_index</strong> (<em>optional[int]</em>) &#8211; Index of the frames, from 0 to 2.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_frame_index</strong> (<em>int, optional</em>) &#8211; Index of the frames, from 0 to 2.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The index of the active frame.</td>
 </tr>
@@ -507,7 +499,7 @@ new index.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>optional[int]</em>) &#8211; Index of the current frame buffer.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>int, optional</em>) &#8211; Index of the current frame buffer.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Physical address of the frame, thus current frame buffer.</td>
 </tr>
@@ -528,7 +520,7 @@ is faster, but the parameter <cite>i</cite> has to be calculated manually.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>optional[int]</em>) &#8211; A location in the bytearray.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>int, optional</em>) &#8211; A location in the bytearray.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The frame in its raw bytearray form.</td>
 </tr>
@@ -574,7 +566,7 @@ Specifically, with <cite>new_mode</cite> to be:
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_mode</strong> (<em>int</em>) &#8211; A mode index from 0 to 4.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The resolution of the VGA display.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The resolution of the display.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -623,265 +615,6 @@ Specifically, with <cite>new_mode</cite> to be:
 <dl class="attribute">
 <dt id="pynq.drivers.video.HDMI.stop">
 <code class="descname">stop</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.HDMI.stop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop the video controller.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pynq.drivers.video.VGA">
-<em class="property">class </em><code class="descclassname">pynq.drivers.video.</code><code class="descname">VGA</code><span class="sig-paren">(</span><em>direction</em>, <em>frame_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/video.html#VGA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.video.VGA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class for a VGA controller.</p>
-<p>The frame buffer in a VGA object can be shared among different objects.
-e.g., a VGA object and an HDMI object can use the same frame buffer.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Currently VGA only supports direction &#8216;out&#8217;.</p>
-</div>
-<p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vga</span> <span class="o">=</span> <span class="n">VGA</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">,</span> <span class="n">frame_buffer</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.direction">
-<code class="descname">direction</code><a class="headerlink" href="#pynq.drivers.video.VGA.direction" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; Can only be &#8216;out&#8217; for VGA to be output.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.frame_buffer">
-<code class="descname">frame_buffer</code><a class="headerlink" href="#pynq.drivers.video.VGA.frame_buffer" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>_framebuffer</em> &#8211; A frame buffer storing at most 3 frames.</p>
-</dd></dl>
-
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; If direction is not set to &#8216;out&#8217;.</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.frame">
-<code class="descname">frame</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wraps the raw version using the Frame object.</p>
-<p>Use frame([index], [new_frame]) to write the frame more easily.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">if <cite>new_frame</cite> is set, nothing will be returned.</p>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>index</strong> (<em>optional[int]</em>) &#8211; Index of the frames, from 0 to 2.</li>
-<li><strong>new_frame</strong> (<em>optional[Frame]</em>) &#8211; A new frame to copy into the frame buffer.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A Frame object with accessible pixels.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.drivers.video.Frame" title="pynq.drivers.video.Frame">Frame</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.frame_height">
-<code class="descname">frame_height</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_height" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the current frame height.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The height of the frame.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.frame_index">
-<code class="descname">frame_index</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the frame index.</p>
-<p>Use frame_index([new_frame_index]) to access the frame index.
-If <cite>new_frame_index</cite> is not specified, get the current frame index.
-If <cite>new_frame_index</cite> is specified, set the current frame to the
-new index.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_frame_index</strong> (<em>optional[int]</em>) &#8211; Index of the frames, from 0 to 2.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The index of the active frame.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.frame_index_next">
-<code class="descname">frame_index_next</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_index_next" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change the frame index to the next one.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The index of the active frame.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.frame_raw">
-<code class="descname">frame_raw</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_raw" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a bytearray of the frame.</p>
-<p>User may use frame([index]) to access the frame, which may
-introduce some overhead in rare cases. The method
-frame_raw([i],[new_frame]) is faster, but the parameter <cite>i</cite> has
-to be calculated manually.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If <cite>new_frame</cite> is set, this method will take the bytearray
-(<cite>new_frame</cite>) and overwrites the current frame (or the frame
-specified by <cite>i</cite>). Also, if <cite>new_frame</cite> is set, nothing will
-be returned.</p>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>optional[int]</em>) &#8211; A location in the bytearray.</li>
-<li><strong>new_frame</strong> (<em>optional[bytearray]</em>) &#8211; A bytearray that can be used to overwrite the frame.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The frame in its raw bytearray form.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bytearray</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.frame_width">
-<code class="descname">frame_width</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.frame_width" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the current frame width.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The width of the frame.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.mode">
-<code class="descname">mode</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change the resolution of the display.</p>
-<p>Users can use mode(new_mode) to change the resolution.
-Specifically, with <cite>new_mode</cite> to be:
-0 : <a class="reference external" href="mailto:'640x480&#37;&#52;&#48;60Hz">'640x480<span>&#64;</span>60Hz</a>&#8216;
-1 : <a class="reference external" href="mailto:'800x600&#37;&#52;&#48;60Hz">'800x600<span>&#64;</span>60Hz</a>&#8216;
-2 : <a class="reference external" href="mailto:'1280x720&#37;&#52;&#48;60Hz">'1280x720<span>&#64;</span>60Hz</a>&#8216;
-3 : <a class="reference external" href="mailto:'1280x1024&#37;&#52;&#48;60Hz">'1280x1024<span>&#64;</span>60Hz</a>&#8216;
-4 : <a class="reference external" href="mailto:'1920x1080&#37;&#52;&#48;60Hz">'1920x1080<span>&#64;</span>60Hz</a>&#8216;</p>
-<p>If <cite>new_mode</cite> is not specified, return the current mode.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_mode</strong> (<em>int</em>) &#8211; A mode index from 0 to 4.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The resolution of the VGA display.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; If <cite>new_mode</cite> is out of range.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.start">
-<code class="descname">start</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start the video controller.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.state">
-<code class="descname">state</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the state of the device as an integer value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The state 0 (STOPPED), or 1 (RUNNING).</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynq.drivers.video.VGA.stop">
-<code class="descname">stop</code><em class="property"> = None</em><a class="headerlink" href="#pynq.drivers.video.VGA.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop the video controller.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

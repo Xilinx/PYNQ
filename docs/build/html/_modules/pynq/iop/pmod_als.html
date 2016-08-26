@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynq.iop.pmod_als &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_pynq.html">PYNQ Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6a_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7_base_overlay_video.html">Video using the base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_code.html">IO Processors: Writing your own software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../9_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../11_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12_modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../13_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../14_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../15_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../16_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>pynq.iop.pmod_als</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<h1>Source code for pynq.iop.pmod_als</h1><div class="highlight"><pre>
+<span></span><span class="c1">#   Copyright (c) 2016, Xilinx, Inc.</span>
+<span class="c1">#   All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1">#   Redistribution and use in source and binary forms, with or without </span>
+<span class="c1">#   modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1">#   1.  Redistributions of source code must retain the above copyright notice, </span>
+<span class="c1">#       this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#   2.  Redistributions in binary form must reproduce the above copyright </span>
+<span class="c1">#       notice, this list of conditions and the following disclaimer in the </span>
+<span class="c1">#       documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#   3.  Neither the name of the copyright holder nor the names of its </span>
+<span class="c1">#       contributors may be used to endorse or promote products derived from </span>
+<span class="c1">#       this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1">#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1">#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR </span>
+<span class="c1">#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR </span>
+<span class="c1">#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, </span>
+<span class="c1">#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1">#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, </span>
+<span class="c1">#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR </span>
+<span class="c1">#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF </span>
+<span class="c1">#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="n">__author__</span>      <span class="o">=</span> <span class="s2">&quot;Cathal McCabe, Yun Rock Qu&quot;</span>
+<span class="n">__copyright__</span>   <span class="o">=</span> <span class="s2">&quot;Copyright 2016, Xilinx&quot;</span>
+<span class="n">__email__</span>       <span class="o">=</span> <span class="s2">&quot;pynq_support@xilinx.com&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">request_iop</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">iop_const</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMODA</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMODB</span>
+
+<span class="n">PMOD_ALS_PROGRAM</span> <span class="o">=</span> <span class="s2">&quot;pmod_als.bin&quot;</span>
+<span class="n">PMOD_ALS_LOG_START</span> <span class="o">=</span> <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">16</span>
+<span class="n">PMOD_ALS_LOG_END</span> <span class="o">=</span> <span class="n">PMOD_ALS_LOG_START</span><span class="o">+</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Pmod_ALS"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.iop.pmod_als.Pmod_ALS">[docs]</a><span class="k">class</span> <span class="nc">Pmod_ALS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class controls a light sensor Pmod.</span>
+<span class="sd">    </span>
+<span class="sd">    The Digilent Pmod ALS demonstrates light-to-digital sensing through a</span>
+<span class="sd">    single ambient light sensor. This is based on an ADC081S021 analog-to-digital</span>
+<span class="sd">    converter and a TEMT6000X01 ambient light sensor.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    iop : _IOP</span>
+<span class="sd">        I/O processor instance used by ALS</span>
+<span class="sd">    mmio : MMIO</span>
+<span class="sd">        Memory-mapped I/O instance to read and write instructions and data.</span>
+<span class="sd">    log_interval_ms : int</span>
+<span class="sd">        Time in milliseconds between sampled reads of the ALS sensor</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">if_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a new instance of an ALS object. </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        if_id : int</span>
+<span class="sd">            The interface ID (1, 2) corresponding to (PMODA, PMODB).</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">if_id</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PMODA</span><span class="p">,</span> <span class="n">PMODB</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No such IOP for Pmod device.&quot;</span><span class="p">)</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">request_iop</span><span class="p">(</span><span class="n">if_id</span><span class="p">,</span> <span class="n">PMOD_ALS_PROGRAM</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">mmio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_interval_ms</span> <span class="o">=</span> <span class="mi">1000</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="Pmod_ALS.read"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.iop.pmod_als.Pmod_ALS.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read current light value measured by the ALS Pmod.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The current sensor value.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>      
+        <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                                <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pmod_ALS.set_log_interval_ms"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.iop.pmod_als.Pmod_ALS.set_log_interval_ms">[docs]</a>    <span class="k">def</span> <span class="nf">set_log_interval_ms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">log_interval_ms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the length of the log in the ALS Pmod.</span>
+<span class="sd">        </span>
+<span class="sd">        This method can set the length of the log, so that users can read out</span>
+<span class="sd">        multiple values in a single log. </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        log_interval_ms : int</span>
+<span class="sd">            The length of the log in milliseconds, for debug only.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">log_interval_ms</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Log length should not be less than 0.&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_interval_ms</span> <span class="o">=</span> <span class="n">log_interval_ms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_interval_ms</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pmod_ALS.start_log"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.iop.pmod_als.Pmod_ALS.start_log">[docs]</a>    <span class="k">def</span> <span class="nf">start_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start recording multiple values in a log.</span>
+<span class="sd">        </span>
+<span class="sd">        This method will first call set_log_interval_ms() before writting to</span>
+<span class="sd">        the MMIO.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_log_interval_ms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_interval_ms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pmod_ALS.stop_log"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.iop.pmod_als.Pmod_ALS.stop_log">[docs]</a>    <span class="k">def</span> <span class="nf">stop_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop recording multiple values in a log.</span>
+<span class="sd">        </span>
+<span class="sd">        Simply write to the MMIO to stop the log.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pmod_ALS.get_log"><a class="viewcode-back" href="../../../pynq.pmods.html#pynq.iop.pmod_als.Pmod_ALS.get_log">[docs]</a>    <span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return list of logged samples.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List of valid samples from the ALS sensor [0-255]</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Stop logging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_log</span><span class="p">()</span>
+
+        <span class="c1"># Prep iterators and results list</span>
+        <span class="n">head_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
+        <span class="n">tail_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mh">0xC</span><span class="p">)</span>
+        <span class="n">readings</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Sweep circular buffer for samples</span>
+        <span class="k">if</span> <span class="n">head_ptr</span> <span class="o">==</span> <span class="n">tail_ptr</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="n">head_ptr</span> <span class="o">&lt;</span> <span class="n">tail_ptr</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">head_ptr</span><span class="p">,</span><span class="n">tail_ptr</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">head_ptr</span><span class="p">,</span><span class="n">PMOD_ALS_LOG_END</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PMOD_ALS_LOG_START</span><span class="p">,</span><span class="n">tail_ptr</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> 
+
+        <span class="k">return</span> <span class="n">readings</span></div></div>
+
+
+     
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
