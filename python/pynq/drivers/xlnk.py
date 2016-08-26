@@ -86,7 +86,7 @@ class xlnk:
 
     def cma_get_buffer(self, buf, length):
         self.__check_buftype(buf)
-        return(memoryview(ffi.buffer(buf, length)))
+        return(ffi.buffer(buf, length))
 
     @staticmethod
     def cma_memcopy(dest, src, nbytes):
