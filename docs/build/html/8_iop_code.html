@@ -288,7 +288,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>There are a number of steps required before you can start writing your own software for an IOP. This document will describe the IOP architecture, and how to set up and build the required SDK projects to allow you to write your own application for the MicroBlaze inside an IOP. The SDK projects can be set up manually using the SDK GUI, or automatically using provided Makefiles.</p>
 <div class="section" id="iop-processors">
 <h2>IOP Processors<a class="headerlink" href="#iop-processors" title="Permalink to this headline">¶</a></h2>
-<p>There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two overlays is the number of peripherals in the IOP, and the switch and port the the IOP can connect to. Pmod IOPs connect to PMOD ports, and Arduino IOPs connect to the Arduino interface on the board.</p>
+<p>There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two overlays is the number of peripherals in the IOP, and the switch and port the IOP can connect to. Pmod IOPs connect to PMOD ports, and Arduino IOPs connect to the Arduino interface on the board.</p>
 <p>Both IO Processors (IOPs) contain a <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, a Debug module, and one or more of the following interface peripherals:
 * <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf">AXI Timer</a>
 * <a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf">AXI IIC</a>
@@ -305,7 +305,7 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 </div>
 <div class="section" id="xilinx-software-installation">
 <h2>Xilinx Software installation<a class="headerlink" href="#xilinx-software-installation" title="Permalink to this headline">¶</a></h2>
-<p>A Microblaze cross-compiler is required to build software for the Microblaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see <a class="reference external" href="12_modules.html">Pynq Modules</a>). Xilinx software is only needed if you intend to build your own drivers.</p>
+<p>A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see <a class="reference external" href="12_modules.html">Pynq Modules</a>). Xilinx software is only needed if you intend to build your own drivers.</p>
 <p>The current Pynq release is built using Vivado and SDK 2016.1. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays.</p>
 <p><a class="reference external" href="http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html">Download Xilinx Vivado and SDK 2015.4</a></p>
 <p>You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.</p>
@@ -313,17 +313,17 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 <div class="section" id="compiling-projects">
 <h2>Compiling projects<a class="headerlink" href="#compiling-projects" title="Permalink to this headline">¶</a></h2>
 <p>Software runs on the MicroBlaze inside the IOP. Code for the MicroBlaze can be written in C or C++ and compiled using the <a class="reference external" href="http://www.xilinx.com/products/design-tools/embedded-software/sdk.html">Xilinx SDK (Software Development Kit)</a>.</p>
-<p>All the driver source and project files can be found in <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq\zybo\sdk</span></code>,  (Where <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;</span></code> is the location you saved the Pynq repository).</p>
+<p>All the driver source and project files can be found in <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;\Pynq\Pynq-Z1\sdk</span></code>,  (Where <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;</span></code> is the location you saved the Pynq repository).</p>
 <p>These projects are considered SDK <em>Application</em> projects and contain the top level application. Any software libraries are included in a Board Support Package (BSP) project, and are linked to from the Application project.</p>
 <p>All <em>Application</em> projects can be compiled from the command line using Makefiles, or imported into the SDK GUI.</p>
 <p>You can also use these projects as a starting point to create your own project.</p>
 <div class="section" id="hdf-file">
 <h3>HDF file<a class="headerlink" href="#hdf-file" title="Permalink to this headline">¶</a></h3>
-<p>Before an Application project and a Board Support Package can be created or compiled in SDK, a <em>Hardware Platform</em> project is required. A Hardware Platform defines the peripherals in the IOP subsystem, and the memory map of the system, and is used by the BSP to build software libraries to support the underlying hardware.</p>
-<p>A Hardware Description File (.hdf), created by Vivado, is used to create the <em>Hardware Platfrom</em> project in SDK.</p>
+<p>Before an Application project and a Board Support Package can be created or compiled in SDK, a <em>Hardware Platform</em>  project is required. A Hardware Platform defines the peripherals in the IOP subsystem, and the memory map of the system, and is used by the BSP to build software libraries to support the underlying hardware.</p>
+<p>A Hardware Description File (.hdf), created by Vivado, is used to create the <em>Hardware Platfrom</em>  project in SDK.</p>
 <p>A precompiled .hdf file is provided, so it is not necessary to run Vivado to generate a .hdf file:</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/zybo/sdk/</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/Pynq-Z1/sdk/</span></code></div></blockquote>
 </div>
 <div class="section" id="board-support-package">
 <h3>Board Support Package<a class="headerlink" href="#board-support-package" title="Permalink to this headline">¶</a></h3>
@@ -334,7 +334,7 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 <h3>Building the projects<a class="headerlink" href="#building-the-projects" title="Permalink to this headline">¶</a></h3>
 <p>A Makefile to automatically create and build the Hardware Platform and the BSP can be found in the same location as the .hdf file.</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq/zybo/sdk/Makefile</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq/Pynq-Z1/sdk/Makefile</span></code></div></blockquote>
 <p>Application projects for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder.</p>
 <p>The Makefile uses the .hdf file to create the Hardware Platform. The Board Support Package can then be created. The Application projects will also be compiled automatically as part of this process.</p>
 <p>The Makefile can be run from Windows, or Linux, but requires SDK to be installed.</p>
@@ -343,7 +343,7 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 <p>In Linux, open a terminal, and source the SDK tools</p>
 <p>From either the Windows Shell, or the Linux terminal, navigate to the sdk folder in your local copy of the GitHub repository:</p>
 <blockquote>
-<div>cd to <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq/zybo/sdk</span></code> and run <code class="docutils literal"><span class="pre">make</span></code></div></blockquote>
+<div>cd to <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;Pynq/Pynq-Z1/sdk</span></code> and run <code class="docutils literal"><span class="pre">make</span></code></div></blockquote>
 <a class="reference internal image-reference" href="_images/make_sdk.jpg"><img alt="_images/make_sdk.jpg" class="align-center" src="_images/make_sdk.jpg" style="width: 506.25px; height: 378.0px;" /></a>
 <a class="reference internal image-reference" href="_images/make_sdk_results.jpg"><img alt="_images/make_sdk_results.jpg" class="align-center" src="_images/make_sdk_results.jpg" style="width: 506.25px; height: 378.0px;" /></a>
 <p>This will create the Hardware Platform Project (<em>hw_def</em>), and the Board Support Package (<em>bsp</em>).</p>
@@ -352,7 +352,7 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 </div>
 <div class="section" id="binary-files">
 <h3>Binary files<a class="headerlink" href="#binary-files" title="Permalink to this headline">¶</a></h3>
-<p>Compiling code produces an executable file (.elf)which needs to be converted to binary format (.bin) to download and run on an IOP.</p>
+<p>Compiling code produces an executable file (.elf) which needs to be converted to binary format (.bin) to download and run on an IOP.</p>
 <p>A .bin file can be generated from a .elf by running:</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">mb-objcopy</span> <span class="pre">-O</span> <span class="pre">binary</span> <span class="pre">input_file.elf</span> <span class="pre">outputfile.bin</span></code></div></blockquote>
@@ -366,7 +366,7 @@ The ARM Cortex-A9 is an application processor, running Linux, and is not well-su
 <p>We encourage the following naming convention for drivers &lt;pmod|grove&gt;_&lt;peripheral&gt;</p>
 <p>You will need to updates references from the old project name to your new project name in <code class="docutils literal"><span class="pre">&lt;project</span> <span class="pre">directory&gt;/Debug/makefile</span></code> and <code class="docutils literal"><span class="pre">&lt;project</span> <span class="pre">directory&gt;/Debug/src/subdir.mk</span></code></p>
 <p>If you want your project to build in the main Makefile, you should also append the .bin name of your project to the <em>MBBINS</em> variable at the top of the makefile.</p>
-<p>If you are using the SDK Gui, you can import the Hardwave Platform, BSP, and any application projects into your SDK workspace.</p>
+<p>If you are using the SDK Gui, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.</p>
 <a class="reference internal image-reference" href="_images/sdk_import_existing_bsp.jpg"><img alt="_images/sdk_import_existing_bsp.jpg" class="align-center" src="_images/sdk_import_existing_bsp.jpg" style="width: 642.0px; height: 493.5px;" /></a>
 <p>The SDK GUI can be used to build, debug, and profile your code.</p>
 </div>
@@ -410,10 +410,10 @@ Pynq and the application running on the IOP can write to anywhere in the shared 
 <p>The following example explains how Python can initiate a read from a peripheral connected to an IOP.</p>
 <ol class="arabic simple">
 <li>Python writes a read command (e.g. 0x3) to the mailbox command address (0x7ffc).</li>
-<li>Microblaze sees non-zero command and performs a read from the peripheral.</li>
-<li>Microblaze places the peripheral data at the mailbox base address (0x7000).</li>
+<li>MicroBlaze sees non-zero command and performs a read from the peripheral.</li>
+<li>MicroBlaze places the peripheral data at the mailbox base address (0x7000).</li>
 <li>Micboblaze writes 0x0 to the mailbox command address (0x7ffc) to confirm transaction is complete.</li>
-<li>Python checks the command address (0x7ffc), and sees that the Microblaze has written 0x0, indicating the read is complete, and data is available.</li>
+<li>Python checks the command address (0x7ffc), and sees that the MicroBlaze has written 0x0, indicating the read is complete, and data is available.</li>
 <li>Python reads the data in the mailbox base address (0x7000), completing the read.</li>
 </ol>
 <div class="section" id="iop-switch">
@@ -503,7 +503,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <h2>pmod_io_switch_v1_0 driver<a class="headerlink" href="#pmod-io-switch-v1-0-driver" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal"><span class="pre">pmod.h</span></code> and <code class="docutils literal"><span class="pre">pmod.c</span></code> are part of the <em>pmod_io_switch_v1_0</em> driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/zybo/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
 <p>This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;pmod.h&quot;</span><span class="cp"></span>
 </pre></div>
@@ -512,7 +512,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </div>
 <div class="section" id="running-code-on-different-iops">
 <h2>Running code on different IOPs<a class="headerlink" href="#running-code-on-different-iops" title="Permalink to this headline">¶</a></h2>
-<p>The shared memory is the only connection between the ARM and the IOPs. That shared memory of a Microblaze is mapped to the ARM address space.  Some example mappings are shown below to highlight the address translation between Microblaze and ARM&#8217;s memory spaces.</p>
+<p>The shared memory is the only connection between the ARM and the IOPs. That shared memory of a MicroBlaze is mapped to the ARM address space.  Some example mappings are shown below to highlight the address translation between MicroBlaze and ARM&#8217;s memory spaces.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="24%" />
@@ -521,7 +521,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">IOP Base Address</th>
-<th class="head">Microblaze Address Space</th>
+<th class="head">MicroBlaze Address Space</th>
 <th class="head">ARM Equivalent Address Space</th>
 </tr>
 </thead>
@@ -544,13 +544,13 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </tr>
 </tbody>
 </table>
-<p>Note that each Microblaze has the same address space. However, the ARM Equivalent Address Space will be different for each IOP. Any binary compiled for one Microblaze to run on any IOP in the overlay as the MicroBlaze address space is identical, but the binary must be written to the corresponding ARM equivalent address space.</p>
+<p>Note that each MicroBlaze has the same address space. However, the ARM Equivalent Address Space will be different for each IOP. Any binary compiled for one MicroBlaze to run on any IOP in the overlay as the MicroBlaze address space is identical, but the binary must be written to the corresponding ARM equivalent address space.</p>
 <p>e.g. if IOP1 exists at 0x4000_0000, and IOP2 (a second instance of an IOP) exists at 0x4008_0000, the same binary can run on IOP1 by writing the binary from python to the 0x4000_0000 address space, and on IOP2 by writing to the 0x40080_000.</p>
 </div>
 <div class="section" id="example-iop-driver">
 <h2>Example IOP Driver<a class="headerlink" href="#example-iop-driver" title="Permalink to this headline">¶</a></h2>
 <p>Taking PMOD ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:</p>
-<p><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/zybo/sdk/pmodals/src/pmod_als.c</span></code></p>
+<p><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/Pynq-Z1/sdk/pmodals/src/pmod_als.c</span></code></p>
 <p>Note that the <code class="docutils literal"><span class="pre">pmod.h</span></code> header file is included.</p>
 <p>Some <em>COMMANDS</em> are defined by the user. These values can be chosen to be any value, but must correspond with the Python part of the driver.</p>
 <p>By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands can be any non-zero value.</p>
@@ -569,7 +569,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <h3>Examine Python Code<a class="headerlink" href="#examine-python-code" title="Permalink to this headline">¶</a></h3>
 <p>With the IOP Driver written, the Python class can be built that will communicate with that IOP.</p>
 <p><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/tree/master/python/pynq/pmods/pmod_als.py</span></code></p>
-<p>First the _iop, pmod_const and MMIO are imported and the Microblaze executable defined.</p>
+<p>First the _iop, pmod_const and MMIO are imported and the MicroBlaze executable defined.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_iop</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">pmod_const</span>
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
@@ -578,7 +578,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </pre></div>
 </div>
 <p>The IOP module is imported, along with the Pmod constant definitions (pin mappings) and the <em>MMIO</em> (interface to shared memory).</p>
-<p>The Microblaze binary for the IOP is also declared. This is the application executable, and will be loaded into the IOP instruction memory.</p>
+<p>The MicroBlaze binary for the IOP is also declared. This is the application executable, and will be loaded into the IOP instruction memory.</p>
 <p>The ALS class and an initialization method are defined:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PMOD_ALS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pmod_id</span><span class="p">):</span>
@@ -589,7 +589,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <span class="n">als</span> <span class="o">=</span> <span class="n">PMOD_ALS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Looking further into the initialization method, the <code class="docutils literal"><span class="pre">_iop.request_iop()</span></code> call instantiates an instance of an IOP on the specified pmod_id and loads the Microblaze executable (ALS_PROGRAM) into the instruction memory of the appropriate Microblaze.</p>
+<p>Looking further into the initialization method, the <code class="docutils literal"><span class="pre">_iop.request_iop()</span></code> call instantiates an instance of an IOP on the specified pmod_id and loads the MicroBlaze executable (ALS_PROGRAM) into the instruction memory of the appropriate MicroBlaze.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">_iop</span><span class="o">.</span><span class="n">request_iop</span><span class="p">(</span><span class="n">pmod_id</span><span class="p">,</span> <span class="n">ALS_PROGRAM</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -604,11 +604,11 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </div>
 <div class="section" id="example-of-python-class-runtime-methods">
 <h3>Example of Python Class Runtime Methods<a class="headerlink" href="#example-of-python-class-runtime-methods" title="Permalink to this headline">¶</a></h3>
-<p>The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to Microblaze read transaction specfic to the ALS class.</p>
+<p>The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to MicroBlaze read transaction specfic to the ALS class.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </pre></div>
 </div>
-<p>First, the comand is written to the Microblaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.</p>
+<p>First, the comand is written to the MicroBlaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>
                     <span class="n">pmod_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 </pre></div>

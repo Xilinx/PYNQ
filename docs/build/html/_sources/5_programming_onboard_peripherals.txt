@@ -28,7 +28,7 @@
     "raw_mimetype": "text/restructuredtext"
    },
    "source": [
-    ".. figure:: images/pynq_io_opt.png \n",
+    ".. figure:: images/pynq_io_opt.jpg \n",
     "   :align: center"
    ]
   },

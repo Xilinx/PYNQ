@@ -71,7 +71,7 @@ pynq.iop.pmod_oled module
 pynq.iop.pmod_const module
 ----------------------------
 
-.. automodule:: pynq.iop.pmod_const
+.. automodule:: pynq.iop.iop_const
     :members:
     :undoc-members:
     :show-inheritance:

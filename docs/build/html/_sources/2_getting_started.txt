@@ -31,7 +31,7 @@ Prerequisites
 * Micro USB cable 
 * Ethernet cable
 
-\* It is also possible to connect to the board via Wifi instead of ethernet. 
+\* It is also possible to connect to the board via WiFi instead of Ethernet. 
 
 
 Get the image and prepare the micro-SD Card
@@ -65,20 +65,20 @@ To set up the board:
 Connect to the board
 ==================================   
 
-You need to make sure your board can connect to your computer or network correctly, and you will need to know the hostname or the IP address of the board. By default, if the board is connected to a router or network with a DHCP server, it will get an IP address automaticlly. You can then use the board hostname to connect to it. The hostname is ``pynq`` by default.
+You need to make sure your board can connect to your computer or network correctly, and you will need to know the hostname or the IP address of the board. By default, if the board is connected to a router or network with a DHCP server, it will get an IP address automatically. You can then use the board hostname to connect to it. The hostname is ``pynq`` by default.
 
-If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address (``192.168.2.99`` by default), and start a DHCP server and configure your PC with an IP address in the same range as the board. You can also manually configure your computer to have an IP address in the same range (e.g. 192.168.2.98). 
+If you connect your board directly to the Ethernet port of your PC, it will automatically assign itself a static IP address (``192.168.2.99`` by default). You can  manually configure your computer to have an IP address in the same range (e.g. 192.168.2.1). 
    
 You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet/IP and any other operating system settings. See the FAQ for more details on connecting to the board, and changing the IP settings of the board. 
    
-Two scripts are available if you need help configuring the ethernet on a Windows computer, ``pynq_enable_static_IP_windows.bat`` and ``pynq_disable_static_IP_windows.bat`` available in the ``<GitHub respository>\Pynq\Ubuntu`` folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt. You can also check the internet for instructions on how to configure your computer. 
+Two scripts are available if you need help configuring the Ethernet on a Windows computer, ``pynq_enable_static_IP_windows.bat`` and ``pynq_disable_static_IP_windows.bat`` available in the ``<GitHub respository>\Pynq\Ubuntu`` folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt. You can also check the internet for instructions on how to configure your computer. 
    
 Open a web browser and connect to Pynq Jupyter Notebooks web portal
 ---------------------------------------------------------------------------
 
    * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ if using a static IP.  **pynq** is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname. 
    
-You will need to to change the hostname if multiple boards will be used on the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ to change the hostname. 
+You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ to change the hostname. 
    
 
 

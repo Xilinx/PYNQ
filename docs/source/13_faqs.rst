@@ -25,8 +25,8 @@ Frequently Asked Questions (FAQs)
       # replace pynq with correct hostname if you have changed it
       ping pynq
       
-   Check the ACT and Link LEDs on the Zybo board (near the Ethenet Port) for activity. You can also check the activity lights on the Ethernet port on your PC or Laptop (most ethernet ports will have an orange and green LED indicating connectivity). 
-   The Ethernet LEDs on the Zybo should flash periodically when there is activity on the network connection. 
+   Check the ACT and Link LEDs on the PYNQ-Z1 board (near the Ethenet Port) for activity. You can also check the activity lights on the Ethernet port on your PC or Laptop (most ethernet ports will have an orange and green LED indicating connectivity). 
+   The Ethernet LEDs on the PYNQ-Z1 should flash periodically when there is activity on the network connection. 
    
    If you are using a docking station, when your laptop is docked, the Ethernet port on the PC may be disabled.  
 
@@ -36,7 +36,7 @@ Frequently Asked Questions (FAQs)
    You can also connect your Pynq board to a network switch (your LAN), and connect to it wirelessly. (You may need to change settings on your Router to enable the Wireless network to communicate with your LAN - check your equipment documentation for details.)
    
 * My hostname is not resolving
-   If you know the IP address of Zybo, you can use it to navigate to the Pynq portal. e.g.  http://192.168.2.99:9090
+   If you know the IP address of the board, you can use it to navigate to the Pynq portal. e.g.  http://192.168.2.99:9090
 
 * I have followed the Getting Started Guide, I see a Red Led, but not a green Led when I power on the board. 
    Check the Micro-SD card is inserted correctly (the socket is spring loaded, so push it in until you feel it click into place). Check or reflash the Micro SD card with eh pynq image. 
@@ -63,10 +63,10 @@ Frequently Asked Questions (FAQs)
    * No Parity
    * No Flow Control
    
-   Once you connect to the board, you can configure the network interface in Ubuntu
+   Once you connect to the board, you can configure the network interface in Linux
    
-* How to I modify the Zybo Ubuntu operating system?
-   Connect to the board using a terminal, and change the settings as you would for any other Ubuntu machine.  Zybo comes with a standard Ubuntu 15.10 build.   
+* How to I modify the Linux operating system?
+   Connect to the board using a terminal, and change the settings as you would for any other Linux machine.  The board comes with a Linux build.   
    
 * How to find the IP address of the board
    Connect to the board using a terminal (see above) and type 'hostname -I' to find the IP address for the eth0 Ethernet adapter

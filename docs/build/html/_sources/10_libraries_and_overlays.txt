@@ -1,11 +1,11 @@
 The ``Pynq`` (Python on Zynq) Platform
 ==============================================
 
-The section describes the ``pynq`` (**Py**\thon on **Zy**\nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the Zybo platform. 
+The section describes the ``pynq`` (**Py**\thon on **Zy**\nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform. 
 
-After powering the board with the Pynq image on the SDCard in place, Zybo will boot into Ubuntu Server 15.10.  Python3 is installed with Jupyter notebook support and the Pynq Python Package. With the pynq package, users can access programmable logic overlays from Python.   
+After powering the board with the Pynq image on the SDCard in place, the board will boot into Linux.  Python3 is installed with Jupyter notebook support and the Pynq Python Package. With the pynq package, users can access programmable logic overlays from Python.   
 
-Some preinstalled features of this Ubuntu image include:
+Some preinstalled features of this Linux image include:
 
 * Networking is enabled and Ethernet port will attempt to use DHCP on boot.  If DHCP fails, the board will fallback to a static IP of 192.168.2.99.
 * Samba is enabled and can be accessed from a Windows machine by navigating or mapping to ``\\pynq\xilinx``.  The ``username:password`` is ``xilinx:xilinx``.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
@@ -29,7 +29,7 @@ To learn more about Python package structure, please refer to the `official pyth
 
 board
 -----
-This folder contains libraries or python packages for peripherals available on the Zybo board: Buttons, Switches, and LEDs.  For example the following code will turn on one of Zybo's LEDs:
+This folder contains libraries or python packages for peripherals available on the PYNQ-Z1 board: Buttons, Switches, and LEDs.  For example the following code will turn on one of PYNQ-Z1's LEDs:
 
 .. code-block:: python
 

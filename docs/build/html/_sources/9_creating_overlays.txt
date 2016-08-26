@@ -15,8 +15,8 @@ Existing Overlays
 
 Two overlays are currently included in the Pynq repository; *pmod*, and *audiovideo*:
 
-   * ``<Pynq GitHub Repository>Pynq/zybo/vivado/pmod``
-   * ``<Pynq GitHub Repository>Pynq/zybo/vivado/audiovideo``
+   * ``<Pynq GitHub Repository>Pynq/Pynq-Z1/vivado/pmod``
+   * ``<Pynq GitHub Repository>Pynq/Pynq-Z1/vivado/audiovideo``
 
 A makefile exists in each folder that can be used to rebuild the Vivado projects and generate the bitstreams for the overlays. However, the overlays have been precompiled, and are available in ``<Pynq GitHub Repository>/Pynq/python/pynq/bitstream/`` so it is not necessary to rebuild the overlays, which requires a full Vivado installation.
 
