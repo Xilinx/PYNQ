@@ -624,12 +624,12 @@ class Trace_Buffer:
         
         Example of the data format to draw waveform:
         >>> data = {'signal': [
-            {'name': 'clk', 'wave': 'p.....|...'},
-            {'name': 'dat', 'wave': 'x.345x|=.x', 'data': ['D','A','T','A']},
-            {'name': 'req', 'wave': '0.1..0|1.0'},
-            {},
-            {'name': 'ack', 'wave': '1.....|01.'}
-            ]}
+        {'name': 'clk', 'wave': 'p.....|...'},
+        {'name': 'dat', 'wave': 'x.345x|=.x', 'data': ['D','A','T','A']},
+        {'name': 'req', 'wave': '0.1..0|1.0'},
+        {},
+        {'name': 'ack', 'wave': '1.....|01.'}
+        ]}
         
         Parameters
         ----------
