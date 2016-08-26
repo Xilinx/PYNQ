@@ -122,8 +122,8 @@ scripts_notebooks:
 	@for f in ${ROOT_SCRIPTS} ; do \
 		cp ${REPO_DIR}/scripts/linux/$$f  ${ROOT_DIR} ; \
 	done
-	mkdir -p ${FINAL_NOTEBOOKS_DIR}/slides
-	git clone  ${REVEALJS} ${FINAL_NOTEBOOKS_DIR}/slides/
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js
+	git clone  ${REVEALJS} ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js
 
 doc_sphinx:
 	@echo
