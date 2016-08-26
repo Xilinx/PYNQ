@@ -32,8 +32,20 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 import os
+import signal
+import sys
 import cffi
 import resource
+
+if os.getuid() != 0:
+    raise RuntimeError("Root permission needed by the library")
+
+# Cleanup on Segfaults
+def sig_handler(signum, frame):
+    print("Invalid Memory Access!")
+    xlnk().xlnk_reset()
+    sys.exit(127)
+signal.signal(signal.SIGSEGV, sig_handler)
 
 ffi = cffi.FFI()
 
@@ -60,23 +72,29 @@ class xlnk:
             libxlnk.cma_free(key)
     
     def __check_buftype(self, buf):
-        if type(buf) != type(ffi.new("char *")) or\
-          type(buf) != type(ffi.new_handle('void')):
+        if "cdata" not in str(buf):
             raise RuntimeError("Unknown buffer type")
         
-    def cma_alloc(self, length, cacheable = 0):
+    def cma_alloc(self, length, cacheable = 0, data_type = "void"):
+        if data_type != "void":
+            length = ffi.sizeof(data_type) * length
         buf = libxlnk.cma_alloc(length, cacheable)
         if buf == ffi.NULL:
             raise RuntimeError("Failed to allocate Memory!")
-        bufmap[buf] = length
-        return buf
+        self.bufmap[buf] = length
+        return ffi.cast(data_type+"*",buf)
 
-    def cma_get_buffer_object(self, buf):
+    def cma_get_buffer(self, buf, length):
         self.__check_buftype(buf)
-        return(memoryview(ffi.buffer(buf)))
+        return(memoryview(ffi.buffer(buf, length)))
+
+    @staticmethod
+    def cma_memcopy(dest, src, nbytes):
+        ffi.memmove(dest, src, nbytes)
     
-    def cma_cast(self, type, data):
-        return ffi.cast(type+"*", data)
+    @staticmethod
+    def cma_cast(data, data_type = "void"):
+        return ffi.cast(data_type+"*", data)
       
     def cma_free(self, buf):
         if buf in self.bufmap:
@@ -96,4 +114,5 @@ class xlnk:
         return stats
 
     def xlnk_reset(self):
-        libxlnk._xlnk_reset();'_cffi_backend.CDataOwn'
+        self.bufmap = {}
+        libxlnk._xlnk_reset()
