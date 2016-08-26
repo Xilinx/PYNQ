@@ -270,9 +270,9 @@ div.nboutput  > :nth-child(2).stderr {
 </style>
 <div class="section" id="the-pynq-python-on-zynq-platform">
 <h1>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python on Zynq) Platform<a class="headerlink" href="#the-pynq-python-on-zynq-platform" title="Permalink to this headline">¶</a></h1>
-<p>The section describes the <code class="docutils literal"><span class="pre">pynq</span></code> (<strong>Py</strong>thon on <strong>Zy</strong>nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the Zybo platform.</p>
-<p>After powering the board with the Pynq image on the SDCard in place, Zybo will boot into Ubuntu Server 15.10.  Python3 is installed with Jupyter notebook support and the Pynq Python Package. With the pynq package, users can access programmable logic overlays from Python.</p>
-<p>Some preinstalled features of this Ubuntu image include:</p>
+<p>The section describes the <code class="docutils literal"><span class="pre">pynq</span></code> (<strong>Py</strong>thon on <strong>Zy</strong>nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform.</p>
+<p>After powering the board with the Pynq image on the SDCard in place, the board will boot into Linux.  Python3 is installed with Jupyter notebook support and the Pynq Python Package. With the pynq package, users can access programmable logic overlays from Python.</p>
+<p>Some preinstalled features of this Linux image include:</p>
 <ul class="simple">
 <li>Networking is enabled and Ethernet port will attempt to use DHCP on boot.  If DHCP fails, the board will fallback to a static IP of 192.168.2.99.</li>
 <li>Samba is enabled and can be accessed from a Windows machine by navigating or mapping to <code class="docutils literal"><span class="pre">\\pynq\xilinx</span></code>.  The <code class="docutils literal"><span class="pre">username:password</span></code> is <code class="docutils literal"><span class="pre">xilinx:xilinx</span></code>.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC.</li>
@@ -287,7 +287,7 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <div class="section" id="board">
 <h2>board<a class="headerlink" href="#board" title="Permalink to this headline">¶</a></h2>
-<p>This folder contains libraries or python packages for peripherals available on the Zybo board: Buttons, Switches, and LEDs.  For example the following code will turn on one of Zybo&#8217;s LEDs:</p>
+<p>This folder contains libraries or python packages for peripherals available on the PYNQ-Z1 board: Buttons, Switches, and LEDs.  For example the following code will turn on one of PYNQ-Z1&#8217;s LEDs:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span> <span class="n">LED</span>
 <span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
 </pre></div>
