@@ -27,7 +27,7 @@ Prerequisites
 * Laptop or desktop PC with compatible browser (`Supported Browsers <http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility>`_)
 * Available USB port
 * Pynq-Z1 board
-* Micro-SD card (Minimum 4GB)
+* Micro-SD card (Minimum 8GB)
 * Micro USB cable 
 * Ethernet cable
 
@@ -38,7 +38,7 @@ Get the image and prepare the micro-SD Card
 ----------------------------------------------------
 
    * The Pynq image will be available from the Digilent website. 
-   * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_. The Micro-SD card should be at least 4GB.  
+   * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_. The Micro-SD card should be at least 8GB.  
    
 Pynq-Z1 setup
 ---------------
