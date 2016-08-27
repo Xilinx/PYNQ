@@ -6,7 +6,7 @@ Getting Started
    :depth: 2
 
 
-Pynq is currently supported on the Pynq-Z1 board. To start using Pynq, you will need a Micro-SD card loaded with the Pynq image.
+Pynq is currently supported on the PYNQ-Z1 board. To start using Pynq, you will need a Micro-SD card loaded with the Pynq image.
 The Pynq image will be available to download from the Digilent website. 
 
 You do not need to build the image from scratch for the Pynq board, but there is some information on the build steps on the `Pynq project GitHub <https://github.com/Xilinx/PYNQ/blob/master/ubuntu/README.md>`_
@@ -26,7 +26,7 @@ Prerequisites
 
 * Laptop or desktop PC with compatible browser (`Supported Browsers <http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility>`_)
 * Available USB port
-* Pynq-Z1 board
+* PYNQ-Z1 board
 * Micro-SD card (Minimum 8GB)
 * Micro USB cable 
 * Ethernet cable
@@ -40,7 +40,7 @@ Get the image and prepare the micro-SD Card
    * The Pynq image will be available from the Digilent website. 
    * The image can be copied to a Micro-SD card using `Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_. The Micro-SD card should be at least 8GB.  
    
-Pynq-Z1 setup
+PYNQ-Z1 setup
 ---------------
 
 
