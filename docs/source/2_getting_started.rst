@@ -49,15 +49,15 @@ Pynq-Z1 setup
 
 To set up the board:
 
-   * Change the *boot* jumper to **SD** (Set the board to boot from the Micro SD card)  
+   #. Change the *boot* jumper to **SD** (Set the board to boot from the Micro SD card)  
    
-   * Insert the *Micro SD* card into the board. (The Micro-SD slot is underneath the board)
+   #. Insert the *Micro SD* card into the board. (The Micro-SD slot is underneath the board)
    
-   * Plug the USB cable to your PC/Laptop, and connect to the **UART** (J14) on the board
+   #. Plug the USB cable to your PC/Laptop, and connect to the **UART** (J14) on the board
    
-   * Plug the Ethernet cable into your board, and connect it directly to your laptop/PC or to a router, or network switch your computer is connected to.    
+   #. Plug the Ethernet cable into your board, and connect it directly to your laptop/PC or to a router, or network switch your computer is connected to.    
    
-   * **Turn on** the power switch on the board
+   #. **Turn on** the power switch on the board
 
    When you power on the board, you should see a *LED* (PGOOD) after a few seconds, indicating the boot process has started correctly.
    
@@ -76,7 +76,7 @@ Two scripts are available if you need help configuring the Ethernet on a Windows
 Open a web browser and connect to Pynq Jupyter Notebooks web portal
 ---------------------------------------------------------------------------
 
-   * Using a web browser, open the address  `http://pynq:9090 <http://pynq:9090>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ if using a static IP.  **pynq** is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname. 
+   * Using a web browser, enter the address  `http://pynq:9090 <http://pynq:9090>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ if using a static IP.  **pynq** is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname. 
    
 You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ to change the hostname. 
    
@@ -126,7 +126,7 @@ Accessing files on the board
 
 You can go to ``\\pynq\xilinx`` (DHCP) or ``\\192.168.2.99\xilinx`` (static IP) to access the pynq home area. Remember to change the hostname if necessary.
 
-The Samba username:password is ``samba:samba``
+The Samba username:password is ``xilinx:xilinx``
 
 .. image:: ./images/samba_share.jpg
    :height: 600px
