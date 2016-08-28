@@ -1,20 +1,20 @@
 IO Processors: Writing your own software
 ========================================
 
-There are a number of steps required before you can start writing your own software for an IOP. This document will describe the IOP architecture, and how to set up and build the required SDK projects to allow you to write your own application for the MicroBlaze inside an IOP. The SDK projects can be set up manually using the SDK GUI, or automatically using provided Makefiles. 
+There are a number of steps required before you can start writing your own software for an IOP (IO Processor). This document will describe the IOP architecture, and how to set up and build the required SDK projects to allow you to write your own application for the MicroBlaze inside an IOP. The SDK projects can be set up manually using the SDK GUI, or automatically using provided Makefiles. 
 
 IOP Processors
 --------------
 
-There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two overlays is the number of peripherals in the IOP, and the switch and port the IOP can connect to. Pmod IOPs connect to PMOD ports, and Arduino IOPs connect to the Arduino interface on the board. 
+There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two IOPs is the number of peripherals in the IOP, and the switch and port tyep the IOP support. Pmod IOPs connect to PMOD ports, and Arduino IOP connects to the Arduino interface on the board. 
 
-Both IO Processors (IOPs) contain a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following interface peripherals:
+Each IOP contains a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following funcational units and interface peripherals:
 * `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_
 * `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_
 * `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_
 * `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_. 
 
-The interface peripherals are connected to a Configurable Switch. The Switch is different for the Pmod and the Arduino IOPs. The Pmod configurable switch connects to a Pmod port, and the Arduino configurable switch connects to a Pmod port.
+The interface peripherals are connected to a Configurable Switch. The Switch is different for the Pmod and the Arduino IOPs. The Pmod configurable switch connects to a Pmod port, and the Arduino configurable switch connects to an Arduino interface connector.
 
 Pmod IOP:
 
@@ -23,23 +23,20 @@ Pmod IOP:
    :align: center
 
    
-Arduino IOP:
+The ARM Cortex-A9 is an application processor, running Linux, and is not optimized for real time applications. An IOP can be used as a real-time controller and as a flexible controller for different types of external peripherals.. 
 
-An IOP can be used as a flexible controller for different types of external peripherals.
-The ARM Cortex-A9 is an application processor, running Linux, and is not well-suited for real time applications. An IOP can be used as a real-time controller. 
-
-The IOP's configurable switch can be used to route signals between the physical Pmod interface (external pins), and the available interface peripherals in the IOP sub-system (IIC, SPI, GPIO, Timer). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using a single overlay. i.e. there is no need to create a new FPGA design to support a different interface standard. 
+The IOP's configurable switch can be used to route signals between the physical interface (external pins of Pmod and Arduino connector), and the available interface peripherals in the IOP sub-system (IIC, SPI, GPIO, Timer, UART). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using the same IOP. i.e. there is no need to create a new FPGA design to support a different interface standard. 
      
-IOPs can also be used standalone to offload some processing from the main processer. However, note that the MicroBlaze processor inside an IOP is running at 100 MHz, compared to the Dual-Core ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor architectures and features should be taken into account when offloading application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing unit will be much more efficient than running on the MicroBlaze. The MicroBlaze is most appropriate for low-level or real-time applications.
+IOPs can also be used standalone to offload some processing from the main processor. However, note that the MicroBlaze processor inside an IOP is running at 100 MHz, compared to the Dual-Core ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor architectures and features should be taken into account when offloading pure application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing unit will be much more efficient than running on the MicroBlaze. The MicroBlaze is most appropriate for low-level or real-time applications.
 
 Xilinx Software installation
 ----------------------------
 
-A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all PMOD device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see `Pynq Modules <12_modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
+A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see `Pynq Modules <12_modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
 
 The current Pynq release is built using Vivado and SDK 2016.1. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays. 
 
-`Download Xilinx Vivado and SDK 2015.4 <http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2015-4.html>`_
+`Download Xilinx Vivado and SDK 2016.1 <http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html>`_
 
 You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.
 
@@ -59,7 +56,7 @@ You can also use these projects as a starting point to create your own project.
 HDF file
 ^^^^^^^^
 
-Before an Application project and a Board Support Package can be created or compiled in SDK, a *Hardware Platform*  project is required. A Hardware Platform defines the peripherals in the IOP subsystem, and the memory map of the system, and is used by the BSP to build software libraries to support the underlying hardware. 
+Before an Application project and a BSP can be created or compiled in SDK, a *Hardware Platform*  project is required. A Hardware Platform defines the peripherals in the IOP subsystem, and the memory map of the system, and is used by the BSP to build software libraries to support the underlying hardware. 
 
 A Hardware Description File (.hdf), created by Vivado, is used to create the *Hardware Platfrom*  project in SDK.
 
@@ -83,17 +80,17 @@ A Makefile to automatically create and build the Hardware Platform and the BSP c
 
 Application projects for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder. 
    
-The Makefile uses the .hdf file to create the Hardware Platform. The Board Support Package can then be created. The Application projects will also be compiled automatically as part of this process.
+The Makefile uses the .hdf file to create the Hardware Platform. The BSP can then be created. The Application projects will also be compiled automatically as part of this process.
 
 The Makefile can be run from Windows, or Linux, but requires SDK to be installed.
 
-To run ``make`` from Windows, open SDK, and choose a temporary workspace (make sure this is path is external to the downloaded GitHub repository). From the *Xilinx Tools* menu, select *Launch Shell*
+To run ``make`` from Windows, open SDK, and choose a temporary workspace (make sure this path is external to the downloaded GitHub repository). From the *Xilinx Tools* menu, select *Launch Shell*
 
 .. image:: ./images/sdk_launch_shell.jpg
    :scale: 75%
    :align: center
 
-In Linux, open a terminal, and source the SDK tools
+In Linux, open a terminal, and source the SDK tools.
 
 From either the Windows Shell, or the Linux terminal, navigate to the sdk folder in your local copy of the GitHub repository: 
 
@@ -120,9 +117,9 @@ Compiling code produces an executable file (.elf) which needs to be converted to
 
 A .bin file can be generated from a .elf by running:
 
-    ``mb-objcopy -O binary input_file.elf outputfile.bin``
+    ``mb-objcopy -O binary <input_file>.elf <outputfile>.bin``
 
-This is done automatically by the makefile for the existing Application projects. The makefile will also copy all .bin files into the ``<Pynq GitHub Repository>/Pynq/python/pynq/pmods`` folder.
+This is done automatically by the makefile for the existing application projects. The makefile will also copy all .bin files into the ``<Pynq GitHub Repository>/Pynq-Z1/sdk/bin`` folder.
 
 Creating your own Application project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
