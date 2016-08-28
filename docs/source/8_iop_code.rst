@@ -117,7 +117,7 @@ Compiling code produces an executable file (.elf) which needs to be converted to
 
 A .bin file can be generated from a .elf by running:
 
-    ``mb-objcopy -O binary <input_file>.elf <outputfile>.bin``
+    ``mb-objcopy -O binary <inputfile>.elf <outputfile>.bin``
 
 This is done automatically by the makefile for the existing application projects. The makefile will also copy all .bin files into the ``<Pynq GitHub Repository>/Pynq-Z1/sdk/bin`` folder.
 
