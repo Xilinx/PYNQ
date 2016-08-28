@@ -304,7 +304,7 @@ With the IOP Driver written, the Python class can be built that will communicate
  
 ``<Pynq GitHub Repository/python/pynq/iop/pmod_als.py``
   
-First the MMIO, request_iop, iop_const, PMODA and PMODB are imported and the MicroBlaze executable defined. 
+First the MMIO, request_iop, iop_const, PMODA and PMODB are imported. 
 
 .. code-block:: python
 
@@ -325,23 +325,23 @@ The ALS class and an initialization method are defined:
 
 .. code-block:: python
 
-   class PMOD_ALS(object):
-      def __init__(self, pmod_id):
+   class Pmod_ALS(object):
+      def __init__(self, if_id):
 
 The initialization function for the module requires an IOP index. For Grove peripherals and the StickIt connector, the StickIt port number can also be used for initialization.  The ``__init__`` is called when a module is instantiated. e.g. from Python:
 
 .. code-block:: python
 
-    from pynq.pmods import PMOD_ALS
-    als = PMOD_ALS(1)
+    from pynq.pmods import Pmod_ALS
+    als = Pmod_ALS(PMODB)
 
 Looking further into the initialization method, the ``_iop.request_iop()`` call instantiates an instance of an IOP on the specified pmod_id and loads the MicroBlaze executable (ALS_PROGRAM) into the instruction memory of the appropriate MicroBlaze.
 
 .. code-block:: python
 
-    self.iop = _iop.request_iop(pmod_id, ALS_PROGRAM)
+   self.iop = request_iop(if_id, PMOD_ALS_PROGRAM)
 
-An MMIO class is also instantiated to enable read and writes to the shared memory.  
+An MMIO class is also instantiated to enable read and write to the shared memory.  
 
 .. code-block:: python
 
@@ -356,7 +356,7 @@ Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP wi
 Example of Python Class Runtime Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The read method in the PMOD_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to MicroBlaze read transaction specfic to the ALS class.
+The read method in the Pmod_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to MicroBlaze read transaction specfic to the ALS class.
 
 .. code-block:: python
 
