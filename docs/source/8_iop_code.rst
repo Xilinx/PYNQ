@@ -230,7 +230,7 @@ For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO
 
 From Python all the constants and addresses for the IOP can be found in:
 
-    ``<Pynq GitHub Repository>/Pynq/python/pmods/pmod_const.py``
+    ``<Pynq GitHub Repository>/Pynq/python/iop/iop_const.py``
 
 Note that if two or more pins are connected to the same signal, the pins are OR'd together internally. This is not recommended. 
     
