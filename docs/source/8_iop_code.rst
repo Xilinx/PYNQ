@@ -130,9 +130,9 @@ Copy and rename the project, and modify or replace the .c file in the src/ with 
 
 e.g. if your C code is my_peripheral.c, the generated .elf and .bin will be my_peripheral.elf and my_peripheral.bin.
 
-We encourage the following naming convention for drivers <pmod|grove>_<peripheral>
+We encourage the following naming convention for applications <pmod|grove|arduino>_<peripheral>
 
-You will need to updates references from the old project name to your new project name in ``<project directory>/Debug/makefile`` and ``<project directory>/Debug/src/subdir.mk``
+You will need to update references from the old project name to your new project name in ``<project directory>/Debug/makefile`` and ``<project directory>/Debug/src/subdir.mk``
 
 If you want your project to build in the main Makefile, you should also append the .bin name of your project to the *MBBINS* variable at the top of the makefile.
 
@@ -143,18 +143,18 @@ If you are using the SDK Gui, you can import the Hardware Platform, BSP, and any
    :align: center
 
 
-The SDK GUI can be used to build, debug, and profile your code.  
+The SDK GUI can be used to build and debug your code.  
     
 IOP Memory
 ----------
 
-The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable binary file to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. The IOP data memory is also used as a mailbox for communication between the Pynq environment and the IOP.
+The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable binary file to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. The IOP data memory is also used as a mailbox for communication and data exchanges between the Pynq environment and the IOP.
 
 
 Memory map
 ----------
 
-The IOP memory is 32KB ''(0x8000)'' of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
+The IOP memory is 64KB ''(0x10000)'' of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
 Pynq and the application running on the IOP can write to anywhere in the shared memory space.  
 
 When building the MicroBlaze project, the compiler will only ensure that the application and *allocated* stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, an additional shared memory space must also be reserved within the MicroBlaze address space. 
@@ -166,10 +166,10 @@ It is recommended to follow the convention for data communication between the tw
 
    ================================= ========
    Instruction and data memory start 0x0
-   Instruction and data memory size  0x6fff
-   Shared mailbox memory start       0x7000
+   Instruction and data memory size  0xf000
+   Shared mailbox memory start       0xf000
    Shared mailbox memory size        0x1000
-   Shared mailbox Command Address    0x7ffc
+   Shared mailbox Command Address    0xfffc
    ================================= ========
 
 
