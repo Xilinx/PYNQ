@@ -366,21 +366,21 @@ First, the comand is written to the MicroBlaze shared memory using mmio.write().
 
 .. code-block:: python
 
-    self.mmio.write(pmod_const.MAILBOX_OFFSET+
-                        pmod_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)     
+    self.mmio.write(iop_const.MAILBOX_OFFSET+
+                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)     
 
 When the IOP is finished, it will write 0x0 to the command area. The Python code now uses mmio.read() to check if the command is still pending (in this case, when the 0x3 value is still present at the ``CMD_OFFSET``).  While the command is pending, the Python class blocks.  
 
 .. code-block:: python
 
-    while (self.mmio.read(pmod_const.MAILBOX_OFFSET+
-                                pmod_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
+    while (self.mmio.read(iop_const.MAILBOX_OFFSET+
+                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
         pass
             
 Once the command is no longer 0x3, i.e. the acknowledge has been received, the result is read from the ``DATA`` area of the shared memory ``MAILBOX_OFFSET`` using `mmio.read()`
 
 .. code-block:: python
 
-    return self.mmio.read(pmod_const.MAILBOX_OFFSET)
+    return self.mmio.read(iop_const.MAILBOX_OFFSET)
 
-Notice the pmod_const values are used in these function calls, values that are predefined in ``pmod_const.py``. 
+Notice the iop_const values are used in these function calls, values that are predefined in ``iop_const.py``. 
