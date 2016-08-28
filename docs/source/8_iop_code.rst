@@ -281,7 +281,7 @@ By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands
 
 The ALS peripheral has as SPI interface. Note the user defined function get_sample() which calls an SPI function spi_transfer() call defined in pmod.h.  
 
-In ``main()`` notice ``configureSwitch()`` is called to initialize the switch with a static configuration. This means that if you want to use this code with a different pin configuration, the C code must be modified and recompiled. 
+In ``main()`` notice ``config_pmod_switch()`` is called to initialize the switch with a static configuration. This means that if you want to use this code with a different pin configuration, the C code must be modified and recompiled. 
 
 Next, the ``while(1)`` loop is entered. In this loop the IOP continually checks the ``MAILBOX_CMD_ADDR`` for a non-zero command. Once a command is received from Python, the command is decoded, and executed. 
 
@@ -302,19 +302,20 @@ Examine Python Code
 
 With the IOP Driver written, the Python class can be built that will communicate with that IOP. 
  
-``<Pynq GitHub Repository>/Pynq/tree/master/python/pynq/pmods/pmod_als.py``
+``<Pynq GitHub Repository/python/pynq/iop/pmod_als.py``
   
-First the _iop, pmod_const and MMIO are imported and the MicroBlaze executable defined. 
+First the MMIO, request_iop, iop_const, PMODA and PMODB are imported and the MicroBlaze executable defined. 
 
 .. code-block:: python
 
-   from . import _iop
-   from . import pmod_const
+   import time
    from pynq import MMIO
+   from pynq.iop import request_iop
+   from pynq.iop import iop_const
+   from pynq.iop import PMODA
+   from pynq.iop import PMODB
 
-   ALS_PROGRAM = "als.bin"
-
-The IOP module is imported, along with the Pmod constant definitions (pin mappings) and the *MMIO* (interface to shared memory).
+   ALS_PROGRAM = "pmod_als.bin"
 
 The MicroBlaze binary for the IOP is also declared. This is the application executable, and will be loaded into the IOP instruction memory. 
 
