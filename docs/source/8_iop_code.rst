@@ -157,11 +157,11 @@ Memory map
 The IOP memory is 64KB ''(0x10000)'' of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
 Pynq and the application running on the IOP can write to anywhere in the shared memory space.  
 
-When building the MicroBlaze project, the compiler will only ensure that the application and *allocated* stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, an additional shared memory space must also be reserved within the MicroBlaze address space. 
+When building the MicroBlaze project, the compiler will only ensure that the application and *allocated* stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, an part of the shared memory space must also be reserved within the MicroBlaze address space. 
 
 There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.
 
-It is recommended to follow the convention for data communication between the two processors. These MAILBOX values are defined in the pmod.h file.  
+It is recommended to follow the convention for data communication between the two processors via MAILBOX. These MAILBOX values are defined in the header file.  
 
 
    ================================= ========
@@ -175,15 +175,15 @@ It is recommended to follow the convention for data communication between the tw
 
 The following example explains how Python can initiate a read from a peripheral connected to an IOP. 
 
-1. Python writes a read command (e.g. 0x3) to the mailbox command address (0x7ffc).
+1. Python writes a read command (e.g. 0x3) to the mailbox command address (0xfffc).
 2. MicroBlaze sees non-zero command and performs a read from the peripheral.
-3. MicroBlaze places the peripheral data at the mailbox base address (0x7000).
-4. Micboblaze writes 0x0 to the mailbox command address (0x7ffc) to confirm transaction is complete.
-5. Python checks the command address (0x7ffc), and sees that the MicroBlaze has written 0x0, indicating the read is complete, and data is available.
-6. Python reads the data in the mailbox base address (0x7000), completing the read.
+3. MicroBlaze places the peripheral data at the mailbox base address (0xf000).
+4. Micboblaze writes 0x0 to the mailbox command address (0xfffc) to confirm transaction is complete.
+5. Python checks the command address (0xfffc), and sees that the MicroBlaze has written 0x0, indicating the read is complete, and data is available.
+6. Python reads the data in the mailbox base address (0xf000), completing the read.
 
 
-IOP Switch
+Pmod IOP Switch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are 8 data pins on a Pmod port, that can be connected to any of 16 internal peripheral signals (8x GPIO, 2x SPI, 4x IIC, 2x Timer). 
@@ -193,7 +193,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (``pmod.
 
 .. code-block:: c
 
-   void configureSwitch(char pin0, char pin1, char pin2, char pin3, char pin4, \
+   void config_pmod_switch(char pin0, char pin1, char pin2, char pin3, char pin4, \
        char pin5, char pin6, char pin7);
 
 While each parameter is a "char" only the lower 4-bits are currently used to configure each pin.
@@ -225,7 +225,7 @@ For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO
 
 .. code-block:: c
 
-   configureSwitch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, GPIO_4, \
+   config_pmod_switch(GPIO_0, GPIO_1, GPIO_2, GPIO_3, GPIO_4, \
        GPIO_5, GPIO_6, GPIO_7);
 
 From Python all the constants and addresses for the IOP can be found in:
@@ -240,7 +240,7 @@ pmod_io_switch_v1_0 driver
 
    ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
 
-This code this automatically compiled into the Board Support Package. Any application linking to the BSP can use the Pmod library by including the header file:
+This code is automatically compiled into the BSP. Any application linking to the BSP can use the Pmod library by including the header file:
 
 .. code-block:: c
 
@@ -256,23 +256,22 @@ The shared memory is the only connection between the ARM and the IOPs. That shar
 =================   =========================   ============================
 IOP Base Address    MicroBlaze Address Space    ARM Equivalent Address Space
 =================   =========================   ============================
-0x4000_0000         0x0000_0000 - 0x0000_7fff   0x4000_0000 - 0x4000_7fff
-0x4200_0000         0x0000_0000 - 0x0000_7fff   0x4200_0000 - 0x4200_7fff
-0x4400_0000         0x0000_0000 - 0x0000_7fff   0x4400_0000 - 0x4400_7fff
-0x4600_0000         0x0000_0000 - 0x0000_7fff   0x4600_0000 - 0x4600_7fff
+0x4000_0000         0x0000_0000 - 0x0000_ffff   0x4000_0000 - 0x4000_ffff
+0x4200_0000         0x0000_0000 - 0x0000_ffff   0x4200_0000 - 0x4200_ffff
+0x4400_0000         0x0000_0000 - 0x0000_ffff   0x4400_0000 - 0x4400_ffff
 =================   =========================   ============================
 
-Note that each MicroBlaze has the same address space. However, the ARM Equivalent Address Space will be different for each IOP. Any binary compiled for one MicroBlaze to run on any IOP in the overlay as the MicroBlaze address space is identical, but the binary must be written to the corresponding ARM equivalent address space. 
+Note that each MicroBlaze has the same address space. However, the ARM Equivalent Address Space are different for each IOP. Any binary compiled for one MicroBlaze to run on any IOP in the overlay as the MicroBlaze address space is identical, but the binary must be written to the corresponding ARM equivalent address space. 
 
-e.g. if IOP1 exists at 0x4000_0000, and IOP2 (a second instance of an IOP) exists at 0x4008_0000, the same binary can run on IOP1 by writing the binary from python to the 0x4000_0000 address space, and on IOP2 by writing to the 0x40080_000. 
+e.g. if IOP1 exists at 0x4000_0000, and IOP2 (a second instance of an IOP) exists at 0x4200_0000, the same binary can run on IOP1 by writing the binary from python to the 0x4000_0000 address space, and on IOP2 by writing to the 0x4200_0000. 
 
 
 Example IOP Driver
 ------------------
 
-Taking PMOD ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:
+Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:
 
-``<Pynq GitHub Repository>/Pynq/Pynq-Z1/sdk/pmodals/src/pmod_als.c``
+``<Pynq GitHub Repository>/Pynq/Pynq-Z1/sdk/pmod_als/src/pmod_als.c``
 
 Note that the ``pmod.h`` header file is included.
 
