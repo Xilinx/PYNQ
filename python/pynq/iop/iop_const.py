@@ -55,7 +55,7 @@ IOP_MMIO_REGSIZE = 0x10000
 PMOD_SWITCHCONFIG_BASEADDR     = 0x44A00000
 PMOD_SWITCHCONFIG_NUMREGS       = 8
 
-# Each PMOD pin can be tied to digital IO, SPI, or IIC
+# Each Pmod pin can be tied to digital IO, SPI, or IIC
 PMOD_SWCFG_DIO0 = 0
 PMOD_SWCFG_DIO1 = 1
 PMOD_SWCFG_DIO2 = 2

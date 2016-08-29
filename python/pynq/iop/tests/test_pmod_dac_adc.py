@@ -40,11 +40,11 @@ from pynq.iop import Pmod_ADC
 from pynq.iop import Pmod_DAC
 from pynq.tests.util import user_answer_yes
 
-flag = user_answer_yes("\nPMOD ADC and PMOD DAC attached (straight cable)?")
+flag = user_answer_yes("\nPmod ADC and Pmod DAC attached (straight cable)?")
 if flag:
         global adc_id, dac_id
-        dac_id = int(input("Type in the IOP ID of the PMOD DAC (1 ~ 2): "))
-        adc_id = int(input("Type in the IOP ID of the PMOD ADC (1 ~ 2): "))
+        dac_id = int(input("Type in the IOP ID of the Pmod DAC (1 ~ 2): "))
+        adc_id = int(input("Type in the IOP ID of the Pmod ADC (1 ~ 2): "))
 
 @pytest.mark.run(order=26) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
@@ -61,8 +61,8 @@ def test_loop_single():
     Note
     ----
     Users can use a straight cable (instead of wires) to do this test.
-    For the 6-pin DAC PMOD, it has to be plugged into the upper row of the 
-    PMOD interface.
+    For the 6-pin DAC Pmod, it has to be plugged into the upper row of the 
+    Pmod interface.
     
     """
     global dac,adc
@@ -88,8 +88,8 @@ def test_loop_random():
     Note
     ----
     Users can use a straight cable (instead of wires) to do this test.
-    For the 6-pin DAC PMOD, it has to be plugged into the upper row of the 
-    PMOD interface.
+    For the 6-pin DAC Pmod, it has to be plugged into the upper row of the 
+    Pmod interface.
     
     """
     print('\nGenerating 100 random voltages from 0.00V to 2.00V...')

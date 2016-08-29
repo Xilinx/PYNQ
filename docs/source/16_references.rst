@@ -50,8 +50,3 @@ Sphinx
 nbsphinx
 --------
 * `Jupyter Notebook Tools for Sphinx <http://nbsphinx.readthedocs.io/en/0.2.7/>`_
-
-Zybo reference manual
-=====================
-* `Zybo Reference Manual <http://www.xilinx.com/support/documentation/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf>`_
-                          

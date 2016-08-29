@@ -40,16 +40,16 @@ from pynq.tests.util import user_answer_yes
 flag = user_answer_yes("\nPMOD OLED attached to the board?")
 if flag:
     global oled_id
-    oled_id = int(input("Type in the IOP ID of the PMOD OLED (1 ~ 2): "))
+    oled_id = int(input("Type in the IOP ID of the Pmod OLED (1 ~ 2): "))
 
 @pytest.mark.run(order=25)
 @pytest.mark.skipif(not flag, reason="need OLED attached in order to run")
 def test_write_string():
-    """Test for the OLED PMOD.
+    """Test for the OLED Pmod.
     
     Writes on the OLED the string 'Welcome to Zybo.' and asks the user to 
     confirm if it is shown on the OLED. After that, it clears the screen. 
-    This test is done on the PMOD overlay, and can be skipped.
+    This test can be skipped.
     
     """
     global oled

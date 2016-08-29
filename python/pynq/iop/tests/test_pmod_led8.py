@@ -44,7 +44,7 @@ from pynq.tests.util import user_answer_yes
 flag = user_answer_yes("\nPMOD LED8 attached to the board?")
 if flag:
     global led_id
-    led_id = int(input("Type in the IOP ID of the PMOD LED8 (1 ~ 2): "))
+    led_id = int(input("Type in the IOP ID of the Pmod LED8 (1 ~ 2): "))
 
 @pytest.mark.run(order=22)
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")
@@ -61,10 +61,10 @@ def test_led0():
     led = leds[0]
     led.on()
     assert led.read() is 1
-    assert user_answer_yes("\nPMOD LED 0 on?")
+    assert user_answer_yes("\nPmod LED 0 on?")
     led.off()
     assert led.read() is 0
-    assert user_answer_yes("PMOD LED 0 off?")
+    assert user_answer_yes("Pmod LED 0 off?")
     led.toggle()
     assert led.read() is 1
     led.write(0)
@@ -86,7 +86,7 @@ def test_shifts():
     for led in leds:
         led.off()
     
-    print("\nShifting PMOD LEDs. Press enter to stop shifting...", end="")
+    print("\nShifting Pmod LEDs. Press enter to stop shifting...", end="")
     while True:
         for led in leds:
             led.on()
@@ -98,15 +98,14 @@ def test_shifts():
             termios.tcflush(sys.stdin, termios.TCIOFLUSH)
             break
 
-    assert user_answer_yes("PMOD LEDs were shifting from LD0 to LD7?")
+    assert user_answer_yes("Pmod LEDs were shifting from LD0 to LD7?")
 
 @pytest.mark.run(order=24) 
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")  
 def test_toggle():
     """Test for all the LEDs on LED8.
     
-    Instantiates 8 LED objects and toggles them. This test is done on the PMOD 
-    overlay, and can be skipped.
+    Instantiates 8 LED objects and toggles them. This test can be skipped.
     
     """
     global leds
@@ -118,7 +117,7 @@ def test_toggle():
     leds[4].on()
     leds[6].on()
     
-    print("\nToggling PMOD LEDs. Press enter to stop toggling...", end="")
+    print("\nToggling Pmod LEDs. Press enter to stop toggling...", end="")
     while True:
         for led in leds:
             led.toggle()
@@ -130,7 +129,7 @@ def test_toggle():
     for led in leds:
         led.off()
         
-    assert user_answer_yes("PMOD LEDs were toggling?")
+    assert user_answer_yes("Pmod LEDs were toggling?")
     
     del leds
     

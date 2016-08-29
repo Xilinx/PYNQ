@@ -27,14 +27,7 @@ A-G
    A `Digital POTentiometer <https://en.wikipedia.org/wiki/Digital_potentiometer>`_ is a digitally-controlled electronic component that mimics the analog functions of a potentiometer.
 
   FPGA
-   `Field Programmable Gate Arrays (FPGAs) <http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm>`_ are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks
-
-  FTDI
-   Future Technology Devices International Ltd, supplier of the FT2232HQ USB-UART bridge chip used on Zybo.  Free USB-COM port
-   drivers, available from www.ftdichip.com under the "Virtual Com Port" or VCP heading, convert USB packets to
-   UART/serial port data. Serial port data is exchanged with the Zynq using a two-wire serial port (TXD/RXD). After the
-   drivers are installed, I/O commands can be used from the PC directed to the COM port to produce serial data
-   traffic on the Zynq pins.
+   `Field Programmable Gate Arrays (FPGAs) <http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm>`_ are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks.
 
 H-R
 ===
@@ -101,12 +94,8 @@ S-Z
   Vivado
    `Vivado Design Suite <http://www.xilinx.com/products/design-tools/vivado.html>`_ is a suite of computer-aided design tools provided by Xilinx for creating FPGA designs.  It is used to design and implement the overlays used in Pynq.
    
-   
   XADC
    An `XADC <http://www.xilinx.com/support/documentation/user_guides/ug480_7Series_XADC.pdf>`_ is a hard IP block that consists of dual 12-bit, 1 Mega sample per second (MSPS), analog-to-digital converters and on-chip sensors which are integrated into Xilinx 7 series FPGA devices
-
-  Zybo
-   ZYnq BOard
 
   Zynq®
    `Zynq-7000 All Programmable SoC (APSoC) devices <http://www.xilinx.com/products/silicon-devices/soc/zynq-7000.html>`_ integrate the software programmability of an ARM®-based processor with the hardware programmability of an FPGA, enabling key analytics and hardware acceleration while integrating CPU, DSP, ASSP, and mixed signal functionality on a single device. Zynq-7000 AP SoCs infuse customizable intelligence into today’s embedded systems to suit your unique application requirements

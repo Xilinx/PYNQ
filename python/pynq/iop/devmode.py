@@ -43,7 +43,7 @@ from pynq.iop import ARDUINO
 class DevMode(object):
     """Control an IO processor running the developer mode program. 
     
-    This class will wait for Python to send commands to PMOD / Arduino IO, 
+    This class will wait for Python to send commands to Pmod / Arduino IO, 
     IIC, or SPI.
 
     Attributes

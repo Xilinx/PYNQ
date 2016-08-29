@@ -41,7 +41,7 @@ from pynq.tests.util import user_answer_yes
 flag = user_answer_yes("\nALS attached to the board?")
 if flag:
     global als_id
-    als_id = int(input("Type in the IOP ID of the PMOD ALS (1 ~ 2): "))
+    als_id = int(input("Type in the IOP ID of the Pmod ALS (1 ~ 2): "))
 
 @pytest.mark.run(order=29)  
 @pytest.mark.skipif(not flag, reason="need ALS attached in order to run")
@@ -55,7 +55,7 @@ def test_readlight():
     global als
     als = Pmod_ALS(als_id)
     
-    # Wait for the PMOD ALS to finish initialization
+    # Wait for the Pmod ALS to finish initialization
     sleep(0.01)
     n = als.read()
     print("\nCurrent ALS reading: {}.".format(n))

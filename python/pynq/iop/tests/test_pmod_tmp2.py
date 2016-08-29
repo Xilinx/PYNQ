@@ -40,7 +40,7 @@ from pynq.tests.util import user_answer_yes
 flag = user_answer_yes("\nPMOD TMP2 attached to the board?")
 if flag:
     global tmp2_id
-    tmp2_id = int(input("Type in the IOP ID of the PMOD TMP2 (1 ~ 2): "))
+    tmp2_id = int(input("Type in the IOP ID of the Pmod TMP2 (1 ~ 2): "))
 
 @pytest.mark.run(order=28)
 @pytest.mark.skipif(not flag, reason="need TMP2 attached in order to run")

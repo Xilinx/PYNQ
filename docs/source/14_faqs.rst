@@ -83,5 +83,5 @@ Frequently Asked Questions (FAQs)
    sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME
    
 * What is the user account and password?
-   Username and password for all linux, jupyter and samba logins are: xpp/xpp
+   Username and password for all linux, jupyter and samba logins are: xilinx/xilinx
    

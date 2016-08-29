@@ -39,28 +39,28 @@ from pynq import Overlay
 from pynq.iop import Pmod_Cable
 from pynq.tests.util import user_answer_yes
 
-flag = user_answer_yes("\nTwo PMOD interfaces connected by a cable?")
+flag = user_answer_yes("\nTwo Pmod interfaces connected by a cable?")
 if flag:
     global TX_PORT,RX_PORT
     TX_PORT = int(input("Type in the IOP ID of the sender (1 ~ 2): "))
     RX_PORT = int(input("Type in the IOP ID of the receiver (1 ~ 2): "))
     
 @pytest.mark.run(order=16) 
-@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
+@pytest.mark.skipif(not flag, reason="need Pmod cable connected to run")
 def test_cable_type():
-    """Tests for the PMOD cable type.
+    """Tests for the Pmod cable type.
     
     Note
     ----
     The cable type can only be 'straight' or 'loopback'.
     Default cable type is straight.
     
-    The PMOD IO layout is:
+    The Pmod IO layout is:
     Upper row: {vdd,gnd,3,2,1,0}.
     Lower row: {vdd,gnd,7,6,5,4}.
     
     """
-    print('\nTesting PMOD IO cable...')
+    print('\nTesting Pmod IO cable...')
     assert not TX_PORT == RX_PORT, \
         "The sender port cannot be the receiver port."
     global tx,rx
@@ -83,7 +83,7 @@ def test_cable_type():
         raise AssertionError("Cable unrecognizable.")
 
 @pytest.mark.run(order=17) 
-@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
+@pytest.mark.skipif(not flag, reason="need Pmod cable connected to run")
 def test_rshift1():
     """Test for right shifting the bit "1".
     
@@ -106,7 +106,7 @@ def test_rshift1():
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i)
 
 @pytest.mark.run(order=18) 
-@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run") 
+@pytest.mark.skipif(not flag, reason="need Pmod cable connected to run") 
 def test_rshift0():
     """Test for right shifting the bit "0".
     
@@ -129,7 +129,7 @@ def test_rshift0():
             'Sent {} != received {} at Pin {}.'.format(data1,data2,i) 
 
 @pytest.mark.run(order=19) 
-@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
+@pytest.mark.skipif(not flag, reason="need Pmod cable connected to run")
 def test_lshift1():
     """Test for left shifting the bit "1".
     
@@ -152,7 +152,7 @@ def test_lshift1():
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
 @pytest.mark.run(order=20) 
-@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
+@pytest.mark.skipif(not flag, reason="need Pmod cable connected to run")
 def test_lshift0():
     """Test for left shifting the bit "0".
     
@@ -175,7 +175,7 @@ def test_lshift0():
             'Sent {} != received {} at Pin {}.'.format(data1,data2,7-i)
 
 @pytest.mark.run(order=21) 
-@pytest.mark.skipif(not flag, reason="need PMOD cable connected to run")
+@pytest.mark.skipif(not flag, reason="need Pmod cable connected to run")
 def test_random():
     """Test for random patterns.
     

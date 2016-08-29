@@ -44,9 +44,9 @@ ol = Overlay("base.bit")
 
 @pytest.mark.run(order=14)
 def test_devmode():
-    """Tests whether DevMode returns an _IOP for PMOD 1 and 2.
+    """Tests whether DevMode returns an _IOP for Pmod 1 and 2.
     
-    For each PMOD ID, instantiate a DevMode object with various switch 
+    For each Pmod ID, instantiate a DevMode object with various switch 
     configurations. The returned objects should not be None.
     
     """
@@ -59,9 +59,9 @@ def test_devmode():
 
 @pytest.mark.run(order=15)
 def test_devmode():
-    """Tests whether DevMode write and read work for PMOD 1 and 2.
+    """Tests whether DevMode write and read work for Pmod 1 and 2.
     
-    For each PMOD ID, write a command to the mailbox and read another command
+    For each Pmod ID, write a command to the mailbox and read another command
     from the mailbox. Test whether the write and the read are successful.
     
     """
