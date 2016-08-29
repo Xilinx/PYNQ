@@ -37,23 +37,31 @@ This folder contains libraries or python packages for peripherals available on t
    LED(0).on()
 
 
-pmods
+iop
 -----
 This folder contains libraries for the following Pmod devices ``OLED``, ``TMP2``, ``DPOT``, ``PWM``, ``TIMER``, ``ALS`` ``LED8``, ``ADC``, and ``DAC``.  
 
 The following Grove peripherals are also supported: ``Grove ADC``, ``Grove PIR``, ``Grove OLED``, ``Grove Buzzer``, ``Grove Light Sensor``, ``Grove LED BAR``, ``Grove Temperature Sensor``. In addition, ``Pmodio``, ``PmodIic`` and ``DevMode`` are developer classes allowing direct low level access to I/O controllers.
 
-There is also an additional module named ``_iop.py``; this module acts like a wrapper to allow all the PMOD classes to interface with the MicroBlaze inside an IOP.  The ``_IOP`` class prevents multiple device instantiations on the same PMOD at the same time. (i.e. This prevents the user assigning more devices to a port than can be physically connected.)  ``_IOP`` uses the Overlay class to track each IOP's status. 
+There is also an additional module named ``_iop.py``; this module acts like a wrapper to allow all the Pmod classes to interface with the MicroBlaze inside an IOP.  The ``_IOP`` class prevents multiple device instantiations on the same Pmod at the same time. (i.e. This prevents the user assigning more devices to a port than can be physically connected.)  ``_IOP`` uses the Overlay class to track each IOP's status. 
 
 .. note:: ``_iop.py`` is an internal module, not intended for the end user. In Python, there is no concept of _public_ and _private_; we use ``_`` as a prefix to indicate internal definitions, variables, functions, and packages.
 
 
-For example, the following code will instantiate and write to the PMOD_OLED attached on PMOD 4.
+For example, the following code will instantiate and write to the Pmod_OLED attached on PMODA.
 
 .. code-block:: python
 
-   from pynq.iop import PMOD_OLED 
-   PMOD_OLED(4).write("hello world")
+   from pynq import Overlay
+   from pynq.iop import Pmod_OLED
+   from pynq.iop.iop_const import PMODA
+
+   ol = Overlay("base.bit")
+   ol.download()
+
+   pmod_oled = Pmod_OLED(PMODA)
+   pmod_oled.clear()
+   pmod_oled.write('Welcome to the\nPynq-Z1 board!')
 
 audio
 -----
