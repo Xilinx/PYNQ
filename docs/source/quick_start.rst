@@ -10,7 +10,7 @@ Set up the board
    .. image:: ./images/pynq_quick_start.jpg
       :align: center
 
-* Insert your memory card, USB cable (Micro-B), and Ethernet cable into the board
+* Insert your memory card and connect the USB (Micro-B) and Ethernet cables to the board
 
 * Set the boot jumper to SD
 
