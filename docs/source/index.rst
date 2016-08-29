@@ -19,17 +19,17 @@ Contents:
    4_programming_in_python
    5_programming_onboard_peripherals
    6_overlays
-   6a_peripherals_and_base_overlay.ipynb
-   7_base_overlay_video
-   8_iop_code
-   9_creating_overlays
-   10_libraries_and_overlays
-   11_verification
-   12_modules
-   13_faqs
-   14_glossary
-   15_references
-   16_appendix
+   7_peripherals_and_base_overlay.ipynb
+   8_base_overlay_video
+   9_iop_code
+   10_creating_overlays
+   11_libraries_and_overlays
+   12_verification
+   13_modules
+   14_faqs
+   15_glossary
+   16_references
+   17_appendix
 
 
 Indices and tables

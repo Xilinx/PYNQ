@@ -27,6 +27,12 @@ pynq.board.switch module
     :members:
     :undoc-members:
     :show-inheritance:
+    
+pynq.board.rgbled module
+------------------------
 
-
+.. automodule:: pynq.board.rgbled
+    :members:
+    :undoc-members:
+    :show-inheritance:
 

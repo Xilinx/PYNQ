@@ -49,4 +49,4 @@ Contact
 
 Contact the Pynq team
 
-`xpp@xilinx.com <xpp@xilinx.com>`_
+`pynq_support@xilinx.com <pynq_support@xilinx.com>`_

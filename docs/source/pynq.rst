@@ -7,10 +7,9 @@ Subpackages
 .. toctree::
 
     pynq.board
-    pynq.pmods
-    pynq.audio
-    pynq.video
-    pynq.trace_buffer
+    pynq.iop
+    pynq.drivers
+    pynq.tests
 
 Submodules
 ----------
