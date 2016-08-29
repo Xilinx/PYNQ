@@ -1,7 +1,7 @@
-The ``Pynq`` (Python on Zynq) Platform
+The ``Pynq`` (Python Productivity for Zynq) Platform
 ==============================================
 
-The section describes the ``pynq`` (**Py**\thon on **Zy**\nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform. 
+This section describes the ``pynq`` (**Py**\thon Productivity for **Zy**\nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform. 
 
 After powering the board with the Pynq image on the SDCard in place, the board will boot into Linux.  Python3 is installed with Jupyter notebook support and the Pynq Python Package. With the pynq package, users can access programmable logic overlays from Python.   
 
