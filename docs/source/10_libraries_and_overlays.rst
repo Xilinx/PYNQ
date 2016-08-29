@@ -63,16 +63,16 @@ For example, the following code will instantiate and write to the Pmod_OLED atta
    pmod_oled.clear()
    pmod_oled.write('Welcome to the\nPynq-Z1 board!')
 
-audio
+bitstream
 -----
 
-This folder contains the single audio class to use Line in and Headphone out.  Please see `The Audio Video Overlay Section <7_audio_video_overlay.html>`_ to learn more about using audio.
+This folder contains the base.bit and the base.tcl. The abse.bit is the precompiled overlay and base.tcl provides the information of the hardware it is built from.
 
 
-video
+drivers
 -----
 
-This folder contains the HDMI class.  Please see the `Base Overlay Video Section <7_base_overlay_video.html>`_ to learn more about using video.
+This folder contains various classes to support audio, video, DMA, and Trace_Buffer.
 
 
 tests
@@ -80,7 +80,7 @@ tests
 
 This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <11_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
 
-NOTE: The ``tests` folders in ``board``, ``pmods``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
+NOTE: The ``tests` folders in ``board``, ``iop``, ``drivers``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
 
 documentation
 -----------------------------
