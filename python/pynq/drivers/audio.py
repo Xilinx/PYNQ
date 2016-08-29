@@ -73,8 +73,8 @@ class Audio:
         None
         
         """
-        self.base_addr = int(PL.ip_dict["SEG_d_axi_pdm_1_S_AXI_reg"][0],16)
-        self.length = int(PL.ip_dict["SEG_d_axi_pdm_1_S_AXI_reg"][1],16)
+        self.base_addr = int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][0],16)
+        self.length = int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][1],16)
         self._AudioMMIO = MMIO(self.base_addr, self.length)
         
         self._ffi = cffi.FFI()
