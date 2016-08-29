@@ -11,7 +11,7 @@ Project Goals
 
 Xilinx makes Zynq devices, a class of all programmable Systems on Chip (APSoCs) which integrates multiple processors and Field Programmable Gate Arrays (FPGAs) into single integrated circuits.  Programmable logic and microprocessors are complementary technologies for embedded systems.  Each serves distinct requirements of embedded systems that the other cannot perform as well. 
 
-The main goal of **PYNQ**, the **Py**\ thon Productivity for Zy\ **nq** project, is to make it easier for designers of embedded  systems to exploit the unique benefits of APSoCs in their applications. Specifically, PYNQ enables the architects, engineers and programmers who design embedded systems to use Zynq APSoCs without having to use ASIC-style, design tools to design programmable logic circuits. 
+The main goal of **PYNQ**, the **Py**\ thon on Zy\ **nq** project, is to make it easier for designers of embedded  systems to exploit the unique benefits of APSoCs in their applications. Specifically, PYNQ enables the architects, engineers and programmers who design embedded systems to use Zynq APSoCs without having to use ASIC-style, design tools to design programmable logic circuits. 
 
 
 PYNQ achieves this goal in three main ways:
