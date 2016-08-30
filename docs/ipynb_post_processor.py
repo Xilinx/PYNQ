@@ -81,7 +81,7 @@ print('Found {} notebook (.ipynb) files in {}'.format(len(ipynb_files), \
                 os.path.abspath(target_dir)))
 
 # Regex for the image reference pattern within markdown cells in *.ipynb 
-image_ref_pattern = "\!\[].*/((.*[png jpeg]))"
+image_ref_pattern = "\!\[].*/((.*[png jpeg jpg JPG]))"
 
 # Load each of the identified *.ipynb (JSON-formatted) files as a dict
 for file in ipynb_files:

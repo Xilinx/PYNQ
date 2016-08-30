@@ -7,7 +7,7 @@ To get started with Pynq, follow the quick start instructions below, or read thr
 Set up the board
 =================
 
-   .. image:: ./images/pynq_quick_start.jpg
+   .. image:: ./images/pynqz1_quick_start.jpg
       :align: center
 
 * Insert your memory card and connect the USB (Micro-B) and Ethernet cables to the board
