@@ -201,7 +201,7 @@ The analog compare feature of the Arduino is not supported on the PYNQ-Z1 board.
 Arduino IOP 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Arduino IOP is similar to the PMOD IOP with multiple interface and funcational units. 
+The Arduino IOP is similar to the PMOD IOP with multiple interface and functional units. 
 
 
 .. image:: ./images/arduino_iop.jpg
@@ -285,7 +285,7 @@ arduino_io_switch driver
 
    ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_v1_0/src/``
 
-This code this automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use the Pmod library by including the header file:
+This code this automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use the arduino_io library by including the header file:
 
 .. code-block:: c
 
