@@ -44,7 +44,7 @@ PYNQ-Z1 setup
 ---------------
 
 
-   .. image:: ./images/pynq-z1_setup.jpg
+   .. image:: ./images/pynqz1_setup.jpg
       :align: center
 
 To set up the board:

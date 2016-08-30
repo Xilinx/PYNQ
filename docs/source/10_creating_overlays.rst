@@ -21,7 +21,7 @@ A makefile exists in each folder that can be used to rebuild the Vivado project 
 
 Building overlays is only required to build a new overlay. Building an existing overlay allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
 
-.. image:: ./images/pmodio_overlay.jpg
+.. image:: ./images/vivado_base_overlay.jpg
    :scale: 50%
    :align: center
    

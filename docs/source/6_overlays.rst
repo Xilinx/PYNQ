@@ -32,13 +32,13 @@ A Pmod interface is a 12-pin connector that can be used to connect peripherals a
 
 A range of Pmod peripherals are available from Digilent Inc and other suppliers. Typical Pmod peripherals include ADCs, DACs, sensors (temperature, light), communication interfaces (Ethernet, serial), and input and output interfaces (buttons, switches, LEDs).
 
-.. image:: ./images/Pmods_opt.png
+.. image:: ./images/pmods.png
    :align: center
    
    
 There are two Pmod connectors on the PYNQ-Z1 board.
 
-.. image:: ./images/pynqz1_pmod_interfaces.jpg
+.. image:: ./images/pynqz1_pmod_interface.jpg
    :align: center
 
 Supported peripherals
@@ -56,13 +56,13 @@ Each Pmod connector has 12 pins (2 rows of 6 pins, where each row has 3.3V (VCC)
 
 *Close-up of a 12-pin Pmod*
 
-.. image:: images/pmod_closeup_opt.jpeg
+.. image:: images/pmod_closeup.JPG
    :align: center
 
 Pmod pin numbers and assignment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: images/pmod_pins_opt.png
+.. image:: images/pmod_pins.png
    :align: center
 
 Pmod data pins are labelled 0-7. 
@@ -74,21 +74,21 @@ Pmods come in different configurations depending on the number of data pins requ
 
 Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be aligned to the upper-left of the connector (to align with VCC and GND).
 
-.. image:: images/tmp2_8pin_opt.jpeg
+.. image:: images/pmod_tmp2_8pin.JPG
 
 Pmod-Grove Adapter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The PYNQ Grove Adapter  has 4 connectors (G1, G2, G3, G4) for Grove devices.
 
-.. image:: ./images/Pmod_Grove_Adapter_opt.jpg
+.. image:: ./images/pmod_grove_adapter.jpg
    :align: center
 
 All pins operate at 3.3V. Due to different pull-up/pull-down I/O requirements for different peripherals (e.g. IIC requires pull-up, and SPI requires pull-down), Grove peripherals must be plugged into the appropriate connector.
 
 GR1 and GR2 pins are connected to pins with pull-down resistors, and GR3 and GR4 are connected to pins with pull-up resistors, as indicated in the image. This doesn't affect Pmods.
 
-.. image:: ./images/stickit_mapping_opt.jpg
+.. image:: ./images/adapter_mapping.JPG
    :align: center
 
 IOPs

@@ -96,11 +96,11 @@ From either the Windows Shell, or the Linux terminal, navigate to the sdk folder
 
    cd to ``<Pynq GitHub Repository>Pynq/Pynq-Z1/sdk`` and run ``make``
 
-.. image:: ./images/make_sdk.jpg
+.. image:: ./images/sdk_make.JPG
    :scale: 75%
    :align: center
 
-.. image:: ./images/make_sdk_results.jpg
+.. image:: ./images/sdk_make_result.JPG
    :scale: 75%
    :align: center
    
@@ -138,7 +138,7 @@ If you want your project to build in the main Makefile, you should also append t
 
 If you are using the SDK Gui, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.
 
-.. image:: ./images/sdk_import_existing_bsp.jpg
+.. image:: ./images/sdk_import_bsp.jpg
    :scale: 75%
    :align: center
 
