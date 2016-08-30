@@ -78,11 +78,11 @@ This folder contains various classes to support audio, video, DMA, and Trace_Buf
 tests
 -----
 
-This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <11_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
+This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <12_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
 
 .. note:: The ``tests`` folders in ``board``, ``iop``, ``drivers``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
 
 documentation
 -----------------------------
-To find documentation for each module, see the `Pynq Package <12_modules.html>`_ for documentation built from the actual Python source code.
+To find documentation for each module, see the `Pynq Package <13_modules.html>`_ for documentation built from the actual Python source code.
 
