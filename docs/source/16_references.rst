@@ -46,7 +46,4 @@ Sphinx
 * `The official Sphinx docs <http://www.sphinx-doc.org/en/stable/index.html>`_
 * `Online reST and Sphinx editor with rendering <https://livesphinx.herokuapp.com/>`_
 * `A useful Sphinx cheat sheet <http://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html>`_
-
-nbsphinx
---------
 * `Jupyter Notebook Tools for Sphinx <http://nbsphinx.readthedocs.io/en/0.2.7/>`_
