@@ -1,5 +1,5 @@
 The ``Pynq`` (Python Productivity for Zynq) Platform
-==============================================
+======================================================
 
 This section describes the ``pynq`` (**Py**\thon Productivity for **Zy**\nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform. 
 
@@ -18,7 +18,7 @@ Some preinstalled features of this Linux image include:
 
 
 Python ``pynq`` Package Structure
----------------------------------
+----------------------------------
 All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/Pynq/python/pynq``.
 
 Pynq contains four main subpackages: ``board``, ``iop``, ``drivers``, and ``bitstream``; a ``tests`` subpackage is for testing the user subpackages.  Each of the five subpackages are described below.
@@ -64,19 +64,19 @@ For example, the following code will instantiate and write to the Pmod_OLED atta
    pmod_oled.write('Welcome to the\nPynq-Z1 board!')
 
 bitstream
------
+-----------
 
 This folder contains the base.bit and the base.tcl. The abse.bit is the precompiled overlay and base.tcl provides the information of the hardware it is built from.
 
 
 drivers
------
+---------
 
 This folder contains various classes to support audio, video, DMA, and Trace_Buffer.
 
 
 tests
------
+------
 
 This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <12_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
 

@@ -14,28 +14,41 @@ ROOT_DIR = /root
 
 REVEALJS = https://github.com/hakimel/reveal.js.git
 
-NOTEBOOK_IMAGES=edit_mode.png \
-dashboard_running_tab.png \
-python_logo.svg \
-dashboard_files_tab_run.png \
-zybo_io_opt.jpeg \
+NOTEBOOK_IMAGES=adapter_mapping.JPG \
+adc_jumper.jpeg \
+als_oled_demo.JPG \
+arduino_iop.jpg \
+cable_types.jpeg \
 command_mode.png \
-zybo_io.jpeg \
-dashboard_files_tab_new.png \
 dashboard_files_tab.png \
-menubar_toolbar.png \
 dashboard_files_tab_btns.png \
-zyboaudiovideo.jpg \
-Pmods_opt.png \
-pmod_closeup_opt.jpeg \
-pmod_pins_opt.png \
-Pmod_Grove_Adapter_opt.jpeg \
-tmp2_8pin_opt.jpeg \
-iop.jpg \
-zybopmods_opt.jpeg \
-pmodio_overlay_1_opt.png \
-als_oled_Demo_opt.jpeg \
-adc_dac_demo_opt.jpeg 
+dashboard_files_tab_new.JPG \
+dashboard_files_tab_run.png \
+dashboard_running_tab.png \
+edit_mode.png \
+examples_notebooks.jpg \
+getting_started_notebooks.jpg \
+menubar_toolbar.png \
+pmod_closeup.JPG \
+pmod_grove_adapter.jpg \
+pmod_iop.jpg \
+pmod_pins.png \
+pmod_tmp2_8pin.JPG \
+pmods.png \
+portal_homepage.jpg \
+pynqz1_arduino_interface.jpg \
+pynqz1_audiovideo.JPG \
+pynqz1_base_overlay.png \
+pynqz1_board_io.JPG \
+pynqz1_pmod_interface.jpg \
+pynqz1_quick_start.jpg \
+pynqz1_setup.jpg \
+samba_share.JPG \
+sdk_import_bsp.JPG \
+sdk_launch_shell.jpg \
+sdk_make.JPG \
+sdk_make_result.JPG \
+vivado_base_overlay.JPG
 
 DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 4_programming_in_python.tmp  \
