@@ -63,7 +63,7 @@ A Hardware Description File (.hdf), created by Vivado, is used to create the *Ha
 
 A precompiled .hdf file is provided, so it is not necessary to run Vivado to generate a .hdf file:
 
-   ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/sdk/``
+   ``<Pynq GitHub Repository>/Pynq-Z1/sdk/``
 
 Board Support Package
 ^^^^^^^^^^^^^^^^^^^^^
@@ -231,7 +231,7 @@ For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO
 
 From Python all the constants and addresses for the IOP can be found in:
 
-    ``<Pynq GitHub Repository>/Pynq/python/iop/iop_const.py``
+    ``<Pynq GitHub Repository>/python/pynq/iop/iop_const.py``
 
 Note that if two or more pins are connected to the same signal, the pins are OR'd together internally. This is not recommended. 
     
@@ -239,7 +239,7 @@ pmod_io_switch_v1_0 driver
 --------------------------
 ``pmod.h`` and ``pmod.c`` are part of the *pmod_io_switch_v1_0* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
+   ``<Pynq GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
 
 This code is automatically compiled into the BSP. Any application linking to the BSP can use the Pmod library by including the header file:
 
@@ -272,7 +272,7 @@ Example IOP Driver
 
 Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:
 
-``<Pynq GitHub Repository>/Pynq/Pynq-Z1/sdk/pmod_als/src/pmod_als.c``
+``<Pynq GitHub Repository>/Pynq-Z1/sdk/pmod_als/src/pmod_als.c``
 
 Note that the ``pmod.h`` header file is included.
 
@@ -303,7 +303,7 @@ Examine Python Code
 
 With the IOP Driver written, the Python class can be built that will communicate with that IOP. 
  
-``<Pynq GitHub Repository/python/pynq/iop/pmod_als.py``
+``<Pynq GitHub Repository>/python/pynq/iop/pmod_als.py``
   
 First the MMIO, request_iop, iop_const, PMODA and PMODB are imported. 
 
