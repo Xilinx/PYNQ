@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Pynq (Python Productivity for Zynq) Platform &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="Verification" href="12_verification.html"/>
+        <link rel="prev" title="Working with Overlays" href="10_creating_overlays.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing your own software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#python-pynq-package-structure">Python <code class="docutils literal"><span class="pre">pynq</span></code> Package Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#board">board</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#iop">iop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bitstream">bitstream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drivers">drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tests">tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/11_libraries_and_overlays.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="the-pynq-python-productivity-for-zynq-platform">
+<h1>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform<a class="headerlink" href="#the-pynq-python-productivity-for-zynq-platform" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the <code class="docutils literal"><span class="pre">pynq</span></code> (<strong>Py</strong>thon Productivity for <strong>Zy</strong>nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform.</p>
+<p>After powering the board with the Pynq image on the SDCard in place, the board will boot into Linux.  Python3 is installed with Jupyter Notebook support and the Pynq Python Package. With the pynq package, users can access FPGA fabric overlays from Python.</p>
+<p>Some preinstalled features of this Linux image include:</p>
+<ul class="simple">
+<li>Networking is enabled and Ethernet port will attempt to use DHCP on boot.  If DHCP fails, the board will fallback to a static IP of 192.168.2.99.</li>
+<li>Samba is enabled and can be accessed from a Windows machine by navigating or mapping to <code class="docutils literal"><span class="pre">\\pynq\xilinx</span></code>.  The <code class="docutils literal"><span class="pre">username:password</span></code> is <code class="docutils literal"><span class="pre">xilinx:xilinx</span></code>.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC.</li>
+<li>A Jupyter Notebook server is initialized on port 9090 and automatically starts after boot.</li>
+<li>The base overlay is preloaded in the FPGA fabric.</li>
+</ul>
+<div class="section" id="python-pynq-package-structure">
+<h2>Python <code class="docutils literal"><span class="pre">pynq</span></code> Package Structure<a class="headerlink" href="#python-pynq-package-structure" title="Permalink to this headline">¶</a></h2>
+<p>All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">repository&gt;/Pynq/python/pynq</span></code>.</p>
+<p>Pynq contains four main subpackages: <code class="docutils literal"><span class="pre">board</span></code>, <code class="docutils literal"><span class="pre">iop</span></code>, <code class="docutils literal"><span class="pre">drivers</span></code>, and <code class="docutils literal"><span class="pre">bitstream</span></code>; a <code class="docutils literal"><span class="pre">tests</span></code> subpackage is for testing the user subpackages.  Each of the five subpackages are described below.</p>
+<p>To learn more about Python package structure, please refer to the <a class="reference external" href="https://docs.python.org/3.5/tutorial/modules.html#packages">official python documentation</a>.</p>
+</div>
+<div class="section" id="board">
+<h2>board<a class="headerlink" href="#board" title="Permalink to this headline">¶</a></h2>
+<p>This folder contains libraries or python packages for peripherals available on the PYNQ-Z1 board: button, switch, rgbled and led.  For example the following code will turn on one of PYNQ-Z1&#8217;s LEDs:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="kn">import</span> <span class="n">LED</span>
+<span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="iop">
+<h2>iop<a class="headerlink" href="#iop" title="Permalink to this headline">¶</a></h2>
+<p>This folder contains libraries for the following Pmod devices <code class="docutils literal"><span class="pre">OLED</span></code>, <code class="docutils literal"><span class="pre">TMP2</span></code>, <code class="docutils literal"><span class="pre">DPOT</span></code>, <code class="docutils literal"><span class="pre">PWM</span></code>, <code class="docutils literal"><span class="pre">TIMER</span></code>, <code class="docutils literal"><span class="pre">ALS</span></code> <code class="docutils literal"><span class="pre">LED8</span></code>, <code class="docutils literal"><span class="pre">ADC</span></code>, and <code class="docutils literal"><span class="pre">DAC</span></code>.</p>
+<p>The following Grove peripherals are also supported: <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">ADC</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">PIR</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">OLED</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">Buzzer</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">Light</span> <span class="pre">Sensor</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">LED</span> <span class="pre">BAR</span></code>, <code class="docutils literal"><span class="pre">Grove</span> <span class="pre">Temperature</span> <span class="pre">Sensor</span></code>. In addition, <code class="docutils literal"><span class="pre">Pmodio</span></code>, <code class="docutils literal"><span class="pre">PmodIic</span></code> and <code class="docutils literal"><span class="pre">DevMode</span></code> are developer classes allowing direct low level access to I/O controllers.</p>
+<p>There is also an additional module named <code class="docutils literal"><span class="pre">_iop.py</span></code>; this module acts like a wrapper to allow all the Pmod classes to interface with the MicroBlaze inside an IOP.  The <code class="docutils literal"><span class="pre">_IOP</span></code> class prevents multiple device instantiations on the same Pmod at the same time. (i.e. This prevents the user assigning more devices to a port than can be physically connected.)  <code class="docutils literal"><span class="pre">_IOP</span></code> uses the Overlay class to track each IOP&#8217;s status.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">_iop.py</span></code> is an internal module, not intended for the end user. In Python, there is no concept of _public_ and _private_; we use <code class="docutils literal"><span class="pre">_</span></code> as a prefix to indicate internal definitions, variables, functions, and packages.</p>
+</div>
+<p>For example, the following code will instantiate and write to the Pmod_OLED attached on PMODA.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">Pmod_OLED</span>
+<span class="kn">from</span> <span class="nn">pynq.iop.iop_const</span> <span class="kn">import</span> <span class="n">PMODA</span>
+
+<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span>
+<span class="n">ol</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+<span class="n">pmod_oled</span> <span class="o">=</span> <span class="n">Pmod_OLED</span><span class="p">(</span><span class="n">PMODA</span><span class="p">)</span>
+<span class="n">pmod_oled</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="n">pmod_oled</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Welcome to the</span><span class="se">\n</span><span class="s1">Pynq-Z1 board!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bitstream">
+<h2>bitstream<a class="headerlink" href="#bitstream" title="Permalink to this headline">¶</a></h2>
+<p>This folder contains the base.bit and the base.tcl. The abse.bit is the precompiled overlay and base.tcl provides the information of the hardware it is built from.</p>
+</div>
+<div class="section" id="drivers">
+<h2>drivers<a class="headerlink" href="#drivers" title="Permalink to this headline">¶</a></h2>
+<p>This folder contains various classes to support audio, video, DMA, and Trace_Buffer.</p>
+</div>
+<div class="section" id="tests">
+<h2>tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<p>This folder includes a tests package for use with all other pynq subpackages.  All testing is done using <a class="reference external" href="http://pytest.org/latest/">pytest</a>.  Please see <a class="reference external" href="12_verification.html">The Verification Section</a> to learn more about Pynq&#8217;s use of pytest to do automated testing.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">tests</span></code> folders in <code class="docutils literal"><span class="pre">board</span></code>, <code class="docutils literal"><span class="pre">iop</span></code>, <code class="docutils literal"><span class="pre">drivers</span></code>, and others rely on the functions implemented in the <code class="docutils literal"><span class="pre">test</span></code> folders of the pynq package. This common practice in Python where each subpackage has its own <code class="docutils literal"><span class="pre">tests</span></code>.  This practice can keep the source code modular and <em>self-contained</em>.</p>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>To find documentation for each module, see the <a class="reference external" href="13_modules.html">Pynq Package</a> for documentation built from the actual Python source code.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="12_verification.html" class="btn btn-neutral float-right" title="Verification" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="10_creating_overlays.html" class="btn btn-neutral" title="Working with Overlays" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

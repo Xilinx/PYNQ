@@ -1,0 +1,805 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Hardware Libraries and Overlays &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="Using Peripherals with the Base overlay" href="7_peripherals_and_base_overlay.html"/>
+        <link rel="prev" title="Programming PYNQ-Z1’s onboard peripherals" href="5_programming_onboard_peripherals.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Hardware Libraries and Overlays</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overlay-concept">Overlay Concept</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#base-overlay">Base Overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pmods">Pmods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supported-peripherals">Supported peripherals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pmod-connector">Pmod Connector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pmod-pin-numbers-and-assignment">Pmod pin numbers and assignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pmod-pin-configuration">Pmod Pin configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pmod-grove-adapter">Pmod-Grove Adapter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#iops">IOPs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pmod-io-processor">Pmod IO Processor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pmod-iop">Pmod IOP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pmod-io-switch">Pmod IO Switch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pmod-io-switch-driver">pmod_io_switch driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arduino-io-processor">Arduino IO Processor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#arduino-interface">Arduino Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#arduino-iop">Arduino IOP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#arduino-io-switch">Arduino IO Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#arduino-io-switch-driver">arduino_io_switch driver</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="7_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing your own software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Hardware Libraries and Overlays</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/6_overlays.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="hardware-libraries-and-overlays">
+<h1>Hardware Libraries and Overlays<a class="headerlink" href="#hardware-libraries-and-overlays" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overlay-concept">
+<h2>Overlay Concept<a class="headerlink" href="#overlay-concept" title="Permalink to this headline">¶</a></h2>
+<p>Zynq provides a processor and FPGA fabric on the same chip.</p>
+<p>Overlays, or hardware libraries extend the user application from the PS (processing system) of the Zynq into the FPGA. This allows software programmers to take advantage of the FPGA fabric to accelerate the application, or to use a customized platform optimized for a particular application.</p>
+<p>For example, for an image processing, a typical application where the FPGA can provide acceleration, the software programmer can use a hardware library to run some of the image processing functions on the FPGA fabric.</p>
+<p>An Overlay could also be used to generate a custom hardware platform using the available pins on the Pmod and Arduino interfaces.</p>
+<p>Hardware libraries can be loaded to the FPGA dynamically, as required, just like a software library.</p>
+</div>
+<div class="section" id="base-overlay">
+<h2>Base Overlay<a class="headerlink" href="#base-overlay" title="Permalink to this headline">¶</a></h2>
+<p>The Base overlay is the default overlay that ships with the PYNQ-Z1 board.</p>
+<p>The Pynq Base overlay customizes the platform to connect the HDMI In and Out, the Mic In and Audio Out, and the Pmod and Arduino interfaces through the IO Processors to the PS to allow them to be used from the Pynq environment. The user buttons, switches and LEDs are also connected in the Base overlay.</p>
+<img alt="_images/pynqz1_base_overlay.png" class="align-center" src="_images/pynqz1_base_overlay.png" />
+<p>The Pmod and Arduino interfaces have special custom IO Processors  that allow a range of peripherals with different IO standards to be connected to the system and used directly by a software programmer without needing to create a new FPGA design.</p>
+</div>
+<div class="section" id="pmods">
+<h2>Pmods<a class="headerlink" href="#pmods" title="Permalink to this headline">¶</a></h2>
+<p>A Pmod interface is a 12-pin connector that can be used to connect peripherals and other accessories to the board.</p>
+<p>A range of Pmod peripherals are available from Digilent Inc and other suppliers. Typical Pmod peripherals include ADCs, DACs, sensors (temperature, light), communication interfaces (Ethernet, serial), and input and output interfaces (buttons, switches, LEDs).</p>
+<img alt="_images/pmods.png" class="align-center" src="_images/pmods.png" />
+<p>There are two Pmod connectors on the PYNQ-Z1 board.</p>
+<img alt="_images/pynqz1_pmod_interface.jpg" class="align-center" src="_images/pynqz1_pmod_interface.jpg" />
+<div class="section" id="supported-peripherals">
+<h3>Supported peripherals<a class="headerlink" href="#supported-peripherals" title="Permalink to this headline">¶</a></h3>
+<p>Pynq current supports a number of Pmods and Grove peripherals. See the <em>pynq.pmods package</em> section of the documentation.</p>
+<p>Pmods can be plugged directly into the Pmod port. Grove peripherals can be connected to the Pmod port through a <em>PYNQ Grove Adapter</em>  board.</p>
+<p>As the Pmod interface connects to FPGA pins, other peripherals can be wired to a Pmod port.</p>
+</div>
+<div class="section" id="pmod-connector">
+<h3>Pmod Connector<a class="headerlink" href="#pmod-connector" title="Permalink to this headline">¶</a></h3>
+<p>Each Pmod connector has 12 pins (2 rows of 6 pins, where each row has 3.3V (VCC), ground (GND) and 4 data pins giving 8 data pins in total).</p>
+<p><em>Close-up of a 12-pin Pmod</em></p>
+<img alt="_images/pmod_closeup.JPG" class="align-center" src="_images/pmod_closeup.JPG" />
+</div>
+<div class="section" id="pmod-pin-numbers-and-assignment">
+<h3>Pmod pin numbers and assignment<a class="headerlink" href="#pmod-pin-numbers-and-assignment" title="Permalink to this headline">¶</a></h3>
+<img alt="_images/pmod_pins.png" class="align-center" src="_images/pmod_pins.png" />
+<p>Pmod data pins are labelled 0-7.</p>
+</div>
+<div class="section" id="pmod-pin-configuration">
+<h3>Pmod Pin configuration<a class="headerlink" href="#pmod-pin-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Pmods come in different configurations depending on the number of data pins required (single row, double row, e.g. 1x6 pins, 2x4 pins, 2x6 pins) depending on the communication protocol they use. Pmod peripherals with only a single row of pins can be plugged into the top row or the bottom row of the Pmod connector.</p>
+<p>Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be aligned to the upper-left of the connector (to align with VCC and GND).</p>
+<img alt="_images/pmod_tmp2_8pin.JPG" src="_images/pmod_tmp2_8pin.JPG" />
+</div>
+<div class="section" id="pmod-grove-adapter">
+<h3>Pmod-Grove Adapter<a class="headerlink" href="#pmod-grove-adapter" title="Permalink to this headline">¶</a></h3>
+<p>Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The PYNQ Grove Adapter  has 4 connectors (G1, G2, G3, G4) for Grove devices.</p>
+<img alt="_images/pmod_grove_adapter.jpg" class="align-center" src="_images/pmod_grove_adapter.jpg" />
+<p>All pins operate at 3.3V. Due to different pull-up/pull-down I/O requirements for different peripherals (e.g. IIC requires pull-up, and SPI requires pull-down), Grove peripherals must be plugged into the appropriate connector.</p>
+<p>GR1 and GR2 pins are connected to pins with pull-down resistors, and GR3 and GR4 are connected to pins with pull-up resistors, as indicated in the image. This doesn&#8217;t affect Pmods.</p>
+<img alt="_images/adapter_mapping.JPG" class="align-center" src="_images/adapter_mapping.JPG" />
+</div>
+</div>
+</div>
+<div class="section" id="iops">
+<h1>IOPs<a class="headerlink" href="#iops" title="Permalink to this headline">¶</a></h1>
+<p>For overlays to be useful, they must provide sufficient functionality, while also providing flexibility to suit a wide range of applications. Flexibility in the overlay is provided through IO Processors (IOPs).</p>
+<p>An IO Processor is implemented in the FPGA fabric and connects to an external port on the board.
+The IOP gives flexibility to connect to and control a range of different external accessories without requiring a re-design of the FPGA hardware. There are two different types of IOP, a Pmod IOP and Arduino IOP.</p>
+<p>Each IOP contains a MicroBlaze processor and a dedicated memory block for the MicroBlaze instruction and data memory. This memory block is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area can be used for communication and data exchanges between the ARM processor and the IOP(s).</p>
+<p>In the Base overlay on the PYNQ-Z1 board, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are interface and functional blocks; Timer, UART, IIC, SPI, GPIO (General Purpose Input/Output) and Configurable switch. IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the Pmod signals to be routed internally to the required interface block.</p>
+<div class="section" id="pmod-io-processor">
+<h2>Pmod IO Processor<a class="headerlink" href="#pmod-io-processor" title="Permalink to this headline">¶</a></h2>
+<p>Two Pmod IOPs are included in the base overlay to control each of the two Pmod interfaces on the board.</p>
+<div class="section" id="pmod-iop">
+<h3>Pmod IOP<a class="headerlink" href="#pmod-iop" title="Permalink to this headline">¶</a></h3>
+<img alt="_images/pmod_iop.jpg" class="align-center" src="_images/pmod_iop.jpg" />
+<p>As indicated in the diagram, the Pmod IOP has a MicroBlaze, a configurable switch, and the following peripherals:</p>
+<ul class="simple">
+<li>I2C (IIC)</li>
+<li>SPI</li>
+<li>GPIO blocks</li>
+<li>Timer</li>
+</ul>
+</div>
+<div class="section" id="pmod-io-switch">
+<h3>Pmod IO Switch<a class="headerlink" href="#pmod-io-switch" title="Permalink to this headline">¶</a></h3>
+<p>The switch can be configured by writing to its configuration registers.</p>
+<p>Each individual pins can be configured by writing a 4-bit value to the corresponding place in the IOP Switch configuration registers. This can be done from the MicroBlaze code.</p>
+<p>The following function, part of the provided pmod_io_switch_v1_0 driver can be used to configure the switch.</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">config_pmod_switch</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Switch mappings used for IOP Switch configuration:</p>
+<p>For example:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">config_pmod_switch</span><span class="p">(</span><span class="n">SS</span><span class="p">,</span><span class="n">MOSI</span><span class="p">,</span><span class="n">GPIO_2</span><span class="p">,</span><span class="n">SPICLK</span><span class="p">,</span><span class="n">GPIO_4</span><span class="p">,</span><span class="n">GPIO_5</span><span class="p">,</span><span class="n">GPIO_6</span><span class="p">,</span><span class="n">GPIO_7</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>From Python all the constants and addresses for the IOP can be found in:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/iop_const.py</span></code></div></blockquote>
+</div>
+</div>
+<div class="section" id="pmod-io-switch-driver">
+<h2>pmod_io_switch driver<a class="headerlink" href="#pmod-io-switch-driver" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">pmod.h</span></code> and <code class="docutils literal"><span class="pre">pmod.c</span></code> are part of the <em>pmod_io_switch_v1_0</em> driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
+<p>This code is automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use the Pmod library by including the header file:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;pmod_io_switch.h&quot;</span><span class="cp"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arduino-io-processor">
+<h2>Arduino IO Processor<a class="headerlink" href="#arduino-io-processor" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="arduino-interface">
+<h3>Arduino Interface<a class="headerlink" href="#arduino-interface" title="Permalink to this headline">¶</a></h3>
+<p>The PYNQ-Z1 board has an Arduino interface.</p>
+<img alt="_images/pynqz1_arduino_interface.jpg" class="align-center" src="_images/pynqz1_arduino_interface.jpg" />
+<p>An Arduino IOP is available to control this interface.</p>
+<p>The Arduino interface has 6 analog pins (A0-A5), 14 multi-purpose Digital pins (D0-D13), 2 dedicated I2C pins, and 4 dedicated SPI pins.</p>
+<p>Arduino shields have fixed possible configurations.  According to the Arduino specification, the analog pins can also be used as digital I/O.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Peripheral</th>
+<th class="head">Pins</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>UART</td>
+<td>D0, D1</td>
+</tr>
+<tr class="row-odd"><td>I2C</td>
+<td>A4, A5</td>
+</tr>
+<tr class="row-even"><td>SPI*</td>
+<td>D10-D13</td>
+</tr>
+<tr class="row-odd"><td>PWM</td>
+<td>D3, D5, D6, D9, D10, D11</td>
+</tr>
+<tr class="row-even"><td>Timer</td>
+<td>D3-D6 and D8-D11</td>
+</tr>
+</tbody>
+</table>
+<p>* There are also dedicated pins for a separate SPI.</p>
+<p>For example, a shield with a UART and 5 Digital IO can connect the UART to pins D0, D1, and the Digital IO can be connected to pins D2 - D6.</p>
+<p>Limitations:
+The analog compare feature of the Arduino is not supported on the PYNQ-Z1 board.</p>
+</div>
+<div class="section" id="arduino-iop">
+<h3>Arduino IOP<a class="headerlink" href="#arduino-iop" title="Permalink to this headline">¶</a></h3>
+<p>The Arduino IOP is similar to the PMOD IOP with multiple interface and functional units.</p>
+<img alt="_images/arduino_iop.jpg" class="align-center" src="_images/arduino_iop.jpg" />
+<p>As indicated in the diagram, the Arduino IOP has a MicroBlaze, a configurable switch, and the following peripherals:</p>
+<ul class="simple">
+<li>2x I2C</li>
+<li>2x SPI</li>
+<li>1x UART</li>
+<li>3x GPIO blocks</li>
+<li>1x XADC</li>
+<li>1 Interrupt Controller (32 channels)</li>
+</ul>
+<p>The interrupt controller can be connected to all the Analog and Digital pins, and each of the 6 Timers, the I2Cs, the SPIs, the XADC, and UART.</p>
+<p>This means an external pin on the shield interface can trigger the interrupt controller, and the internal peripherals can also trigger an interrupt.</p>
+</div>
+<div class="section" id="arduino-io-switch">
+<h3>Arduino IO Switch<a class="headerlink" href="#arduino-io-switch" title="Permalink to this headline">¶</a></h3>
+<p>The switch can be configured by writing to its configuration registers.</p>
+<p>The dedicated SPI pins are always connected to one of the SPI controllers.</p>
+<p>The analog and digital pins can be configured by writing a 4-bit value to the corresponding place in the IOP Switch configuration registers. This can be done from the MicroBlaze code.</p>
+<p>The following function, part of the provided arduino_io_switch_v1_0 driver <code class="docutils literal"><span class="pre">arduino.h</span></code> can be used to configure the switch.</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">config_arduino_switch</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Switch mappings used for IOP Switch configuration:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="8%" />
+<col width="8%" />
+<col width="10%" />
+<col width="7%" />
+<col width="8%" />
+<col width="20%" />
+<col width="9%" />
+<col width="8%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Pin Name</th>
+<th class="head">A/D IO</th>
+<th class="head">A_INT</th>
+<th class="head">Interrupt</th>
+<th class="head">UART</th>
+<th class="head">PWM</th>
+<th class="head">Timer</th>
+<th class="head">SPI</th>
+<th class="head">IIC</th>
+<th class="head">Input Capture</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>A0</td>
+<td>A_GPIO</td>
+<td>A_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>A1</td>
+<td>A_GPIO</td>
+<td>A_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>A2</td>
+<td>A_GPIO</td>
+<td>A_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>A3</td>
+<td>A_GPIO</td>
+<td>A_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>A4</td>
+<td>A_GPIO</td>
+<td>A_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>IIC</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>A5</td>
+<td>A_GPIO</td>
+<td>A_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>IIC</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>D0</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>D_UART</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>D1</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>D_UART</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>D2</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>D3</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>D_PWM0</td>
+<td>D_TIMER (Timer0)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>IC (Timer0)</td>
+</tr>
+<tr class="row-even"><td>D4</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>D_TIMER (Timer0_6)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>D5</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>D_PWM1</td>
+<td>D_TIMER (Timer1)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>IC (Timer1)</td>
+</tr>
+<tr class="row-even"><td>D6</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>D_PWM2</td>
+<td>D_TIMER (Timer2)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>IC (Timer2)</td>
+</tr>
+<tr class="row-odd"><td>D7</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>D8</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>D_TIMER (Timer1_7)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>Input Capture</td>
+</tr>
+<tr class="row-odd"><td>D9</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>D_PWM3</td>
+<td>D_TIMER (Timer3)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>IC (Timer3)</td>
+</tr>
+<tr class="row-even"><td>D10</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>D_PWM4</td>
+<td>D_TIMER (Timer4)</td>
+<td>D_SS</td>
+<td>&nbsp;</td>
+<td>IC (Timer4)</td>
+</tr>
+<tr class="row-odd"><td>D11</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>D_PWM5</td>
+<td>D_TIMER (Timer5)</td>
+<td>D_MOSI</td>
+<td>&nbsp;</td>
+<td>IC (Timer5)</td>
+</tr>
+<tr class="row-even"><td>D12</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>D_MISO</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>D13</td>
+<td>D_GPIO</td>
+<td>&nbsp;</td>
+<td>D_INT</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>D_SPICLK</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>For example, to connect the UART to D0 and D1, write D_UART to the configuration register for D0 and D1.</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">config_arduino_switch</span><span class="p">(</span><span class="n">A_GPIO</span><span class="p">,</span> <span class="n">A_GPIO</span><span class="p">,</span> <span class="n">A_GPIO</span><span class="p">,</span> <span class="n">A_GPIO</span><span class="p">,</span> <span class="n">A_GPIO</span><span class="p">,</span> <span class="n">A_GPIO</span><span class="p">,</span>
+                <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span>
+                <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span>
+                <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">,</span> <span class="n">D_GPIO</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>From Python all the constants and addresses for the IOP can be found in:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/iop_const.py</span></code></div></blockquote>
+</div>
+<div class="section" id="arduino-io-switch-driver">
+<h3>arduino_io_switch driver<a class="headerlink" href="#arduino-io-switch-driver" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">arduino.h</span></code> and <code class="docutils literal"><span class="pre">arduino.c</span></code> are part of the <em>arduino_io_switch</em> driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_v1_0/src/</span></code></div></blockquote>
+<p>This code this automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use the arduino_io library by including the header file:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;arduino_io_switch.h&quot;</span><span class="cp"></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="7_peripherals_and_base_overlay.html" class="btn btn-neutral float-right" title="Using Peripherals with the Base overlay" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="5_programming_onboard_peripherals.html" class="btn btn-neutral" title="Programming PYNQ-Z1’s onboard peripherals" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

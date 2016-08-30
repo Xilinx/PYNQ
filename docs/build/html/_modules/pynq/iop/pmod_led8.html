@@ -1,0 +1,521 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynq.iop.pmod_led8 &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_pynq.html">PYNQ Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../9_iop_code.html">IO Processors: Writing your own software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../11_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../15_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../16_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../17_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>pynq.iop.pmod_led8</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<h1>Source code for pynq.iop.pmod_led8</h1><div class="highlight"><pre>
+<span></span><span class="c1">#   Copyright (c) 2016, Xilinx, Inc.</span>
+<span class="c1">#   All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1">#   Redistribution and use in source and binary forms, with or without </span>
+<span class="c1">#   modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1">#   1.  Redistributions of source code must retain the above copyright notice, </span>
+<span class="c1">#       this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#   2.  Redistributions in binary form must reproduce the above copyright </span>
+<span class="c1">#       notice, this list of conditions and the following disclaimer in the </span>
+<span class="c1">#       documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#   3.  Neither the name of the copyright holder nor the names of its </span>
+<span class="c1">#       contributors may be used to endorse or promote products derived from </span>
+<span class="c1">#       this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1">#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1">#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR </span>
+<span class="c1">#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR </span>
+<span class="c1">#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, </span>
+<span class="c1">#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1">#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, </span>
+<span class="c1">#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR </span>
+<span class="c1">#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF </span>
+<span class="c1">#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="n">__author__</span>      <span class="o">=</span> <span class="s2">&quot;Graham Schelle, Giuseppe Natale, Yun Rock Qu&quot;</span>
+<span class="n">__copyright__</span>   <span class="o">=</span> <span class="s2">&quot;Copyright 2016, Xilinx&quot;</span>
+<span class="n">__email__</span>       <span class="o">=</span> <span class="s2">&quot;pynq_support@xilinx.com&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">iop_const</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">DevMode</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMODA</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMODB</span>
+
+<div class="viewcode-block" id="Pmod_LED8"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.pmod_led8.Pmod_LED8">[docs]</a><span class="k">class</span> <span class="nc">Pmod_LED8</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class controls a single LED on the LED8 Pmod.</span>
+<span class="sd">    </span>
+<span class="sd">    The Pmod LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be</span>
+<span class="sd">    individually illuminated from a logic high signal.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    iop : _IOP</span>
+<span class="sd">        I/O processor instance used by LED8.</span>
+<span class="sd">    index : int</span>
+<span class="sd">        Index of the pin on LED8, from 0 to 7.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">if_id</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a new instance of a LED object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        if_id : int</span>
+<span class="sd">            The interface ID (1, 2) corresponding to (PMODA, PMODB).</span>
+<span class="sd">        index: int</span>
+<span class="sd">            The index of the pin in a Pmod, from 0 to 7.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">if_id</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PMODA</span><span class="p">,</span> <span class="n">PMODB</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No such IOP for Pmod device.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Valid pin indexes are 0 - 7.&quot;</span><span class="p">)</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">DevMode</span><span class="p">(</span><span class="n">if_id</span><span class="p">,</span> <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_SWCFG_DIOALL</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_BASEADDR</span> <span class="o">+</span> \
+                            <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_TRI_OFFSET</span><span class="p">,</span> \
+                            <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_CFG_DIO_ALLOUTPUT</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">load_switch_config</span><span class="p">()</span>
+                  
+<div class="viewcode-block" id="Pmod_LED8.toggle"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.pmod_led8.Pmod_LED8.toggle">[docs]</a>    <span class="k">def</span> <span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  
+        <span class="sd">&quot;&quot;&quot;Flip the bit of a single LED.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        The LED will be turned off if it is on. Similarly, it will be turned </span>
+<span class="sd">        on if it is off.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curr_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_BASEADDR</span> <span class="o">+</span> \
+                                        <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_DATA_OFFSET</span><span class="p">)</span>
+        <span class="n">new_val</span>  <span class="o">=</span> <span class="p">(</span><span class="n">curr_val</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="mh">0x1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_leds_values</span><span class="p">(</span><span class="n">new_val</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Pmod_LED8.on"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.pmod_led8.Pmod_LED8.on">[docs]</a>    <span class="k">def</span> <span class="nf">on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  
+        <span class="sd">&quot;&quot;&quot;Turn on a single LED.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curr_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_BASEADDR</span> <span class="o">+</span> \
+                                        <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_DATA_OFFSET</span><span class="p">)</span>
+        <span class="n">new_val</span>  <span class="o">=</span> <span class="p">(</span><span class="n">curr_val</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mh">0x1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_leds_values</span><span class="p">(</span><span class="n">new_val</span><span class="p">)</span></div>
+     
+<div class="viewcode-block" id="Pmod_LED8.off"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.pmod_led8.Pmod_LED8.off">[docs]</a>    <span class="k">def</span> <span class="nf">off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>    
+        <span class="sd">&quot;&quot;&quot;Turn off a single LED.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curr_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_BASEADDR</span> <span class="o">+</span> \
+                                        <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_DATA_OFFSET</span><span class="p">)</span>
+        <span class="n">new_val</span>  <span class="o">=</span> <span class="p">(</span><span class="n">curr_val</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mh">0xff</span> <span class="o">^</span> <span class="p">(</span><span class="mh">0x1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>    
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_leds_values</span><span class="p">(</span><span class="n">new_val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pmod_LED8.write"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.pmod_led8.Pmod_LED8.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the LED state according to the input value</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        This method does not take into account the current LED state.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : int</span>
+<span class="sd">            Turn on the LED if value is 1; turn it off if value is 0.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;LED8 can only write 0 or 1.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pmod_LED8.read"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.pmod_led8.Pmod_LED8.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>       
+        <span class="sd">&quot;&quot;&quot;Retrieve the LED state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The data (0 or 1) read out from the selected pin.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curr_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">read_cmd</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_BASEADDR</span> <span class="o">+</span> \
+                                        <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_DATA_OFFSET</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">curr_val</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x1</span> </div>
+    
+    <span class="k">def</span> <span class="nf">_set_leds_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the state for all the LEDs.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Should not be used directly. User should rely on toggle(), on(), </span>
+<span class="sd">        off(), write(), and read() instead.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : int</span>
+<span class="sd">            The state of all the LEDs encoded in one single value</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">write_cmd</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_BASEADDR</span> <span class="o">+</span> \
+                            <span class="n">iop_const</span><span class="o">.</span><span class="n">PMOD_DIO_DATA_OFFSET</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+                         
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

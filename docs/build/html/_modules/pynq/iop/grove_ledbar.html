@@ -1,0 +1,589 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynq.iop.grove_ledbar &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_pynq.html">PYNQ Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../9_iop_code.html">IO Processors: Writing your own software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../11_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../15_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../16_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../17_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>pynq.iop.grove_ledbar</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<h1>Source code for pynq.iop.grove_ledbar</h1><div class="highlight"><pre>
+<span></span><span class="c1">#   Copyright (c) 2016, Xilinx, Inc.</span>
+<span class="c1">#   All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1">#   Redistribution and use in source and binary forms, with or without </span>
+<span class="c1">#   modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1">#   1.  Redistributions of source code must retain the above copyright notice, </span>
+<span class="c1">#       this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#   2.  Redistributions in binary form must reproduce the above copyright </span>
+<span class="c1">#       notice, this list of conditions and the following disclaimer in the </span>
+<span class="c1">#       documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#   3.  Neither the name of the copyright holder nor the names of its </span>
+<span class="c1">#       contributors may be used to endorse or promote products derived from </span>
+<span class="c1">#       this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1">#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1">#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR </span>
+<span class="c1">#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR </span>
+<span class="c1">#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, </span>
+<span class="c1">#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1">#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, </span>
+<span class="c1">#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR </span>
+<span class="c1">#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF </span>
+<span class="c1">#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="n">__author__</span>      <span class="o">=</span> <span class="s2">&quot;Naveen Purushotham&quot;</span>
+<span class="n">__copyright__</span>   <span class="o">=</span> <span class="s2">&quot;Copyright 2016, Xilinx&quot;</span>
+<span class="n">__email__</span>       <span class="o">=</span> <span class="s2">&quot;pynq_support@xilinx.com&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">request_iop</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">iop_const</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMODA</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMODB</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMOD_GROVE_G1</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMOD_GROVE_G2</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMOD_GROVE_G3</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">PMOD_GROVE_G4</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO_GROVE_G1</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO_GROVE_G2</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO_GROVE_G3</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO_GROVE_G4</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO_GROVE_G5</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO_GROVE_G6</span>
+<span class="kn">from</span> <span class="nn">pynq.iop</span> <span class="kn">import</span> <span class="n">ARDUINO_GROVE_G7</span>
+
+<span class="n">PMOD_GROVE_LEDBAR_PROGRAM</span> <span class="o">=</span> <span class="s2">&quot;pmod_grove_ledbar.bin&quot;</span>
+<span class="n">ARDUINO_GROVE_LEDBAR_PROGRAM</span> <span class="o">=</span> <span class="s2">&quot;arduino_grove_ledbar.bin&quot;</span>
+
+<div class="viewcode-block" id="Grove_LEDbar"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.grove_ledbar.Grove_LEDbar">[docs]</a><span class="k">class</span> <span class="nc">Grove_LEDbar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class controls the Grove LED BAR. </span>
+<span class="sd">    </span>
+<span class="sd">    Grove LED Bar is comprised of a 10 segment LED gauge bar and an MY9221 LED</span>
+<span class="sd">    controlling chip. Model: LED05031P. Hardware version: v2.0.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    iop : _IOP</span>
+<span class="sd">        I/O processor instance used by Grove_LEDbar.</span>
+<span class="sd">    mmio : MMIO</span>
+<span class="sd">        Memory-mapped I/O instance to read and write instructions and data.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">if_id</span><span class="p">,</span> <span class="n">gr_pin</span><span class="p">):</span> 
+        <span class="sd">&quot;&quot;&quot;Return a new instance of an Grove LEDbar object. </span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Valid StickIt group ID is currently only 1.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        if_id : int</span>
+<span class="sd">            IOP ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).</span>
+<span class="sd">        gr_pin: list</span>
+<span class="sd">            A group of pins on stickit connector or arduino shield.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">if_id</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PMODA</span><span class="p">,</span> <span class="n">PMODB</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gr_pin</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PMOD_GROVE_G1</span><span class="p">,</span> \
+                              <span class="n">PMOD_GROVE_G2</span><span class="p">,</span> \
+                              <span class="n">PMOD_GROVE_G3</span><span class="p">,</span> \
+                              <span class="n">PMOD_GROVE_G4</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;LEDbar group number can only be G1 - G4.&quot;</span><span class="p">)</span>
+            <span class="n">GROVE_LEDBAR_PROGRAM</span> <span class="o">=</span> <span class="n">PMOD_GROVE_LEDBAR_PROGRAM</span>
+        <span class="k">elif</span> <span class="n">if_id</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ARDUINO</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gr_pin</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ARDUINO_GROVE_G1</span><span class="p">,</span> \
+                              <span class="n">ARDUINO_GROVE_G2</span><span class="p">,</span> \
+                              <span class="n">ARDUINO_GROVE_G3</span><span class="p">,</span> \
+                              <span class="n">ARDUINO_GROVE_G4</span><span class="p">,</span> \
+                              <span class="n">ARDUINO_GROVE_G5</span><span class="p">,</span> \
+                              <span class="n">ARDUINO_GROVE_G6</span><span class="p">,</span> \
+                              <span class="n">ARDUINO_GROVE_G7</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;LEDbar group number can only be G1 - G7.&quot;</span><span class="p">)</span>
+            <span class="n">GROVE_LEDBAR_PROGRAM</span> <span class="o">=</span> <span class="n">ARDUINO_GROVE_LEDBAR_PROGRAM</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No such IOP for grove device.&quot;</span><span class="p">)</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span> <span class="o">=</span> <span class="n">request_iop</span><span class="p">(</span><span class="n">if_id</span><span class="p">,</span> <span class="n">GROVE_LEDBAR_PROGRAM</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">mmio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        
+        <span class="c1"># Write GPIO pin config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">gr_pin</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">gr_pin</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            
+        <span class="c1"># Write configuration and wait for ACK</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> \
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> \
+                              <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">pass</span>
+            
+<div class="viewcode-block" id="Grove_LEDbar.reset"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.grove_ledbar.Grove_LEDbar.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resets the LEDbar.</span>
+<span class="sd">        </span>
+<span class="sd">        Clears the LEDbar, sets all LEDs to OFF state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x3</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                                  <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+        
+<div class="viewcode-block" id="Grove_LEDbar.write_binary"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.grove_ledbar.Grove_LEDbar.write_binary">[docs]</a>    <span class="k">def</span> <span class="nf">write_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set individual LEDs in the LEDbar based on 10 bit binary input.</span>
+<span class="sd">        </span>
+<span class="sd">        Each bit in the 10-bit `data_in` points to a LED position on the</span>
+<span class="sd">        LEDbar. Red LED corresponds to the LSB, while green LED corresponds</span>
+<span class="sd">        to the MSB.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_in : int</span>
+<span class="sd">            10 LSBs of this parameter control the LEDbar.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">data_in</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x5</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                                  <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+            
+<div class="viewcode-block" id="Grove_LEDbar.write_brightness"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.grove_ledbar.Grove_LEDbar.write_brightness">[docs]</a>    <span class="k">def</span> <span class="nf">write_brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">brightness</span><span class="o">=</span><span class="p">[</span><span class="mh">0xAA</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set individual LEDs with 3 level brightness control.</span>
+<span class="sd">        </span>
+<span class="sd">        Each bit in the 10-bit `data_in` points to a LED position on the</span>
+<span class="sd">        LEDbar. Red LED corresponds to the LSB, while green LED corresponds</span>
+<span class="sd">        to the MSB.</span>
+<span class="sd">        </span>
+<span class="sd">        Brightness of each LED is controlled by the brightness parameter.</span>
+<span class="sd">        There are 3 perceivable levels of brightness:</span>
+<span class="sd">        0xFF : HIGH</span>
+<span class="sd">        0xAA : MED</span>
+<span class="sd">        0x01 : LOW</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_in : int</span>
+<span class="sd">            10 LSBs of this parameter control the LEDbar.</span>
+<span class="sd">        brightness : list</span>
+<span class="sd">            Each List element controls a single LED.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">data_in</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> \
+                            <span class="n">brightness</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> \
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x7</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span> \
+                                  <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+        
+<div class="viewcode-block" id="Grove_LEDbar.write_level"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.grove_ledbar.Grove_LEDbar.write_level">[docs]</a>    <span class="k">def</span> <span class="nf">write_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">bright_level</span><span class="p">,</span> <span class="n">green_to_red</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the level to which the leds are to be lit in levels 1 - 10.</span>
+<span class="sd">        </span>
+<span class="sd">        Level can be set in both directions. `set_level` operates by setting</span>
+<span class="sd">        all LEDs to the same brightness level.</span>
+<span class="sd">        </span>
+<span class="sd">        There are 4 preset brightness levels:</span>
+<span class="sd">        bright_level = 0: off</span>
+<span class="sd">        bright_level = 1: low</span>
+<span class="sd">        bright_level = 2: medium</span>
+<span class="sd">        bright_level = 3: maximum</span>
+<span class="sd">        </span>
+<span class="sd">        `green_to_red` indicates the direction, either from red to green when</span>
+<span class="sd">        it is 0, or green to red when it is 1.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        level : int</span>
+<span class="sd">            10 levels exist, where 1 is minimum and 10 is maximum.</span>
+<span class="sd">        bright_level : int</span>
+<span class="sd">            Controls brightness of all LEDs in the LEDbar, from 0 to 3.</span>
+<span class="sd">        green_to_red : int</span>
+<span class="sd">            Sets the direction of the sequence.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mh">0x4</span><span class="p">,</span> <span class="n">bright_level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">,</span> <span class="n">green_to_red</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0x9</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                                  <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Grove_LEDbar.read"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.grove_ledbar.Grove_LEDbar.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads the current status of LEDbar.</span>
+<span class="sd">        </span>
+<span class="sd">        Reads the current status of LEDbar and returns a 10-bit binary string.</span>
+<span class="sd">        Each bit position corresponds to a LED position in the LEDbar,</span>
+<span class="sd">        and bit value corresponds to the LED state.</span>
+<span class="sd">        </span>
+<span class="sd">        Red LED corresponds to the LSB, while green LED corresponds</span>
+<span class="sd">        to the MSB.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            String of 10 binary bits.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span> <span class="o">+</span> 
+                        <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mh">0xB</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>\
+                                  <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">bin</span><span class="p">(</span><span class="n">value</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span></div></div>
+        
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
