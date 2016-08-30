@@ -139,7 +139,7 @@ If you want your project to build in the main Makefile, you should also append t
 
 If you are using the SDK Gui, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.
 
-.. image:: ./images/sdk_import_bsp.jpg
+.. image:: ./images/sdk_import_bsp.JPG
    :scale: 75%
    :align: center
 
