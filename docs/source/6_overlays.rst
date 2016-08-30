@@ -17,7 +17,7 @@ Base Overlay
 ---------------
 The Base overlay is the default overlay that ships with the PYNQ-Z1 board. 
 
-The Pynq Base overlay customizes the platform to connect the HDMI in and out, the Mic In and Audio Out, and the Pmod and Arduino interfaces through the IO Processors to the PS to allow them to be used from the Pynq environment. The user buttons, switches and LEDs are also connected in the Base overlay. 
+The Pynq Base overlay customizes the platform to connect the HDMI In and Out, the Mic In and Audio Out, and the Pmod and Arduino interfaces through the IO Processors to the PS to allow them to be used from the Pynq environment. The user buttons, switches and LEDs are also connected in the Base overlay. 
 
 .. image:: ./images/pynqz1_base_overlay.png
    :align: center
@@ -46,7 +46,7 @@ Supported peripherals
 
 Pynq current supports a number of Pmods and Grove peripherals. See the *pynq.pmods package* section of the documentation. 
 
-Pmods can be plugged directly into the Pmod port. Grove peripherals can be connected to the Pmod port through a *pmod2Grove* adapter board.
+Pmods can be plugged directly into the Pmod port. Grove peripherals can be connected to the Pmod port through a *PYNQ Grove Adapter*  board.
 
 As the Pmod interface connects to FPGA pins, other peripherals can be wired to a Pmod port.
 
@@ -100,7 +100,7 @@ The IOP gives flexibility to connect to and control a range of different externa
 
 Each IOP contains a MicroBlaze processor and a dedicated memory block for the MicroBlaze instruction and data memory. This memory block is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area can be used for communication and data exchanges between the ARM processor and the IOP(s).
 
-In the Base overlay on the PYNQ-Z1 board, two IOPs controls each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are interface and functional blocks; Timer, UART, IIC, SPI, GPIO (General Purpose Input/Output) and Configurable switch. IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the Pmod signals to be routed internally to the required interface block.
+In the Base overlay on the PYNQ-Z1 board, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are interface and functional blocks; Timer, UART, IIC, SPI, GPIO (General Purpose Input/Output) and Configurable switch. IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the Pmod signals to be routed internally to the required interface block.
 
 Pmod IO Processor
 ------------------
@@ -133,7 +133,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver can be u
 
 .. code-block:: c
 
-   void configurePmodSwitch();
+   void config_pmod_switch();
 
 
 
@@ -144,7 +144,7 @@ For example, to connect XXX.
 
 .. code-block:: c
 
-   configureSwitch(XXX);
+   config_pmod_switch(XXX);
 
 From Python all the constants and addresses for the IOP can be found in:
 
@@ -153,7 +153,7 @@ From Python all the constants and addresses for the IOP can be found in:
     
 pmod_io_switch driver
 --------------------------
-``pmod_io_switch.h`` and ``pmod_io_switch.c`` are part of the *pmod_io_switch_v1_0* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
+``pmod.h`` and ``pmod.c`` are part of the *pmod_io_switch_v1_0* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
    ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
 
@@ -234,7 +234,7 @@ The following function, part of the provided arduino_io_switch_v1_0 driver ``ard
 
 .. code-block:: c
 
-   void configureArduinoSwitch();
+   void config_arduino_switch();
 
 
 
@@ -272,16 +272,16 @@ For example, to connect the UART to D0 and D1, write D_UART to the configuration
 
 .. code-block:: c
 
-   configureSwitch(D_UART, D_UART);
+   config_arduino_switch(D_UART, D_UART);
 
 From Python all the constants and addresses for the IOP can be found in:
 
-    ``<Pynq GitHub Repository>/python/pynq/iop/pmod_const.py``
+    ``<Pynq GitHub Repository>/python/pynq/iop/iop_const.py``
 
     
 arduino_io_switch driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``arduino_io_switch.h`` and ``arduino_io_switch.c`` are part of the *arduino_io_switch* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
+``arduino.h`` and ``arduino.c`` are part of the *arduino_io_switch* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
    ``<Pynq GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_v1_0/src/``
 
