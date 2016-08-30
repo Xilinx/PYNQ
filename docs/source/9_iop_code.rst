@@ -77,7 +77,7 @@ Building the projects
 
 A Makefile to automatically create and build the Hardware Platform and the BSP can be found in the same location as the .hdf file. 
 
-    ``<Pynq GitHub Repository>Pynq/Pynq-Z1/sdk/makefile``
+    ``<Pynq GitHub Repository>/Pynq-Z1/sdk/makefile``
 
 Application projects for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder. 
    
@@ -95,7 +95,7 @@ In Linux, open a terminal, and source the SDK tools.
 
 From either the Windows Shell, or the Linux terminal, navigate to the sdk folder in your local copy of the GitHub repository: 
 
-   cd to ``<Pynq GitHub Repository>Pynq/Pynq-Z1/sdk`` and run ``make``
+   cd to ``<Pynq GitHub Repository>/Pynq-Z1/sdk`` and run ``make``
 
 .. image:: ./images/sdk_make.JPG
    :scale: 75%
