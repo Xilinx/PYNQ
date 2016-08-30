@@ -9,10 +9,11 @@ IOP Processors
 There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two IOPs is the number of peripherals in the IOP, and the switch and port tyep the IOP support. Pmod IOPs connect to PMOD ports, and Arduino IOP connects to the Arduino interface on the board. 
 
 Each IOP contains a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following funcational units and interface peripherals:
+
    * `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_
    * `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_
    * `AXI SPI <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_
-   * `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_. 
+   * `AXI GPIO <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_ 
 
 The interface peripherals are connected to a Configurable Switch. The Switch is different for the Pmod and the Arduino IOPs. The Pmod configurable switch connects to a Pmod port, and the Arduino configurable switch connects to an Arduino interface connector.
 
