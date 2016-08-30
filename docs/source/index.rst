@@ -25,7 +25,7 @@ Contents:
    10_creating_overlays
    11_libraries_and_overlays
    12_verification
-   13_modules
+   modules
    14_faqs
    15_glossary
    16_references
