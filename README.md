@@ -9,12 +9,7 @@
 file://xsj-pvstd2t01-w/xrlabs/grahams/public/pynq-z1_images/
 ``` 
 
-- All Zybo images including the latest are available here: 
-```
-file://xsj-pvstd2t01-w/xrlabs/grahams/public/zybo_images/
-```
-
-- After imaging, change Zybo's hostname to avoid network conflicts
+- After imaging, change the board's hostname to avoid network conflicts
 ```
 sudo /home/xilinx/scripts/hostname.sh A_UNIQUE_HOSTNAME
 ```
@@ -28,7 +23,7 @@ This is a recommended way to update the `pynq` package. The script will do the f
 - Git clone from the repository.
 - Install the `pynq` package.
 - Copy board-specific files into the `pynq` package.
-- Copy Jupyter notbooks.
+- Copy Jupyter notebooks.
 
 To run this script, first verify the `$BOARD` environment variable has been set correctly:
 ```
