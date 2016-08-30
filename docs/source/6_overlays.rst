@@ -144,7 +144,7 @@ For example:
 
 .. code-block:: c
 
-   config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,GPIO_4,GPIO_5, GPIO_6, GPIO_7);
+   config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,GPIO_4,GPIO_5,GPIO_6,GPIO_7);
 
 From Python all the constants and addresses for the IOP can be found in:
 
@@ -273,9 +273,9 @@ For example, to connect the UART to D0 and D1, write D_UART to the configuration
 .. code-block:: c
 
 	config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO,
-						   D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-						   D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-						   D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+			D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+			D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+			D_GPIO, D_GPIO, D_GPIO, D_GPIO);
 
 From Python all the constants and addresses for the IOP can be found in:
 
