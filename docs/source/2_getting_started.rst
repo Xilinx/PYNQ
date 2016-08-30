@@ -71,14 +71,14 @@ If you connect your board directly to the Ethernet port of your PC, it will auto
    
 You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet/IP and any other operating system settings. See the FAQ for more details on connecting to the board, and changing the IP settings of the board. 
    
-Two scripts are available if you need help configuring the Ethernet on a Windows computer, ``pynq_enable_static_IP_windows.bat`` and ``pynq_disable_static_IP_windows.bat`` available in the ``<GitHub respository>\Pynq\Ubuntu`` folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt. You can also check the internet for instructions on how to configure your computer. 
+Two scripts are available if you need help configuring the Ethernet on a Windows computer, ``pynq_enable_static_IP_windows.bat`` and ``pynq_disable_static_IP_windows.bat`` available in the ``<GitHub respository>\scripts\host`` folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a command prompt. You can also check the internet for instructions on how to configure your computer. 
    
 Open a web browser and connect to Pynq Jupyter Notebooks web portal
 ---------------------------------------------------------------------------
 
    * Using a web browser, enter the address  `http://pynq:9090 <http://pynq:9090>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ if using a static IP.  **pynq** is the default hostname of the board. If you changed the hostname, you will need to change the address to match your hostname. 
    
-You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the `Frequently asked questions <13_faqs.html>`_ to change the hostname. 
+You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the `Frequently asked questions <14_faqs.html>`_ to change the hostname. 
    
 
 
@@ -93,7 +93,7 @@ You will need to change the hostname if multiple boards are connected to the sam
 
 You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board by going to the *Getting Started* and *Example* Notebooks in the Pynq home area. 
 
-If you cannot connect to the board, see the `Frequently asked questions <13_faqs.html>`_
+If you cannot connect to the board, see the `Frequently asked questions <14_faqs.html>`_
 
 Interacting with the Pynq 
 ==========================
@@ -136,4 +136,4 @@ The Samba username:password is ``xilinx:xilinx``
 
 Troubleshooting
 --------------------
-If you are having problems getting the board set up, please see the `Frequently asked questions <13_faqs.html>`_
+If you are having problems getting the board set up, please see the `Frequently asked questions <14_faqs.html>`_
