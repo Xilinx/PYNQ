@@ -79,7 +79,7 @@ Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be aligned
 Pmod-Grove Adapter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The pmod2Grove adapter has 4 connectors (G1, G2, G3, G4) for Grove devices.
+Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The PYNQ Grove Adapter  has 4 connectors (G1, G2, G3, G4) for Grove devices.
 
 .. image:: ./images/Pmod_Grove_Adapter_opt.jpg
    :align: center
