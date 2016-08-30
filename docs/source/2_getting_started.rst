@@ -128,7 +128,7 @@ You can go to ``\\pynq\xilinx`` (DHCP) or ``\\192.168.2.99\xilinx`` (static IP) 
 
 The Samba username:password is ``xilinx:xilinx``
 
-.. image:: ./images/samba_share.jpg
+.. image:: ./images/samba_share.JPG
    :height: 600px
    :scale: 75%
    :align: center
