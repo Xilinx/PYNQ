@@ -6,7 +6,7 @@ There are a number of steps required before you can start writing your own softw
 IOP Processors
 --------------
 
-There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two IOPs is the number of peripherals in the IOP, and the switch and port tyep the IOP support. Pmod IOPs connect to PMOD ports, and Arduino IOP connects to the Arduino interface on the board. 
+There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two IOPs is the number of peripherals in the IOP, and the switch and port type the IOP support. Pmod IOPs connect to PMOD ports, and Arduino IOP connects to the Arduino interface on the board. 
 
 Each IOP contains a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following funcational units and interface peripherals:
 
