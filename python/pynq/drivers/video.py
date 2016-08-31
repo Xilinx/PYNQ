@@ -119,7 +119,6 @@ class HDMI(object):
         Parameters
         ----------
         direction : str
-            HDMI direction as either inpput or output.
         frame_buffer : _framebuffer, optional
             A frame buffer storing at most 3 frames.
             
@@ -186,16 +185,11 @@ class HDMI(object):
             
             Users can use mode(new_mode) to change the resolution.
             Specifically, with `new_mode` to be:
-            
             0 : '640x480@60Hz'
-            
             1 : '800x600@60Hz'
-            
             2 : '1280x720@60Hz'
-            
             3 : '1280x1024@60Hz'
-            
-            4 : '1920x1080@60Hz'
+            4 : '1920x1080@60Hz'           
             
             If `new_mode` is not specified, return the current mode.
             
@@ -694,9 +688,9 @@ class Frame(object):
         
         Note
         ----
-        The original frame stores pixels as (g,b,r). Hence, to return a tuple 
-        (r,g,b), we need to return (self.frame[offset+2], self.frame[offset],
-        self.frame[offset+1]).
+        The original frame stores pixels as (b,g,r). Hence, to return a tuple 
+        (r,g,b), we need to return (self.frame[offset+2], self.frame[offset+1],
+        self.frame[offset]).
             
         Parameters
         ----------
@@ -713,8 +707,8 @@ class Frame(object):
         if 0 <= x < self.width and 0 <= y < self.height:
             offset = 3 * (y * MAX_FRAME_WIDTH + x)
             
-            return self.frame[offset+2],self.frame[offset],\
-                    self.frame[offset+1]
+            return self.frame[offset+2],self.frame[offset+1],\
+                    self.frame[offset]
         else:
             raise ValueError("Pixel is out of the frame range.")
             
@@ -738,7 +732,7 @@ class Frame(object):
         
         Note
         ----
-        The original frame stores pixels as (g,b,r).
+        The original frame stores pixels as (b,g,r).
         
         Parameters
         ----------
@@ -756,8 +750,8 @@ class Frame(object):
         if 0 <= x < self.width and 0 <= y < self.height:
             offset = 3 * (y * MAX_FRAME_WIDTH + x)
             self.frame[offset + 2] = value[0]
-            self.frame[offset] = value[1]
-            self.frame[offset + 1] = value[2]
+            self.frame[offset + 1] = value[1]
+            self.frame[offset + 0] = value[2]
         else:
             raise ValueError("Pixel is out of the frame range.")
             
@@ -796,11 +790,10 @@ class Frame(object):
         None
         
         """
-        frame = (np.frombuffer(self.frame, dtype=np.uint8)).\
-                    reshape(self.width,self.height,3)
-        frame[:,:,[0,1,2]] = frame[:,:,[2,1,0]] 
+        npframe = (np.frombuffer(self.frame, dtype=np.uint8)).\
+                reshape(1080,1920,3)[:self.height,:self.width,[2,1,0]]
         image = Image.frombytes('RGB', \
-                    (self.width,self.height), bytes(bytearray(frame)))
+                    (self.width,self.height), bytes(bytearray(npframe)))
         image.save(path, 'JPEG')
         
     @staticmethod
@@ -827,10 +820,10 @@ class Frame(object):
         None
         
         """
-        frame = (np.frombuffer(self.frame, dtype=np.uint8)).\
-                    reshape(width,height,3)
-        frame[:,:,[0,1,2]] = frame[:,:,[2,1,0]] 
+        npframe = (np.frombuffer(frame_raw, dtype=np.uint8)).\
+                reshape(1080,1920,3)\
+                [:height,:width,[2,1,0]]
         image = Image.frombytes('RGB', \
-                    (width, height), bytes(bytearray(frame)))
+                    (width, height), bytes(bytearray(npframe)))
         image.save(path, 'JPEG')
         
