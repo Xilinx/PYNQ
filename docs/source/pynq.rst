@@ -9,7 +9,7 @@ Subpackages
     pynq.board
     pynq.iop
     pynq.drivers
-    pynq.tests
+    
 
 Submodules
 ----------
