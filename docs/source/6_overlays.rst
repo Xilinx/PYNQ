@@ -286,7 +286,7 @@ arduino_io_switch driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ``arduino.h`` and ``arduino.c`` are part of the *arduino_io_switch* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<GitHub Repository>/Pynq/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_v1_0/src/``
+   ``<GitHub Repository>/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_v1_0/src/``
 
 This code this automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use the arduino_io library by including the header file:
 
