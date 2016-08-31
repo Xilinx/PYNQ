@@ -8,7 +8,7 @@ IOP Processors
 
 There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two IOPs is the number of peripherals in the IOP, and the switch and port type the IOP support. Pmod IOPs connect to PMOD ports, and Arduino IOP connects to the Arduino interface on the board. 
 
-Each IOP contains a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following funcational units and interface peripherals:
+Each IOP contains a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following functional units and interface peripherals:
 
    * `AXI Timer <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_
    * `AXI IIC <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_
@@ -24,7 +24,7 @@ Pmod IOP:
    :align: center
 
    
-The ARM Cortex-A9 is an application processor, running Linux, and is not optimized for real time applications. An IOP can be used as a real-time controller and as a flexible controller for different types of external peripherals.. 
+The ARM Cortex-A9 is an application processor, running Linux, and is not optimized for real time applications. An IOP can be used as a real-time controller and as a flexible controller for different types of external peripherals. 
 
 The IOP's configurable switch can be used to route signals between the physical interface (external pins of Pmod and Arduino connector), and the available interface peripherals in the IOP sub-system (IIC, SPI, GPIO, Timer, UART). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using the same IOP. i.e. there is no need to create a new FPGA design to support a different interface standard. 
      
@@ -46,7 +46,7 @@ Compiling projects
 
 Software runs on the MicroBlaze inside the IOP. Code for the MicroBlaze can be written in C or C++ and compiled using the `Xilinx SDK (Software Development Kit) <http://www.xilinx.com/products/design-tools/embedded-software/sdk.html>`_. 
 
-All the driver source and project files can be found in ``<GitHub Repository>\Pynq\Pynq-Z1\sdk``,  (Where ``<GitHub Repository>`` is the location you saved the PYNQ repository).  
+All the driver source and project files can be found in ``<GitHub Repository>\Pynq-Z1\sdk``,  (Where ``<GitHub Repository>`` is the location you saved the PYNQ repository).  
 
 These projects are considered SDK *Application* projects and contain the top level application. Any software libraries are included in a Board Support Package (BSP) project, and are linked to from the Application project. 
 
@@ -378,7 +378,7 @@ When the IOP is finished, it will write 0x0 to the command area. The Python code
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
         pass
             
-Once the command is no longer 0x3, i.e. the acknowledge has been received, the result is read from the ``DATA`` area of the shared memory ``MAILBOX_OFFSET`` using `mmio.read()`
+Once the command is no longer 0x3, i.e. the acknowledge has been received, the result is read from the ``DATA`` area of the shared memory ``MAILBOX_OFFSET`` using `mmio.read()`.
 
 .. code-block:: python
 
