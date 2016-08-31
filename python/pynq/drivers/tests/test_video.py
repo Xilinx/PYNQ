@@ -106,8 +106,7 @@ def test_pattern_colorbar():
     frame = hdmi_out.frame()
     index = hdmi_out.frame_index()
     hdmi_out.frame_index_next()
-        
-    # Constructing colorbar test pattern
+    
     xint = int(frame.width / 8)
     xinc = 256.0 / xint
     fcolor =  0.0
@@ -162,7 +161,6 @@ def test_pattern_blended():
     index = hdmi_out.frame_index()             
     hdmi_out.frame_index_next() 
 
-    # Constructing blended test pattern
     hint = hdmi_out.frame_width() / 4
     xleft = hint * 3
     xmid = hint * 2 * 3

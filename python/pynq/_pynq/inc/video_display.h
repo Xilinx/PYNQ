@@ -41,8 +41,9 @@
 /*  Revision History:                                                   */
 /*                                                                      */
 /*    02/20/2014(SamB): Created                                         */
-/*      11/24/2015(gnatale@xilinx.copm): Modified for MicroPython       */
-/*      01/26/2016(gnatale@xilinx.copm): Modified for CPython           */
+/*      11/24/2015(GN): Modified for MicroPython                        */
+/*      01/26/2016(GN): Modified for CPython                            */
+/*      08/31/2016(YRQ): Added lisense header                           */
 /*                                                                      */
 /************************************************************************/
 
@@ -105,7 +106,7 @@
 
  
 /*
- * WEDGE and NOCOUNT can't both be high, so this is used to signal an error state
+ * WEDGE and NOCOUNT can't both be high, so this is used to signal an error
  */
 #define ERR_CLKDIVIDER (1 << CLK_BIT_WEDGE | 1 << CLK_BIT_NOCOUNT)
 
@@ -137,7 +138,7 @@ typedef struct {
 
 typedef struct {
   u32 dynClkAddr; /*Physical Base address of the dynclk core*/
-  int fHdmi; /*flag indicating if the display controller is being used to drive an HDMI transmitter*/
+  int fHdmi; /*flag indicating if the display controller is being used*/
   XAxiVdma *vdma; /*VDMA driver struct*/
   XAxiVdma_DmaSetup vdmaConfig; /*VDMA channel configuration*/
   XVtc *vtc; /*VTC driver struct*/

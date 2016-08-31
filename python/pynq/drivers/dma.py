@@ -161,9 +161,13 @@ DMA_BIDIRECTIONAL = 3
 DeviceId = 0
 DMA_TRANSFER_LIMIT_BYTES = 8388607
 
-# For internal use to timeout functions
-class timeout:
 
+class timeout:
+    """Internal timeout functions.
+    
+    This function is only used internally.
+    
+    """
     def __init__(self, seconds=1, error_message='Timeout'):
         self.seconds = seconds
         self.error_message = error_message
@@ -180,53 +184,64 @@ class timeout:
 
 class DMA:
     """Python class which controls DMA.
-
+    
+    This is a generic DMA class that can be used to access main memory.
+    
+    The DMA direction can be:
+    
+    (0)`DMA_TO_DEV` : DMA sends data to PL.
+    
+    (1)`DMA_FROM_DEV` : DMA receives data from PL.
+    
+    (3)`DMA_BIDIRECTIONAL` : DMA can send/receive data from PL.
+    
     Attributes
     ----------
     buf : cffi.FFI.CData
-        A pointer to Physically contiguous buffer managed by the
-        object. This can be accesed like an array in python.
+        A pointer to physically contiguous buffer.
     bufLength : int
         Length of internal buffer in bytes.
-    phyAddress : unsigned int
+    phyAddress : int
         Physical address of the DMA device.
     DMAengine : cdata 'XAxiDma *'
         DMA engine instance defined in C. Not to be directly modified.
     DMAinstance : cdata 'XAxiDma_Config *'
         DMA configuration instance struct. Not to be directly modified.
     direction : int
-            dma.DMA_TO_DEV : DMA sends data to PL.
-            dma.DMA_FROM_DEV : DMA receives data from PL.
-            dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.
+        The direction indicating whether DMA sends/receives data from PL.
     Configuration : dict
         Current DMAinstance configuration values.
-
+        
     """
     def __init__(self, address, direction=DMA_FROM_DEV,attr_dict= None):
         """Initializes a new DMA object.
-
+        
         Uses the Default configuration parameters to initialize
         a DMA. After initialization, the DMA is reset and the
         interrupts are disabled for DMA.
-
+        
+        The DMA direction can be:
+        
+        (0)`DMA_TO_DEV` : DMA sends data to PL.
+        
+        (1)`DMA_FROM_DEV` : DMA receives data from PL.
+        
+        (3)`DMA_BIDIRECTIONAL` : DMA can send/receive data from PL.
+        
+        The keys in `attr_dict` should exactly match the ones used in default 
+        config. All the keys are not required. The default configuration is 
+        defined in dma.DefaultConfig dict. Users can reinitialize the DMA 
+        with new configuratiuon after creating the object.
+        
         Parameters
         ----------
-        address: unsigned int
+        address: int
             Physical address of the DMA IP.
         direction : int
-            Direction in which DMA transfers data. Possible values are:
-            dma.DMA_TO_DEV : DMA sends data to PL.
-            dma.DMA_FROM_DEV : DMA receives data from PL.
-            dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.
+            The direction indicating whether DMA sends/receives data from PL.
         attr_dict : dict
-            An optional dictionary specifying DMA configuration values to
-            use instead of default values. The keys should exactly match
-            the ones used in default config. All the keys are not required.
-            The default configuration is defined in dma.DefaultConfig
-            dict. If user wants, he can reinitialize the DMA with new
-            configuratiuon after he has created the object using
-            'configure' method.
-
+            An optional dictionary specifying DMA configuration values.
+            
         """
         self.buf = None
         self.direction = direction
@@ -236,7 +251,7 @@ class DMA:
         self.DMAinstance = ffi.new("XAxiDma_Config *")
         self.Configuration = {}
         self._gen_config(address,direction,attr_dict)
-        # Reset the DMA
+        
         status = libdma.XAxiDma_CfgInitialize(self.DMAengine,self.DMAinstance)
         if status != 0:
             raise RuntimeError("Failed to initialize DMA!")
@@ -267,15 +282,15 @@ class DMA:
                 for key in attr_dict.keys():
                     self.DMAinstance.__setattr__(key,attr_dict[key])
             else:
-                print("Warning: Expecting 3rd Arg to be a dict.")
+                raise RuntimeError("Expecting 3rd Arg to be a dict.")
 
         virt = libxlnk.cma_mmap(address,0x10000)
         if virt == -1:
-            raise RuntimeError("Memory map of driver failed!")
+            raise RuntimeError("Memory map of driver failed.")
         self.DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
         self.DMAinstance.DeviceId = DeviceId
         DeviceId += 1
-
+        
         for key in DefaultConfig.keys():
             self.Configuration[key] = self.DMAinstance.__getattribute__(key)
         
@@ -300,32 +315,38 @@ class DMA:
     def transfer(self,num_bytes,direction=DMA_FROM_DEV):
         """Transfer data using DMA (Non-blocking).
 
-        Used to initiate transfer of data between a physicaally contiguous
-        buffer and PL. The buffer should be allocated using create_buf
+        Used to initiate transfer of data between a physically contiguous
+        buffer and PL. The buffer should be allocated using `create_buf`
         before this call.
-
+        
+        The `num_bytes` should be less than buffer size and 
+        `DMA_TRANSFER_LIMIT_BYTES`.
+        
+        Possible values for `direction` are:
+        
+        (0)`DMA_TO_DEV` : DMA sends data to PL.
+        
+        (1)`DMA_FROM_DEV` : DMA receives data from PL.
+        
         Parameters
         ----------
-        num_bytes : unsigned int
-            Number of bytes to transfer. This should be less than buffer
-            size and dma.DMA_TRANSFER_LIMIT_BYTES.
+        num_bytes : int
+            Number of bytes to transfer.
         direction : int
-            Direction in which DMA transfers data. Possible values are:
-            dma.DMA_TO_DEV : DMA sends data to PL.
-            dma.DMA_FROM_DEV : DMA receives data from PL.
-
+            Direction in which DMA transfers data. 
+            
         Returns
         -------
         None
-
+        
         """
         if num_bytes > self.bufLength:
-            raise RuntimeError("Buffer Size Smaller than the transfer size")
+            raise RuntimeError("Buffer size smaller than the transfer size")
         if num_bytes > DMA_TRANSFER_LIMIT_BYTES:
-            raise RuntimeError("DMA Transfer Size Exceeds the max of",\
-                DMA_TRANSFER_LIMIT_BYTES)
-        if direction not in [DMA_FROM_DEV, DMA_TO_DEV]:
-            raise RuntimeError("Invalid Direction for Transfer!")
+            raise RuntimeError("DMA transfer size > {}".format(
+                                    DMA_TRANSFER_LIMIT_BYTES))
+        if not direction in [DMA_FROM_DEV, DMA_TO_DEV]:
+            raise RuntimeError("Invalid direction for transfer.")
         self.direction = direction
         if self.buf is not None:
             libdma.XAxiDma_SimpleTransfer(\
@@ -336,32 +357,37 @@ class DMA:
                 )
             self._TransferInitiated = 1
         else:
-            print("Transfer Error! Please allocate a buffer first.")
-
+            raise RuntimeError("Buffer not allocated.")
+            
     def create_buf(self, num_bytes, cacheable = 0):
         """Allocate physically contiguous memory buffer.
-
+        
         Allocates/Reallocates buffer needed for DMA operations.
-
-        Parameters
-        ----------
-        length : unsigned int
-            Length of the allocated array in bytes.
-        cacheable : int
-            1 if the memory buffer is cacheable
-            0 if the memory buffer is non-cacheable
-
-        Returns
-        -------
-        None
-
+        
+        Possible values for parameter `cacheable` are:
+        
+        `1`: the memory buffer is cacheable.
+        
+        `0`: the memory buffer is non-cacheable.
+        
         Note
         ----
         This buffer is allocated inside the kernel space using
         xlnk driver. The maximum allocatable memory is defined
         at kernel build time using the CMA memory parameters.
-        For Pynq kernel, it is specified as 128MB.
-
+        For Pynq-Z1 kernel, it is specified as 128MB.
+        
+        Parameters
+        ----------
+        num_bytes : int
+            Length of the allocated array in bytes.
+        cacheable : int
+            Indicating whether or not the memory buffer is cacheable
+            
+        Returns
+        -------
+        None
+        
         """
         if self.buf is None:
             self.buf = libxlnk.cma_alloc(num_bytes, cacheable)
@@ -373,7 +399,7 @@ class DMA:
         bufPhyAddr = libxlnk.cma_get_phy_addr(self.buf)
         self._bufPtr = ffi.cast("uint32_t *",bufPhyAddr)
         self.bufLength = num_bytes
-
+        
     def free_buf(self):
         """Free the memory buffer associated with this object.
 
@@ -392,72 +418,77 @@ class DMA:
         if self.buf == None or self.buf == ffi.NULL:
             return
         libxlnk.cma_free(self.buf)
-
+        
     def wait(self, wait_timeout=10):
         """Block till DMA is busy or a timeout occurs.
-
+        
+        Default value of timeout is 10 seconds.
+        
         Parameters
         ----------
         wait_timeout : int
             Time to wait in seconds before timing out wait operation.
-            Default value of timeout is 10 seconds.
-
+            
         Returns
         -------
         None
-
+        
         """
         if self._TransferInitiated == 0:
             return
-        Error = "DMA wait timed out!"
+        Error = "DMA wait timed out."
         with timeout(seconds = wait_timeout, error_message = Error):
             while True:
                 if libdma.XAxiDma_Busy(self.DMAengine,self.direction) == 0:
                     break
-
+                    
     def get_buf(self, width=32):
         """Get a CFFI pointer to object's internal buffer.
-
-        This can be accessed like a regular array in python.
-
+        
+        This can be accessed like a regular array in python. The width can be 
+        either 32 or 64.
+        
         Parameters
         ----------
         width : int
-            Can be either 32 or 64.
-
+            The data width in the buffer.
+            
         Returns
         -------
         cffi.FFI.CData
             An CFFI object which can be accessed similar to arrays in C.
-
+            
         """
         if self.buf is not None:
             if width == 32:
                 return ffi.cast("unsigned int *",self.buf)
             elif width == 64:
                 return ffi.cast("long long *",self.buf)
-        print("Buffer not created!")
-
+        else:
+            raise RuntimeError("Buffer not created.")
+        
     def configure(self, attr_dict=None):
         """Reconfigure and Reinitialize the DMA IP.
 
         Uses a user provided dict to reinitialize the DMA.
         This method also frees the internal buffer
         associated with current object.
-
+        
+        The keys in `attr_dict` should exactly match the ones used in default 
+        config. All the keys are not required. The default configuration is 
+        defined in dma.DefaultConfig dict. Users can reinitialize the DMA 
+        with new configuratiuon after creating the object.
+        
         Parameters
         ----------
         attr_dict : dict
-            A dictionary specifying DMA configuration values to
-            use instead of default values. The keys should exactly match
-            the ones used in default config. All the keys are not required.
-            The default configuration is defined in dma.DefaultConfig
-            dict.
-
+            A dictionary specifying DMA configuration values.
+            
         Returns
         -------
         None
-
+        
         """
         self.free_buf()
         self.__init__(self.phyAddress,self.direction,attr_dict)
+        

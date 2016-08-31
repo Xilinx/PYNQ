@@ -41,8 +41,9 @@
 /*  Revision History:													*/
 /* 																		*/
 /*		02/20/2014(SamB): Created										*/
-/*      11/24/2015(gnatale@xilinx.copm): Modified for MicroPython       */
-/*      01/26/2016(gnatale@xilinx.copm): Modified for CPython           */
+/*      11/24/2015(GN): Modified for MicroPython                        */
+/*      01/26/2016(GN): Modified for CPython                            */
+/*      08/31/2016(YRQ): Added license header                           */
 /*																		*/
 /************************************************************************/
 
@@ -117,9 +118,9 @@ typedef struct {
 	u32 stride; /* The line stride of the framebuffers, in bytes */
 	u32 curFrame; /* Current frame being displayed */
 	XGpio *gpio; /* XGPIO driver struct */
-	u32 vtcBaseAddress; /* Device BaseAddress of VTC core as defined in xparameters.h */
-	int vtcIsInit; /* boolean flag indicating whether or not the VDMA has been initialized*/
-	int startOnDetect; /* boolean Flag indicating whether or not the VDMA should be started in the interrupt when a signal is detected */
+	u32 vtcBaseAddress; /* Device BaseAddress of VTC core in xparameters.h */
+	int vtcIsInit; /* flag indicating whether the VDMA was initialized*/
+	int startOnDetect; /* flag indicating whether VDMA starts by interrupt */
 	VideoState state; /* Indicates if the Display is currently running */
 
 //	u32 gpioInterruptId;

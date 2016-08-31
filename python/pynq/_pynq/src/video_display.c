@@ -41,8 +41,9 @@
 /*  Revision History:													*/
 /* 																		*/
 /*		02/20/2014(SamB): Created										*/
-/*		11/24/2015(gnatale@xilinx.copm): Modified for MicroPython		*/
-/*      01/26/2016(gnatale@xilinx.copm): Modified for CPython           */
+/*		11/24/2015(GN): Modified for MicroPython	                	*/
+/*      01/26/2016(GN): Modified for CPython                            */
+/*      08/31/2016(YRQ): Adjusted format                                */
 /*																		*/
 /************************************************************************/
 /*
@@ -59,7 +60,6 @@
 #include <stdio.h>
 #include "math.h"
 #include "xil_io.h"
-
 #include "video_display.h"
 
 /* ------------------------------------------------------------ */
@@ -108,15 +108,17 @@ int DisplayStop(DisplayCtrl *dispPtr)
 	/*
 	 * Update Struct state
 	 */
-	//dispPtr->pxlFreq = 0;
 	dispPtr->state = DISPLAY_STOPPED;
 
-	//TODO: consider stopping the clock here, perhaps after a check to see if the VTC is finished
-
+	/*
+     * TODO: consider stopping the clock here, perhaps after a check 
+     * to see if the VTC is finished
+     */
 	if (XAxiVdma_GetDmaChannelErrors(dispPtr->vdma, XAXIVDMA_READ))
 	{
 		printf("Clearing DMA errors...\r\n");
-		XAxiVdma_ClearDmaChannelErrors(dispPtr->vdma, XAXIVDMA_READ, 0xFFFFFFFF);
+		XAxiVdma_ClearDmaChannelErrors(dispPtr->vdma, XAXIVDMA_READ, \
+                                       0xFFFFFFFF);
 		return XST_DMA_ERROR;
 	}
 
@@ -148,7 +150,6 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	XVtc_Timing vtcTiming;
 	XVtc_SourceSelect SourceSelect;
 
-	// printf("display start entered\n\r");
 	/*
 	 * If already started, do nothing
 	 */
@@ -159,7 +160,8 @@ int DisplayStart(DisplayCtrl *dispPtr)
 
 
 	/*
-	 * Calculate the PLL divider parameters based on the required pixel clock frequency
+	 * Calculate the PLL divider parameters based on the required 
+     * pixel clock frequency
 	 */
 	if (dispPtr->fHdmi == DISPLAY_HDMI)
 	{
@@ -172,14 +174,15 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	DisplayClkFindParams(pxlClkFreq, &clkMode);
 
 	/*
-	 * Store the obtained frequency to pxlFreq. It is possible that the PLL was not able to
-	 * exactly generate the desired pixel clock, so this may differ from vMode.freq.
+	 * Store the obtained frequency to pxlFreq. It is possible that the 
+     * PLL was not able to exactly generate the desired pixel clock, 
+     * so this may differ from vMode.freq.
 	 */
 	dispPtr->pxlFreq = clkMode.freq;
 
 	/*
-	 * Write to the PLL dynamic configuration registers to configure it with the calculated
-	 * parameters.
+	 * Write to the PLL dynamic configuration registers to configure it 
+     * with the calculated parameters.
 	 */
 	if (!DisplayClkFindReg(&clkReg, &clkMode))
 	{
@@ -192,33 +195,50 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	 * Enable the dynamically generated clock
     */
 	Xil_Out32(dispPtr->dynClkAddr + OFST_DISPLAY_CTRL, 0);
-	while((Xil_In32(dispPtr->dynClkAddr + OFST_DISPLAY_STATUS) & (1 << BIT_CLOCK_RUNNING)));
-	Xil_Out32(dispPtr->dynClkAddr + OFST_DISPLAY_CTRL, (1 << BIT_DISPLAY_START));
-	while(!(Xil_In32(dispPtr->dynClkAddr + OFST_DISPLAY_STATUS) & (1 << BIT_CLOCK_RUNNING)));
-	// printf("clock enabled\n\r");
+	while((Xil_In32(dispPtr->dynClkAddr + OFST_DISPLAY_STATUS) & \
+            (1 << BIT_CLOCK_RUNNING)));
+	Xil_Out32(dispPtr->dynClkAddr + OFST_DISPLAY_CTRL, \
+            (1 << BIT_DISPLAY_START));
+	while(!(Xil_In32(dispPtr->dynClkAddr + OFST_DISPLAY_STATUS) & \
+            (1 << BIT_CLOCK_RUNNING)));
 
 	/*
 	 * Configure the vtc core with the display mode timing parameters
 	 */
-	vtcTiming.HActiveVideo = dispPtr->vMode.width;	/**< Horizontal Active Video Size */
-	vtcTiming.HFrontPorch = dispPtr->vMode.hps - dispPtr->vMode.width;	/**< Horizontal Front Porch Size */
-	vtcTiming.HSyncWidth = dispPtr->vMode.hpe - dispPtr->vMode.hps;		/**< Horizontal Sync Width */
-	vtcTiming.HBackPorch = dispPtr->vMode.hmax - dispPtr->vMode.hpe + 1;		/**< Horizontal Back Porch Size */
-	vtcTiming.HSyncPolarity = dispPtr->vMode.hpol;	/**< Horizontal Sync Polarity */
-	vtcTiming.VActiveVideo = dispPtr->vMode.height;	/**< Vertical Active Video Size */
-	vtcTiming.V0FrontPorch = dispPtr->vMode.vps - dispPtr->vMode.height;	/**< Vertical Front Porch Size */
-	vtcTiming.V0SyncWidth = dispPtr->vMode.vpe - dispPtr->vMode.vps;	/**< Vertical Sync Width */
-	vtcTiming.V0BackPorch = dispPtr->vMode.vmax - dispPtr->vMode.vpe + 1;;	/**< Horizontal Back Porch Size */
-	vtcTiming.V1FrontPorch = dispPtr->vMode.vps - dispPtr->vMode.height;	/**< Vertical Front Porch Size */
-	vtcTiming.V1SyncWidth = dispPtr->vMode.vpe - dispPtr->vMode.vps;	/**< Vertical Sync Width */
-	vtcTiming.V1BackPorch = dispPtr->vMode.vmax - dispPtr->vMode.vpe + 1;;	/**< Horizontal Back Porch Size */
-	vtcTiming.VSyncPolarity = dispPtr->vMode.vpol;	/**< Vertical Sync Polarity */
-	vtcTiming.Interlaced = 0;		/**< Interlaced / Progressive video */
+    // Horizontal Active Video Size 
+	vtcTiming.HActiveVideo = dispPtr->vMode.width;
+    // Horizontal Front Porch Size
+	vtcTiming.HFrontPorch = dispPtr->vMode.hps - dispPtr->vMode.width;
+    // Horizontal Sync Width
+	vtcTiming.HSyncWidth = dispPtr->vMode.hpe - dispPtr->vMode.hps;
+    // Horizontal Back Porch Size
+	vtcTiming.HBackPorch = dispPtr->vMode.hmax - dispPtr->vMode.hpe + 1;
+    // Horizontal Sync Polarity
+	vtcTiming.HSyncPolarity = dispPtr->vMode.hpol;
+    // Vertical Active Video Size
+	vtcTiming.VActiveVideo = dispPtr->vMode.height;
+    // Vertical Front Porch Size
+	vtcTiming.V0FrontPorch = dispPtr->vMode.vps - dispPtr->vMode.height;
+    // Vertical Sync Width
+	vtcTiming.V0SyncWidth = dispPtr->vMode.vpe - dispPtr->vMode.vps;
+    // Horizontal Back Porch Size
+	vtcTiming.V0BackPorch = dispPtr->vMode.vmax - dispPtr->vMode.vpe + 1;
+    // Vertical Front Porch Size
+	vtcTiming.V1FrontPorch = dispPtr->vMode.vps - dispPtr->vMode.height;
+    // Vertical Sync Width
+	vtcTiming.V1SyncWidth = dispPtr->vMode.vpe - dispPtr->vMode.vps;
+    // Horizontal Back Porch Size
+	vtcTiming.V1BackPorch = dispPtr->vMode.vmax - dispPtr->vMode.vpe + 1;
+    // Vertical Sync Polarity
+	vtcTiming.VSyncPolarity = dispPtr->vMode.vpol;
+    // Interlaced / Progressive video
+	vtcTiming.Interlaced = 0;
 
-
-	/* Setup the VTC Source Select config structure. */
-	/* 1=Generator registers are source */
-	/* 0=Detector registers are source */
+	/* 
+     * Setup the VTC Source Select config structure.
+	 * 1=Generator registers are source
+	 * 0=Detector registers are source 
+     */
 	memset((void *)&SourceSelect, 0, sizeof(SourceSelect));
 	SourceSelect.VBlankPolSrc = 1;
 	SourceSelect.VSyncPolSrc = 1;
@@ -238,22 +258,17 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	SourceSelect.HFrontPorchSrc = 1;
 	SourceSelect.HTotalSrc = 1;
 
-	// printf("vtc self test\n\r");
 	XVtc_SelfTest(dispPtr->vtc);
 
-	// printf("vtc regupdate\n\r");
 	XVtc_RegUpdateEnable(dispPtr->vtc);
-	// printf("vtc setgentiming\n\r");
 	XVtc_SetGeneratorTiming(dispPtr->vtc, &vtcTiming);
-	// printf("vtc setsource\n\r");
 	XVtc_SetSource(dispPtr->vtc, &SourceSelect);
+    
     /*
 	 * Enable VTC core, releasing backpressure on VDMA
 	 */
-	// printf("vtc enable\n\r");
 	XVtc_EnableGenerator(dispPtr->vtc);
 
-	// printf("vtc enabled\n\r");
 	/*
 	 * Configure the VDMA to access a frame with the same dimensions as the
 	 * current mode
@@ -261,8 +276,10 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	dispPtr->vdmaConfig.VertSizeInput = dispPtr->vMode.height;
 	dispPtr->vdmaConfig.HoriSizeInput = (dispPtr->vMode.width) * 3;
 	dispPtr->vdmaConfig.FixedFrameStoreAddr = dispPtr->curFrame;
+    
 	/*
-	 *Also reset the stride and address values, in case the user manually changed them
+	 * Also reset the stride and address values, in case the user manually 
+     * changed them
 	 */
 	dispPtr->vdmaConfig.Stride = dispPtr->stride;
 	for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
@@ -272,34 +289,37 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	}
 
 	/*
-	 * Perform the VDMA driver calls required to start a transfer. Note that no data is actually
-	 * transferred until the disp_ctrl core signals the VDMA core by pulsing fsync.
+	 * Perform the VDMA driver calls required to start a transfer.
+     * Note that no data is actually transferred until the disp_ctrl core 
+     * signals the VDMA core by pulsing fsync.
 	 */
 
 	// printf("vdma config\n\r");
-	Status = XAxiVdma_DmaConfig(dispPtr->vdma, XAXIVDMA_READ, &(dispPtr->vdmaConfig));
+	Status = XAxiVdma_DmaConfig(dispPtr->vdma, XAXIVDMA_READ, \
+                                &(dispPtr->vdmaConfig));
 	if (Status != XST_SUCCESS)
 	{
 		printf("Read channel config failed %d\r\n", Status);
 		return XST_FAILURE;
 	}
 
-	// printf("vdma setbuffer\n\r");
-	Status = XAxiVdma_DmaSetBufferAddr(dispPtr->vdma, XAXIVDMA_READ, dispPtr->vdmaConfig.FrameStoreStartAddr);
-
+	Status = XAxiVdma_DmaSetBufferAddr(dispPtr->vdma, XAXIVDMA_READ, \
+                                    dispPtr->vdmaConfig.FrameStoreStartAddr);
 	if (Status != XST_SUCCESS)
 	{
 		printf("Read channel set buffer address failed %d\r\n", Status);
 		return XST_FAILURE;
 	}
-	// printf("vdma start\n\r");
+    
 	Status = XAxiVdma_DmaStart(dispPtr->vdma, XAXIVDMA_READ);
 	if (Status != XST_SUCCESS)
 	{
 		printf("Start read transfer failed %d\r\n", Status);
 		return XST_FAILURE;
 	}
-	Status = XAxiVdma_StartParking(dispPtr->vdma, dispPtr->curFrame, XAXIVDMA_READ);
+    
+	Status = XAxiVdma_StartParking(dispPtr->vdma, dispPtr->curFrame, 
+                                    XAXIVDMA_READ);
 	if (Status != XST_SUCCESS)
 	{
 		printf("Unable to park the channel %d\r\n", Status);
@@ -313,16 +333,21 @@ int DisplayStart(DisplayCtrl *dispPtr)
 
 /* ------------------------------------------------------------ */
 
-/***	DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict, u32 dynClkAddr, int fHdmi, u32 *framePtr[DISPLAY_NUM_FRAMES], u32 stride)
+/***	DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict, 
+**          u32 dynClkAddr, int fHdmi, 
+**          u32 *framePtr[DISPLAY_NUM_FRAMES], u32 stride)
 **
 **	Parameters:
 **		dispPtr - Pointer to the struct that will be initialized
 **		vdmaDict - CPython dictionary for XAxiVdma
 **		dynClkAddr - BASE ADDRESS of the axi_dynclk core
-**		fHdmi - flag indicating if the C_USE_BUFR_DIV5 parameter is set for the axi_dispctrl core.
+**		fHdmi - flag indicating if the C_USE_BUFR_DIV5 parameter is set for 
+**              the axi_dispctrl core.
 **				Use DISPLAY_HDMI if it is set, otherwise use DISPLAY_NOT_HDMI
-**		framePtr - array of pointers to the framebuffers. The framebuffers must be instantiated above this driver
-**		stride - line stride of the framebuffers. This is the number of bytes between the start of one line and the start of another.
+**		framePtr - array of pointers to the framebuffers. The framebuffers 
+**                 must be instantiated above this driver
+**		stride - line stride of the framebuffers. This is the number of bytes 
+**               between the start of one line and the start of another.
 **
 **	Return Value: int
 **		XST_SUCCESS if successful, XST_FAILURE otherwise
@@ -338,7 +363,6 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
 	                  unsigned int fHdmi, u8 *framePtr[DISPLAY_NUM_FRAMES], 
 	                  u32 stride)
 {
-	//int Status;
 	int i;
 	ClkConfig clkReg;
 	ClkMode clkMode;
@@ -354,7 +378,7 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
 	{
 		dispPtr->framePtr[i] = framePtr[i];
 	}
-	//dispPtr->pxlFreq = 0;
+    
 	dispPtr->state = DISPLAY_STOPPED;
 	dispPtr->stride = stride;
 	dispPtr->vMode = VMODE_640x480;
@@ -362,14 +386,15 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
 	DisplayClkFindParams((double)dispPtr->vMode.freq * (double)5.0, &clkMode);
 	
 	/*
-	 * Store the obtained frequency to pxlFreq. It is possible that the PLL was not able to
-	 * exactly generate the desired pixel clock, so this may differ from vMode.freq.
+	 * Store the obtained frequency to pxlFreq. It is possible that the PLL 
+     * was not able to exactly generate the desired pixel clock, so this may 
+     * differ from vMode.freq.
 	 */
 	dispPtr->pxlFreq = clkMode.freq;
 
 	/*
-	 * Write to the PLL dynamic configuration registers to configure it with the calculated
-	 * parameters.
+	 * Write to the PLL dynamic configuration registers to configure it 
+     * with the calculated parameters.
 	 */
 	if (!DisplayClkFindReg(&clkReg, &clkMode))
 	{
@@ -381,11 +406,10 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
 	/*
 	 * Enable the dynamically generated clock
     */
-	// printf("clock first time enabling...\n\r");
-	Xil_Out32(dispPtr->dynClkAddr + OFST_DISPLAY_CTRL, (1 << BIT_DISPLAY_START));
-	while(!(Xil_In32(dispPtr->dynClkAddr + OFST_DISPLAY_STATUS) & (1 << BIT_CLOCK_RUNNING)));
-
-	// printf("clock enabled\n\r");
+	Xil_Out32(dispPtr->dynClkAddr + OFST_DISPLAY_CTRL, \
+                (1 << BIT_DISPLAY_START));
+	while(!(Xil_In32(dispPtr->dynClkAddr + OFST_DISPLAY_STATUS) & \
+                (1 << BIT_CLOCK_RUNNING)));
 
 	XVtc_Config vtcConfig = Py_XVtc_LookupConfig(vtcBaseAddress);
 	dispPtr->vtc = Py_XVtc_CfgInitialize(&vtcConfig);
@@ -469,15 +493,17 @@ int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex)
 
 	dispPtr->curFrame = frameIndex;
 	/*
-	 * If currently running, then the DMA needs to be told to start reading from the desired frame
-	 * at the end of the current frame
+	 * If currently running, then the DMA needs to be told to start reading 
+     * from the desired frame at the end of the current frame.
 	 */
 	if (dispPtr->state == DISPLAY_RUNNING)
 	{
-		Status = XAxiVdma_StartParking(dispPtr->vdma, dispPtr->curFrame, XAXIVDMA_READ);
+		Status = XAxiVdma_StartParking(dispPtr->vdma, dispPtr->curFrame, \
+                                        XAXIVDMA_READ);
 		if (Status != XST_SUCCESS)
 		{
-			printf("Cannot change frame, unable to start parking %d\r\n", Status);
+			printf("Cannot change frame, unable to start parking %d\r\n", \
+                    Status);
 			return XST_FAILURE;
 		}
 	}
@@ -511,7 +537,7 @@ u32 DisplayClkDivider(u32 divide)
 		return 0x1041;
 
 	highTime = divide / 2;
-	if (divide & 0b1) //if divide is odd
+	if (divide & 0b1)
 	{
 		lowTime = highTime + 1;
 		output = 1 << CLK_BIT_WEDGE;
@@ -545,10 +571,13 @@ u32 DisplayClkFindReg (ClkConfig *regValues, ClkMode *clkParams)
 	if (regValues->divclk == ERR_CLKDIVIDER)
 		return 0;
 
-	regValues->lockL = (u32) (lock_lookup[clkParams->fbmult - 1] & 0xFFFFFFFF);
+	regValues->lockL = (u32) (lock_lookup[clkParams->fbmult - 1] & \
+                                0xFFFFFFFF);
 
-	regValues->fltr_lockH = (u32) ((lock_lookup[clkParams->fbmult - 1] >> 32) & 0x000000FF);
-	regValues->fltr_lockH |= ((filter_lookup_low[clkParams->fbmult - 1] << 16) & 0x03FF0000);
+	regValues->fltr_lockH = (u32) ((lock_lookup[clkParams->fbmult - 1] >> \
+                                    32) & 0x000000FF);
+	regValues->fltr_lockH |= ((filter_lookup_low[clkParams->fbmult - 1] << \
+                                    16) & 0x03FF0000);
 
 	return 1;
 }
@@ -565,8 +594,8 @@ void DisplayClkWriteReg (ClkConfig *regValues, u32 dynClkAddr)
 
 /*
  * TODO:This function currently requires that the reference clock is 100MHz.
- * 		This should be changed so that the ref. clock can be specified, or read directly
- * 		out of hardware.
+ * 		This should be changed so that the ref. clock can be specified, 
+ *      or read directly out of hardware.
  */
 double DisplayClkFindParams(double freq, ClkMode *bestPick)
 {
@@ -581,22 +610,27 @@ double DisplayClkFindParams(double freq, ClkMode *bestPick)
 
 	bestPick->freq = 0.0;
 /*
- * TODO: replace with a smarter algorithm that doesn't doesn't check every possible combination
+ * TODO: replace with a smarter algorithm that doesn't check every 
+ * possible combination
  */
 	for (curDiv = 1; curDiv <= 10; curDiv++)
 	{
-		minFb = curDiv * 6; //This accounts for the 100MHz input and the 600MHz minimum VCO
-		maxFb = curDiv * 12; //This accounts for the 100MHz input and the 1200MHz maximum VCO
+        // accounts for the 100MHz input and the 600MHz minimum VCO
+		minFb = curDiv * 6;
+        // accounts for the 100MHz input and the 1200MHz maximum VCO
+		maxFb = curDiv * 12;
 		if (maxFb > 64)
 			maxFb = 64;
 
-		curClkMult = ((double) 100.0 / (double) curDiv) / (double) freq; //This multiplier is used to find the best clkDiv value for each FB value
+        // multiplier is used to find the best clkDiv value for each FB value
+		curClkMult = ((double) 100.0 / (double) curDiv) / (double) freq;
 
 		curFb = minFb;
 		while (curFb <= maxFb)
 		{
 			curClkDiv = (u32) ((curClkMult * (double)curFb) + (double) 0.5);
-			curFreq = (((double) 100.0 / (double) curDiv) / (double) curClkDiv) * (double) curFb;
+			curFreq = (((double) 100.0 / (double) curDiv) / \
+                        (double) curClkDiv) * (double) curFb;
 			curError = fabs(curFreq - freq);
 			if (curError < bestError)
 			{

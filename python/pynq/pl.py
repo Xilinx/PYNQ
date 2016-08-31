@@ -141,10 +141,6 @@ class PL_Meta(type):
     This is not a class for users. Hence there is no attribute or method 
     exposed to users.
     
-    Attributes
-    ----------
-    None
-    
     """
     @property
     def bitfile_name(cls):

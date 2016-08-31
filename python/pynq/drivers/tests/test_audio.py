@@ -75,7 +75,9 @@ def test_audio_playback():
     Test whether the `*.pdm` file can be handled properly.
     
     There are 2 steps in this test:
+    
     1. Load and play a pre-stored pdm file.
+    
     2. Record a pdm file and play it back.
     
     """
