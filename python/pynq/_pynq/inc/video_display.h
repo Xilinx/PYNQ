@@ -301,7 +301,8 @@ double DisplayClkFindParams(double freq, ClkMode *bestPick);
 int DisplayStop(DisplayCtrl *dispPtr);
 int DisplayStart(DisplayCtrl *dispPtr);
 int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict, 
-                      unsigned int vtcBaseAddress, unsigned int dynClkAddr, unsigned int fHdmi, 
+                      unsigned int vtcBaseAddress, unsigned int dynClkAddr, 
+                      unsigned int fHdmi, 
                       u8 *framePtr[DISPLAY_NUM_FRAMES], u32 stride);
 int DisplaySetMode(DisplayCtrl *dispPtr, const VideoMode *newMode);
 int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex);
