@@ -1,6 +1,0 @@
-the_ROM_image:
-{
-	[bootloader]fsbl.elf
-	../../../python/pynq/bitstream/pmod.bit
-	u-boot.elf
-}
