@@ -59,7 +59,10 @@ sudo -H pip install -e 'git+https://github.com/Xilinx/PYNQ@master#egg=pynq&subdi
 ```
 
 ## Running Regression from Terminal
+
+The pytests have to be run under root privilege:
+
 ```
 cd /usr/local/lib/python3.4/dist-packages/pynq
-py.test –vsrw
+sudo py.test –vsrw
 ```
