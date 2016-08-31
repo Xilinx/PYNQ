@@ -15,9 +15,9 @@ Existing Overlays
 
 One overlay is currently included in the Pynq repository; *base*:
 
-   * ``<Pynq GitHub Repository>/Pynq-Z1/vivado/base``
+   * ``<GitHub repository>/Pynq-Z1/vivado/base``
   
-A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in ``<Pynq GitHub Repository>/Pynq-Z1/bitstream/`` so it is not necessary to rebuild the overlay, which requires a full Vivado installation.
+A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in ``<GitHub Repository>/Pynq-Z1/bitstream/`` so it is not necessary to rebuild the overlay, which requires a full Vivado installation.
 
 Building overlays is only required to build a new overlay. Building an existing overlay allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
 
@@ -32,7 +32,7 @@ The FPGA fabric can be dynamically reconfigured with new overlays as the system 
 
 Loading overlays can be done in Python using the Overlay class, which is part of the Pynq package:
 
-   ``<Pynq GitHub Repository>/python/pynq/pl.py``
+   ``<GitHub Repository>/python/pynq/pl.py``
    
 The Bitstream can then be downloaded from Python:
 
@@ -81,7 +81,7 @@ To help ease the effort to communicate between the ARM processor and programmabl
 
 The Python code for the MMIO can be viewed here:
 
-    ``<Pynq GitHub Repository>/python/pynq/mmio.py``
+    ``<GitHub Repository>/python/pynq/mmio.py``
 
 Continuing the example shown above, we show a use case where the MMIO class can access an area of 0x10000 bytes in the FPFA fabric, starting at address 0x40000000 (`SEG_mb_bram_ctrl_1_Mem0`): 
 

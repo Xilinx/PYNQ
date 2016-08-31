@@ -277,10 +277,10 @@ div.nboutput  > :nth-child(2).stderr {
 <p>One overlay is currently included in the Pynq repository; <em>base</em>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/vivado/base</span></code></li>
+<li><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">repository&gt;/Pynq-Z1/vivado/base</span></code></li>
 </ul>
 </div></blockquote>
-<p>A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/bitstream/</span></code> so it is not necessary to rebuild the overlay, which requires a full Vivado installation.</p>
+<p>A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/bitstream/</span></code> so it is not necessary to rebuild the overlay, which requires a full Vivado installation.</p>
 <p>Building overlays is only required to build a new overlay. Building an existing overlay allows the project to be opened in Vivado and examined, or modified to create a new overlay.</p>
 <a class="reference internal image-reference" href="_images/vivado_base_overlay.JPG"><img alt="_images/vivado_base_overlay.JPG" class="align-center" src="_images/vivado_base_overlay.JPG" style="width: 840.0px; height: 513.5px;" /></a>
 </div>
@@ -289,7 +289,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>The FPGA fabric can be dynamically reconfigured with new overlays as the system is running. This allows Pynq to swap in and out different overlays to support different functionality required by software (Python) applications.</p>
 <p>Loading overlays can be done in Python using the Overlay class, which is part of the Pynq package:</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/python/pynq/pl.py</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/python/pynq/pl.py</span></code></div></blockquote>
 <p>The Bitstream can then be downloaded from Python:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
 <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
@@ -324,7 +324,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>To help ease the effort to communicate between the ARM processor and programmable logic, Pynq includes the <em>MMIO</em> Python class. Once the overlay has been created, and the memory map is known, the <em>MMIO</em> can be used to read/write from/to memory mapped locations in the FPGA fabric.</p>
 <p>The Python code for the MMIO can be viewed here:</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/python/pynq/mmio.py</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/python/pynq/mmio.py</span></code></div></blockquote>
 <p>Continuing the example shown above, we show a use case where the MMIO class can access an area of 0x10000 bytes in the FPFA fabric, starting at address 0x40000000 (<cite>SEG_mb_bram_ctrl_1_Mem0</cite>):</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 

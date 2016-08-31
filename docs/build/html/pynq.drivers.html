@@ -1366,18 +1366,23 @@ Specifically, with <cite>new_mode</cite> to be:
 </div>
 <div class="section" id="module-pynq.drivers.xlnk">
 <span id="pynq-drivers-xlnk-module"></span><h2>pynq.drivers.xlnk module<a class="headerlink" href="#module-pynq.drivers.xlnk" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pynq.drivers.xlnk.sig_handler">
+<code class="descclassname">pynq.drivers.xlnk.</code><code class="descname">sig_handler</code><span class="sig-paren">(</span><em>signum</em>, <em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#sig_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.sig_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pynq.drivers.xlnk.xlnk">
 <em class="property">class </em><code class="descclassname">pynq.drivers.xlnk.</code><code class="descname">xlnk</code><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="pynq.drivers.xlnk.xlnk.cma_alloc">
-<code class="descname">cma_alloc</code><span class="sig-paren">(</span><em>length</em>, <em>cacheable=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk.cma_alloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk.cma_alloc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cma_alloc</code><span class="sig-paren">(</span><em>length</em>, <em>cacheable=0</em>, <em>data_type='void'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk.cma_alloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk.cma_alloc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="staticmethod">
 <dt id="pynq.drivers.xlnk.xlnk.cma_cast">
-<code class="descname">cma_cast</code><span class="sig-paren">(</span><em>type</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk.cma_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk.cma_cast" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">cma_cast</code><span class="sig-paren">(</span><em>data</em>, <em>data_type='void'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk.cma_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk.cma_cast" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1386,8 +1391,13 @@ Specifically, with <cite>new_mode</cite> to be:
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pynq.drivers.xlnk.xlnk.cma_get_buffer_object">
-<code class="descname">cma_get_buffer_object</code><span class="sig-paren">(</span><em>buf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk.cma_get_buffer_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk.cma_get_buffer_object" title="Permalink to this definition">¶</a></dt>
+<dt id="pynq.drivers.xlnk.xlnk.cma_get_buffer">
+<code class="descname">cma_get_buffer</code><span class="sig-paren">(</span><em>buf</em>, <em>length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk.cma_get_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk.cma_get_buffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynq.drivers.xlnk.xlnk.cma_memcopy">
+<em class="property">static </em><code class="descname">cma_memcopy</code><span class="sig-paren">(</span><em>dest</em>, <em>src</em>, <em>nbytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/drivers/xlnk.html#xlnk.cma_memcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.drivers.xlnk.xlnk.cma_memcopy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">

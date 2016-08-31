@@ -315,7 +315,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="compiling-projects">
 <h2>Compiling projects<a class="headerlink" href="#compiling-projects" title="Permalink to this headline">¶</a></h2>
 <p>Software runs on the MicroBlaze inside the IOP. Code for the MicroBlaze can be written in C or C++ and compiled using the <a class="reference external" href="http://www.xilinx.com/products/design-tools/embedded-software/sdk.html">Xilinx SDK (Software Development Kit)</a>.</p>
-<p>All the driver source and project files can be found in <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;\Pynq\Pynq-Z1\sdk</span></code>,  (Where <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;</span></code> is the location you saved the Pynq repository).</p>
+<p>All the driver source and project files can be found in <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;\Pynq\Pynq-Z1\sdk</span></code>,  (Where <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;</span></code> is the location you saved the PYNQ repository).</p>
 <p>These projects are considered SDK <em>Application</em> projects and contain the top level application. Any software libraries are included in a Board Support Package (BSP) project, and are linked to from the Application project.</p>
 <p>All <em>Application</em> projects can be compiled from the command line using Makefiles, or imported into the SDK GUI.</p>
 <p>You can also use these projects as a starting point to create your own project.</p>
@@ -325,7 +325,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>A Hardware Description File (.hdf), created by Vivado, is used to create the <em>Hardware Platfrom</em>  project in SDK.</p>
 <p>A precompiled .hdf file is provided, so it is not necessary to run Vivado to generate a .hdf file:</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/</span></code></div></blockquote>
 </div>
 <div class="section" id="board-support-package">
 <h3>Board Support Package<a class="headerlink" href="#board-support-package" title="Permalink to this headline">¶</a></h3>
@@ -336,7 +336,7 @@ div.nboutput  > :nth-child(2).stderr {
 <h3>Building the projects<a class="headerlink" href="#building-the-projects" title="Permalink to this headline">¶</a></h3>
 <p>A Makefile to automatically create and build the Hardware Platform and the BSP can be found in the same location as the .hdf file.</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/makefile</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/makefile</span></code></div></blockquote>
 <p>Application projects for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder.</p>
 <p>The Makefile uses the .hdf file to create the Hardware Platform. The BSP can then be created. The Application projects will also be compiled automatically as part of this process.</p>
 <p>The Makefile can be run from Windows, or Linux, but requires SDK to be installed.</p>
@@ -345,7 +345,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>In Linux, open a terminal, and source the SDK tools.</p>
 <p>From either the Windows Shell, or the Linux terminal, navigate to the sdk folder in your local copy of the GitHub repository:</p>
 <blockquote>
-<div>cd to <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk</span></code> and run <code class="docutils literal"><span class="pre">make</span></code></div></blockquote>
+<div>cd to <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk</span></code> and run <code class="docutils literal"><span class="pre">make</span></code></div></blockquote>
 <a class="reference internal image-reference" href="_images/sdk_make.JPG"><img alt="_images/sdk_make.JPG" class="align-center" src="_images/sdk_make.JPG" style="width: 506.25px; height: 415.5px;" /></a>
 <a class="reference internal image-reference" href="_images/sdk_make_result.JPG"><img alt="_images/sdk_make_result.JPG" class="align-center" src="_images/sdk_make_result.JPG" style="width: 506.25px; height: 435.75px;" /></a>
 <p>This will create the Hardware Platform Project (<em>hw_def</em>), and the Board Support Package (<em>bsp</em>).</p>
@@ -358,7 +358,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>A .bin file can be generated from a .elf by running:</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">mb-objcopy</span> <span class="pre">-O</span> <span class="pre">binary</span> <span class="pre">&lt;inputfile&gt;.elf</span> <span class="pre">&lt;outputfile&gt;.bin</span></code></div></blockquote>
-<p>This is done automatically by the makefile for the existing application projects. The makefile will also copy all .bin files into the <code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/bin</span></code> folder.</p>
+<p>This is done automatically by the makefile for the existing application projects. The makefile will also copy all .bin files into the <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/bin</span></code> folder.</p>
 </div>
 <div class="section" id="creating-your-own-application-project">
 <h3>Creating your own Application project<a class="headerlink" href="#creating-your-own-application-project" title="Permalink to this headline">¶</a></h3>
@@ -497,7 +497,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </div>
 <p>From Python all the constants and addresses for the IOP can be found in:</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/iop_const.py</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/iop_const.py</span></code></div></blockquote>
 <p>Note that if two or more pins are connected to the same signal, the pins are OR&#8217;d together internally. This is not recommended.</p>
 </div>
 </div>
@@ -505,7 +505,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <h2>pmod_io_switch_v1_0 driver<a class="headerlink" href="#pmod-io-switch-v1-0-driver" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal"><span class="pre">pmod.h</span></code> and <code class="docutils literal"><span class="pre">pmod.c</span></code> are part of the <em>pmod_io_switch_v1_0</em> driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
+<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
 <p>This code is automatically compiled into the BSP. Any application linking to the BSP can use the Pmod library by including the header file:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;pmod.h&quot;</span><span class="cp"></span>
 </pre></div>
@@ -548,7 +548,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <div class="section" id="example-iop-driver">
 <h2>Example IOP Driver<a class="headerlink" href="#example-iop-driver" title="Permalink to this headline">¶</a></h2>
 <p>Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:</p>
-<p><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/pmod_als/src/pmod_als.c</span></code></p>
+<p><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/pmod_als/src/pmod_als.c</span></code></p>
 <p>Note that the <code class="docutils literal"><span class="pre">pmod.h</span></code> header file is included.</p>
 <p>Some <em>COMMANDS</em> are defined by the user. These values can be chosen to be any value, but must correspond with the Python part of the driver.</p>
 <p>By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands can be any non-zero value.</p>
@@ -566,7 +566,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <div class="section" id="examine-python-code">
 <h3>Examine Python Code<a class="headerlink" href="#examine-python-code" title="Permalink to this headline">¶</a></h3>
 <p>With the IOP Driver written, the Python class can be built that will communicate with that IOP.</p>
-<p><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/pmod_als.py</span></code></p>
+<p><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/pmod_als.py</span></code></p>
 <p>First the MMIO, request_iop, iop_const, PMODA and PMODB are imported.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
