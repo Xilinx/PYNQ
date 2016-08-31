@@ -22,7 +22,7 @@ PUTTY (terminal emulation software)
 
 Pynq Technical support
 ======================
-* `Pynq Technical support <https://github.com/Xilinx/Pynq/issues>`_
+* `Pynq Technical support <https://github.com/Xilinx/PYNQ/issues>`_
 
 Python built-in functions
 =========================

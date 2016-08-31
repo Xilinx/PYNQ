@@ -19,7 +19,7 @@ Some preinstalled features of this Linux image include:
 
 Python ``pynq`` Package Structure
 ----------------------------------
-All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/Pynq/python/pynq``.
+All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/python/pynq``.
 
 Pynq contains four main subpackages: ``board``, ``iop``, ``drivers``, and ``bitstream``; a ``tests`` subpackage is for testing the user subpackages.  Each of the five subpackages are described below.
 

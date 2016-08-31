@@ -46,7 +46,7 @@ Compiling projects
 
 Software runs on the MicroBlaze inside the IOP. Code for the MicroBlaze can be written in C or C++ and compiled using the `Xilinx SDK (Software Development Kit) <http://www.xilinx.com/products/design-tools/embedded-software/sdk.html>`_. 
 
-All the driver source and project files can be found in ``<Pynq GitHub Repository>\Pynq\Pynq-Z1\sdk``,  (Where ``<Pynq GitHub Repository>`` is the location you saved the Pynq repository).  
+All the driver source and project files can be found in ``<GitHub Repository>\Pynq\Pynq-Z1\sdk``,  (Where ``<GitHub Repository>`` is the location you saved the PYNQ repository).  
 
 These projects are considered SDK *Application* projects and contain the top level application. Any software libraries are included in a Board Support Package (BSP) project, and are linked to from the Application project. 
 
@@ -63,7 +63,7 @@ A Hardware Description File (.hdf), created by Vivado, is used to create the *Ha
 
 A precompiled .hdf file is provided, so it is not necessary to run Vivado to generate a .hdf file:
 
-   ``<Pynq GitHub Repository>/Pynq-Z1/sdk/``
+   ``<GitHub Repository>/Pynq-Z1/sdk/``
 
 Board Support Package
 ^^^^^^^^^^^^^^^^^^^^^
@@ -77,7 +77,7 @@ Building the projects
 
 A Makefile to automatically create and build the Hardware Platform and the BSP can be found in the same location as the .hdf file. 
 
-    ``<Pynq GitHub Repository>/Pynq-Z1/sdk/makefile``
+    ``<GitHub Repository>/Pynq-Z1/sdk/makefile``
 
 Application projects for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder. 
    
@@ -95,7 +95,7 @@ In Linux, open a terminal, and source the SDK tools.
 
 From either the Windows Shell, or the Linux terminal, navigate to the sdk folder in your local copy of the GitHub repository: 
 
-   cd to ``<Pynq GitHub Repository>/Pynq-Z1/sdk`` and run ``make``
+   cd to ``<GitHub Repository>/Pynq-Z1/sdk`` and run ``make``
 
 .. image:: ./images/sdk_make.JPG
    :scale: 75%
@@ -120,7 +120,7 @@ A .bin file can be generated from a .elf by running:
 
     ``mb-objcopy -O binary <inputfile>.elf <outputfile>.bin``
 
-This is done automatically by the makefile for the existing application projects. The makefile will also copy all .bin files into the ``<Pynq GitHub Repository>/Pynq-Z1/sdk/bin`` folder.
+This is done automatically by the makefile for the existing application projects. The makefile will also copy all .bin files into the ``<GitHub Repository>/Pynq-Z1/sdk/bin`` folder.
 
 Creating your own Application project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -231,7 +231,7 @@ For example, to connect the physical pins GPIO 0-7 to the internal GPIO_0 - GPIO
 
 From Python all the constants and addresses for the IOP can be found in:
 
-    ``<Pynq GitHub Repository>/python/pynq/iop/iop_const.py``
+    ``<GitHub Repository>/python/pynq/iop/iop_const.py``
 
 Note that if two or more pins are connected to the same signal, the pins are OR'd together internally. This is not recommended. 
     
@@ -239,7 +239,7 @@ pmod_io_switch_v1_0 driver
 --------------------------
 ``pmod.h`` and ``pmod.c`` are part of the *pmod_io_switch_v1_0* driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<Pynq GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
+   ``<GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
 
 This code is automatically compiled into the BSP. Any application linking to the BSP can use the Pmod library by including the header file:
 
@@ -272,7 +272,7 @@ Example IOP Driver
 
 Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:
 
-``<Pynq GitHub Repository>/Pynq-Z1/sdk/pmod_als/src/pmod_als.c``
+``<GitHub Repository>/Pynq-Z1/sdk/pmod_als/src/pmod_als.c``
 
 Note that the ``pmod.h`` header file is included.
 
@@ -303,7 +303,7 @@ Examine Python Code
 
 With the IOP Driver written, the Python class can be built that will communicate with that IOP. 
  
-``<Pynq GitHub Repository>/python/pynq/iop/pmod_als.py``
+``<GitHub Repository>/python/pynq/iop/pmod_als.py``
   
 First the MMIO, request_iop, iop_const, PMODA and PMODB are imported. 
 

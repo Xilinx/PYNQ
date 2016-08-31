@@ -9,9 +9,9 @@ Getting Started
 Pynq is currently supported on the PYNQ-Z1 board. To start using Pynq, you will need a Micro-SD card loaded with the Pynq image.
 The Pynq image will be available to download from the Digilent website. 
 
-You do not need to build the image from scratch for the Pynq board, but there is some information on the build steps on the `Pynq project GitHub <https://github.com/Xilinx/PYNQ/blob/master/ubuntu/README.md>`_
+You do not need to build the image from scratch for the Pynq board, but there is some information on the build steps on the `Pynq project GitHub <https://github.com/Xilinx/PYNQ/tree/master/scripts/README.md>`_
 
-Any Pynq related issues can be submitted via the github site's `issue tracker <https://github.com/Xilinx/Pynq/issues>`_ once the site is live.
+Any Pynq related issues can be submitted via the github site's `issue tracker <https://github.com/Xilinx/PYNQ/issues>`_ once the site is live.
 
 .. NOTE::
   1. Pynq runs natively on the Zynq ARM CPUs.  The CPUs run a web server which host the main Pynq portal.  Any computing platform that is connected to the Internet and supports a mainstream web browser, (Chrome, Firefox, Safari etc. - Internet Explorer not currently supported), can connect to the Pynq portal.  This should work with all types of laptops, desktops and even phones and tablets, independent of whether they run Windows, OSX or Linux. 
