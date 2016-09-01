@@ -87,15 +87,15 @@
 <li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_base_overlay_video.html">Video using the Base Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynq</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">pynq package</a><ul>
@@ -450,7 +450,7 @@ Then the Linux GPIO pin would be (138 + 54 + 0) = 192.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -537,7 +537,7 @@ Then the Linux GPIO pin would be (138 + 54 + 0) = 192.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
@@ -583,7 +583,7 @@ year, month, day, hour, minute, second, microsecond</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -652,7 +652,7 @@ be reset automatically.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -850,7 +850,7 @@ be stored as a state information in the IP dictionary.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
@@ -874,7 +874,7 @@ it also resets the IP and GPIO dictionaries in the PL.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -898,7 +898,7 @@ dictionary in the PL.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -925,7 +925,7 @@ loaded, it also resets the IP dictionary in the PL.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1183,7 +1183,7 @@ name will be stored as a state information in the IP dictionary.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
@@ -1202,7 +1202,7 @@ name will be stored as a state information in the IP dictionary.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1225,7 +1225,7 @@ the state information stored in the GPIO dictionary.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1248,7 +1248,7 @@ the state information stored in the IP dictionary.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1263,11 +1263,6 @@ the state information stored in the IP dictionary.</p>
 <p>This method is the meta class for the PL.</p>
 <p>This is not a class for users. Hence there is no attribute or method
 exposed to users.</p>
-<dl class="attribute">
-<dt id="pynq.pl.PL_Meta.None">
-<code class="descname">None</code><a class="headerlink" href="#pynq.pl.PL_Meta.None" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="attribute">
 <dt id="pynq.pl.PL_Meta.bitfile_name">
 <code class="descname">bitfile_name</code><a class="headerlink" href="#pynq.pl.PL_Meta.bitfile_name" title="Permalink to this definition">¶</a></dt>

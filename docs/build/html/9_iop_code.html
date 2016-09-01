@@ -86,14 +86,14 @@
 <li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="4_programming_in_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard_peripherals.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware Libraries and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_peripherals_and_base_overlay.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="8_base_overlay_video.html">Video using the Base Overlay</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">IO Processors: Writing your own software</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#iop-processors">IOP Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#io-processors">IO Processors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xilinx-software-installation">Xilinx Software installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#compiling-projects">Compiling projects</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#hdf-file">HDF file</a></li>
@@ -108,9 +108,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#pmod-iop-switch">Pmod IOP Switch</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#pmod-io-switch-v1-0-driver">pmod_io_switch_v1_0 driver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-code-on-different-iops">Running code on different IOPs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#example-iop-driver">Example IOP Driver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#iop-application-example">IOP Application Example</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#examine-python-code">Examine Python Code</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#example-of-python-class-runtime-methods">Example of Python Class Runtime Methods</a></li>
 </ul>
@@ -118,7 +117,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_libraries_and_overlays.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
@@ -286,10 +285,12 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="io-processors-writing-your-own-software">
 <h1>IO Processors: Writing your own software<a class="headerlink" href="#io-processors-writing-your-own-software" title="Permalink to this headline">¶</a></h1>
 <p>There are a number of steps required before you can start writing your own software for an IOP (IO Processor). This document will describe the IOP architecture, and how to set up and build the required SDK projects to allow you to write your own application for the MicroBlaze inside an IOP. The SDK projects can be set up manually using the SDK GUI, or automatically using provided Makefiles.</p>
-<div class="section" id="iop-processors">
-<h2>IOP Processors<a class="headerlink" href="#iop-processors" title="Permalink to this headline">¶</a></h2>
-<p>There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two IOPs is the number of peripherals in the IOP, and the switch and port tyep the IOP support. Pmod IOPs connect to PMOD ports, and Arduino IOP connects to the Arduino interface on the board.</p>
-<p>Each IOP contains a <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, a Debug module, and one or more of the following funcational units and interface peripherals:</p>
+<div class="section" id="io-processors">
+<h2>IO Processors<a class="headerlink" href="#io-processors" title="Permalink to this headline">¶</a></h2>
+<p>The ARM Cortex-A9 is an application processor, running Linux, and is not optimized for real time applications. An IOP can be used as a real-time controller and as a flexible controller for different types of external peripherals.</p>
+<p>IOPs can also be used standalone to offload some processing from the main processor. However, note that the MicroBlaze processor inside an IOP is running at 100 MHz, compared to the Dual-Core ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor architectures and features should be taken into account when offloading pure application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing unit will be much more efficient than running on the MicroBlaze. The MicroBlaze is most appropriate for low-level or real-time applications.</p>
+<p>There are two types of IOP, a Pmod IOP and an Arduino IOP. The difference between the two IOPs is the number of peripherals in the IOP, and the switch and port type the IOP support. Pmod IOPs connect to Pmod ports, and Arduino IOP connects to the Arduino interface on the board.</p>
+<p>Each IOP contains a <a class="reference external" href="https://en.wikipedia.org/wiki/MicroBlaze">Xilinx MicroBlaze processor</a>, a Debug module, and one or more of the following functional units and interface peripherals:</p>
 <blockquote>
 <div><ul class="simple">
 <li><a class="reference external" href="http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf">AXI Timer</a></li>
@@ -301,22 +302,20 @@ div.nboutput  > :nth-child(2).stderr {
 <p>The interface peripherals are connected to a Configurable Switch. The Switch is different for the Pmod and the Arduino IOPs. The Pmod configurable switch connects to a Pmod port, and the Arduino configurable switch connects to an Arduino interface connector.</p>
 <p>Pmod IOP:</p>
 <img alt="_images/pmod_iop.jpg" class="align-center" src="_images/pmod_iop.jpg" />
-<p>The ARM Cortex-A9 is an application processor, running Linux, and is not optimized for real time applications. An IOP can be used as a real-time controller and as a flexible controller for different types of external peripherals..</p>
 <p>The IOP&#8217;s configurable switch can be used to route signals between the physical interface (external pins of Pmod and Arduino connector), and the available interface peripherals in the IOP sub-system (IIC, SPI, GPIO, Timer, UART). In this way, an IIC, SPI, or custom external peripheral can be supported on the same physical port using the same IOP. i.e. there is no need to create a new FPGA design to support a different interface standard.</p>
-<p>IOPs can also be used standalone to offload some processing from the main processor. However, note that the MicroBlaze processor inside an IOP is running at 100 MHz, compared to the Dual-Core ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor architectures and features should be taken into account when offloading pure application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing unit will be much more efficient than running on the MicroBlaze. The MicroBlaze is most appropriate for low-level or real-time applications.</p>
 </div>
 <div class="section" id="xilinx-software-installation">
 <h2>Xilinx Software installation<a class="headerlink" href="#xilinx-software-installation" title="Permalink to this headline">¶</a></h2>
-<p>A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see <a class="reference external" href="12_modules.html">Pynq Modules</a>). Xilinx software is only needed if you intend to build your own drivers.</p>
-<p>The current Pynq release is built using Vivado and SDK 2016.1. You should use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado installation is required to design overlays.</p>
+<p>A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see <a class="reference external" href="modules.html">Pynq Modules</a>). Xilinx software is only needed if you intend to build your own drivers.</p>
+<p>The current Pynq release is built using Vivado and SDK 2016.1. You are recommended to use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado+SDK installation is required to design overlays.</p>
 <p><a class="reference external" href="http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html">Download Xilinx Vivado and SDK 2016.1</a></p>
 <p>You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.</p>
 </div>
 <div class="section" id="compiling-projects">
 <h2>Compiling projects<a class="headerlink" href="#compiling-projects" title="Permalink to this headline">¶</a></h2>
 <p>Software runs on the MicroBlaze inside the IOP. Code for the MicroBlaze can be written in C or C++ and compiled using the <a class="reference external" href="http://www.xilinx.com/products/design-tools/embedded-software/sdk.html">Xilinx SDK (Software Development Kit)</a>.</p>
-<p>All the driver source and project files can be found in <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;\Pynq\Pynq-Z1\sdk</span></code>,  (Where <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;</span></code> is the location you saved the PYNQ repository).</p>
-<p>These projects are considered SDK <em>Application</em> projects and contain the top level application. Any software libraries are included in a Board Support Package (BSP) project, and are linked to from the Application project.</p>
+<p>All the driver source and project files can be found in <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;\Pynq-Z1\sdk</span></code>,  (Where <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;</span></code> is the location you saved the PYNQ repository).</p>
+<p>These projects are considered SDK <em>Application</em> projects and contain the top level application. IP related software libraries are included in a Board Support Package (BSP) project, and are linked to from the Application project.</p>
 <p>All <em>Application</em> projects can be compiled from the command line using Makefiles, or imported into the SDK GUI.</p>
 <p>You can also use these projects as a starting point to create your own project.</p>
 <div class="section" id="hdf-file">
@@ -337,7 +336,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>A Makefile to automatically create and build the Hardware Platform and the BSP can be found in the same location as the .hdf file.</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/makefile</span></code></div></blockquote>
-<p>Application projects for peripherals that ship with Pynq (e.g. PMODs and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder.</p>
+<p>Application projects for peripherals that ship with Pynq (e.g. Pmods and Grove peripherals) can also be found in the same location. Each project is contained in a separate folder.</p>
 <p>The Makefile uses the .hdf file to create the Hardware Platform. The BSP can then be created. The Application projects will also be compiled automatically as part of this process.</p>
 <p>The Makefile can be run from Windows, or Linux, but requires SDK to be installed.</p>
 <p>To run <code class="docutils literal"><span class="pre">make</span></code> from Windows, open SDK, and choose a temporary workspace (make sure this path is external to the downloaded GitHub repository). From the <em>Xilinx Tools</em> menu, select <em>Launch Shell</em></p>
@@ -355,7 +354,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="binary-files">
 <h3>Binary files<a class="headerlink" href="#binary-files" title="Permalink to this headline">¶</a></h3>
 <p>Compiling code produces an executable file (.elf) which needs to be converted to binary format (.bin) to download and run on an IOP.</p>
-<p>A .bin file can be generated from a .elf by running:</p>
+<p>A .bin file can be generated from a .elf by running the following command from the SDK shell:</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">mb-objcopy</span> <span class="pre">-O</span> <span class="pre">binary</span> <span class="pre">&lt;inputfile&gt;.elf</span> <span class="pre">&lt;outputfile&gt;.bin</span></code></div></blockquote>
 <p>This is done automatically by the makefile for the existing application projects. The makefile will also copy all .bin files into the <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/bin</span></code> folder.</p>
@@ -381,7 +380,7 @@ div.nboutput  > :nth-child(2).stderr {
 <h2>Memory map<a class="headerlink" href="#memory-map" title="Permalink to this headline">¶</a></h2>
 <p>The IOP memory is 64KB &#8216;&#8217;(0x10000)&#8217;&#8217; of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
 Pynq and the application running on the IOP can write to anywhere in the shared memory space.</p>
-<p>When building the MicroBlaze project, the compiler will only ensure that the application and <em>allocated</em> stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, an part of the shared memory space must also be reserved within the MicroBlaze address space.</p>
+<p>When building the MicroBlaze project, the compiler will only ensure that the application and <em>allocated</em> stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, a part of the shared memory space must also be reserved within the MicroBlaze address space.</p>
 <p>There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.</p>
 <p>It is recommended to follow the convention for data communication between the two processors via MAILBOX. These MAILBOX values are defined in the header file.</p>
 <blockquote>
@@ -499,18 +498,8 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <blockquote>
 <div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/iop_const.py</span></code></div></blockquote>
 <p>Note that if two or more pins are connected to the same signal, the pins are OR&#8217;d together internally. This is not recommended.</p>
-</div>
-</div>
-<div class="section" id="pmod-io-switch-v1-0-driver">
-<h2>pmod_io_switch_v1_0 driver<a class="headerlink" href="#pmod-io-switch-v1-0-driver" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">pmod.h</span></code> and <code class="docutils literal"><span class="pre">pmod.c</span></code> are part of the <em>pmod_io_switch_v1_0</em> driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
-<blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
-<p>This code is automatically compiled into the BSP. Any application linking to the BSP can use the Pmod library by including the header file:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;pmod.h&quot;</span><span class="cp"></span>
-</pre></div>
-</div>
 <p>Any application that uses the Pmod driver should also call pmod_init() at the beginning of the application.</p>
+</div>
 </div>
 <div class="section" id="running-code-on-different-iops">
 <h2>Running code on different IOPs<a class="headerlink" href="#running-code-on-different-iops" title="Permalink to this headline">¶</a></h2>
@@ -542,11 +531,11 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 </tr>
 </tbody>
 </table>
-<p>Note that each MicroBlaze has the same address space. However, the ARM Equivalent Address Space are different for each IOP. Any binary compiled for one MicroBlaze to run on any IOP in the overlay as the MicroBlaze address space is identical, but the binary must be written to the corresponding ARM equivalent address space.</p>
+<p>Note that each MicroBlaze has the same address space. However, the ARM Equivalent Address Space are different for each IOP. Any binary compiled for one Pmod IOP will work on the second Pmod IOP in the overlay as the MicroBlaze address space is identical, however, it may not run on Arduino IOP since the MicroBlaze address space do slightly differ.</p>
 <p>e.g. if IOP1 exists at 0x4000_0000, and IOP2 (a second instance of an IOP) exists at 0x4200_0000, the same binary can run on IOP1 by writing the binary from python to the 0x4000_0000 address space, and on IOP2 by writing to the 0x4200_0000.</p>
 </div>
-<div class="section" id="example-iop-driver">
-<h2>Example IOP Driver<a class="headerlink" href="#example-iop-driver" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="iop-application-example">
+<h2>IOP Application Example<a class="headerlink" href="#iop-application-example" title="Permalink to this headline">¶</a></h2>
 <p>Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor), first open the pmod_als.c file:</p>
 <p><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/sdk/pmod_als/src/pmod_als.c</span></code></p>
 <p>Note that the <code class="docutils literal"><span class="pre">pmod.h</span></code> header file is included.</p>
@@ -619,7 +608,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
     <span class="k">pass</span>
 </pre></div>
 </div>
-<p>Once the command is no longer 0x3, i.e. the acknowledge has been received, the result is read from the <code class="docutils literal"><span class="pre">DATA</span></code> area of the shared memory <code class="docutils literal"><span class="pre">MAILBOX_OFFSET</span></code> using <cite>mmio.read()</cite></p>
+<p>Once the command is no longer 0x3, i.e. the acknowledge has been received, the result is read from the <code class="docutils literal"><span class="pre">DATA</span></code> area of the shared memory <code class="docutils literal"><span class="pre">MAILBOX_OFFSET</span></code> using <cite>mmio.read()</cite>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="p">)</span>
 </pre></div>
 </div>
