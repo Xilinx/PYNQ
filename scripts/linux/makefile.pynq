@@ -17,7 +17,9 @@ REVEALJS = https://github.com/hakimel/reveal.js.git
 NOTEBOOK_IMAGES=adapter_mapping.JPG \
 adc_jumper.jpeg \
 als_oled_demo.JPG \
+arduino_closeup.JPG \
 arduino_iop.jpg \
+arduino_shield.jpg \
 cable_types.jpeg \
 command_mode.png \
 dashboard_files_tab.png \
@@ -34,7 +36,6 @@ pmod_grove_adapter.jpg \
 pmod_iop.jpg \
 pmod_pins.png \
 pmod_tmp2_8pin.JPG \
-pmods.png \
 portal_homepage.jpg \
 pynqz1_arduino_interface.jpg \
 pynqz1_audiovideo.JPG \

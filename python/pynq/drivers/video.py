@@ -96,6 +96,7 @@ class HDMI(object):
     Examples
     --------
     >>> hdmi = HDMI('in')
+    
     >>> hdmi = HDMI('out')
     
     Attributes
@@ -686,10 +687,13 @@ class Frame(object):
         object is called `frame`:
         
         >>> frame[48,32]
+        
         (128,64,12)
         
         Access the green component of pixel (48,32):
+        
         >>> frame[48,32][1]
+        
         64
         
         Note
