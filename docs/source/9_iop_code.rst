@@ -33,7 +33,7 @@ The IOP's configurable switch can be used to route signals between the physical 
 Xilinx Software installation
 ----------------------------
 
-A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see `Pynq Modules <12_modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
+A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq.  It should be noted that Pynq ships with the source and project files for many devices, which have been precompiled (see `Pynq Modules <modules.html>`_). Xilinx software is only needed if you intend to build your own drivers. 
 
 The current Pynq release is built using Vivado and SDK 2016.1. You are recommended to use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado+SDK installation is required to design overlays. 
 

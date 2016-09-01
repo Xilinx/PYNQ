@@ -1,4 +1,4 @@
-Hardware Libraries and Overlays
+Hardware and Overlays
 ========================================
 
 Overlay Concept

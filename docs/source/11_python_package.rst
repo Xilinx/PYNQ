@@ -1,9 +1,9 @@
-The ``Pynq`` (Python Productivity for Zynq) Platform
+The ``Pynq`` (Python Productivity for Zynq) Package
 ======================================================
 
-This section describes the ``pynq`` (**Py**\thon Productivity for **Zy**\nq) Platform - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform. 
+This section describes the ``pynq`` (**Py**\thon Productivity for **Zy**\nq) package - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform. 
 
-After powering the board with the Pynq image on the SDCard in place, the board will boot into Linux.  Python3 is installed with Jupyter Notebook support and the Pynq Python Package. With the pynq package, users can access FPGA fabric overlays from Python.   
+After powering the board with the SDCard in place, the board will boot into Linux. Python3 is installed with Jupyter Notebook support. The Python package `pynq` allows users to access FPGA fabric overlays from Python.   
 
 Some preinstalled features of this Linux image include:
 
@@ -11,9 +11,6 @@ Some preinstalled features of this Linux image include:
 * Samba is enabled and can be accessed from a Windows machine by navigating or mapping to ``\\pynq\xilinx``.  The ``username:password`` is ``xilinx:xilinx``.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
 * A Jupyter Notebook server is initialized on port 9090 and automatically starts after boot.
 * The base overlay is preloaded in the FPGA fabric. 
-
-
-
 
 
 
@@ -84,5 +81,5 @@ This folder includes a tests package for use with all other pynq subpackages.  A
 
 documentation
 -----------------------------
-To find documentation for each module, see the `Pynq Package <13_modules.html>`_ for documentation built from the actual Python source code.
+To find documentation for each module, see the `Pynq Package <modules.html>`_ for documentation built from the actual Python source code.
 

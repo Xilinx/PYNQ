@@ -14,17 +14,8 @@ A-G
   APSOC
    All Programmable System on Chip
 
-  ADC
-   Analog to Digital Converter
-
   BSP 
    A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx software developmnet Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package
-   
-  DAC
-   Digital to Analog Converter
-
-  DPOT
-   A `Digital POTentiometer <https://en.wikipedia.org/wiki/Digital_potentiometer>`_ is a digitally-controlled electronic component that mimics the analog functions of a potentiometer.
 
   FPGA
    `Field Programmable Gate Arrays (FPGAs) <http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm>`_ are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks.
@@ -67,7 +58,7 @@ H-R
   REPL
    A read–eval–print loop (REPL), also known as an interactive toplevel or language shell, is a simple, interactive computer     programming environment that takes single user inputs (i.e. single expressions), evaluates them, and returns the result to the user; a program written in a REPL environment is executed piecewise. The term is most usually used to refer to programming interfaces similar to the classic Lisp machine interactive environment. Common examples include command line shells and similar environments for programming languages, and is particularly characteristic of scripting languages `wikipedia <https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop>`_
 
-   reST
+  reST
     Restructured text is a markup language used extensively with the Sphinx document generator
 
 S-Z

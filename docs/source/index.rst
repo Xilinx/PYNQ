@@ -16,14 +16,14 @@ Contents:
    1_pynq
    2_getting_started
    3_jupyter_notebook
-   4_programming_in_python
-   5_programming_onboard_peripherals
+   4_programming_python
+   5_programming_onboard
    6_overlays
-   7_peripherals_and_base_overlay.ipynb
+   7_base_overlay_iop
    8_base_overlay_video
    9_iop_code
    10_creating_overlays
-   11_libraries_and_overlays
+   11_python_package
    12_verification
    modules
    14_faqs
