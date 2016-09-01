@@ -96,12 +96,13 @@ class HDMI(object):
     Examples
     --------
     >>> hdmi = HDMI('in')
+    
     >>> hdmi = HDMI('out')
     
     Attributes
     ----------
     direction : str
-        Can be 'in' for HDMI to be input or 'out' for HDMI to be output.
+        Can be 'in' for HDMI IN or 'out' for HDMI OUT.
     frame_buffer : _framebuffer
         A frame buffer storing at most 3 frames.
         
@@ -119,7 +120,7 @@ class HDMI(object):
         Parameters
         ----------
         direction : str
-            HDMI direction as either input or output.
+            Can be 'in' for HDMI IN or 'out' for HDMI OUT.
         frame_buffer : _framebuffer, optional
             A frame buffer storing at most 3 frames.
             
@@ -195,7 +196,7 @@ class HDMI(object):
             
             3 : '1280x1024@60Hz'
             
-            4 : '1920x1080@60Hz'
+            4 : '1920x1080@60Hz'           
             
             If `new_mode` is not specified, return the current mode.
             
