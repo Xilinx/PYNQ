@@ -102,7 +102,7 @@ class HDMI(object):
     Attributes
     ----------
     direction : str
-        Can be 'in' for HDMI to be input or 'out' for HDMI to be output.
+        Can be 'in' for HDMI IN or 'out' for HDMI OUT.
     frame_buffer : _framebuffer
         A frame buffer storing at most 3 frames.
         
@@ -120,6 +120,7 @@ class HDMI(object):
         Parameters
         ----------
         direction : str
+            Can be 'in' for HDMI IN or 'out' for HDMI OUT.
         frame_buffer : _framebuffer, optional
             A frame buffer storing at most 3 frames.
             
@@ -186,10 +187,15 @@ class HDMI(object):
             
             Users can use mode(new_mode) to change the resolution.
             Specifically, with `new_mode` to be:
+            
             0 : '640x480@60Hz'
+            
             1 : '800x600@60Hz'
+            
             2 : '1280x720@60Hz'
+            
             3 : '1280x1024@60Hz'
+            
             4 : '1920x1080@60Hz'           
             
             If `new_mode` is not specified, return the current mode.
