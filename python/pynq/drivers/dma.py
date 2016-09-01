@@ -165,7 +165,7 @@ DMA_TRANSFER_LIMIT_BYTES = 8388607
 class timeout:
     """Internal timeout functions.
     
-    This function is only used internally.
+    This class is only used internally.
     
     """
     def __init__(self, seconds=1, error_message='Timeout'):
@@ -282,7 +282,7 @@ class DMA:
                 for key in attr_dict.keys():
                     self.DMAinstance.__setattr__(key,attr_dict[key])
             else:
-                raise RuntimeError("Expecting 3rd Arg to be a dict.")
+                print("Warning: Expecting 3rd Arg to be a dict.")
 
         virt = libxlnk.cma_mmap(address,0x10000)
         if virt == -1:

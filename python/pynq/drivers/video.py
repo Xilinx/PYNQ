@@ -199,7 +199,7 @@ class HDMI(object):
             
             3 : '1280x1024@60Hz'
             
-            4 : '1920x1080@60Hz'           
+            4 : '1920x1080@60Hz'
             
             If `new_mode` is not specified, return the current mode.
             
@@ -725,7 +725,6 @@ class Frame(object):
         x, y = pixel
         if 0 <= x < self.width and 0 <= y < self.height:
             offset = 3 * (y * MAX_FRAME_WIDTH + x)
-            
             return self.frame[offset+2],self.frame[offset+1],\
                     self.frame[offset]
         else:
@@ -770,7 +769,7 @@ class Frame(object):
             offset = 3 * (y * MAX_FRAME_WIDTH + x)
             self.frame[offset + 2] = value[0]
             self.frame[offset + 1] = value[1]
-            self.frame[offset + 0] = value[2]
+            self.frame[offset] = value[2]
         else:
             raise ValueError("Pixel is out of the frame range.")
             
@@ -810,7 +809,7 @@ class Frame(object):
         
         """
         npframe = (np.frombuffer(self.frame, dtype=np.uint8)).\
-                reshape(1080,1920,3)[:self.height,:self.width,[2,1,0]]
+                    reshape(1080,1920,3)[:self.height,:self.width,[2,1,0]]
         image = Image.frombytes('RGB', \
                     (self.width,self.height), bytes(bytearray(npframe)))
         image.save(path, 'JPEG')
@@ -840,8 +839,7 @@ class Frame(object):
         
         """
         npframe = (np.frombuffer(frame_raw, dtype=np.uint8)).\
-                reshape(1080,1920,3)\
-                [:height,:width,[2,1,0]]
+                    reshape(1080,1920,3)[:height,:width,[2,1,0]]
         image = Image.frombytes('RGB', \
                     (width, height), bytes(bytearray(npframe)))
         image.save(path, 'JPEG')
