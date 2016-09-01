@@ -40,10 +40,11 @@
 /************************************************************************/
 /*  Revision History:                                                   */
 /*                                                                      */
-/*    02/20/2014(SamB): Created                                         */
+/*      02/20/2014(SamB): Created                                       */
 /*      11/24/2015(GN): Modified for MicroPython                        */
 /*      01/26/2016(GN): Modified for CPython                            */
 /*      08/31/2016(YRQ): Added lisense header                           */
+/*      09/01/2016(beja): vga_modes.h to video_modes.h                  */
 /*                                                                      */
 /************************************************************************/
 
@@ -59,7 +60,7 @@
 #include "xvtc.h"
 #include "py_xaxivdma.h"
 #include "py_xvtc.h"
-#include "vga_modes.h"
+#include "video_modes.h"
 
 /* ------------------------------------------------------------ */
 /*          Miscellaneous Declarations                          */

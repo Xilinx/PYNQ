@@ -56,19 +56,20 @@ static PyObject *videocapture_new(PyTypeObject *type, PyObject *args,
  * __init()__ method
  *
  * Python Constructor:  capture(vdma_dict,gpio_dict,vtcBaseAddress,
-                                [video.frame])
+ *                              [video.frame])
  */
 static int videocapture_init(videocaptureObject *self, PyObject *args){
     self->frame = NULL;
+    int init_timeout;
     PyObject *vdma_dict = NULL, *gpio_dict = NULL;
     unsigned int vtcBaseAddress;
-    if (!PyArg_ParseTuple(args, "OOI|O", &vdma_dict, &gpio_dict,  
-                          &vtcBaseAddress, &self->frame))
+    if (!PyArg_ParseTuple(args, "OOIi|O", &vdma_dict, &gpio_dict,  
+                          &vtcBaseAddress, &init_timeout, &self->frame))
         return -1;
     if (!(PyDict_Check(vdma_dict) && PyDict_Check(gpio_dict)))
         return -1;
 
-    if(self->frame == NULL){ //create new
+    if(self->frame == NULL){ 
         self->frame = PyObject_New(videoframeObject, &videoframeType);
         for(int i = 0; i < NUM_FRAMES; i++)
             if((self->frame->frame_buffer[i] = 
@@ -80,7 +81,7 @@ static int videocapture_init(videocaptureObject *self, PyObject *args){
 
     int status = VideoInitialize(self->capture, vdma_dict, gpio_dict, 
                                  vtcBaseAddress, self->frame->frame_buffer, 
-                                 STRIDE);
+                                 STRIDE, init_timeout);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
                      "_video._capture initialization failed [%d]", status);
@@ -244,7 +245,8 @@ static PyObject *videocapture_frame(videocaptureObject *self, PyObject *args){
  * 
  * just a wrapper of get_frame_addr().
  */
-static PyObject *videocapture_frame_addr(videocaptureObject *self, PyObject *args){
+static PyObject *videocapture_frame_addr(videocaptureObject *self, 
+                                         PyObject *args){
     unsigned int index = self->capture->curFrame;
     Py_ssize_t nargs = PyTuple_Size(args);
     if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
@@ -252,7 +254,8 @@ static PyObject *videocapture_frame_addr(videocaptureObject *self, PyObject *arg
     }
     else {
         PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
+        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid \
+                                            number of arguments");
         return NULL;        
     }     
 }
@@ -262,7 +265,8 @@ static PyObject *videocapture_frame_addr(videocaptureObject *self, PyObject *arg
  * 
  * just a wrapper of get_frame_phyaddr().
  */
-static PyObject *videocapture_frame_phyaddr(videocaptureObject *self, PyObject *args){
+static PyObject *videocapture_frame_phyaddr(videocaptureObject *self, 
+                                            PyObject *args){
     unsigned int index = self->capture->curFrame;
     Py_ssize_t nargs = PyTuple_Size(args);
     if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
@@ -270,7 +274,8 @@ static PyObject *videocapture_frame_phyaddr(videocaptureObject *self, PyObject *
     }
     else {
         PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
+        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid \
+                                            number of arguments");
         return NULL;        
     }     
 }
@@ -304,10 +309,12 @@ static PyMethodDef videocapture_methods[] = {
      "Get the current frame (or the one at 'index' if specified)."
     },
     {"frame_addr", (PyCFunction)videocapture_frame_addr, METH_VARARGS,
-     "Get the current frame buffer's address (or the one at 'index' if specified)."
+     "Get the current frame buffer's address (or the one at 'index' if \
+      specified)."
     },
     {"frame_phyaddr", (PyCFunction)videocapture_frame_phyaddr, METH_VARARGS,
-     "Get the current frame buffer's physicals address (or the one at 'index' if specified)."
+     "Get the current frame buffer's physicals address (or the one at 'index' \
+      if specified)."
     },
     {NULL}  /* Sentinel */
 };

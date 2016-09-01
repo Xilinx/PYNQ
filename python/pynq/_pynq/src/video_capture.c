@@ -44,6 +44,7 @@
 /*      12/01/2015(GN): Modified for MicroPython                        */
 /*      01/27/2016(GN): Modified for CPython                            */
 /*      08/31/2016(YRQ): Adjusted format                                */
+/*      09/01/2016(beja): timout adjustable & in seconds                */
 /*                                                                      */
 /************************************************************************/
 /*
@@ -65,6 +66,7 @@
 #include "math.h"
 #include "xil_io.h"
 #include "video_capture.h"
+#include <sys/time.h>
 
 /* ------------------------------------------------------------ */
 /*              Procedure Definitions                           */
@@ -223,6 +225,9 @@ int VideoStart(VideoCapture *videoPtr)
 **                 must be instantiated above this driver
 **      stride - line stride of the framebuffers. This is the number of bytes 
 **               between the start of one line and the start of another.
+**      init_timeout - Timeout in seconds for initialization. signed init 
+**                     because POSIX time_t is signed int. Check for negative
+**                     values should be done in Python class.
 **
 **  Return Value: int
 **      XST_SUCCESS if successful, XST_FAILURE otherwise
@@ -237,7 +242,8 @@ int VideoStart(VideoCapture *videoPtr)
 
 int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict, 
                     PyObject *gpioDict, unsigned int vtcBaseAddress, 
-                    u8 *framePtr[VIDEO_NUM_FRAMES], u32 stride)
+                    u8 *framePtr[VIDEO_NUM_FRAMES], u32 stride, 
+                    unsigned int init_timeout)
 {
     int i;
     
@@ -285,14 +291,18 @@ int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict,
 
     // from Gpio Isr
     u32 locked = 0, timeout = 0;
-    while (!locked && timeout < 1000000000){
+    struct timeval time_1, time_2;
+    gettimeofday(&time_1, NULL);
+    while (!locked && (signed int)timeout < init_timeout){
         locked = XGpio_DiscreteRead(videoPtr->gpio, 2); 
-        timeout++;
+        gettimeofday(&time_2, NULL);
+        timeout = time_2.tv_sec - time_1.tv_sec;
     }
-    if(timeout == 1000000000){
+    if((signed int)timeout >= init_timeout){
         PyErr_Format(PyExc_SystemError, "Unable to complete initialization, \
                      no video source detected.\n Check if video source is \
-                     active and retry.\n");
+                     active and retry.\n It is also possible to increase the \
+                     timeout value. Current timeout value: %ds", init_timeout);
         return XST_FAILURE;
     }
     XVtc_Config vtcConfig = Py_XVtc_LookupConfig(videoPtr->vtcBaseAddress);

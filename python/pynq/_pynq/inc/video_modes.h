@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*  vga_modes.h --  VideoMode definitions                               */
+/*  video_modes.h --  VideoMode definitions                               */
 /*                                                                      */
 /************************************************************************/
 /*  Author: Sam Bobrowicz                                               */
@@ -15,11 +15,12 @@
 /*  Revision History:                                                   */
 /*                                                                      */
 /*      2/17/2014(SamB): Created                                        */
+/*      09/01/2016(beja): rename to video_modes                         */
 /*                                                                      */
 /************************************************************************/
 
-#ifndef VGA_MODES_H_
-#define VGA_MODES_H_
+#ifndef VIDEO_MODES_H_
+#define VIDEO_MODES_H_
 
 typedef struct {
     char label[64]; /* Label describing the resolution */
@@ -113,4 +114,4 @@ static const VideoMode VMODE_1920x1080 = {
 };
 
 
-#endif /* VGA_MODES_H_ */
+#endif /* VIDEO_MODES_H_ */

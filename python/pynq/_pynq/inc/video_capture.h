@@ -141,7 +141,8 @@ int VideoStop(VideoCapture *videoPtr);
 int VideoStart(VideoCapture *videoPtr);
 int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict, 
                     PyObject *gpioDict, unsigned int vtcBaseAddress, 
-                    u8 *framePtr[VIDEO_NUM_FRAMES], u32 stride);
+                    u8 *framePtr[VIDEO_NUM_FRAMES], u32 stride,
+                    unsigned int init_timeout);
 int VideoChangeFrame(VideoCapture *videoPtr, u32 frameIndex);
 
 //void GpioIsr(void *InstancePtr);

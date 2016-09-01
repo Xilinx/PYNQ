@@ -107,7 +107,7 @@ class HDMI(object):
         A frame buffer storing at most 3 frames.
         
     """
-    def __init__(self, direction, frame_buffer=None):
+    def __init__(self, direction, init_timeout=10, frame_buffer=None):
         """Returns a new instance of an HDMI object. 
         
         Assign the given frame buffer if specified, otherwise create a new 
@@ -123,6 +123,9 @@ class HDMI(object):
             Can be 'in' for HDMI IN or 'out' for HDMI OUT.
         frame_buffer : _framebuffer, optional
             A frame buffer storing at most 3 frames.
+        init_timeout : int
+            Timeout in seconds for HDMI IN initialization. Default timeout 
+            is 10s. Timeout is ignored for HDMI OUT initialization.
             
         """
         if not direction.lower() in ['in', 'out']:
@@ -362,14 +365,20 @@ class HDMI(object):
             """
             
         else:
+            if (not isinstance(init_timeout, int)) or init_timeout < 1:
+                raise ValueError("""HDMI IN initialization timeout should be an 
+                integer equal or greater than 1.""")
+
             if frame_buffer == None:
                 self._capture = _video._capture(VDMA_DICT,
                                                 GPIO_DICT,
-                                                VTC_CAPTURE_ADDR)
+                                                VTC_CAPTURE_ADDR,
+                                                init_timeout)
             else:
                 self._capture = _video._capture(VDMA_DICT,
                                                 GPIO_DICT,
                                                 VTC_CAPTURE_ADDR,
+                                                init_timeout,
                                                 frame_buffer)
                                                 
             self.frame_buffer = self._capture.framebuffer
