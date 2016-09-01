@@ -63,19 +63,107 @@ void _xlnk_reset();
 libxlnk = ffi.dlopen("/usr/lib/libxlnk_cma.so")
 
 class xlnk:
+    """Class to enable CMA memory management.
+
+    The CMA state maintained by this class is local to the 
+    application except for the `CMA Memory Available` attribute
+    which is global across all the applications.
+
+    Attributes
+    ----------
+    bufmap : dict
+        A mapping of allocated memory pointers to
+        the corresponding buffer sizes in bytes.
+
+    """
 
     def __init__(self):
+        """Initialize new xlnk object.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
         self.bufmap = {}
 
     def __del__(self):
+        """Destructor for the current xlnk object.
+
+        Frees up all the memory which was allocated through
+        current object.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
         for key in self.bufmap.keys():
             libxlnk.cma_free(key)
     
     def __check_buftype(self, buf):
+        """Internal method to check for a valid buffer.
+
+        """
         if "cdata" not in str(buf):
             raise RuntimeError("Unknown buffer type")
         
     def cma_alloc(self, length, cacheable = 0, data_type = "void"):
+        """Allocate physically contiguous memory buffer.
+
+        Allocates a new buffer and adds it to `bufmap`.
+        Possible values for parameter `cacheable` are:
+        
+        `1`: the memory buffer is cacheable.
+        
+        `0`: the memory buffer is non-cacheable.
+
+        Example Usage
+        -------------
+        memmanager = xlnk.xlnk()
+
+        # Allocate 10 `void *` memory locations.
+        m1 = memmanager.cma_alloc(10)
+
+        # Allocate 10 `float *` memory locations.
+        m2 = memmanager.cma_alloc(10, data_type = "float")
+
+        Notes
+        -----
+        1. Total size of buffer is automatically calculated as
+        size = length * sizeof(data_type)
+
+        2. This buffer is allocated inside the kernel space using
+        xlnk driver. The maximum allocatable memory is defined
+        at kernel build time using the CMA memory parameters.
+        For Pynq-Z1 kernel, it is specified as 128MB.
+
+        Parameters
+        ----------
+        length : int
+            Length of the allocated buffer. Length unit
+            depends upon the `data_type` argument. Default
+            unit is bytes.
+        cacheable : int
+            Indicates whether or not the memory buffer is cacheable.
+        data_type : str
+            CData type of the allocated buffer. This should be
+            a valid C-Type.
+        
+        Returns
+        -------
+        cffi.FFI.CData
+            An CFFI object which can be accessed similar to arrays.
+
+        """
         if data_type != "void":
             length = ffi.sizeof(data_type) * length
         buf = libxlnk.cma_alloc(length, cacheable)
@@ -85,24 +173,117 @@ class xlnk:
         return ffi.cast(data_type+"*",buf)
 
     def cma_get_buffer(self, buf, length):
+        """Get a buffer object.
+
+        Used to get an object which supports python buffer
+        interface. The return value thus, can be cast to
+        objects like `bytearray`, `memoryview` etc.
+
+        Parameters
+        ----------
+        buf : cffi.FFI.CData
+            A valid buffer object which was allocated 
+            through `cma_alloc`.
+        len : int
+            Length of buffer in Bytes.
+
+        Returns
+        -------
+        cffi.FFI.CData
+            A CFFI object which supports buffer interface.
+
+        """
         self.__check_buftype(buf)
         return(ffi.buffer(buf, length))
 
     @staticmethod
     def cma_memcopy(dest, src, nbytes):
+        """High speed memcopy between buffers.
+
+        Used to perform a byte level copy of data from
+        source buffer to the destination buffer.
+
+        Parameters
+        ----------
+        dest : cffi.FFI.CData
+            Destination buffer object which was allocated 
+            through `cma_alloc`.
+        src : cffi.FFI.CData
+            Source buffer object which was allocated 
+            through `cma_alloc`.
+        nbytes : int
+            Number of bytes to copy.
+
+        Returns
+        -------
+        None
+
+        """
         ffi.memmove(dest, src, nbytes)
     
     @staticmethod
     def cma_cast(data, data_type = "void"):
+        """Cast underlying buffer to a specific C-Type.
+    
+        Input buffer should be a valid object which was
+        allocated through `cma_alloc` or a CFFI pointer
+        to a memory buffer. Handy for changing void buffers
+        to user defined buffers.
+    
+        Parameters
+        ----------
+        data : cffi.FFI.CData
+            A valid buffer pointer allocated via `cma_alloc`.
+        data_type : str
+            New data type of the underlying buffer.
+        
+        Returns
+        -------
+        cffi.FFI.CData
+            Pointer to buffer with specified data type.
+            
+        """
         return ffi.cast(data_type+"*", data)
       
     def cma_free(self, buf):
+        """Free a previously allocated buffer.
+       
+        Input buffer should be a valid object which was
+        allocated through `cma_alloc` or a CFFI pointer
+        to a memory buffer.
+        
+        Parameters
+        ----------
+        buf : cffi.FFI.CData
+            A valid buffer pointer allocated via `cma_alloc`.
+
+        Returns
+        -------
+        None
+
+        """
         if buf in self.bufmap:
             self.bufmap.pop(buf, None)
         self.__check_buftype(buf)
         libxlnk.cma_free(buf)
     
     def cma_stats(self):
+        """Get current CMA memory Stats.
+
+        `CMA Memory Available` : Systemwide CMA memory availability.
+        `CMA Memory Usage` : CMA memory used by current object.
+        `Buffer Count` : Buffers allocated by current object.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        dict
+            Dictionary of current stats.
+
+        """
         stats = {}
         free_pages = libxlnk.cma_pages_available()
         stats['CMA Memory Available'] = resource.getpagesize() * free_pages
@@ -114,5 +295,19 @@ class xlnk:
         return stats
 
     def xlnk_reset(self):
+        """Systemwide Xlnk Reset.
+
+        Caution : This method Resets all the CMA buffers 
+                allocated across the system.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
         self.bufmap = {}
         libxlnk._xlnk_reset()
