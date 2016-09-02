@@ -104,7 +104,6 @@ typedef struct XAxiDma {
         int AddrWidth;            /**< Address Width */
 } XAxiDma;
 unsigned int getMemoryMap(unsigned int phyAddr, unsigned int len);
-void *frame_alloc(unsigned int len);
 unsigned int getPhyAddr(void *buf);
 void frame_free(void *buf);
 int XAxiDma_CfgInitialize(XAxiDma * InstancePtr, XAxiDma_Config *Config);
