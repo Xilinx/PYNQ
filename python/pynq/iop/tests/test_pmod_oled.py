@@ -47,7 +47,7 @@ if flag:
 def test_write_string():
     """Test for the OLED Pmod.
     
-    Writes on the OLED the string 'Welcome to Zybo.' and asks the user to 
+    Writes on the OLED the string 'Welcome to PYNQ.' and asks the user to 
     confirm if it is shown on the OLED. After that, it clears the screen. 
     This test can be skipped.
     
