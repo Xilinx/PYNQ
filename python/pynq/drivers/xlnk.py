@@ -38,7 +38,7 @@ import cffi
 import resource
 
 if os.getuid() != 0:
-    raise RuntimeError("Root permission needed by the library")
+    raise RuntimeError("Root permission needed by the library.")
 
 # Cleanup on Segfaults
 def sig_handler(signum, frame):
@@ -72,11 +72,9 @@ class xlnk:
     Attributes
     ----------
     bufmap : dict
-        A mapping of allocated memory pointers to
-        the corresponding buffer sizes in bytes.
-
+        Mapping of allocated memory to the buffer sizes in bytes.
+        
     """
-
     def __init__(self):
         """Initialize new xlnk object.
 
@@ -94,8 +92,7 @@ class xlnk:
     def __del__(self):
         """Destructor for the current xlnk object.
 
-        Frees up all the memory which was allocated through
-        current object.
+        Frees up all the memory which was allocated through current object.
 
         Parameters
         ----------
@@ -111,7 +108,16 @@ class xlnk:
     
     def __check_buftype(self, buf):
         """Internal method to check for a valid buffer.
-
+        
+        Parameters
+        ----------
+        buf : cffi.FFI.CData
+            A valid buffer object which was allocated through `cma_alloc`.
+            
+        Returns
+        -------
+        None
+            
         """
         if "cdata" not in str(buf):
             raise RuntimeError("Unknown buffer type")
@@ -120,20 +126,23 @@ class xlnk:
         """Allocate physically contiguous memory buffer.
 
         Allocates a new buffer and adds it to `bufmap`.
+        
         Possible values for parameter `cacheable` are:
         
         `1`: the memory buffer is cacheable.
         
         `0`: the memory buffer is non-cacheable.
 
-        Example Usage
-        -------------
+        Examples
+        --------
         memmanager = xlnk.xlnk()
 
         # Allocate 10 `void *` memory locations.
+        
         m1 = memmanager.cma_alloc(10)
 
         # Allocate 10 `float *` memory locations.
+        
         m2 = memmanager.cma_alloc(10, data_type = "float")
 
         Notes
@@ -145,24 +154,23 @@ class xlnk:
         xlnk driver. The maximum allocatable memory is defined
         at kernel build time using the CMA memory parameters.
         For Pynq-Z1 kernel, it is specified as 128MB.
-
+        
+        The unit of `length` depends upon the `data_type` argument.
+        
         Parameters
         ----------
         length : int
-            Length of the allocated buffer. Length unit
-            depends upon the `data_type` argument. Default
-            unit is bytes.
+            Length of the allocated buffer. Default unit is bytes.
         cacheable : int
-            Indicates whether or not the memory buffer is cacheable.
+            Indicating whether or not the memory buffer is cacheable.
         data_type : str
-            CData type of the allocated buffer. This should be
-            a valid C-Type.
+            CData type of the allocated buffer. Should be a valid C-Type.
         
         Returns
         -------
         cffi.FFI.CData
             An CFFI object which can be accessed similar to arrays.
-
+            
         """
         if data_type != "void":
             length = ffi.sizeof(data_type) * length
@@ -171,13 +179,13 @@ class xlnk:
             raise RuntimeError("Failed to allocate Memory!")
         self.bufmap[buf] = length
         return ffi.cast(data_type+"*",buf)
-
+        
     def cma_get_buffer(self, buf, length):
         """Get a buffer object.
-
-        Used to get an object which supports python buffer
-        interface. The return value thus, can be cast to
-        objects like `bytearray`, `memoryview` etc.
+        
+        Used to get an object which supports python buffer interface. 
+        The return value thus, can be cast to objects like
+        `bytearray`, `memoryview` etc.
 
         Parameters
         ----------
@@ -186,7 +194,7 @@ class xlnk:
             through `cma_alloc`.
         len : int
             Length of buffer in Bytes.
-
+            
         Returns
         -------
         cffi.FFI.CData
@@ -200,17 +208,15 @@ class xlnk:
     def cma_memcopy(dest, src, nbytes):
         """High speed memcopy between buffers.
 
-        Used to perform a byte level copy of data from
-        source buffer to the destination buffer.
+        Used to perform a byte level copy of data from source buffer to 
+        the destination buffer.
 
         Parameters
         ----------
         dest : cffi.FFI.CData
-            Destination buffer object which was allocated 
-            through `cma_alloc`.
+            Destination buffer object which was allocated through `cma_alloc`.
         src : cffi.FFI.CData
-            Source buffer object which was allocated 
-            through `cma_alloc`.
+            Source buffer object which was allocated through `cma_alloc`.
         nbytes : int
             Number of bytes to copy.
 
@@ -225,10 +231,9 @@ class xlnk:
     def cma_cast(data, data_type = "void"):
         """Cast underlying buffer to a specific C-Type.
     
-        Input buffer should be a valid object which was
-        allocated through `cma_alloc` or a CFFI pointer
-        to a memory buffer. Handy for changing void buffers
-        to user defined buffers.
+        Input buffer should be a valid object which was allocated through 
+        `cma_alloc` or a CFFI pointer to a memory buffer. Handy for changing 
+        void buffers to user defined buffers.
     
         Parameters
         ----------
@@ -248,9 +253,8 @@ class xlnk:
     def cma_free(self, buf):
         """Free a previously allocated buffer.
        
-        Input buffer should be a valid object which was
-        allocated through `cma_alloc` or a CFFI pointer
-        to a memory buffer.
+        Input buffer should be a valid object which was allocated through 
+        `cma_alloc` or a CFFI pointer to a memory buffer.
         
         Parameters
         ----------
@@ -271,7 +275,9 @@ class xlnk:
         """Get current CMA memory Stats.
 
         `CMA Memory Available` : Systemwide CMA memory availability.
+        
         `CMA Memory Usage` : CMA memory used by current object.
+        
         `Buffer Count` : Buffers allocated by current object.
 
         Parameters
@@ -297,8 +303,9 @@ class xlnk:
     def xlnk_reset(self):
         """Systemwide Xlnk Reset.
 
-        Caution : This method Resets all the CMA buffers 
-                allocated across the system.
+        Notes
+        -----
+        This method resets all the CMA buffers allocated across the system.
 
         Parameters
         ----------
