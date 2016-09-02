@@ -116,7 +116,6 @@ int DisplayStop(DisplayCtrl *dispPtr)
      */
     if (XAxiVdma_GetDmaChannelErrors(dispPtr->vdma, XAXIVDMA_READ))
     {
-        printf("Clearing DMA errors...\r\n");
         XAxiVdma_ClearDmaChannelErrors(dispPtr->vdma, XAXIVDMA_READ, \
                                        0xFFFFFFFF);
         return XST_DMA_ERROR;
@@ -294,12 +293,11 @@ int DisplayStart(DisplayCtrl *dispPtr)
      * signals the VDMA core by pulsing fsync.
      */
 
-    // printf("vdma config\n\r");
+    //VDMA config
     Status = XAxiVdma_DmaConfig(dispPtr->vdma, XAXIVDMA_READ, \
                                 &(dispPtr->vdmaConfig));
     if (Status != XST_SUCCESS)
     {
-        printf("Read channel config failed %d\r\n", Status);
         return XST_FAILURE;
     }
 
@@ -307,14 +305,12 @@ int DisplayStart(DisplayCtrl *dispPtr)
                                     dispPtr->vdmaConfig.FrameStoreStartAddr);
     if (Status != XST_SUCCESS)
     {
-        printf("Read channel set buffer address failed %d\r\n", Status);
         return XST_FAILURE;
     }
     
     Status = XAxiVdma_DmaStart(dispPtr->vdma, XAXIVDMA_READ);
     if (Status != XST_SUCCESS)
     {
-        printf("Start read transfer failed %d\r\n", Status);
         return XST_FAILURE;
     }
     
@@ -322,7 +318,6 @@ int DisplayStart(DisplayCtrl *dispPtr)
                                     XAXIVDMA_READ);
     if (Status != XST_SUCCESS)
     {
-        printf("Unable to park the channel %d\r\n", Status);
         return XST_FAILURE;
     }
 
@@ -398,7 +393,6 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
      */
     if (!DisplayClkFindReg(&clkReg, &clkMode))
     {
-        printf("Error calculating CLK register values\n\r");
         return XST_FAILURE;
     }
     DisplayClkWriteReg(&clkReg, dispPtr->dynClkAddr);
@@ -459,8 +453,6 @@ int DisplaySetMode(DisplayCtrl *dispPtr, const VideoMode *newMode)
         Status = DisplayStop(dispPtr);
         if (Status != XST_SUCCESS)
         {
-            printf("Cannot change mode, unable to stop display %d\r\n", \
-                    Status);
             return XST_FAILURE;
         }
     }
@@ -503,8 +495,6 @@ int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex)
                                         XAXIVDMA_READ);
         if (Status != XST_SUCCESS)
         {
-            printf("Cannot change frame, unable to start parking %d\r\n", \
-                    Status);
             return XST_FAILURE;
         }
     }

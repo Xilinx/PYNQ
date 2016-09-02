@@ -138,10 +138,6 @@ int VideoStart(VideoCapture *videoPtr)
     if(videoPtr->timing.VActiveVideo == 0 
        || videoPtr->timing.HActiveVideo == 0
        || videoPtr->state == VIDEO_DISCONNECTED){
-            PyErr_Format(PyExc_SystemError, "Please connect to a valid video \
-                source before starting.\n The cable might be disconnected or \
-                some previous errors prevent the VTC to properly detect the \
-                source resolution.\n");
         return XST_NO_DATA;
     }
     if (videoPtr->state == VIDEO_STREAMING)
@@ -177,7 +173,6 @@ int VideoStart(VideoCapture *videoPtr)
                                 &(videoPtr->vdmaConfig));
     if (Status != XST_SUCCESS)
     {
-        printf("Write channel config failed %d\r\n", Status);
         return XST_FAILURE;
     }
     
@@ -185,14 +180,12 @@ int VideoStart(VideoCapture *videoPtr)
              videoPtr->vdmaConfig.FrameStoreStartAddr);
     if (Status != XST_SUCCESS)
     {
-        printf("Write channel set buffer address failed %d\r\n", Status);
         return XST_FAILURE;
     }
     
     Status = XAxiVdma_DmaStart(videoPtr->vdma, XAXIVDMA_WRITE);
     if (Status != XST_SUCCESS)
     {
-        printf("Start Write transfer failed %d\r\n", Status);
         return XST_FAILURE;
     }
     
@@ -200,7 +193,6 @@ int VideoStart(VideoCapture *videoPtr)
                                    XAXIVDMA_WRITE);
     if (Status != XST_SUCCESS)
     {
-        printf("Unable to park the Write channel %d\r\n", Status);
         return XST_FAILURE;
     }
 
@@ -299,10 +291,6 @@ int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict,
         timeout = time_2.tv_sec - time_1.tv_sec;
     }
     if((signed int)timeout >= init_timeout){
-        PyErr_Format(PyExc_SystemError, "Unable to complete initialization, \
-                     no video source detected.\n Check if video source is \
-                     active and retry.\n It is also possible to increase the \
-                     timeout value. Current timeout value: %ds", init_timeout);
         return XST_FAILURE;
     }
     XVtc_Config vtcConfig = Py_XVtc_LookupConfig(videoPtr->vtcBaseAddress);
@@ -350,8 +338,6 @@ int VideoChangeFrame(VideoCapture *videoPtr, u32 frameIndex)
                                        XAXIVDMA_WRITE);
         if (Status != XST_SUCCESS)
         {
-            printf("Cannot change frame, unable to start parking %d\r\n", \
-                    Status);
             return XST_FAILURE;
         }
     }
