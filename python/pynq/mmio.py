@@ -44,12 +44,14 @@ class MMIO:
     
     Attributes
     ----------
-    base_addr : int
-        The base address of an address range, page aligned.
-    base_addr_offset : int
-        The base address offset from page aligned base_addr.
+    virt_base : int
+        The virtual base address, page aligned.
+    virt_offset : int
+        The base address offset from page aligned base address.
+    baes : int
+        The base address, not necessarily page aligned.
     length : int
-        The length in bytes, page aligned.
+        The length in bytes of the address range.
     debug : bool
         Turn on debug mode if it is True.
     mem : mmap
@@ -63,11 +65,11 @@ class MMIO:
         Parameters
         ----------
         base_addr : int
-            The base address of the MMIO
+            The base address of the MMIO.
         length : int
-            The length in bytes; default is 4
+            The length in bytes; default is 4.
         debug : bool
-            Turn on debug mode if it is True; default is False
+            Turn on debug mode if it is True; default is False.
             
         """
         if base_addr < 0 or length < 0:
@@ -78,26 +80,31 @@ class MMIO:
             raise EnvironmentError('Root permissions required.')
         
         # Align the base address with the pages
-        self.base_addr = base_addr & ~(mmap.PAGESIZE - 1)
+        self.virt_base = base_addr & ~(mmap.PAGESIZE - 1)
+        
         # Calculate base address offset w.r.t the base address
-        self.base_addr_offset = base_addr - self.base_addr
+        self.virt_offset = base_addr - self.virt_base
+        
         # Align the stop address with the words
         stop = base_addr + length
         if (stop % general_const.MMIO_WORD_MASK):
-            stop = (stop + general_const.MMIO_WORD_LENGTH) \
-                    & general_const.MMIO_WORD_MASK
-        # Calculate the length between the base address and the stop address
-        self.length = stop - self.base_addr
+            stop = (stop + general_const.MMIO_WORD_LENGTH) & \
+                    general_const.MMIO_WORD_MASK
+        
+        # Storing the base address and length
+        self.base_addr = base_addr
+        self.length = length
         
         self.debug = debug
-        self._debug('MMIO(address, size) = ({0}, {1} bytes).'.
-                format(hex(self.base_addr), hex(self.length)))
+        self._debug('MMIO(address, size) = ({0}, {1} bytes).'.\
+                    format(hex(self.base_addr), hex(self.length)))
                 
         # Open file and mmap
         f = os.open(general_const.MMIO_FILE_NAME, os.O_RDWR | os.O_SYNC)
-        self.mem = mmap.mmap(f, self.length, mmap.MAP_SHARED,
-                    mmap.PROT_READ | mmap.PROT_WRITE,
-                    offset = self.base_addr)
+        self.mem = mmap.mmap(f, (self.length + self.virt_offset), 
+                            mmap.MAP_SHARED,
+                            mmap.PROT_READ | mmap.PROT_WRITE,
+                            offset = self.virt_base)
 
     def read(self, offset = 0, length = 4):
         """The method to read data from MMIO.
@@ -119,24 +126,20 @@ class MMIO:
             raise ValueError("MMIO currently only supports 4-byte reads.")
         if offset < 0 or length < 0: 
             raise ValueError("Negative offset or negative length.")
-
         if offset + length > self.length:
             raise MemoryError('Read operation exceeds the MMIO length.')
 
         # Make reading faster
         mem = self.mem
+        self._debug('Reading {0} bytes from offset {1}'.\
+                    format(length, hex(offset)))
 
-        self._debug('Reading {0} bytes from offset {1}'\
-                    .format(length, hex(offset)))
-
-        # Compensate for the base_address and seek to the aligned offset
-        virt_base_addr = self.base_addr_offset & general_const.MMIO_WORD_MASK
-        mem.seek(virt_base_addr + offset)
+        # Seek the virtual address offset
+        mem.seek((self.virt_offset + offset) & general_const.MMIO_WORD_MASK)
 
         # Read data out
         return (struct.unpack('I', mem.read(length))[0])
-
-
+        
     def write(self, offset, data):
         """The method to write data to MMIO.
 
@@ -154,7 +157,6 @@ class MMIO:
         """
         if offset < 0: 
                 raise ValueError("Negative offset.")
-        
         if type(data) is int:
             if data > pow(2,32)-1:
                 raise ValueError("Integer value is too large for a word.")
@@ -167,19 +169,15 @@ class MMIO:
         if offset + length > self.length:
                 raise MemoryError('Write operation exceeds MMIO length.')
                 
-        # Make reading easier (and faster... won't resolve dot in loops)
+        # Make reading easier
         mem = self.mem
 
-        # Compensate for the base_address
-        offset += self.base_addr_offset
-
         # Check that the operation is going write to an aligned location
-        if (offset & ~ general_const.MMIO_WORD_MASK): 
+        if ((self.virt_offset + offset) & ~ general_const.MMIO_WORD_MASK): 
             raise MemoryError('Write operation not aligned.')
 
         # Seek to the aligned offset
-        virt_base_addr = self.base_addr_offset & general_const.MMIO_WORD_MASK
-        mem.seek(virt_base_addr + offset)
+        mem.seek((self.virt_offset + offset) & general_const.MMIO_WORD_MASK)
 
         if length == 4:
             self._debug('Writing 4 bytes to offset {0}: {1}'.\

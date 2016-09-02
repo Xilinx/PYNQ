@@ -46,12 +46,17 @@ def test_mmio():
     """Test whether MMIO class is working properly.
     
     Generate random tests to swipe through the entire range:
+    
     >>> mmio.write(all offsets, random data)
     
     Steps:
+    
     1. Initialize an instance with length in bytes
+    
     2. Write an integer to a given offset.
+    
     3. Write a number within the range [0, 2^32-1] into a 4-byte location.
+    
     4. Change to the next offset and repeat.
     
     """
@@ -75,3 +80,4 @@ def test_mmio():
             'MMIO read back a wrong fixed value at offset {}.'.format(offset)
             
     del ol
+    
