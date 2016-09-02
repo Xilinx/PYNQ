@@ -56,7 +56,7 @@ their last line.
 saved in a temporary folder. The new files can then be processed by 
 the nbsphinx-Sphinx flow.
 
-It is expected that the script will be run in the docs directory of teh Sphinx
+It is expected that the script will be run in the docs directory of the Sphinx
 project (beside the makefile). The target_dir variable should be set to 
 ./source for nornmal operation.
 
@@ -102,8 +102,8 @@ for file in ipynb_files:
                     if match != None:
                         match_count += 1
                         if j != len(notebook_cell['source'])-1:
-                            print('ERROR: {} was not the last entry in '+\
-                                    'the markdown cell'.format(source_str))
+                            raise RuntimeError('{} was not the last entry '+ \
+                                    'in the markdown cell'.format(source_str))
                         else:
                             del notebook_cell['source'][-1]
                             reST_figure_directive = ".. figure:: " + \
