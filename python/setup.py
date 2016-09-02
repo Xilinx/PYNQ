@@ -42,8 +42,8 @@ import os
 _video_src = ['pynq/_pynq/_video/_video.c', 'pynq/_pynq/_video/_capture.c', 
               'pynq/_pynq/_video/_display.c', 'pynq/_pynq/_video/_frame.c', 
               'pynq/_pynq/src/gpio.c', 'pynq/_pynq/src/py_xaxivdma.c', 
-              'pynq/_pynq/src/py_xgpio.c', 'pynq/_pynq/src/utils_xlnk.c', 
               'pynq/_pynq/src/py_xvtc.c', 'pynq/_pynq/src/utils.c',  
+              'pynq/_pynq/src/py_xgpio.c',
               'pynq/_pynq/src/video_capture.c', 
               'pynq/_pynq/src/video_display.c']
 
