@@ -3,14 +3,14 @@
 REPO_DIR=/home/xilinx/pynq_git
 MAKEFILE_PATH=${REPO_DIR}/scripts/linux
 PYNQ_REPO=https://github.com/Xilinx/PYNQ.git
-testdir=${PWD}
 
 if ! [ $(id -u) = 0 ]; then
    echo "to be run with sudo"
    exit 1
 fi
 
-usage="$(basename "$0") [-h] [-l] [-s] -- update pynq package and to latest stable release 
+usage="Usage : $(basename "$0") [-h] [-l] [-s]
+Update pynq python, notebooks and scripts from PYNQ repository
 
 where:
     -h  show this help text
@@ -56,7 +56,10 @@ if [[ -z $branch ]]; then
 fi
 
 make -f ${MAKEFILE_PATH}/makefile.pynq update_pynq
+retval=$?
 echo "Cleaning up.."
 cd ${REPO_DIR}
 git checkout -q master
-git clean -fd
+git clean -fdq
+chown -R xilinx:xilinx ${REPO_DIR}
+exit $retval

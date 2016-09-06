@@ -104,7 +104,7 @@ scripts_notebooks:
 	@echo
 	@echo "Update scripts and notebooks"
 	@echo
-	cp -arfv ${REPO_DIR}/${BOARD}/notebooks/* ${FINAL_NOTEBOOKS_DIR}
+	cp -arf ${REPO_DIR}/${BOARD}/notebooks/* ${FINAL_NOTEBOOKS_DIR}
 	cd ${FINAL_NOTEBOOKS_DIR} ; ln -fs /home/xilinx/docs
 
 	@for f in ${USER_SCRIPTS} ; do \
