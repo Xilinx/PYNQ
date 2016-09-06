@@ -38,10 +38,6 @@ from pynq import MMIO
 from pynq.iop import request_iop
 from pynq.iop import iop_const
 from pynq.iop import ARDUINO
-from pynq.iop import ARDUINO_GROVE_A1
-from pynq.iop import ARDUINO_GROVE_A2
-from pynq.iop import ARDUINO_GROVE_A3
-from pynq.iop import ARDUINO_GROVE_A4
 
 ARDUINO_ANALOG_PROGRAM = "arduino_analog.bin"
 ARDUINO_ANALOG_LOG_START = iop_const.MAILBOX_OFFSET+16
@@ -50,7 +46,7 @@ ARDUINO_ANALOG_SAMPLES = 1000
 class Arduino_Analog(object):
     """This class controls the Arduino Analog. 
     
-    Grove XADC is an internal analog controller in the hardware. This class
+    XADC is an internal analog controller in the hardware. This class
     provides API to do analog reads from IOP.
     
     Attributes
@@ -70,7 +66,7 @@ class Arduino_Analog(object):
         
     """
     def __init__(self, if_id, gr_pin): 
-        """Return a new instance of an Grove_Analog object. 
+        """Return a new instance of an Arduino_Analog object. 
         
         Note
         ----
@@ -88,11 +84,10 @@ class Arduino_Analog(object):
             for pin in gr_pin:
                 if not pin in range(6):
                     raise ValueError("Analog pin number can only be 0 - 5.")
-            GROVE_ANALOG_PROGRAM = ARDUINO_ANALOG_PROGRAM
         else:
             raise ValueError("No such IOP for analog device.")
             
-        self.iop = request_iop(if_id, GROVE_ANALOG_PROGRAM)
+        self.iop = request_iop(if_id, ARDUINO_ANALOG_PROGRAM)
         self.mmio = self.iop.mmio
         self.log_interval_ms = 1000
         self.log_running  = 0
