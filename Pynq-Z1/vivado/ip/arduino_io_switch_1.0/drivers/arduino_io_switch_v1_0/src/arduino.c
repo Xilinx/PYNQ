@@ -44,18 +44,20 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  06/09/16 release
+ * 1.00b yrq 09/06/16 adjust format
  *
  * </pre>
  *
  *****************************************************************************/
 #include "arduino.h"
 
-// Delay Timer related functions. The timer 5, module 2 is used
-// The Timer Counter instance
-XTmrCtr TimerInst_5;	// Timer 5 module 2 is used to implement delay functions
+/*
+ * Delay Timer related functions
+ * Timer 5, module 2 is used
+ */
+XTmrCtr TimerInst_5;
 
 void delay_us(int usdelay){
-    // us delay
     XTmrCtr_SetResetValue(&TimerInst_5, 1, usdelay*100);
     // Start the timer5 for usdelay us delay
     XTmrCtr_Start(&TimerInst_5, 1);
@@ -66,31 +68,31 @@ void delay_us(int usdelay){
 }
 
 void delay_ms(int msdelay){
-    // ms delay
     delay_us(msdelay*1000);
 }
 
 int tmrctr_init(void) {
     int Status;
 
-    // specify the device ID that is generated in xparameters.h
-	Status = XTmrCtr_Initialize(&TimerInst_5, XPAR_IOP3_MB3_TIMERS_SUBSYSTEM_MB3_TIMER_5_DEVICE_ID); // timer 5
+    // specify the device ID
+    Status = XTmrCtr_Initialize(&TimerInst_5, 
+                    XPAR_IOP3_MB3_TIMERS_SUBSYSTEM_MB3_TIMER_5_DEVICE_ID);
     if (Status != XST_SUCCESS) {
         return XST_FAILURE;
     }
 
-	XTmrCtr_SetOptions(&TimerInst_5, 1, XTC_AUTO_RELOAD_OPTION | XTC_CSR_LOAD_MASK | XTC_CSR_DOWN_COUNT_MASK);	// D3 pin
+    XTmrCtr_SetOptions(&TimerInst_5, 1, 
+        XTC_AUTO_RELOAD_OPTION | XTC_CSR_LOAD_MASK | XTC_CSR_DOWN_COUNT_MASK);
     return 0;
 }
 
 // SPI related functions
 void spi_transfer(u32 BaseAddress, int bytecount,
-                    u8* readBuffer, u8* writeBuffer) {
+                  u8* readBuffer, u8* writeBuffer) {
     int i;
 
-    XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xfe); // 0xfe
-    for (i=0; i<bytecount; i++)
-    {
+    XSpi_WriteReg(BaseAddress,XSP_SSR_OFFSET, 0xfe);
+    for (i=0; i<bytecount; i++){
         XSpi_WriteReg(BaseAddress,XSP_DTR_OFFSET, writeBuffer[i]);
     }
     while(((XSpi_ReadReg(BaseAddress,XSP_SR_OFFSET) & 0x04)) != 0x04);
@@ -127,10 +129,10 @@ void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity){
     Control &= ~XSP_CR_TRANS_INHIBIT_MASK;
     // XSP_CR_CLK_PHASE_MASK
     if(clk_phase)
-    	Control |= XSP_CR_CLK_PHASE_MASK;
+        Control |= XSP_CR_CLK_PHASE_MASK;
     // XSP_CR_CLK_POLARITY_MASK
     if(clk_polarity)
-    	Control |= XSP_CR_CLK_POLARITY_MASK;
+        Control |= XSP_CR_CLK_POLARITY_MASK;
     XSpi_WriteReg(BaseAddress, XSP_CR_OFFSET, Control);
 }
 
@@ -213,36 +215,38 @@ void cb_push_incr_ptrs(circular_buffer *cb){
 }
 
 /*
- * Switch Configuration
- * Configuration is done by writing four 32 bit values to the switch.
- * The 32-bit values represent as follows:
- * Arduino Analog pin 0 = bits [1:0] -- register 0
- * Arduino Analog pin 1 = bits [3:2]
- * Arduino Analog pin 2 = bits [5:4]
- * Arduino Analog pin 3 = bits [7:6]
- * Arduino Analog pin 4 = bits [9:8]
- * Arduino Analog pin 5 = bits [11:10]
- * Arduino Digital pins 1 and 0 = bit [31]
- * Arduino Digital pin 2 = bits [3:0] -- register 1
- * Arduino Digital pin 3 = bits [7:4]
- * Arduino Digital pin 4 = bits [11:8]
- * Arduino Digital pin 5 = bits [15:12]
- * Arduino Digital pin 6 = bits [3:0] -- register 2
- * Arduino Digital pin 7 = bits [7:4]
- * Arduino Digital pin 8 = bits [11:8]
- * Arduino Digital pin 9 = bits [15:12]
- * Arduino Digital pin 10 = bits [3:0] -- register 3
- * Arduino Digital pin 11 = bits [7:4]
- * Arduino Digital pin 12 = bits [11:8]
- * Arduino Digital pin 13 = bits [15:12]
+ *  Switch Configuration
+ *  Configuration is done by writing four 32 bit values to the switch.
+ *  The 32-bit values represent as follows:
+ *  Arduino Analog pin 0 = bits [1:0] -- register 0
+ *  Arduino Analog pin 1 = bits [3:2]
+ *  Arduino Analog pin 2 = bits [5:4]
+ *  Arduino Analog pin 3 = bits [7:6]
+ *  Arduino Analog pin 4 = bits [9:8]
+ *  Arduino Analog pin 5 = bits [11:10]
+ *  Arduino Digital pins 1 and 0 = bit [31]
+ *  Arduino Digital pin 2 = bits [3:0] -- register 1
+ *  Arduino Digital pin 3 = bits [7:4]
+ *  Arduino Digital pin 4 = bits [11:8]
+ *  Arduino Digital pin 5 = bits [15:12]
+ *  Arduino Digital pin 6 = bits [3:0] -- register 2
+ *  Arduino Digital pin 7 = bits [7:4]
+ *  Arduino Digital pin 8 = bits [11:8]
+ *  Arduino Digital pin 9 = bits [15:12]
+ *  Arduino Digital pin 10 = bits [3:0] -- register 3
+ *  Arduino Digital pin 11 = bits [7:4]
+ *  Arduino Digital pin 12 = bits [11:8]
+ *  Arduino Digital pin 13 = bits [15:12]
  */
-void config_arduino_switch(char A_pin0, char A_pin1, char A_pin2, char A_pin3,
-                        char A_pin4, char A_pin5, char D_pin0_1,
-						char D_pin2, char D_pin3, char D_pin4, char D_pin5,
-						char D_pin6, char D_pin7, char D_pin8, char D_pin9,
-						char D_pin10, char D_pin11, char D_pin12, char D_pin13
-						){
-   u32 switchConfigValue0, switchConfigValue1, switchConfigValue2, switchConfigValue3;
+void config_arduino_switch(char A_pin0, char A_pin1, char A_pin2, 
+                           char A_pin3, char A_pin4, char A_pin5, 
+                           char D_pin0_1,
+                           char D_pin2, char D_pin3, char D_pin4, 
+                           char D_pin5, char D_pin6, char D_pin7, 
+                           char D_pin8, char D_pin9, char D_pin10, 
+                           char D_pin11, char D_pin12, char D_pin13){
+   u32 switchConfigValue0, switchConfigValue1;
+   u32 switchConfigValue2, switchConfigValue3;
 
    // Calculate switch configuration values
    switchConfigValue0 = (D_pin0_1<<31)|(A_pin5<<10)|(A_pin4<<8)|\
@@ -258,9 +262,9 @@ void config_arduino_switch(char A_pin0, char A_pin1, char A_pin2, char A_pin3,
    Xil_Out32(SWITCH_BASEADDR+0xc, switchConfigValue3);
 }
 
-void arduino_init(u32 shared_clk_phase, u32 shared_clk_polarity, u32 direct_clk_phase, u32 direct_clk_polarity) {
-	spi_init(SHARED_SPI_BASEADDR, shared_clk_phase, shared_clk_polarity);
-	spi_init(DIRECT_SPI_BASEADDR, direct_clk_phase, direct_clk_polarity);
+void arduino_init(u32 shared_clk_phase, u32 shared_clk_polarity, 
+                  u32 direct_clk_phase, u32 direct_clk_polarity) {
+    spi_init(SHARED_SPI_BASEADDR, shared_clk_phase, shared_clk_polarity);
+    spi_init(DIRECT_SPI_BASEADDR, direct_clk_phase, direct_clk_polarity);
     tmrctr_init();
 }
-

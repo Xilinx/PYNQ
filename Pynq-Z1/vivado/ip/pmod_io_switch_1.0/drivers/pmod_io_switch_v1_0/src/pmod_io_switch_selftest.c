@@ -34,7 +34,7 @@
  *
  * @file pmod_io_switch_selftest.c
  *
- * Self testing module for the PMOD IO switch.
+ * Self testing module for the Pmod IO switch.
  *
  * <pre>
  * MODIFICATION HISTORY:

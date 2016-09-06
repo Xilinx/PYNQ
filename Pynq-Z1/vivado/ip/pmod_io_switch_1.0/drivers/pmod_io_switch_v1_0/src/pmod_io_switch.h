@@ -34,7 +34,7 @@
  *
  * @file pmod_io_switch.h
  *
- * Header for the PMOD IO switch.
+ * Header for the Pmod IO switch.
  *
  * <pre>
  * MODIFICATION HISTORY:

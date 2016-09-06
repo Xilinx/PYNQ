@@ -34,7 +34,7 @@
  *
  * @file pmod.h
  *
- * Common header file for all PMOD IOP applications.
+ * Common header file for all Pmod IOP applications.
  * This file includes address mappings, API for GPIO/SPI/IIC, and
  * IOP Switch pin mappings and configuration.
  *
@@ -117,7 +117,7 @@ int iic_read(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes);
 int iic_write(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes);
 
 /*
- * Logging API for sensor PMODs
+ * Logging API for sensor Pmods
  * Using mailbox as a circular buffer
  * Modified to match mailbox API
  */
@@ -148,7 +148,7 @@ void config_pmod_switch(char pin0, char pin1, char pin2, char pin3,
                         char pin4, char pin5, char pin6, char pin7);
 
 /*
- * Initialize all PMOD IO Switch connected devices
+ * Initialize all Pmod IO Switch connected devices
  */
 void pmod_init(u32 clk_phase, u32 clk_polarity);
 

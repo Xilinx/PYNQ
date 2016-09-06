@@ -34,7 +34,7 @@
  *
  * @file pmod_io_switch.c
  *
- * Module for the PMOD IO switch.
+ * Module for the Pmod IO switch.
  *
  * <pre>
  * MODIFICATION HISTORY:

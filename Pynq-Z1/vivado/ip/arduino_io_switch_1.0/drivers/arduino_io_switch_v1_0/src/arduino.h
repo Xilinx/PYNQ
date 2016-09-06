@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00a pp  06/09/16 release
+ * 1.00b yrq 09/06/16 adjust format
  *
  * </pre>
  *
@@ -56,9 +57,11 @@
 #include "xiic.h"
 #include "xspi_l.h"
 
-// Memory map
-// IIC base address is defined in respective application
-// Base address of shared SPI which uses Digital pins 13-10
+/*
+ * Memory map
+ * IIC base address is defined in respective application
+ * Base address of shared SPI which uses Digital pins 13-10
+ */
 #define SHARED_SPI_BASEADDR      XPAR_SPI_1_BASEADDR
 // Base address of direct SPI which uses ISP connector
 #define DIRECT_SPI_BASEADDR      XPAR_SPI_0_BASEADDR
@@ -75,29 +78,26 @@
 #define MAILBOX_DATA_FLOAT_PTR(x) ( (volatile float *)(0x0000F000 +((x)*4)))
 
 // Switch mappings used for Arduino Switch configuration
-#define A_GPIO 0x0
-#define A_INT 0x0
-#define A_SDA 0x2
-#define A_SCL 0x3
+#define A_GPIO  0x0
+#define A_INT   0x0
+#define A_SDA   0x2
+#define A_SCL   0x3
 
-#define D_GPIO 0x0
-#define D_UART 0x1
-#define D_INT 0x1
-#define D_PWM 0x2
-#define D_TIMER_G 0x3   // to drive Timer Generate on the output pin
-#define D_SPICLK 0x4
-#define D_MISO 0x5
-#define D_MOSI 0x6
-#define D_SS 0x7
-#define D_TIMER_IC 0xb // to sink to Timer Input Capture from the input pin
+#define D_GPIO      0x0
+#define D_UART      0x1
+#define D_INT       0x1
+#define D_PWM       0x2
+#define D_TIMER_G   0x3
+#define D_SPICLK    0x4
+#define D_MISO      0x5
+#define D_MOSI      0x6
+#define D_SS        0x7
+#define D_TIMER_IC  0xb
 
 void delay_us(int usdelay);
 void delay_ms(int ms_count);
 
-/*
- * SPI API
- * Predefined Control signals macros found in xspi_l.h
- */
+// SPI API
 #define SPI_INHIBIT (XSP_CR_TRANS_INHIBIT_MASK| \
             XSP_CR_MANUAL_SS_MASK|XSP_CR_ENABLE_MASK|XSP_CR_MASTER_MODE_MASK)
 #define SPI_RELEASE (XSP_CR_MANUAL_SS_MASK| \
@@ -107,9 +107,7 @@ void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity);
 void spi_transfer(u32 BaseAddress, int bytecount,
                     u8* readBuffer, u8* writeBuffer);
 
-/*
- * IIC API
- */
+// IIC API
 int iic_read(u32 iic_baseaddr, u32 addr, u8* buffer, u8 numbytes);
 int iic_write(u32 iic_baseaddr, u32 addr, u8* buffer, u8 numbytes);
 
@@ -138,18 +136,17 @@ void cb_push_back_float(circular_buffer *cb, const float *item);
 void cb_push_incr_ptrs(circular_buffer *cb);
 
 
-/*
- * Switch Configuration
- */
-void config_arduino_switch(char A_pin0, char A_pin1, char A_pin2, char A_pin3,
-                        char A_pin4, char A_pin5, char D_pin0_1,
-						char D_pin2, char D_pin3, char D_pin4, char D_pin5,
-						char D_pin6, char D_pin7, char D_pin8, char D_pin9,
-						char D_pin10, char D_pin11, char D_pin12, char D_pin13);
+// Switch configuration
+void config_arduino_switch(char A_pin0, char A_pin1, char A_pin2, 
+                           char A_pin3, char A_pin4, char A_pin5, 
+                           char D_pin0_1,
+                           char D_pin2, char D_pin3, char D_pin4, 
+                           char D_pin5, char D_pin6, char D_pin7, 
+                           char D_pin8, char D_pin9, char D_pin10, 
+                           char D_pin11, char D_pin12, char D_pin13);
 
-/*
- * Initialize all Arduino IO Switch connected devices
- */
-void arduino_init(u32 shared_clk_phase, u32 shared_clk_polarity, u32 direct_clk_phase, u32 direct_clk_polarity);
+// Initialize all Arduino IO Switch connected devices
+void arduino_init(u32 shared_clk_phase, u32 shared_clk_polarity, 
+                  u32 direct_clk_phase, u32 direct_clk_polarity);
 
 #endif /* SRC_ARDUINO_SWITCH_H_ */

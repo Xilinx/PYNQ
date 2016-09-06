@@ -204,21 +204,21 @@ void delay_ms(u32 msdelay){
 
 /*
  * Switch Configuration
- * 8 input chars, each representing the connection for 1 PMOD pin
+ * 8 input chars, each representing the connection for 1 Pmod pin
  * Only the least significant 4-bits for each input char is used
  *
  * Configuration is done by writing a 32 bit value to the switch.
  * The 32-bit value represents 8 x 4-bit values concatenated.
- * One 4-bit value is used to configure each PMOD pin.
- * PMOD pin 8 = bits [31:28]
- * PMOD pin 7 = bits [27:24]
- * PMOD pin 6 = bits [23:20]
- * PMOD pin 5 = bits [19:16]
- * PMOD pin 4 = bits [15:12]
- * PMOD pin 3 = bits [11:8]
- * PMOD pin 2 = bits [7:4]
- * PMOD pin 1 = bits [3:0]
- * e.g. Write GPIO 0 - 7 to PMOD 1-8 => switchConfigValue = 0x76543210
+ * One 4-bit value is used to configure each Pmod pin.
+ * Pmod pin 8 = bits [31:28]
+ * Pmod pin 7 = bits [27:24]
+ * Pmod pin 6 = bits [23:20]
+ * Pmod pin 5 = bits [19:16]
+ * Pmod pin 4 = bits [15:12]
+ * Pmod pin 3 = bits [11:8]
+ * Pmod pin 2 = bits [7:4]
+ * Pmod pin 1 = bits [3:0]
+ * e.g. Write GPIO 0 - 7 to Pmod 1-8 => switchConfigValue = 0x76543210
  */
 void config_pmod_switch(char pin0, char pin1, char pin2, char pin3, 
                         char pin4, char pin5, char pin6, char pin7){
