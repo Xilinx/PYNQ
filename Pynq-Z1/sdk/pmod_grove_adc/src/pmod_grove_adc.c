@@ -187,7 +187,7 @@ int main(void)
             // initialize logging variables, reset cmd
             cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
-            while(MAILBOX_CMD_ADDR != 0xC){   
+            while(MAILBOX_CMD_ADDR != RESET_ADC){   
                // push sample to log and delay
                adc_raw_value = 2*read_adc(REG_ADDR_RESULT);
                cb_push_back(&pmod_log, &adc_raw_value);
@@ -200,7 +200,7 @@ int main(void)
             // initialize logging variables, reset cmd
             cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
-            while(MAILBOX_CMD_ADDR != 0xC){
+            while(MAILBOX_CMD_ADDR != RESET_ADC){
                // push sample to log and delay
                adc_voltage = (float)((read_adc(REG_ADDR_RESULT))*V_REF*2/4096);
                cb_push_back_float(&pmod_log, &adc_voltage);
