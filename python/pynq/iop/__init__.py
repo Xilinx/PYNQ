@@ -50,6 +50,10 @@ from .iop_const import ARDUINO_GROVE_G4
 from .iop_const import ARDUINO_GROVE_G5
 from .iop_const import ARDUINO_GROVE_G6
 from .iop_const import ARDUINO_GROVE_G7
+from .iop_const import ARDUINO_GROVE_A1
+from .iop_const import ARDUINO_GROVE_A2
+from .iop_const import ARDUINO_GROVE_A3
+from .iop_const import ARDUINO_GROVE_A4
 
 # IOP
 from .iop import request_iop
@@ -71,6 +75,7 @@ from .pmod_pwm import Pmod_PWM
 
 # Arduino devices
 from .arduino_io import Arduino_IO
+from .arduino_analog import Arduino_Analog
 
 # Grove devices
 from .grove_pir import Grove_PIR

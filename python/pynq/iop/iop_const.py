@@ -53,7 +53,7 @@ IOP_MMIO_REGSIZE = 0x10000
 
 # IOP Switch Register Map
 PMOD_SWITCHCONFIG_BASEADDR     = 0x44A00000
-PMOD_SWITCHCONFIG_NUMREGS       = 8
+PMOD_SWITCHCONFIG_NUMREGS      = 8
 
 # Each Pmod pin can be tied to digital IO, SPI, or IIC
 PMOD_SWCFG_DIO0 = 0
@@ -193,6 +193,10 @@ PMOD_GROVE_G3 = [7,3]
 PMOD_GROVE_G4 = [6,2]
 
 # Arduino shield to grove pin mapping
+ARDUINO_GROVE_A1     =  [0,1]
+ARDUINO_GROVE_A2     =  [2,3]
+ARDUINO_GROVE_A3     =  [3,4]
+ARDUINO_GROVE_A4     =  [4,5]
 ARDUINO_GROVE_I2C    =  []
 ARDUINO_GROVE_UART   =  [0,1]
 ARDUINO_GROVE_G1     =  [2,3]

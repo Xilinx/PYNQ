@@ -15,6 +15,7 @@ MBBINS = pmod_adc.bin \
 		pmod_grove_imu.bin \
 		pmod_grove_buzzer.bin \
 		pmod_grove_ledbar.bin \
+		arduino_analog.bin \
 		arduino_grove_adc.bin \
 		arduino_grove_oled.bin \
 		arduino_grove_imu.bin \
