@@ -103,15 +103,15 @@ class HDMI(object):
     ----------
     direction : str
         Can be 'in' for HDMI IN or 'out' for HDMI OUT.
-    frame_buffer : _framebuffer
+    frame_list : _framebuffer
         A frame buffer storing at most 3 frames.
         
     """
-    def __init__(self, direction, init_timeout=10, frame_buffer=None):
+    def __init__(self, direction, init_timeout=10, frame_list=None):
         """Returns a new instance of an HDMI object. 
         
         Assign the given frame buffer if specified, otherwise create a new 
-        frame buffer. The parameter `frame_buffer` is optional.
+        frame buffer. The parameter `frame_list` is optional.
         
         Note
         ----
@@ -121,19 +121,28 @@ class HDMI(object):
         ----------
         direction : str
             Can be 'in' for HDMI IN or 'out' for HDMI OUT.
-        frame_buffer : _framebuffer, optional
+        frame_list : _framebuffer, optional
             A frame buffer storing at most 3 frames.
         init_timeout : int
             Timeout in seconds for HDMI IN initialization. Default timeout 
             is 10s. Timeout is ignored for HDMI OUT initialization.
             
         """
+
         if not direction.lower() in ['in', 'out']:
             raise ValueError("HDMI direction should be in or out.")
+        if (not isinstance(frame_list, _video._frame)) and \
+        (not (frame_list == None)):
+            raise ValueError("""Parameter frame_list should be of type
+            _video._frame.""")
         
         self.direction = direction.lower()
         if self.direction == 'out':
-            if frame_buffer == None:
+            if (isinstance(init_timeout, _video._frame)):
+                raise SyntaxWarning("""init_timeout is of type _video._frame, 
+                it is ignored for HDMI Out""")
+
+            if frame_list == None:
                 self._display = _video._display(VDMA_DICT,
                                                 VTC_DISPLAY_ADDR,
                                                 DYN_CLK_ADDR, 1)
@@ -141,9 +150,9 @@ class HDMI(object):
                 self._display = _video._display(VDMA_DICT,
                                                 VTC_DISPLAY_ADDR,
                                                 DYN_CLK_ADDR, 1,
-                                                frame_buffer)
+                                                frame_list)
                                                 
-            self.frame_buffer = self._display.framebuffer
+            self.frame_list = self._display.framebuffer
             
             self.start = self._display.start
             """Start the video controller.
@@ -369,7 +378,7 @@ class HDMI(object):
                 raise ValueError("""HDMI IN initialization timeout should be an 
                 integer equal or greater than 1.""")
 
-            if frame_buffer == None:
+            if frame_list == None:
                 self._capture = _video._capture(VDMA_DICT,
                                                 GPIO_DICT,
                                                 VTC_CAPTURE_ADDR,
@@ -379,9 +388,9 @@ class HDMI(object):
                                                 GPIO_DICT,
                                                 VTC_CAPTURE_ADDR,
                                                 init_timeout,
-                                                frame_buffer)
+                                                frame_list)
                                                 
-            self.frame_buffer = self._capture.framebuffer
+            self.frame_list = self._capture.framebuffer
                   
             self.stop = self._capture.stop
             """Stop the video controller.
