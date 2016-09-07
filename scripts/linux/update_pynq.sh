@@ -21,7 +21,7 @@ where:
 
 _repo_init_done=""
 
-cleanup_exit()
+function cleanup_exit()
 {
     echo "Cleaning up.."
     cd ${REPO_DIR}
@@ -34,18 +34,18 @@ cleanup_exit()
     exit $1
 }
 
-build_docs()
+function build_docs()
 {
     echo "Starting Docs Build"
     make -f ${MAKEFILE_PATH} update_docs
 }
 
-build_pynq()
+function build_pynq()
 {
     make -f ${MAKEFILE_PATH} update_pynq || cleanup_exit 1
 }
 
-init_repo()
+function init_repo()
 {
     if [[ $_repo_init_done ]]; then
     return
@@ -70,12 +70,24 @@ init_repo()
     cd ${REPO_DIR}
 }
 
-checkout_stable()
+function checkout_stable()
 {
     latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
     echo checking out ${latestTag}
     git checkout -q ${latestTag}
 }
+
+function do_stable_update()
+{
+   init_repo
+   checkout_stable
+   build_pynq
+}
+
+if [ "$#" -eq 0 ]; then
+    echo "Updating to latest stable release (default action)"
+    do_stable_update
+fi
 
 while getopts ':hlsd' option; do
     case "$option" in
@@ -87,17 +99,14 @@ while getopts ':hlsd' option; do
            build_pynq
            ;;
         s) echo "Updating to latest stable release"
-           init_repo
-           checkout_stable
-           build_pynq
+           do_stable_update
            ;;
         d) docs=true
            # Docs are always built at end
+           init_repo
            ;;
        \?) echo "Updating to latest stable release (default action)"
-           init_repo
-           checkout_stable
-           build_pynq
+           do_stable_update
            ;;
     esac
 done
