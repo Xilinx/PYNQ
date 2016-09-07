@@ -47,8 +47,8 @@ from pynq import MMIO
 def _get_tcl_name(bitfile_name):
     """This method returns the name of the tcl file.
     
-    For example, the input "/home/xilinx/src/pynq/bitstream/base.bit" will lead
-    to the result "/home/xilinx/src/pynq/bitstream/base.tcl".
+    For example, the input "/home/xilinx/src/pynq/bitstream/base.bit" will 
+    lead to the result "/home/xilinx/src/pynq/bitstream/base.tcl".
     
     Parameters
     ----------
@@ -120,18 +120,33 @@ def _get_dict_gpio(tcl_name):
         The dictionary storing the GPIO user indices, starting from 0.
     
     """
-    pattern1 = 'connect_bd_net -net processing_system7_0_GPIO_O'
-    pattern2 = 'connect_bd_net -net ps7_GPIO_O'
+    pat1 = 'connect_bd_net -net processing_system7_0_GPIO_O'
+    pat2 = 'connect_bd_net -net ps7_GPIO_O'
     result = {}
     gpio_list = []
     with open(tcl_name, 'r') as f:
         for line in f:
-            if (pattern1 in line) or (pattern2 in line):
-                gpio_list = re.findall('\[get_bd_pins (.+?)\]',\
+            if (pat1 in line) or (pat2 in line):
+                gpio_list = re.findall('\[get_bd_pins (.+?)/Din\]',\
                                         line,re.IGNORECASE)
-                                        
+    
+    match1 = 0
     for i in range(len(gpio_list)):
-        result[gpio_list[i]] = [i, None]
+        name = gpio_list[i].split('/')[0]
+        pat3 = "set "+ name
+        pat4 = "CONFIG.DIN_FROM {([0-9]+)}*"
+        with open(tcl_name, 'r') as f:
+            for line in f:
+                if pat3 in line:
+                    match1 = 1
+                    continue
+                if match1==1:
+                    match2 = re.search(pat4,line,re.IGNORECASE)
+                    if match2:
+                        index = match2.group(1)
+                        match1 = 0
+                        break
+        result[gpio_list[i]] = [index, None]
         
     return result
     
