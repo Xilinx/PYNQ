@@ -135,13 +135,12 @@ class HDMI(object):
         (not (frame_list == None)):
             raise ValueError("""Parameter frame_list should be of type
             _video._frame.""")
+        if (not isinstance(init_timeout, int)) or init_timeout < 1:
+            raise ValueError("""HDMI IN initialization timeout should be an 
+            integer equal or greater than 1.""")
         
         self.direction = direction.lower()
         if self.direction == 'out':
-            if (isinstance(init_timeout, _video._frame)):
-                raise SyntaxWarning("""init_timeout is of type _video._frame, 
-                it is ignored for HDMI Out""")
-
             if frame_list == None:
                 self._display = _video._display(VDMA_DICT,
                                                 VTC_DISPLAY_ADDR,
@@ -374,10 +373,6 @@ class HDMI(object):
             """
             
         else:
-            if (not isinstance(init_timeout, int)) or init_timeout < 1:
-                raise ValueError("""HDMI IN initialization timeout should be an 
-                integer equal or greater than 1.""")
-
             if frame_list == None:
                 self._capture = _video._capture(VDMA_DICT,
                                                 GPIO_DICT,
