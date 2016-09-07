@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPO_DIR=/home/xilinx/pynq_git
-MAKEFILE_PATH=${REPO_DIR}/scripts/linux
+MAKEFILE_PATH=${REPO_DIR}/scripts/linux/makefile.pynq
 PYNQ_REPO=https://github.com/Xilinx/PYNQ.git
 
 if ! [ $(id -u) = 0 ]; then
@@ -19,7 +19,20 @@ where:
     -s  update packages to latest stable release
     -d  rebuild docs from source"
 
-while getopts ':hld' option; do
+
+cleanup_exit(){
+echo "Cleaning up.."
+cd ${REPO_DIR}
+git checkout -q master
+git reset --hard
+git clean -fdq
+chown -R xilinx:xilinx ${REPO_DIR}
+# Update itself and exit
+make -f ${MAKEFILE_PATH} new_pynq_update
+exit $1
+}
+
+while getopts ':hlsd' option; do
     case "$option" in
         h) echo "$usage"
            exit
@@ -44,32 +57,27 @@ if [[ -d $REPO_DIR/.git ]] ; then
     echo "Github Repo Detected. Pulling latest changes from upstream.."
     cd ${REPO_DIR}
     git checkout master
-    git pull
+    git pull || exit 1
     echo ""
 else
     echo "Cloning Pynq repo"
     mkdir $REPO_DIR -p
-    git clone ${PYNQ_REPO} ${REPO_DIR}
+    git clone ${PYNQ_REPO} ${REPO_DIR} || exit 1
 fi
 
+cd ${REPO_DIR}
+
 if [[ -z $branch ]]; then
-    cd ${REPO_DIR}
     latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
     echo checking out ${latestTag}
     git checkout -q ${latestTag}
 fi
 
-make -f ${MAKEFILE_PATH}/makefile.pynq update_pynq
-retval=$?
+make -f ${MAKEFILE_PATH} update_pynq || cleanup_exit 1
 
 if [[ -n $docs ]]; then
     echo "Starting Docs Build"
-    make -f ${MAKEFILE_PATH}/makefile.pynq update_docs
+    make -f ${MAKEFILE_PATH} update_docs
 fi
 
-echo "Cleaning up.."
-cd ${REPO_DIR}
-git checkout -q master
-git clean -fdq
-chown -R xilinx:xilinx ${REPO_DIR}
-exit $retval
+cleanup_exit 0
