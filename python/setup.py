@@ -106,7 +106,7 @@ setup(  name='pynq',
             Extension('pynq.drivers._video', video, 
                       include_dirs = ['pynq/_pynq/inc', 
                                       'pynq/_pynq/bsp/ps7_cortexa9_0/include'],
-                      libraries = ['xlnk_cma'],
+                      libraries = ['sds_lib'],
                       library_dirs = ['/usr/lib'],
                     ),
         ]

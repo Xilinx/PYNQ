@@ -132,7 +132,7 @@ uint32_t cma_pages_available();
 
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
 libdma = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
-libxlnk = memapi.dlopen("/usr/lib/libxlnk_cma.so")
+libxlnk = memapi.dlopen("/usr/lib/libsds_lib.so")
 
 DefaultConfig = {
     'DeviceId' : 0,

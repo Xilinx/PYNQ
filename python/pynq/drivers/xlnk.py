@@ -60,7 +60,7 @@ uint32_t cma_pages_available();
 void _xlnk_reset();
 """)
 
-libxlnk = ffi.dlopen("/usr/lib/libxlnk_cma.so")
+libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
 
 class xlnk:
     """Class to enable CMA memory management.
