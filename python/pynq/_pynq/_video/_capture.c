@@ -52,10 +52,10 @@
 #include <structmember.h>  
 #include <stdio.h>
 #include <stdlib.h>
+#include <dlfcn.h>
 #include "video_commons.h"
 #include "video_capture.h"
 #include "_video.h"
-
 
 typedef struct{
     PyObject_HEAD
@@ -78,6 +78,13 @@ static void videocapture_dealloc(videocaptureObject* self){
     Py_Del_XGpio(self->capture->gpio);
     free(self->capture);
     Py_TYPE(self)->tp_free((PyObject*)self);
+
+    for(int i = 0; i < NUM_FRAMES; i++)
+        cma_free(self->frame->frame_buffer[i]);
+
+    char sysbuf[128];
+	sprintf(sysbuf, "echo '_capture del' >> /tmp/video.log");
+	system(sysbuf);
 }
 
 /*
@@ -85,6 +92,10 @@ static void videocapture_dealloc(videocaptureObject* self){
  */
 static PyObject *videocapture_new(PyTypeObject *type, PyObject *args, 
                                   PyObject *kwds){
+    char sysbuf[128];
+	sprintf(sysbuf, "echo '_capture new' >> /tmp/video.log");
+	system(sysbuf);
+
     videocaptureObject *self;
     self = (videocaptureObject *)type->tp_alloc(type, 0);
     if((self->capture = (VideoCapture *)malloc(sizeof(VideoCapture))) == NULL){

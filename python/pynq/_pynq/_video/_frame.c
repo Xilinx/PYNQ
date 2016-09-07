@@ -52,6 +52,7 @@
 #include <Python.h>
 #include <structmember.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "xil_types.h"
 #include "video_commons.h"
@@ -70,6 +71,10 @@ static void videoframe_dealloc(videoframeObject* self){
     for(int i = 0; i < NUM_FRAMES; i++)
         cma_free(self->frame_buffer[i]);
     Py_TYPE(self)->tp_free((PyObject*)self);
+
+    char sysbuf[128];
+	sprintf(sysbuf, "echo '_frame del' >> /tmp/video.log");
+	system(sysbuf);
 }
 
 /*
@@ -77,6 +82,10 @@ static void videoframe_dealloc(videoframeObject* self){
  */
 static PyObject *videoframe_new(PyTypeObject *type, PyObject *args, 
                                   PyObject *kwds){
+    char sysbuf[128];
+	sprintf(sysbuf, "echo '_display new' >> /tmp/video.log");
+	system(sysbuf);
+
     videoframeObject *self;
     self = (videoframeObject *)type->tp_alloc(type, 0);
     return (PyObject *)self;

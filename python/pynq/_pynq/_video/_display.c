@@ -52,15 +52,16 @@
 #include <structmember.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <dlfcn.h>
 #include "video_commons.h"
 #include "video_display.h"
 #include "_video.h"
 
-
 typedef struct{
     PyObject_HEAD
-    DisplayCtrl *display;       //see inc/video_display.h
-    videoframeObject *frame;    //see _video.h
+    DisplayCtrl *display;
+    videoframeObject *frame;
 } videodisplayObject;
 
 /*****************************************************************************/
@@ -77,6 +78,13 @@ static void videodisplay_dealloc(videodisplayObject* self){
     Py_Del_XVtc(self->display->vtc);
     free(self->display);
     Py_TYPE(self)->tp_free((PyObject*)self);
+
+    for(int i = 0; i < NUM_FRAMES; i++)
+        cma_free(self->frame->frame_buffer[i]);
+
+    char sysbuf[128];
+	sprintf(sysbuf, "echo '_display del' >> /tmp/video.log");
+	system(sysbuf);
 }
 
 /*
@@ -84,6 +92,10 @@ static void videodisplay_dealloc(videodisplayObject* self){
  */
 static PyObject *videodisplay_new(PyTypeObject *type, PyObject *args, 
                                   PyObject *kwds){
+    char sysbuf[128];
+	sprintf(sysbuf, "echo '_display new' >> /tmp/video.log");
+	system(sysbuf);
+
     videodisplayObject *self;
     self = (videodisplayObject *)type->tp_alloc(type, 0);
     if((self->display = (DisplayCtrl *)malloc(sizeof(DisplayCtrl))) == NULL){
