@@ -256,10 +256,10 @@ def test_hdmi_state():
     see live video from a monitor to which the HDMI OUT is connected.
     
     """
-    hdmi_in = HDMI('in')
-    hdmi_out = HDMI('out', frame_list=hdmi_in.frame_list)
-    hdmi_out.mode(2)
+    hdmi_out = HDMI('out')
+    hdmi_in = HDMI('in',frame_list=hdmi_out.frame_list)
     
+    hdmi_out.mode(2)
     hdmi_in.start()
     hdmi_out.start()
     
