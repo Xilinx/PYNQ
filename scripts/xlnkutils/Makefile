@@ -1,11 +1,9 @@
 all:
-	gcc -Wall -fPIC  -c libxlnk_cma.c -o libxlnk_cma.o
-	gcc -Wall -fPIC -shared -rdynamic libxlnk_cma.o -o libxlnk_cma.so
-	rm -f *.o
+	gcc -shared -o libsds_lib.so -Wl,--whole-archive libsds_lib.a -l pthread  -Wl,--no-whole-archive
 
 clean:
 	rm -f *.so
 
 install:
-	cp -avf libxlnk_cma.so /usr/lib/
+	cp -avf libsds_lib.so /usr/lib/
 	cp -arvf libxlnk_cma.h /usr/include/
