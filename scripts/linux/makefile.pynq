@@ -58,10 +58,8 @@ DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
-update_docs.sh  \
 makefile.pynq \
-stop_pl_server.py \
-update_pynq.sh
+stop_pl_server.py
 
 ROOT_SCRIPTS := 0_network.sh   \
 1_jupyter_server.sh   \
@@ -114,6 +112,12 @@ scripts_notebooks:
 	@for f in ${ROOT_SCRIPTS} ; do \
 		cp ${REPO_DIR}/scripts/linux/$$f  ${ROOT_DIR} || exit 1;\
 	done
+
+new_pynq_update:
+	@echo
+	@echo "Copy new Pynq Update Script"
+	@echo
+	cp -af ${REPO_DIR}/scripts/linux/update_pynq.sh ${FINAL_SCRIPTS_DIR}
 
 doc_sphinx:
 	@echo
