@@ -146,7 +146,7 @@ def _get_dict_gpio(tcl_name):
                         index = match2.group(1)
                         match1 = 0
                         break
-        result[gpio_list[i]] = [index, None]
+        result[gpio_list[i]] = [int(index), None]
         
     return result
     

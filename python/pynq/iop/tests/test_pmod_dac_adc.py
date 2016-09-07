@@ -40,7 +40,7 @@ from pynq.iop import Pmod_ADC
 from pynq.iop import Pmod_DAC
 from pynq.tests.util import user_answer_yes
 
-flag = user_answer_yes("\nPmod ADC and Pmod DAC attached (straight cable)?")
+flag = user_answer_yes("\nPmod ADC and DAC attached (straight cable)?")
 if flag:
         global adc_id, dac_id
         dac_id = int(input("Type in the IOP ID of the Pmod DAC (1 ~ 2): "))

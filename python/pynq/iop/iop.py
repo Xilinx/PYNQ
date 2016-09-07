@@ -188,7 +188,7 @@ def request_iop(iop_id, mb_program):
                             .format(iop_id))
                             
     gpio_names = PL.get_gpio_names()
-    rst_pin_name = "mb_" + str(iop_id) + "_reset/Din"
+    rst_pin_name = "mb_" + str(iop_id) + "_reset"
     if (rst_pin_name not in gpio_names):
             raise ValueError("No such GPIO pin for IOP {}."
                             .format(iop_id))
