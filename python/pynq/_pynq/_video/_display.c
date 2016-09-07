@@ -121,12 +121,13 @@ static int videodisplay_init(videodisplayObject *self, PyObject *args){
     if (!PyDict_Check(vdma_dict))
         return -1;
 
-    if(self->frame == NULL){ //create new
+    if(self->frame == NULL){
         self->frame = PyObject_New(videoframeObject, &videoframeType);
         for(int i = 0; i < NUM_FRAMES; i++)
             if((self->frame->frame_buffer[i] =
                 (u8 *)cma_alloc(sizeof(u8)*MAX_FRAME, 0)) == NULL){
-                PyErr_Format(PyExc_MemoryError, "Unable to allocate memory");
+                PyErr_Format(PyExc_MemoryError, "Unable to allocate \
+                    frame buffer memory");
                 return -1;    
             }     
     }
