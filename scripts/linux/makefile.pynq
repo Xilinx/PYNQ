@@ -76,7 +76,7 @@ update_pynq: pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks pyn
 	@echo "Completed PYNQ update."
 	@echo ""
 
-update_docs: git_clone scripts_notebooks doc_sphinx doc_notebooks pynq_permissions
+update_docs: scripts_notebooks doc_sphinx doc_notebooks pynq_permissions
 	@echo	
 	@echo "Completed PYNQ documentation build."
 	@echo "Documentation folder is at: ${FINAL_DOCS_DIR}"
