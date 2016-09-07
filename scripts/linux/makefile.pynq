@@ -66,7 +66,7 @@ ROOT_SCRIPTS := 0_network.sh   \
 2_pl_server.sh   \
 3_resizefs.sh \
 
-update_pynq: pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks pynq_permissions
+update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks pynq_permissions
 	@echo "Completed PYNQ update."
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
@@ -118,6 +118,12 @@ new_pynq_update:
 	@echo "Copy new Pynq Update Script"
 	@echo
 	cp -af ${REPO_DIR}/scripts/linux/update_pynq.sh ${FINAL_SCRIPTS_DIR}
+
+xlnkutils:
+	@echo
+	@echo "Build libsds_lib"
+	@echo
+	cd ${REPO_DIR}/scripts/xlnkutils && make && make install
 
 doc_sphinx:
 	@echo
