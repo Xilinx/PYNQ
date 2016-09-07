@@ -243,7 +243,7 @@ class Grove_IMU(object):
                 my * math.sin(roll) + mz * math.cos(roll) * math.cos(pitch)
         tiltheading = 180 * math.atan2(yh, xh) / math.pi
         if (yh < 0):
-            tiltheading += 360;
+            tiltheading += 360
         return float("{0:.2f}".format(tiltheading))
         
     def get_temperature(self):
@@ -317,10 +317,10 @@ class Grove_IMU(object):
         
         """
         pressure = self.get_pressure()
-        A = pressure/101325;
-        B = 1/5.255;
-        C = 1-pow(A,B);
-        altitude = 44300 * C;
+        A = pressure/101325
+        B = 1/5.255
+        C = 1-pow(A,B)
+        altitude = 44300 * C
         return float("{0:.2f}".format(altitude))
         
     def _reg2float(self, reg):
