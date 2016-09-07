@@ -257,7 +257,7 @@ def test_hdmi_state():
     
     """
     hdmi_in = HDMI('in')
-    hdmi_out = HDMI('out', hdmi_in.frame_buffer)
+    hdmi_out = HDMI('out', frame_list=hdmi_in.frame_list)
     hdmi_out.mode(2)
     
     hdmi_in.start()
