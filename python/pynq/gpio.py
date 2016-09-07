@@ -144,7 +144,9 @@ class GPIO:
         """This method returns the GPIO base using Linux's GPIO Sysfs API.
         
         This is a static method. To use:
+        
         >>> from pynq import GPIO
+        
         >>> gpio = GPIO.get_gpio_base()
         
         Note
