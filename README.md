@@ -48,9 +48,9 @@ Then either reboot the board, or run the following:
 	cd /home/xilinx/scripts
 	# To get latest stable git updates
 	sudo ./update_pynq.sh
-	# To get latest git updates
-	sudo ./update_pynq.sh -l (dev)
-	# To Build Documentation from sources (dev)
+	# To get latest git updates (dev option)
+	sudo ./update_pynq.sh -l
+	# To Build Documentation from sources (dev option)
 	sudo ./update_pynq -d
 	```
 
