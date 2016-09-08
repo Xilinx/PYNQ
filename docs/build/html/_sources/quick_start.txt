@@ -10,9 +10,7 @@ Set up the board
    .. image:: ./images/pynqz1_quick_start.jpg
       :align: center
 
-* Insert your memory card and connect the USB (Micro-B) and Ethernet cables to the board
-
-* Set the boot jumper to SD
+* Set the boot jumper to SD, insert the Micro SD card into the board, and connect the USB cable (Micro-B), and Ethernet cable
 
 * Connect the other end of Ethernet cable to your laptop or router, and the USB cable to your laptop or a powered USB port
 
@@ -21,27 +19,28 @@ Set up the board
 Connect
 ========
 
-* Open a browser and go to `http://pynq:8080 <http://pynq:8080>`_ or `http://192.168.2.99 <http://192.168.2.99>`_ \* 
+* Open a browser and go to `http://pynq:8080 <http://pynq:8080>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ \* 
 
+The Jupyter password is ``xilinx``
 
-The password is ``xilinx``
+\* If you are connecting directly to your laptop or PC, configure your Ethernet adapter IP address to be in the same range as the board e.g. 192.168.2.1
 
-\* If you are connecting directly to your laptop or PC, configure your ethernet adapter IP to be in the same range as the board e.g. 192.168.2.1
+Jupyter Portal
+===============
 
-Pynq Portal
-=============
-
-In the Pynq portal, click on the Welcome to Pynq notebook to get started. 
+In the Jupyter portal, click on the Welcome to Pynq notebook to get started. 
 
    .. image:: ./images/portal_homepage.jpg
       :height: 600px
       :scale: 75%
       :align: center
 
+You can find some getting started, and example notebooks in the home area. 
+
 Problems
 =============
 
-If you have problems setting up, or connecting to your board, see the `Getting started guide <2_getting_started.html>`_
+If you have problems setting up, or connecting to your board, see the full `Getting started guide <2_getting_started.html>`_ or check the `Frequently asked questions <14_faqs.html>`_
 
 
 Contact

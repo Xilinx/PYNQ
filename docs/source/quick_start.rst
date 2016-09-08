@@ -26,7 +26,7 @@ The Jupyter password is ``xilinx``
 \* If you are connecting directly to your laptop or PC, configure your Ethernet adapter IP address to be in the same range as the board e.g. 192.168.2.1
 
 Jupyter Portal
-=============
+===============
 
 In the Jupyter portal, click on the Welcome to Pynq notebook to get started. 
 

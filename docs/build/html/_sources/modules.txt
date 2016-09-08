@@ -1,5 +1,5 @@
-pynq
-====
+pynq modules
+=============
 
 .. toctree::
    :maxdepth: 4

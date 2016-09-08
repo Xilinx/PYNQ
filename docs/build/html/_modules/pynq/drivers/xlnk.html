@@ -95,7 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../16_references.html">Useful Reference Links</a></li>
@@ -293,20 +293,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="n">__email__</span>       <span class="o">=</span> <span class="s2">&quot;pynq_support@xilinx.com&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">signal</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">cffi</span>
 <span class="kn">import</span> <span class="nn">resource</span>
-
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getuid</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Root permission needed by the library&quot;</span><span class="p">)</span>
-
-<span class="c1"># Cleanup on Segfaults</span>
-<div class="viewcode-block" id="sig_handler"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.sig_handler">[docs]</a><span class="k">def</span> <span class="nf">sig_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Invalid Memory Access!&quot;</span><span class="p">)</span>
-    <span class="n">xlnk</span><span class="p">()</span><span class="o">.</span><span class="n">xlnk_reset</span><span class="p">()</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">127</span><span class="p">)</span></div>
-<span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGSEGV</span><span class="p">,</span> <span class="n">sig_handler</span><span class="p">)</span>
 
 <span class="n">ffi</span> <span class="o">=</span> <span class="n">cffi</span><span class="o">.</span><span class="n">FFI</span><span class="p">()</span>
 
@@ -333,29 +321,23 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_free</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">__check_buftype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;cdata&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">buf</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">ffi</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;char *&quot;</span><span class="p">))</span> <span class="ow">or</span>\
+          <span class="nb">type</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">ffi</span><span class="o">.</span><span class="n">new_handle</span><span class="p">(</span><span class="s1">&#39;void&#39;</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown buffer type&quot;</span><span class="p">)</span>
         
-<div class="viewcode-block" id="xlnk.cma_alloc"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_alloc">[docs]</a>    <span class="k">def</span> <span class="nf">cma_alloc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">cacheable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;void&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">data_type</span> <span class="o">!=</span> <span class="s2">&quot;void&quot;</span><span class="p">:</span>
-            <span class="n">length</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span> <span class="o">*</span> <span class="n">length</span>
+<div class="viewcode-block" id="xlnk.cma_alloc"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_alloc">[docs]</a>    <span class="k">def</span> <span class="nf">cma_alloc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">cacheable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
         <span class="n">buf</span> <span class="o">=</span> <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_alloc</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">cacheable</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">buf</span> <span class="o">==</span> <span class="n">ffi</span><span class="o">.</span><span class="n">NULL</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to allocate Memory!&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="p">[</span><span class="n">buf</span><span class="p">]</span> <span class="o">=</span> <span class="n">length</span>
-        <span class="k">return</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">data_type</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="n">buf</span><span class="p">)</span></div>
+        <span class="n">bufmap</span><span class="p">[</span><span class="n">buf</span><span class="p">]</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="k">return</span> <span class="n">buf</span></div>
 
-<div class="viewcode-block" id="xlnk.cma_get_buffer"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_get_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">cma_get_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+<div class="viewcode-block" id="xlnk.cma_get_buffer_object"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_get_buffer_object">[docs]</a>    <span class="k">def</span> <span class="nf">cma_get_buffer_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__check_buftype</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
-        <span class="k">return</span><span class="p">(</span><span class="n">ffi</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span></div>
-
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="xlnk.cma_memcopy"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_memcopy">[docs]</a>    <span class="k">def</span> <span class="nf">cma_memcopy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">):</span>
-        <span class="n">ffi</span><span class="o">.</span><span class="n">memmove</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">)</span></div>
+        <span class="k">return</span><span class="p">(</span><span class="n">memoryview</span><span class="p">(</span><span class="n">ffi</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buf</span><span class="p">)))</span></div>
     
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="xlnk.cma_cast"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_cast">[docs]</a>    <span class="k">def</span> <span class="nf">cma_cast</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;void&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">data_type</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+<div class="viewcode-block" id="xlnk.cma_cast"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_cast">[docs]</a>    <span class="k">def</span> <span class="nf">cma_cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">type</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
       
 <div class="viewcode-block" id="xlnk.cma_free"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_free">[docs]</a>    <span class="k">def</span> <span class="nf">cma_free</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">buf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="p">:</span>
@@ -375,8 +357,7 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">return</span> <span class="n">stats</span></div>
 
 <div class="viewcode-block" id="xlnk.xlnk_reset"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.xlnk_reset">[docs]</a>    <span class="k">def</span> <span class="nf">xlnk_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">libxlnk</span><span class="o">.</span><span class="n">_xlnk_reset</span><span class="p">()</span></div></div>
+        <span class="n">libxlnk</span><span class="o">.</span><span class="n">_xlnk_reset</span><span class="p">();</span><span class="s1">&#39;_cffi_backend.CDataOwn&#39;</span></div></div>
 </pre></div>
 
            </div>

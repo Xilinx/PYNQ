@@ -95,7 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../16_references.html">Useful Reference Links</a></li>
@@ -334,8 +334,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">PL</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="s1">&#39;SEG_d_axi_pdm_1_S_AXI_reg&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">PL</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="s1">&#39;SEG_d_axi_pdm_1_S_AXI_reg&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">PL</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="s2">&quot;SEG_d_axi_pdm_1_S_AXI_reg&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">PL</span><span class="o">.</span><span class="n">ip_dict</span><span class="p">[</span><span class="s2">&quot;SEG_d_axi_pdm_1_S_AXI_reg&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_AudioMMIO</span> <span class="o">=</span> <span class="n">MMIO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_ffi</span> <span class="o">=</span> <span class="n">cffi</span><span class="o">.</span><span class="n">FFI</span><span class="p">()</span>

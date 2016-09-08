@@ -95,7 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../16_references.html">Useful Reference Links</a></li>
@@ -422,13 +422,9 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="n">DeviceId</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">DMA_TRANSFER_LIMIT_BYTES</span> <span class="o">=</span> <span class="mi">8388607</span>
 
-
+<span class="c1"># For internal use to timeout functions</span>
 <div class="viewcode-block" id="timeout"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.timeout">[docs]</a><span class="k">class</span> <span class="nc">timeout</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Internal timeout functions.</span>
-<span class="sd">    </span>
-<span class="sd">    This function is only used internally.</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Timeout&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seconds</span> <span class="o">=</span> <span class="n">seconds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error_message</span> <span class="o">=</span> <span class="n">error_message</span>
@@ -445,64 +441,53 @@ div.nboutput  > :nth-child(2).stderr {
 
 <div class="viewcode-block" id="DMA"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.DMA">[docs]</a><span class="k">class</span> <span class="nc">DMA</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Python class which controls DMA.</span>
-<span class="sd">    </span>
-<span class="sd">    This is a generic DMA class that can be used to access main memory.</span>
-<span class="sd">    </span>
-<span class="sd">    The DMA direction can be:</span>
-<span class="sd">    </span>
-<span class="sd">    (0)`DMA_TO_DEV` : DMA sends data to PL.</span>
-<span class="sd">    </span>
-<span class="sd">    (1)`DMA_FROM_DEV` : DMA receives data from PL.</span>
-<span class="sd">    </span>
-<span class="sd">    (3)`DMA_BIDIRECTIONAL` : DMA can send/receive data from PL.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    buf : cffi.FFI.CData</span>
-<span class="sd">        A pointer to physically contiguous buffer.</span>
+<span class="sd">        A pointer to Physically contiguous buffer managed by the</span>
+<span class="sd">        object. This can be accesed like an array in python.</span>
 <span class="sd">    bufLength : int</span>
 <span class="sd">        Length of internal buffer in bytes.</span>
-<span class="sd">    phyAddress : int</span>
+<span class="sd">    phyAddress : unsigned int</span>
 <span class="sd">        Physical address of the DMA device.</span>
 <span class="sd">    DMAengine : cdata &#39;XAxiDma *&#39;</span>
 <span class="sd">        DMA engine instance defined in C. Not to be directly modified.</span>
 <span class="sd">    DMAinstance : cdata &#39;XAxiDma_Config *&#39;</span>
 <span class="sd">        DMA configuration instance struct. Not to be directly modified.</span>
 <span class="sd">    direction : int</span>
-<span class="sd">        The direction indicating whether DMA sends/receives data from PL.</span>
+<span class="sd">            dma.DMA_TO_DEV : DMA sends data to PL.</span>
+<span class="sd">            dma.DMA_FROM_DEV : DMA receives data from PL.</span>
+<span class="sd">            dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.</span>
 <span class="sd">    Configuration : dict</span>
 <span class="sd">        Current DMAinstance configuration values.</span>
-<span class="sd">        </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">DMA_FROM_DEV</span><span class="p">,</span><span class="n">attr_dict</span><span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes a new DMA object.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Uses the Default configuration parameters to initialize</span>
 <span class="sd">        a DMA. After initialization, the DMA is reset and the</span>
 <span class="sd">        interrupts are disabled for DMA.</span>
-<span class="sd">        </span>
-<span class="sd">        The DMA direction can be:</span>
-<span class="sd">        </span>
-<span class="sd">        (0)`DMA_TO_DEV` : DMA sends data to PL.</span>
-<span class="sd">        </span>
-<span class="sd">        (1)`DMA_FROM_DEV` : DMA receives data from PL.</span>
-<span class="sd">        </span>
-<span class="sd">        (3)`DMA_BIDIRECTIONAL` : DMA can send/receive data from PL.</span>
-<span class="sd">        </span>
-<span class="sd">        The keys in `attr_dict` should exactly match the ones used in default </span>
-<span class="sd">        config. All the keys are not required. The default configuration is </span>
-<span class="sd">        defined in dma.DefaultConfig dict. Users can reinitialize the DMA </span>
-<span class="sd">        with new configuratiuon after creating the object.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        address: int</span>
+<span class="sd">        address: unsigned int</span>
 <span class="sd">            Physical address of the DMA IP.</span>
 <span class="sd">        direction : int</span>
-<span class="sd">            The direction indicating whether DMA sends/receives data from PL.</span>
+<span class="sd">            Direction in which DMA transfers data. Possible values are:</span>
+<span class="sd">            dma.DMA_TO_DEV : DMA sends data to PL.</span>
+<span class="sd">            dma.DMA_FROM_DEV : DMA receives data from PL.</span>
+<span class="sd">            dma.DMA_BIDIRECTIONAL : DMA can send/receive data from PL.</span>
 <span class="sd">        attr_dict : dict</span>
-<span class="sd">            An optional dictionary specifying DMA configuration values.</span>
-<span class="sd">            </span>
+<span class="sd">            An optional dictionary specifying DMA configuration values to</span>
+<span class="sd">            use instead of default values. The keys should exactly match</span>
+<span class="sd">            the ones used in default config. All the keys are not required.</span>
+<span class="sd">            The default configuration is defined in dma.DefaultConfig</span>
+<span class="sd">            dict. If user wants, he can reinitialize the DMA with new</span>
+<span class="sd">            configuratiuon after he has created the object using</span>
+<span class="sd">            &#39;configure&#39; method.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span>
@@ -512,7 +497,7 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="bp">self</span><span class="o">.</span><span class="n">DMAinstance</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;XAxiDma_Config *&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Configuration</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gen_config</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="n">direction</span><span class="p">,</span><span class="n">attr_dict</span><span class="p">)</span>
-        
+        <span class="c1"># Reset the DMA</span>
         <span class="n">status</span> <span class="o">=</span> <span class="n">libdma</span><span class="o">.</span><span class="n">XAxiDma_CfgInitialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DMAengine</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">DMAinstance</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to initialize DMA!&quot;</span><span class="p">)</span>
@@ -543,15 +528,15 @@ div.nboutput  > :nth-child(2).stderr {
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">attr_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">DMAinstance</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">attr_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Expecting 3rd Arg to be a dict.&quot;</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Warning: Expecting 3rd Arg to be a dict.&quot;</span><span class="p">)</span>
 
         <span class="n">virt</span> <span class="o">=</span> <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_mmap</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="mh">0x10000</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">virt</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Memory map of driver failed.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Memory map of driver failed!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">DMAinstance</span><span class="o">.</span><span class="n">BaseAddr</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;uint32_t *&quot;</span><span class="p">,</span><span class="n">virt</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">DMAinstance</span><span class="o">.</span><span class="n">DeviceId</span> <span class="o">=</span> <span class="n">DeviceId</span>
         <span class="n">DeviceId</span> <span class="o">+=</span> <span class="mi">1</span>
-        
+
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">DefaultConfig</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Configuration</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DMAinstance</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         
@@ -576,38 +561,32 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="viewcode-block" id="DMA.transfer"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.DMA.transfer">[docs]</a>    <span class="k">def</span> <span class="nf">transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">num_bytes</span><span class="p">,</span><span class="n">direction</span><span class="o">=</span><span class="n">DMA_FROM_DEV</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Transfer data using DMA (Non-blocking).</span>
 
-<span class="sd">        Used to initiate transfer of data between a physically contiguous</span>
-<span class="sd">        buffer and PL. The buffer should be allocated using `create_buf`</span>
+<span class="sd">        Used to initiate transfer of data between a physicaally contiguous</span>
+<span class="sd">        buffer and PL. The buffer should be allocated using create_buf</span>
 <span class="sd">        before this call.</span>
-<span class="sd">        </span>
-<span class="sd">        The `num_bytes` should be less than buffer size and </span>
-<span class="sd">        `DMA_TRANSFER_LIMIT_BYTES`.</span>
-<span class="sd">        </span>
-<span class="sd">        Possible values for `direction` are:</span>
-<span class="sd">        </span>
-<span class="sd">        (0)`DMA_TO_DEV` : DMA sends data to PL.</span>
-<span class="sd">        </span>
-<span class="sd">        (1)`DMA_FROM_DEV` : DMA receives data from PL.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        num_bytes : int</span>
-<span class="sd">            Number of bytes to transfer.</span>
+<span class="sd">        num_bytes : unsigned int</span>
+<span class="sd">            Number of bytes to transfer. This should be less than buffer</span>
+<span class="sd">            size and dma.DMA_TRANSFER_LIMIT_BYTES.</span>
 <span class="sd">        direction : int</span>
-<span class="sd">            Direction in which DMA transfers data. </span>
-<span class="sd">            </span>
+<span class="sd">            Direction in which DMA transfers data. Possible values are:</span>
+<span class="sd">            dma.DMA_TO_DEV : DMA sends data to PL.</span>
+<span class="sd">            dma.DMA_FROM_DEV : DMA receives data from PL.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        None</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">num_bytes</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufLength</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Buffer size smaller than the transfer size&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Buffer Size Smaller than the transfer size&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_bytes</span> <span class="o">&gt;</span> <span class="n">DMA_TRANSFER_LIMIT_BYTES</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;DMA transfer size &gt; {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                    <span class="n">DMA_TRANSFER_LIMIT_BYTES</span><span class="p">))</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">direction</span> <span class="ow">in</span> <span class="p">[</span><span class="n">DMA_FROM_DEV</span><span class="p">,</span> <span class="n">DMA_TO_DEV</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid direction for transfer.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;DMA Transfer Size Exceeds the max of&quot;</span><span class="p">,</span>\
+                <span class="n">DMA_TRANSFER_LIMIT_BYTES</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">DMA_FROM_DEV</span><span class="p">,</span> <span class="n">DMA_TO_DEV</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid Direction for Transfer!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">libdma</span><span class="o">.</span><span class="n">XAxiDma_SimpleTransfer</span><span class="p">(</span>\
@@ -618,37 +597,32 @@ div.nboutput  > :nth-child(2).stderr {
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_TransferInitiated</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Buffer not allocated.&quot;</span><span class="p">)</span></div>
-            
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Transfer Error! Please allocate a buffer first.&quot;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="DMA.create_buf"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.DMA.create_buf">[docs]</a>    <span class="k">def</span> <span class="nf">create_buf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_bytes</span><span class="p">,</span> <span class="n">cacheable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Allocate physically contiguous memory buffer.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Allocates/Reallocates buffer needed for DMA operations.</span>
-<span class="sd">        </span>
-<span class="sd">        Possible values for parameter `cacheable` are:</span>
-<span class="sd">        </span>
-<span class="sd">        `1`: the memory buffer is cacheable.</span>
-<span class="sd">        </span>
-<span class="sd">        `0`: the memory buffer is non-cacheable.</span>
-<span class="sd">        </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length : unsigned int</span>
+<span class="sd">            Length of the allocated array in bytes.</span>
+<span class="sd">        cacheable : int</span>
+<span class="sd">            1 if the memory buffer is cacheable</span>
+<span class="sd">            0 if the memory buffer is non-cacheable</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
 <span class="sd">        This buffer is allocated inside the kernel space using</span>
 <span class="sd">        xlnk driver. The maximum allocatable memory is defined</span>
 <span class="sd">        at kernel build time using the CMA memory parameters.</span>
-<span class="sd">        For Pynq-Z1 kernel, it is specified as 128MB.</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        num_bytes : int</span>
-<span class="sd">            Length of the allocated array in bytes.</span>
-<span class="sd">        cacheable : int</span>
-<span class="sd">            Indicating whether or not the memory buffer is cacheable</span>
-<span class="sd">            </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None</span>
-<span class="sd">        </span>
+<span class="sd">        For Pynq kernel, it is specified as 128MB.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_alloc</span><span class="p">(</span><span class="n">num_bytes</span><span class="p">,</span> <span class="n">cacheable</span><span class="p">)</span>
@@ -660,7 +634,7 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="n">bufPhyAddr</span> <span class="o">=</span> <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_get_phy_addr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bufPtr</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;uint32_t *&quot;</span><span class="p">,</span><span class="n">bufPhyAddr</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bufLength</span> <span class="o">=</span> <span class="n">num_bytes</span></div>
-        
+
 <div class="viewcode-block" id="DMA.free_buf"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.DMA.free_buf">[docs]</a>    <span class="k">def</span> <span class="nf">free_buf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Free the memory buffer associated with this object.</span>
 
@@ -679,80 +653,75 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">==</span> <span class="n">ffi</span><span class="o">.</span><span class="n">NULL</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">)</span></div>
-        
+
 <div class="viewcode-block" id="DMA.wait"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.DMA.wait">[docs]</a>    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait_timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Block till DMA is busy or a timeout occurs.</span>
-<span class="sd">        </span>
-<span class="sd">        Default value of timeout is 10 seconds.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        wait_timeout : int</span>
 <span class="sd">            Time to wait in seconds before timing out wait operation.</span>
-<span class="sd">            </span>
+<span class="sd">            Default value of timeout is 10 seconds.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        None</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TransferInitiated</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">Error</span> <span class="o">=</span> <span class="s2">&quot;DMA wait timed out.&quot;</span>
+        <span class="n">Error</span> <span class="o">=</span> <span class="s2">&quot;DMA wait timed out!&quot;</span>
         <span class="k">with</span> <span class="n">timeout</span><span class="p">(</span><span class="n">seconds</span> <span class="o">=</span> <span class="n">wait_timeout</span><span class="p">,</span> <span class="n">error_message</span> <span class="o">=</span> <span class="n">Error</span><span class="p">):</span>
             <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">libdma</span><span class="o">.</span><span class="n">XAxiDma_Busy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DMAengine</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">break</span></div>
-                    
+
 <div class="viewcode-block" id="DMA.get_buf"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.DMA.get_buf">[docs]</a>    <span class="k">def</span> <span class="nf">get_buf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a CFFI pointer to object&#39;s internal buffer.</span>
-<span class="sd">        </span>
-<span class="sd">        This can be accessed like a regular array in python. The width can be </span>
-<span class="sd">        either 32 or 64.</span>
-<span class="sd">        </span>
+
+<span class="sd">        This can be accessed like a regular array in python.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        width : int</span>
-<span class="sd">            The data width in the buffer.</span>
-<span class="sd">            </span>
+<span class="sd">            Can be either 32 or 64.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        cffi.FFI.CData</span>
 <span class="sd">            An CFFI object which can be accessed similar to arrays in C.</span>
-<span class="sd">            </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">width</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;unsigned int *&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">width</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long long *&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Buffer not created.&quot;</span><span class="p">)</span></div>
-        
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Buffer not created!&quot;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="DMA.configure"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.dma.DMA.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reconfigure and Reinitialize the DMA IP.</span>
 
 <span class="sd">        Uses a user provided dict to reinitialize the DMA.</span>
 <span class="sd">        This method also frees the internal buffer</span>
 <span class="sd">        associated with current object.</span>
-<span class="sd">        </span>
-<span class="sd">        The keys in `attr_dict` should exactly match the ones used in default </span>
-<span class="sd">        config. All the keys are not required. The default configuration is </span>
-<span class="sd">        defined in dma.DefaultConfig dict. Users can reinitialize the DMA </span>
-<span class="sd">        with new configuratiuon after creating the object.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        attr_dict : dict</span>
-<span class="sd">            A dictionary specifying DMA configuration values.</span>
-<span class="sd">            </span>
+<span class="sd">            A dictionary specifying DMA configuration values to</span>
+<span class="sd">            use instead of default values. The keys should exactly match</span>
+<span class="sd">            the ones used in default config. All the keys are not required.</span>
+<span class="sd">            The default configuration is defined in dma.DefaultConfig</span>
+<span class="sd">            dict.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        None</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">free_buf</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phyAddress</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span><span class="n">attr_dict</span><span class="p">)</span></div></div>
-        
 </pre></div>
 
            </div>

@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="up" title="pynq package" href="pynq.html"/>
-        <link rel="next" title="pynq.drivers package" href="pynq.drivers.html"/>
+        <link rel="next" title="pynq.iop package" href="pynq.iop.html"/>
         <link rel="prev" title="pynq package" href="pynq.html"/> 
 
   
@@ -97,12 +97,12 @@
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynq</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynq modules</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="pynq.html">pynq package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynq.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">pynq.board package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.iop.html">pynq.iop package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
@@ -149,7 +149,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-          <li><a href="modules.html">pynq</a> &raquo;</li>
+          <li><a href="modules.html">pynq modules</a> &raquo;</li>
       
           <li><a href="pynq.html">pynq package</a> &raquo;</li>
       
@@ -343,7 +343,7 @@ div.nboutput  > :nth-child(2).stderr {
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -361,7 +361,7 @@ div.nboutput  > :nth-child(2).stderr {
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -397,7 +397,7 @@ turned on.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -414,6 +414,38 @@ turned on.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>int</em>) &#8211; This parameter can be either 0 (off) or 1 (on).</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; If the value parameter is not 0 or 1.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynq.board.switch">
+<span id="pynq-board-switch-module"></span><h2>pynq.board.switch module<a class="headerlink" href="#module-pynq.board.switch" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pynq.board.switch.Switch">
+<em class="property">class </em><code class="descclassname">pynq.board.switch.</code><code class="descname">Switch</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/board/switch.html#Switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.board.switch.Switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class controls the onboard switches.</p>
+<dl class="attribute">
+<dt id="pynq.board.switch.Switch.index">
+<code class="descname">index</code><a class="headerlink" href="#pynq.board.switch.Switch.index" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Index of the onboard switches, starting from 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.board.switch.Switch.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/board/switch.html#Switch.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.board.switch.Switch.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the current value of the switch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Either 0 if the switch is off or 1 if the switch is on</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
 </tr>
 </tbody>
 </table>
@@ -459,7 +491,7 @@ turned on.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -477,7 +509,7 @@ turned on.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -511,7 +543,7 @@ turned on.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynq.html#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -526,41 +558,6 @@ turned on.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-pynq.board.switch">
-<span id="pynq-board-switch-module"></span><h2>pynq.board.switch module<a class="headerlink" href="#module-pynq.board.switch" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="pynq.board.switch.Switch">
-<em class="property">class </em><code class="descclassname">pynq.board.switch.</code><code class="descname">Switch</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/board/switch.html#Switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.board.switch.Switch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class controls the onboard switches.</p>
-<dl class="attribute">
-<dt id="pynq.board.switch.Switch.index">
-<code class="descname">index</code><a class="headerlink" href="#pynq.board.switch.Switch.index" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Index of the onboard switches, starting from 0.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynq.board.switch.Switch.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/board/switch.html#Switch.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.board.switch.Switch.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the current value of the switch.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Either 0 if the switch is off or 1 if the switch is on</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-pynq.board">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq.board" title="Permalink to this headline">¶</a></h2>
-</div>
 </div>
 
 
@@ -570,7 +567,7 @@ turned on.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pynq.drivers.html" class="btn btn-neutral float-right" title="pynq.drivers package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pynq.iop.html" class="btn btn-neutral float-right" title="pynq.iop package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="pynq.html" class="btn btn-neutral" title="pynq package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

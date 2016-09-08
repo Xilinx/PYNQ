@@ -5,24 +5,27 @@ Overlay Concept
 -------------------
 Zynq provides a processor and FPGA fabric on the same chip. 
 
-Overlays, or hardware libraries extend the user application from the PS (processing system) of the Zynq into the FPGA. This allows software programmers to take advantage of the FPGA fabric to accelerate the application, or to use a customized platform optimized for a particular application.
+Overlays, or hardware libraries extend the user application from the PS (Processing System) of the Zynq into the FPGA. This allows software programmers to take advantage of the FPGA fabric to accelerate the application, or to use an overlay to customize the hardware platform for a particular application.
 
-For example, for an image processing, a typical application where the FPGA can provide acceleration, the software programmer can use a hardware library to run some of the image processing functions on the FPGA fabric. 
-
-An Overlay could also be used to generate a custom hardware platform using the available pins on the Pmod and Arduino interfaces. 
-
+For example, image processing is a typical application where the FPGA can provide acceleration. A software programmer can use a hardware library to run some of the image processing functions (e.g. edge detect, thresholding) on the FPGA fabric. 
 Hardware libraries can be loaded to the FPGA dynamically, as required, just like a software library.
+Seperate image processing functions could be implemented in different overlays and loaded from Python on demand.
+ 
+To give another example, for a drone, or robotic application, the PYNQ-Z1 has more pins/interfaces available than a typical embedded platform.
+A new overlay could be created to customize the hardware interfaces to the new application. 
+Multiple motor controllers and sensor controllers could be implemented in hardware in the new overlay, and connected to the available pins. A software programmer could use the controllers in the overlay  through a Python/C API.   
 
 Base Overlay
 ---------------
-The base overlay is the default overlay that ships with the PYNQ-Z1. 
+The base overlay is the default overlay included with the PYNQ-Z1 image. 
 
-This overlay customizes the platform to connect the HDMI In and Out, the Mic In and Audio Out, and the Pmod and Arduino interfaces through the IO Processors to the PS to allow them to be used from the Pynq environment. The user buttons, switches and LEDs are also connected in the base overlay. 
+This overlay customizes the platform to connect HDMI In and Out controllers,  an audio controller (Mic In and Audio Out), and the Pmod and Arduino interfaces (through the IO Processors) to the PS, to allow them to be used from the Pynq environment. There is also a tracebuffer connected to the Pmod, and Arduino interfaces to allow for hardware debug. The user buttons, switches and LEDs are also connected to the PS in the base overlay. 
+
 
 .. image:: ./images/pynqz1_base_overlay.png
    :align: center
 
-The Pmod and Arduino interfaces have special custom IO Processors  that allow a range of peripherals with different IO standards to be connected to the system and used directly by a software programmer without needing to create a new FPGA design.
+The Pmod and Arduino interfaces have special custom IO Processors  that allow a range of peripherals with different IO standards to be connected to the system. This allows a software programmer to use a wide range of peripherals with different interfaces and protocols without needing to create a new FPGA design for each peripheral or set of peripherals.
 
 
 
@@ -30,7 +33,7 @@ Pmod Peripherals
 -----------------
 A Pmod interface is a 12-pin connector that can be used to connect peripherals. 
 
-A range of Pmod peripherals are available. Typical Pmod peripherals include sensors, communication interfaces (Ethernet, serial), and input and output interfaces (buttons, switches, LEDs).
+A range of Pmod peripherals are available from Digilent and thrid parties. Typical Pmod peripherals include sensors (voltage, light, temperature), communication interfaces (Ethernet, serial, wifi, bluetooth), and input and output interfaces (buttons, switches, LEDs).
 
 There are two Pmod connectors on PYNQ-Z1.
 
@@ -48,12 +51,12 @@ A number of peripherals are supported:
 
 Pmod Connector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Each Pmod connector has 12 pins (2 rows of 6 pins, where each row has 3.3V (VCC), ground (GND) and 4 data pins giving 8 data pins in total). Pmod data pins are labelled 0-7. 
+Each Pmod connector has 12 pins: 2 rows of 6 pins, where each row has 3.3V (VCC), ground (GND) and 4 data pins. This gives 8 data pins in total. Pmod data pins are labelled 0-7 in the image below. The pin number needs to be specified in Python when creating a new instance of a peripheral connected to a port.  
 
 .. image:: images/pmod_closeup.JPG
    :align: center
 
-Pmods come in different configurations depending on the number of data pins required (single row, double row, e.g. 1x6 pins, 2x4 pins, 2x6 pins). Pmod peripherals with only a single row of pins can be plugged into the top row or the bottom row of the connector.
+Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins. Pmod peripherals with only a single row of pins can be plugged into the top row or the bottom row of the connector.
 
 .. image:: images/pmod_pins.png
    :align: center
@@ -65,25 +68,26 @@ Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be aligned
 PYNQ Grove Adapter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The PYNQ Grove Adapter has 4 connectors (G1 - G4) for Grove devices.
+A Grove connector has four pins, VCC and GND, and two data pins.
+
+The PYNQ Grove Adapter has four connectors (G1 - G4), allowing four Grove devices to be connected to one Pmod port. 
 
 .. image:: ./images/pmod_grove_adapter.jpg
    :align: center
 
 All pins operate at 3.3V. Due to different pull-up/pull-down I/O requirements for different peripherals (e.g. IIC requires pull-up, and SPI requires pull-down), Grove peripherals must be plugged into the appropriate connector.
 
-G1 and G2 pins are connected to pins with pull-down resistors, and G3 and G4 are connected to pins with pull-up resistors, as indicated in the image. This doesn't affect Pmods.
+G1 and G2 pins are connected to pins with pull-down resistors, and G3 and G4 are connected to pins with pull-up resistors (IIC), as indicated in the image. 
 
 .. image:: ./images/adapter_mapping.JPG
    :align: center
 
+Pmods already take this pull up/down convention into account in their pin layout, so no special attention is required to connect Pmods. 
+   
 Arduino Peripherals
 --------------------
-An Arduino interface is a 22-pin connector that can be used to connect peripherals. 
 
-A range of Arduino peripherals are available. Typical Arduino peripherals include Grove peripherals, and communication interfaces (Ethernet, WiFi).
-
-There is one Arduino connector on the board.
+There is one Arduino connector on the board and can be used to connect to arduino compatible shields. 
 
 .. image:: ./images/pynqz1_arduino_interface.jpg
    :align: center
@@ -91,34 +95,32 @@ There is one Arduino connector on the board.
 Supported peripherals
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Currently the Arduino connectors can be connected to the *PYNQ Shield*, which serves as a bridge to Grove peripherals. 
+Most arduino shields can be used with the PYNQ-Z1 board. A *PYNQ Shield*, is also available, which serves as a bridge to connect multiple Grove peripherals. 
 
 Arduino Connector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Each Arduino connector has 6 analog pins (A0 - A5), 14 multi-purpose Digital pins (D0 - D13), 2 dedicated I2C pins (SCL, SDA), and 4 dedicated SPI pins. The assignment of other pins is marked on the board.
-
-With so many pins on the connector, there is only one way for an Arduino shield to fit in. 
+Each Arduino connector has 6 analog pins (A0 - A5), 14 multi-purpose Digital pins (D0 - D13), 2 dedicated I2C pins (SCL, SDA), and 4 dedicated SPI pins. 
 
 .. image:: images/arduino_closeup.JPG
 
 PYNQ Shield
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Each Grove connector has 4 pins, one each for VCC and GND leaving 2 pins on each connector for signal wires. The PYNQ Shield has 12 connectors for digital IO (I2C, UART, G1 - G7) and 4 connectors for analog IO (A1 - A4) for Grove devices.
+As mentioned previously, each Grove connector has 4 pins. The PYNQ Shield has 12 Grove connectors for digital IO (I2C, UART, G1 - G7) and 4 Grove connectors for analog IO (A1 - A4).
 
 .. image:: ./images/arduino_shield.jpg
    :align: center
 
-With the jumper set as in the figure, all the pins operate at 3.3V. 
+With the PYNQ shield jumper (JP1) set to 3.3V (as in the figure), all the pins operate at 3.3V. 
 
 IOPs
 ==============
-For overlays to be useful, they must provide sufficient functionality, while also providing flexibility to suit a wide range of applications. Flexibility in the overlay is provided through IO Processors (IOPs). 
+For overlays to be useful, they must provide sufficient functionality, while also providing flexibility to suit a wide range of applications. Flexibility in the base overlay is demonstrated through the use of IO Processors (IOPs). 
 
-An IO Processor is implemented in the FPGA fabric and connects to an external port on the board. There are two types of IOP: Pmod IOP and Arduino IOP. 
+An IO Processor is implemented in the programmable logic and connects to and controls an external port on the board. There are two types of IOP: Pmod IOP and Arduino IOP. 
 
-Each IOP contains a MicroBlaze processor and a dedicated memory block for the MicroBlaze instruction and data memory. This memory block is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area can be used for communication and data exchanges between the ARM processor and the IOP(s).
+Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and memory for the MicroBlaze instruction and data memory. The memory is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). e.g. a simple mailbox. 
 
-In the base overlay on the board, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are interface and functional blocks; timer, UART, IIC, SPI, GPIO, and configurable switch. IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals, and GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed internally to the required interface.
+In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required deditcated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
 
 Pmod IOP
 ------------------
@@ -136,12 +138,12 @@ As indicated in the diagram, the Pmod IOP has a MicroBlaze, a configurable switc
 * Timer
 
 
-Pmod IO Switch
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Pmod IOP configurable switch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The switch can be configured by writing to its configuration registers. 
+The MicroBlaze, inside the IOP, can conifigure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
 
-Each individual pins can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. This can be done from the MicroBlaze code. 
+For the Pmod IOP switch, each individual pin can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. 
 
 The following function, part of the Pmod IO switch driver, can be used to configure the switch. 
 
@@ -159,6 +161,13 @@ For example:
 .. code-block:: c
 
    config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,GPIO_4,GPIO_5,GPIO_6,GPIO_7);
+   
+This would connect a SPI interface:
+* Pin 1: SS
+* Pin 2: MOSI
+* Pin 4: SPICLK
+
+and the remaining pins to their corresponding GPIO (which could be left unused in the MicroBlaze application). 
 
 From Python all the constants and addresses for the IOP can be found in:
 
@@ -179,7 +188,7 @@ This code is automatically compiled into the Board Support Package (BSP). Any ap
 Arduino IOP
 ---------------------------
 
-The board has an Arduino interface. An Arduino IOP is available to control this interface. The Arduino IOP is similar to the PMOD IOP with multiple interface and functional units. 
+Similar to the Pmod IOP, an Arduino IOP is available to control the Arduino interface. The Arduino IOP is similar to the PMOD IOP, but has some additional internal peripherals (extra timers, an extra I2c, and SPI, a UART, and an XADC). The configurable switch is also different to the Pmod switch. 
 
 .. image:: ./images/arduino_iop.jpg
    :align: center
@@ -193,9 +202,11 @@ As indicated in the diagram, the Arduino IOP has a MicroBlaze, a configurable sw
 * 1x XADC
 * 1 Interrupt controller (32 channels)
    
-The interrupt controller can be connected to all the analog and digital pins, and each of the 6 timers, the I2Cs, the SPIs, the XADC, and UART. This means an external pin on the shield interface can trigger the interrupt controller, and the internal peripherals can also trigger an interrupt.  
+The interrupt controller can be connected to all the analog and digital pins, and each of the 6 timers, the I2Cs, the SPIs, the XADC, and UART. This means an external pin on the shield interface can trigger an interrupt. An internal peripheral can also trigger an interrupt.  
 
-Arduino shields have fixed possible configurations.  According to the Arduino specification, the analog pins can also be used as digital I/O. 
+Arduino shields have fixed possible configurations.  According to the Arduino specification, the analog pins can be used as analgo, or digital I/O. 
+
+Other peripherals can be connected as indicated in the table. 
 
 ==========   =========================
 Peripheral   Pins
@@ -211,17 +222,17 @@ Timer        D3 - D6 and D8 - D11
 
 For example, a shield with a UART and 5 Digital IO can connect the UART to pins D0, D1, and the Digital IO can be connected to pins D2 - D6.
 
-There is one limitation: The analog feature of the Arduino is not supported on Pynq-Z1.
+While there is support for analog inputs via the internal XADC, this only allows inputs of 0-1V. The Arduino supports 0-5V analog inputs which are not supported on the PYNQ-Z1.
 
 
-Arduino IO Switch
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Arduino IOP configurable Switch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The switch can be configured by writing to its configuration registers. 
 
 The dedicated SPI pins are always connected to one of the SPI controllers. 
 
-The analog and digital pins can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. This can be done from the MicroBlaze code. 
+The analog and digital pins can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers, similar to the Pmod switch.  
 
 The following function, part of the Arduino IO switch driver, can be used to configure the switch. 
 
@@ -266,7 +277,7 @@ For example, to connect the UART to D0 and D1, write D_UART to the configuration
 .. code-block:: c
 
 	config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO,
-			      D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+			      D_UART, D_UART, D_GPIO, D_GPIO, D_GPIO,
 			      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
 			      D_GPIO, D_GPIO, D_GPIO, D_GPIO);
 

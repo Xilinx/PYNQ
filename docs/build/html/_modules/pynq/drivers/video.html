@@ -95,7 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../16_references.html">Useful Reference Links</a></li>
@@ -357,13 +357,12 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; hdmi = HDMI(&#39;in&#39;)</span>
-<span class="sd">    </span>
 <span class="sd">    &gt;&gt;&gt; hdmi = HDMI(&#39;out&#39;)</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    direction : str</span>
-<span class="sd">        Can be &#39;in&#39; for HDMI IN or &#39;out&#39; for HDMI OUT.</span>
+<span class="sd">        Can be &#39;in&#39; for HDMI to be input or &#39;out&#39; for HDMI to be output.</span>
 <span class="sd">    frame_buffer : _framebuffer</span>
 <span class="sd">        A frame buffer storing at most 3 frames.</span>
 <span class="sd">        </span>
@@ -381,7 +380,6 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        direction : str</span>
-<span class="sd">            Can be &#39;in&#39; for HDMI IN or &#39;out&#39; for HDMI OUT.</span>
 <span class="sd">        frame_buffer : _framebuffer, optional</span>
 <span class="sd">            A frame buffer storing at most 3 frames.</span>
 <span class="sd">            </span>
@@ -448,15 +446,10 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            </span>
 <span class="sd">            Users can use mode(new_mode) to change the resolution.</span>
 <span class="sd">            Specifically, with `new_mode` to be:</span>
-<span class="sd">            </span>
 <span class="sd">            0 : &#39;640x480@60Hz&#39;</span>
-<span class="sd">            </span>
 <span class="sd">            1 : &#39;800x600@60Hz&#39;</span>
-<span class="sd">            </span>
 <span class="sd">            2 : &#39;1280x720@60Hz&#39;</span>
-<span class="sd">            </span>
 <span class="sd">            3 : &#39;1280x1024@60Hz&#39;</span>
-<span class="sd">            </span>
 <span class="sd">            4 : &#39;1920x1080@60Hz&#39;           </span>
 <span class="sd">            </span>
 <span class="sd">            If `new_mode` is not specified, return the current mode.</span>
@@ -948,20 +941,17 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        object is called `frame`:</span>
 <span class="sd">        </span>
 <span class="sd">        &gt;&gt;&gt; frame[48,32]</span>
-<span class="sd">        </span>
 <span class="sd">        (128,64,12)</span>
 <span class="sd">        </span>
 <span class="sd">        Access the green component of pixel (48,32):</span>
-<span class="sd">        </span>
 <span class="sd">        &gt;&gt;&gt; frame[48,32][1]</span>
-<span class="sd">        </span>
 <span class="sd">        64</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        The original frame stores pixels as (b,g,r). Hence, to return a tuple </span>
-<span class="sd">        (r,g,b), we need to return (self.frame[offset+2], self.frame[offset+1],</span>
-<span class="sd">        self.frame[offset]).</span>
+<span class="sd">        The original frame stores pixels as (g,b,r). Hence, to return a tuple </span>
+<span class="sd">        (r,g,b), we need to return (self.frame[offset+2], self.frame[offset],</span>
+<span class="sd">        self.frame[offset+1]).</span>
 <span class="sd">            </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -978,8 +968,8 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
             <span class="n">offset</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">MAX_FRAME_WIDTH</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
             
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span>\
-                    <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span>\
+                    <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pixel is out of the frame range.&quot;</span><span class="p">)</span>
             
@@ -1003,7 +993,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        The original frame stores pixels as (b,g,r).</span>
+<span class="sd">        The original frame stores pixels as (g,b,r).</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1021,8 +1011,8 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
             <span class="n">offset</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">MAX_FRAME_WIDTH</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pixel is out of the frame range.&quot;</span><span class="p">)</span>
             
@@ -1061,10 +1051,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">npframe</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
-                <span class="n">reshape</span><span class="p">(</span><span class="mi">1080</span><span class="p">,</span><span class="mi">1920</span><span class="p">,</span><span class="mi">3</span><span class="p">)[:</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,:</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
+                    <span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span> 
         <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> \
-                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">npframe</span><span class="p">)))</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">frame</span><span class="p">)))</span>
         <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;JPEG&#39;</span><span class="p">)</span></div>
         
     <span class="nd">@staticmethod</span>
@@ -1091,11 +1082,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">npframe</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
-                <span class="n">reshape</span><span class="p">(</span><span class="mi">1080</span><span class="p">,</span><span class="mi">1920</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>\
-                <span class="p">[:</span><span class="n">height</span><span class="p">,:</span><span class="n">width</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
+                    <span class="n">reshape</span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span> 
         <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> \
-                    <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">npframe</span><span class="p">)))</span>
+                    <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">frame</span><span class="p">)))</span>
         <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;JPEG&#39;</span><span class="p">)</span></div></div>
         
 </pre></div>

@@ -85,7 +85,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#set-up-the-board">Set up the board</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#connect">Connect</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pynq-portal">Pynq Portal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jupyter-portal">Jupyter Portal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#problems">Problems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#contact">Contact</a></li>
 </ul>
@@ -103,7 +103,7 @@
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
@@ -275,8 +275,7 @@ div.nboutput  > :nth-child(2).stderr {
 <div><img alt="_images/pynqz1_quick_start.jpg" class="align-center" src="_images/pynqz1_quick_start.jpg" />
 </div></blockquote>
 <ul class="simple">
-<li>Insert your memory card and connect the USB (Micro-B) and Ethernet cables to the board</li>
-<li>Set the boot jumper to SD</li>
+<li>Set the boot jumper to SD, insert the Micro SD card into the board, and connect the USB cable (Micro-B), and Ethernet cable</li>
 <li>Connect the other end of Ethernet cable to your laptop or router, and the USB cable to your laptop or a powered USB port</li>
 <li>Power on the board, and wait ~30s for the board to boot</li>
 </ul>
@@ -284,21 +283,22 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="connect">
 <h2>Connect<a class="headerlink" href="#connect" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Open a browser and go to <a class="reference external" href="http://pynq:8080">http://pynq:8080</a> or <a class="reference external" href="http://192.168.2.99">http://192.168.2.99</a> *</li>
+<li>Open a browser and go to <a class="reference external" href="http://pynq:8080">http://pynq:8080</a> or <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a> *</li>
 </ul>
-<p>The password is <code class="docutils literal"><span class="pre">xilinx</span></code></p>
-<p>* If you are connecting directly to your laptop or PC, configure your ethernet adapter IP to be in the same range as the board e.g. 192.168.2.1</p>
+<p>The Jupyter password is <code class="docutils literal"><span class="pre">xilinx</span></code></p>
+<p>* If you are connecting directly to your laptop or PC, configure your Ethernet adapter IP address to be in the same range as the board e.g. 192.168.2.1</p>
 </div>
-<div class="section" id="pynq-portal">
-<h2>Pynq Portal<a class="headerlink" href="#pynq-portal" title="Permalink to this headline">¶</a></h2>
-<p>In the Pynq portal, click on the Welcome to Pynq notebook to get started.</p>
+<div class="section" id="jupyter-portal">
+<h2>Jupyter Portal<a class="headerlink" href="#jupyter-portal" title="Permalink to this headline">¶</a></h2>
+<p>In the Jupyter portal, click on the Welcome to Pynq notebook to get started.</p>
 <blockquote>
 <div><a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 455.25px; height: 450.0px;" /></a>
 </div></blockquote>
+<p>You can find some getting started, and example notebooks in the home area.</p>
 </div>
 <div class="section" id="problems">
 <h2>Problems<a class="headerlink" href="#problems" title="Permalink to this headline">¶</a></h2>
-<p>If you have problems setting up, or connecting to your board, see the <a class="reference external" href="2_getting_started.html">Getting started guide</a></p>
+<p>If you have problems setting up, or connecting to your board, see the full <a class="reference external" href="2_getting_started.html">Getting started guide</a> or check the <a class="reference external" href="14_faqs.html">Frequently asked questions</a></p>
 </div>
 <div class="section" id="contact">
 <h2>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
