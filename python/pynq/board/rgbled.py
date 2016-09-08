@@ -35,7 +35,8 @@ __email__ = "pynq_support@xilinx.com"
 from pynq import MMIO
 from pynq import PL
 
-RGBLEDS_XGPIO_OFFSET = 0x0
+RGBLEDS_XGPIO_OFFSET = 0
+RGBLEDS_START_INDEX  = 4
 
 """ Reference Color Values for RGB LED """
 RGB_CLEAR = 0
@@ -96,9 +97,9 @@ class RGBLED(object):
         if not color in range(8):
             raise ValueError("RGB values should be between 0 and 7.")
 
-        rgb_mask = 0x7 << ((self.index-4)*3)
+        rgb_mask = 0x7 << ((self.index-RGBLEDS_START_INDEX)*3)
         new_val = (RGBLED._rgbleds_val & ~rgb_mask) | \
-                  (color << ((self.index-4)*3))
+                  (color << ((self.index-RGBLEDS_START_INDEX)*3))
         self._set_rgbleds_value(new_val)
 
     def off(self):
@@ -113,7 +114,7 @@ class RGBLED(object):
         None
         
         """
-        rgb_mask = 0x7 << ((self.index-4)*3)
+        rgb_mask = 0x7 << ((self.index-RGBLEDS_START_INDEX)*3)
         new_val = RGBLED._rgbleds_val & ~rgb_mask
         self._set_rgbleds_value(new_val)
         
@@ -141,7 +142,7 @@ class RGBLED(object):
             The color value stored in the RGBLED.
             
         """
-        return (RGBLED._rgbleds_val >> ((self.index-4)*3)) & 0x7
+        return (RGBLED._rgbleds_val >> ((self.index-RGBLEDS_START_INDEX)*3)) & 0x7
         
     def _set_rgbleds_value(self, value):
         """Set the state of all RGBLEDs.
