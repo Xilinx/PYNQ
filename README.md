@@ -70,5 +70,5 @@ The pytests have to be run under root privilege:
 
 ```
 cd /usr/local/lib/python3.4/dist-packages/pynq
-sudo py.test –vsrw
+sudo py.test -vsrw
 ```
