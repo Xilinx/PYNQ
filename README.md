@@ -17,37 +17,41 @@ sudo /home/xilinx/scripts/hostname.sh A_UNIQUE_HOSTNAME
 
 ## Updating `pynq` using `update_pynq.sh`
 
-This is a recommended way to update the `pynq` package. The script will do the following:
+This is a recommended way to update the `pynq` package. The script usage can be checked using:
+```
+sudo ./update_pynq.sh -h
+```
+By default, The script will do the following:
 
-- Back up the existing package on board.
-- Git clone from the repository.
+- Update or clone Git repository in `/home/xilinx`.
+- Checkout the latest stable release in Repo.
 - Install the `pynq` package.
 - Copy board-specific files into the `pynq` package.
-- Copy the latest Jupyter notebooks into `/home/xilinx/jupyter_notebooks`.
-
-For the first step, the folders getting backed up include:
-
-- **docs**: the documentation files saved in `/home/xilinx/docs`.
-- **jupyter_notebooks**: the original Jupyter notebooks saved in `/home/xilinx/jupyter_notebooks`.
-- **root**: the scripts used during the boot sequence.
-- **scripts**: the scripts saved in `/home/xilinx/scripts`.
+- Copy the Jupyter notebooks into `/home/xilinx/jupyter_notebooks`.
+- Copy Documentation into home directory.
+- Update other useful scripts in `/home/xilinx/scripts` and itself before exiting.
 
 To run this script, first verify the `$BOARD` environment variable has been set correctly:
 ```
 echo $BOARD
 ```
 
-* If `$BOARD` is not set, add `export BOARD=Pynq-Z1` to `/home/xilinx/.profile`.
+* If `$BOARD` is not set, add `export BOARD=Pynq-Z1` to `/etc/environment`.
 Then either reboot the board, or run the following:
 
 	```
-	source /home/xilinx/.profile
+	source /etc/environment
 	```
 
 * If `$BOARD` has already been set, just run:
 	```
 	cd /home/xilinx/scripts
-	sudo update_pynq.sh
+	# To get latest stable git updates
+	sudo ./update_pynq.sh
+	# To get latest git updates
+	sudo ./update_pynq.sh -l (dev)
+	# To Build Documentation from sources (dev)
+	sudo ./update_pynq -d
 	```
 
 ## Updating `pynq` using `pip` 
