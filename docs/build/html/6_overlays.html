@@ -326,10 +326,11 @@ Multiple motor controllers and sensor controllers could be implemented in hardwa
 <h3>Pmod Connector<a class="headerlink" href="#pmod-connector" title="Permalink to this headline">¶</a></h3>
 <p>Each Pmod connector has 12 pins: 2 rows of 6 pins, where each row has 3.3V (VCC), ground (GND) and 4 data pins. This gives 8 data pins in total. Pmod data pins are labelled 0-7 in the image below. The pin number needs to be specified in Python when creating a new instance of a peripheral connected to a port.</p>
 <img alt="_images/pmod_closeup.JPG" class="align-center" src="_images/pmod_closeup.JPG" />
-<p>Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins. Pmod peripherals with only a single row of pins can be plugged into the top row or the bottom row of the connector.</p>
+<p>Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins.</p>
 <img alt="_images/pmod_pins.png" class="align-center" src="_images/pmod_pins.png" />
-<p>Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be aligned to the left of the connector (to align with VCC and GND).</p>
+<p>Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should usually be aligned to the left of the connector (to align with VCC and GND).</p>
 <img alt="_images/pmod_tmp2_8pin.JPG" src="_images/pmod_tmp2_8pin.JPG" />
+<p>Pmod peripherals with only a single row of pins can be physically plugged into the top row or the bottom row of a Pmod port (again, aligned to VCC/GND). However, if you are using an existing driver/overlay, you will need to check which pins/rows are supported for a given overlay, as not all options may be implemented. e.g. the Pmod ALS is currently only supported on the top row of a Pmod port, not the bottom row.</p>
 </div>
 <div class="section" id="pynq-grove-adapter">
 <h3>PYNQ Grove Adapter<a class="headerlink" href="#pynq-grove-adapter" title="Permalink to this headline">¶</a></h3>

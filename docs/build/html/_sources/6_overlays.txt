@@ -56,14 +56,16 @@ Each Pmod connector has 12 pins: 2 rows of 6 pins, where each row has 3.3V (VCC)
 .. image:: images/pmod_closeup.JPG
    :align: center
 
-Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins. Pmod peripherals with only a single row of pins can be plugged into the top row or the bottom row of the connector.
+Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins. 
 
 .. image:: images/pmod_pins.png
    :align: center
 
-Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should in general be aligned to the left of the connector (to align with VCC and GND).
+Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should usually be aligned to the left of the connector (to align with VCC and GND).
 
 .. image:: images/pmod_tmp2_8pin.JPG
+
+Pmod peripherals with only a single row of pins can be physically plugged into the top row or the bottom row of a Pmod port (again, aligned to VCC/GND). However, if you are using an existing driver/overlay, you will need to check which pins/rows are supported for a given overlay, as not all options may be implemented. e.g. the Pmod ALS is currently only supported on the top row of a Pmod port, not the bottom row.  
 
 PYNQ Grove Adapter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

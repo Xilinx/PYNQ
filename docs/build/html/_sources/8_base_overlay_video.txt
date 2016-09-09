@@ -46,12 +46,26 @@
    "metadata": {
     "collapsed": false
    },
-   "outputs": [],
+   "outputs": [
+    {
+     "ename": "ImportError",
+     "evalue": "/usr/lib/libsds_lib.so: invalid ELF header",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mImportError\u001b[0m                               Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-1-247d0cd029f2>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0mpynq\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mOverlay\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 2\u001b[0;31m \u001b[0;32mfrom\u001b[0m \u001b[0mpynq\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdrivers\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mvideo\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mHDMI\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      3\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0;31m# Download bitstream\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m \u001b[0mOverlay\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"base.bit\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdownload\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/usr/local/lib/python3.4/dist-packages/pynq/drivers/__init__.py\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m     33\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     34\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0;34m.\u001b[0m\u001b[0maudio\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mAudio\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 35\u001b[0;31m \u001b[0;32mfrom\u001b[0m \u001b[0;34m.\u001b[0m\u001b[0mvideo\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mHDMI\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     36\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0;34m.\u001b[0m\u001b[0mvideo\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mFrame\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     37\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0;34m.\u001b[0m\u001b[0mdma\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mDMA\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/usr/local/lib/python3.4/dist-packages/pynq/drivers/video.py\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m     36\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mnumpy\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     37\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0mPIL\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mImage\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 38\u001b[0;31m \u001b[0;32mfrom\u001b[0m \u001b[0;34m.\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0m_video\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     39\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     40\u001b[0m VDMA_DICT = {\n",
+      "\u001b[0;31mImportError\u001b[0m: /usr/lib/libsds_lib.so: invalid ELF header"
+     ]
+    }
+   ],
    "source": [
     "from pynq import Overlay\n",
     "from pynq.drivers.video import HDMI\n",
     "\n",
-    "# Download new bitstream with audiovideo IP\n",
+    "# Download bitstream\n",
     "Overlay(\"base.bit\").download()\n",
     "\n",
     "# Initialize HDMI as an input device\n",
@@ -280,7 +294,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "This will dump the frame as a python list _frame[height, width][rgb]_. Where rgb is a tuple (r,g,b). If you want to modify the green component of a pixel, you can do it as shown below. In the example, the top left quarter of the image will have the green component increased. "
+    "This will dump the frame as a python list _frame[height, width][bgr]_. Where bgr is a tuple (b,g,r). If you want to modify the green component of a pixel, you can do it as shown below. In the example, the top left quarter of the image will have the green component increased. "
    ]
   },
   {
@@ -305,11 +319,11 @@
    "source": [
     "for x in range(int(width/2)):\n",
     "    for y in range(int(height/2)):\n",
-    "        (red,green,blue) = frame[x,y]\n",
+    "        (blue,green,red) = frame[x,y]\n",
     "        green = green*2\n",
     "        if(green>255):\n",
     "            green = 255\n",
-    "        frame[x,y] = (red, green, blue)\n",
+    "        frame[x,y] = (blue, green, red)\n",
     "\n",
     "new_img_path = '/home/xilinx/jupyter_notebooks/Getting_Started/images/hdmi_in_frame1.jpg'\n",
     "frame.save_as_jpeg(new_img_path)\n",
@@ -640,4 +654,3 @@
  "nbformat": 4,
  "nbformat_minor": 1
 }
-

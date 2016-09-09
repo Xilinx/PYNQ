@@ -9,7 +9,7 @@ Verification
 This section documents the test infrastructure supplied with the `pynq` package. It is organized as follows:
 
 * *Running Tests* : describes how to run the pytest.
-* *Writing Tests* : explains how a user can write their own tests.
+* *Writing Tests* : explains how to write tests.
 * *Miscellaneous* : covers additional information relating to tests. 
 
 
@@ -19,11 +19,11 @@ Running Tests
 
 The *pynq* package provides tests for most python modules.
 
-To run all the tests together, we can directly run pytest in the Linux terminal. All the tests will be automatically collected in the current directory and all of its child directories.
+To run all the tests together, pytest can be run in a Linux terminal on the board. All the tests will be automatically collected in the current directory and child directories.
 
 .. note::  
 
-   The pytests have to be run under root privilege.
+   The pytests have to be run as root 
 
 .. code-block:: console
 
@@ -34,7 +34,7 @@ For a complete list of pytest options, please refer to `Usage and Invocations - 
 
 Collection Phase
 ----------------
-During this phase, the pytest will collect all the test modules in the current directory and all of its child directories. The users will be asked if a Pmod is connected, and to which port it is connected. 
+During this phase, the pytest will collect all the test modules in the current directory and all of its child directories. The user will be asked if a Pmod is connected, and to which port it is connected. 
 
 For example:
 
@@ -43,28 +43,28 @@ For example:
    Is LED8 attached to the board? ([yes]/no)>>> yes
    Type in the Pmod ID of the LED8 (1 ~ 2):
 
-For the answer to the first question, "yes", "YES", "Yes", "y", and "Y" are acceptable; the same applies for a "no" as an answer. Users can also directly press enter; this is equivalent to giving the "yes" answer.
+For the answer to the first question, "yes", "YES", "Yes", "y", and "Y" are acceptable; the same applies for "no" as an answer. You can also press *Enter*; this is equivalent to "yes".
 
-For the answer to the second question, since we have PMODA and PMODB on the board, 1 (for PMODA) and 2 (for PMODB) are acceptable answers.
+Type 1 (for PMODA) or 2 (for PMODB).
 
-If we answer "no" to the first question, the corresponding tests will be skipped during the testing phase.
+Answering "No" will skip the corresponding test(s) during the testing phase.
 
 Testing Phase
 -------------
-The test suite will guide the users through all the tests implemented in the pynq package. As part of the tests, the user will be prompted for confirmation the tests have passed, for example:
+The test suite will guide the user through all the tests implemented in the pynq package. As part of the tests, the user will be prompted for confirmation that the tests have passed, for example:
 
 .. code-block:: console
 
    test_led0 ...
    Onboard LED 0 on? ([yes]/no)>>>
 
-Again, "yes", "YES", "Yes", "y", and "Y" are acceptable; the same applies for a "no" as an answer. Users can also directly press enter; this is equivalent to giving the "yes" answer.
+Again press "Enter", or type "yes", "no" etc.
 
 At the end of the testing phase, a summary will be given to show users how many tests are passed / skipped / failed.
 
 Writing Tests
 =============
-This section follows the guide available on `Usages and Examples - Pytest <https://pytest.org/latest/example/>`_. The users can write a test class with assertions on inputs and outputs to deliver automatic testing. The names of the test modules *must* start with `test_`; all the methods for tests in any test module *must* begin with `test_` as well. One reason to enforce this is to ensure the tests will be collected properly. More information can be found on `Full pytest documentation <https://pytest.org/latest/contents.html>`_.
+This section follows the guide available on `Pytest Usages and Examples <https://pytest.org/latest/example/>`_. You can write a test class with assertions on inputs and outputs to allow automatic testing. The names of the test modules *must* start with `test_`; all the methods for tests in any test module *must* also begin with `test_`. One reason to enforce this is to ensure the tests will be collected properly. See the `Full pytest documentation <https://pytest.org/latest/contents.html>`_ for more details.
 
 Step 1
 ------
@@ -76,7 +76,7 @@ First of all, the pytest package has to be imported:
    
 Step 2
 ------
-Then users can specify decorators right above the methods. For example, users can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More decorators can be found on `Marking test functions with attributes - Pytest <https://pytest.org/latest/mark.html>`_.
+Decorators can be specified directly above the methods. For example, you can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More information on decorators can be found in `Marking test functions with attributes - Pytest <https://pytest.org/latest/mark.html>`_.
 
 .. code-block:: python
 
@@ -85,7 +85,7 @@ Then users can specify decorators right above the methods. For example, users ca
 
 Step 3
 ------
-Right below the decorators, users can write some assertions/tests. Below is an example taken from `test_pmod_dac_adc.py`:
+Directly below decorators, you can write some assertions/tests. See the example below:
 
 .. code-block:: python
 
@@ -120,7 +120,7 @@ Right below the decorators, users can write some assertions/tests. Below is an e
         assert round(abs(value-adc.read()[0]),2)<max(0.1, 0.1*value), \
                 'Read value != write value.'
 
-Note the `assert` statements specify the desired condition, and raise exceptions whenever that condition is not met. A customized exception message can be attached at the end of the `assert` methods, as shown above in the example.
+Note the `assert` statements specify the desired condition, and raise exceptions whenever that condition is not met. A customized exception message can be attached at the end of the `assert` methods, as shown in the example above.
 
 Miscellaneous Test Setup
 ========================
@@ -128,7 +128,7 @@ Miscellaneous Test Setup
 ADC Jumper
 ----------
 
-In our tests and demos, we have used a Pmod ADC. In order to make it work properly with the testing environment, users have to set a small jumper on the Pmod ADC as following. This setting will allow the ADC to use the correct reference voltage.
+In our tests and demos, we have used a Pmod ADC. In order to make it work properly with the testing environment, you need to set a jumper **JP1** to **REF** on the Pmod ADC. This will allow the ADC to use the correct reference voltage.
  
 .. image:: ./images/adc_jumper.jpeg
    :width: 200
@@ -148,7 +148,7 @@ There are marks on the connectors at each end of the cable to indicate the orien
 
 .. note::  
 
-   Since users must avoid shorting the VCC and GND, it is good practice to align the pins with the dot marks to VCC of the Pmod interfaces. A connection shorting the sources is strictly prohibited.
+   You must not short VCC and GND as it may damage the board. It is good practice to align the pins with the dot marks to VCC of the Pmod interfaces. 
    
 .. note::  
    For testing, there is only one connection type (mapping) allowed for each cable type. Otherwise VCC and GND could be shorted, damaging the board.

@@ -369,9 +369,13 @@ div.nboutput  > :nth-child(2).stderr {
 <dt id="pynq.gpio.GPIO.get_gpio_base">
 <em class="property">static </em><code class="descname">get_gpio_base</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/gpio.html#GPIO.get_gpio_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.gpio.GPIO.get_gpio_base" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method returns the GPIO base using Linux&#8217;s GPIO Sysfs API.</p>
-<p>This is a static method. To use:
-&gt;&gt;&gt; from pynq import GPIO
-&gt;&gt;&gt; gpio = GPIO.get_gpio_base()</p>
+<p>This is a static method. To use:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">GPIO</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gpio</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">get_gpio_base</span><span class="p">()</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">For path &#8216;/sys/class/gpio/gpiochip138/&#8217;, this method returns 138.</p>
@@ -447,7 +451,7 @@ Then the Linux GPIO pin would be (138 + 54 + 0) = 192.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -464,21 +468,27 @@ Then the Linux GPIO pin would be (138 + 54 + 0) = 192.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class exposes API for MMIO read and write.</p>
 <dl class="attribute">
-<dt id="pynq.mmio.MMIO.base_addr">
-<code class="descname">base_addr</code><a class="headerlink" href="#pynq.mmio.MMIO.base_addr" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; The base address of an address range, page aligned.</p>
+<dt id="pynq.mmio.MMIO.virt_base">
+<code class="descname">virt_base</code><a class="headerlink" href="#pynq.mmio.MMIO.virt_base" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The virtual base address, page aligned.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynq.mmio.MMIO.base_addr_offset">
-<code class="descname">base_addr_offset</code><a class="headerlink" href="#pynq.mmio.MMIO.base_addr_offset" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; The base address offset from page aligned base_addr.</p>
+<dt id="pynq.mmio.MMIO.virt_offset">
+<code class="descname">virt_offset</code><a class="headerlink" href="#pynq.mmio.MMIO.virt_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The base address offset from page aligned base address.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.mmio.MMIO.baes">
+<code class="descname">baes</code><a class="headerlink" href="#pynq.mmio.MMIO.baes" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The base address, not necessarily page aligned.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynq.mmio.MMIO.length">
 <code class="descname">length</code><a class="headerlink" href="#pynq.mmio.MMIO.length" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; The length in bytes, page aligned.</p>
+<dd><p><em>int</em> &#8211; The length in bytes of the address range.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -534,7 +544,7 @@ Then the Linux GPIO pin would be (138 + 54 + 0) = 192.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
@@ -580,7 +590,7 @@ year, month, day, hour, minute, second, microsecond</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -649,7 +659,7 @@ be reset automatically.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -847,7 +857,7 @@ be stored as a state information in the IP dictionary.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
@@ -871,7 +881,7 @@ it also resets the IP and GPIO dictionaries in the PL.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -895,7 +905,7 @@ dictionary in the PL.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -922,7 +932,7 @@ loaded, it also resets the IP dictionary in the PL.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1180,7 +1190,7 @@ name will be stored as a state information in the IP dictionary.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
@@ -1199,7 +1209,7 @@ name will be stored as a state information in the IP dictionary.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1222,7 +1232,7 @@ the state information stored in the GPIO dictionary.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1245,7 +1255,7 @@ the state information stored in the IP dictionary.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynq.pl.PL_Meta.None" title="pynq.pl.PL_Meta.None">None</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -1260,11 +1270,6 @@ the state information stored in the IP dictionary.</p>
 <p>This method is the meta class for the PL.</p>
 <p>This is not a class for users. Hence there is no attribute or method
 exposed to users.</p>
-<dl class="attribute">
-<dt id="pynq.pl.PL_Meta.None">
-<code class="descname">None</code><a class="headerlink" href="#pynq.pl.PL_Meta.None" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="attribute">
 <dt id="pynq.pl.PL_Meta.bitfile_name">
 <code class="descname">bitfile_name</code><a class="headerlink" href="#pynq.pl.PL_Meta.bitfile_name" title="Permalink to this definition">¶</a></dt>

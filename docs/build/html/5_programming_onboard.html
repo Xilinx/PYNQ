@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Programming PYNQ-Z1&#8217;s onboard peripherals</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#LEDs,-switches-and-buttons">LEDs, switches and buttons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Peripheral-Example">Peripheral Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Controlling-a-single-LED">Controlling a single LED</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Example:-Controlling-all-the-LEDs,-switches-and-buttons">Example: Controlling all the LEDs, switches and buttons</a></li>
 </ul>
@@ -275,20 +276,40 @@ div.nboutput  > :nth-child(2).stderr {
 <li>2 RGB LEDs (LD5-LD4)</li>
 <li>2 Slide-switches (SW1-SW0)</li>
 </ul>
-<p>All of these peripherals are connected to the PYNQ-Z1’s programmable
-logic. They are highlighted in the image of the PYNQ-Z1 below.</p>
+<p>The peripherals are highlighted in the image below.</p>
 <div class="figure">
 <img alt="" src="_images/pynqz1_board_io.JPG" />
 </div>
-<p>Note that there are additional push-buttons and LEDs on the board, but
-these devices are not user accessible. They are not highlighted in the
-figure and we will ignore them for now.</p>
-<p>Each of the highlighted devices can be controlled directly from Python.
-To demonstrate this, we first import the LED, Switch and Button classes
-from the module pynq.board</p>
+<p>All of these peripherals are connected to programmable logic. This means
+controllers must be implemented in an overlay before these peripherals
+can be used. The base overlay contains controllers for all of these
+peripherals.</p>
+<p>Note that there are additional push-buttons and LEDs on the board (e.g.
+power LED, reset button). They are not user accessible, and are not
+highlighted in the figure.</p>
+</div>
+<div class="section" id="Peripheral-Example">
+<h2>Peripheral Example<a class="headerlink" href="#Peripheral-Example" title="Permalink to this headline">¶</a></h2>
+<p>Using the base overlay, each of the highlighted devices can be
+controlled using their corresponding Pynq classes.</p>
+<p>First download the base overlay. (The base overlay is downloaded by
+default at boot time. This step can be skipped if you are sure another
+overlay has not been loaded since the board was powered on.)</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 <span></span>In [1]:
+</pre></div>
+</div>
+<div class="highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span> <span class="c1"># Ensure base overlay is loaded</span>
+</pre></div>
+</div>
+</div>
+<p>Import the LED, Switch and Button classes from the module pynq.board</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+<span></span>In [2]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -304,7 +325,7 @@ methods to manipulate the corresponding peripherals. Let’s start by
 instantiating a single LED and turning it on and off.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [2]:
+<span></span>In [3]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -314,7 +335,7 @@ instantiating a single LED and turning it on and off.</p>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -325,7 +346,7 @@ instantiating a single LED and turning it on and off.</p>
 <p>Check the board and confirm the LD0 is ON</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [4]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -337,7 +358,7 @@ instantiating a single LED and turning it on and off.</p>
 flashing.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [6]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -358,7 +379,7 @@ flashing.</p>
 buttons.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [7]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -386,7 +407,7 @@ a helper function to do that. It either clears the LEDs whose numbers we
 list in the parameter, or by default clears LD3-LD0.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
+<span></span>In [8]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -405,7 +426,7 @@ on position, the corresponding led is turned on. You can execute this
 cell a few times, changing the position of the switches on the board.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [8]:
+<span></span>In [9]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -426,7 +447,7 @@ pushbutton is pressed for so long as SW0 is switched on. To end the
 program, slide SW0 to the off position.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [9]:
+<span></span>In [10]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>

@@ -296,7 +296,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">MMIO</span>
 <span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">PL</span>
 
-<span class="n">RGBLEDS_XGPIO_OFFSET</span> <span class="o">=</span> <span class="mh">0x0</span>
+<span class="n">RGBLEDS_XGPIO_OFFSET</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">RGBLEDS_START_INDEX</span>  <span class="o">=</span> <span class="mi">4</span>
 
 <span class="sd">&quot;&quot;&quot; Reference Color Values for RGB LED &quot;&quot;&quot;</span>
 <span class="n">RGB_CLEAR</span> <span class="o">=</span> <span class="mi">0</span>
@@ -357,9 +358,9 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="ow">not</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RGB values should be between 0 and 7.&quot;</span><span class="p">)</span>
 
-        <span class="n">rgb_mask</span> <span class="o">=</span> <span class="mh">0x7</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">rgb_mask</span> <span class="o">=</span> <span class="mh">0x7</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="n">RGBLEDS_START_INDEX</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">new_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">RGBLED</span><span class="o">.</span><span class="n">_rgbleds_val</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">rgb_mask</span><span class="p">)</span> <span class="o">|</span> \
-                  <span class="p">(</span><span class="n">color</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">))</span>
+                  <span class="p">(</span><span class="n">color</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="n">RGBLEDS_START_INDEX</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_rgbleds_value</span><span class="p">(</span><span class="n">new_val</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RGBLED.off"><a class="viewcode-back" href="../../../pynq.board.html#pynq.board.rgbled.RGBLED.off">[docs]</a>    <span class="k">def</span> <span class="nf">off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -374,7 +375,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rgb_mask</span> <span class="o">=</span> <span class="mh">0x7</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">rgb_mask</span> <span class="o">=</span> <span class="mh">0x7</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="n">RGBLEDS_START_INDEX</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">new_val</span> <span class="o">=</span> <span class="n">RGBLED</span><span class="o">.</span><span class="n">_rgbleds_val</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">rgb_mask</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_rgbleds_value</span><span class="p">(</span><span class="n">new_val</span><span class="p">)</span></div>
         
@@ -402,7 +403,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            The color value stored in the RGBLED.</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">RGBLED</span><span class="o">.</span><span class="n">_rgbleds_val</span> <span class="o">&gt;&gt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mh">0x7</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">RGBLED</span><span class="o">.</span><span class="n">_rgbleds_val</span> <span class="o">&gt;&gt;</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="n">RGBLEDS_START_INDEX</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mh">0x7</span></div>
         
     <span class="k">def</span> <span class="nf">_set_rgbleds_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the state of all RGBLEDs.</span>

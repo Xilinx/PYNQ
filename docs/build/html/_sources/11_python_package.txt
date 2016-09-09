@@ -1,26 +1,25 @@
 The ``Pynq`` (Python Productivity for Zynq) Package
 ======================================================
 
-This section describes the ``pynq`` (**Py**\thon Productivity for **Zy**\nq) package - specifically the preloaded SDCard contents and how the SDCard is tied to the PYNQ-Z1 platform. 
+This section describes the ``pynq`` package for the PYNQ-Z1 platform. 
 
-After powering the board with the SDCard in place, the board will boot into Linux. Python3 is installed with Jupyter Notebook support. The Python package `pynq` allows users to access FPGA fabric overlays from Python.   
+After powering the board with the Micro SD card in place, the board will boot into Linux. Python3 is installed with Jupyter Notebook support. The Python package `pynq` allows users to access  overlays from Python.   
 
 Some preinstalled features of this Linux image include:
 
-* Networking is enabled and Ethernet port will attempt to use DHCP on boot.  If DHCP fails, the board will fallback to a static IP of 192.168.2.99.
-* Samba is enabled and can be accessed from a Windows machine by navigating or mapping to ``\\pynq\xilinx``.  The ``username:password`` is ``xilinx:xilinx``.  You can browse to the directory in a similar way using other operating systems. The Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
+* Networking is enabled, and the board will attempt to get an IP address from a DHCP server on the network.  If a DHCP server is not found, the board will fallback and assign itself a static IP of 192.168.2.99 by default. This default IP address can be changed. 
+* Samba, a file sharing service, is enabled. This means that the linux home area can be accessed from a Windows machine by navigating to or mapping ``\\pynq\xilinx`` (Windows) or ``smb:pynq/xilinx`` (Mac/Linux) .  The samba ``username:password`` is ``xilinx:xilinx``.  Files can be copied to and from the board, and the Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
 * A Jupyter Notebook server is initialized on port 9090 and automatically starts after boot.
 * The base overlay is preloaded in the FPGA fabric. 
 
 
-
 Python ``pynq`` Package Structure
 ----------------------------------
-All Pynq supplied python code is preloaded in the pynq Python package and is accessible at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/python/pynq``.
+All Pynq code is contained in the *pynq* Python package and is can be found on the board at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/python/pynq``.
 
-Pynq contains four main subpackages: ``board``, ``iop``, ``drivers``, and ``bitstream``; a ``tests`` subpackage is for testing the user subpackages.  Each of the five subpackages are described below.
+Pynq contains four main subpackages: ``board``, ``iop``, ``drivers``, and ``bitstream``; a ``tests`` subpackage is available for testing the user subpackages.  Each of the five subpackages are described below.
 
-To learn more about Python package structure, please refer to the `official python documentation <https://docs.python.org/3.5/tutorial/modules.html#packages>`_.
+To learn more about Python package structures, please refer to the `official python documentation <https://docs.python.org/3.5/tutorial/modules.html#packages>`_.
 
 
 
@@ -31,18 +30,23 @@ This folder contains libraries or python packages for peripherals available on t
 .. code-block:: python
 
    from pynq.board import LED
-   LED(0).on()
+   led = LED(0)
+   led.on()
 
 
 iop
 -----
-This folder contains libraries for the following Pmod devices ``OLED``, ``TMP2``, ``DPOT``, ``PWM``, ``TIMER``, ``ALS`` ``LED8``, ``ADC``, and ``DAC``.  
+This folder contains libraries for the following Pmod devices ``Pmod_ADC``, ``Pmod_ALS``, ``Pmod_DAC``, `Pmod_DPOT``,  ``Pmod_LED8``, ``Pmod_OLED``, ``Pmod_PWM``,  ``Pmod_TIMER``, and ``Pmod_TMP2``.
 
-The following Grove peripherals are also supported: ``Grove ADC``, ``Grove PIR``, ``Grove OLED``, ``Grove Buzzer``, ``Grove Light Sensor``, ``Grove LED BAR``, ``Grove Temperature Sensor``. In addition, ``Pmodio``, ``PmodIic`` and ``DevMode`` are developer classes allowing direct low level access to I/O controllers.
+The following Grove peripherals are also supported: ``Grove ADC``, ``Grove Buzzer``, ``Grove IMU``, ``Grove LED bar``, ``Grove Light Sensor``, ``Grove OLED``,  ``Grove PIR``,  ``Grove Temperature Sensor``. 
 
-There is also an additional module named ``_iop.py``; this module acts like a wrapper to allow all the Pmod classes to interface with the MicroBlaze inside an IOP.  The ``_IOP`` class prevents multiple device instantiations on the same Pmod at the same time. (i.e. This prevents the user assigning more devices to a port than can be physically connected.)  ``_IOP`` uses the Overlay class to track each IOP's status. 
+``Arduino_Analog``, and ``Arduino_IO`` are provided for interfacing to the arduino interface. 
 
-.. note:: ``_iop.py`` is an internal module, not intended for the end user. In Python, there is no concept of _public_ and _private_; we use ``_`` as a prefix to indicate internal definitions, variables, functions, and packages.
+In addition, ``Pmod_IO``, ``Pmod_IIC`` and ``DevMode`` are developer classes allowing direct low level access to I/O controllers.
+
+There is also an additional module named ``_iop.py``; this module acts like a wrapper to allow all the Pmod classes to interface with the MicroBlaze inside an IOP.  The ``_IOP`` class prevents multiple device instantiations on the same Pmod at the same time. (i.e. This prevents the user assigning more devices to a port than can be physically connected.)  ``_IOP`` uses the overlay class to track each IOP's status. 
+
+.. note:: ``_iop.py`` is an internal module, not intended to be instantiated directly use. In Python, there is no concept of _public_ and _private_; we use ``_`` as a prefix to indicate internal definitions, variables, functions, and packages.
 
 
 For example, the following code will instantiate and write to the Pmod_OLED attached on PMODA.
@@ -63,7 +67,7 @@ For example, the following code will instantiate and write to the Pmod_OLED atta
 bitstream
 -----------
 
-This folder contains the base.bit and the base.tcl. The abse.bit is the precompiled overlay and base.tcl provides the information of the hardware it is built from.
+This folder contains the base.bit and the base.tcl. The base.bit is the precompiled overlay and base.tcl provides the information of the hardware it is built from.
 
 
 drivers

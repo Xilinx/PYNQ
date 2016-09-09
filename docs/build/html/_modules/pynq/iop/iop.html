@@ -449,7 +449,7 @@ div.nboutput  > :nth-child(2).stderr {
                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iop_id</span><span class="p">))</span>
                             
     <span class="n">gpio_names</span> <span class="o">=</span> <span class="n">PL</span><span class="o">.</span><span class="n">get_gpio_names</span><span class="p">()</span>
-    <span class="n">rst_pin_name</span> <span class="o">=</span> <span class="s2">&quot;mb_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">iop_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_reset/Din&quot;</span>
+    <span class="n">rst_pin_name</span> <span class="o">=</span> <span class="s2">&quot;mb_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">iop_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_reset&quot;</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">rst_pin_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gpio_names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No such GPIO pin for IOP {}.&quot;</span>
                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iop_id</span><span class="p">))</span>

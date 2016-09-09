@@ -97,8 +97,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#existing-overlays">Existing Overlays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#loading-overlays">Loading Overlays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-new-overlays-with-mmio">Using new overlays with MMIO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#using-new-overlays-with-gpio">Using new overlays with GPIO</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#new-overlay-example">New overlay example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-new-overlays-with-gpio">Using new overlays with GPIO</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
@@ -300,7 +300,7 @@ div.nboutput  > :nth-child(2).stderr {
 <h2>Using new overlays with MMIO<a class="headerlink" href="#using-new-overlays-with-mmio" title="Permalink to this headline">¶</a></h2>
 <p>Once a new overlay has been created, the overlay needs to be integrated into the Pynq environment.  It is recommended to use an existing Vivado <em>Overlay project</em> as a starting point for a new overlay. This will ensure the settings for the Zynq PS, and the existing PS/PL interfaces are used in the new project.</p>
 <p>As with any application running on Zynq, the interface between the software and hardware is via the Zynq memory map.</p>
-<p>An overlay can have many addressable IPs. These addressable IPs can be accessed by the ARM processor using the memory map. To find the addressable IPs of a specific overlay (e.g. <cite>base.bit</cite>), users can do:</p>
+<p>To find the addressable IPs of a specific overlay (e.g. <cite>base.bit</cite>), users can do:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
 <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ip_dict</span>
 </pre></div>
@@ -337,32 +337,36 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <p>In the example above, any accesses outside the address range 0x10000 (65535 bytes) will cause an error. When creating the python driver for a new hardware function, the MMIO can be wrapped inside a Python module.</p>
 </div>
-<div class="section" id="using-new-overlays-with-gpio">
-<h2>Using new overlays with GPIO<a class="headerlink" href="#using-new-overlays-with-gpio" title="Permalink to this headline">¶</a></h2>
-<p>The control interface between the ARM processor and FPGA fabric is via the Zynq GPIO. The information about a GPIO is kept in the GPIO dictionary of an overlay.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gpio_dict</span>
-</pre></div>
-</div>
-<p>An example of the entry in a GPIO dictionary can be:</p>
-<blockquote>
-<div><code class="docutils literal"><span class="pre">'mb_1_reset/Din':</span> <span class="pre">[0,</span> <span class="pre">None]</span></code></div></blockquote>
-<p>The key of the entry is the GPIO instance name; all the GPIO instance names are parsed from the <cite>*.tcl</cite> file (e.g. <cite>base.tcl</cite>) in the GPIO connection section. The value of the entry is a list of 2 items:</p>
-<blockquote>
-<div><ul class="simple">
-<li>The first item shows the user index of the GPIO.</li>
-<li>The second item records the state associated with the GPIO. It is <cite>None</cite> by default, but can be used flexibly by the users.</li>
-</ul>
-</div></blockquote>
-<p>Similarly, to check the GPIO currently in the FPGA fabric:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">PL</span>
-<span class="n">PL</span><span class="o">.</span><span class="n">gpio_dict</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="new-overlay-example">
 <h2>New overlay example<a class="headerlink" href="#new-overlay-example" title="Permalink to this headline">¶</a></h2>
 <p>An example notebook <code class="docutils literal"><span class="pre">overlay_integration.ipynb</span></code> is available in the <em>Examples</em> folder, showing how to write Python to interface to an overlay.</p>
+</div>
+<div class="section" id="using-new-overlays-with-gpio">
+<h2>Using new overlays with GPIO<a class="headerlink" href="#using-new-overlays-with-gpio" title="Permalink to this headline">¶</a></h2>
+<p>GPIO between the the Zynq PS and PL can be used by Python code as a control interface to overlays.  The information about a GPIO is kept in the GPIO dictionary of an overlay.</p>
+<p>The following code can be used to get the dictionary for a bitstream:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
+<span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span>
+<span class="n">ol</span><span class="o">.</span><span class="n">gpio_dict</span>
+</pre></div>
+</div>
+<p>A GPIO dictionary entry is a key, value pair, where <em>value</em> is a list of two items. An example of the entry in a GPIO dictionary:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">'mb_1_reset/Din':</span> <span class="pre">[0,</span> <span class="pre">None]</span></code></div></blockquote>
+<p>The key is the GPIO instance name (<em>mb_1_reset/Din</em>). GPIO instance names are read and parsed from the Vivado <cite>*.tcl</cite> file (e.g. <cite>base.tcl</cite>).</p>
+<p>The <em>value</em> is a list of 2 items:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The first item shows the index of the GPIO (<em>0</em>).</li>
+<li>The second item (<em>None</em>) shows the state of the GPIO. It is <cite>None</cite> by default, but can be user defined.</li>
+</ul>
+</div></blockquote>
+<p>The following code can be used to get the dictionary for GPIO currently in the FPGA fabric:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">PL</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">PL</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">gpio_dict</span>
+</pre></div>
+</div>
 </div>
 </div>
 

@@ -308,8 +308,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="k">def</span> <span class="nf">_get_tcl_name</span><span class="p">(</span><span class="n">bitfile_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This method returns the name of the tcl file.</span>
 <span class="sd">    </span>
-<span class="sd">    For example, the input &quot;/home/xilinx/src/pynq/bitstream/base.bit&quot; will lead</span>
-<span class="sd">    to the result &quot;/home/xilinx/src/pynq/bitstream/base.tcl&quot;.</span>
+<span class="sd">    For example, the input &quot;/home/xilinx/src/pynq/bitstream/base.bit&quot; will </span>
+<span class="sd">    lead to the result &quot;/home/xilinx/src/pynq/bitstream/base.tcl&quot;.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -381,18 +381,33 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        The dictionary storing the GPIO user indices, starting from 0.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pattern1</span> <span class="o">=</span> <span class="s1">&#39;connect_bd_net -net processing_system7_0_GPIO_O&#39;</span>
-    <span class="n">pattern2</span> <span class="o">=</span> <span class="s1">&#39;connect_bd_net -net ps7_GPIO_O&#39;</span>
+    <span class="n">pat1</span> <span class="o">=</span> <span class="s1">&#39;connect_bd_net -net processing_system7_0_GPIO_O&#39;</span>
+    <span class="n">pat2</span> <span class="o">=</span> <span class="s1">&#39;connect_bd_net -net ps7_GPIO_O&#39;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">gpio_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">pattern1</span> <span class="ow">in</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">pattern2</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
-                <span class="n">gpio_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;\[get_bd_pins (.+?)\]&#39;</span><span class="p">,</span>\
+            <span class="k">if</span> <span class="p">(</span><span class="n">pat1</span> <span class="ow">in</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">pat2</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">gpio_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;\[get_bd_pins (.+?)/Din\]&#39;</span><span class="p">,</span>\
                                         <span class="n">line</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-                                        
+    
+    <span class="n">match1</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gpio_list</span><span class="p">)):</span>
-        <span class="n">result</span><span class="p">[</span><span class="n">gpio_list</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">gpio_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pat3</span> <span class="o">=</span> <span class="s2">&quot;set &quot;</span><span class="o">+</span> <span class="n">name</span>
+        <span class="n">pat4</span> <span class="o">=</span> <span class="s2">&quot;CONFIG.DIN_FROM {([0-9]+)}*&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tcl_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pat3</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">match1</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">match1</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">match2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pat4</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match2</span><span class="p">:</span>
+                        <span class="n">index</span> <span class="o">=</span> <span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">match1</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">break</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">gpio_list</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="bp">None</span><span class="p">]</span>
         
     <span class="k">return</span> <span class="n">result</span>
     
@@ -401,10 +416,6 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">    </span>
 <span class="sd">    This is not a class for users. Hence there is no attribute or method </span>
 <span class="sd">    exposed to users.</span>
-<span class="sd">    </span>
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    None</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@property</span>

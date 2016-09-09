@@ -504,7 +504,7 @@ div.nboutput  > :nth-child(2).stderr {
                 <span class="n">my</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">roll</span><span class="p">)</span> <span class="o">+</span> <span class="n">mz</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">roll</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span>
         <span class="n">tiltheading</span> <span class="o">=</span> <span class="mi">180</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">yh</span><span class="p">,</span> <span class="n">xh</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">yh</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="n">tiltheading</span> <span class="o">+=</span> <span class="mi">360</span><span class="p">;</span>
+            <span class="n">tiltheading</span> <span class="o">+=</span> <span class="mi">360</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;{0:.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tiltheading</span><span class="p">))</span></div>
         
 <div class="viewcode-block" id="Grove_IMU.get_temperature"><a class="viewcode-back" href="../../../pynq.iop.html#pynq.iop.grove_imu.Grove_IMU.get_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">get_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -578,10 +578,10 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pressure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pressure</span><span class="p">()</span>
-        <span class="n">A</span> <span class="o">=</span> <span class="n">pressure</span><span class="o">/</span><span class="mi">101325</span><span class="p">;</span>
-        <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mf">5.255</span><span class="p">;</span>
-        <span class="n">C</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="nb">pow</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">);</span>
-        <span class="n">altitude</span> <span class="o">=</span> <span class="mi">44300</span> <span class="o">*</span> <span class="n">C</span><span class="p">;</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">pressure</span><span class="o">/</span><span class="mi">101325</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mf">5.255</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="nb">pow</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
+        <span class="n">altitude</span> <span class="o">=</span> <span class="mi">44300</span> <span class="o">*</span> <span class="n">C</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;{0:.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">altitude</span><span class="p">))</span></div>
         
     <span class="k">def</span> <span class="nf">_reg2float</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>

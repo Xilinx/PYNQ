@@ -307,7 +307,7 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <div class="section" id="software-requirements">
 <h2>Software requirements<a class="headerlink" href="#software-requirements" title="Permalink to this headline">¶</a></h2>
-<p>A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq.  It should be noted that Pynq ships with precompiled IOP executables to support various peripherals (see <a class="reference external" href="modules.html">Pynq Modules</a>), but that full source code is available from the proejct GitHub. Xilinx software is only needed if you intend to build your own IOP applications/peripheral drivers.</p>
+<p>A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq and is available for free.  It should be noted that Pynq ships with precompiled IOP executables to support various peripherals (see <a class="reference external" href="modules.html">Pynq Modules</a>), but that full source code is available from the proejct GitHub. Xilinx software is only needed if you intend to build your own IOP applications/peripheral drivers. A free, fully fuctional, version of the Xilinx tools is available for Pynq if required (see the free <a class="reference external" href="https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html">Xilinx Vivado WebPack</a> for more details).</p>
 <p>The current Pynq release is built using Vivado and SDK 2016.1. it is recommended to use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado and SDK installation is only required to design new overlays.</p>
 <p><a class="reference external" href="http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html">Download Xilinx Vivado and SDK 2016.1</a></p>
 <p>You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.</p>
@@ -369,7 +369,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>We encourage the following naming convention for applications &lt;pmod|grove|arduino&gt;_&lt;peripheral&gt;</p>
 <p>You will need to update references from the old project name to your new project name in <code class="docutils literal"><span class="pre">&lt;project</span> <span class="pre">directory&gt;/Debug/makefile</span></code> and <code class="docutils literal"><span class="pre">&lt;project</span> <span class="pre">directory&gt;/Debug/src/subdir.mk</span></code></p>
 <p>If you want your project to build in the main Makefile, you should also append the .bin name of your project to the <em>MBBINS</em> variable at the top of the makefile.</p>
-<p>If you are using the SDK Gui, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.</p>
+<p>If you are using the SDK GUI, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.</p>
 <a class="reference internal image-reference" href="_images/sdk_import_bsp.JPG"><img alt="_images/sdk_import_bsp.JPG" class="align-center" src="_images/sdk_import_bsp.JPG" style="width: 642.0px; height: 438.75px;" /></a>
 <p>The SDK GUI can be used to build and debug your code.</p>
 </div>

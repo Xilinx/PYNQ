@@ -357,21 +357,22 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; hdmi = HDMI(&#39;in&#39;)</span>
+<span class="sd">    </span>
 <span class="sd">    &gt;&gt;&gt; hdmi = HDMI(&#39;out&#39;)</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    direction : str</span>
-<span class="sd">        Can be &#39;in&#39; for HDMI to be input or &#39;out&#39; for HDMI to be output.</span>
-<span class="sd">    frame_buffer : _framebuffer</span>
+<span class="sd">        Can be &#39;in&#39; for HDMI IN or &#39;out&#39; for HDMI OUT.</span>
+<span class="sd">    frame_list : _framebuffer</span>
 <span class="sd">        A frame buffer storing at most 3 frames.</span>
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">frame_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">init_timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">frame_list</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a new instance of an HDMI object. </span>
 <span class="sd">        </span>
 <span class="sd">        Assign the given frame buffer if specified, otherwise create a new </span>
-<span class="sd">        frame buffer. The parameter `frame_buffer` is optional.</span>
+<span class="sd">        frame buffer. The parameter `frame_list` is optional.</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
@@ -380,16 +381,28 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        direction : str</span>
-<span class="sd">        frame_buffer : _framebuffer, optional</span>
+<span class="sd">            Can be &#39;in&#39; for HDMI IN or &#39;out&#39; for HDMI OUT.</span>
+<span class="sd">        frame_list : _framebuffer, optional</span>
 <span class="sd">            A frame buffer storing at most 3 frames.</span>
+<span class="sd">        init_timeout : int</span>
+<span class="sd">            Timeout in seconds for HDMI IN initialization. Default timeout </span>
+<span class="sd">            is 10s. Timeout is ignored for HDMI OUT initialization.</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">direction</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;HDMI direction should be in or out.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frame_list</span><span class="p">,</span> <span class="n">_video</span><span class="o">.</span><span class="n">_frame</span><span class="p">))</span> <span class="ow">and</span> \
+        <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">frame_list</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;Parameter frame_list should be of type</span>
+<span class="s2">            _video._frame.&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_timeout</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">or</span> <span class="n">init_timeout</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;HDMI IN initialization timeout should be an </span>
+<span class="s2">            integer equal or greater than 1.&quot;&quot;&quot;</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">frame_buffer</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">frame_list</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_display</span> <span class="o">=</span> <span class="n">_video</span><span class="o">.</span><span class="n">_display</span><span class="p">(</span><span class="n">VDMA_DICT</span><span class="p">,</span>
                                                 <span class="n">VTC_DISPLAY_ADDR</span><span class="p">,</span>
                                                 <span class="n">DYN_CLK_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -397,9 +410,9 @@ div.nboutput  > :nth-child(2).stderr {
                 <span class="bp">self</span><span class="o">.</span><span class="n">_display</span> <span class="o">=</span> <span class="n">_video</span><span class="o">.</span><span class="n">_display</span><span class="p">(</span><span class="n">VDMA_DICT</span><span class="p">,</span>
                                                 <span class="n">VTC_DISPLAY_ADDR</span><span class="p">,</span>
                                                 <span class="n">DYN_CLK_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
-                                                <span class="n">frame_buffer</span><span class="p">)</span>
+                                                <span class="n">frame_list</span><span class="p">)</span>
                                                 
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame_buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display</span><span class="o">.</span><span class="n">framebuffer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display</span><span class="o">.</span><span class="n">framebuffer</span>
             
             <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display</span><span class="o">.</span><span class="n">start</span>
             <span class="sd">&quot;&quot;&quot;Start the video controller.</span>
@@ -446,11 +459,16 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            </span>
 <span class="sd">            Users can use mode(new_mode) to change the resolution.</span>
 <span class="sd">            Specifically, with `new_mode` to be:</span>
+<span class="sd">            </span>
 <span class="sd">            0 : &#39;640x480@60Hz&#39;</span>
+<span class="sd">            </span>
 <span class="sd">            1 : &#39;800x600@60Hz&#39;</span>
+<span class="sd">            </span>
 <span class="sd">            2 : &#39;1280x720@60Hz&#39;</span>
+<span class="sd">            </span>
 <span class="sd">            3 : &#39;1280x1024@60Hz&#39;</span>
-<span class="sd">            4 : &#39;1920x1080@60Hz&#39;           </span>
+<span class="sd">            </span>
+<span class="sd">            4 : &#39;1920x1080@60Hz&#39;</span>
 <span class="sd">            </span>
 <span class="sd">            If `new_mode` is not specified, return the current mode.</span>
 <span class="sd">            </span>
@@ -616,17 +634,19 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            &quot;&quot;&quot;</span>
             
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">frame_buffer</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">frame_list</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span> <span class="o">=</span> <span class="n">_video</span><span class="o">.</span><span class="n">_capture</span><span class="p">(</span><span class="n">VDMA_DICT</span><span class="p">,</span>
                                                 <span class="n">GPIO_DICT</span><span class="p">,</span>
-                                                <span class="n">VTC_CAPTURE_ADDR</span><span class="p">)</span>
+                                                <span class="n">VTC_CAPTURE_ADDR</span><span class="p">,</span>
+                                                <span class="n">init_timeout</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span> <span class="o">=</span> <span class="n">_video</span><span class="o">.</span><span class="n">_capture</span><span class="p">(</span><span class="n">VDMA_DICT</span><span class="p">,</span>
                                                 <span class="n">GPIO_DICT</span><span class="p">,</span>
                                                 <span class="n">VTC_CAPTURE_ADDR</span><span class="p">,</span>
-                                                <span class="n">frame_buffer</span><span class="p">)</span>
+                                                <span class="n">init_timeout</span><span class="p">,</span>
+                                                <span class="n">frame_list</span><span class="p">)</span>
                                                 
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame_buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span><span class="o">.</span><span class="n">framebuffer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span><span class="o">.</span><span class="n">framebuffer</span>
                   
             <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span><span class="o">.</span><span class="n">stop</span>
             <span class="sd">&quot;&quot;&quot;Stop the video controller.</span>
@@ -941,17 +961,20 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        object is called `frame`:</span>
 <span class="sd">        </span>
 <span class="sd">        &gt;&gt;&gt; frame[48,32]</span>
+<span class="sd">        </span>
 <span class="sd">        (128,64,12)</span>
 <span class="sd">        </span>
 <span class="sd">        Access the green component of pixel (48,32):</span>
+<span class="sd">        </span>
 <span class="sd">        &gt;&gt;&gt; frame[48,32][1]</span>
+<span class="sd">        </span>
 <span class="sd">        64</span>
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        The original frame stores pixels as (g,b,r). Hence, to return a tuple </span>
-<span class="sd">        (r,g,b), we need to return (self.frame[offset+2], self.frame[offset],</span>
-<span class="sd">        self.frame[offset+1]).</span>
+<span class="sd">        The original frame stores pixels as (b,g,r). Hence, to return a tuple </span>
+<span class="sd">        (r,g,b), we need to return (self.frame[offset+2], self.frame[offset+1],</span>
+<span class="sd">        self.frame[offset]).</span>
 <span class="sd">            </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -967,9 +990,8 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pixel</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
             <span class="n">offset</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">MAX_FRAME_WIDTH</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
-            
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="p">],</span>\
-                    <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span>\
+                    <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pixel is out of the frame range.&quot;</span><span class="p">)</span>
             
@@ -993,7 +1015,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        </span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        The original frame stores pixels as (g,b,r).</span>
+<span class="sd">        The original frame stores pixels as (b,g,r).</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1011,8 +1033,8 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
             <span class="n">offset</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">MAX_FRAME_WIDTH</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pixel is out of the frame range.&quot;</span><span class="p">)</span>
             
@@ -1051,11 +1073,10 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
-                    <span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span> 
+        <span class="n">npframe</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
+                    <span class="n">reshape</span><span class="p">(</span><span class="mi">1080</span><span class="p">,</span><span class="mi">1920</span><span class="p">,</span><span class="mi">3</span><span class="p">)[:</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,:</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> \
-                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">frame</span><span class="p">)))</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">npframe</span><span class="p">)))</span>
         <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;JPEG&#39;</span><span class="p">)</span></div>
         
     <span class="nd">@staticmethod</span>
@@ -1082,11 +1103,10 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        None</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
-                    <span class="n">reshape</span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[:,:,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span> 
+        <span class="n">npframe</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">frame_raw</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span>\
+                    <span class="n">reshape</span><span class="p">(</span><span class="mi">1080</span><span class="p">,</span><span class="mi">1920</span><span class="p">,</span><span class="mi">3</span><span class="p">)[:</span><span class="n">height</span><span class="p">,:</span><span class="n">width</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> \
-                    <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">frame</span><span class="p">)))</span>
+                    <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">npframe</span><span class="p">)))</span>
         <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;JPEG&#39;</span><span class="p">)</span></div></div>
         
 </pre></div>

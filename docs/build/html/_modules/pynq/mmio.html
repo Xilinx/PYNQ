@@ -305,12 +305,14 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    base_addr : int</span>
-<span class="sd">        The base address of an address range, page aligned.</span>
-<span class="sd">    base_addr_offset : int</span>
-<span class="sd">        The base address offset from page aligned base_addr.</span>
+<span class="sd">    virt_base : int</span>
+<span class="sd">        The virtual base address, page aligned.</span>
+<span class="sd">    virt_offset : int</span>
+<span class="sd">        The base address offset from page aligned base address.</span>
+<span class="sd">    baes : int</span>
+<span class="sd">        The base address, not necessarily page aligned.</span>
 <span class="sd">    length : int</span>
-<span class="sd">        The length in bytes, page aligned.</span>
+<span class="sd">        The length in bytes of the address range.</span>
 <span class="sd">    debug : bool</span>
 <span class="sd">        Turn on debug mode if it is True.</span>
 <span class="sd">    mem : mmap</span>
@@ -324,11 +326,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        base_addr : int</span>
-<span class="sd">            The base address of the MMIO</span>
+<span class="sd">            The base address of the MMIO.</span>
 <span class="sd">        length : int</span>
-<span class="sd">            The length in bytes; default is 4</span>
+<span class="sd">            The length in bytes; default is 4.</span>
 <span class="sd">        debug : bool</span>
-<span class="sd">            Turn on debug mode if it is True; default is False</span>
+<span class="sd">            Turn on debug mode if it is True; default is False.</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">base_addr</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -339,26 +341,31 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Root permissions required.&#39;</span><span class="p">)</span>
         
         <span class="c1"># Align the base address with the pages</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">mmap</span><span class="o">.</span><span class="n">PAGESIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virt_base</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">mmap</span><span class="o">.</span><span class="n">PAGESIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        
         <span class="c1"># Calculate base address offset w.r.t the base address</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">base_addr_offset</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">virt_base</span>
+        
         <span class="c1"># Align the stop address with the words</span>
         <span class="n">stop</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">+</span> <span class="n">length</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">stop</span> <span class="o">%</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">):</span>
-            <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">+</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_LENGTH</span><span class="p">)</span> \
-                    <span class="o">&amp;</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span>
-        <span class="c1"># Calculate the length between the base address and the stop address</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">+</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_LENGTH</span><span class="p">)</span> <span class="o">&amp;</span> \
+                    <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span>
+        
+        <span class="c1"># Storing the base address and length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span> <span class="o">=</span> <span class="n">base_addr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;MMIO(address, size) = ({0}, {1} bytes).&#39;</span><span class="o">.</span>
-                <span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span><span class="p">),</span> <span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;MMIO(address, size) = ({0}, {1} bytes).&#39;</span><span class="o">.</span>\
+                    <span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span><span class="p">),</span> <span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)))</span>
                 
         <span class="c1"># Open file and mmap</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_FILE_NAME</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDWR</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">O_SYNC</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mem</span> <span class="o">=</span> <span class="n">mmap</span><span class="o">.</span><span class="n">mmap</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">mmap</span><span class="o">.</span><span class="n">MAP_SHARED</span><span class="p">,</span>
-                    <span class="n">mmap</span><span class="o">.</span><span class="n">PROT_READ</span> <span class="o">|</span> <span class="n">mmap</span><span class="o">.</span><span class="n">PROT_WRITE</span><span class="p">,</span>
-                    <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mem</span> <span class="o">=</span> <span class="n">mmap</span><span class="o">.</span><span class="n">mmap</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span><span class="p">),</span> 
+                            <span class="n">mmap</span><span class="o">.</span><span class="n">MAP_SHARED</span><span class="p">,</span>
+                            <span class="n">mmap</span><span class="o">.</span><span class="n">PROT_READ</span> <span class="o">|</span> <span class="n">mmap</span><span class="o">.</span><span class="n">PROT_WRITE</span><span class="p">,</span>
+                            <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">virt_base</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MMIO.read"><a class="viewcode-back" href="../../pynq.html#pynq.mmio.MMIO.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The method to read data from MMIO.</span>
@@ -380,24 +387,20 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MMIO currently only supports 4-byte reads.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> 
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Negative offset or negative length.&quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">MemoryError</span><span class="p">(</span><span class="s1">&#39;Read operation exceeds the MMIO length.&#39;</span><span class="p">)</span>
 
         <span class="c1"># Make reading faster</span>
         <span class="n">mem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;Reading {0} bytes from offset {1}&#39;</span><span class="o">.</span>\
+                    <span class="n">format</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">offset</span><span class="p">)))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;Reading {0} bytes from offset {1}&#39;</span>\
-                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">offset</span><span class="p">)))</span>
-
-        <span class="c1"># Compensate for the base_address and seek to the aligned offset</span>
-        <span class="n">virt_base_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_addr_offset</span> <span class="o">&amp;</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span>
-        <span class="n">mem</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">virt_base_addr</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="c1"># Seek the virtual address offset</span>
+        <span class="n">mem</span><span class="o">.</span><span class="n">seek</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">)</span>
 
         <span class="c1"># Read data out</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="n">mem</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">length</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span></div>
-
-
+        
 <div class="viewcode-block" id="MMIO.write"><a class="viewcode-back" href="../../pynq.html#pynq.mmio.MMIO.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The method to write data to MMIO.</span>
 
@@ -415,7 +418,6 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> 
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Negative offset.&quot;</span><span class="p">)</span>
-        
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">data</span> <span class="o">&gt;</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">32</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Integer value is too large for a word.&quot;</span><span class="p">)</span>
@@ -428,19 +430,15 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">MemoryError</span><span class="p">(</span><span class="s1">&#39;Write operation exceeds MMIO length.&#39;</span><span class="p">)</span>
                 
-        <span class="c1"># Make reading easier (and faster... won&#39;t resolve dot in loops)</span>
+        <span class="c1"># Make reading easier</span>
         <span class="n">mem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span>
 
-        <span class="c1"># Compensate for the base_address</span>
-        <span class="n">offset</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_addr_offset</span>
-
         <span class="c1"># Check that the operation is going write to an aligned location</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&amp;</span> <span class="o">~</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">):</span> 
+        <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">):</span> 
             <span class="k">raise</span> <span class="ne">MemoryError</span><span class="p">(</span><span class="s1">&#39;Write operation not aligned.&#39;</span><span class="p">)</span>
 
         <span class="c1"># Seek to the aligned offset</span>
-        <span class="n">virt_base_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_addr_offset</span> <span class="o">&amp;</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span>
-        <span class="n">mem</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">virt_base_addr</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">mem</span><span class="o">.</span><span class="n">seek</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;Writing 4 bytes to offset {0}: {1}&#39;</span><span class="o">.</span>\

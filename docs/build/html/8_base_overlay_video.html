@@ -305,7 +305,7 @@ HDMI video source can be used up to 1080p.</p>
 <p>To use the HDMI in, ensure you have connected a valid HDMI source and
 execute the next cell. If a valid HDMI source is not detected, the
 kernel will hang and need restart.</p>
-<div class="nbinput nblast container">
+<div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
 <span></span>In [1]:
 </pre></div>
@@ -314,13 +314,44 @@ kernel will hang and need restart.</p>
 <span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
 <span class="kn">from</span> <span class="nn">pynq.drivers.video</span> <span class="k">import</span> <span class="n">HDMI</span>
 
-<span class="c1"># Download new bitstream with audiovideo IP</span>
+<span class="c1"># Download bitstream</span>
 <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 
 <span class="c1"># Initialize HDMI as an input device</span>
 <span class="n">hdmi_in</span> <span class="o">=</span> <span class="n">HDMI</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-1-247d0cd029f2&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-green-fg">from</span> pynq <span class="ansi-green-fg">import</span> Overlay
+<span class="ansi-green-fg">----&gt; 2</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">from</span> pynq<span class="ansi-blue-fg">.</span>drivers<span class="ansi-blue-fg">.</span>video <span class="ansi-green-fg">import</span> HDMI
+<span class="ansi-green-intense-fg ansi-bold">      3</span>
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-red-fg"># Download bitstream</span>
+<span class="ansi-green-intense-fg ansi-bold">      5</span> Overlay<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;base.bit&#34;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>download<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">/usr/local/lib/python3.4/dist-packages/pynq/drivers/__init__.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">     33</span>
+<span class="ansi-green-intense-fg ansi-bold">     34</span> <span class="ansi-green-fg">from</span> <span class="ansi-blue-fg">.</span>audio <span class="ansi-green-fg">import</span> Audio
+<span class="ansi-green-fg">---&gt; 35</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">from</span> <span class="ansi-blue-fg">.</span>video <span class="ansi-green-fg">import</span> HDMI
+<span class="ansi-green-intense-fg ansi-bold">     36</span> <span class="ansi-green-fg">from</span> <span class="ansi-blue-fg">.</span>video <span class="ansi-green-fg">import</span> Frame
+<span class="ansi-green-intense-fg ansi-bold">     37</span> <span class="ansi-green-fg">from</span> <span class="ansi-blue-fg">.</span>dma <span class="ansi-green-fg">import</span> DMA
+
+<span class="ansi-green-fg">/usr/local/lib/python3.4/dist-packages/pynq/drivers/video.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">     36</span> <span class="ansi-green-fg">import</span> numpy <span class="ansi-green-fg">as</span> np
+<span class="ansi-green-intense-fg ansi-bold">     37</span> <span class="ansi-green-fg">from</span> PIL <span class="ansi-green-fg">import</span> Image
+<span class="ansi-green-fg">---&gt; 38</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">from</span> <span class="ansi-blue-fg">.</span> <span class="ansi-green-fg">import</span> _video
+<span class="ansi-green-intense-fg ansi-bold">     39</span>
+<span class="ansi-green-intense-fg ansi-bold">     40</span> VDMA_DICT = {
+
+<span class="ansi-red-fg">ImportError</span>: /usr/lib/libsds_lib.so: invalid ELF header
+</pre></div></div>
 </div>
 <p>The HDMI() argument ‘in’ indicates that the object is in capture mode.</p>
 <p>When a valid video input source is connected, the controller should
@@ -492,11 +523,11 @@ hdmi.frame_raw()</p>
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/8_base_overlay_video_20_0.jpeg" src="_images/8_base_overlay_video_20_0.jpeg" />
+<img alt="_images/8_base_overlay_video_20_0.jpg" src="_images/8_base_overlay_video_20_0.jpg" />
 </div>
 </div>
-<p>This will dump the frame as a python list <em>frame[height, width][rgb]</em>.
-Where rgb is a tuple (r,g,b). If you want to modify the green component
+<p>This will dump the frame as a python list <em>frame[height, width][bgr]</em>.
+Where bgr is a tuple (b,g,r). If you want to modify the green component
 of a pixel, you can do it as shown below. In the example, the top left
 quarter of the image will have the green component increased.</p>
 <div class="nbinput container">
@@ -507,11 +538,11 @@ quarter of the image will have the green component increased.</p>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">)):</span>
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">)):</span>
-        <span class="p">(</span><span class="n">red</span><span class="p">,</span><span class="n">green</span><span class="p">,</span><span class="n">blue</span><span class="p">)</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span>
+        <span class="p">(</span><span class="n">blue</span><span class="p">,</span><span class="n">green</span><span class="p">,</span><span class="n">red</span><span class="p">)</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span>
         <span class="n">green</span> <span class="o">=</span> <span class="n">green</span><span class="o">*</span><span class="mi">2</span>
         <span class="k">if</span><span class="p">(</span><span class="n">green</span><span class="o">&gt;</span><span class="mi">255</span><span class="p">):</span>
             <span class="n">green</span> <span class="o">=</span> <span class="mi">255</span>
-        <span class="n">frame</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">)</span>
+        <span class="n">frame</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">blue</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">red</span><span class="p">)</span>
 
 <span class="n">new_img_path</span> <span class="o">=</span> <span class="s1">&#39;/home/xilinx/jupyter_notebooks/Getting_Started/images/hdmi_in_frame1.jpg&#39;</span>
 <span class="n">frame</span><span class="o">.</span><span class="n">save_as_jpeg</span><span class="p">(</span><span class="n">new_img_path</span><span class="p">)</span>
@@ -525,7 +556,7 @@ quarter of the image will have the green component increased.</p>
 </pre></div>
 </div>
 <div class="container">
-<img alt="_images/8_base_overlay_video_22_0.jpeg" src="_images/8_base_overlay_video_22_0.jpeg" />
+<img alt="_images/8_base_overlay_video_22_0.jpg" src="_images/8_base_overlay_video_22_0.jpg" />
 </div>
 </div>
 <p>This frame() method is a simple way to capture pixel data, but

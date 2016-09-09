@@ -35,7 +35,7 @@ The IOP's configurable switch can be used to route signals between the physical 
 Software requirements
 ----------------------------
 
-A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq.  It should be noted that Pynq ships with precompiled IOP executables to support various peripherals (see `Pynq Modules <modules.html>`_), but that full source code is available from the proejct GitHub. Xilinx software is only needed if you intend to build your own IOP applications/peripheral drivers. 
+A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq and is available for free.  It should be noted that Pynq ships with precompiled IOP executables to support various peripherals (see `Pynq Modules <modules.html>`_), but that full source code is available from the proejct GitHub. Xilinx software is only needed if you intend to build your own IOP applications/peripheral drivers. A free, fully fuctional, version of the Xilinx tools is available for Pynq if required (see the free `Xilinx Vivado WebPack <https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html>`_ for more details).  
 
 The current Pynq release is built using Vivado and SDK 2016.1. it is recommended to use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado and SDK installation is only required to design new overlays. 
 
@@ -141,7 +141,7 @@ You will need to update references from the old project name to your new project
 
 If you want your project to build in the main Makefile, you should also append the .bin name of your project to the *MBBINS* variable at the top of the makefile.
 
-If you are using the SDK Gui, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.
+If you are using the SDK GUI, you can import the Hardware Platform, BSP, and any application projects into your SDK workspace.
 
 .. image:: ./images/sdk_import_bsp.JPG
    :scale: 75%

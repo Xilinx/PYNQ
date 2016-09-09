@@ -19,7 +19,7 @@
     "\n",
     "* 2 Slide-switches (SW1-SW0)\n",
     "\n",
-    "All of these peripherals are connected to the PYNQ-Z1’s programmable logic. They are highlighted in the image of the PYNQ-Z1 below."
+    "The peripherals are highlighted in the image below. "
    ]
   },
   {
@@ -33,14 +33,48 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Note that there are additional push-buttons and LEDs on the board, but these devices are not user accessible. They are not highlighted in the figure and we will ignore them for now.\n",
+    "All of these peripherals are connected to programmable logic. This means controllers must be implemented in an overlay before these peripherals can be used. The base overlay contains controllers for all of these peripherals. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note that there are additional push-buttons and LEDs on the board (e.g. power LED, reset button).  They are not user accessible, and are not highlighted in the figure. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Peripheral Example\n",
+    "Using the base overlay, each of the highlighted devices can be controlled using their corresponding Pynq classes. \n",
     "\n",
-    "Each of the highlighted devices can be controlled directly from Python. To demonstrate this, we first import the LED, Switch and Button classes from the module pynq.board"
+    "First download the base overlay. (The base overlay is downloaded by default at boot time. This step can be skipped if you are sure another overlay has not been loaded since the board was powered on.)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "from pynq import Overlay\n",
+    "Overlay(\"base.bit\").download() # Ensure base overlay is loaded"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Import the LED, Switch and Button classes from the module pynq.board"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
    "metadata": {
     "collapsed": true
    },
@@ -59,7 +93,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": null,
    "metadata": {
     "collapsed": true
    },
@@ -70,7 +104,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": null,
    "metadata": {
     "collapsed": true
    },
