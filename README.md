@@ -25,10 +25,10 @@ By default, The script will do the following:
 
 - Update or clone Git repository in `/home/xilinx`.
 - Checkout the latest stable release in Repo.
-- Install the `pynq` package.
+- Install the `pynq` python package.
 - Copy board-specific files into the `pynq` package.
 - Copy the Jupyter notebooks into `/home/xilinx/jupyter_notebooks`.
-- Copy Documentation into home directory.
+- Copy documentation into `/home/xilinx/docs`.
 - Update other useful scripts in `/home/xilinx/scripts` and itself before exiting.
 
 To run this script, first verify the `$BOARD` environment variable has been set correctly:
