@@ -95,6 +95,7 @@ fi
 if [[ "$1" == "-r" ]]; then
     init_repo
     echo "Cleaning up before upgrade.."
+    make -f ${MAKEFILE_PATH} clean_dirs || exit 1
 fi
 
 while getopts ':hlsdr' option; do
