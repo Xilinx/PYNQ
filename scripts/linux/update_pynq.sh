@@ -9,7 +9,7 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 
-usage="Usage : $(basename "$0") [-h] [-l] [-s] [-d]
+usage="Usage : $(basename "$0") [-h] [-r] [-l] [-s] [-d]
 Update pynq python, notebooks and scripts from PYNQ repository
 
 where:
@@ -17,6 +17,9 @@ where:
     -l  update packages to latest branch
 	Note: This could result in an unstable build
     -s  update packages to latest stable release
+
+    Development Options:
+    -r  cleanup destination dirs before update
     -d  rebuild docs from source"
 
 _repo_init_done=""
@@ -84,12 +87,17 @@ function do_stable_update()
    build_pynq
 }
 
-if [ "$#" -eq 0 ]; then
+if [[ "$#" -eq 0 ]]; then
     echo "Updating to latest stable release (default action)"
     do_stable_update
 fi
 
-while getopts ':hlsd' option; do
+if [[ "$1" == "-r" ]]; then
+    init_repo
+    echo "Cleaning up before upgrade.."
+fi
+
+while getopts ':hlsdr' option; do
     case "$option" in
         h) echo "$usage"
            exit
@@ -101,12 +109,14 @@ while getopts ':hlsd' option; do
         s) echo "Updating to latest stable release"
            do_stable_update
            ;;
+        r) # This is always preprocessed
+           ;;
         d) docs=true
            # Docs are always built at end
            init_repo
            ;;
-       \?) echo "Updating to latest stable release (default action)"
-           do_stable_update
+       \?) echo "Unknown option -${OPTARG} use '-h' for help"
+           exit 1
            ;;
     esac
 done

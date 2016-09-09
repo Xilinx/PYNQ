@@ -125,6 +125,15 @@ xlnkutils:
 	@echo
 	cd ${REPO_DIR}/scripts/xlnkutils && make && make install
 
+clean_dirs:
+	@echo
+	@echo "Cleaning up old files"
+	@echo
+	rm -rf ${FINAL_DOCS_DIR}/*
+	rm -rf ${FINAL_NOTEBOOKS_DIR}/Getting_Started/*
+	rm -rf ${FINAL_NOTEBOOKS_DIR}/Examples/*
+	find ${FINAL_NOTEBOOKS_DIR} -maxdepth 1 -type f -exec rm -fv {} \;
+
 doc_sphinx:
 	@echo
 	@echo "Building docs"
@@ -148,6 +157,7 @@ doc_notebooks:
 		${FINAL_NOTEBOOKS_DIR}/Getting_Started/4_base_overlay_iop.ipynb
 	cp ${REPO_DIR}/docs/source/8_base_overlay_video.ipynb \
 		${FINAL_NOTEBOOKS_DIR}/Getting_Started/5_base_overlay_video.ipynb
+	cp -arf ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
 
 doc_temp_notebooks: 
 	@for f in ${DOC_TEMP_NOTEBOOKS} ; do \
