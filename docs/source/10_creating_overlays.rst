@@ -52,7 +52,7 @@ Once a new overlay has been created, the overlay needs to be integrated into the
 
 As with any application running on Zynq, the interface between the software and hardware is via the Zynq memory map. 
 
-An overlay can have many addressable IPs. These addressable IPs can be accessed by the ARM processor using the memory map. To find the addressable IPs of a specific overlay (e.g. `base.bit`), users can do:
+To find the addressable IPs of a specific overlay (e.g. `base.bit`), users can do:
 
 .. code-block:: python
 
@@ -99,35 +99,42 @@ Continuing the example shown above, we show a use case where the MMIO class can 
 In the example above, any accesses outside the address range 0x10000 (65535 bytes) will cause an error. When creating the python driver for a new hardware function, the MMIO can be wrapped inside a Python module. 
 
 
+New overlay example
+-------------------------------------
+An example notebook ``overlay_integration.ipynb`` is available in the *Examples* folder, showing how to write Python to interface to an overlay. 
+
 
 Using new overlays with GPIO
 -----------------------------------
-The control interface between the ARM processor and FPGA fabric is via the Zynq GPIO. The information about a GPIO is kept in the GPIO dictionary of an overlay. 
+GPIO between the the Zynq PS and PL can be used by Python code as a control interface to overlays.  The information about a GPIO is kept in the GPIO dictionary of an overlay. 
+
+The following code can be used to get the dictionary for a bitstream:
 
 .. code-block:: python
 
    from pynq import Overlay
-   Overlay("base.bit").gpio_dict
+   ol = Overlay("base.bit")
+   ol.gpio_dict
 
 
-An example of the entry in a GPIO dictionary can be:
+A GPIO dictionary entry is a key, value pair, where *value* is a list of two items. An example of the entry in a GPIO dictionary:
 
     ``'mb_1_reset/Din': [0, None]``
 
-The key of the entry is the GPIO instance name; all the GPIO instance names are parsed from the `*.tcl` file (e.g. `base.tcl`) in the GPIO connection section. The value of the entry is a list of 2 items:
+The key is the GPIO instance name (*mb_1_reset/Din*). GPIO instance names are read and parsed from the Vivado `*.tcl` file (e.g. `base.tcl`). 
 
-  - The first item shows the user index of the GPIO.
-  - The second item records the state associated with the GPIO. It is `None` by default, but can be used flexibly by the users.
+The *value* is a list of 2 items:
 
-Similarly, to check the GPIO currently in the FPGA fabric:
+  - The first item shows the index of the GPIO (*0*).
+  - The second item (*None*) shows the state of the GPIO. It is `None` by default, but can be user defined.
+
+The following code can be used to get the dictionary for GPIO currently in the FPGA fabric:
 
 .. code-block:: python
 
    from pynq import PL
-   PL.gpio_dict
+   pl = PL
+   pl.gpio_dict
 
 
 
-New overlay example
--------------------------------------
-An example notebook ``overlay_integration.ipynb`` is available in the *Examples* folder, showing how to write Python to interface to an overlay. 
