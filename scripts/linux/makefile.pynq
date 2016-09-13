@@ -46,6 +46,7 @@ sdk_import_bsp.JPG \
 sdk_launch_shell.jpg \
 sdk_make.JPG \
 sdk_make_result.JPG \
+base_overlay_audio.jpg \
 vivado_base_overlay.JPG
 
 DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
