@@ -56,12 +56,14 @@ DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
-stop_pl_server.py
+stop_pl_server.py \
+boot.py
 
 ROOT_SCRIPTS := 0_network.sh   \
 1_jupyter_server.sh   \
 2_pl_server.sh   \
 3_resizefs.sh \
+4_boot_leds.sh
 
 update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
 	@echo "Completed PYNQ update."

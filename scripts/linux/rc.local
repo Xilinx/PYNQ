@@ -12,9 +12,10 @@
 # By default this script does nothing.
 
 # Adding Jupyter scripts to bring up network and start Jupyter server
-/root/0_network.sh
+/root/0_network.sh >/dev/null 2>&1 &
 /root/1_jupyter_server.sh
 /root/2_pl_server.sh
 /root/3_resizefs.sh
+/root/4_boot_leds.sh
 
 exit 0
