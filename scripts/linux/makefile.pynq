@@ -59,10 +59,10 @@ start_pl_server.py  \
 stop_pl_server.py \
 boot.py
 
-ROOT_SCRIPTS := 0_network.sh   \
-1_jupyter_server.sh   \
-2_pl_server.sh   \
-3_resizefs.sh \
+ROOT_SCRIPTS := 0_resizefs.sh \
+1_network.sh \
+2_jupyter_server.sh \
+3_pl_server.sh \
 4_boot_leds.sh
 
 update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
