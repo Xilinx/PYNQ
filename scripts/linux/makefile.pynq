@@ -94,7 +94,8 @@ pynq_permissions:
 	chown -R xilinx:xilinx ${PYNQ_DIR}/*
 	chmod -R a+rw ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${PYNQ_DIR}
 	chmod -R a+x ${FINAL_SCRIPTS_DIR}/*
-	chmod    a+x ${ROOT_DIR}/*.sh
+	chmod a+x ${ROOT_DIR}/*.sh
+	chmod a+x /etc/rc.local
 	chown -R xilinx:xilinx ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${FINAL_SCRIPTS_DIR} ${PYNQ_DIR}
 
 scripts_notebooks:
