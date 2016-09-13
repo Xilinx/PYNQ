@@ -1,0 +1,285 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Programming PYNQ-Z1's onboard peripherals\n",
+    "## LEDs, switches and buttons\n",
+    "PYNQ-Z1 has the following on-board LEDs, pushbuttons and switches:\n",
+    "\n",
+    "* 4 monochrome LEDs (LD3-LD0)\n",
+    "\n",
+    "\n",
+    "* 4 push-button switches (BTN3-BTN0)\n",
+    "\n",
+    "\n",
+    "* 2 RGB LEDs (LD5-LD4)\n",
+    "\n",
+    "\n",
+    "* 2 Slide-switches (SW1-SW0)\n",
+    "\n",
+    "The peripherals are highlighted in the image below. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "![](images/pynqz1_board_io.JPG)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "All of these peripherals are connected to programmable logic. This means controllers must be implemented in an overlay before these peripherals can be used. The base overlay contains controllers for all of these peripherals. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note that there are additional push-buttons and LEDs on the board (e.g. power LED, reset button).  They are not user accessible, and are not highlighted in the figure. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Peripheral Example\n",
+    "Using the base overlay, each of the highlighted devices can be controlled using their corresponding pynq classes. \n",
+    "\n",
+    "To demonstrate this, we will first download the base overlay to ensure it is loaded, and then import the LED, RGBLED, Switch and Button classes from the module `pynq.board`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "from pynq import Overlay\n",
+    "from pynq.board import LED\n",
+    "from pynq.board import RGBLED\n",
+    "from pynq.board import Switch\n",
+    "from pynq.board import Button\n",
+    "\n",
+    "Overlay(\"base.bit\").download()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Controlling a single LED\n",
+    "Now we can instantiate objects of each of these classes and use their methods to manipulate the corresponding peripherals. Let’s start by instantiating a single LED and turning it on and off."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "led0 = LED(0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "led0.on()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Check the board and confirm the LD0 is ON"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "led0.off()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let’s then toggle _led0_ using the sleep() method to see the LED flashing. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "import time\n",
+    "from pynq.board import LED\n",
+    "from pynq.board import Button\n",
+    "\n",
+    "led0 = LED(0)\n",
+    "for i in range(20):\n",
+    "    led0.toggle()\n",
+    "    time.sleep(.1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Example: Controlling all the LEDs, switches and buttons\n",
+    "\n",
+    "\n",
+    "The example below creates 3 separate lists, called leds, switches and buttons."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "MAX_LEDS = 4\n",
+    "MAX_SWITCHES = 2\n",
+    "MAX_BUTTONS = 4\n",
+    "\n",
+    "leds = [0] * MAX_LEDS\n",
+    "switches = [0] * MAX_SWITCHES\n",
+    "buttons = [0] * MAX_BUTTONS\n",
+    "\n",
+    "for i in range(MAX_LEDS):\n",
+    "    leds[i] = LED(i)              \n",
+    "for i in range(MAX_SWITCHES):\n",
+    "    switches[i] = Switch(i)      \n",
+    "for i in range(MAX_BUTTONS):\n",
+    "    buttons[i] = Button(i) "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It will be useful to be able to turn off selected LEDs so we will create a helper function to do that.  It either clears the LEDs whose numbers we list in the parameter, or by default clears LD3-LD0."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "# Helper function to clear LEDs\n",
+    "def clear_LEDs(LED_nos=list(range(MAX_LEDS))):\n",
+    "    \"\"\"Clear LEDS LD3-0 or the LEDs whose numbers appear in the list\"\"\"\n",
+    "    for i in LED_nos:\n",
+    "        leds[i].off()\n",
+    "        \n",
+    "clear_LEDs()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "First, all LEDs are set to off. Then each switch is read, and if in the on position, the corresponding led is turned on. You can execute this cell a few times, changing the position of the switches on the board.\n",
+    "\n",
+    "* LEDs start in the off state\n",
+    "* If SW0 is on, LD2 and LD0 will be on\n",
+    "* If SW1 is on, LD3 and LD1 will be on"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "clear_LEDs()\n",
+    "\n",
+    "for i in range(MAX_LEDS):                  \n",
+    "    if switches[i%2].read():                                    \n",
+    "        leds[i].on()\n",
+    "    else:\n",
+    "        leds[i].off()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The last example toggles an led (on or off) if its corresponding push button is pressed for so long as SW0 is switched on.\n",
+    "\n",
+    "To end the program, slide SW0 to the off position.  "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "import time\n",
+    "\n",
+    "clear_LEDs()\n",
+    "\n",
+    "while switches[0].read():\n",
+    "    for i in range(MAX_LEDS):\n",
+    "        if buttons[i].read():\n",
+    "            leds[i].toggle()\n",
+    "            time.sleep(.1)\n",
+    "            \n",
+    "clear_LEDs()"
+   ]
+  }
+ ],
+ "metadata": {
+  "celltoolbar": "Raw Cell Format",
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.4.3+"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}

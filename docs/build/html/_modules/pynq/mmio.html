@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynq.mmio &mdash; Python on Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Python on Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../1_pynq.html">PYNQ Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../4_programming_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_overlays.html">Hardware and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6_overlays.html#iops">IOPs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../9_iop_code.html">IO Processors: Writing your own software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../12_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../15_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../16_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../17_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Python on Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pynq.mmio</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<h1>Source code for pynq.mmio</h1><div class="highlight"><pre>
+<span></span><span class="c1">#   Copyright (c) 2016, Xilinx, Inc.</span>
+<span class="c1">#   All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1">#   Redistribution and use in source and binary forms, with or without </span>
+<span class="c1">#   modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1">#   1.  Redistributions of source code must retain the above copyright notice, </span>
+<span class="c1">#       this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#   2.  Redistributions in binary form must reproduce the above copyright </span>
+<span class="c1">#       notice, this list of conditions and the following disclaimer in the </span>
+<span class="c1">#       documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#   3.  Neither the name of the copyright holder nor the names of its </span>
+<span class="c1">#       contributors may be used to endorse or promote products derived from </span>
+<span class="c1">#       this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1">#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1">#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR </span>
+<span class="c1">#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR </span>
+<span class="c1">#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, </span>
+<span class="c1">#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1">#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, </span>
+<span class="c1">#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR </span>
+<span class="c1">#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF </span>
+<span class="c1">#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="n">__author__</span>      <span class="o">=</span> <span class="s2">&quot;Yun Rock Qu&quot;</span>
+<span class="n">__copyright__</span>   <span class="o">=</span> <span class="s2">&quot;Copyright 2016, Xilinx&quot;</span>
+<span class="n">__email__</span>       <span class="o">=</span> <span class="s2">&quot;pynq_support@xilinx.com&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">mmap</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">general_const</span>
+
+<div class="viewcode-block" id="MMIO"><a class="viewcode-back" href="../../pynq.html#pynq.mmio.MMIO">[docs]</a><span class="k">class</span> <span class="nc">MMIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; This class exposes API for MMIO read and write.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    virt_base : int</span>
+<span class="sd">        The virtual base address, page aligned.</span>
+<span class="sd">    virt_offset : int</span>
+<span class="sd">        The base address offset from page aligned base address.</span>
+<span class="sd">    baes : int</span>
+<span class="sd">        The base address, not necessarily page aligned.</span>
+<span class="sd">    length : int</span>
+<span class="sd">        The length in bytes of the address range.</span>
+<span class="sd">    debug : bool</span>
+<span class="sd">        Turn on debug mode if it is True.</span>
+<span class="sd">    mem : mmap</span>
+<span class="sd">        An mmap object created when mapping files to memory.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_addr</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a new MMIO object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        base_addr : int</span>
+<span class="sd">            The base address of the MMIO.</span>
+<span class="sd">        length : int</span>
+<span class="sd">            The length in bytes; default is 4.</span>
+<span class="sd">        debug : bool</span>
+<span class="sd">            Turn on debug mode if it is True; default is False.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">base_addr</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Negative offset or negative length.&quot;</span><span class="p">)</span>
+            
+        <span class="n">euid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">geteuid</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">euid</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Root permissions required.&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Align the base address with the pages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virt_base</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">mmap</span><span class="o">.</span><span class="n">PAGESIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Calculate base address offset w.r.t the base address</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">virt_base</span>
+        
+        <span class="c1"># Align the stop address with the words</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">+</span> <span class="n">length</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">stop</span> <span class="o">%</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">):</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">+</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_LENGTH</span><span class="p">)</span> <span class="o">&amp;</span> \
+                    <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span>
+        
+        <span class="c1"># Storing the base address and length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span> <span class="o">=</span> <span class="n">base_addr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;MMIO(address, size) = ({0}, {1} bytes).&#39;</span><span class="o">.</span>\
+                    <span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span><span class="p">),</span> <span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)))</span>
+                
+        <span class="c1"># Open file and mmap</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_FILE_NAME</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDWR</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">O_SYNC</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mem</span> <span class="o">=</span> <span class="n">mmap</span><span class="o">.</span><span class="n">mmap</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span><span class="p">),</span> 
+                            <span class="n">mmap</span><span class="o">.</span><span class="n">MAP_SHARED</span><span class="p">,</span>
+                            <span class="n">mmap</span><span class="o">.</span><span class="n">PROT_READ</span> <span class="o">|</span> <span class="n">mmap</span><span class="o">.</span><span class="n">PROT_WRITE</span><span class="p">,</span>
+                            <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">virt_base</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MMIO.read"><a class="viewcode-back" href="../../pynq.html#pynq.mmio.MMIO.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The method to read data from MMIO.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        offset : int</span>
+<span class="sd">            The read offset from the MMIO base address.</span>
+<span class="sd">        length : int</span>
+<span class="sd">            The length of the data in bytes.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list of data read out from MMIO</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">length</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MMIO currently only supports 4-byte reads.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> 
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Negative offset or negative length.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">MemoryError</span><span class="p">(</span><span class="s1">&#39;Read operation exceeds the MMIO length.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Make reading faster</span>
+        <span class="n">mem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;Reading {0} bytes from offset {1}&#39;</span><span class="o">.</span>\
+                    <span class="n">format</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">offset</span><span class="p">)))</span>
+
+        <span class="c1"># Seek the virtual address offset</span>
+        <span class="n">mem</span><span class="o">.</span><span class="n">seek</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">)</span>
+
+        <span class="c1"># Read data out</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="n">mem</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">length</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span></div>
+        
+<div class="viewcode-block" id="MMIO.write"><a class="viewcode-back" href="../../pynq.html#pynq.mmio.MMIO.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The method to write data to MMIO.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        offset : int</span>
+<span class="sd">            The write offset from the MMIO base address.</span>
+<span class="sd">        data : int / str</span>
+<span class="sd">            The integer(s) to be written into MMIO.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> 
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Negative offset.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span> <span class="o">&gt;</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">32</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Integer value is too large for a word.&quot;</span><span class="p">)</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data types must be int, str, or bytes.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">MemoryError</span><span class="p">(</span><span class="s1">&#39;Write operation exceeds MMIO length.&#39;</span><span class="p">)</span>
+                
+        <span class="c1"># Make reading easier</span>
+        <span class="n">mem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span>
+
+        <span class="c1"># Check that the operation is going write to an aligned location</span>
+        <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">):</span> 
+            <span class="k">raise</span> <span class="ne">MemoryError</span><span class="p">(</span><span class="s1">&#39;Write operation not aligned.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Seek to the aligned offset</span>
+        <span class="n">mem</span><span class="o">.</span><span class="n">seek</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">virt_offset</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_MASK</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">(</span><span class="s1">&#39;Writing 4 bytes to offset {0}: {1}&#39;</span><span class="o">.</span>\
+                        <span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">offset</span><span class="p">),</span> <span class="nb">hex</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+            <span class="n">mem</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_LENGTH</span><span class="p">):</span>
+                <span class="n">buf</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">general_const</span><span class="o">.</span><span class="n">MMIO_WORD_LENGTH</span><span class="p">],</span>
+                                     <span class="n">byteorder</span><span class="o">=</span><span class="s1">&#39;little&#39;</span><span class="p">)</span>
+                <span class="n">mem</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The method provides debug capabilities for this class.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        infor : str</span>
+<span class="sd">            The debug information</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s1">&#39;MMIO Debug: {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">infor</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
