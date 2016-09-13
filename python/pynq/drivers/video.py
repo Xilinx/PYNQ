@@ -83,6 +83,7 @@ GPIO_DICT = {
 MAX_FRAME_WIDTH = 1920
 MAX_FRAME_HEIGHT = 1080
 
+
 class HDMI(object):
     """Class for an HDMI controller.
     
@@ -107,7 +108,14 @@ class HDMI(object):
         A frame buffer storing at most 3 frames.
         
     """
-    def __init__(self, direction, init_timeout=10, frame_list=None):
+
+    VMODE_1920x1080 = 4
+    VMODE_1280x1024 = 3
+    VMODE_1024x768  = 2
+    VMODE_800x600   = 1
+    VMODE_640x480   = 0
+
+    def __init__(self, direction, video_mode=VMODE_1920x1080, init_timeout=10, frame_list=None):
         """Returns a new instance of an HDMI object. 
         
         Assign the given frame buffer if specified, otherwise create a new 
@@ -123,7 +131,15 @@ class HDMI(object):
             Can be 'in' for HDMI IN or 'out' for HDMI OUT.
         frame_list : _framebuffer, optional
             A frame buffer storing at most 3 frames.
-        init_timeout : int
+        video_mode : int
+            Video mode for HDMI OUT. Ignored for HDMI IN.
+            Supported modes and corresponding constants, as well as integer:
+            1920x1080@60Hz: VMODE_1920x1080  = 4 (default)
+            1280x1024@60Hz: VMODE_1280x1024  = 3
+            1280x720@60Hz:  VMODE_1024x768   = 2
+            800x600@60Hz:   VMODE_800x600    = 1
+            640x480@60Hz:   VMODE_640x480    = 0
+        init_timeout : int, optional
             Timeout in seconds for HDMI IN initialization. Default timeout 
             is 10s. Timeout is ignored for HDMI OUT initialization.
             
@@ -145,11 +161,13 @@ class HDMI(object):
                 self._display = _video._display(VDMA_DICT,
                                                 VTC_DISPLAY_ADDR,
                                                 DYN_CLK_ADDR, 1)
+                self._display.mode(video_mode)
             else:
                 self._display = _video._display(VDMA_DICT,
                                                 VTC_DISPLAY_ADDR,
                                                 DYN_CLK_ADDR, 1,
                                                 frame_list)
+                self._display.mode(video_mode)
                                                 
             self.frame_list = self._display.framebuffer
             
