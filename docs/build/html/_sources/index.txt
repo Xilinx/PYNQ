@@ -19,8 +19,9 @@ Contents:
    4_programming_python
    5_programming_onboard
    6_overlays
-   7_base_overlay_iop
-   8_base_overlay_video
+   6a_base_overlay_iop
+   6b_base_overlay_video
+   6c_base_overlay_audio
    9_iop_code
    10_creating_overlays
    11_python_package

@@ -48,9 +48,9 @@
    "metadata": {},
    "source": [
     "## Peripheral Example\n",
-    "Using the base overlay, each of the highlighted devices can be controlled using their corresponding Pynq classes. \n",
+    "Using the base overlay, each of the highlighted devices can be controlled using their corresponding pynq classes. \n",
     "\n",
-    "First download the base overlay. (The base overlay is downloaded by default at boot time. This step can be skipped if you are sure another overlay has not been loaded since the board was powered on.)"
+    "To demonstrate this, we will first download the base overlay to ensure it is loaded, and then import the LED, RGBLED, Switch and Button classes from the module `pynq.board`."
    ]
   },
   {
@@ -62,25 +62,12 @@
    "outputs": [],
    "source": [
     "from pynq import Overlay\n",
-    "Overlay(\"base.bit\").download() # Ensure base overlay is loaded"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Import the LED, Switch and Button classes from the module pynq.board"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {
-    "collapsed": true
-   },
-   "outputs": [],
-   "source": [
-    "from pynq.board import LED, Switch, Button"
+    "from pynq.board import LED\n",
+    "from pynq.board import RGBLED\n",
+    "from pynq.board import Switch\n",
+    "from pynq.board import Button\n",
+    "\n",
+    "Overlay(\"base.bit\").download()"
    ]
   },
   {
@@ -147,7 +134,8 @@
    "outputs": [],
    "source": [
     "import time\n",
-    "from pynq.board import LED, Button\n",
+    "from pynq.board import LED\n",
+    "from pynq.board import Button\n",
     "\n",
     "led0 = LED(0)\n",
     "for i in range(20):\n",
@@ -173,7 +161,6 @@
    },
    "outputs": [],
    "source": [
-    "# Set the number of Switches\n",
     "MAX_LEDS = 4\n",
     "MAX_SWITCHES = 2\n",
     "MAX_BUTTONS = 4\n",
@@ -182,7 +169,6 @@
     "switches = [0] * MAX_SWITCHES\n",
     "buttons = [0] * MAX_BUTTONS\n",
     "\n",
-    "# Create lists for each of the IO component groups\n",
     "for i in range(MAX_LEDS):\n",
     "    leds[i] = LED(i)              \n",
     "for i in range(MAX_SWITCHES):\n",
@@ -208,7 +194,7 @@
    "source": [
     "# Helper function to clear LEDs\n",
     "def clear_LEDs(LED_nos=list(range(MAX_LEDS))):\n",
-    "    \"\"\"Clear LEDS LD3-0 or the LEDs whose numbers appear in the parameter list\"\"\"\n",
+    "    \"\"\"Clear LEDS LD3-0 or the LEDs whose numbers appear in the list\"\"\"\n",
     "    for i in LED_nos:\n",
     "        leds[i].off()\n",
     "        \n",
@@ -219,7 +205,11 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "First, all LEDs are set to off. Then each switch is read, and if in the on position, the corresponding led is turned on. You can execute this cell a few times, changing the position of the switches on the board."
+    "First, all LEDs are set to off. Then each switch is read, and if in the on position, the corresponding led is turned on. You can execute this cell a few times, changing the position of the switches on the board.\n",
+    "\n",
+    "* LEDs start in the off state\n",
+    "* If SW0 is on, LD2 and LD0 will be on\n",
+    "* If SW1 is on, LD3 and LD1 will be on"
    ]
   },
   {
@@ -230,10 +220,8 @@
    },
    "outputs": [],
    "source": [
-    "# LEDs start in the off state\n",
     "clear_LEDs()\n",
     "\n",
-    "# if a SW0 is on: LD2 and LD0 are on; if SW1 is on: LD3 and LD1 are on\n",
     "for i in range(MAX_LEDS):                  \n",
     "    if switches[i%2].read():                                    \n",
     "        leds[i].on()\n",
@@ -245,7 +233,9 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The last example toggles an led (on or off) if its corresponding pushbutton is pressed for so long as SW0 is switched on.  To end the program, slide SW0 to the off position.  "
+    "The last example toggles an led (on or off) if its corresponding push button is pressed for so long as SW0 is switched on.\n",
+    "\n",
+    "To end the program, slide SW0 to the off position.  "
    ]
   },
   {
@@ -258,11 +248,8 @@
    "source": [
     "import time\n",
     "\n",
-    "# LD3-LD0 start in the off state\n",
     "clear_LEDs()\n",
-    "        \n",
-    "# While SW0 is on,\n",
-    "# if a button is depressed, toggle the state of the corresponding LED\n",
+    "\n",
     "while switches[0].read():\n",
     "    for i in range(MAX_LEDS):\n",
     "        if buttons[i].read():\n",
