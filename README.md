@@ -46,12 +46,15 @@ Then either reboot the board, or run the following:
 * If `$BOARD` has already been set, just run:
 	```
 	cd /home/xilinx/scripts
+	
 	# To get latest stable git updates
 	sudo ./update_pynq.sh
+	
 	# To get latest git updates (dev option)
 	sudo ./update_pynq.sh -l
+	
 	# To Build Documentation from sources (dev option)
-	sudo ./update_pynq -d
+	sudo ./update_pynq.sh -d
 	```
 
 ## Updating `pynq` using `pip` 
