@@ -53,8 +53,9 @@ vivado_base_overlay.JPG
 DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 4_programming_python.tmp  \
 5_programming_onboard.tmp \
-7_base_overlay_iop.tmp \
-8_base_overlay_video.tmp
+6a_base_overlay_iop.tmp \
+6b_base_overlay_video.tmp \
+6c_base_overlay_audio.tmp \
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
