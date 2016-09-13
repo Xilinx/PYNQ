@@ -17,6 +17,7 @@ als_oled_demo.JPG \
 arduino_closeup.JPG \
 arduino_iop.jpg \
 arduino_shield.jpg \
+audio_block_diagram.jpg \
 cable_type.jpeg \
 command_mode.png \
 dashboard_files_tab.png \
@@ -35,7 +36,8 @@ pmod_pins.png \
 pmod_tmp2_8pin.JPG \
 portal_homepage.jpg \
 pynqz1_arduino_interface.jpg \
-pynqz1_audiovideo.JPG \
+pynqz1_video.JPG \
+pynqz1_audio.JPG \
 pynqz1_base_overlay.png \
 pynqz1_board_io.JPG \
 pynqz1_pmod_interface.jpg \
@@ -59,10 +61,10 @@ start_pl_server.py  \
 stop_pl_server.py \
 boot.py
 
-ROOT_SCRIPTS := 0_resizefs.sh \
-1_network.sh \
-2_jupyter_server.sh \
-3_pl_server.sh \
+ROOT_SCRIPTS := 0_network.sh   \
+1_jupyter_server.sh   \
+2_pl_server.sh   \
+3_resizefs.sh \
 4_boot_leds.sh
 
 update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
