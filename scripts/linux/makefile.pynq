@@ -11,8 +11,6 @@ FINAL_NOTEBOOKS_DIR = /home/xilinx/jupyter_notebooks
 FINAL_SCRIPTS_DIR = /home/xilinx/scripts
 ROOT_DIR = /root
 
-REVEALJS = https://github.com/hakimel/reveal.js.git
-
 NOTEBOOK_IMAGES=adapter_mapping.JPG \
 adc_jumper.jpeg \
 als_oled_demo.JPG \
@@ -58,13 +56,14 @@ DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
-makefile.pynq \
-stop_pl_server.py
+stop_pl_server.py \
+boot.py
 
 ROOT_SCRIPTS := 0_network.sh   \
 1_jupyter_server.sh   \
 2_pl_server.sh   \
 3_resizefs.sh \
+4_boot_leds.sh
 
 update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
 	@echo "Completed PYNQ update."
@@ -130,9 +129,12 @@ clean_dirs:
 	@echo "Cleaning up old files"
 	@echo
 	rm -rf ${FINAL_DOCS_DIR}/*
-	rm -rf ${FINAL_NOTEBOOKS_DIR}/Getting_Started/*
-	rm -rf ${FINAL_NOTEBOOKS_DIR}/Examples/*
-	find ${FINAL_NOTEBOOKS_DIR} -maxdepth 1 -type f -exec rm -fv {} \;
+	mv ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js ${ROOT_DIR}/
+	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Examples
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/slides
+	mv ${ROOT_DIR}/reveal.js ${FINAL_NOTEBOOKS_DIR}/slides/
 
 doc_sphinx:
 	@echo
@@ -153,10 +155,12 @@ doc_notebooks:
 		${FINAL_NOTEBOOKS_DIR}/Getting_Started/2_programming_python.ipynb
 	cp ${REPO_DIR}/docs/source/5_programming_onboard.ipynb \
 		${FINAL_NOTEBOOKS_DIR}/Getting_Started/3_programming_onboard.ipynb
-	cp ${REPO_DIR}/docs/source/7_base_overlay_iop.ipynb\
+	cp ${REPO_DIR}/docs/source/6a_base_overlay_iop.ipynb\
 		${FINAL_NOTEBOOKS_DIR}/Getting_Started/4_base_overlay_iop.ipynb
-	cp ${REPO_DIR}/docs/source/8_base_overlay_video.ipynb \
+	cp ${REPO_DIR}/docs/source/6b_base_overlay_video.ipynb \
 		${FINAL_NOTEBOOKS_DIR}/Getting_Started/5_base_overlay_video.ipynb
+	cp ${REPO_DIR}/docs/source/6c_base_overlay_audio.ipynb \
+		${FINAL_NOTEBOOKS_DIR}/Getting_Started/6_base_overlay_audio.ipynb
 	cp -arf ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
 
 doc_temp_notebooks: 

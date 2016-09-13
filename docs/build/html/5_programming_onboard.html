@@ -96,8 +96,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html#iops">IOPs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="7_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing your own software</a></li>
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
@@ -291,10 +292,10 @@ highlighted in the figure.</p>
 <div class="section" id="Peripheral-Example">
 <h2>Peripheral Example<a class="headerlink" href="#Peripheral-Example" title="Permalink to this headline">¶</a></h2>
 <p>Using the base overlay, each of the highlighted devices can be
-controlled using their corresponding Pynq classes.</p>
-<p>First download the base overlay. (The base overlay is downloaded by
-default at boot time. This step can be skipped if you are sure another
-overlay has not been loaded since the board was powered on.)</p>
+controlled using their corresponding pynq classes.</p>
+<p>To demonstrate this, we will first download the base overlay to ensure
+it is loaded, and then import the LED, RGBLED, Switch and Button classes
+from the module <code class="docutils literal"><span class="pre">pynq.board</span></code>.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 <span></span>In [1]:
@@ -302,18 +303,12 @@ overlay has not been loaded since the board was powered on.)</p>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="k">import</span> <span class="n">Overlay</span>
-<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span> <span class="c1"># Ensure base overlay is loaded</span>
-</pre></div>
-</div>
-</div>
-<p>Import the LED, Switch and Button classes from the module pynq.board</p>
-<div class="nbinput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [2]:
-</pre></div>
-</div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">Button</span>
+<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span>
+<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">RGBLED</span>
+<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">Switch</span>
+<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">Button</span>
+
+<span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -325,7 +320,7 @@ methods to manipulate the corresponding peripherals. Let’s start by
 instantiating a single LED and turning it on and off.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<span></span>In [2]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -335,7 +330,7 @@ instantiating a single LED and turning it on and off.</p>
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [4]:
+<span></span>In [3]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -346,7 +341,7 @@ instantiating a single LED and turning it on and off.</p>
 <p>Check the board and confirm the LD0 is ON</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
@@ -358,12 +353,13 @@ instantiating a single LED and turning it on and off.</p>
 flashing.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span><span class="p">,</span> <span class="n">Button</span>
+<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">LED</span>
+<span class="kn">from</span> <span class="nn">pynq.board</span> <span class="k">import</span> <span class="n">Button</span>
 
 <span class="n">led0</span> <span class="o">=</span> <span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
@@ -379,12 +375,11 @@ flashing.</p>
 buttons.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
+<span></span>In [6]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="c1"># Set the number of Switches</span>
-<span class="n">MAX_LEDS</span> <span class="o">=</span> <span class="mi">4</span>
+<span></span><span class="n">MAX_LEDS</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">MAX_SWITCHES</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">MAX_BUTTONS</span> <span class="o">=</span> <span class="mi">4</span>
 
@@ -392,7 +387,6 @@ buttons.</p>
 <span class="n">switches</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">MAX_SWITCHES</span>
 <span class="n">buttons</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">MAX_BUTTONS</span>
 
-<span class="c1"># Create lists for each of the IO component groups</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
     <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">LED</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_SWITCHES</span><span class="p">):</span>
@@ -407,13 +401,13 @@ a helper function to do that. It either clears the LEDs whose numbers we
 list in the parameter, or by default clears LD3-LD0.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [8]:
+<span></span>In [7]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="c1"># Helper function to clear LEDs</span>
 <span class="k">def</span> <span class="nf">clear_LEDs</span><span class="p">(</span><span class="n">LED_nos</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">))):</span>
-    <span class="sd">&quot;&quot;&quot;Clear LEDS LD3-0 or the LEDs whose numbers appear in the parameter list&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Clear LEDS LD3-0 or the LEDs whose numbers appear in the list&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">LED_nos</span><span class="p">:</span>
         <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 
@@ -424,16 +418,19 @@ list in the parameter, or by default clears LD3-LD0.</p>
 <p>First, all LEDs are set to off. Then each switch is read, and if in the
 on position, the corresponding led is turned on. You can execute this
 cell a few times, changing the position of the switches on the board.</p>
+<ul class="simple">
+<li>LEDs start in the off state</li>
+<li>If SW0 is on, LD2 and LD0 will be on</li>
+<li>If SW1 is on, LD3 and LD1 will be on</li>
+</ul>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [9]:
+<span></span>In [8]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="c1"># LEDs start in the off state</span>
-<span class="n">clear_LEDs</span><span class="p">()</span>
+<span></span><span class="n">clear_LEDs</span><span class="p">()</span>
 
-<span class="c1"># if a SW0 is on: LD2 and LD0 are on; if SW1 is on: LD3 and LD1 are on</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">switches</span><span class="p">[</span><span class="n">i</span><span class="o">%</span><span class="k">2</span>].read():
         <span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">on</span><span class="p">()</span>
@@ -442,22 +439,19 @@ cell a few times, changing the position of the switches on the board.</p>
 </pre></div>
 </div>
 </div>
-<p>The last example toggles an led (on or off) if its corresponding
-pushbutton is pressed for so long as SW0 is switched on. To end the
-program, slide SW0 to the off position.</p>
+<p>The last example toggles an led (on or off) if its corresponding push
+button is pressed for so long as SW0 is switched on.</p>
+<p>To end the program, slide SW0 to the off position.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [10]:
+<span></span>In [9]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">time</span>
 
-<span class="c1"># LD3-LD0 start in the off state</span>
 <span class="n">clear_LEDs</span><span class="p">()</span>
 
-<span class="c1"># While SW0 is on,</span>
-<span class="c1"># if a button is depressed, toggle the state of the corresponding LED</span>
 <span class="k">while</span> <span class="n">switches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_LEDS</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">buttons</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>

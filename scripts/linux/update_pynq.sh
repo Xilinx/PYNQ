@@ -46,6 +46,7 @@ function build_docs()
 function build_pynq()
 {
     make -f ${MAKEFILE_PATH} update_pynq || cleanup_exit 1
+    echo "Successfully updated PYNQ.."
 }
 
 function init_repo()

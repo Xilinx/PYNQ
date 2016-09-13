@@ -148,12 +148,10 @@ class HDMI(object):
         if not direction.lower() in ['in', 'out']:
             raise ValueError("HDMI direction should be in or out.")
         if (not isinstance(frame_list, _video._frame)) and \
-        (not (frame_list == None)):
-            raise ValueError("""Parameter frame_list should be of type
-            _video._frame.""")
+                (not (frame_list == None)):
+            raise ValueError("frame_list should be of type _video._frame.")
         if (not isinstance(init_timeout, int)) or init_timeout < 1:
-            raise ValueError("""HDMI IN initialization timeout should be an 
-            integer equal or greater than 1.""")
+            raise ValueError("init_timeout should be integer >= 1.")
         
         self.direction = direction.lower()
         if self.direction == 'out':
@@ -589,11 +587,11 @@ class HDMI(object):
     def _frame_out(self, *args):
         """Returns the specified frame or the active frame.
         
-        Note
-        ----
         With no parameter specified, this method returns a new Frame object.
+        
         With 1 parameter specified, this method uses it as the index or frame
         to create the Frame object. 
+        
         With 2 parameters specified, this method treats the first argument as 
         index, while treating the second argument as a frame.
         
