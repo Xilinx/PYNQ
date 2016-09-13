@@ -112,6 +112,8 @@ scripts_notebooks:
 		cp ${REPO_DIR}/scripts/linux/$$f  ${ROOT_DIR} || exit 1;\
 	done
 
+	cp -f ${REPO_DIR}/scripts/linux/rc.local /etc/
+
 new_pynq_update:
 	@echo
 	@echo "Copy new Pynq Update Script"
