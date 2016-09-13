@@ -11,8 +11,6 @@ FINAL_NOTEBOOKS_DIR = /home/xilinx/jupyter_notebooks
 FINAL_SCRIPTS_DIR = /home/xilinx/scripts
 ROOT_DIR = /root
 
-REVEALJS = https://github.com/hakimel/reveal.js.git
-
 NOTEBOOK_IMAGES=adapter_mapping.JPG \
 adc_jumper.jpeg \
 als_oled_demo.JPG \
@@ -130,9 +128,12 @@ clean_dirs:
 	@echo "Cleaning up old files"
 	@echo
 	rm -rf ${FINAL_DOCS_DIR}/*
-	rm -rf ${FINAL_NOTEBOOKS_DIR}/Getting_Started/*
-	rm -rf ${FINAL_NOTEBOOKS_DIR}/Examples/*
-	find ${FINAL_NOTEBOOKS_DIR} -maxdepth 1 -type f -exec rm -fv {} \;
+	mv ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js ${ROOT_DIR}/
+	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Examples
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/slides
+	mv ${ROOT_DIR}/reveal.js ${FINAL_NOTEBOOKS_DIR}/slides/
 
 doc_sphinx:
 	@echo
