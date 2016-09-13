@@ -56,7 +56,6 @@ DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
-makefile.pynq \
 stop_pl_server.py
 
 ROOT_SCRIPTS := 0_network.sh   \
