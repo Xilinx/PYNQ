@@ -1,10 +1,10 @@
-.. Python on Zynq (Pynq) documentation master file, created by
+.. Python productivity for Zynq (Pynq) documentation master file, created by
    sphinx-quickstart on Mon Mar 28 22:10:04 2016.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Python on Zynq (Pynq) Documentation
-===================================
+Python productivity for Zynq (Pynq) Documentation
+=======================================================
 
 Contents:
 ---------

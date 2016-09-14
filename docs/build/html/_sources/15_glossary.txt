@@ -15,7 +15,7 @@ A-G
    All Programmable System on Chip
 
   BSP 
-   A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx software developmnet Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package
+   A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx software development Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package
 
   FPGA
    `Field Programmable Gate Arrays (FPGAs) <http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm>`_ are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks.
@@ -27,7 +27,7 @@ H-R
    An SDK project
    
   HDF
-   Hardware Definition File (.hdf). This file is created by Vivado and contains information about a processor system in an FPGA overlay. The HDF specifies the peripherals that exist in the system, and the memory map. This is used by the BSP to build software librariesto support the availabel peripherals.
+   Hardware Definition File (.hdf). This file is created by Vivado and contains information about a processor system in an FPGA overlay. The HDF specifies the peripherals that exist in the system, and the memory map. This is used by the BSP to build software libraries to support the available peripherals.
 
   I2C
     See IIC
@@ -39,7 +39,7 @@ H-R
    Input/Output Processors
 
   Jupyter (Notebooks)
-   `Jupyter <www.jupyter.org>`_ is an open source project consisting of an interactive, web application that allows users to create and share notebook documents that contain live code and the full range of rich media supported by modern browsers. These include include text, images, videos, LaTeX-styled equations, and interactive widgets. The Jupyter framework is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities. Its uses include: data cleaning and transformation, numerical simulation, statistical modeling, machine learning and much more.
+   `Jupyter <www.jupyter.org>`_ is an open source project consisting of an interactive, web application that allows users to create and share notebook documents that contain live code and the full range of rich media supported by modern browsers. These include text, images, videos, LaTeX-styled equations, and interactive widgets. The Jupyter framework is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities. Its uses include: data cleaning and transformation, numerical simulation, statistical modelling, machine learning and much more.
    
 
   MicroBlaze
@@ -53,7 +53,7 @@ H-R
    Secure Digital (Memory Card standard)
 
   readthedocs.org
-   `readthedocs.org <https://readthedocs.org>`_ is a popular website that hosts the documentation for open source projects at no cost.  readthedocs.org uses Sphinx document geneation tools to automatically generate both the website and PDF versions of project documentation from a GitHub repository when new updates are pushed to that site. 
+   `readthedocs.org <https://readthedocs.org>`_ is a popular website that hosts the documentation for open source projects at no cost.  readthedocs.org uses Sphinx document generation tools to automatically generate both the website and PDF versions of project documentation from a GitHub repository when new updates are pushed to that site. 
 
   REPL
    A read–eval–print loop (REPL), also known as an interactive toplevel or language shell, is a simple, interactive computer     programming environment that takes single user inputs (i.e. single expressions), evaluates them, and returns the result to the user; a program written in a REPL environment is executed piecewise. The term is most usually used to refer to programming interfaces similar to the classic Lisp machine interactive environment. Common examples include command line shells and similar environments for programming languages, and is particularly characteristic of scripting languages `wikipedia <https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop>`_
@@ -71,7 +71,7 @@ S-Z
    System On Chip
 
   Sphinx
-   A document generator written in Python and used extensively to documemt Python and other coding projects
+   A document generator written in Python and used extensively to document Python and other coding projects
 
   SPI
    Serial Peripheral Interface; synchronous serial communication interface specification 

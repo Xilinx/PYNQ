@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hardware and Overlays &mdash; Python on Zynq (Pynq) v1.0</title>
+  <title>Hardware and Overlays &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+    <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Using Peripherals with the Base overlay" href="6a_base_overlay_iop.html"/>
         <link rel="prev" title="Programming PYNQ-Z1’s onboard peripherals" href="5_programming_onboard.html"/> 
 
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+            <a href="index.html" class="icon icon-home"> Python productivity for Zynq (Pynq)
           
 
           
@@ -92,14 +92,15 @@
 <li class="toctree-l2"><a class="reference internal" href="#overlay-concept">Overlay Concept</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#base-overlay">Base Overlay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pmod-peripherals">Pmod Peripherals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pmod-port">Pmod Port</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pynq-z1-pmod-ports">PYNQ-Z1 Pmod ports</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#supported-peripherals">Supported peripherals</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pmod-connector">Pmod Connector</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pynq-grove-adapter">PYNQ Grove Adapter</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#arduino-peripherals">Arduino Peripherals</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Supported peripherals</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#arduino-connector">Arduino Connector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Supported peripherals</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pynq-shield">PYNQ Shield</a></li>
 </ul>
 </li>
@@ -141,7 +142,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">Python on Zynq (Pynq)</a>
+        <a href="index.html">Python productivity for Zynq (Pynq)</a>
       </nav>
 
 
@@ -290,28 +291,41 @@ div.nboutput  > :nth-child(2).stderr {
 <h1>Hardware and Overlays<a class="headerlink" href="#hardware-and-overlays" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="overlay-concept">
 <h2>Overlay Concept<a class="headerlink" href="#overlay-concept" title="Permalink to this headline">¶</a></h2>
-<p>Zynq provides a processor and FPGA fabric on the same chip.</p>
-<p>Overlays, or hardware libraries extend the user application from the PS (Processing System) of the Zynq into the FPGA. This allows software programmers to take advantage of the FPGA fabric to accelerate the application, or to use an overlay to customize the hardware platform for a particular application.</p>
-<p>For example, image processing is a typical application where the FPGA can provide acceleration. A software programmer can use a hardware library to run some of the image processing functions (e.g. edge detect, thresholding) on the FPGA fabric.
+<p>The Xilinx Zynq All Programmable device is an SOC based on a dual-core ARM Cortex-A9 processor (referred to as the  <em>Processing System</em> or <strong>PS</strong>), which also includes FPGA fabric (referred to as  <em>Programmable Logic</em> or <strong>PL</strong>). The ARM SoC subsystem also includes a number of dedicated peripherals (memory controllers, USB, Uart, IIC, SPI etc).</p>
+<img alt="_images/zynq_blockdiagram.jpg" class="align-center" src="_images/zynq_blockdiagram.jpg" />
+<p>The FPGA fabric is reconfigurable, and can be used to implement high performance functions in hardware. However, FPGA design is a specialized task which requires deep hardware engineering knowledge and expertise.
+Overlays, or hardware libraries, are programmable/configurable FPGA designs that extend the user application from the Processing System of the Zynq into the Programmable Logic. This allows software programmers to take advantage of the FPGA fabric to accelerate an application, or to use an overlay to customize the hardware platform for a particular application.</p>
+<p>For example, image processing is a typical application where the FPGAs can provide acceleration. A software programmer can use a hardware library to run some of the image processing functions (e.g. edge detect, thresholding etc.) on the FPGA fabric.
 Hardware libraries can be loaded to the FPGA dynamically, as required, just like a software library.
-Seperate image processing functions could be implemented in different overlays and loaded from Python on demand.</p>
-<p>To give another example, for a drone, or robotic application, the PYNQ-Z1 has more pins/interfaces available than a typical embedded platform.
-A new overlay could be created to customize the hardware interfaces to the new application.
-Multiple motor controllers and sensor controllers could be implemented in hardware in the new overlay, and connected to the available pins. A software programmer could use the controllers in the overlay  through a Python/C API.</p>
+Using Pynq, separate image processing functions could be implemented in different overlays and loaded from Python on demand.</p>
+<p>To give another example, the PYNQ-Z1 has more pins/interfaces available than a typical embedded platform, and can implement multiple custom processors in the Programmable logic.
+Multiple sensor and actuator controllers, and multiple heterogeneous custom processors (real-time or non real-time), could be implemented in hardware in the new overlay, and connected to the available pins. A software programmer could use the controllers and processors in the overlay through a Pynq API.</p>
 </div>
 <div class="section" id="base-overlay">
 <h2>Base Overlay<a class="headerlink" href="#base-overlay" title="Permalink to this headline">¶</a></h2>
-<p>The base overlay is the default overlay included with the PYNQ-Z1 image.</p>
-<p>This overlay customizes the platform to connect HDMI In and Out controllers,  an audio controller (Mic In and Audio Out), and the Pmod and Arduino interfaces (through the IO Processors) to the PS, to allow them to be used from the Pynq environment. There is also a tracebuffer connected to the Pmod, and Arduino interfaces to allow for hardware debug. The user buttons, switches and LEDs are also connected to the PS in the base overlay.</p>
+<p>The base overlay is a precompiled FPGA design that can be downloaded to the Programmable Logic. It is the default overlay included with the PYNQ-Z1 image, and is automatically loaded when the system boots.</p>
+<p>This overlay customizes the Programmable Logic to connect HDMI In and Out controllers, an audio controller (Mic In and Audio Out), and the Pmod and Arduino interfaces (through the IO Processors) to the PS. This allows the peripherals to be used from the Pynq environment. There is also a tracebuffer connected to the Pmod, and Arduino interfaces to allow for hardware debug. The user buttons, switches and LEDs are also connected to the PS in the base overlay.</p>
 <img alt="_images/pynqz1_base_overlay.png" class="align-center" src="_images/pynqz1_base_overlay.png" />
 <p>The Pmod and Arduino interfaces have special custom IO Processors  that allow a range of peripherals with different IO standards to be connected to the system. This allows a software programmer to use a wide range of peripherals with different interfaces and protocols without needing to create a new FPGA design for each peripheral or set of peripherals.</p>
 </div>
 <div class="section" id="pmod-peripherals">
 <h2>Pmod Peripherals<a class="headerlink" href="#pmod-peripherals" title="Permalink to this headline">¶</a></h2>
-<p>A Pmod interface is a 12-pin connector that can be used to connect peripherals.</p>
-<p>A range of Pmod peripherals are available from Digilent and thrid parties. Typical Pmod peripherals include sensors (voltage, light, temperature), communication interfaces (Ethernet, serial, wifi, bluetooth), and input and output interfaces (buttons, switches, LEDs).</p>
+<p>A Pmod interface is a 12-pin connector that can be used to connect peripherals. A range of Pmod peripherals are available from Digilent and third parties. Typical Pmod peripherals include sensors (voltage, light, temperature), communication interfaces (Ethernet, serial, wifi, bluetooth), and input and output interfaces (buttons, switches, LEDs).</p>
+<div class="section" id="pmod-port">
+<h3>Pmod Port<a class="headerlink" href="#pmod-port" title="Permalink to this headline">¶</a></h3>
+<p>Each Pmod connector has 12 pins: 2 rows of 6 pins, where each row has 3.3V (VCC), ground (GND) and 4 data pins. This gives 8 data pins in total. Pmod data pins are labelled 0-7 in the image below. The pin number needs to be specified in Python when creating a new instance of a peripheral connected to a port.</p>
+<img alt="_images/pmod_closeup.JPG" class="align-center" src="_images/pmod_closeup.JPG" />
+<p>Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins.</p>
+<img alt="_images/pmod_pins.png" class="align-center" src="_images/pmod_pins.png" />
+<p>Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should usually be aligned to the left of the connector (to align with VCC and GND).</p>
+<img alt="_images/pmod_tmp2_8pin.JPG" src="_images/pmod_tmp2_8pin.JPG" />
+<p>Pmod peripherals with only a single row of pins can be physically plugged into the top row or the bottom row of a Pmod port (again, aligned to VCC/GND). However, if you are using an existing driver/overlay, you will need to check which pins/rows are supported for a given overlay, as not all options may be implemented. e.g. the Pmod ALS is currently only supported on the top row of a Pmod port, not the bottom row.</p>
+</div>
+<div class="section" id="pynq-z1-pmod-ports">
+<h3>PYNQ-Z1 Pmod ports<a class="headerlink" href="#pynq-z1-pmod-ports" title="Permalink to this headline">¶</a></h3>
 <p>There are two Pmod connectors on PYNQ-Z1.</p>
 <img alt="_images/pynqz1_pmod_interface.jpg" class="align-center" src="_images/pynqz1_pmod_interface.jpg" />
+</div>
 <div class="section" id="supported-peripherals">
 <h3>Supported peripherals<a class="headerlink" href="#supported-peripherals" title="Permalink to this headline">¶</a></h3>
 <p>A number of peripherals are supported:</p>
@@ -322,16 +336,6 @@ Multiple motor controllers and sensor controllers could be implemented in hardwa
 <li>Other peripherals can be wired to a Pmod port.</li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="pmod-connector">
-<h3>Pmod Connector<a class="headerlink" href="#pmod-connector" title="Permalink to this headline">¶</a></h3>
-<p>Each Pmod connector has 12 pins: 2 rows of 6 pins, where each row has 3.3V (VCC), ground (GND) and 4 data pins. This gives 8 data pins in total. Pmod data pins are labelled 0-7 in the image below. The pin number needs to be specified in Python when creating a new instance of a peripheral connected to a port.</p>
-<img alt="_images/pmod_closeup.JPG" class="align-center" src="_images/pmod_closeup.JPG" />
-<p>Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins.</p>
-<img alt="_images/pmod_pins.png" class="align-center" src="_images/pmod_pins.png" />
-<p>Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should usually be aligned to the left of the connector (to align with VCC and GND).</p>
-<img alt="_images/pmod_tmp2_8pin.JPG" src="_images/pmod_tmp2_8pin.JPG" />
-<p>Pmod peripherals with only a single row of pins can be physically plugged into the top row or the bottom row of a Pmod port (again, aligned to VCC/GND). However, if you are using an existing driver/overlay, you will need to check which pins/rows are supported for a given overlay, as not all options may be implemented. e.g. the Pmod ALS is currently only supported on the top row of a Pmod port, not the bottom row.</p>
 </div>
 <div class="section" id="pynq-grove-adapter">
 <h3>PYNQ Grove Adapter<a class="headerlink" href="#pynq-grove-adapter" title="Permalink to this headline">¶</a></h3>
@@ -348,14 +352,13 @@ Multiple motor controllers and sensor controllers could be implemented in hardwa
 <h2>Arduino Peripherals<a class="headerlink" href="#arduino-peripherals" title="Permalink to this headline">¶</a></h2>
 <p>There is one Arduino connector on the board and can be used to connect to arduino compatible shields.</p>
 <img alt="_images/pynqz1_arduino_interface.jpg" class="align-center" src="_images/pynqz1_arduino_interface.jpg" />
-<div class="section" id="id1">
-<h3>Supported peripherals<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>Most arduino shields can be used with the PYNQ-Z1 board. A <em>PYNQ Shield</em>, is also available, which serves as a bridge to connect multiple Grove peripherals.</p>
-</div>
 <div class="section" id="arduino-connector">
 <h3>Arduino Connector<a class="headerlink" href="#arduino-connector" title="Permalink to this headline">¶</a></h3>
 <p>Each Arduino connector has 6 analog pins (A0 - A5), 14 multi-purpose Digital pins (D0 - D13), 2 dedicated I2C pins (SCL, SDA), and 4 dedicated SPI pins.</p>
-<img alt="_images/arduino_closeup.JPG" src="_images/arduino_closeup.JPG" />
+</div>
+<div class="section" id="id1">
+<h3>Supported peripherals<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Most Arduino compatible shields can be used with the PYNQ-Z1 board. However, the PYNQ-Z1 board is limited analog range (1V peak-to-peak), so not all Arduino analog shields are supported.</p>
 </div>
 <div class="section" id="pynq-shield">
 <h3>PYNQ Shield<a class="headerlink" href="#pynq-shield" title="Permalink to this headline">¶</a></h3>
@@ -370,7 +373,7 @@ Multiple motor controllers and sensor controllers could be implemented in hardwa
 <p>For overlays to be useful, they must provide sufficient functionality, while also providing flexibility to suit a wide range of applications. Flexibility in the base overlay is demonstrated through the use of IO Processors (IOPs).</p>
 <p>An IO Processor is implemented in the programmable logic and connects to and controls an external port on the board. There are two types of IOP: Pmod IOP and Arduino IOP.</p>
 <p>Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and memory for the MicroBlaze instruction and data memory. The memory is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). e.g. a simple mailbox.</p>
-<p>In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required deditcated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port.</p>
+<p>In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required dedicated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port.</p>
 <div class="section" id="pmod-iop">
 <h2>Pmod IOP<a class="headerlink" href="#pmod-iop" title="Permalink to this headline">¶</a></h2>
 <p>Two Pmod IOPs are included in the base overlay to control each of the two Pmod interfaces on the board.</p>
@@ -384,7 +387,7 @@ Multiple motor controllers and sensor controllers could be implemented in hardwa
 </ul>
 <div class="section" id="pmod-iop-configurable-switch">
 <h3>Pmod IOP configurable switch<a class="headerlink" href="#pmod-iop-configurable-switch" title="Permalink to this headline">¶</a></h3>
-<p>The MicroBlaze, inside the IOP, can conifigure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.</p>
+<p>The MicroBlaze, inside the IOP, can configure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.</p>
 <p>For the Pmod IOP switch, each individual pin can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers.</p>
 <p>The following function, part of the Pmod IO switch driver, can be used to configure the switch.</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">config_pmod_switch</span><span class="p">();</span>

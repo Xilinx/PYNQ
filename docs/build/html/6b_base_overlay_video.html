@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Video using the Base Overlay &mdash; Python on Zynq (Pynq) v1.0</title>
+  <title>Video using the Base Overlay &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+    <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Audio using the Base Overlay" href="6c_base_overlay_audio.html"/>
         <link rel="prev" title="Using Peripherals with the Base overlay" href="6a_base_overlay_iop.html"/> 
 
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+            <a href="index.html" class="icon icon-home"> Python productivity for Zynq (Pynq)
           
 
           
@@ -129,7 +129,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">Python on Zynq (Pynq)</a>
+        <a href="index.html">Python productivity for Zynq (Pynq)</a>
       </nav>
 
 
@@ -284,7 +284,8 @@ overlay.</p>
 controller, both connected to their corresponding HDMI ports. A frame
 can be captured from the HDMI input, and streamed into DDR memory. The
 frames in DDR memory, can be accessed from Python.</p>
-<p>A frame list can be streamed from memory to the HDMI output.</p>
+<p>A framebuffer can be shared between HDMI in and HDMI out to enable
+streaming.</p>
 <div class="figure align-center">
 <img alt="_images/pynqz1_video.JPG" src="_images/pynqz1_video.JPG" />
 </div>
@@ -304,8 +305,8 @@ and displayed on the HDMI out.</p>
 valid video source. E.g. your laptop can be used if it has HDMI out. Any
 HDMI video source can be used up to 1080p.</p>
 <p>To use the HDMI in, ensure you have connected a valid HDMI source and
-execute the next cell. If a valid HDMI source is not detected, the
-kernel will hang and need restart.</p>
+execute the next cell. If a valid HDMI source is not detected, the HDMI
+in controller will timeout with an error.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
 <span></span>In [1]:
@@ -675,7 +676,7 @@ HDMI OUT port to a monitor, or other display device.</p>
 <li>1 if running</li>
 </ul>
 <p>After initialization, the display resolution is set at the lowest level:
-<a class="reference external" href="mailto:640x490&#37;&#52;&#48;60Hz">640x490<span>&#64;</span>60Hz</a>.</p>
+<a class="reference external" href="mailto:640x480&#37;&#52;&#48;60Hz">640x480<span>&#64;</span>60Hz</a>.</p>
 <p>To check the current resolution:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>

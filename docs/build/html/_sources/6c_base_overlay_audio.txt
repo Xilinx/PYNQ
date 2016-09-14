@@ -60,7 +60,7 @@
    "metadata": {},
    "source": [
     "## Using the MIC\n",
-    "To use the MIC, first create an instace of the Audio class. The audio class can be used to access both the MIC and the line out. "
+    "To use the MIC, first create an instance of the Audio class. The audio class can be used to access both the MIC and the line out. "
    ]
   },
   {

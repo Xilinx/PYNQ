@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting Started &mdash; Python on Zynq (Pynq) v1.0</title>
+  <title>Getting Started &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+    <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Introduction to Jupyter Notebook" href="3_jupyter_notebook.html"/>
         <link rel="prev" title="PYNQ Overview" href="1_pynq.html"/> 
 
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+            <a href="index.html" class="icon icon-home"> Python productivity for Zynq (Pynq)
           
 
           
@@ -133,7 +133,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">Python on Zynq (Pynq)</a>
+        <a href="index.html">Python productivity for Zynq (Pynq)</a>
       </nav>
 
 
@@ -337,7 +337,7 @@ The Pynq image will be available to download from the Digilent website.</p>
 <li>Connect the Ethernet cable into your board, and directly to your laptop/PC or to a router/network switch your computer is connected to.</li>
 <li><strong>Turn on</strong> the power switch on the board</li>
 </ol>
-<p>When you power on the board, you should see a <em>Red LED</em> indicating that the board is powered. After a few seconds, you shoudl see a <em>Green LED</em> (LD12/DONE), indicating a bitstream has been downloaded to the programmable logic. This is also a good indication that the boot process has started correctly. After about 30 seconds the board should finishing booting and you can then connect to the board from your browser.</p>
+<p>When you power on the board, you should see a <em>Red LED</em> indicating that the board is powered. After a few seconds, you should see a <em>Green LED</em> (LD12/DONE), indicating a bitstream has been downloaded to the programmable logic. This is also a good indication that the boot process has started correctly. After about 30 seconds the board should finishing booting and you can then connect to the board from your browser.</p>
 </div></blockquote>
 </div>
 </div>
@@ -346,39 +346,47 @@ The Pynq image will be available to download from the Digilent website.</p>
 <p>You need to make sure your board can connect to your computer or network correctly. You will need to know the hostname or the IP address of the board. By default, if the board is connected to a router or network with a DHCP server, it will get an IP address automatically. You can then use the board hostname to connect to it. The default hostname is <code class="docutils literal"><span class="pre">pynq</span></code>.</p>
 <p>If you connect your board directly to the Ethernet port of your PC, the board will automatically assign itself a static IP address (<code class="docutils literal"><span class="pre">192.168.2.99</span></code> by default). To allow the board and computer to communicate, you can  manually configure your computer to have an IP address in the same range (e.g. 192.168.2.1).</p>
 <p>You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet/IP and any other operating system settings. See the <a class="reference external" href="14_faqs.html">Frequently asked questions</a>  for more details on connecting to the board, and changing the IP address and other settings of the board.</p>
-<p>Two scripts are available if you need help configuring the Ethernet on a Windows computer, <code class="docutils literal"><span class="pre">pynq_enable_static_IP_windows.bat</span></code> and <code class="docutils literal"><span class="pre">pynq_disable_static_IP_windows.bat</span></code> available in the <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">respository&gt;\scripts\host</span></code> folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a Windows command prompt. You can also check the internet for instructions on how to configure the Ethernet settings for your computer.</p>
+<p>Two scripts are available if you need help configuring the Ethernet on a Windows computer, <code class="docutils literal"><span class="pre">pynq_enable_static_IP_windows.bat</span></code> and <code class="docutils literal"><span class="pre">pynq_disable_static_IP_windows.bat</span></code> available in the <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">repository&gt;\scripts\host</span></code> folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a Windows command prompt. You can also check the internet for instructions on how to configure the Ethernet settings for your computer.</p>
 <div class="section" id="open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal">
 <h3>Open a web browser and connect to Pynq Jupyter Notebooks web portal<a class="headerlink" href="#open-a-web-browser-and-connect-to-pynq-jupyter-notebooks-web-portal" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
-<li>Using a web browser, enter the address  <a class="reference external" href="http://pynq:9090">http://pynq:9090</a> or <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a> if using a static IP.  The default hostname of the board is <strong>pynq</strong>. If you changed the hostname, you will need to change the address to match your hostname.</li>
+<dl class="docutils">
+<dt>If the board is connected to your network, the board should get a DHCP (dynamic) IP address.</dt>
+<dd><ul class="first last simple">
+<li>Open a web browser and go to <a class="reference external" href="http://pynq:8080">http://pynq:8080</a></li>
 </ul>
-</div></blockquote>
-<p>It may take a few seconds to resolve the hostname/IP address. If you have problems connecting to the board, first try to ping it, then try to connect a terminal to the board to check it has booted, and that the Ethernet settings for the board are correct.</p>
-<p>You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the <a class="reference external" href="14_faqs.html">Frequently asked questions</a> to change the hostname, or if you are having problems connecting to the board.</p>
+</dd>
+<dt>If the board is connected directly to your laptop/PC Ethernet port, the board will have a static IP (192.168.2.99) by default.</dt>
+<dd><ul class="first last simple">
+<li>Configure your Ethernet adapter IP address to be in the same range as the board (e.g.  192.168.2.1), open a web browser and  go to <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a></li>
+</ul>
+</dd>
+</dl>
+<p>The default hostname of the board is <strong>pynq</strong> and the default static IP address is <code class="docutils literal"><span class="pre">192.168.2.99</span></code>. If you changed the hostname or static IP, you will need to change the address above to match your hostname.</p>
+<p>It may take a few seconds to resolve the hostname/IP address. If you have problems connecting to the board, first try to ping it from your laptop/PC. If you can&#8217;t ping it, then try to connect a terminal to the board to check it has booted, and that the Ethernet settings for the board are correct.</p>
+<p>You will need to change the hostname if multiple boards are connected to the same network. E.g. classroom teaching. See the <a class="reference external" href="14_faqs.html">Frequently asked questions</a> for instructions to change the hostname, or if you are having problems connecting to the board.</p>
 <blockquote>
 <div><ul class="simple">
 <li>The Jupyter username/password is xilinx/xilinx</li>
 </ul>
-<a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 455.25px; height: 450.0px;" /></a>
+<a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 504.0px; height: 450.0px;" /></a>
 </div></blockquote>
-<p>You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board. A number of Getting Started Notebooks, and Examples are available in the corresponding directories in the Pynq home area.</p>
+<p>You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board. A number of <em>Getting Started</em> Notebooks, and <em>Examples</em> are available in the corresponding directories in the Pynq home area.</p>
 </div>
 </div>
 <div class="section" id="using-pynq">
 <h2><a class="toc-backref" href="#id6">Using Pynq</a><a class="headerlink" href="#using-pynq" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="getting-started-notebooks">
 <h3>Getting started notebooks<a class="headerlink" href="#getting-started-notebooks" title="Permalink to this headline">¶</a></h3>
-<p>Jupyter notebooks can be saved as html webpages. Some of this Pynq getting started documentation has been generated directly from Jupyter notebooks.</p>
-<p>You can view the documentation as a webpage, or if you have a board running Pynq, you can view the notebook documentation interactively. Sections: 3 Introduction to Jupyter Notebooks, 4 Programming in Python, 5 Programming onboard peripherals, 7 Base overlay IOP, and 8 Base overlay Video have been generated from Jupyter notebooks, and can be viewed and run interactively from the <em>started folder</em> in the Jupyter home area.</p>
-<a class="reference internal image-reference" href="_images/getting_started_notebooks.jpg"><img alt="_images/getting_started_notebooks.jpg" class="align-center" src="_images/getting_started_notebooks.jpg" style="width: 678.0px; height: 450.0px;" /></a>
+<p>Jupyter notebooks can be saved as html webpages. Some of this Pynq documentation has been generated directly from Jupyter notebooks.</p>
+<p>You can view the documentation as a webpage, or if you have a board running Pynq, you can view and run the notebook documentation interactively. The documentation available as notebooks can be found in the <em>Getting_Started</em> folder in the Jupyter home area.</p>
+<a class="reference internal image-reference" href="_images/getting_started_notebooks.jpg"><img alt="_images/getting_started_notebooks.jpg" class="align-center" src="_images/getting_started_notebooks.jpg" style="width: 510.75px; height: 450.0px;" /></a>
 <p>There are also a number of example notebooks available showing how to use various peripherals with the board.</p>
 <a class="reference internal image-reference" href="_images/example_notebooks.jpg"><img alt="_images/example_notebooks.jpg" class="align-center" src="_images/example_notebooks.jpg" style="width: 447.0px; height: 450.0px;" /></a>
 </div>
 <div class="section" id="accessing-files-on-the-board">
 <h3>Accessing files on the board<a class="headerlink" href="#accessing-files-on-the-board" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="https://www.samba.org/">Samba</a>, a file sharing service, is running on the board. The home area on the board can be accessed as a network drive, and you can transfer files to and from the board.</p>
-<p>You can go to <code class="docutils literal"><span class="pre">\\pynq\xilinx</span></code> or <code class="docutils literal"><span class="pre">\\192.168.2.99\xilinx</span></code> to access the pynq home area. Remember to change the hostname/IP address if necessary.</p>
+<p>You can go to <code class="docutils literal"><span class="pre">\\pynq\xilinx</span></code> or <code class="docutils literal"><span class="pre">\\192.168.2.99\xilinx</span></code> (windows) or <code class="docutils literal"><span class="pre">smb://pynq/xilinx</span></code> or <code class="docutils literal"><span class="pre">smb://192.168.2.99/xilinx</span></code> (linux) to access the pynq home area. Remember to change the hostname/IP address if necessary.</p>
 <p>The Samba username:password is <code class="docutils literal"><span class="pre">xilinx:xilinx</span></code></p>
 <a class="reference internal image-reference" href="_images/samba_share.JPG"><img alt="_images/samba_share.JPG" class="align-center" src="_images/samba_share.JPG" style="width: 506.25px; height: 450.0px;" /></a>
 </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>IO Processors: Writing your own software &mdash; Python on Zynq (Pynq) v1.0</title>
+  <title>IO Processors: Writing your own software &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+    <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Working with Overlays" href="10_creating_overlays.html"/>
         <link rel="prev" title="Audio using the Base Overlay" href="6c_base_overlay_audio.html"/> 
 
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+            <a href="index.html" class="icon icon-home"> Python productivity for Zynq (Pynq)
           
 
           
@@ -138,7 +138,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">Python on Zynq (Pynq)</a>
+        <a href="index.html">Python productivity for Zynq (Pynq)</a>
       </nav>
 
 
@@ -308,17 +308,17 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <div class="section" id="software-requirements">
 <h2>Software requirements<a class="headerlink" href="#software-requirements" title="Permalink to this headline">¶</a></h2>
-<p>A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq and is available for free.  It should be noted that Pynq ships with precompiled IOP executables to support various peripherals (see <a class="reference external" href="modules.html">Pynq Modules</a>), but that full source code is available from the proejct GitHub. Xilinx software is only needed if you intend to build your own IOP applications/peripheral drivers. A free, fully fuctional, version of the Xilinx tools is available for Pynq if required (see the free <a class="reference external" href="https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html">Xilinx Vivado WebPack</a> for more details).</p>
+<p>A MicroBlaze cross-compiler is required to build software for the MicroBlaze inside an IOP.  Xilinx SDK contains the MicroBlaze cross-compiler and was used to build all Pmod device drivers released with Pynq and is available for free.  It should be noted that Pynq ships with precompiled IOP executables to support various peripherals (see <a class="reference external" href="modules.html">Pynq Modules</a>), but that full source code is available from the project GitHub. Xilinx software is only needed if you intend to build your own IOP applications/peripheral drivers. A free, fully functional, version of the Xilinx tools is available for Pynq if required (see the free <a class="reference external" href="https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html">Xilinx Vivado WebPack</a> for more details).</p>
 <p>The current Pynq release is built using Vivado and SDK 2016.1. it is recommended to use the same version to rebuild existing Vivado and SDK projects. If you only intend to build software, you will only need to install SDK. The full Vivado and SDK installation is only required to design new overlays.</p>
 <p><a class="reference external" href="http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html">Download Xilinx Vivado and SDK 2016.1</a></p>
 <p>You can use the Vivado HLx Web Install Client and select SDK and/or Vivado during the installation.</p>
-<p>Pynq also support building of bitstreams from SDSoC. SDSoC is currently a seperate download and installation from the main Vivado/SDK software.</p>
+<p>Pynq also support building of bitstreams from SDSoC. SDSoC is currently a separate download and installation from the main Vivado/SDK software.</p>
 </div>
 <div class="section" id="compiling-projects">
 <h2>Compiling projects<a class="headerlink" href="#compiling-projects" title="Permalink to this headline">¶</a></h2>
 <p>Software executables run on the MicroBlaze inside the IOP. Code for the MicroBlaze can be written in C or C++ and compiled using the <a class="reference external" href="http://www.xilinx.com/products/design-tools/embedded-software/sdk.html">Xilinx SDK (Software Development Kit)</a>.</p>
 <p>You can pull or clone the Pynq GitHub repository, and all the driver source and project files can be found in <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;\Pynq-Z1\sdk</span></code>,  (Where <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;</span></code> is the location of the PYNQ repository).</p>
-<p>These projects are considered SDK <em>Application</em> projects and contain the top level application. Each SDK project requires a BSP project (Board Suppoprt Package), and a hardware platform project. See below for more details. Software libraries are included in a Board Support Package (BSP) project, and the BSP is linked to from the application project.</p>
+<p>These projects are considered SDK <em>Application</em> projects and contain the top level application. Each SDK project requires a BSP project (Board Support Package), and a hardware platform project. See below for more details. Software libraries are included in a Board Support Package (BSP) project, and the BSP is linked to from the application project.</p>
 <p>All <em>Application</em> projects can be compiled from the command line using Makefiles, or imported into the SDK GUI.</p>
 <p>You can also use existing projects as a starting point to create your own project.</p>
 <div class="section" id="hdf-file">
@@ -381,7 +381,7 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <div class="section" id="memory-map">
 <h2>Memory map<a class="headerlink" href="#memory-map" title="Permalink to this headline">¶</a></h2>
-<p>The IOP memory is 64KB &#8216;&#8217;(0x10000)&#8217;&#8217; of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
+<p>The IOP memory is 64KB of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
 Pynq and the application running on the IOP can write to anywhere in the shared memory space (although care should be taken not to write to the instruction memory unintentionally as this will corrupt the running application).</p>
 <p>When building the MicroBlaze project, the compiler will only ensure that the application and <em>allocated</em> stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, a part of the shared memory space must also be reserved within the MicroBlaze address space.</p>
 <p>There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.</p>
@@ -415,9 +415,9 @@ Pynq and the application running on the IOP can write to anywhere in the shared 
 <p>The following example explains how Python could initiate a read from a peripheral connected to an IOP.</p>
 <ol class="arabic simple">
 <li>Python writes a read command (e.g. 0x3) to the mailbox command address (0xfffc).</li>
-<li>MicroBlaze application checks the command addres, and reads and decodes the command.</li>
+<li>MicroBlaze application checks the command address, and reads and decodes the command.</li>
 <li>MicroBlaze performs a read from the peripheral and places the data at the mailbox base address (0xf000).</li>
-<li>Micboblaze writes 0x0 to the mailbox command address (0xfffc) to confirm transaction is complete.</li>
+<li>MicroBlaze writes 0x0 to the mailbox command address (0xfffc) to confirm transaction is complete.</li>
 <li>Python checks the command address (0xfffc), and sees that the MicroBlaze has written 0x0, indicating the read is complete, and data is available.</li>
 <li>Python reads the data in the mailbox base address (0xf000), completing the read.</li>
 </ol>
@@ -601,7 +601,7 @@ The following function, part of the provided pmod_io_switch_v1_0 driver (<code c
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </pre></div>
 </div>
-<p>First, the comand is written to the MicroBlaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.</p>
+<p>First, the command is written to the MicroBlaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">mmio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_OFFSET</span><span class="o">+</span>
                     <span class="n">iop_const</span><span class="o">.</span><span class="n">MAILBOX_PY2IOP_CMD_OFFSET</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 </pre></div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Working with Overlays &mdash; Python on Zynq (Pynq) v1.0</title>
+  <title>Working with Overlays &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Python on Zynq (Pynq) v1.0" href="index.html"/>
+    <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="The Pynq (Python Productivity for Zynq) Package" href="11_python_package.html"/>
         <link rel="prev" title="IO Processors: Writing your own software" href="9_iop_code.html"/> 
 
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Python on Zynq (Pynq)
+            <a href="index.html" class="icon icon-home"> Python productivity for Zynq (Pynq)
           
 
           
@@ -122,7 +122,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">Python on Zynq (Pynq)</a>
+        <a href="index.html">Python productivity for Zynq (Pynq)</a>
       </nav>
 
 
@@ -281,8 +281,8 @@ div.nboutput  > :nth-child(2).stderr {
 <li><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">repository&gt;/Pynq-Z1/vivado/base</span></code></li>
 </ul>
 </div></blockquote>
-<p>A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/bitstream/</span></code> so it is not necessary to rebuild the overlay, which requires a full Vivado installation.</p>
-<p>Building overlays is only required to build a new overlay. Building an existing overlay allows the project to be opened in Vivado and examined, or modified to create a new overlay.</p>
+<p>A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in <code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/bitstream/</span></code>.</p>
+<p>A full Vivado installation is required to design and build overlays. Building an existing overlay design allows the project to be opened in Vivado and examined, or modified to create a new overlay.</p>
 <a class="reference internal image-reference" href="_images/vivado_base_overlay.JPG"><img alt="_images/vivado_base_overlay.JPG" class="align-center" src="_images/vivado_base_overlay.JPG" style="width: 840.0px; height: 513.5px;" /></a>
 </div>
 <div class="section" id="loading-overlays">
@@ -344,7 +344,7 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <div class="section" id="using-new-overlays-with-gpio">
 <h2>Using new overlays with GPIO<a class="headerlink" href="#using-new-overlays-with-gpio" title="Permalink to this headline">¶</a></h2>
-<p>GPIO between the the Zynq PS and PL can be used by Python code as a control interface to overlays.  The information about a GPIO is kept in the GPIO dictionary of an overlay.</p>
+<p>GPIO between the Zynq PS and PL can be used by Python code as a control interface to overlays.  The information about a GPIO is kept in the GPIO dictionary of an overlay.</p>
 <p>The following code can be used to get the dictionary for a bitstream:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynq</span> <span class="kn">import</span> <span class="n">Overlay</span>
 <span class="n">ol</span> <span class="o">=</span> <span class="n">Overlay</span><span class="p">(</span><span class="s2">&quot;base.bit&quot;</span><span class="p">)</span>
@@ -358,7 +358,7 @@ div.nboutput  > :nth-child(2).stderr {
 <p>The <em>value</em> is a list of 2 items:</p>
 <blockquote>
 <div><ul class="simple">
-<li>The first item shows the index of the GPIO (<em>0</em>).</li>
+<li>The first item shows the index of the GPIO (0).</li>
 <li>The second item (<em>None</em>) shows the state of the GPIO. It is <cite>None</cite> by default, but can be user defined.</li>
 </ul>
 </div></blockquote>
