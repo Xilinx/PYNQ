@@ -115,29 +115,32 @@ Linux is installed on the board. Connect to the board using a terminal, and chan
 How do I find the IP address of the board?
 ======================================================
 
-Connect to the board using a terminal (see above) and type 'hostname -I' to find the IP address for the eth0 Ethernet adapter or the WiFi dongle
+Connect to the board using a terminal (see above) and type 'hostname -I' to find the IP address for the eth0 Ethernet adapter or the WiFi dongle.
    
 How do I set/change the static IP address on the board?
 ========================================================
 
-The Static IP address is set in /etc/dhcp/dhclient.conf  - you can modify the board's static IP there
+The Static IP address is set in ``/etc/dhcp/dhclient.conf``  - you can modify the board's static IP here.
    
 How do I find my hostname?
 ======================================================
 
-Connect to the board using a terminal and run 'hostname'
+Connect to the board using a terminal and run ``hostname``
    
 How do I change the hostname?
 ======================================================
 
 If you have multiple boards on the same network, you should give them different host names. 
 You can run the following script to change the hostname:
-sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME
+
+   .. code-block:: console
+   
+      sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME
    
 What is the user account and password?
 ======================================================
 
-Username and password for all Linux, jupyter and samba logins are: xilinx/xilinx
+Username and password for all Linux, jupyter and samba logins are: ``xilinx/xilinx``
    
 I can't log in to the Jupyter portal with Safari on Mac OS
 ========================================================================
@@ -147,9 +150,11 @@ This is a known issue with Safari and is related to Safari not authenticating th
 How do I enable/disable the Jupyter notebook password
 ======================================================
 
-the Jupyter configuration file can be found at 
+The Jupyter configuration file can be found at 
 
-/root/.jupyter/jupyter_notebook_config.py
+   .. code-block:: console
+   
+      /root/.jupyter/jupyter_notebook_config.py
 
 You can add or comment out the c.NotebookApp.password to bypass the password authentication when connecting to the Jupyter Portal.
 
