@@ -75,7 +75,7 @@ My board is connected, and I have verified the IP addresses on the board and my 
 
 VPN
 =====
-If your PC/laptop is connected to a VPN, and your board is not on the same VPN network, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.
+If your PC/laptop is connected to a VPN, and your board is not on the same VPN network, this will block access to local IP addresses. You need to disable the VPN, or set it to bypass the board address.
 
 Proxy
 ==========
