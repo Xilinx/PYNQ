@@ -19,12 +19,10 @@ Set up the board
 Connect
 ========
 
-* Open a browser and go to `http://pynq:8080 <http://pynq:8080>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ \* 
+* Open a browser and go to `http://pynq:8080 <http://pynq:8080>`_ (board connected to network) or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_  (board connected to laptop/PC)
 
 The Jupyter password is ``xilinx``
-
-\* If you are connecting directly to your laptop or PC, configure your Ethernet adapter IP address to be in the same range as the board e.g. 192.168.2.1
-
+ 
 Jupyter Portal
 ===============
 
@@ -46,6 +44,6 @@ If you have problems setting up, or connecting to your board, see the full `Gett
 Support
 =========
 
-For support, please go to the support form on the `Pynq Webpage <www.pynq.io>`_
+For support, please go to the support form on the Pynq Webpage `www.pynq.io <www.pynq.io>`_
 
-`pynq_support@xilinx.com <pynq_support@xilinx.com>`_
+

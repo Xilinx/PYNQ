@@ -72,13 +72,18 @@ Two scripts are available if you need help configuring the Ethernet on a Windows
 Open a web browser and connect to Pynq Jupyter Notebooks web portal
 ---------------------------------------------------------------------------
 
-   * Using a web browser, enter the address  `http://pynq:9090 <http://pynq:9090>`_ or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ if using a static IP.  The default hostname of the board is **pynq**. If you changed the hostname, you will need to change the address to match your hostname. 
-   
-It may take a few seconds to resolve the hostname/IP address. If you have problems connecting to the board, first try to ping it, then try to connect a terminal to the board to check it has booted, and that the Ethernet settings for the board are correct. 
-   
-You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the `Frequently asked questions <14_faqs.html>`_ to change the hostname, or if you are having problems connecting to the board. 
-   
+If the board is connected to your network, the board should get a DHCP (dynamic) IP address.
+   * Open a web browser and go to `http://pynq:8080 <http://pynq:8080>`_ 
 
+If the board is connected directly to your laptop/PC Ethernet port, the board will have a static IP ( 192.168.2.99) by default. 
+   * Configure your Ethernet adapter IP address to be in the same range as the board (e.g.  192.168.2.1), open a web browser and  go to `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ 
+
+The default hostname of the board is **pynq** and the default static IP address is ``192.168.2.99`` If you changed the hostname or static IP, you will need to change the address above to match your hostname. 
+   
+It may take a few seconds to resolve the hostname/IP address. If you have problems connecting to the board, first try to ping it from your laptop/PC. If you can't ping it, then try to connect a terminal to the board to check it has booted, and that the Ethernet settings for the board are correct. 
+   
+You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the `Frequently asked questions <14_faqs.html>`_ for instructions to change the hostname, or if you are having problems connecting to the board. 
+   
 
    * The Jupyter username/password is xilinx/xilinx
    
@@ -87,7 +92,7 @@ You will need to change the hostname if multiple boards are connected to the sam
       :scale: 75%
       :align: center
 
-You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board. A number of Getting Started Notebooks, and Examples are available in the corresponding directories in the Pynq home area. 
+You should now be ready to start using Pynq. You can continue reading this documentation, or try using Pynq on the board. A number of *Getting Started* Notebooks, and *Examples* are available in the corresponding directories in the Pynq home area. 
 
 
 Using Pynq
