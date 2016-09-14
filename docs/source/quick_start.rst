@@ -44,6 +44,6 @@ If you have problems setting up, or connecting to your board, see the full `Gett
 Support
 =========
 
-For support, please go to the support form on the Pynq Webpage `www.pynq.io <www.pynq.io>`_
+For support, please go to the support form on the Pynq Webpage `www.pynq.io <http://www.pynq.io>`_
 
 
