@@ -22,6 +22,7 @@ Contents:
    6a_base_overlay_iop
    6b_base_overlay_video
    6c_base_overlay_audio
+   8_iop_architecture
    9_iop_code
    10_creating_overlays
    11_python_package

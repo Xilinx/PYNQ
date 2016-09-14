@@ -1,4 +1,4 @@
-IO Processors: Writing your own software
+IO Processors: Writing Your Own Software
 ========================================
 
 There are a number of steps required before you can start writing your own software for an IOP (IO Processor). This document will describe the IOP architecture, and how to set up and build the required software projects to allow you to write your own application for the MicroBlaze inside an IOP. Xilinx SDK projects can be created manually using the SDK GUI, or software can be built using a Makefile flow. 
