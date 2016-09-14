@@ -73,7 +73,7 @@ Open a web browser and connect to Pynq Jupyter Notebooks web portal
 ---------------------------------------------------------------------------
 
 If the board is connected to your network, the board should get a DHCP (dynamic) IP address.
-   * Open a web browser and go to `http://pynq:8080 <http://pynq:8080>`_ 
+   * Open a web browser and go to `http://pynq:9090 <http://pynq:9090>`_ 
 
 If the board is connected directly to your laptop/PC Ethernet port, the board will have a static IP (192.168.2.99) by default. 
    * Configure your Ethernet adapter IP address to be in the same range as the board (e.g.  192.168.2.1), open a web browser and  go to `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ 
