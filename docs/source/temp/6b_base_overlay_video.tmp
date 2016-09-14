@@ -10,7 +10,7 @@
     "\n",
     "The base overlay contains a HDMI input controller, and a HDMI Output controller, both connected to their corresponding HDMI ports. A frame can be captured from the HDMI input, and streamed into DDR memory. The frames in DDR memory, can be accessed from Python. \n",
     "\n",
-    "A frame list can be streamed from memory to the HDMI output."
+    "A framebuffer can be shared between HDMI in and HDMI out to enable streaming."
    ]
   },
   {
@@ -37,7 +37,7 @@
     "## The HDMI video capture controller\n",
     "To use the HDMI in controller, connect the on-board HDMI In port to a valid video source. E.g. your laptop can be used if it has HDMI out. Any HDMI video source can be used up to 1080p.\n",
     "\n",
-    "To use the HDMI in, ensure you have connected a valid HDMI source and execute the next cell. If a valid HDMI source is not detected, the kernel will hang and need restart."
+    "To use the HDMI in, ensure you have connected a valid HDMI source and execute the next cell. If a valid HDMI source is not detected, the HDMI in controller will timeout with an error."
    ]
   },
   {
@@ -500,7 +500,7 @@
     "* 0 if stopped\n",
     "* 1 if running\n",
     "\n",
-    "After initialization, the display resolution is set at the lowest level: 640x490@60Hz. \n",
+    "After initialization, the display resolution is set at the lowest level: 640x480@60Hz. \n",
     "\n",
     "To check the current resolution:"
    ]
