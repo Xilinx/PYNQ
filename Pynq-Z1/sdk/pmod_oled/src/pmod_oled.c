@@ -151,7 +151,7 @@ void clear_display(void) {
 
 void print_string(void) {
     int x_position, y_position, length;
-    char ch[65];
+    char ch[64];
     int i;
 
     length=MAILBOX_DATA(0);
@@ -161,7 +161,6 @@ void print_string(void) {
     for(i=0; i<length; i++){
         ch[i] = MAILBOX_DATA(3+i);
     }
-    i++;
     ch[i]='\0'; // make sure it is null terminated string
     OledPutString(ch);
     OledUpdate();
