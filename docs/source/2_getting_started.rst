@@ -124,7 +124,7 @@ Accessing files on the board
 ----------------------------
 `Samba <https://www.samba.org/>`_, a file sharing service, is running on the board. The home area on the board can be accessed as a network drive, and you can transfer files to and from the board. 
 
-You can go to ``\\pynq\xilinx`` or ``\\192.168.2.99\xilinx`` (windows) or ``smb://pynq/xilinx`` or ``smb://192.168.2.99/xilinx`` to access the pynq home area. Remember to change the hostname/IP address if necessary.
+You can go to ``\\pynq\xilinx`` or ``\\192.168.2.99\xilinx`` (windows) or ``smb://pynq/xilinx`` or ``smb://192.168.2.99/xilinx`` (linux) to access the pynq home area. Remember to change the hostname/IP address if necessary.
 
 The Samba username:password is ``xilinx:xilinx``
 
