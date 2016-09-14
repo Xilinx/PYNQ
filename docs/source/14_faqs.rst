@@ -10,10 +10,8 @@ Connecting to the board
 
 I can't connect to my board 
 =============================================
-
-Try the following steps:
-   
-1. Check the board is powered on (Red LD13 LED) and that the bitstream has been loaded (Green LD12 "DONE" LED)
+  
+1. Check the board is powered on (Red LED LD13) and that the bitstream has been loaded (Green "DONE" LED LD12)
 
 2. Check that you can *ping* the board (hostname, or IP address) from a command prompt or terminal on your host PC
    
@@ -21,9 +19,9 @@ Try the following steps:
    
       >ping pynq
 
-3. Log on to the board through a terminal, and check the system is running. i.e. that the Linux shell is accessible. 
+3. Log on to the board through a terminal, and check the system is running. i.e. that the Linux shell is accessible. See below for details on logging on with a terminal.
 
-4. From a terminal, check you can ping your host PC from the board
+4. From a terminal, check you can ping the board from your host PC, and also ping your host PC from the board
 
    If you can't ping the board, or the host PC, check your network settings. 
          
@@ -65,7 +63,7 @@ If you have a wireless router with Ethernet ports (LAN), you can connect your PY
 You can also connect a WiFi dongle to the board, and set up the board to connect to the wireless network. Your host PC can then connect to the same wireless network to connect to the board. 
 
    
-I can't connect to my board
+I can't connect to the Jupyter portal
 =======================================
 My Board is powered on, and I see the Red and Green LEDs, but I can't connect to the Pynq Portal, or see the Samba shared drive:
 
@@ -109,7 +107,6 @@ Once you connect to the board, you can configure the network interface in Linux
 ***************************
 Board/Jupyter settings
 ***************************
-
 
 How do I modify the board settings?
 ======================================================
