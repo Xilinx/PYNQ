@@ -122,7 +122,7 @@ class Pmod_OLED(object):
             raise ValueError("X-position should be in [0, 255]")
         if not 0 <= y <= 255:
             raise ValueError("Y-position should be in [0, 255]")
-        if len(text) >= 64:
+        if len(text) > 64:
             raise ValueError("Text too long to be displayed.")
             
         # First write length, x, y
