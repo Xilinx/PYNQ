@@ -102,9 +102,9 @@ Using Pynq
 Getting started notebooks
 ----------------------------
 
-Jupyter notebooks can be saved as html webpages. Some of this Pynq getting started documentation has been generated directly from Jupyter notebooks. 
+Jupyter notebooks can be saved as html webpages. Some of this Pynq documentation has been generated directly from Jupyter notebooks. 
 
-You can view the documentation as a webpage, or if you have a board running Pynq, you can view the notebook documentation interactively. The documentation available as notebooks can be found in the *Getting_Started* folder in the Jupyter home area. 
+You can view the documentation as a webpage, or if you have a board running Pynq, you can view and run the notebook documentation interactively. The documentation available as notebooks can be found in the *Getting_Started* folder in the Jupyter home area. 
  
 .. image:: ./images/getting_started_notebooks.jpg
    :height: 600px

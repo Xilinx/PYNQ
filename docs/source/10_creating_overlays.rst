@@ -17,9 +17,9 @@ One overlay is currently included in the Pynq repository; *base*:
 
    * ``<GitHub repository>/Pynq-Z1/vivado/base``
   
-A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in ``<GitHub Repository>/Pynq-Z1/bitstream/`` so it is not necessary to rebuild the overlay, which requires a full Vivado installation.
+A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in ``<GitHub Repository>/Pynq-Z1/bitstream/``.
 
-Vivado is only required to build a new overlay. Building an existing overlay allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
+A full Vivado installation is required to design and build overlays. Building an existing overlay design allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
 
 .. image:: ./images/vivado_base_overlay.JPG
    :scale: 50%
