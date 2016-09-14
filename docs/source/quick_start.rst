@@ -19,7 +19,7 @@ Set up the board
 Connect
 ========
 
-* Open a browser and go to `http://pynq:8080 <http://pynq:8080>`_ (board connected to network) or `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_  (board connected to laptop/PC)
+* Open a browser and go to `http://pynq:8080 <http://pynq:8080>`_ (board connected to network) or  `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_  (board connected to laptop/PC)
 
 The Jupyter password is ``xilinx``
  

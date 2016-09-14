@@ -106,7 +106,7 @@ An example notebook ``overlay_integration.ipynb`` is available in the *Examples*
 
 Using new overlays with GPIO
 -----------------------------------
-GPIO between the the Zynq PS and PL can be used by Python code as a control interface to overlays.  The information about a GPIO is kept in the GPIO dictionary of an overlay. 
+GPIO between the Zynq PS and PL can be used by Python code as a control interface to overlays.  The information about a GPIO is kept in the GPIO dictionary of an overlay. 
 
 The following code can be used to get the dictionary for a bitstream:
 

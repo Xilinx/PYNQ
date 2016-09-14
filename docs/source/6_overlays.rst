@@ -3,20 +3,20 @@ Hardware and Overlays
 
 Overlay Concept
 -------------------
-The Xilinx Zynq All Programmable device is an SOC based on a dual-core ARM Cortex-A9 processor (referred to as the *Processing System* or **PS**), which also includes FPGA fabric (referred to as *Programmable Logic* or **PL**). The ARM SoC subsystem also includes a number of dedicated peripherals (memory controllers, USB, Uart, IIC, SPI etc). 
+The Xilinx Zynq All Programmable device is an SOC based on a dual-core ARM Cortex-A9 processor (referred to as the  *Processing System* or **PS**), which also includes FPGA fabric (referred to as  *Programmable Logic* or **PL**). The ARM SoC subsystem also includes a number of dedicated peripherals (memory controllers, USB, Uart, IIC, SPI etc). 
 
 .. image:: ./images/zynq_blockdiagram.jpg
    :align: center
 
 The FPGA fabric is reconfigurable, and can be used to implement high performance functions in hardware. However, FPGA design is a specialized task which requires deep hardware engineering knowledge and expertise. 
-Overlays, or hardware libraries are programmable/configurable FPGA designs, that extend the user application from the Processing System of the Zynq into the Programmable. This allows software programmers to take advantage of the FPGA fabric to accelerate an application, or to use an overlay to customize the hardware platform for a particular application.
+Overlays, or hardware libraries, are programmable/configurable FPGA designs that extend the user application from the Processing System of the Zynq into the Programmable Logic. This allows software programmers to take advantage of the FPGA fabric to accelerate an application, or to use an overlay to customize the hardware platform for a particular application.
 
 For example, image processing is a typical application where the FPGAs can provide acceleration. A software programmer can use a hardware library to run some of the image processing functions (e.g. edge detect, thresholding etc.) on the FPGA fabric. 
 Hardware libraries can be loaded to the FPGA dynamically, as required, just like a software library.
-Using Pynq, seperate image processing functions could be implemented in different overlays and loaded from Python on demand.
+Using Pynq, separate image processing functions could be implemented in different overlays and loaded from Python on demand.
  
 To give another example, the PYNQ-Z1 has more pins/interfaces available than a typical embedded platform, and can implement multiple custom processors in the Programmable logic. 
-Multiple sensor and actuator controllers, and multiple hetrogeneous custom processors (real-time or non real-time), could be implemented in hardware in the new overlay, and connected to the available pins. A software programmer could use the controllers and processors in the overlay through a Pynq API.   
+Multiple sensor and actuator controllers, and multiple heterogeneous custom processors (real-time or non real-time), could be implemented in hardware in the new overlay, and connected to the available pins. A software programmer could use the controllers and processors in the overlay through a Pynq API.   
 
 Base Overlay
 ---------------
@@ -108,7 +108,7 @@ Each Arduino connector has 6 analog pins (A0 - A5), 14 multi-purpose Digital pin
 Supported peripherals
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Most arduino compatible shields can be used with the PYNQ-Z1 board. However, the PYNQ-Z1 board is limited analog range (1V peak-to-peak), so not all Arduino analog shields are supported. 
+Most Arduino compatible shields can be used with the PYNQ-Z1 board. However, the PYNQ-Z1 board is limited analog range (1V peak-to-peak), so not all Arduino analog shields are supported. 
 
 
 PYNQ Shield
@@ -128,7 +128,7 @@ An IO Processor is implemented in the programmable logic and connects to and con
 
 Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and memory for the MicroBlaze instruction and data memory. The memory is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). e.g. a simple mailbox. 
 
-In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required deditcated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
+In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required dedicated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
 
 Pmod IOP
 ------------------
@@ -149,7 +149,7 @@ As indicated in the diagram, the Pmod IOP has a MicroBlaze, a configurable switc
 Pmod IOP configurable switch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The MicroBlaze, inside the IOP, can conifigure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
+The MicroBlaze, inside the IOP, can configure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
 
 For the Pmod IOP switch, each individual pin can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. 
 

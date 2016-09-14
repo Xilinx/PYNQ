@@ -55,7 +55,7 @@ To set up the board:
    
    5. **Turn on** the power switch on the board
 
-   When you power on the board, you should see a *Red LED* indicating that the board is powered. After a few seconds, you shoudl see a *Green LED* (LD12/DONE), indicating a bitstream has been downloaded to the programmable logic. This is also a good indication that the boot process has started correctly. After about 30 seconds the board should finishing booting and you can then connect to the board from your browser. 
+   When you power on the board, you should see a *Red LED* indicating that the board is powered. After a few seconds, you should see a *Green LED* (LD12/DONE), indicating a bitstream has been downloaded to the programmable logic. This is also a good indication that the boot process has started correctly. After about 30 seconds the board should finishing booting and you can then connect to the board from your browser. 
    
    
 Connect to the board
@@ -67,7 +67,7 @@ If you connect your board directly to the Ethernet port of your PC, the board wi
    
 You can also connect to the board using a USB cable, and terminal, to manually configure the Ethernet/IP and any other operating system settings. See the `Frequently asked questions <14_faqs.html>`_  for more details on connecting to the board, and changing the IP address and other settings of the board. 
    
-Two scripts are available if you need help configuring the Ethernet on a Windows computer, ``pynq_enable_static_IP_windows.bat`` and ``pynq_disable_static_IP_windows.bat`` available in the ``<GitHub respository>\scripts\host`` folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a Windows command prompt. You can also check the internet for instructions on how to configure the Ethernet settings for your computer. 
+Two scripts are available if you need help configuring the Ethernet on a Windows computer, ``pynq_enable_static_IP_windows.bat`` and ``pynq_disable_static_IP_windows.bat`` available in the ``<GitHub repository>\scripts\host`` folder to allow you to enable/disable a static IP address on your host Windows machine. This Batch File scripts can be run from a Windows command prompt. You can also check the internet for instructions on how to configure the Ethernet settings for your computer. 
    
 Open a web browser and connect to Pynq Jupyter Notebooks web portal
 ---------------------------------------------------------------------------
@@ -75,14 +75,14 @@ Open a web browser and connect to Pynq Jupyter Notebooks web portal
 If the board is connected to your network, the board should get a DHCP (dynamic) IP address.
    * Open a web browser and go to `http://pynq:8080 <http://pynq:8080>`_ 
 
-If the board is connected directly to your laptop/PC Ethernet port, the board will have a static IP ( 192.168.2.99) by default. 
+If the board is connected directly to your laptop/PC Ethernet port, the board will have a static IP (192.168.2.99) by default. 
    * Configure your Ethernet adapter IP address to be in the same range as the board (e.g.  192.168.2.1), open a web browser and  go to `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_ 
 
-The default hostname of the board is **pynq** and the default static IP address is ``192.168.2.99`` If you changed the hostname or static IP, you will need to change the address above to match your hostname. 
+The default hostname of the board is **pynq** and the default static IP address is ``192.168.2.99``. If you changed the hostname or static IP, you will need to change the address above to match your hostname. 
    
 It may take a few seconds to resolve the hostname/IP address. If you have problems connecting to the board, first try to ping it from your laptop/PC. If you can't ping it, then try to connect a terminal to the board to check it has booted, and that the Ethernet settings for the board are correct. 
    
-You will need to change the hostname if multiple boards are connected to the same network. e.g. classroom teaching. See the `Frequently asked questions <14_faqs.html>`_ for instructions to change the hostname, or if you are having problems connecting to the board. 
+You will need to change the hostname if multiple boards are connected to the same network. E.g. classroom teaching. See the `Frequently asked questions <14_faqs.html>`_ for instructions to change the hostname, or if you are having problems connecting to the board. 
    
 
    * The Jupyter username/password is xilinx/xilinx
