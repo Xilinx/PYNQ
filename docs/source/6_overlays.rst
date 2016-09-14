@@ -33,7 +33,7 @@ Pmod Peripherals
 -----------------
 A Pmod interface is a 12-pin connector that can be used to connect peripherals. 
 
-A range of Pmod peripherals are available from Digilent and thrid parties. Typical Pmod peripherals include sensors (voltage, light, temperature), communication interfaces (Ethernet, serial, wifi, bluetooth), and input and output interfaces (buttons, switches, LEDs).
+A range of Pmod peripherals are available from Digilent and third parties. Typical Pmod peripherals include sensors (voltage, light, temperature), communication interfaces (Ethernet, serial, wifi, bluetooth), and input and output interfaces (buttons, switches, LEDs).
 
 There are two Pmod connectors on PYNQ-Z1.
 

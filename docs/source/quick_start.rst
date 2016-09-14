@@ -43,9 +43,9 @@ Problems
 If you have problems setting up, or connecting to your board, see the full `Getting started guide <2_getting_started.html>`_ or check the `Frequently asked questions <14_faqs.html>`_
 
 
-Contact
+Support
 =========
 
-Contact the Pynq team
+For support, please go to the support form on the `Pynq Webpage <www.pynq.io>`_
 
 `pynq_support@xilinx.com <pynq_support@xilinx.com>`_

@@ -19,7 +19,7 @@ One overlay is currently included in the Pynq repository; *base*:
   
 A makefile exists in each folder that can be used to rebuild the Vivado project and generate the bitstream for the overlay. However, the overlay has been precompiled, and is available in ``<GitHub Repository>/Pynq-Z1/bitstream/`` so it is not necessary to rebuild the overlay, which requires a full Vivado installation.
 
-Building overlays is only required to build a new overlay. Building an existing overlay allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
+Vivado is only required to build a new overlay. Building an existing overlay allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
 
 .. image:: ./images/vivado_base_overlay.JPG
    :scale: 50%
@@ -125,7 +125,7 @@ The key is the GPIO instance name (*mb_1_reset/Din*). GPIO instance names are re
 
 The *value* is a list of 2 items:
 
-  - The first item shows the index of the GPIO (*0*).
+  - The first item shows the index of the GPIO (0).
   - The second item (*None*) shows the state of the GPIO. It is `None` by default, but can be user defined.
 
 The following code can be used to get the dictionary for GPIO currently in the FPGA fabric:

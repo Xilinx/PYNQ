@@ -159,7 +159,7 @@ The IOP instruction and data memory is implemented in a dual port Block RAM, wit
 Memory map
 ----------
 
-The IOP memory is 64KB ''(0x10000)'' of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
+The IOP memory is 64KB of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
 Pynq and the application running on the IOP can write to anywhere in the shared memory space (although care should be taken not to write to the instruction memory unintentionally as this will corrupt the running application).  
 
 When building the MicroBlaze project, the compiler will only ensure that the application and *allocated* stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, a part of the shared memory space must also be reserved within the MicroBlaze address space. 
