@@ -14,7 +14,6 @@ ROOT_DIR = /root
 NOTEBOOK_IMAGES=adapter_mapping.JPG \
 adc_jumper.jpeg \
 als_oled_demo.JPG \
-arduino_closeup.JPG \
 arduino_iop.jpg \
 arduino_shield.jpg \
 audio_block_diagram.jpg \
