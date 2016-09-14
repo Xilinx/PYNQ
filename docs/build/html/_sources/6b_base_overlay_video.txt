@@ -16,8 +16,16 @@
   {
    "cell_type": "markdown",
    "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "raw",
+   "metadata": {
+    "raw_mimetype": "text/restructuredtext"
+   },
    "source": [
-    "![](images/pynqz1_video.JPG)"
+    ".. figure:: images/pynqz1_video.JPG \n",
+    "   :align: center"
    ]
   },
   {
@@ -62,7 +70,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The HDMI() argument ‘in’ indicates that the object is in capture mode. \n",
+    "The HDMI() argument \u2018in\u2019 indicates that the object is in capture mode. \n",
     "\n",
     "When a valid video input source is connected, the controller should recognize it and start automatically. If a HDMI source is not connected, the code will time-out with an error. \n",
     "\n",
@@ -582,7 +590,7 @@
    "source": [
     "## Streaming from HDMI Input to Output\n",
     "\n",
-    "To use the HDMI input and output to capture and display an image, make both the HDMI input and output share the same frame list. The frame list in both cases can be accessed. You can make the two object share the same frame list by a frame list as an argument to the second object’s constructor."
+    "To use the HDMI input and output to capture and display an image, make both the HDMI input and output share the same frame list. The frame list in both cases can be accessed. You can make the two object share the same frame list by a frame list as an argument to the second object\u2019s constructor."
    ]
   },
   {
