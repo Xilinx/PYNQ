@@ -154,14 +154,14 @@ doc_sphinx:
 
 doc_notebooks:
 	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started
-	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images	
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images
 	cp ${REPO_DIR}/docs/source/3_jupyter_notebook.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/Getting_Started/1_jupyter_notebook.ipynb
 	cp ${REPO_DIR}/docs/source/4_programming_python.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/Getting_Started/2_programming_python.ipynb
 	cp ${REPO_DIR}/docs/source/5_programming_onboard.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/Getting_Started/3_programming_onboard.ipynb
-	cp ${REPO_DIR}/docs/source/6a_base_overlay_iop.ipynb\
+	cp ${REPO_DIR}/docs/source/6a_base_overlay_iop.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/Getting_Started/4_base_overlay_iop.ipynb
 	cp ${REPO_DIR}/docs/source/6b_base_overlay_video.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/Getting_Started/5_base_overlay_video.ipynb

@@ -14,7 +14,7 @@ Any Pynq related issues can be submitted via the GitHub site's `issue tracker <h
 .. NOTE::
   1. Pynq runs natively on the ARM Cortex A9 processor on Zynq.  A web server hosts the main Jupyter portal.  Any computing platform that supports a modern, mainstream web browser, (Chrome, Firefox, Safari etc. - Internet Explorer not currently supported), can access the Jupyter portal on the board.  
 
-  2. Pynq does not try to teach Python programming to first-time users. Programmers who are familiar with other languages, will pick up much of the fundamentals of Python quickly from the examples in these notes. Nonetheless, Python is a very comprehensive language with many advanced features that may require additional study.  For these reasons we have provided links to `Python training material <15_references.html#python-training>`_
+  2. Pynq does not try to teach Python programming to first-time users. Programmers who are familiar with other languages, will pick up much of the fundamentals of Python quickly from the examples in these notes. Nonetheless, Python is a very comprehensive language with many advanced features that may require additional study.  For these reasons we have provided links to `Python training material <16_references.html#python-training>`_
 
 Simple Setup
 ================
