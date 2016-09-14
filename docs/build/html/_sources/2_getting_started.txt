@@ -55,7 +55,7 @@ To set up the board:
    
    5. **Turn on** the power switch on the board
 
-   When you power on the board, you should see a *Red LED* indicating that the board is powered. After a few seconds, you should see a *Green LED* (LD12/DONE), indicating a bitstream has been downloaded to the programmable logic. This is also a good indication that the boot process has started correctly. After about 30 seconds the board should finishing booting and you can then connect to the board from your browser. 
+   When you power on the board, you should see a *Red LED* indicating that the board is powered. After a few seconds, you should see a *Green LED* (LD12/DONE), indicating a bitstream has been downloaded to the programmable logic. This is also a good indication that the boot process has started correctly. After about 30 seconds the board should finish booting and you can then connect to the board from your browser. 
    
    
 Connect to the board
