@@ -1,0 +1,644 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynq.drivers.xlnk &mdash; Python productivity for Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Python productivity for Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_pynq.html">PYNQ Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../2_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../4_programming_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6_overlays.html">Hardware and Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10_creating_overlays.html">Working with Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../15_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../16_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../17_appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Python productivity for Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>pynq.drivers.xlnk</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<h1>Source code for pynq.drivers.xlnk</h1><div class="highlight"><pre>
+<span></span><span class="c1">#   Copyright (c) 2016, Xilinx, Inc.</span>
+<span class="c1">#   All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1">#   Redistribution and use in source and binary forms, with or without </span>
+<span class="c1">#   modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1">#   1.  Redistributions of source code must retain the above copyright notice, </span>
+<span class="c1">#       this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#   2.  Redistributions in binary form must reproduce the above copyright </span>
+<span class="c1">#       notice, this list of conditions and the following disclaimer in the </span>
+<span class="c1">#       documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#   3.  Neither the name of the copyright holder nor the names of its </span>
+<span class="c1">#       contributors may be used to endorse or promote products derived from </span>
+<span class="c1">#       this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1">#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1">#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR </span>
+<span class="c1">#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR </span>
+<span class="c1">#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, </span>
+<span class="c1">#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, </span>
+<span class="c1">#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1">#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, </span>
+<span class="c1">#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR </span>
+<span class="c1">#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF </span>
+<span class="c1">#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="n">__author__</span>      <span class="o">=</span> <span class="s2">&quot;Anurag Dubey&quot;</span>
+<span class="n">__copyright__</span>   <span class="o">=</span> <span class="s2">&quot;Copyright 2016, Xilinx&quot;</span>
+<span class="n">__email__</span>       <span class="o">=</span> <span class="s2">&quot;pynq_support@xilinx.com&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">cffi</span>
+<span class="kn">import</span> <span class="nn">resource</span>
+
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getuid</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Root permission needed by the library.&quot;</span><span class="p">)</span>
+
+<span class="c1"># Cleanup on Segfaults</span>
+<div class="viewcode-block" id="sig_handler"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.sig_handler">[docs]</a><span class="k">def</span> <span class="nf">sig_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Invalid Memory Access!&quot;</span><span class="p">)</span>
+    <span class="n">xlnk</span><span class="p">()</span><span class="o">.</span><span class="n">xlnk_reset</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">127</span><span class="p">)</span></div>
+<span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGSEGV</span><span class="p">,</span> <span class="n">sig_handler</span><span class="p">)</span>
+
+<span class="n">ffi</span> <span class="o">=</span> <span class="n">cffi</span><span class="o">.</span><span class="n">FFI</span><span class="p">()</span>
+
+<span class="n">ffi</span><span class="o">.</span><span class="n">cdef</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">static uint32_t xlnkBufCnt = 0;</span>
+<span class="s2">uint32_t cma_mmap(uint32_t phyAddr, uint32_t len);</span>
+<span class="s2">uint32_t cma_munmap(void *buf, uint32_t len);</span>
+<span class="s2">void *cma_alloc(uint32_t len, uint32_t cacheable);</span>
+<span class="s2">uint32_t cma_get_phy_addr(void *buf);</span>
+<span class="s2">void cma_free(void *buf);</span>
+<span class="s2">uint32_t cma_pages_available();</span>
+<span class="s2">void _xlnk_reset();</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+<span class="n">libxlnk</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">dlopen</span><span class="p">(</span><span class="s2">&quot;/usr/lib/libsds_lib.so&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="xlnk"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk">[docs]</a><span class="k">class</span> <span class="nc">xlnk</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class to enable CMA memory management.</span>
+
+<span class="sd">    The CMA state maintained by this class is local to the </span>
+<span class="sd">    application except for the `CMA Memory Available` attribute</span>
+<span class="sd">    which is global across all the applications.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bufmap : dict</span>
+<span class="sd">        Mapping of allocated memory to the buffer sizes in bytes.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize new xlnk object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Destructor for the current xlnk object.</span>
+
+<span class="sd">        Frees up all the memory which was allocated through current object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_free</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__check_buftype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal method to check for a valid buffer.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        buf : cffi.FFI.CData</span>
+<span class="sd">            A valid buffer object which was allocated through `cma_alloc`.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;cdata&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">buf</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown buffer type&quot;</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="xlnk.cma_alloc"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_alloc">[docs]</a>    <span class="k">def</span> <span class="nf">cma_alloc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">cacheable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;void&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allocate physically contiguous memory buffer.</span>
+
+<span class="sd">        Allocates a new buffer and adds it to `bufmap`.</span>
+<span class="sd">        </span>
+<span class="sd">        Possible values for parameter `cacheable` are:</span>
+<span class="sd">        </span>
+<span class="sd">        `1`: the memory buffer is cacheable.</span>
+<span class="sd">        </span>
+<span class="sd">        `0`: the memory buffer is non-cacheable.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        memmanager = xlnk.xlnk()</span>
+
+<span class="sd">        # Allocate 10 `void *` memory locations.</span>
+<span class="sd">        </span>
+<span class="sd">        m1 = memmanager.cma_alloc(10)</span>
+
+<span class="sd">        # Allocate 10 `float *` memory locations.</span>
+<span class="sd">        </span>
+<span class="sd">        m2 = memmanager.cma_alloc(10, data_type = &quot;float&quot;)</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        1. Total size of buffer is automatically calculated as</span>
+<span class="sd">        size = length * sizeof(data_type)</span>
+
+<span class="sd">        2. This buffer is allocated inside the kernel space using</span>
+<span class="sd">        xlnk driver. The maximum allocatable memory is defined</span>
+<span class="sd">        at kernel build time using the CMA memory parameters.</span>
+<span class="sd">        For Pynq-Z1 kernel, it is specified as 128MB.</span>
+<span class="sd">        </span>
+<span class="sd">        The unit of `length` depends upon the `data_type` argument.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length : int</span>
+<span class="sd">            Length of the allocated buffer. Default unit is bytes.</span>
+<span class="sd">        cacheable : int</span>
+<span class="sd">            Indicating whether or not the memory buffer is cacheable.</span>
+<span class="sd">        data_type : str</span>
+<span class="sd">            CData type of the allocated buffer. Should be a valid C-Type.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cffi.FFI.CData</span>
+<span class="sd">            An CFFI object which can be accessed similar to arrays.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_type</span> <span class="o">!=</span> <span class="s2">&quot;void&quot;</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_alloc</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">cacheable</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">buf</span> <span class="o">==</span> <span class="n">ffi</span><span class="o">.</span><span class="n">NULL</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to allocate Memory!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="p">[</span><span class="n">buf</span><span class="p">]</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="k">return</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">data_type</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="n">buf</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="xlnk.cma_get_buffer"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_get_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">cma_get_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a buffer object.</span>
+<span class="sd">        </span>
+<span class="sd">        Used to get an object which supports python buffer interface. </span>
+<span class="sd">        The return value thus, can be cast to objects like</span>
+<span class="sd">        `bytearray`, `memoryview` etc.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        buf : cffi.FFI.CData</span>
+<span class="sd">            A valid buffer object which was allocated </span>
+<span class="sd">            through `cma_alloc`.</span>
+<span class="sd">        len : int</span>
+<span class="sd">            Length of buffer in Bytes.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cffi.FFI.CData</span>
+<span class="sd">            A CFFI object which supports buffer interface.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_buftype</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">ffi</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="xlnk.cma_memcopy"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_memcopy">[docs]</a>    <span class="k">def</span> <span class="nf">cma_memcopy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;High speed memcopy between buffers.</span>
+
+<span class="sd">        Used to perform a byte level copy of data from source buffer to </span>
+<span class="sd">        the destination buffer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dest : cffi.FFI.CData</span>
+<span class="sd">            Destination buffer object which was allocated through `cma_alloc`.</span>
+<span class="sd">        src : cffi.FFI.CData</span>
+<span class="sd">            Source buffer object which was allocated through `cma_alloc`.</span>
+<span class="sd">        nbytes : int</span>
+<span class="sd">            Number of bytes to copy.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ffi</span><span class="o">.</span><span class="n">memmove</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">)</span></div>
+    
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="xlnk.cma_cast"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_cast">[docs]</a>    <span class="k">def</span> <span class="nf">cma_cast</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;void&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cast underlying buffer to a specific C-Type.</span>
+<span class="sd">    </span>
+<span class="sd">        Input buffer should be a valid object which was allocated through </span>
+<span class="sd">        `cma_alloc` or a CFFI pointer to a memory buffer. Handy for changing </span>
+<span class="sd">        void buffers to user defined buffers.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : cffi.FFI.CData</span>
+<span class="sd">            A valid buffer pointer allocated via `cma_alloc`.</span>
+<span class="sd">        data_type : str</span>
+<span class="sd">            New data type of the underlying buffer.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cffi.FFI.CData</span>
+<span class="sd">            Pointer to buffer with specified data type.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">data_type</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+      
+<div class="viewcode-block" id="xlnk.cma_free"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_free">[docs]</a>    <span class="k">def</span> <span class="nf">cma_free</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Free a previously allocated buffer.</span>
+<span class="sd">       </span>
+<span class="sd">        Input buffer should be a valid object which was allocated through </span>
+<span class="sd">        `cma_alloc` or a CFFI pointer to a memory buffer.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        buf : cffi.FFI.CData</span>
+<span class="sd">            A valid buffer pointer allocated via `cma_alloc`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">buf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_buftype</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+        <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_free</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="xlnk.cma_stats"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.cma_stats">[docs]</a>    <span class="k">def</span> <span class="nf">cma_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get current CMA memory Stats.</span>
+
+<span class="sd">        `CMA Memory Available` : Systemwide CMA memory availability.</span>
+<span class="sd">        </span>
+<span class="sd">        `CMA Memory Usage` : CMA memory used by current object.</span>
+<span class="sd">        </span>
+<span class="sd">        `Buffer Count` : Buffers allocated by current object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of current stats.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">free_pages</span> <span class="o">=</span> <span class="n">libxlnk</span><span class="o">.</span><span class="n">cma_pages_available</span><span class="p">()</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;CMA Memory Available&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">getpagesize</span><span class="p">()</span> <span class="o">*</span> <span class="n">free_pages</span>
+        <span class="n">memused</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="p">:</span>
+            <span class="n">memused</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;CMA Memory Usage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memused</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;Buffer Count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stats</span></div>
+
+<div class="viewcode-block" id="xlnk.xlnk_reset"><a class="viewcode-back" href="../../../pynq.drivers.html#pynq.drivers.xlnk.xlnk.xlnk_reset">[docs]</a>    <span class="k">def</span> <span class="nf">xlnk_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Systemwide Xlnk Reset.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method resets all the CMA buffers allocated across the system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bufmap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">libxlnk</span><span class="o">.</span><span class="n">_xlnk_reset</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
