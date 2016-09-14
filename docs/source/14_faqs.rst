@@ -1,59 +1,99 @@
 .. _faq:
 
+##################################
 Frequently Asked Questions (FAQs)
-=================================
+##################################
 
+*******************************
+Connecting to the board
+*******************************
 
-* Do you support Python 2.7?
-   Python 2.7 is loaded on Zynq and Python 2.7 scripts can be executed. Pynq, however, is based on Python 3.4.  No attempts have been made to ensure backward compatibility with Python 2.7.
+I can't connect to my board 
+=============================================
 
-
-* What is an overlay?
-   FPGA overlays are FPGA designs that are themselves configurable and typically optimized for a given domain.  We refer to them as post-bitstream programmable designs.  Such overlays are created to be re-used in more than one application.
-
-   Consider the example of building a Zynq-based system for controlling a drone.  The designer may design exactly the system he needs for the immediate drone application.  Alternatively he may recognize that many drone controllers have quite similar requirements.  He can design a more configurable, FPGA design and export an API (application programming interface) for use by the embedded software programmers.  This single bitstream can then be customized via its API for use in different drone control projects.
-
-   Note that the use of overlays does not imply the use of partial or dynamic reconfiguration. Some overlays can employ such techniques to good purpose but their use is optional.
+Try the following steps:
    
-* I can't connect to the board.
-   Check the `Getting Started Guide <2_getting_started.html>`_
-   
-   Check that you can ping the board from a command prompt or terminal on your host PC
+1. Check the board is powered on (Red LD13 LED) and that the bitstream has been loaded (Green LD12 "DONE" LED)
+
+2. Check that you can *ping* the board (hostname, or IP address) from a command prompt or terminal on your host PC
    
    .. code-block:: console
    
-      # replace pynq with correct hostname if you have changed it
-      ping pynq
+      >ping pynq
+
+3. Log on to the board through a terminal, and check the system is running. i.e. that the Linux shell is accessible. 
+
+4. From a terminal, check you can ping your host PC from the board
+
+   If you can't ping the board, or the host PC, check your network settings. 
+         
+   * You must ensure board your PC and board are connected to the same network, and have IP addresses in the same range
+         
+   * If you have a proxy setup, you may need to add a rule to bypass the board hostname/ip address. 
       
-   Check the ACT and Link LEDs on the PYNQ-Z1 board (near the Ethernet port) for activity. You can also check the activity lights on the Ethernet port on your PC or Laptop (most Ethernet ports will have an orange and green LED indicating connectivity). 
-   The Ethernet LEDs on the PYNQ-Z1 should flash periodically when there is activity on the network connection. 
+   * If you are using a docking station, when your laptop is docked, the Ethernet port on the PC may be disabled.  
    
-   If you are using a docking station, when your laptop is docked, the Ethernet port on the PC may be disabled.  
+My board is not powering on (No Red LED)
+==========================================
+The board can be powered by USB cable, or power adapter (7 - 15V V 2.1mm centre-positive barrel jack). Make sure Jumper JP5 is set to USB or REG (for power adapter). If powering the board via USB, make sure the USB port is fully powered. Laptops in low power mode may reduce the available power to a USB port. 
 
-* I don't have an Ethernet port on my Laptop or PC.
-   USB to Ethernet adapters are available. You can also use a USB to Ethernet adapter if you want to maintain a wired network connection, or if you do not want to change the network settings for your existing Ethernet port. 
-   
-   You can also connect your Pynq board to a network switch (your LAN), and connect to it wirelessly. (You may need to change settings on your Router to enable the Wireless network to communicate with your LAN - check your equipment documentation for details.)
-   
-* My hostname is not resolving.
-   If you know the IP address of the board, you can use it to navigate to the Pynq portal. e.g.  http://192.168.2.99:9090
+The bitstream is not loading (No Green LED)
+============================================ 
+* Check the Micro-SD card is inserted correctly (the socket is spring loaded, so push it in until you feel it click into place). 
+* Check jumper JP4 is set to SD (board boots from Micro SD card).
+* Connect a terminal and verify that the Linux boot starts.
 
-* I have followed the Getting Started Guide, I see a red LED, but not a green LED when I power on the board. 
-   Check the Micro-SD card is inserted correctly (the socket is spring loaded, so push it in until you feel it click into place). Check or reflash the Micro SD card with the latest pynq image. 
-   
-* My Board is powered on, and I see the Red and Green LEDs, but I can't connect to the Pynq Portal, or see the Samba shared drive.
-   By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of 192.168.2.99
-   
-   If you plug the Ethernet cable directly to your computer, you will need to configure your network card to have an IP in the same address range. e.g. 192.168.2.1
-   
-* My board is connected, and I have verified the IP addresses on the board and my network interface, but I cannot connect to the board.
-   If you are connected to a VPN, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.
+If the Linux boot does not start, or fails, you may need to flash the Micro SD card with the Pynq image. 
 
-* How do I connect to the board using a terminal?
-   To do this, you need to connect to the board using a terminal.
+My hostname is not resolving
+==========================================
+It may take the hostname (pynq) some time to resolve on your network. If you know the IP address of the board, you can use it to navigate to the Jupyter portal instead of the hostname. 
+
+e.g.
+   .. code-block:: console
    
-   To connect a terminal
-   Plug in a USB cable, and connect to the board using a terminal emulator. 
+      http://192.168.2.99:9090
+
+You need to know the IP address of the board first. You can find the IP by connecting a terminal and running `ifconfig` in the Linux shell to check the network settings.
+
+I don't have an Ethernet port on my PC/Laptop
+==================================================
+USB to Ethernet adapters are available. You can also use a USB to Ethernet adapter if you want to use a wired network connection, or if you do not want to change the network settings for your existing Ethernet port. 
+
+If you have a wireless router with Ethernet ports (LAN), you can connect your PYNQ-Z1 board to an Ethernet port on your router, and connect to it from your PC using WiFi. (You may need to change settings on your Router to enable the Wireless network to communicate with your LAN - check your equipment documentation for details.)
+   
+You can also connect a WiFi dongle to the board, and set up the board to connect to the wireless network. Your host PC can then connect to the same wireless network to connect to the board. 
+
+   
+I can't connect to my board
+=======================================
+My Board is powered on, and I see the Red and Green LEDs, but I can't connect to the Pynq Portal, or see the Samba shared drive:
+
+By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of `192.168.2.99`
+   
+If you plug the Ethernet cable directly to your computer, you will need to configure your network card to have an IP in the same address range. e.g. `192.168.2.1`
+   
+My board is connected, and I have verified the IP addresses on the board and my network interface, but I cannot connect to the board.
+
+VPN
+=====
+If your PC/laptop is connected to a VPN, and your board is not on the same VPN network, this will block access to local IP addresses, unless you have set the VPN to bypass the board address.
+
+Proxy
+==========
+If your board is connected to a network that uses a proxy, you need to set the proxy variables on the board
+
+   .. code-block:: console
+   
+      set http_proxy=my_http_proxy:8080
+      set https_proxy=my_https_proxy:8080
+
+How do I connect to the board using a terminal?
+======================================================
+To do this, you need to connect to the board using a terminal.
+   
+To connect a terminal:
+Connect a Micro USB cable to the board and your PC/Laptop, and use a terminal emulator (puTTY, TeraTerm etc) to connect to the board. 
    
    Terminal Settings: 
    
@@ -63,25 +103,97 @@ Frequently Asked Questions (FAQs)
    * No Parity
    * No Flow Control
    
-   Once you connect to the board, you can configure the network interface in Linux
+
+Once you connect to the board, you can configure the network interface in Linux
    
-* How do I modify the Linux operating system?
-   Connect to the board using a terminal, and change the settings as you would for any other Linux machine.  The board comes with a Linux build.
+***************************
+Board/Jupyter settings
+***************************
+
+
+How do I modify the board settings?
+======================================================
+Linux is installed on the board. Connect to the board using a terminal, and change the settings as you would for any other Linux machine.  
    
-* How do I find the IP address of the board?
-   Connect to the board using a terminal (see above) and type 'hostname -I' to find the IP address for the eth0 Ethernet adapter
+How do I find the IP address of the board?
+======================================================
+
+Connect to the board using a terminal (see above) and type 'hostname -I' to find the IP address for the eth0 Ethernet adapter or the WiFi dongle
    
-* How do I set/change the static IP address on the board?
-   The Static IP address is set in /etc/dhcp/dhclient.conf  - you can modify the board's static IP there
+How do I set/change the static IP address on the board?
+========================================================
+
+The Static IP address is set in /etc/dhcp/dhclient.conf  - you can modify the board's static IP there
    
-* How do I find my hostname?
-   Connect to the board using a terminal and run 'hostname'
+How do I find my hostname?
+======================================================
+
+Connect to the board using a terminal and run 'hostname'
    
-* How do I change the hostname?
-   If you have multiple boards on the same network, you should give them different host names. 
-   You can run the following script to change the hostname:
-   sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME
+How do I change the hostname?
+======================================================
+
+If you have multiple boards on the same network, you should give them different host names. 
+You can run the following script to change the hostname:
+sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME
    
-* What is the user account and password?
-   Username and password for all linux, jupyter and samba logins are: xilinx/xilinx
+What is the user account and password?
+======================================================
+
+Username and password for all Linux, jupyter and samba logins are: xilinx/xilinx
    
+I can't log in to the Jupyter portal with Safari on Mac OS
+========================================================================
+
+This is a known issue with Safari and is related to Safari not authenticating the Jupyter password properly. To workaround, you can use another browser, or disable the password
+
+How do I enable/disable the Jupyter notebook password
+======================================================
+
+the Jupyter configuration file can be found at 
+
+/root/.jupyter/jupyter_notebook_config.py
+
+You can add or comment out the c.NotebookApp.password to bypass the password authentication when connecting to the Jupyter Portal.
+
+   .. code-block:: console
+
+      c.NotebookApp.password =u'sha1:6c2164fc2b22:ed55ecf07fc0f985ab46561483c0e888e8964ae6'
+
+
+How do I change the Jupyter notebook password
+======================================================
+A hashed password is saved in the Jupyter Notebook configuration file. 
+
+   .. code-block:: console
+
+      /root/.jupyter/jupyter_notebook_config.py
+
+You can create a hashed password using the function `IPython.lib.passwd()`:
+
+   .. code-block:: python
+   
+      from IPython.lib import passwd
+      password = passwd("secret")
+      6c2164fc2b22:ed55ecf07fc0f985ab46561483c0e888e8964ae6
+
+
+You can then add or modify the line in the `jupyter_notebook_config.py` file
+
+   .. code-block:: console
+
+      c.NotebookApp.password =u'sha1:6c2164fc2b22:ed55ecf07fc0f985ab46561483c0e888e8964ae6'
+     
+*******************************
+General Questions
+*******************************     
+      
+Does Pynq support Python 2.7?
+======================================================
+Python 2.7 is loaded on Zynq and Python 2.7 scripts can be executed. Pynq, however, is based on Python 3.4.  No attempts have been made to ensure backward compatibility with Python 2.7.
+
+How do I flash the Micro SD card
+=========================================
+`Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_ can be used to flash a Micro SD card
+
+
