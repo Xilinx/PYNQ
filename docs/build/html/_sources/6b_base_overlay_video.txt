@@ -508,7 +508,7 @@
     "* 0 if stopped\n",
     "* 1 if running\n",
     "\n",
-    "After initialization, the display resolution is set at the lowest level: 640x480@60Hz. \n",
+    "After initialization, the display resolution is set at the lowest level: 640x480 at 60Hz. \n",
     "\n",
     "To check the current resolution:"
    ]
@@ -567,11 +567,11 @@
    "source": [
     "Valid resolutions are:\n",
     "\n",
-    "* 0 : '640x480@60Hz' \n",
-    "* 1 : '800x600@60Hz' \n",
-    "* 2 : '1280x720@60Hz' \n",
-    "* 3 : '1280x1024@60Hz' \n",
-    "* 4 : '1920x1080@60Hz' \n"
+    "* 0 : 640x480, 60Hz \n",
+    "* 1 : 800x600, 60Hz \n",
+    "* 2 : 1280x720, 60Hz \n",
+    "* 3 : 1280x1024, 60Hz \n",
+    "* 4 : 1920x1080, 60Hz \n"
    ]
   },
   {
