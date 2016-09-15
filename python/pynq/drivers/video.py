@@ -115,7 +115,7 @@ class HDMI(object):
     VMODE_800x600   = 1
     VMODE_640x480   = 0
 
-    def __init__(self, direction, video_mode=VMODE_1920x1080, init_timeout=10,
+    def __init__(self, direction, video_mode=VMODE_640x480, init_timeout=10,
                  frame_list=None):
         """Returns a new instance of an HDMI object. 
         
