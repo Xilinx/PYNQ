@@ -1,0 +1,7 @@
+# docs requirements file
+
+# For Juyter Notebooks in Sphinx
+
+numpy
+matplotlib
+nbsphinx
