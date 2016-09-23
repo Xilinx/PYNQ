@@ -6,4 +6,3 @@ numpy
 matplotlib
 nbsphinx
 pynq
-six
