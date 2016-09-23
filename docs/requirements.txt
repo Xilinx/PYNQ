@@ -5,3 +5,4 @@
 numpy
 matplotlib
 nbsphinx
+pynq
