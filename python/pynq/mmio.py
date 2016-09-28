@@ -45,10 +45,10 @@ class MMIO:
     Attributes
     ----------
     virt_base : int
-        The virtual base address, page aligned.
+        The address of the page for the MMIO base address.
     virt_offset : int
-        The base address offset from page aligned base address.
-    baes : int
+        The offset of the MMIO base address from the virt_base.
+    base : int
         The base address, not necessarily page aligned.
     length : int
         The length in bytes of the address range.
