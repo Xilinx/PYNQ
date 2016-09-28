@@ -48,7 +48,7 @@ class MMIO:
         The address of the page for the MMIO base address.
     virt_offset : int
         The offset of the MMIO base address from the virt_base.
-    base : int
+    base_addr : int
         The base address, not necessarily page aligned.
     length : int
         The length in bytes of the address range.

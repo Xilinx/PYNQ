@@ -2,7 +2,7 @@
 Quick Start
 **************
 
-To get started with Pynq, follow the quick start instructions below, or read through the documentation for a detailed guide to using Pynq. 
+If you have a Micro SD card preloaded with the PYNQ-Z1 image, you can follow the quick start instructions below. Otherwise go to the next section for the `full getting started with PYNQ guide <2_getting_started.html>`_ in section 3. 
 
 Set up the board
 =================
@@ -10,16 +10,13 @@ Set up the board
    .. image:: ./images/pynqz1_quick_start.jpg
       :align: center
 
-* Set the boot jumper to SD, insert the Micro SD card into the board, and connect the USB cable (Micro-B), and Ethernet cable
+1 Set the boot jumper to SD, insert the Micro SD card into the board, and connect the USB cable (Micro-B), and Ethernet cable
 
-* Connect the other end of Ethernet cable to your laptop or router, and the USB cable to your laptop or a powered USB port
+2 Connect the other end of Ethernet cable to your laptop or router, and the USB cable to your laptop or a powered USB port
 
-* Power on the board, and wait ~30s for the board to boot
+3 Power on the board, and wait ~30s for the board to boot (The LEDs will flash, and the yellow LEDs will stay on when the board is ready)
 
-Connect
-========
-
-* Open a browser and go to `http://pynq:9090 <http://pynq:9090>`_ (board connected to network) or  `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_  (board connected to laptop/PC)
+4 Open a browser and go to `http://pynq:9090 <http://pynq:9090>`_ or  `http://192.168.2.99:9090 <http://192.168.2.99:9090>`_  (It may take some time for the network to resolve the board address.)
 
 The Jupyter password is ``xilinx``
  
@@ -38,12 +35,12 @@ You can find some getting started, and example notebooks in the home area.
 Problems
 =============
 
-If you have problems setting up, or connecting to your board, see the full `Getting started guide <2_getting_started.html>`_ or check the `Frequently asked questions <14_faqs.html>`_
+If you have problems setting up, or connecting to your board, see the full `getting started guide <2_getting_started.html>`_ in section 3 or check the `Frequently asked questions <14_faqs.html>`_ in section 16.
 
 
 Support
 =========
 
-For support, please go to the support form on the Pynq Webpage `www.pynq.io <http://www.pynq.io>`_
+For issue, please go to the PYNQ  support form on the `main PYNQ Webpage <http://www.pynq.io>`_
 
 
