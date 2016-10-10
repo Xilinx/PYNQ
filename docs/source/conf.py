@@ -56,7 +56,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'Python productivity for Zynq (Pynq)'
 copyright = '2016, Xilinx'
-author = 'P Lysaght'
+author = 'Xilinx'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -234,7 +234,15 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'PythononZynqPynq.tex', 'Python productivity for Zynq (Pynq) Documentation',
-     'P Lysaght', 'manual'),
+<<<<<<< HEAD
+<<<<<<< HEAD
+     'Xilinx', 'manual'),
+=======
+     'manual'),
+>>>>>>> f1073af... Update doc owner details
+=======
+     'Xilinx', 'manual'),
+>>>>>>> 4ce3079... RTD fixes
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
