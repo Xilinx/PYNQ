@@ -84,7 +84,6 @@
                 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#set-up-the-board">Set up the board</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#connect">Connect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jupyter-portal">Jupyter Portal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#problems">Problems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#support">Support</a></li>
@@ -94,7 +93,6 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
@@ -104,7 +102,7 @@
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
@@ -269,40 +267,33 @@ div.nboutput  > :nth-child(2).stderr {
 </style>
 <div class="section" id="quick-start">
 <h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
-<p>To get started with Pynq, follow the quick start instructions below, or read through the documentation for a detailed guide to using Pynq.</p>
+<p>If you have a Micro SD card preloaded with the PYNQ-Z1 image, you can follow the quick start instructions below. Otherwise go to the next section for the <a class="reference external" href="2_getting_started.html">full getting started with PYNQ guide</a> in section 3.</p>
 <div class="section" id="set-up-the-board">
 <h2>Set up the board<a class="headerlink" href="#set-up-the-board" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><img alt="_images/pynqz1_quick_start.jpg" class="align-center" src="_images/pynqz1_quick_start.jpg" />
 </div></blockquote>
-<ul class="simple">
-<li>Set the boot jumper to SD, insert the Micro SD card into the board, and connect the USB cable (Micro-B), and Ethernet cable</li>
-<li>Connect the other end of Ethernet cable to your laptop or router, and the USB cable to your laptop or a powered USB port</li>
-<li>Power on the board, and wait ~30s for the board to boot</li>
-</ul>
-</div>
-<div class="section" id="connect">
-<h2>Connect<a class="headerlink" href="#connect" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Open a browser and go to <a class="reference external" href="http://pynq:9090">http://pynq:9090</a> (board connected to network) or  <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a>  (board connected to laptop/PC)</li>
-</ul>
+<p>1 Set the boot jumper to SD, insert the Micro SD card into the board, and connect the USB cable (Micro-B), and Ethernet cable</p>
+<p>2 Connect the other end of Ethernet cable to your laptop or router, and the USB cable to your laptop or a powered USB port</p>
+<p>3 Power on the board, and wait ~30s for the board to boot (The LEDs will flash, and the yellow LEDs will stay on when the board is ready)</p>
+<p>4 Open a browser and go to <a class="reference external" href="http://pynq:9090">http://pynq:9090</a> or  <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a>  (It may take some time for the network to resolve the board address.)</p>
 <p>The Jupyter password is <code class="docutils literal"><span class="pre">xilinx</span></code></p>
 </div>
 <div class="section" id="jupyter-portal">
 <h2>Jupyter Portal<a class="headerlink" href="#jupyter-portal" title="Permalink to this headline">¶</a></h2>
 <p>In the Jupyter portal, click on the Welcome to Pynq notebook to get started.</p>
 <blockquote>
-<div><a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 504.0px; height: 450.0px;" /></a>
+<div><a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 375.0px; height: 450.0px;" /></a>
 </div></blockquote>
 <p>You can find some getting started, and example notebooks in the home area.</p>
 </div>
 <div class="section" id="problems">
 <h2>Problems<a class="headerlink" href="#problems" title="Permalink to this headline">¶</a></h2>
-<p>If you have problems setting up, or connecting to your board, see the full <a class="reference external" href="2_getting_started.html">Getting started guide</a> or check the <a class="reference external" href="14_faqs.html">Frequently asked questions</a></p>
+<p>If you have problems setting up, or connecting to your board, see the full <a class="reference external" href="2_getting_started.html">getting started guide</a> in section 3 or check the <a class="reference external" href="14_faqs.html">Frequently asked questions</a> in section 16.</p>
 </div>
 <div class="section" id="support">
 <h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
-<p>For support, please go to the support form on the Pynq Webpage <a class="reference external" href="http://www.pynq.io">www.pynq.io</a></p>
+<p>For issue, please go to the PYNQ  support form on the <a class="reference external" href="http://www.pynq.io">main PYNQ Webpage</a></p>
 </div>
 </div>
 

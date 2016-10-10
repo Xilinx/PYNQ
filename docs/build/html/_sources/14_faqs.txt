@@ -13,19 +13,27 @@ I can't connect to my board
   
 1. Check the board is powered on (Red LED LD13) and that the bitstream has been loaded (Green "DONE" LED LD12)
 
-2. Check that you can *ping* the board (hostname, or IP address) from a command prompt or terminal on your host PC
+2. Your board and PC/laptop must be on the same network, or have a direct network connection. Check that you can *ping* the board (hostname, or IP address) from a command prompt or terminal on your host PC
    
    .. code-block:: console
    
       >ping pynq
 
+or 
+
+   .. code-block:: console
+   
+      >ping 192.168.2.99
+      
+   (The default IP address of the board is : 192.168.2.99)
+   
 3. Log on to the board through a terminal, and check the system is running. i.e. that the Linux shell is accessible. See below for details on logging on with a terminal.
 
 4. From a terminal, check you can ping the board from your host PC, and also ping your host PC from the board
 
    If you can't ping the board, or the host PC, check your network settings. 
          
-   * You must ensure board your PC and board are connected to the same network, and have IP addresses in the same range
+   * You must ensure board your PC and board are connected to the same network, and have IP addresses in the same range. If your network cables is connected directly to your PC/laptop and board, you may need to set a static IP address for your PC/laptop manually. See the  `Appendix: Assign your PC/Laptop a static ip address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
          
    * If you have a proxy setup, you may need to add a rule to bypass the board hostname/ip address. 
       
@@ -41,31 +49,41 @@ The bitstream is not loading (No Green LED)
 * Check jumper JP4 is set to SD (board boots from Micro SD card).
 * Connect a terminal and verify that the Linux boot starts.
 
-If the Linux boot does not start, or fails, you may need to flash the Micro SD card with the Pynq image. 
+If the Linux boot does not start, or fails, you may need to flash the Micro SD card with the PYNQ-Z1 image. 
 
-My hostname is not resolving
-==========================================
-It may take the hostname (pynq) some time to resolve on your network. If you know the IP address of the board, you can use it to navigate to the Jupyter portal instead of the hostname. 
+The hostname of the board is not resolving/not found
+=====================================================
 
-e.g.
+It may take the hostname (pynq) some time to resolve on your network. If you know the IP address of the board, it may be faster to use the IP address to navigate to the Jupyter portal instead of the hostname. 
+
+e.g. In your browser, go to:
+
    .. code-block:: console
    
       http://192.168.2.99:9090
 
-You need to know the IP address of the board first. You can find the IP by connecting a terminal and running `ifconfig` in the Linux shell to check the network settings.
+You need to know the IP address of the board first. You can find the IP by connecting a terminal to the board. You can run `ifconfig` in the Linux shell on the board to check the network settings. Check the settings for *eth0* and look for an IP address. 
 
 I don't have an Ethernet port on my PC/Laptop
 ==================================================
-USB to Ethernet adapters are available. You can also use a USB to Ethernet adapter if you want to use a wired network connection, or if you do not want to change the network settings for your existing Ethernet port. 
+If you don't have an Ethernet port, you can get a USB to Ethernet adapter. 
 
 If you have a wireless router with Ethernet ports (LAN), you can connect your PYNQ-Z1 board to an Ethernet port on your router, and connect to it from your PC using WiFi. (You may need to change settings on your Router to enable the Wireless network to communicate with your LAN - check your equipment documentation for details.)
    
 You can also connect a WiFi dongle to the board, and set up the board to connect to the wireless network. Your host PC can then connect to the same wireless network to connect to the board. 
 
-   
+How do I setup my computer to connect to the board?
+=====================================================
+
+If you are connecting your board to your network (i.e. you have plugged the Ethernet cable into the board, and the other end into a network switch, or home router), then you should not need to setup anything on your computer. Usually, both your computer, and board will be assigned an IP address automatically, and they will be able to communicate with each other. 
+
+If you connect your board directly to your computer with an ethernet cable, then you need to make sure that they have IP addresses in the same range. The board will assign itself a static IP address (by default 192.168.2.99), and you will need to assign a static IP address in the same range to the computer.  This allows your computer and board to communicate to each other over the Ethernet cable. 
+
+See the  `Appendix: Assign your PC/Laptop a static ip address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+
 I can't connect to the Jupyter portal
 =======================================
-My Board is powered on, and I see the Red and Green LEDs, but I can't connect to the Pynq Portal, or see the Samba shared drive:
+My Board is powered on, and I see the Red and Green LEDs, but I can't connect to the Jupyter Portal, or see the Samba shared drive:
 
 By default, the board has DHCP enabled. If you plug the board into a home router, or network switch connected to your network, it should be allocated an IP address automatically. If not, it should fall back to a static IP address of `192.168.2.99`
    
@@ -194,8 +212,17 @@ Does Pynq support Python 2.7?
 ======================================================
 Python 2.7 is loaded on Zynq and Python 2.7 scripts can be executed. Pynq, however, is based on Python 3.4.  No attempts have been made to ensure backward compatibility with Python 2.7.
 
-How do I flash the Micro SD card
+Where can I get the PYNQ-Z1 image?
 =========================================
-`Win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_ can be used to flash a Micro SD card
+You can `Download the PYNQ-Z1 image <https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_14.zip>`_ here
+
+How do I write the Micro SD card image
+=========================================
+You can find instructions in the `Appendix: Writing the SD card image <17_appendix.html#writing-the-sd-card-image>`_ 
+
+What type of Micro SD card do I need?
+=========================================
+
+We recommend you use a card at least 8GB in size and at least class 4 speed rating. 
 
 

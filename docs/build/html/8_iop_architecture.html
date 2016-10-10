@@ -87,7 +87,6 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
@@ -107,7 +106,7 @@
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
@@ -306,11 +305,14 @@ div.nboutput  > :nth-child(2).stderr {
 * Pin 4: SPICLK</p>
 <p>and the remaining pins to their corresponding GPIO (which could be left unused in the MicroBlaze application).</p>
 <p>From Python all the constants and addresses for the IOP can be found in:</p>
-<blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/iop_const.py</span></code></div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">GitHub</span> <span class="n">Repository</span><span class="o">&gt;/</span><span class="n">python</span><span class="o">/</span><span class="n">pynq</span><span class="o">/</span><span class="n">iop</span><span class="o">/</span><span class="n">iop_const</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
 <p><code class="docutils literal"><span class="pre">pmod.h</span></code> and <code class="docutils literal"><span class="pre">pmod.c</span></code> are part of the Pmod IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
-<blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/</span></code></div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">GitHub</span> <span class="n">Repository</span><span class="o">&gt;/</span><span class="n">Pynq</span><span class="o">-</span><span class="n">Z1</span><span class="o">/</span><span class="n">vivado</span><span class="o">/</span><span class="n">ip</span><span class="o">/</span><span class="n">pmod_io_switch_1</span><span class="o">.</span><span class="mi">0</span><span class="o">/</span>  \
+<span class="n">drivers</span><span class="o">/</span><span class="n">pmod_io_switch_v1_0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span>
+</pre></div>
+</div>
 <p>This code is automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use this library by including the header file:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;pmod_io_switch.h&quot;</span><span class="cp"></span>
 </pre></div>
@@ -631,11 +633,14 @@ div.nboutput  > :nth-child(2).stderr {
 </pre></div>
 </div>
 <p>From Python all the constants and addresses for the IOP can be found in:</p>
-<blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;Pynq</span> <span class="pre">GitHub</span> <span class="pre">Repository&gt;/python/pynq/iop/iop_const.py</span></code></div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Pynq</span> <span class="n">GitHub</span> <span class="n">Repository</span><span class="o">&gt;/</span><span class="n">python</span><span class="o">/</span><span class="n">pynq</span><span class="o">/</span><span class="n">iop</span><span class="o">/</span><span class="n">iop_const</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
 <p><code class="docutils literal"><span class="pre">arduino.h</span></code> and <code class="docutils literal"><span class="pre">arduino.c</span></code> are part of the Arduino IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.</p>
-<blockquote>
-<div><code class="docutils literal"><span class="pre">&lt;GitHub</span> <span class="pre">Repository&gt;/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_v1_0/src/</span></code></div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">GitHub</span> <span class="n">Repository</span><span class="o">&gt;/</span><span class="n">Pynq</span><span class="o">-</span><span class="n">Z1</span><span class="o">/</span><span class="n">vivado</span><span class="o">/</span><span class="n">ip</span><span class="o">/</span><span class="n">arduino_io_switch_1</span><span class="o">.</span><span class="mi">0</span><span class="o">/</span>  \
+<span class="n">drivers</span><span class="o">/</span><span class="n">arduino_io_switch_v1_0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span>
+</pre></div>
+</div>
 <p>This code this automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use this library by including the header file:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;arduino_io_switch.h&quot;</span><span class="cp"></span>
 </pre></div>

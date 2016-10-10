@@ -16,16 +16,8 @@
   {
    "cell_type": "markdown",
    "metadata": {},
-   "source": []
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
    "source": [
-    ".. figure:: images/pynqz1_audio.JPG \n",
-    "   :align: center"
+    "![](images/pynqz1_audio.JPG)"
    ]
   },
   {
@@ -35,17 +27,8 @@
     "## Audio IP in base overlay\n",
     "\n",
     "To use audio on the PYNQ-Z1, audio controllers must be included in a hardware library or overlay. The *base* overlay contains a the PDM capture and PWM driver for the two audio interfaces as indicated in the image below:\n",
-    "\n"
-   ]
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: images/audio_block_diagram.jpg \n",
-    "   :align: center"
+    "\n",
+    "![](images/audio_block_diagram.jpg)"
    ]
   },
   {
@@ -65,7 +48,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 1,
    "metadata": {
     "collapsed": false
    },
@@ -86,7 +69,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 2,
    "metadata": {
     "collapsed": true
    },
@@ -108,7 +91,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 3,
    "metadata": {
     "collapsed": true
    },
@@ -127,7 +110,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 4,
    "metadata": {
     "collapsed": true
    },
@@ -156,7 +139,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.4.3+"
+   "version": "3.5.1"
   }
  },
  "nbformat": 4,

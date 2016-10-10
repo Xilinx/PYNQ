@@ -25,16 +25,8 @@
   {
    "cell_type": "markdown",
    "metadata": {},
-   "source": []
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
    "source": [
-    ".. figure:: images/pynqz1_board_io.JPG \n",
-    "   :align: center"
+    "![](images/pynqz1_board_io.JPG)"
    ]
   },
   {
@@ -63,7 +55,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 1,
    "metadata": {
     "collapsed": false
    },
@@ -83,12 +75,12 @@
    "metadata": {},
    "source": [
     "## Controlling a single LED\n",
-    "Now we can instantiate objects of each of these classes and use their methods to manipulate the corresponding peripherals. Let\u2019s start by instantiating a single LED and turning it on and off."
+    "Now we can instantiate objects of each of these classes and use their methods to manipulate the corresponding peripherals. Let’s start by instantiating a single LED and turning it on and off."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 2,
    "metadata": {
     "collapsed": true
    },
@@ -99,7 +91,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 3,
    "metadata": {
     "collapsed": true
    },
@@ -117,7 +109,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 4,
    "metadata": {
     "collapsed": true
    },
@@ -130,12 +122,12 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Let\u2019s then toggle _led0_ using the sleep() method to see the LED flashing. "
+    "Let’s then toggle _led0_ using the sleep() method to see the LED flashing. "
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 5,
    "metadata": {
     "collapsed": false
    },
@@ -163,7 +155,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 6,
    "metadata": {
     "collapsed": false
    },
@@ -194,7 +186,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 7,
    "metadata": {
     "collapsed": true
    },
@@ -222,7 +214,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 8,
    "metadata": {
     "collapsed": false
    },
@@ -248,7 +240,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 9,
    "metadata": {
     "collapsed": false
    },
