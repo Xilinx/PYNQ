@@ -2,7 +2,7 @@
 Quick Start
 **************
 
-If you have a Micro SD card preloaded with the PYNQ-Z1 image, you can follow the quick start instructions below. Otherwise go to the next section for the `full getting started with PYNQ guide <2_getting_started.html>`_ in section 3. 
+If you have a Micro SD card preloaded with the PYNQ-Z1 image, you can follow the quick start instructions below. Otherwise go to the `full getting started with PYNQ guide <2_getting_started.html>`_ in section 3. 
 
 Set up the board
 =================
