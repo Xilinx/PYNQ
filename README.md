@@ -17,17 +17,17 @@ The project currently supports the PYNQ-Z1 board.
 
 You can <a href="https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_14.zip" target="_blank">download the precompiled image</a>, write the image to a micro SD card, and boot the board from the micro SD card. 
 
-## Quick start
+## Quick Start
 
 See the <a href="http://pynq.readthedocs.io/en/latest/2_getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
 
-## Modify the Python
+## Modify Python
 
 All Python code for the `pynq` package can be found in the `/python` folder. This folder can be found on the board after the board boots with the precompiled image. 
 
 You can clone this repository, edit the Python code and copy it directly to the corresponding folder on the board. (You may need to reboot the board to load the changes.)
 
-## Xilinx files and new overlays
+## Board Files and Overlays
 
 All board related files including Vivado and SDK software projects, bitstreams, and example notebooks, can be found in the `/Pynq-Z1` folder.
 
@@ -41,15 +41,13 @@ Contributions to this repository are welcomed. To submit a project for inclusion
 
 2. Clone (download) the fork to a local computer using *git clone*.
 
-3. You can add a new Vivado project, bitstream, SDK project, or notebook to the corresponding folder in `/Pynq-Z1`.
+3. You can modify the Vivado project, bitstream, SDK project, or notebook in the corresponding folder in `/Pynq-Z1`.
 
-4. Create a new directory, and add all your project files with the appropriate license clearly stated.
-
-5. Add a `README.md` file. 
+5. Modify the documentation if necessary.
 
 6. Use *git add*-->*git commit*-->*git push* to add changes to your fork.
 
-7. Then submit a pull request by clicking the *pull request* button on YOUR github repo.
+7. Then submit a pull request by clicking the *pull request* button on your github repo.
 
 Check the <a href="http://git.huit.harvard.edu/guide/" target="_blank">guide to git</a> for more information.
 
