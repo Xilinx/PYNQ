@@ -9,51 +9,50 @@ PYNQ users can now create high performance embedded applications with
 -	high bandwidth IO
 -	low latency control
 
-See the [PYNQ webpage](www.pynq.io) for an overview of the project, and find [the PYNQ documentation on ReadTheDocs](http://pynq.readthedocs.io) to get started using PYNQ. 
+See the <a href="http://www.pynq.io/" target="_blank">PYNQ webpage</a> for an overview of the project, and find <a href="http://pynq.readthedocs.io" target="_blank">documentation on ReadTheDocs</a> to get started. 
 
-## Repository details
+## Precompiled Image
 
 The project currently supports the PYNQ-Z1 board. 
 
-### Precompiled Image
+You can <a href="https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_14.zip" target="_blank">download the precompiled image</a>, write the image to a micro SD card, and boot the board from the micro SD card. 
 
+## Quick start
 
-You [Download the precompiled image for the PYNQ-Z1 board](https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_14.zip) which can be written to a Micro SD card and used to boot the board. 
+See the <a href="http://pynq.readthedocs.io/en/latest/2_getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
 
-### Quick start
+## Modify the Python
 
-See the [PYNQ Quickstart guide](http://pynq.readthedocs.io/en/latest/2_getting_started.html) for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
-
-### Modify the Python
-
-All Python code for the PYNQ package can be found in the *python* folder. This folder can be found on the board after the board boots with the precompiled image. 
+All Python code for the `pynq` package can be found in the `/python` folder. This folder can be found on the board after the board boots with the precompiled image. 
 
 You can clone this repository, edit the Python code and copy it directly to the corresponding folder on the board. (You may need to reboot the board to load the changes.)
 
-### Xilinx files and new overlays
+## Xilinx files and new overlays
 
-All board related files including Vivado and SDK software projects, bitstreams, and example notebooks, can be found in the Pynq-Z1 folder.
+All board related files including Vivado and SDK software projects, bitstreams, and example notebooks, can be found in the `/Pynq-Z1` folder.
 
-You can rebuild the base overlay by running *make* in ./Pynq-Z1/vivado/base. This will generate a bitstream in ./Pynq-Z1/bitstream. You can also find the project tcl file here. You can use the base overlay as a starting point for creating a new overlay. If you create a new overlay, you should also save the tcl and bitstream to this directory, and copy both files to ./bitstream on the board.
+You can rebuild the base overlay by running *make* in `/Pynq-Z1/vivado/base`. This will generate a bitstream in `/Pynq-Z1/bitstream`. You can also find the project tcl file here. You can use the base overlay as a starting point for creating a new overlay. If you create a new overlay, you should also save the tcl and bitstream to this directory, and copy both files to `/bitstream` on the board.
 
-### Contribute
+## Contribute
 
-Fork this repository to your own github account using the 'fork' button above
+Contributions to this repository are welcomed. To submit a project for inclusion:
 
-Clone (Download) the fork to a local computer using 'git clone' 
+1. Fork this repository to your own github account using the *fork* button above.
 
-You can add a new Vivado project, bitstream, SDK project, or notebook to the corresponding folder in ./Pynq-Z1
+2. Clone (download) the fork to a local computer using *git clone*.
 
-Create a new directory, and add all your project files with the appropriate license clearly stated
+3. You can add a new Vivado project, bitstream, SDK project, or notebook to the corresponding folder in `/Pynq-Z1`.
 
-Add a README.md file 
+4. Create a new directory, and add all your project files with the appropriate license clearly stated.
 
-Use git add-->git commit-->git push to add changes to your fork 
+5. Add a `README.md` file. 
 
-Then submit a pull request by clicking the 'pull request' button on YOUR github repo.
+6. Use *git add*-->*git commit*-->*git push* to add changes to your fork.
 
-[Guide to git](http://git.huit.harvard.edu/guide/)
+7. Then submit a pull request by clicking the *pull request* button on YOUR github repo.
 
-### Support
+Check the <a href="http://git.huit.harvard.edu/guide/" target="_blank">guide to git</a> for more information.
 
-Please ask questions on the [PYNQ support forum](https://groups.google.com/forum/#!forum/pynq_project)
+## Support
+
+Please ask questions on the <a href="https://groups.google.com/forum/#!forum/pynq_project" target="_blank">PYNQ support forum</a>.
