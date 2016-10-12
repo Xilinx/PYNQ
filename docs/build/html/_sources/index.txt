@@ -6,9 +6,6 @@
 Python productivity for Zynq (Pynq) Documentation
 =======================================================
 
-Contents:
----------
-
 .. toctree::
    :maxdepth: 2
    
@@ -17,7 +14,6 @@ Contents:
    2_getting_started
    3_jupyter_notebook
    4_programming_python
-   5_programming_onboard
    6_overlays
    6a_base_overlay_iop
    6b_base_overlay_video
@@ -33,10 +29,8 @@ Contents:
    16_references
    17_appendix
 
-
 Indices and tables
 ==================
-
 ..
 
   * :ref:`genindex`

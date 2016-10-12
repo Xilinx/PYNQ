@@ -7,8 +7,9 @@ Subpackages
 .. toctree::
 
     pynq.board
-    pynq.drivers
     pynq.iop
+    pynq.drivers
+    
 
 Submodules
 ----------

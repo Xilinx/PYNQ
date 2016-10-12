@@ -31,9 +31,9 @@
 
   
     <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
-        <link rel="up" title="pynq" href="modules.html"/>
+        <link rel="up" title="pynq modules" href="modules.html"/>
         <link rel="next" title="pynq.board package" href="pynq.board.html"/>
-        <link rel="prev" title="pynq" href="modules.html"/> 
+        <link rel="prev" title="pynq modules" href="modules.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -88,7 +88,6 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
@@ -98,12 +97,12 @@
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynq</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynq modules</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">pynq package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pynq.board.html">pynq.board package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynq.iop.html">pynq.iop package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
@@ -111,7 +110,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-pynq.gpio">pynq.gpio module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-pynq.mmio">pynq.mmio module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-pynq.pl">pynq.pl module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-pynq">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -150,7 +149,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-          <li><a href="modules.html">pynq</a> &raquo;</li>
+          <li><a href="modules.html">pynq modules</a> &raquo;</li>
       
     <li>pynq package</li>
       <li class="wy-breadcrumbs-aside">
@@ -290,24 +289,12 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="pynq.board.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.button">pynq.board.button module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.led">pynq.board.led module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.rgbled">pynq.board.rgbled module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.switch">pynq.board.switch module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.audio">pynq.drivers.audio module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.dma">pynq.drivers.dma module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.trace_buffer">pynq.drivers.trace_buffer module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.video">pynq.drivers.video module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.xlnk">pynq.drivers.xlnk module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html#module-pynq.board.rgbled">pynq.board.rgbled module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pynq.iop.html">pynq.iop package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.arduino_analog">pynq.iop.arduino_analog module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.arduino_io">pynq.iop.arduino_io module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.devmode">pynq.iop.devmode module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_adc">pynq.iop.grove_adc module</a></li>
@@ -332,7 +319,15 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_pwm">pynq.iop.pmod_pwm module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_timer">pynq.iop.pmod_timer module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_tmp2">pynq.iop.pmod_tmp2 module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.iop.html#module-pynq.iop">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.audio">pynq.drivers.audio module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.video">pynq.drivers.video module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.trace_buffer">pynq.drivers.trace_buffer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.dma">pynq.drivers.dma module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.xlnk">pynq.drivers.xlnk module</a></li>
 </ul>
 </li>
 </ul>
@@ -1350,9 +1345,9 @@ exposed to users.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-pynq">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pynq" title="Permalink to this headline">¶</a></h2>
-</div>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pynq"></span></div>
 </div>
 
 
@@ -1365,7 +1360,7 @@ exposed to users.</p>
         <a href="pynq.board.html" class="btn btn-neutral float-right" title="pynq.board package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="modules.html" class="btn btn-neutral" title="pynq" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral" title="pynq modules" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

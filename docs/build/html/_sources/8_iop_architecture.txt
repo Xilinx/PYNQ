@@ -58,11 +58,16 @@ and the remaining pins to their corresponding GPIO (which could be left unused i
 
 From Python all the constants and addresses for the IOP can be found in:
 
-    ``<GitHub Repository>/python/pynq/iop/iop_const.py``
+:: 
+   
+   <GitHub Repository>/python/pynq/iop/iop_const.py
 
 ``pmod.h`` and ``pmod.c`` are part of the Pmod IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/drivers/pmod_io_switch_v1_0/src/``
+:: 
+   
+   <GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/  \
+   drivers/pmod_io_switch_v1_0/src/
 
 This code is automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use this library by including the header file:
 
@@ -170,11 +175,16 @@ For example, to connect the UART to D0 and D1, write D_UART to the configuration
 
 From Python all the constants and addresses for the IOP can be found in:
 
-    ``<Pynq GitHub Repository>/python/pynq/iop/iop_const.py``
+:: 
+	   
+   <Pynq GitHub Repository>/python/pynq/iop/iop_const.py
 
 ``arduino.h`` and ``arduino.c`` are part of the Arduino IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
 
-   ``<GitHub Repository>/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/drivers/arduino_io_switch_v1_0/src/``
+:: 
+   
+   <GitHub Repository>/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/  \
+   drivers/arduino_io_switch_v1_0/src/
 
 This code this automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use this library by including the header file:
 

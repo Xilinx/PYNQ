@@ -20,6 +20,14 @@ pynq.board.led module
     :undoc-members:
     :show-inheritance:
 
+pynq.board.switch module
+------------------------
+
+.. automodule:: pynq.board.switch
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
 pynq.board.rgbled module
 ------------------------
 
@@ -28,19 +36,3 @@ pynq.board.rgbled module
     :undoc-members:
     :show-inheritance:
 
-pynq.board.switch module
-------------------------
-
-.. automodule:: pynq.board.switch
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: pynq.board
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -87,7 +87,6 @@
 <li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
@@ -105,7 +104,7 @@
 <li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
@@ -280,8 +279,8 @@ device. This notebook will only consider the MIC and line out interfaces
 on the board.</p>
 <p>The Microphone is integrated onto the board, as indicated in the image
 below. The MIC hole should not be covered when capturing audio.</p>
-<div class="figure align-center">
-<img alt="_images/pynqz1_audio.JPG" src="_images/pynqz1_audio.JPG" />
+<div class="figure">
+<img alt="" src="_images/pynqz1_audio.JPG" />
 </div>
 <div class="section" id="Audio-IP-in-base-overlay">
 <h2>Audio IP in base overlay<a class="headerlink" href="#Audio-IP-in-base-overlay" title="Permalink to this headline">¶</a></h2>
@@ -289,8 +288,8 @@ below. The MIC hole should not be covered when capturing audio.</p>
 hardware library or overlay. The <em>base</em> overlay contains a the PDM
 capture and PWM driver for the two audio interfaces as indicated in the
 image below:</p>
-<div class="figure align-center">
-<img alt="_images/audio_block_diagram.jpg" src="_images/audio_block_diagram.jpg" />
+<div class="figure">
+<img alt="" src="_images/audio_block_diagram.jpg" />
 </div>
 <p>The Audio IP in the <em>base</em> overlay consists of a PDM block to interface
 the MIC, and an <em>Audio Direct</em> IP block to drive the line out (PWM).
