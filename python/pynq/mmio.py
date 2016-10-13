@@ -147,7 +147,7 @@ class MMIO:
         ----------
         offset : int
             The write offset from the MMIO base address.
-        data : int / str
+        data : int / bytes
             The integer(s) to be written into MMIO.
         
         Returns
@@ -161,10 +161,10 @@ class MMIO:
             if data > pow(2,32)-1:
                 raise ValueError("Integer value is too large for a word.")
             length = 4
-        elif (type(data) is str) or (type(data) is bytes):
+        elif (type(data) is bytes):
             length = len(data)
         else:
-            raise ValueError("Data types must be int, str, or bytes.")
+            raise ValueError("Data types must be int or bytes.")
 
         if offset + length > self.length:
                 raise MemoryError('Write operation exceeds MMIO length.')
@@ -179,7 +179,7 @@ class MMIO:
         # Seek to the aligned offset
         mem.seek((self.virt_offset + offset) & general_const.MMIO_WORD_MASK)
 
-        if length == 4:
+        if type(data) is int:
             self._debug('Writing 4 bytes to offset {0}: {1}'.\
                         format(hex(offset), hex(data)))
             mem.write(struct.pack('I', data))
@@ -202,4 +202,5 @@ class MMIO:
         None
         
         """
-        if self.debug: print('MMIO Debug: {0}'.format(infor))
+        if self.debug: 
+            print('MMIO Debug: {0}'.format(infor))
