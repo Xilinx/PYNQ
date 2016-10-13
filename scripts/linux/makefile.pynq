@@ -137,8 +137,8 @@ clean_dirs:
 	rm -rf ${FINAL_DOCS_DIR}/*
 	mv ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js ${ROOT_DIR}/
 	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
-	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images
-	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Examples
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/getting_started/images
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/examples
 	mkdir -p ${FINAL_NOTEBOOKS_DIR}/slides
 	mv ${ROOT_DIR}/reveal.js ${FINAL_NOTEBOOKS_DIR}/slides/
 
@@ -153,20 +153,20 @@ doc_sphinx:
 	cp -r ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
 
 doc_notebooks:
-	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started
-	mkdir -p ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/getting_started
+	mkdir -p ${FINAL_NOTEBOOKS_DIR}/getting_started/images
 	cp ${REPO_DIR}/docs/source/3_jupyter_notebook.ipynb \
-	${FINAL_NOTEBOOKS_DIR}/Getting_Started/1_jupyter_notebook.ipynb
+	${FINAL_NOTEBOOKS_DIR}/getting_started/1_jupyter_notebook.ipynb
 	cp ${REPO_DIR}/docs/source/4_programming_python.ipynb \
-	${FINAL_NOTEBOOKS_DIR}/Getting_Started/2_programming_python.ipynb
+	${FINAL_NOTEBOOKS_DIR}/getting_started/2_programming_python.ipynb
 	cp ${REPO_DIR}/docs/source/5_programming_onboard.ipynb \
-	${FINAL_NOTEBOOKS_DIR}/Getting_Started/3_programming_onboard.ipynb
+	${FINAL_NOTEBOOKS_DIR}/getting_started/3_programming_onboard.ipynb
 	cp ${REPO_DIR}/docs/source/6a_base_overlay_iop.ipynb \
-	${FINAL_NOTEBOOKS_DIR}/Getting_Started/4_base_overlay_iop.ipynb
+	${FINAL_NOTEBOOKS_DIR}/getting_started/4_base_overlay_iop.ipynb
 	cp ${REPO_DIR}/docs/source/6b_base_overlay_video.ipynb \
-	${FINAL_NOTEBOOKS_DIR}/Getting_Started/5_base_overlay_video.ipynb
+	${FINAL_NOTEBOOKS_DIR}/getting_started/5_base_overlay_video.ipynb
 	cp ${REPO_DIR}/docs/source/6c_base_overlay_audio.ipynb \
-	${FINAL_NOTEBOOKS_DIR}/Getting_Started/6_base_overlay_audio.ipynb
+	${FINAL_NOTEBOOKS_DIR}/getting_started/6_base_overlay_audio.ipynb
 	cp -arf ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
 
 doc_temp_notebooks: 
@@ -176,5 +176,5 @@ doc_temp_notebooks:
 
 doc_images: 
 	@for f in ${NOTEBOOK_IMAGES} ; do \
-		cp ${REPO_DIR}/docs/source/images/$$f ${FINAL_NOTEBOOKS_DIR}/Getting_Started/images/ || exit 1; \
+		cp ${REPO_DIR}/docs/source/images/$$f ${FINAL_NOTEBOOKS_DIR}/getting_started/images/ || exit 1; \
 	done
