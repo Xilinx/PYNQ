@@ -5,6 +5,7 @@ MBBINS = pmod_adc.bin \
 		pmod_dac.bin \
 		pmod_oled.bin \
 		pmod_als.bin \
+		pmod_tc1.bin \
 		pmod_tmp2.bin \
 		pmod_dpot.bin \
 		pmod_timer.bin \
