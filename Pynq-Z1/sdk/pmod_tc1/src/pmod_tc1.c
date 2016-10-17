@@ -68,7 +68,7 @@
 u32 get_sample(){
   /*
    * TC1 data is packed in a 32-bit word.
-   * Four bytes need to be read, and data extracted.
+   * Four bytes need to be read.
    */
   u8 raw_data[4];
   spi_transfer(SPI_BASEADDR, 4, raw_data, NULL);

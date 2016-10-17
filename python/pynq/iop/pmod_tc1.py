@@ -102,7 +102,17 @@ class Pmod_TC1(object):
 
     def reg_to_tc(self, reg_val):
         """
-        Extracts Thermocouple temperature from raw register value.
+        Extracts Thermocouple temperature from 32-bit register value.
+
+        Parameters
+        ----------
+        u32
+            32-bit TC1 register value
+
+        Returns
+        -------
+        float
+            The thermocouple temperature in degC.
         """
         v = reg_val >> 18
         if v & 0x00020000:
@@ -114,7 +124,17 @@ class Pmod_TC1(object):
 
     def reg_to_ref(self, reg_val):
         """
-        Extracts Ref Junction temperature from raw register value.
+        Extracts Ref Junction temperature from 32-bit register value.
+
+        Parameters
+        ----------
+        u32
+            32-bit TC1 register value
+
+        Returns
+        -------
+        float
+            The reference junction temperature in degC.
         """
         v = reg_val >> 4
         if v & 0x00000800:
@@ -126,7 +146,21 @@ class Pmod_TC1(object):
 
     def reg_to_alarms(self, reg_val):
         """
-        Extracts Alarm flags from raw register value.
+        Extracts Alarm flags from 32-bit register value.
+
+        Parameters
+        ----------
+        u32
+            32-bit TC1 register value
+
+        Returns
+        -------
+        u32
+            The alarm flags from the TC1.
+            bit  0 = 1 if thermocouple connection is open-circuit
+            bit  1 = 1 if thermocouple connection is shorted to generated
+            bit  2 = 1 if thermocouple connection is shorted to VCC
+            bit 16 = 1 if any if bits 0-2 are 1
         """
         return (reg_val & 0x0001000f)
 
