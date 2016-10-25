@@ -72,7 +72,8 @@ u32 get_sample(){
    */
   u8 raw_data[4];
   spi_transfer(SPI_BASEADDR, 4, raw_data, NULL);
-  u32 v = ( (raw_data[0] << 24) + (raw_data[1] << 16) + (raw_data[2] << 8) + raw_data[3] );
+  u32 v = ( (raw_data[0] << 24) + (raw_data[1] << 16)
+	    + (raw_data[2] << 8) + raw_data[3] );
   return v;
 }
 
