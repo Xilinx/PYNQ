@@ -13,6 +13,7 @@
 *.jpe binary
 *.jpeg binary
 *.JPG binary
+*.PNG binary
 *.ttf binary
 *.eot binary
 *.woff binary
