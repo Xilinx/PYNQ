@@ -38,6 +38,7 @@ import struct
 import mmap
 import math
 from . import general_const
+import numpy as np
 
 class MMIO:
     """ This class exposes API for MMIO read and write.
@@ -96,15 +97,17 @@ class MMIO:
         self.length = length
         
         self.debug = debug
-        self._debug('MMIO(address, size) = ({0}, {1} bytes).'.\
-                    format(hex(self.base_addr), hex(self.length)))
+        self._debug('MMIO(address, size) = ({0:x}, {1:x} bytes).',
+                    self.base_addr,self.length)
                 
         # Open file and mmap
-        f = os.open(general_const.MMIO_FILE_NAME, os.O_RDWR | os.O_SYNC)
-        self.mem = mmap.mmap(f, (self.length + self.virt_offset), 
+        self.f = os.open(general_const.MMIO_FILE_NAME, os.O_RDWR | os.O_SYNC)
+        self.mem = mmap.mmap(self.f, (self.length + self.virt_offset),
                             mmap.MAP_SHARED,
                             mmap.PROT_READ | mmap.PROT_WRITE,
                             offset = self.virt_base)
+
+        self.array = np.frombuffer(self.mem, np.uint32, length >> 2, self.virt_offset)
 
     def read(self, offset = 0, length = 4):
         """The method to read data from MMIO.
@@ -126,19 +129,15 @@ class MMIO:
             raise ValueError("MMIO currently only supports 4-byte reads.")
         if offset < 0 or length < 0: 
             raise ValueError("Negative offset or negative length.")
-        if offset + length > self.length:
-            raise MemoryError('Read operation exceeds the MMIO length.')
+        idx = offset >> 2
+        if idx << 2 != offset:
+            raise MemoryError('Read operation unaligned.')
 
-        # Make reading faster
-        mem = self.mem
-        self._debug('Reading {0} bytes from offset {1}'.\
-                    format(length, hex(offset)))
-
-        # Seek the virtual address offset
-        mem.seek((self.virt_offset + offset) & general_const.MMIO_WORD_MASK)
+        self._debug('Reading {0} bytes from offset {1:x}',
+                    length, offset)
 
         # Read data out
-        return (struct.unpack('I', mem.read(length))[0])
+        return int(self.array[idx])
         
     def write(self, offset, data):
         """The method to write data to MMIO.
@@ -157,50 +156,38 @@ class MMIO:
         """
         if offset < 0: 
                 raise ValueError("Negative offset.")
-        if type(data) is int:
-            if data > pow(2,32)-1:
-                raise ValueError("Integer value is too large for a word.")
-            length = 4
-        elif (type(data) is bytes):
-            length = len(data)
-        else:
-            raise ValueError("Data types must be int or bytes.")
 
-        if offset + length > self.length:
-                raise MemoryError('Write operation exceeds MMIO length.')
-                
-        # Make reading easier
-        mem = self.mem
-
-        # Check that the operation is going write to an aligned location
-        if ((self.virt_offset + offset) & ~ general_const.MMIO_WORD_MASK): 
+        idx = offset >> 2
+        if idx << 2 != offset:
             raise MemoryError('Write operation not aligned.')
 
-        # Seek to the aligned offset
-        mem.seek((self.virt_offset + offset) & general_const.MMIO_WORD_MASK)
-
         if type(data) is int:
-            self._debug('Writing 4 bytes to offset {0}: {1}'.\
-                        format(hex(offset), hex(data)))
-            mem.write(struct.pack('I', data))
+            self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
+                        offset, data)
+            self.array[idx] = np.uint32(data)
+        elif type(data) is bytes:
+            length = len(data)
+            num_words = length >> 2
+            if (num_words << 2 != length):
+                raise MemoryError('Need an integer number of words')
+            buf = np.frombuffer(data, np.uint32, num_words, 0)
+            self.array[offset:offset + num_words] = buf
         else:
-            for i in range(0, length, general_const.MMIO_WORD_LENGTH):
-                buf = int.from_bytes(data[i:i+general_const.MMIO_WORD_LENGTH],
-                                     byteorder='little')
-                mem.write(struct.pack('I', buf))
+            raise ValueError("Data type must be int or bytes.")
 
-    def _debug(self, infor):
+    def _debug(self, s, *args):
         """The method provides debug capabilities for this class.
         
         Parameters
         ----------
-        infor : str
-            The debug information
-        
+        s : str
+            The debug information format string
+        *args : any
+            The arguments to be formatted
         Returns
         -------
         None
         
         """
         if self.debug: 
-            print('MMIO Debug: {0}'.format(infor))
+            print('MMIO Debug: {0}'.format(s.format(*args)))
