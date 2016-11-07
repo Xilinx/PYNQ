@@ -1,4 +1,4 @@
-The ``Pynq`` (Python Productivity for Zynq) Package
+``pynq`` Package
 ======================================================
 
 This section describes the ``pynq`` package for the PYNQ-Z1 platform. 
