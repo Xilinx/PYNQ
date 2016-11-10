@@ -55,8 +55,12 @@ class MMIO:
         The length in bytes of the address range.
     debug : bool
         Turn on debug mode if it is True.
+    mmap_file : file
+        Underlying file object for MMIO mapping
     mem : mmap
         An mmap object created when mapping files to memory.
+    array : numpy.ndarray
+        A numpy view of the mapped range for efficient assignment
     
     """
 
@@ -85,13 +89,7 @@ class MMIO:
         
         # Calculate base address offset w.r.t the base address
         self.virt_offset = base_addr - self.virt_base
-        
-        # Align the stop address with the words
-        stop = base_addr + length
-        if (stop % general_const.MMIO_WORD_MASK):
-            stop = (stop + general_const.MMIO_WORD_LENGTH) & \
-                    general_const.MMIO_WORD_MASK
-        
+
         # Storing the base address and length
         self.base_addr = base_addr
         self.length = length
@@ -101,13 +99,21 @@ class MMIO:
                     self.base_addr,self.length)
                 
         # Open file and mmap
-        self.f = os.open(general_const.MMIO_FILE_NAME, os.O_RDWR | os.O_SYNC)
-        self.mem = mmap.mmap(self.f, (self.length + self.virt_offset),
+        self.mmap_file = os.open(general_const.MMIO_FILE_NAME,
+                                 os.O_RDWR | os.O_SYNC)
+
+        self.mem = mmap.mmap(self.mmap_file, (self.length + self.virt_offset),
                             mmap.MAP_SHARED,
                             mmap.PROT_READ | mmap.PROT_WRITE,
                             offset = self.virt_base)
 
-        self.array = np.frombuffer(self.mem, np.uint32, length >> 2, self.virt_offset)
+        self.array = np.frombuffer(self.mem, np.uint32,
+                                   length >> 2, self.virt_offset)
+
+    def __del__(self):
+        """Destructor to ensure mmap file is closed
+        """
+        os.close(self.mmap_file)
 
     def read(self, offset = 0, length = 4):
         """The method to read data from MMIO.
@@ -168,7 +174,7 @@ class MMIO:
         elif type(data) is bytes:
             length = len(data)
             num_words = length >> 2
-            if (num_words << 2 != length):
+            if num_words << 2 != length:
                 raise MemoryError('Need an integer number of words')
             buf = np.frombuffer(data, np.uint32, num_words, 0)
             self.array[offset:offset + num_words] = buf
