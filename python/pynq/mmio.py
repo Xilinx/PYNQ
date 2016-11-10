@@ -1,35 +1,35 @@
 #   Copyright (c) 2016, Xilinx, Inc.
 #   All rights reserved.
-# 
-#   Redistribution and use in source and binary forms, with or without 
+#
+#   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions are met:
 #
-#   1.  Redistributions of source code must retain the above copyright notice, 
+#   1.  Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
 #
-#   2.  Redistributions in binary form must reproduce the above copyright 
-#       notice, this list of conditions and the following disclaimer in the 
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
 #
-#   3.  Neither the name of the copyright holder nor the names of its 
-#       contributors may be used to endorse or promote products derived from 
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
 #       this software without specific prior written permission.
 #
 #   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
 #   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
 
 import os
@@ -40,9 +40,10 @@ import math
 from . import general_const
 import numpy as np
 
+
 class MMIO:
     """ This class exposes API for MMIO read and write.
-    
+
     Attributes
     ----------
     virt_base : int
@@ -61,12 +62,12 @@ class MMIO:
         An mmap object created when mapping files to memory.
     array : numpy.ndarray
         A numpy view of the mapped range for efficient assignment
-    
+
     """
 
-    def __init__(self, base_addr, length = 4, debug = False):
+    def __init__(self, base_addr, length=4, debug=False):
         """Return a new MMIO object.
-        
+
         Parameters
         ----------
         base_addr : int
@@ -75,37 +76,37 @@ class MMIO:
             The length in bytes; default is 4.
         debug : bool
             Turn on debug mode if it is True; default is False.
-            
+
         """
         if base_addr < 0 or length < 0:
             raise ValueError("Negative offset or negative length.")
-            
+
         euid = os.geteuid()
         if euid != 0:
             raise EnvironmentError('Root permissions required.')
-        
+
         # Align the base address with the pages
         self.virt_base = base_addr & ~(mmap.PAGESIZE - 1)
-        
+
         # Calculate base address offset w.r.t the base address
         self.virt_offset = base_addr - self.virt_base
 
         # Storing the base address and length
         self.base_addr = base_addr
         self.length = length
-        
+
         self.debug = debug
         self._debug('MMIO(address, size) = ({0:x}, {1:x} bytes).',
-                    self.base_addr,self.length)
-                
+                    self.base_addr, self.length)
+
         # Open file and mmap
         self.mmap_file = os.open(general_const.MMIO_FILE_NAME,
                                  os.O_RDWR | os.O_SYNC)
 
         self.mem = mmap.mmap(self.mmap_file, (self.length + self.virt_offset),
-                            mmap.MAP_SHARED,
-                            mmap.PROT_READ | mmap.PROT_WRITE,
-                            offset = self.virt_base)
+                             mmap.MAP_SHARED,
+                             mmap.PROT_READ | mmap.PROT_WRITE,
+                             offset=self.virt_base)
 
         self.array = np.frombuffer(self.mem, np.uint32,
                                    length >> 2, self.virt_offset)
@@ -115,25 +116,25 @@ class MMIO:
         """
         os.close(self.mmap_file)
 
-    def read(self, offset = 0, length = 4):
+    def read(self, offset=0, length=4):
         """The method to read data from MMIO.
-        
+
         Parameters
         ----------
         offset : int
             The read offset from the MMIO base address.
         length : int
             The length of the data in bytes.
-        
+
         Returns
         -------
         list
             A list of data read out from MMIO
-        
+
         """
-        if not length==4:
+        if not length == 4:
             raise ValueError("MMIO currently only supports 4-byte reads.")
-        if offset < 0 or length < 0: 
+        if offset < 0 or length < 0:
             raise ValueError("Negative offset or negative length.")
         idx = offset >> 2
         if idx << 2 != offset:
@@ -144,7 +145,7 @@ class MMIO:
 
         # Read data out
         return int(self.array[idx])
-        
+
     def write(self, offset, data):
         """The method to write data to MMIO.
 
@@ -154,14 +155,14 @@ class MMIO:
             The write offset from the MMIO base address.
         data : int / bytes
             The integer(s) to be written into MMIO.
-        
+
         Returns
         -------
         None
-        
+
         """
-        if offset < 0: 
-                raise ValueError("Negative offset.")
+        if offset < 0:
+            raise ValueError("Negative offset.")
 
         idx = offset >> 2
         if idx << 2 != offset:
@@ -183,7 +184,7 @@ class MMIO:
 
     def _debug(self, s, *args):
         """The method provides debug capabilities for this class.
-        
+
         Parameters
         ----------
         s : str
@@ -193,7 +194,7 @@ class MMIO:
         Returns
         -------
         None
-        
+
         """
-        if self.debug: 
+        if self.debug:
             print('MMIO Debug: {0}'.format(s.format(*args)))
