@@ -36,7 +36,7 @@
  * IOP code (MicroBlaze) for grove Temperature & Humidity Sensor.
  * The sensor has to be connected to an arduino interface 
  * via a shield socket.
- * http://wiki.seeedstudio.com/wiki/Grove-_Temperature_and_Humidity_Sensor
+ * http://wiki.seeed.cc/Grove-TemptureAndHumidity_Sensor-High-Accuracy_AndMini-v1.0
  *
  * <pre>
  * MODIFICATION HISTORY:
