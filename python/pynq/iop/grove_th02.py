@@ -51,11 +51,10 @@ GROVE_TH02_LOG_START = iop_const.MAILBOX_OFFSET+16
 GROVE_TH02_LOG_END = GROVE_TH02_LOG_START+(500*8)
 
 class Grove_TH02(object):
-    """This class controls the Grove Digital I2C Temperature and Humidity
-    sensor. 
+    """This class controls the Grove I2C Temperature and Humidity sensor. 
     
-    Tempterature&humidity sensor (high-accuracy & mini)  Hardware
-    version: v1.0.
+    Tempterature&humidity sensor (high-accuracy & mini).
+    Hardware version: v1.0.
     
     Attributes
     ----------
@@ -111,8 +110,7 @@ class Grove_TH02(object):
             pass  
             
     def read(self):
-        """Read the temperature and humidity values from the Grove TH02 
-        peripheral.
+        """Read the temperature and humidity values from the TH02 peripheral.
         
         Parameters
         ----------
@@ -153,8 +151,7 @@ class Grove_TH02(object):
         
         """
         if (log_interval_ms < 0):
-            raise ValueError("Time between samples should cannot be less " + \
-                             "than zero.")
+            raise ValueError("Time between samples cannot be less than zero.")
 
         self.log_running = 1
         self.log_interval_ms = log_interval_ms

@@ -43,7 +43,7 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- -------- -----------------------------------------------
- * 1.00a lc  06/22/16 release
+ * 1.00a lcc 06/22/16 release
  * 1.00b gn  10/24/16 support for PYNQ-Z1
  *
  * </pre>

@@ -36,7 +36,8 @@
  * IOP code (MicroBlaze) for grove Temperature & Humidity Sensor.
  * The sensor has to be connected to a PMOD interface 
  * via a shield socket.
- * http://wiki.seeedstudio.com/wiki/Grove-_Temperature_and_Humidity_Sensor
+ * http://wiki.seeed.cc/Grove-TemptureAndHumidity_Sensor-High-Accuracy_\
+ * AndMini-v1.0
  *
  * <pre>
  * MODIFICATION HISTORY:
@@ -63,7 +64,7 @@
 #define REG_CONFIG           0x03
 #define REG_ID               0x11
 
-#define STATUS_RDY_MASK      0x01    //poll RDY,0 indicate the conversion is done
+#define STATUS_RDY_MASK      0x01    //poll RDY,0 indicate conversion is done
 
 #define CMD_MEASURE_HUMI     0x01    //perform a humility measurement
 #define CMD_MEASURE_TEMP     0x11    //perform a temperature measurement

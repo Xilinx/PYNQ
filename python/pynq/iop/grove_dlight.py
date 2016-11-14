@@ -53,8 +53,8 @@ GROVE_DLIGHT_LOG_END = GROVE_DLIGHT_LOG_START+(250*16)
 class Grove_DLight(object):
     """This class controls the Grove IIC Color sensor. 
     
-    Grove Color sensor based on the TCS3414CS. Hardware
-    version: v1.3.
+    Grove Color sensor based on the TCS3414CS. 
+    Hardware version: v1.3.
     
     Attributes
     ----------

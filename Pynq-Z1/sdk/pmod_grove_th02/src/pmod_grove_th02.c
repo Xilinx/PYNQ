@@ -36,7 +36,8 @@
  * IOP code (MicroBlaze) for grove Temperature & Humidity Sensor.
  * The sensor has to be connected to a PMOD interface 
  * via a shield socket.
- * http://wiki.seeedstudio.com/wiki/Grove-_Temperature_and_Humidity_Sensor
+ * http://wiki.seeed.cc/Grove-TemptureAndHumidity_Sensor-High-Accuracy_\
+ * AndMini-v1.0
  *
  * <pre>
  * MODIFICATION HISTORY:
@@ -105,7 +106,8 @@ int main(void){
                 break;
             case READ_AND_LOG_DATA:
                 // initialize logging variables, reset cmd
-                cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+                cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, 
+                        LOG_ITEM_SIZE);
                 delay = MAILBOX_DATA(1);
                 MAILBOX_CMD_ADDR = 0x0;
                 do{

@@ -43,7 +43,7 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- -------- -----------------------------------------------
- * 1.00a lc  06/22/16 release
+ * 1.00a lcc 06/22/16 release
  * 1.00b mr  06/23/16 updated signal code
  * 1.00c gn  10/25/16 support arduino shield
  *

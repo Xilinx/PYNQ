@@ -74,8 +74,7 @@ class Grove_Haptic_Motor(object):
         if if_id in [PMODA, PMODB]:
             if not gr_pin in [PMOD_GROVE_G3, \
                               PMOD_GROVE_G4]:
-                raise ValueError("Haptic_Motor group number can only be " + \
-                                 "G3 - G4.")
+                raise ValueError("Motor group number can only be G3 - G4.")
             GROVE_HAPTIC_MOTOR_PROGRAM = PMOD_GROVE_HAPTIC_MOTOR_PROGRAM
 
         elif if_id in [ARDUINO]:
@@ -198,8 +197,7 @@ class Grove_Haptic_Motor(object):
             pass
                         
     def is_playing(self):
-        """Check wether a vibration effect is running on the Grove Haptic Motor 
-        peripheral.
+        """Check if a vibration effect is running on the Grove Haptic Motor.
          
         Parameters
         ----------

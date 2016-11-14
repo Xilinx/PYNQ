@@ -53,8 +53,8 @@ GROVE_FINGER_HR_LOG_END = GROVE_FINGER_HR_LOG_START+(1000*4)
 class Grove_FingerHR(object):
     """This class controls the Grove finger clip heart rate sensor. 
     
-    Grove Finger sensor based on the TCS3414CS. Hardware
-    version: v1.3.
+    Grove Finger sensor based on the TCS3414CS. 
+    Hardware version: v1.3.
     
     Attributes
     ----------
@@ -146,7 +146,7 @@ class Grove_FingerHR(object):
         
         """
         if (log_interval_ms < 0):
-            raise ValueError("Time between samples should cannot be less than zero.")
+            raise ValueError("Time between samples cannot be less than zero.")
 
         self.log_running = 1
         self.log_interval_ms = log_interval_ms

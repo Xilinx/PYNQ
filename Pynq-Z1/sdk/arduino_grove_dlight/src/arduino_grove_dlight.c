@@ -43,7 +43,7 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- -------- -----------------------------------------------
- * 1.00a lc  07/08/16 release
+ * 1.00a lcc 07/08/16 release
  * 1.00b gn  10/25/16 support arduino shield
  *
  * </pre>
