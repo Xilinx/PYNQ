@@ -45,14 +45,21 @@ arduino_analog.elf.size: arduino_analog.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+arduino_analog.bin: arduino_analog.elf
+	@echo 'Invoking: MicroBlaze Bin Gen'
+	mb-objcopy -O binary arduino_analog.elf arduino_analog.bin
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) arduino_analog.elf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) arduino_analog.elf arduino_analog.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE)
+secondary-outputs: $(ELFSIZE) arduino_analog.bin
 
 .PHONY: all clean dependents
 .SECONDARY:
 
 -include ../makefile.targets
+
