@@ -204,7 +204,7 @@ class xlnk:
         self.__check_buftype(buf)
         return(ffi.buffer(buf, length))
     
-    def cma_get_phy_addr(self, buf_ptr)
+    def cma_get_phy_addr(self, buf_ptr):
         """Get the physical address of a buffer.
         
         Used to get the physical address of a memory buffer allocated with
