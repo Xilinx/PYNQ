@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 #   Copyright (c) 2016, NECST Laboratory, Politecnico di Milano
 #   All rights reserved.
 # 
@@ -43,12 +40,26 @@ class Usb_Wifi(object):
 
     The board is compatible with RALink RT5370 devices.
 
+    Note
+    ----
+    Administrator rights are necessary to create network interface file
     Attributes
     ----------
+    wifi_port : str
+        string identifier of the wireless network device
     """
 
     def __init__(self):
-        """Return an instance for the usb wifi connection"""
+        """This function initializes the wireless connection and assign device
+           string identifier
+
+           Network devices are checked to find wl* wireless components
+           If no wl* device is found, wifi_port is not assigned
+
+           Return
+           ------
+           None
+        """
 
         net_devices = sproc.check_output('ip a', shell=True).decode()
 
@@ -60,7 +71,16 @@ class Usb_Wifi(object):
         print(self.wifi_port)
 
     def gen_network_file(self, ssid, password):
-        """Generate connection file from ssid and password"""
+        """This function generate the network authentication file from network
+           SSID and WPA passphrase
+
+           Parameters
+           ----------
+           ssid : str
+               String unique identifier of the wireless network
+           password : str
+               String WPA passphrase necessary to access the network
+        """
 
         # get bash string into string format for key search
         wifikey_str = sproc.check_output('wpa_passphrase {} {}'.format(ssid,
@@ -82,16 +102,27 @@ class Usb_Wifi(object):
         net_iface_fh.close()
 
     def connect(self, ssid, password):
-        """Connect to a network using ssid and password"""
+        """This function kills the wireless connection and connect to a new one
+           using network ssid and WPA passphrase. Wrong ssid or passphrase
+           reject the connection
+           
+           Parameters
+           ----------
+           ssid : str
+               String unique identifier of the wireless network
+           password : str
+               String WPA passphrase necessary to access the network
+        """
+
         os.system('ifdown {}'.format(self.wifi_port))
         self.gen_network_file(ssid, password)
         os.system('ifup {}'.format(self.wifi_port))
 
     def reset(self):
-        """Close connection and reset interface"""
+        """This function shutdown the network connection and delete the
+        interface file
+        """
+
         os.system('killall -9 wpa_supplicant')
         os.system('ifdown {}'.format(self.wifi_port))
         os.system('rm -fr /etc/network/interfaces.d/wl*')
-	
-    def list_ssid(self):
-        """To be implemented with iwlist tool"""
