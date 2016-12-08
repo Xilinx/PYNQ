@@ -43,22 +43,25 @@ class Usb_Wifi(object):
     Note
     ----
     Administrator rights are necessary to create network interface file
+
     Attributes
     ----------
     wifi_port : str
         string identifier of the wireless network device
+
     """
 
     def __init__(self):
         """This function initializes the wireless connection and assign device
            string identifier
 
-           Network devices are checked to find wl* wireless components
-           If no wl* device is found, wifi_port is not assigned
+           Network devices are checked to find wireless components
+           If no device is found, wifi_port is not assigned
 
            Return
            ------
            None
+
         """
 
         net_devices = sproc.check_output('ip a', shell=True).decode()
@@ -78,8 +81,10 @@ class Usb_Wifi(object):
            ----------
            ssid : str
                String unique identifier of the wireless network
+
            password : str
                String WPA passphrase necessary to access the network
+
         """
 
         # get bash string into string format for key search
@@ -105,13 +110,15 @@ class Usb_Wifi(object):
         """This function kills the wireless connection and connect to a new one
            using network ssid and WPA passphrase. Wrong ssid or passphrase
            reject the connection
-           
+
            Parameters
            ----------
            ssid : str
                String unique identifier of the wireless network
+
            password : str
                String WPA passphrase necessary to access the network
+
         """
 
         os.system('ifdown {}'.format(self.wifi_port))
@@ -121,6 +128,7 @@ class Usb_Wifi(object):
     def reset(self):
         """This function shutdown the network connection and delete the
         interface file
+
         """
 
         os.system('killall -9 wpa_supplicant')
