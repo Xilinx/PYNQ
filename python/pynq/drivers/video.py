@@ -35,7 +35,7 @@ from pynq import PL
 from time import sleep
 import numpy as np
 from PIL import Image
-from . import _video
+#from . import _video
 
 VDMA_DICT = {
     'BASEADDR': int(PL.ip_dict["SEG_axi_vdma_0_Reg"][0],16),
@@ -146,29 +146,29 @@ class HDMI(object):
             
         """
 
-        if not direction.lower() in ['in', 'out']:
-            raise ValueError("HDMI direction should be in or out.")
-        if (not isinstance(frame_list, _video._frame)) and \
-                (not (frame_list == None)):
-            raise ValueError("frame_list should be of type _video._frame.")
-        if (not isinstance(init_timeout, int)) or init_timeout < 1:
-            raise ValueError("init_timeout should be integer >= 1.")
+#        if not direction.lower() in ['in', 'out']:
+#            raise ValueError("HDMI direction should be in or out.")
+#        if (not isinstance(frame_list, _video._frame)) and \
+#                (not (frame_list == None)):
+#            raise ValueError("frame_list should be of type _video._frame.")
+#        if (not isinstance(init_timeout, int)) or init_timeout < 1:
+#            raise ValueError("init_timeout should be integer >= 1.")
         
-        self.direction = direction.lower()
-        if self.direction == 'out':
-            if frame_list == None:
-                self._display = _video._display(VDMA_DICT,
-                                                VTC_DISPLAY_ADDR,
-                                                DYN_CLK_ADDR, 1)
-                self._display.mode(video_mode)
-            else:
-                self._display = _video._display(VDMA_DICT,
-                                                VTC_DISPLAY_ADDR,
-                                                DYN_CLK_ADDR, 1,
-                                                frame_list)
-                self._display.mode(video_mode)
-                                                
-            self.frame_list = self._display.framebuffer
+#        self.direction = direction.lower()
+#        if self.direction == 'out':
+#            if frame_list == None:
+#                self._display = _video._display(VDMA_DICT,
+#                                                VTC_DISPLAY_ADDR,
+#                                                DYN_CLK_ADDR, 1)
+#                self._display.mode(video_mode)
+#            else:
+#                self._display = _video._display(VDMA_DICT,
+#                                                VTC_DISPLAY_ADDR,
+#                                                DYN_CLK_ADDR, 1,
+#                                                frame_list)
+#                self._display.mode(video_mode)
+#                                                
+#            self.frame_list = self._display.framebuffer
             
             self.start = self._display.start
             """Start the video controller.
@@ -390,19 +390,19 @@ class HDMI(object):
             """
             
         else:
-            if frame_list == None:
-                self._capture = _video._capture(VDMA_DICT,
-                                                GPIO_DICT,
-                                                VTC_CAPTURE_ADDR,
-                                                init_timeout)
-            else:
-                self._capture = _video._capture(VDMA_DICT,
-                                                GPIO_DICT,
-                                                VTC_CAPTURE_ADDR,
-                                                init_timeout,
-                                                frame_list)
-                                                
-            self.frame_list = self._capture.framebuffer
+#            if frame_list == None:
+#                self._capture = _video._capture(VDMA_DICT,
+#                                                GPIO_DICT,
+#                                                VTC_CAPTURE_ADDR,
+#                                                init_timeout)
+#            else:
+#                self._capture = _video._capture(VDMA_DICT,
+#                                                GPIO_DICT,
+#                                                VTC_CAPTURE_ADDR,
+#                                                init_timeout,
+#                                                frame_list)
+#                                                
+#            self.frame_list = self._capture.framebuffer
                   
             self.stop = self._capture.stop
             """Stop the video controller.
@@ -572,18 +572,18 @@ class HDMI(object):
         None
         
         """
-        if timeout<=0:
-            raise ValueError("timeout must be greater than 0.")
-            
-        while self.state() != 1:
-            try:
-                self._capture.start()
-            except Exception as err:
-                if timeout > 0:
-                    sleep(1)
-                    timeout -= 1
-                else:
-                    raise err
+#        if timeout<=0:
+#            raise ValueError("timeout must be greater than 0.")
+#            
+#        while self.state() != 1:
+#            try:
+#                self._capture.start()
+#            except Exception as err:
+#                if timeout > 0:
+#                    sleep(1)
+#                    timeout -= 1
+#                else:
+#                    raise err
                     
     def _frame_out(self, *args):
         """Returns the specified frame or the active frame.
@@ -607,17 +607,17 @@ class HDMI(object):
             An object of a frame in the frame buffer.
             
         """
-        if len(args) == 2:
-            self._display.frame(args[0], args[1].frame)
-        elif len(args) == 1:
-            if type(args[0]) is int:
-                return Frame(self.frame_width(), self.frame_height(),\
-                             self._display.frame(args[0]))
-            else:
-                self._display.frame(args[0].frame)
-        else:
-            return Frame(self.frame_width(), self.frame_height(),
-                         self._display.frame())
+ #       if len(args) == 2:
+ #           self._display.frame(args[0], args[1].frame)
+ #       elif len(args) == 1:
+ #           if type(args[0]) is int:
+ #               return Frame(self.frame_width(), self.frame_height(),\
+ #                            self._display.frame(args[0]))
+ #           else:
+ #               self._display.frame(args[0].frame)
+ #       else:
+ #           return Frame(self.frame_width(), self.frame_height(),
+ #                        self._display.frame())
                         
     def _frame_in(self, index=None):
         """Returns the specified frame or the active frame.
@@ -633,12 +633,12 @@ class HDMI(object):
             An object of a frame in the frame buffer.
             
         """
-        buf = None
-        if index is None:
-            buf = self._capture.frame()
-        else:
-            buf = self._capture.frame(index)
-        return Frame(self.frame_width(), self.frame_height(), buf)
+#        buf = None
+#        if index is None:
+#            buf = self._capture.frame()
+#        else:
+#            buf = self._capture.frame(index)
+#        return Frame(self.frame_width(), self.frame_height(), buf)
         
     def __del__(self):
         """Delete the HDMI object.
@@ -654,11 +654,11 @@ class HDMI(object):
         None
         
         """
-        self.stop()  
-        if hasattr(self, '_capture'):
-            del self._capture
-        elif hasattr(self, '_display'):
-            del self._display
+#        self.stop()  
+#        if hasattr(self, '_capture'):
+#            del self._capture
+#        elif hasattr(self, '_display'):
+#            del self._display
             
 class Frame(object):
     """This class exposes the bytearray of the video frame buffer.
@@ -692,16 +692,16 @@ class Frame(object):
             The height of a frame.
             
         """
-        if frame is not None:
-            self._framebuffer = None
-            self.frame = frame
-        else:
-            # Create a framebuffer with 1 frame
-            self._framebuffer = _video._frame(1)
-            # Create an empty frame
-            self.frame = self._framebuffer(0)
-        self.width = width
-        self.height = height
+#        if frame is not None:
+#            self._framebuffer = None
+#            self.frame = frame
+#        else:
+#            # Create a framebuffer with 1 frame
+#            self._framebuffer = _video._frame(1)
+#            # Create an empty frame
+#            self.frame = self._framebuffer(0)
+#        self.width = width
+#        self.height = height
         
     def __getitem__(self, pixel):
         """Get one pixel in a frame.
@@ -743,13 +743,13 @@ class Frame(object):
             A list of the current values (r,g,b) of the pixel.
             
         """
-        x, y = pixel
-        if 0 <= x < self.width and 0 <= y < self.height:
-            offset = 3 * (y * MAX_FRAME_WIDTH + x)
-            return self.frame[offset+2],self.frame[offset+1],\
-                    self.frame[offset]
-        else:
-            raise ValueError("Pixel is out of the frame range.")
+#        x, y = pixel
+#        if 0 <= x < self.width and 0 <= y < self.height:
+#            offset = 3 * (y * MAX_FRAME_WIDTH + x)
+#            return self.frame[offset+2],self.frame[offset+1],\
+#                    self.frame[offset]
+#        else:
+#            raise ValueError("Pixel is out of the frame range.")
             
     def __setitem__(self, pixel, value):
         """Set one pixel in a frame.
@@ -785,14 +785,14 @@ class Frame(object):
         None
         
         """
-        x, y = pixel
-        if 0 <= x < self.width and 0 <= y < self.height:
-            offset = 3 * (y * MAX_FRAME_WIDTH + x)
-            self.frame[offset + 2] = value[0]
-            self.frame[offset + 1] = value[1]
-            self.frame[offset] = value[2]
-        else:
-            raise ValueError("Pixel is out of the frame range.")
+#        x, y = pixel
+#        if 0 <= x < self.width and 0 <= y < self.height:
+#            offset = 3 * (y * MAX_FRAME_WIDTH + x)
+#            self.frame[offset + 2] = value[0]
+#            self.frame[offset + 1] = value[1]
+#            self.frame[offset] = value[2]
+#        else:
+#            raise ValueError("Pixel is out of the frame range.")
             
     def __del__(self):
         """Delete the frame buffer.
@@ -809,8 +809,8 @@ class Frame(object):
         None
         
         """
-        if self._framebuffer is not None:
-            del self._framebuffer
+#        if self._framebuffer is not None:
+#            del self._framebuffer
             
     def save_as_jpeg(self, path):
         """Save a video frame to a JPEG image.
@@ -829,11 +829,11 @@ class Frame(object):
         None
         
         """
-        npframe = (np.frombuffer(self.frame, dtype=np.uint8)).\
-                    reshape(1080,1920,3)[:self.height,:self.width,[2,1,0]]
-        image = Image.frombytes('RGB', \
-                    (self.width,self.height), bytes(bytearray(npframe)))
-        image.save(path, 'JPEG')
+#        npframe = (np.frombuffer(self.frame, dtype=np.uint8)).\
+#                    reshape(1080,1920,3)[:self.height,:self.width,[2,1,0]]
+#        image = Image.frombytes('RGB', \
+#                    (self.width,self.height), bytes(bytearray(npframe)))
+#        image.save(path, 'JPEG')
         
     @staticmethod
     def save_raw_as_jpeg(path, frame_raw, width, height):
@@ -859,9 +859,9 @@ class Frame(object):
         None
         
         """
-        npframe = (np.frombuffer(frame_raw, dtype=np.uint8)).\
-                    reshape(1080,1920,3)[:height,:width,[2,1,0]]
-        image = Image.frombytes('RGB', \
-                    (width, height), bytes(bytearray(npframe)))
-        image.save(path, 'JPEG')
+#        npframe = (np.frombuffer(frame_raw, dtype=np.uint8)).\
+#                    reshape(1080,1920,3)[:height,:width,[2,1,0]]
+#        image = Image.frombytes('RGB', \
+#                    (width, height), bytes(bytearray(npframe)))
+#        image.save(path, 'JPEG')
         
