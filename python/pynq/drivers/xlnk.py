@@ -208,8 +208,7 @@ class xlnk:
         """Get the physical address of a buffer.
         
         Used to get the physical address of a memory buffer allocated with
-        `cma_alloc`. The return value can be used to access the buffer from the
-        programmable logic.
+        `cma_alloc`.
 
         Parameters
         ----------
@@ -219,7 +218,7 @@ class xlnk:
             
         Returns
         -------
-        unsigned int
+        int
             The physical address of the memory buffer.
 
         """
