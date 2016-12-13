@@ -131,8 +131,8 @@ uint32_t cma_pages_available();
 """)
 
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
-libdma = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
-libxlnk = memapi.dlopen("/usr/lib/libsds_lib.so")
+#libdma = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
+#libxlnk = memapi.dlopen("/usr/lib/libsds_lib.so")
 
 DefaultConfig = {
     'DeviceId' : 0,
@@ -251,11 +251,11 @@ class DMA:
         self.Configuration = {}
         self._gen_config(address,direction,attr_dict)
         
-        status = libdma.XAxiDma_CfgInitialize(self.DMAengine,self.DMAinstance)
-        if status != 0:
-            raise RuntimeError("Failed to initialize DMA!")
-        libdma.XAxiDma_Reset(self.DMAengine)
-        libdma.DisableInterruptsAll(self.DMAengine)
+#        status = libdma.XAxiDma_CfgInitialize(self.DMAengine,self.DMAinstance)
+#        if status != 0:
+#            raise RuntimeError("Failed to initialize DMA!")
+#        libdma.XAxiDma_Reset(self.DMAengine)
+#        libdma.DisableInterruptsAll(self.DMAengine)
 
     def _gen_config(self, address, direction, attr_dict):
         """Build configuration and map memory.
@@ -309,7 +309,7 @@ class DMA:
         """
         if self.buf != None and self.buf != ffi.NULL:
             self.free_buf()
-        libdma.XAxiDma_Reset(self.DMAengine)
+#        libdma.XAxiDma_Reset(self.DMAengine)
 
     def transfer(self,num_bytes,direction=DMA_FROM_DEV):
         """Transfer data using DMA (Non-blocking).
@@ -347,16 +347,16 @@ class DMA:
         if not direction in [DMA_FROM_DEV, DMA_TO_DEV]:
             raise RuntimeError("Invalid direction for transfer.")
         self.direction = direction
-        if self.buf is not None:
-            libdma.XAxiDma_SimpleTransfer(\
-                self.DMAengine,
-                self._bufPtr,
-                num_bytes,
-                self.direction
-                )
-            self._TransferInitiated = 1
-        else:
-            raise RuntimeError("Buffer not allocated.")
+#        if self.buf is not None:
+#            libdma.XAxiDma_SimpleTransfer(\
+#                self.DMAengine,
+#                self._bufPtr,
+#                num_bytes,
+#                self.direction
+#                )
+#            self._TransferInitiated = 1
+#        else:
+#            raise RuntimeError("Buffer not allocated.")
             
     def create_buf(self, num_bytes, cacheable = 0):
         """Allocate physically contiguous memory buffer.
@@ -433,13 +433,13 @@ class DMA:
         None
         
         """
-        if self._TransferInitiated == 0:
-            return
-        Error = "DMA wait timed out."
-        with timeout(seconds = wait_timeout, error_message = Error):
-            while True:
-                if libdma.XAxiDma_Busy(self.DMAengine,self.direction) == 0:
-                    break
+#        if self._TransferInitiated == 0:
+#            return
+#        Error = "DMA wait timed out."
+#        with timeout(seconds = wait_timeout, error_message = Error):
+#            while True:
+#                if libdma.XAxiDma_Busy(self.DMAengine,self.direction) == 0:
+#                    break
                     
     def get_buf(self, width=32):
         """Get a CFFI pointer to object's internal buffer.
@@ -458,13 +458,13 @@ class DMA:
             An CFFI object which can be accessed similar to arrays in C.
             
         """
-        if self.buf is not None:
-            if width == 32:
-                return ffi.cast("unsigned int *",self.buf)
-            elif width == 64:
-                return ffi.cast("long long *",self.buf)
-        else:
-            raise RuntimeError("Buffer not created.")
+#        if self.buf is not None:
+#            if width == 32:
+#                return ffi.cast("unsigned int *",self.buf)
+#            elif width == 64:
+#                return ffi.cast("long long *",self.buf)
+#        else:
+#            raise RuntimeError("Buffer not created.")
         
     def configure(self, attr_dict=None):
         """Reconfigure and Reinitialize the DMA IP.
