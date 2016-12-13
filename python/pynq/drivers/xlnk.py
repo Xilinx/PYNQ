@@ -208,13 +208,13 @@ class xlnk:
         """Get the physical address of a buffer.
         
         Used to get the physical address of a memory buffer allocated with
-        `cma_alloc`.
+        `cma_alloc`. The return value can be used to access the buffer from the
+        programmable logic.
 
         Parameters
         ----------
         buf_ptr : cffi.FFI.CData
-            A void pointer pointing to the memory buffer. Return value of
-            `cma_alloc`.
+            A void pointer pointing to the memory buffer. 
             
         Returns
         -------
