@@ -37,8 +37,8 @@ import sys
 import cffi
 import resource
 
-if os.getuid() != 0:
-    raise RuntimeError("Root permission needed by the library.")
+#if os.getuid() != 0:
+#    raise RuntimeError("Root permission needed by the library.")
 
 # Cleanup on Segfaults
 def sig_handler(signum, frame):
