@@ -275,7 +275,7 @@ There are also a number of example notebooks available showing how to use variou
    :scale: 75%
    :align: center
 
-When you open a notebook and make any changes, or execute cells, the notebook document will be modified. It is recommended that you "Save a copy" when you open a new notebook. If you want to restore the original versions, you can download all the example notebooks from the `PYNQ GitHub page <www.github.com/xilinx/pynq>`_ .    
+When you open a notebook and make any changes, or execute cells, the notebook document will be modified. It is recommended that you "Save a copy" when you open a new notebook. If you want to restore the original versions, you can download all the example notebooks from the `PYNQ GitHub page <https://www.github.com/xilinx/pynq>`_ .    
    
 Accessing files on the board
 ----------------------------
