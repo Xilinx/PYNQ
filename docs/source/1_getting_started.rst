@@ -1,6 +1,3 @@
-This guide will show you how to setup your computer and PYNQ-Z1 board to get started using PYNQ. 
-Any issues can be posted to `the PYNQ support forum <https://groups.google.com/forum/#!forum/pynq_project>`_. 
-
 ***************
 Getting Started
 ***************
@@ -8,7 +5,11 @@ Getting Started
 .. contents:: Table of Contents
    :depth: 2
 	  
-	  
+
+This guide will show you how to setup your computer and PYNQ-Z1 board to get started using PYNQ. 
+Any issues can be posted to `the PYNQ support forum <https://groups.google.com/forum/#!forum/pynq_project>`_. 
+
+     
 Video Guide
 =================
 
