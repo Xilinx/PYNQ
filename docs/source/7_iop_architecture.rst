@@ -136,34 +136,33 @@ The following function, part of the Arduino IO switch driver, can be used to con
 
 Switch mappings used for IO switch configuration:
 
-=====  ======  =====   =========  ======  ======  ==================  ========  ====  =============
-                                                                                                   
-Pin    A/D IO  A_INT   Interrupt  UART    PWM     Timer               SPI       IIC   Input Capture
-Name  
-                                                                                             
-=====  ======  =====   =========  ======  ======  ==================  ========  ====  =============
-A0     A_GPIO  A_INT                                                                               
-A1     A_GPIO  A_INT                                                                               
-A2     A_GPIO  A_INT                                                                               
-A3     A_GPIO  A_INT                                                                               
-A4     A_GPIO  A_INT                                                            IIC                
-A5     A_GPIO  A_INT                                                            IIC                
-D0     D_GPIO          D_INT      D_UART                                                           
-D1     D_GPIO          D_INT      D_UART                                                           
-D2     D_GPIO          D_INT                                                                       
-D3     D_GPIO          D_INT              D_PWM0  D_TIMER (Timer0)                    IC (Timer0)  
-D4     D_GPIO          D_INT                      D_TIMER (Timer0_6)                               
-D5     D_GPIO          D_INT              D_PWM1  D_TIMER (Timer1)                    IC (Timer1)  
-D6     D_GPIO          D_INT              D_PWM2  D_TIMER (Timer2)                    IC (Timer2)  
-D7     D_GPIO          D_INT                                                                       
-D8     D_GPIO          D_INT                      D_TIMER (Timer1_7)                  Input Capture
-D9     D_GPIO          D_INT              D_PWM3  D_TIMER (Timer3)                    IC (Timer3)  
-D10    D_GPIO          D_INT              D_PWM4  D_TIMER (Timer4)    D_SS            IC (Timer4)  
-D11    D_GPIO          D_INT              D_PWM5  D_TIMER (Timer5)    D_MOSI          IC (Timer5)  
-D12    D_GPIO          D_INT                                          D_MISO                       
-D13    D_GPIO          D_INT                                          D_SPICLK                     
-                                                                                                   
-=====  ======  =====   =========  ======  ======  ==================  ========  ====  =============
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+                                                                                               
+Pin  A/D IO  A_INT   Interrupt  UART    PWM     Timer             SPI       IIC   Input-Capture  
+                                                                                         
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+A0   A_GPIO  A_INT                                                                             
+A1   A_GPIO  A_INT                                                                             
+A2   A_GPIO  A_INT                                                                             
+A3   A_GPIO  A_INT                                                                             
+A4   A_GPIO  A_INT                                                          IIC                
+A5   A_GPIO  A_INT                                                          IIC                
+D0   D_GPIO          D_INT      D_UART                                                         
+D1   D_GPIO          D_INT      D_UART                                                         
+D2   D_GPIO          D_INT                                                                     
+D3   D_GPIO          D_INT              D_PWM0  D_TIMER Timer0                    IC Timer0  
+D4   D_GPIO          D_INT                      D_TIMER Timer0_6                             
+D5   D_GPIO          D_INT              D_PWM1  D_TIMER Timer1                    IC Timer1  
+D6   D_GPIO          D_INT              D_PWM2  D_TIMER Timer2                    IC Timer2  
+D7   D_GPIO          D_INT                                                                     
+D8   D_GPIO          D_INT                      D_TIMER Timer1_7                  Input Capture
+D9   D_GPIO          D_INT              D_PWM3  D_TIMER Timer3                    IC Timer3  
+D10  D_GPIO          D_INT              D_PWM4  D_TIMER Timer4    D_SS            IC Timer4  
+D11  D_GPIO          D_INT              D_PWM5  D_TIMER Timer5    D_MOSI          IC Timer5  
+D12  D_GPIO          D_INT                                        D_MISO                       
+D13  D_GPIO          D_INT                                        D_SPICLK                     
+                                                                                               
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
 
 For example, to connect the UART to D0 and D1, write D_UART to the configuration register for D0 and D1. 
 
