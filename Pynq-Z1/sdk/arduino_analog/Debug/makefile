@@ -62,3 +62,4 @@ secondary-outputs: $(ELFSIZE) arduino_analog.bin
 .SECONDARY:
 
 -include ../makefile.targets
+
