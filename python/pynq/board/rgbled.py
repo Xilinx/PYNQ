@@ -37,8 +37,6 @@ from pynq import PL
 
 RGBLEDS_XGPIO_OFFSET = 0
 RGBLEDS_START_INDEX  = 4
-
-""" Reference Color Values for RGB LED """
 RGB_CLEAR = 0
 RGB_BLUE = 1
 RGB_GREEN = 2
@@ -142,7 +140,8 @@ class RGBLED(object):
             The color value stored in the RGBLED.
             
         """
-        return (RGBLED._rgbleds_val >> ((self.index-RGBLEDS_START_INDEX)*3)) & 0x7
+        return (RGBLED._rgbleds_val >> 
+                    ((self.index-RGBLEDS_START_INDEX)*3)) & 0x7
         
     def _set_rgbleds_value(self, value):
         """Set the state of all RGBLEDs.

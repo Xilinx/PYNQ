@@ -111,7 +111,7 @@ class HDMI(object):
 
     VMODE_1920x1080 = 4
     VMODE_1280x1024 = 3
-    VMODE_1024x768  = 2
+    VMODE_1280x720  = 2
     VMODE_800x600   = 1
     VMODE_640x480   = 0
 
@@ -121,6 +121,15 @@ class HDMI(object):
         
         Assign the given frame buffer if specified, otherwise create a new 
         frame buffer. The parameter `frame_list` is optional.
+        
+        Supported video modes are:
+        1920x1080, 60Hz: VMODE_1920x1080  = 4;
+        1280x1024, 60Hz: VMODE_1280x1024  = 3;
+        1280x720, 60Hz:  VMODE_1280x720   = 2;
+        800x600, 60Hz:   VMODE_800x600    = 1;
+        640x480, 60Hz:   VMODE_640x480    = 0 (default)
+        
+        Default timeout is 10s. Timeout is ignored for HDMI OUT.
         
         Note
         ----
@@ -134,15 +143,8 @@ class HDMI(object):
             A frame buffer storing at most 3 frames.
         video_mode : int
             Video mode for HDMI OUT. Ignored for HDMI IN.
-            Supported modes and corresponding constants, as well as integer:
-            1920x1080@60Hz: VMODE_1920x1080  = 4 (default)
-            1280x1024@60Hz: VMODE_1280x1024  = 3
-            1280x720@60Hz:  VMODE_1024x768   = 2
-            800x600@60Hz:   VMODE_800x600    = 1
-            640x480@60Hz:   VMODE_640x480    = 0
         init_timeout : int, optional
-            Timeout in seconds for HDMI IN initialization. Default timeout 
-            is 10s. Timeout is ignored for HDMI OUT initialization.
+            Timeout in seconds for HDMI IN initialization.
             
         """
 
@@ -216,15 +218,15 @@ class HDMI(object):
             Users can use mode(new_mode) to change the resolution.
             Specifically, with `new_mode` to be:
             
-            0 : '640x480@60Hz'
+            0 : '640x480, 60Hz'
             
-            1 : '800x600@60Hz'
+            1 : '800x600, 60Hz'
             
-            2 : '1280x720@60Hz'
+            2 : '1280x720, 60Hz'
             
-            3 : '1280x1024@60Hz'
+            3 : '1280x1024, 60Hz'
             
-            4 : '1920x1080@60Hz'
+            4 : '1920x1080, 60Hz'
             
             If `new_mode` is not specified, return the current mode.
             
@@ -696,9 +698,7 @@ class Frame(object):
             self._framebuffer = None
             self.frame = frame
         else:
-            # Create a framebuffer with 1 frame
             self._framebuffer = _video._frame(1)
-            # Create an empty frame
             self.frame = self._framebuffer(0)
         self.width = width
         self.height = height
