@@ -74,7 +74,7 @@ class RGBLED(object):
         
         """
         if not index in [4,5]:
-            raise Value("Index for onboard RGBLEDs should be 4 - 5.")
+            raise ValueError("Index for onboard RGBLEDs should be 4 - 5.")
             
         self.index = index
         if RGBLED._mmio is None:
