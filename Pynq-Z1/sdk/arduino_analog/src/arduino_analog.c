@@ -47,6 +47,7 @@
  * ----- --- -------- -----------------------------------------------
  * 1.00a pp  09/01/16 release
  * 1.00b yrq 09/06/16 adjust format, change log size
+ * 1.00c LcC 11/10/16 improved voltage conversion with single fl.point division
  *
  * </pre>
  *
@@ -127,6 +128,9 @@ int main(void)
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO);
 
+    //Fixed voltage conversion
+    float V_Conv = V_REF / 65536;
+
     while(1){
         // wait and store valid command
         while((MAILBOX_CMD_ADDR & 0x1)==0);
@@ -201,22 +205,22 @@ int main(void)
                 data_channels = MAILBOX_CMD_ADDR >> 8;
                 if(data_channels & 0x1)
                     MAILBOX_DATA_FLOAT(i++) = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+1)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+1)*V_Conv);
                 if(data_channels & 0x2)
                     MAILBOX_DATA_FLOAT(i++) = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+9)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+9)*V_Conv);
                 if(data_channels & 0x4)
                     MAILBOX_DATA_FLOAT(i++) = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+6)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+6)*V_Conv);
                 if(data_channels & 0x8)
                     MAILBOX_DATA_FLOAT(i++) = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+15)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+15)*V_Conv);
                 if(data_channels & 0x10)
                     MAILBOX_DATA_FLOAT(i++) = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+5)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+5)*V_Conv);
                 if(data_channels & 0x20)
                     MAILBOX_DATA_FLOAT(i++) = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+13)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+13)*V_Conv);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
 
@@ -287,32 +291,32 @@ int main(void)
                             
                     if(data_channels & 0x1) {
                         xadc_voltage = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+1)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+1)*V_Conv);
                         cb_push_back_float(&arduino_log, &xadc_voltage);
                     }
                     if(data_channels & 0x2) {
                         xadc_voltage = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+9)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+9)*V_Conv);
                         cb_push_back_float(&arduino_log, &xadc_voltage);
                     }
                     if(data_channels & 0x4) {
                         xadc_voltage = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+6)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+6)*V_Conv);
                         cb_push_back_float(&arduino_log, &xadc_voltage);
                     }
                     if(data_channels & 0x8) {
                         xadc_voltage = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+15)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+15)*V_Conv);
                         cb_push_back_float(&arduino_log, &xadc_voltage);
                     }
                     if(data_channels & 0x10) {
                         xadc_voltage = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+5)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+5)*V_Conv);
                         cb_push_back_float(&arduino_log, &xadc_voltage);
                     }
                     if(data_channels & 0x20) {
                         xadc_voltage = (float)(XSysMon_GetAdcData(
-                                SysMonInstPtr,XSM_CH_AUX_MIN+13)*V_REF/65536);
+                                SysMonInstPtr,XSM_CH_AUX_MIN+13)*V_Conv);
                         cb_push_back_float(&arduino_log, &xadc_voltage);
                     }
                     delay_ms(delay);
