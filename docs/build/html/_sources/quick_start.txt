@@ -41,6 +41,6 @@ If you have problems setting up, or connecting to your board, see the full `gett
 Support
 =========
 
-For issue, please go to the PYNQ  support form on the `main PYNQ Webpage <http://www.pynq.io>`_
+For questions, or issue, please go to the `PYNQ support forum <http://www.pynq.io/support>`_
 
 

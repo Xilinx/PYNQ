@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction to Jupyter Notebook &mdash; Python productivity for Zynq (Pynq) v1.0</title>
+  <title>Jupyter Notebook Introduction &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Cortex-A9 programming in Python" href="4_programming_python.html"/>
-        <link rel="prev" title="Getting Started" href="2_getting_started.html"/> 
+        <link rel="prev" title="PYNQ Introduction" href="2_pynq.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -82,10 +82,9 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to Jupyter Notebook</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Jupyter Notebook Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Acknowledgements">Acknowledgements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Introduction">Introduction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Components">Components</a></li>
@@ -130,20 +129,22 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
 <li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
 </ul>
 
             
@@ -174,7 +175,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Introduction to Jupyter Notebook</li>
+    <li>Jupyter Notebook Introduction</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -302,8 +303,8 @@ div.nboutput  > :nth-child(2).stderr {
 
 .ansibold { font-weight: bold; }
 </style>
-<div class="section" id="Introduction-to-Jupyter-Notebook">
-<h1>Introduction to Jupyter Notebook<a class="headerlink" href="#Introduction-to-Jupyter-Notebook" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Jupyter-Notebook-Introduction">
+<h1>Jupyter Notebook Introduction<a class="headerlink" href="#Jupyter-Notebook-Introduction" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="Acknowledgements">
 <h2>Acknowledgements<a class="headerlink" href="#Acknowledgements" title="Permalink to this headline">¶</a></h2>
 <p>The material in this tutorial is specific to Pynq. Wherever possible,
@@ -450,7 +451,7 @@ viewed as intended.</p>
 <h2>Notebook Basics<a class="headerlink" href="#Notebook-Basics" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="The-Notebook-dashboard">
 <h3>The Notebook dashboard<a class="headerlink" href="#The-Notebook-dashboard" title="Permalink to this headline">¶</a></h3>
-<p>The Notebook server runs on the ARM processor of the PYNQ-Z1. You can
+<p>The Notebook server runs on the ARM® processor of the PYNQ-Z1. You can
 open the notebook dashboard by navigating to
 <a class="reference external" href="http://pynq:9090">pynq:9090</a> when your board is connected to the
 network. The dashboard serves as a home page for notebooks. Its main
@@ -458,7 +459,7 @@ purpose is to display the notebooks and files in the current directory.
 For example, here is a screenshot of the dashboard page for the
 <code class="docutils literal"><span class="pre">Examples</span></code> directory in the Jupyter repository:</p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dashboard_files_tab.png"><img alt="_images/dashboard_files_tab.png" src="_images/dashboard_files_tab.png" style="width: 791px;" /></a>
+<a class="reference internal image-reference" href="_images/dashboard_files_tab.png"><img alt="_images/dashboard_files_tab.png" src="_images/dashboard_files_tab.png" style="width: 400px;" /></a>
 </div>
 <p>The top of the notebook list displays clickable breadcrumbs of the
 current directory. By clicking on these breadcrumbs or on
@@ -476,7 +477,7 @@ next to running notebooks (as seen below). Notebooks remain running
 until you explicitly shut them down; closing the notebook&#8217;s page is not
 sufficient.</p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dashboard_files_tab_run.png"><img alt="_images/dashboard_files_tab_run.png" src="_images/dashboard_files_tab_run.png" style="width: 777px;" /></a>
+<a class="reference internal image-reference" href="_images/dashboard_files_tab_run.png"><img alt="_images/dashboard_files_tab_run.png" src="_images/dashboard_files_tab_run.png" style="width: 400px;" /></a>
 </div>
 <p>To shutdown, delete, duplicate, or rename a notebook check the checkbox
 next to it and an array of controls will appear at the top of the
@@ -490,7 +491,7 @@ on the &#8220;Running&#8221; tab:</p>
 <p>This view provides a convenient way to track notebooks that you start as
 you navigate the filesystem in a long running notebook server.</p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dashboard_running_tab.png"><img alt="_images/dashboard_running_tab.png" src="_images/dashboard_running_tab.png" style="width: 786px;" /></a>
+<a class="reference internal image-reference" href="_images/dashboard_running_tab.png"><img alt="_images/dashboard_running_tab.png" src="_images/dashboard_running_tab.png" style="width: 600px;" /></a>
 </div>
 </div>
 </div>
@@ -923,7 +924,7 @@ active.</p>
         <a href="4_programming_python.html" class="btn btn-neutral float-right" title="Cortex-A9 programming in Python" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="2_getting_started.html" class="btn btn-neutral" title="Getting Started" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="2_pynq.html" class="btn btn-neutral" title="PYNQ Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

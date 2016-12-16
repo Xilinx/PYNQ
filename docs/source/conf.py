@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Python productivity for Zynq (Pynq) documentation build configuration file, created by
+# Python productivity for Zynq® (Pynq) documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar 28 22:10:04 2016.
 #
 # This file is execfile()d with the current directory set to its

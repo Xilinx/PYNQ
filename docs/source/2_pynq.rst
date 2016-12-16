@@ -1,6 +1,6 @@
-**************
-PYNQ Overview
-**************
+******************
+PYNQ Introduction
+******************
 
 .. contents:: Table of Contents
    :depth: 2
@@ -9,7 +9,7 @@ PYNQ Overview
 Project Goals
 =============
 
-Xilinx makes Zynq devices, a class of All Programmable Systems on Chip (APSoC) which integrates a multi-core processor (Dual-core ARM Cortex-A9) and a Field Programmable Gate Array (FPGA) into a single integrated circuit.  FPGA, or programmable logic, and microprocessors are complementary technologies for embedded systems.  Each meets distinct requirements for embedded systems that the other cannot perform as well. 
+Xilinx® makes Zynq® devices, a class of All Programmable Systems on Chip (APSoC) which integrates a multi-core processor (Dual-core ARM® Cortex®-A9) and a Field Programmable Gate Array (FPGA) into a single integrated circuit.  FPGA, or programmable logic, and microprocessors are complementary technologies for embedded systems.  Each meets distinct requirements for embedded systems that the other cannot perform as well. 
 
 The main goal of **PYNQ**, **Py**\ thon Productivity for Zy\ **nq**, is to make it easier for designers of embedded  systems to exploit the unique benefits of APSoCs in their applications. Specifically, PYNQ enables architects, engineers and programmers who design embedded systems to use Zynq APSoCs, without having to use ASIC-style design tools to design programmable logic circuits. 
 

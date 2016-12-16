@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynq modules &mdash; Python productivity for Zynq (Pynq) v1.0</title>
+  <title>pynq package reference &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -31,7 +31,7 @@
 
   
     <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
-        <link rel="next" title="pynq package" href="pynq.html"/>
+        <link rel="next" title="Subpackages" href="pynq.html"/>
         <link rel="prev" title="Verification" href="12_verification.html"/> 
 
   
@@ -82,28 +82,30 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">pynq modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pynq.html">pynq package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.html">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
 <li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
 </ul>
 
             
@@ -134,7 +136,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>pynq modules</li>
+    <li><code class="docutils literal"><span class="pre">pynq</span></code> package reference</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -262,65 +264,72 @@ div.nboutput  > :nth-child(2).stderr {
 
 .ansibold { font-weight: bold; }
 </style>
-<div class="section" id="pynq-modules">
-<h1>pynq modules<a class="headerlink" href="#pynq-modules" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pynq-package-reference">
+<h1><code class="docutils literal"><span class="pre">pynq</span></code> package reference<a class="headerlink" href="#pynq-package-reference" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pynq.html">pynq package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pynq.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pynq.board.html">pynq.board package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pynq.board.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.board.html#module-pynq.board.button">pynq.board.button module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.board.html#module-pynq.board.led">pynq.board.led module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.board.html#module-pynq.board.switch">pynq.board.switch module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.board.html#module-pynq.board.rgbled">pynq.board.rgbled module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pynq.html">Subpackages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.board.html">pynq.board package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pynq.board.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.board.html#module-pynq.board.button">pynq.board.button module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.board.html#module-pynq.board.led">pynq.board.led module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.board.html#module-pynq.board.switch">pynq.board.switch module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.board.html#module-pynq.board.rgbled">pynq.board.rgbled module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html">pynq.iop package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.arduino_io">pynq.iop.arduino_io module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.devmode">pynq.iop.devmode module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_adc">pynq.iop.grove_adc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_buzzer">pynq.iop.grove_buzzer module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_imu">pynq.iop.grove_imu module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_ledbar">pynq.iop.grove_ledbar module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_light">pynq.iop.grove_light module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_oled">pynq.iop.grove_oled module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_pir">pynq.iop.grove_pir module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_tmp">pynq.iop.grove_tmp module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.iop">pynq.iop.iop module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.iop_const">pynq.iop.iop_const module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_adc">pynq.iop.pmod_adc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_als">pynq.iop.pmod_als module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_cable">pynq.iop.pmod_cable module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_dac">pynq.iop.pmod_dac module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_dpot">pynq.iop.pmod_dpot module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_iic">pynq.iop.pmod_iic module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_io">pynq.iop.pmod_io module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_led8">pynq.iop.pmod_led8 module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_oled">pynq.iop.pmod_oled module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_pwm">pynq.iop.pmod_pwm module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_timer">pynq.iop.pmod_timer module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_tmp2">pynq.iop.pmod_tmp2 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.iop.html">pynq.iop package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.arduino_analog">pynq.iop.arduino_analog module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.arduino_io">pynq.iop.arduino_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.devmode">pynq.iop.devmode module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_adc">pynq.iop.grove_adc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_buzzer">pynq.iop.grove_buzzer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#pynq-iop-grove-color-module">pynq.iop.grove_color module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#pynq-iop-grove-dlight-module">pynq.iop.grove_dlight module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#pynq-iop-grove-ear-hr-module">pynq.iop.grove_ear_hr module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#pynq-iop-grove-finger-hr-module">pynq.iop.grove_finger_hr module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#pynq-iop-grove-haptic-motor-module">pynq.iop.grove_haptic_motor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_imu">pynq.iop.grove_imu module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_ledbar">pynq.iop.grove_ledbar module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_light">pynq.iop.grove_light module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_oled">pynq.iop.grove_oled module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_pir">pynq.iop.grove_pir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#pynq-iop-grove-th02-module">pynq.iop.grove_th02 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.grove_tmp">pynq.iop.grove_tmp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.iop">pynq.iop.iop module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.iop_const">pynq.iop.iop_const module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_adc">pynq.iop.pmod_adc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_als">pynq.iop.pmod_als module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_cable">pynq.iop.pmod_cable module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_dac">pynq.iop.pmod_dac module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_dpot">pynq.iop.pmod_dpot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_iic">pynq.iop.pmod_iic module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_io">pynq.iop.pmod_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_led8">pynq.iop.pmod_led8 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_oled">pynq.iop.pmod_oled module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_pwm">pynq.iop.pmod_pwm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#pynq-iop-pmod-tc1-module">pynq.iop.pmod_tc1 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_timer">pynq.iop.pmod_timer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.iop.html#module-pynq.iop.pmod_tmp2">pynq.iop.pmod_tmp2 module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.audio">pynq.drivers.audio module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.video">pynq.drivers.video module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.trace_buffer">pynq.drivers.trace_buffer module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.dma">pynq.drivers.dma module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.xlnk">pynq.drivers.xlnk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.audio">pynq.drivers.audio module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.dma">pynq.drivers.dma module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.trace_buffer">pynq.drivers.trace_buffer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html#pynq-drivers-usb-wifi-module">pynq.drivers.usb_wifi module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.video">pynq.drivers.video module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html#module-pynq.drivers.xlnk">pynq.drivers.xlnk module</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pynq.html#submodules">Submodules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pynq.html#module-pynq.general_const">pynq.general_const module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.html#module-pynq.gpio">pynq.gpio module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.html#module-pynq.mmio">pynq.mmio module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pynq.html#module-pynq.pl">pynq.pl module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pynq.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -334,7 +343,7 @@ div.nboutput  > :nth-child(2).stderr {
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pynq.html" class="btn btn-neutral float-right" title="pynq package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pynq.html" class="btn btn-neutral float-right" title="Subpackages" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="12_verification.html" class="btn btn-neutral" title="Verification" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

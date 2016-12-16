@@ -82,21 +82,21 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Glossary</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#a-g">A-G</a></li>
@@ -106,6 +106,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
 <li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
 </ul>
 
             
@@ -286,7 +287,7 @@ div.nboutput  > :nth-child(2).stderr {
 <dt>APSOC</dt>
 <dd>All Programmable System on Chip</dd>
 <dt>BSP</dt>
-<dd>A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx software development Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package</dd>
+<dd>A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx® software development Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package</dd>
 <dt>FPGA</dt>
 <dd><a class="reference external" href="http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm">Field Programmable Gate Arrays (FPGAs)</a> are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks.</dd>
 </dl>
@@ -328,7 +329,7 @@ div.nboutput  > :nth-child(2).stderr {
 <blockquote>
 <div><dl class="docutils">
 <dt>SDK</dt>
-<dd>Xilinx SDK - Software Development Kit. Software development environment including cross-compiles for ARM, and MicroBlaze processors. Also includes debug, and profiling tools.
+<dd>Xilinx SDK - Software Development Kit. Software development environment including cross-compiles for ARM®, and MicroBlaze processors. Also includes debug, and profiling tools.
 Required to build software for a MicroBlaze processor inside an IOP.</dd>
 <dt>SOC</dt>
 <dd>System On Chip</dd>

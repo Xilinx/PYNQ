@@ -11,15 +11,15 @@ pynq.drivers.audio module
     :members:
     :undoc-members:
     :show-inheritance:
-    
-pynq.drivers.video module
----------------------------
 
-.. automodule:: pynq.drivers.video
+pynq.drivers.dma module
+------------------------
+
+.. automodule:: pynq.drivers.dma
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 pynq.drivers.trace_buffer module
 ---------------------------------
 
@@ -27,11 +27,19 @@ pynq.drivers.trace_buffer module
     :members:
     :undoc-members:
     :show-inheritance:
-    
-pynq.drivers.dma module
-------------------------
 
-.. automodule:: pynq.drivers.dma
+pynq.drivers.usb_wifi module
+------------------------------
+
+.. automodule:: pynq.drivers.usb_wifi
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
+pynq.drivers.video module
+---------------------------
+
+.. automodule:: pynq.drivers.video
     :members:
     :undoc-members:
     :show-inheritance:

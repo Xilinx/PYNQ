@@ -1,16 +1,18 @@
+*******************************
 IO Processor Architecture
-============================
+*******************************
+
 For overlays to be useful, they must provide sufficient functionality, while also providing flexibility to suit a wide range of applications. Flexibility in the base overlay is demonstrated through the use of IO Processors (IOPs). 
 
 An IO Processor is implemented in the programmable logic and connects to and controls an external port on the board. There are two types of IOP: Pmod IOP and Arduino IOP. 
 
-Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and memory for the MicroBlaze instruction and data memory. The memory is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM Cortex-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). e.g. a simple mailbox. 
+Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and memory for the MicroBlaze instruction and data memory. The memory is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM® Cortex®-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). e.g. a simple mailbox. 
 
 In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required dedicated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
 
 
 Pmod IOP
-------------------
+==================
 
 Two Pmod IOPs are included in the base overlay to control each of the two Pmod interfaces on the board. 
 
@@ -26,7 +28,7 @@ As indicated in the diagram, the Pmod IOP has a MicroBlaze, a configurable switc
 
 
 Pmod IOP configurable switch
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 The MicroBlaze, inside the IOP, can configure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
 
@@ -78,7 +80,7 @@ This code is automatically compiled into the Board Support Package (BSP). Any ap
 
 
 Arduino IOP
----------------------------
+===========================
 
 Similar to the Pmod IOP, an Arduino IOP is available to control the Arduino interface. The Arduino IOP is similar to the PMOD IOP, but has some additional internal peripherals (extra timers, an extra I2c, and SPI, a UART, and an XADC). The configurable switch is also different to the Pmod switch. 
 
@@ -118,7 +120,7 @@ While there is support for analog inputs via the internal XADC, this only allows
 
 
 Arduino IOP configurable Switch
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
 The switch can be configured by writing to its configuration registers. 
 
@@ -136,33 +138,33 @@ The following function, part of the Arduino IO switch driver, can be used to con
 
 Switch mappings used for IO switch configuration:
 
-========  =======  =======   =========  ======  =======  ==================  ========  =======  ==============
-
-Pin Name  A/D IO   A_INT     Interrupt  UART    PWM      Timer               SPI       IIC      Input Capture
-
-========  =======  =======   =========  ======  =======  ==================  ========  =======  ==============
-A0        A_GPIO   A_INT                                   
-A1        A_GPIO   A_INT                                   
-A2        A_GPIO   A_INT                                   
-A3        A_GPIO   A_INT                                   
-A4        A_GPIO   A_INT                                                               IIC
-A5        A_GPIO   A_INT                                                               IIC
-D0        D_GPIO             D_INT      D_UART
-D1        D_GPIO             D_INT      D_UART
-D2        D_GPIO             D_INT                              
-D3        D_GPIO             D_INT              D_PWM0   D_TIMER (Timer0)                       IC (Timer0)
-D4        D_GPIO             D_INT                       D_TIMER (Timer0_6)               
-D5        D_GPIO             D_INT              D_PWM1   D_TIMER (Timer1)                       IC (Timer1)
-D6        D_GPIO             D_INT              D_PWM2   D_TIMER (Timer2)                       IC (Timer2)
-D7        D_GPIO             D_INT                              
-D8        D_GPIO             D_INT                       D_TIMER (Timer1_7)                     Input Capture
-D9        D_GPIO             D_INT              D_PWM3   D_TIMER (Timer3)                       IC (Timer3)
-D10       D_GPIO             D_INT              D_PWM4   D_TIMER (Timer4)    D_SS               IC (Timer4)
-D11       D_GPIO             D_INT              D_PWM5   D_TIMER (Timer5)    D_MOSI             IC (Timer5)
-D12       D_GPIO             D_INT                                           D_MISO          
-D13       D_GPIO             D_INT                                           D_SPICLK          
-
-========  =======  =======   =========  ======  =======  ==================  ========  =======  ==============
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+                                                                                               
+Pin  A/D IO  A_INT   Interrupt  UART    PWM     Timer             SPI       IIC   Input-Capture  
+                                                                                         
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+A0   A_GPIO  A_INT                                                                             
+A1   A_GPIO  A_INT                                                                             
+A2   A_GPIO  A_INT                                                                             
+A3   A_GPIO  A_INT                                                                             
+A4   A_GPIO  A_INT                                                          IIC                
+A5   A_GPIO  A_INT                                                          IIC                
+D0   D_GPIO          D_INT      D_UART                                                         
+D1   D_GPIO          D_INT      D_UART                                                         
+D2   D_GPIO          D_INT                                                                     
+D3   D_GPIO          D_INT              D_PWM0  D_TIMER Timer0                    IC Timer0  
+D4   D_GPIO          D_INT                      D_TIMER Timer0_6                             
+D5   D_GPIO          D_INT              D_PWM1  D_TIMER Timer1                    IC Timer1  
+D6   D_GPIO          D_INT              D_PWM2  D_TIMER Timer2                    IC Timer2  
+D7   D_GPIO          D_INT                                                                     
+D8   D_GPIO          D_INT                      D_TIMER Timer1_7                  Input Capture
+D9   D_GPIO          D_INT              D_PWM3  D_TIMER Timer3                    IC Timer3  
+D10  D_GPIO          D_INT              D_PWM4  D_TIMER Timer4    D_SS            IC Timer4  
+D11  D_GPIO          D_INT              D_PWM5  D_TIMER Timer5    D_MOSI          IC Timer5  
+D12  D_GPIO          D_INT                                        D_MISO                       
+D13  D_GPIO          D_INT                                        D_SPICLK                     
+                                                                                               
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
 
 For example, to connect the UART to D0 and D1, write D_UART to the configuration register for D0 and D1. 
 

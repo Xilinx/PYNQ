@@ -4,6 +4,14 @@ pynq.iop package
 Submodules
 ----------
 
+pynq.iop.arduino_analog module
+-------------------------------
+
+.. automodule:: pynq.iop.arduino_analog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
 pynq.iop.arduino_io module
 ----------------------------
 
@@ -32,6 +40,46 @@ pynq.iop.grove_buzzer module
 -----------------------------
 
 .. automodule:: pynq.iop.grove_buzzer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
+pynq.iop.grove_color module
+-----------------------------
+
+.. automodule:: pynq.iop.grove_color
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
+pynq.iop.grove_dlight module
+-----------------------------
+
+.. automodule:: pynq.iop.grove_dlight
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
+pynq.iop.grove_ear_hr module
+-----------------------------
+
+.. automodule:: pynq.iop.grove_ear_hr
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pynq.iop.grove_finger_hr module
+--------------------------------
+
+.. automodule:: pynq.iop.grove_finger_hr
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pynq.iop.grove_haptic_motor module
+------------------------------------
+
+.. automodule:: pynq.iop.grove_haptic_motor
     :members:
     :undoc-members:
     :show-inheritance:
@@ -76,6 +124,14 @@ pynq.iop.grove_pir module
     :undoc-members:
     :show-inheritance:
     
+pynq.iop.grove_th02 module
+-----------------------------
+
+.. automodule:: pynq.iop.grove_th02
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pynq.iop.grove_tmp module
 -----------------------------
 
@@ -176,6 +232,14 @@ pynq.iop.pmod_pwm module
 --------------------------
 
 .. automodule:: pynq.iop.pmod_pwm
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pynq.iop.pmod_tc1 module
+---------------------------
+
+.. automodule:: pynq.iop.pmod_tc1
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,4 +1,4 @@
-.. Python productivity for Zynq (Pynq) documentation master file, created by
+.. Python productivity for Zynq® (Pynq) documentation master file, created by
    sphinx-quickstart on Mon Mar 28 22:10:04 2016.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -9,17 +9,17 @@ Python productivity for Zynq (Pynq) Documentation
 .. toctree::
    :maxdepth: 2
    
-   quick_start
-   1_pynq
-   2_getting_started
+   1_getting_started
+   2_pynq
    3_jupyter_notebook
    4_programming_python
+   5_programming_onboard
    6_overlays
-   6a_base_overlay_iop
-   6b_base_overlay_video
-   6c_base_overlay_audio
-   8_iop_architecture
-   9_iop_code
+   7_iop_architecture
+   8_iop_code
+   9a_base_overlay_iop
+   9b_base_overlay_video
+   9c_base_overlay_audio
    10_creating_overlays
    11_python_package
    12_verification
@@ -28,6 +28,7 @@ Python productivity for Zynq (Pynq) Documentation
    15_glossary
    16_references
    17_appendix
+   18_changelog
 
 Indices and tables
 ==================

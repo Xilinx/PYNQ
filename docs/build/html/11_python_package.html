@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>The Pynq (Python Productivity for Zynq) Package &mdash; Python productivity for Zynq (Pynq) v1.0</title>
+  <title>pynq Package &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -32,7 +32,7 @@
   
     <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
         <link rel="next" title="Verification" href="12_verification.html"/>
-        <link rel="prev" title="Working with Overlays" href="10_creating_overlays.html"/> 
+        <link rel="prev" title="Creating Overlays" href="10_creating_overlays.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -82,19 +82,19 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#python-pynq-package-structure">Python <code class="docutils literal"><span class="pre">pynq</span></code> Package Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#board">board</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#iop">iop</a></li>
@@ -105,11 +105,12 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
 <li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
 </ul>
 
             
@@ -140,7 +141,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</li>
+    <li><code class="docutils literal"><span class="pre">pynq</span></code> Package</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -268,8 +269,8 @@ div.nboutput  > :nth-child(2).stderr {
 
 .ansibold { font-weight: bold; }
 </style>
-<div class="section" id="the-pynq-python-productivity-for-zynq-package">
-<h1>The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package<a class="headerlink" href="#the-pynq-python-productivity-for-zynq-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pynq-package">
+<h1><code class="docutils literal"><span class="pre">pynq</span></code> Package<a class="headerlink" href="#pynq-package" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the <code class="docutils literal"><span class="pre">pynq</span></code> package for the PYNQ-Z1 platform.</p>
 <p>After powering the board with the Micro SD card in place, the board will boot into Linux. Python3 is installed with Jupyter Notebook support. The Python package <cite>pynq</cite> allows users to access  overlays from Python.</p>
 <p>Some preinstalled features of this Linux image include:</p>
@@ -351,7 +352,7 @@ div.nboutput  > :nth-child(2).stderr {
         <a href="12_verification.html" class="btn btn-neutral float-right" title="Verification" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="10_creating_overlays.html" class="btn btn-neutral" title="Working with Overlays" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="10_creating_overlays.html" class="btn btn-neutral" title="Creating Overlays" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

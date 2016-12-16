@@ -1,0 +1,659 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting Started &mdash; Python productivity for Zynq (Pynq) v1.0</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
+        <link rel="next" title="PYNQ Introduction" href="2_pynq.html"/>
+        <link rel="prev" title="Python productivity for Zynq (Pynq) Documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python productivity for Zynq (Pynq)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#video-guide">Video Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#get-the-image-and-prepare-the-micro-sd-card">Get the image and prepare the Micro-SD Card</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-the-pynq-z1">Setup the PYNQ-Z1</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ethernet-connection-to-the-board">Ethernet connection to the board</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connect-to-a-network">Connect to a network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connect-directly-to-your-computer">Connect directly to your computer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#powering-on">Powering on</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#connect-to-jupyter">Connect to Jupyter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#change-hostname">Change hostname</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connect-to-the-pynq-z1-board-with-a-terminal-connection-over-usb">Connect to the PYNQ-Z1 board with a terminal connection over USB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-proxy">Configure proxy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-pynq">Using PYNQ</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started-notebooks">Getting started notebooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accessing-files-on-the-board">Accessing files on the board</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#update-pynq">Update PYNQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Python productivity for Zynq (Pynq)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/1_getting_started.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="getting-started">
+<h1><a class="toc-backref" href="#id1">Getting Started</a><a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#getting-started" id="id1">Getting Started</a><ul>
+<li><a class="reference internal" href="#video-guide" id="id2">Video Guide</a></li>
+<li><a class="reference internal" href="#prerequisites" id="id3">Prerequisites</a></li>
+<li><a class="reference internal" href="#setup-the-pynq-z1" id="id4">Setup the PYNQ-Z1</a></li>
+<li><a class="reference internal" href="#connect-to-jupyter" id="id5">Connect to Jupyter</a></li>
+<li><a class="reference internal" href="#using-pynq" id="id6">Using PYNQ</a></li>
+<li><a class="reference internal" href="#update-pynq" id="id7">Update PYNQ</a></li>
+<li><a class="reference internal" href="#troubleshooting" id="id8">Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This guide will show you how to setup your computer and PYNQ-Z1 board to get started using PYNQ.
+Any issues can be posted to <a class="reference external" href="https://groups.google.com/forum/#!forum/pynq_project">the PYNQ support forum</a>.</p>
+<div class="section" id="video-guide">
+<h2><a class="toc-backref" href="#id2">Video Guide</a><a class="headerlink" href="#video-guide" title="Permalink to this headline">¶</a></h2>
+<p>You can watch the getting started video guide, or follow the instructions below.</p>
+<embed>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/K5okTyjKr5U" frameborder="0" allowfullscreen></iframe>
+    </br>
+    </br>
+</embed></div>
+<div class="section" id="prerequisites">
+<h2><a class="toc-backref" href="#id3">Prerequisites</a><a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>PYNQ-Z1 board</li>
+<li>Computer with compatible browser (<a class="reference external" href="http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility">Supported Browsers</a>)</li>
+<li>Ethernet cable</li>
+<li>Micro USB cable</li>
+<li>Micro-SD card with preloaded image, or blank card (Minimum 8GB recommended)</li>
+</ul>
+<div class="section" id="get-the-image-and-prepare-the-micro-sd-card">
+<h3>Get the image and prepare the Micro-SD Card<a class="headerlink" href="#get-the-image-and-prepare-the-micro-sd-card" title="Permalink to this headline">¶</a></h3>
+<p>Preloaded Micro SD cards are available from Digilent. If you already have a Micro SD card preloaded with the PYNQ-Z1 image, you can skip this step.</p>
+<p>To make your own PYNQ Micro-SD card:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><a class="reference external" href="https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_14.zip">Download and the PYNQ-Z1 image</a> and unzip</p>
+</li>
+<li><dl class="first docutils">
+<dt>Write the image to a blank Micro SD card (minimum 8GB recommended)</dt>
+<dd><ul class="first last simple">
+<li>Windows: Use <a class="reference external" href="https://sourceforge.net/projects/win32diskimager/">win32DiskImager</a></li>
+<li>Linux/MacOS: Use the built in <em>dd</em> command*</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>* For detailed instructions for writing the SD card using different operating systems, see the <a class="reference external" href="17_appendix.rst#writing-the-sd-card-image">Appendix: Writing the SD card image</a>.</p>
+</div>
+</div>
+<div class="section" id="setup-the-pynq-z1">
+<h2><a class="toc-backref" href="#id4">Setup the PYNQ-Z1</a><a class="headerlink" href="#setup-the-pynq-z1" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><img alt="_images/pynqz1_setup.jpg" class="align-center" src="_images/pynqz1_setup.jpg" />
+</div></blockquote>
+<ol class="arabic simple">
+<li>Set the <em>boot</em> jumper (labelled JP4 on the board) to the <strong>SD</strong> position by placing the jumper over the top two pins of JP4 as shown in the image.  (This sets the board to boot from the Micro-SD card)</li>
+<li>To power the PYNQ-Z1 from the micro USB cable, set the <em>power</em> jumper (JP5) to the <strong>USB</strong> position by placing the jumper over the top two pins of JP5 as shown in the image. (Set the jumper to <strong>REG</strong> to use an external power regulator)</li>
+<li>Insert the <strong>Micro SD</strong> card loaded with the PYNQ-Z1 image into the board. (The Micro SD slot is underneath the board)</li>
+<li>Connect the USB cable to your PC/Laptop, and to the <strong>PROG/UART</strong> (J14) on the board</li>
+<li>Connect the Ethernet cable into your board and see the step below for connecting to a computer or network</li>
+<li>The last step is to power on the board. You should follow the steps below to connect to the board before powering on.</li>
+</ol>
+<div class="section" id="ethernet-connection-to-the-board">
+<h3>Ethernet connection to the board<a class="headerlink" href="#ethernet-connection-to-the-board" title="Permalink to this headline">¶</a></h3>
+<p>You can connect the Ethernet port of the PYNQ-Z1 Ethernet in the following ways:</p>
+<ul class="simple">
+<li>To a router or switch on the same network as your computer</li>
+<li>Directly to an Ethernet port on your computer</li>
+</ul>
+<p>If available, you should connect your board to a network with Ethernet access. This will allow you to update your board and install new packages.</p>
+</div>
+<div class="section" id="connect-to-a-network">
+<h3>Connect to a network<a class="headerlink" href="#connect-to-a-network" title="Permalink to this headline">¶</a></h3>
+<p>If you connect to a network with a DHCP server, your board will automatically get an IP address. You must make sure you have permission to connect a device to your network, otherwise the board may not connect properly.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Router/Network switch (DHCP)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li>Connect to Ethernet port on router/switch</li>
+</ol>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li>Browse to <a class="reference external" href="http://pynq:9090">http://pynq:9090</a></li>
+</ol>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li>Optional: Change hostname (if more than one board on network)*</li>
+</ol>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li>Optional: Configure proxy*</li>
+</ol>
+</td>
+</tr>
+</tbody>
+</table>
+<p>* This can be done after the board is powered on. See below for instructions</p>
+<p>The default hostname is <code class="docutils literal"><span class="pre">pynq</span></code>. If there is another device on the network with this hostname, you will need to change the hostname of your board <strong>before</strong> you connect it to the network. If you are not sure if there are other boards on the network, you should check if the <em>pynq</em> hostname is already in use before connecting a new board. One way to check this is by pinging <em>pynq</em> from a command prompt:</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">ping pynq</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>If you get a response from ping, this means there is already another device on the network with this hostname.</p>
+<p>You can use a USB terminal connection to change the hostname <strong>before</strong> you connect your board to the network. If you are using a shared network, you should change the default hostname of the board in case other boards are connected to the network later.</p>
+<p>You can also use the terminal to configure proxy settings, or to configure any other board settings. See below for detail on how to connect a terminal.</p>
+</div>
+<div class="section" id="connect-directly-to-your-computer">
+<h3>Connect directly to your computer<a class="headerlink" href="#connect-directly-to-your-computer" title="Permalink to this headline">¶</a></h3>
+<p>You will need to have an Ethernet port available on your computer, and you will need to have permimssions to configure your network interface. With a direct connection, you will be able to use PYNQ, but unless you can bridge the Ethernet connection to the board to an Internet connection on your computer, your board will not have Internet access. You will be unable to update or load new packages without Internet access.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Direct Connection to your computer (Static IP)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li>Configure your computer with a Static IP*</li>
+</ol>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li>Connect directly to your computer&#8217;s Ethernet port</li>
+</ol>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li>Browse to  <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a></li>
+</ol>
+</td>
+</tr>
+</tbody>
+</table>
+<p>* See <a class="reference external" href="17_appendix.html#assign-your-laptop-pc-a-static-ip-address">Appendix: Assign your PC/Laptop a static IP address</a></p>
+</div>
+<div class="section" id="powering-on">
+<h3>Powering on<a class="headerlink" href="#powering-on" title="Permalink to this headline">¶</a></h3>
+<p>As indicated in step 6 in the diagram above, slide the power switch to the <em>ON</em> position to <em>Turn On</em> the board. A <em>Red LED</em> will come on immediately to confirm that the board is powered on.  After a few seconds, a <em>Yellow/Green LED</em> (LD12/DONE) will light up to show that the Zynq® device is operational.</p>
+<p>After about 30 seconds you should see two blue LEDs and four yellow/green flash simultaneously.  The blue LEDS will then go off while the yellow/green LEDS remain on.  At this point the system is now booted and ready for use.</p>
+</div>
+</div>
+<div class="section" id="connect-to-jupyter">
+<h2><a class="toc-backref" href="#id5">Connect to Jupyter</a><a class="headerlink" href="#connect-to-jupyter" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Open a web browser and go to <a class="reference external" href="http://pynq:9090">http://pynq:9090</a> (network) <a class="reference external" href="http://192.168.2.99:9090">http://192.168.2.99:9090</a> (direct connection)</p>
+</li>
+<li><p class="first">The Jupyter username is xilinx and the password is also xilinx</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/portal_homepage.jpg"><img alt="_images/portal_homepage.jpg" class="align-center" src="_images/portal_homepage.jpg" style="width: 375.0px; height: 450.0px;" /></a>
+</div></blockquote>
+</li>
+</ul>
+<p>The default hostname is <strong>pynq</strong> and the default static IP address is <code class="docutils literal"><span class="pre">192.168.2.99</span></code>. If you changed the hostname or static IP of the board, you will need to change the address you browse to.</p>
+<p>The first time you connect, it may take a few seconds for your computer to resolve the hostname/IP address.</p>
+<div class="section" id="change-hostname">
+<h3>Change hostname<a class="headerlink" href="#change-hostname" title="Permalink to this headline">¶</a></h3>
+<p>If you are on a network where other pynq boards may be connected, you should change your hostname immediately. This is a common requirement in a work or university environment.</p>
+<p>A terminal is available inside Jupyter.
+In the Jupyter portal home area, select <strong>New &gt;&gt; terminal</strong>.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/dashboard_files_tab_new.JPG"><img alt="_images/dashboard_files_tab_new.JPG" class="align-center" src="_images/dashboard_files_tab_new.JPG" style="height: 300px;" /></a>
+</div></blockquote>
+<p>This will open a terminal inside the browser as root.</p>
+<p>Next enter and execute the following command.  (Note that you should replace NEW_HOST_NAME with the hostname you want for your board.)</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/change_hostname.jpg"><img alt="_images/change_hostname.jpg" class="align-center" src="_images/change_hostname.jpg" style="height: 300px;" /></a>
+</div></blockquote>
+<p>Follow the instructions to reboot the board.</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">sudo shutdown -r now</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>When the board reboots, reconnect using the new hostname. e.g. <a class="reference external" href="http://pynq_cmc:9090">http://pynq_cmc:9090</a></p>
+<p>If you can&#8217;t connect to your board, see the step below to open a terminal using the micro USB cable.</p>
+</div>
+<div class="section" id="connect-to-the-pynq-z1-board-with-a-terminal-connection-over-usb">
+<h3>Connect to the PYNQ-Z1 board with a terminal connection over USB<a class="headerlink" href="#connect-to-the-pynq-z1-board-with-a-terminal-connection-over-usb" title="Permalink to this headline">¶</a></h3>
+<p>If you need to change settings on the board but you can&#8217;t access the terminal from Jupyter, you can connect a terminal over the micro USB cable that is already connected to the board. You can also use this terminal to check the network connection of the board. You will need to have terminal emulator software installed on your computer. <a class="reference external" href="http://www.putty.org/">PuTTY</a> is available for free on Windows. To open a terminal, you will need to know the COM port for the board.</p>
+<p>On Windows, you can find this in the Windows <em>Device Manager</em> in the control panel.</p>
+<ul class="simple">
+<li>Open the Device Manager, expand <em>Ports</em></li>
+<li>Find the COM port for the <em>USB Serial Port</em>.  e.g. COM5</li>
+</ul>
+<p>Once you have the COM port, open PuTTY and use the following settings:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Select serial</li>
+<li>Enter the COM port number</li>
+<li>Enter the baud rate</li>
+<li>Click <em>Open</em></li>
+</ul>
+</div></blockquote>
+<p>Hit <em>Enter</em> in the terminal window to make sure you can see the command prompt:</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">xilinnx@pynq:/home/xilinx#</span>
+</pre></div>
+</div>
+<p>Full terminal Settings:</p>
+<ul class="simple">
+<li>115200 baud</li>
+<li>8 data bits</li>
+<li>1 stop bit</li>
+<li>No Parity</li>
+<li>No Flow Control</li>
+</ul>
+</div></blockquote>
+<p>You can then run the same commands listed above to change the hostname, or configure a proxy.</p>
+<p>You can also check the hostname of the board by running the <em>hostname</em> command:</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">hostname</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>You can also check the IP address of the board using <em>ifconfig</em>:</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">ifconfig</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="configure-proxy">
+<h3>Configure proxy<a class="headerlink" href="#configure-proxy" title="Permalink to this headline">¶</a></h3>
+<p>If your board is connected to a network that uses a proxy, you need to set the proxy variables on the board. Open a terminal as above and enter the following where you should replace &#8220;my_http_proxy:8080&#8221; and &#8220;my_https_proxy:8080&#8221; with your settings.</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">set http_proxy=my_http_proxy:8080</span>
+<span class="go">set https_proxy=my_https_proxy:8080</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="using-pynq">
+<h2><a class="toc-backref" href="#id6">Using PYNQ</a><a class="headerlink" href="#using-pynq" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="getting-started-notebooks">
+<h3>Getting started notebooks<a class="headerlink" href="#getting-started-notebooks" title="Permalink to this headline">¶</a></h3>
+<p>A Jupyter notebook can be saved as html webpages. Some of this documentation has been generated directly from Jupyter notebooks.</p>
+<p>You can view the documentation as a webpage, or if you have a board running PYNQ, you can view and run the notebook documentation interactively. The documentation available as notebooks can be found in the <em>Getting_Started</em> folder in the Jupyter home area.</p>
+<a class="reference internal image-reference" href="_images/getting_started_notebooks.jpg"><img alt="_images/getting_started_notebooks.jpg" class="align-center" src="_images/getting_started_notebooks.jpg" style="width: 375.0px; height: 450.0px;" /></a>
+<p>There are also a number of example notebooks available showing how to use various peripherals with the board.</p>
+<a class="reference internal image-reference" href="_images/example_notebooks.jpg"><img alt="_images/example_notebooks.jpg" class="align-center" src="_images/example_notebooks.jpg" style="width: 375.0px; height: 450.0px;" /></a>
+<p>When you open a notebook and make any changes, or execute cells, the notebook document will be modified. It is recommended that you &#8220;Save a copy&#8221; when you open a new notebook. If you want to restore the original versions, you can download all the example notebooks from the <a class="reference external" href="www.github.com/xilinx/pynq">PYNQ GitHub page</a> .</p>
+</div>
+<div class="section" id="accessing-files-on-the-board">
+<h3>Accessing files on the board<a class="headerlink" href="#accessing-files-on-the-board" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://www.samba.org/">Samba</a>, a file sharing service, is running on the board. The home area on the board can be accessed as a network drive, and you can transfer files to and from the board.</p>
+<p>In Windows, to access the PYNQ home area you can go to:</p>
+<p><code class="docutils literal"><span class="pre">\\pynq\xilinx</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">\\192.168.2.99\xilinx</span></code></p>
+<p>Or in Linux:</p>
+<p><code class="docutils literal"><span class="pre">smb://pynq/xilinx</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">smb://192.168.2.99/xilinx</span></code></p>
+<p>Remember to change the hostname/IP address if necessary.</p>
+<p>The Samba username:password is <code class="docutils literal"><span class="pre">xilinx:xilinx</span></code></p>
+<a class="reference internal image-reference" href="_images/samba_share.JPG"><img alt="_images/samba_share.JPG" class="align-center" src="_images/samba_share.JPG" style="width: 375.0px; height: 450.0px;" /></a>
+</div>
+</div>
+<div class="section" id="update-pynq">
+<h2><a class="toc-backref" href="#id7">Update PYNQ</a><a class="headerlink" href="#update-pynq" title="Permalink to this headline">¶</a></h2>
+<p>You can update the pynq package by executing the script:</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">/home/xilinx/scripts/update_pynq.sh</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>This will check the pynq GitHub, download and install the latest release.</p>
+<p>Updating will overwrite the introductory and example notebooks. You should make sure you take a backup of this, and any code you added to the pynq python directory.</p>
+</div>
+<div class="section" id="troubleshooting">
+<h2><a class="toc-backref" href="#id8">Troubleshooting</a><a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>If you are having problems, please see the <a class="reference external" href="14_faqs.html">Frequently asked questions</a> or go the <a class="reference external" href="http://www.pynq.io">PYNQ support forum</a></p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="2_pynq.html" class="btn btn-neutral float-right" title="PYNQ Introduction" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Python productivity for Zynq (Pynq) Documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Xilinx.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hardware and Overlays &mdash; Python productivity for Zynq (Pynq) v1.0</title>
+  <title>Introduction to Overlays &mdash; Python productivity for Zynq (Pynq) v1.0</title>
   
 
   
@@ -31,8 +31,8 @@
 
   
     <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
-        <link rel="next" title="Using Peripherals with the Base overlay" href="6a_base_overlay_iop.html"/>
-        <link rel="prev" title="Cortex-A9 programming in Python" href="4_programming_python.html"/> 
+        <link rel="next" title="IO Processor Architecture" href="7_iop_architecture.html"/>
+        <link rel="prev" title="Programming PYNQ-Z1’s onboard peripherals" href="5_programming_onboard.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -82,12 +82,12 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Hardware and Overlays</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to Overlays</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overlay-concept">Overlay Concept</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#base-overlay">Base Overlay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pmod-peripherals">Pmod Peripherals</a><ul>
@@ -104,19 +104,20 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
 <li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
 </ul>
 
             
@@ -147,7 +148,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Hardware and Overlays</li>
+    <li>Introduction to Overlays</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -275,11 +276,11 @@ div.nboutput  > :nth-child(2).stderr {
 
 .ansibold { font-weight: bold; }
 </style>
-<div class="section" id="hardware-and-overlays">
-<h1>Hardware and Overlays<a class="headerlink" href="#hardware-and-overlays" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction-to-overlays">
+<h1>Introduction to Overlays<a class="headerlink" href="#introduction-to-overlays" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="overlay-concept">
 <h2>Overlay Concept<a class="headerlink" href="#overlay-concept" title="Permalink to this headline">¶</a></h2>
-<p>The Xilinx Zynq All Programmable device is an SOC based on a dual-core ARM Cortex-A9 processor (referred to as the  <em>Processing System</em> or <strong>PS</strong>), which also includes FPGA fabric (referred to as  <em>Programmable Logic</em> or <strong>PL</strong>). The ARM SoC subsystem also includes a number of dedicated peripherals (memory controllers, USB, Uart, IIC, SPI etc).</p>
+<p>The Xilinx® Zynq® All Programmable device is an SOC based on a dual-core ARM® Cortex®-A9 processor (referred to as the  <em>Processing System</em> or <strong>PS</strong>), which also includes FPGA fabric (referred to as  <em>Programmable Logic</em> or <strong>PL</strong>). The ARM SoC subsystem also includes a number of dedicated peripherals (memory controllers, USB, Uart, IIC, SPI etc).</p>
 <img alt="_images/zynq_block_diagram.jpg" class="align-center" src="_images/zynq_block_diagram.jpg" />
 <p>The FPGA fabric is reconfigurable, and can be used to implement high performance functions in hardware. However, FPGA design is a specialized task which requires deep hardware engineering knowledge and expertise.
 Overlays, or hardware libraries, are programmable/configurable FPGA designs that extend the user application from the Processing System of the Zynq into the Programmable Logic. This allows software programmers to take advantage of the FPGA fabric to accelerate an application, or to use an overlay to customize the hardware platform for a particular application.</p>
@@ -361,10 +362,10 @@ Multiple sensor and actuator controllers, and multiple heterogeneous custom proc
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="6a_base_overlay_iop.html" class="btn btn-neutral float-right" title="Using Peripherals with the Base overlay" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="7_iop_architecture.html" class="btn btn-neutral float-right" title="IO Processor Architecture" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="4_programming_python.html" class="btn btn-neutral" title="Cortex-A9 programming in Python" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="5_programming_onboard.html" class="btn btn-neutral" title="Programming PYNQ-Z1’s onboard peripherals" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

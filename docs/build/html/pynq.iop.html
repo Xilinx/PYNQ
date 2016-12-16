@@ -31,7 +31,7 @@
 
   
     <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="index.html"/>
-        <link rel="up" title="pynq package" href="pynq.html"/>
+        <link rel="up" title="Subpackages" href="pynq.html"/>
         <link rel="next" title="pynq.drivers package" href="pynq.drivers.html"/>
         <link rel="prev" title="pynq.board package" href="pynq.board.html"/> 
 
@@ -83,42 +83,70 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynq modules</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pynq.html">pynq package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="pynq.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="pynq.board.html">pynq.board package</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">pynq.iop package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pynq.html">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynq.board.html">pynq.board package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynq.iop package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.arduino_analog">pynq.iop.arduino_analog module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.arduino_io">pynq.iop.arduino_io module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.devmode">pynq.iop.devmode module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_adc">pynq.iop.grove_adc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_buzzer">pynq.iop.grove_buzzer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynq-iop-grove-color-module">pynq.iop.grove_color module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynq-iop-grove-dlight-module">pynq.iop.grove_dlight module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynq-iop-grove-ear-hr-module">pynq.iop.grove_ear_hr module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynq-iop-grove-finger-hr-module">pynq.iop.grove_finger_hr module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynq-iop-grove-haptic-motor-module">pynq.iop.grove_haptic_motor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_imu">pynq.iop.grove_imu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_ledbar">pynq.iop.grove_ledbar module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_light">pynq.iop.grove_light module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_oled">pynq.iop.grove_oled module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_pir">pynq.iop.grove_pir module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynq-iop-grove-th02-module">pynq.iop.grove_th02 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.grove_tmp">pynq.iop.grove_tmp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.iop">pynq.iop.iop module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.iop_const">pynq.iop.iop_const module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_adc">pynq.iop.pmod_adc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_als">pynq.iop.pmod_als module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_cable">pynq.iop.pmod_cable module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_dac">pynq.iop.pmod_dac module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_dpot">pynq.iop.pmod_dpot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_iic">pynq.iop.pmod_iic module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_io">pynq.iop.pmod_io module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_led8">pynq.iop.pmod_led8 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_oled">pynq.iop.pmod_oled module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_pwm">pynq.iop.pmod_pwm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynq-iop-pmod-tc1-module">pynq.iop.pmod_tc1 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_timer">pynq.iop.pmod_timer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pynq.iop.pmod_tmp2">pynq.iop.pmod_tmp2 module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.html#module-pynq.general_const">pynq.general_const module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.html#module-pynq.gpio">pynq.gpio module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.html#module-pynq.mmio">pynq.mmio module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.html#module-pynq.pl">pynq.pl module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynq.html#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynq.drivers.html">pynq.drivers package</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
 <li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
 </ul>
 
             
@@ -149,9 +177,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-          <li><a href="modules.html">pynq modules</a> &raquo;</li>
+          <li><a href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a> &raquo;</li>
       
-          <li><a href="pynq.html">pynq package</a> &raquo;</li>
+          <li><a href="pynq.html">Subpackages</a> &raquo;</li>
       
     <li>pynq.iop package</li>
       <li class="wy-breadcrumbs-aside">
@@ -285,6 +313,242 @@ div.nboutput  > :nth-child(2).stderr {
 <h1>pynq.iop package<a class="headerlink" href="#pynq-iop-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pynq.iop.arduino_analog">
+<span id="pynq-iop-arduino-analog-module"></span><h2>pynq.iop.arduino_analog module<a class="headerlink" href="#module-pynq.iop.arduino_analog" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog">
+<em class="property">class </em><code class="descclassname">pynq.iop.arduino_analog.</code><code class="descname">Arduino_Analog</code><span class="sig-paren">(</span><em>if_id</em>, <em>gr_pin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class controls the Arduino Analog.</p>
+<p>XADC is an internal analog controller in the hardware. This class
+provides API to do analog reads from IOP.</p>
+<dl class="attribute">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.iop">
+<code class="descname">iop</code><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.iop" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>_IOP</em> &#8211; I/O processor instance used by Arduino_Analog class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.mmio">
+<code class="descname">mmio</code><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.mmio" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>MMIO</em> &#8211; Memory-mapped I/O instance to read and write instructions and data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.log_running">
+<code class="descname">log_running</code><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.log_running" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The state of the log (0: stopped, 1: started).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.log_interval_ms">
+<code class="descname">log_interval_ms</code><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.log_interval_ms" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Time in milliseconds between samples on the same channel.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.gr_pin">
+<code class="descname">gr_pin</code><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.gr_pin" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; A list of analog pins getting sampled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.num_channels">
+<code class="descname">num_channels</code><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.num_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; The number of channels sampled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.get_log">
+<code class="descname">get_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.get_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of logged samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid voltage samples (floats) from the ADC sensor.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.get_log_raw">
+<code class="descname">get_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.get_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.get_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of logged raw samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of valid raw samples from the analog device.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the voltage value from the analog peripheral.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The float values after translation.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.read_raw">
+<code class="descname">read_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.read_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.read_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the analog raw value from the analog peripheral.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The raw values from the analog device.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the system monitor for analog devices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.set_log_interval_ms">
+<code class="descname">set_log_interval_ms</code><span class="sig-paren">(</span><em>log_interval_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.set_log_interval_ms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.set_log_interval_ms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the length of the log for the analog peripheral.</p>
+<p>This method can set the time interval between two samples, so that
+users can read out multiple values in a single log.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_interval_ms</strong> (<em>int</em>) &#8211; The time between two samples in milliseconds, for logging only.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.start_log">
+<code class="descname">start_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.start_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.start_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start recording multiple voltage values (float) in a log.</p>
+<p>This method will first call set_log_interval_ms() before writting to
+the MMIO.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.start_log_raw">
+<code class="descname">start_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.start_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.start_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start recording raw data in a log.</p>
+<p>This method will first call set_log_interval_ms() before writting to
+the MMIO.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.stop_log">
+<code class="descname">stop_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.stop_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.stop_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop recording the voltage values in the log.</p>
+<p>This can be done by calling the stop_log_raw() method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynq.iop.arduino_analog.Arduino_Analog.stop_log_raw">
+<code class="descname">stop_log_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pynq/iop/arduino_analog.html#Arduino_Analog.stop_log_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynq.iop.arduino_analog.Arduino_Analog.stop_log_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop recording the raw values in the log.</p>
+<p>Simply write 0xC to the MMIO to stop the log.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-pynq.iop.arduino_io">
 <span id="pynq-iop-arduino-io-module"></span><h2>pynq.iop.arduino_io module<a class="headerlink" href="#module-pynq.iop.arduino_io" title="Permalink to this headline">¶</a></h2>
@@ -862,6 +1126,21 @@ Hardware version: v1.2.</p>
 
 </dd></dl>
 
+</div>
+<div class="section" id="pynq-iop-grove-color-module">
+<h2>pynq.iop.grove_color module<a class="headerlink" href="#pynq-iop-grove-color-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pynq-iop-grove-dlight-module">
+<h2>pynq.iop.grove_dlight module<a class="headerlink" href="#pynq-iop-grove-dlight-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pynq-iop-grove-ear-hr-module">
+<h2>pynq.iop.grove_ear_hr module<a class="headerlink" href="#pynq-iop-grove-ear-hr-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pynq-iop-grove-finger-hr-module">
+<h2>pynq.iop.grove_finger_hr module<a class="headerlink" href="#pynq-iop-grove-finger-hr-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pynq-iop-grove-haptic-motor-module">
+<h2>pynq.iop.grove_haptic_motor module<a class="headerlink" href="#pynq-iop-grove-haptic-motor-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-pynq.iop.grove_imu">
 <span id="pynq-iop-grove-imu-module"></span><h2>pynq.iop.grove_imu module<a class="headerlink" href="#module-pynq.iop.grove_imu" title="Permalink to this headline">¶</a></h2>
@@ -1549,6 +1828,9 @@ Hardware version: v1.2.</p>
 
 </dd></dl>
 
+</div>
+<div class="section" id="pynq-iop-grove-th02-module">
+<h2>pynq.iop.grove_th02 module<a class="headerlink" href="#pynq-iop-grove-th02-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-pynq.iop.grove_tmp">
 <span id="pynq-iop-grove-tmp-module"></span><h2>pynq.iop.grove_tmp module<a class="headerlink" href="#module-pynq.iop.grove_tmp" title="Permalink to this headline">¶</a></h2>
@@ -2801,6 +3083,9 @@ panel powered by the Solomon Systech SSD1306.</p>
 
 </dd></dl>
 
+</div>
+<div class="section" id="pynq-iop-pmod-tc1-module">
+<h2>pynq.iop.pmod_tc1 module<a class="headerlink" href="#pynq-iop-pmod-tc1-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-pynq.iop.pmod_timer">
 <span id="pynq-iop-pmod-timer-module"></span><h2>pynq.iop.pmod_timer module<a class="headerlink" href="#module-pynq.iop.pmod_timer" title="Permalink to this headline">¶</a></h2>

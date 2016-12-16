@@ -31,7 +31,7 @@
 
   
     <link rel="top" title="Python productivity for Zynq (Pynq) v1.0" href="#"/>
-        <link rel="next" title="Quick Start" href="quick_start.html"/> 
+        <link rel="next" title="Getting Started" href="1_getting_started.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -81,25 +81,26 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="4_programming_python.html">Cortex-A9 programming in Python</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="12_verification.html">Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="15_glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="16_references.html">Useful Reference Links</a></li>
 <li class="toctree-l1"><a class="reference internal" href="17_appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a></li>
 </ul>
 
             
@@ -262,25 +263,22 @@ div.nboutput  > :nth-child(2).stderr {
 <h1>Python productivity for Zynq (Pynq) Documentation<a class="headerlink" href="#python-productivity-for-zynq-pynq-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#set-up-the-board">Set up the board</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#jupyter-portal">Jupyter Portal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#problems">Problems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#support">Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="1_getting_started.html#video-guide">Video Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_getting_started.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_getting_started.html#setup-the-pynq-z1">Setup the PYNQ-Z1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_getting_started.html#connect-to-jupyter">Connect to Jupyter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_getting_started.html#using-pynq">Using PYNQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_getting_started.html#update-pynq">Update PYNQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_getting_started.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="1_pynq.html">PYNQ Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="1_pynq.html#project-goals">Project Goals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="1_pynq.html#summary">Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_pynq.html">PYNQ Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="2_pynq.html#project-goals">Project Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_pynq.html#summary">Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="2_getting_started.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#connect-to-the-board">Connect to the board</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_getting_started.html#using-pynq">Using Pynq</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Introduction to Jupyter Notebook</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="3_jupyter_notebook.html">Jupyter Notebook Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="3_jupyter_notebook.html#Acknowledgements">Acknowledgements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="3_jupyter_notebook.html#Introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="3_jupyter_notebook.html#Notebook-documents">Notebook documents</a></li>
@@ -295,60 +293,68 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="4_programming_python.html#More-intensive-calculations">More intensive calculations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Hardware and Overlays</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="5_programming_onboard.html">Programming PYNQ-Z1&#8217;s onboard peripherals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="5_programming_onboard.html#LEDs,-switches-and-buttons">LEDs, switches and buttons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_programming_onboard.html#Peripheral-Example">Peripheral Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_programming_onboard.html#Controlling-a-single-LED">Controlling a single LED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_programming_onboard.html#Example:-Controlling-all-the-LEDs,-switches-and-buttons">Example: Controlling all the LEDs, switches and buttons</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="6_overlays.html">Introduction to Overlays</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="6_overlays.html#overlay-concept">Overlay Concept</a></li>
 <li class="toctree-l2"><a class="reference internal" href="6_overlays.html#base-overlay">Base Overlay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="6_overlays.html#pmod-peripherals">Pmod Peripherals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="6_overlays.html#arduino-peripherals">Arduino Peripherals</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="6a_base_overlay_iop.html">Using Peripherals with the Base overlay</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="6a_base_overlay_iop.html#Base-overlay">Base overlay</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6a_base_overlay_iop.html#Using-Pmods-with-an-overlay">Using Pmods with an overlay</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6a_base_overlay_iop.html#Example:-Using-the-OLED-and-the-Ambient-Light-Sensor-(ALS)">Example: Using the OLED and the Ambient Light Sensor (ALS)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_iop_architecture.html">IO Processor Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="7_iop_architecture.html#pmod-iop">Pmod IOP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7_iop_architecture.html#arduino-iop">Arduino IOP</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="6b_base_overlay_video.html">Video using the Base Overlay</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#Video-IO">Video IO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#The-HDMI-video-capture-controller">The HDMI video capture controller</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#Starting-and-stopping-the-controller">Starting and stopping the controller</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#Readback-from-the-controller">Readback from the controller</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#HDMI-Frame-list">HDMI Frame list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#Frame-Lists">Frame Lists</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#The-HDMI-out-controller">The HDMI out controller</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#Input/Output-Frame-Lists">Input/Output Frame Lists</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6b_base_overlay_video.html#Streaming-from-HDMI-Input-to-Output">Streaming from HDMI Input to Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_iop_code.html">IO Processors: Writing Your Own Software</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#io-processors">IO Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#software-requirements">Software requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#compiling-projects">Compiling projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#iop-memory">IOP Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#controlling-the-pmod-iop-switch">Controlling the Pmod IOP Switch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#running-code-on-different-iops">Running code on different IOPs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_iop_code.html#iop-application-example">IOP Application Example</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="6c_base_overlay_audio.html">Audio using the Base Overlay</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="6c_base_overlay_audio.html#Audio-IP-in-base-overlay">Audio IP in base overlay</a></li>
-<li class="toctree-l2"><a class="reference internal" href="6c_base_overlay_audio.html#Using-the-MIC">Using the MIC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9a_base_overlay_iop.html">Using Peripherals with the Base overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="9a_base_overlay_iop.html#Base-overlay">Base overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9a_base_overlay_iop.html#Using-Pmods-with-an-overlay">Using Pmods with an overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9a_base_overlay_iop.html#Example:-Using-the-OLED-and-the-Ambient-Light-Sensor-(ALS)">Example: Using the OLED and the Ambient Light Sensor (ALS)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="8_iop_architecture.html">IO Processor Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="8_iop_architecture.html#pmod-iop">Pmod IOP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="8_iop_architecture.html#arduino-iop">Arduino IOP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9b_base_overlay_video.html">Video using the Base Overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#Video-IO">Video IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#The-HDMI-video-capture-controller">The HDMI video capture controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#Starting-and-stopping-the-controller">Starting and stopping the controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#Readback-from-the-controller">Readback from the controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#HDMI-Frame-list">HDMI Frame list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#Frame-Lists">Frame Lists</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#The-HDMI-out-controller">The HDMI out controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#Input/Output-Frame-Lists">Input/Output Frame Lists</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9b_base_overlay_video.html#Streaming-from-HDMI-Input-to-Output">Streaming from HDMI Input to Output</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="9_iop_code.html">IO Processors: Writing Your Own Software</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="9_iop_code.html#io-processors">IO Processors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="9_iop_code.html#software-requirements">Software requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="9_iop_code.html#compiling-projects">Compiling projects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="9_iop_code.html#iop-memory">IOP Memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="9_iop_code.html#memory-map">Memory map</a></li>
-<li class="toctree-l2"><a class="reference internal" href="9_iop_code.html#running-code-on-different-iops">Running code on different IOPs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="9_iop_code.html#iop-application-example">IOP Application Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9c_base_overlay_audio.html">Audio using the Base Overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="9c_base_overlay_audio.html#Audio-IP-in-base-overlay">Audio IP in base overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9c_base_overlay_audio.html#Using-the-MIC">Using the MIC</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Working with Overlays</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="10_creating_overlays.html">Creating Overlays</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#vivado-design">Vivado design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#existing-overlays">Existing Overlays</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#loading-overlays">Loading Overlays</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#using-new-overlays-with-mmio">Using new overlays with MMIO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#new-overlay-example">New overlay example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#using-new-overlays-with-gpio">Using new overlays with GPIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#interfacing-to-an-overlay">Interfacing to an overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#packaging-overlays">Packaging overlays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_creating_overlays.html#using-overlays">Using Overlays</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="11_python_package.html">The <code class="docutils literal"><span class="pre">Pynq</span></code> (Python Productivity for Zynq) Package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="11_python_package.html"><code class="docutils literal"><span class="pre">pynq</span></code> Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="11_python_package.html#python-pynq-package-structure">Python <code class="docutils literal"><span class="pre">pynq</span></code> Package Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_python_package.html#board">board</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_python_package.html#iop">iop</a></li>
@@ -364,8 +370,9 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="12_verification.html#miscellaneous-test-setup">Miscellaneous Test Setup</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pynq modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pynq.html">pynq package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html"><code class="docutils literal"><span class="pre">pynq</span></code> package reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pynq.html">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pynq.html#submodules">Submodules</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="14_faqs.html">Frequently Asked Questions (FAQs)</a><ul>
@@ -397,6 +404,10 @@ div.nboutput  > :nth-child(2).stderr {
 <li class="toctree-l2"><a class="reference internal" href="17_appendix.html#assign-your-laptop-pc-a-static-ip-address">Assign your laptop/PC a static IP address</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="18_changelog.html">Documentation Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="18_changelog.html#version-1-01">Version 1.01</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -418,7 +429,7 @@ div.nboutput  > :nth-child(2).stderr {
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="quick_start.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="1_getting_started.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
