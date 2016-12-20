@@ -1,5 +1,6 @@
-The ``Pynq`` (Python Productivity for Zynq) Package
-======================================================
+*********************
+``pynq`` Package
+*********************
 
 This section describes the ``pynq`` package for the PYNQ-Z1 platform. 
 
@@ -14,7 +15,7 @@ Some preinstalled features of this Linux image include:
 
 
 Python ``pynq`` Package Structure
-----------------------------------
+==================================
 All Pynq code is contained in the *pynq* Python package and is can be found on the board at /home/xilinx/pynq.  This package is derived from the Github repository and the latest version can always be installed from ``<GitHub repository>/python/pynq``.
 
 Pynq contains four main subpackages: ``board``, ``iop``, ``drivers``, and ``bitstream``; a ``tests`` subpackage is available for testing the user subpackages.  Each of the five subpackages are described below.
@@ -24,7 +25,7 @@ To learn more about Python package structures, please refer to the `official pyt
 
 
 board
------
+=====
 This folder contains libraries or python packages for peripherals available on the PYNQ-Z1 board: button, switch, rgbled and led.  For example the following code will turn on one of PYNQ-Z1's LEDs:
 
 .. code-block:: python
@@ -35,7 +36,7 @@ This folder contains libraries or python packages for peripherals available on t
 
 
 iop
------
+=====
 This folder contains libraries for the following Pmod devices ``Pmod_ADC``, ``Pmod_ALS``, ``Pmod_DAC``, `Pmod_DPOT``,  ``Pmod_LED8``, ``Pmod_OLED``, ``Pmod_PWM``,  ``Pmod_TIMER``, and ``Pmod_TMP2``.
 
 The following Grove peripherals are also supported: ``Grove ADC``, ``Grove Buzzer``, ``Grove IMU``, ``Grove LED bar``, ``Grove Light Sensor``, ``Grove OLED``,  ``Grove PIR``,  ``Grove Temperature Sensor``. 
@@ -65,25 +66,25 @@ For example, the following code will instantiate and write to the Pmod_OLED atta
    pmod_oled.write('Welcome to the\nPynq-Z1 board!')
 
 bitstream
------------
+===========
 
 This folder contains the base.bit and the base.tcl. The base.bit is the precompiled overlay and base.tcl provides the information of the hardware it is built from.
 
 
 drivers
----------
+=========
 
 This folder contains various classes to support audio, video, DMA, and Trace_Buffer.
 
 
 tests
-------
+======
 
 This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <12_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
 
 .. note:: The ``tests`` folders in ``board``, ``iop``, ``drivers``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
 
 documentation
------------------------------
+=============================
 To find documentation for each module, see the `Pynq Package <modules.html>`_ for documentation built from the actual Python source code.
 

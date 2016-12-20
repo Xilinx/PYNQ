@@ -1,8 +1,6 @@
-pynq package
-============
 
 Subpackages
------------
+=============
 
 .. toctree::
 
@@ -12,7 +10,7 @@ Subpackages
     
 
 Submodules
-----------
+===============
 
 pynq.general_const module
 -------------------------
@@ -42,15 +40,6 @@ pynq.pl module
 --------------
 
 .. automodule:: pynq.pl
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: pynq
     :members:
     :undoc-members:
     :show-inheritance:

@@ -7,3 +7,5 @@ matplotlib
 nbsphinx
 pynq
 jupyter_client
+cffi
+ipython

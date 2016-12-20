@@ -210,7 +210,7 @@ General Questions
       
 Does Pynq support Python 2.7?
 ======================================================
-Python 2.7 is loaded on Zynq and Python 2.7 scripts can be executed. Pynq, however, is based on Python 3.4.  No attempts have been made to ensure backward compatibility with Python 2.7.
+Python 2.7 is loaded on Zynq® and Python 2.7 scripts can be executed. Pynq, however, is based on Python 3.4.  No attempts have been made to ensure backward compatibility with Python 2.7.
 
 Where can I get the PYNQ-Z1 image?
 =========================================
