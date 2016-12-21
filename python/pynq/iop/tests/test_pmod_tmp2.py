@@ -34,13 +34,23 @@ __email__       = "pynq_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 from pynq.iop import Pmod_TMP2
 from pynq.tests.util import user_answer_yes
+from pynq.tests.util import get_pmod_id
 
-flag = user_answer_yes("\nPMOD TMP2 attached to the board?")
+flag = user_answer_yes("\nPmod TMP2 attached to the board?")
 if flag:
     global tmp2_id
-    tmp2_id = int(input("Type in the IOP ID of the Pmod TMP2 (1 ~ 2): "))
+    
+    pmod_id = get_pmod_id('Pmod TMP2')
+    if pmod_id == 'A':
+        tmp2_id = PMODA
+    elif pmod_id == 'B':
+        tmp2_id = PMODB
+    else:
+        raise ValueError("Please type in A or B.")
 
 @pytest.mark.run(order=28)
 @pytest.mark.skipif(not flag, reason="need TMP2 attached in order to run")

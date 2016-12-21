@@ -38,13 +38,23 @@ import termios
 from time import sleep
 import pytest
 from pynq import Overlay
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 from pynq.iop import Pmod_LED8
 from pynq.tests.util import user_answer_yes
+from pynq.tests.util import get_pmod_id
 
-flag = user_answer_yes("\nPMOD LED8 attached to the board?")
+flag = user_answer_yes("\nPmod LED8 attached to the board?")
 if flag:
     global led_id
-    led_id = int(input("Type in the IOP ID of the Pmod LED8 (1 ~ 2): "))
+
+    pmod_id = get_pmod_id('Pmod LED8')
+    if pmod_id == 'A':
+        led_id = PMODA
+    elif pmod_id == 'B':
+        led_id = PMODB
+    else:
+        raise ValueError("Please type in A or B.")
 
 @pytest.mark.run(order=22)
 @pytest.mark.skipif(not flag, reason="need LED8 attached in order to run")

@@ -34,13 +34,23 @@ __email__       = "pynq_support@xilinx.com"
 
 import pytest
 from pynq import Overlay
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 from pynq.iop import Pmod_OLED
 from pynq.tests.util import user_answer_yes
+from pynq.tests.util import get_pmod_id
 
-flag = user_answer_yes("\nPMOD OLED attached to the board?")
+flag = user_answer_yes("\nPmod OLED attached to the board?")
 if flag:
     global oled_id
-    oled_id = int(input("Type in the IOP ID of the Pmod OLED (1 ~ 2): "))
+    
+    pmod_id = get_pmod_id('Pmod OLED')
+    if pmod_id == 'A':
+        oled_id = PMODA
+    elif pmod_id == 'B':
+        oled_id = PMODB
+    else:
+        raise ValueError("Please type in A or B.")
 
 @pytest.mark.run(order=25)
 @pytest.mark.skipif(not flag, reason="need OLED attached in order to run")

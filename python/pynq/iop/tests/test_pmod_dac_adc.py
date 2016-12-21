@@ -36,15 +36,32 @@ from random import randint
 from time import sleep
 import pytest
 from pynq import Overlay
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 from pynq.iop import Pmod_ADC
 from pynq.iop import Pmod_DAC
 from pynq.tests.util import user_answer_yes
+from pynq.tests.util import get_pmod_id
 
 flag = user_answer_yes("\nPmod ADC and DAC attached (straight cable)?")
 if flag:
         global adc_id, dac_id
-        dac_id = int(input("Type in the IOP ID of the Pmod DAC (1 ~ 2): "))
-        adc_id = int(input("Type in the IOP ID of the Pmod ADC (1 ~ 2): "))
+
+        pmod_id = get_pmod_id('Pmod DAC')
+        if pmod_id == 'A':
+            dac_id = PMODA
+        elif pmod_id == 'B':
+            dac_id = PMODB
+        else:
+            raise ValueError("Please type in A or B.")
+
+        pmod_id = get_pmod_id('Pmod ADC')
+        if pmod_id == 'A':
+            adc_id = PMODA
+        elif pmod_id == 'B':
+            adc_id = PMODB
+        else:
+            raise ValueError("Please type in A or B.")
 
 @pytest.mark.run(order=26) 
 @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")

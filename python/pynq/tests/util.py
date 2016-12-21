@@ -39,4 +39,7 @@ def user_answer_yes(text):
 def user_answer_no(text):
     answer = input(text + ' (yes/[no])>>> ').lower()
     return answer == 'n' or answer == 'no' or answer == ''
-    
+
+def get_pmod_id(text):
+    return input("Type in the interface ID of the {} (A or B): "
+                 .format(text)).strip().upper()

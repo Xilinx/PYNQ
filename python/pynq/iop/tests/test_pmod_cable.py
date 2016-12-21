@@ -36,14 +36,31 @@ from random import randint
 from time import sleep
 import pytest
 from pynq import Overlay
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 from pynq.iop import Pmod_Cable
 from pynq.tests.util import user_answer_yes
+from pynq.tests.util import get_pmod_id
 
 flag = user_answer_yes("\nTwo Pmod interfaces connected by a cable?")
 if flag:
     global TX_PORT,RX_PORT
-    TX_PORT = int(input("Type in the IOP ID of the sender (1 ~ 2): "))
-    RX_PORT = int(input("Type in the IOP ID of the receiver (1 ~ 2): "))
+
+    send_id = get_pmod_id('sender')
+    if send_id == 'A':
+        TX_PORT = PMODA
+    elif send_id == 'B':
+        TX_PORT = PMODB
+    else:
+        raise ValueError("Please type in A or B.")
+
+    recv_id = get_pmod_id('receiver')
+    if recv_id == 'A':
+        RX_PORT = PMODA
+    elif recv_id == 'B':
+        RX_PORT = PMODB
+    else:
+        raise ValueError("Please type in A or B.")
     
 @pytest.mark.run(order=16) 
 @pytest.mark.skipif(not flag, reason="need Pmod cable connected to run")

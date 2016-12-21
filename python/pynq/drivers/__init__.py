@@ -36,4 +36,3 @@ from .video import HDMI
 from .video import Frame
 from .dma import DMA
 from .trace_buffer import Trace_Buffer
-from .usb_wifi import Usb_Wifi

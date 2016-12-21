@@ -40,10 +40,9 @@ import resource
 if os.getuid() != 0:
     raise RuntimeError("Root permission needed by the library.")
 
-# Cleanup on Segfaults
 def sig_handler(signum, frame):
     print("Invalid Memory Access!")
-    xlnk().xlnk_reset()
+    Xlnk().xlnk_reset()
     sys.exit(127)
 signal.signal(signal.SIGSEGV, sig_handler)
 
@@ -62,7 +61,7 @@ void _xlnk_reset();
 
 libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
 
-class xlnk:
+class Xlnk:
     """Class to enable CMA memory management.
 
     The CMA state maintained by this class is local to the 
@@ -76,7 +75,7 @@ class xlnk:
         
     """
     def __init__(self):
-        """Initialize new xlnk object.
+        """Initialize new Xlnk object.
 
         Parameters
         ----------
@@ -90,7 +89,7 @@ class xlnk:
         self.bufmap = {}
 
     def __del__(self):
-        """Destructor for the current xlnk object.
+        """Destructor for the current Xlnk object.
 
         Frees up all the memory which was allocated through current object.
 
@@ -135,7 +134,7 @@ class xlnk:
 
         Examples
         --------
-        memmanager = xlnk.xlnk()
+        memmanager = Xlnk()
 
         # Allocate 10 `void *` memory locations.
         

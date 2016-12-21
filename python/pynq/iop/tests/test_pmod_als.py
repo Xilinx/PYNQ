@@ -35,13 +35,24 @@ __email__       = "pynq_support@xilinx.com"
 import pytest
 from time import sleep
 from pynq import Overlay
+from pynq.iop import PMODA
+from pynq.iop import PMODB
 from pynq.iop import Pmod_ALS
 from pynq.tests.util import user_answer_yes
+from pynq.tests.util import get_pmod_id
 
-flag = user_answer_yes("\nALS attached to the board?")
+flag = user_answer_yes("\nPmod ALS attached to the board?")
 if flag:
     global als_id
-    als_id = int(input("Type in the IOP ID of the Pmod ALS (1 ~ 2): "))
+    
+    pmod_id = get_pmod_id('Pmod ALS')
+    if pmod_id == 'A':
+        als_id = PMODA
+    elif pmod_id == 'B':
+        als_id = PMODB
+    else:
+        raise ValueError("Please type in A or B.")
+
 
 @pytest.mark.run(order=29)  
 @pytest.mark.skipif(not flag, reason="need ALS attached in order to run")

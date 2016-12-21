@@ -38,5 +38,6 @@ from .mmio import MMIO
 from .pl import PL
 from .pl import Bitstream
 from .pl import Overlay
+from .xlnk import Xlnk
 
 __all__ = ['tests', 'board', 'iop', 'drivers']
