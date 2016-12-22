@@ -83,36 +83,32 @@ class Pmod_TC1(object):
     def read(self):
         """Read full 32-bit register of TC1 Pmod.
 
-        Parameters
-        ----------
-        None
-
         Returns
         -------
-        u32
+        int
             The current register contents.
 
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET)
 
     def reg_to_tc(self, reg_val):
-        """
-        Extracts Thermocouple temperature from 32-bit register value.
+        """Extracts Thermocouple temperature from 32-bit register value.
 
         Parameters
         ----------
-        u32
+        reg_val : int
             32-bit TC1 register value
 
         Returns
         -------
         float
             The thermocouple temperature in degC.
+
         """
         v = reg_val >> 18
         if v & 0x00020000:
@@ -123,12 +119,11 @@ class Pmod_TC1(object):
         return v * 0.25
 
     def reg_to_ref(self, reg_val):
-        """
-        Extracts Ref Junction temperature from 32-bit register value.
+        """Extracts Ref Junction temperature from 32-bit register value.
 
         Parameters
         ----------
-        u32
+        reg_val : int
             32-bit TC1 register value
 
         Returns
@@ -145,24 +140,24 @@ class Pmod_TC1(object):
         return v * 0.0625
 
     def reg_to_alarms(self, reg_val):
-        """
-        Extracts Alarm flags from 32-bit register value.
+        """Extracts Alarm flags from 32-bit register value.
 
         Parameters
         ----------
-        u32
+        reg_val : int
             32-bit TC1 register value
 
         Returns
         -------
         u32
             The alarm flags from the TC1.
-            bit  0 = 1 if thermocouple connection is open-circuit
-            bit  1 = 1 if thermocouple connection is shorted to generated
-            bit  2 = 1 if thermocouple connection is shorted to VCC
-            bit 16 = 1 if any if bits 0-2 are 1
+            bit  0 = 1 if thermocouple connection is open-circuit;
+            bit  1 = 1 if thermocouple connection is shorted to generated;
+            bit  2 = 1 if thermocouple connection is shorted to VCC;
+            bit 16 = 1 if any if bits 0-2 are 1.
+
         """
-        return (reg_val & 0x0001000f)
+        return reg_val & 0x0001000f
 
     def set_log_interval_ms(self,log_interval_ms):
         """Set the length of the log in the TC1 Pmod.
@@ -180,7 +175,7 @@ class Pmod_TC1(object):
         None
 
         """
-        if (log_interval_ms < 0):
+        if log_interval_ms < 0:
             raise ValueError("Log length should not be less than 0.")
 
         self.log_interval_ms = log_interval_ms
@@ -191,10 +186,6 @@ class Pmod_TC1(object):
 
         This method will first call set_log_interval_ms() before writting to
         the MMIO.
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------
@@ -210,10 +201,6 @@ class Pmod_TC1(object):
 
         Simply write to the MMIO to stop the log.
 
-        Parameters
-        ----------
-        None
-
         Returns
         -------
         None
@@ -224,10 +211,6 @@ class Pmod_TC1(object):
 
     def get_log(self):
         """Return list of logged samples.
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------

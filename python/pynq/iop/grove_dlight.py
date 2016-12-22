@@ -51,7 +51,7 @@ GROVE_DLIGHT_LOG_START = iop_const.MAILBOX_OFFSET+16
 GROVE_DLIGHT_LOG_END = GROVE_DLIGHT_LOG_START+(250*16)
 
 class Grove_DLight(object):
-    """This class controls the Grove IIC Color sensor. 
+    """This class controls the Grove IIC color sensor.
     
     Grove Color sensor based on the TCS3414CS. 
     Hardware version: v1.3.
@@ -78,7 +78,7 @@ class Grove_DLight(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("DLight group number can only be G3 - G4.")
             GROVE_DLIGHT_PROGRAM = PMOD_GROVE_DLIGHT_PROGRAM
@@ -98,57 +98,48 @@ class Grove_DLight(object):
         self.iop.start()
         
         if if_id in [PMODA, PMODB]:
-            #: Write SCL and SDA Pin Config
             self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
             self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
-        
-        # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
 
     def read_raw_light(self):
-        """Read the visible and IR channel values from the Grove Digital light 
-        peripheral.
-        
-        Parameters
-        ----------
-        None
+        """Read the visible and IR channel values.
+
+        Read the values from the grove digital light peripheral.
         
         Returns
         -------
         tuple
-            A tuple containing 2 integer values ch0 (visible) and ch1 (IR)
+            A tuple containing 2 integer values ch0 (visible) and ch1 (IR).
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET+
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)      
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET+
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
         ch0 = self.mmio.read(iop_const.MAILBOX_OFFSET)
         ch1 = self.mmio.read(iop_const.MAILBOX_OFFSET + 0x4)      
-        return (ch0,ch1)
+        return ch0,ch1
 
     def read_lux(self):
         """Read the computed lux value of the sensor.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
-        tuple
-            An integer value 
+        int
+            The lux value from the sensor
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)      
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 5):
             pass
         lux = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)       
-        return (lux)
+        return lux

@@ -87,9 +87,9 @@ class Pmod_IIC(object):
         """
         if not if_id in [PMODA, PMODB]:
             raise ValueError("No such IOP for Pmod device.")
-        if (scl_pin not in range(8)):
+        if scl_pin not in range(8):
             raise ValueError("Valid SCL pin numbers are 0 - 7.")
-        if (sda_pin not in range(8)):
+        if sda_pin not in range(8):
             raise ValueError("Valid SDA pin numbers are 0 - 7.")
         
         switchconfig = []
@@ -185,17 +185,17 @@ class Pmod_IIC(object):
             timeout = 100
             
             # Construct the TX word
-            if (tx_cnt == len(iic_bytes) - 1):
+            if tx_cnt == len(iic_bytes) - 1:
                 tx_word = (0x200 | iic_bytes[tx_cnt])
             else:
                 tx_word = iic_bytes[tx_cnt]
             
             # Write data
             self.iop.write_cmd(self.dtr_addr, tx_word)
-            while ((timeout > 0) and \
+            while ((timeout > 0) and
                         ((self.iop.read_cmd(self.sr_addr) & 0x80) == 0x00)):
                 timeout -= 1
-            if (timeout == 0):
+            if timeout == 0:
                 raise RuntimeError("Timeout when writing IIC.")
                 
         sleep(I2C_DELAY)
@@ -242,22 +242,22 @@ class Pmod_IIC(object):
 
         # Read num_bytes from RX FIFO
         iic_bytes = list()
-        while(len(iic_bytes) < num_bytes):
+        while len(iic_bytes) < num_bytes:
  
             # Special condition for last two bytes
             if (num_bytes - len(iic_bytes)) == 1:
                 self.iop.write_cmd(self.cr_addr,0x1)
             elif (num_bytes - len(iic_bytes)) == 2:
-                self.iop.write_cmd(self.cr_addr, \
+                self.iop.write_cmd(self.cr_addr,
                                    self.iop.read_cmd(self.cr_addr) | 0x10)
 
             # Wait for data to be available in RX FIFO
             timeout = 100
-            while(((self.iop.read_cmd(self.sr_addr) & 0x40) == 0x40) and \
+            while(((self.iop.read_cmd(self.sr_addr) & 0x40) == 0x40) and
                   (timeout > 0)):
                 timeout -= 1
 
-            if(timeout == 0):
+            if timeout == 0:
                 raise RuntimeError("Timeout when reading IIC.")
 
             # Read data 

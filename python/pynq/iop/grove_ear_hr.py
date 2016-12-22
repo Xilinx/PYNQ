@@ -79,20 +79,20 @@ class Grove_EarHR(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G1, \
-                              PMOD_GROVE_G2, \
-                              PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G1,
+                              PMOD_GROVE_G2,
+                              PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("EarHR group number can only be G1 - G4.")
             GROVE_EAR_HR_PROGRAM = PMOD_GROVE_EAR_HR_PROGRAM
 
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_GROVE_G1, \
-                              ARDUINO_GROVE_G2, \
-                              ARDUINO_GROVE_G3, \
-                              ARDUINO_GROVE_G4, \
-                              ARDUINO_GROVE_G5, \
-                              ARDUINO_GROVE_G6, \
+            if not gr_pin in [ARDUINO_GROVE_G1,
+                              ARDUINO_GROVE_G2,
+                              ARDUINO_GROVE_G3,
+                              ARDUINO_GROVE_G4,
+                              ARDUINO_GROVE_G5,
+                              ARDUINO_GROVE_G6,
                               ARDUINO_GROVE_G7]:
                 raise ValueError("EarHR group number can only be G1 - G7.")
             GROVE_EAR_HR_PROGRAM = ARDUINO_GROVE_EAR_HR_PROGRAM
@@ -103,56 +103,44 @@ class Grove_EarHR(object):
         self.iop = request_iop(if_id, GROVE_EAR_HR_PROGRAM)
         self.mmio = self.iop.mmio
         self.iop.start()
-        
-        #: Write signal pinconfig
+
         signal_pin = gr_pin[0]
         self.mmio.write(iop_const.MAILBOX_OFFSET, signal_pin)
-        
-        #: Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
 
     def read(self):
-        """Read the heart rate from the sensor 
-
-            Parameters
-            ----------
-            None
+        """Read the heart rate from the sensor.
             
-            Returns
-            -------
-            float
-                A float representing the heart rate as beats per minute
+        Returns
+        -------
+        float
+            The heart rate as beats per minute
+
         """
-        beats, intervalMs = self.read_raw()
-        rate = 0.0
-        if(intervalMs > 0 and intervalMs < 2500):
-            rate = 60000.0 / intervalMs
-
-        return(rate);
-
+        beats, interval_ms = self.read_raw()
+        if 0 < interval_ms < 2500:
+            rate = 60000.0 / interval_ms
+        else:
+            raise RuntimeError("Value out of range or device not connected.")
+        return rate
 
     def read_raw(self):
-        """Read the number of heart beats read by the sensor since its 
-        initialization together with the time in milliseconds between the 
-        latest two heart beats.
+        """Read the number of heart beats.
         
-        Parameters
-        ----------
-        None
+        Read the number of beats since the sensor initialization; also read 
+        the time elapsed in ms between the latest two heart beats.
         
         Returns
         -------
         tuple
-            A tuple of the form (beats, deltaT) where beats is the number of 
-            beats read since the sensor initialization and deltaT is the time 
-            difference in ms between the latest two heart beats.
+            Number of heart beats and the time elapsed between 2 latest beats.
         
         """
         beats = self.mmio.read(iop_const.MAILBOX_OFFSET + 0x4)
-        intervalMs = self.mmio.read(iop_const.MAILBOX_OFFSET + 0x8 + (beats%4)*4)
-
-        return(beats, intervalMs);
+        interval_ms = self.mmio.read(iop_const.MAILBOX_OFFSET +
+                                     0x8 + (beats%4)*4)
+        return beats, interval_ms

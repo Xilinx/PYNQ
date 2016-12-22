@@ -83,10 +83,6 @@ class Pmod_OLED(object):
         
         This is done by sending the clear command to the IOP.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None

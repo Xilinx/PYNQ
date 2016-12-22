@@ -72,14 +72,14 @@ class Grove_Haptic_Motor(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("Motor group number can only be G3 - G4.")
             GROVE_HAPTIC_MOTOR_PROGRAM = PMOD_GROVE_HAPTIC_MOTOR_PROGRAM
 
         elif if_id in [ARDUINO]:
             if not gr_pin in [ARDUINO_GROVE_I2C]:
-                raise ValueError("Haptic_Motor group number can only be I2C.")
+                raise ValueError("Motor group number can only be I2C.")
             GROVE_HAPTIC_MOTOR_PROGRAM = ARDUINO_GROVE_HAPTIC_MOTOR_PROGRAM
 
         else:
@@ -95,41 +95,41 @@ class Grove_Haptic_Motor(object):
             self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
             
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass        
 
     def play(self, effect):
         """Play a vibration effect on the Grove Haptic Motor peripheral.
 
-        Valid effect identifiers are in the range [1, 127]
+        Valid effect identifiers are in the range [1, 127].
         
         Parameters
         ----------
-        effect
-            An integer that specifies the effect identifier
+        effect : int
+            An integer that specifies the effect.
         
         Returns
         -------
         None 
         
         """
-        if (effect < 1 or effect > 127):
+        if (effect < 1) or (effect > 127):
             raise ValueError("Valid effect identifiers are within 1 and 127.")
         self.mmio.write(iop_const.MAILBOX_OFFSET, effect)
         self.mmio.write(iop_const.MAILBOX_OFFSET+4, 0)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 2)  
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 2):
             pass
 
     def play_sequence(self, sequence):
         """Play a sequence of effects possibly separated by pauses.
 
-        At most 8 effects / pauses can be specified at a time.
+        At most 8 effects or pauses can be specified at a time.
         Pauses are defined using negative integer values in the 
         range [-1, -127] that correspond to a pause length in the 
         range [10, 1270] ms
@@ -141,9 +141,8 @@ class Grove_Haptic_Motor(object):
         
         Parameters
         ----------
-        sequence
-            A list of at most 8 integer values that specifies effect 
-            identifiers and pauses
+        sequence : list
+            At most 8 values specifying effects and pauses.
         
         Returns
         -------
@@ -151,17 +150,17 @@ class Grove_Haptic_Motor(object):
         
         """
         length = len(sequence) 
-        if(length < 1):
+        if length < 1:
             raise ValueError("The sequence must contain at least one value.")
-        if(length > 8):
+        if length > 8:
             raise ValueError("The sequence cannot contain more than 8 values.")
         for i in range(length):
             if sequence[i] < 0:
-                if(sequence[i] < -127):
+                if sequence[i] < -127:
                     raise ValueError("Pause value must be smaller than -127")
                 sequence[i] = -sequence[i] + 128
             else:
-                if (sequence[i] < 1 or sequence[i] > 127):
+                if (sequence[i] < 1) or (sequence[i] > 127):
                     raise ValueError("Valid effect identifiers are within " + \
                                      "1 and 127.")
 
@@ -170,38 +169,30 @@ class Grove_Haptic_Motor(object):
 
         for i in range(0,8):
             self.mmio.write(iop_const.MAILBOX_OFFSET+i*4, sequence[i])
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 2)  
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 2):
             pass
 
 
 
     def stop(self):
-        """Stop an effect or a sequence on the Grove Haptic Motor peripheral.
-        
-        Parameters
-        ----------
-        None
+        """Stop an effect or a sequence on the motor peripheral.
             
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)  
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
                         
     def is_playing(self):
-        """Check if a vibration effect is running on the Grove Haptic Motor.
-         
-        Parameters
-        ----------
-        None
+        """Check if a vibration effect is running on the motor.
             
         Returns
         -------
@@ -209,11 +200,11 @@ class Grove_Haptic_Motor(object):
             True if a vibration effect is playing, false otherwise
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 4)  
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 4):
             pass
-        if(self.mmio.read(iop_const.MAILBOX_OFFSET) == 1):
+        if self.mmio.read(iop_const.MAILBOX_OFFSET) == 1:
             return True
         return False

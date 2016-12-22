@@ -53,7 +53,7 @@ GROVE_TH02_LOG_END = GROVE_TH02_LOG_START+(500*8)
 class Grove_TH02(object):
     """This class controls the Grove I2C Temperature and Humidity sensor. 
     
-    Tempterature&humidity sensor (high-accuracy & mini).
+    Temperature & humidity sensor (high-accuracy & mini).
     Hardware version: v1.0.
     
     Attributes
@@ -78,7 +78,7 @@ class Grove_TH02(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("TH02 group number can only be G3 - G4.")
             GROVE_TH02_PROGRAM = PMOD_GROVE_TH02_PROGRAM
@@ -103,18 +103,14 @@ class Grove_TH02(object):
             self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
             
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass  
             
     def read(self):
         """Read the temperature and humidity values from the TH02 peripheral.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -122,9 +118,9 @@ class Grove_TH02(object):
             tuple containing (temperature, humidity)
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 2)      
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 2):
             pass
         tmp = self.mmio.read(iop_const.MAILBOX_OFFSET)
@@ -132,7 +128,7 @@ class Grove_TH02(object):
 
         humidity = self.mmio.read(iop_const.MAILBOX_OFFSET + 0x4)
         humidity = humidity/16 - 24
-        return (tmp, humidity)
+        return tmp, humidity
 
     def start_log(self, log_interval_ms = 100):
         """Start recording multiple heart rate values in a log.
@@ -150,31 +146,27 @@ class Grove_TH02(object):
         None
         
         """
-        if (log_interval_ms < 0):
+        if log_interval_ms < 0:
             raise ValueError("Time between samples cannot be less than zero.")
 
         self.log_running = 1
         self.log_interval_ms = log_interval_ms
         self.mmio.write(iop_const.MAILBOX_OFFSET+4, self.log_interval_ms)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
                         
     def stop_log(self):
         """Stop recording the values in the log.
         
         Simply write 0xC to the MMIO to stop the log.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        if(self.log_running == 1):
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        if self.log_running == 1:
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 13)
             self.log_running = 0
         else:
@@ -183,10 +175,6 @@ class Grove_TH02(object):
 
     def get_log(self):
         """Return list of logged samples.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -194,7 +182,7 @@ class Grove_TH02(object):
             List of tuples containing (temperature, humidity)
         
         """
-        #: Stop logging
+        # stop logging
         self.stop_log()
 
         #: Prep iterators and results list
@@ -202,21 +190,21 @@ class Grove_TH02(object):
         tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = list()
 
-        #: Sweep circular buffer for samples
+        # sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
             for i in range(head_ptr,tail_ptr,8):
                 temp = self.mmio.read(i)/32 - 50
-                humi = self.mmio.read(i + 0x4)/16 - 24
-                readings.append((temp,humi))
+                humid = self.mmio.read(i + 0x4)/16 - 24
+                readings.append((temp,humid))
         else:
             for i in range(head_ptr,GROVE_TH02_LOG_END,8):
                 temp = self.mmio.read(i)/32 - 50
-                humi = self.mmio.read(i + 0x4)/16 - 24
-                readings.append((temp,humi))
+                humid = self.mmio.read(i + 0x4)/16 - 24
+                readings.append((temp,humid))
             for i in range(GROVE_TH02_LOG_END,tail_ptr,8):
                 temp = self.mmio.read(i)/32 - 50
-                humi = self.mmio.read(i + 0x4)/16 - 24
-                readings.append((temp,humi))
+                humid = self.mmio.read(i + 0x4)/16 - 24
+                readings.append((temp,humid))
         return readings

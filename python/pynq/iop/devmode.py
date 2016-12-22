@@ -43,8 +43,7 @@ from pynq.iop import ARDUINO
 class DevMode(object):
     """Control an IO processor running the developer mode program. 
     
-    This class will wait for Python to send commands to Pmod / Arduino IO, 
-    IIC, or SPI.
+    This class will wait for Python to send commands to IO processor.
 
     Attributes
     ----------
@@ -75,7 +74,7 @@ class DevMode(object):
         self.if_id = if_id
         self.iop = request_iop(if_id, iop_const.MAILBOX_PROGRAM)
         self.iop_switch_config = list(switch_config)
-        self.mmio = MMIO(self.iop.mmio.base_addr + iop_const.MAILBOX_OFFSET, \
+        self.mmio = MMIO(self.iop.mmio.base_addr + iop_const.MAILBOX_OFFSET,
                          iop_const.MAILBOX_SIZE)
                         
     def start(self):
@@ -118,7 +117,7 @@ class DevMode(object):
             
         """
         if self.if_id in [PMODA, PMODB]:
-            if config == None:
+            if config is None:
                 config = iop_const.PMOD_SWCFG_DIOALL
             elif not len(config) == iop_const.PMOD_SWITCHCONFIG_NUMREGS:
                 raise TypeError('Invalid switch config {}.'.format(config))
@@ -131,13 +130,13 @@ class DevMode(object):
                 
             # Disable, configure, enable switch
             self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR + 4, 0)
-            self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR, \
+            self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR,
                            sw_config_word)
-            self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR + 7, \
-                           0x80, dWidth=1)
+            self.write_cmd(iop_const.PMOD_SWITCHCONFIG_BASEADDR + 7,
+                           0x80, d_width=1)
                            
         elif self.if_id in [ARDUINO]:
-            if config == None:
+            if config is None:
                 config = iop_const.ARDUINO_SWCFG_DIOALL
             elif not len(config) == iop_const.ARDUINO_SWITCHCONFIG_NUMREGS:
                 raise TypeError('Invalid switch config {}.'.format(config))
@@ -168,10 +167,6 @@ class DevMode(object):
     def status(self):
         """Returns the status of the IO processor.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         str
@@ -180,7 +175,7 @@ class DevMode(object):
         """
         return self.iop.state
        
-    def write_cmd(self, address, data, dWidth=4, dLength=1, timeout=10):
+    def write_cmd(self, address, data, d_width=4, d_length=1, timeout=10):
         """Send a write command to the mailbox.
         
         Parameters
@@ -189,10 +184,10 @@ class DevMode(object):
             The address tied to IO processor's memory map.
         data : int
             32-bit value to be written (None for read).
-        dWidth : int
+        d_width : int
             Command data width.
-        dLength : int
-            Command burst length (currently only supporting dLength 1).
+        d_length : int
+            Command burst length (currently only supporting d_length 1).
         timeout : int
             Time in milliseconds before function exits with warning.
         
@@ -202,19 +197,19 @@ class DevMode(object):
         
         """
         return self._send_cmd(iop_const.WRITE_CMD, address, data, 
-                                dWidth=dWidth, timeout=timeout)
+                                d_width=d_width, timeout=timeout)
 
-    def read_cmd(self, address, dWidth=4, dLength=1, timeout=10):
+    def read_cmd(self, address, d_width=4, d_length=1, timeout=10):
         """Send a read command to the mailbox.
         
         Parameters
         ----------
         address : int
             The address tied to IO processor's memory map.
-        dWidth : int
+        d_width : int
             Command data width.
-        dLength : int
-            Command burst length (currently only supporting dLength 1).
+        d_length : int
+            Command burst length (currently only supporting d_length 1).
         timeout : int
             Time in milliseconds before function exits with warning.
         
@@ -225,14 +220,10 @@ class DevMode(object):
         
         """
         return self._send_cmd(iop_const.READ_CMD, address, None, 
-                                dWidth=dWidth, timeout=timeout)
+                                d_width=d_width, timeout=timeout)
 
     def is_cmd_mailbox_idle(self): 
         """Check whether the IOP command mailbox is idle.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -243,7 +234,7 @@ class DevMode(object):
         mb_cmd_word = self.mmio.read(iop_const.MAILBOX_PY2IOP_CMD_OFFSET)
         return (mb_cmd_word & 0x1) == 0
 
-    def get_cmd_word(self, cmd, dWidth, dLength):
+    def get_cmd_word(self, cmd, d_width, d_length):
         """Build the command word.
 
         Note
@@ -259,10 +250,10 @@ class DevMode(object):
         ----------        
         cmd : int
             Either 1 (read IOP register) or 0 (write IOP register).
-        dWidth : int
+        d_width : int
             Command data width.
-        dLength : int
-            Command burst length (currently only supporting dLength 1).
+        d_length : int
+            Command burst length (currently only supporting d_length 1).
             
         Returns
         -------
@@ -270,15 +261,15 @@ class DevMode(object):
             The command word following a specific format.
             
         """
-        word = 0x1                    # cmd valid
-        word = word | (dWidth-1) << 1 # cmd dataWidth    (3->4B, 1->2B, 0->1B)
-        word = word | (cmd) << 3      # cmd type         (1->RD, 0->WR)
-        word = word | (dLength) << 8  # cmd burst length (1->1 word)
-        word = word | (0) << 16       # unused
+        word = 0x1                     # cmd valid
+        word = word | (d_width-1) << 1 # cmd dataWidth    (3->4B, 1->2B, 0->1B)
+        word = word | cmd << 3         # cmd type         (1->RD, 0->WR)
+        word = word | d_length << 8    # cmd burst length (1->1 word)
+        word = word | 0 << 16          # unused
               
         return word
 
-    def _send_cmd(self, cmd, address, data, dWidth=4, dLength=1, timeout=10):
+    def _send_cmd(self, cmd, address, data, d_width=4, d_length=1, timeout=10):
         """Send a command to the IO processor via mailbox.
 
         Note
@@ -287,7 +278,7 @@ class DevMode(object):
         Use the read_cmd() or write_cmd() instead.
 
         Example:
-            >>> _send_cmd(1, 4, None)  # Read address 4.
+        _send_cmd(1, 4, None)  # Read address 4.
             
         Parameters
         ----------        
@@ -297,10 +288,10 @@ class DevMode(object):
             The address tied to IO processor's memory map.
         data : int
             32-bit value to be written (None for read).
-        dWidth : int
+        d_width : int
             Command data width.
-        dLength : int
-            Command burst length (currently only supporting dLength 1).
+        d_length : int
+            Command burst length (currently only supporting d_length 1).
         timeout : int
             Time in milliseconds before function exits with warning.
             
@@ -311,22 +302,22 @@ class DevMode(object):
 
         """
         self.mmio.write(iop_const.MAILBOX_PY2IOP_ADDR_OFFSET, address)
-        if data != None:
+        if not data is None:
             self.mmio.write(iop_const.MAILBOX_PY2IOP_DATA_OFFSET, data)
         
         # Build the write command
-        cmd_word = self.get_cmd_word(cmd, dWidth, dLength)
+        cmd_word = self.get_cmd_word(cmd, d_width, d_length)
         self.mmio.write(iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
 
         # Wait for ACK in steps of 1ms
-        cntdown = timeout
-        while not self.is_cmd_mailbox_idle() and cntdown > 0:
+        countdown = timeout
+        while not self.is_cmd_mailbox_idle() and countdown > 0:
             time.sleep(0.001)
-            cntdown -= 1
+            countdown -= 1
 
         # If ACK is not received, alert users.
-        if cntdown == 0:
-            raise LookupError("DevMode _send_cmd() not acknowledged.")
+        if countdown == 0:
+            raise RuntimeError("DevMode _send_cmd() not acknowledged.")
 
         # Return data if expected from read, otherwise return None
         if cmd == iop_const.WRITE_CMD: 

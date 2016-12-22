@@ -105,7 +105,7 @@ class Pmod_Cable(Pmod_IO):
         None
         
         """
-        if (cable not in ['straight', 'loopback']):
+        if cable not in ['straight', 'loopback']:
             raise ValueError("Cable can only be 'straight', or 'loopback'.")
         self.cable = cable
 
@@ -130,10 +130,6 @@ class Pmod_Cable(Pmod_IO):
         {vdd,gnd,3,2,1,0}      <=>      {vdd,gnd,3,2,1,0}
         {vdd,gnd,7,6,5,4}      <=>      {vdd,gnd,7,6,5,4}
         
-        Parameters
-        ---------
-        None
-        
         Returns
         -------
         int
@@ -144,9 +140,9 @@ class Pmod_Cable(Pmod_IO):
                                         iop_const.PMOD_DIO_DATA_OFFSET)
                                         
         if self.cable=='straight':
-            if (self.index < 4):
+            if self.index < 4:
                 return (raw_value >> (self.index+4)) & 0x1
             else:
                 return (raw_value >> (self.index-4)) & 0x1
         else:
-                return (raw_value >> (self.index)) & 0x1
+                return (raw_value >> self.index) & 0x1

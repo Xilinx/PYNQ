@@ -78,7 +78,7 @@ class Grove_Color(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("Color group number can only be G3 - G4.")
             GROVE_COLOR_PROGRAM = PMOD_GROVE_COLOR_PROGRAM
@@ -97,40 +97,36 @@ class Grove_Color(object):
         self.log_running  = 0
         self.iop.start()
         
-        if if_id in [PMODA, PMODB]:        
-            #: Write SCL and SDA Pin Config
+        if if_id in [PMODA, PMODB]:
             self.mmio.write(iop_const.MAILBOX_OFFSET, gr_pin[0])
             self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
-            
-        # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
 
     def read(self):
         """Read the color values from the Grove Color peripheral.
-        
-        Parameters
-        ----------
-        None
+
+        The output contains 4 integer values: Red, Green, Blu and Clear.
+        Clear represents the value of the sensor if no color filters are
+        applied.
         
         Returns
         -------
         tuple
-            A tuple containing 4 integer values: Red, Green, Blu and Clear.
-            Clear represents the value of the sensor without color filters 
-            applied. 
+            Tuple of (red, green, blue, clear),
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 2)      
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 2):
             pass
         red = self.mmio.read(iop_const.MAILBOX_OFFSET)
         green = self.mmio.read(iop_const.MAILBOX_OFFSET + 0x4)
         blue = self.mmio.read(iop_const.MAILBOX_OFFSET + 0x8)
         clear = self.mmio.read(iop_const.MAILBOX_OFFSET + 0xC)
-        return (red, green, blue, clear)
+        return red, green, blue, clear

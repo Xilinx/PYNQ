@@ -66,7 +66,7 @@ class Grove_FingerHR(object):
         The state of the log (0: stopped, 1: started).
         
     """
-    def __init__(self, pmod_id, gr_id): 
+    def __init__(self, if_id, gr_pin):
         """Return a new instance of an Grove_FingerHR object. 
         
         Parameters
@@ -78,7 +78,7 @@ class Grove_FingerHR(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("FingerHR group number can only be G3 - G4.")
             GROVE_FINGER_HR_PROGRAM = PMOD_GROVE_FINGER_HR_PROGRAM
@@ -86,7 +86,7 @@ class Grove_FingerHR(object):
         elif if_id in [ARDUINO]:
             if not gr_pin in [ARDUINO_GROVE_I2C]:
                 raise ValueError("FingerHR group number can only be I2C.")
-            GROVE_EAR_HR_PROGRAM = ARDUINO_GROVE_EAR_HR_PROGRAM
+            GROVE_FINGER_HR_PROGRAM = ARDUINO_GROVE_EAR_HR_PROGRAM
 
         else:
             raise ValueError("No such IOP for grove device.")
@@ -103,18 +103,14 @@ class Grove_FingerHR(object):
             self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
             
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass  
 
     def read(self):
         """Read the heart rate value from the Grove Finger HR peripheral.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -122,12 +118,12 @@ class Grove_FingerHR(object):
             A integer representing the heart rate frequency 
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 2)      
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 2):
             pass
-        return(self.mmio.read(iop_const.MAILBOX_OFFSET))
+        return self.mmio.read(iop_const.MAILBOX_OFFSET)
 
     def start_log(self, log_interval_ms = 100):
         """Start recording multiple heart rate values in a log.
@@ -145,31 +141,27 @@ class Grove_FingerHR(object):
         None
         
         """
-        if (log_interval_ms < 0):
+        if log_interval_ms < 0:
             raise ValueError("Time between samples cannot be less than zero.")
 
         self.log_running = 1
         self.log_interval_ms = log_interval_ms
         self.mmio.write(iop_const.MAILBOX_OFFSET+4, self.log_interval_ms)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
                         
     def stop_log(self):
         """Stop recording the values in the log.
         
         Simply write 0xC to the MMIO to stop the log.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        if(self.log_running == 1):
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        if self.log_running == 1:
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 13)
             self.log_running = 0
         else:
@@ -178,10 +170,6 @@ class Grove_FingerHR(object):
 
     def get_log(self):
         """Return list of logged samples.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------

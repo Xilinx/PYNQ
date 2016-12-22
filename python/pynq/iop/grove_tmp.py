@@ -97,10 +97,6 @@ class Grove_TMP(Grove_ADC):
         
         This method overrides the definition in Grove_ADC.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         float
@@ -129,10 +125,6 @@ class Grove_TMP(Grove_ADC):
         
     def get_log(self):
         """Return list of logged temperature samples.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -151,10 +143,6 @@ class Grove_TMP(Grove_ADC):
         """Stop recording temperature in a log.
         
         This method will call the stop_log_raw() in the parent class.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -179,7 +167,10 @@ class Grove_TMP(Grove_ADC):
             The temperature reading in Celsius.
         
         """
-        R = 4095.0/val - 1.0
-        temp = 1.0/(log(R)/self.bValue + 1/298.15)-273.15
+        try:
+            r = 4095.0/val - 1.0
+            temp = 1.0/(log(r)/self.bValue + 1/298.15)-273.15
+        except ZeroDivisionError:
+            raise RuntimeError("Value out of range or device not connected.")
         return float("{0:.2f}".format(temp))
         

@@ -60,7 +60,7 @@ class Grove_PIR(object):
         The Pmod IO or Arduino IO object.
     
     """
-    def __new__(self, if_id, gr_pin): 
+    def __init__(self, if_id, gr_pin):
         """Return a new instance of a PIR object. 
         
         Parameters
@@ -72,18 +72,18 @@ class Grove_PIR(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G1, \
+            if not gr_pin in [PMOD_GROVE_G1,
                               PMOD_GROVE_G2]:
                 raise ValueError("PIR group number can only be G1 - G2.")
             self.pir_iop = Pmod_IO(if_id, gr_pin[0], 'in')
             return self.pir_iop
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_GROVE_G1, \
-                              ARDUINO_GROVE_G2, \
-                              ARDUINO_GROVE_G3, \
-                              ARDUINO_GROVE_G4, \
-                              ARDUINO_GROVE_G5, \
-                              ARDUINO_GROVE_G6, \
+            if not gr_pin in [ARDUINO_GROVE_G1,
+                              ARDUINO_GROVE_G2,
+                              ARDUINO_GROVE_G3,
+                              ARDUINO_GROVE_G4,
+                              ARDUINO_GROVE_G5,
+                              ARDUINO_GROVE_G6,
                               ARDUINO_GROVE_G7]:
                 raise ValueError("PIR group number can only be G1 - G7.")
             self.pir_iop = Arduino_IO(if_id, gr_pin[0], 'in')
@@ -95,10 +95,6 @@ class Grove_PIR(object):
         """Receive the value from the PIR sensor.
         
         Returns 0 when there is no motion, and returns 1 otherwise.
-        
-        Parameters
-        ---------
-        None
         
         Returns
         -------

@@ -80,10 +80,6 @@ class Grove_Light(Grove_ADC):
         
         This method overrides the definition in Grove_ADC.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         float
@@ -97,10 +93,6 @@ class Grove_Light(Grove_ADC):
         """Start recording the light sensor resistance in a log.
         
         This method will call the start_log_raw() in the parent class.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -111,10 +103,6 @@ class Grove_Light(Grove_ADC):
         
     def get_log(self):
         """Return list of logged light sensor resistances.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -132,10 +120,6 @@ class Grove_Light(Grove_ADC):
         """Stop recording light values in a log.
         
         This method will call the stop_log_raw() in the parent class.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -165,6 +149,9 @@ class Grove_Light(Grove_ADC):
             The light sensor resistance indicating the light intensity.
         
         """
-        R_sensor = (4095.0 - val) * 10 / val
-        return float("{0:.2f}".format(R_sensor))
+        if 0 < val <= 4095:
+            r_sensor = (4095.0 - val) * 10 / val
+        else:
+            raise RuntimeError("Value out of range or device not connected.")
+        return float("{0:.2f}".format(r_sensor))
         

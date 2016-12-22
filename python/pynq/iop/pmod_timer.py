@@ -78,27 +78,23 @@ class Pmod_Timer(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET, index)
         
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         
     def stop(self):
         """This method stops the timer.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
@@ -122,25 +118,25 @@ class Pmod_Timer(object):
         """
         if times == 0:
             # Generate pulses forever
-            if (period not in range(3,4294967296)):
+            if period not in range(3,4294967296):
                 raise ValueError("Valid period is between 3 and 4294967296.")
                 
             self.mmio.write(iop_const.MAILBOX_OFFSET, period)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-            while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+            while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
                 pass
                 
         elif 1 <= times < 255:
             # Generate pulses for a certain times
-            if (period not in range(3,16777217)):
+            if period not in range(3,16777217):
                 raise ValueError("Valid period is between 3 and 16777217.")
                 
             self.mmio.write(iop_const.MAILBOX_OFFSET, ((period-2)<<8)|times)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-            while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+            while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
                 pass
                 
@@ -161,13 +157,13 @@ class Pmod_Timer(object):
             1 if any event is detected, and 0 if no event is detected.
         
         """
-        if (period not in range(52,4294967296)):
+        if period not in range(52,4294967296):
             raise ValueError("Valid period is between 52 and 4294967296.") 
         
         self.mmio.write(iop_const.MAILBOX_OFFSET, period-2)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET)
@@ -186,23 +182,19 @@ class Pmod_Timer(object):
             The number of events detected.
             
         """
-        if (period not in range(52,4294967297)):
+        if period not in range(52,4294967297):
             raise ValueError("Valid period is between 52 and 4294967297.")
             
         self.mmio.write(iop_const.MAILBOX_OFFSET, period-2)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET)
         
     def get_period_ns(self):
         """Measure the period between two successive rising edges.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -210,9 +202,9 @@ class Pmod_Timer(object):
             Measured period in ns.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET) * self.clk

@@ -101,7 +101,7 @@ class Pmod_DPOT(object):
         if log_ms<0:
             raise ValueError("Requested log_ms value cannot be less than 0.")
         
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
                         
         self.mmio.write(iop_const.MAILBOX_OFFSET, val)
@@ -109,10 +109,10 @@ class Pmod_DPOT(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET+8, log_ms)
       
         if step == 0:
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
         else:
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
 
     def _read_hex(self, addr_offset):

@@ -85,19 +85,19 @@ class Grove_LEDbar(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G1, \
-                              PMOD_GROVE_G2, \
-                              PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G1,
+                              PMOD_GROVE_G2,
+                              PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("LEDbar group number can only be G1 - G4.")
             GROVE_LEDBAR_PROGRAM = PMOD_GROVE_LEDBAR_PROGRAM
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_GROVE_G1, \
-                              ARDUINO_GROVE_G2, \
-                              ARDUINO_GROVE_G3, \
-                              ARDUINO_GROVE_G4, \
-                              ARDUINO_GROVE_G5, \
-                              ARDUINO_GROVE_G6, \
+            if not gr_pin in [ARDUINO_GROVE_G1,
+                              ARDUINO_GROVE_G2,
+                              ARDUINO_GROVE_G3,
+                              ARDUINO_GROVE_G4,
+                              ARDUINO_GROVE_G5,
+                              ARDUINO_GROVE_G6,
                               ARDUINO_GROVE_G7]:
                 raise ValueError("LEDbar group number can only be G1 - G7.")
             GROVE_LEDBAR_PROGRAM = ARDUINO_GROVE_LEDBAR_PROGRAM
@@ -113,20 +113,16 @@ class Grove_LEDbar(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
             
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
     def reset(self):
         """Resets the LEDbar.
         
-        Clears the LEDbar, sets all LEDs to OFF state.
-
-        Parameters
-        ----------
-        None
+        Clears the LED bar, sets all LEDs to OFF state.
             
         Returns
         -------
@@ -135,7 +131,7 @@ class Grove_LEDbar(object):
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         
@@ -159,7 +155,7 @@ class Grove_LEDbar(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET, data_in)
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
@@ -190,11 +186,11 @@ class Grove_LEDbar(object):
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET, data_in)
         for i in range(0,10):
-            self.mmio.write(iop_const.MAILBOX_OFFSET + 4*(i+1), \
+            self.mmio.write(iop_const.MAILBOX_OFFSET + 4*(i+1),
                             brightness[i])
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+ \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         
@@ -232,23 +228,19 @@ class Grove_LEDbar(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, green_to_red)
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
 
     def read(self):
         """Reads the current status of LEDbar.
         
-        Reads the current status of LEDbar and returns a 10-bit binary string.
+        Reads the current status of LED bar and returns 10-bit binary string.
         Each bit position corresponds to a LED position in the LEDbar,
         and bit value corresponds to the LED state.
         
         Red LED corresponds to the LSB, while green LED corresponds
         to the MSB.
-
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -258,9 +250,9 @@ class Grove_LEDbar(object):
         """
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         value = self.mmio.read(iop_const.MAILBOX_OFFSET)
-        return (bin(value)[2:].zfill(10))
+        return bin(value)[2:].zfill(10)
         

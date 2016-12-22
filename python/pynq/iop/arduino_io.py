@@ -76,9 +76,9 @@ class Arduino_IO(object):
         """
         if not if_id in [ARDUINO]:
             raise ValueError("No such IOP for Arduino device.")
-        if (index not in range(20)):
+        if index not in range(20):
             raise ValueError("Valid pin indexes are 0 - 19.")
-        if (direction not in ['in', 'out']):
+        if direction not in ['in', 'out']:
             raise ValueError("Direction can only be 'in', or 'out'.")
             
         self.iop = DevMode(if_id, iop_const.ARDUINO_SWCFG_DIOALL)
@@ -87,31 +87,31 @@ class Arduino_IO(object):
         
         self.iop.start()
         if self.index in range(2):
-            if (self.direction == 'in'):
+            if self.direction == 'in':
                 self.iop.write_cmd(iop_const.ARDUINO_UART_BASEADDR + \
-                                   iop_const.ARDUINO_UART_TRI_OFFSET, \
+                                   iop_const.ARDUINO_UART_TRI_OFFSET, 
                                    iop_const.ARDUINO_CFG_UART_ALLINPUT)
             else:
                 self.iop.write_cmd(iop_const.ARDUINO_UART_BASEADDR + \
-                                   iop_const.ARDUINO_UART_TRI_OFFSET, \
+                                   iop_const.ARDUINO_UART_TRI_OFFSET, 
                                    iop_const.ARDUINO_CFG_UART_ALLOUTPUT)
         elif self.index in range(2,14):
-            if (self.direction == 'in'):
+            if self.direction == 'in':
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_TRI_OFFSET, \
+                                   iop_const.ARDUINO_DIO_TRI_OFFSET, 
                                    iop_const.ARDUINO_CFG_DIO_ALLINPUT)
             else:
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_TRI_OFFSET, \
+                                   iop_const.ARDUINO_DIO_TRI_OFFSET, 
                                    iop_const.ARDUINO_CFG_DIO_ALLOUTPUT)
         else:
-            if (self.direction == 'in'):
+            if self.direction == 'in':
                 self.iop.write_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                   iop_const.ARDUINO_AIO_TRI_OFFSET, \
+                                   iop_const.ARDUINO_AIO_TRI_OFFSET, 
                                    iop_const.ARDUINO_CFG_AIO_ALLINPUT)
             else:
                 self.iop.write_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                   iop_const.ARDUINO_AIO_TRI_OFFSET, \
+                                   iop_const.ARDUINO_AIO_TRI_OFFSET, 
                                    iop_const.ARDUINO_CFG_AIO_ALLOUTPUT)
                             
         self.iop.load_switch_config()
@@ -140,43 +140,43 @@ class Arduino_IO(object):
 
         if self.index in range(2):
             if value:
-                curVal = self.iop.read_cmd(iop_const.ARDUINO_UART_BASEADDR + \
+                cur_val = self.iop.read_cmd(iop_const.ARDUINO_UART_BASEADDR + \
                                            iop_const.ARDUINO_UART_DATA_OFFSET)
-                newVal = curVal | (0x1<<self.index)
+                new_val = cur_val | (0x1<<self.index)
                 self.iop.write_cmd(iop_const.ARDUINO_UART_BASEADDR + \
-                                   iop_const.ARDUINO_UART_DATA_OFFSET, newVal)
+                                   iop_const.ARDUINO_UART_DATA_OFFSET, new_val)
             else:
-                curVal = self.iop.read_cmd(iop_const.ARDUINO_UART_BASEADDR + \
+                cur_val = self.iop.read_cmd(iop_const.ARDUINO_UART_BASEADDR + \
                                            iop_const.ARDUINO_UART_DATA_OFFSET)
-                newVal = curVal & (0xffffffff ^ (0x1<<self.index))
+                new_val = cur_val & (0xffffffff ^ (0x1<<self.index))
                 self.iop.write_cmd(iop_const.ARDUINO_UART_BASEADDR + \
-                                   iop_const.ARDUINO_UART_DATA_OFFSET, newVal)
+                                   iop_const.ARDUINO_UART_DATA_OFFSET, new_val)
         elif self.index in range(2,14):
             if value:
-                curVal = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
+                cur_val = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                            iop_const.ARDUINO_DIO_DATA_OFFSET)
-                newVal = curVal | (0x1<<(self.index-2))
+                new_val = cur_val | (0x1<<(self.index-2))
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_DATA_OFFSET, newVal)
+                                   iop_const.ARDUINO_DIO_DATA_OFFSET, new_val)
             else:
-                curVal = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
+                cur_val = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                            iop_const.ARDUINO_DIO_DATA_OFFSET)
-                newVal = curVal & (0xffffffff ^ (0x1<<(self.index-2)))
+                new_val = cur_val & (0xffffffff ^ (0x1<<(self.index-2)))
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_DATA_OFFSET, newVal)
+                                   iop_const.ARDUINO_DIO_DATA_OFFSET, new_val)
         else:
             if value:
-                curVal = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
+                cur_val = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                            iop_const.ARDUINO_DIO_DATA_OFFSET)
-                newVal = curVal | (0x1<<(self.index-14))
+                new_val = cur_val | (0x1<<(self.index-14))
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_DATA_OFFSET, newVal)
+                                   iop_const.ARDUINO_DIO_DATA_OFFSET, new_val)
             else:
-                curVal = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
+                cur_val = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                            iop_const.ARDUINO_DIO_DATA_OFFSET)
-                newVal = curVal & (0xffffffff ^ (0x1<<(self.index-14)))
+                new_val = cur_val & (0xffffffff ^ (0x1<<(self.index-14)))
                 self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_DATA_OFFSET, newVal)
+                                   iop_const.ARDUINO_DIO_DATA_OFFSET, new_val)
             
     def read(self):
         """Receive the value from the offboard Arduino IO device.
@@ -184,10 +184,6 @@ class Arduino_IO(object):
         Note
         ----
         Only use this function when direction is 'in'.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -201,7 +197,7 @@ class Arduino_IO(object):
         if self.index in range(2):
             raw_value = self.iop.read_cmd(iop_const.ARDUINO_UART_BASEADDR + \
                                           iop_const.ARDUINO_UART_DATA_OFFSET)
-            return (raw_value >> (self.index)) & 0x1
+            return (raw_value >> self.index) & 0x1
         elif self.index in range(2,14):
             raw_value = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                           iop_const.ARDUINO_DIO_DATA_OFFSET)
@@ -217,10 +213,6 @@ class Arduino_IO(object):
         This function is usually used for debug purpose. Users should still
         rely on read() or write() to get/put a value.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         int
@@ -230,7 +222,7 @@ class Arduino_IO(object):
         if self.index in range(2):
             raw_value = self.iop.read_cmd(iop_const.ARDUINO_UART_BASEADDR + \
                                           iop_const.ARDUINO_UART_DATA_OFFSET)
-            return (raw_value >> (self.index)) & 0x1
+            return (raw_value >> self.index) & 0x1
         elif self.index in range(2,14):
             raw_value = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
                                           iop_const.ARDUINO_DIO_DATA_OFFSET)

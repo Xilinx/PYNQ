@@ -83,16 +83,12 @@ class Pmod_ADC(object):
     def reset(self):
         """Reset the Pmod ADC.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
         while (self.mmio.read(iop_const.MAILBOX_OFFSET + 
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
@@ -131,11 +127,11 @@ class Pmod_ADC(object):
             The raw values read from the 3 channels of the Pmod ADC.
         
         """
-        if (ch1 not in range(2)):
+        if ch1 not in range(2):
             raise ValueError("Valid value for ch1 is 0 or 1.")
-        if (ch2 not in range(2)):
+        if ch2 not in range(2):
             raise ValueError("Valid value for ch2 is 0 or 1.")
-        if (ch3 not in range(2)):
+        if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 3    
        
@@ -150,11 +146,11 @@ class Pmod_ADC(object):
 
         # Read the samples from ADC
         readings=[]
-        if (ch1):
+        if ch1:
             readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET))
-        if (ch2):
+        if ch2:
             readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
-        if (ch3):
+        if ch3:
             readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
         return readings
         
@@ -189,11 +185,11 @@ class Pmod_ADC(object):
             The voltage values read from the 3 channels of the Pmod ADC.
         
         """
-        if (ch1 not in range(2)):
+        if ch1 not in range(2):
             raise ValueError("Valid value for ch1 is 0 or 1.")
-        if (ch2 not in range(2)):
+        if ch2 not in range(2):
             raise ValueError("Valid value for ch2 is 0 or 1.")
-        if (ch3 not in range(2)):
+        if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 5    
        
@@ -208,13 +204,13 @@ class Pmod_ADC(object):
 
         # Read the last sample from ADC
         readings=[]
-        if (ch1):
+        if ch1:
             readings.append(self._reg2float(self.mmio.read(
                                         iop_const.MAILBOX_OFFSET)))
-        if (ch2):
+        if ch2:
             readings.append(self._reg2float(self.mmio.read(
                                         iop_const.MAILBOX_OFFSET+4)))
-        if (ch3):
+        if ch3:
             readings.append(self._reg2float(self.mmio.read(
                                         iop_const.MAILBOX_OFFSET+8)))
         return readings
@@ -242,13 +238,13 @@ class Pmod_ADC(object):
         None
         
         """
-        if (log_interval_us < 0):
+        if log_interval_us < 0:
             raise ValueError("Time between samples should be no less than 0.")
-        if (ch1 not in range(2)):
+        if ch1 not in range(2):
             raise ValueError("Valid value for ch1 is 0 or 1.")
-        if (ch2 not in range(2)):
+        if ch2 not in range(2):
             raise ValueError("Valid value for ch2 is 0 or 1.")
-        if (ch3 not in range(2)):
+        if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         
         cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 7    
@@ -285,13 +281,13 @@ class Pmod_ADC(object):
         None
         
         """
-        if (log_interval_us < 0):
+        if log_interval_us < 0:
             raise ValueError("Time between samples should be no less than 0.")
-        if (ch1 not in range(2)):
+        if ch1 not in range(2):
             raise ValueError("Valid value for ch1 is 0 or 1.")
-        if (ch2 not in range(2)):
+        if ch2 not in range(2):
             raise ValueError("Valid value for ch2 is 0 or 1.")
-        if (ch3 not in range(2)):
+        if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         
         cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 9    
@@ -311,17 +307,13 @@ class Pmod_ADC(object):
         This is done by sending the reset command to IOP. There is no need to
         wait for the IOP.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        if(self.log_running == 1):
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        if self.log_running == 1:
+            self.mmio.write(iop_const.MAILBOX_OFFSET+
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
             self.log_running = 0
         else:
@@ -333,16 +325,12 @@ class Pmod_ADC(object):
         This is done by sending the reset command to IOP. There is no need to
         wait for the IOP.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        if(self.log_running == 1):
+        if self.log_running == 1:
             self.mmio.write(iop_const.MAILBOX_OFFSET+\
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
             self.log_running = 0
@@ -353,10 +341,6 @@ class Pmod_ADC(object):
         """Get the log of raw values.
         
         First stop the log before getting the log.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -389,10 +373,6 @@ class Pmod_ADC(object):
         """Get the log of voltage values.
         
         First stop the log before getting the log.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------

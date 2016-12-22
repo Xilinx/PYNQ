@@ -80,20 +80,16 @@ class Pmod_TMP2(object):
     def read(self):
         """Read current temperature value measured by the Pmod TMP2.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         float
             The current sensor value.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
                         
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
             
@@ -113,7 +109,7 @@ class Pmod_TMP2(object):
         None
         
         """
-        if (log_interval_ms < 0):
+        if log_interval_ms < 0:
             raise ValueError("Log length should not be less than 0.")
         
         self.log_interval_ms = log_interval_ms
@@ -124,10 +120,6 @@ class Pmod_TMP2(object):
         
         This method will first call set_log_interval_ms() before writting to
         the MMIO.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -142,25 +134,17 @@ class Pmod_TMP2(object):
         """Stop recording multiple values in a log.
         
         Simply write to the MMIO to stop the log.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
                         
     def get_log(self):
         """Return list of logged samples.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -215,9 +199,9 @@ class Pmod_TMP2(object):
             return 0.0
         sign = (reg & 0x80000000) >> 31 & 0x01
         exp = ((reg & 0x7f800000) >> 23)-127
-        if (exp == 0):
+        if exp == 0:
             man = (reg & 0x007fffff)/pow(2,23)
         else:
             man = 1+(reg & 0x007fffff)/pow(2,23)
-        result = pow(2,exp)*(man)*((sign*-2) +1)
+        result = pow(2,exp)*man*((sign*-2) +1)
         return float("{0:.1f}".format(result))

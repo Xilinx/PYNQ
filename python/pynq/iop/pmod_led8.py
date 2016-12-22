@@ -72,8 +72,8 @@ class Pmod_LED8(object):
         self.index = index
         
         self.iop.start()
-        self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                            iop_const.PMOD_DIO_TRI_OFFSET, \
+        self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR +
+                            iop_const.PMOD_DIO_TRI_OFFSET,
                             iop_const.PMOD_CFG_DIO_ALLOUTPUT)
 
         self.iop.load_switch_config()
@@ -86,10 +86,6 @@ class Pmod_LED8(object):
         The LED will be turned off if it is on. Similarly, it will be turned 
         on if it is off.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
@@ -97,16 +93,12 @@ class Pmod_LED8(object):
         """
         curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                         iop_const.PMOD_DIO_DATA_OFFSET)
-        new_val  = (curr_val) ^ (0x1 << self.index)
+        new_val  = curr_val ^ (0x1 << self.index)
         self._set_leds_values(new_val)
         
     def on(self):  
         """Turn on a single LED.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
@@ -114,16 +106,12 @@ class Pmod_LED8(object):
         """
         curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                         iop_const.PMOD_DIO_DATA_OFFSET)
-        new_val  = (curr_val) | (0x1 << self.index)
+        new_val  = curr_val | (0x1 << self.index)
         self._set_leds_values(new_val)
      
     def off(self):    
         """Turn off a single LED.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
@@ -131,7 +119,7 @@ class Pmod_LED8(object):
         """
         curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                         iop_const.PMOD_DIO_DATA_OFFSET)
-        new_val  = (curr_val) & (0xff ^ (0x1 << self.index))    
+        new_val  = curr_val & (0xff ^ (0x1 << self.index))
         self._set_leds_values(new_val)
 
     def write(self, value):
@@ -160,10 +148,6 @@ class Pmod_LED8(object):
 
     def read(self):       
         """Retrieve the LED state.
-
-        Parameters
-        ----------
-        None
         
         Returns
         -------

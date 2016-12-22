@@ -86,26 +86,18 @@ class _IOP:
         
         This method will update the status of the IOP.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.state = 'RUNNING';
+        self.state = 'RUNNING'
         self.gpio.write(0)
         
     def stop(self):
         """Stop the Microblaze of the current IOP.
         
         This method will update the status of the IOP.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -119,11 +111,7 @@ class _IOP:
         """This method programs the Microblaze of the IOP.
         
         This method is called in __init__(); it can also be called after that.
-        It uses the attribute "self.mb_program" to program the Microblaze. 
-        
-        Parameters
-        ----------
-        None
+        It uses the attribute "self.mb_program" to program the Microblaze.
         
         Returns
         -------
@@ -183,13 +171,13 @@ def request_iop(iop_id, mb_program):
     """
     ip_names = PL.get_ip_names("mb_bram_ctrl_")
     iop_name = "SEG_mb_bram_ctrl_" + str(iop_id) + "_Mem0"
-    if (iop_name not in ip_names):
+    if iop_name not in ip_names:
             raise ValueError("No such IOP {}."
                             .format(iop_id))
                             
     gpio_names = PL.get_gpio_names()
     rst_pin_name = "mb_" + str(iop_id) + "_reset"
-    if (rst_pin_name not in gpio_names):
+    if rst_pin_name not in gpio_names:
             raise ValueError("No such GPIO pin for IOP {}."
                             .format(iop_id))
                             
@@ -197,14 +185,12 @@ def request_iop(iop_id, mb_program):
     addr_range = PL.get_ip_addr_range(iop_name)
     gpio_uix = PL.get_gpio_user_ix(rst_pin_name)
     if (PL.get_ip_state(iop_name) is None) or \
-        (PL.get_ip_state(iop_name)== \
+        (PL.get_ip_state(iop_name)==
                 (iop_const.BIN_LOCATION + mb_program)):
         # case 1
-        return _IOP(iop_name, addr_base, addr_range, \
+        return _IOP(iop_name, addr_base, addr_range,
                     gpio_uix, mb_program)
     else:
         # case 2
         raise LookupError('Another program {} already running on IOP.'\
                 .format(PL.get_ip_state(iop_name)))
-        return None
-        

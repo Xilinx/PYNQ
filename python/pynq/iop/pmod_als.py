@@ -81,19 +81,15 @@ class Pmod_ALS(object):
     def read(self):
         """Read current light value measured by the ALS Pmod.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         int
             The current sensor value.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)      
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
             pass
         return self.mmio.read(iop_const.MAILBOX_OFFSET)
@@ -114,7 +110,7 @@ class Pmod_ALS(object):
         None
         
         """
-        if (log_interval_ms < 0):
+        if log_interval_ms < 0:
             raise ValueError("Log length should not be less than 0.")
         
         self.log_interval_ms = log_interval_ms
@@ -125,10 +121,6 @@ class Pmod_ALS(object):
         
         This method will first call set_log_interval_ms() before writting to
         the MMIO.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -136,47 +128,39 @@ class Pmod_ALS(object):
         
         """
         self.set_log_interval_ms(self.log_interval_ms)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 7)
 
     def stop_log(self):
         """Stop recording multiple values in a log.
         
         Simply write to the MMIO to stop the log.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
 
     def get_log(self):
         """Return list of logged samples.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         List of valid samples from the ALS sensor [0-255]
         
         """
-        # Stop logging
+        # stop logging
         self.stop_log()
 
-        # Prep iterators and results list
+        # prep iterators and results list
         head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = []
 
-        # Sweep circular buffer for samples
+        # sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:

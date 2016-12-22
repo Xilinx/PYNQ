@@ -77,9 +77,9 @@ class Pmod_PWM(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET, index)
         
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
@@ -98,34 +98,30 @@ class Pmod_PWM(object):
         None
                 
         """
-        if (period not in range(1,65536)):
+        if period not in range(1,65536):
             raise ValueError("Valid tone period is between 1 and 65536.")
-        if (duty_cycle not in range(1,99)): 
+        if duty_cycle not in range(1,99):
             raise ValueError("Valid duty cycle is between 1 and 99.")
             
         self.mmio.write(iop_const.MAILBOX_OFFSET, period)
         self.mmio.write(iop_const.MAILBOX_OFFSET+0x4, duty_cycle)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
     def stop(self):
         """Stops PWM generation.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET+\
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             

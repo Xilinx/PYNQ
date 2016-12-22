@@ -84,13 +84,13 @@ class Pmod_IO(object):
         self.direction = direction
         
         self.iop.start()
-        if (self.direction == 'in'):
-            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                               iop_const.PMOD_DIO_TRI_OFFSET, \
+        if self.direction == 'in':
+            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR +
+                               iop_const.PMOD_DIO_TRI_OFFSET,
                                iop_const.PMOD_CFG_DIO_ALLINPUT)
         else:
-            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                               iop_const.PMOD_DIO_TRI_OFFSET, \
+            self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR +
+                               iop_const.PMOD_DIO_TRI_OFFSET,
                                iop_const.PMOD_CFG_DIO_ALLOUTPUT)
                                 
         self.iop.load_switch_config()
@@ -118,17 +118,17 @@ class Pmod_IO(object):
             raise ValueError('Pmod IO used as output, declared as input.')
 
         if value:
-            curVal = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+            cur_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                         iop_const.PMOD_DIO_DATA_OFFSET)
-            newVal = curVal | (0x1<<self.index)
+            new_val = cur_val | (0x1<<self.index)
             self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                                iop_const.PMOD_DIO_DATA_OFFSET, newVal)
+                                iop_const.PMOD_DIO_DATA_OFFSET, new_val)
         else:
-            curVal = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
+            cur_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                         iop_const.PMOD_DIO_DATA_OFFSET)
-            newVal = curVal & (0xff ^ (0x1<<self.index))
+            new_val = cur_val & (0xff ^ (0x1<<self.index))
             self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                                iop_const.PMOD_DIO_DATA_OFFSET, newVal)
+                                iop_const.PMOD_DIO_DATA_OFFSET, new_val)
 
     def read(self):
         """Receive the value from the offboard Pmod IO device.
@@ -136,10 +136,6 @@ class Pmod_IO(object):
         Note
         ----
         Only use this function when direction is 'in'.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -152,17 +148,13 @@ class Pmod_IO(object):
         
         raw_value = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                       iop_const.PMOD_DIO_DATA_OFFSET)
-        return (raw_value >> (self.index)) & 0x1
+        return (raw_value >> self.index) & 0x1
         
     def _state(self):
         """Retrieve the current state of the Pmod IO.
         
         This function is usually used for debug purpose. Users should still
         rely on read() or write() to get/put a value.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -172,5 +164,5 @@ class Pmod_IO(object):
         """
         raw_value = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
                                       iop_const.PMOD_DIO_DATA_OFFSET)
-        return (raw_value >> (self.index)) & 0x1
+        return (raw_value >> self.index) & 0x1
         

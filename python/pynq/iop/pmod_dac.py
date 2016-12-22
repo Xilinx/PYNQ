@@ -105,14 +105,14 @@ class Pmod_DAC(object):
             raise ValueError("Requested value not in range [0.00, 2.00].")
         
         # Calculate the voltage value and write to DAC
-        intVal = int(value / (0.000610351))
+        int_val = int(value / 0.000610351)
         self.mmio.write(iop_const.MAILBOX_OFFSET + 
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 
-                        (intVal << 20) | (0x3))
+                        (int_val << 20) | 0x3)
         
         # Wait for I/O Processor to complete
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
-                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
+                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET)
                               & 0x1) == 0x1:
             time.sleep(0.001)
             

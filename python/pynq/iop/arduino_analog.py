@@ -104,18 +104,14 @@ class Arduino_Analog(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET+0x14, 0)
         
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
             pass
 
     def read_raw(self):
         """Read the analog raw value from the analog peripheral.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -127,9 +123,9 @@ class Arduino_Analog(object):
         for channel in self.gr_pin:
             data_channels |= (0x1<<channel)
         cmd = (data_channels << 8) + 0x3
-        self.mmio.write(iop_const.MAILBOX_OFFSET+ \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         
@@ -141,10 +137,6 @@ class Arduino_Analog(object):
     def read(self):
         """Read the voltage value from the analog peripheral.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         list
@@ -155,9 +147,9 @@ class Arduino_Analog(object):
         for channel in self.gr_pin:
             data_channels |= (0x1<<channel)
         cmd = (data_channels << 8) + 0x5
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
         
@@ -183,7 +175,7 @@ class Arduino_Analog(object):
         None
         
         """
-        if (log_interval_ms < 0):
+        if log_interval_ms < 0:
             raise ValueError("Time between samples should be no less than 0.")
         
         self.log_interval_ms = log_interval_ms
@@ -192,12 +184,8 @@ class Arduino_Analog(object):
     def start_log_raw(self):
         """Start recording raw data in a log.
         
-        This method will first call set_log_interval_ms() before writting to
+        This method will first call set_log_interval_ms() before writing to
         the MMIO.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -211,18 +199,14 @@ class Arduino_Analog(object):
         for channel in self.gr_pin:
             data_channels |= (0x1<<channel)
         cmd = (data_channels << 8) + 0x7
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
                         
     def start_log(self):
         """Start recording multiple voltage values (float) in a log.
         
-        This method will first call set_log_interval_ms() before writting to
+        This method will first call set_log_interval_ms() before writing to
         the MMIO.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -236,25 +220,21 @@ class Arduino_Analog(object):
         for channel in self.gr_pin:
             data_channels |= (0x1<<channel)
         cmd = (data_channels << 8) + 0x9
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
                         
     def stop_log_raw(self):
         """Stop recording the raw values in the log.
         
         Simply write 0xC to the MMIO to stop the log.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        if(self.log_running == 1):
-            self.mmio.write(iop_const.MAILBOX_OFFSET+ \
+        if self.log_running == 1:
+            self.mmio.write(iop_const.MAILBOX_OFFSET+
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
             self.log_running = 0
         else:
@@ -264,18 +244,14 @@ class Arduino_Analog(object):
         """Stop recording the voltage values in the log.
         
         This can be done by calling the stop_log_raw() method.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        if(self.log_running == 1):
-            self.mmio.write(iop_const.MAILBOX_OFFSET+ \
+        if self.log_running == 1:
+            self.mmio.write(iop_const.MAILBOX_OFFSET+
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
             self.log_running = 0
         else:
@@ -283,10 +259,6 @@ class Arduino_Analog(object):
         
     def get_log_raw(self):
         """Return list of logged raw samples.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -301,7 +273,7 @@ class Arduino_Analog(object):
         head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = []
-        for i in range(self.num_channels):
+        for _ in range(self.num_channels):
             readings.append([])
             
         # Calculate the log ending
@@ -327,10 +299,6 @@ class Arduino_Analog(object):
         
     def get_log(self):
         """Return list of logged samples.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
@@ -345,7 +313,7 @@ class Arduino_Analog(object):
         head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
         tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
         readings = []
-        for i in range(self.num_channels):
+        for _ in range(self.num_channels):
             readings.append([])
         
         # Calculate the log ending
@@ -374,35 +342,31 @@ class Arduino_Analog(object):
         
     def reset(self):
         """Resets the system monitor for analog devices.
-        
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
             pass
-        
+
     def _reg2float(self, reg):
         """Converts 32-bit register value to floats in Python.
-        
+
         Parameters
         ----------
         reg: int
             A 32-bit register value read from the mailbox.
-            
+
         Returns
         -------
         float
             A float number translated from the register value.
-        
+
         """
         s = struct.pack('>l', reg)
         return struct.unpack('>f', s)[0]

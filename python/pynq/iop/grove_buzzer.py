@@ -86,19 +86,19 @@ class Grove_Buzzer(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G1, \
-                              PMOD_GROVE_G2, \
-                              PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G1,
+                              PMOD_GROVE_G2,
+                              PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("Buzzer group number can only be G1 - G4.")
             GROVE_BUZZER_PROGRAM = PMOD_GROVE_BUZZER_PROGRAM
         elif if_id in [ARDUINO]:
-            if not gr_pin in [ARDUINO_GROVE_G1, \
-                              ARDUINO_GROVE_G2, \
-                              ARDUINO_GROVE_G3, \
-                              ARDUINO_GROVE_G4, \
-                              ARDUINO_GROVE_G5, \
-                              ARDUINO_GROVE_G6, \
+            if not gr_pin in [ARDUINO_GROVE_G1,
+                              ARDUINO_GROVE_G2,
+                              ARDUINO_GROVE_G3,
+                              ARDUINO_GROVE_G4,
+                              ARDUINO_GROVE_G5,
+                              ARDUINO_GROVE_G6,
                               ARDUINO_GROVE_G7]:
                 raise ValueError("Buzzer group number can only be G1 - G7.")
             GROVE_BUZZER_PROGRAM = ARDUINO_GROVE_BUZZER_PROGRAM
@@ -114,9 +114,9 @@ class Grove_Buzzer(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
         
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                               iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
             pass
         
@@ -135,35 +135,31 @@ class Grove_Buzzer(object):
         None
         
         """
-        if (tone_period not in range(1,32768)):
+        if tone_period not in range(1,32768):
             raise ValueError("Valid tone period is between 1 and 32767.")
-        if (num_cycles not in range(1,32768)): 
+        if num_cycles not in range(1,32768):
             raise ValueError("Valid number of cycles is between 1 and 32767.")
         
         self.mmio.write(iop_const.MAILBOX_OFFSET, tone_period)
         self.mmio.write(iop_const.MAILBOX_OFFSET+4, num_cycles)
         
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             
     def play_melody(self):
         """Play a melody.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
                 
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
             

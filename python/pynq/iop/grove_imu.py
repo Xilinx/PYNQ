@@ -77,7 +77,7 @@ class Grove_IMU(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("IMU group number can only be G3 - G4.")
             GROVE_IMU_PROGRAM = PMOD_GROVE_IMU_PROGRAM
@@ -98,9 +98,9 @@ class Grove_IMU(object):
             self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
         
             # Write configuration and wait for ACK
-            self.mmio.write(iop_const.MAILBOX_OFFSET + \
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-            while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+            while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
                 pass
                 
@@ -108,28 +108,20 @@ class Grove_IMU(object):
                 
     def reset(self):
         """Reset all the sensors on the grove IMU.
-
-        Parameters
-        ----------
-        None
             
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xF)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xF):
             pass
         
     def get_accl(self):
         """Get the data from the accelerometer.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -137,24 +129,20 @@ class Grove_IMU(object):
             A list of the acceleration data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
             pass
         ax = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET))
         ay = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
         az = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
-        return [float("{0:.2f}".format(ax/16384)), \
-                float("{0:.2f}".format(ay/16384)), \
+        return [float("{0:.2f}".format(ax/16384)),
+                float("{0:.2f}".format(ay/16384)),
                 float("{0:.2f}".format(az/16384))]
         
     def get_gyro(self):
         """Get the data from the gyroscope.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -162,24 +150,20 @@ class Grove_IMU(object):
             A list of the gyro data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
             pass
         gx = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET))
         gy = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
         gz = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
-        return [float("{0:.2f}".format(gx*250/32768)), \
-                float("{0:.2f}".format(gy*250/32768)), \
+        return [float("{0:.2f}".format(gx*250/32768)),
+                float("{0:.2f}".format(gy*250/32768)),
                 float("{0:.2f}".format(gz*250/32768))]
         
     def get_compass(self):
         """Get the data from the magnetometer.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -187,24 +171,20 @@ class Grove_IMU(object):
             A list of the compass data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x7):
             pass
         mx = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET))
         my = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
         mz = self._reg2int(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
-        return [float("{0:.2f}".format(mx*1200/4096)), \
-                float("{0:.2f}".format(my*1200/4096)), \
+        return [float("{0:.2f}".format(mx*1200/4096)),
+                float("{0:.2f}".format(my*1200/4096)),
                 float("{0:.2f}".format(mz*1200/4096))]
         
     def get_heading(self):
         """Get the value of the heading.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -212,18 +192,14 @@ class Grove_IMU(object):
             The angle deviated from the X-axis, toward the positive Y-axis.
         
         """
-        [mx, my, mz] = self.get_compass()
+        [mx, my, _] = self.get_compass()
         heading = 180 * math.atan2(my, mx) / math.pi
-        if (heading < 0):
+        if heading < 0:
             heading += 360
         return float("{0:.2f}".format(heading))
         
-    def get_tiltheading(self):
+    def get_tilt_heading(self):
         """Get the value of the tilt heading.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -231,27 +207,27 @@ class Grove_IMU(object):
             The tilt heading value.
         
         """
-        [ax, ay, az] = self.get_accl()
+        [ax, ay, _] = self.get_accl()
         [mx, my, mz] = self.get_compass()
-        
-        pitch = math.asin(-ax)
-        roll = math.asin(ay / math.cos(pitch))
+
+        try:
+            pitch = math.asin(-ax)
+            roll = math.asin(ay / math.cos(pitch))
+        except ZeroDivisionError:
+            raise RuntimeError("Value out of range or device not connected.")
+
         xh = mx * math.cos(pitch) + mz * math.sin(pitch)
         yh = mx * math.sin(roll) * math.sin(pitch) + \
                 my * math.cos(roll) - mz * math.sin(roll) * math.cos(pitch)
-        zh = -mx * math.cos(roll) * math.sin(pitch) + \
+        _ = -mx * math.cos(roll) * math.sin(pitch) + \
                 my * math.sin(roll) + mz * math.cos(roll) * math.cos(pitch)
-        tiltheading = 180 * math.atan2(yh, xh) / math.pi
-        if (yh < 0):
-            tiltheading += 360
-        return float("{0:.2f}".format(tiltheading))
+        tilt_heading = 180 * math.atan2(yh, xh) / math.pi
+        if yh < 0:
+            tilt_heading += 360
+        return float("{0:.2f}".format(tilt_heading))
         
     def get_temperature(self):
         """Get the current temperature in degree C.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -259,9 +235,9 @@ class Grove_IMU(object):
             The temperature value.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
             pass
         value = self.mmio.read(iop_const.MAILBOX_OFFSET)
@@ -270,19 +246,15 @@ class Grove_IMU(object):
     def get_pressure(self):
         """Get the current pressure in Pa.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         float
             The pressure value.
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xD):
             pass
         value = self.mmio.read(iop_const.MAILBOX_OFFSET)
@@ -290,11 +262,7 @@ class Grove_IMU(object):
         
     def get_atm(self):
         """Get the current pressure in relative atmosphere.
-        
-        Parameters
-        ----------
-        None
-        
+
         Returns
         -------
         float
@@ -306,10 +274,6 @@ class Grove_IMU(object):
     def get_altitude(self):
         """Get the current altitude.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         float
@@ -317,10 +281,10 @@ class Grove_IMU(object):
         
         """
         pressure = self.get_pressure()
-        A = pressure/101325
-        B = 1/5.255
-        C = 1-pow(A,B)
-        altitude = 44300 * C
+        a = pressure/101325
+        b = 1/5.255
+        c = 1-pow(a,b)
+        altitude = 44300 * c
         return float("{0:.2f}".format(altitude))
         
     def _reg2float(self, reg):
@@ -341,11 +305,11 @@ class Grove_IMU(object):
             return 0.0
         sign = (reg & 0x80000000) >> 31 & 0x01
         exp = ((reg & 0x7f800000) >> 23)-127
-        if (exp == 0):
+        if exp == 0:
             man = (reg & 0x007fffff)/pow(2,23)
         else:
             man = 1+(reg & 0x007fffff)/pow(2,23)
-        result = pow(2,exp)*(man)*((sign*-2) +1)
+        result = pow(2,exp)*man*((sign*-2) +1)
         return float("{0:.2f}".format(result))
         
     def _reg2int(self, reg):

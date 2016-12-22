@@ -48,9 +48,9 @@ PMOD_GROVE_OLED_PROGRAM = "pmod_grove_oled.bin"
 ARDUINO_GROVE_OLED_PROGRAM = "arduino_grove_oled.bin"
 
 class Grove_OLED(object):
-    """This class controls the Grove IIC OLED. 
-    
-    Grove LED 128×64 Display module is an OLED monochrome 128×64 matrix 
+    """This class controls the Grove IIC OLED.
+
+    Grove LED 128×64 Display module is an OLED monochrome 128×64 matrix
     display module. Model: OLE35046P. Hardware version: v1.1.
 
     Attributes
@@ -77,7 +77,7 @@ class Grove_OLED(object):
             
         """
         if if_id in [PMODA, PMODB]:
-            if not gr_pin in [PMOD_GROVE_G3, \
+            if not gr_pin in [PMOD_GROVE_G3,
                               PMOD_GROVE_G4]:
                 raise ValueError("OLED group number can only be G3 - G4.")
             GROVE_OLED_PROGRAM = PMOD_GROVE_OLED_PROGRAM
@@ -98,9 +98,9 @@ class Grove_OLED(object):
             self.mmio.write(iop_const.MAILBOX_OFFSET+4, gr_pin[1])
         
             # Write configuration and wait for ACK
-            self.mmio.write(iop_const.MAILBOX_OFFSET + \
+            self.mmio.write(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-            while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+            while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 1):
                 pass
             
@@ -132,9 +132,9 @@ class Grove_OLED(object):
                             ord(text[i]))
                        
         # Finally write the print string command
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x13)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x13):
             pass
             
@@ -143,18 +143,14 @@ class Grove_OLED(object):
         
         This is done by writing empty strings into the OLED in Microblaze.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xF)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xF):
             pass
             
@@ -180,81 +176,65 @@ class Grove_OLED(object):
         self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, column)
         
         # Then write the command
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xD)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xD):
             pass
             
     def set_normal_mode(self):
         """Set the display mode to normal.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x3):
             pass
                         
     def set_inverse_mode(self):
         """Set the display mode to inverse.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x5):
             pass
             
     def set_page_mode(self):
         """Set the display mode to paged.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x9):
             pass
                         
     def set_horizontal_mode(self):
         """Set the display mode to horizontal.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xB)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0xB):
             pass
             
@@ -274,14 +254,14 @@ class Grove_OLED(object):
         
         """
         # First write the brightness
-        if (brightness not in range(0,256)):
+        if brightness not in range(0,256):
             raise ValueError("Valid brightness is between 0 and 255.")
         self.mmio.write(iop_const.MAILBOX_OFFSET, brightness)
         
         # Then write the command
-        self.mmio.write(iop_const.MAILBOX_OFFSET + \
+        self.mmio.write(iop_const.MAILBOX_OFFSET +
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x11)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + \
+        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x11):
             pass
             
