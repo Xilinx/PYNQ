@@ -32,8 +32,11 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
+import asyncio
 from pynq import MMIO
 from pynq import PL
+from pynq import Interrupt
+
 
 class Button(object):
     """This class controls the onboard push-buttons.
@@ -56,8 +59,12 @@ class Button(object):
             
         """
         if Button._mmio is None:
-            Button._mmio = MMIO(PL.ip_dict["SEG_btns_gpio_Reg"][0])
+            Button._mmio = MMIO(PL.ip_dict["SEG_btns_gpio_Reg"][0], 512)
         self.index = index
+        self.interrupt = Interrupt('btns_gpio/ip2intc_irpt')
+        # Enable interrupts
+        Button._mmio.write(0x11C, 0x80000000)
+        Button._mmio.write(0x128, 0x00000001)
 
     def read(self):
         """Read the current value of the button.
@@ -70,3 +77,37 @@ class Button(object):
         """
         curr_val = Button._mmio.read()
         return (curr_val & (1 << self.index)) >> self.index
+
+    @asyncio.coroutine
+    def wait_for_value_async(self, value):
+        """Wait for the button to be pressed or released
+
+        Parameters
+        ----------
+        value: int
+            1 to wait for press or 0 to wait for release
+
+        This function is an asyncio coroutine
+
+        """
+        while self.read() != value:
+            yield from self.interrupt.wait()
+            if Button._mmio.read(0x120) & 0x1:
+                Button._mmio.write(0x120, 0x00000001)
+
+    def wait_for_value(self, value):
+        """Wait for the button to be pressed or released
+
+        Parameters
+        ----------
+        value: int
+            1 to wait for press or 0 to wait for release
+
+        This function wraps the coroutine form so the asyncio
+        event loop will run until the function returns
+
+        """
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.ensure_future(
+            self.wait_for_value_async(value)
+        ))

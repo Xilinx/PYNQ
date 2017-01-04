@@ -32,8 +32,10 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
+import asyncio
 from pynq import MMIO
 from pynq import PL
+from pynq import Interrupt
 
 class Switch(object):
     """This class controls the onboard switches.
@@ -56,8 +58,12 @@ class Switch(object):
         
         """
         if Switch._mmio is None:
-            Switch._mmio = MMIO(PL.ip_dict["SEG_swsleds_gpio_Reg"][0])
+            Switch._mmio = MMIO(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],512)
         self.index = index
+        self.interrupt = Interrupt('swsleds_gpio/ip2intc_irpt')
+        # Enable interrupts
+        Switch._mmio.write(0x11C, 0x80000000)
+        Switch._mmio.write(0x128, 0x00000001)
 
     def read(self):
         """Read the current value of the switch.
@@ -66,8 +72,41 @@ class Switch(object):
         -------
         int
             Either 0 if the switch is off or 1 if the switch is on
-            
+
         """
         curr_val = Switch._mmio.read()
         return (curr_val & (1 << self.index)) >> self.index
-        
+
+    @asyncio.coroutine
+    def wait_for_value_async(self, value):
+        """Wait for the switch to be set to a particular position
+
+        Parameters
+        ----------
+        value: int
+            1 for the switch up and 0 for the switch down
+
+        This function is an asyncio coroutine
+
+        """
+        while self.read() != value:
+            yield from self.interrupt.wait()
+            if Switch._mmio.read(0x120) & 0x1:
+                Switch._mmio.write(0x120, 0x00000001)
+
+    def wait_for_value(self, value):
+        """Wait for the switch to be set to a particular position
+
+        Parameters
+        ----------
+        value: int
+            1 for the switch up and 0 for the switch down
+
+        This function wraps the coroutine form so the asyncio
+        event loop will run until the function returns
+
+        """
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.ensure_future(
+            self.wait_for_value_async(value)
+        ))
