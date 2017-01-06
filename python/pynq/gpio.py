@@ -64,15 +64,15 @@ class GPIO:
             Input/output direction of the GPIO.
         
         """
+        euid = os.geteuid()
+        if euid != 0:
+            raise EnvironmentError('Root permissions required.')
+
         if not direction in ('in','out'):
             raise ValueError("Direction should be in or out.")
         self.index = gpio_index
         self.direction = direction
         self.path = '/sys/class/gpio/gpio{}/'.format(gpio_index)
-        
-        euid = os.geteuid()
-        if euid != 0:
-            raise EnvironmentError('Root permissions required.')
         
         if not os.path.exists(self.path):
             with open('/sys/class/gpio/export', 'w') as f:
@@ -84,10 +84,6 @@ class GPIO:
     def __del__(self):
         """Delete a GPIO object.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
@@ -98,11 +94,7 @@ class GPIO:
                 f.write(str(self.index))
 
     def read(self):
-        """The method to read a value from the GPIO. 
-        
-        Parameters
-        ----------
-        None
+        """The method to read a value from the GPIO.
         
         Returns
         -------
@@ -126,7 +118,7 @@ class GPIO:
         
         Returns
         -------
-        None        
+        None
         
         """
         if not self.direction is 'out':
@@ -152,10 +144,6 @@ class GPIO:
         Note
         ----
         For path '/sys/class/gpio/gpiochip138/', this method returns 138.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -193,5 +181,5 @@ class GPIO:
             The Linux Sysfs GPIO pin number.
             
         """
-        return (GPIO.get_gpio_base() + general_const.GPIO_MIN_USER_PIN\
-                + gpio_user_index)
+        return (GPIO.get_gpio_base() + general_const.GPIO_MIN_USER_PIN +
+                gpio_user_index)

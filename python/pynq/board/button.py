@@ -56,7 +56,7 @@ class Button(object):
             
         """
         if Button._mmio is None:
-            Button._mmio = MMIO(int(PL.ip_dict["SEG_btns_gpio_Reg"][0],16))
+            Button._mmio = MMIO(PL.ip_dict["SEG_btns_gpio_Reg"][0])
         self.index = index
 
     def read(self):

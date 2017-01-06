@@ -63,10 +63,10 @@ class _IOP:
         ----------
         iop_name : str
             The name of the IP corresponding to the I/O Processor.
-        addr_base : str
-            The base address for the MMIO in hex format.
-        addr_range : str
-            The address range for the MMIO in hex format.
+        addr_base : int
+            The base address for the MMIO.
+        addr_range : int
+            The address range for the MMIO.
         gpio_uix : int
             The user index of the GPIO, starting from 0.
         mb_program : str
@@ -77,7 +77,7 @@ class _IOP:
         self.mb_program = iop_const.BIN_LOCATION + mb_program
         self.state = 'IDLE'
         self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
-        self.mmio = MMIO(int(addr_base, 16), int(addr_range,16))
+        self.mmio = MMIO(addr_base, addr_range)
         
         self.program()
         
@@ -169,28 +169,26 @@ def request_iop(iop_id, mb_program):
         When another IOP is in the system with the same IOP ID.
         
     """
-    ip_names = PL.get_ip_names("mb_bram_ctrl_")
-    iop_name = "SEG_mb_bram_ctrl_" + str(iop_id) + "_Mem0"
-    if iop_name not in ip_names:
-            raise ValueError("No such IOP {}."
-                            .format(iop_id))
-                            
-    gpio_names = PL.get_gpio_names()
-    rst_pin_name = "mb_" + str(iop_id) + "_reset"
-    if rst_pin_name not in gpio_names:
-            raise ValueError("No such GPIO pin for IOP {}."
-                            .format(iop_id))
-                            
-    addr_base = PL.get_ip_addr_base(iop_name)
-    addr_range = PL.get_ip_addr_range(iop_name)
-    gpio_uix = PL.get_gpio_user_ix(rst_pin_name)
-    if (PL.get_ip_state(iop_name) is None) or \
-        (PL.get_ip_state(iop_name)==
-                (iop_const.BIN_LOCATION + mb_program)):
+    ip_dict = PL.ip_dict
+    gpio_dict = PL.gpio_dict
+    iop = "SEG_mb_bram_ctrl_" + str(iop_id) + "_Mem0"
+    rst_pin = "mb_" + str(iop_id) + "_reset"
+
+    ip = [k for k, _ in ip_dict.items()]
+    gpio = [k for k, _ in gpio_dict.items()]
+
+    if iop not in ip:
+        raise ValueError("No such IOP {}.".format(iop_id))
+    if rst_pin not in gpio:
+        raise ValueError("No such reset pin for IOP {}.".format(iop_id))
+
+    addr_base, addr_range, ip_state = ip_dict[iop]
+    gpio_uix, _ = gpio_dict[rst_pin]
+    if (ip_state is None) or \
+            (ip_state == (iop_const.BIN_LOCATION + mb_program)):
         # case 1
-        return _IOP(iop_name, addr_base, addr_range,
-                    gpio_uix, mb_program)
+        return _IOP(iop, addr_base, addr_range, gpio_uix, mb_program)
     else:
         # case 2
         raise LookupError('Another program {} already running on IOP.'\
-                .format(PL.get_ip_state(iop_name)))
+                .format(ip_state))

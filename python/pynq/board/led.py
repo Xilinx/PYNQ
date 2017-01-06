@@ -63,7 +63,7 @@ class LED(object):
             
         self.index = index
         if LED._mmio is None:
-            LED._mmio = MMIO(int(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],16),16)
+            LED._mmio = MMIO(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],16)
         LED._mmio.write(LEDS_OFFSET1, 0x0)
 
     def toggle(self):
@@ -72,39 +72,27 @@ class LED(object):
         If the LED is on, it will be turned off. If the LED is off, it will be
         turned on.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        new_val = (LED._leds_value) ^ (0x1 << self.index)
+        new_val = LED._leds_value ^ (0x1 << self.index)
         self._set_leds_value(new_val)
 
     def on(self):
         """Turn on a single LED.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        new_val = (LED._leds_value) | (0x1 << self.index)
+        new_val = LED._leds_value | (0x1 << self.index)
         self._set_leds_value(new_val)
 
     def off(self):
         """Turn off a single LED.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -128,7 +116,7 @@ class LED(object):
             If the value parameter is not 0 or 1.
         
         """
-        if (value not in (0, 1)):
+        if value not in (0, 1):
             raise ValueError("Value should be 0 or 1.")
         if value:
             self.on()
@@ -146,7 +134,8 @@ class LED(object):
         """
         return (LED._leds_value >> self.index) & 0x1
 
-    def _set_leds_value(self, value):
+    @staticmethod
+    def _set_leds_value(value):
         """Set the state of all LEDs.
         
         Note

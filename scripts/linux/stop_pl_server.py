@@ -42,8 +42,8 @@ except ImportError:
 # Stop the PL server
 if os.path.isfile("/home/xilinx/pynq/bitstream/.log"):
     try:
-        PL._client_request()
-        PL._server_update(0)
+        PL.client_request()
+        PL.server_update(0)
     except ConnectionRefusedError:
         pass
     

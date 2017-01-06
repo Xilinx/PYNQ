@@ -56,7 +56,7 @@ class Switch(object):
         
         """
         if Switch._mmio is None:
-            Switch._mmio = MMIO(int(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],16))
+            Switch._mmio = MMIO(PL.ip_dict["SEG_swsleds_gpio_Reg"][0])
         self.index = index
 
     def read(self):

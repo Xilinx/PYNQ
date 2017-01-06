@@ -76,8 +76,7 @@ class RGBLED(object):
             
         self.index = index
         if RGBLED._mmio is None:
-            base_addr = int(PL.ip_dict["SEG_rgbled_gpio_Reg"][0],16)
-            RGBLED._mmio = MMIO(base_addr,16)
+            RGBLED._mmio = MMIO(PL.ip_dict["SEG_rgbled_gpio_Reg"][0],16)
 
     def on(self, color):
         """Turn on a single RGB LED with a color value (see color constants).
@@ -102,10 +101,6 @@ class RGBLED(object):
 
     def off(self):
         """Turn off a single RGBLED.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -142,8 +137,9 @@ class RGBLED(object):
         """
         return (RGBLED._rgbleds_val >> 
                     ((self.index-RGBLEDS_START_INDEX)*3)) & 0x7
-        
-    def _set_rgbleds_value(self, value):
+
+    @staticmethod
+    def _set_rgbleds_value(value):
         """Set the state of all RGBLEDs.
         
         Note
