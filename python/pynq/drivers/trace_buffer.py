@@ -37,7 +37,10 @@ import re
 import cffi
 import json
 import csv
+import math
 from time import sleep
+from itertools import zip_longest
+import numpy as np
 import IPython.core.display
 from pynq import PL
 from pynq import MMIO
@@ -53,13 +56,21 @@ TRACE_CMP_LSW_OFFSET        = 0x10
 TRACE_CMP_MSW_OFFSET        = 0x14
 TRACE_LENGTH_OFFSET         = 0x1C
 TRACE_SAMPLE_RATE_OFFSET    = 0x24
-MASK_ALL                    = 0xFFFFFFFFFFFFFFFF
 
 class Trace_Buffer:
     """Class for the trace buffer, leveraging the sigrok libraries.
     
     This trace buffer class gets the traces from DMA and processes it using 
     the sigrok commands.
+
+    For PMODA and PMODB, pin numbers 0-7 correspond to the pins on the Pmod
+    interface. Although PMODA and PMODB are sharing the same trace buffer,
+    only one Pmod can be traced at a specific time.
+
+    For ARDUINO, pin numbers 0-5 correspond to A0-A5;
+    pin numbers 6-7 correspond to D0-D1;
+    pin numbers 8-19 correspond to D2-D13;
+    pin numbers 20-21 correspond to SDA and SCL.
     
     Note
     ----
@@ -67,6 +78,10 @@ class Trace_Buffer:
     
     Attributes
     ----------
+    if_id : int
+        The interface ID (PMODA, PMODB, ARDUINO).
+    pins : list
+        Array of pin numbers, 0-7 for PMODA or PMODB and 0-21 for ARDUINO.
     protocol : str
         The protocol the sigrok decoder are using.
     trace_csv: str
@@ -81,15 +96,17 @@ class Trace_Buffer:
         The DMA object associated with the trace buffer.
     ctrl : MMIO
         The MMIO class used to control the DMA.
-    samplerate: int
-        The samplerate of the traces.
-    data : cffi.FFI.CData
-        The pointer to the starting address of the trace data.
+    rate: int
+        The sample rate of the traces.
+    samples : ndarray
+        The np array storing the 64-bit samples.
+    ffi: cffi.api.FFI
+        The FFI API to the underlying C structure
         
     """
     
-    def __init__(self, if_id, protocol, trace=None, data=None, 
-                 samplerate=500000):
+    def __init__(self, if_id, pins, protocol, probes=None,
+                 trace=None, rate=500000):
         """Return a new trace buffer object. 
         
         Users have to specify the location of the traces, even if no trace 
@@ -97,22 +114,32 @@ class Trace_Buffer:
         from the DMA data.
         
         The maximum sample rate is 100MHz.
-        
-        Note
-        ----
-        The probes selected by `mask` does not include any tristate probe.
+
+        For PMODA and PMODB, pin numbers 0-7 correspond to the pins on the
+        Pmod interface. Although PMODA and PMODB are sharing the same trace
+        buffer, only one Pmod can be traced at a specific time.
+
+        For ARDUINO, pin numbers 0-5 correspond to A0-A5;
+        pin numbers 6-7 correspond to D0-D1;
+        pin numbers 8-19 correspond to D2-D13;
+        pin numbers 20-21 correspond to SDA and SCL.
+        When using the trace buffer, only one out of the above 4 groups can be
+        traced in the current implementation.
+
+        The list `probes` depends on the protocol. For instance, the I2C
+        protocol requires a list of ['SCL','SDA'].
         
         Parameters
         ----------
         if_id : int
             The interface ID (PMODA, PMODB, ARDUINO).
+        pins : list
+            List of pin numbers, 0-7 for PMODA or PMODB and 0-21 for ARDUINO.
         protocol : str
             The protocol the sigrok decoder are using.
         trace: str
             The relative/absolute path of the trace file.
-        data : cffi.FFI.CData
-            The pointer to the starting address of the data.
-        samplerate : int
+        rate : int
             The rate of the samples.
         
         """
@@ -121,34 +148,50 @@ class Trace_Buffer:
         if not isinstance(protocol, str):
             raise TypeError("Protocol name has to be a string.")
         
-        if data != None:
-            if not isinstance(data, cffi.FFI.CData):
-                raise TypeError("Data pointer has wrong type.")
-        if not isinstance(samplerate, int):
+        if not isinstance(rate, int):
             raise TypeError("Sample rate has to be an integer.")
-        if not 1 <= samplerate <= 100000000:
+        if not 1 <= rate <= 100000000:
             raise ValueError("Sample rate out of range.")
         
         if if_id in [PMODA, PMODB]:
-            dma_base = int(PL.ip_dict["SEG_axi_dma_0_Reg"][0],16)
-            ctrl_base = int(PL.ip_dict["SEG_trace_cntrl_0_Reg2"][0],16)
-            ctrl_range = int(PL.ip_dict["SEG_trace_cntrl_0_Reg2"][1],16)
+            dma_base, _, _ = PL.ip_dict["SEG_axi_dma_0_Reg"]
+            ctrl_base, ctrl_range, _ = PL.ip_dict["SEG_trace_cntrl_0_Reg2"]
         elif if_id in [ARDUINO]:
-            dma_base = int(PL.ip_dict["SEG_axi_dma_0_Reg1"][0],16)
-            ctrl_base = int(PL.ip_dict["SEG_trace_cntrl_0_Reg"][0],16)
-            ctrl_range = int(PL.ip_dict["SEG_trace_cntrl_0_Reg"][1],16)
+            dma_base, _, _ = PL.ip_dict["SEG_axi_dma_0_Reg1"]
+            ctrl_base, ctrl_range, _ = PL.ip_dict["SEG_trace_cntrl_0_Reg"]
         else:
             raise ValueError("No such IOP for instrumentation.")
-            
+        self.if_id = if_id
+
+        if not pins:
+            raise ValueError("No pins specified to trace.")
+        elif if_id in [PMODA,PMODB]:
+            for p in pins:
+                if not p in range(8):
+                    raise ValueError("Available pin numbers are 0-7.")
+            self.pins = np.array([7 - p for p in pins])
+        else:
+            for p in pins:
+                if not p in range(22):
+                    raise ValueError("Available pin numbers are 0-21.")
+            self.pins = np.array([21 - p for p in pins])
+
+        if not probes:
+            self.probes = ['Pin {}'.format(i) for i in pins]
+        elif not isinstance(probes, list):
+            raise ValueError("Probes have to be a list.")
+        else:
+            self.probes = probes
+
         self.dma = DMA(dma_base, direction=1)
         self.ctrl = MMIO(ctrl_base, ctrl_range)
-        self.samplerate = samplerate
+        self.rate = rate
         self.protocol = protocol
-        self.data = data
-        self.probes = []
+        self.ffi = cffi.FFI()
+        self.samples = None
         self.trace_pd = ''
         
-        if trace != None: 
+        if trace:
             if not isinstance(trace, str):
                 raise TypeError("Trace path has to be a string.")
             if not os.path.isfile(trace):
@@ -180,10 +223,13 @@ class Trace_Buffer:
         None
 
         """
-        del(self.dma)
+        del self.dma
         
     def start(self, timeout=10):
         """Start the DMA to capture the traces.
+        
+        If length is not specified, the maximum number of samples will 
+        be captured.
         
         Parameters
         ----------
@@ -204,13 +250,13 @@ class Trace_Buffer:
         while (self.ctrl.read(0x00) & 0x04)==0:
             sleep(0.001)
             timer -= 1
-            if (timer==0):
+            if timer==0:
                 raise RuntimeError("Timeout when waiting DMA to be idle.")
                 
         # Configuration
         self.ctrl.write(TRACE_LENGTH_OFFSET, MAX_NUM_SAMPLES)
-        self.ctrl.write(TRACE_SAMPLE_RATE_OFFSET, \
-                        int(MAX_SAMPLE_RATE / self.samplerate))
+        self.ctrl.write(TRACE_SAMPLE_RATE_OFFSET,
+                        int(MAX_SAMPLE_RATE / self.rate))
         self.ctrl.write(TRACE_CMP_LSW_OFFSET, 0x00000)
         self.ctrl.write(TRACE_CMP_MSW_OFFSET, 0x00000)
         
@@ -224,10 +270,6 @@ class Trace_Buffer:
         Note
         ----
         There is an internal timeout mechanism in the DMA class.
-        
-        Parameters
-        ----------
-        None
             
         Return
         ------
@@ -237,15 +279,13 @@ class Trace_Buffer:
         # Wait for the DMA
         self.dma.wait()
         
-        # Get 64-bit samples from DMA
-        self.data = self.dma.get_buf(64)
+        # Get samples from DMA
+        self.samples = np.frombuffer(self.ffi.buffer(
+                            self.dma.get_buf(64),MAX_NUM_SAMPLES*8),
+                            dtype=np.uint64)
         
     def show(self):
         """Show information about the specified protocol.
-        
-        Parameters
-        ----------
-        None
         
         Return
         ------
@@ -266,10 +306,6 @@ class Trace_Buffer:
         ----
         This method also modifies the input `*.csv` file (the comment header, 
         usually 3 lines, will be removed).
-        
-        Parameters
-        ----------
-        None
         
         Return
         ------
@@ -308,11 +344,7 @@ class Trace_Buffer:
         Note
         ----
         This method also removes the redundant header that is generated by 
-        sigrok. 
-        
-        Parameters
-        ----------
-        None
+        sigrok.
         
         Return
         ------
@@ -374,9 +406,11 @@ class Trace_Buffer:
         None
         
         """
+        self.set_metadata()
+
         if not isinstance(decoded_file, str):
             raise TypeError("File name has to be a string.")
-        if self.probes == []:
+        if not self.probes:
             raise ValueError("Cannot decode without metadata.")
         
         if os.path.isdir(os.path.dirname(decoded_file)):
@@ -408,12 +442,15 @@ class Trace_Buffer:
         for line in f_temp:
             m = re.search('([0-9]+)-([0-9]+)  (.*)', line)
             if m:
-                while (j < int(m.group(1))):
-                    f_decoded.write('\n')
+                while j < int(m.group(1)):
+                    f_decoded.write('x\n')
                     j += 1
-                while (j <= int(m.group(2))):
-                    f_decoded.write(m.group(3) + '\n')
+                f_decoded.write(m.group(3) + '\n')
+                j += 1
+                while j < int(m.group(2)):
+                    f_decoded.write('.\n')
                     j += 1
+
         f_temp.close()
         f_decoded.close()
         self.trace_pd = decoded_abs
@@ -423,32 +460,20 @@ class Trace_Buffer:
         if os.path.getsize(self.trace_pd)==0:
             raise RuntimeError("No transactions and decoded file is empty.")
         
-    def set_metadata(self, probes):
+    def set_metadata(self):
         """Set metadata for the trace.
         
         A `*.sr` file directly generated from `*.csv` will not have any 
         metadata. This method helps to set the sample rate, probe names, etc.
-        
-        The list `probes` depends on the protocol. For instance, the I2C
-        protocol requires a list of ['SDA','SCL'].
-        
-        Parameters
-        ----------
-        probes : list
-            A list of probe names.
         
         Return
         ------
         None
         
         """
-        if not isinstance(probes, list):
-            raise TypeError("Probes have to be in a list.")
-            
         # Convert csv file to sr file, if necessary
         if self.trace_sr == '':
             self.csv2sr()
-        self.probes = probes
             
         name, _ = os.path.splitext(self.trace_sr)
         if os.system("rm -rf " + name):
@@ -460,13 +485,13 @@ class Trace_Buffer:
         
         metadata = open(name + '/metadata', 'r')
         temp = open(name + '/temp', 'w')
-        pat = "samplerate=0 Hz"
-        subst = "samplerate=" + str(self.samplerate) +" Hz"
+        pat = "rate=0 Hz"
+        subst = "rate=" + str(self.rate) +" Hz"
         j = 0
         for i, line in enumerate(metadata):
             if line.startswith("probe"):
                 # Set the probe names
-                temp.write("probe"+str(j+1)+"="+probes[j]+'\n')
+                temp.write("probe"+str(j+1)+"="+self.probes[j]+'\n')
                 j += 1
             else:
                 # Set the sample rate
@@ -482,30 +507,19 @@ class Trace_Buffer:
                     self.trace_sr + " * ; cd .."):
             raise RuntimeError('Zip sr file failed.')
         if os.system("rm -rf " + name):
-            raise RuntimeError('Cannnot remove temporary folder.')
+            raise RuntimeError('Cannot remove temporary folder.')
         
-    def parse(self, parsed, start=0, stop=MAX_NUM_SAMPLES, mask=MASK_ALL,
-              tri_sel=[], tri_0=[], tri_1=[]):
+    def parse(self, parsed, start_pos, stop_pos):
         """Parse the input data and generate a `*.csv` file.
         
         This method can be used along with the DMA. The input data is assumed
         to be 64-bit. The generated `*.csv` file can be then used as the trace
         file.
         
-        To extract certain bits from the 64-bit data, use the parameter
-        `mask`. 
-        
         Note
         ----
-        The probe pins selected by `mask` does not include any tristate probe.
-        
-        To specify a set of tristate probe pins, e.g., users can set 
-        tri_sel = [0x0000000000000004],
-        tri_0   = [0x0000000000000010], and
-        tri_1   = [0x0000000000000100].
-        In this example, the 3rd probe from the LSB is the selection probe; 
-        the 5th probe is selected if selection probe is 0, otherwise the 9th
-        probe is selected. There can be multiple sets of tristate probe pins.
+        PMODA and PMODB are sharing the same trace buffer with different sets
+        of pins, while ARDUINO has its own trace buffer.
         
         Note
         ----
@@ -516,18 +530,10 @@ class Trace_Buffer:
         ----------
         parsed : str
             The file name of the parsed output.
-        start : int
-            The first 64-bit sample of the trace.
-        stop : int
-            The last 64-bit sample of the trace.
-        mask : int
-            A 64-bit mask to be applied to the 64-bit samples.
-        tri_sel : list
-            The list of tristate selection probe pins.
-        tri_0 : list
-            The list of probe pins selected when the selection probe is 0.
-        tri_1 : list
-            The list probe pins selected when the selection probe is 1.
+        start_pos : int
+            The starting sample number.
+        stop_pos : int
+            The stopping sample number.
         
         Return
         ------
@@ -536,44 +542,12 @@ class Trace_Buffer:
         """
         if not isinstance(parsed, str):
             raise TypeError("File name has to be an string.")
-        if not isinstance(start, int):
-            raise TypeError("Sample number has to be an integer.")
-        if not isinstance(stop, int):
-            raise TypeError("Sample number has to be an integer.")
-        if not 1 <= (stop-start) <= MAX_NUM_SAMPLES:
-            raise ValueError("Data length has to be in [1,{}]."\
-                            .format(MAX_NUM_SAMPLES))
-        if not isinstance(mask, int):
-            raise TypeError("Data mask has to be an integer.")
-        if not 0<=mask<=MASK_ALL:
-            raise ValueError("Data mask out of range.")
-        if not isinstance(tri_sel, list):
-            raise TypeError("Selection probe pins have to be in a list.")
-        if not isinstance(tri_0, list) or not isinstance(tri_1, list):
-            raise TypeError("Data probe pins have to be in a list.")
-        if not len(tri_sel)==len(tri_0)==len(tri_1):
-            raise ValueError("Inconsistent length for tristate lists.")
-        for element in tri_sel:
-            if not isinstance(element, int) or not 0<element<=MASK_ALL:
-                raise TypeError("Selection probe has to be an integer.")
-            if not (element & element-1)==0:
-                raise ValueError("Selection probe can only have 1-bit set.")
-            if not (element & mask)==0:
-                raise ValueError("Selection probe has be excluded from mask.")
-        for element in tri_0:
-            if not isinstance(element, int) or not 0<element<=MASK_ALL:
-                raise TypeError("Data probe has to be an integer.")
-            if not (element & element-1)==0:
-                raise ValueError("Data probe can only have 1-bit set.")
-            if not (element & mask)==0:
-                raise ValueError("Data probe has be excluded from mask.")
-        for element in tri_1:
-            if not isinstance(element, int) or not 0<element<=MASK_ALL:
-                raise TypeError("Data probe has to be an integer.")
-            if not (element & element-1)==0:
-                raise ValueError("Data probe can only have 1-bit set.")
-            if not (element & mask)==0:
-                raise ValueError("Data probe has be excluded from mask.")
+        if not isinstance(start_pos, int):
+            raise TypeError("Start position has to be an integer.")
+        if not isinstance(stop_pos, int):
+            raise TypeError("Stop position has to be an integer.")
+        if not 1 <= start_pos <= stop_pos <= MAX_NUM_SAMPLES:
+            raise ValueError("Start or stop position out of range.")
             
         if os.path.isdir(os.path.dirname(parsed)):
             parsed_abs = parsed
@@ -582,33 +556,45 @@ class Trace_Buffer:
             
         if os.system('rm -rf ' + parsed_abs):
             raise RuntimeError("Cannot remove old parsed file.")
+
         with open(parsed_abs, 'w') as f:
-            for i in range(start, stop):
-                raw_val = self.data[i] & MASK_ALL
-                list_val = []
-                for j in range(63,-1,-1):
-                    if (mask & 1<<j)>>j:
-                        list_val.append(str((raw_val & 1<<j)>>j))
-                    else:
-                        for selection in tri_sel:
-                            idx = tri_sel.index(selection)
-                            if (selection & 1<<j)>>j:
-                                if ((raw_val & 1<<j)>>j)==0:
-                                    log = tri_0[idx].bit_length()-1
-                                    list_val.append(
-                                        str((raw_val & 1<<log)>>log))
-                                else:
-                                    log = tri_1[idx].bit_length()-1
-                                    list_val.append(
-                                        str((raw_val & 1<<log)>>log))
-                                
-                temp = ','.join(list_val)
-                f.write(temp + '\n')
+            for i in range(start_pos, stop_pos):
+                if self.if_id == PMODA:
+                    sample = np.array(list(
+                            np.binary_repr(self.samples[i], width=64))[32:])
+                    io_direction = sample[8:16]
+                    io_input = sample[16:24]
+                    io_output = sample[24:]
+                    io_direction = io_direction[self.pins]
+                    io_input = io_input[self.pins]
+                    io_output = io_output[self.pins]
+                elif self.if_id == PMODB:
+                    sample = np.array(list(
+                            np.binary_repr(self.samples[i], width=64))[:32])
+                    io_direction = sample[8:16]
+                    io_input = sample[16:24]
+                    io_output = sample[24:]
+                    io_direction = io_direction[self.pins]
+                    io_input = io_input[self.pins]
+                    io_output = io_output[self.pins]
+                else:
+                    sample = np.array(list(
+                            np.binary_repr(self.samples[i], width=64)))
+                    io_direction = sample[:22]
+                    io_input = sample[22:44]
+                    io_output = np.append(sample[44:], ['0', '0'])
+                    io_direction = io_direction[self.pins]
+                    io_input = io_input[self.pins]
+                    io_output = io_output[self.pins]
+
+                condition = [io_direction=='0', io_direction=='1']
+                list_val = np.select(condition, [io_output, io_input])
+                f.write(','.join(list_val) + '\n')
                 
         self.trace_csv = parsed_abs
         self.trace_sr = ''
         
-    def display(self, start_pos, stop_pos):
+    def display(self):
         """Draw digital waveforms in ipython notebook.
         
         It utilises the wavedrom java script library, documentation for which 
@@ -637,107 +623,114 @@ class Trace_Buffer:
         {'name': 'ack', 'wave': '1.....|01.'}
         
         ]}
-        
-        Parameters
-        ----------
-        start_pos : int
-            The starting sample number (relative to the trace).
-        stop_pos : int
-            The stopping sample number (relative to the trace).
             
         Returns
         -------
         None
         
         """
-        if self.probes == []:
-            raise ValueError("Cannot display without metadata.")
-        if not isinstance(start_pos, int):
-            raise TypeError("Start position has to be an integer.")
-        if not 1 <= start_pos <= MAX_NUM_SAMPLES:
-            raise ValueError("Start position out of range.")
-        if not isinstance(stop_pos, int):
-            raise TypeError("Stop position has to be an integer.")
-        if not 1 <= stop_pos <= MAX_NUM_SAMPLES:
-            raise ValueError("Stop position out of range.")
-        
         # Copy the javascript to the notebook location
-        if os.system("cp -rf " + \
-                    os.path.dirname(os.path.realpath(__file__)) + \
-                    '/js' + ' ./'):
-            raise RuntimeError('Cannnot copy wavedrom javascripts.')
+        if not (os.path.isfile('./js/WaveDrom.js') and
+                os.path.isfile('./js/WaveDromSkin.js')):
+            if os.system("cp -rf " + \
+                        os.path.dirname(os.path.realpath(__file__)) + \
+                        '/js' + ' ./'):
+                raise RuntimeError('Cannnot copy wavedrom javascripts.')
         
         # Convert sr file to csv file, if necessary
         if self.trace_csv == '':
             self.sr2csv()
             
         # Read csv trace file
-        with open(self.trace_csv, 'r') as data_file:
-            csv_data = list(csv.reader(data_file))
-            
-        # Read decoded file
-        with open(self.trace_pd, 'r') as pd_file:
-            pd_data = list(csv.reader(pd_file))
+        data_file = open(self.trace_csv, 'r')
+
         
-        # Construct the decoded transactions
-        data = {}
-        data['signal']=[]
-        if self.trace_pd != '':
-            temp_val = {'name': '', 'wave': '', 'data': []}
-            for i in range(start_pos, stop_pos):
-                if i==start_pos:
-                    ref = pd_data[i]
-                    if not ref:
-                        temp_val['wave'] += 'x'
-                    else:
-                        temp_val['wave'] += '4'
-                        temp_val['data'].append(''.join(pd_data[i]))
-                else:
-                    if pd_data[i] == ref:
-                        temp_val['wave'] += '.'
-                    else:
-                        ref = pd_data[i]
-                        if not ref:
-                            temp_val['wave'] += 'x'
-                        else:
-                            temp_val['wave'] += '4'
-                            temp_val['data'].append(''.join(pd_data[i]))
-            data['signal'].append(temp_val)
-        
-        # Construct the jason format data
-        for signal_name in self.probes:
-            index = self.probes.index(signal_name)
-            temp_val = {'name': signal_name, 'wave': ''}
-            for i in range(start_pos, stop_pos):
-                if i==start_pos:
-                    ref = csv_data[i][index]
-                    temp_val['wave'] += str(csv_data[i][index])
-                else:
-                    if csv_data[i][index] == ref:
-                        temp_val['wave'] += '.'
-                    else:
-                        ref = csv_data[i][index]
-                        temp_val['wave'] += str(csv_data[i][index])
-            data['signal'].append(temp_val)
-            
         # Construct the sample numbers and headers
-        head = {}
-        head['text'] = ['tspan', {'class':'info h4'}, \
+        head = dict()
+        head['text'] = ['tspan', {'class':'info h4'},
             'Protocol decoder: ' + self.protocol + \
-            '; Sample rate: ' + str(self.samplerate) + ' samples/s']
+            '; Sample rate: ' + str(self.rate) + ' samples/s']
         head['tock'] = ''
-        for i in range(start_pos, stop_pos):
-            if i%2:
-                head['tock'] += ' '
-            else:
-                head['tock'] += (str(i)+' ')
+
+        # Setting up the json data
+        data = dict()
+        if self.trace_pd:
+            pd_file = open(self.trace_pd, 'r')
+            data['signal'] = [{'name': '', 'wave': '', 'data': list()}
+                              for _ in range(len(self.probes)+1)]
+            i = 0
+            for data_line, pd_line in zip_longest(data_file, pd_file):
+                # Adding time line
+                if i % 10 == 0:
+                    head['tock'] += (str(i) + ' ' * 10)
+
+                # Reading both raw data and decoded files
+                csv_data = list(data_line.rstrip().split(','))
+                if pd_line is not None:
+                    pd_data = pd_line.rstrip()
+                else:
+                    pd_data = 'x'
+
+                # Adding decoded data
+                if str(pd_data) in ['x', '.']:
+                    data['signal'][0]['wave'] += str(pd_data)
+                else:
+                    data['signal'][0]['wave'] += '4'
+                    data['signal'][0]['data'].append(str(pd_data))
+
+                # Adding raw data
+                if i == 0:
+                    ref = csv_data
+                    for index, signal_name in enumerate(self.probes):
+                        data['signal'][index+1]['name'] = signal_name
+                        data['signal'][index+1]['wave'] += str(
+                                            csv_data[index])
+                else:
+                    for index in range(len(self.probes)):
+                        if csv_data[index] == ref[index]:
+                            data['signal'][index+1]['wave'] += '.'
+                        else:
+                            ref[index] = csv_data[index]
+                            data['signal'][index+1]['wave'] += str(
+                                            csv_data[index])
+                i += 1
+
+            # Removing NC signal and close file
+            for idx,val in enumerate(data['signal']):
+                if val['name'] == 'NC':
+                    del data['signal'][idx]
+            pd_file.close()
+        else:
+            data['signal'] = [{'name': '', 'wave': '', 'data': list()}
+                              for _ in range(len(self.probes))]
+            for i, data_line in enumerate(data_file):
+                if i % 10 == 0:
+                    head['tock'] += (str(i) + ' ' * 10)
+
+                csv_data = list(data_line.rstrip().split(','))
+                if i == 0:
+                    ref = csv_data
+                    for index, signal_name in enumerate(self.probes):
+                        data['signal'][index]['name'] = signal_name
+                        data['signal'][index]['wave'] += str(csv_data[index])
+                else:
+                    for index in range(len(self.probes)):
+                        if csv_data[index] == ref[index]:
+                            data['signal'][index]['wave'] += '.'
+                        else:
+                            ref[index] = csv_data[index]
+                            data['signal'][index]['wave'] += str(
+                                csv_data[index])
         data['head'] = head
+
+        # Close data file
+        data_file.close()
         
         htmldata = '<script type="WaveDrom">' + json.dumps(data) + '</script>'
         IPython.core.display.display_html(IPython.core.display.HTML(htmldata))
         jsdata = 'WaveDrom.ProcessAll();'
         IPython.core.display.display_javascript(
             IPython.core.display.Javascript(
-                data=jsdata, \
+                data=jsdata,
                 lib=['files/js/WaveDrom.js', 'files/js/WaveDromSkin.js']))
     
