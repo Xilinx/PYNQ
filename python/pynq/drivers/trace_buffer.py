@@ -72,10 +72,6 @@ class Trace_Buffer:
     pin numbers 8-19 correspond to D2-D13;
     pin numbers 20-21 correspond to SDA and SCL.
     
-    Note
-    ----
-    The `sigrok-cli` library has to be installed before using this class.
-    
     Attributes
     ----------
     if_id : int
@@ -83,21 +79,21 @@ class Trace_Buffer:
     pins : list
         Array of pin numbers, 0-7 for PMODA or PMODB and 0-21 for ARDUINO.
     protocol : str
-        The protocol the sigrok decoder are using.
+        The protocol the sigrok decoder are using, for example, I2C.
     trace_csv: str
-        The absolute path of the trace file `*.csv`.
+        Absolute path of the `*.csv` trace that can be opened by text editor.
     trace_sr: str
-        The absolute path of the trace file `*.sr`, translated from `*.csv`.
+        Absolute path of the `*.sr` trace file that can be unzipped.
     trace_pd : str
-        The absolute path of the decoded file by sigrok.
+        Absolute path of the `*.pd` decoded file by sigrok decoder.
     probes : list
-        The list of probes used for the trace.
+        The list of probes used for the trace, e.g., ['SCL','SDA'] for I2C.
     dma : DMA
         The DMA object associated with the trace buffer.
     ctrl : MMIO
         The MMIO class used to control the DMA.
     rate: int
-        The sample rate of the traces.
+        The sample rate of the traces, at most 100M samples per second.
     samples : ndarray
         The np array storing the 64-bit samples.
     ffi: cffi.api.FFI
@@ -136,11 +132,11 @@ class Trace_Buffer:
         pins : list
             List of pin numbers, 0-7 for PMODA or PMODB and 0-21 for ARDUINO.
         protocol : str
-            The protocol the sigrok decoder are using.
+            The protocol the sigrok decoder are using, for example, I2C.
         trace: str
-            The relative/absolute path of the trace file.
+            The relative/absolute path of the trace file in `csv`/`sr` format.
         rate : int
-            The rate of the samples.
+            The rate of the samples, at most 100M.
         
         """
         if os.geteuid() != 0:
@@ -213,10 +209,6 @@ class Trace_Buffer:
         
     def __del__(self):
         """Destructor for trace buffer object.
-
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -286,7 +278,9 @@ class Trace_Buffer:
         
     def show(self):
         """Show information about the specified protocol.
-        
+
+        This method will print out useful information about the protocol.
+
         Return
         ------
         None
@@ -339,7 +333,7 @@ class Trace_Buffer:
         """Translate the `*.sr` file to `*.csv` file.
         
         The translated `*.csv` files can be used for interactive plotting. 
-        It is human readable.
+        `*.csv` file is human readable, and can be opened using text editor.
         
         Note
         ----
@@ -397,7 +391,7 @@ class Trace_Buffer:
         Parameters
         ----------
         decoded_file : str
-            The name of the file recording the outputs.
+            Name of the output file, which can be opened in text editor.
         options : str
             Additional options to be passed to sigrok-cli.
         
@@ -529,11 +523,11 @@ class Trace_Buffer:
         Parameters
         ----------
         parsed : str
-            The file name of the parsed output.
+            Name of the parsed output file which can be opened in text editor.
         start_pos : int
-            The starting sample number.
+            Starting sample number, no less than 1.
         stop_pos : int
-            The stopping sample number.
+            Stopping sample number, no more than the maximum number of samples.
         
         Return
         ------
