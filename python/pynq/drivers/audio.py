@@ -51,10 +51,10 @@ class Audio:
     
     Attributes
     ----------
-    base_addr : int
-        The base address of the audio controller (e.g. 0x43C0000).
-    length : int
-        Length of audio controller address space (e.g. 0x10000).
+    mmio : MMIO
+        The MMIO object associated with the audio controller.
+    gpio : GPIO
+        The GPIO object associated with the audio controller.
     buffer : numpy.ndarray
         The numpy array to store the audio.
     sample_rate: int
@@ -63,19 +63,27 @@ class Audio:
         Sample length of the current buffer content.
         
     """
-    def __init__(self):
+    def __init__(self, ip='SEG_d_axi_pdm_1_S_AXI_reg',
+                 rst="audio_path_sel"):
         """Return a new Audio object.
         
         The PL is queried to get the base address and length.
         
         Parameters
         ----------
-        None
+        ip : str
+            The name of the IP required for the audio driver.
+        rst : str
+            The name of the GPIO pins used as reset for the audio driver.
         
         """
-        self.base_addr = int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][0],16)
-        self.length = int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][1],16)
-        self._AudioMMIO = MMIO(self.base_addr, self.length)
+        if ip not in PL.ip_dict:
+            raise LookupError("No such audio IP in the overlay.")
+        if rst not in PL.gpio_dict:
+            raise LookupError("No such reset pin in the overlay.")
+
+        self.mmio = MMIO(PL.ip_dict[ip][0], PL.ip_dict[ip][1])
+        self.gpio = GPIO(GPIO.get_gpio_pin(PL.gpio_dict[rst][0]), 'out')
         
         self._ffi = cffi.FFI()
         self._libaudio = self._ffi.dlopen(LIB_SEARCH_PATH + "/libaudio.so")
@@ -89,7 +97,7 @@ class Audio:
                                           unsigned int * BufAddr, 
                                           unsigned int Num_Samles_32Bit);""")
         
-        char_adrp  = self._ffi.from_buffer(self._AudioMMIO.mem)
+        char_adrp  = self._ffi.from_buffer(self.mmio.mem)
         self._uint_adrpv  = self._ffi.cast('unsigned int', char_adrp)
         
         self.buffer = numpy.zeros(0).astype(numpy.int)
@@ -132,10 +140,6 @@ class Audio:
     def play(self):
         """Play audio buffer via audio jack.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
@@ -144,7 +148,7 @@ class Audio:
         char_datp  = self._ffi.from_buffer(self.buffer)
         uint_datp  = self._ffi.cast('unsigned int*', char_datp)
         
-        char_adrp  = self._ffi.from_buffer(self._AudioMMIO.mem)
+        char_adrp  = self._ffi.from_buffer(self.mmio.mem)
         uint_adrp  = self._ffi.cast('unsigned int', char_adrp)
         
         self._libaudio._Pynq_play(self._uint_adrpv, uint_datp, 
@@ -153,35 +157,23 @@ class Audio:
     def bypass_start(self):
         """Stream audio controller input directly to output.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        gpio_idx = GPIO.get_gpio_pin(PL.gpio_dict["audio_path_sel/Din"][0])
-        gpio_pin = GPIO(gpio_idx, 'out')
-        gpio_pin.write(1)
+        self.gpio.write(1)
         del gpio_pin
         
     def bypass_stop(self):
         """Stop streaming input to output directly.
         
-        Parameters
-        ----------
-        None
-        
         Returns
         -------
         None
         
         """
-        gpio_idx = GPIO.get_gpio_pin(PL.gpio_dict["audio_path_sel/Din"][0])
-        gpio_pin = GPIO(gpio_idx, 'out')
-        gpio_pin.write(0)
+        self.gpio.write(0)
         del gpio_pin
         
     def save(self, file):
@@ -204,7 +196,7 @@ class Audio:
         None
         
         """
-        if (self.buffer.dtype.type != numpy.int32) :
+        if self.buffer.dtype.type != numpy.int32:
             raise ValueError("Internal audio buffer should be of type int32.")
         if not isinstance(file, str) :
             raise ValueError("File name has to be a string.")
@@ -262,8 +254,9 @@ class Audio:
             self.sample_rate = pdm_file.getframerate()
             self.sample_len = pdm_file.getnframes()
             self.buffer = temp_buffer.astype(numpy.int32)
-            
-    def info(self, file):
+
+    @staticmethod
+    def info(file):
         """Prints information about pdm files.
         
         The information includes name, channels, samples, frames, etc.

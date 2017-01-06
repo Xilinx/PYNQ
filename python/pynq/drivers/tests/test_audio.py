@@ -54,10 +54,10 @@ def test_audio_out():
     """
     audio_t = Audio()
     
-    assert audio_t.base_addr==int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][0],\
-                                    16), 'Wrong base address for audio IP.'
-    assert audio_t.length==int(PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][1],\
-                                    16), 'Wrong address range for audio IP.'
+    assert audio_t.mmio.base_addr==PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][0],\
+        'Wrong base address for audio IP.'
+    assert audio_t.mmio.length==PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][1],\
+        'Wrong address range for audio IP.'
     
     print("\nSpeaking into the MIC for 5 seconds...")
     audio_t.record(5)
