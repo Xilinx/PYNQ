@@ -64,8 +64,8 @@ def test_mmio():
     
     ol.download()
     sleep(0.2)
-    mmio_base = int(ol.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16)
-    mmio_range = int(ol.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16)
+    mmio_base = ol.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][0]
+    mmio_range = ol.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][1]
     mmio = MMIO(mmio_base, mmio_range)
     for offset in range(0, 100, general_const.MMIO_WORD_LENGTH):
         data1 = randint(0, pow(2,32)-1)

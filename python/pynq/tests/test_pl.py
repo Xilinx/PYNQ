@@ -59,68 +59,60 @@ def test_overlay():
             'Overlay gets empty IP dictionary.'
     assert len(ol1.gpio_dict)>0,\
             'Overlay gets empty GPIO dictionary.'
-    assert int(ol1.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16) == \
+    assert ol1.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][0] == \
            int('0x40000000',16), 'Overlay gets wrong IP base address.'
-    assert int(ol1.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16) == \
+    assert ol1.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][1] == \
            int('0x10000',16), 'Overlay gets wrong IP address range.'
-    for i in ol1.ip_dict.keys():
-        assert ol1.get_ip_addr_base(i)==ol1.ip_dict[i][0],\
-            'Overlay gets wrong IP base address.'
-        assert ol1.get_ip_addr_range(i)==ol1.ip_dict[i][1],\
-            'Overlay gets wrong IP address range.'
-        assert ol1.get_ip_state(i)==ol1.ip_dict[i][2]==None,\
+    for i in ol1.ip_dict:
+        assert ol1.ip_dict[i][2] is None,\
             'Overlay gets wrong IP state.'
         # Set "TEST" for IP states
         ol1.ip_dict[i][2] = "TEST"
-    for i in ol1.gpio_dict.keys():
-        assert ol1.get_gpio_user_ix(i)==ol1.gpio_dict[i][0],\
-            'Overlay gets wrong PS GPIO pin.'
+    for i in ol1.gpio_dict:
+        assert ol1.gpio_dict[i][1] is None, \
+            'Overlay gets wrong IP state.'
         # Set "TEST" for GPIO states
         ol1.gpio_dict[i][1] = "TEST"
     ol1.reset()
-    for i in ol1.ip_dict.keys():
+    for i in ol1.ip_dict:
         # "TEST" should have been cleared by reset()
-        assert ol1.get_ip_state(i)==None,\
+        assert ol1.ip_dict[i][2] is None,\
             'Overlay cannot reset IP dictionary.'
-    for i in ol1.gpio_dict.keys():
+    for i in ol1.gpio_dict:
         # "TEST" should have been cleared by reset()
-        assert ol1.get_gpio_state(i)==None,\
+        assert ol1.gpio_dict[i][1] is None,\
             'Overlay cannot reset GPIO dictionary.'
-            
+
     ol2.download()
     assert 'base.bit' in ol2.bitfile_name, \
-            'Bitstream is not in the overlay.'
-    assert len(ol2.ip_dict)>0,\
-            'Overlay gets empty IP dictionary.'
-    assert len(ol2.gpio_dict)>0,\
-            'Overlay gets empty GPIO dictionary.'
-    assert int(ol2.get_ip_addr_base('SEG_mb_bram_ctrl_1_Mem0'),16) == \
-           int('0x40000000',16), 'Overlay gets wrong IP base address.'
-    assert int(ol2.get_ip_addr_range('SEG_mb_bram_ctrl_1_Mem0'),16) == \
-           int('0x10000',16), 'Overlay gets wrong IP address range.'
-    for i in ol2.ip_dict.keys():
-        assert ol2.get_ip_addr_base(i)==ol2.ip_dict[i][0],\
-            'Overlay gets wrong IP base address.'
-        assert ol2.get_ip_addr_range(i)==ol2.ip_dict[i][1],\
-            'Overlay gets wrong IP address range.'
-        assert ol2.get_ip_state(i)==ol2.ip_dict[i][2]==None,\
+        'Bitstream is not in the overlay.'
+    assert len(ol2.ip_dict) > 0, \
+        'Overlay gets empty IP dictionary.'
+    assert len(ol2.gpio_dict) > 0, \
+        'Overlay gets empty GPIO dictionary.'
+    assert ol2.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][0] == \
+           int('0x40000000', 16), 'Overlay gets wrong IP base address.'
+    assert ol2.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][1] == \
+           int('0x10000', 16), 'Overlay gets wrong IP address range.'
+    for i in ol2.ip_dict:
+        assert ol2.ip_dict[i][2] is None, \
             'Overlay gets wrong IP state.'
         # Set "TEST" for IP states
         ol2.ip_dict[i][2] = "TEST"
-    for i in ol2.gpio_dict.keys():
-        assert ol2.get_gpio_user_ix(i)==ol2.gpio_dict[i][0],\
-            'Overlay gets wrong PS GPIO pin.'
+    for i in ol2.gpio_dict:
+        assert ol2.gpio_dict[i][1] is None, \
+            'Overlay gets wrong IP state.'
         # Set "TEST" for GPIO states
         ol2.gpio_dict[i][1] = "TEST"
     ol2.reset()
-    for i in ol2.ip_dict.keys():
+    for i in ol2.ip_dict:
         # "TEST" should have been cleared by reset()
-        assert ol2.get_ip_state(i)==None,\
+        assert ol2.ip_dict[i][2] is None, \
             'Overlay cannot reset IP dictionary.'
-    for i in ol2.gpio_dict.keys():
+    for i in ol2.gpio_dict:
         # "TEST" should have been cleared by reset()
-        assert ol2.get_gpio_state(i)==None,\
-            'Overlay cannot reset IP dictionary.'
+        assert ol2.gpio_dict[i][1] is None, \
+            'Overlay cannot reset GPIO dictionary.'
 
 @pytest.mark.run(order=10)
 def test_overlay1():
@@ -131,7 +123,7 @@ def test_overlay1():
     """
     global ol1,ol2
     ol1.download()
-    assert not ol1.get_timestamp()=='', \
+    assert not ol1.bitstream.timestamp=='', \
             'Overlay (base.bit) has an empty timestamp.'
     assert ol1.is_loaded(), \
             'Overlay (base.bit) should be loaded.'
@@ -147,7 +139,7 @@ def test_overlay2():
     """
     global ol1,ol2
     ol2.download()
-    assert not ol2.get_timestamp()=='', \
+    assert not ol2.bitstream.timestamp=='', \
             'Overlay 2 has an empty timestamp.'
     assert not ol1.is_loaded(), \
             'Overlay 1 should not be loaded.'
@@ -163,7 +155,7 @@ def test_end():
     """
     global ol1,ol2
     ol1.download()
-    assert not ol1.get_timestamp()=='', \
+    assert not ol1.bitstream.timestamp=='', \
             'Overlay 1 has an empty timestamp.'
     assert ol1.is_loaded(), \
             'Overlay 1 should be loaded.'

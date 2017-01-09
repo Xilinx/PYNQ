@@ -37,52 +37,13 @@ import numpy as np
 from PIL import Image
 from . import _video
 
-VDMA_DICT = {
-    'BASEADDR': int(PL.ip_dict["SEG_axi_vdma_0_Reg"][0],16),
-    'NUM_FSTORES': 3,
-    'INCLUDE_MM2S': 1,
-    'INCLUDE_MM2S_DRE': 0,
-    'M_AXI_MM2S_DATA_WIDTH': 32,
-    'INCLUDE_S2MM': 1,
-    'INCLUDE_S2MM_DRE': 0,
-    'M_AXI_S2MM_DATA_WIDTH': 32,
-    'INCLUDE_SG': 0,
-    'ENABLE_VIDPRMTR_READS': 1,
-    'USE_FSYNC': 1,
-    'FLUSH_ON_FSYNC': 1,
-    'MM2S_LINEBUFFER_DEPTH': 4096,
-    'S2MM_LINEBUFFER_DEPTH': 4096,
-    'MM2S_GENLOCK_MODE': 0,
-    'S2MM_GENLOCK_MODE': 0,
-    'INCLUDE_INTERNAL_GENLOCK': 1,
-    'S2MM_SOF_ENABLE': 1,
-    'M_AXIS_MM2S_TDATA_WIDTH': 24,
-    'S_AXIS_S2MM_TDATA_WIDTH': 24,
-    'ENABLE_DEBUG_INFO_1': 0,
-    'ENABLE_DEBUG_INFO_5': 0,
-    'ENABLE_DEBUG_INFO_6': 1,
-    'ENABLE_DEBUG_INFO_7': 1,
-    'ENABLE_DEBUG_INFO_9': 0,
-    'ENABLE_DEBUG_INFO_13': 0,
-    'ENABLE_DEBUG_INFO_14': 1,
-    'ENABLE_DEBUG_INFO_15': 1,
-    'ENABLE_DEBUG_ALL': 0,
-    'ADDR_WIDTH': 32,
-}
-
-VTC_DISPLAY_ADDR = int(PL.ip_dict["SEG_v_tc_0_Reg"][0],16)
-VTC_CAPTURE_ADDR = int(PL.ip_dict["SEG_v_tc_1_Reg"][0],16)
-DYN_CLK_ADDR = int(PL.ip_dict["SEG_axi_dynclk_0_reg0"][0],16)
-
-GPIO_DICT = {
-    'BASEADDR': int(PL.ip_dict["SEG_axi_gpio_video_Reg"][0],16),
-    'INTERRUPT_PRESENT': 1,
-    'IS_DUAL': 1,
-}
-
 MAX_FRAME_WIDTH = 1920
 MAX_FRAME_HEIGHT = 1080
-
+VMODE_1920x1080 = 4
+VMODE_1280x1024 = 3
+VMODE_1280x720  = 2
+VMODE_800x600   = 1
+VMODE_640x480   = 0
 
 class HDMI(object):
     """Class for an HDMI controller.
@@ -108,15 +69,13 @@ class HDMI(object):
         A frame buffer storing at most 3 frames.
         
     """
-
-    VMODE_1920x1080 = 4
-    VMODE_1280x1024 = 3
-    VMODE_1280x720  = 2
-    VMODE_800x600   = 1
-    VMODE_640x480   = 0
-
-    def __init__(self, direction, video_mode=VMODE_640x480, init_timeout=10,
-                 frame_list=None):
+    def __init__(self, direction, video_mode=VMODE_640x480,
+                 init_timeout=10, frame_list=None,
+                 vdma_name='SEG_axi_vdma_0_Reg',
+                 display_name='SEG_v_tc_0_Reg',
+                 capture_name='SEG_v_tc_1_Reg',
+                 clk_name='SEG_axi_dynclk_0_reg0',
+                 gpio_name='SEG_axi_gpio_video_Reg'):
         """Returns a new instance of an HDMI object. 
         
         Assign the given frame buffer if specified, otherwise create a new 
@@ -145,28 +104,90 @@ class HDMI(object):
             Video mode for HDMI OUT. Ignored for HDMI IN.
         init_timeout : int, optional
             Timeout in seconds for HDMI IN initialization.
+        vdma_name : str
+            The name of the video DMA that is available in PL ip_dict.
+        display_name : str
+            The name of the video display IP that is available in PL ip_dict.
+        capture_name : str
+            The name of the video capture IP that is available in PL ip_dict.
+        clk_name : str
+            The name of the clock segment that is available in PL ip_dict.
+        gpio_name : str
+            The name of the GPIO segment that is available in PL ip_dict.
             
         """
-
         if not direction.lower() in ['in', 'out']:
             raise ValueError("HDMI direction should be in or out.")
         if (not isinstance(frame_list, _video._frame)) and \
-                (not (frame_list == None)):
+                (not frame_list is None):
             raise ValueError("frame_list should be of type _video._frame.")
         if (not isinstance(init_timeout, int)) or init_timeout < 1:
             raise ValueError("init_timeout should be integer >= 1.")
-        
+
+        if vdma_name not in PL.ip_dict:
+            raise LookupError("No such VDMA in the overlay.")
+        if display_name not in PL.ip_dict:
+            raise LookupError("No such display address in the overlay.")
+        if capture_name not in PL.ip_dict:
+            raise LookupError("No such capture address in the overlay.")
+        if clk_name not in PL.ip_dict:
+            raise LookupError("No such clock address in the overlay.")
+        if gpio_name not in PL.ip_dict:
+            raise LookupError("No such GPIO in the overlay.")
+
+        vdma_dict = {
+            'BASEADDR': PL.ip_dict[vdma_name][0],
+            'NUM_FSTORES': 3,
+            'INCLUDE_MM2S': 1,
+            'INCLUDE_MM2S_DRE': 0,
+            'M_AXI_MM2S_DATA_WIDTH': 32,
+            'INCLUDE_S2MM': 1,
+            'INCLUDE_S2MM_DRE': 0,
+            'M_AXI_S2MM_DATA_WIDTH': 32,
+            'INCLUDE_SG': 0,
+            'ENABLE_VIDPRMTR_READS': 1,
+            'USE_FSYNC': 1,
+            'FLUSH_ON_FSYNC': 1,
+            'MM2S_LINEBUFFER_DEPTH': 4096,
+            'S2MM_LINEBUFFER_DEPTH': 4096,
+            'MM2S_GENLOCK_MODE': 0,
+            'S2MM_GENLOCK_MODE': 0,
+            'INCLUDE_INTERNAL_GENLOCK': 1,
+            'S2MM_SOF_ENABLE': 1,
+            'M_AXIS_MM2S_TDATA_WIDTH': 24,
+            'S_AXIS_S2MM_TDATA_WIDTH': 24,
+            'ENABLE_DEBUG_INFO_1': 0,
+            'ENABLE_DEBUG_INFO_5': 0,
+            'ENABLE_DEBUG_INFO_6': 1,
+            'ENABLE_DEBUG_INFO_7': 1,
+            'ENABLE_DEBUG_INFO_9': 0,
+            'ENABLE_DEBUG_INFO_13': 0,
+            'ENABLE_DEBUG_INFO_14': 1,
+            'ENABLE_DEBUG_INFO_15': 1,
+            'ENABLE_DEBUG_ALL': 0,
+            'ADDR_WIDTH': 32,
+        }
+        vtc_display_addr = PL.ip_dict[display_name][0]
+        vtc_capture_addr = PL.ip_dict[capture_name][0]
+        dyn_clk_addr = PL.ip_dict[clk_name][0]
+        gpio_dict = {
+            'BASEADDR': PL.ip_dict[gpio_name][0],
+            'INTERRUPT_PRESENT': 1,
+            'IS_DUAL': 1,
+        }
+
         self.direction = direction.lower()
         if self.direction == 'out':
-            if frame_list == None:
-                self._display = _video._display(VDMA_DICT,
-                                                VTC_DISPLAY_ADDR,
-                                                DYN_CLK_ADDR, 1)
+            # HDMI output
+            if frame_list is None:
+                self._display = _video._display(vdma_dict,
+                                                vtc_display_addr,
+                                                dyn_clk_addr, 1)
                 self._display.mode(video_mode)
             else:
-                self._display = _video._display(VDMA_DICT,
-                                                VTC_DISPLAY_ADDR,
-                                                DYN_CLK_ADDR, 1,
+                self._display = _video._display(vdma_dict,
+                                                vtc_display_addr,
+                                                dyn_clk_addr, 1,
                                                 frame_list)
                 self._display.mode(video_mode)
                                                 
@@ -392,20 +413,21 @@ class HDMI(object):
             """
             
         else:
-            if frame_list == None:
-                self._capture = _video._capture(VDMA_DICT,
-                                                GPIO_DICT,
-                                                VTC_CAPTURE_ADDR,
+            # HDMI input
+            if frame_list is None:
+                self._capture = _video._capture(vdma_dict,
+                                                gpio_dict,
+                                                vtc_capture_addr,
                                                 init_timeout)
             else:
-                self._capture = _video._capture(VDMA_DICT,
-                                                GPIO_DICT,
-                                                VTC_CAPTURE_ADDR,
+                self._capture = _video._capture(vdma_dict,
+                                                gpio_dict,
+                                                vtc_capture_addr,
                                                 init_timeout,
                                                 frame_list)
                                                 
             self.frame_list = self._capture.framebuffer
-                  
+            
             self.stop = self._capture.stop
             """Stop the video controller.
             
@@ -613,7 +635,7 @@ class HDMI(object):
             self._display.frame(args[0], args[1].frame)
         elif len(args) == 1:
             if type(args[0]) is int:
-                return Frame(self.frame_width(), self.frame_height(),\
+                return Frame(self.frame_width(), self.frame_height(),
                              self._display.frame(args[0]))
             else:
                 self._display.frame(args[0].frame)
@@ -635,7 +657,6 @@ class HDMI(object):
             An object of a frame in the frame buffer.
             
         """
-        buf = None
         if index is None:
             buf = self._capture.frame()
         else:
@@ -646,10 +667,6 @@ class HDMI(object):
         """Delete the HDMI object.
         
         Stop the video controller first to avoid odd behaviors of the DMA.
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
@@ -831,7 +848,7 @@ class Frame(object):
         """
         npframe = (np.frombuffer(self.frame, dtype=np.uint8)).\
                     reshape(1080,1920,3)[:self.height,:self.width,[2,1,0]]
-        image = Image.frombytes('RGB', \
+        image = Image.frombytes('RGB',
                     (self.width,self.height), bytes(bytearray(npframe)))
         image.save(path, 'JPEG')
         
@@ -861,7 +878,6 @@ class Frame(object):
         """
         npframe = (np.frombuffer(frame_raw, dtype=np.uint8)).\
                     reshape(1080,1920,3)[:height,:width,[2,1,0]]
-        image = Image.frombytes('RGB', \
+        image = Image.frombytes('RGB',
                     (width, height), bytes(bytearray(npframe)))
         image.save(path, 'JPEG')
-        
