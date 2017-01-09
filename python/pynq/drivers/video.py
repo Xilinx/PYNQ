@@ -72,9 +72,9 @@ class HDMI(object):
     def __init__(self, direction, video_mode=VMODE_640x480,
                  init_timeout=10, frame_list=None,
                  vdma_name='SEG_axi_vdma_0_Reg',
-                 display_addr='SEG_v_tc_0_Reg',
-                 capture_addr='SEG_v_tc_1_Reg',
-                 clk_addr='SEG_axi_dynclk_0_reg0',
+                 display_name='SEG_v_tc_0_Reg',
+                 capture_name='SEG_v_tc_1_Reg',
+                 clk_name='SEG_axi_dynclk_0_reg0',
                  gpio_name='SEG_axi_gpio_video_Reg'):
         """Returns a new instance of an HDMI object. 
         
@@ -104,6 +104,16 @@ class HDMI(object):
             Video mode for HDMI OUT. Ignored for HDMI IN.
         init_timeout : int, optional
             Timeout in seconds for HDMI IN initialization.
+        vdma_name : str
+            The name of the video DMA that is available in PL ip_dict.
+        display_name : str
+            The name of the video display IP that is available in PL ip_dict.
+        capture_name : str
+            The name of the video capture IP that is available in PL ip_dict.
+        clk_name : str
+            The name of the clock segment that is available in PL ip_dict.
+        gpio_name : str
+            The name of the GPIO segment that is available in PL ip_dict.
             
         """
         if not direction.lower() in ['in', 'out']:
@@ -116,11 +126,11 @@ class HDMI(object):
 
         if vdma_name not in PL.ip_dict:
             raise LookupError("No such VDMA in the overlay.")
-        if display_addr not in PL.ip_dict:
+        if display_name not in PL.ip_dict:
             raise LookupError("No such display address in the overlay.")
-        if capture_addr not in PL.ip_dict:
+        if capture_name not in PL.ip_dict:
             raise LookupError("No such capture address in the overlay.")
-        if clk_addr not in PL.ip_dict:
+        if clk_name not in PL.ip_dict:
             raise LookupError("No such clock address in the overlay.")
         if gpio_name not in PL.ip_dict:
             raise LookupError("No such GPIO in the overlay.")
@@ -157,9 +167,9 @@ class HDMI(object):
             'ENABLE_DEBUG_ALL': 0,
             'ADDR_WIDTH': 32,
         }
-        vtc_display_addr = PL.ip_dict[display_addr][0]
-        vtc_capture_addr = PL.ip_dict[capture_addr][0]
-        dyn_clk_addr = PL.ip_dict[clk_addr][0]
+        vtc_display_addr = PL.ip_dict[display_name][0]
+        vtc_capture_addr = PL.ip_dict[capture_name][0]
+        dyn_clk_addr = PL.ip_dict[clk_name][0]
         gpio_dict = {
             'BASEADDR': PL.ip_dict[gpio_name][0],
             'INTERRUPT_PRESENT': 1,
