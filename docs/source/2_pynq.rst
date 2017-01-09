@@ -1,6 +1,6 @@
-**************
-PYNQ Overview
-**************
+******************
+PYNQ Introduction
+******************
 
 .. contents:: Table of Contents
    :depth: 2
