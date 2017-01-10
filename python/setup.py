@@ -92,7 +92,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'install':
     run_make("pynq/_pynq/_audio/", "pynq/drivers/" ,"libaudio.so")
     
 setup(  name='pynq',
-        version='1.0',
+        version='1.4',
         description='Python for Xilinx package',
         author='XilinxPythonProject',
         author_email='pynq_support@xilinx.com',
