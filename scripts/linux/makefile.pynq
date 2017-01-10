@@ -3,8 +3,10 @@ ifndef BOARD
     $(error BOARD environment variable is undefined)
 endif
 
+PYNQ_PYTHON ?= python3.4
 REPO_DIR = /home/xilinx/pynq_git
-PYNQ_DIR = /usr/local/lib/python3.4/dist-packages/pynq
+SITE_PACKAGES = $(shell ${PYNQ_PYTHON} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+PYNQ_DIR = ${SITE_PACKAGES}/pynq
 
 FINAL_DOCS_DIR = /home/xilinx/docs
 FINAL_NOTEBOOKS_DIR = /home/xilinx/jupyter_notebooks
@@ -86,12 +88,12 @@ pynq_package:
 	@echo
 	@echo "Pip install latest pynq python package"
 	@echo
-	python3.4 /home/xilinx/scripts/stop_pl_server.py
-	rm -rf ${PYNQ_DIR}/*
+	-${PYNQ_PYTHON} /home/xilinx/scripts/stop_pl_server.py
+	-rm -rf ${PYNQ_DIR}/*
 	cp -rf ${REPO_DIR}/${BOARD}/sdk/bin/*.bin ${REPO_DIR}/python/pynq/iop/
 	cp -rf ${REPO_DIR}/${BOARD}/bitstream ${REPO_DIR}/python/pynq/
 	cd ${REPO_DIR}/python ; sudo -H pip install --upgrade .
-	python3.4 /home/xilinx/scripts/start_pl_server.py &
+	${PYNQ_PYTHON} /home/xilinx/scripts/start_pl_server.py &
 
 pynq_permissions:
 	chown -R xilinx:xilinx ${PYNQ_DIR}/*
@@ -147,7 +149,7 @@ doc_sphinx:
 	@echo "Building docs"
 	@echo
 	cd ${REPO_DIR}/docs ; sphinx-apidoc -f -o ./source ${PYNQ_DIR}
-	cd ${REPO_DIR}/docs ; python3 ipynb_post_processor.py
+	cd ${REPO_DIR}/docs ; ${PYNQ_PYTHON} ipynb_post_processor.py
 	cd ${REPO_DIR}/docs ; make clean ; make html
 	rm -rf ${FINAL_DOCS_DIR}/*
 	cp -r ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
