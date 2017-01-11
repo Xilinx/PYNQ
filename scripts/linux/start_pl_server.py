@@ -36,6 +36,6 @@ import os
 from pynq import PL
 
 # Start the PL server
-if os.path.isfile("/home/xilinx/pynq/bitstream/.log"):
+if os.path.exists("/home/xilinx/pynq/bitstream/.log"):
     os.remove("/home/xilinx/pynq/bitstream/.log")
 PL.setup()
