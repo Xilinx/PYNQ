@@ -131,8 +131,8 @@ uint32_t cma_pages_available();
 """)
 
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
-libdma = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
-libxlnk = memapi.dlopen("/usr/lib/libsds_lib.so")
+#libdma = ffi.dlopen(LIB_SEARCH_PATH + "/libdma.so")
+#libxlnk = memapi.dlopen("/usr/lib/libsds_lib.so")
 
 DefaultConfig = {
     'DeviceId' : 0,
@@ -251,11 +251,11 @@ class DMA:
         self.Configuration = {}
         self._gen_config(address,direction,attr_dict)
         
-        status = libdma.XAxiDma_CfgInitialize(self.DMAengine,self.DMAinstance)
+        #status = libdma.XAxiDma_CfgInitialize(self.DMAengine,self.DMAinstance)
         if status != 0:
             raise RuntimeError("Failed to initialize DMA!")
-        libdma.XAxiDma_Reset(self.DMAengine)
-        libdma.DisableInterruptsAll(self.DMAengine)
+        #libdma.XAxiDma_Reset(self.DMAengine)
+        #libdma.DisableInterruptsAll(self.DMAengine)
 
     def _gen_config(self, address, direction, attr_dict):
         """Build configuration and map memory.
@@ -283,10 +283,10 @@ class DMA:
             else:
                 print("Warning: Expecting 3rd Arg to be a dict.")
 
-        virt = libxlnk.cma_mmap(address,0x10000)
-        if virt == -1:
-            raise RuntimeError("Memory map of driver failed.")
-        self.DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
+        #virt = libxlnk.cma_mmap(address,0x10000)
+        #if virt == -1:
+        #    raise RuntimeError("Memory map of driver failed.")
+        #self.DMAinstance.BaseAddr = ffi.cast("uint32_t *",virt)
         self.DMAinstance.DeviceId = DeviceId
         DeviceId += 1
         
@@ -309,7 +309,7 @@ class DMA:
         """
         if self.buf != None and self.buf != ffi.NULL:
             self.free_buf()
-        libdma.XAxiDma_Reset(self.DMAengine)
+        #libdma.XAxiDma_Reset(self.DMAengine)
 
     def transfer(self,num_bytes,direction=DMA_FROM_DEV):
         """Transfer data using DMA (Non-blocking).
@@ -348,12 +348,12 @@ class DMA:
             raise RuntimeError("Invalid direction for transfer.")
         self.direction = direction
         if self.buf is not None:
-            libdma.XAxiDma_SimpleTransfer(\
-                self.DMAengine,
-                self._bufPtr,
-                num_bytes,
-                self.direction
-                )
+            #libdma.XAxiDma_SimpleTransfer(\
+            #    self.DMAengine,
+            #    self._bufPtr,
+            #    num_bytes,
+            #    self.direction
+            #   )
             self._TransferInitiated = 1
         else:
             raise RuntimeError("Buffer not allocated.")
@@ -389,13 +389,13 @@ class DMA:
         
         """
         if self.buf is None:
-            self.buf = libxlnk.cma_alloc(num_bytes, cacheable)
+            #self.buf = libxlnk.cma_alloc(num_bytes, cacheable)
             if self.buf == ffi.NULL:
                 raise RuntimeError("Memory allocation failed.")
-        else:
-            libxlnk.cma_free(self.buf)
-            self.buf = libxlnk.cma_alloc(num_bytes, cacheable)
-        bufPhyAddr = libxlnk.cma_get_phy_addr(self.buf)
+        #else:
+            #libxlnk.cma_free(self.buf)
+            #self.buf = libxlnk.cma_alloc(num_bytes, cacheable)
+        #bufPhyAddr = libxlnk.cma_get_phy_addr(self.buf)
         self._bufPtr = ffi.cast("uint32_t *",bufPhyAddr)
         self.bufLength = num_bytes
         
@@ -416,7 +416,7 @@ class DMA:
         """
         if self.buf == None or self.buf == ffi.NULL:
             return
-        libxlnk.cma_free(self.buf)
+        #libxlnk.cma_free(self.buf)
         
     def wait(self, wait_timeout=10):
         """Block till DMA is busy or a timeout occurs.
@@ -436,10 +436,10 @@ class DMA:
         if self._TransferInitiated == 0:
             return
         Error = "DMA wait timed out."
-        with timeout(seconds = wait_timeout, error_message = Error):
-            while True:
-                if libdma.XAxiDma_Busy(self.DMAengine,self.direction) == 0:
-                    break
+        #with timeout(seconds = wait_timeout, error_message = Error):
+            #while True:
+                #if libdma.XAxiDma_Busy(self.DMAengine,self.direction) == 0:
+                    #break
                     
     def get_buf(self, width=32):
         """Get a CFFI pointer to object's internal buffer.
