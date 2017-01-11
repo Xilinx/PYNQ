@@ -6,42 +6,53 @@ Documentation Changelog
    :depth: 2
 
 Version 2.00 image_2017_01
-=================
+============================
 
 11 Jan 2017
 
-## Python Packages (new)
+Python Packages (new)
+----------------------
+
 * uvloop
 * transitions
 * pygraphviz
 * pyeda
 
-## Python Pacakges (updated)
+Python Pacakges (updated)
+--------------------------------
+
 * pynq
 * Jupyter
 * IPython
 * pip
 
-
-## Linux Packages	
+Linux Packages
+--------------------------------
+	
 * microblaze-gcc
 * iwconfig
 * iwlist
 * Python3.6
  
-## Other	
+Other	
+--------------------------------
+
 * Jupyter extensions
 * reveal.js update
 * update_pynq.sh
 * wavedrom.js
  
-## Notebooks	
+Notebooks	
+--------------------------------
+
 * audio (update)
 * arduino_lcd (new)
 * utilities (new)
 * interrupt integration (old/new?)
 
-## Base overlay
+Base overlay
+--------------------------------
+
 * IOP interface to DDR added
 * Interrupts added from IOP to PS
 
