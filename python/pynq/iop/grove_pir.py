@@ -76,7 +76,6 @@ class Grove_PIR(object):
                               PMOD_GROVE_G2]:
                 raise ValueError("PIR group number can only be G1 - G2.")
             self.pir_iop = Pmod_IO(if_id, gr_pin[0], 'in')
-            return self.pir_iop
         elif if_id in [ARDUINO]:
             if not gr_pin in [ARDUINO_GROVE_G1,
                               ARDUINO_GROVE_G2,
@@ -87,7 +86,6 @@ class Grove_PIR(object):
                               ARDUINO_GROVE_G7]:
                 raise ValueError("PIR group number can only be G1 - G7.")
             self.pir_iop = Arduino_IO(if_id, gr_pin[0], 'in')
-            return self.pir_iop
         else:
             raise ValueError("No such IOP for grove device.")
             
