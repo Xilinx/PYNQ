@@ -2,7 +2,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include "xlnk.h"
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdlib.h>
