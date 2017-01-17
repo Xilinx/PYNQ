@@ -35,6 +35,7 @@
  * @file arduino_lcd18.c
  *
  * This is the module for the Adafruit LCD18 on Arduino interface.
+ * https://www.adafruit.com/product/802.
  *
  * <pre>
  * MODIFICATION HISTORY:
@@ -57,31 +58,21 @@
 
 #define CONFIG_IOP_SWITCH       0x1
 #define CLEAR_SCREEN            0x3
-#define DISPLAY_PIC             0x5
-#define ANIMATE                 0x7
-#define DRAW_LINE               0x9
-#define DRAW_HLINE              0xB
-#define DRAW_VLINE              0xD
-#define DRAW_CHARS              0xF
-#define SET_CURSOR              0x11
-#define SET_TXTCOLOR            0x13
-#define DRAW_CHAR               0x15
-#define DRAW_STRING             0x17
-#define FILL_RECTANGLE          0x19
-#define DRAW_UNUMBER            0x1B
-#define SET_ORIENTATION         0x1D
-#define SET_BG_COLOR            0x1F
-#define READ_BUTTON             0x31
+#define DISPLAY                 0x5
+#define DRAW_LINE               0x7
+#define PRINT_STRING            0x9
+#define FILL_RECTANGLE          0xb
+#define READ_BUTTON             0xd
 
 #define XPAR_D13_D0_DEVICE_ID   XPAR_GPIO_0_DEVICE_ID
 #define V_REF 3.33
 #define SYSMON_DEVICE_ID XPAR_SYSMON_0_DEVICE_ID
 
-void swap_int16_t(int16_t a, int16_t b) { 
+void swap_int16_t(int16_t* a, int16_t* b) { 
     int16_t t;
-    t = a; 
-    a = b; 
-    b = t; 
+    t = *a; 
+    *a = *b; 
+    *b = t; 
 }
 int16_t abs_int16_t(int16_t x){
     if (x >= 0) {
@@ -120,55 +111,48 @@ int SetupGpio(void) {
     return 0;
 }
 
-void animate(int16_t x_pos, int16_t y_pos, int16_t width, int16_t height, 
-             uint16_t *image, int16_t orientation, int times, u16 bgcolor) {
+void display(int16_t x_pos, int16_t y_pos, int16_t width, int16_t height, 
+             uint16_t *image, int16_t bg, int16_t orientation, 
+             int times) {
 
     int i, x, y, dx, dy;
-    u16 bg;
-
-    switch(bgcolor){
-        case 0: bg=ST7735_BLACK; break;
-        case 1: bg=ST7735_BLUE; break;
-        case 2: bg=ST7735_RED; break;
-        case 3: bg=ST7735_GREEN; break;
-        case 4: bg=ST7735_CYAN; break;
-        case 5: bg=ST7735_MAGENTA; break;
-        case 6: bg=ST7735_YELLOW; break;
-        case 7: bg=ST7735_WHITE; break;
-        case 8: bg=ST7735_BLUE | ST7735_RED; break;
-    }
-
-    ST7735_FillScreen(bg);
     x = x_pos;
     y = y_pos;
     dx = 1;
     dy = 1;
-
-    for(i=0; i<times; i++)
-    {
-       ST7735_DrawBitmap(x, y, image, width, height);
-       x = x + dx;
-       y = y + dy;
-       if (dy==1)
-           ST7735_DrawFastHLine(x-dx-2, y-dy-height, width+3, bg);
-       else
-           ST7735_DrawFastHLine(x-dx-2, y-dy, width+3, bg); //
-       if (dx==1)
-           ST7735_DrawFastVLine(x-dx-1, y-dy-height, height+2, bg);
-       else
-           ST7735_DrawFastVLine(x-dx+width-1, y-dy-height, height+2, bg);
-       if ((orientation == 1) || (orientation == 3)) {
-           if (((x+width) >= 160) || (x < 1))
-               dx = -1*dx;
-           if ((y >= 128) || (y <= height))
-               dy = -1*dy;
-       }
-       if ((orientation == 2) || (orientation == 4)) {
-           if (((x+width) >= 128) || (x < 1))
-               dx = -1*dx;
-           if ((y >= 160) || (y <= height))
-               dy = -1*dy;
-       }
+    
+    ST7735_FillScreen(bg);
+    ST7735_SetRotation(orientation);
+    if (times==1) {
+        // display for 1 time
+        ST7735_DrawBitmap(x_pos, y_pos, image, width, height);
+    } else {
+        // display for multiple time (animation)
+        for(i=0; i<times; i++) {
+           ST7735_DrawBitmap(x, y, image, width, height);
+           x = x + dx;
+           y = y + dy;
+           if (dy==1)
+               ST7735_DrawFastHLine(x-dx-2, y-dy-height, width+3, bg);
+           else
+               ST7735_DrawFastHLine(x-dx-2, y-dy, width+3, bg); 
+           if (dx==1)
+               ST7735_DrawFastVLine(x-dx-1, y-dy-height, height+2, bg);
+           else
+               ST7735_DrawFastVLine(x-dx+width-1, y-dy-height, height+2, bg);
+           
+           if ((orientation == 1) || (orientation == 3)) {
+               if (((x+width) >= 160) || (x < 1))
+                   dx = -1*dx;
+               if ((y >= 128) || (y <= height))
+                   dy = -1*dy;
+           } else {
+               if (((x+width) >= 128) || (x < 1))
+                   dx = -1*dx;
+               if ((y >= 160) || (y <= height))
+                   dy = -1*dy;
+           }
+        }
     }
 }
 
@@ -176,13 +160,13 @@ void draw_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
                uint16_t color) {
   int16_t steep = abs_int16_t(y1 - y0) > abs_int16_t(x1 - x0);
   if (steep) {
-    swap_int16_t(x0, y0);
-    swap_int16_t(x1, y1);
+    swap_int16_t(&x0, &y0);
+    swap_int16_t(&x1, &y1);
   }
 
   if (x0 > x1) {
-    swap_int16_t(x0, x1);
-    swap_int16_t(y0, y1);
+    swap_int16_t(&x0, &x1);
+    swap_int16_t(&y0, &y1);
   }
 
   int16_t dx, dy;
@@ -215,8 +199,9 @@ void draw_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
 int main(void)
 {
     u32 cmd, xStatus;
-    u16 pix_x1, pix_y1, pix_x2, pix_y2, length, times, orientation;
-    u16 ch_x1, ch_y1, color, c, bgcolor, textsize, width, height, number;
+    u16 pix_x1, pix_y1, pix_x2, pix_y2, times, orientation;
+    u16 color, bgcolor, textsize, width, height;
+    u16 background;
     u16 analog_read;
     u8 iop_pins[19];
     char *pt;
@@ -259,6 +244,7 @@ int main(void)
     color=0xffff;
     // background color: pink
     bgcolor=ST7735_BLUE | ST7735_RED;
+    background = bgcolor;
     ST7735_FillScreen(bgcolor);
     // orientation: 3
     ST7735_SetRotation(3);
@@ -303,49 +289,21 @@ int main(void)
                 break;
             case CLEAR_SCREEN:
                 ST7735_FillScreen(0);
+                background = 0;
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
-            case DISPLAY_PIC:
+            case DISPLAY:
                 pix_x1 = MAILBOX_DATA(0);
                 pix_y1 = MAILBOX_DATA(1);
                 width = MAILBOX_DATA(2);
                 height = MAILBOX_DATA(3);
-                orientation = MAILBOX_DATA(4);
-                logo_ptr = MAILBOX_DATA(5);
-                logo_ptr = logo_ptr | 0x20000000;
-                switch(MAILBOX_DATA(6)){
-                    case 0: bgcolor=ST7735_BLACK; break;
-                    case 1: bgcolor=ST7735_BLUE; break;
-                    case 2: bgcolor=ST7735_RED; break;
-                    case 3: bgcolor=ST7735_GREEN; break;
-                    case 4: bgcolor=ST7735_CYAN; break;
-                    case 5: bgcolor=ST7735_MAGENTA; break;
-                    case 6: bgcolor=ST7735_YELLOW; break;
-                    case 7: bgcolor=ST7735_WHITE; break;
-                    case 8: bgcolor=ST7735_BLUE | ST7735_RED; break;
-                }
-                ST7735_FillScreen(bgcolor);
-                ST7735_SetRotation(orientation);
-                ST7735_DrawBitmap(pix_x1, pix_y1, 
-                                  (uint16_t *)logo_ptr, width, height);
-                ST7735_SetRotation(3);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case ANIMATE:
-                pix_x1 = MAILBOX_DATA(0);
-                pix_y1 = MAILBOX_DATA(1);
-                width = MAILBOX_DATA(2);
-                height = MAILBOX_DATA(3);
-                orientation = MAILBOX_DATA(4);
-                logo_ptr = MAILBOX_DATA(5);
-                logo_ptr = logo_ptr | 0x20000000;
-                times = MAILBOX_DATA(6);
-                bgcolor = MAILBOX_DATA(7);
-                ST7735_SetRotation(orientation);
-                animate(pix_x1, pix_y1, width, height, 
-                            (uint16_t *) logo_ptr, orientation,times,bgcolor);
+                logo_ptr = MAILBOX_DATA(4) | 0x20000000;
+                bgcolor = MAILBOX_DATA(5);
+                orientation = MAILBOX_DATA(6);
+                times = MAILBOX_DATA(7);
+                // display picture
+                display(pix_x1, pix_y1, width, height, 
+                            (uint16_t *) logo_ptr,bgcolor,orientation,times);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
@@ -356,70 +314,36 @@ int main(void)
                 pix_x2 = MAILBOX_DATA(2);
                 pix_y2 = MAILBOX_DATA(3);
                 color = MAILBOX_DATA(4);
+                bgcolor = MAILBOX_DATA(5);
+                orientation = MAILBOX_DATA(6);
+                // fill screen and set orientation
+                if (background!=bgcolor){
+                    ST7735_FillScreen(bgcolor);
+                    background = bgcolor;
+                }
+                ST7735_SetRotation(orientation);
                 draw_line(pix_x1,pix_y1,pix_x2,pix_y2,color);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
-            case DRAW_HLINE:
+            case PRINT_STRING:
                 pix_x1 = MAILBOX_DATA(0);
                 pix_y1 = MAILBOX_DATA(1);
-                length = MAILBOX_DATA(2);
-                color = MAILBOX_DATA(3);
-                ST7735_DrawFastHLine(pix_x1,pix_y1,length,color);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case DRAW_VLINE:
-                pix_x1 = MAILBOX_DATA(0);
-                pix_y1 = MAILBOX_DATA(1);
-                length = MAILBOX_DATA(2);
-                color = MAILBOX_DATA(3);
-                ST7735_DrawFastVLine(pix_x1,pix_y1,length,color);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case DRAW_CHARS:
-                pix_x1 = MAILBOX_DATA(0);
-                pix_y1 = MAILBOX_DATA(1);
-                c = MAILBOX_DATA(2);
-                color = MAILBOX_DATA(3);
-                bgcolor = MAILBOX_DATA(4);
-                textsize = MAILBOX_DATA(5);
-                ST7735_SetCursor(ch_x1,ch_y1);
-                ST7735_DrawCharS(ch_x1,ch_y1,c,color,bgcolor,textsize);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case SET_CURSOR:
-                ch_x1 = MAILBOX_DATA(0);
-                ch_y1 = MAILBOX_DATA(1);
-                ST7735_SetCursor(ch_x1,ch_y1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case SET_TXTCOLOR:
-                color = MAILBOX_DATA(0);
-                ST7735_SetTextColor(color);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case DRAW_CHAR:
-                c = MAILBOX_DATA(0);
-                ST7735_OutChar(c);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case DRAW_STRING:
+                color = MAILBOX_DATA(2);
+                bgcolor = MAILBOX_DATA(3);
+                orientation = MAILBOX_DATA(4);
                 pt = (char *)XPAR_IOP3_MB3_LMB_LMB_BRAM_IF_CNTLR_BASEADDR + \
-                      0x0F000;
-                ST7735_OutString(pt);
+                      0x0F000 + 5*4;
+                // fill screen and set orientation
+                if (background!=bgcolor){
+                    ST7735_FillScreen(bgcolor);
+                    background = bgcolor;
+                }
+                ST7735_SetRotation(orientation);
+                // currently only supporting size 1
+                textsize = 1;
+                ST7735_DrawString(pix_x1,pix_y1,pt,color,bgcolor,textsize);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
@@ -430,27 +354,15 @@ int main(void)
                 width = MAILBOX_DATA(2);
                 height = MAILBOX_DATA(3);
                 color = MAILBOX_DATA(4);
-                ST7735_FillRect(pix_x1,pix_y1,width,height,color);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case DRAW_UNUMBER:
-                number = MAILBOX_DATA(0);
-                ST7735_OutUDec(number);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case SET_ORIENTATION: 
-                orientation = MAILBOX_DATA(0);
+                bgcolor = MAILBOX_DATA(5);
+                orientation = MAILBOX_DATA(6);
+                // fill screen and set orientation
+                if (background!=bgcolor){
+                    ST7735_FillScreen(bgcolor);
+                    background = bgcolor;
+                }
                 ST7735_SetRotation(orientation);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
-                MAILBOX_CMD_ADDR = 0x0;
-                break;
-            case SET_BG_COLOR:
-                bgcolor = MAILBOX_DATA(0);
+                ST7735_FillRect(pix_x1,pix_y1,width,height,color);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
                 Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
