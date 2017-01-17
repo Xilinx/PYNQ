@@ -19,7 +19,7 @@ You can <a href="https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_
 
 ## Quick Start
 
-See the <a href="http://pynq.readthedocs.io/en/latest/2_getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
+See the <a href="http://pynq.readthedocs.io/en/latest/1_getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
 
 ## Modify Python
 

@@ -203,6 +203,29 @@ class xlnk:
         """
         self.__check_buftype(buf)
         return(ffi.buffer(buf, length))
+    
+    def cma_get_phy_addr(self, buf_ptr):
+        """Get the physical address of a buffer.
+        
+        Used to get the physical address of a memory buffer allocated with
+        `cma_alloc`. The return value can be used to access the buffer from the
+        programmable logic.
+
+        Parameters
+        ----------
+        buf_ptr : cffi.FFI.CData
+            A void pointer pointing to the memory buffer. 
+            
+        Returns
+        -------
+        int
+            The physical address of the memory buffer.
+
+        """
+        self.__check_buftype(buf_ptr)
+        if "void *" not in str(buf_ptr):
+            raise RuntimeError("Unkown pointer type")
+        return(libxlnk.cma_get_phy_addr(buf_ptr))
 
     @staticmethod
     def cma_memcopy(dest, src, nbytes):
