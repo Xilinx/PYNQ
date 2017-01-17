@@ -47,7 +47,7 @@
  * ----- --- -------- -----------------------------------------------
  * 1.00a pp  09/01/16 release
  * 1.00b yrq 09/06/16 adjust format, change log size
- * 1.00c lcc 11/10/16 voltage reference with single fl.point division
+ * 1.00c LcC 11/10/16 voltage reference with single fl.point division
  *
  * </pre>
  *
@@ -127,6 +127,7 @@ int main(void)
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+
 
     // Fixed voltage conversion
     float V_Conv = V_REF / 65536;

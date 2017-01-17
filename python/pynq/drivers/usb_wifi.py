@@ -71,7 +71,11 @@ class Usb_Wifi(object):
             if m:
                 if m.group(2) != 'lo' and m.group(2) != 'eth0':
                     self.wifi_port = m.group(2)
-        print(self.wifi_port)
+        if(hasattr(self,'wifi_port')):
+            print(self.wifi_port)
+        else:
+            raise ValueError("""Wifi device not found. Re-attach the device
+            or check device compatibility.""")
 
     def gen_network_file(self, ssid, password):
         """This function generate the network authentication file from network
