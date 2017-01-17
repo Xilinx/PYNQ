@@ -1044,15 +1044,17 @@ void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor,
 // Input: x         columns from the left edge (0 to 20)
 //        y         rows from the top edge (0 to 15)
 //        pt        pointer to a null terminated string to be printed
-//        textColor 16-bit color of the characters
-// bgColor is Black and size is 1
+//        textColor 16-bit color of the character
+//        bgColor   16-bit color of the background
+//        size      number of pixels per character pixel 
+//                  (e.g. size==2 prints each pixel of font as 2x2 square)
 // Output: number of characters printed
 uint32_t ST7735_DrawString(uint16_t x, uint16_t y, char *pt, 
-                           int16_t textColor){
+                           int16_t textColor, int16_t bgColor, uint8_t size){
   uint32_t count = 0;
   if(y>15) return 0;
   while(*pt){
-    ST7735_DrawCharS(x*6, y*10, *pt, textColor, ST7735_BLACK, 1);
+    ST7735_DrawCharS(x*6, y*10, *pt, textColor, bgColor, size);
     pt++;
     x = x+1;
     if(x>20) return count;  // number of characters printed
@@ -1093,25 +1095,6 @@ void ST7735_SetCursor(uint32_t newX, uint32_t newY){
   }
   StX = newX;
   StY = newY;
-}
-
-//-----------------------ST7735_OutUDec-----------------------
-// Output a 32-bit number in unsigned decimal format
-// Position determined by ST7735_SetCursor command
-// Color set by ST7735_SetTextColor
-// Input: 32-bit number to be transferred
-// Output: none
-// Variable format 1-10 digits with no space before or after
-void ST7735_OutUDec(uint32_t n){
-  Messageindex = 0;
-  fillmessage(n);
-  Message[Messageindex] = 0; // terminate
-  ST7735_DrawString(StX,StY,Message,StTextColor);
-  StX = StX+Messageindex;
-  if(StX>20){
-    StX = 20;
-    ST7735_DrawCharS(StX*6,StY*10,'*',ST7735_RED,ST7735_BLACK, 1);
-  }
 }
 
 #define MADCTL_MY  0x80
@@ -1181,44 +1164,6 @@ void ST7735_InvertDisplay(int i) {
     writecommand(ST7735_INVON);
   } else{
     writecommand(ST7735_INVOFF);
-  }
-}
-
-// *************** ST7735_OutChar ********************
-// Output one character to the LCD
-// Position determined by ST7735_SetCursor command
-// Color set by ST7735_SetTextColor
-// Inputs: 8-bit ASCII character
-// Outputs: none
-void ST7735_OutChar(char ch){
-  if((ch == 10) || (ch == 13) || (ch == 27)){
-    StY++; StX=0;
-    if(StY>15){
-      StY = 0;
-    }
-    ST7735_DrawString(0,StY,"                     ",StTextColor);
-    return;
-  }
-  ST7735_DrawCharS(StX*6,StY*10,ch,ST7735_YELLOW,ST7735_BLACK, 1);
-  StX++;
-  if(StX>20){
-    StX = 20;
-    ST7735_DrawCharS(StX*6,StY*10,'*',ST7735_RED,ST7735_BLACK, 1);
-  }
-  return;
-}
-
-//********ST7735_OutString*****************
-// Print a string of characters to the ST7735 LCD.
-// Position determined by ST7735_SetCursor command
-// Color set by ST7735_SetTextColor
-// The string will not automatically wrap.
-// inputs: ptr  pointer to NULL-terminated ASCII string
-// outputs: none
-void ST7735_OutString(char *ptr){
-  while(*ptr){
-    ST7735_OutChar(*ptr);
-    ptr = ptr + 1;
   }
 }
 

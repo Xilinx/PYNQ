@@ -260,11 +260,13 @@ void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor,
 // Input: x         columns from the left edge (0 to 20)
 //        y         rows from the top edge (0 to 15)
 //        pt        pointer to a null terminated string to be printed
-//        textColor 16-bit color of the characters
-// bgColor is Black and size is 1
+//        textColor 16-bit color of the character
+//        bgColor   16-bit color of the background
+//        size      number of pixels per character pixel 
+//                  (e.g. size==2 prints each pixel of font as 2x2 square)
 // Output: number of characters printed
 uint32_t ST7735_DrawString(uint16_t x, uint16_t y, char *pt, 
-                           int16_t textColor);
+                           int16_t textColor, int16_t bgColor, uint8_t size);
 
 
 //********ST7735_SetCursor*****************
@@ -275,16 +277,6 @@ uint32_t ST7735_DrawString(uint16_t x, uint16_t y, char *pt,
 //         newY  new Y-position of the cursor (0<=newY<=15)
 // outputs: none
 void ST7735_SetCursor(uint32_t newX, uint32_t newY);
-
-
-//-----------------------ST7735_OutUDec-----------------------
-// Output a 32-bit number in unsigned decimal format
-// Position determined by ST7735_SetCursor command
-// Color set by ST7735_SetTextColor
-// Input: 32-bit number to be transferred
-// Output: none
-// Variable format 1-10 digits with no space before or after
-void ST7735_OutUDec(uint32_t n);
 
 
 //------------ST7735_SetRotation------------
@@ -301,22 +293,6 @@ void ST7735_SetRotation(uint8_t m) ;
 // Output: none
 void ST7735_InvertDisplay(int i) ;
 
-// *************** ST7735_OutChar ********************
-// Output one character to the LCD
-// Position determined by ST7735_SetCursor command
-// Color set by ST7735_SetTextColor
-// Inputs: 8-bit ASCII character
-// Outputs: none
-void ST7735_OutChar(char ch);
-
-//********ST7735_OutString*****************
-// Print a string of characters to the ST7735 LCD.
-// Position determined by ST7735_SetCursor command
-// Color set by ST7735_SetTextColor
-// The string will not automatically wrap.
-// inputs: ptr  pointer to NULL-terminated ASCII string
-// outputs: none
-void ST7735_OutString(char *ptr);
 
 // ************** ST7735_SetTextColor ************************
 // Sets the color in which the characters will be printed
