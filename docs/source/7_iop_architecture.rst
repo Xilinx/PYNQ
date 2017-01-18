@@ -44,6 +44,7 @@ The I2C configuration is:
    * Address mode: 7 bit
    
 * SPI
+
 The SPI configuration is:
    * Standard mode
    * Transaction width: 8
@@ -52,6 +53,7 @@ The SPI configuration is:
    * Fifo depth: 16
    
 * GPIO blocks
+
 The GPIO block supports 8 input or output pins
 
 * Timer

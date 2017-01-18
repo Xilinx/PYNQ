@@ -2,7 +2,8 @@
 Getting Started
 ***************
 
-Image version: 2.00 released 31 Jan 2017. For documentation for earlier image releases, see v:latest at the bottom of this page. 
+Version: IMAGE_2017_01 
+
 
 .. contents:: Table of Contents
    :depth: 2
@@ -94,13 +95,13 @@ If you connect to a network with a DHCP server, your board will automatically ge
 +---------------------------------------------------------------------+
 | 2. Browse to http://pynq:9090                                       |
 +---------------------------------------------------------------------+
-| 3. Optional: Change hostname (if more than one board on network)\*  |
+| 3. Optional: Change hostname                                        |
 +---------------------------------------------------------------------+
-| 4. Optional: Configure proxy\*                                      |
+| 4. Optional: Configure proxy                                        |
 +---------------------------------------------------------------------+
 
-\* This can be done after the board is powered on. See below for instructions
-
+Hostname
+^^^^^^^^^
 
 The default hostname is ``pynq``. If there is another device on the network with this hostname, you will need to change the hostname of your board **before** you connect it to the network. If you are not sure if there are other boards on the network, you should check if the *pynq* hostname is already in use before connecting a new board. One way to check this is by pinging *pynq* from a command prompt: 
 

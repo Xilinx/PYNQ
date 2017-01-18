@@ -47,7 +47,7 @@ This overlay includes the follwoing hardware:
 
 
 HDMI 
-============= 
+----------- 
 The PYNQ-Z1 does not contain external HDMI circutry. The Zynq pins are connected directly to the HDMI interfaces.
 https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#hdmi
 
@@ -71,22 +71,22 @@ The HDMI out IP supports the following resolutions:
 
 
 Mic in 
-==================
+--------------
 The mic on the board is connected directly to the Zynq PL pins. i.e. the board does not have an audio codec. The audio data is captured in PDM format.
 https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#microphone
 
 Audio out
-==================
+--------------
 The audio out IP is PWM driven mono. 
 https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output
 
 User IO
-=============
+--------------
 The PYNQ-Z1 board includes two tri-color LEDs, 2 switches, 4 push buttons, and 4 individual LEDs. In the base overlay, the user IO is connected directly to the PS. 
 
 
 IOPs
-============
+--------------
 IOPs are dedicated IO processor subsystems that allow peripherals with different IO standards to be connected to the system on demand. This allows a software programmer to use a wide range of peripherals with different interfaces and protocols without needing to create a new FPGA design for each peripheral or set of peripherals. 
 
 PMOD IOPs
@@ -99,9 +99,9 @@ The Arduino interface is connected to the Arduino IOP. The chipkit pins are also
 
 
 Tracebuffer
-=================
+--------------
 
-There is a tracebuffer connected to the Pmod, and Arduino interfaces. The tracebuffer is connected directly to the DDR. The tracebuffer can trace data on the interfaces and stream it back to DDR memory for analysis in Python. 
+A tracebuffer is connected to the Pmod, and Arduino interfaces, and to the DDR. The tracebuffer can trace data on the interfaces and stream it back to DDR memory for analysis in Python. 
 
 
 
