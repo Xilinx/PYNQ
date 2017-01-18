@@ -318,12 +318,12 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
 
    u32 get_sample(){
      /* 
-      * ALS data is 8-bit in the middle of 16-bit stream. 
-      * Two bytes need to be read, and data extracted.
-      */
+      ALS data is 8-bit in the middle of 16-bit stream. 
+      Two bytes need to be read, and data extracted.
+     */
      u8 raw_data[2];
      spi_transfer(SPI_BASEADDR, 2, raw_data, NULL);
-   //  return ( ((raw_data[0] & 0xf0) >> 4) + ((raw_data[1] & 0x0f) << 4) );
+     //  return ( ((raw_data[0] & 0xf0) >> 4) + ((raw_data[1] & 0x0f) << 4) );
      return ( ((raw_data[1] & 0xf0) >> 4) + ((raw_data[0] & 0x0f) << 4) );
    }
 

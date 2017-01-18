@@ -42,12 +42,11 @@ This overlay includes the follwoing hardware:
  the Programmable Logic to connect HDMI In and Out controllers, an audio controller (Mic In and Audio Out), and the Pmod and Arduino interfaces (through the IO Processors) to the PS. This allows the peripherals to be used from the Pynq environment. 
  
 
-
-
 .. image:: ./images/pynqz1_base_overlay.png
    :align: center
 
-   HDMI 
+
+HDMI 
 ============= 
 The PYNQ-Z1 does not contain external HDMI circutry. The Zynq pins are connected directly to the HDMI interfaces.
 https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#hdmi
