@@ -2,6 +2,9 @@
 ``pynq`` Package
 *********************
 
+.. contents:: Table of Contents
+   :depth: 2
+   
 This section describes the ``pynq`` package for the PYNQ-Z1 platform. 
 
 After powering the board with the Micro SD card in place, the board will boot into Linux. Python3 is installed with Jupyter Notebook support. The Python package `pynq` allows users to access  overlays from Python.   

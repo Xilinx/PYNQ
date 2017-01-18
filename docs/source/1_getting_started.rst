@@ -2,6 +2,8 @@
 Getting Started
 ***************
 
+Image version: 2.00 released 31 Jan 2017. For documentation for earlier image releases, see v:latest at the bottom of this page. 
+
 .. contents:: Table of Contents
    :depth: 2
 	  
@@ -59,7 +61,7 @@ Setup the PYNQ-Z1
 
 1. Set the *boot* jumper (labelled JP4 on the board) to the **SD** position by placing the jumper over the top two pins of JP4 as shown in the image.  (This sets the board to boot from the Micro-SD card)  
    
-2. To power the PYNQ-Z1 from the micro USB cable, set the *power* jumper (JP5) to the **USB** position by placing the jumper over the top two pins of JP5 as shown in the image. (Set the jumper to **REG** to use an external power regulator)
+2. To power the PYNQ-Z1 from the micro USB cable, set the *power* jumper (JP5) to the **USB** position by placing the jumper over the top two pins of JP5 as shown in the image. (You can also power the board from an external 12V power regulator by setting the jumper to **REG**.)
    
 3. Insert the **Micro SD** card loaded with the PYNQ-Z1 image into the board. (The Micro SD slot is underneath the board)
   

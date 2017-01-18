@@ -1,8 +1,10 @@
-
 **************************
 Introduction to Overlays
 **************************
 
+.. contents:: Table of Contents
+   :depth: 2
+   
 Overlay Concept
 ===================
 
@@ -24,105 +26,83 @@ Multiple sensor and actuator controllers, and multiple heterogeneous custom proc
 Base Overlay
 ===================
 
-The base overlay is a precompiled FPGA design that can be downloaded to the Programmable Logic. It is the default overlay included with the PYNQ-Z1 image, and is automatically loaded when the system boots. 
+The base overlay is a precompiled P design that can be downloaded to the Programmable Logic. It is the default overlay included with the PYNQ-Z1 image, and is automatically loaded when the system boots. 
 
-This overlay customizes the Programmable Logic to connect HDMI In and Out controllers, an audio controller (Mic In and Audio Out), and the Pmod and Arduino interfaces (through the IO Processors) to the PS. This allows the peripherals to be used from the Pynq environment. There is also a tracebuffer connected to the Pmod, and Arduino interfaces to allow for hardware debug. The user buttons, switches and LEDs are also connected to the PS in the base overlay. 
+This overlay includes the follwoing hardware:
+* HDMI In
+* HDMI Out
+* Mic in 
+* Audio out
+* User LEDs, Switches, Pushbuttons
+* 2x PMOD IOP
+* Arduino IOP
+* Tracebuffer
+
+
+ the Programmable Logic to connect HDMI In and Out controllers, an audio controller (Mic In and Audio Out), and the Pmod and Arduino interfaces (through the IO Processors) to the PS. This allows the peripherals to be used from the Pynq environment. 
+ 
+
 
 
 .. image:: ./images/pynqz1_base_overlay.png
    :align: center
 
-The Pmod and Arduino interfaces have special custom IO Processors  that allow a range of peripherals with different IO standards to be connected to the system. This allows a software programmer to use a wide range of peripherals with different interfaces and protocols without needing to create a new FPGA design for each peripheral or set of peripherals.
+   HDMI 
+============= 
+The PYNQ-Z1 does not contain external HDMI circutry. The Zynq pins are connected directly to the HDMI interfaces.
+https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#hdmi
+
+Both HDMI interfaces are connected to DDR memory. Video can be streamed from the HDMI in to memory, and from memory to HDMI out. This allows processing of Video data from python, or writing a Video stream, or image in Python and sending it to the HDMI out. 
+
+Note that Jupyter notebook supports embedded video. However, video captured from the HDMI will be in raw format and would not be suitable for playback in a notebook without appropriate encoding. 
+
+HDMI In
+^^^^^^^^^^^^
+HDMI in supports the following resolutions:
+
+HDMI Out
+^^^^^^^^^^^^
+The HDMI out IP supports the following resolutions:
+
+* 640x480  
+* 800x600 
+* 1024x768  
+* 1280x1024
+* 1920x1080
 
 
+Mic in 
+==================
+The mic on the board is connected directly to the Zynq PL pins. i.e. the board does not have an audio codec. The audio data is captured in PDM format.
+https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#microphone
 
-Pmod Peripherals
-===================
+Audio out
+==================
+The audio out IP is PWM driven mono. 
+https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output
 
-A Pmod interface is a 12-pin connector that can be used to connect peripherals. A range of Pmod peripherals are available from Digilent and third parties. Typical Pmod peripherals include sensors (voltage, light, temperature), communication interfaces (Ethernet, serial, wifi, bluetooth), and input and output interfaces (buttons, switches, LEDs).
-
-There are two Pmod connectors on PYNQ-Z1.
-
-.. image:: ./images/pynqz1_pmod_interface.jpg
-   :align: center
-
-
-Pmod Port
------------------------
-
-Each Pmod connector has 12 pins: 2 rows of 6 pins, where each row has 3.3V (VCC), ground (GND) and 4 data pins. This gives 8 data pins in total. Pmod data pins are labelled 0-7 in the image below. The pin number needs to be specified in Python when creating a new instance of a peripheral connected to a port.  
-
-.. image:: images/pmod_closeup.JPG
-   :align: center
-
-Pmods come in different configurations depending on the number of data pins required. e.g. Full single row: 1x6 pins; full double row: 2x6 pins; and partially populated: 2x4 pins. 
-
-.. image:: images/pmod_pins.png
-   :align: center
-
-Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should usually be aligned to the left of the connector (to align with VCC and GND).
-
-.. image:: images/pmod_tmp2_8pin.JPG
-
-Pmod peripherals with only a single row of pins can be physically plugged into the top row or the bottom row of a Pmod port (again, aligned to VCC/GND). However, if you are using an existing driver/overlay, you will need to check which pins/rows are supported for a given overlay, as not all options may be implemented. e.g. the Pmod ALS is currently only supported on the top row of a Pmod port, not the bottom row.  
-
-Supported Peripherals
------------------------------
+User IO
+=============
+The PYNQ-Z1 board includes two tri-color LEDs, 2 switches, 4 push buttons, and 4 individual LEDs. In the base overlay, the user IO is connected directly to the PS. 
 
 
-A number of peripherals are supported: 
+IOPs
+============
+IOPs are dedicated IO processor subsystems that allow peripherals with different IO standards to be connected to the system on demand. This allows a software programmer to use a wide range of peripherals with different interfaces and protocols without needing to create a new FPGA design for each peripheral or set of peripherals. 
 
- * Pmods can be plugged directly into the Pmod port. 
- * Grove peripherals can be connected to the Pmod port through a *PYNQ Grove Adapter*.
- * Other peripherals can be wired to a Pmod port.
+PMOD IOPs
+^^^^^^^^^^^^
+Each Pmod port is connected to its own Pmod IOP. 
 
-
-PYNQ Grove Adapter
-----------------------
-
-A Grove connector has four pins, VCC and GND, and two data pins.
-
-The PYNQ Grove Adapter has four connectors (G1 - G4), allowing four Grove devices to be connected to one Pmod port. 
-
-.. image:: ./images/pmod_grove_adapter.jpg
-   :align: center
-
-All pins operate at 3.3V. Due to different pull-up/pull-down I/O requirements for different peripherals (e.g. IIC requires pull-up, and SPI requires pull-down), Grove peripherals must be plugged into the appropriate connector.
-
-G1 and G2 pins are connected to pins with pull-down resistors, and G3 and G4 are connected to pins with pull-up resistors (IIC), as indicated in the image. 
-
-.. image:: ./images/adapter_mapping.JPG
-   :align: center
-
-Pmods already take this pull up/down convention into account in their pin layout, so no special attention is required to connect Pmods. 
-   
-Arduino Peripherals
-============================
-
-There is one Arduino connector on the board and can be used to connect to arduino compatible shields. 
-
-.. image:: ./images/pynqz1_arduino_interface.jpg
-   :align: center
-
-Arduino Connector
------------------------
-
-Each Arduino connector has 6 analog pins (A0 - A5), 14 multi-purpose Digital pins (D0 - D13), 2 dedicated I2C pins (SCL, SDA), and 4 dedicated SPI pins. 
+Arduino IOP
+^^^^^^^^^^^^^
+The Arduino interface is connected to the Arduino IOP. The chipkit pins are also available to the Arduino IOP. 
 
 
-Supported Peripherals
------------------------------
+Tracebuffer
+=================
 
-Most Arduino compatible shields can be used with the PYNQ-Z1 board. However, the PYNQ-Z1 board has a limited analog range, so not all Arduino analog shields are supported. 
+There is a tracebuffer connected to the Pmod, and Arduino interfaces. The tracebuffer is connected directly to the DDR. The tracebuffer can trace data on the interfaces and stream it back to DDR memory for analysis in Python. 
 
 
-PYNQ Shield
---------------------
-
-As mentioned previously, each Grove connector has 4 pins. The PYNQ Shield has 12 Grove connectors for digital IO (I2C, UART, G1 - G7) and 4 Grove connectors for analog IO (A1 - A4).
-
-.. image:: ./images/arduino_shield.jpg
-   :align: center
-
-With the PYNQ shield jumper (JP1) set to 3.3V (as in the figure), all the pins operate at 3.3V. 
 
