@@ -58,7 +58,7 @@ class Usb_Wifi(object):
         If no device is found, wifi_port is not assigned.
 
         """
-
+        self.wifi_port = None
         net_devices = sproc.check_output('ip a', shell=True).decode()
 
         for line in net_devices.splitlines():
@@ -66,7 +66,10 @@ class Usb_Wifi(object):
             if m:
                 if m.group(2) != 'lo' and m.group(2) != 'eth0':
                     self.wifi_port = m.group(2)
-        print(self.wifi_port)
+
+        if not self.wifi_port:
+            raise ValueError("""Wifi device not found. Re-attach the device
+            or check device compatibility.""")
 
     def gen_network_file(self, ssid, password):
         """Generate the network authentication file.
