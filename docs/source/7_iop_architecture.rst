@@ -35,15 +35,17 @@ As indicated in the diagram, the Pmod IOP has a MicroBlaze, a configurable switc
 
 
 Pmod IOP peripherals 
-^^^^^^^^^^^^^^^^^^^^
+------------------------
 
-* I2C
+I2C
+^^^^^^^^^^^^^^^^^^^
 
 The I2C configuration is:
    * Frequency: 100KHz
    * Address mode: 7 bit
    
-* SPI
+SPI
+^^^^^^^^^^^^^^^^^^^
 
 The SPI configuration is:
    * Standard mode
@@ -52,11 +54,13 @@ The SPI configuration is:
    * Master mode
    * Fifo depth: 16
    
-* GPIO blocks
+GPIO blocks
+^^^^^^^^^^^^^^^^^^^
 
 The GPIO block supports 8 input or output pins
 
-* Timer
+Timer
+^^^^^^^^^^^^^^^^^^^
 
 The timer is 32 bits width, and has a *Generate* output, and a PWM output. The *Generate* output can ouput one-time or periodic signal based on a loaded value. For example, on loading a value, the timer can count up or down. Once the counter expires (on a carry) a signal can be generated. The timer can stop, or automatically reload. 
 
@@ -65,7 +69,7 @@ The timer is 32 bits width, and has a *Generate* output, and a PWM output. The *
 The I2c, SPI, GPIO and Timer are connected to the interrupt controller. This is the standard MicroBlaze interrupt controller, and interrupts can be managed by the IOP in a similar way to any other MicroBlaze application. 
 
 Pmod IOP configurable switch
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The MicroBlaze, inside the IOP, can configure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
 
@@ -76,13 +80,6 @@ The following function, part of the Pmod IO switch driver, can be used to config
 .. code-block:: c
 
    void config_pmod_switch();
-
-
-
-
-and the remaining pins to their corresponding GPIO (which could be left unused in the MicroBlaze application). 
-
-
 
 
 You can check the IOP constants and addresses in the Python code here: 
@@ -107,7 +104,46 @@ As indicated in the diagram, the Arduino IOP has a MicroBlaze, a configurable sw
 * 1x UART
 * 3x GPIO blocks
 * 1x XADC
-* 1 Interrupt controller (32 channels)
+* 1x UART
+* 1x Interrupt controller (32 channels)
+
+Arduino IOP peripherals 
+------------------------
+
+I2C
+^^^^^^^^^^^^^^^^^^^
+
+There are two I2C controllers available. They both have the same settings:
+   * Frequency: 100KHz
+   * Address mode: 7 bit
+   
+SPI
+^^^^^^^^^^^^^^^^^^^
+
+There are two SPI controllers available. They both have the same settings:
+   * Standard mode
+   * Transaction width: 8
+   * Frequency: 6.25 MHz (100MHz/16)
+   * Master mode
+   * Fifo depth: 16
+   
+GPIO blocks
+^^^^^^^^^^^^^^^^^^^
+
+There are three GPIO block available. They support xxx input or output pins
+
+Timers
+^^^^^^^^^^^^^^^^^^^
+
+There are six timers available. All are 32 bits wide, with a *Generate* output, and a PWM output. The *Generate* output can ouput one-time or periodic signal based on a loaded value. For example, on loading a value, the timer can count up or down. Once the counter expires (on a carry) a signal can be generated. The timer can stop, or automatically reload. 
+
+UART
+^^^^^^^^^^^^^^^^^^^^^^^
+
+There is a UART controller, with a fixed configuration of 9600 baud. The UART can be connected to the Arduino UART pins. The UART configuration is hard coded, and is part of the overlay. It is not possible to modify the UART configuration in software. 
+
+Interrupt controller
+^^^^^^^^^^^^^^^^^^^^^^^
    
 The interrupt controller can be connected to all the analog and digital pins, and each of the 6 timers, the I2Cs, the SPIs, the XADC, and UART. This means an external pin on the shield interface can trigger an interrupt. An internal peripheral can also trigger an interrupt.  
 
