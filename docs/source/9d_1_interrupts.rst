@@ -67,18 +67,18 @@ Example
 :: code-block:: python
 
    async def async_coroutine(max):
-       for i in range (1,max):
-           await asyncio.sleep(1)
-           print(i)
+      for i in range (1,max):
+         await asyncio.sleep(1)
+         print(i)
        
-       print("Done")
+      print("Done")
 
    loop = asyncio.get_event_loop()    
    tasks = [
-       asyncio.ensure_future(async_coroutine(5)),
-       asyncio.ensure_future(async_coroutine(20)),
-       asyncio.ensure_future(async_coroutine(10)),
-       asyncio.ensure_future(async_coroutine(1))]
+      asyncio.ensure_future(async_coroutine(5)),
+      asyncio.ensure_future(async_coroutine(20)),
+      asyncio.ensure_future(async_coroutine(10)),
+      asyncio.ensure_future(async_coroutine(1))]
    loop.run_until_complete(asyncio.gather(*tasks))
    loop.close()
 

@@ -15,7 +15,7 @@ Python productivity for Zynq (Pynq) Documentation
    4_programming_python
    5_programming_onboard
    6_overlays
-   6a_peripherals_and_interfaces
+   6a_peripherals
    7_iop_architecture
    8_iop_code
    9a_base_overlay_iop
