@@ -8,25 +8,21 @@ Introduction to Overlays
 Overlay Concept
 ===================
 
-The Xilinx® Zynq® All Programmable device is an SOC based on a dual-core ARM® Cortex®-A9 processor (referred to as the  *Processing System* or **PS**), which also includes FPGA fabric (referred to as  *Programmable Logic* or **PL**). The ARM SoC subsystem also includes a number of dedicated peripherals (memory controllers, USB, Uart, IIC, SPI etc). 
+The Xilinx® Zynq® All Programmable device is an SOC based on a dual-core ARM® Cortex®-A9 processor (referred to as the  *Processing System* or **PS**). A Zynq chip also includes FPGA fabric (referred to as  *Programmable Logic* or **PL**). The ARM SoC subsystem also includes a number of dedicated peripherals (memory controllers, USB, Uart, IIC, SPI etc). 
 
 .. image:: ./images/zynq_block_diagram.jpg
    :align: center
 
 The FPGA fabric is reconfigurable, and can be used to implement high performance functions in hardware. However, FPGA design is a specialized task which requires deep hardware engineering knowledge and expertise. 
-Overlays, or hardware libraries, are programmable/configurable FPGA designs that extend the user application from the Processing System of the Zynq into the Programmable Logic. This allows software programmers to take advantage of the FPGA fabric to accelerate an application, or to use an overlay to customize the hardware platform for a particular application.
+Overlays, or hardware libraries, are programmable/configurable FPGA designs that extend the user application from the Processing System of the Zynq into the Programmable Logic. Overlays can be used to accelerate a software application, or to customize the hardware platform for a particular application.
 
-For example, image processing is a typical application where the FPGAs can provide acceleration. A software programmer can use a hardware library to run some of the image processing functions (e.g. edge detect, thresholding etc.) on the FPGA fabric. 
-Hardware libraries can be loaded to the FPGA dynamically, as required, just like a software library.
-Using Pynq, separate image processing functions could be implemented in different overlays and loaded from Python on demand.
+For example, image processing is a typical application where the FPGAs can provide acceleration. A software programmer can use a Overlay in a similar way to a software library to run some of the image processing functions (e.g. edge detect, thresholding etc.) on the FPGA fabric. 
+Overlays can be loaded to the FPGA dynamically, as required, just like a software library. In this example, separate image processing functions could be implemented in different overlays and loaded from Python on demand.
  
-To give another example, the PYNQ-Z1 has more pins/interfaces available than a typical embedded platform, and can implement multiple custom processors in the Programmable logic. 
-Multiple sensor and actuator controllers, and multiple heterogeneous custom processors (real-time or non real-time), could be implemented in hardware in the new overlay, and connected to the available pins. A software programmer could use the controllers and processors in the overlay through a Pynq API.   
-
 Base Overlay
 ===================
 
-The base overlay is a precompiled P design that can be downloaded to the Programmable Logic. It is the default overlay included with the PYNQ-Z1 image, and is automatically loaded when the system boots. 
+The base overlay is the default overlay included with the PYNQ-Z1 image, and is automatically loaded when the system boots. 
 
 This overlay includes the follwoing hardware:
 * HDMI In
@@ -37,9 +33,6 @@ This overlay includes the follwoing hardware:
 * 2x PMOD IOP
 * Arduino IOP
 * Tracebuffer
-
-
- the Programmable Logic to connect HDMI In and Out controllers, an audio controller (Mic In and Audio Out), and the Pmod and Arduino interfaces (through the IO Processors) to the PS. This allows the peripherals to be used from the Pynq environment. 
  
 
 .. image:: ./images/pynqz1_base_overlay.png
@@ -48,19 +41,22 @@ This overlay includes the follwoing hardware:
 
 HDMI 
 ----------- 
+
 The PYNQ-Z1 does not contain external HDMI circutry. The Zynq pins are connected directly to the HDMI interfaces.
 https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#hdmi
 
-Both HDMI interfaces are connected to DDR memory. Video can be streamed from the HDMI in to memory, and from memory to HDMI out. This allows processing of Video data from python, or writing a Video stream, or image in Python and sending it to the HDMI out. 
+Both HDMI interfaces are connected to DDR memory. Video can be streamed from the HDMI *in* to memory, and from memory to HDMI *out*. This allows processing of Video data from python, or writing an image or Video stream from Python to the HDMI out. 
 
-Note that Jupyter notebook supports embedded video. However, video captured from the HDMI will be in raw format and would not be suitable for playback in a notebook without appropriate encoding. 
+Note that Jupyter notebooks supports embedded video. However, video captured from the HDMI will be in raw format and would not be suitable for playback in a notebook without appropriate encoding. 
 
 HDMI In
 ^^^^^^^^^^^^
-HDMI in supports the following resolutions:
+
+HDMI in interface needs to be started before it will capture video data. See the example notebooks for examples of using the HDMI. 
 
 HDMI Out
 ^^^^^^^^^^^^
+
 The HDMI out IP supports the following resolutions:
 
 * 640x480  
@@ -82,26 +78,19 @@ https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference
 
 User IO
 --------------
-The PYNQ-Z1 board includes two tri-color LEDs, 2 switches, 4 push buttons, and 4 individual LEDs. In the base overlay, the user IO is connected directly to the PS. 
+The PYNQ-Z1 board includes two tri-color LEDs, 2 switches, 4 push buttons, and 4 individual LEDs. In the base overlay, the user IO is connected directly to the PS, and can be controlled directly from Python. 
 
 
 IOPs
 --------------
-IOPs are dedicated IO processor subsystems that allow peripherals with different IO standards to be connected to the system on demand. This allows a software programmer to use a wide range of peripherals with different interfaces and protocols without needing to create a new FPGA design for each peripheral or set of peripherals. 
+IOPs are dedicated IO processor subsystems that allow peripherals with different IO standards to be connected to the system on demand. This allows a software programmer to use a wide range of peripherals with different interfaces and protocols without needing to create a new FPGA design for each peripheral. There are two types of IOP, Pmod, and Arduino. Both IOPs are similar, but have different hardware configurations to support the interefaces they connect to. 
 
-PMOD IOPs
-^^^^^^^^^^^^
-Each Pmod port is connected to its own Pmod IOP. 
-
-Arduino IOP
-^^^^^^^^^^^^^
-The Arduino interface is connected to the Arduino IOP. The chipkit pins are also available to the Arduino IOP. 
-
+Pmods are covered in more detail in the next section. 
 
 Tracebuffer
 --------------
 
-A tracebuffer is connected to the Pmod, and Arduino interfaces, and to the DDR. The tracebuffer can trace data on the interfaces and stream it back to DDR memory for analysis in Python. 
+A tracebuffer is available and can be used to capture trace data on the Pmod, and Arduino interfaces for debug. The tracebuffer is connected directly to DDR. This allows trace data on the interfaces to be streamed back to DDR memory for analysis in Python. 
 
 
 

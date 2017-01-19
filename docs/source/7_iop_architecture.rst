@@ -12,9 +12,17 @@ For overlays to be useful, they must provide sufficient functionality, while als
 
 An IO Processor is implemented in the programmable logic and connects to and controls an external port on the board. There are two types of IOP: Pmod IOP and Arduino IOP. 
 
-Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and local memory for the MicroBlaze instruction and data memory. The local memory is dual-ported (implemented in Xilin BRAMs), with one port connected to the MicroBlaze, and the other connected to the ARM® Cortex®-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). e.g. a simple mailbox. There is also an interface to DDR memory. This allows the DDR to be used as data memory in addition to the local memory. This allows larger applications to be written (where data memory is the limitation) and allows a larger mailbox size for data transfer between the PS (Python) and the IOP. The DDR interface also allows different IOPs to communicate with each other directly without intervention from the PS (Python). 
+Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and local memory for the MicroBlaze instruction and data memory. The local memory is dual-ported (implemented in Xilin BRAMs), with one port connected to the MicroBlaze, and the other connected to the ARM® Cortex®-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. 
 
-In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required dedicated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
+The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). E.g. a simple mailbox. 
+
+The IOP also has an interface to DDR memory. This allows the DDR to be used as data memory in addition to the local memory. This allows larger applications to be written (where data memory is the limitation) and allows a larger mailbox size for data transfer between the PS (Python) and the IOP. The DDR interface also allows different IOPs to communicate with each other directly without intervention from the PS (Python). 
+
+In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) 
+
+IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. 
+
+When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required dedicated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
 
 
 Pmod IOP
@@ -64,7 +72,8 @@ Timer
 
 The timer is 32 bits width, and has a *Generate* output, and a PWM output. The *Generate* output can ouput one-time or periodic signal based on a loaded value. For example, on loading a value, the timer can count up or down. Once the counter expires (on a carry) a signal can be generated. The timer can stop, or automatically reload. 
 
-* Interrupt controller
+Interrupt controller
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The I2c, SPI, GPIO and Timer are connected to the interrupt controller. This is the standard MicroBlaze interrupt controller, and interrupts can be managed by the IOP in a similar way to any other MicroBlaze application. 
 

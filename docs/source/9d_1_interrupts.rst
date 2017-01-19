@@ -11,9 +11,12 @@ Each IOP has its only interrupt controller allowing its local peripherals to int
 
 The base overlay also has a central interrupt controller connected to the PS. THe IOPs can trigger the central interrupt controller. 
 
-Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using asyncio. Asyncio was introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio This PYNQ release used Python 3.6.
+.. image:: ./images/innterrupts.jpg
+   :align: center
 
-The main advantage os using asyncio is that it makes the interrupt handler look liek regular code, and helps reduce the complexity of managing interrupts using callbacks. 
+Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using asyncio. Asyncio is a Python library, first introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio This PYNQ release used Python 3.6.
+
+The main advantage os using asyncio is that it makes the interrupt handler look like regular Python code, and helps reduce the complexity of managing interrupts using callbacks. 
 
 
 Asyncio
@@ -28,31 +31,43 @@ Asyncio consists of the following components:
 
 * Event loop
 
-Multiple asynchronous functions can be scheduled and managed inside in an event loop. When the event loop runs, and the first IO function is reached, the function pauses waiting for its IO to complete. While the function is waiting, the loop continues, executing subsequent functions in the same way. When a function completes its IO, it can resume at the next sceduled point in the event loop.
+An event loop is a loop for scheduling multiple asynchronous functions. When an event loop runs, and the first IO function is reached, the function pauses waiting for its IO to complete. While the function is waiting, the loop continues, executing subsequent functions in the same way. When a function completes its IO, it can resume at the next sceduled point in the event loop.
 
 https://docs.python.org/3/library/asyncio-eventloop.html
 
-
+.. code-block:: Python
+    
+    loop = asyncio.get_event_loop()    
+    
 * Futures
 
 A future is an object that will have a value in the future. The event loop can wait for a *Future* object to be set to done. i.e. data available.  
 
-*  Coroutines. 
+    asyncio.ensure_future(async_coroutine(5)),
+
+    *  Coroutines. 
 
 A coroutine is a function that can pause, that can receive values, and can return a series of value periodically. A coroutine is a functions decorated with ``async def`` (Python 3.6).
+
+.. code-block:: Python
+
+    async def function():
+        ...
+        
+* Tasks
+
+A task is a coroutine wrapped inside a Future. A task runs as long as the event loop runs. 
 
 * await
 
 The ``await`` expression is used to obtain a result from a coroutine 
 
-async def asyncio_function(db):
-    data = await read()
-    ...
+.. code-block:: Python
 
-* Tasks
-
-A task is a coroutine wrapped inside a Future. A task runs as long as the event loop runs. 
-
+    async def asyncio_function(db):
+        data = await read()
+        ...
+    
 Putting it together
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -86,17 +101,30 @@ Example
 Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All blocking calls in event loop should be replaced with coroutines
+All blocking calls in event loop should be replaced with coroutines.If you do not do this, when a blocking call is reached, it will block the rest of the loop. 
 
-Compute workloads should be in separate thread/process
+If you need blocking calls, they should be in seperate threads. 
 
-Use separate threads for blocking calls
+Compute workloads should be in separate threads/processes. 
 
 Interrupts using asyncio
 ==========================
 
-Asyncio can be used for managing interrupts. An coroutine can be created to check the status of the interrupt controller. 
-The coroutine can be scheduled in an event loop alongside other user code. When an interrupt is triggered, the coroutine resumes and handles the interrupt. 
+Asyncio can be used for managing interrupts. A coroutine can be created to check the status of the interrupt controller, and scheduled in an event loop alongside other user code. If an interrupt has been triggered, the next time the "interrupt" coroutine is scheduled, it will service the interrupt. 
+
+High performance/real-time code 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Note that Linux is not a real-time operating system, and Python is not intended as a high performance/low latency language. 
+
+C libraries can be used to replace performance critical Python code. The CFFI may be used for this task. 
+
+The PL can be used for real-time or performance critical operations. 
+
+The IOPs use BRAM local memory which is deterministic and may be suitable for real-time code. Note that the DDR memory accesses will have some variablility and may be less suitable. 
+
+New overlays can also be designed for real-time/performance. 
+
 
 Interrupt example using asyncio
 ===================================
