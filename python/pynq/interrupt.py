@@ -1,43 +1,44 @@
 #   Copyright (c) 2017, Xilinx, Inc.
 #   All rights reserved.
-# 
-#   Redistribution and use in source and binary forms, with or without 
+#
+#   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions are met:
 #
-#   1.  Redistributions of source code must retain the above copyright notice, 
+#   1.  Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
 #
-#   2.  Redistributions in binary form must reproduce the above copyright 
-#       notice, this list of conditions and the following disclaimer in the 
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
 #
-#   3.  Neither the name of the copyright holder nor the names of its 
-#       contributors may be used to endorse or promote products derived from 
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
 #       this software without specific prior written permission.
 #
 #   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
 #   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-__author__      = "Peter Ogden"
-__copyright__   = "Copyright 2017, Xilinx"
-__email__       = "pynq_support@xilinx.com"
 
 
 import asyncio
 import functools
 import os
 import weakref
-from pynq import PL
-from pynq import MMIO
+from .pl import PL
+from .mmio import MMIO
+
+__author__ = "Peter Ogden"
+__copyright__ = "Copyright 2017, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 class Interrupt(object):
     """Class that provides the core wait-based API to end users
@@ -83,7 +84,8 @@ class Interrupt(object):
         yield from self.event.wait()
         self.waiting = False
 
-## Implementation Details Follow
+# Implementation Details Follow
+
 
 def _get_uio_device(irq):
     """Returns the UIO device path for a specified interrupt
@@ -114,6 +116,7 @@ def _get_uio_device(irq):
             return '/dev/' + dev
     return None
 
+
 class _UioController(object):
     """Class that interacts directly with a UIO device"""
 
@@ -123,8 +126,6 @@ class _UioController(object):
         asyncio.get_event_loop().add_reader(self.uio, functools.partial(
             _UioController._uio_callback, self))
         self.wait_events = []
-
-
 
     def __del__(self):
         asyncio.get_event_loop().remove_reader(self.uio)
@@ -137,11 +138,11 @@ class _UioController(object):
         for e in current_events:
             e.set()
 
-
     def add_event(self, event, number):
         if not self.wait_events:
-            self.uio.write(bytes([0,0,0,1]))
+            self.uio.write(bytes([0, 0, 0, 1]))
         self.wait_events.append(event)
+
 
 class _InterruptController(object):
     """Class that interacts with an AXI interrupt controller
@@ -153,6 +154,7 @@ class _InterruptController(object):
     """
     _controllers = []
     _last_timestamp = None
+
     @staticmethod
     def get_controller(name):
         """Returns the _InterruptController corresponding to the AXI interrupt
@@ -181,9 +183,9 @@ class _InterruptController(object):
     def __init__(self, name):
         """Return a new _InterruptController
 
-        Returns a new _InterruptController. As these are singleton objects, this
-        should never be called directly, instead register_interrupt should be used, or
-        get_controller if direct access is required
+        Returns a new _InterruptController. As these are singleton objects,
+        this should never be called directly, instead register_interrupt
+        should be used, or get_controller if direct access is required
 
         Parameters
         ----------
@@ -192,7 +194,7 @@ class _InterruptController(object):
 
         """
         self.name = name
-        self.mmio = MMIO(PL.ip_dict["SEG_" + name + "_Reg"][0],32)
+        self.mmio = MMIO(PL.ip_dict["SEG_" + name + "_Reg"][0], 32)
         self.wait_handles = [[] for i in range(32)]
         self.event_number = 0
         self.waiting = False
@@ -201,11 +203,14 @@ class _InterruptController(object):
         self.mmio.write(0x1C, 0x00000003)
 
         # Disable Interrupt lines
-        self.mmio.write(0x08, 0);
+        self.mmio.write(0x08, 0)
 
         parent, number = PL.interrupt_controllers[name]
         if parent == "":
             uiodev = _get_uio_device(61 + number)
+            if uiodev is None:
+                raise ValueError('Could not find UIO device for interrupt pin '
+                                 'for IRQ number {0}'.format(number))
             self.parent = _UioController(uiodev)
             self.number = 0
         else:
@@ -245,17 +250,18 @@ class _InterruptController(object):
     def add_event(self, event, number):
         """Registers an event against an interrupt line
 
-        Parameters
-        ----------
-            event : object
-                Any object that provides a set method to notify of
-                an active interrupt
-            number : int
-                Interrupt number to register event against
-
         When the interrupt is active, all events are signaled and the
         interrupt line is disabled. End user classes should clear the
         interrupt before re-adding the event.
+
+        Parameters
+        ----------
+        event : object
+            Any object that provides a set method to notify of
+            an active interrupt
+        number : int
+            Interrupt number to register event against
+
         """
 
         if not self.wait_handles[number]:
@@ -264,4 +270,3 @@ class _InterruptController(object):
             self.parent.add_event(self, self.number)
         self.wait_handles[number].append(event)
         self.event_number += 1
-

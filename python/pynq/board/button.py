@@ -27,15 +27,15 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Giuseppe Natale"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
-
-
 import asyncio
 from pynq import MMIO
 from pynq import PL
 from pynq import Interrupt
+
+
+__author__ = "Giuseppe Natale"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
 
 class Button(object):
@@ -61,10 +61,14 @@ class Button(object):
         if Button._mmio is None:
             Button._mmio = MMIO(PL.ip_dict["SEG_btns_gpio_Reg"][0], 512)
         self.index = index
-        self.interrupt = Interrupt('btns_gpio/ip2intc_irpt')
-        # Enable interrupts
-        Button._mmio.write(0x11C, 0x80000000)
-        Button._mmio.write(0x128, 0x00000001)
+        self.interrupt = None
+        try:
+            self.interrupt = Interrupt('btns_gpio/ip2intc_irpt')
+            # Enable interrupts
+            Button._mmio.write(0x11C, 0x80000000)
+            Button._mmio.write(0x128, 0x00000001)
+        except ValueError:
+            pass
 
     def read(self):
         """Read the current value of the button.
@@ -90,6 +94,8 @@ class Button(object):
         This function is an asyncio coroutine
 
         """
+        if self.interrupt is None:
+            raise RuntimeError('Interrupts not available in this Overlay')
         while self.read() != value:
             yield from self.interrupt.wait()
             if Button._mmio.read(0x120) & 0x1:
@@ -107,6 +113,8 @@ class Button(object):
         event loop will run until the function returns
 
         """
+        if self.interrupt is None:
+            raise RuntimeError('Interrupts not available in this Overlay')
         loop = asyncio.get_event_loop()
         loop.run_until_complete(asyncio.ensure_future(
             self.wait_for_value_async(value)

@@ -1,36 +1,31 @@
 #   Copyright (c) 2016, Xilinx, Inc.
 #   All rights reserved.
-# 
-#   Redistribution and use in source and binary forms, with or without 
+#
+#   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions are met:
 #
-#   1.  Redistributions of source code must retain the above copyright notice, 
+#   1.  Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
 #
-#   2.  Redistributions in binary form must reproduce the above copyright 
-#       notice, this list of conditions and the following disclaimer in the 
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
 #
-#   3.  Neither the name of the copyright holder nor the names of its 
-#       contributors may be used to endorse or promote products derived from 
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
 #       this software without specific prior written permission.
 #
 #   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
 #   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import os
 import sys
@@ -43,6 +38,11 @@ from multiprocessing.connection import Client
 from pynq import general_const
 from pynq import GPIO
 from pynq import MMIO
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 def _get_tcl_name(bitfile_name):
     """This method returns the name of the tcl file.
@@ -61,7 +61,8 @@ def _get_tcl_name(bitfile_name):
         The absolute path of the .tcl file.
 
     """
-    return os.path.splitext(bitfile_name)[0]+'.tcl'
+    return os.path.splitext(bitfile_name)[0] + '.tcl'
+
 
 def _get_ip(tcl_name):
     """This method returns the MMIO base and range of an IP.
@@ -85,20 +86,23 @@ def _get_ip(tcl_name):
         A dictionary storing the address base and range information.
 
     """
+    regex = 'create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) ' + \
+            '-offset (0[xX][0-9a-fA-F]+) ' + \
+            '\[get_bd_addr_spaces (processing_system7_0|ps7)/Data\] ' + \
+            '(\[.+?\]) ' + \
+            '([A-Za-z0-9_]+)'
     result = {}
+
     with open(tcl_name, 'r') as f:
         for line in f:
-            m = re.search('create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) '+\
-                    '-offset (0[xX][0-9a-fA-F]+) '+\
-                    '\[get_bd_addr_spaces (processing_system7_0|ps7)/Data\] '+\
-                    '(\[.+?\]) '+\
-                    '([A-Za-z0-9_]+)',line,re.IGNORECASE)
+            m = re.search(regex, line, re.IGNORECASE)
             if m:
                 # Each entry is [base, range, state]
-                result[m.group(5)] = [int(m.group(2),16),
-                                      int(m.group(1),16), None]
+                result[m.group(5)] = [int(m.group(2), 16),
+                                      int(m.group(1), 16), None]
 
     return result
+
 
 def _get_gpio(tcl_name):
     """This method returns the PS GPIO index for an IP.
@@ -129,21 +133,21 @@ def _get_gpio(tcl_name):
         for line in f:
             if (pat1 in line) or (pat2 in line):
                 gpio_list = re.findall('\[get_bd_pins (.+?)/Din\]',
-                                        line,re.IGNORECASE)
+                                       line, re.IGNORECASE)
 
     match1 = 0
     index = 0
     for i in range(len(gpio_list)):
         name = gpio_list[i].split('/')[0]
-        pat3 = "set "+ name
+        pat3 = "set " + name
         pat4 = "CONFIG.DIN_FROM {([0-9]+)}*"
         with open(tcl_name, 'r') as f:
             for line in f:
                 if pat3 in line:
                     match1 = 1
                     continue
-                if match1==1:
-                    match2 = re.search(pat4,line,re.IGNORECASE)
+                if match1 == 1:
+                    match2 = re.search(pat4, line, re.IGNORECASE)
                     if match2:
                         index = match2.group(1)
                         match1 = 0
@@ -152,8 +156,10 @@ def _get_gpio(tcl_name):
 
     return result
 
+
 class _InterruptMap:
-    """Helper Class to extract interrupt information from a TCL configuration file
+    """Helper Class to extract interrupt information from a TCL
+    configuration file
 
     Attributes
     ----------
@@ -173,7 +179,7 @@ class _InterruptMap:
     def __init__(self, tcl_name):
         """Returns a map built from the supplied tcl file
 
-        Paramters
+        Parameters
         ---------
         tcl_name : str
             The tcl filename to parse. This is opened directly so should be
@@ -183,7 +189,7 @@ class _InterruptMap:
         if not isinstance(tcl_name, str):
             raise TypeError("tcl_name has to be a string")
 
-        # TODO: support nested hierarchies
+        # This code does not support nested hierarchies at present
 
         # Initialize result variables
         self.intc_names = []
@@ -196,11 +202,13 @@ class _InterruptMap:
 
         # Key strings to search for in the TCL file
         hier_pat = "create_hier_cell"
-        concat_pat = "create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1"
-        interrupt_pat = "create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1"
-        ps7_pat = "create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5"
+        concat_pat = "create_bd_cell -type ip -vlnv " \
+                     "xilinx.com:ip:xlconcat:2.1"
+        interrupt_pat = "create_bd_cell -type ip -vlnv " \
+                        "xilinx.com:ip:axi_intc:4.1"
+        ps7_pat = "create_bd_cell -type ip -vlnv " \
+                  "xilinx.com:ip:processing_system7:5.5"
         prop_pat = "set_property -dict"
-        end_prop_pat = "] $"
         config_pat = "CONFIG.NUM_PORTS"
         end_pat = "}\n"
         net_pat = "connect_bd_net -net"
@@ -222,23 +230,27 @@ class _InterruptMap:
                     in_prop = True
                 elif concat_pat in line:
                     m = re.search(
-                        'create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
+                        'create_bd_cell -type ip -vlnv ' +
+                        'xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
                     last_concat = current_hier + m.groups(1)[0]
                     # Default for IP is two input ports
                     self.concat_cells[last_concat] = 2
                 elif interrupt_pat in line:
                     m = re.search(
-                        'create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 ([^ ]+)', line)
+                        'create_bd_cell -type ip -vlnv ' +
+                        'xilinx.com:ip:axi_intc:4.1 ([^ ]+)', line)
                     self.intc_names.append(current_hier + m.groups(1)[0])
                 elif ps7_pat in line:
                     m = re.search(
-                        'create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 ([^ ]+)', line)
+                        'create_bd_cell -type ip -vlnv ' +
+                        'xilinx.com:ip:processing_system7:5.5 ([^ ]+)', line)
                     self.ps7_name = current_hier + m.groups(1)[0]
                 elif end_pat == line:
                     current_hier = ""
                 elif net_pat in line:
-                    new_pins = [current_hier + v for v in re.findall('\[get_bd_pins ([^]]+)\]',
-                                                                     line, re.IGNORECASE)]
+                    new_pins = [current_hier + v for v in
+                                re.findall('\[get_bd_pins ([^]]+)\]',
+                                           line, re.IGNORECASE)]
                     indexes = set()
                     for p in new_pins:
                         if p in self.pins:
@@ -289,6 +301,7 @@ class _InterruptMap:
             offset = self._add_interrupt_pins(net, parent, offset)
         return offset
 
+
 def _get_interrupts(tcl_name):
     """Function to extract interrupt information from a TCL configuration file
 
@@ -310,6 +323,7 @@ def _get_interrupts(tcl_name):
     """
     result = _InterruptMap(tcl_name)
     return result.intc_parent, result.intc_pins
+
 
 class PL_Meta(type):
     """This method is the meta class for the PL.
@@ -402,6 +416,7 @@ class PL_Meta(type):
         cls.server_update()
         return cls._interrupt_pins
 
+
 class PL(metaclass=PL_Meta):
     """Serves as a singleton for `Overlay` and `Bitstream` classes.
 
@@ -445,11 +460,11 @@ class PL(metaclass=PL_Meta):
 
     _ip_dict = _get_ip(general_const.TCL_BOOT)
     _gpio_dict = _get_gpio(general_const.TCL_BOOT)
-    _interrupt_controllers, _interrupt_pins = _get_interrupts(general_const.TCL_BOOT)
+    _interrupt_controllers, _interrupt_pins = _get_interrupts(
+        general_const.TCL_BOOT)
     _server = None
     _host = None
     _remote = None
-    
 
     def __init__(self):
         """Return a new PL object.
@@ -488,10 +503,10 @@ class PL(metaclass=PL_Meta):
             cls._host = cls._server.accept()
             cls._host.send([cls._bitfile_name, cls._timestamp,
                             cls._ip_dict, cls._gpio_dict,
-                            cls._interrupt_controllers, cls._interrupt_pins ])
+                            cls._interrupt_controllers, cls._interrupt_pins])
             [cls._bitfile_name, cls._timestamp, cls._ip_dict,
-                        cls._gpio_dict, cls._interrupt_controllers,
-                        cls._interrupt_pins, cls._status] = cls._host.recv()
+             cls._gpio_dict, cls._interrupt_controllers,
+             cls._interrupt_pins, cls._status] = cls._host.recv()
             cls._host.close()
 
         cls._server.close()
@@ -519,11 +534,11 @@ class PL(metaclass=PL_Meta):
         """
         cls._remote = Client(address, family='AF_UNIX', authkey=key)
         [cls._bitfile_name, cls._timestamp,
-                cls._ip_dict, cls._gpio_dict,
-                cls._interrupt_controllers, cls.intc_pins] = cls._remote.recv()
+         cls._ip_dict, cls._gpio_dict,
+         cls._interrupt_controllers, cls.intc_pins] = cls._remote.recv()
 
     @classmethod
-    def server_update(cls,continued=1):
+    def server_update(cls, continued=1):
         """Client sends the attributes to the server.
 
         This method should not be used by the users directly. To check open
@@ -541,8 +556,9 @@ class PL(metaclass=PL_Meta):
 
         """
         cls._remote.send([cls._bitfile_name, cls._timestamp,
-                            cls._ip_dict, cls._gpio_dict,
-                            cls._interrupt_controllers, cls.intc_pins, continued])
+                          cls._ip_dict, cls._gpio_dict,
+                          cls._interrupt_controllers,
+                          cls.intc_pins, continued])
         cls._remote.close()
 
     @classmethod
@@ -562,7 +578,7 @@ class PL(metaclass=PL_Meta):
             cls._ip_dict = _get_ip(tcl_name)
             cls._gpio_dict = _get_gpio(tcl_name)
             cls._interrupt_controllers, cls._interrupt_pins = \
-                _get_interrupts(general_const.TCL_BOOT)
+                _get_interrupts(tcl_name)
         else:
             for i in cls._ip_dict.keys():
                 cls._ip_dict[i][2] = None
@@ -595,14 +611,15 @@ class PL(metaclass=PL_Meta):
         """
         cls.client_request()
         with open(data, 'rb') as bin:
-            size = (math.ceil(os.fstat(bin.fileno()).st_size/
-                    mmap.PAGESIZE))*mmap.PAGESIZE
+            size = (math.ceil(os.fstat(bin.fileno()).st_size /
+                              mmap.PAGESIZE)) * mmap.PAGESIZE
             mmio = MMIO(cls._ip_dict[ip_name][0], size)
             buf = bin.read(size)
             mmio.write(0, buf)
 
         cls._ip_dict[ip_name][2] = data
         cls.server_update()
+
 
 class Bitstream(PL):
     """This class instantiates a programmable logic bitstream.
@@ -644,8 +661,8 @@ class Bitstream(PL):
         elif os.path.isfile(general_const.BS_SEARCH_PATH + bitfile_name):
             self.bitfile_name = general_const.BS_SEARCH_PATH + bitfile_name
         else:
-            raise IOError('Bitstream file {} does not exist.'\
-                            .format(bitfile_name))
+            raise IOError('Bitstream file {} does not exist.'
+                          .format(bitfile_name))
 
         self.timestamp = ''
 
@@ -674,8 +691,9 @@ class Bitstream(PL):
             f.write(buf)
 
         t = datetime.now()
-        self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(t.year,t.month,t.day,
-                                t.hour,t.minute,t.second,t.microsecond)
+        self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
+                t.year, t.month, t.day,
+                t.hour, t.minute, t.second, t.microsecond)
 
         # Update PL information
         PL.client_request()
@@ -686,6 +704,7 @@ class Bitstream(PL):
         PL._interrupt_controllers = {}
         PL._interrupt_pins = {}
         PL.server_update()
+
 
 class Overlay(PL):
     """This class keeps track of a single bitstream's state and contents.
@@ -769,8 +788,8 @@ class Overlay(PL):
         elif os.path.isfile(general_const.BS_SEARCH_PATH + bitfile_name):
             self.bitfile_name = general_const.BS_SEARCH_PATH + bitfile_name
         else:
-            raise IOError('Bitstream file {} does not exist.'\
-                            .format(bitfile_name))
+            raise IOError('Bitstream file {} does not exist.'
+                          .format(bitfile_name))
 
         # Set the bitstream
         self.bitstream = Bitstream(self.bitfile_name)
@@ -817,23 +836,23 @@ class Overlay(PL):
         """
         PL.client_request()
         PL.server_update()
-        if not self.bitstream.timestamp=='':
-            return self.bitstream.timestamp==PL._timestamp
+        if not self.bitstream.timestamp == '':
+            return self.bitstream.timestamp == PL._timestamp
         else:
-            return self.bitfile_name==PL._bitfile_name
-            
+            return self.bitfile_name == PL._bitfile_name
+
     def reset(self):
         """This function resets the IP and GPIO dictionaries of the overlay.
-        
+
         Note
         ----
-        This function should be used with caution. If the overlay is loaded, 
+        This function should be used with caution. If the overlay is loaded,
         it also resets the IP and GPIO dictionaries in the PL.
-        
+
         Returns
         -------
         None
-        
+
         """
         tcl_name = _get_tcl_name(self.bitfile_name)
         self.gpio_dict = _get_gpio(tcl_name)
@@ -842,30 +861,30 @@ class Overlay(PL):
             _get_interrupts(tcl_name)
         if self.is_loaded():
             PL.reset()
-        
+
     def load_ip_data(self, ip_name, data):
         """This method loads the data to the addressable IP.
-        
+
         Calls the method in the super class to load the data. This method can
-        be used to program the IP. For example, users can use this method to 
+        be used to program the IP. For example, users can use this method to
         load the program to the Microblaze processors on PL.
-        
+
         Note
         ----
         The data is assumed to be in binary format (.bin). The data name will
         be stored as a state information in the IP dictionary.
-        
+
         Parameters
         ----------
         ip_name : str
             The name of the addressable IP.
         data : str
             The absolute path of the data to be loaded.
-        
+
         Returns
         -------
         None
-        
+
         """
         super().load_ip_data(ip_name, data)
         self.ip_dict[ip_name][2] = data
