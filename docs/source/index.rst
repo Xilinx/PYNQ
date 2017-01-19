@@ -17,7 +17,8 @@ Python productivity for Zynq (Pynq) Documentation
    6_overlays
    6a_peripherals
    7_iop_architecture
-   8_iop_code
+   8a_iop_applications
+   8b_iop_using_peripherals
    9a_base_overlay_iop
    9b_base_overlay_video
    9c_base_overlay_audio
