@@ -24,10 +24,11 @@ Python productivity for Zynq (Pynq) Documentation
    9c_base_overlay_audio
    9d_1_interrupts
    9d_2_base_overlay_interrupts
+   9e_tracebuffer
    10_creating_overlays
    11_python_package
-   12_verification
    modules
+   12_verification
    14_faqs
    15_glossary
    16_references
