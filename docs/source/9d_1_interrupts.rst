@@ -79,7 +79,7 @@ When the coroutine in a task *awaits* it is paused. When it has a value, it resu
 Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: 
+.. code-block:: Python
 
 
    async def async_coroutine(max):
