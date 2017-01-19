@@ -11,7 +11,7 @@ Each IOP has its only interrupt controller allowing its local peripherals to int
 
 The base overlay also has a central interrupt controller connected to the PS. THe IOPs can trigger the central interrupt controller. 
 
-.. image:: ./images/innterrupts.jpg
+.. image:: ./images/interrupt_controller_paceholder.jpg
    :align: center
 
 Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using asyncio. Asyncio is a Python library, first introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio This PYNQ release used Python 3.6.
@@ -20,16 +20,17 @@ The main advantage os using asyncio is that it makes the interrupt handler look 
 
 
 Asyncio
---------------
+=========
 
 Background terminology
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 
 asyncio uses Linux selectors.
 
 Asyncio consists of the following components:
 
-* Event loop
+Event loop
+^^^^^^^^^^^^^
 
 An event loop is a loop for scheduling multiple asynchronous functions. When an event loop runs, and the first IO function is reached, the function pauses waiting for its IO to complete. While the function is waiting, the loop continues, executing subsequent functions in the same way. When a function completes its IO, it can resume at the next sceduled point in the event loop.
 
@@ -39,13 +40,15 @@ https://docs.python.org/3/library/asyncio-eventloop.html
     
     loop = asyncio.get_event_loop()    
     
-* Futures
+Futures
+^^^^^^^^^^^^^
 
 A future is an object that will have a value in the future. The event loop can wait for a *Future* object to be set to done. i.e. data available.  
 
     asyncio.ensure_future(async_coroutine(5)),
 
-    *  Coroutines. 
+Coroutines
+^^^^^^^^^^^^^
 
 A coroutine is a function that can pause, that can receive values, and can return a series of value periodically. A coroutine is a functions decorated with ``async def`` (Python 3.6).
 
@@ -54,11 +57,13 @@ A coroutine is a function that can pause, that can receive values, and can retur
     async def function():
         ...
         
-* Tasks
+Tasks
+^^^^^^^^^^^^^
 
 A task is a coroutine wrapped inside a Future. A task runs as long as the event loop runs. 
 
-* await
+await
+^^^^^^^^^^^^^
 
 The ``await`` expression is used to obtain a result from a coroutine 
 
@@ -68,16 +73,14 @@ The ``await`` expression is used to obtain a result from a coroutine
         data = await read()
         ...
     
-Putting it together
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Example
+-------------------------
 
 An event loop registers a task object. The loop will schedule and run the task. 
 Callbacks can be added to the task to notify when a future has a result. 
 
 When the coroutine in a task *awaits* it is paused. When it has a value, it resumes. When it returns, the task completes, and the future gets a value. Any associated callback is run. 
 
-Example
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: Python
 
@@ -114,7 +117,7 @@ Interrupts using asyncio
 Asyncio can be used for managing interrupts. A coroutine can be created to check the status of the interrupt controller, and scheduled in an event loop alongside other user code. If an interrupt has been triggered, the next time the "interrupt" coroutine is scheduled, it will service the interrupt. 
 
 High performance/real-time code 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
 
 Note that Linux is not a real-time operating system, and Python is not intended as a high performance/low latency language. 
 
@@ -133,7 +136,7 @@ Interrupt example using asyncio
 An interrupt from the PL is connected to XXX
 
 Code
-^^^^^^^^^^^
+---------
 
 This depends on user code yielding. This will massively impact interrupt latency. 
 
