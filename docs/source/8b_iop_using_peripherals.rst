@@ -1,6 +1,6 @@
-********************************************
-IO Processors: Using peripherals
-********************************************
+*******************************************************
+IO Processors: Using peripherals in your applications
+*******************************************************
 
 .. contents:: Table of Contents
    :depth: 2
@@ -97,7 +97,7 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
 
 ``<GitHub Repository>/Pynq-Z1/sdk/pmod_als/src/pmod_als.c``
 
-:: code-block:: c
+.. code-block:: c
 
    #include "pmod.h"
 

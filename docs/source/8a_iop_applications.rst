@@ -158,18 +158,27 @@ IOP Memory
 ==========================
 
 
-The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable binary file to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. The IOP data memory is also used as a mailbox for communication and data exchanges between the Pynq environment and the IOP.
+Each IOP has local memory (immplemented in Xilinx BRAMs) and a donnection to DDR memory. 
+
+The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable binary file to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. 
+
+The DDR can be used as extra data memory. You need to be careful when using DDR memory, as this is shared with the rest of the system, including other IOPs. 
+
+xxx : How should DR be used?
+
+The IOP data memory, either in local memory, or in DDR memory, can be used as a mailbox for communication and data exchanges between the Pynq environment and the IOP.
 
 
 Memory map
 ----------
 
-The IOP memory is 64KB of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
-Pynq and the application running on the IOP can write to anywhere in the shared memory space (although care should be taken not to write to the instruction memory unintentionally as this will corrupt the running application).  
+The local IOP memory is 64KB of shared data and instruction memory. Instruction memory for the IOP starts at address 0x0.
 
-When building the MicroBlaze project, the compiler will only ensure that the application and *allocated* stack and heap fit into the BRAM. For communication between the ARM and the MicroBlaze, a part of the shared memory space must also be reserved within the MicroBlaze address space. 
+Pynq and the application running on the IOP can write to anywhere in the shared memory space. You should be careful not to write to the instruction memory unintentionally as this will corrupt the running application.  
 
-There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow.
+When building the MicroBlaze project, the compiler will only ensure that the application and *allocated* stack and heap fit into the BRAM and DDR if used. For communication between the ARM and the MicroBlaze, a part of the shared memory space must also be reserved within the MicroBlaze address space. 
+
+There is no memory management in the IOP. You must ensure the application, including stack and heap, do not overflow into the defined data area. Remember that declaring a stack and heap size only allocates space to the stack and heap. No boundary is created, so if sufficient space was not allocated, the stack and heap may overflow and corrupt your application.
 
 If you need to modify the stack and heap for an application, the linker script can be found in the ``<project>/src/`` directory.
 

@@ -22,9 +22,10 @@ Overlays can be loaded to the FPGA dynamically, as required, just like a softwar
 Base Overlay
 ===================
 
-The base overlay is the default overlay included with the PYNQ-Z1 image, and is automatically loaded when the system boots. 
+The base overlay is the default overlay included with the PYNQ-Z1 image, and is automatically loaded into the Programmable Logic when the system boots. 
 
-This overlay includes the follwoing hardware:
+This overlay includes the following hardware:
+
 * HDMI In
 * HDMI Out
 * Mic in 

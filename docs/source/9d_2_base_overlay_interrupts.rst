@@ -1,5 +1,5 @@
 ********************************************
-Placeholder for notebook
+Placeholder for Interrupts notebook
 ********************************************
 
 Interrupts using the base overlay
