@@ -17,7 +17,6 @@ Example performance
 
 Transfer 32 bits in a loop
 
-Transf
 
 CDMA 
 

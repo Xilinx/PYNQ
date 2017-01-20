@@ -33,7 +33,7 @@ or
 
    If you can't ping the board, or the host PC, check your network settings. 
          
-   * You must ensure board your PC and board are connected to the same network, and have IP addresses in the same range. If your network cables is connected directly to your PC/laptop and board, you may need to set a static IP address for your PC/laptop manually. See the  `Appendix: Assign your PC/Laptop a static ip address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+   * You must ensure board your PC and board are connected to the same network, and have IP addresses in the same range. If your network cables is connected directly to your PC/laptop and board, you may need to set a static IP address for your PC/laptop manually. See the  `Appendix: Assign your PC/Laptop a static ip address <appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
          
    * If you have a proxy setup, you may need to add a rule to bypass the board hostname/ip address. 
       

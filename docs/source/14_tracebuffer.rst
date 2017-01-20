@@ -51,6 +51,7 @@ Tracebuffer example
 To use the tracebuffer, instantiate the tracebuffer class, specifying the interface it is connected to, the protocol, and the sample rate. 
 
 .. code-block:: Python
+
    from pynq.drivers import Trace_Buffer
    
    tr_buf = Trace_Buffer(PMODA,"i2c",samplerate=1000000)
