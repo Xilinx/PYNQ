@@ -50,7 +50,7 @@ To make your own PYNQ Micro-SD card:
       * Windows: Use `win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_
       * Linux/MacOS: Use the built in *dd* command\*
    
-\* For detailed instructions for writing the SD card using different operating systems, see the `Appendix: Writing the SD card image <17_appendix.rst#writing-the-sd-card-image>`_. 
+\* For detailed instructions for writing the SD card using different operating systems, see the `Appendix: Writing the SD card image <appendix.rst#writing-the-sd-card-image>`_. 
    
 Setup the PYNQ-Z1 
 ===================
@@ -131,7 +131,7 @@ You will need to have an Ethernet port available on your computer, and you will 
 | 3. Browse to  http://192.168.2.99:9090                 |
 +--------------------------------------------------------+
 
-\* See `Appendix: Assign your PC/Laptop a static IP address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+\* See `Appendix: Assign your PC/Laptop a static IP address <appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
 
 
 Powering on
@@ -325,4 +325,4 @@ Updating will overwrite the introductory and example notebooks. You should make 
 Troubleshooting
 ==========================
 
-If you are having problems, please see the `Frequently asked questions <14_faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io>`_
+If you are having problems, please see the `Frequently asked questions <faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io>`_
