@@ -5,22 +5,53 @@ IO Processors: Using peripherals in your applications
 .. contents:: Table of Contents
    :depth: 2
 
+Pmod IOP driver
+=====================
 
+You can find the driver for the Pmod IOP switch here:
+
+:: 
+   
+   <GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/  \
+   drivers/pmod_io_switch_v1_0/src/
+
+The ``pmod_io_switch.h`` includes the API for the configuration switch and predefined constants that can be used to connect pins.
+   
+``pmod.h`` and ``pmod.c`` are also part of the Pmod IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
+
+This code is automatically compiled into the Board Support Package (BSP). 
+
+To use these files in an IOP application, include the header file(s):
+   
+.. code-block:: c
+
+   #include "pmod.h"
+   #include "pmod_io_switch.h"
+
+Any application that uses the Pmod driver should also call pmod_init() at the beginning of the application. 
+
+From Python all the constants and addresses for the IOP can be found in:
+
+    ``<GitHub Repository>/python/pynq/iop/iop_const.py``
+    
+   
+   
 Controlling the Pmod IOP Switch
 =================================
 
 
-There are 8 data pins on a Pmod port, that can be connected to any of 16 internal peripheral pins (8x GPIO, 2x SPI, 4x IIC, 2x Timer). 
+There are 8 data pins on a Pmod port, that can be connected to any of 16 internal peripheral pins (8x GPIO, 2x SPI, 4x IIC, 2x Timer). This means the configuration switch for the Pmod has 8 connections to make to the data pins. 
 
-Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register. 
-The following function, part of the provided pmod_io_switch_v1_0 driver (``pmod.h``) can be used to configure the switch. 
+Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register. the first nibble (4-bits) configures the first pin, the second nible the second pin and so on. 
+
+The following function, part of the provided pmod_io_switch_v1_0 driver (``pmod.h``) can be used to configure the switch from an IOP application. 
 
 .. code-block:: c
 
    void config_pmod_switch(char pin0, char pin1, char pin2, char pin3, char pin4, \
        char pin5, char pin6, char pin7);
 
-While each parameter is a "char" only the lower 4-bits are currently used to configure each pin.
+While each parameter is a "char" only the lower 4-bits are used to configure each pin.
 
 Switch mappings used for IOP Switch configuration:
 
@@ -45,49 +76,32 @@ Switch mappings used for IOP Switch configuration:
  TIMER    0xf
 ========  =======
 
-For example: 
+Example
+---------
 
 .. code-block:: c
 
    config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,GPIO_4,GPIO_5,GPIO_6,GPIO_7);
    
 This would connect a SPI interface:
-* Pin 1: SS
-* Pin 2: MOSI
-* Pin 4: SPICLK
 
-You can check the IOP constants and addresses for an IOP application here: 
+* Pin 0: SS
+* Pin 1: MOSI
+* Pin 2: GPIO_2
+* Pin 3: SPICLK
+* Pin 4: GPIO_4
+* Pin 5: GPIO_5
+* Pin 6: GPIO_6
+* Pin 7: GPIO_7
 
-:: 
-   
-   <GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/  \
-   drivers/pmod_io_switch_v1_0/src/
-   
-To use these constants in an IOP application, include the header file:
-   
+Note that if two or more pins are connected to the same signal, the pins are OR'd together internally. 
+
+
 .. code-block:: c
 
-   #include "pmod_io_switch.h"
-
-
-
-``pmod.h`` and ``pmod.c`` are part of the Pmod IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
-
-:: 
+   config_pmod_switch(GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1);
    
-   <GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/  \
-   drivers/pmod_io_switch_v1_0/src/
-
-This code is automatically compiled into the Board Support Package (BSP). Note that if two or more pins are connected to the same signal, the pins are OR'd together internally. This is not recommended and should not be done unintentionally. 
-
-Any application that uses the Pmod driver should also call pmod_init() at the beginning of the application. 
-
-From Python all the constants and addresses for the IOP can be found in:
-
-    ``<GitHub Repository>/python/pynq/iop/iop_const.py``
-    
-
-
+This is not recommended and should not be done unintentionally. 
 
 IOP Application Example
 ==========================
@@ -97,9 +111,19 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
 
 ``<GitHub Repository>/Pynq-Z1/sdk/pmod_als/src/pmod_als.c``
 
+
+First note that the ``pmod.h`` header file is included.
+
 .. code-block:: c
 
    #include "pmod.h"
+   
+Some *COMMANDS* are defined. These values can be chosen to be any value. The corresponding Python code will send the appropriate command values to control the IOP application. 
+
+By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands can be any non-zero value.
+
+   
+.. code-block:: c
 
    // MAILBOX_WRITE_CMD
    #define READ_SINGLE_VALUE 0x3
@@ -109,6 +133,11 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
    #define LOG_ITEM_SIZE sizeof(u32)
    #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
+
+The ALS peripheral has as SPI interface. The user defined function get_sample()  calls an SPI function *spi_transfer()*, defined in pmod.h, to read data from the device.  
+
+  
+.. code-block:: c
 
    u32 get_sample(){
       /* 
@@ -121,6 +150,9 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
       return ( ((raw_data[1] & 0xf0) >> 4) + ((raw_data[0] & 0x0f) << 4) );
    }
 
+In ``main()`` notice ``config_pmod_switch()`` is called to initialize the switch with a static configuration. This application does not allow the switch configuration to be modified from Python. This means that if you want to use this code with a different pin configuration, the C code must be modified and recompiled. 
+   
+.. code-block:: c
 
    int main(void)
    {
@@ -134,13 +166,26 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
       // to initialize the device
       get_sample();
 
+      
+Next, the ``while(1)`` loop continually checks the ``MAILBOX_CMD_ADDR`` for a non-zero command. Once a command is received from Python, the command is decoded, and executed. 
+
+.. code-block:: c
+
       // Run application
       while(1){
 
          // wait and store valid command
          while((MAILBOX_CMD_ADDR & 0x01)==0);
          cmd = MAILBOX_CMD_ADDR;
-        
+
+
+Taking the first case, reading a single value; ``get_sample()`` is called and a value returned to the first position (0) of the ``MAILBOX_DATA``. 
+
+``MAILBOX_CMD_ADDR`` is reset to zero to acknowledge to the ARM processor that the operation is complete and data is available in the mailbox. 
+
+
+.. code-block:: c
+         
          switch(cmd){
             case READ_SINGLE_VALUE:
             // write out reading, reset mailbox
@@ -148,6 +193,10 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
             MAILBOX_CMD_ADDR = 0x0;
             break;
 
+Remaining code:
+
+ .. code-block:: c           
+            
             case READ_AND_LOG:
             // initialize logging variables, reset cmd
             cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
@@ -172,29 +221,6 @@ Taking Pmod ALS as an example IOP driver (used to control the PMOD light sensor)
    }
 
 
-First note that the ``pmod.h`` header file is included.
-
-Some *COMMANDS* are defined. These values can be chosen to be any value. The corresponding Python code will send the appropriate command values to control the IOP application. 
-
-By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands can be any non-zero value.
-
-The ALS peripheral has as SPI interface. Note the user defined function get_sample() which calls an SPI function spi_transfer() call defined in pmod.h.  
-
-In ``main()`` notice ``config_pmod_switch()`` is called to initialize the switch with a static configuration. This application does not allow the switch configuration to be modified from Python. This means that if you want to use this code with a different pin configuration, the C code must be modified and recompiled. 
-
-Next, the ``while(1)`` loop continually checks the ``MAILBOX_CMD_ADDR`` for a non-zero command. Once a command is received from Python, the command is decoded, and executed. 
-
-Taking the first case, reading a single value:
-
-.. code-block:: c
-
-    case READ_SINGLE_VALUE:
-        MAILBOX_DATA(0) = get_sample();
-        MAILBOX_CMD_ADDR = 0x0;
-
-``get_sample()`` is called and a value returned to the first position (0) of the ``MAILBOX_DATA``.
-
-``MAILBOX_CMD_ADDR`` is reset to zero to acknowledge to the ARM processor that the operation is complete and data is available in the mailbox. 
 
 Examining the Python Code
 --------------------------
