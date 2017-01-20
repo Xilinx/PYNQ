@@ -137,7 +137,7 @@ int main(void) {
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                           D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-    XGpio_Initialize(&pb_speaker, XPAR_GPIO_1_DEVICE_ID);
+    XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
     XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
     // initially keep it OFF
     XGpio_DiscreteWrite(&pb_speaker, 1, 0);
@@ -148,13 +148,13 @@ int main(void) {
         
         switch(cmd){
             case CONFIG_IOP_SWITCH:
-                shift = MAILBOX_DATA(0)-2;
+                shift = MAILBOX_DATA(0);
                 config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
                                       A_GPIO, A_GPIO, A_GPIO,
                                       D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                                       D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                                       D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-                XGpio_Initialize(&pb_speaker, XPAR_GPIO_1_DEVICE_ID);
+                XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
                 XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
                 XGpio_DiscreteWrite(&pb_speaker, 1, 0);
                 MAILBOX_CMD_ADDR = 0x0;

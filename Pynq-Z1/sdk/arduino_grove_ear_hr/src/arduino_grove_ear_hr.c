@@ -67,7 +67,7 @@
 
 u8 getPinValue(u8 pin)
 {
-    return (Xil_In8(XPAR_GPIO_1_BASEADDR) >> pin) & 0x1;
+    return (Xil_In8(XPAR_GPIO_0_BASEADDR) >> pin) & 0x1;
 }
 
 int main(void)
@@ -94,7 +94,7 @@ int main(void)
         cmd = MAILBOX_CMD_ADDR;
         if(cmd == CONFIG_IOP_SWITCH) {
             // read signal pin
-            signalPin = MAILBOX_DATA(0)-2;
+            signalPin = MAILBOX_DATA(0);
 
             // set pin configuration
             config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
@@ -104,7 +104,7 @@ int main(void)
                                   D_GPIO, D_GPIO, D_GPIO, D_GPIO);
 
             // configure GPIO for read
-            Xil_Out8(XPAR_GPIO_1_BASEADDR + GPIO_TRI_OFFSET, 0xff);
+            Xil_Out8(XPAR_GPIO_0_BASEADDR + GPIO_TRI_OFFSET, 0xff);
 
             // initialize mailbox data
             MAILBOX_DATA(1) = 0;
