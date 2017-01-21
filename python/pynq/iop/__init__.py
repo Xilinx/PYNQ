@@ -77,6 +77,7 @@ from .pmod_pwm import Pmod_PWM
 # Arduino devices
 from .arduino_io import Arduino_IO
 from .arduino_analog import Arduino_Analog
+from .arduino_lcd18 import Arduino_LCD18
 
 # Grove devices
 from .grove_pir import Grove_PIR
