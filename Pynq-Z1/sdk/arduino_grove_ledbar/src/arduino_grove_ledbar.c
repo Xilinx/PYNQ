@@ -103,7 +103,7 @@ void ledbar_init(){
      * Pin 0 = Data
      * Pin 1 = Clock
      */
-    XGpio_Initialize(&gpo, XPAR_GPIO_1_DEVICE_ID);
+    XGpio_Initialize(&gpo, XPAR_GPIO_0_DEVICE_ID);
     // Both pins set as Outputs
     XGpio_SetDataDirection(&gpo, 1, 0);
 }
@@ -121,7 +121,7 @@ void send_data(u8 data){
          * Write it to the data_pin
          */
         data_state = (data_internal & 0x80) ? 0x00000001 : 0x00000000;
-        XGpio_DiscreteWrite(&gpo, 1, data_state<<shift);
+        XGpio_DiscreteWrite(&gpo, 1, data_state<< shift);
 
         // Read Clock pin and regenerate clock
         detect = XGpio_DiscreteRead(&gpo, 1);
@@ -355,7 +355,7 @@ int main(void)
                                         D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                                         D_GPIO, D_GPIO, D_GPIO, D_GPIO,
                                         D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-                  shift = MAILBOX_DATA(0)-2;
+                  shift = MAILBOX_DATA(0);
                   MAILBOX_CMD_ADDR = 0x0;
                   break;
                   
