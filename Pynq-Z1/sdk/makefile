@@ -33,7 +33,8 @@ MBBINS = pmod_adc.bin \
 		pmod_grove_haptic_motor.bin \
 		arduino_grove_haptic_motor.bin \
 		pmod_grove_th02.bin \
-		arduino_grove_th02.bin
+		arduino_grove_th02.bin \
+		arduino_lcd18.bin
 
 all: iop_bins
 	@echo "Completed Microblaze Projects' Builds"
