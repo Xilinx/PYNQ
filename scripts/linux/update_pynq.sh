@@ -65,16 +65,16 @@ function init_repo()
         echo ""
         echo "Github Repo Detected. Pulling latest changes from upstream.."
         cd ${REPO_DIR}
-        git checkout ${REPO_BRANCH}
+        git checkout ${_repo_branch}
         git pull || exit 1
         echo ""
     else
-        echo "Cloning Pynq repo ${REPO_BRANCH}"
+        echo "Cloning Pynq repo ${_repo_branch}"
 	rm -rf $REPO_DIR
         mkdir $REPO_DIR -p
         git clone  ${PYNQ_REPO} ${REPO_DIR} || exit 1
 	cd ${REPO_DIR}
-	git checkout --track origin/${REPO_BRANCH}
+	git checkout --track origin/${_repo_branch}
     fi
     _repo_init_done=true
     cd ${REPO_DIR}
