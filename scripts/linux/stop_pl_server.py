@@ -46,5 +46,3 @@ if os.path.exists("/home/xilinx/pynq/bitstream/.log"):
         PL.server_update(0)
     except ConnectionRefusedError:
         pass
-    
-    os.remove("/home/xilinx/pynq/bitstream/.log")
