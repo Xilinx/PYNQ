@@ -20,7 +20,7 @@ where:
     -h  show this help text and exit
     -s  update packages to latest stable release [DEFAULT]
     -l  update packages to latest commit [Overrides -s]
-	Note: This could result in an unstable build
+        Note: This could result in an unstable build
 
     Development Options:
     -b branch   update package to this repository branch [DEFAULT: master]
@@ -68,16 +68,16 @@ function init_repo()
         echo "Github Repo Detected. Pulling latest changes from upstream.."
         cd ${REPO_DIR}
         git checkout --track origin/${_repo_branch} || git checkout -f ${_repo_branch}
-	git fetch
+        git fetch
         git pull 
         echo ""
     else
         echo "Cloning Pynq repo ${_repo_branch}"
-	rm -rf $REPO_DIR
+        rm -rf $REPO_DIR
         mkdir $REPO_DIR -p
         git clone  ${PYNQ_REPO} ${REPO_DIR}
-	cd ${REPO_DIR}
-	git checkout --track origin/${_repo_branch}
+        cd ${REPO_DIR}
+        git checkout --track origin/${_repo_branch}
     fi
 
     cd ${REPO_DIR}
@@ -103,11 +103,11 @@ while getopts 'hlsb:d' option; do
            latest=true
            ;;
         s) echo "+ Updating to latest stable release"
-	   stable_latest=true
+           stable_latest=true
            ;;
-	b) _repo_branch=$OPTARG
-	   echo "+ Using ${_repo_branch} branch"
-	   ;;
+        b) _repo_branch=$OPTARG
+           echo "+ Using ${_repo_branch} branch"
+           ;;
         d) docs=true
            ;;
        \?) echo "+ Unknown option -${OPTARG} use '-h' for help"
