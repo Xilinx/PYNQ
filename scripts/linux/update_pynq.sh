@@ -1,5 +1,8 @@
 #!/bin/bash  
 
+set -e
+
+UPDATEPYNQ_DIR=/home/xilinx/scripts
 REPO_DIR=/home/xilinx/pynq_git
 MAKEFILE_PATH=${REPO_DIR}/scripts/linux/makefile.pynq
 PYNQ_REPO=https://github.com/Xilinx/PYNQ.git
@@ -17,7 +20,7 @@ where:
     -h  show this help text and exit
     -s  update packages to latest stable release [DEFAULT]
     -l  update packages to latest commit [Overrides -s]
-	Note: This could result in an unstable build
+        Note: This could result in an unstable build
 
     Development Options:
     -b branch   update package to this repository branch [DEFAULT: master]
@@ -25,18 +28,22 @@ where:
 
     
 
-_repo_init_done=""
+
 _repo_branch=master
 
 
 function cleanup_exit()
 {
-    echo "Cleaning up.."
+
+    # Final steps - update this file and change repo ownership
+    cd ${UPDATEPYNQ_DIR}
+    cp update_pynq.sh update_pynq.sh.bkup
+    make -f ${MAKEFILE_PATH} new_pynq_update
+
     cd ${REPO_DIR}
     chown -R xilinx:xilinx ${REPO_DIR}
 
-    echo "Updating update_pynq.sh from repository"
-    make -f ${MAKEFILE_PATH} new_pynq_update
+
     exit $1
 }
 
@@ -48,16 +55,11 @@ function build_docs()
 
 function build_pynq()
 {
-    make -f ${MAKEFILE_PATH} update_pynq || cleanup_exit 1
-    echo "Successfully updated PYNQ.."
+    make -f ${MAKEFILE_PATH} update_pynq 
 }
 
 function init_repo()
 {
-    if [[ $_repo_init_done ]]; then
-    return
-    fi
-
     echo "Info: This operation will overwrite all the example notebooks"
     read -rsp $'Press any key to continue...\n' -n1 key
 
@@ -65,18 +67,19 @@ function init_repo()
         echo ""
         echo "Github Repo Detected. Pulling latest changes from upstream.."
         cd ${REPO_DIR}
-        git checkout ${REPO_BRANCH}
-        git pull || exit 1
+        git checkout --track origin/${_repo_branch} || git checkout -f ${_repo_branch}
+        git fetch
+        git pull 
         echo ""
     else
-        echo "Cloning Pynq repo ${REPO_BRANCH}"
-	rm -rf $REPO_DIR
+        echo "Cloning Pynq repo ${_repo_branch}"
+        rm -rf $REPO_DIR
         mkdir $REPO_DIR -p
-        git clone  ${PYNQ_REPO} ${REPO_DIR} || exit 1
-	cd ${REPO_DIR}
-	git checkout --track origin/${REPO_BRANCH}
+        git clone  ${PYNQ_REPO} ${REPO_DIR}
+        cd ${REPO_DIR}
+        git checkout --track origin/${_repo_branch}
     fi
-    _repo_init_done=true
+
     cd ${REPO_DIR}
 }
 
@@ -100,11 +103,11 @@ while getopts 'hlsb:d' option; do
            latest=true
            ;;
         s) echo "+ Updating to latest stable release"
-	   stable_latest=true
+           stable_latest=true
            ;;
-	b) _repo_branch=$OPTARG
-	   echo "+ Using ${_repo_branch} branch"
-	   ;;
+        b) _repo_branch=$OPTARG
+           echo "+ Using ${_repo_branch} branch"
+           ;;
         d) docs=true
            ;;
        \?) echo "+ Unknown option -${OPTARG} use '-h' for help"

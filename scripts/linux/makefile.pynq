@@ -71,7 +71,6 @@ ROOT_SCRIPTS := 0_resizefs.sh \
 4_boot_leds.sh
 
 update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
-	@echo "Completed PYNQ update."
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
 	@echo ""
@@ -120,10 +119,7 @@ scripts_notebooks:
 	cp -f ${REPO_DIR}/scripts/linux/rc.local /etc/
 
 new_pynq_update:
-	@echo
-	@echo "Copy new Pynq Update Script"
-	@echo
-	cp -af ${REPO_DIR}/scripts/linux/update_pynq.sh ${FINAL_SCRIPTS_DIR}
+	@cp -af ${REPO_DIR}/scripts/linux/update_pynq.sh ${FINAL_SCRIPTS_DIR}
 
 xlnkutils:
 	@echo
@@ -135,7 +131,7 @@ clean_dirs:
 	@echo
 	@echo "Cleaning up old files"
 	@echo
-	rm -rf ${FINAL_DOCS_DIR}/*
+	rm -rf ${FINAL_DOCS_DIR}/* 
 	mv ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js ${ROOT_DIR}/
 	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
 	mkdir -p ${FINAL_NOTEBOOKS_DIR}/getting_started/images
