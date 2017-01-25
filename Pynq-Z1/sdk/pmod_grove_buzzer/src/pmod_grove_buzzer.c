@@ -137,7 +137,7 @@ int main(void) {
      */
     config_pmod_switch(GPIO_0, GPIO_0, GPIO_1, GPIO_1, 
                        GPIO_1, GPIO_1, GPIO_0, GPIO_0);
-    XGpio_Initialize(&pb_speaker, XPAR_GPIO_1_DEVICE_ID);
+    XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
     XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
     // initially keep it OFF
     XGpio_DiscreteWrite(&pb_speaker, 1, 0);
@@ -165,7 +165,7 @@ int main(void) {
                   config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
                                      iop_pins[3], iop_pins[4], iop_pins[5], 
                                      iop_pins[6], iop_pins[7]);
-                  XGpio_Initialize(&pb_speaker, XPAR_GPIO_1_DEVICE_ID);
+                  XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
                   XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
                   XGpio_DiscreteWrite(&pb_speaker, 1, 0);
                   MAILBOX_CMD_ADDR = 0x0;
