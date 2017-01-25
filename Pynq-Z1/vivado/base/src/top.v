@@ -31,6 +31,12 @@ module top(
     FIXED_IO_ps_clk,
     FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb,
+    Vaux0_v_n,
+    Vaux0_v_p,
+    Vaux12_v_n,
+    Vaux12_v_p,
+    Vaux8_v_n,
+    Vaux8_v_p,
     Vaux13_v_n,
     Vaux13_v_p,
     Vaux15_v_n,
@@ -49,6 +55,8 @@ module top(
     gpio_shield_sw_a5_a0_tri_io,
     gpio_shield_sw_d13_d2_tri_io,
     gpio_shield_sw_d1_d0_tri_io,
+    ck_an_tri_io,
+    ck_gpio_tri_io,
     hdmi_in_clk_n,
     hdmi_in_clk_p,
     hdmi_in_data_n,
@@ -100,6 +108,12 @@ module top(
   inout FIXED_IO_ps_clk;
   inout FIXED_IO_ps_porb;
   inout FIXED_IO_ps_srstb;
+  input Vaux0_v_n;
+  input Vaux0_v_p;
+  input Vaux12_v_n;
+  input Vaux12_v_p;
+  input Vaux8_v_n;
+  input Vaux8_v_p;
   input Vaux13_v_n;
   input Vaux13_v_p;
   input Vaux15_v_n;
@@ -118,6 +132,8 @@ module top(
   inout [5:0]gpio_shield_sw_a5_a0_tri_io;
   inout [11:0]gpio_shield_sw_d13_d2_tri_io;
   inout [1:0]gpio_shield_sw_d1_d0_tri_io;
+  inout [5:0]ck_an_tri_io;
+  inout [15:0]ck_gpio_tri_io;
   input hdmi_in_clk_n;
   input hdmi_in_clk_p;
   input [2:0]hdmi_in_data_n;
@@ -169,6 +185,12 @@ module top(
   wire FIXED_IO_ps_clk;
   wire FIXED_IO_ps_porb;
   wire FIXED_IO_ps_srstb;
+  wire Vaux0_v_n;
+  wire Vaux0_v_p;
+  wire Vaux12_v_n;
+  wire Vaux12_v_p;
+  wire Vaux8_v_n;
+  wire Vaux8_v_p;
   wire Vaux13_v_n;
   wire Vaux13_v_p;
   wire Vaux15_v_n;
@@ -193,87 +215,70 @@ module top(
   wire [5:0]sw2shield_tri_out_a5_a0;
   wire [11:0]sw2shield_tri_out_d13_d2;
   wire [1:0]sw2shield_tri_out_d1_d0;
-
-//  wire [0:0]gpio_shield_sw_a5_a0_tri_i_0;
-//  wire [1:1]gpio_shield_sw_a5_a0_tri_i_1;
-//  wire [2:2]gpio_shield_sw_a5_a0_tri_i_2;
-//  wire [3:3]gpio_shield_sw_a5_a0_tri_i_3;
-//  wire [4:4]gpio_shield_sw_a5_a0_tri_i_4;
-//  wire [5:5]gpio_shield_sw_a5_a0_tri_i_5;
-//  wire [0:0]gpio_shield_sw_a5_a0_tri_io_0;
-//  wire [1:1]gpio_shield_sw_a5_a0_tri_io_1;
-//  wire [2:2]gpio_shield_sw_a5_a0_tri_io_2;
-//  wire [3:3]gpio_shield_sw_a5_a0_tri_io_3;
-//  wire [4:4]gpio_shield_sw_a5_a0_tri_io_4;
-//  wire [5:5]gpio_shield_sw_a5_a0_tri_io_5;
-//  wire [0:0]gpio_shield_sw_a5_a0_tri_o_0;
-//  wire [1:1]gpio_shield_sw_a5_a0_tri_o_1;
-//  wire [2:2]gpio_shield_sw_a5_a0_tri_o_2;
-//  wire [3:3]gpio_shield_sw_a5_a0_tri_o_3;
-//  wire [4:4]gpio_shield_sw_a5_a0_tri_o_4;
-//  wire [5:5]gpio_shield_sw_a5_a0_tri_o_5;
-//  wire [0:0]gpio_shield_sw_a5_a0_tri_t_0;
-//  wire [1:1]gpio_shield_sw_a5_a0_tri_t_1;
-//  wire [2:2]gpio_shield_sw_a5_a0_tri_t_2;
-//  wire [3:3]gpio_shield_sw_a5_a0_tri_t_3;
-//  wire [4:4]gpio_shield_sw_a5_a0_tri_t_4;
-//  wire [5:5]gpio_shield_sw_a5_a0_tri_t_5;
-//  wire [0:0]gpio_shield_sw_d13_d2_tri_i_0;
-//  wire [1:1]gpio_shield_sw_d13_d2_tri_i_1;
-//  wire [10:10]gpio_shield_sw_d13_d2_tri_i_10;
-//  wire [11:11]gpio_shield_sw_d13_d2_tri_i_11;
-//  wire [2:2]gpio_shield_sw_d13_d2_tri_i_2;
-//  wire [3:3]gpio_shield_sw_d13_d2_tri_i_3;
-//  wire [4:4]gpio_shield_sw_d13_d2_tri_i_4;
-//  wire [5:5]gpio_shield_sw_d13_d2_tri_i_5;
-//  wire [6:6]gpio_shield_sw_d13_d2_tri_i_6;
-//  wire [7:7]gpio_shield_sw_d13_d2_tri_i_7;
-//  wire [8:8]gpio_shield_sw_d13_d2_tri_i_8;
-//  wire [9:9]gpio_shield_sw_d13_d2_tri_i_9;
-//  wire [0:0]gpio_shield_sw_d13_d2_tri_io_0;
-//  wire [1:1]gpio_shield_sw_d13_d2_tri_io_1;
-//  wire [10:10]gpio_shield_sw_d13_d2_tri_io_10;
-//  wire [11:11]gpio_shield_sw_d13_d2_tri_io_11;
-//  wire [2:2]gpio_shield_sw_d13_d2_tri_io_2;
-//  wire [3:3]gpio_shield_sw_d13_d2_tri_io_3;
-//  wire [4:4]gpio_shield_sw_d13_d2_tri_io_4;
-//  wire [5:5]gpio_shield_sw_d13_d2_tri_io_5;
-//  wire [6:6]gpio_shield_sw_d13_d2_tri_io_6;
-//  wire [7:7]gpio_shield_sw_d13_d2_tri_io_7;
-//  wire [8:8]gpio_shield_sw_d13_d2_tri_io_8;
-//  wire [9:9]gpio_shield_sw_d13_d2_tri_io_9;
-//  wire [0:0]gpio_shield_sw_d13_d2_tri_o_0;
-//  wire [1:1]gpio_shield_sw_d13_d2_tri_o_1;
-//  wire [10:10]gpio_shield_sw_d13_d2_tri_o_10;
-//  wire [11:11]gpio_shield_sw_d13_d2_tri_o_11;
-//  wire [2:2]gpio_shield_sw_d13_d2_tri_o_2;
-//  wire [3:3]gpio_shield_sw_d13_d2_tri_o_3;
-//  wire [4:4]gpio_shield_sw_d13_d2_tri_o_4;
-//  wire [5:5]gpio_shield_sw_d13_d2_tri_o_5;
-//  wire [6:6]gpio_shield_sw_d13_d2_tri_o_6;
-//  wire [7:7]gpio_shield_sw_d13_d2_tri_o_7;
-//  wire [8:8]gpio_shield_sw_d13_d2_tri_o_8;
-//  wire [9:9]gpio_shield_sw_d13_d2_tri_o_9;
-//  wire [0:0]gpio_shield_sw_d13_d2_tri_t_0;
-//  wire [1:1]gpio_shield_sw_d13_d2_tri_t_1;
-//  wire [10:10]gpio_shield_sw_d13_d2_tri_t_10;
-//  wire [11:11]gpio_shield_sw_d13_d2_tri_t_11;
-//  wire [2:2]gpio_shield_sw_d13_d2_tri_t_2;
-//  wire [3:3]gpio_shield_sw_d13_d2_tri_t_3;
-//  wire [4:4]gpio_shield_sw_d13_d2_tri_t_4;
-//  wire [5:5]gpio_shield_sw_d13_d2_tri_t_5;
-//  wire [6:6]gpio_shield_sw_d13_d2_tri_t_6;
-//  wire [7:7]gpio_shield_sw_d13_d2_tri_t_7;
-//  wire [8:8]gpio_shield_sw_d13_d2_tri_t_8;
-//  wire [9:9]gpio_shield_sw_d13_d2_tri_t_9;
-//  wire [0:0]gpio_shield_sw_d1_d0_tri_i_0;
-//  wire [1:1]gpio_shield_sw_d1_d0_tri_i_1;
-//  wire [0:0]gpio_shield_sw_d1_d0_tri_io_0;
-//  wire [1:1]gpio_shield_sw_d1_d0_tri_io_1;
-//  wire [0:0]gpio_shield_sw_d1_d0_tri_o_0;
-//  wire [1:1]gpio_shield_sw_d1_d0_tri_o_1;
-//  wire [0:0]gpio_shield_sw_d1_d0_tri_t_0;
-//  wire [1:1]gpio_shield_sw_d1_d0_tri_t_1;
+  wire [0:0]ck_gpio_tri_i_0;
+  wire [1:1]ck_gpio_tri_i_1;
+  wire [10:10]ck_gpio_tri_i_10;
+  wire [11:11]ck_gpio_tri_i_11;
+  wire [12:12]ck_gpio_tri_i_12;
+  wire [13:13]ck_gpio_tri_i_13;
+  wire [14:14]ck_gpio_tri_i_14;
+  wire [15:15]ck_gpio_tri_i_15;
+  wire [2:2]ck_gpio_tri_i_2;
+  wire [3:3]ck_gpio_tri_i_3;
+  wire [4:4]ck_gpio_tri_i_4;
+  wire [5:5]ck_gpio_tri_i_5;
+  wire [6:6]ck_gpio_tri_i_6;
+  wire [7:7]ck_gpio_tri_i_7;
+  wire [8:8]ck_gpio_tri_i_8;
+  wire [9:9]ck_gpio_tri_i_9;
+  wire [0:0]ck_gpio_tri_io_0;
+  wire [1:1]ck_gpio_tri_io_1;
+  wire [10:10]ck_gpio_tri_io_10;
+  wire [11:11]ck_gpio_tri_io_11;
+  wire [12:12]ck_gpio_tri_io_12;
+  wire [13:13]ck_gpio_tri_io_13;
+  wire [14:14]ck_gpio_tri_io_14;
+  wire [15:15]ck_gpio_tri_io_15;
+  wire [2:2]ck_gpio_tri_io_2;
+  wire [3:3]ck_gpio_tri_io_3;
+  wire [4:4]ck_gpio_tri_io_4;
+  wire [5:5]ck_gpio_tri_io_5;
+  wire [6:6]ck_gpio_tri_io_6;
+  wire [7:7]ck_gpio_tri_io_7;
+  wire [8:8]ck_gpio_tri_io_8;
+  wire [9:9]ck_gpio_tri_io_9;
+  wire [0:0]ck_gpio_tri_o_0;
+  wire [1:1]ck_gpio_tri_o_1;
+  wire [10:10]ck_gpio_tri_o_10;
+  wire [11:11]ck_gpio_tri_o_11;
+  wire [12:12]ck_gpio_tri_o_12;
+  wire [13:13]ck_gpio_tri_o_13;
+  wire [14:14]ck_gpio_tri_o_14;
+  wire [15:15]ck_gpio_tri_o_15;
+  wire [2:2]ck_gpio_tri_o_2;
+  wire [3:3]ck_gpio_tri_o_3;
+  wire [4:4]ck_gpio_tri_o_4;
+  wire [5:5]ck_gpio_tri_o_5;
+  wire [6:6]ck_gpio_tri_o_6;
+  wire [7:7]ck_gpio_tri_o_7;
+  wire [8:8]ck_gpio_tri_o_8;
+  wire [9:9]ck_gpio_tri_o_9;
+  wire [0:0]ck_gpio_tri_t_0;
+  wire [1:1]ck_gpio_tri_t_1;
+  wire [10:10]ck_gpio_tri_t_10;
+  wire [11:11]ck_gpio_tri_t_11;
+  wire [12:12]ck_gpio_tri_t_12;
+  wire [13:13]ck_gpio_tri_t_13;
+  wire [14:14]ck_gpio_tri_t_14;
+  wire [15:15]ck_gpio_tri_t_15;
+  wire [2:2]ck_gpio_tri_t_2;
+  wire [3:3]ck_gpio_tri_t_3;
+  wire [4:4]ck_gpio_tri_t_4;
+  wire [5:5]ck_gpio_tri_t_5;
+  wire [6:6]ck_gpio_tri_t_6;
+  wire [7:7]ck_gpio_tri_t_7;
+  wire [8:8]ck_gpio_tri_t_8;
+  wire [9:9]ck_gpio_tri_t_9;
   wire hdmi_in_clk_n;
   wire hdmi_in_clk_p;
   wire [2:0]hdmi_in_data_n;
@@ -346,6 +351,88 @@ module top(
   wire pdm_m_data_i;
   wire [5:0]rgbleds_6bits_tri_o;
   wire [0:0]pwm_audio_o;
+
+// ChipKit related header signals
+  IOBUF ck_gpio_tri_iobuf_0
+       (.I(ck_gpio_tri_o_0),
+        .IO(ck_gpio_tri_io[0]),
+        .O(ck_gpio_tri_i_0),
+        .T(ck_gpio_tri_t_0));
+  IOBUF ck_gpio_tri_iobuf_1
+       (.I(ck_gpio_tri_o_1),
+        .IO(ck_gpio_tri_io[1]),
+        .O(ck_gpio_tri_i_1),
+        .T(ck_gpio_tri_t_1));
+  IOBUF ck_gpio_tri_iobuf_10
+       (.I(ck_gpio_tri_o_10),
+        .IO(ck_gpio_tri_io[10]),
+        .O(ck_gpio_tri_i_10),
+        .T(ck_gpio_tri_t_10));
+  IOBUF ck_gpio_tri_iobuf_11
+       (.I(ck_gpio_tri_o_11),
+        .IO(ck_gpio_tri_io[11]),
+        .O(ck_gpio_tri_i_11),
+        .T(ck_gpio_tri_t_11));
+  IOBUF ck_gpio_tri_iobuf_12
+       (.I(ck_gpio_tri_o_12),
+        .IO(ck_gpio_tri_io[12]),
+        .O(ck_gpio_tri_i_12),
+        .T(ck_gpio_tri_t_12));
+  IOBUF ck_gpio_tri_iobuf_13
+       (.I(ck_gpio_tri_o_13),
+        .IO(ck_gpio_tri_io[13]),
+        .O(ck_gpio_tri_i_13),
+        .T(ck_gpio_tri_t_13));
+  IOBUF ck_gpio_tri_iobuf_14
+       (.I(ck_gpio_tri_o_14),
+        .IO(ck_gpio_tri_io[14]),
+        .O(ck_gpio_tri_i_14),
+        .T(ck_gpio_tri_t_14));
+  IOBUF ck_gpio_tri_iobuf_15
+       (.I(ck_gpio_tri_o_15),
+        .IO(ck_gpio_tri_io[15]),
+        .O(ck_gpio_tri_i_15),
+        .T(ck_gpio_tri_t_15));
+  IOBUF ck_gpio_tri_iobuf_2
+       (.I(ck_gpio_tri_o_2),
+        .IO(ck_gpio_tri_io[2]),
+        .O(ck_gpio_tri_i_2),
+        .T(ck_gpio_tri_t_2));
+  IOBUF ck_gpio_tri_iobuf_3
+       (.I(ck_gpio_tri_o_3),
+        .IO(ck_gpio_tri_io[3]),
+        .O(ck_gpio_tri_i_3),
+        .T(ck_gpio_tri_t_3));
+  IOBUF ck_gpio_tri_iobuf_4
+       (.I(ck_gpio_tri_o_4),
+        .IO(ck_gpio_tri_io[4]),
+        .O(ck_gpio_tri_i_4),
+        .T(ck_gpio_tri_t_4));
+  IOBUF ck_gpio_tri_iobuf_5
+       (.I(ck_gpio_tri_o_5),
+        .IO(ck_gpio_tri_io[5]),
+        .O(ck_gpio_tri_i_5),
+        .T(ck_gpio_tri_t_5));
+  IOBUF ck_gpio_tri_iobuf_6
+       (.I(ck_gpio_tri_o_6),
+        .IO(ck_gpio_tri_io[6]),
+        .O(ck_gpio_tri_i_6),
+        .T(ck_gpio_tri_t_6));
+  IOBUF ck_gpio_tri_iobuf_7
+       (.I(ck_gpio_tri_o_7),
+        .IO(ck_gpio_tri_io[7]),
+        .O(ck_gpio_tri_i_7),
+        .T(ck_gpio_tri_t_7));
+  IOBUF ck_gpio_tri_iobuf_8
+       (.I(ck_gpio_tri_o_8),
+        .IO(ck_gpio_tri_io[8]),
+        .O(ck_gpio_tri_i_8),
+        .T(ck_gpio_tri_t_8));
+  IOBUF ck_gpio_tri_iobuf_9
+       (.I(ck_gpio_tri_o_9),
+        .IO(ck_gpio_tri_io[9]),
+        .O(ck_gpio_tri_i_9),
+        .T(ck_gpio_tri_t_9));
 
 // for HDMI in
 IOBUF hdmi_in_ddc_scl_iobuf
@@ -607,6 +694,12 @@ system system_i
     .FIXED_IO_ps_clk(FIXED_IO_ps_clk),
     .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
     .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
+    .Vaux0_v_n(Vaux0_v_n),
+    .Vaux0_v_p(Vaux0_v_p),
+    .Vaux12_v_n(Vaux12_v_n),
+    .Vaux12_v_p(Vaux12_v_p),
+    .Vaux8_v_n(Vaux8_v_n),
+    .Vaux8_v_p(Vaux8_v_p),
     .Vaux13_v_n(Vaux13_v_n),
     .Vaux13_v_p(Vaux13_v_p),
     .Vaux15_v_n(Vaux15_v_n),
@@ -622,6 +715,12 @@ system system_i
     .Vp_Vn_v_n(Vp_Vn_v_n),
     .Vp_Vn_v_p(Vp_Vn_v_p),
     .btns_4bits_tri_i(btns_4bits_tri_i),
+//    .ck_an_tri_i({ck_an_tri_i_5,ck_an_tri_i_4,ck_an_tri_i_3,ck_an_tri_i_2,ck_an_tri_i_1,ck_an_tri_i_0}),
+//    .ck_an_tri_o({ck_an_tri_o_5,ck_an_tri_o_4,ck_an_tri_o_3,ck_an_tri_o_2,ck_an_tri_o_1,ck_an_tri_o_0}),
+//    .ck_an_tri_t({ck_an_tri_t_5,ck_an_tri_t_4,ck_an_tri_t_3,ck_an_tri_t_2,ck_an_tri_t_1,ck_an_tri_t_0}),
+    .ck_gpio_tri_i({ck_gpio_tri_i_15,ck_gpio_tri_i_14,ck_gpio_tri_i_13,ck_gpio_tri_i_12,ck_gpio_tri_i_11,ck_gpio_tri_i_10,ck_gpio_tri_i_9,ck_gpio_tri_i_8,ck_gpio_tri_i_7,ck_gpio_tri_i_6,ck_gpio_tri_i_5,ck_gpio_tri_i_4,ck_gpio_tri_i_3,ck_gpio_tri_i_2,ck_gpio_tri_i_1,ck_gpio_tri_i_0}),
+    .ck_gpio_tri_o({ck_gpio_tri_o_15,ck_gpio_tri_o_14,ck_gpio_tri_o_13,ck_gpio_tri_o_12,ck_gpio_tri_o_11,ck_gpio_tri_o_10,ck_gpio_tri_o_9,ck_gpio_tri_o_8,ck_gpio_tri_o_7,ck_gpio_tri_o_6,ck_gpio_tri_o_5,ck_gpio_tri_o_4,ck_gpio_tri_o_3,ck_gpio_tri_o_2,ck_gpio_tri_o_1,ck_gpio_tri_o_0}),
+    .ck_gpio_tri_t({ck_gpio_tri_t_15,ck_gpio_tri_t_14,ck_gpio_tri_t_13,ck_gpio_tri_t_12,ck_gpio_tri_t_11,ck_gpio_tri_t_10,ck_gpio_tri_t_9,ck_gpio_tri_t_8,ck_gpio_tri_t_7,ck_gpio_tri_t_6,ck_gpio_tri_t_5,ck_gpio_tri_t_4,ck_gpio_tri_t_3,ck_gpio_tri_t_2,ck_gpio_tri_t_1,ck_gpio_tri_t_0}),
 //    .gpio_shield_sw_a5_a0_tri_i({gpio_shield_sw_a5_a0_tri_i_5,gpio_shield_sw_a5_a0_tri_i_4,gpio_shield_sw_a5_a0_tri_i_3,gpio_shield_sw_a5_a0_tri_i_2,gpio_shield_sw_a5_a0_tri_i_1,gpio_shield_sw_a5_a0_tri_i_0}),
 //    .gpio_shield_sw_a5_a0_tri_o({gpio_shield_sw_a5_a0_tri_o_5,gpio_shield_sw_a5_a0_tri_o_4,gpio_shield_sw_a5_a0_tri_o_3,gpio_shield_sw_a5_a0_tri_o_2,gpio_shield_sw_a5_a0_tri_o_1,gpio_shield_sw_a5_a0_tri_o_0}),
 //    .gpio_shield_sw_a5_a0_tri_t({gpio_shield_sw_a5_a0_tri_t_5,gpio_shield_sw_a5_a0_tri_t_4,gpio_shield_sw_a5_a0_tri_t_3,gpio_shield_sw_a5_a0_tri_t_2,gpio_shield_sw_a5_a0_tri_t_1,gpio_shield_sw_a5_a0_tri_t_0}),
