@@ -1,4 +1,52 @@
-
+###############################################################################
+ #  Copyright (c) 2016, Xilinx, Inc.
+ #  All rights reserved.
+ #
+ #  Redistribution and use in source and binary forms, with or without
+ #  modification, are permitted provided that the following conditions are met:
+ #
+ #  1.  Redistributions of source code must retain the above copyright notice,
+ #     this list of conditions and the following disclaimer.
+ #
+ #  2.  Redistributions in binary form must reproduce the above copyright
+ #      notice, this list of conditions and the following disclaimer in the
+ #      documentation and/or other materials provided with the distribution.
+ #
+ #  3.  Neither the name of the copyright holder nor the names of its
+ #      contributors may be used to endorse or promote products derived from
+ #      this software without specific prior written permission.
+ #
+ #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ #  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ #  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ #  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ #  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ #  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ #  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ #  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ #  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #
+###############################################################################
+###############################################################################
+ #
+ #
+ # @file base.tcl
+ #
+ # Vivado tcl script to generate the bitstream base.bit.
+ # Supporting DDR memory access and IRQ from IOP3.
+ #
+ # <pre>
+ # MODIFICATION HISTORY:
+ #
+ # Ver   Who  Date     Changes
+ # ----- --- -------- -----------------------------------------------
+ # 1.00a pp  01/24/2017 initial release
+ #
+ # </pre>
+ #
+###############################################################################
 ################################################################
 # This is a generated script based on design: system
 #
@@ -39,14 +87,14 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
-# <./base_irq_ddr/base_irq_ddr.xpr> in the current working folder.
+# <./base/base.xpr> in the current working folder.
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project base_irq_ddr base_irq_ddr -part xc7z020clg400-1
+   create_project base base -part xc7z020clg400-1
 }
 
-set_property  ip_repo_paths  ../vivado/ip [current_project]
+set_property  ip_repo_paths  ../ip [current_project]
 update_ip_catalog
 
 # CHANGE DESIGN NAME HERE
@@ -128,7 +176,7 @@ proc create_hier_cell_mb3_timers_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb3_timers_subsystem() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_mb3_timers_subsystem() - Empty argument(s)!"}
      return
   }
 
@@ -335,7 +383,7 @@ proc create_hier_cell_mb3_spi_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb3_spi_subsystem() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_mb3_spi_subsystem() - Empty argument(s)!"}
      return
   }
 
@@ -410,7 +458,7 @@ proc create_hier_cell_mb3_lmb { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb3_lmb() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_mb3_lmb() - Empty argument(s)!"}
      return
   }
 
@@ -489,7 +537,7 @@ proc create_hier_cell_mb3_iic_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb3_iic_subsystem() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_mb3_iic_subsystem() - Empty argument(s)!"}
      return
   }
 
@@ -557,7 +605,7 @@ proc create_hier_cell_mb3_gpio_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb3_gpio_subsystem() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_mb3_gpio_subsystem() - Empty argument(s)!"}
      return
   }
 
@@ -690,7 +738,7 @@ proc create_hier_cell_mb2_lmb { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb2_lmb() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_mb2_lmb() - Empty argument(s)!"}
      return
   }
 
@@ -769,7 +817,7 @@ proc create_hier_cell_mb1_lmb { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb1_lmb() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_mb1_lmb() - Empty argument(s)!"}
      return
   }
 
@@ -848,7 +896,7 @@ proc create_hier_cell_video { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_video() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_video() - Empty argument(s)!"}
      return
   }
 
@@ -1052,7 +1100,7 @@ proc create_hier_cell_tracebuffer_pmods { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_tracebuffer_pmods() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_tracebuffer_pmods() - Empty argument(s)!"}
      return
   }
 
@@ -1151,7 +1199,7 @@ proc create_hier_cell_tracebuffer_arduino { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_tracebuffer_arduino() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_tracebuffer_arduino() - Empty argument(s)!"}
      return
   }
 
@@ -1250,7 +1298,7 @@ proc create_hier_cell_iop3 { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_iop3() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_iop3() - Empty argument(s)!"}
      return
   }
 
@@ -1299,8 +1347,8 @@ proc create_hier_cell_iop3 { parentCell nameHier } {
   create_bd_pin -dir I -from 0 -to 0 -type rst aux_reset_in
   create_bd_pin -dir I -type clk clk
   create_bd_pin -dir I -from 0 -to 0 -type rst ext_reset_in
-  create_bd_pin -dir I -from 0 -to 0 iop3_intr_ack
-  create_bd_pin -dir O iop3_intr_req
+  create_bd_pin -dir I -from 0 -to 0 mb3_intr_ack
+  create_bd_pin -dir O mb3_intr_req
   create_bd_pin -dir I -type rst mb_debug_sys_rst
   create_bd_pin -dir O -from 0 -to 0 -type rst peripheral_aresetn
   create_bd_pin -dir I -from 0 -to 0 -type rst s_axi_aresetn
@@ -1366,12 +1414,12 @@ CONFIG.NUM_PORTS {7} \
   # Create instance: mb3_intc, and set properties
   set mb3_intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 mb3_intc ]
 
-  # Create instance: iop3_intr, and set properties
-  set iop3_intr [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 iop3_intr ]
+  # Create instance: mb3_intr, and set properties
+  set mb3_intr [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 mb3_intr ]
   set_property -dict [ list \
 CONFIG.C_ALL_OUTPUTS {1} \
 CONFIG.C_GPIO_WIDTH {1} \
- ] $iop3_intr
+ ] $mb3_intr
 
   # Create instance: mb3_lmb
   create_hier_cell_mb3_lmb $hier_obj mb3_lmb
@@ -1501,7 +1549,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_intf_net -intf_net microblaze_0_axi_periph_M14_AXI [get_bd_intf_pins mb3_intc/s_axi] [get_bd_intf_pins microblaze_0_axi_periph/M14_AXI]
   connect_bd_intf_net -intf_net microblaze_0_axi_periph_M15_AXI [get_bd_intf_pins mb3_xadc/s_axi_lite] [get_bd_intf_pins microblaze_0_axi_periph/M15_AXI]
   connect_bd_intf_net -intf_net microblaze_0_axi_periph_M16_AXI [get_bd_intf_pins mb3_timers_subsystem/S_AXI5] [get_bd_intf_pins microblaze_0_axi_periph/M16_AXI]
-  connect_bd_intf_net -intf_net microblaze_0_axi_periph_M17_AXI [get_bd_intf_pins iop3_intr/S_AXI] [get_bd_intf_pins microblaze_0_axi_periph/M17_AXI]
+  connect_bd_intf_net -intf_net microblaze_0_axi_periph_M17_AXI [get_bd_intf_pins mb3_intr/S_AXI] [get_bd_intf_pins microblaze_0_axi_periph/M17_AXI]
   connect_bd_intf_net -intf_net microblaze_0_debug [get_bd_intf_pins DEBUG] [get_bd_intf_pins mb/DEBUG]
   connect_bd_intf_net -intf_net microblaze_0_dlmb_1 [get_bd_intf_pins mb/DLMB] [get_bd_intf_pins mb3_lmb/DLMB]
   connect_bd_intf_net -intf_net microblaze_0_ilmb_1 [get_bd_intf_pins mb/ILMB] [get_bd_intf_pins mb3_lmb/ILMB]
@@ -1524,7 +1572,7 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net arduino_io_switch_0_sw2shield_tri_out_d13_d2 [get_bd_pins sw2shield_tri_out_d13_d2] [get_bd_pins arduino_io_switch_0/sw2shield_tri_out_d13_d2]
   connect_bd_net -net arduino_io_switch_0_sw2shield_tri_out_d1_d0 [get_bd_pins sw2shield_tri_out_d1_d0] [get_bd_pins arduino_io_switch_0/sw2shield_tri_out_d1_d0]
   connect_bd_net -net arduino_io_switch_0_timer_i_in [get_bd_pins arduino_io_switch_0/timer_i_in] [get_bd_pins mb3_timers_subsystem/capture_i]
-  connect_bd_net -net dff_en_reset_0_q [get_bd_pins iop3_intr_req] [get_bd_pins dff_en_reset_0/q]
+  connect_bd_net -net dff_en_reset_0_q [get_bd_pins mb3_intr_req] [get_bd_pins dff_en_reset_0/q]
   connect_bd_net -net logic_0_6bits_dout [get_bd_pins arduino_io_switch_0/pwm_t_in] [get_bd_pins logic_0_6bits/dout]
   connect_bd_net -net logic_0_dout [get_bd_pins arduino_io_switch_0/tx_t_in_d1] [get_bd_pins logic_0/dout]
   connect_bd_net -net logic_1_dout [get_bd_pins ext_reset_in] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
@@ -1537,8 +1585,8 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net mb3_gpio_subsystem_gpio2_io_o [get_bd_pins arduino_io_switch_0/pl2sw_data_o_a5_a0] [get_bd_pins mb3_gpio_subsystem/data_a5_a0]
   connect_bd_net -net mb3_gpio_subsystem_gpio2_io_t [get_bd_pins arduino_io_switch_0/pl2sw_tri_o_a5_a0] [get_bd_pins mb3_gpio_subsystem/tri_a5_a0]
   connect_bd_net -net mb3_iic_subsystem_iic2intc_irpt [get_bd_pins mb3_concat/In4] [get_bd_pins mb3_iic_subsystem/iic2intc_irpt]
-  connect_bd_net -net iop3_intr_ack_1 [get_bd_pins iop3_intr_ack] [get_bd_pins dff_en_reset_0/reset]
-  connect_bd_net -net iop3_intr_gpio_io_o [get_bd_pins dff_en_reset_0/en] [get_bd_pins iop3_intr/gpio_io_o]
+  connect_bd_net -net mb3_intr_ack_1 [get_bd_pins mb3_intr_ack] [get_bd_pins dff_en_reset_0/reset]
+  connect_bd_net -net mb3_intr_gpio_io_o [get_bd_pins dff_en_reset_0/en] [get_bd_pins mb3_intr/gpio_io_o]
   connect_bd_net -net mb3_spi_subsystem_ip2intc_irpt [get_bd_pins mb3_concat/In5] [get_bd_pins mb3_spi_subsystem/ip2intc_irpt]
   connect_bd_net -net mb3_timer_generate_dout [get_bd_pins arduino_io_switch_0/timer_o_in] [get_bd_pins mb3_timers_subsystem/generate_o]
   connect_bd_net -net mb3_timer_pwm_dout [get_bd_pins arduino_io_switch_0/pwm_o_in] [get_bd_pins mb3_timers_subsystem/pwm_o]
@@ -1546,12 +1594,12 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net mb3_uartlite_d1_d0_interrupt [get_bd_pins mb3_concat/In6] [get_bd_pins mb3_uartlite_d1_d0/interrupt]
   connect_bd_net -net mb_1_reset_Dout [get_bd_pins aux_reset_in] [get_bd_pins rst_clk_wiz_1_100M/aux_reset_in]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins mb_debug_sys_rst] [get_bd_pins rst_clk_wiz_1_100M/mb_debug_sys_rst]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins clk] [get_bd_pins arduino_io_switch_0/s_axi_aclk] [get_bd_pins dff_en_reset_0/clk] [get_bd_pins mb/Clk] [get_bd_pins mb3_gpio_subsystem/s_axi_aclk] [get_bd_pins mb3_iic_subsystem/s_axi_aclk] [get_bd_pins mb3_intc/s_axi_aclk] [get_bd_pins iop3_intr/s_axi_aclk] [get_bd_pins mb3_lmb/LMB_Clk] [get_bd_pins mb3_spi_subsystem/s_axi_aclk] [get_bd_pins mb3_timers_subsystem/s_axi_aclk] [get_bd_pins mb3_uartlite_d1_d0/s_axi_aclk] [get_bd_pins mb3_xadc/s_axi_aclk] [get_bd_pins microblaze_0_axi_periph/ACLK] [get_bd_pins microblaze_0_axi_periph/M00_ACLK] [get_bd_pins microblaze_0_axi_periph/M01_ACLK] [get_bd_pins microblaze_0_axi_periph/M02_ACLK] [get_bd_pins microblaze_0_axi_periph/M03_ACLK] [get_bd_pins microblaze_0_axi_periph/M04_ACLK] [get_bd_pins microblaze_0_axi_periph/M05_ACLK] [get_bd_pins microblaze_0_axi_periph/M06_ACLK] [get_bd_pins microblaze_0_axi_periph/M07_ACLK] [get_bd_pins microblaze_0_axi_periph/M08_ACLK] [get_bd_pins microblaze_0_axi_periph/M09_ACLK] [get_bd_pins microblaze_0_axi_periph/M10_ACLK] [get_bd_pins microblaze_0_axi_periph/M11_ACLK] [get_bd_pins microblaze_0_axi_periph/M12_ACLK] [get_bd_pins microblaze_0_axi_periph/M13_ACLK] [get_bd_pins microblaze_0_axi_periph/M14_ACLK] [get_bd_pins microblaze_0_axi_periph/M15_ACLK] [get_bd_pins microblaze_0_axi_periph/M16_ACLK] [get_bd_pins microblaze_0_axi_periph/M17_ACLK] [get_bd_pins microblaze_0_axi_periph/M18_ACLK] [get_bd_pins microblaze_0_axi_periph/S00_ACLK] [get_bd_pins rst_clk_wiz_1_100M/slowest_sync_clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins clk] [get_bd_pins arduino_io_switch_0/s_axi_aclk] [get_bd_pins dff_en_reset_0/clk] [get_bd_pins mb/Clk] [get_bd_pins mb3_gpio_subsystem/s_axi_aclk] [get_bd_pins mb3_iic_subsystem/s_axi_aclk] [get_bd_pins mb3_intc/s_axi_aclk] [get_bd_pins mb3_intr/s_axi_aclk] [get_bd_pins mb3_lmb/LMB_Clk] [get_bd_pins mb3_spi_subsystem/s_axi_aclk] [get_bd_pins mb3_timers_subsystem/s_axi_aclk] [get_bd_pins mb3_uartlite_d1_d0/s_axi_aclk] [get_bd_pins mb3_xadc/s_axi_aclk] [get_bd_pins microblaze_0_axi_periph/ACLK] [get_bd_pins microblaze_0_axi_periph/M00_ACLK] [get_bd_pins microblaze_0_axi_periph/M01_ACLK] [get_bd_pins microblaze_0_axi_periph/M02_ACLK] [get_bd_pins microblaze_0_axi_periph/M03_ACLK] [get_bd_pins microblaze_0_axi_periph/M04_ACLK] [get_bd_pins microblaze_0_axi_periph/M05_ACLK] [get_bd_pins microblaze_0_axi_periph/M06_ACLK] [get_bd_pins microblaze_0_axi_periph/M07_ACLK] [get_bd_pins microblaze_0_axi_periph/M08_ACLK] [get_bd_pins microblaze_0_axi_periph/M09_ACLK] [get_bd_pins microblaze_0_axi_periph/M10_ACLK] [get_bd_pins microblaze_0_axi_periph/M11_ACLK] [get_bd_pins microblaze_0_axi_periph/M12_ACLK] [get_bd_pins microblaze_0_axi_periph/M13_ACLK] [get_bd_pins microblaze_0_axi_periph/M14_ACLK] [get_bd_pins microblaze_0_axi_periph/M15_ACLK] [get_bd_pins microblaze_0_axi_periph/M16_ACLK] [get_bd_pins microblaze_0_axi_periph/M17_ACLK] [get_bd_pins microblaze_0_axi_periph/M18_ACLK] [get_bd_pins microblaze_0_axi_periph/S00_ACLK] [get_bd_pins rst_clk_wiz_1_100M/slowest_sync_clk]
   connect_bd_net -net rst_clk_wiz_1_100M_bus_struct_reset [get_bd_pins mb3_lmb/SYS_Rst] [get_bd_pins rst_clk_wiz_1_100M/bus_struct_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_interconnect_aresetn [get_bd_pins microblaze_0_axi_periph/ARESETN] [get_bd_pins rst_clk_wiz_1_100M/interconnect_aresetn]
   connect_bd_net -net rst_clk_wiz_1_100M_mb_reset [get_bd_pins mb/Reset] [get_bd_pins rst_clk_wiz_1_100M/mb_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_peripheral_aresetn [get_bd_pins peripheral_aresetn] [get_bd_pins arduino_io_switch_0/s_axi_aresetn] [get_bd_pins mb3_gpio_subsystem/s_axi_aresetn] [get_bd_pins mb3_iic_subsystem/s_axi_aresetn1] [get_bd_pins mb3_intc/s_axi_aresetn] [get_bd_pins mb3_spi_subsystem/s_axi_aresetn] [get_bd_pins mb3_timers_subsystem/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/M06_ARESETN] [get_bd_pins microblaze_0_axi_periph/M07_ARESETN] [get_bd_pins microblaze_0_axi_periph/M10_ARESETN] [get_bd_pins microblaze_0_axi_periph/M11_ARESETN] [get_bd_pins microblaze_0_axi_periph/M12_ARESETN] [get_bd_pins microblaze_0_axi_periph/M13_ARESETN] [get_bd_pins microblaze_0_axi_periph/M15_ARESETN] [get_bd_pins microblaze_0_axi_periph/M17_ARESETN] [get_bd_pins microblaze_0_axi_periph/M18_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/peripheral_aresetn]
-  connect_bd_net -net s_axi_aresetn_1 [get_bd_pins s_axi_aresetn] [get_bd_pins mb3_iic_subsystem/s_axi_aresetn] [get_bd_pins iop3_intr/s_axi_aresetn] [get_bd_pins mb3_spi_subsystem/s_axi_aresetn1] [get_bd_pins mb3_timers_subsystem/s_axi_aresetn1] [get_bd_pins mb3_uartlite_d1_d0/s_axi_aresetn] [get_bd_pins mb3_xadc/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M08_ARESETN] [get_bd_pins microblaze_0_axi_periph/M09_ARESETN] [get_bd_pins microblaze_0_axi_periph/M14_ARESETN] [get_bd_pins microblaze_0_axi_periph/M16_ARESETN]
+  connect_bd_net -net s_axi_aresetn_1 [get_bd_pins s_axi_aresetn] [get_bd_pins mb3_iic_subsystem/s_axi_aresetn] [get_bd_pins mb3_intr/s_axi_aresetn] [get_bd_pins mb3_spi_subsystem/s_axi_aresetn1] [get_bd_pins mb3_timers_subsystem/s_axi_aresetn1] [get_bd_pins mb3_uartlite_d1_d0/s_axi_aresetn] [get_bd_pins mb3_xadc/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M08_ARESETN] [get_bd_pins microblaze_0_axi_periph/M09_ARESETN] [get_bd_pins microblaze_0_axi_periph/M14_ARESETN] [get_bd_pins microblaze_0_axi_periph/M16_ARESETN]
   connect_bd_net -net shield2sw_data_in_a5_a0_1 [get_bd_pins shield2sw_data_in_a5_a0] [get_bd_pins arduino_io_switch_0/shield2sw_data_in_a5_a0]
   connect_bd_net -net shield2sw_data_in_d13_d2_1 [get_bd_pins shield2sw_data_in_d13_d2] [get_bd_pins arduino_io_switch_0/shield2sw_data_in_d13_d2]
   connect_bd_net -net shield2sw_data_in_d1_d0_1 [get_bd_pins shield2sw_data_in_d1_d0] [get_bd_pins arduino_io_switch_0/shield2sw_data_in_d1_d0]
@@ -1568,7 +1616,7 @@ proc create_hier_cell_iop2 { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_iop2() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_iop2() - Empty argument(s)!"}
      return
   }
 
@@ -1764,7 +1812,7 @@ proc create_hier_cell_iop1 { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_iop1() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_iop1() - Empty argument(s)!"}
      return
   }
 
@@ -1960,7 +2008,7 @@ proc create_hier_cell_audio { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_audio() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_audio() - Empty argument(s)!"}
      return
   }
 
@@ -3276,7 +3324,7 @@ CONFIG.C_IS_DUAL {1} \
   connect_bd_net -net iop1_iop1_intr_req [get_bd_pins iop1/iop1_intr_req] [get_bd_pins iop_interrupts/In0]
   connect_bd_net -net iop2_intr_ack_1 [get_bd_pins iop2/iop2_intr_ack] [get_bd_pins iop2_intr_ack/Dout]
   connect_bd_net -net iop2_iop2_intr_req [get_bd_pins iop2/iop2_intr_req] [get_bd_pins iop_interrupts/In1]
-  connect_bd_net -net iop3_iop3_intr_req [get_bd_pins iop3/iop3_intr_req] [get_bd_pins iop_interrupts/In2]
+  connect_bd_net -net iop3_mb3_intr_req [get_bd_pins iop3/mb3_intr_req] [get_bd_pins iop_interrupts/In2]
   connect_bd_net -net iop3_sw2shield_data_out_a5_a0 [get_bd_ports sw2shield_data_out_a5_a0] [get_bd_pins concat_arduino/In0] [get_bd_pins iop3/sw2shield_data_out_a5_a0]
   connect_bd_net -net iop3_sw2shield_data_out_d13_d2 [get_bd_ports sw2shield_data_out_d13_d2] [get_bd_pins concat_arduino/In2] [get_bd_pins iop3/sw2shield_data_out_d13_d2]
   connect_bd_net -net iop3_sw2shield_data_out_d1_d0 [get_bd_ports sw2shield_data_out_d1_d0] [get_bd_pins concat_arduino/In1] [get_bd_pins iop3/sw2shield_data_out_d1_d0]
@@ -3289,7 +3337,7 @@ CONFIG.C_IS_DUAL {1} \
   connect_bd_net -net iop3_sw2shield_tri_out_d1_d0 [get_bd_ports sw2shield_tri_out_d1_d0] [get_bd_pins concat_arduino/In9] [get_bd_pins iop3/sw2shield_tri_out_d1_d0]
   connect_bd_net -net iop_interrupts_irq [get_bd_pins processing_system7_0/IRQ_F2P] [get_bd_pins system_interrupts/irq]
   connect_bd_net -net logic_1_dout [get_bd_pins iop1/ext_reset_in] [get_bd_pins iop2/ext_reset_in] [get_bd_pins iop3/ext_reset_in] [get_bd_pins logic_1/dout] [get_bd_pins tracebuffer_arduino/A_TVALID] [get_bd_pins tracebuffer_pmods/A_TVALID]
-  connect_bd_net -net iop3_intr_ack_1 [get_bd_pins iop3/iop3_intr_ack] [get_bd_pins iop3_intr_ack/Dout]
+  connect_bd_net -net mb3_intr_ack_1 [get_bd_pins iop3/mb3_intr_ack] [get_bd_pins iop3_intr_ack/Dout]
   connect_bd_net -net mb_1_reset_Dout [get_bd_pins iop1/aux_reset_in] [get_bd_pins mb_1_reset/Dout]
   connect_bd_net -net mb_2_reset_Dout [get_bd_pins iop2/aux_reset_in] [get_bd_pins mb_2_reset/Dout]
   connect_bd_net -net mb_3_reset_Dout [get_bd_pins iop3/aux_reset_in] [get_bd_pins mb_3_reset/Dout]
@@ -3378,7 +3426,7 @@ CONFIG.C_IS_DUAL {1} \
   create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/mb3_spi_subsystem/mb3_spi_pl_sw/AXI_LITE/Reg] SEG_mb2_spi_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x40020000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/mb3_gpio_subsystem/mb3_arduino_gpio_d13_d0_a5_a0/S_AXI/Reg] SEG_mb3_gpio_pl_sw_d13_d2_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x41200000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/mb3_intc/s_axi/Reg] SEG_mb3_intc_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/iop3_intr/S_AXI/Reg] SEG_iop3_intr_Reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/mb3_intr/S_AXI/Reg] SEG_mb3_intr_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x40810000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/mb3_iic_subsystem/mb3_shared_iic_sw/S_AXI/Reg] SEG_mb3_shared_iic_sw_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/mb3_spi_subsystem/mb3_spi_pl_sw_d13_d10/AXI_LITE/Reg] SEG_mb3_spi_pl_sw_d13_d10_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x41C00000 [get_bd_addr_spaces iop3/mb/Data] [get_bd_addr_segs iop3/mb3_timers_subsystem/mb3_timer_0/S_AXI/Reg] SEG_mb3_timer_0_Reg
@@ -3537,7 +3585,7 @@ preplace netloc iop1_intr_ack_Dout 1 3 1 NJ
 preplace netloc processing_system7_0_axi_periph_M03_AXI 1 2 1 790
 preplace netloc processing_system7_0_axi_periph_M02_AXI 1 2 1 810
 preplace netloc proc_sys_reset_0_peripheral_aresetn 1 4 1 1750
-preplace netloc iop3_intr_ack_1 1 5 1 NJ
+preplace netloc mb3_intr_ack_1 1 5 1 NJ
 preplace netloc Vaux13_1 1 0 6 NJ 2520 NJ 2520 NJ 2520 NJ 2520 NJ 2520 NJ
 preplace netloc mb_bram_ctrl_1_BRAM_PORTA 1 3 1 1250
 preplace netloc iop3_sw2shield_data_out_d13_d2 1 2 5 740 2420 NJ 2330 NJ 2330 NJ 2330 2790
@@ -3591,7 +3639,7 @@ preplace netloc audio_path_sel_Dout 1 5 1 NJ
 preplace netloc processing_system7_0_M_AXI_GP1 1 2 5 830 10 NJ 10 NJ 10 NJ 10 2750
 preplace netloc proc_sys_reset_142M_peripheral_aresetn 1 4 1 N
 preplace netloc logic_1_dout 1 3 3 1170 2620 NJ 2620 NJ
-preplace netloc iop3_iop3_intr_req 1 0 7 30 3050 NJ 3050 NJ 3050 NJ 3050 NJ 3050 NJ 3050 2710
+preplace netloc iop3_mb3_intr_req 1 0 7 30 3050 NJ 3050 NJ 3050 NJ 3050 NJ 3050 NJ 3050 2710
 preplace netloc Vaux1_1 1 0 6 NJ 2440 NJ 2440 NJ 2440 NJ 2440 NJ 2440 NJ
 preplace netloc axi_mem_intercon_M00_AXI 1 5 1 2200
 preplace netloc Vaux9_1 1 0 6 NJ 2500 NJ 2500 NJ 2500 NJ 2500 NJ 2500 NJ
@@ -3630,15 +3678,15 @@ create_root_design ""
 
 # Additional steps to get to bitstream
 # generate toplevel wrapper files
-make_wrapper -files [get_files ./base_irq_ddr/base_irq_ddr.srcs/sources_1/bd/system/system.bd] -top
+make_wrapper -files [get_files ./base/base.srcs/sources_1/bd/system/system.bd] -top
 
-add_files -norecurse ./base_irq_ddr/base_irq_ddr.srcs/sources_1/bd/system/hdl/system_wrapper.v
+add_files -norecurse ./base/base.srcs/sources_1/bd/system/hdl/system_wrapper.v
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
-add_files -fileset constrs_1 -norecurse ../vivado/base_irq_ddr/src/constraints/top.xdc
+add_files -fileset constrs_1 -norecurse ./src/constraints/top.xdc
 
 # replace top wrapper with custom top.v
-add_files -norecurse ../vivado/base_irq_ddr/src/top.v
+add_files -norecurse ./src/top.v
 update_compile_order -fileset sources_1
 set_property top top [current_fileset]
 update_compile_order -fileset sources_1
@@ -3648,10 +3696,11 @@ launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
 
 # This hwardware definition file will be used for microblaze projects
-file mkdir ./base_irq_ddr/base_irq_ddr.sdk
-write_hwdef -force  -file ./base_irq_ddr/base_irq_ddr.sdk/base_irq_ddr.hdf
-file copy -force ./base_irq_ddr/base_irq_ddr.sdk/base_irq_ddr.hdf ../../sdk/
+file mkdir ./base/base.sdk
+write_hwdef -force  -file ./base/base.sdk/base.hdf
+file copy -force ./base/base.sdk/base.hdf ../../sdk/
 
 # move and rename bitstream to final location
-file copy -force ./base_irq_ddr/base_irq_ddr.runs/impl_1/top.bit ./base_irq_ddr.bit
+file copy -force ./base/base.runs/impl_1/top.bit ../../bitstream/base.bit
+
 
