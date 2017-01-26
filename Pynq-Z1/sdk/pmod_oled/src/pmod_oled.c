@@ -195,7 +195,7 @@ int main (void) {
     u32 cmd;
     
     // initialize GPIO driver
-    Status = XGpio_Initialize(&Gpio, XPAR_GPIO_1_DEVICE_ID);
+    Status = XGpio_Initialize(&Gpio, XPAR_GPIO_0_DEVICE_ID);
     if (Status != XST_SUCCESS) {
       return XST_FAILURE;
     }
