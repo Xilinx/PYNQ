@@ -12,6 +12,7 @@ void sds_munmap(void *virtal_addr);
 
 /* CF helper functions */
 void cf_xlnk_open(int last);
+void cf_xlnk_init(int arg);
 
 /* Functional prototpes from xlnk */
 
@@ -71,7 +72,9 @@ void cma_free(void *buf) {
 }
 
 void _xlnk_reset() {
-    /* API Change so need to work out what to do */
+    /* This performs the correct ioctl but probably isn't
+       particularly stable as a behaviour */
+    cf_xlnk_init(1);
 }
 
 /* Constructor to Open xlnk device */
