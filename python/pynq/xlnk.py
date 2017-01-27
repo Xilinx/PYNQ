@@ -213,13 +213,9 @@ class Xlnk:
 
         """
         self.__check_buftype(buf_ptr)
-<<<<<<< HEAD
         if "void *" not in str(buf_ptr):
             raise RuntimeError("Unkown pointer type")
         #return(libxlnk.cma_get_phy_addr(buf_ptr))
-=======
-        return libxlnk.cma_get_phy_addr(buf_ptr)
->>>>>>> b2be4cf3ecb9fdfdaf3b0bb2d72553bbd74a3b9b
 
     @staticmethod
     def cma_memcopy(dest, src, nbytes):
