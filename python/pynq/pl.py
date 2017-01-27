@@ -129,11 +129,11 @@ def _get_gpio(tcl_name):
     pat2 = 'connect_bd_net -net ps7_GPIO_O'
     result = {}
     gpio_list = []
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            if (pat1 in line) or (pat2 in line):
-                gpio_list = re.findall('\[get_bd_pins (.+?)/Din\]',
-                                       line, re.IGNORECASE)
+    #with open(tcl_name, 'r') as f:
+    #    for line in f:
+    #        if (pat1 in line) or (pat2 in line):
+    #            gpio_list = re.findall('\[get_bd_pins (.+?)/Din\]',
+    #                                   line, re.IGNORECASE)
 
     match1 = 0
     index = 0
@@ -217,60 +217,60 @@ class _InterruptMap:
         current_hier = ""
         last_concat = ""
 
-        with open(tcl_name, 'r') as f:
-            for line in f:
-                if config_pat in line:
-                    m = re.search('CONFIG.NUM_PORTS \{([0-9]+)\}', line)
-                    self.concat_cells[last_concat] = int(m.groups(1)[0])
-                elif hier_pat in line:
-                    m = re.search('proc create_hier_cell_([^ ]*)', line)
-                    if m:
-                        current_hier = m.groups(1)[0] + "/"
-                elif prop_pat in line:
-                    in_prop = True
-                elif concat_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
-                    last_concat = current_hier + m.groups(1)[0]
-                    # Default for IP is two input ports
-                    self.concat_cells[last_concat] = 2
-                elif interrupt_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:axi_intc:4.1 ([^ ]+)', line)
-                    self.intc_names.append(current_hier + m.groups(1)[0])
-                elif ps7_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:processing_system7:5.5 ([^ ]+)', line)
-                    self.ps7_name = current_hier + m.groups(1)[0]
-                elif end_pat == line:
-                    current_hier = ""
-                elif net_pat in line:
-                    new_pins = [current_hier + v for v in
-                                re.findall('\[get_bd_pins ([^]]+)\]',
-                                           line, re.IGNORECASE)]
-                    indexes = set()
-                    for p in new_pins:
-                        if p in self.pins:
-                            indexes.add(self.pins[p])
-                    if len(indexes) == 0:
-                        index = len(self.nets)
-                        self.nets.append(set())
-                    else:
-                        to_merge = []
-                        while len(indexes) > 1:
-                            to_merge.append(indexes.pop())
-                        index = indexes.pop()
-                        for i in to_merge:
-                            self.nets[index] |= self.nets[i]
-                    self.nets[index] |= set(new_pins)
-                    for p in self.nets[index]:
-                        self.pins[p] = index
+        # with open(tcl_name, 'r') as f:
+            # for line in f:
+                # if config_pat in line:
+                    # m = re.search('CONFIG.NUM_PORTS \{([0-9]+)\}', line)
+                    # self.concat_cells[last_concat] = int(m.groups(1)[0])
+                # elif hier_pat in line:
+                    # m = re.search('proc create_hier_cell_([^ ]*)', line)
+                    # if m:
+                        # current_hier = m.groups(1)[0] + "/"
+                # elif prop_pat in line:
+                    # in_prop = True
+                # elif concat_pat in line:
+                    # m = re.search(
+                        # 'create_bd_cell -type ip -vlnv ' +
+                        # 'xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
+                    # last_concat = current_hier + m.groups(1)[0]
+                    Default for IP is two input ports
+                    # self.concat_cells[last_concat] = 2
+                # elif interrupt_pat in line:
+                    # m = re.search(
+                        # 'create_bd_cell -type ip -vlnv ' +
+                        # 'xilinx.com:ip:axi_intc:4.1 ([^ ]+)', line)
+                    # self.intc_names.append(current_hier + m.groups(1)[0])
+                # elif ps7_pat in line:
+                    # m = re.search(
+                        # 'create_bd_cell -type ip -vlnv ' +
+                        # 'xilinx.com:ip:processing_system7:5.5 ([^ ]+)', line)
+                    # self.ps7_name = current_hier + m.groups(1)[0]
+                # elif end_pat == line:
+                    # current_hier = ""
+                # elif net_pat in line:
+                    # new_pins = [current_hier + v for v in
+                                # re.findall('\[get_bd_pins ([^]]+)\]',
+                                           # line, re.IGNORECASE)]
+                    # indexes = set()
+                    # for p in new_pins:
+                        # if p in self.pins:
+                            # indexes.add(self.pins[p])
+                    # if len(indexes) == 0:
+                        # index = len(self.nets)
+                        # self.nets.append(set())
+                    # else:
+                        # to_merge = []
+                        # while len(indexes) > 1:
+                            # to_merge.append(indexes.pop())
+                        # index = indexes.pop()
+                        # for i in to_merge:
+                            # self.nets[index] |= self.nets[i]
+                    # self.nets[index] |= set(new_pins)
+                    # for p in self.nets[index]:
+                        # self.pins[p] = index
 
-        ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
-        self._add_interrupt_pins(ps7_irq_net, "", 0)
+        # ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
+        # self._add_interrupt_pins(ps7_irq_net, "", 0)
 
     def _add_interrupt_pins(self, net, parent, offset):
 
@@ -610,12 +610,12 @@ class PL(metaclass=PL_Meta):
 
         """
         cls.client_request()
-        with open(data, 'rb') as bin:
-            size = (math.ceil(os.fstat(bin.fileno()).st_size /
-                              mmap.PAGESIZE)) * mmap.PAGESIZE
-            mmio = MMIO(cls._ip_dict[ip_name][0], size)
-            buf = bin.read(size)
-            mmio.write(0, buf)
+        # with open(data, 'rb') as bin:
+            # size = (math.ceil(os.fstat(bin.fileno()).st_size /
+                              # mmap.PAGESIZE)) * mmap.PAGESIZE
+            # mmio = MMIO(cls._ip_dict[ip_name][0], size)
+            # buf = bin.read(size)
+            # mmio.write(0, buf)
 
         cls._ip_dict[ip_name][2] = data
         cls.server_update()
