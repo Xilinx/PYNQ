@@ -233,7 +233,7 @@ class _InterruptMap:
                         # 'create_bd_cell -type ip -vlnv ' +
                         # 'xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
                     # last_concat = current_hier + m.groups(1)[0]
-                    Default for IP is two input ports
+                    #Default for IP is two input ports
                     # self.concat_cells[last_concat] = 2
                 # elif interrupt_pat in line:
                     # m = re.search(
