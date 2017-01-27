@@ -11,7 +11,7 @@ Each IOP has its only interrupt controller allowing its local peripherals to int
 
 The base overlay also has a interrupt controller connected to the interrupt pin of the Zynq PS. THe IOPs can trigger this interrupt controller to singal to the PS and Python that an interrupt in the overlay has occured. 
 
-.. image:: ./images/pynqz1_base_overlay_intc_pin.png.jpg
+.. image:: ./images/pynqz1_base_overlay_intc_pin.png
    :align: center
 
 Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using the asyncio Python package. Asyncio was first introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio 

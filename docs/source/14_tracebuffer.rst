@@ -16,9 +16,7 @@ Tracebuffer
 ==================
 A tracebuffer is included in the base overlay. It is connected to the pin connections of the Pmod ports and the Arduino ports. This allows it to monitor the signals to and from the FPGA pins. The tracebuffer has a connection to DDR memory where captured data will be stored.
 
-.. image:: ./images/trace_buffer_overview_placeholder.jpg
-   :align: center
-   
+  
 8MB of DDR memory is available for the tracebuffer. The DDR memory is allocated from the kernel, and is fixed when the kernel is compiled. 
 
 Supported protocols
@@ -105,5 +103,5 @@ This code displays samples from 1 to 5000.
 Example notebooks
 ======================
 
-There are two notebooks available in the example notebooks directory in the Jupyter home area showing how to use the tracebuffer; *tracebuffer_i2c.ipynb* and *tracebuffer_spi.ipynb *. 
+There are two notebooks available in the example notebooks directory in the Jupyter home area showing how to use the tracebuffer; *tracebuffer_i2c.ipynb* and *tracebuffer_spi.ipynb*. 
 One shows an IIC example, and the other shows a SPI example. 
