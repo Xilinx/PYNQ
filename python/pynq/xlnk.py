@@ -77,10 +77,6 @@ class Xlnk:
     def __init__(self):
         """Initialize new Xlnk object.
 
-        Parameters
-        ----------
-        None
-
         Returns
         -------
         None
@@ -92,10 +88,6 @@ class Xlnk:
         """Destructor for the current Xlnk object.
 
         Frees up all the memory which was allocated through current object.
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------
@@ -121,7 +113,7 @@ class Xlnk:
         if "cdata" not in str(buf):
             raise RuntimeError("Unknown buffer type")
         
-    def cma_alloc(self, length, cacheable = 0, data_type = "void"):
+    def cma_alloc(self, length, cacheable=0, data_type="void"):
         """Allocate physically contiguous memory buffer.
 
         Allocates a new buffer and adds it to `bufmap`.
@@ -134,15 +126,15 @@ class Xlnk:
 
         Examples
         --------
-        memmanager = Xlnk()
+        mmu = Xlnk()
 
         # Allocate 10 `void *` memory locations.
         
-        m1 = memmanager.cma_alloc(10)
+        m1 = mmu.cma_alloc(10)
 
         # Allocate 10 `float *` memory locations.
         
-        m2 = memmanager.cma_alloc(10, data_type = "float")
+        m2 = mmu.cma_alloc(10, data_type = "float")
 
         Notes
         -----
@@ -177,7 +169,7 @@ class Xlnk:
         if buf == ffi.NULL:
             raise RuntimeError("Failed to allocate Memory!")
         self.bufmap[buf] = length
-        return ffi.cast(data_type+"*",buf)
+        return ffi.cast(data_type + "*", buf)
         
     def cma_get_buffer(self, buf, length):
         """Get a buffer object.
@@ -189,9 +181,8 @@ class Xlnk:
         Parameters
         ----------
         buf : cffi.FFI.CData
-            A valid buffer object which was allocated 
-            through `cma_alloc`.
-        len : int
+            A valid buffer object which was allocated through `cma_alloc`.
+        length : int
             Length of buffer in Bytes.
             
         Returns
@@ -201,7 +192,7 @@ class Xlnk:
 
         """
         self.__check_buftype(buf)
-        return(ffi.buffer(buf, length))
+        return ffi.buffer(buf, length)
     
     def cma_get_phy_addr(self, buf_ptr):
         """Get the physical address of a buffer.
@@ -222,9 +213,13 @@ class Xlnk:
 
         """
         self.__check_buftype(buf_ptr)
+<<<<<<< HEAD
         if "void *" not in str(buf_ptr):
             raise RuntimeError("Unkown pointer type")
         #return(libxlnk.cma_get_phy_addr(buf_ptr))
+=======
+        return libxlnk.cma_get_phy_addr(buf_ptr)
+>>>>>>> b2be4cf3ecb9fdfdaf3b0bb2d72553bbd74a3b9b
 
     @staticmethod
     def cma_memcopy(dest, src, nbytes):
@@ -302,10 +297,6 @@ class Xlnk:
         
         `Buffer Count` : Buffers allocated by current object.
 
-        Parameters
-        ----------
-        None
-
         Returns
         -------
         dict
@@ -328,10 +319,6 @@ class Xlnk:
         Notes
         -----
         This method resets all the CMA buffers allocated across the system.
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------

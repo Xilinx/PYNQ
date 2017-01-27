@@ -151,7 +151,7 @@ int main(void)
 {
     lightPoint lightValue;
     u32 Lux;
-    int cmd,i;
+    int cmd;
 
     arduino_init(0,0,0,0);
     config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 

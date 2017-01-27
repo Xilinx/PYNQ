@@ -40,11 +40,9 @@ except ImportError:
     pass
 
 # Stop the PL server
-if os.path.isfile("/home/xilinx/pynq/bitstream/.log"):
+if os.path.exists("/home/xilinx/pynq/bitstream/.log"):
     try:
         PL.client_request()
         PL.server_update(0)
     except ConnectionRefusedError:
         pass
-    
-    os.remove("/home/xilinx/pynq/bitstream/.log")

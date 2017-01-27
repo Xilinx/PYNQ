@@ -1,5 +1,5 @@
 all:
-	gcc -fPIC -shared -rdynamic -o libsds_lib.so -Wl,--whole-archive libsds_lib.a -l pthread  -Wl,--no-whole-archive
+	gcc wrapper.c -fPIC -shared -rdynamic -o libsds_lib.so -Wl,--whole-archive libsds_lib.a -l pthread  -Wl,--no-whole-archive
 
 clean:
 	rm -f *.so

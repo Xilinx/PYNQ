@@ -829,7 +829,7 @@ class Frame(object):
         if self._framebuffer is not None:
             del self._framebuffer
             
-    def save_as_jpeg(self, path):
+    def save_as_jpeg(self, path, width=None, height=None):
         """Save a video frame to a JPEG image.
         
         Note
@@ -840,32 +840,6 @@ class Frame(object):
         ----------
         path : str
             The path where the JPEG will be saved.
-            
-        Returns
-        -------
-        None
-        
-        """
-        npframe = (np.frombuffer(self.frame, dtype=np.uint8)).\
-                    reshape(1080,1920,3)[:self.height,:self.width,[2,1,0]]
-        image = Image.frombytes('RGB',
-                    (self.width,self.height), bytes(bytearray(npframe)))
-        image.save(path, 'JPEG')
-        
-    @staticmethod
-    def save_raw_as_jpeg(path, frame_raw, width, height):
-        """Save a video frame (in bytearray) to a JPEG image.
-        
-        Note
-        ----
-        This is a static method of the class.
-        
-        Parameters
-        ----------
-        path : str
-            The path where the JPEG will be saved.
-        frame_raw : bytearray
-            The video frame to be saved.
         width : int
             The width of the frame.
         height : int
@@ -876,8 +850,12 @@ class Frame(object):
         None
         
         """
-        npframe = (np.frombuffer(frame_raw, dtype=np.uint8)).\
-                    reshape(1080,1920,3)[:height,:width,[2,1,0]]
-        image = Image.frombytes('RGB',
-                    (width, height), bytes(bytearray(npframe)))
+        if width is None:
+            width = self.width
+        if height is None:
+            height = self.height
+        np_frame = (np.frombuffer(self.frame, dtype=np.uint8)). \
+                      reshape(MAX_FRAME_HEIGHT, MAX_FRAME_WIDTH, 3)\
+                        [:height, :width, 2::-1]
+        image = Image.fromarray(np_frame)
         image.save(path, 'JPEG')

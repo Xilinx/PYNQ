@@ -71,7 +71,6 @@ ROOT_SCRIPTS := 0_resizefs.sh \
 4_boot_leds.sh
 
 update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
-	@echo "Completed PYNQ update."
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
 	@echo ""
@@ -92,7 +91,7 @@ pynq_package:
 	-rm -rf ${PYNQ_DIR}/*
 	cp -rf ${REPO_DIR}/${BOARD}/sdk/bin/*.bin ${REPO_DIR}/python/pynq/iop/
 	cp -rf ${REPO_DIR}/${BOARD}/bitstream ${REPO_DIR}/python/pynq/
-	cd ${REPO_DIR}/python ; sudo -H pip install --upgrade .
+	cd ${REPO_DIR}/python ; sudo -H ${PYNQ_PYTHON} -m pip install --upgrade .
 	${PYNQ_PYTHON} /home/xilinx/scripts/start_pl_server.py &
 
 pynq_permissions:
@@ -108,7 +107,6 @@ scripts_notebooks:
 	@echo "Update scripts and notebooks"
 	@echo
 	cp -arf ${REPO_DIR}/${BOARD}/notebooks/* ${FINAL_NOTEBOOKS_DIR}
-	cd ${FINAL_NOTEBOOKS_DIR} ; ln -fs /home/xilinx/docs
 
 	@for f in ${USER_SCRIPTS} ; do \
 		cp -af ${REPO_DIR}/scripts/linux/$$f ${FINAL_SCRIPTS_DIR} || exit 1;\
@@ -121,10 +119,7 @@ scripts_notebooks:
 	cp -f ${REPO_DIR}/scripts/linux/rc.local /etc/
 
 new_pynq_update:
-	@echo
-	@echo "Copy new Pynq Update Script"
-	@echo
-	cp -af ${REPO_DIR}/scripts/linux/update_pynq.sh ${FINAL_SCRIPTS_DIR}
+	@cp -af ${REPO_DIR}/scripts/linux/update_pynq.sh ${FINAL_SCRIPTS_DIR}
 
 xlnkutils:
 	@echo
@@ -136,7 +131,7 @@ clean_dirs:
 	@echo
 	@echo "Cleaning up old files"
 	@echo
-	rm -rf ${FINAL_DOCS_DIR}/*
+	rm -rf ${FINAL_DOCS_DIR}/* 
 	mv ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js ${ROOT_DIR}/
 	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
 	mkdir -p ${FINAL_NOTEBOOKS_DIR}/getting_started/images
@@ -163,13 +158,12 @@ doc_notebooks:
 	${FINAL_NOTEBOOKS_DIR}/getting_started/2_programming_python.ipynb
 	cp ${REPO_DIR}/docs/source/5_programming_onboard.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/3_programming_onboard.ipynb
-	cp ${REPO_DIR}/docs/source/6a_base_overlay_iop.ipynb \
+	cp ${REPO_DIR}/docs/source/9a_base_overlay_iop.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/4_base_overlay_iop.ipynb
-	cp ${REPO_DIR}/docs/source/6b_base_overlay_video.ipynb \
+	cp ${REPO_DIR}/docs/source/9b_base_overlay_video.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/5_base_overlay_video.ipynb
-	cp ${REPO_DIR}/docs/source/6c_base_overlay_audio.ipynb \
+	cp ${REPO_DIR}/docs/source/9c_base_overlay_audio.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/6_base_overlay_audio.ipynb
-	cp -arf ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
 
 doc_temp_notebooks: 
 	@for f in ${DOC_TEMP_NOTEBOOKS} ; do \

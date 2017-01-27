@@ -1,11 +1,11 @@
 #!/bin/bash
 
+PYNQ_PYTHON=`su -l root bash -c 'echo $PYNQ_PYTHON' 2>/dev/null`
+
 if [ -z "$PYNQ_PYTHON" ]; then
   PYNQ_PYTHON=python3.4
-fi
-
-if [ -f /etc/profile.d/python3.6.sh ]; then
-  source /etc/profile.d/python3.6.sh
+else
+  PATH=/opt/$PYNQ_PYTHON/bin:$PATH
 fi
 
 $PYNQ_PYTHON /home/xilinx/scripts/start_pl_server.py &

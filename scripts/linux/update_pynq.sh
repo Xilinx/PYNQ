@@ -1,39 +1,49 @@
-#!/bin/bash
+#!/bin/bash  
 
+set -e
+
+UPDATEPYNQ_DIR=/home/xilinx/scripts
 REPO_DIR=/home/xilinx/pynq_git
 MAKEFILE_PATH=${REPO_DIR}/scripts/linux/makefile.pynq
 PYNQ_REPO=https://github.com/Xilinx/PYNQ.git
+
 
 if ! [ $(id -u) = 0 ]; then
    echo "to be run with sudo"
    exit 1
 fi
 
-usage="Usage : $(basename "$0") [-h] [-r] [-l] [-s] [-d]
+usage="Usage : $(basename "$0") [-h] [-s] [-l] [-b branch] [-d]
 Update pynq python, notebooks and scripts from PYNQ repository
 
 where:
-    -h  show this help text
-    -l  update packages to latest branch
-	Note: This could result in an unstable build
-    -s  update packages to latest stable release
+    -h  show this help text and exit
+    -s  update packages to latest stable release [DEFAULT]
+    -l  update packages to latest commit [Overrides -s]
+        Note: This could result in an unstable build
 
     Development Options:
-    -r  cleanup destination dirs before update
-    -d  rebuild docs from source"
+    -b branch   update package to this repository branch [DEFAULT: master]
+    -d          rebuild docs from source"
 
-_repo_init_done=""
+    
+
+
+_repo_branch=master
+
 
 function cleanup_exit()
 {
-    echo "Cleaning up.."
-    cd ${REPO_DIR}
-    git checkout -q master
-    git reset --hard -q
-    git clean -fdq
-    chown -R xilinx:xilinx ${REPO_DIR}
-    # Update itself and exit
+
+    # Final steps - update this file and change repo ownership
+    cd ${UPDATEPYNQ_DIR}
+    cp update_pynq.sh update_pynq.sh.bkup
     make -f ${MAKEFILE_PATH} new_pynq_update
+
+    cd ${REPO_DIR}
+    chown -R xilinx:xilinx ${REPO_DIR}
+
+
     exit $1
 }
 
@@ -45,16 +55,11 @@ function build_docs()
 
 function build_pynq()
 {
-    make -f ${MAKEFILE_PATH} update_pynq || cleanup_exit 1
-    echo "Successfully updated PYNQ.."
+    make -f ${MAKEFILE_PATH} update_pynq 
 }
 
 function init_repo()
 {
-    if [[ $_repo_init_done ]]; then
-    return
-    fi
-
     echo "Info: This operation will overwrite all the example notebooks"
     read -rsp $'Press any key to continue...\n' -n1 key
 
@@ -62,15 +67,19 @@ function init_repo()
         echo ""
         echo "Github Repo Detected. Pulling latest changes from upstream.."
         cd ${REPO_DIR}
-        git checkout master
-        git pull || exit 1
+        git checkout --track origin/${_repo_branch} || git checkout -f ${_repo_branch}
+        git fetch
+        git pull 
         echo ""
     else
-        echo "Cloning Pynq repo"
+        echo "Cloning Pynq repo ${_repo_branch}"
+        rm -rf $REPO_DIR
         mkdir $REPO_DIR -p
-        git clone ${PYNQ_REPO} ${REPO_DIR} || exit 1
+        git clone  ${PYNQ_REPO} ${REPO_DIR}
+        cd ${REPO_DIR}
+        git checkout --track origin/${_repo_branch}
     fi
-    _repo_init_done=true
+
     cd ${REPO_DIR}
 }
 
@@ -81,47 +90,42 @@ function checkout_stable()
     git checkout -q ${latestTag}
 }
 
-function do_stable_update()
-{
-   init_repo
-   checkout_stable
-   build_pynq
-}
-
 if [[ "$#" -eq 0 ]]; then
-    echo "Updating to latest stable release (default action)"
-    do_stable_update
+    stable_latest=true
 fi
 
-if [[ "$1" == "-r" ]]; then
-    init_repo
-    echo "Cleaning up before upgrade.."
-    make -f ${MAKEFILE_PATH} clean_dirs || exit 1
-fi
-
-while getopts ':hlsdr' option; do
+while getopts 'hlsb:d' option; do
     case "$option" in
         h) echo "$usage"
            exit
            ;;
-        l) echo "Using master branch for update.."
-           init_repo
-           build_pynq
+        l) echo "+ Using latest commit for update.."
+           latest=true
            ;;
-        s) echo "Updating to latest stable release"
-           do_stable_update
+        s) echo "+ Updating to latest stable release"
+           stable_latest=true
            ;;
-        r) # This is always preprocessed
+        b) _repo_branch=$OPTARG
+           echo "+ Using ${_repo_branch} branch"
            ;;
         d) docs=true
-           # Docs are always built at end
-           init_repo
            ;;
-       \?) echo "Unknown option -${OPTARG} use '-h' for help"
+       \?) echo "+ Unknown option -${OPTARG} use '-h' for help"
            exit 1
            ;;
     esac
 done
+
+#execute operations sequentially
+
+if [[ $latest ]]; then
+    init_repo
+    build_pynq
+elif [[ $stable_latest ]]; then
+    init_repo
+    checkout_stable
+    build_pynq
+fi
 
 if [[ $docs ]]; then
     build_docs

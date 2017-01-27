@@ -152,7 +152,7 @@ int main(void)
 {
     lightPoint lightValue;
     u32 Lux;
-    int cmd,i;
+    int cmd;
     u8 iop_pins[8];
     u32 scl, sda;
 
