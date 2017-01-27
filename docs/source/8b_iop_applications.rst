@@ -10,11 +10,9 @@ There are a number of steps required before you can start writing your own softw
 IO Processors
 ==============
 
-As seen previously, an IOP can be used as a flexible controller for different types of external peripherals. The ARM® Cortex®-A9 is an application processor, which runs Pynq and Jupyter notebook on a Linux OS. This scenario is not well suited to real-time applications, which is a common requirement for an embedded systems.  In the base overlay there are three IOPs. As well as acting as a flexible controller, an IOP can be used as dedicated real-time controller.
+As described in the previous section, an IOP can be used as a flexible controller for different types of external peripherals. The ARM® Cortex®-A9 is an application processor, which runs Pynq and Jupyter notebook on a Linux OS. This scenario is not well suited to real-time applications, which is a common requirement for an embedded systems.  In the base overlay there are three IOPs. As well as acting as a flexible controller, an IOP can be used as dedicated real-time controller.
 
 IOPs can also be used standalone to offload some processing from the main processor. However, note that the MicroBlaze processor inside an IOP in the base overlay is running at 100 MHz, compared to the Dual-Core ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor architectures and features should be taken into account when offloading pure application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing unit will be much more efficient than running on the MicroBlaze. The MicroBlaze is most appropriate for low-level, background, or real-time applications.
-
-There are two types of IOP, a Pmod IOP and an Arduino IOP. 
 
 Previous sections showed the similarities between the Pmod IOP and Arduino IOP. Each IOP contains a `Xilinx MicroBlaze processor <https://en.wikipedia.org/wiki/MicroBlaze>`_, a Debug module, and one or more of the following functional units and interface peripherals:
 

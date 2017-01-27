@@ -5,6 +5,17 @@ Peripherals and Interfaces
 .. contents:: Table of Contents
    :depth: 2
    
+Introduction
+====================
+
+The Zynq PL can support many types of protocols and interfaces for external peripherals. The Pynq-Z1 has two Pmod ports and one Arduino interface for connecting external peripherals directly to the Zynq PL. This allows peripherals to be controlled in hardware. Other peripherals can be connected to these ports via adapters, or with a breadboard. 
+
+The USB port can also be used to connect standard USB peripherals to the Zynq PS. Linux drivers are required fro connecting USB peripherals. The PYNQ image currently includes drivers for some webcams, and USB wifi peripherals.
+
+Note that the Zynq PS has dedicated peripherals including Ethernet, USB, UART, IIC, SPI, CAN controllers and GPIO. Only the Ethernet, USB, and UART are connected externally on the board. It is possible to connect the other controllers internally to the Zynq PL. The peripherals could then be used internally inside the PL, or routed to PL pins. E.g. to Pmod, or Arduino pins. This would require an overlay design.
+
+In the base overlay, each IOP has its only set of controllers, implemented in programmable logic, and does not need to use the Zynq PS peripherals. 
+
 Pmod Interface
 ===================
 
@@ -84,15 +95,12 @@ Most Arduino compatible shields can be used with the PYNQ-Z1 board. However, the
 PYNQ Shield
 --------------------
 
-As mentioned previously, each Grove connector has 4 pins. The PYNQ Shield has 12 Grove connectors for digital IO (I2C, UART, G1 - G7) and 4 Grove connectors for analog IO (A1 - A4).
+Each Grove connector has 4 pins. The PYNQ Shield connects to the Arduino and ChipKit pins on the PYNQ-Z1 board. The PYNQ shield has 12 Grove connectors for digital IO (I2C, UART, G1 - G7) and 4 Grove connectors for analog IO (A1 - A4).
 
 .. image:: ./images/arduino_shield.jpg
    :align: center
 
-With the PYNQ shield jumper (JP1) set to 3.3V (as in the figure), all the pins operate at 3.3V. 
-
-xxx pin numbers, and connfigurations
-
+With the PYNQ shield jumper (JP1) set to 3.3V (as in the figure), all the pins operate at 3.3V. WIth JP1 set to 5V, G4 - G7 operated at VDD = 5V. 
 
 ==========   =========================
 Peripheral   Pins
@@ -103,3 +111,5 @@ SPI*         D10 - D13
 PWM          D3, D5, D6, D9, D10, D11
 Timer        D3 - D6 and D8 - D11
 ==========   =========================
+
+The Arduino pins, and ChipKit pins are also passed to the top of the board to allow additional shields to be attached. 

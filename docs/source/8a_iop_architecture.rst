@@ -80,22 +80,9 @@ The I2c, SPI, GPIO and Timer are connected to the interrupt controller. This is 
 Pmod IOP configurable switch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The MicroBlaze, inside the IOP, can configure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
+The configurable switch can route signals from external FPGA pins to the appropriate hardware interface. The switch is controlled by the MicroBlaze, and can be configured from an IOP application.  
 
-For the Pmod IOP switch, each individual pin can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. This configuration is done from the IOP (C/C++) application. An IOP application can either set the switch to a fixed configuration, or allow a configuration to be sent from Python which it will then use to configure the switch. 
-
-The following function, part of the Pmod IO switch driver, can be used to configure the switch in an IOP application. 
-
-.. code-block:: c
-
-   void config_pmod_switch();
-
-
-You can check the IOP constants and addresses in the Python code here: 
-
-:: 
-   
-   <GitHub Repository>/python/pynq/iop/iop_const.py
+For details on using the switch, see the next sections on *IO Processors: Writing your own software* and *IO Processors: Using peripherals in your applications*.
 
 
 Arduino IOP
@@ -174,7 +161,7 @@ Timer        D3 - D6 and D8 - D11
 
 For example, a shield with a UART and 5 Digital IO can connect the UART to pins D0, D1, and the Digital IO can be connected to pins D2 - D6.
 
-While there is support for analog inputs via the internal XADC, this only allows inputs of 0-1V. The Arduino supports 0-5V analog inputs which are not supported on the PYNQ-Z1.
+While there is support for analog inputs via the internal XADC, this only allows inputs of 0-1V. The Arduino interface supports 0-5V analog inputs which are not supported on the PYNQ-Z1.
 
 
 Arduino IOP configurable Switch

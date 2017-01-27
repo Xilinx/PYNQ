@@ -9,14 +9,17 @@ Introduction
 =========================================
 Each IOP has its only interrupt controller allowing its local peripherals to interrupt it. This is the standard MicroBlaze interrupt controller and can be used in the MicroBlaze application as it would be in any other design.
 
-The base overlay also has a central interrupt controller connected to the PS. THe IOPs can trigger the central interrupt controller. 
+The base overlay also has a interrupt controller connected to the interrupt pin of the Zynq PS. THe IOPs can trigger this interrupt controller to singal to the PS and Python that an interrupt in the overlay has occured. 
 
-.. image:: ./images/interrupt_controller_paceholder.jpg
+.. image:: ./images/pynqz1_base_overlay_intc_pin.png.jpg
    :align: center
 
-Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using asyncio. Asyncio is a Python library, first introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio This PYNQ release used Python 3.6.
+Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using the asyncio Python package. Asyncio was first introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio 
+This PYNQ release used Python 3.6 and includes the latest asyncio package.
 
-The main advantage os using asyncio is that it makes the interrupt handler look like regular Python code, and helps reduce the complexity of managing interrupts using callbacks. 
+The main advantage of using asyncio over other interrupt handling methods, is that it makes the interrupt handler look like regular Python code, and helps reduce the complexity of managing interrupts using callbacks. 
+
+It should be noted that Python is a productivity langugage rather than a performance language. Any performance critical, or real-time parts of a design should be handled in the PL. An interrupt sent to the PS may have a relatively long latency before it is handled. 
 
 
 Asyncio
@@ -24,8 +27,6 @@ Asyncio
 
 Background terminology
 ---------------------------
-
-asyncio uses Linux selectors.
 
 Asyncio consists of the following components:
 
@@ -73,6 +74,9 @@ The ``await`` expression is used to obtain a result from a coroutine
         data = await read()
         ...
     
+
+Asyncio uses Linux selectors.
+
 Example
 -------------------------
 
@@ -138,9 +142,13 @@ An interrupt from the PL is connected to XXX
 Code
 ---------
 
-This depends on user code yielding. This will massively impact interrupt latency. 
+This depends on user code yielding. This will have a major impact on interrupt latency. 
 
-If user function does not yield from ... sleep() it will be blocking. 
+If user function does not yield from ... sleep() it will be blocking causing very long interrupt latencies. 
 
+Callback, when interrupt triggers, code jumps and breaks execution. 
 
-Callback, when interrupt triggers, code jumps and breaks execution. No need to yield
+Example notebook
+-----------------
+
+The asyncio_buttons.ipynb notebook can be found in the examples directory. 
