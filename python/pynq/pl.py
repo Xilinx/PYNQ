@@ -93,13 +93,13 @@ def _get_ip(tcl_name):
             '([A-Za-z0-9_]+)'
     result = {}
 
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            m = re.search(regex, line, re.IGNORECASE)
-            if m:
-                # Each entry is [base, range, state]
-                result[m.group(5)] = [int(m.group(2), 16),
-                                      int(m.group(1), 16), None]
+    #with open(tcl_name, 'r') as f:
+    #    for line in f:
+    #        m = re.search(regex, line, re.IGNORECASE)
+    #        if m:
+    #            # Each entry is [base, range, state]
+    #            result[m.group(5)] = [int(m.group(2), 16),
+    #                                  int(m.group(1), 16), None]
 
     return result
 
