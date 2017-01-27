@@ -269,8 +269,9 @@ class _InterruptMap:
                     for p in self.nets[index]:
                         self.pins[p] = index
 
-        ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
-        self._add_interrupt_pins(ps7_irq_net, "", 0)
+        if self.ps7_name + "/IRQ_F2P" in self.pins:
+            ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
+            self._add_interrupt_pins(ps7_irq_net, "", 0)
 
     def _add_interrupt_pins(self, net, parent, offset):
 
