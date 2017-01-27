@@ -32,6 +32,7 @@ __copyright__   = "Copyright 2016, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
+import asyncio
 import os
 from PIL import Image
 from numpy import array
@@ -109,10 +110,57 @@ class Arduino_LCD18(object):
         while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                                   iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
             pass
-                      
-    def display(self,img_path,x_pos=0,y_pos=127,
-                orientation=3,background=None,
-                frames=1):
+
+    def display(self, img_path, x_pos = 0, y_pos = 127, orientation = 3,
+                background = None, frames = 1):
+        """Animate the image at the desired location for multiple frames.
+
+        The maximum screen resolution is 160x128.
+
+        Users can specify the position to display the image. For example, to
+        display the image in the center, `x_pos` can be (160-`width`/2),
+        `y_pos` can be (128/2)+(`height`/2).
+
+        A typical orientation is 3. The origin of orientation 0, 1, 2, and 3
+        corresponds to upper right corner, lower right corner, lower left
+        corner, and upper left corner, respectively. Currently, only 1 and 3
+        are valid orientations. If users choose orientation 1, the picture
+        will be shown upside-down. If users choose orientation 3, the picture
+        will be shown consistently with the LCD screen orientation.
+
+        Parameter `background` specifies the color of the background;
+        it is a list of 3 elements: R, G, and B, each with 8 bits for color
+        level.
+
+        Parameters
+        ----------
+        img_path : str
+            The file path to the image stored in the file system.
+        x_pos : int
+            x position of a pixel where the image starts.
+        y_pos : int
+            y position of a pixel where the image starts.
+        background : list
+            A list of [R, G, B] components for background, each of 8 bits.
+        orientation : int
+            orientation of the image; valid values are 1 and 3.
+        frames : int
+            Number of frames the image is moved, must be less than 65536.
+
+        Returns
+        -------
+        None
+
+        """
+        task = asyncio.ensure_future(
+                    self.display_async(img_path, x_pos, y_pos, orientation,
+                                  background, frames))
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(task)
+
+    @asyncio.coroutine
+    def display_async(self, img_path, x_pos=0, y_pos=127,
+                orientation=3, background=None, frames=1):
         """Animate the image at the desired location for multiple frames.
 
         The maximum screen resolution is 160x128.
@@ -197,13 +245,18 @@ class Arduino_LCD18(object):
             self.mmio.write(iop_const.MAILBOX_OFFSET+0x14, background16)
             self.mmio.write(iop_const.MAILBOX_OFFSET+0x18, orientation)
             self.mmio.write(iop_const.MAILBOX_OFFSET+0x1c, frames)
-
+            # Ensure interrupt is reset before issuing command
+            if self.iop.interrupt:
+                self.iop.interrupt.clear()
             self.mmio.write(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
             while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
                             iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-                pass
+                if self.iop.interrupt:
+                    yield from self.iop.interrupt.wait()
         finally:
+            if self.iop.interrupt:
+                self.iop.interrupt.clear()
             self.buf_manager.cma_free(buf0)
 
     def draw_line(self,x_start_pos,y_start_pos,x_end_pos,y_end_pos,
