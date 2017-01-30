@@ -7,17 +7,17 @@ Interrupts
 	  
 Introduction
 =========================================
-Each IOP has its only interrupt controller allowing its local peripherals to interrupt it. This is the standard MicroBlaze interrupt controller and can be used in the MicroBlaze application as it would be in any other design.
+Each IOP has its only interrupt controller allowing its local peripherals to interrupt it. This is the standard `AXI Interrupt Controller (4.1)<https://www.xilinx.com/products/intellectual-property/axi_intc.html>`_ and can be used in an IOP application as it would be used in any MicroBlaze design.
 
-The base overlay also has a interrupt controller connected to the interrupt pin of the Zynq PS. THe IOPs can trigger this interrupt controller to singal to the PS and Python that an interrupt in the overlay has occured. 
+The base overlay also has a interrupt controller connected to the interrupt pin of the Zynq PS. The IOPs can trigger this interrupt controller to singal to the PS and Python that an interrupt in the overlay has occured. 
 
 .. image:: ./images/pynqz1_base_overlay_intc_pin.png
    :align: center
 
-Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using the asyncio Python package. Asyncio was first introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio 
+Interrupts in PYNQ can be handled in different ways. One method of handling interrupts is using the *asyncio* Python package. Asyncio was first introduced in Python 3.4 as provisional, and starting in Python 3.6 is considered stable. https://docs.python.org/3.6/whatsnew/3.6.html#asyncio 
 This PYNQ release used Python 3.6 and includes the latest asyncio package.
 
-The main advantage of using asyncio over other interrupt handling methods, is that it makes the interrupt handler look like regular Python code, and helps reduce the complexity of managing interrupts using callbacks. 
+The main advantage of using asyncio over other interrupt handling methods, is that it makes the interrupt handler look like regular Python code. This helps reduce the complexity of managing interrupts using callbacks. 
 
 It should be noted that Python is a productivity langugage rather than a performance language. Any performance critical, or real-time parts of a design should be handled in the PL. An interrupt sent to the PS may have a relatively long latency before it is handled. 
 
@@ -73,9 +73,7 @@ The ``await`` expression is used to obtain a result from a coroutine
     async def asyncio_function(db):
         data = await read()
         ...
-    
 
-Asyncio uses Linux selectors.
 
 Example
 -------------------------
@@ -115,40 +113,90 @@ If you need blocking calls, they should be in seperate threads.
 
 Compute workloads should be in separate threads/processes. 
 
-Interrupts using asyncio
-==========================
+Interrupts in PYNQ using asyncio
+==================================
 
-Asyncio can be used for managing interrupts. A coroutine can be created to check the status of the interrupt controller, and scheduled in an event loop alongside other user code. If an interrupt has been triggered, the next time the "interrupt" coroutine is scheduled, it will service the interrupt. 
-
-High performance/real-time code 
-------------------------------------
-
-Note that Linux is not a real-time operating system, and Python is not intended as a high performance/low latency language. 
-
-C libraries can be used to replace performance critical Python code. The CFFI may be used for this task. 
-
-The PL can be used for real-time or performance critical operations. 
-
-The IOPs use BRAM local memory which is deterministic and may be suitable for real-time code. Note that the DDR memory accesses will have some variablility and may be less suitable. 
-
-New overlays can also be designed for real-time/performance. 
+Asyncio can be used for managing interrupts. A coroutine can be created to check the status of the interrupt controller, and scheduled in an event loop. Other user functions can be run in the event loop. If an interrupt has been triggered, the next time the "interrupt" coroutine is scheduled, it will service the interrupt. 
 
 
-Interrupt example using asyncio
+The Python *Interrupt* class can be found here:
+
+.. code-block:: console
+
+    pynq\interrupt.py
+    
+This implements the class to manage the AXI interrupt controller in the PL. It is not necessary to examine this code in detail to use interrupts. 
+
+The IOP class  inherits the main Interrupt class, and implements an asyncio event-like interface to the interrupt subsystem for an IOP. 
+
+The Python code for an IOP application can instantiate the Interrupt class and connect an interrupt pin. 
+
+e.g.
+
+.. code-block:: Python
+
+    def __init__(self)
+        self.iop = request_iop(iop_id, IOP_EXECUTABLE)
+        self.interrupt = Interrupt('iop1/dff_en_reset_0/q')
+        
+The IOPs have a GPIO connected to the AXI interrupt controller. The IOP interrupt pin name must be specified to connect the interrupt. 
+
+        
+There are two options for running functions from this new IOP wrapper class. The function can be called from an external asyncio event loop, or the function can set up its own event loop and then call its asyncio function from the event loop.
+
+Async function
+----------------------
+
+The following code defines an asyncio function. notice the ``async`` and ``await`` keywords are the only additiona code needed to make this function an asyncio coroutine.
+
+.. code-block:: Python
+
+    async def interrupt_handler_async(self, value):
+        if self.interrupt is None:
+            raise RuntimeError('Interrupts not available in this Overlay')
+        while(1):
+            await self.interrupt.wait() # Wait for interrupt
+            # Do something when an interrupt is received
+
+Function with event loop
+---------------------------
+
+The following code sets up an event loop and calls the async function above from the event loop.
+
+.. code-block:: Python
+    
+    def interrupt_handler(self):   
+    
+        if self.interrupt is None:
+            raise RuntimeError('Interrupts not available in this Overlay')
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.ensure_future(
+            self.interrupt_handler_async()
+        ))
+        
+Interrupt pin mappings
+=========================
+
+Interrupts are also available from the GPIO (Pushbuttons, Switches, Video, Tracebuffer Arduino, Tracebuffer Pmods). 
+
+=============== ========== =====================================
+Name             IOP ID     Pin
+=============== ========== =====================================
+PMODA            1          iop1/dff_en_reset_0/q
+PMODB            2          iop2/dff_en_reset_0/q
+ARDUINO          3          iop3/dff_en_reset_0/q
+Buttons                     btns_gpio/ip2intc_irpt
+Switches                    swsleds_gpio/ip2intc_irpt
+Video                       video/dout
+Trace(Pmod)                 tracepmods_arduino/s2mm_introut
+Trace(Arduino)              tracebuffer_arduino/s2mm_introut
+=============== ========== =====================================
+
+
+Interrupt examples using asyncio
 ===================================
 
-An interrupt from the PL is connected to XXX
-
-Code
----------
-
-This depends on user code yielding. This will have a major impact on interrupt latency. 
-
-If user function does not yield from ... sleep() it will be blocking causing very long interrupt latencies. 
-
-Callback, when interrupt triggers, code jumps and breaks execution. 
-
-Example notebook
+Example notebooks
 -----------------
 
-The asyncio_buttons.ipynb notebook can be found in the examples directory. 
+The asyncio_buttons.ipynb and iop_interrupts_example.ipynb notebook can be found in the examples directory.

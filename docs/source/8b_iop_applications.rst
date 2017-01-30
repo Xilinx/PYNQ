@@ -156,11 +156,11 @@ IOP Memory
 ==========================
 
 
-Each IOP has local memory (immplemented in Xilinx BRAMs) and a donnection to DDR memory. 
+Each IOP has local memory (immplemented in Xilinx BRAMs) and a connection to the PS DDR memory. 
 
 The IOP instruction and data memory is implemented in a dual port Block RAM, with one port connected to the IOP, and the other to the ARM processor. This allows an executable binary file to be written from the ARM (i.e. the Pynq environment) to the IOP instruction memory. The IOP can also be reset from Pynq, allowing the IOP to start executing the new program. 
 
-The DDR can be used as extra data memory. You need to be careful when using DDR memory, as this is shared with the rest of the system, including other IOPs. 
+The DDR can be used as additional data memory. You need to be careful when using DDR memory, as this is shared with the rest of the system, including other IOPs. 
 
 xxx : How should DR be used?
 
