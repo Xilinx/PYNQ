@@ -172,7 +172,8 @@ In the Jupyter portal home area, select **New >> terminal**.
        
 This will open a terminal inside the browser as root. 
        
-Next enter and execute the following command.  (Note that you should replace NEW_HOST_NAME with the hostname you want for your board.) 
+Next enter and execute the following command.  (Note that you should replace NEW_HOST_NAME with the hostname you want for your board.)
+
 
    .. code-block:: console
    
@@ -183,7 +184,7 @@ Next enter and execute the following command.  (Note that you should replace NEW
       :height: 300px
       :align: center
 	  
-Follow the instructions to reboot the board. Note that as you are logged in as root, sudo is not required, but if you are logged in as Xilinx, sudo must be added to these commands. 
+Follow the instructions to reboot the board. 
 
    .. code-block:: console
    
@@ -316,9 +317,9 @@ You can update the pynq package by executing the script:
    
       /home/xilinx/scripts/update_pynq.sh
 
-This will check the pynq GitHub, download and install the latest release. Your board will need to have internet access to do this. Check the *Connect to a network* section above if necessary. 
+This will check the pynq GitHub, download and install the latest release. 
 
-Updating PYNQ will overwrite the introductory and example notebooks. You should make sure you take a backup of this, and any code you added to the pynq python directory. 
+Updating will overwrite the introductory and example notebooks. You should make sure you take a backup of this, and any code you added to the pynq python directory. 
 
 
 Troubleshooting

@@ -80,9 +80,22 @@ The I2c, SPI, GPIO and Timer are connected to the interrupt controller. This is 
 Pmod IOP configurable switch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The configurable switch can route signals from external FPGA pins to the appropriate hardware interface. The switch is controlled by the MicroBlaze, and can be configured from an IOP application.  
+The MicroBlaze, inside the IOP, can configure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
 
-For details on using the switch, see the next sections on *IO Processors: Writing your own software* and *IO Processors: Using peripherals in your applications*.
+For the Pmod IOP switch, each individual pin can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. This configuration is done from the IOP (C/C++) application. An IOP application can either set the switch to a fixed configuration, or allow a configuration to be sent from Python which it will then use to configure the switch. 
+
+The following function, part of the Pmod IO switch driver, can be used to configure the switch in an IOP application. 
+
+.. code-block:: c
+
+   void config_pmod_switch();
+
+
+You can check the IOP constants and addresses in the Python code here: 
+
+:: 
+   
+   <GitHub Repository>/python/pynq/iop/iop_const.py
 
 
 Arduino IOP
@@ -126,7 +139,7 @@ There are two SPI controllers available. They both have the same settings:
 GPIO blocks
 ^^^^^^^^^^^^^^^^^^^
 
-There are three GPIO block available. They support 16 input or output pins on the Arduino interface (D0 - D15).
+There are three GPIO block available. They support xxx input or output pins
 
 Timers
 ^^^^^^^^^^^^^^^^^^^
@@ -161,7 +174,7 @@ Timer        D3 - D6 and D8 - D11
 
 For example, a shield with a UART and 5 Digital IO can connect the UART to pins D0, D1, and the Digital IO can be connected to pins D2 - D6.
 
-While there is support for analog inputs via the internal XADC, this only allows inputs of 0-1V. The Arduino interface supports 0-5V analog inputs which is not supported on the PYNQ-Z1.
+While there is support for analog inputs via the internal XADC, this only allows inputs of 0-1V. The Arduino supports 0-5V analog inputs which are not supported on the PYNQ-Z1.
 
 
 Arduino IOP configurable Switch
@@ -180,3 +193,64 @@ The following function, part of the Arduino IO switch driver, can be used to con
    void config_arduino_switch();
 
 
+
+Switch mappings used for IO switch configuration:
+
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+                                                                                               
+Pin  A/D IO  A_INT   Interrupt  UART    PWM     Timer             SPI       IIC   Input-Capture  
+                                                                                         
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+A0   A_GPIO  A_INT                                                                             
+A1   A_GPIO  A_INT                                                                             
+A2   A_GPIO  A_INT                                                                             
+A3   A_GPIO  A_INT                                                                             
+A4   A_GPIO  A_INT                                                          IIC                
+A5   A_GPIO  A_INT                                                          IIC                
+D0   D_GPIO          D_INT      D_UART                                                         
+D1   D_GPIO          D_INT      D_UART                                                         
+D2   D_GPIO          D_INT                                                                     
+D3   D_GPIO          D_INT              D_PWM0  D_TIMER Timer0                    IC Timer0  
+D4   D_GPIO          D_INT                      D_TIMER Timer0_6                             
+D5   D_GPIO          D_INT              D_PWM1  D_TIMER Timer1                    IC Timer1  
+D6   D_GPIO          D_INT              D_PWM2  D_TIMER Timer2                    IC Timer2  
+D7   D_GPIO          D_INT                                                                     
+D8   D_GPIO          D_INT                      D_TIMER Timer1_7                  Input Capture
+D9   D_GPIO          D_INT              D_PWM3  D_TIMER Timer3                    IC Timer3  
+D10  D_GPIO          D_INT              D_PWM4  D_TIMER Timer4    D_SS            IC Timer4  
+D11  D_GPIO          D_INT              D_PWM5  D_TIMER Timer5    D_MOSI          IC Timer5  
+D12  D_GPIO          D_INT                                        D_MISO                       
+D13  D_GPIO          D_INT                                        D_SPICLK                     
+                                                                                               
+===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+
+For example, to connect the UART to D0 and D1, write D_UART to the configuration register for D0 and D1. 
+
+.. code-block:: c
+
+	config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO,
+			      D_UART, D_UART, D_GPIO, D_GPIO, D_GPIO,
+			      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
+			      D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+
+From Python all the constants and addresses for the IOP can be found in:
+
+:: 
+	   
+   <Pynq GitHub Repository>/python/pynq/iop/iop_const.py
+
+``arduino.h`` and ``arduino.c`` are part of the Arduino IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
+
+:: 
+   
+   <GitHub Repository>/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/  \
+   drivers/arduino_io_switch_v1_0/src/
+
+This code this automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use this library by including the header file:
+
+.. code-block:: c
+
+   #include "arduino_io_switch.h"
+
+
+   

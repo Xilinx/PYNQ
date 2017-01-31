@@ -16,18 +16,16 @@ Tracebuffer
 ==================
 A tracebuffer is included in the base overlay. It is connected to the pin connections of the Pmod ports and the Arduino ports. This allows it to monitor the signals to and from the FPGA pins. The tracebuffer has a connection to DDR memory where captured data will be stored.
 
-  
+.. image:: ./images/trace_buffer_overview_placeholder.jpg
+   :align: center
+   
 8MB of DDR memory is available for the tracebuffer. The DDR memory is allocated from the kernel, and is fixed when the kernel is compiled. 
 
-Supported protocols
----------------------
+The tracebuffer uses the SigRock Python package. It can recognise different bus protocols and highlight and format the data appropriately. Currently supported formats include:
 
-The tracebuffer uses the SigRock Python package. It can recognise different bus protocols and highlight and format the data appropriately. Check the SigRok webpages for a list of `SigRok supported protocols <https://sigrok.org/wiki/Protocol_decoders>`_
+xxx
 
-PL IOBs
-----------------------
-
-The external PL Input/Output Blocks (IOBs) are tri-state. This means three internal signals are associated with each pin; an input (I), and output (O) and a tri-state signal (T). The Tri-state signal controls whether the pin is beinng used as a input or output. 
+The external FPGA Input/Output Blocks (IOBs) are tri-state. This means three internal signals are associated with each pin; an input (I), and output (O) and a tri-state signal (T). The Tri-state signal controls whether the pin is beinng used as a input or output. 
 
 The tracebuffer is connected to all 3 signals for each IOP (Pmod and Arduino).
 
@@ -58,6 +56,10 @@ To use the tracebuffer, instantiate the tracebuffer class, specifying the interf
    
    tr_buf = Trace_Buffer(PMODA,"i2c",samplerate=1000000)
 
+Available protocols are:
+
+
+   
 Once you are ready to start collecting data, start the tracebuffer.
    
 .. code-block:: Python
@@ -74,6 +76,7 @@ Once you are finished collecting data, stop the tracebuffer.
 
 
 Set up the mask values. This will determine which data will be displayed. 
+xxx: show the key for these values. 
 
 .. code-block:: Python
 
@@ -103,5 +106,4 @@ This code displays samples from 1 to 5000.
 Example notebooks
 ======================
 
-There are two notebooks available in the example notebooks directory in the Jupyter home area showing how to use the tracebuffer; *tracebuffer_i2c.ipynb* and *tracebuffer_spi.ipynb*. 
-One shows an IIC example, and the other shows a SPI example. 
+There are two notebooks available in the example notebooks directory in the Jupyter home area showing how to use the tracebuffer. One shows an IIC example, and the other shows a SPI example. 

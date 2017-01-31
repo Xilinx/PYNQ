@@ -5,13 +5,10 @@ IO Processors: Using peripherals in your applications
 .. contents:: Table of Contents
    :depth: 2
 
-Configurable switch header files
-==================================
+Pmod IOP driver
+=====================
 
-Pmod
-------
-
-You can find the header files for the Pmod IOP switch here:
+You can find the driver for the Pmod IOP switch here:
 
 :: 
    
@@ -24,22 +21,6 @@ The ``pmod_io_switch.h`` includes the API for the configuration switch and prede
 
 This code is automatically compiled into the Board Support Package (BSP). 
 
-
-Arduino
----------
-
-The corresponding files for the Arduino IOP switch can be found here:
-
-:: 
-   
-   <GitHub Repository>/Pynq-Z1/vivado/ip/arduino_io_switch_1.0/  \
-   drivers/arduino_io_switch_1.0/src/
-
-The files are ``arduino_io_switch.h``, ``arduino.h`` and ``arduino.c``
-
-Files to include
-----------------------
-
 To use these files in an IOP application, include the header file(s):
    
 .. code-block:: c
@@ -47,15 +28,13 @@ To use these files in an IOP application, include the header file(s):
    #include "pmod.h"
    #include "pmod_io_switch.h"
 
-or 
+Any application that uses the Pmod driver should also call pmod_init() at the beginning of the application. 
 
-.. code-block:: c
+From Python all the constants and addresses for the IOP can be found in:
 
-   #include "arduino.h"
-   #include "arduino_io_switch.h"
-
-Pmod applications should call ``pmod_init()`` at the beginning of the application, and Arduino applications, ``arduino_init()`` to initialize the IOP peripherals.  
-
+    ``<GitHub Repository>/python/pynq/iop/iop_const.py``
+    
+   
    
 Controlling the Pmod IOP Switch
 =================================
@@ -63,7 +42,7 @@ Controlling the Pmod IOP Switch
 
 There are 8 data pins on a Pmod port, that can be connected to any of 16 internal peripheral pins (8x GPIO, 2x SPI, 4x IIC, 2x Timer). This means the configuration switch for the Pmod has 8 connections to make to the data pins. 
 
-Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register. The first nibble (4-bits) configures the first pin, the second nibble the second pin and so on. 
+Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register. the first nibble (4-bits) configures the first pin, the second nible the second pin and so on. 
 
 The following function, part of the provided pmod_io_switch_v1_0 driver (``pmod.h``) can be used to configure the switch from an IOP application. 
 
@@ -124,50 +103,6 @@ Note that if two or more pins are connected to the same signal, the pins are OR'
    
 This is not recommended and should not be done unintentionally. 
 
-Controlling the Arduino IOP Switch
-
-=========================================
-
-Switch mappings used for IO switch configuration:
-
-===  ======  =====   =========  ======  ======  ================  ========  ====  =============
-                                                                                               
-Pin  A/D IO  A_INT   Interrupt  UART    PWM     Timer             SPI       IIC   Input-Capture  
-                                                                                         
-===  ======  =====   =========  ======  ======  ================  ========  ====  =============
-A0   A_GPIO  A_INT                                                                             
-A1   A_GPIO  A_INT                                                                             
-A2   A_GPIO  A_INT                                                                             
-A3   A_GPIO  A_INT                                                                             
-A4   A_GPIO  A_INT                                                          IIC                
-A5   A_GPIO  A_INT                                                          IIC                
-D0   D_GPIO          D_INT      D_UART                                                         
-D1   D_GPIO          D_INT      D_UART                                                         
-D2   D_GPIO          D_INT                                                                     
-D3   D_GPIO          D_INT              D_PWM0  D_TIMER Timer0                    IC Timer0  
-D4   D_GPIO          D_INT                      D_TIMER Timer0_6                             
-D5   D_GPIO          D_INT              D_PWM1  D_TIMER Timer1                    IC Timer1  
-D6   D_GPIO          D_INT              D_PWM2  D_TIMER Timer2                    IC Timer2  
-D7   D_GPIO          D_INT                                                                     
-D8   D_GPIO          D_INT                      D_TIMER Timer1_7                  Input Capture
-D9   D_GPIO          D_INT              D_PWM3  D_TIMER Timer3                    IC Timer3  
-D10  D_GPIO          D_INT              D_PWM4  D_TIMER Timer4    D_SS            IC Timer4  
-D11  D_GPIO          D_INT              D_PWM5  D_TIMER Timer5    D_MOSI          IC Timer5  
-D12  D_GPIO          D_INT                                        D_MISO                       
-D13  D_GPIO          D_INT                                        D_SPICLK                     
-                                                                                               
-===  ======  =====   =========  ======  ======  ================  ========  ====  =============
-
-For example, to connect the UART to D0 and D1, write D_UART to the configuration register for D0 and D1. 
-
-.. code-block:: c
-
-	config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO,
-			      D_UART, D_UART, D_GPIO, D_GPIO, D_GPIO,
-			      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-			      D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-
-   
 IOP Application Example
 ==========================
 
@@ -344,7 +279,7 @@ Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP wi
 Example of Python Class Runtime Methods
 -------------------------------------------
 
-The read method in the Pmod_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to MicroBlaze read transaction specifc to the ALS class.
+The read method in the Pmod_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to MicroBlaze read transaction specfic to the ALS class.
 
 .. code-block:: python
 
