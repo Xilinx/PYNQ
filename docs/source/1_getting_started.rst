@@ -2,9 +2,6 @@
 Getting Started
 ***************
 
-Version: IMAGE_2017_01 
-
-
 .. contents:: Table of Contents
    :depth: 2
 	  
@@ -50,7 +47,7 @@ To make your own PYNQ Micro-SD card:
       * Windows: Use `win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_
       * Linux/MacOS: Use the built in *dd* command\*
    
-\* For detailed instructions for writing the SD card using different operating systems, see the `Appendix: Writing the SD card image <appendix.rst#writing-the-sd-card-image>`_. 
+\* For detailed instructions for writing the SD card using different operating systems, see the `Appendix: Writing the SD card image <17_appendix.rst#writing-the-sd-card-image>`_. 
    
 Setup the PYNQ-Z1 
 ===================
@@ -62,7 +59,7 @@ Setup the PYNQ-Z1
 
 1. Set the *boot* jumper (labelled JP4 on the board) to the **SD** position by placing the jumper over the top two pins of JP4 as shown in the image.  (This sets the board to boot from the Micro-SD card)  
    
-2. To power the PYNQ-Z1 from the micro USB cable, set the *power* jumper (JP5) to the **USB** position by placing the jumper over the top two pins of JP5 as shown in the image. (You can also power the board from an external 12V power regulator by setting the jumper to **REG**.)
+2. To power the PYNQ-Z1 from the micro USB cable, set the *power* jumper (JP5) to the **USB** position by placing the jumper over the top two pins of JP5 as shown in the image. (Set the jumper to **REG** to use an external power regulator)
    
 3. Insert the **Micro SD** card loaded with the PYNQ-Z1 image into the board. (The Micro SD slot is underneath the board)
   
@@ -95,13 +92,13 @@ If you connect to a network with a DHCP server, your board will automatically ge
 +---------------------------------------------------------------------+
 | 2. Browse to http://pynq:9090                                       |
 +---------------------------------------------------------------------+
-| 3. Optional: Change hostname                                        |
+| 3. Optional: Change hostname (if more than one board on network)\*  |
 +---------------------------------------------------------------------+
-| 4. Optional: Configure proxy                                        |
+| 4. Optional: Configure proxy\*                                      |
 +---------------------------------------------------------------------+
 
-Hostname
-^^^^^^^^^
+\* This can be done after the board is powered on. See below for instructions
+
 
 The default hostname is ``pynq``. If there is another device on the network with this hostname, you will need to change the hostname of your board **before** you connect it to the network. If you are not sure if there are other boards on the network, you should check if the *pynq* hostname is already in use before connecting a new board. One way to check this is by pinging *pynq* from a command prompt: 
 
@@ -131,7 +128,7 @@ You will need to have an Ethernet port available on your computer, and you will 
 | 3. Browse to  http://192.168.2.99:9090                 |
 +--------------------------------------------------------+
 
-\* See `Appendix: Assign your PC/Laptop a static IP address <appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+\* See `Appendix: Assign your PC/Laptop a static IP address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
 
 
 Powering on
@@ -325,4 +322,4 @@ Updating will overwrite the introductory and example notebooks. You should make 
 Troubleshooting
 ==========================
 
-If you are having problems, please see the `Frequently asked questions <faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io>`_
+If you are having problems, please see the `Frequently asked questions <14_faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io>`_

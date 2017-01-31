@@ -5,16 +5,17 @@ Creating Overlays
 .. contents:: Table of Contents
    :depth: 2
    
+   
 Introduction 
 =============
 
 As described in the PYNQ introduction, overlays are analogous to software libraries. A programmer can download overlays into the Zynq® PL at runtime to provide functionality required by the software application. 
 
-An *overlay* is a class of Programmable Logic design. Programmable Logic designs are usually highly optimized for a specific task. Overlays however, are designed to be configurable, and reusable for broad set of applications. A PYNQ overlay will have a Python interface, allowing a software programmer to use it like any other Python package. 
+An Overlay is a class of Programmable Logic design. Programmable Logic designs are usually highly optimized for a specific task. Overlays however, are designed to be configurable, and reusable for broad set of applications. A PYNQ overlay will have a Python interface, allowing a software programmer to use it like any other Python package. 
 
-A software programmer can use an overlay, but will not usually create overlay, as this usually requires a high degree of hardware design expertise. 
+A programmer can use an overlay, but will not usually create the overlays, as this is a specialised task for a hardware designer. 
 
-This section will give an overview of the process of creating an overlay and integrating it into PYNQ, but will not cover the hardware design process in detail. Hardware design will be familiar to Zynq, and FPGA hardware developers. 
+This section will give an overview of the process of creating an overlay and integrating it into PYNQ, but will not cover the hardware design process in detail. 
 
 
 Vivado design
@@ -131,7 +132,7 @@ A makefile exists in each folder that can be used to rebuild the Vivado project 
 Vivado must be installed to design and build overlays. Building an existing overlay design allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
 
 .. image:: ./images/vivado_base_overlay.JPG
-   :scale: 75%
+   :scale: 50%
    :align: center
 
 

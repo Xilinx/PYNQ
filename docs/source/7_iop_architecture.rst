@@ -2,27 +2,13 @@
 IO Processor Architecture
 *******************************
 
-.. contents:: Table of Contents
-   :depth: 2
-   
-Introduction
-==================
-   
 For overlays to be useful, they must provide sufficient functionality, while also providing flexibility to suit a wide range of applications. Flexibility in the base overlay is demonstrated through the use of IO Processors (IOPs). 
 
 An IO Processor is implemented in the programmable logic and connects to and controls an external port on the board. There are two types of IOP: Pmod IOP and Arduino IOP. 
 
-Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and local memory for the MicroBlaze instruction and data memory. The local memory is dual-ported (implemented in Xilin BRAMs), with one port connected to the MicroBlaze, and the other connected to the ARM® Cortex®-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. 
+Each IOP contains a MicroBlaze processor, a configurable switch, peripherals, and memory for the MicroBlaze instruction and data memory. The memory is dual-ported, with one port connected to the MicroBlaze, and the other connected to the ARM® Cortex®-A9 processor. This allows the ARM processor to access the MicroBlaze memory and dynamically write a new program to the MicroBlaze instruction area. The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). e.g. a simple mailbox. 
 
-The data area of the memory can be used for communication and data exchanges between the ARM processor and the IOP(s). E.g. a simple mailbox. 
-
-The IOP also has an interface to DDR memory. This allows the DDR to be used as data memory in addition to the local memory. This allows larger applications to be written (where data memory is the limitation) and allows a larger mailbox size for data transfer between the PS (Python) and the IOP. The DDR interface also allows different IOPs to communicate with each other directly without intervention from the PS (Python). 
-
-In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) 
-
-IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. 
-
-When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required dedicated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
+In the base overlay, two IOPs control each of the two Pmod interfaces, and another IOP controls the Arduino interface. Inside the IOP are dedicated peripherals; timers, UART, IIC, SPI, GPIO, and a configurable switch. (Not all peripherals are available in the Pmod IOP.) IIC and SPI are standard interfaces used by many of the available Pmod, Grove and other peripherals. GPIO can be used to connect to custom interfaces or used as simple inputs and outputs. When a Pmod, Arduino shield, or other peripheral is plugged in to a port, the configurable switch allows the signals to be routed dynamically to the required dedicated interface. This is how the IOP provides flexibility and allows peripherals with different pin connections and protocols to be used on the same port. 
 
 
 Pmod IOP
@@ -39,63 +25,58 @@ As indicated in the diagram, the Pmod IOP has a MicroBlaze, a configurable switc
 * SPI
 * GPIO blocks
 * Timer
-* Interrupt controller
 
-
-Pmod IOP peripherals 
-------------------------
-
-I2C
-^^^^^^^^^^^^^^^^^^^
-
-The I2C configuration is:
-   * Frequency: 100KHz
-   * Address mode: 7 bit
-   
-SPI
-^^^^^^^^^^^^^^^^^^^
-
-The SPI configuration is:
-   * Standard mode
-   * Transaction width: 8
-   * Frequency: 6.25 MHz (100MHz/16)
-   * Master mode
-   * Fifo depth: 16
-   
-GPIO blocks
-^^^^^^^^^^^^^^^^^^^
-
-The GPIO block supports 8 input or output pins
-
-Timer
-^^^^^^^^^^^^^^^^^^^
-
-The timer is 32 bits width, and has a *Generate* output, and a PWM output. The *Generate* output can ouput one-time or periodic signal based on a loaded value. For example, on loading a value, the timer can count up or down. Once the counter expires (on a carry) a signal can be generated. The timer can stop, or automatically reload. 
-
-Interrupt controller
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The I2c, SPI, GPIO and Timer are connected to the interrupt controller. This is the standard MicroBlaze interrupt controller, and interrupts can be managed by the IOP in a similar way to any other MicroBlaze application. 
 
 Pmod IOP configurable switch
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 The MicroBlaze, inside the IOP, can configure the switch by writing to the configuration registers of the switch. This would be done by the MicroBlaze application.
 
-For the Pmod IOP switch, each individual pin can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. This configuration is done from the IOP (C/C++) application. An IOP application can either set the switch to a fixed configuration, or allow a configuration to be sent from Python which it will then use to configure the switch. 
+For the Pmod IOP switch, each individual pin can be configured by writing a 4-bit value to the corresponding place in the IO switch configuration registers. 
 
-The following function, part of the Pmod IO switch driver, can be used to configure the switch in an IOP application. 
+The following function, part of the Pmod IO switch driver, can be used to configure the switch. 
 
 .. code-block:: c
 
    void config_pmod_switch();
 
 
-You can check the IOP constants and addresses in the Python code here: 
+
+Switch mappings used for IO switch configuration:
+
+
+For example: 
+
+.. code-block:: c
+
+   config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,GPIO_4,GPIO_5,GPIO_6,GPIO_7);
+   
+This would connect a SPI interface:
+* Pin 1: SS
+* Pin 2: MOSI
+* Pin 4: SPICLK
+
+and the remaining pins to their corresponding GPIO (which could be left unused in the MicroBlaze application). 
+
+From Python all the constants and addresses for the IOP can be found in:
 
 :: 
    
    <GitHub Repository>/python/pynq/iop/iop_const.py
+
+``pmod.h`` and ``pmod.c`` are part of the Pmod IO switch driver, and contain an API, addresses, and constant definitions that can be used to write code for an IOP.
+
+:: 
+   
+   <GitHub Repository>/Pynq-Z1/vivado/ip/pmod_io_switch_1.0/  \
+   drivers/pmod_io_switch_v1_0/src/
+
+This code is automatically compiled into the Board Support Package (BSP). Any application linking to the BSP can use this library by including the header file:
+
+.. code-block:: c
+
+   #include "pmod_io_switch.h"
+
 
 
 Arduino IOP
@@ -113,46 +94,7 @@ As indicated in the diagram, the Arduino IOP has a MicroBlaze, a configurable sw
 * 1x UART
 * 3x GPIO blocks
 * 1x XADC
-* 1x UART
-* 1x Interrupt controller (32 channels)
-
-Arduino IOP peripherals 
-------------------------
-
-I2C
-^^^^^^^^^^^^^^^^^^^
-
-There are two I2C controllers available. They both have the same settings:
-   * Frequency: 100KHz
-   * Address mode: 7 bit
-   
-SPI
-^^^^^^^^^^^^^^^^^^^
-
-There are two SPI controllers available. They both have the same settings:
-   * Standard mode
-   * Transaction width: 8
-   * Frequency: 6.25 MHz (100MHz/16)
-   * Master mode
-   * Fifo depth: 16
-   
-GPIO blocks
-^^^^^^^^^^^^^^^^^^^
-
-There are three GPIO block available. They support xxx input or output pins
-
-Timers
-^^^^^^^^^^^^^^^^^^^
-
-There are six timers available. All are 32 bits wide, with a *Generate* output, and a PWM output. The *Generate* output can ouput one-time or periodic signal based on a loaded value. For example, on loading a value, the timer can count up or down. Once the counter expires (on a carry) a signal can be generated. The timer can stop, or automatically reload. 
-
-UART
-^^^^^^^^^^^^^^^^^^^^^^^
-
-There is a UART controller, with a fixed configuration of 9600 baud. The UART can be connected to the Arduino UART pins. The UART configuration is hard coded, and is part of the overlay. It is not possible to modify the UART configuration in software. 
-
-Interrupt controller
-^^^^^^^^^^^^^^^^^^^^^^^
+* 1 Interrupt controller (32 channels)
    
 The interrupt controller can be connected to all the analog and digital pins, and each of the 6 timers, the I2Cs, the SPIs, the XADC, and UART. This means an external pin on the shield interface can trigger an interrupt. An internal peripheral can also trigger an interrupt.  
 
