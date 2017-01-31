@@ -43,13 +43,3 @@ pynq.pl module
     :members:
     :undoc-members:
     :show-inheritance:
-
-        
-pynq.xlnk module
--------------------------
-
-.. automodule:: pynq.xlnk
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    

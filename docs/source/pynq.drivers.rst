@@ -43,5 +43,12 @@ pynq.drivers.video module
     :members:
     :undoc-members:
     :show-inheritance:
+    
+pynq.drivers.xlnk module
+-------------------------
 
+.. automodule:: pynq.drivers.xlnk
+    :members:
+    :undoc-members:
+    :show-inheritance:
     

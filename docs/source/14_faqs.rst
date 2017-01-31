@@ -33,7 +33,7 @@ or
 
    If you can't ping the board, or the host PC, check your network settings. 
          
-   * You must ensure board your PC and board are connected to the same network, and have IP addresses in the same range. If your network cables is connected directly to your PC/laptop and board, you may need to set a static IP address for your PC/laptop manually. See the  `Appendix: Assign your PC/Laptop a static ip address <appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+   * You must ensure board your PC and board are connected to the same network, and have IP addresses in the same range. If your network cables is connected directly to your PC/laptop and board, you may need to set a static IP address for your PC/laptop manually. See the  `Appendix: Assign your PC/Laptop a static ip address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
          
    * If you have a proxy setup, you may need to add a rule to bypass the board hostname/ip address. 
       
@@ -79,7 +79,7 @@ If you are connecting your board to your network (i.e. you have plugged the Ethe
 
 If you connect your board directly to your computer with an ethernet cable, then you need to make sure that they have IP addresses in the same range. The board will assign itself a static IP address (by default 192.168.2.99), and you will need to assign a static IP address in the same range to the computer.  This allows your computer and board to communicate to each other over the Ethernet cable. 
 
-See the  `Appendix: Assign your PC/Laptop a static ip address <appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+See the  `Appendix: Assign your PC/Laptop a static ip address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
 
 I can't connect to the Jupyter portal
 =======================================
@@ -218,7 +218,7 @@ You can `Download the PYNQ-Z1 image <https://files.digilent.com/Products/PYNQ/py
 
 How do I write the Micro SD card image
 =========================================
-You can find instructions in the `Appendix: Writing the SD card image <appendix.html#writing-the-sd-card-image>`_ 
+You can find instructions in the `Appendix: Writing the SD card image <17_appendix.html#writing-the-sd-card-image>`_ 
 
 What type of Micro SD card do I need?
 =========================================
