@@ -673,7 +673,8 @@ class HDMI(object):
         None
         
         """
-        self.stop()  
+        if hasattr(self, 'stop'):
+            self.stop()
         if hasattr(self, '_capture'):
             del self._capture
         elif hasattr(self, '_display'):
