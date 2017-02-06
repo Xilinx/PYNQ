@@ -93,7 +93,7 @@ class Trace_Buffer:
     ctrl : MMIO
         The MMIO class used to control the DMA.
     rate: int
-        The sample rate of the traces, at most 100M samples per second.
+        The sample rate of the traces, at most 166M samples per second.
     samples : ndarray
         The np array storing the 64-bit samples.
     ffi: cffi.api.FFI
@@ -109,7 +109,7 @@ class Trace_Buffer:
         has been imported from DMA yet. This method will construct the trace
         from the DMA data.
         
-        The maximum sample rate is 100MHz.
+        The maximum sample rate is 166MHz.
 
         For PMODA and PMODB, pin numbers 0-7 correspond to the pins on the
         Pmod interface. Although PMODA and PMODB are sharing the same trace
@@ -136,7 +136,7 @@ class Trace_Buffer:
         trace: str
             The relative/absolute path of the trace file in `csv`/`sr` format.
         rate : int
-            The rate of the samples, at most 100M.
+            The rate of the samples, at most 166M.
         
         """
         if os.geteuid() != 0:
@@ -146,7 +146,7 @@ class Trace_Buffer:
         
         if not isinstance(rate, int):
             raise TypeError("Sample rate has to be an integer.")
-        if not 1 <= rate <= 100000000:
+        if not 1 <= rate < MAX_SAMPLE_RATE:
             raise ValueError("Sample rate out of range.")
         
         if if_id in [PMODA, PMODB]:
