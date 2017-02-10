@@ -59,9 +59,9 @@ zynq_block_diagram.jpg
 DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
 4_programming_python.tmp  \
 5_programming_onboard.tmp \
-6a_base_overlay_iop.tmp \
-6b_base_overlay_video.tmp \
-6c_base_overlay_audio.tmp \
+9a_base_overlay_iop.tmp \
+9b_base_overlay_video.tmp \
+9c_base_overlay_audio.tmp \
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
@@ -184,7 +184,7 @@ doc_notebooks:
 
 doc_temp_notebooks: 
 	@for f in ${DOC_TEMP_NOTEBOOKS} ; do \
-		cp ${REPO_DIR}/docs/source/temp/$$f  ${REPO_DIR}/docs/source/${f%.tmp}.ipynb || exit 1; \
+		cp ${REPO_DIR}/docs/source/temp/$$f  ${REPO_DIR}/docs/source/$${f%.tmp}.ipynb || exit 1; \
 	done
 
 doc_images: 
