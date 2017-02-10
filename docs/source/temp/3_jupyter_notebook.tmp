@@ -203,18 +203,7 @@
     "The Notebook server runs on the ARM processor of the PYNQ-Z1. You can open the notebook dashboard by navigating to [pynq:9090](http://pynq:9090) when your board is connected to the network. \n",
     "The dashboard serves as a home page for notebooks. Its main purpose is to display the notebooks and files in the current directory. For example, here is a screenshot of the dashboard page for the `Examples` directory in the Jupyter repository:\n",
     "\n",
-    "<img src=\"images/dashboard_files_tab.png\" width=\"791px\"/>"
-   ]
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/dashboard_files_tab.png\n",
-    "   :width: 791\n",
-    "   :align: center"
+    "<img src=\"images/dashboard_files_tab.png\" width=\"400px\"/>"
    ]
   },
   {
@@ -229,17 +218,6 @@
    ]
   },
   {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/dashboard_files_tab_new.JPG\n",
-    "   :width: 202\n",
-    "   :align: center"
-   ]
-  },
-  {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
@@ -247,18 +225,7 @@
     "\n",
     "The notebook list shows green \"Running\" text and a green notebook icon next to running notebooks (as seen below). Notebooks remain running until you explicitly shut them down; closing the notebook's page is not sufficient.\n",
     "\n",
-    "<img src=\"images/dashboard_files_tab_run.png\" width=\"777px\"/>"
-   ]
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/dashboard_files_tab_run.png\n",
-    "   :width: 777\n",
-    "   :align: center"
+    "<img src=\"images/dashboard_files_tab_run.png\" width=\"400px\"/>"
    ]
   },
   {
@@ -271,36 +238,14 @@
    ]
   },
   {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/dashboard_files_tab_btns.png\n",
-    "   :width: 301\n",
-    "   :align: center"
-   ]
-  },
-  {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
     "To see all of your running notebooks along with their directories, click on the \"Running\" tab:\n",
     "\n",
-    "<img src=\"images/dashboard_running_tab.png\" width=\"786px\" />\n",
+    "<img src=\"images/dashboard_running_tab.png\" width=\"600px\" />\n",
     "\n",
     "This view provides a convenient way to track notebooks that you start as you navigate the filesystem in a long running notebook server."
-   ]
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/dashboard_running_tab.png\n",
-    "   :width: 786\n",
-    "   :align: center"
    ]
   },
   {
@@ -356,16 +301,6 @@
    ]
   },
   {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/edit_mode.png\n",
-    "   :align: center"
-   ]
-  },
-  {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
@@ -390,16 +325,6 @@
     "<img src=\"images/command_mode.png\">\n",
     "\n",
     "When you are in command mode, you are able to edit the notebook as a whole, but not type into individual cells. Most importantly, in command mode, the keyboard is mapped to a set of shortcuts that let you perform notebook and cell actions efficiently. For example, if you are in command mode and you press `c`, you will copy the current cell - no modifier is needed."
-   ]
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/command_mode.png\n",
-    "   :align: center"
    ]
   },
   {
@@ -434,17 +359,6 @@
     "All navigation and actions in the Notebook are available using the mouse through the menubar and toolbar, both of which are above the main Notebook area:\n",
     "\n",
     "<img src=\"images/menubar_toolbar.png\" width=\"786px\" />"
-   ]
-  },
-  {
-   "cell_type": "raw",
-   "metadata": {
-    "raw_mimetype": "text/restructuredtext"
-   },
-   "source": [
-    ".. figure:: ./images/menubar_toolbar.png\n",
-    "   :width: 786\n",
-    "   :align: center"
    ]
   },
   {
