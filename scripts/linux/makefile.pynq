@@ -11,7 +11,11 @@ PYNQ_DIR = ${SITE_PACKAGES}/pynq
 FINAL_DOCS_DIR = /home/xilinx/docs
 FINAL_NOTEBOOKS_DIR = /home/xilinx/jupyter_notebooks
 FINAL_SCRIPTS_DIR = /home/xilinx/scripts
+
 ROOT_DIR = /root
+REV_FILE = /home/xilinx/REVISION
+MAKE_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+
 
 NOTEBOOK_IMAGES=adapter_mapping.JPG \
 adc_jumper.jpeg \
@@ -70,12 +74,25 @@ ROOT_SCRIPTS := 0_resizefs.sh \
 3_pl_server.sh \
 4_boot_leds.sh
 
-update_pynq: xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
+
+## if [ grep -q "Release 2016_09_14" "/home/xilinx/REVISION" ] ; then \
+
+update_pynq: revision_check xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
 	@echo ""
 	@echo "Completed PYNQ update."
 	@echo ""
+
+revision_check: 
+	@echo
+	@echo "Verifying current SDCard image supports this pynq release."
+	@chmod +x ${MAKE_DIR}\revision_check.sh
+	@${MAKE_DIR}\revision_check.sh
+	@echo "Completed"
+
+
+
 
 update_docs: scripts_notebooks doc_sphinx doc_notebooks doc_images pynq_permissions
 	@echo	
@@ -96,11 +113,11 @@ pynq_package:
 
 pynq_permissions:
 	chown -R xilinx:xilinx ${PYNQ_DIR}/*
-	chmod -R a+rw ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${PYNQ_DIR}
+	chmod -R a+rw ${FINAL_NOTEBOOKS_DIR} ${PYNQ_DIR}
 	chmod -R a+x ${FINAL_SCRIPTS_DIR}/*
 	chmod a+x ${ROOT_DIR}/*.sh
 	chmod a+x /etc/rc.local
-	chown -R xilinx:xilinx ${FINAL_NOTEBOOKS_DIR} ${FINAL_DOCS_DIR} ${FINAL_SCRIPTS_DIR} ${PYNQ_DIR}
+	chown -R xilinx:xilinx ${FINAL_NOTEBOOKS_DIR} ${FINAL_SCRIPTS_DIR} ${PYNQ_DIR}
 
 scripts_notebooks:
 	@echo
@@ -130,8 +147,7 @@ xlnkutils:
 clean_dirs:
 	@echo
 	@echo "Cleaning up old files"
-	@echo
-	rm -rf ${FINAL_DOCS_DIR}/* 
+	@echo 
 	mv ${FINAL_NOTEBOOKS_DIR}/slides/reveal.js ${ROOT_DIR}/
 	rm -rf ${FINAL_NOTEBOOKS_DIR}/*
 	mkdir -p ${FINAL_NOTEBOOKS_DIR}/getting_started/images
@@ -146,6 +162,7 @@ doc_sphinx:
 	cd ${REPO_DIR}/docs ; sphinx-apidoc -f -o ./source ${PYNQ_DIR}
 	cd ${REPO_DIR}/docs ; ${PYNQ_PYTHON} ipynb_post_processor.py
 	cd ${REPO_DIR}/docs ; make clean ; make html
+	-mkdir ${FINAL_DOCS_DIR}
 	rm -rf ${FINAL_DOCS_DIR}/*
 	cp -r ${REPO_DIR}/docs/build/html/* ${FINAL_DOCS_DIR}
 
