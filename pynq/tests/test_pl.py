@@ -31,8 +31,8 @@ __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-import os
 import pytest
+from pynq import general_const
 from pynq import Overlay
 from pynq import Clocks
 from pynq.ps import DEFAULT_CLK_MHZ
