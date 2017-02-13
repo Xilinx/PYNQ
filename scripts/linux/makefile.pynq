@@ -17,51 +17,21 @@ REV_FILE = /home/xilinx/REVISION
 MAKE_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
 
-NOTEBOOK_IMAGES=adapter_mapping.JPG \
-adc_jumper.jpeg \
-als_oled_demo.JPG \
-arduino_iop.jpg \
-arduino_shield.jpg \
+NOTEBOOK_IMAGES=pynqz1_video.JPG \
+pynqz1_audio.JPG \
 audio_block_diagram.jpg \
-cable_type.jpeg \
-command_mode.png \
 dashboard_files_tab.png \
-dashboard_files_tab_btns.png \
 dashboard_files_tab_new.JPG \
 dashboard_files_tab_run.png \
+dashboard_files_tab_btns.png \
 dashboard_running_tab.png \
 edit_mode.png \
-example_notebooks.jpg \
-getting_started_notebooks.jpg \
+command_mode.png \
 menubar_toolbar.png \
-pmod_closeup.JPG \
-pmod_grove_adapter.jpg \
-pmod_iop.jpg \
-pmod_pins.png \
-pmod_tmp2_8pin.JPG \
-portal_homepage.jpg \
-pynqz1_arduino_interface.jpg \
-pynqz1_video.JPG \
-pynqz1_audio.JPG \
-pynqz1_base_overlay.png \
 pynqz1_board_io.JPG \
 pynqz1_pmod_interface.jpg \
-pynqz1_quick_start.jpg \
-pynqz1_setup.jpg \
-samba_share.JPG \
-sdk_import_bsp.JPG \
-sdk_launch_shell.jpg \
-sdk_make.JPG \
-sdk_make_result.JPG \
-vivado_base_overlay.JPG \
-zynq_block_diagram.jpg
+als_oled_demo.JPG
 
-DOC_TEMP_NOTEBOOKS := 3_jupyter_notebook.tmp \
-4_programming_python.tmp  \
-5_programming_onboard.tmp \
-9a_base_overlay_iop.tmp \
-9b_base_overlay_video.tmp \
-9c_base_overlay_audio.tmp \
 
 USER_SCRIPTS := hostname.sh  \
 start_pl_server.py  \
@@ -77,7 +47,7 @@ ROOT_SCRIPTS := 0_resizefs.sh \
 
 ## if [ grep -q "Release 2016_09_14" "/home/xilinx/REVISION" ] ; then \
 
-update_pynq: revision_check xlnkutils pynq_package scripts_notebooks doc_temp_notebooks doc_notebooks doc_images pynq_permissions
+update_pynq: revision_check xlnkutils pynq_package scripts_notebooks doc_notebooks doc_images pynq_permissions
 	@echo "Notebooks     folder is at: ${FINAL_NOTEBOOKS_DIR}"
 	@echo "Scripts       folder is at: ${FINAL_SCRIPTS_DIR}"
 	@echo ""
@@ -175,17 +145,12 @@ doc_notebooks:
 	${FINAL_NOTEBOOKS_DIR}/getting_started/2_programming_python.ipynb
 	cp ${REPO_DIR}/docs/source/5_programming_onboard.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/3_programming_onboard.ipynb
-	cp ${REPO_DIR}/docs/source/9a_base_overlay_iop.ipynb \
+	cp ${REPO_DIR}/docs/source/8_base_overlay_iop.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/4_base_overlay_iop.ipynb
-	cp ${REPO_DIR}/docs/source/9b_base_overlay_video.ipynb \
+	cp ${REPO_DIR}/docs/source/9_base_overlay_video.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/5_base_overlay_video.ipynb
-	cp ${REPO_DIR}/docs/source/9c_base_overlay_audio.ipynb \
+	cp ${REPO_DIR}/docs/source/10_base_overlay_audio.ipynb \
 	${FINAL_NOTEBOOKS_DIR}/getting_started/6_base_overlay_audio.ipynb
-
-doc_temp_notebooks: 
-	@for f in ${DOC_TEMP_NOTEBOOKS} ; do \
-		cp ${REPO_DIR}/docs/source/temp/$$f  ${REPO_DIR}/docs/source/$${f%.tmp}.ipynb || exit 1; \
-	done
 
 doc_images: 
 	@for f in ${NOTEBOOK_IMAGES} ; do \

@@ -2,14 +2,17 @@
 ``pynq`` Package
 *********************
 
+.. contents:: Table of Contents
+   :depth: 2
+   
 This section describes the ``pynq`` package for the PYNQ-Z1 platform. 
 
 After powering the board with the Micro SD card in place, the board will boot into Linux. Python3 is installed with Jupyter Notebook support. The Python package `pynq` allows users to access  overlays from Python.   
 
-Some preinstalled features of this Linux image include:
+Some pre-installed features of this Linux image include:
 
 * Networking is enabled, and the board will attempt to get an IP address from a DHCP server on the network.  If a DHCP server is not found, the board will fallback and assign itself a static IP of 192.168.2.99 by default. This default IP address can be changed. 
-* Samba, a file sharing service, is enabled. This means that the linux home area can be accessed from a Windows machine by navigating to or mapping ``\\pynq\xilinx`` (Windows) or ``smb:pynq/xilinx`` (Mac/Linux) .  The samba ``username:password`` is ``xilinx:xilinx``.  Files can be copied to and from the board, and the Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
+* Samba, a file sharing service, is enabled. This means that the Linux home area can be accessed from a Windows machine by navigating to or mapping ``\\pynq\xilinx`` (Windows) or ``smb:pynq/xilinx`` (Mac/Linux) .  The samba ``username:password`` is ``xilinx:xilinx``.  Files can be copied to and from the board, and the Pynq source code, and notebooks can be accessed and modified using your preferred editors on your host PC. 
 * A Jupyter Notebook server is initialized on port 9090 and automatically starts after boot.
 * The base overlay is preloaded in the FPGA fabric. 
 
@@ -37,9 +40,7 @@ This folder contains libraries or python packages for peripherals available on t
 
 iop
 =====
-This folder contains libraries for the following Pmod devices ``Pmod_ADC``, ``Pmod_ALS``, ``Pmod_DAC``, `Pmod_DPOT``,  ``Pmod_LED8``, ``Pmod_OLED``, ``Pmod_PWM``,  ``Pmod_TIMER``, and ``Pmod_TMP2``.
-
-The following Grove peripherals are also supported: ``Grove ADC``, ``Grove Buzzer``, ``Grove IMU``, ``Grove LED bar``, ``Grove Light Sensor``, ``Grove OLED``,  ``Grove PIR``,  ``Grove Temperature Sensor``. 
+This folder contains libraries for Pmod devices and Grove peripherals.
 
 ``Arduino_Analog``, and ``Arduino_IO`` are provided for interfacing to the arduino interface. 
 
@@ -68,7 +69,7 @@ For example, the following code will instantiate and write to the Pmod_OLED atta
 bitstream
 ===========
 
-This folder contains the base.bit and the base.tcl. The base.bit is the precompiled overlay and base.tcl provides the information of the hardware it is built from.
+This folder contains the base.bit and the base.tcl. The base.bit is the precompiled overlay and base.tcl provides information about the hardware it is built from. The tcl file can be parsed by Pynq packages to determine information about the hardware. ``PL.ip_dict`` will parse the tcl for an overlay and respond with the addresses of any peripherals in the overlay. 
 
 
 drivers
@@ -80,7 +81,7 @@ This folder contains various classes to support audio, video, DMA, and Trace_Buf
 tests
 ======
 
-This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <12_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
+This folder includes a tests package for use with all other pynq subpackages.  All testing is done using `pytest <http://pytest.org/latest/>`_.  Please see `The Verification Section <18_verification.html>`_ to learn more about Pynq's use of pytest to do automated testing.
 
 .. note:: The ``tests`` folders in ``board``, ``iop``, ``drivers``, and others rely on the functions implemented in the ``test`` folders of the pynq package. This common practice in Python where each subpackage has its own ``tests``.  This practice can keep the source code modular and *self-contained*.
 

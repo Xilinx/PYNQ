@@ -9,26 +9,33 @@ Python productivity for Zynq (Pynq) Documentation
 .. toctree::
    :maxdepth: 2
    
+   0_whats_new
    1_getting_started
    2_pynq
    3_jupyter_notebook
    4_programming_python
    5_programming_onboard
    6_overlays
-   7_iop_architecture
-   8_iop_code
-   9a_base_overlay_iop
-   9b_base_overlay_video
-   9c_base_overlay_audio
-   10_creating_overlays
-   11_python_package
-   12_verification
+   7_peripherals
+   8_base_overlay_iop
+   9_base_overlay_video
+   10_base_overlay_audio
+   11a_iop_architecture
+   11b_iop_applications
+   11c_iop_using_peripherals
+   13a_interrupts
+   #13b_base_overlay_interrupts
+   #14_tracebuffer
+   #15_data_transfer
+   16_creating_overlays
+   17_python_package
    modules
-   14_faqs
-   15_glossary
-   16_references
-   17_appendix
-   18_changelog
+   18_verification
+   faqs
+   glossary
+   references
+   appendix
+   changelog
 
 Indices and tables
 ==================

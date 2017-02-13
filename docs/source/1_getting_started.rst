@@ -42,12 +42,12 @@ Preloaded Micro SD cards are available from Digilent. If you already have a Micr
 
 To make your own PYNQ Micro-SD card:
 
-   * `Download and the PYNQ-Z1 image <https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_14.zip>`_ and unzip
+   * `Download and the PYNQ-Z1 image <https://files.digilent.com/Products/PYNQ/pynq_z1_image_2017_02_10.zip>`_ and unzip
    * Write the image to a blank Micro SD card (minimum 8GB recommended)
       * Windows: Use `win32DiskImager <https://sourceforge.net/projects/win32diskimager/>`_
       * Linux/MacOS: Use the built in *dd* command\*
    
-\* For detailed instructions for writing the SD card using different operating systems, see the `Appendix: Writing the SD card image <17_appendix.rst#writing-the-sd-card-image>`_. 
+\* For detailed instructions for writing the SD card using different operating systems, see the `Appendix: Writing the SD card image <appendix.rst#writing-the-sd-card-image>`_. 
    
 Setup the PYNQ-Z1 
 ===================
@@ -59,7 +59,7 @@ Setup the PYNQ-Z1
 
 1. Set the *boot* jumper (labelled JP4 on the board) to the **SD** position by placing the jumper over the top two pins of JP4 as shown in the image.  (This sets the board to boot from the Micro-SD card)  
    
-2. To power the PYNQ-Z1 from the micro USB cable, set the *power* jumper (JP5) to the **USB** position by placing the jumper over the top two pins of JP5 as shown in the image. (Set the jumper to **REG** to use an external power regulator)
+2. To power the PYNQ-Z1 from the micro USB cable, set the *power* jumper (JP5) to the **USB** position by placing the jumper over the top two pins of JP5 as shown in the image. (You can also power the board from an external 12V power regulator by setting the jumper to **REG**.)
    
 3. Insert the **Micro SD** card loaded with the PYNQ-Z1 image into the board. (The Micro SD slot is underneath the board)
   
@@ -92,13 +92,13 @@ If you connect to a network with a DHCP server, your board will automatically ge
 +---------------------------------------------------------------------+
 | 2. Browse to http://pynq:9090                                       |
 +---------------------------------------------------------------------+
-| 3. Optional: Change hostname (if more than one board on network)\*  |
+| 3. Optional: Change hostname                                        |
 +---------------------------------------------------------------------+
-| 4. Optional: Configure proxy\*                                      |
+| 4. Optional: Configure proxy                                        |
 +---------------------------------------------------------------------+
 
-\* This can be done after the board is powered on. See below for instructions
-
+Hostname
+^^^^^^^^^
 
 The default hostname is ``pynq``. If there is another device on the network with this hostname, you will need to change the hostname of your board **before** you connect it to the network. If you are not sure if there are other boards on the network, you should check if the *pynq* hostname is already in use before connecting a new board. One way to check this is by pinging *pynq* from a command prompt: 
 
@@ -116,7 +116,7 @@ You can also use the terminal to configure proxy settings, or to configure any o
 Connect directly to your computer
 ---------------------------------------
 
-You will need to have an Ethernet port available on your computer, and you will need to have permimssions to configure your network interface. With a direct connection, you will be able to use PYNQ, but unless you can bridge the Ethernet connection to the board to an Internet connection on your computer, your board will not have Internet access. You will be unable to update or load new packages without Internet access.
+You will need to have an Ethernet port available on your computer, and you will need to have permissions to configure your network interface. With a direct connection, you will be able to use PYNQ, but unless you can bridge the Ethernet connection to the board to an Internet connection on your computer, your board will not have Internet access. You will be unable to update or load new packages without Internet access.
 
 +--------------------------------------------------------+
 | Direct Connection to your computer (Static IP)         |
@@ -128,7 +128,7 @@ You will need to have an Ethernet port available on your computer, and you will 
 | 3. Browse to  http://192.168.2.99:9090                 |
 +--------------------------------------------------------+
 
-\* See `Appendix: Assign your PC/Laptop a static IP address <17_appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+\* See `Appendix: Assign your PC/Laptop a static IP address <appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
 
 
 Powering on
@@ -169,8 +169,7 @@ In the Jupyter portal home area, select **New >> terminal**.
        
 This will open a terminal inside the browser as root. 
        
-Next enter and execute the following command.  (Note that you should replace NEW_HOST_NAME with the hostname you want for your board.)
-
+Next enter and execute the following command.  (Note that you should replace NEW_HOST_NAME with the hostname you want for your board.) 
 
    .. code-block:: console
    
@@ -181,13 +180,13 @@ Next enter and execute the following command.  (Note that you should replace NEW
       :height: 300px
       :align: center
 	  
-Follow the instructions to reboot the board. 
+Follow the instructions to reboot the board. Note that as you are logged in as root, sudo is not required, but if you are logged in as Xilinx, sudo must be added to these commands. 
 
    .. code-block:: console
    
       sudo shutdown -r now
 	  
-When the board reboots, reconnect using the new hostname. e.g. http://pynq_cmc:9090
+When the board reboots, reconnect using the new hostname. 
 
 If you can't connect to your board, see the step below to open a terminal using the micro USB cable. 
 
@@ -314,12 +313,12 @@ You can update the pynq package by executing the script:
    
       /home/xilinx/scripts/update_pynq.sh
 
-This will check the pynq GitHub, download and install the latest release. 
+This will check the pynq GitHub, download and install the latest release. Your board will need to have internet access to do this. Check the *Connect to a network* section above if necessary. 
 
-Updating will overwrite the introductory and example notebooks. You should make sure you take a backup of this, and any code you added to the pynq python directory. 
+Updating PYNQ will overwrite the introductory and example notebooks. You should make sure you take a backup of this, and any code you added to the pynq python directory. 
 
 
 Troubleshooting
 ==========================
 
-If you are having problems, please see the `Frequently asked questions <14_faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io>`_
+If you are having problems, please see the `Frequently asked questions <faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io>`_
