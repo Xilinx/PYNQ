@@ -2,7 +2,6 @@
 Verification
 ************
 
-
 .. contents:: Table of Contents
    :depth: 2
  
@@ -27,10 +26,11 @@ To run all the tests together, pytest can be run in a Linux terminal on the boar
 
 .. code-block:: console
 
-   cd /usr/local/lib/python3.4/dist-packages/pynq
+   cd /home/xilinx/pynq
    sudo py.test –vsrw
 
-For a complete list of pytest options, please refer to `Usage and Invocations - Pytest <https://pytest.org/latest/usage.html>`_. 
+
+For a complete list of pytest options, please refer to `Usage and Invocations - Pytest <http://pytest.org/latest/usage.html>`_. 
 
 Collection Phase
 ----------------
@@ -40,12 +40,12 @@ For example:
 
 .. code-block:: console
 
-   Is LED8 attached to the board? ([yes]/no)>>> yes
-   Type in the Pmod ID of the LED8 (1 ~ 2):
+   Pmod OLED attached to the board? ([yes]/no)>>> yes
+   Type in the interface ID of the Pmod OLED (A or B):
 
 For the answer to the first question, "yes", "YES", "Yes", "y", and "Y" are acceptable; the same applies for "no" as an answer. You can also press *Enter*; this is equivalent to "yes".
 
-Type 1 (for PMODA) or 2 (for PMODB).
+Type "A" (for PMODA) or "B" (for PMODB).
 
 Answering "No" will skip the corresponding test(s) during the testing phase.
 
@@ -64,7 +64,7 @@ At the end of the testing phase, a summary will be given to show users how many 
 
 Writing Tests
 =============
-This section follows the guide available on `Pytest Usages and Examples <https://pytest.org/latest/example/>`_. You can write a test class with assertions on inputs and outputs to allow automatic testing. The names of the test modules *must* start with `test_`; all the methods for tests in any test module *must* also begin with `test_`. One reason to enforce this is to ensure the tests will be collected properly. See the `Full pytest documentation <https://pytest.org/latest/contents.html>`_ for more details.
+This section follows the guide available on `Pytest Usages and Examples <http://doc.pytest.org/en/latest/example>`_. You can write a test class with assertions on inputs and outputs to allow automatic testing. The names of the test modules *must* start with `test_`; all the methods for tests in any test module *must* also begin with `test_`. One reason to enforce this is to ensure the tests will be collected properly. See the `Full pytest documentation <http://doc.pytest.org/en/latest/index.html>`_ for more details.
 
 Step 1
 ------
@@ -76,7 +76,7 @@ First of all, the pytest package has to be imported:
    
 Step 2
 ------
-Decorators can be specified directly above the methods. For example, you can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More information on decorators can be found in `Marking test functions with attributes - Pytest <https://pytest.org/latest/mark.html>`_.
+Decorators can be specified directly above the methods. For example, you can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More information on decorators can be found in `Marking test functions with attributes - Pytest <http://doc.pytest.org/en/latest/mark.html>`_.
 
 .. code-block:: python
 

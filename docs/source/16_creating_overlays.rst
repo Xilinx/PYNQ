@@ -5,17 +5,16 @@ Creating Overlays
 .. contents:: Table of Contents
    :depth: 2
    
-   
 Introduction 
 =============
 
 As described in the PYNQ introduction, overlays are analogous to software libraries. A programmer can download overlays into the Zynq® PL at runtime to provide functionality required by the software application. 
 
-An Overlay is a class of Programmable Logic design. Programmable Logic designs are usually highly optimized for a specific task. Overlays however, are designed to be configurable, and reusable for broad set of applications. A PYNQ overlay will have a Python interface, allowing a software programmer to use it like any other Python package. 
+An *overlay* is a class of Programmable Logic design. Programmable Logic designs are usually highly optimized for a specific task. Overlays however, are designed to be configurable, and reusable for broad set of applications. A PYNQ overlay will have a Python interface, allowing a software programmer to use it like any other Python package. 
 
-A programmer can use an overlay, but will not usually create the overlays, as this is a specialised task for a hardware designer. 
+A software programmer can use an overlay, but will not usually create overlay, as this usually requires a high degree of hardware design expertise. 
 
-This section will give an overview of the process of creating an overlay and integrating it into PYNQ, but will not cover the hardware design process in detail. 
+This section will give an overview of the process of creating an overlay and integrating it into PYNQ, but will not cover the hardware design process in detail. Hardware design will be familiar to Zynq, and FPGA hardware developers. 
 
 
 Vivado design
@@ -25,7 +24,7 @@ An overlay consists of two main parts; the Programmable Logic (PL) design, and t
 
 Xilinx® Vivado software is used to create the PL design. This will generate a *bitstream* or *binary* file (.bit file) that is used to program the Zynq PL.  
 
-The free webpack version of Vivado can be used with the PYNQ-Z1 board to create overlays.
+The free WebPack version of Vivado can be used with the PYNQ-Z1 board to create overlays.
 https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html
 
 There are some differences between the standard Zynq design process, and designing overlays for PYNQ. A Vivado project for a Zynq design consists of two parts; the PL design, and the PS configuration settings. The PS configuration includes settings for system clocks, including the clocks used in the PL. 
@@ -99,14 +98,14 @@ Each entry in this IP dictionary that is returned is a key-value pair.
  
 E.g.: 
 
-``'SEG_mb_bram_ctrl_1_Mem0': ['0x40000000', '0x10000', None]``
+``'SEG_axi_dma_0_Reg': [2151677952, 65536, None],``
 
 Note, this parses the tcl file that was exported with the bitstream. It does not do check the overlay currently running in the PL. 
     
 The key of the entry is the IP instance name; all the IP instance names are parsed from the `*.tcl` file (e.g. `base.tcl`) in the address segment section. The value of the entry is a list of 3 items:
 
-   - The first item shows the base address of the addressable IP (hex).
-   - The second item shows the address range in bytes (hex).
+   - The first item shows the base address of the addressable IP (as an int).
+   - The second item shows the address range in bytes (as an int).
    - The third item records the state associated with the IP. It is `None` by default, but can be user defined.
 
    
@@ -132,7 +131,7 @@ A makefile exists in each folder that can be used to rebuild the Vivado project 
 Vivado must be installed to design and build overlays. Building an existing overlay design allows the project to be opened in Vivado and examined, or modified to create a new overlay. 
 
 .. image:: ./images/vivado_base_overlay.JPG
-   :scale: 50%
+   :scale: 75%
    :align: center
 
 

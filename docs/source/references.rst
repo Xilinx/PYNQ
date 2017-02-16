@@ -8,7 +8,6 @@ Useful Reference Links
 Git
 ===
 * `Interactive introduction to Git <https://try.github.io>`_
-* `Extensive set of tutorials on Git <www.gitguys.com>`_
 * `Free PDF copy of The Pro Git book by Scott Chacon and Ben Straub <https://git-scm.com/book/en/v2>`_
 
 Jupyter
