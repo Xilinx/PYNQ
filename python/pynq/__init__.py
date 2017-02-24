@@ -38,6 +38,7 @@ from .mmio import MMIO
 from .pl import PL
 from .pl import Bitstream
 from .pl import Overlay
+from .ps import Clocks
 from .interrupt import Interrupt
 from .xlnk import Xlnk
 
