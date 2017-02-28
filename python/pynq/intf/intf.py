@@ -38,16 +38,16 @@ import math
 from pynq import MMIO
 from pynq import GPIO
 from pynq import PL
-from pynq.dif import dif_const
+from pynq.intf import intf_const
 
-class _DIF:
-    """This class controls the Digital Interface instances in the system.
+class _INTF:
+    """This class controls the digital interface instances in the system.
 
     This class servers as the agent to communicate with the interface
     processor in PL. The interface processor has a Microblaze which
     can be reprogrammed to interface with digital IO pins.
 
-    The functions (or types) available for the DIF agent include
+    The functions (or types) available for the interface agent include
     Combination Function Generator, Pattern Generator,
     and Finite State Machine.
 
@@ -56,21 +56,21 @@ class _DIF:
     mb_program : str
         The absolute path of the Microblaze program.
     state : str
-        The status (IDLE, RUNNING, or STOPPED) of the DIF.
+        The status (IDLE, RUNNING, or STOPPED) of the interface.
     gpio : GPIO
-        The GPIO instance associated with the DIF.
+        The GPIO instance associated with this interface.
     mmio : MMIO
-        The MMIO instance associated with the DIF.
+        The MMIO instance associated with this interface.
         
     """
 
     def __init__(self, ip_name, addr_base, addr_range, gpio_uix, mb_program):
-        """Create a new _DIF object.
+        """Create a new interface object.
         
         Parameters
         ----------
         ip_name : str
-            The name of the IP corresponding to the DIF.
+            The name of the IP corresponding to the interface.
         addr_base : int
             The base address for the MMIO in hex format.
         addr_range : int
@@ -78,11 +78,11 @@ class _DIF:
         gpio_uix : int
             The user index of the GPIO, starting from 0.
         mb_program : str
-            The Microblaze program loaded for the DIF.
+            The Microblaze program loaded for the interface.
         
         """
         self.ip_name = ip_name
-        self.mb_program = dif_const.BIN_LOCATION + mb_program
+        self.mb_program = intf_const.BIN_LOCATION + mb_program
         self.state = 'IDLE'
         self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
         self.mmio = MMIO(addr_base, addr_range)
@@ -90,9 +90,9 @@ class _DIF:
         self.program()
         
     def start(self):
-        """Start the Microblaze of the current DIF.
+        """Start the Microblaze of the current interface.
         
-        This method will update the status of the DIF.
+        This method will update the status of the interface.
         
         Returns
         -------
@@ -103,9 +103,9 @@ class _DIF:
         self.gpio.write(0)
         
     def stop(self):
-        """Stop the Microblaze of the current DIF.
+        """Stop the Microblaze of the current interface.
         
-        This method will update the status of the DIF.
+        This method will update the status of the interface.
         
         Returns
         -------
@@ -116,7 +116,7 @@ class _DIF:
         self.gpio.write(1)
         
     def program(self):
-        """This method programs the Microblaze of the DIF.
+        """This method programs the Microblaze of the interface.
         
         This method is called in __init__(); it can also be called after that.
         It uses the attribute "self.mb_program" to program the Microblaze.
@@ -132,28 +132,28 @@ class _DIF:
         
         self.start()
 
-def request_dif(if_id, mb_program):
+def request_intf(if_id, mb_program):
     """This is the interface to request an I/O Processor.
     
     It looks for active instances on the same interface ID, and prevents
-    users from instantiating different types of DIFs on the same interface.
+    users from instantiating different types of interfaces on the same ID.
     Users are notified with an exception if the selected interface is already 
-    hooked to another type of DIF, to prevent unwanted behavior.
+    hooked to another type of interface, to prevent unwanted behavior.
     
     Two cases:
-    1.  No previous DIF in the system with the same ID, or users want to
+    1.  No previous interface in the system with the same ID, or users want to
     request another instance with the same program. 
     Do not raises an exception.
-    2.  There is A previous DIF in the system with the same ID. Users want to
-    request another instance with a different program. 
+    2.  There is A previous interface in the system with the same ID. Users 
+    want to request another instance with a different program. 
     Raises an exception.
 
     Note
     ----
-    When a DIF is already in the system with the same interface ID, users are
-    in danger of losing the old instances associated with this DIF.
+    When an interface is already in the system with the same interface ID, 
+    users are in danger of losing the old instances.
     
-    For bitstream `interface.bit`, the DIF IDs are
+    For bitstream `interface.bit`, the interface IDs are
     {1, 2, 3} <=> {PMODA, PMODB, ARDUINO}.
     For different bitstreams, this mapping can be different.
     
@@ -162,41 +162,41 @@ def request_dif(if_id, mb_program):
     if_id : int
         Interface ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).
     mb_program : str
-        Program to be loaded on the DIF.
+        Program to be loaded on the interface controller.
     
     Returns
     -------
-    _DIF
-        A _DIF object with the updated Microblaze program.
+    _INTF
+        An _INTF object with the updated Microblaze program.
         
     Raises
     ------
     ValueError
-        When the DIF name or the GPIO name cannot be found in the PL.
+        When the INTF name or the GPIO name cannot be found in the PL.
     LookupError
-        When another DIF is in the system with the same interface ID.
+        When another INTF is in the system with the same interface ID.
         
     """
     ip_dict = PL.ip_dict
     gpio_dict = PL.gpio_dict
-    dif = "SEG_mb_bram_ctrl_" + str(if_id) + "_Mem0"
-    rst_pin = "mb_" + str(if_id) + "_reset"
+    dif = "SEG_if_bram_ctrl_" + str(if_id) + "_Mem0"
+    rst_pin = "if_" + str(if_id) + "_reset"
 
     ip = [k for k, _ in ip_dict.items()]
     gpio = [k for k, _ in gpio_dict.items()]
 
     if dif not in ip:
-            raise ValueError("No such DIF {}.".format(if_id))
+        raise ValueError("No such IP for INTF {}.".format(if_id))
     if rst_pin not in gpio:
-            raise ValueError("No such GPIO pin for DIF {}.".format(if_id))
+        raise ValueError("No such GPIO pin for INTF {}.".format(if_id))
 
     addr_base, addr_range, ip_state = ip_dict[dif]
     gpio_uix, _ = gpio_dict[rst_pin]
     if (ip_state is None) or \
-            (ip_state == (dif_const.BIN_LOCATION + mb_program)):
+            (ip_state == (intf_const.BIN_LOCATION + mb_program)):
         # case 1
-        return _dif(dif, addr_base, addr_range, gpio_uix, mb_program)
+        return _INTF(dif, addr_base, addr_range, gpio_uix, mb_program)
     else:
         # case 2
-        raise LookupError('Another DIF program {} already running.' \
+        raise LookupError('Another INTF program {} already running.' \
                           .format(ip_state))

@@ -40,23 +40,24 @@ from pyeda.inter import expr2truthtable
 from pynq import PL
 from pynq import MMIO
 from pynq import Xlnk
-from .dif import ARDUINO
-from .dif import dif_const
-from .dif import request_dif
-from .dif_const import XTRACE_CNTRL_BASEADDR
-from .dif_const import XTRACE_CNTRL_ADDR_AP_CTRL
-from .dif_const import XTRACE_CNTRL_LENGTH
-from .dif_const import XTRACE_CNTRL_SAMPLE_RATE
-from .dif_const import XTRACE_CNTRL_DATA_COMPARE_MSW
-from .dif_const import XTRACE_CNTRL_DATA_COMPARE_LSW
-from .dif_const import XTRACE_CNTRL_UNLOCK_DEVCFG_SLCR
-from .dif_const import XTRACE_CNTRL_LEVEL_SHIFTER
-from .dif_const import XTRACE_CNTRL_CLK1_CTRL
-from .dif_const import XTRACE_CNTRL_CLK2_CTRL
-from .dif_const import XTRACE_CNTRL_LOCK_DEVCFG_SLCR
-from .dif_const import XTRACE_CNTRL_12_5_MHZ
-from .dif_const import XTRACE_CNTRL_25_0_MHZ
-from .dif_const import XTRACE_CNTRL_50_0_MHZ
+from .intf_const import ARDUINO
+from .intf_const import MAILBOX_OFFSET
+from .intf_const import MAILBOX_PY2DIF_CMD_OFFSET
+from .intf_const import XTRACE_CNTRL_BASEADDR
+from .intf_const import XTRACE_CNTRL_ADDR_AP_CTRL
+from .intf_const import XTRACE_CNTRL_LENGTH
+from .intf_const import XTRACE_CNTRL_SAMPLE_RATE
+from .intf_const import XTRACE_CNTRL_DATA_COMPARE_MSW
+from .intf_const import XTRACE_CNTRL_DATA_COMPARE_LSW
+from .intf_const import XTRACE_CNTRL_UNLOCK_DEVCFG_SLCR
+from .intf_const import XTRACE_CNTRL_LEVEL_SHIFTER
+from .intf_const import XTRACE_CNTRL_CLK1_CTRL
+from .intf_const import XTRACE_CNTRL_CLK2_CTRL
+from .intf_const import XTRACE_CNTRL_LOCK_DEVCFG_SLCR
+from .intf_const import XTRACE_CNTRL_12_5_MHZ
+from .intf_const import XTRACE_CNTRL_25_0_MHZ
+from .intf_const import XTRACE_CNTRL_50_0_MHZ
+from .intf import request_intf
 
 ARDUINO_PG_PROGRAM = "arduino_pg.bin"
 
@@ -72,8 +73,8 @@ class Arduino_PG:
     ----------
     if_id : int
         The interface ID (ARDUINO).
-    dif : _DIF
-        DIF instance used by Arduino_PG class.
+    intf : _INTF
+        INTF instance used by Arduino_PG class.
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
     buf_manager: Xlnk
@@ -97,11 +98,11 @@ class Arduino_PG:
         if os.geteuid() != 0:
             raise EnvironmentError('Root permissions required.')
         if not if_id in [ARDUINO]:
-            raise ValueError("No such DIF for Arduino interface.")
+            raise ValueError("No such INTF for Arduino interface.")
 
         self.if_id = if_id
-        self.dif = request_dif(if_id, ARDUINO_PG_PROGRAM)
-        self.mmio = self.dif.mmio
+        self.intf = request_intf(if_id, ARDUINO_PG_PROGRAM)
+        self.mmio = self.intf.mmio
         self.buf_manager = Xlnk()
         self.stimulus_buf = None
         self.response_buf = None
@@ -172,16 +173,16 @@ class Arduino_PG:
             stimulus_buf1[4 * offset] = (data & 0xFF). \
                 to_bytes(1, 'big')
 
-        self.mmio.write(dif_const.MAILBOX_OFFSET, direction_mask)
-        self.mmio.write(dif_const.MAILBOX_OFFSET + 0x4, stimulus_addr)
-        self.mmio.write(dif_const.MAILBOX_OFFSET + 0x8, num_samples)
-        self.mmio.write(dif_const.MAILBOX_OFFSET + 0xC, response_addr)
+        self.mmio.write(MAILBOX_OFFSET, direction_mask)
+        self.mmio.write(MAILBOX_OFFSET + 0x4, stimulus_addr)
+        self.mmio.write(MAILBOX_OFFSET + 0x8, num_samples)
+        self.mmio.write(MAILBOX_OFFSET + 0xC, response_addr)
 
         cmd_word = 0x197
-        self.mmio.write(dif_const.MAILBOX_OFFSET +
-                        dif_const.MAILBOX_PY2DIF_CMD_OFFSET, cmd_word)
-        while not (self.mmio.read(dif_const.MAILBOX_OFFSET +
-                                  dif_const.MAILBOX_PY2DIF_CMD_OFFSET) == 0):
+        self.mmio.write(MAILBOX_OFFSET +
+                        MAILBOX_PY2DIF_CMD_OFFSET, cmd_word)
+        while not (self.mmio.read(MAILBOX_OFFSET +
+                                  MAILBOX_PY2DIF_CMD_OFFSET) == 0):
             pass
 
         data = dict()

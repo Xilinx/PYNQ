@@ -36,9 +36,10 @@ import re
 from pyeda.inter import exprvar
 from pyeda.inter import expr2truthtable
 from pynq import PL
-from .dif import ARDUINO
-from .dif import dif_const
-from .dif import request_dif
+from .intf_const import ARDUINO
+from .intf_const import MAILBOX_OFFSET
+from .intf_const import MAILBOX_PY2DIF_CMD_OFFSET
+from .intf import request_intf
 
 IN_PINS = [['D3', 'D2', 'D1', 'D0'],
            ['D8', 'D7', 'D6', 'D5'],
@@ -62,8 +63,8 @@ class Arduino_CFG:
     ----------
     if_id : int
         The interface ID (ARDUINO).
-    dif : _DIF
-        DIF instance used by Arduino_CFG class.
+    intf : _INTF
+        INTF instance used by Arduino_CFG class.
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
     expr : list
@@ -124,20 +125,20 @@ class Arduino_CFG:
         if os.geteuid() != 0:
             raise EnvironmentError('Root permissions required.')
         if not if_id in [ARDUINO]:
-            raise ValueError("No such DIF for Arduino interface.")
+            raise ValueError("No such INTF for Arduino interface.")
 
         self.if_id = if_id
-        self.dif = request_dif(if_id, ARDUINO_CFG_PROGRAM)
-        self.mmio = self.dif.mmio
+        self.intf = request_intf(if_id, ARDUINO_CFG_PROGRAM)
+        self.mmio = self.intf.mmio
         self.expr = expr
         self.led = led
         self.verbose = verbose
 
         if expr is None:
-            self.mmio.write(dif_const.MAILBOX_OFFSET +
-                            dif_const.MAILBOX_PY2DIF_CMD_OFFSET, 0x1)
-            while (self.mmio.read(dif_const.MAILBOX_OFFSET +
-                                  dif_const.MAILBOX_PY2DIF_CMD_OFFSET) == 0x1):
+            self.mmio.write(MAILBOX_OFFSET +
+                            MAILBOX_PY2DIF_CMD_OFFSET, 0x1)
+            while (self.mmio.read(MAILBOX_OFFSET +
+                                  MAILBOX_PY2DIF_CMD_OFFSET) == 0x1):
                 pass
         else:
             self.bool_fun(expr, led, verbose)
@@ -234,9 +235,9 @@ class Arduino_CFG:
         if led:
             cmd_word |= (0x1 << 12)
 
-        self.mmio.write(dif_const.MAILBOX_OFFSET, truth_num)
-        self.mmio.write(dif_const.MAILBOX_OFFSET +
-                        dif_const.MAILBOX_PY2DIF_CMD_OFFSET, cmd_word)
-        while (self.mmio.read(dif_const.MAILBOX_OFFSET +
-                        dif_const.MAILBOX_PY2DIF_CMD_OFFSET) == cmd_word):
+        self.mmio.write(MAILBOX_OFFSET, truth_num)
+        self.mmio.write(MAILBOX_OFFSET +
+                        MAILBOX_PY2DIF_CMD_OFFSET, cmd_word)
+        while (self.mmio.read(MAILBOX_OFFSET +
+                              MAILBOX_PY2DIF_CMD_OFFSET) == cmd_word):
             pass

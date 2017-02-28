@@ -33,13 +33,13 @@ __email__       = "pynq_support@xilinx.com"
 
 
 # Constants
-from . import cfg_const
-from .dif_const import PMODA
-from .dif_const import PMODB
-from .dif_const import ARDUINO
+from . import intf_const
+from .intf_const import PMODA
+from .intf_const import PMODB
+from .intf_const import ARDUINO
 
 # CFG modules
-from .dif import request_dif
+from .intf import request_intf
 from .arduino_cfg import Arduino_CFG
 from .arduino_pg import Arduino_PG
 

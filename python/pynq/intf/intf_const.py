@@ -37,12 +37,16 @@ import os
 # Microblaze constants
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__))+"/"
 
-# DIF mailbox constants
+# Interface mailbox constants
 MAILBOX_OFFSET = 0xF000
 MAILBOX_SIZE   = 0x1000
 MAILBOX_PY2DIF_CMD_OFFSET  = 0xFFC
 MAILBOX_PY2DIF_ADDR_OFFSET = 0xFF8
 MAILBOX_PY2DIF_DATA_OFFSET = 0xF00
+
+PMODA = 1
+PMODB = 2
+ARDUINO = 3
 
 # Trace controller related constants
 XTRACE_CNTRL_BASEADDR = 0x44A20000
