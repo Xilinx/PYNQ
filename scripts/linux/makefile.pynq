@@ -42,7 +42,8 @@ ROOT_SCRIPTS := 0_resizefs.sh \
 1_network.sh \
 2_jupyter_server.sh \
 3_pl_server.sh \
-4_boot_leds.sh
+4_boot_leds.sh \
+5_wifi_connect.sh
 
 
 ## if [ grep -q "Release 2016_09_14" "/home/xilinx/REVISION" ] ; then \
