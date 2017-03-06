@@ -1,15 +1,5 @@
 #!/bin/bash
 
-### BEGIN INIT INFO
-# Provides:          auto_wifi_connect
-# Required-Start:    
-# Required-Stop:     
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Connect to wifi on boot
-# Description:       Connect to wifi using the wpa_supplicant config located in root of boot partition
-### END INIT INFO
-
 set -e
 
 mount="/boot"
