@@ -5,8 +5,8 @@ set -e
 mount="/boot"
 config_name="wpa_supplicant.conf"
 
-#use fdisk to list devices, fine the one with "*" under Boot and filter out ram
-boot_part="$(fdisk -l | awk '/\*/' | grep -v '512' | cut -d ' ' -f1)"
+#use the 1st partition of sdcard
+boot_part="/dev/mmcblk0p1"
 
 #mount boot partition to temp folder
 mount -o rw "$boot_part" "$mount"
