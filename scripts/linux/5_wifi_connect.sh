@@ -27,6 +27,6 @@ if [ -f "$mount"/"$config_name" ]; then
     wint="$(iw dev | grep 'Interface' | cut -d ' ' -f2 | head -n1)"
 
     #connect to wifi
-    wpa_supplicant -D nl80211 -i "$wint" -B -c "$mount"/"$config_name"
+    wpa_supplicant -i "$wint" -B -c "$mount"/"$config_name"
     dhclient "$wint"
 fi
