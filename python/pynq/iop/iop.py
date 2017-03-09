@@ -27,11 +27,6 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "yunq@xilinx.com"
-
-
 import asyncio
 import os
 import sys
@@ -41,6 +36,11 @@ from pynq import GPIO
 from pynq import PL
 from pynq import Interrupt
 from pynq.iop import iop_const
+
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "yunq@xilinx.com"
 
 
 class _IOPInterruptEvent:
@@ -104,7 +104,7 @@ class _IOP:
     """
 
     def __init__(self, iop_name, addr_base, addr_range, gpio_uix,
-                 mb_program, intr_pin = None, intr_ack_gpio = None):
+                 mb_program, intr_pin=None, intr_ack_gpio=None):
         """Create a new _IOP object.
 
         Parameters
