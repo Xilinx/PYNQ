@@ -35,11 +35,12 @@ __email__       = "pynq_support@xilinx.com"
 import os
 import sys
 import struct
+import weakref
 from . import general_const
 
-class GPIO:
-    """Class to wrap Linux's GPIO Sysfs API. 
-    
+class _GPIO:
+    """Internal Helper class to wrap Linux's GPIO Sysfs API.
+
     This GPIO class does not handle PL I/O.
     
     Attributes
@@ -131,6 +132,86 @@ class GPIO:
             f.write(str(value))
         return
             
+
+_gpio_map = weakref.WeakValueDictionary()
+
+class GPIO:
+    """Class to wrap Linux's GPIO Sysfs API.
+
+    This GPIO class does not handle PL I/O.
+
+    Attributes
+    ----------
+    index : int
+        The index of the GPIO, starting from the GPIO base.
+    direction : str
+        Input/output direction of the GPIO.
+    path: str
+        The path of the GPIO device in the linux system.
+
+    """
+    def __init__(self, gpio_index, direction):
+        """Return a new GPIO object.
+
+        Parameters
+        ----------
+        gpio_index : int
+            The index of the GPIO using Linux's GPIO Sysfs API.
+        direction : 'str'
+            Input/output direction of the GPIO.
+
+        """
+        self._impl = None
+        if gpio_index in _gpio_map:
+            self._impl = _gpio_map[gpio_index]
+            if self._impl and self._impl.direction != direction:
+                raise AttributeError("GPIO already in use in other direction")
+
+        if not self._impl:
+            self._impl = _GPIO(gpio_index, direction)
+            _gpio_map[gpio_index] = self._impl
+
+    @property
+    def index(self):
+        """Index of the GPIO pin : int"""
+        return self._impl.index
+
+    @property
+    def direction(self):
+        """Direction of the GPIO pin - either 'in' or 'out' : str"""
+        return self._impl.direction
+
+    @property
+    def path(self):
+        """Path to the GPIO pin in the filesystem : str"""
+        return self._impl.path
+
+    def read(self):
+        """The method to read a value from the GPIO.
+
+        Returns
+        -------
+        int
+            An integer read from the GPIO
+
+        """
+        return self._impl.read()
+
+    def write(self, value):
+        """The method to write a value into the GPIO.
+
+        Parameters
+        ----------
+        value : int
+            An integer value, either 0 or 1
+
+        Returns
+        -------
+        None
+
+        """
+        self._impl.write(value)
+
     @staticmethod
     def get_gpio_base():
         """This method returns the GPIO base using Linux's GPIO Sysfs API.
