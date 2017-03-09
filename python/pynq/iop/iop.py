@@ -122,7 +122,7 @@ class _IOP:
 
         """
         self.iop_name = iop_name
-        self.mb_program = iop_const.BIN_LOCATION + mb_program
+        self.mb_program = mb_program
         self.state = 'IDLE'
         self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
         self.mmio = MMIO(addr_base, addr_range)
@@ -246,11 +246,15 @@ def request_iop(iop_id, mb_program):
     gpio_uix, _ = gpio_dict[rst_pin]
     intr_ack_gpio, _ = gpio_dict[intr_ack_pin]
 
+    mb_path = mb_program
+    if not os.path.isabs(mb_path):
+        mb_path = os.path.join(iop_const.BIN_LOCATION, mb_path)
+
     if (ip_state is None) or \
-            (ip_state == (iop_const.BIN_LOCATION + mb_program)):
+            (ip_state == mb_path):
         # case 1
         return _IOP(iop, addr_base, addr_range, gpio_uix,
-                    mb_program, intr_pin, intr_ack_gpio)
+                    mb_path, intr_pin, intr_ack_gpio)
     else:
         # case 2
         raise LookupError('Another program {} already running on IOP.'
