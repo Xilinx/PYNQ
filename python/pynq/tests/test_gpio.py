@@ -63,6 +63,7 @@ def test_gpio():
             # GPIO type is 'in'. Hence g.write() is illegal. 
             # Test will pass if exception is raised.
             g.write()
+        del g
         
         g = GPIO(index, 'out')
         with pytest.raises(Exception) as error_infor:
