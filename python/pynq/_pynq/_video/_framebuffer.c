@@ -109,11 +109,13 @@ static int framebuffer_init(framebufferObject *self, PyObject *args)
     self->color_depth = DEFAULT_COLOR_DEPTH;
     self->size = 0;
 
-    if (!PyArg_ParseTuple(args, "II|I", &self->width, &self->height, &self->color_depth))
+    if (!PyArg_ParseTuple(args, "II|I", &self->width, &self->height,
+        &self->color_depth))
         return -1;
 
     self->size = self->width * self->height * self->color_depth;
-    if ((self->frame_buffer = (u8 *)cma_alloc(sizeof(u8) * self->size, 0)) == NULL) {
+    if ((self->frame_buffer = (u8 *)cma_alloc(sizeof(u8) * self->size, 0))
+          == NULL) {
         PyErr_Format(PyExc_MemoryError,"Unable to allocate memory");
         return -1;
 
@@ -172,13 +174,15 @@ PyObject *get_framebuffer_phyaddr(framebufferObject *self)
  */
 PyObject *get_framebuffer(framebufferObject *self)
 {
-    return PyByteArray_FromStringAndSize((char *)self->frame_buffer, self->width * self->height * self->color_depth);
+    return PyByteArray_FromStringAndSize((char *)self->frame_buffer,
+        self->width * self->height * self->color_depth);
 }
 
 /*
  * set the framebuffer values
  */
-PyObject *set_framebuffer(framebufferObject *self, PyByteArrayObject *new_frame)
+PyObject *set_framebuffer(framebufferObject *self,
+                                  PyByteArrayObject *new_frame)
 {
     if(PyByteArray_Size((PyObject *)new_frame) != ((int32_t) self->size)){
         PyErr_Format(PyExc_ValueError,
@@ -191,7 +195,7 @@ PyObject *set_framebuffer(framebufferObject *self, PyByteArrayObject *new_frame)
 }
 
 /*****************************************************************************/
-/* Actual C bindings - member functions                                      
+/* Actual C bindings - member functions
  * This is how Python interfaces with the C functions
  */
 
@@ -228,10 +232,12 @@ static PyObject *framebuffer_get_phy_addr(framebufferObject *self,
  *  If no parameters are passed to the the function it will return
  *  a python object bytearray
  *
- *  If a new frame is passed in as a bytearray, it is copied to the memory space
+ *  If a new frame is passed in as a bytearray, it is copied to the memory
+ *  space
  *
  */
-static PyObject *framebuffer_frame(framebufferObject *self, PyObject *args){
+static PyObject *framebuffer_frame(framebufferObject *self,
+      PyObject *args){
     PyObject *new_frame = NULL;
     Py_ssize_t nargs = PyTuple_Size(args);
 

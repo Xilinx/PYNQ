@@ -59,7 +59,7 @@ BITMASK_RD_FRM_PTR      = 0x0000001F
 #Registers (Without Offset)
 REG_MM2S_CR              = 0x00
 REG_MM2S_SR              = 0x04
-REG_MM2S_REG_INDEX       = 0x14 #page select for frame ptr addr (0:1-16, 1:17:32)
+REG_MM2S_REG_INDEX       = 0x14 #page select for frame ptr (0:1-16, 1:17:32)
 REG_PARK_PTR_REG         = 0x28
 REG_VDMA_VERSION         = 0x2C
 REG_S2MM_CR              = 0x30
@@ -213,7 +213,8 @@ class VDMA(object):
         enable_ingress(True)
 
     """
-    def __init__(self, name, vdma_config_dict = DEFAULT_VDMA_CONFIG_DICT, debug = False):
+    def __init__(self, name, vdma_config_dict = DEFAULT_VDMA_CONFIG_DICT,
+                    debug = False):
         """Returns a new VDMA object.
 
         Parameters
@@ -255,9 +256,12 @@ class VDMA(object):
             minor version
             revision
         """
-        major_version = self.mmio.read_register_bitmask(REG_VDMA_VERSION, BITMASK_VERSION_MAJOR)
-        minor_version = self.mmio.read_register_bitmask(REG_VDMA_VERSION, BITMASK_VERSION_MINOR)
-        revision = self.mmio.read_register_bitmask(REG_VDMA_VERSION, BITMASK_VERSION_REV)
+        major_version = self.mmio.read_register_bitmask(REG_VDMA_VERSION, \
+            BITMASK_VERSION_MAJOR)
+        minor_version = self.mmio.read_register_bitmask(REG_VDMA_VERSION, \
+            BITMASK_VERSION_MINOR)
+        revision = self.mmio.read_register_bitmask(REG_VDMA_VERSION, \
+            BITMASK_VERSION_REV)
         return (major_version, minor_version, revision)
 
     def get_max_number_of_frames(self):
@@ -295,7 +299,8 @@ class VDMA(object):
         self.color_depth = color_depth
         self.frames = []
         for i in range(self.get_max_number_of_frames()):
-            self.frames.append(FrameBuffer(self.width, self.height, self.color_depth))
+            self.frames.append(FrameBuffer(self.width, self.height, \
+                self.color_depth))
 
         if self.debug:
             for i in range(self.get_max_number_of_frames()):
@@ -315,10 +320,13 @@ class VDMA(object):
         The Framebuffer object
         """
         if len(self.frames) == 0:
-            raise VDMAException("No Frames, 'set_image_size' must be called before frames are available")
+            raise VDMAException("No Frames, \
+                'set_image_size' must be called before frames are available")
 
         if index >= self.get_max_number_of_frames():
-            raise VDMAException("%d is not a valid index, %d frames available" % (index, self.get_max_number_of_frames()))
+            raise VDMAException( \
+                "%d is not a valid index, %d frames available" \
+                % (index, self.get_max_number_of_frames()))
 
         return self.frames[index]
 
@@ -354,8 +362,8 @@ class VDMA(object):
 
         Note
         ----
-        This is a simple way to use the VDMA Egress, it will configure the egress
-        VDMA and start it
+        This is a simple way to use the VDMA Egress, it will configure the
+        egress VDMA and start it
 
         Parameters
         ----------
@@ -393,11 +401,13 @@ class VDMA(object):
 
         #Enable the channel (This seems like it should be the last thing done)
         self.enable_egress(True)
-        if self.debug: print ("MM2S Control Register: 0x%08X" % self.mmio.read(REG_MM2S_CR))
+        if self.debug: print ("MM2S Control Register: 0x%08X" % \
+            self.mmio.read(REG_MM2S_CR))
 
         #Connect all the physical addresses of the frames to their indexes
         for i in range(self.get_max_number_of_frames()):
-            self.set_egress_frame_mem_address(self.frames[i].get_phy_address(), i)
+            self.set_egress_frame_mem_address( \
+                self.frames[i].get_phy_address(), i)
             #self.set_egress_frame_mem_address(self.frames[i].get_address(), i)
 
         #Set the frame index to start on
@@ -406,7 +416,6 @@ class VDMA(object):
         self.set_egress_width(self.width * self.color_depth)
         #This should kick it off
         self.set_egress_height(self.height)
-        #XXX:self.enable_egress(True)
 
     def stop_egress_engine(self):
         """stops the egress engine
@@ -529,8 +538,8 @@ class VDMA(object):
 
         If enabled write a continuous stream of frames, this works with the
         following two functions:
-            - set_egress_parked_frame(): send the same frame pointed to by index
-                over and over again
+            - set_egress_parked_frame(): send the same frame pointed to by
+                index over and over again
             - set_egress_circular_frame()
                 send all the images within the circular buffer continuously
 
@@ -547,7 +556,8 @@ class VDMA(object):
         -------
         None
         '''
-        self.mmio.enable_register_bit(REG_MM2S_CR, BIT_CR_FRMCNT_EN, not enable)
+        self.mmio.enable_register_bit(REG_MM2S_CR, BIT_CR_FRMCNT_EN, \
+                                        not enable)
 
     def set_egress_frame_count(self, frame_count = 1):
         ''' Set the number of frames to send when sending a fixed number
@@ -585,7 +595,8 @@ class VDMA(object):
         -------
         None
         """
-        self.mmio.enable_register_bit(REG_MM2S_CR, BIT_CR_FRMCNT_INT_EN, enable)
+        self.mmio.enable_register_bit(REG_MM2S_CR, BIT_CR_FRMCNT_INT_EN, \
+                                        enable)
 
     def set_egress_width(self, width):
         """Sets the width of the egress frame
@@ -593,8 +604,8 @@ class VDMA(object):
         Note
         ----
         This value should include the color depth value
-        so if a frame is 720 pixels accross and there are 3 bytes per pixel (RGB)
-        then the width should be 720 * 3
+        so if a frame is 720 pixels accross and there are 3 bytes per pixel
+        (RGB) then the width should be 720 * 3
 
         The stride should be at least the size of the width or the engine will
         error out
@@ -616,8 +627,9 @@ class VDMA(object):
 
         Note
         ----
-        This function is usually the last to be called when updating the register
-        values and will start off either the egress engine or the ingress engine
+        This function is usually the last to be called when updating the
+        register values and will start off either the egress engine or the
+        ingress engine
 
         Parameters
         ----------
@@ -641,14 +653,15 @@ class VDMA(object):
         ----------
         stride: int
             The physical width of where the image is stored, this can be longer
-            than the width of the image, this is usually used to align memory rows
+            than the width of the image, this is usually used to align memory
+            rows
 
         Returns
         -------
         None
         """
-        self.mmio.write_register_bitmask(REG_MM2S_FRMDLY_STRIDE, BITMASK_STRIDE,
-            stride)
+        self.mmio.write_register_bitmask(REG_MM2S_FRMDLY_STRIDE, \
+            BITMASK_STRIDE, stride)
 
     def get_current_egress_frame_index(self):
         """ Returns the current frame index
@@ -662,7 +675,8 @@ class VDMA(object):
         int
             index of the frame the egress engine is working on
         """
-        return self.mmio.read_register_bitmask(REG_PARK_PTR_REG, BITMASK_RD_FRM_PTR)
+        return self.mmio.read_register_bitmask( REG_PARK_PTR_REG, \
+                                                BITMASK_RD_FRM_PTR)
 
     def set_egress_frame_mem_address(self, address, index):
         """ Sets the physical address of the frame associated with the index
@@ -685,15 +699,19 @@ class VDMA(object):
         """
         multiplier = self.config_dict['ADDR_WIDTH'] / 8
         pos = 0
-        if self.debug: print("Entered set_egress_frame_mem_address with index: %d" % index)
+        if self.debug: print( \
+                "Entered set_egress_frame_mem_address with index: %d" % index)
         while (pos < multiplier):
             if (((pos * multiplier) / 8) >= 16):
                 self.mmio.write(REG_MM2S_REG_INDEX, 1)
             else:
                 self.mmio.write(REG_MM2S_REG_INDEX, 0)
-            if self.debug: print ("Writing: 0x%08X:0x%08X" % (int(REG_MM2S_START_ADDR + (index * multiplier) + pos), (address & 0xFFFFFFFF)))
-            self.mmio.write(int(REG_MM2S_START_ADDR + (index * multiplier) + pos), \
-                (address & 0xFFFFFFFF))
+            if self.debug: print ("Writing: 0x%08X:0x%08X" % 
+                (int(REG_MM2S_START_ADDR + (index * multiplier) + pos), \
+                    (address & 0xFFFFFFFF)))
+            self.mmio.write(
+                 int(REG_MM2S_START_ADDR + (index * multiplier) + pos), \
+                    (address & 0xFFFFFFFF))
             address = address >> 32
             pos += 4
 
@@ -716,7 +734,8 @@ class VDMA(object):
         """
         multiplier = self.config_dict['ADDR_WIDTH'] / 8
         index =int( multiplier * index)
-        self.mmio.write_register_bitmask(REG_PARK_PTR_REG, BITMASK_RD_FRM_PTR, index)
+        self.mmio.write_register_bitmask(REG_PARK_PTR_REG, \
+                BITMASK_RD_FRM_PTR, index)
 
     def get_current_frame_index(self):
         """Returns the current frame index
@@ -730,7 +749,8 @@ class VDMA(object):
         int
             The current index of the framebuffer
         """
-        return self.mmio.get_register_bitmask(REG_PARK_PTR_REG, BITMASK_RD_FRM_PTR)
+        return self.mmio.get_register_bitmask(REG_PARK_PTR_REG, \
+                                              BITMASK_RD_FRM_PTR)
 
     def get_wip_egress_frame(self):
         """Gets the frame that the egress engine is currently working on
@@ -761,16 +781,25 @@ class VDMA(object):
         """
         print ("")
         print ("Egress Registers:")
-        print ("  Control     [%02X]: 0x%08X" % (REG_MM2S_CR, self.mmio.read(REG_MM2S_CR)))
-        print ("  Status      [%02X]: 0x%08X" % (REG_MM2S_SR, self.mmio.read(REG_MM2S_SR)))
-        print ("  Reg Index   [%02X]: 0x%08X" % (REG_MM2S_REG_INDEX, self.mmio.read(REG_MM2S_REG_INDEX)))
-        print ("  Park Pointer[%02X]: 0x%08X" % (REG_PARK_PTR_REG, self.mmio.read(REG_PARK_PTR_REG)))
-        print ("  VSize       [%02X]: 0x%08X" % (REG_MM2S_VSIZE, self.mmio.read(REG_MM2S_VSIZE)))
-        print ("  HSize       [%02X]: 0x%08X" % (REG_MM2S_HSIZE, self.mmio.read(REG_MM2S_HSIZE)))
-        print ("  Dly/Stride  [%02X]: 0x%08X" % (REG_MM2S_FRMDLY_STRIDE, self.mmio.read(REG_MM2S_FRMDLY_STRIDE)))
+        print ("  Control     [%02X]: 0x%08X" % (REG_MM2S_CR,
+            self.mmio.read(REG_MM2S_CR)))
+        print ("  Status      [%02X]: 0x%08X" % (REG_MM2S_SR,
+            self.mmio.read(REG_MM2S_SR)))
+        print ("  Reg Index   [%02X]: 0x%08X" % (REG_MM2S_REG_INDEX,
+            self.mmio.read(REG_MM2S_REG_INDEX)))
+        print ("  Park Pointer[%02X]: 0x%08X" % (REG_PARK_PTR_REG,
+            self.mmio.read(REG_PARK_PTR_REG)))
+        print ("  VSize       [%02X]: 0x%08X" % (REG_MM2S_VSIZE,
+            self.mmio.read(REG_MM2S_VSIZE)))
+        print ("  HSize       [%02X]: 0x%08X" % (REG_MM2S_HSIZE,
+            self.mmio.read(REG_MM2S_HSIZE)))
+        print ("  Dly/Stride  [%02X]: 0x%08X" % (REG_MM2S_FRMDLY_STRIDE,
+            self.mmio.read(REG_MM2S_FRMDLY_STRIDE)))
         print ("  Frame Memory Map")
         for i in range (self.get_max_number_of_frames()):
-            print ("    %d[%02X]: 0x%08X" % (i, REG_MM2S_START_ADDR + (i * 4), self.mmio.read(REG_MM2S_START_ADDR + (i * 4))))
+            print ("    %d[%02X]: 0x%08X" %  \
+                (i, REG_MM2S_START_ADDR + (i * 4), \
+                self.mmio.read(REG_MM2S_START_ADDR + (i * 4))))
         print ("")
 
     #Ingress Functions
@@ -843,19 +872,19 @@ class VDMA(object):
 
         #Enable the channel (This seems like it should be the last thing done)
         self.enable_ingress(True)
-        if self.debug: print ("S2MM Control Register: 0x%08X" % self.mmio.read(REG_S2MM_CR))
+        if self.debug: print ("S2MM Control Register: 0x%08X" % \
+            self.mmio.read(REG_S2MM_CR))
 
         #Connect all of the physical address of the frames to their indexes
         for i in range(self.get_max_number_of_frames()):
-            self.set_ingress_frame_mem_address(self.frames[i].get_phy_address(), i)
-            #self.set_ingress_frame_mem_address(self.frames[i].get_address(), i)
+            self.set_ingress_frame_mem_address( \
+                    self.frames[i].get_phy_address(), i)
 
         #Set the frame index to start on
         self.set_ingress_frame_index(frame_index)
 
         self.set_ingress_width(self.width * self.color_depth)
         self.set_ingress_height(self.height)
-        #XXX:self.enable_ingress(True)
 
     def stop_ingress_engine(self):
         """stops the ingress engine
@@ -976,7 +1005,8 @@ class VDMA(object):
         -------
         None
         '''
-        self.mmio.enable_register_bit(REG_S2MM_CR, BIT_CR_FRMCNT_EN, not enable)
+        self.mmio.enable_register_bit(REG_S2MM_CR, BIT_CR_FRMCNT_EN, \
+            not enable)
 
     def set_ingress_frame_count(self, frame_count = 1):
         ''' Set the number of frames to receive
@@ -984,8 +1014,8 @@ class VDMA(object):
         Note
         ----
         This will only receive a certain number of frames, after the number of
-        frames are received then the engine will halt itself. This is the opposite
-        of 'set_continuous' which constantly sends frames
+        frames are received then the engine will halt itself. This is the
+        opposite of 'set_continuous' which constantly sends frames
 
         When the number of frames are received the engine will shut 'halt'
 
@@ -1042,7 +1072,8 @@ class VDMA(object):
         -------
         None
         """
-        self.mmio.enable_register_bit(REG_S2MM_CR, BIT_CR_FRMCNT_INT_EN, enable)
+        self.mmio.enable_register_bit(REG_S2MM_CR, BIT_CR_FRMCNT_INT_EN, \
+                                    enable)
 
     def set_ingress_width(self, width):
         """Sets the width of the ingress frame
@@ -1050,8 +1081,8 @@ class VDMA(object):
         Note
         ----
         This value should include the color depth value
-        so if a frame is 720 pixels accross and there are 3 bytes per pixel (RGB)
-        then the width should be 720 * 3
+        so if a frame is 720 pixels accross and there are 3 bytes per pixel
+        (RGB) then the width should be 720 * 3
 
         The stride should be at least the size of the width or the engine will
         error out
@@ -1073,8 +1104,9 @@ class VDMA(object):
 
         Note
         ----
-        This function is usually the last to be called when updating the register
-        values and will start off either the egress engine or the ingress engine
+        This function is usually the last to be called when updating the
+        register values and will start off either the egress engine or the
+        ingress engine
 
         Parameters
         ----------
@@ -1098,13 +1130,15 @@ class VDMA(object):
         ----------
         stride: int
             The physical width of where the image is stored, this can be longer
-            than the width of the image, this is usually used to align memory rows
+            than the width of the image, this is usually used to align memory
+            rows
 
         Returns
         -------
         None
         """
-        self.mmio.write_register_bitmask(REG_S2MM_FRMDLY_STRIDE, BITMASK_STRIDE, stride)
+        self.mmio.write_register_bitmask( \
+            REG_S2MM_FRMDLY_STRIDE, BITMASK_STRIDE, stride)
 
     def set_ingress_frame_mem_address(self, address, index):
         """ Sets the physical address of the frame associated with the index
@@ -1127,14 +1161,18 @@ class VDMA(object):
         """
         multiplier = self.config_dict['ADDR_WIDTH'] / 8
         pos = 0
-        if self.debug: print("Entered set_ingress_frame_mem_address with index: %d" % index)
+        if self.debug: print( \
+            "Entered set_ingress_frame_mem_address with index: %d" % index)
         while (pos < multiplier):
             if (((pos * multiplier) / 8) >= 16):
                 self.mmio.write(REG_S2MM_REG_INDEX, 1)
             else:
                 self.mmio.write(REG_S2MM_REG_INDEX, 0)
-            if self.debug: print ("Writing: 0x%08X:0x%08X" % (int(REG_S2MM_START_ADDR + (index * multiplier) + pos), (address & 0xFFFFFFFF)))
-            self.mmio.write(int(REG_S2MM_START_ADDR + (index * multiplier) + pos), \
+            if self.debug: print ("Writing: 0x%08X:0x%08X" % \
+                (int(REG_S2MM_START_ADDR + (index * multiplier) + pos), \
+                (address & 0xFFFFFFFF)))
+            self.mmio.write( \
+                int(REG_S2MM_START_ADDR + (index * multiplier) + pos), \
                 (address & 0xFFFFFFFF))
             address = address >> 32
             pos += 4
@@ -1158,7 +1196,8 @@ class VDMA(object):
         """
         multiplier = self.config_dict['ADDR_WIDTH'] / 8
         index = int(multiplier * index)
-        self.mmio.write_register_bitmask(REG_PARK_PTR_REG, BITMASK_WR_FRM_PTR, index)
+        self.mmio.write_register_bitmask( \
+            REG_PARK_PTR_REG, BITMASK_WR_FRM_PTR, index)
 
     def get_current_ingress_frame_index(self):
         """ Returns the current frame index
@@ -1172,7 +1211,8 @@ class VDMA(object):
         int
             index of the frame the egress engine is working on
         """
-        return self.mmio.read_register_bitmask(REG_PARK_PTR_REG, BITMASK_WR_FRM_PTR)
+        return self.mmio.read_register_bitmask(REG_PARK_PTR_REG, \
+            BITMASK_WR_FRM_PTR)
 
     def get_wip_ingress_frame(self):
         """Gets the frame that the ingress engine is currently working on
@@ -1203,15 +1243,24 @@ class VDMA(object):
         """
         print ("")
         print ("Ingress Registers:")
-        print ("  Control     [%02X]: 0x%08X" % (REG_S2MM_CR, self.mmio.read(REG_S2MM_CR)))
-        print ("  Status      [%02X]: 0x%08X" % (REG_S2MM_SR, self.mmio.read(REG_S2MM_SR)))
-        print ("  Reg Index   [%02X]: 0x%08X" % (REG_S2MM_REG_INDEX, self.mmio.read(REG_S2MM_REG_INDEX)))
-        print ("  Park Pointer[%02X]: 0x%08X" % (REG_PARK_PTR_REG, self.mmio.read(REG_PARK_PTR_REG)))
-        print ("  VSize       [%02X]: 0x%08X" % (REG_S2MM_VSIZE, self.mmio.read(REG_S2MM_VSIZE)))
-        print ("  HSize       [%02X]: 0x%08X" % (REG_S2MM_HSIZE, self.mmio.read(REG_S2MM_HSIZE)))
-        print ("  Dly/Stride  [%02X]: 0x%08X" % (REG_S2MM_FRMDLY_STRIDE, self.mmio.read(REG_S2MM_FRMDLY_STRIDE)))
+        print ("  Control     [%02X]: 0x%08X" % \
+            (REG_S2MM_CR, self.mmio.read(REG_S2MM_CR)))
+        print ("  Status      [%02X]: 0x%08X" % \
+            (REG_S2MM_SR, self.mmio.read(REG_S2MM_SR)))
+        print ("  Reg Index   [%02X]: 0x%08X" % \
+            (REG_S2MM_REG_INDEX, self.mmio.read(REG_S2MM_REG_INDEX)))
+        print ("  Park Pointer[%02X]: 0x%08X" % \
+            (REG_PARK_PTR_REG, self.mmio.read(REG_PARK_PTR_REG)))
+        print ("  VSize       [%02X]: 0x%08X" % \
+            (REG_S2MM_VSIZE, self.mmio.read(REG_S2MM_VSIZE)))
+        print ("  HSize       [%02X]: 0x%08X" % \
+            (REG_S2MM_HSIZE, self.mmio.read(REG_S2MM_HSIZE)))
+        print ("  Dly/Stride  [%02X]: 0x%08X" % \
+            (REG_S2MM_FRMDLY_STRIDE, self.mmio.read(REG_S2MM_FRMDLY_STRIDE)))
         print ("  Frame Memory Map")
         for i in range (self.get_max_number_of_frames()):
-            print ("    %d [%02X]: 0x%08X" % (i, REG_S2MM_START_ADDR + (i * 4), self.mmio.read(REG_S2MM_START_ADDR + (i * 4))))
+            print ("    %d [%02X]: 0x%08X" % \
+                (i, REG_S2MM_START_ADDR + (i * 4), \
+                self.mmio.read(REG_S2MM_START_ADDR + (i * 4))))
         print ("")
 

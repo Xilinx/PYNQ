@@ -45,7 +45,10 @@ def test_vdma_egress_ingress_transfer():
     ol = Overlay(BITFILE_NAME)
     ol.download()
 
-    #These can be set between 0 - 2, the VDMA can also be configured for up to 32 frames in 32-bit memspace and 16 in 64-bit memspace
+    """
+    These can be set between 0 - 2, the VDMA can also be configured for up to
+    32 frames in 32-bit memspace and 16 in 64-bit memspace
+    """
     EGRESS_FRAME_INDEX  = 0
     INGRESS_FRAME_INDEX = 0
 
@@ -54,7 +57,8 @@ def test_vdma_egress_ingress_transfer():
     image_height = 100
     color_depth = 3
 
-    image_in = np.zeros((image_height, image_width, color_depth)).astype(np.uint8)
+    image_in = \
+        np.zeros((image_height, image_width, color_depth)).astype(np.uint8)
     i = 0
     for y in range(image_height):
         for x in range(image_width):
@@ -123,19 +127,17 @@ def test_vdma_egress_ingress_transfer():
             for p in range(color_depth):
                 if image_in[y, x, p] != image_out[y, x, p]:
                     print ("[%d, %d]: %d %d %d != %d %d %d" % (y, x,
-                                                                image_in[y, x, 0],
-                                                                image_in[y, x, 1],
-                                                                image_in[y, x, 2],
+                                                         image_in[y, x, 0],
+                                                         image_in[y, x, 1],
+                                                         image_in[y, x, 2],
 
-                                                                image_out[y, x, 0],
-                                                                image_out[y, x, 1],
-                                                                image_out[y, x, 2]))
+                                                         image_out[y, x, 0],
+                                                         image_out[y, x, 1],
+                                                         image_out[y, x, 2]))
 
                     print ("IN:")
                     print (image_in)
                     print ("OUT:")
                     print (image_out)
                     assert False
-    
-
 

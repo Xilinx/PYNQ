@@ -75,7 +75,8 @@ extern PyObject *set_frame(videoframeObject *self, unsigned int index,
 
 extern PyObject *get_framebuffer(framebufferObject *self);
 extern PyObject *get_framebuffer_phyaddr(framebufferObject *self);
-extern PyObject *set_framebuffer(framebufferObject *self, PyByteArrayObject *new_frame);
+extern PyObject *set_framebuffer(framebufferObject *self,
+                          PyByteArrayObject *new_frame);
 
 
 

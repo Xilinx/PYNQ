@@ -78,7 +78,8 @@ PyMODINIT_FUNC PyInit__video(void){
     Py_INCREF(&videodisplayType);
     Py_INCREF(&videocaptureType);
     PyModule_AddObject(m, "_frame", (PyObject *)&videoframeType);
-    PyModule_AddObject(m, "_framebuffer", (PyObject *)&framebufferType);
+    PyModule_AddObject(m, "_framebuffer",
+      (PyObject *)&framebufferType);
     PyModule_AddObject(m, "_display", (PyObject *)&videodisplayType);
     PyModule_AddObject(m, "_capture", (PyObject *)&videocaptureType);
     return m;
