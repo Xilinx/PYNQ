@@ -182,6 +182,207 @@ class MMIO:
         else:
             raise ValueError("Data type must be int or bytes.")
 
+    def enable_register_bit(self, address, bit, enable):
+        """ enable_register_bit
+        Pass a bool value to set/clear a bit
+
+        Parameters
+        ----------
+        address : int
+            Address of the register/memory to modify
+        bit : int
+            Address of bit to set (31 - 0)
+        enable :Boolean
+            Set or clear a bit
+
+        Returns
+        -------
+          None
+
+        """
+        if enable:
+            self.set_register_bit(address, bit)
+        else:
+            self.clear_register_bit(address, bit)
+
+    def set_register_bit(self, address, bit):
+        """ set_register_bit
+        Sets an individual bit in a register
+
+        Parameters
+        ----------
+
+        address : int
+            Address of the register/memory to modify
+        bit : int
+            Address of bit to set (31 - 0)
+
+        Returns
+        -------
+          None
+        """
+        register = self.read(address)
+        bit_mask =  1 << bit
+        register |= bit_mask
+        self.write(address, register)
+
+    def clear_register_bit(self, address, bit):
+        """clear_register_bit
+
+        Clear an individual bit in a register
+
+        Parameters
+        ----------
+        address : int
+            Address of the register/memory to modify
+        bit : int
+            Address of bit to set (31 - 0)
+
+        Returns
+        -------
+            None
+        """
+        register = self.read(address)
+        bit_mask =  1 << bit
+        register &= ~bit_mask
+        self.write(address, register)
+
+    def is_register_bit_set(self, address, bit):
+        """is_register_bit_set
+        returns true if an individual bit is set, false if clear
+        Args:
+          address (int): Address of the register/memory to read
+          bit (int): Address of bit to check (31 - 0)
+        Returns:
+          (boolean):
+            True: bit is set
+            False: bit is not set
+        Raises:
+          ValueError
+        """
+        register = self.read(address)
+        bit_mask =  1 << bit
+        return ((register & bit_mask) > 0)
+
+    def write_bit_range(self, address, high_bit, low_bit, value):
+        """Write data to a range of bits within a register
+        Register = [XXXXXXXXXXXXXXXXXXXXXXXH---LXXXX]
+        Write to a range of bits within ia register
+
+        Parameters
+        ----------
+        address : int
+            Address or the register/memory to write
+        high_bit : int
+            the high bit of the bit range to edit
+        low_bit : int
+            the low bit of the bit range to edit
+        value : int
+            the value to write in the range
+
+        Returns
+        -------
+            Nothing
+        """
+        reg = self.read(address)
+        bitmask = (((1 << (high_bit + 1))) - (1 << low_bit))
+        reg &= ~(bitmask)
+        reg |= value << low_bit
+        self.write(address, reg)
+
+    def read_bit_range(self, address, high_bit, low_bit):
+        """
+        Read a range of bits within a register at address 'address'
+        Register = [XXXXXXXXXXXXXXXXXXXXXXXH---LXXXX]
+        Read the value within a register, the top bit is H and bottom is L
+
+        Parameters
+        ----------
+        address : int
+            Address or the register/memory to read
+        high_bit : int
+            the high bit of the bit range to read
+        low_bit : int
+            the low bit of the bit range to read
+
+        Returns
+        -------
+            Value within the bitfield
+        """
+
+        value = self.read(address)
+        bitmask = (((1 << (high_bit + 1))) - (1 << low_bit))
+        value = value & bitmask
+        value = value >> low_bit
+        return value
+
+    def write_register_bitmask(self, address, bitmask, value):
+        """
+        Write a range of bits using a bitmask
+
+        Parameters
+        ----------
+        address : int
+            Address or the register/memory to write
+        bitmask : int
+            bitfield that defines the range of bits
+        value : int
+            the value to write in the range
+
+        Returns
+        -------
+            None
+        """
+        #Get the high bit and low bit
+        low_bit = 0
+        high_bit = 0
+        bm = bitmask
+        if bitmask == 0:
+            raise ValueError("Bitmask cannot be equal to 0")
+
+        while (bm & 0x01) == 0:
+            low_bit += 1
+            bm = bm >> 1
+
+        bm = bitmask
+        while (bm - 1) > 0:
+            high_bit += 1
+            bm = bm >> 1
+
+        self.write_bit_range(address, high_bit, low_bit, value)
+
+    def read_register_bitmask(self, address, bitmask):
+        """
+        Write a range of bits using a bitmask
+
+        Parameters
+        ----------
+        address : int
+            Address or the register/memory to write
+        bitmask : int
+            bitfield that defines the range of bits
+
+        Returns
+        -------
+            Value within the bitfield
+        """
+        #Get the high bit and low bit
+        low_bit = 0
+        high_bit = 0
+        bm = bitmask
+        if bitmask == 0:
+            raise ValueError("Bitmask cannot be equal to 0")
+
+        while (bm & 0x01) == 0:
+            low_bit += 1
+            bm = bm >> 1
+
+        bm = bitmask
+        while (bm - 1) > 0:
+            high_bit += 1
+            bm = bm >> 1
+        return self.read_bit_range(address, high_bit, low_bit)
+
     def _debug(self, s, *args):
         """The method provides debug capabilities for this class.
 
@@ -198,3 +399,5 @@ class MMIO:
         """
         if self.debug:
             print('MMIO Debug: {0}'.format(s.format(*args)))
+
+
