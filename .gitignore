@@ -40,3 +40,7 @@ __pycache__/
 ######################
 GNUmakefile
 user.props
+
+# Tags
+######################
+tags
