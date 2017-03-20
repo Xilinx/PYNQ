@@ -34,6 +34,8 @@ __email__ = "pynq_support@xilinx.com"
 from .audio import Audio
 from .video import HDMI
 from .video import Frame
+from .framebuffer import FrameBuffer
 from .dma import DMA
 from .trace_buffer import Trace_Buffer
 from .usb_wifi import Usb_Wifi
+from .vdma import VDMA
