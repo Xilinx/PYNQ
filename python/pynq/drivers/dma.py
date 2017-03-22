@@ -317,21 +317,24 @@ class DMA:
             self.free_buf()
         libdma.XAxiDma_Reset(self.DMAengine)
 
-    def transfer(self, num_bytes, direction=DMA_FROM_DEV):
+    def transfer(self, num_bytes=-1, direction=-1):
         """Transfer data using DMA (Non-blocking).
 
         Used to initiate transfer of data between a physically contiguous
         buffer and PL. The buffer should be allocated using `create_buf`
-        before this call.
+        or get_ndarray before this call.
 
-        The `num_bytes` should be less than buffer size and
-        `DMA_TRANSFER_LIMIT_BYTES`.
+        The `num_bytes` defaults to the buffer size and be both
+        less than or equal to the buffer size and `DMA_TRANSFER_LIMIT_BYTES`.
 
         Possible values for `direction` are:
 
         (0)`DMA_TO_DEV` : DMA sends data to PL.
 
         (1)`DMA_FROM_DEV` : DMA receives data from PL.
+
+        If the direction is not specified it uses the direction passed at
+        initialisation. This is not valid for bidirectional DMA.
 
         Parameters
         ----------
@@ -345,6 +348,10 @@ class DMA:
         None
 
         """
+        if num_bytes == -1:
+            num_bytes = self.bufLength
+        if direction == -1:
+            direction = self.direction
         if num_bytes > self.bufLength:
             raise RuntimeError("Buffer size smaller than the transfer size")
         if num_bytes > DMA_TRANSFER_LIMIT_BYTES:
