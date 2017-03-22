@@ -35,7 +35,9 @@ __email__       = "pynq_support@xilinx.com"
 import os
 import sys
 import cffi
+import functools
 import signal
+import numpy as np
 
 ffi = cffi.FFI()
 memapi = cffi.FFI()
@@ -465,7 +467,37 @@ class DMA:
                 return ffi.cast("long long *",self.buf)
         else:
             raise RuntimeError("Buffer not created.")
-        
+
+    def get_ndarray(self, shape=None, dtype=np.float32, cacheable=0):
+        """Get a numpy ndarray of the DMA buffer, if shape is provided the
+        buffer is resized to fit the specified shape.
+
+        Parameters
+        ----------
+        shape : int array
+            Shape of the numpy array to return
+        dtype : numpy.dtype
+            Type of the numpy array to return
+        cacheable : int
+            Passed to create_buf if a shape is provided
+
+        Returns
+        -------
+        numpy.ndarray
+            Numpy view of the DMA buffer
+
+        """
+        if shape:
+            totalsize = (functools.reduce(lambda x,y: x*y, shape)
+                         * dtype().itemsize)
+            self.create_buf(totalsize, cacheable)
+        if not self.buf:
+            raise RuntimeError("Buffer not created or shape not specified")
+        buffer = ffi.buffer(self.buf, self.bufLength)
+        ret = np.frombuffer(buffer, dtype=dtype)
+        ret.shape = shape
+        return ret
+
     def configure(self, attr_dict=None):
         """Reconfigure and Reinitialize the DMA IP.
 
