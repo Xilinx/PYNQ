@@ -35,9 +35,12 @@ __email__       = "yunq@xilinx.com"
 import os
 import sys
 import math
+import numpy as np
 from pynq import MMIO
 from pynq import GPIO
 from pynq import PL
+from pynq import Clocks
+from pynq import Xlnk
 from pynq.intf import intf_const
 
 class _INTF:
@@ -61,7 +64,14 @@ class _INTF:
         The GPIO instance associated with this interface.
     mmio : MMIO
         The MMIO instance associated with this interface.
-        
+    clk : Clocks
+        The instance to control PL clocks.
+    buf_manager : Xlnk
+        The Xlnk memory manager used for contiguous memory allocation.
+    buffers : dict
+        A dictionary of cffi.FFI.CData buffer, each can be accessed similarly
+        as arrays.
+
     """
 
     def __init__(self, ip_name, addr_base, addr_range, gpio_uix, mb_program):
@@ -86,7 +96,9 @@ class _INTF:
         self.state = 'IDLE'
         self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
         self.mmio = MMIO(addr_base, addr_range)
-        
+        self.clk = Clocks
+        self.buf_manager = Xlnk()
+        self.buffers = dict()
         self.program()
         
     def start(self):
@@ -127,10 +139,135 @@ class _INTF:
         
         """
         self.stop()
-        
         PL.load_ip_data(self.ip_name, self.mb_program)
-        
         self.start()
+
+    def write_control(self,ctrl_parameters):
+        """This method writes control parameters to the Microblaze.
+
+        Parameters
+        ----------
+        ctrl_parameters : list
+            A list of control parameters, each being an int.
+
+        Returns
+        -------
+        None
+
+        """
+        for i,j in enumerate(ctrl_parameters):
+            self.mmio.write(intf_const.MAILBOX_OFFSET+4*i, j)
+
+    def write_command(self, command):
+        """This method writes the commands to the Microblaze.
+
+        The program waits in the loop until the command is cleared by the
+        Microblaze.
+
+        Parameters
+        ----------
+        command : int
+            The command to write to the Microblaze.
+
+        Returns
+        -------
+        None
+
+        """
+        self.mmio.write(intf_const.MAILBOX_OFFSET +
+                        intf_const.MAILBOX_PY2DIF_CMD_OFFSET, command)
+        while not (self.mmio.read(intf_const.MAILBOX_OFFSET +
+                                  intf_const.MAILBOX_PY2DIF_CMD_OFFSET) == 0):
+            pass
+
+    def allocate_buffer(self, name, num_samples, data_type="unsigned int"):
+        """This method allocates the source or the destination buffers.
+
+        Usually, the source buffer stores 32-bit samples, while the
+        destination buffer stores 64-bit samples.
+
+        Note that the numpy array has to be deep-copied before users can
+        free the buffer.
+
+        Parameters
+        ----------
+        name : str
+            The name of the string, used for indexing the buffers.
+        num_samples : int
+            The number of samples that needs to be generated or captured.
+
+        Returns
+        -------
+        int
+            The address of the source or destination buffer.
+
+        """
+        buf = self.buf_manager.cma_alloc(num_samples,
+                                         data_type=data_type)
+        self.buffers[name] = buf
+        return self.buf_manager.cma_get_phy_addr(buf)
+
+    def ndarray_from_buffer(self, name, num_bytes, dtype=np.uint32):
+        """This method returns a numpy array from the buffer.
+
+        If not data type is specified, the returned numpy array will have
+        data type as `numpy.uint32`.
+
+        The numpy array is copied. Hence even if the underlying buffer is
+        freed, the returned numpy array is still usable.
+
+        Parameters
+        ----------
+        name : str
+            The name of the buffer where the numpy array can be constructed.
+        num_bytes : int
+            The length of the buffer, in bytes.
+        dtype : str
+            Data type of the numpy array.
+
+        Returns
+        -------
+        numpy.ndarray
+            The numpy array constructed from the buffer.
+
+        """
+        if name not in self.buffers:
+            raise ValueError(f"No such buffer {name} allocated previously.")
+        buffer = self.buffers[name]
+        buf_temp = self.buf_manager.cma_get_buffer(buffer,
+                                                   num_bytes)
+        return np.frombuffer(buf_temp, dtype=dtype).copy()
+
+    def free_buffer(self, name):
+        """This method frees the buffer.
+
+        Note that the numpy array built on top of the buffer should be
+        deep-copied before users can free the buffer.
+
+        Parameters
+        ----------
+        name : str
+            The name of the buffer to be freed.
+
+        """
+        if name in self.buffers:
+            self.buf_manager.cma_free(self.buffers[name])
+            del(self.buffers[name])
+        else:
+            raise ValueError(f"No such buffer {name} allocated previously.")
+
+    def reset_buffers(self):
+        """This method resets all the buffers.
+
+        Note that the numpy array built on top of the buffer should be
+        deep-copied before users can free the buffer.
+
+        """
+        if self.buffers:
+            for name in self.buffers:
+                self.buf_manager.cma_free(self.buffers[name])
+        self.buffers = dict()
+
 
 def request_intf(if_id, mb_program):
     """This is the interface to request an I/O Processor.
@@ -179,8 +316,8 @@ def request_intf(if_id, mb_program):
     """
     ip_dict = PL.ip_dict
     gpio_dict = PL.gpio_dict
-    dif = "SEG_if_bram_ctrl_" + str(if_id) + "_Mem0"
-    rst_pin = "if_" + str(if_id) + "_reset"
+    dif = "SEG_mb_bram_ctrl_" + str(if_id) + "_Mem0"
+    rst_pin = "mb_" + str(if_id) + "_reset"
 
     ip = [k for k, _ in ip_dict.items()]
     gpio = [k for k, _ in gpio_dict.items()]

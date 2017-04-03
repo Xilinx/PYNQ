@@ -34,13 +34,14 @@ __email__       = "pynq_support@xilinx.com"
 
 # Constants
 from . import intf_const
-from .intf_const import PMODA
-from .intf_const import PMODB
 from .intf_const import ARDUINO
 
-# CFG modules
+# Interface modules
 from .intf import request_intf
-from .arduino_cfg import Arduino_CFG
-from .arduino_pg import Arduino_PG
+from .waveform import Waveform
+from .boolean_generator import BooleanGenerator
+from .pattern_generator import PatternGenerator
+from .pattern_analyzer import PatternAnalyzer
+from .fsm_generator import FSMGenerator
 
 

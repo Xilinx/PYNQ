@@ -35,23 +35,22 @@ import os
 import re
 from pyeda.inter import exprvar
 from pyeda.inter import expr2truthtable
-from pynq import PL
 from .intf_const import ARDUINO
-from .intf_const import MAILBOX_OFFSET
-from .intf_const import MAILBOX_PY2DIF_CMD_OFFSET
+from .intf_const import CMD_GENERATE_DEFAULT_BOOLEAN
+from .intf_const import CMD_GENERATE_USER_BOOLEAN
 from .intf import request_intf
 
-IN_PINS = [['D3', 'D2', 'D1', 'D0'],
-           ['D8', 'D7', 'D6', 'D5'],
-           ['D13', 'D12', 'D11', 'D10'],
-           ['A4', 'A3', 'A2', 'A1'],
-           ['PB3', 'PB2', 'PB1', 'PB0']]
+IN_PINS = [['D0', 'D1', 'D2', 'D3'],
+           ['D5', 'D6', 'D7', 'D8'],
+           ['D10', 'D11', 'D12', 'D13'],
+           ['A1', 'A2', 'A3', 'A4'],
+           ['PB0', 'PB1', 'PB2', 'PB3']]
 OUT_PINS = ['D4', 'D9', 'A0', 'A5']
 LD_PINS = ['LD0', 'LD1', 'LD2', 'LD3', 'LD4', 'LD5']
-ARDUINO_CFG_PROGRAM = "arduino_cfg.bin"
+ARDUINO_CFG_PROGRAM = "arduino_intf.bin"
 
 
-class Arduino_CFG:
+class BooleanGenerator:
     """Class for the Combinational Function Generator.
 
     This class can implement any combinational function on user IO pins. A
@@ -65,10 +64,8 @@ class Arduino_CFG:
         The interface ID (ARDUINO).
     intf : _INTF
         INTF instance used by Arduino_CFG class.
-    mmio : MMIO
-        Memory-mapped I/O instance to read and write instructions and data.
-    expr : list
-        The list of boolean expressions; each expression is a string.
+    expr : str
+        The boolean expression in string format.
     led : bool
         Whether LED is used to indicate output.
     verbose : bool
@@ -129,19 +126,14 @@ class Arduino_CFG:
 
         self.if_id = if_id
         self.intf = request_intf(if_id, ARDUINO_CFG_PROGRAM)
-        self.mmio = self.intf.mmio
         self.expr = expr
         self.led = led
         self.verbose = verbose
 
         if expr is None:
-            self.mmio.write(MAILBOX_OFFSET +
-                            MAILBOX_PY2DIF_CMD_OFFSET, 0x1)
-            while (self.mmio.read(MAILBOX_OFFSET +
-                                  MAILBOX_PY2DIF_CMD_OFFSET) == 0x1):
-                pass
+            self.intf.write_command(CMD_GENERATE_DEFAULT_BOOLEAN)
         else:
-            self.bool_fun(expr, led, verbose)
+            self.bool_func(expr, led, verbose)
 
     def bool_func(self, expr, led=True, verbose=True):
         """Configure the CFG with new boolean expression or LED indicator.
@@ -185,8 +177,7 @@ class Arduino_CFG:
             expr_in = expr
 
         # parse the used pins
-        pin_id = re.split("~|\||^|\&", expr_in.strip())
-        pin_id = [e.strip() for e in pin_id if e]
+        pin_id = re.sub("\W+", " ", expr_in).strip().split(' ')
         bank_in = 0
         for b in range(5):
             if pin_id[0] in IN_PINS[b]:
@@ -206,14 +197,25 @@ class Arduino_CFG:
                           ')|(' + expr_in + '&~' + i + ')'
 
         # map to truth table
-        p3, p2, p1, p0 = map(exprvar, IN_PINS[bank_in])
+        p0, p1, p2, p3 = map(exprvar, IN_PINS[bank_in])
         expr_p = expr_in
-        for i in range(4):
-            expr_p = expr_p.replace('D' + str(i), 'p' + str(i))
-            expr_p = expr_p.replace('D' + str(i + 5), 'p' + str(i))
-            expr_p = expr_p.replace('D' + str(i + 10), 'p' + str(i))
-            expr_p = expr_p.replace('A' + str(i + 1), 'p' + str(i))
-            expr_p = expr_p.replace('PB' + str(i), 'p' + str(i))
+
+        if bank_in == 0:
+            for i in range(4):
+                expr_p = expr_p.replace('D' + str(i), 'p' + str(i))
+        elif bank_in == 1:
+            for i in range(4):
+                expr_p = expr_p.replace('D' + str(i + 5), 'p' + str(i))
+        elif bank_in == 2:
+            for i in range(4):
+                expr_p = expr_p.replace('D' + str(i + 10), 'p' + str(i))
+        elif bank_in ==3:
+            for i in range(4):
+                expr_p = expr_p.replace('A' + str(i + 1), 'p' + str(i))
+        else:
+            for i in range(4):
+                expr_p = expr_p.replace('PB' + str(i), 'p' + str(i))  
+            
         truth_table = expr2truthtable(eval(expr_p))
         if verbose:
             if led:
@@ -230,14 +232,11 @@ class Arduino_CFG:
             truth_num = (truth_num << 1) + int(truth_list[i][-1])
 
         # construct the command word
-        cmd_word = 0x3
+        cmd_word = CMD_GENERATE_USER_BOOLEAN
         cmd_word |= (0x1 << (4 + bank_in))
         if led:
             cmd_word |= (0x1 << 12)
 
-        self.mmio.write(MAILBOX_OFFSET, truth_num)
-        self.mmio.write(MAILBOX_OFFSET +
-                        MAILBOX_PY2DIF_CMD_OFFSET, cmd_word)
-        while (self.mmio.read(MAILBOX_OFFSET +
-                              MAILBOX_PY2DIF_CMD_OFFSET) == cmd_word):
-            pass
+        self.intf.write_control([truth_num])
+        self.intf.write_command(cmd_word)
+
