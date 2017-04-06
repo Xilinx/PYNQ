@@ -27,14 +27,18 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Yun Rock Qu"
+__author__ = "Graham Schelle"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-import os
-from pynq import PL, PL_SERVER_FILE
+# from .audio import Audio
+# from .video import HDMI
+# from .video import Frame
+# from .dma import DMA
+# from .trace_buffer import Trace_Buffer
+# from .usb_wifi import Usb_Wifi
 
-# Start the PL server
-if os.path.exists(PL_SERVER_FILE):
-    os.remove(PL_SERVER_FILE)
-PL.setup()
+from .led import LED
+from .rgbled import RGBLED
+from .switch import Switch
+from .button import Button

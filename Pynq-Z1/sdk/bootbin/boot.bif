@@ -1,6 +1,0 @@
-the_ROM_image:
-{
-	[bootloader]fsbl.elf
-	../../bitstream/base.bit
-	u-boot.elf
-}

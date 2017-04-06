@@ -31,10 +31,50 @@ __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-import os
-from pynq import PL, PL_SERVER_FILE
+from random import randint
+from math import pow
+from time import sleep
+import pytest
+from pynq import MMIO
+from pynq import Overlay
 
-# Start the PL server
-if os.path.exists(PL_SERVER_FILE):
-    os.remove(PL_SERVER_FILE)
-PL.setup()
+
+@pytest.mark.run(order=4)
+def test_mmio():
+    """Test whether MMIO class is working properly.
+    
+    Generate random tests to swipe through the entire range:
+    
+    >>> mmio.write(all offsets, random data)
+    
+    Steps:
+    
+    1. Initialize an instance with length in bytes
+    
+    2. Write an integer to a given offset.
+    
+    3. Write a number within the range [0, 2^32-1] into a 4-byte location.
+    
+    4. Change to the next offset and repeat.
+    
+    """
+    ol = Overlay('base.bit')
+
+    ol.download()
+    sleep(0.2)
+    mmio_base = ol.ip_dict['mb_bram_ctrl_1']['phys_addr']
+    mmio_range = ol.ip_dict['mb_bram_ctrl_1']['addr_range']
+    mmio = MMIO(mmio_base, mmio_range)
+    for offset in range(0, 100, 4):
+        data1 = randint(0, pow(2, 32) - 1)
+        mmio.write(offset, data1)
+        sleep(0.02)
+        data2 = mmio.read(offset)
+        assert data1 == data2, \
+            'MMIO read back a wrong random value at offset {}.'.format(offset)
+        mmio.write(offset, 0)
+        sleep(0.02)
+        assert mmio.read(offset) == 0, \
+            'MMIO read back a wrong fixed value at offset {}.'.format(offset)
+
+    del ol

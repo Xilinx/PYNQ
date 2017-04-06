@@ -27,14 +27,51 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
+__author__      = "Yun Rock Qu"
+__copyright__   = "Copyright 2016, Xilinx"
+__email__       = "pynq_support@xilinx.com"
+
 
 import os
-from pynq import PL, PL_SERVER_FILE
+import math
+import pytest
+from pynq.gpio import GPIO, GPIO_MIN_USER_PIN
 
-# Start the PL server
-if os.path.exists(PL_SERVER_FILE):
-    os.remove(PL_SERVER_FILE)
-PL.setup()
+@pytest.mark.run(order=3)
+def test_gpio():
+    """ Test whether the GPIO class is working properly.
+    
+    Note
+    ----
+    The gpio_min is the GPIO base pin number + minimum user pin
+    The gpio_max is the smallest power of 2 greater than the GPIO base.
+    
+    """
+    # Find the GPIO base pin
+    for root, dirs, files in os.walk('/sys/class/gpio'):
+            for name in dirs:
+                if 'gpiochip' in name:
+                    index = int(''.join(x for x in name if x.isdigit()))
+    base = GPIO.get_gpio_base()
+    gpio_min = base + GPIO_MIN_USER_PIN
+    gpio_max = 2**(math.ceil(math.log(gpio_min, 2)))
+            
+    for index in range(gpio_min, gpio_max):
+        g = GPIO(index, 'in')
+        with pytest.raises(Exception) as error_infor:
+            # GPIO type is 'in'. Hence g.write() is illegal. 
+            # Test will pass if exception is raised.
+            g.write()
+        del g
+        
+        g = GPIO(index, 'out')
+        with pytest.raises(Exception) as error_infor:
+            # GPIO type is 'out'. Hence g.read() is illegal. 
+            # Test will pass if exception is raised.
+            g.read()
+        with pytest.raises(Exception) as error_infor:
+            # write() only accepts integer 0 or 1 (not 'str'). 
+            # Test will pass if exception is raised.
+            g.write('1')
+        
+        del g

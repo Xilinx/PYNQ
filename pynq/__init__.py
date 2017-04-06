@@ -31,10 +31,16 @@ __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-import os
-from pynq import PL, PL_SERVER_FILE
 
-# Start the PL server
-if os.path.exists(PL_SERVER_FILE):
-    os.remove(PL_SERVER_FILE)
-PL.setup()
+from .gpio import GPIO
+from .mmio import MMIO
+from .ps import Register
+from .ps import Clocks
+from .pl import PL
+from .pl import PL_SERVER_FILE
+from .pl import Bitstream
+from .pl import Overlay
+from .interrupt import Interrupt
+from .xlnk import Xlnk
+
+__all__ = ['lib', 'tests']
