@@ -37,6 +37,34 @@ import shutil
 import subprocess
 import sys
 import os
+import site
+import stat
+from datetime import datetime
+from itertools import chain
+
+
+''' Board specific package delivery setup '''
+if 'BOARD' not in os.environ:
+    print("Please set the BOARD environment variable to get any BOARD specific overlays (e.g. Pynq-Z1).")
+    board = None
+    board_folder = None
+    pynq_data_files = None
+else:
+    board = os.environ['BOARD']
+    board_folder = 'boards/{}/'.format(board)
+    pynq_data_files = [(os.path.join('{}/pynq'.format(site.getsitepackages()[0]), root.replace(board_folder, '')),
+                        [os.path.join(root, f) for f in files]) for root, dirs, files in os.walk(board_folder)]
+
+
+''' Notebook Delivery '''
+default_nb_dir = '/home/xilinx/jupyter_notebooks'
+if 'PYNQ_JUPYTER_NOTEBOOKS' in os.environ:
+    notebooks_dir = os.environ['PYNQ_JUPYTER_NOTEBOOKS']
+elif os.path.exists(default_nb_dir):
+    notebooks_dir = default_nb_dir
+else:
+    notebooks_dir = None
+
 
 # Video source files
 _video_src = ['pynq/_pynq/_video/_video.c', 'pynq/_pynq/_video/_capture.c', 
@@ -78,6 +106,60 @@ video.extend(bsp_axivdma)
 video.extend(bsp_gpio)
 video.extend(bsp_vtc)
 video.extend(_video_src)
+
+
+# Build Package Data files - notebooks, overlays
+def fill_notebooks_dir():
+    if notebooks_dir is None:
+        return None
+
+    # boards/BOARD/OVERLAY/notebooks
+    overlay_notebook_folders = [(ol, os.path.join(board_folder, ol, 'notebooks/')) for ol in os.listdir(board_folder)
+                       if os.path.isdir(os.path.join(board_folder, ol, 'notebooks'))]
+
+    # pynq/notebooks/*
+    pynq_notebook_files = ([(os.path.join(notebooks_dir, root.replace('pynq/notebooks/', '')),
+                             [os.path.join(root, f) for f in files]) for root, dirs, files in
+                            os.walk('pynq/notebooks/')])
+
+    # boards/BOARD/OVERLAY_NAME/notebooks/*
+
+    for ol, nb_dir in overlay_notebook_folders:
+        pynq_notebook_files.extend([(os.path.join(notebooks_dir, root.replace(nb_dir, f'{ol}/')),
+                                 [os.path.join(root, f) for f in files]) for root, dirs, files in os.walk(nb_dir)])
+
+    # copy notebooks into final destination
+    for dst, files in pynq_notebook_files:
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+        for file in files:
+            shutil.copy(file, dst)
+            dst_file = os.path.join(dst,os.path.basename(file))
+            os.chmod(dst_file, os.stat(dst_file).st_mode | stat.S_IWOTH)
+
+    # rename and copy getting started notebooks
+    dst = os.path.join(notebooks_dir,'getting_started')
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for ix, getting_started_nb in enumerate(getting_started_notebooks):
+        new_nb_name = f'{ix+1}_{getting_started_nb.split("_",1)[1]}'
+        dst_file = os.path.join(dst, new_nb_name)
+        shutil.copy(os.path.join('docs','source',getting_started_nb), dst_file)
+        os.chmod(dst_file, os.stat(dst_file).st_mode | stat.S_IWOTH)
+
+# Backup Notebooks
+def backup_notebooks():
+    if notebooks_dir is None:
+        return None
+
+    notebooks_dir_backup = '{}_{}'.format(notebooks_dir, datetime.now().strftime("%Y_%m_%d_%H-%M-%S"))
+    try:
+        shutil.copytree(notebooks_dir, notebooks_dir_backup)
+    except Exception as e:
+        print ('Unable to backup notebooks {}'.format(e))
+        raise e
+    return notebooks_dir_backup
+
 
 # Run Makefiles here
 def run_make(src_path,dst_path, output_lib):

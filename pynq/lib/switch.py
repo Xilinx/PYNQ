@@ -58,7 +58,8 @@ class Switch(object):
 
         """
         if Switch._mmio is None:
-            Switch._mmio = MMIO(PL.ip_dict["SEG_swsleds_gpio_Reg"][0], 512)
+            base_addr = PL.ip_dict["swsleds_gpio"]["phys_addr"]
+            Switch._mmio = MMIO(base_addr, 512)
         self.index = index
         self.interrupt = None
         try:

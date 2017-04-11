@@ -27,16 +27,18 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from pynq import MMIO
+from pynq import PL
+
+
 __author__ = "Giuseppe Natale"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-from pynq import MMIO
-from pynq import PL
-
 LEDS_OFFSET0 = 0x8
 LEDS_OFFSET1 = 0xC
+
 
 class LED(object):
     """This class controls the onboard LEDs.
@@ -58,12 +60,13 @@ class LED(object):
             Index of the LED, from 0 to 3.
         
         """
-        if not index in range(4):
+        if index not in range(4):
             raise Value("Index for onboard LEDs should be 0 - 3.")
             
         self.index = index
         if LED._mmio is None:
-            LED._mmio = MMIO(PL.ip_dict["SEG_swsleds_gpio_Reg"][0],16)
+            base_addr = PL.ip_dict["swsleds_gpio"]["phys_addr"]
+            LED._mmio = MMIO(base_addr, 16)
         LED._mmio.write(LEDS_OFFSET1, 0x0)
 
     def toggle(self):
@@ -99,7 +102,7 @@ class LED(object):
         None
         
         """
-        new_val = (LED._leds_value) & (0xff ^ (0x1 << self.index))
+        new_val = LED._leds_value & (0xff ^ (0x1 << self.index))
         self._set_leds_value(new_val)
 
     def write(self, value):

@@ -33,9 +33,9 @@ __email__       = "pynq_support@xilinx.com"
 
 
 import os
-from pynq import PL
+from pynq.pl import PL, PL_SERVER_FILE
 
 # Start the PL server
-if os.path.exists("/home/xilinx/pynq/bitstream/.log"):
-    os.remove("/home/xilinx/pynq/bitstream/.log")
+if os.path.exists(PL_SERVER_FILE):
+    os.remove(PL_SERVER_FILE)
 PL.setup()

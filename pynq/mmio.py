@@ -33,11 +33,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 import os
-import sys
-import struct
 import mmap
-import math
-from . import general_const
 import numpy as np
 
 
@@ -100,7 +96,7 @@ class MMIO:
                     self.base_addr, self.length)
 
         # Open file and mmap
-        self.mmap_file = os.open(general_const.MMIO_FILE_NAME,
+        self.mmap_file = os.open('/dev/mem',
                                  os.O_RDWR | os.O_SYNC)
 
         self.mem = mmap.mmap(self.mmap_file, (self.length + self.virt_offset),
