@@ -28,20 +28,28 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import sys
 import re
 import mmap
 import math
 from datetime import datetime
 from multiprocessing.connection import Listener
 from multiprocessing.connection import Client
-from pynq import general_const
-from pynq import GPIO
 from pynq import MMIO
+from .ps import Clocks
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+# Overlay constants
+PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
+BS_BOOT = os.path.join(PYNQ_PATH, 'base', 'base.bit')
+TCL_BOOT = os.path.join(PYNQ_PATH, 'base', 'base.tcl')
+
+BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
+BS_XDEVCFG = "/dev/xdevcfg"
+
+PL_SERVER_FILE = os.path.join(PYNQ_PATH, '.log')
 
 
 def _get_tcl_name(bitfile_name):
@@ -64,115 +72,44 @@ def _get_tcl_name(bitfile_name):
     return os.path.splitext(bitfile_name)[0] + '.tcl'
 
 
-def _get_ip(tcl_name):
-    """This method returns the MMIO base and range of an IP.
-
-    This method applies to all the addressable IPs.
+class _TCL:
+    """Helper Class to extract information from a TCL configuration file
 
     Note
     ----
-    This method requires the absolute path of the '.tcl' file as input.
-    Each entry in the returned dictionary stores a list of strings containing
-    the base and range in hex format, and an empty state.
-
-    Parameters
-    ----------
-    tcl_name : str
-        The absolute path of the .tcl file.
-
-    Returns
-    -------
-    dict
-        A dictionary storing the address base and range information.
-
-    """
-    regex = 'create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) ' + \
-            '-offset (0[xX][0-9a-fA-F]+) ' + \
-            '\[get_bd_addr_spaces (processing_system7_0|ps7)/Data\] ' + \
-            '(\[.+?\]) ' + \
-            '([A-Za-z0-9_]+)'
-    result = {}
-
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            m = re.search(regex, line, re.IGNORECASE)
-            if m:
-                # Each entry is [base, range, state]
-                result[m.group(5)] = [int(m.group(2), 16),
-                                      int(m.group(1), 16), None]
-
-    return result
-
-
-def _get_gpio(tcl_name):
-    """This method returns the PS GPIO index for an IP.
-
-    Note
-    ----
-    This method requires the absolute path of the '.tcl' file as input.
-    Each entry in the returned dictionary stores a user index, and an empty
-    state. For more information about the user GPIO pin, please see the GPIO
-    class.
-
-    Parameters
-    ----------
-    tcl_name : str
-        The absolute path of the .tcl file.
-
-    Returns
-    -------
-    dict
-        The dictionary storing the GPIO user indices, starting from 0.
-
-    """
-    pat1 = 'connect_bd_net -net processing_system7_0_GPIO_O'
-    pat2 = 'connect_bd_net -net ps7_GPIO_O'
-    result = {}
-    gpio_list = []
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            if (pat1 in line) or (pat2 in line):
-                gpio_list = re.findall('\[get_bd_pins (.+?)/Din\]',
-                                       line, re.IGNORECASE)
-
-    match1 = 0
-    index = 0
-    for i in range(len(gpio_list)):
-        name = gpio_list[i].split('/')[0]
-        pat3 = "set " + name
-        pat4 = "CONFIG.DIN_FROM {([0-9]+)}*"
-        with open(tcl_name, 'r') as f:
-            for line in f:
-                if pat3 in line:
-                    match1 = 1
-                    continue
-                if match1 == 1:
-                    match2 = re.search(pat4, line, re.IGNORECASE)
-                    if match2:
-                        index = match2.group(1)
-                        match1 = 0
-                        break
-        result[gpio_list[i]] = [int(index), None]
-
-    return result
-
-
-class _InterruptMap:
-    """Helper Class to extract interrupt information from a TCL
-    configuration file
+    This class requires the absolute path of the '.tcl' file.
 
     Attributes
     ----------
-    intc_parent : dict [str, str, int]
+    ip_dict : dict
+        All the addressable IPs from PS7. Key is the name of the IP; value is
+        a dictionary mapping the physical address, address range, IP type, 
+        configuration dictionary, and the state associated with that IP:
+        {str: {'phys_addr' : int, 'addr_range' : int, 
+               'type' : str, 'config' : dict, 'state' : str}}.
+    gpio_dict : dict
+        All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
+        value is a dictionary mapping user index (starting from 0),
+        and the state associated with that GPIO pin: 
+        {str: {'index' : int, 'state' : str}}.
+    interrupt_controllers : dict
         All AXI interrupt controllers in the system attached to
-        a PS7 interrupt line. Key is the name of the controller and
-        value is parent interrupt controller and the line interrupt used
-        The PS7 is the root of the hierarchy and is unnamed
-
-    intc_pins : dict [str, str, int]
-        All pins in the design attached to an interrupt controller listed in
-        in intc_names. Key is the name of the pin, value is the interrupt
-        controller and line used.
+        a PS7 interrupt line. Key is the name of the controller;
+        value is a dictionary mapping parent interrupt controller and the 
+        line index of this interrupt:
+        {str: {'parent': str, 'index' : int}}. 
+        The PS7 is the root of the hierarchy and is unnamed.
+    interrupt_pins : dict
+        All pins in the design attached to an interrupt controller. 
+        Key is the name of the pin; value is a dictionary 
+        mapping the interrupt controller and the line index used: 
+        {str: {'controller' : str, 'index' : int}}.
+    clock_dict : dict
+        All the PL clocks that can be controlled by the PS. Key is the index
+        of the clock (e.g., 0 for `fclk0`); value is a dictionary mapping the 
+        divisor values and the enable flag (1 for enabled, and 
+        0 for disabled):
+        {index: {'divisor0' : int, 'divisor1' : int, 'enable' : int}}
 
     """
 
@@ -189,110 +126,189 @@ class _InterruptMap:
         if not isinstance(tcl_name, str):
             raise TypeError("tcl_name has to be a string")
 
-        # This code does not support nested hierarchies at present
-
         # Initialize result variables
         self.intc_names = []
-        self.intc_parent = {}
+        self.interrupt_controllers = {}
         self.concat_cells = {}
         self.nets = []
         self.pins = {}
-        self.intc_pins = {}
+        self.prop = []
+        self.interrupt_pins = {}
         self.ps7_name = ""
+        self.ip_dict = {}
+        self.gpio_dict = {}
+        self.clock_dict = {}
 
         # Key strings to search for in the TCL file
-        hier_pat = "create_hier_cell"
-        concat_pat = "create_bd_cell -type ip -vlnv " \
-                     "xilinx.com:ip:xlconcat:2.1"
-        interrupt_pat = "create_bd_cell -type ip -vlnv " \
-                        "xilinx.com:ip:axi_intc:4.1"
-        ps7_pat = "create_bd_cell -type ip -vlnv " \
-                  "xilinx.com:ip:processing_system7:5.5"
-        prop_pat = "set_property -dict"
-        config_pat = "CONFIG.NUM_PORTS"
-        end_pat = "}\n"
+        hier_start_pat = "create_hier_cell"
+        hier_end_pat = "}\n"
+        hier_regex = "proc create_hier_cell_([^ ]*)"
+        config_pat = "CONFIG."
+        config_regex = "CONFIG.(.+?) \{(.+?)\}"
+        clk_divisor_regex = 'PCW_FCLK(.+?)_PERIPHERAL_DIVISOR(.+?)'
+        clk_enable_regex = 'PCW_FPGA_FCLK(.+?)_ENABLE'
+        prop_start_pat = "set_property -dict ["
+        prop_end_pat = "]"
+        prop_name_regex = "\] \$(.+?)$"
         net_pat = "connect_bd_net -net"
+        net_regex = "\[get_bd_pins ([^]]+)\]"
+        addr_pat = "create_bd_addr_seg"
+        addr_regex = "create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) " + \
+                     "-offset (0[xX][0-9a-fA-F]+) " + \
+                     "\[get_bd_addr_spaces "
+        ip_pat = "create_bd_cell -type ip -vlnv "
+        ip_regex = "create_bd_cell -type ip -vlnv " + \
+                   "(.+?):(.+?):(.+?):(.+?) (.+?) "
 
         # Parsing state
         current_hier = ""
         last_concat = ""
+        in_prop = False
+        gpio_idx = None
+        ip_dict = {}
+        gpio_dict = {}
 
         with open(tcl_name, 'r') as f:
             for line in f:
-                if config_pat in line:
-                    m = re.search('CONFIG.NUM_PORTS \{([0-9]+)\}', line)
-                    self.concat_cells[last_concat] = int(m.groups(1)[0])
-                elif hier_pat in line:
-                    m = re.search('proc create_hier_cell_([^ ]*)', line)
-                    if m:
-                        current_hier = m.groups(1)[0] + "/"
-                elif prop_pat in line:
-                    in_prop = True
-                elif concat_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
-                    last_concat = current_hier + m.groups(1)[0]
-                    # Default for IP is two input ports
-                    self.concat_cells[last_concat] = 2
-                elif interrupt_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:axi_intc:4.1 ([^ ]+)', line)
-                    self.intc_names.append(current_hier + m.groups(1)[0])
-                elif ps7_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:processing_system7:5.5 ([^ ]+)', line)
-                    self.ps7_name = current_hier + m.groups(1)[0]
-                elif end_pat == line:
-                    current_hier = ""
-                elif net_pat in line:
-                    new_pins = [current_hier + v for v in
-                                re.findall('\[get_bd_pins ([^]]+)\]',
-                                           line, re.IGNORECASE)]
-                    indexes = set()
-                    for p in new_pins:
-                        if p in self.pins:
-                            indexes.add(self.pins[p])
-                    if len(indexes) == 0:
-                        index = len(self.nets)
-                        self.nets.append(set())
-                    else:
-                        to_merge = []
-                        while len(indexes) > 1:
-                            to_merge.append(indexes.pop())
-                        index = indexes.pop()
-                        for i in to_merge:
-                            self.nets[index] |= self.nets[i]
-                    self.nets[index] |= set(new_pins)
-                    for p in self.nets[index]:
-                        self.pins[p] = index
+                if not line.lstrip().startswith('#'):
+                    # Matching address segment
+                    if not in_prop and addr_pat in line:
+                        m = re.search(addr_regex, line, re.IGNORECASE)
+                        if m:
+                            for key, value in ip_dict.items():
+                                if m.group(3).startswith(key):
+                                    self.ip_dict[key] = dict()
+                                    self.ip_dict[key]['phys_addr'] = \
+                                        int(m.group(2), 16)
+                                    self.ip_dict[key]['addr_range'] = \
+                                        int(m.group(1), 16)
+                                    self.ip_dict[key]['type'] = \
+                                        value
+                                    self.ip_dict[key]['state'] = None
+
+                    # Matching hierarchical cell
+                    elif not in_prop and hier_start_pat in line:
+                        m = re.search(hier_regex, line)
+                        if m:
+                            current_hier = m.group(1) + "/"
+                    elif not in_prop and hier_end_pat == line:
+                        current_hier = ""
+
+                    # Matching IP cells in root design
+                    elif not in_prop and ip_pat in line:
+                        m = re.search(ip_regex, line)
+                        hier_name = current_hier + m.group(5)
+                        if m.group(3) == "processing_system7":
+                            self.ps7_name = hier_name
+                            addr_regex += (self.ps7_name + "/Data\] " +
+                                           "\[get_bd_addr_segs (.+?)\] " +
+                                           "([A-Za-z0-9_]+)")
+                        else:
+                            ip_type = ':'.join([m.group(1), m.group(2),
+                                                m.group(3), m.group(4)])
+                            ip_dict[hier_name] = ip_type
+                            if m.group(3) == "xlconcat":
+                                last_concat = current_hier + m.group(5)
+                                self.concat_cells[last_concat] = 2
+                            elif m.group(3) == "axi_intc":
+                                self.intc_names.append(current_hier +
+                                                       m.group(5))
+
+                    # Matching nets
+                    elif not in_prop and net_pat in line:
+                        new_pins = [current_hier + v for v in
+                                    re.findall(net_regex, line, re.IGNORECASE)]
+                        indexes = set()
+                        for p in new_pins:
+                            if p in self.pins:
+                                indexes.add(self.pins[p])
+                        if len(indexes) == 0:
+                            index = len(self.nets)
+                            self.nets.append(set())
+                        else:
+                            to_merge = []
+                            while len(indexes) > 1:
+                                to_merge.append(indexes.pop())
+                            index = indexes.pop()
+                            for i in to_merge:
+                                self.nets[index] |= self.nets[i]
+                        self.nets[index] |= set(new_pins)
+                        for p in self.nets[index]:
+                            self.pins[p] = index
+
+                    # Matching IP configurations
+                    elif not in_prop and prop_start_pat in line:
+                        in_prop = True
+                    elif in_prop and prop_end_pat in line:
+                        m = re.search(prop_name_regex, line, re.IGNORECASE)
+                        if m:
+                            if gpio_idx is not None:
+                                gpio_dict[m.group(1)] = gpio_idx
+                                gpio_idx = None
+                        in_prop = False
+                    elif in_prop and config_pat in line:
+                        m1 = re.search(config_regex, line)
+                        if m1.group(1) == "NUM_PORTS":
+                            self.concat_cells[last_concat] = int(m1.group(2))
+                        elif m1.group(1) == 'DIN_FROM':
+                            gpio_idx = int(m1.group(2))
+                        elif 'FCLK' in m1.group(1):
+                            m2 = re.search(clk_divisor_regex, m1.group(1))
+                            m3 = re.search(clk_enable_regex, m1.group(1))
+                            if m2:
+                                fclk_index = int(m2.group(1))
+                                if fclk_index not in self.clock_dict:
+                                    self.clock_dict[fclk_index] = {}
+                                divisor_name = 'divisor' + m2.group(2)
+                                self.clock_dict[fclk_index][divisor_name] = \
+                                    int(m1.group(2))
+                            if m3:
+                                fclk_index = int(m3.group(1))
+                                if fclk_index not in self.clock_dict:
+                                    self.clock_dict[fclk_index] = {}
+                                self.clock_dict[fclk_index]['enable'] = \
+                                    int(m1.group(2))
 
         if self.ps7_name + "/IRQ_F2P" in self.pins:
             ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
             self._add_interrupt_pins(ps7_irq_net, "", 0)
 
-    def _add_interrupt_pins(self, net, parent, offset):
+        if self.ps7_name + "/GPIO_O" in self.pins:
+            ps7_gpio_net = self.pins[self.ps7_name + "/GPIO_O"]
+            self._add_gpio_pins(ps7_gpio_net, gpio_dict)
 
+    def _add_gpio_pins(self, net, gpio_dict):
+        net_pins = self.nets[net]
+        gpio_names = []
+        for p in net_pins:
+            m = re.match('(.*)/Din', p)
+            if m is not None:
+                gpio_names.append(m.group(1))
+        for n, i in gpio_dict.items():
+            if n in gpio_names:
+                self.gpio_dict[n] = {'index': i, 'state': None}
+
+    def _add_interrupt_pins(self, net, parent, offset):
         net_pins = self.nets[net]
         # Find the next item up the chain
         for p in net_pins:
             m = re.match('(.*)/dout', p)
             if m is not None:
-                name = m.groups(1)[0]
+                name = m.group(1)
                 if name in self.concat_cells:
                     return self._add_concat_pins(name, parent, offset)
             m = re.match('(.*)/irq', p)
             if m is not None:
-                name = m.groups(1)[0]
+                name = m.group(1)
                 if name in self.intc_names:
                     self._add_interrupt_pins(
                         self.pins[name + "/intr"], name, 0)
-                    self.intc_parent[name] = [parent, offset]
+                    self.interrupt_controllers[name] = {'parent': parent,
+                                                        'index': offset}
                     return offset + 1
         for p in net_pins:
-            self.intc_pins[p] = [parent, offset]
+            self.interrupt_pins[p] = {'controller': parent,
+                                      'index': offset}
         return offset + 1
 
     def _add_concat_pins(self, name, parent, offset):
@@ -303,36 +319,27 @@ class _InterruptMap:
         return offset
 
 
-def _get_interrupts(tcl_name):
-    """Function to extract interrupt information from a TCL configuration file
-
-    Returns
-    -------
-    interrupt_controllers, interrupt_pins
-
-    interrupt_controllers : dict str -> str, int
-        All AXI interrupt controllers in the system attached to
-        a PS7 interrupt line. Key is the name of the controller and
-        value is parent interrupt controller and the line interrupt used
-        The PS7 is the root of the hierarchy and is unnamed
-
-    interrupt_pins : dict str -> str, int
-        All pins in the design attached to an interrupt controller listed in
-        in intc_names. Key is the name of the pin, value is the interrupt
-        controller and line used.
-
-    """
-    result = _InterruptMap(tcl_name)
-    return result.intc_parent, result.intc_pins
-
-
-class PL_Meta(type):
+class PLMeta(type):
     """This method is the meta class for the PL.
 
     This is not a class for users. Hence there is no attribute or method
     exposed to users.
 
     """
+    _bitfile_name = BS_BOOT
+    _timestamp = ""
+
+    _tcl = _TCL(TCL_BOOT)
+    _ip_dict = _tcl.ip_dict
+    _gpio_dict = _tcl.gpio_dict
+    _interrupt_controllers = _tcl.interrupt_controllers
+    _interrupt_pins = _tcl.interrupt_pins
+    _status = 1
+
+    _server = None
+    _host = None
+    _remote = None
+
     @property
     def bitfile_name(cls):
         """The getter for the attribute `bitfile_name`.
@@ -391,12 +398,12 @@ class PL_Meta(type):
 
     @property
     def interrupt_controllers(cls):
-        """The getter for the attribute `interrupt_controllers`
+        """The getter for the attribute `interrupt_controllers`.
 
         Returns
         -------
         dict
-            The dictionary storing interrupt controller information
+            The dictionary storing interrupt controller information.
 
         """
         cls.client_request()
@@ -405,80 +412,19 @@ class PL_Meta(type):
 
     @property
     def interrupt_pins(cls):
-        """The getter for the attribute `interrupt_pins`
+        """The getter for the attribute `interrupt_pins`.
 
         Returns
         -------
         dict
-            The dictionary storing the interrupt endpoint information
+            The dictionary storing the interrupt endpoint information.
 
         """
         cls.client_request()
         cls.server_update()
         return cls._interrupt_pins
 
-
-class PL(metaclass=PL_Meta):
-    """Serves as a singleton for `Overlay` and `Bitstream` classes.
-
-    This class stores two dictionaries: IP dictionary and GPIO dictionary.
-
-    Each entry of the IP dictionary is a mapping:
-    'name' -> [address, range, state]
-
-    where
-    name (str) is the key of the entry.
-    address (int) is the base address of the IP.
-    range (int) is the address range of the IP.
-    state (str) is the state information about the IP.
-
-    Each entry of the GPIO dictionary is a mapping:
-    'name' -> [pin, state]
-
-    where
-    name (str) is the key of the entry.
-    pin (int) is the user index of the GPIO, starting from 0.
-    state (str) is the state information about the GPIO.
-
-    The timestamp uses the following format:
-    year, month, day, hour, minute, second, microsecond
-
-    Attributes
-    ----------
-    bitfile_name : str
-        The absolute path of the bitstream currently on PL.
-    timestamp : str
-        Bitstream download timestamp.
-    ip_dict : dict
-        The dictionary storing addressable IP instances; can be empty.
-    gpio_dict : dict
-        The dictionary storing the PS GPIO pins.
-
-    """
-
-    _bitfile_name = general_const.BS_BOOT
-    _timestamp = ""
-
-    _ip_dict = _get_ip(general_const.TCL_BOOT)
-    _gpio_dict = _get_gpio(general_const.TCL_BOOT)
-    _interrupt_controllers, _interrupt_pins = _get_interrupts(
-        general_const.TCL_BOOT)
-    _server = None
-    _host = None
-    _remote = None
-
-    def __init__(self):
-        """Return a new PL object.
-
-        This class requires a root permission.
-
-        """
-        euid = os.geteuid()
-        if euid != 0:
-            raise EnvironmentError('Root permissions required.')
-
-    @classmethod
-    def setup(cls, address='/home/xilinx/pynq/bitstream/.log', key=b'xilinx'):
+    def setup(cls, address=PL_SERVER_FILE, key=b'xilinx'):
         """Start the PL server and accept client connections.
 
         This method should not be used by the users directly. To check open
@@ -498,22 +444,24 @@ class PL(metaclass=PL_Meta):
 
         """
         cls._server = Listener(address, family='AF_UNIX', authkey=key)
-        cls._status = 1
 
         while cls._status:
             cls._host = cls._server.accept()
-            cls._host.send([cls._bitfile_name, cls._timestamp,
-                            cls._ip_dict, cls._gpio_dict,
-                            cls._interrupt_controllers, cls._interrupt_pins])
-            [cls._bitfile_name, cls._timestamp, cls._ip_dict,
-             cls._gpio_dict, cls._interrupt_controllers,
-             cls._interrupt_pins, cls._status] = cls._host.recv()
+            cls._host.send([cls._bitfile_name,
+                            cls._timestamp,
+                            cls._ip_dict,
+                            cls._gpio_dict,
+                            cls._interrupt_controllers,
+                            cls._interrupt_pins])
+            cls._bitfile_name, cls._timestamp, \
+                cls._ip_dict, cls._gpio_dict, \
+                cls._interrupt_controllers, cls._interrupt_pins, \
+                cls._status = cls._host.recv()
             cls._host.close()
 
         cls._server.close()
 
-    @classmethod
-    def client_request(cls, address='/home/xilinx/pynq/bitstream/.log',
+    def client_request(cls, address=PL_SERVER_FILE,
                        key=b'xilinx'):
         """Client connects to the PL server and receives the attributes.
 
@@ -534,11 +482,11 @@ class PL(metaclass=PL_Meta):
 
         """
         cls._remote = Client(address, family='AF_UNIX', authkey=key)
-        [cls._bitfile_name, cls._timestamp,
-         cls._ip_dict, cls._gpio_dict,
-         cls._interrupt_controllers, cls.intc_pins] = cls._remote.recv()
+        cls._bitfile_name, cls._timestamp, \
+            cls._ip_dict, cls._gpio_dict, \
+            cls._interrupt_controllers, \
+            cls._interrupt_pins = cls._remote.recv()
 
-    @classmethod
     def server_update(cls, continued=1):
         """Client sends the attributes to the server.
 
@@ -556,19 +504,21 @@ class PL(metaclass=PL_Meta):
         None
 
         """
-        cls._remote.send([cls._bitfile_name, cls._timestamp,
-                          cls._ip_dict, cls._gpio_dict,
+        cls._remote.send([cls._bitfile_name,
+                          cls._timestamp,
+                          cls._ip_dict,
+                          cls._gpio_dict,
                           cls._interrupt_controllers,
-                          cls.intc_pins, continued])
+                          cls._interrupt_pins,
+                          continued])
         cls._remote.close()
 
-    @classmethod
     def reset(cls):
-        """Reset both the IP and GPIO dictionaries.
+        """Reset both all the dictionaries.
 
         This method must be called after a bitstream download.
         1. In case there is a `*.tcl` file, this method will reset the IP,
-        Interrupt and GPIO dictionaries based on the tcl file.
+        GPIO , and interrupt dictionaries based on the tcl file.
         2. In case there is no `*.tcl` file, this method will simply clear
         the state information stored for all dictionaries.
 
@@ -576,20 +526,18 @@ class PL(metaclass=PL_Meta):
         cls.client_request()
         tcl_name = _get_tcl_name(cls._bitfile_name)
         if os.path.isfile(tcl_name):
-            cls._ip_dict = _get_ip(tcl_name)
-            cls._gpio_dict = _get_gpio(tcl_name)
-            cls._interrupt_controllers, cls._interrupt_pins = \
-                _get_interrupts(tcl_name)
+            tcl = _TCL(tcl_name)
+            cls._ip_dict = tcl.ip_dict
+            cls._gpio_dict = tcl.gpio_dict
+            cls._interrupt_controllers = tcl.interrupt_controllers
+            cls._interrupt_pins = tcl.interrupt_pins
         else:
-            for i in cls._ip_dict.keys():
-                cls._ip_dict[i][2] = None
-            for i in cls._gpio_dict.keys():
-                cls._gpio_dict[i][1] = None
+            cls._ip_dict.clear()
+            cls._gpio_dict.clear()
             cls._interrupt_controllers.clear()
             cls._interrupt_pins.clear()
         cls.server_update()
 
-    @classmethod
     def load_ip_data(cls, ip_name, data):
         """This method writes data to the addressable IP.
 
@@ -611,15 +559,64 @@ class PL(metaclass=PL_Meta):
 
         """
         cls.client_request()
-        with open(data, 'rb') as bin:
-            size = (math.ceil(os.fstat(bin.fileno()).st_size /
+        with open(data, 'rb') as bin_file:
+            size = (math.ceil(os.fstat(bin_file.fileno()).st_size /
                               mmap.PAGESIZE)) * mmap.PAGESIZE
-            mmio = MMIO(cls._ip_dict[ip_name][0], size)
-            buf = bin.read(size)
+            mmio = MMIO(cls._ip_dict[ip_name]['phys_addr'], size)
+            buf = bin_file.read(size)
             mmio.write(0, buf)
 
-        cls._ip_dict[ip_name][2] = data
+        cls._ip_dict[ip_name]['state'] = data
         cls.server_update()
+
+
+class PL(metaclass=PLMeta):
+    """Serves as a singleton for `Overlay` and `Bitstream` classes.
+
+    This class stores multiple dictionaries: IP dictionary, GPIO dictionary,
+    interrupt controller dictionary, and interrupt pins dictionary.
+
+    Attributes
+    ----------
+    bitfile_name : str
+        The absolute path of the bitstream currently on PL.
+    timestamp : str
+        Bitstream download timestamp, using the following format:
+        year, month, day, hour, minute, second, microsecond.
+    ip_dict : dict
+        All the addressable IPs from PS7. Key is the name of the IP; value is
+        a dictionary mapping the physical address, address range, IP type, 
+        configuration dictionary, and the state associated with that IP:
+        {str: {'phys_addr' : int, 'addr_range' : int, 
+               'type' : str, 'config' : dict, 'state' : str}}.
+    gpio_dict : dict
+        All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
+        value is a dictionary mapping user index (starting from 0),
+        and the state associated with that GPIO pin: 
+        {str: {'index' : int, 'state' : str}}.
+    interrupt_controllers : dict
+        All AXI interrupt controllers in the system attached to
+        a PS7 interrupt line. Key is the name of the controller;
+        value is a dictionary mapping parent interrupt controller and the 
+        line index of this interrupt:
+        {str: {'parent': str, 'index' : int}}. 
+        The PS7 is the root of the hierarchy and is unnamed.
+    interrupt_pins : dict
+        All pins in the design attached to an interrupt controller. 
+        Key is the name of the pin; value is a dictionary 
+        mapping the interrupt controller and the line index used: 
+        {str: {'controller' : str, 'index' : int}}.
+
+    """
+    def __init__(self):
+        """Return a new PL object.
+
+        This class requires a root permission.
+
+        """
+        euid = os.geteuid()
+        if euid != 0:
+            raise EnvironmentError('Root permissions required.')
 
 
 class Bitstream(PL):
@@ -640,8 +637,8 @@ class Bitstream(PL):
 
         Users can either specify an absolute path to the bitstream file
         (e.g. '/home/xilinx/src/pynq/bitstream/base.bit'),
-        or only a relative path.
-        (e.g. 'base.bit').
+        or a relative path within an overlay folder.
+        (e.g. 'base.bit' for base/base.bit).
 
         Note
         ----
@@ -657,10 +654,13 @@ class Bitstream(PL):
         if not isinstance(bitfile_name, str):
             raise TypeError("Bitstream name has to be a string.")
 
+        bitfile_abs = os.path.abspath(bitfile_name)
+        bitfile_overlay_abs = os.path.join(PYNQ_PATH, bitfile_name.replace('.bit', ''), bitfile_name)
+
         if os.path.isfile(bitfile_name):
-            self.bitfile_name = bitfile_name
-        elif os.path.isfile(general_const.BS_SEARCH_PATH + bitfile_name):
-            self.bitfile_name = general_const.BS_SEARCH_PATH + bitfile_name
+            self.bitfile_name = bitfile_abs
+        elif os.path.isfile(bitfile_overlay_abs):
+            self.bitfile_name = bitfile_overlay_abs
         else:
             raise IOError('Bitstream file {} does not exist.'
                           .format(bitfile_name))
@@ -684,11 +684,11 @@ class Bitstream(PL):
             buf = f.read()
 
         # Set is_partial_bitfile device attribute to 0
-        with open(general_const.BS_IS_PARTIAL, 'w') as fd:
+        with open(BS_IS_PARTIAL, 'w') as fd:
             fd.write('0')
 
         # Write bitfile to xdevcfg device
-        with open(general_const.BS_XDEVCFG, 'wb') as f:
+        with open(BS_XDEVCFG, 'wb') as f:
             f.write(buf)
 
         t = datetime.now()
@@ -700,10 +700,10 @@ class Bitstream(PL):
         PL.client_request()
         PL._bitfile_name = self.bitfile_name
         PL._timestamp = self.timestamp
-        PL._ip_dict = {}
-        PL._gpio_dict = {}
-        PL._interrupt_controllers = {}
-        PL._interrupt_pins = {}
+        PL._ip_dict.clear()
+        PL._gpio_dict.clear()
+        PL._interrupt_controllers.clear()
+        PL._interrupt_pins.clear()
         PL.server_update()
 
 
@@ -717,34 +717,36 @@ class Overlay(PL):
     Hence, this class must expose configurability through content discovery
     and runtime protection.
 
-    This class stores four dictionaries: IP, GPIO, Interrupt Controller
-    and Interrupt Pin dictionaries.
+    This class stores four dictionaries: IP, GPIO, interrupt controller
+    and interrupt pin dictionaries.
 
     Each entry of the IP dictionary is a mapping:
-    'name' -> [address, range, state]
-
-    where
+    'name' -> {phys_addr, addr_range, type, config, state}, where
     name (str) is the key of the entry.
-    address (int) is the base address of the IP.
-    range (int) is the address range of the IP.
+    phys_addr (int) is the physical address of the IP.
+    addr_range (int) is the address range of the IP.
+    type (str) is the type of the IP.
+    config (dict) is a dictionary of the configuration parameters.
     state (str) is the state information about the IP.
 
     Each entry of the GPIO dictionary is a mapping:
-    'name' -> [pin, state]
-
-    where
+    'name' -> {pin, state}, where
     name (str) is the key of the entry.
     pin (int) is the user index of the GPIO, starting from 0.
     state (str) is the state information about the GPIO.
 
-    Each entry in the Interrupt dictionaries are of the form
-    'name' -> [parent, number]
-
-    where
-    name (str) is the name of the pin or the interrupt controller
+    Each entry in the interrupt controller dictionary is a mapping:
+    'name' -> {parent, index}, where
+    name (str) is the name of the interrupt controller.
     parent (str) is the name of the parent controller or '' if attached
-        directly to the PS7
-    number (int) is the interrupt number attached to
+    directly to the PS7.
+    index (int) is the index of the interrupt attached to.
+
+    Each entry in the interrupt pin dictionary is a mapping:
+    'name' -> {controller, index}, where
+    name (str) is the name of the pin.
+    controller (str) is the name of the interrupt controller.
+    index (int) is the line index.
 
     Attributes
     ----------
@@ -753,13 +755,28 @@ class Overlay(PL):
     bitstream : Bitstream
         The corresponding bitstream object.
     ip_dict : dict
-        The addressable IP instances on the overlay.
+        All the addressable IPs from PS7. Key is the name of the IP; value is
+        a dictionary mapping the physical address, address range, IP type, 
+        configuration dictionary, and the state associated with that IP:
+        {str: {'phys_addr' : int, 'addr_range' : int, 
+               'type' : str, 'config' : dict, 'state' : str}}.
     gpio_dict : dict
-        The dictionary storing the PS GPIO pins.
+        All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
+        value is a dictionary mapping user index (starting from 0),
+        and the state associated with that GPIO pin: 
+        {str: {'index' : int, 'state' : str}}.
     interrupt_controllers : dict
-        The dictionary containing all interrupt controllers
+        All AXI interrupt controllers in the system attached to
+        a PS7 interrupt line. Key is the name of the controller;
+        value is a dictionary mapping parent interrupt controller and the 
+        line index of this interrupt:
+        {str: {'parent': str, 'index' : int}}. 
+        The PS7 is the root of the hierarchy and is unnamed.
     interrupt_pins : dict
-        The dictionary containing all interrupts in the design
+        All pins in the design attached to an interrupt controller. 
+        Key is the name of the pin; value is a dictionary 
+        mapping the interrupt controller and the line index used: 
+        {str: {'controller' : str, 'index' : int}}.
 
     """
 
@@ -771,7 +788,7 @@ class Overlay(PL):
         Note
         ----
         This class requires a Vivado '.tcl' file to be next to bitstream file
-        with same base name (e.g. base.bit and base.tcl).
+        with same name (e.g. base.bit and base.tcl).
 
         Parameters
         ----------
@@ -781,30 +798,26 @@ class Overlay(PL):
         """
         super().__init__()
 
-        # Set the bitfile name
-        if not isinstance(bitfile_name, str):
-            raise TypeError("Bitstream name has to be a string.")
-        if os.path.isfile(bitfile_name):
-            self.bitfile_name = bitfile_name
-        elif os.path.isfile(general_const.BS_SEARCH_PATH + bitfile_name):
-            self.bitfile_name = general_const.BS_SEARCH_PATH + bitfile_name
-        else:
-            raise IOError('Bitstream file {} does not exist.'
-                          .format(bitfile_name))
+        # # Set the bitfile name
+        # if not isinstance(bitfile_name, str):
+        #     raise TypeError("Bitstream name has to be a string.")
+        # if os.path.isfile(bitfile_name):
+        #     self.bitfile_name = bitfile_name
+        # elif os.path.isfile(BS_SEARCH_PATH + bitfile_name):
+        #     self.bitfile_name = BS_SEARCH_PATH + bitfile_name
+        # else:
+        #     raise IOError('Bitstream file {} does not exist.'
+        #                   .format(bitfile_name))
 
         # Set the bitstream
-        self.bitstream = Bitstream(self.bitfile_name)
-        tcl_name = _get_tcl_name(self.bitfile_name)
-
-        # Set the IP dictionary
-        self.ip_dict = _get_ip(tcl_name)
-
-        # Set the GPIO dictionary
-        self.gpio_dict = _get_gpio(tcl_name)
-
-        # Set the Interrupt dictionaries
-        self.interrupt_controllers, self.interrupt_pins = \
-            _get_interrupts(tcl_name)
+        self.bitstream = Bitstream(bitfile_name)
+        self.bitfile_name = self.bitstream.bitfile_name
+        tcl = _TCL(_get_tcl_name(self.bitfile_name))
+        self.ip_dict = tcl.ip_dict
+        self.gpio_dict = tcl.gpio_dict
+        self.interrupt_controllers = tcl.interrupt_controllers
+        self.interrupt_pins = tcl.interrupt_pins
+        self.clock_dict = tcl.clock_dict
 
     def download(self):
         """The method to download a bitstream onto PL.
@@ -812,7 +825,7 @@ class Overlay(PL):
         Note
         ----
         After the bitstream has been downloaded, the "timestamp" in PL will be
-        updated. In addition, both of the IP and GPIO dictionaries on PL will
+        updated. In addition, all the dictionaries on PL will
         be reset automatically.
 
         Returns
@@ -820,6 +833,15 @@ class Overlay(PL):
         None
 
         """
+        for i in self.clock_dict:
+            enable = self.clock_dict[i]['enable']
+            div0 = self.clock_dict[i]['divisor0']
+            div1 = self.clock_dict[i]['divisor1']
+            if enable:
+                Clocks.set_fclk(i, div0, div1)
+            else:
+                Clocks.set_fclk(i)
+
         self.bitstream.download()
         PL.reset()
 
@@ -843,23 +865,20 @@ class Overlay(PL):
             return self.bitfile_name == PL._bitfile_name
 
     def reset(self):
-        """This function resets the IP and GPIO dictionaries of the overlay.
+        """This function resets all the dictionaries kept in the overlay.
 
-        Note
-        ----
-        This function should be used with caution. If the overlay is loaded,
-        it also resets the IP and GPIO dictionaries in the PL.
+        This function should be used with caution.
 
         Returns
         -------
         None
 
         """
-        tcl_name = _get_tcl_name(self.bitfile_name)
-        self.gpio_dict = _get_gpio(tcl_name)
-        self.ip_dict = _get_ip(tcl_name)
-        self.interrupt_controllers, self.interrupt_pins = \
-            _get_interrupts(tcl_name)
+        tcl = _TCL(_get_tcl_name(self.bitfile_name))
+        self.ip_dict = tcl.ip_dict
+        self.gpio_dict = tcl.gpio_dict
+        self.interrupt_controllers = tcl.interrupt_controllers
+        self.interrupt_pins = tcl.interrupt_pins
         if self.is_loaded():
             PL.reset()
 
@@ -887,5 +906,5 @@ class Overlay(PL):
         None
 
         """
-        super().load_ip_data(ip_name, data)
-        self.ip_dict[ip_name][2] = data
+        PL.load_ip_data(ip_name, data)
+        self.ip_dict[ip_name]['state'] = data

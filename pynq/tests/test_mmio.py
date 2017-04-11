@@ -27,20 +27,18 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
-
-import os
 from random import randint
 from math import pow
 from time import sleep
 import pytest
 from pynq import MMIO
 from pynq import Overlay
-from pynq import general_const
-    
+
+
 @pytest.mark.run(order=4)
 def test_mmio():
     """Test whether MMIO class is working properly.
@@ -61,23 +59,22 @@ def test_mmio():
     
     """
     ol = Overlay('base.bit')
-    
+
     ol.download()
     sleep(0.2)
-    mmio_base = ol.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][0]
-    mmio_range = ol.ip_dict['SEG_mb_bram_ctrl_1_Mem0'][1]
+    mmio_base = ol.ip_dict['mb_bram_ctrl_1']['phys_addr']
+    mmio_range = ol.ip_dict['mb_bram_ctrl_1']['addr_range']
     mmio = MMIO(mmio_base, mmio_range)
-    for offset in range(0, 100, general_const.MMIO_WORD_LENGTH):
-        data1 = randint(0, pow(2,32)-1)
+    for offset in range(0, 100, 4):
+        data1 = randint(0, pow(2, 32) - 1)
         mmio.write(offset, data1)
         sleep(0.02)
         data2 = mmio.read(offset)
-        assert data1==data2, \
+        assert data1 == data2, \
             'MMIO read back a wrong random value at offset {}.'.format(offset)
         mmio.write(offset, 0)
         sleep(0.02)
-        assert mmio.read(offset)==0, \
+        assert mmio.read(offset) == 0, \
             'MMIO read back a wrong fixed value at offset {}.'.format(offset)
-            
+
     del ol
-    

@@ -35,8 +35,7 @@ __email__       = "pynq_support@xilinx.com"
 import os
 import math
 import pytest
-from pynq import GPIO
-from pynq import general_const
+from pynq.gpio import GPIO, GPIO_MIN_USER_PIN
 
 @pytest.mark.run(order=3)
 def test_gpio():
@@ -54,7 +53,7 @@ def test_gpio():
                 if 'gpiochip' in name:
                     index = int(''.join(x for x in name if x.isdigit()))
     base = GPIO.get_gpio_base()
-    gpio_min = base + general_const.GPIO_MIN_USER_PIN
+    gpio_min = base + GPIO_MIN_USER_PIN
     gpio_max = 2**(math.ceil(math.log(gpio_min, 2)))
             
     for index in range(gpio_min, gpio_max):

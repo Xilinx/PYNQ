@@ -28,15 +28,14 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import sys
-import struct
 import weakref
-from . import general_const
-
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+# GPIO constants
+GPIO_MIN_USER_PIN = 54
 
 
 class _GPIO:
@@ -265,5 +264,5 @@ class GPIO:
             The Linux Sysfs GPIO pin number.
 
         """
-        return (GPIO.get_gpio_base() + general_const.GPIO_MIN_USER_PIN +
+        return (GPIO.get_gpio_base() + GPIO_MIN_USER_PIN +
                 gpio_user_index)

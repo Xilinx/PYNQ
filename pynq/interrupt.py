@@ -61,7 +61,8 @@ class Interrupt(object):
         if pinname not in PL.interrupt_pins:
             raise ValueError("No Pin of name {0} found".format(pinname))
 
-        parentname, self.number = PL.interrupt_pins[pinname]
+        parentname = PL.interrupt_pins[pinname]['controller']
+        self.number = PL.interrupt_pins[pinname]['index']
         self.parent = weakref.ref(
             _InterruptController.get_controller(parentname))
         self.event = asyncio.Event()
@@ -194,8 +195,8 @@ class _InterruptController(object):
 
         """
         self.name = name
-        self.mmio = MMIO(PL.ip_dict["SEG_" + name + "_Reg"][0], 32)
-        self.wait_handles = [[] for i in range(32)]
+        self.mmio = MMIO(PL.ip_dict[name]['phys_addr'], 32)
+        self.wait_handles = [[] for _ in range(32)]
         self.event_number = 0
         self.waiting = False
 
@@ -205,7 +206,8 @@ class _InterruptController(object):
         # Disable Interrupt lines
         self.mmio.write(0x08, 0)
 
-        parent, number = PL.interrupt_controllers[name]
+        parent = PL.interrupt_controllers[name]['parent']
+        number = PL.interrupt_controllers[name]['index']
         if parent == "":
             uiodev = _get_uio_device(61 + number)
             if uiodev is None:

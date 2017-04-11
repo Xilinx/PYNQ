@@ -25,18 +25,19 @@
 #   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
 #   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+from pynq import MMIO
+from pynq import PL
 
 __author__ = "Graham Schelle"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-from pynq import MMIO
-from pynq import PL
-
 RGBLEDS_XGPIO_OFFSET = 0
-RGBLEDS_START_INDEX  = 4
+RGBLEDS_START_INDEX = 4
 RGB_CLEAR = 0
 RGB_BLUE = 1
 RGB_GREEN = 2
@@ -45,6 +46,7 @@ RGB_RED = 4
 RGB_MAGENTA = 5
 RGB_YELLOW = 6
 RGB_WHITE = 7
+
 
 class RGBLED(object):
     """This class controls the onboard RGB LEDs.
@@ -71,12 +73,13 @@ class RGBLED(object):
             Index of the RGBLED, from 4 (LD4) to 5 (LD5).
         
         """
-        if not index in [4,5]:
+        if index not in [4, 5]:
             raise ValueError("Index for onboard RGBLEDs should be 4 - 5.")
             
         self.index = index
         if RGBLED._mmio is None:
-            RGBLED._mmio = MMIO(PL.ip_dict["SEG_rgbled_gpio_Reg"][0],16)
+            base_addr = PL.ip_dict["rgbleds_gpio"]["phys_addr"]
+            RGBLED._mmio = MMIO(base_addr, 16)
 
     def on(self, color):
         """Turn on a single RGB LED with a color value (see color constants).
@@ -91,7 +94,7 @@ class RGBLED(object):
         None
         
         """
-        if not color in range(8):
+        if color not in range(8):
             raise ValueError("RGB values should be between 0 and 7.")
 
         rgb_mask = 0x7 << ((self.index-RGBLEDS_START_INDEX)*3)
@@ -136,7 +139,7 @@ class RGBLED(object):
             
         """
         return (RGBLED._rgbleds_val >> 
-                    ((self.index-RGBLEDS_START_INDEX)*3)) & 0x7
+                ((self.index-RGBLEDS_START_INDEX)*3)) & 0x7
 
     @staticmethod
     def _set_rgbleds_value(value):
@@ -154,5 +157,4 @@ class RGBLED(object):
         
         """
         RGBLED._rgbleds_val = value
-        RGBLED._mmio.write(RGBLEDS_XGPIO_OFFSET, value) 
-        
+        RGBLED._mmio.write(RGBLEDS_XGPIO_OFFSET, value)

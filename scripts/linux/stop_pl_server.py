@@ -35,12 +35,12 @@ __email__       = "pynq_support@xilinx.com"
 import os
 
 try:
-    from pynq import PL
+    from pynq.pl import PL, PL_SERVER_FILE
 except ImportError:
     pass
 
 # Stop the PL server
-if os.path.exists("/home/xilinx/pynq/bitstream/.log"):
+if os.path.exists(PL_SERVER_FILE):
     try:
         PL.client_request()
         PL.server_update(0)

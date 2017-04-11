@@ -59,7 +59,8 @@ class Button(object):
 
         """
         if Button._mmio is None:
-            Button._mmio = MMIO(PL.ip_dict["SEG_btns_gpio_Reg"][0], 512)
+            base_addr = PL.ip_dict["btns_gpio"]["phys_addr"]
+            Button._mmio = MMIO(base_addr, 512)
         self.index = index
         self.interrupt = None
         try:
