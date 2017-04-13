@@ -134,8 +134,8 @@ class MMIO:
         """
         if not length == 4:
             raise ValueError("MMIO currently only supports 4-byte reads.")
-        if offset < 0 or length < 0:
-            raise ValueError("Negative offset or negative length.")
+        if offset < 0:
+            raise ValueError("Negative offset.")
         idx = offset >> 2
         if idx << 2 != offset:
             raise MemoryError('Read operation unaligned.')
