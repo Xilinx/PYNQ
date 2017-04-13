@@ -163,7 +163,7 @@ class MMIO:
         if offset < 0:
             raise ValueError("Negative offset.")
         if offset % 4:
-            raise MemoryError('Unaligned write: offset must be divisible by 4.')
+            raise MemoryError('Unaligned write: offset must be a multiple of 4.')
 
         if type(data) is int:
             self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
