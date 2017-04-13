@@ -134,11 +134,10 @@ class MMIO:
         """
         if not length == 4:
             raise ValueError("MMIO currently only supports 4-byte reads.")
-        if offset < 0 or length < 0:
-            raise ValueError("Negative offset or negative length.")
-        idx = offset >> 2
-        if idx << 2 != offset:
-            raise MemoryError('Read operation unaligned.')
+        if offset < 0:
+            raise ValueError("Negative offset.")
+        if offset % 4:
+            raise MemoryError('Unaligned read: offset must be multiple of 4.')
 
         self._debug('Reading {0} bytes from offset {1:x}',
                     length, offset)
@@ -163,10 +162,8 @@ class MMIO:
         """
         if offset < 0:
             raise ValueError("Negative offset.")
-
-        idx = offset >> 2
-        if idx << 2 != offset:
-            raise MemoryError('Write operation not aligned.')
+        if offset % 4:
+            raise MemoryError('Unaligned write: offset must be a multiple of 4.')
 
         if type(data) is int:
             self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
