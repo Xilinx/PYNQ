@@ -43,7 +43,6 @@ __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-
 def _get_tcl_name(bitfile_name):
     """This method returns the name of the tcl file.
 
@@ -61,8 +60,10 @@ def _get_tcl_name(bitfile_name):
         The absolute path of the .tcl file.
 
     """
-    return os.path.splitext(bitfile_name)[0] + '.tcl'
-
+    try:
+        return os.path.splitext(bitfile_name)[0] + '.tcl'
+    except:
+        return none
 
 def _get_ip(tcl_name):
     """This method returns the MMIO base and range of an IP.
@@ -93,14 +94,16 @@ def _get_ip(tcl_name):
             '([A-Za-z0-9_]+)'
     result = {}
 
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            m = re.search(regex, line, re.IGNORECASE)
-            if m:
-                # Each entry is [base, range, state]
-                result[m.group(5)] = [int(m.group(2), 16),
-                                      int(m.group(1), 16), None]
-
+    try:
+        with open(tcl_name, 'r') as f:
+            for line in f:
+                m = re.search(regex, line, re.IGNORECASE)
+                if m:
+                    # Each entry is [base, range, state]
+                    result[m.group(5)] = [int(m.group(2), 16),
+                                          int(m.group(1), 16), None]
+    except:
+        pass
     return result
 
 
@@ -129,31 +132,33 @@ def _get_gpio(tcl_name):
     pat2 = 'connect_bd_net -net ps7_GPIO_O'
     result = {}
     gpio_list = []
-    with open(tcl_name, 'r') as f:
-        for line in f:
-            if (pat1 in line) or (pat2 in line):
-                gpio_list = re.findall('\[get_bd_pins (.+?)/Din\]',
-                                       line, re.IGNORECASE)
-
-    match1 = 0
-    index = 0
-    for i in range(len(gpio_list)):
-        name = gpio_list[i].split('/')[0]
-        pat3 = "set " + name
-        pat4 = "CONFIG.DIN_FROM {([0-9]+)}*"
+    try:
         with open(tcl_name, 'r') as f:
             for line in f:
-                if pat3 in line:
-                    match1 = 1
-                    continue
-                if match1 == 1:
-                    match2 = re.search(pat4, line, re.IGNORECASE)
-                    if match2:
-                        index = match2.group(1)
-                        match1 = 0
-                        break
-        result[gpio_list[i]] = [int(index), None]
+                if (pat1 in line) or (pat2 in line):
+                    gpio_list = re.findall('\[get_bd_pins (.+?)/Din\]',
+                                           line, re.IGNORECASE)
 
+        match1 = 0
+        index = 0
+        for i in range(len(gpio_list)):
+            name = gpio_list[i].split('/')[0]
+            pat3 = "set " + name
+            pat4 = "CONFIG.DIN_FROM {([0-9]+)}*"
+            with open(tcl_name, 'r') as f:
+                for line in f:
+                    if pat3 in line:
+                        match1 = 1
+                        continue
+                    if match1 == 1:
+                        match2 = re.search(pat4, line, re.IGNORECASE)
+                        if match2:
+                            index = match2.group(1)
+                            match1 = 0
+                            break
+            result[gpio_list[i]] = [int(index), None]
+    except:
+        pass
     return result
 
 
@@ -217,57 +222,60 @@ class _InterruptMap:
         current_hier = ""
         last_concat = ""
 
-        with open(tcl_name, 'r') as f:
-            for line in f:
-                if config_pat in line:
-                    m = re.search('CONFIG.NUM_PORTS \{([0-9]+)\}', line)
-                    self.concat_cells[last_concat] = int(m.groups(1)[0])
-                elif hier_pat in line:
-                    m = re.search('proc create_hier_cell_([^ ]*)', line)
-                    if m:
-                        current_hier = m.groups(1)[0] + "/"
-                elif prop_pat in line:
-                    in_prop = True
-                elif concat_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
-                    last_concat = current_hier + m.groups(1)[0]
-                    # Default for IP is two input ports
-                    self.concat_cells[last_concat] = 2
-                elif interrupt_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:axi_intc:4.1 ([^ ]+)', line)
-                    self.intc_names.append(current_hier + m.groups(1)[0])
-                elif ps7_pat in line:
-                    m = re.search(
-                        'create_bd_cell -type ip -vlnv ' +
-                        'xilinx.com:ip:processing_system7:5.5 ([^ ]+)', line)
-                    self.ps7_name = current_hier + m.groups(1)[0]
-                elif end_pat == line:
-                    current_hier = ""
-                elif net_pat in line:
-                    new_pins = [current_hier + v for v in
-                                re.findall('\[get_bd_pins ([^]]+)\]',
-                                           line, re.IGNORECASE)]
-                    indexes = set()
-                    for p in new_pins:
-                        if p in self.pins:
-                            indexes.add(self.pins[p])
-                    if len(indexes) == 0:
-                        index = len(self.nets)
-                        self.nets.append(set())
-                    else:
-                        to_merge = []
-                        while len(indexes) > 1:
-                            to_merge.append(indexes.pop())
-                        index = indexes.pop()
-                        for i in to_merge:
-                            self.nets[index] |= self.nets[i]
-                    self.nets[index] |= set(new_pins)
-                    for p in self.nets[index]:
-                        self.pins[p] = index
+        try:
+            with open(tcl_name, 'r') as f:
+                for line in f:
+                    if config_pat in line:
+                        m = re.search('CONFIG.NUM_PORTS \{([0-9]+)\}', line)
+                        self.concat_cells[last_concat] = int(m.groups(1)[0])
+                    elif hier_pat in line:
+                        m = re.search('proc create_hier_cell_([^ ]*)', line)
+                        if m:
+                            current_hier = m.groups(1)[0] + "/"
+                    elif prop_pat in line:
+                        in_prop = True
+                    elif concat_pat in line:
+                        m = re.search(
+                            'create_bd_cell -type ip -vlnv ' +
+                            'xilinx.com:ip:xlconcat:2.1 ([^ ]+)', line)
+                        last_concat = current_hier + m.groups(1)[0]
+                        # Default for IP is two input ports
+                        self.concat_cells[last_concat] = 2
+                    elif interrupt_pat in line:
+                        m = re.search(
+                            'create_bd_cell -type ip -vlnv ' +
+                            'xilinx.com:ip:axi_intc:4.1 ([^ ]+)', line)
+                        self.intc_names.append(current_hier + m.groups(1)[0])
+                    elif ps7_pat in line:
+                        m = re.search(
+                            'create_bd_cell -type ip -vlnv ' +
+                            'xilinx.com:ip:processing_system7:5.5 ([^ ]+)', line)
+                        self.ps7_name = current_hier + m.groups(1)[0]
+                    elif end_pat == line:
+                        current_hier = ""
+                    elif net_pat in line:
+                        new_pins = [current_hier + v for v in
+                                    re.findall('\[get_bd_pins ([^]]+)\]',
+                                               line, re.IGNORECASE)]
+                        indexes = set()
+                        for p in new_pins:
+                            if p in self.pins:
+                                indexes.add(self.pins[p])
+                        if len(indexes) == 0:
+                            index = len(self.nets)
+                            self.nets.append(set())
+                        else:
+                            to_merge = []
+                            while len(indexes) > 1:
+                                to_merge.append(indexes.pop())
+                            index = indexes.pop()
+                            for i in to_merge:
+                                self.nets[index] |= self.nets[i]
+                        self.nets[index] |= set(new_pins)
+                        for p in self.nets[index]:
+                            self.pins[p] = index
+        except:
+            pass
 
         if self.ps7_name + "/IRQ_F2P" in self.pins:
             ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
