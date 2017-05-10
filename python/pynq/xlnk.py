@@ -37,15 +37,6 @@ import sys
 import cffi
 import resource
 
-if os.getuid() != 0:
-    raise RuntimeError("Root permission needed by the library.")
-
-def sig_handler(signum, frame):
-    print("Invalid Memory Access!")
-    Xlnk().xlnk_reset()
-    sys.exit(127)
-signal.signal(signal.SIGSEGV, sig_handler)
-
 ffi = cffi.FFI()
 
 ffi.cdef("""
@@ -59,7 +50,25 @@ uint32_t cma_pages_available();
 void _xlnk_reset();
 """)
 
-libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
+try:
+    # Check architecture of host machine
+    # if x86, assume ReadTheDocs build, and don't open libxlnk
+    arch = os.uname()[-1]
+    if arch in ('x86_64'):
+        pass 
+    else:
+        libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
+except:
+    if os.getuid() != 0:
+        raise RuntimeError("Root permission needed by xlnk library.")
+    else:
+        raise RuntimeError("Failed to open xlnk library.")
+
+def sig_handler(signum, frame):
+    print("Invalid Memory Access!")
+    Xlnk().xlnk_reset()
+    sys.exit(127)
+signal.signal(signal.SIGSEGV, sig_handler)
 
 class Xlnk:
     """Class to enable CMA memory management.
