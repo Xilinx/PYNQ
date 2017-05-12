@@ -140,14 +140,9 @@ typedef struct {
 typedef struct {
   u32 dynClkAddr; /*Physical Base address of the dynclk core*/
   int fHdmi; /*flag indicating if the display controller is being used*/
-  XAxiVdma *vdma; /*VDMA driver struct*/
-  XAxiVdma_DmaSetup vdmaConfig; /*VDMA channel configuration*/
   XVtc *vtc; /*VTC driver struct*/
   VideoMode vMode; /*Current Video mode*/
-  u8 *framePtr[DISPLAY_NUM_FRAMES]; /* Array of pointers to the framebuffers */
-  u32 stride; /* The line stride of the framebuffers, in bytes */
   double pxlFreq; /* Frequency of clock currently being generated */
-  u32 curFrame; /* Current frame being displayed */
   DisplayState state; /* Indicates if the Display is currently running */
 } DisplayCtrl;
 
@@ -301,12 +296,11 @@ double DisplayClkFindParams(double freq, ClkMode *bestPick);
 
 int DisplayStop(DisplayCtrl *dispPtr);
 int DisplayStart(DisplayCtrl *dispPtr);
-int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict, 
+int DisplayInitialize(DisplayCtrl *dispPtr, 
                       unsigned int vtcBaseAddress, unsigned int dynClkAddr, 
-                      unsigned int fHdmi, 
-                      u8 *framePtr[DISPLAY_NUM_FRAMES], u32 stride);
+                      unsigned int fHdmi);
 int DisplaySetMode(DisplayCtrl *dispPtr, const VideoMode *newMode);
-int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex);
+
 
 /* ------------------------------------------------------------ */
 

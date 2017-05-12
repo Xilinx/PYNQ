@@ -73,11 +73,6 @@
 **
 **  Return Value: int
 **      XST_SUCCESS if successful.
-**      XST_DMA_ERROR if an error was detected on the DMA channel. The
-**          Display is still successfully stopped, and the error is
-**          cleared so that subsequent DisplayStart calls will be
-**          successful. This typically indicates insufficient bandwidth
-**          on the AXI Memory-Map Interconnect (VDMA<->DDR)
 **
 **  Description:
 **      Halts output to the display
@@ -100,26 +95,9 @@ int DisplayStop(DisplayCtrl *dispPtr)
     XVtc_DisableGenerator(dispPtr->vtc);
 
     /*
-     * Stop the VDMA core
-     */
-    XAxiVdma_DmaStop(dispPtr->vdma, XAXIVDMA_READ);
-    while(XAxiVdma_IsBusy(dispPtr->vdma, XAXIVDMA_READ));
-
-    /*
      * Update Struct state
      */
     dispPtr->state = DISPLAY_STOPPED;
-
-    /*
-     * TODO: consider stopping the clock here, perhaps after a check 
-     * to see if the VTC is finished
-     */
-    if (XAxiVdma_GetDmaChannelErrors(dispPtr->vdma, XAXIVDMA_READ))
-    {
-        XAxiVdma_ClearDmaChannelErrors(dispPtr->vdma, XAXIVDMA_READ, \
-                                       0xFFFFFFFF);
-        return XST_DMA_ERROR;
-    }
 
     return XST_SUCCESS;
 }
@@ -268,59 +246,6 @@ int DisplayStart(DisplayCtrl *dispPtr)
      */
     XVtc_EnableGenerator(dispPtr->vtc);
 
-    /*
-     * Configure the VDMA to access a frame with the same dimensions as the
-     * current mode
-     */
-    dispPtr->vdmaConfig.VertSizeInput = dispPtr->vMode.height;
-    dispPtr->vdmaConfig.HoriSizeInput = (dispPtr->vMode.width) * 3;
-    dispPtr->vdmaConfig.FixedFrameStoreAddr = dispPtr->curFrame;
-    
-    /*
-     * Also reset the stride and address values, in case the user manually 
-     * changed them
-     */
-    dispPtr->vdmaConfig.Stride = dispPtr->stride;
-    for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
-    {
-        dispPtr->vdmaConfig.FrameStoreStartAddr[i] = 
-                                 (u32) cma_get_phy_addr(dispPtr->framePtr[i]);
-    }
-
-    /*
-     * Perform the VDMA driver calls required to start a transfer.
-     * Note that no data is actually transferred until the disp_ctrl core 
-     * signals the VDMA core by pulsing fsync.
-     */
-
-    //VDMA config
-    Status = XAxiVdma_DmaConfig(dispPtr->vdma, XAXIVDMA_READ, \
-                                &(dispPtr->vdmaConfig));
-    if (Status != XST_SUCCESS)
-    {
-        return XST_FAILURE;
-    }
-
-    Status = XAxiVdma_DmaSetBufferAddr(dispPtr->vdma, XAXIVDMA_READ, \
-                                    dispPtr->vdmaConfig.FrameStoreStartAddr);
-    if (Status != XST_SUCCESS)
-    {
-        return XST_FAILURE;
-    }
-    
-    Status = XAxiVdma_DmaStart(dispPtr->vdma, XAXIVDMA_READ);
-    if (Status != XST_SUCCESS)
-    {
-        return XST_FAILURE;
-    }
-    
-    Status = XAxiVdma_StartParking(dispPtr->vdma, dispPtr->curFrame, 
-                                    XAXIVDMA_READ);
-    if (Status != XST_SUCCESS)
-    {
-        return XST_FAILURE;
-    }
-
     dispPtr->state = DISPLAY_RUNNING;
 
     return XST_SUCCESS;
@@ -334,15 +259,10 @@ int DisplayStart(DisplayCtrl *dispPtr)
 **
 **  Parameters:
 **      dispPtr - Pointer to the struct that will be initialized
-**      vdmaDict - CPython dictionary for XAxiVdma
 **      dynClkAddr - BASE ADDRESS of the axi_dynclk core
 **      fHdmi - flag indicating if the C_USE_BUFR_DIV5 parameter is set for 
 **              the axi_dispctrl core.
 **              Use DISPLAY_HDMI if it is set, otherwise use DISPLAY_NOT_HDMI
-**      framePtr - array of pointers to the framebuffers. The framebuffers 
-**                 must be instantiated above this driver
-**      stride - line stride of the framebuffers. This is the number of bytes 
-**               between the start of one line and the start of another.
 **
 **  Return Value: int
 **      XST_SUCCESS if successful, XST_FAILURE otherwise
@@ -353,10 +273,9 @@ int DisplayStart(DisplayCtrl *dispPtr)
 **      Initializes the driver struct for use.
 **
 */
-int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict, 
+int DisplayInitialize(DisplayCtrl *dispPtr,
                       unsigned int vtcBaseAddress, unsigned int dynClkAddr, 
-                      unsigned int fHdmi, u8 *framePtr[DISPLAY_NUM_FRAMES], 
-                      u32 stride)
+                      unsigned int fHdmi)
 {
     int i;
     ClkConfig clkReg;
@@ -366,16 +285,10 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
     /*
      * Initialize all the fields in the DisplayCtrl struct
      */
-    dispPtr->curFrame = 0;
     dispPtr->dynClkAddr = (u32)getVirtualAddress(dynClkAddr);
     dispPtr->fHdmi = (int)fHdmi;
-    for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
-    {
-        dispPtr->framePtr[i] = framePtr[i];
-    }
     
     dispPtr->state = DISPLAY_STOPPED;
-    dispPtr->stride = stride;
     dispPtr->vMode = VMODE_640x480;
 
     DisplayClkFindParams((double)dispPtr->vMode.freq * (double)5.0, &clkMode);
@@ -407,19 +320,7 @@ int DisplayInitialize(DisplayCtrl *dispPtr, PyObject *vdmaDict,
 
     XVtc_Config vtcConfig = Py_XVtc_LookupConfig(vtcBaseAddress);
     dispPtr->vtc = Py_XVtc_CfgInitialize(&vtcConfig);
-
-    XAxiVdma_Config vdmaCfg = Py_XAxiVdma_LookupConfig(vdmaDict);
-    dispPtr->vdma = Py_XAxiVdma_CfgInitialize(&vdmaCfg);
-
-    /*
-     * Initialize the VDMA Read configuration struct
-     */
-    dispPtr->vdmaConfig.FrameDelay = 0;
-    dispPtr->vdmaConfig.EnableCircularBuf = 1;
-    dispPtr->vdmaConfig.EnableSync = 0;
-    dispPtr->vdmaConfig.PointNum = 0;
-    dispPtr->vdmaConfig.EnableFrameCounter = 0;
-
+    
     return XST_SUCCESS;
 }
 /* ------------------------------------------------------------ */
@@ -458,46 +359,6 @@ int DisplaySetMode(DisplayCtrl *dispPtr, const VideoMode *newMode)
     }
 
     dispPtr->vMode = *newMode;
-
-    return XST_SUCCESS;
-}
-/* ------------------------------------------------------------ */
-
-/***    DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex)
-**
-**  Parameters:
-**      dispPtr - Pointer to the initialized DisplayCtrl struct
-**      frameIndex - Index of the framebuffer to change to (must
-**              be between 0 and (DISPLAY_NUM_FRAMES - 1))
-**
-**  Return Value: int
-**      XST_SUCCESS if successful, XST_FAILURE otherwise
-**
-**  Errors:
-**
-**  Description:
-**      Changes the frame currently being displayed.
-**
-*/
-
-int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex)
-{
-    int Status;
-
-    dispPtr->curFrame = frameIndex;
-    /*
-     * If currently running, then the DMA needs to be told to start reading 
-     * from the desired frame at the end of the current frame.
-     */
-    if (dispPtr->state == DISPLAY_RUNNING)
-    {
-        Status = XAxiVdma_StartParking(dispPtr->vdma, dispPtr->curFrame, \
-                                        XAXIVDMA_READ);
-        if (Status != XST_SUCCESS)
-        {
-            return XST_FAILURE;
-        }
-    }
 
     return XST_SUCCESS;
 }

@@ -74,7 +74,7 @@ else:
 
 # Video source files
 _video_src = ['pynq/lib/_pynq/_video/_video.c', 'pynq/lib/_pynq/_video/_capture.c',
-              'pynq/lib/_pynq/_video/_display.c', 'pynq/lib/_pynq/_video/_frame.c',
+              'pynq/lib/_pynq/_video/_display.c',
               'pynq/lib/_pynq/src/gpio.c', 'pynq/lib/_pynq/src/py_xaxivdma.c',
               'pynq/lib/_pynq/src/py_xvtc.c', 'pynq/lib/_pynq/src/utils.c',
               'pynq/lib/_pynq/src/py_xgpio.c',
