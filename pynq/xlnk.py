@@ -36,6 +36,9 @@ import signal
 import sys
 import cffi
 import resource
+import functools
+import numbers
+import numpy as np
 
 if os.getuid() != 0:
     raise RuntimeError("Root permission needed by the library.")
@@ -60,6 +63,22 @@ void _xlnk_reset();
 """)
 
 libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
+
+class CMABuffer(np.ndarray):
+    def __del__(self):
+        self.freebuffer()
+
+    def freebuffer(self):
+        if hasattr(self, 'pointer') and self.pointer:
+            self.allocator.cma_free(self.pointer)
+            self.pointer = 0
+
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.freebuffer()
+        return 0
 
 class Xlnk:
     """Class to enable CMA memory management.
@@ -194,6 +213,21 @@ class Xlnk:
         self.__check_buftype(buf)
         return ffi.buffer(buf, length)
     
+    def cma_array(self, shape, dtype=np.uint32):
+        if isinstance(shape, numbers.Integral):
+            shape = [shape]
+        elements = functools.reduce(lambda value, total: value * total, shape)
+        length = elements * dtype().itemsize
+        buffer_pointer = self.cma_alloc(length)
+        buffer = self.cma_get_buffer(buffer_pointer, length)
+        array = np.frombuffer(buffer, dtype=dtype).reshape(shape)
+        view = array.view(CMABuffer)
+        view.allocator = self
+        view.pointer = buffer_pointer
+        view.physical_address = self.cma_get_phy_addr(view.pointer)
+        return view
+        
+        
     def cma_get_phy_addr(self, buf_ptr):
         """Get the physical address of a buffer.
         
