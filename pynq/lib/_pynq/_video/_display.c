@@ -61,7 +61,6 @@
 typedef struct{
     PyObject_HEAD
     DisplayCtrl *display;
-    videoframeObject *frame;
 } videodisplayObject;
 
 /*****************************************************************************/
@@ -74,13 +73,9 @@ static void videodisplay_dealloc(videodisplayObject* self){
     DisplayStop(self->display);
 
     freeVirtualAddress(self->display->dynClkAddr);
-    Py_Del_XAxiVdma(self->display->vdma);
     Py_Del_XVtc(self->display->vtc);
     free(self->display);
     Py_TYPE(self)->tp_free((PyObject*)self);
-
-    for(int i = 0; i < NUM_FRAMES; i++)
-        cma_free(self->frame->frame_buffer[i]);
 
     char sysbuf[128];
 	sprintf(sysbuf, "echo '_display del' >> /tmp/video.log");
@@ -108,33 +103,17 @@ static PyObject *videodisplay_new(PyTypeObject *type, PyObject *args,
 /*
  * __init()__ method
  *
- * Python Constructor: display(vdma_dict, vtcBaseAddress, dynClkAddress, 
- *                             fHdmi, [video.frame])
+ * Python Constructor: display(vtcBaseAddress, dynClkAddress, fHdmi)
  */
 static int videodisplay_init(videodisplayObject *self, PyObject *args){
-    self->frame = NULL;
-    PyObject *vdma_dict = NULL;
     unsigned int vtcBaseAddress, dynClkAddress, fHdmi;
-    if (!PyArg_ParseTuple(args, "OIII|O", &vdma_dict, &vtcBaseAddress, 
-                          &dynClkAddress, &fHdmi, &self->frame))
-        return -1;
-    if (!PyDict_Check(vdma_dict))
+    if (!PyArg_ParseTuple(args, "III", &vtcBaseAddress, 
+                          &dynClkAddress, &fHdmi))
         return -1;
 
-    if(self->frame == NULL){
-        self->frame = PyObject_New(videoframeObject, &videoframeType);
-        for(int i = 0; i < NUM_FRAMES; i++)
-            if((self->frame->frame_buffer[i] =
-                (u8 *)cma_alloc(sizeof(u8)*MAX_FRAME, 0)) == NULL){
-                PyErr_Format(PyExc_MemoryError, "Unable to allocate \
-                    frame buffer memory");
-                return -1;    
-            }     
-    }
+    int status = DisplayInitialize(self->display, vtcBaseAddress, 
+                                   dynClkAddress, fHdmi);
 
-    int status = DisplayInitialize(self->display, vdma_dict, vtcBaseAddress, 
-                                   dynClkAddress, fHdmi, 
-                                   self->frame->frame_buffer, STRIDE);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
                      "_video._display initialization failed [%d]", status);
@@ -149,74 +128,15 @@ static int videodisplay_init(videodisplayObject *self, PyObject *args){
  */
 static PyObject *videodisplay_str(videodisplayObject *self){
     char str[200];
-    sprintf(str, "Video Dsiplay \r\n   State: %d \r\n   \
-                  Current Index: %d \r\n   Current Mode: %s", 
-            self->display->state, self->display->curFrame, 
+    sprintf(str, "Video Dsiplay \r\n   State: %d \r\n Current Mode: %s", 
+            self->display->state,
             self->display->vMode.label);
     return Py_BuildValue("s",str);
 }
 
-/*
- * exposing members
- */
-static PyMemberDef videodisplay_members[] = {
-    {"framebuffer", T_OBJECT, offsetof(videodisplayObject, frame), READONLY,
-     "FrameBuffer object"},
-    {NULL}  /* Sentinel */
-};
-
 /*****************************************************************************/
 /* Actual C bindings - member functions                                      */
 
-/*
- * frame_index([new_index])
- * get current index or if the argument is specified set it to a new one
- * within the allowed range
- */
-static PyObject *videodisplay_frame_index(videodisplayObject *self, 
-                                          PyObject *args){
-    Py_ssize_t nargs = PyTuple_Size(args);
-    if(nargs > 0){
-        unsigned int newIndex = 0;
-        if (!PyArg_ParseTuple(args, "I", &newIndex))
-            return NULL;
-        if(newIndex >= 0 && newIndex < NUM_FRAMES){       
-            self->display->curFrame = newIndex;
-            int status = DisplayChangeFrame(self->display, newIndex);
-            if (status != XST_SUCCESS){
-                PyErr_Format(PyExc_SystemError, 
-                             "Unable to change frame [%d]", status);
-                return NULL;
-            }
-            Py_RETURN_NONE;
-        }
-        else{
-            PyErr_Format(PyExc_ValueError, 
-                         "Index %d out of range [%d,%d]",
-                         newIndex, 0, NUM_FRAMES-1);
-            return NULL;
-        }
-    }
-    return Py_BuildValue("I", self->display->curFrame);
-}
-
-
-/*
- * frame_index_next()
- * Set the frame index to the next one and return it
- */
-static PyObject *videodisplay_frame_index_next(videodisplayObject *self){
-    unsigned int newIndex = self->display->curFrame + 1;
-     if(newIndex >= NUM_FRAMES)
-        newIndex = 0;         
-    int status = DisplayChangeFrame(self->display, newIndex);   
-    if (status != XST_SUCCESS){
-        PyErr_Format(PyExc_SystemError, 
-                     "Unable to change frame [%d]", status);
-        return NULL;
-    }
-    return Py_BuildValue("I", self->display->curFrame);
-}
 
 /*
  * frame_width()
@@ -304,90 +224,11 @@ static PyObject *videodisplay_mode(videodisplayObject *self,
     return Py_BuildValue("s", self->display->vMode.label);
 }
 
-/*
- * frame([index], [new_frame])
- * 
- * just a wrapper of get_frame() and set_frame() defined for the videoframe
- * object.
- */
-static PyObject *videodisplay_frame(videodisplayObject *self, PyObject *args){
-    unsigned int index = self->display->curFrame;
-    PyObject *new_frame = NULL;
-    Py_ssize_t nargs = PyTuple_Size(args);
-    if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
-        return get_frame(self->frame, index);
-    }
-    if(nargs == 1 && !PyArg_ParseTuple(args, "O", &new_frame)){
-        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "Passed argument is invalid");
-        return NULL;        
-    }
-    else if(nargs == 2 && !PyArg_ParseTuple(args, "IO", &index, &new_frame)){
-        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "Passed arguments are invalid");
-        return NULL;        
-    }
-    else if(nargs > 2){
-        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "Invalid number of arguments");
-        return NULL;        
-    }
-    if (!PyByteArray_CheckExact(new_frame)){
-        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, 
-                        "new_frame argument must be a bytearray");
-        return NULL;
-    }       
-    PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-    return set_frame(self->frame, index, (PyByteArrayObject *)new_frame);
-}
 
-/*
- * frame_addr([index])
- * 
- * just a wrapper of get_frame_addr().
- */
-static PyObject *videodisplay_frame_addr(videodisplayObject *self, PyObject *args){
-    unsigned int index = self->display->curFrame;
-    Py_ssize_t nargs = PyTuple_Size(args);
-    if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
-        return get_frame_addr(self->frame, index);
-    }
-    else {
-        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
-        return NULL;        
-    }     
-}
-
-/*
- * frame_phyaddr([index])
- * 
- * just a wrapper of get_frame_phyaddr().
- */
-static PyObject *videodisplay_frame_phyaddr(videodisplayObject *self, PyObject *args){
-    unsigned int index = self->display->curFrame;
-    Py_ssize_t nargs = PyTuple_Size(args);
-    if(nargs == 0 || (nargs == 1 && PyArg_ParseTuple(args, "I", &index))){
-        return get_frame_phyaddr(self->frame, index);
-    }
-    else {
-        PyErr_Clear(); //clear possible exception set by PyArg_ParseTuple
-        PyErr_SetString(PyExc_SyntaxError, "Invalid arguemnts or invalid number of arguments");
-        return NULL;        
-    }     
-}
 /*****************************************************************************/
 /* Defining the methods struct                                               */
 
 static PyMethodDef videodisplay_methods[] = {
-    {"frame_index", (PyCFunction)videodisplay_frame_index, METH_VARARGS,
-     "Get current index or if the argument is specified set it to a new one \
-      within the allowed range."
-    },
-    {"frame_index_next", (PyCFunction)videodisplay_frame_index_next, METH_VARARGS,
-     "Set the frame index to the next one and return it."
-    },
     {"frame_width", (PyCFunction)videodisplay_frame_width, METH_VARARGS,
      "Get the current frame width."
     },
@@ -406,16 +247,6 @@ static PyMethodDef videodisplay_methods[] = {
     {"mode", (PyCFunction)videodisplay_mode, METH_VARARGS,
      "Return current mode label, and set a new one if new_mode_index \
       is specified."
-    },
-    {"frame", (PyCFunction)videodisplay_frame, METH_VARARGS,
-     "Get the current frame (or the one at 'index' if specified) or set \
-      the frame if 'new_frame' is specified."
-    },
-    {"frame_addr", (PyCFunction)videodisplay_frame_addr, METH_VARARGS,
-     "Get the current frame buffer's address (or the one at 'index' if specified)."
-    },
-    {"frame_phyaddr", (PyCFunction)videodisplay_frame_phyaddr, METH_VARARGS,
-     "Get the current frame buffers's physical address (or the one at 'index' if specified)."
     },
     {NULL}  /* Sentinel */
 };
@@ -452,7 +283,7 @@ PyTypeObject videodisplayType = {
     0,                                          /* tp_iter */
     0,                                          /* tp_iternext */
     videodisplay_methods,                       /* tp_methods */
-    videodisplay_members,                       /* tp_members */
+    0,                                          /* tp_members */
     0,                                          /* tp_getset */
     0,                                          /* tp_base */
     0,                                          /* tp_dict */

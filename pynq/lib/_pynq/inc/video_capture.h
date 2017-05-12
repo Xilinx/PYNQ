@@ -108,17 +108,10 @@ typedef enum {
 } VideoState;
 
 typedef struct {
-    XAxiVdma *vdma; //VDMA driver struct
-    XAxiVdma_DmaSetup vdmaConfig; //VDMA channel configuration
     XVtc vtc; //VTC driver struct
     XVtc_Timing timing;
-    u8 *framePtr[VIDEO_NUM_FRAMES]; // Array of pointers to the framebuffers
-    u32 stride; // The line stride of the framebuffers, in bytes
-    u32 curFrame; // Current frame being displayed
     XGpio *gpio; // XGPIO driver struct 
     u32 vtcBaseAddress; // Device BaseAddress of VTC core in xparameters.h
-    int vtcIsInit; // flag indicating whether the VDMA was initialized
-    int startOnDetect; // flag indicating whether VDMA starts by interrupt
     VideoState state; // Indicates if the Display is currently running
     /*
      * following codes retired
@@ -139,9 +132,8 @@ typedef struct {
 
 int VideoStop(VideoCapture *videoPtr);
 int VideoStart(VideoCapture *videoPtr);
-int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict, 
+int VideoInitialize(VideoCapture *videoPtr,
                     PyObject *gpioDict, unsigned int vtcBaseAddress, 
-                    u8 *framePtr[VIDEO_NUM_FRAMES], u32 stride,
                     unsigned int init_timeout);
 int VideoChangeFrame(VideoCapture *videoPtr, u32 frameIndex);
 
@@ -150,6 +142,7 @@ int VideoChangeFrame(VideoCapture *videoPtr, u32 frameIndex);
 //void VtcDetIsr(void *InstancePtr, u32 pendingIrpt);
 //int SetupInterruptSystem(VideoCapture *videoPtr);
 void VtcDetect(VideoCapture *videoPtr);
+int VtcLocked(VideoCapture* videoPtr);
 
 /* ------------------------------------------------------------ */
 

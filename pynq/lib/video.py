@@ -1,862 +1,1169 @@
 #   Copyright (c) 2016, Xilinx, Inc.
 #   All rights reserved.
-# 
-#   Redistribution and use in source and binary forms, with or without 
+#
+#   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions are met:
 #
-#   1.  Redistributions of source code must retain the above copyright notice, 
+#   1.  Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
 #
-#   2.  Redistributions in binary form must reproduce the above copyright 
-#       notice, this list of conditions and the following disclaimer in the 
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
 #
-#   3.  Neither the name of the copyright holder nor the names of its 
-#       contributors may be used to endorse or promote products derived from 
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
 #       this software without specific prior written permission.
 #
 #   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
 #   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Giuseppe Natale, Yun Rock Qu"
+import asyncio
+import functools
+import numpy as np
+import time
+
+from pynq import Interrupt, MMIO, PL, Xlnk
+import pynq.lib._video
+
+
+__author__ = "Giuseppe Natale, Yun Rock Qu, Peter Ogden"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-from pynq import PL
-from time import sleep
-import numpy as np
-from PIL import Image
-from . import _video
 
-MAX_FRAME_WIDTH = 1920
-MAX_FRAME_HEIGHT = 1080
-VMODE_1920x1080 = 4
-VMODE_1280x1024 = 3
-VMODE_1280x720  = 2
-VMODE_800x600   = 1
-VMODE_640x480   = 0
+class VideoMode:
+    """Class for holding the information about a video mode
 
-class HDMI(object):
-    """Class for an HDMI controller.
-    
-    The frame buffer in an HDMI object can be shared among different objects.
-    e.g., HDMI in and HDMI out objects can use the same frame buffer.
-    
-    Note
-    ----
-    HDMI supports direction 'in' and 'out'.
-    
-    Examples
-    --------
-    >>> hdmi = HDMI('in')
-    
-    >>> hdmi = HDMI('out')
-    
     Attributes
     ----------
-    direction : str
-        Can be 'in' for HDMI IN or 'out' for HDMI OUT.
-    frame_list : _framebuffer
-        A frame buffer storing at most 3 frames.
-        
+    height : int
+        Height of the video frame in lines
+    width : int
+        Width of the video frame in pixels
+    stride : int
+        Width of a line in the video frame in bytes
+    bits_per_pixel : int
+        Bits per pixel
+    bytes_per_Pixel : int
+        Bytes required to represent each pixel
+    shape : tuple of int
+        Numpy-style tuple describing the video frame
+
     """
-    def __init__(self, direction, video_mode=VMODE_640x480,
-                 init_timeout=10, frame_list=None,
-                 vdma_name='SEG_axi_vdma_0_Reg',
-                 display_name='SEG_v_tc_0_Reg',
-                 capture_name='SEG_v_tc_1_Reg',
-                 clk_name='SEG_axi_dynclk_0_reg0',
-                 gpio_name='SEG_axi_gpio_video_Reg'):
-        """Returns a new instance of an HDMI object. 
-        
-        Assign the given frame buffer if specified, otherwise create a new 
-        frame buffer. The parameter `frame_list` is optional.
-        
-        Supported video modes are:
-        1920x1080, 60Hz: VMODE_1920x1080  = 4;
-        1280x1024, 60Hz: VMODE_1280x1024  = 3;
-        1280x720, 60Hz:  VMODE_1280x720   = 2;
-        800x600, 60Hz:   VMODE_800x600    = 1;
-        640x480, 60Hz:   VMODE_640x480    = 0 (default)
-        
-        Default timeout is 10s. Timeout is ignored for HDMI OUT.
-        
-        Note
-        ----
-        HDMI supports direction 'in' and 'out'.
-        
-        Parameters
-        ----------
-        direction : str
-            Can be 'in' for HDMI IN or 'out' for HDMI OUT.
-        frame_list : _framebuffer, optional
-            A frame buffer storing at most 3 frames.
-        video_mode : int
-            Video mode for HDMI OUT. Ignored for HDMI IN.
-        init_timeout : int, optional
-            Timeout in seconds for HDMI IN initialization.
-        vdma_name : str
-            The name of the video DMA that is available in PL ip_dict.
-        display_name : str
-            The name of the video display IP that is available in PL ip_dict.
-        capture_name : str
-            The name of the video capture IP that is available in PL ip_dict.
-        clk_name : str
-            The name of the clock segment that is available in PL ip_dict.
-        gpio_name : str
-            The name of the GPIO segment that is available in PL ip_dict.
-            
-        """
-        if not direction.lower() in ['in', 'out']:
-            raise ValueError("HDMI direction should be in or out.")
-        if (not isinstance(frame_list, _video._frame)) and \
-                (not frame_list is None):
-            raise ValueError("frame_list should be of type _video._frame.")
-        if (not isinstance(init_timeout, int)) or init_timeout < 1:
-            raise ValueError("init_timeout should be integer >= 1.")
 
-        if vdma_name not in PL.ip_dict:
-            raise LookupError("No such VDMA in the overlay.")
-        if display_name not in PL.ip_dict:
-            raise LookupError("No such display address in the overlay.")
-        if capture_name not in PL.ip_dict:
-            raise LookupError("No such capture address in the overlay.")
-        if clk_name not in PL.ip_dict:
-            raise LookupError("No such clock address in the overlay.")
-        if gpio_name not in PL.ip_dict:
-            raise LookupError("No such GPIO in the overlay.")
+    def __init__(self, width, height, bits_per_pixel, stride=None):
+        self.width = width
+        self.height = height
+        self.bits_per_pixel = bits_per_pixel
+        self.bytes_per_pixel = ((bits_per_pixel - 1) // 8) + 1
+        if stride:
+            self.stride = stride
+        else:
+            self.stride = width * self.bytes_per_pixel
+        if self.bytes_per_pixel == 1:
+            self.shape = (self.height, self.width)
+        else:
+            self.shape = (self.height, self.width, self.bytes_per_pixel)
 
-        vdma_dict = {
-            'BASEADDR': PL.ip_dict[vdma_name][0],
-            'NUM_FSTORES': 3,
-            'INCLUDE_MM2S': 1,
-            'INCLUDE_MM2S_DRE': 0,
-            'M_AXI_MM2S_DATA_WIDTH': 32,
-            'INCLUDE_S2MM': 1,
-            'INCLUDE_S2MM_DRE': 0,
-            'M_AXI_S2MM_DATA_WIDTH': 32,
-            'INCLUDE_SG': 0,
-            'ENABLE_VIDPRMTR_READS': 1,
-            'USE_FSYNC': 1,
-            'FLUSH_ON_FSYNC': 1,
-            'MM2S_LINEBUFFER_DEPTH': 4096,
-            'S2MM_LINEBUFFER_DEPTH': 4096,
-            'MM2S_GENLOCK_MODE': 0,
-            'S2MM_GENLOCK_MODE': 0,
-            'INCLUDE_INTERNAL_GENLOCK': 1,
-            'S2MM_SOF_ENABLE': 1,
-            'M_AXIS_MM2S_TDATA_WIDTH': 24,
-            'S_AXIS_S2MM_TDATA_WIDTH': 24,
-            'ENABLE_DEBUG_INFO_1': 0,
-            'ENABLE_DEBUG_INFO_5': 0,
-            'ENABLE_DEBUG_INFO_6': 1,
-            'ENABLE_DEBUG_INFO_7': 1,
-            'ENABLE_DEBUG_INFO_9': 0,
-            'ENABLE_DEBUG_INFO_13': 0,
-            'ENABLE_DEBUG_INFO_14': 1,
-            'ENABLE_DEBUG_INFO_15': 1,
-            'ENABLE_DEBUG_ALL': 0,
-            'ADDR_WIDTH': 32,
-        }
-        vtc_display_addr = PL.ip_dict[display_name][0]
-        vtc_capture_addr = PL.ip_dict[capture_name][0]
-        dyn_clk_addr = PL.ip_dict[clk_name][0]
+    def __repr__(self):
+        return (f"VideoMode: width={self.width} "
+                f"height={self.height} bpp={self.bits_per_pixel}")
+
+
+class HDMIInFrontend:
+    """Class for interacting the with HDMI input frontend
+
+    This class is used for enabling the HDMI input and retrieving
+    the mode of the incoming video
+
+    Attributes
+    ----------
+    mode : VideoMode
+        The detected mode of the incoming video stream
+
+    """
+
+    def __init__(self, hierarchy, init_timeout=10):
+        ip_dict = PL.ip_dict
+        gpio_description = ip_dict[f'{hierarchy}/axi_gpio_hdmiin']
         gpio_dict = {
-            'BASEADDR': PL.ip_dict[gpio_name][0],
+            'BASEADDR': gpio_description['phys_addr'],
             'INTERRUPT_PRESENT': 1,
             'IS_DUAL': 1,
         }
+        vtc_description = ip_dict[f'{hierarchy}/vtc_in']
+        vtc_capture_addr = vtc_description['phys_addr']
+        self._capture = pynq.lib._video._capture(gpio_dict,
+                                                 vtc_capture_addr,
+                                                 init_timeout)
 
-        self.direction = direction.lower()
-        if self.direction == 'out':
-            # HDMI output
-            if frame_list is None:
-                self._display = _video._display(vdma_dict,
-                                                vtc_display_addr,
-                                                dyn_clk_addr, 1)
-                self._display.mode(video_mode)
-            else:
-                self._display = _video._display(vdma_dict,
-                                                vtc_display_addr,
-                                                dyn_clk_addr, 1,
-                                                frame_list)
-                self._display.mode(video_mode)
-                                                
-            self.frame_list = self._display.framebuffer
-            
-            self.start = self._display.start
-            """Start the video controller.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            None
-            
-            """
-            
-            self.stop = self._display.stop
-            """Stop the video controller.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            None
-            
-            """
-            
-            self.state = self._display.state
-            """Get the state of the device as an integer value.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The state 0 (STOPPED), or 1 (RUNNING).
-                
-            """
-            
-            self.mode = self._display.mode
-            """Change the resolution of the display. 
-            
-            Users can use mode(new_mode) to change the resolution.
-            Specifically, with `new_mode` to be:
-            
-            0 : '640x480, 60Hz'
-            
-            1 : '800x600, 60Hz'
-            
-            2 : '1280x720, 60Hz'
-            
-            3 : '1280x1024, 60Hz'
-            
-            4 : '1920x1080, 60Hz'
-            
-            If `new_mode` is not specified, return the current mode.
-            
-            Parameters
-            ----------
-            new_mode : int
-                A mode index from 0 to 4.
-                
-            Returns
-            -------
-            str
-                The resolution of the display.
-                
-            Raises
-            ------
-            ValueError
-                If `new_mode` is out of range.
-                
-            """
-            
-            self.frame_raw = self._display.frame
-            """Returns a bytearray of the frame.
-            
-            User may use frame([index]) to access the frame, which may 
-            introduce some overhead in rare cases. The method 
-            frame_raw([i],[new_frame]) is faster, but the parameter `i` has 
-            to be calculated manually.
-            
-            Note
-            ----
-            If `new_frame` is set, this method will take the bytearray 
-            (`new_frame`) and overwrites the current frame (or the frame 
-            specified by `i`). Also, if `new_frame` is set, nothing will 
-            be returned.
-            
-            Parameters
-            ----------
-            i : int, optional
-                A location in the bytearray.
-            new_frame: bytearray, optional
-                A bytearray used to overwrite the frame.
-                
-            Returns
-            -------
-            bytearray
-                The frame in its raw bytearray form.
-                
-            """
-            
-            self.frame = self._frame_out
-            """Wraps the raw version using the Frame object.
-            
-            Use frame([index], [new_frame]) to write the frame more easily.
-            
-            Note
-            ----
-            if `new_frame` is set, nothing will be returned.
-            
-            Parameters
-            ----------
-            index : int, optional
-                Index of the frames, from 0 to 2.
-            new_frame : Frame, optional
-                A new frame to copy into the frame buffer.
-                
-            Returns
-            -------
-            Frame
-                A Frame object with accessible pixels.
-                
-            """
-            
-            self.frame_index = self._display.frame_index
-            """Get the frame index.
-            
-            Use frame_index([new_frame_index]) to access the frame index.
-            If `new_frame_index` is not specified, get the current frame index.
-            If `new_frame_index` is specified, set the current frame to the 
-            new index. 
-            
-            Parameters
-            ----------
-            new_frame_index : int, optional
-                Index of the frames, from 0 to 2.
-                
-            Returns
-            -------
-            int
-                The index of the active frame.
-                
-            """
-            
-            self.frame_index_next = self._display.frame_index_next
-            """Change the frame index to the next one.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The index of the active frame.
-            
-            """
-            
-            self.frame_width = self._display.frame_width
-            """Get the current frame width.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The width of the frame.
-                
-            """
-            
-            self.frame_height = self._display.frame_height
-            """Get the current frame height.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The height of the frame.
-                
-            """
-            
-            self.frame_addr = self._display.frame_addr
-            """Get the current frame address.
-            
-            Parameters
-            ----------
-            i : int, optional
-                Index of the current frame buffer.
-            
-            Returns
-            -------
-            int
-                Address of the frame, thus current frame buffer.
-                
-            """
-            
-            self.frame_phyaddr = self._display.frame_phyaddr
-            """Get the current physical frame address.
-            
-            Parameters
-            ----------
-            i : int, optional
-                Index of the current frame buffer.
-            
-            Returns
-            -------
-            int
-                Physical address of the frame, thus current frame buffer.
-                
-            """
-            
-        else:
-            # HDMI input
-            if frame_list is None:
-                self._capture = _video._capture(vdma_dict,
-                                                gpio_dict,
-                                                vtc_capture_addr,
-                                                init_timeout)
-            else:
-                self._capture = _video._capture(vdma_dict,
-                                                gpio_dict,
-                                                vtc_capture_addr,
-                                                init_timeout,
-                                                frame_list)
-                                                
-            self.frame_list = self._capture.framebuffer
-            
-            self.stop = self._capture.stop
-            """Stop the video controller.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            None
-            
-            """
-            
-            self.state = self._capture.state
-            """Get the state of the device as an integer value.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The state 0 (DISCONNECTED), or 1 (STREAMING), or 2 (PAUSED).
-                
-            """
-            
-            self.frame_raw = self._capture.frame
-            """Get the frame as a bytearray.
-            
-            User may use frame([index]) to access the frame, which may 
-            introduce some overhead in rare cases. The method frame_raw([i]) 
-            is faster, but the parameter `i` has to be calculated manually.
-            
-            Parameters
-            ----------
-            i : int, optional
-                A location in the bytearray.
-                
-            Returns
-            -------
-            bytearray
-                The frame in its raw bytearray form.
-                
-            """
-            
-            self.frame = self._frame_in
-            """Wraps the raw version using the Frame object.
-            
-            Use frame([index]) to read the frame more easily.
-            
-            Parameters
-            ----------
-            index : int, optional
-                Index of the frames, from 0 to 2.
-                
-            Returns
-            -------
-            Frame
-                A Frame object with accessible pixels.
-                
-            """
-            
-            self.frame_index = self._capture.frame_index
-            """Get the frame index.
-            
-            Use frame_index([new_frame_index]) to access the frame index.
-            If `new_frame_index` is not specified, get the current frame index.
-            If `new_frame_index` is specified, set the current frame to the 
-            new index.
-            
-            Parameters
-            ----------
-            new_frame_index : int, optional
-                Index of the frames, from 0 to 2.
-            
-            Returns
-            -------
-            int
-                The index of the active frame.
-                
-            """
-            
-            self.frame_index_next = self._capture.frame_index_next
-            """Change the frame index to the next one.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The index of the active frame.
-            
-            """
-            
-            self.frame_width = self._capture.frame_width
-            """Get the current frame width.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The width of the frame.
-                
-            """
-            
-            self.frame_height = self._capture.frame_height
-            """Get the current frame height.
-            
-            Parameters
-            ----------
-            None
-            
-            Returns
-            -------
-            int
-                The height of the frame.
-                
-            """
-            
-            self.frame_addr = self._capture.frame_addr
-            """Get the current frame address.
-            
-            Parameters
-            ----------
-            i : int, optional
-                Index of the current frame buffer.
-            
-            Returns
-            -------
-            int
-                Address of the frame, thus current frame buffer.
-                
-            """
-            
-            self.frame_phyaddr = self._capture.frame_phyaddr
-            """Get the current physical frame address.
-            
-            Parameters
-            ----------
-            i : int, optional
-                Index of the current frame buffer.
-            
-            Returns
-            -------
-            int
-                Physical address of the frame, thus current frame buffer.
-                
-            """
-            
-    def start(self,timeout=20):
-        """Start the video controller.
-            
-        Parameters
-        ----------
-        timeout : int, optional
-            HDMI controller response timeout in seconds.
-        
-        Returns
-        -------
-        None
-        
+    def start(self):
+        """Method that blocks until the video mode is
+        successfully detected
+
         """
-        if timeout<=0:
-            raise ValueError("timeout must be greater than 0.")
-            
-        while self.state() != 1:
-            try:
-                self._capture.start()
-            except Exception as err:
-                if timeout > 0:
-                    sleep(1)
-                    timeout -= 1
-                else:
-                    raise err
-                    
-    def _frame_out(self, *args):
-        """Returns the specified frame or the active frame.
-        
-        With no parameter specified, this method returns a new Frame object.
-        
-        With 1 parameter specified, this method uses it as the index or frame
-        to create the Frame object. 
-        
-        With 2 parameters specified, this method treats the first argument as 
-        index, while treating the second argument as a frame.
-        
-        Parameters
-        ----------
-        *args
-            Variable length argument list.
-            
-        Returns
-        -------
-        Frame
-            An object of a frame in the frame buffer.
-            
+
+        while self.mode.height == 0:
+            pass
+        # First mode detected is garbage so wait a while for
+        # it to stabilise
+        time.sleep(1)
+
+    def stop(self):
+        """Currently empty function included for symmetry with
+        the HDMIOutFrontend class
+
         """
-        if len(args) == 2:
-            self._display.frame(args[0], args[1].frame)
-        elif len(args) == 1:
-            if type(args[0]) is int:
-                return Frame(self.frame_width(), self.frame_height(),
-                             self._display.frame(args[0]))
-            else:
-                self._display.frame(args[0].frame)
-        else:
-            return Frame(self.frame_width(), self.frame_height(),
-                         self._display.frame())
-                        
-    def _frame_in(self, index=None):
-        """Returns the specified frame or the active frame.
-        
-        Parameters
-        ----------
-        index : int, optional
-            The index of a frame in the frame buffer, from 0 to 2.
-            
-        Returns
-        -------
-        Frame
-            An object of a frame in the frame buffer.
-            
-        """
-        if index is None:
-            buf = self._capture.frame()
-        else:
-            buf = self._capture.frame(index)
-        return Frame(self.frame_width(), self.frame_height(), buf)
-        
-    def __del__(self):
-        """Delete the HDMI object.
-        
-        Stop the video controller first to avoid odd behaviors of the DMA.
-        
-        Returns
-        -------
-        None
-        
-        """
-        if hasattr(self, 'stop'):
-            self.stop()
-        if hasattr(self, '_capture'):
-            del self._capture
-        elif hasattr(self, '_display'):
-            del self._display
-            
-class Frame(object):
-    """This class exposes the bytearray of the video frame buffer.
-    
-    Note
-    ----
-    The maximum frame width is 1920, while the maximum frame height is 1080.
-    
+        pass
+
+    @property
+    def mode(self):
+        return VideoMode(self._capture.frame_width(),
+                         self._capture.frame_height(), 24)
+
+
+_outputmodes = {
+    (640, 480): 0,
+    (800, 600): 1,
+    (1280, 720): 2,
+    (1280, 1024): 3,
+    (1920, 1080): 4
+}
+
+
+class HDMIOutFrontend:
+    """Class for interacting the HDMI output frontend
+
+    This class is used for enabling the HDMI output and setting
+    the desired mode of the video stream
+
     Attributes
     ----------
-    frame : bytearray
-        The bytearray of the video frame buffer.
-    width : int
-        The width of a frame.
-    height : int
-        The height of a frame.
-        
+    mode : VideoMode
+        Desired mode for the output video. Must be set prior
+        to calling start
+
     """
-    def __init__(self, width, height, frame=None):
-        """Returns a new Frame object.
-        
-        Note
-        ----
-        The maximum frame width is 1920; the maximum frame height is 1080.
-        
+
+    def __init__(self, hierarchy):
+        """Create the HDMI output front end
+
         Parameters
         ----------
-        width : int
-            The width of a frame.
-        height : int
-            The height of a frame.
-            
+        vtc_description : dict
+            The IP dictionary entry for the video timing controller to use
+        clock_description : dict
+            The IP dictionary entry for the clock generator to use
+
         """
-        if frame is not None:
-            self._framebuffer = None
-            self.frame = frame
+        ip_dict = PL.ip_dict
+        vtc_description = ip_dict[f'{hierarchy}/vtc_out']
+        clock_description = ip_dict[f'{hierarchy}/axi_dynclk']
+        vtc_capture_addr = vtc_description['phys_addr']
+        clock_addr = clock_description['phys_addr']
+        self._display = pynq.lib._video._display(vtc_capture_addr,
+                                                 clock_addr, 1)
+        self.start = self._display.start
+        """Start the HDMI output - requires the that mode is already set"""
+
+        self.stop = self._display.stop
+        """Stop the HDMI output"""
+
+    @property
+    def mode(self):
+        """Get or set the video mode for the HDMI output, must be set to one
+        of the following resolutions:
+
+        640x480
+        800x600
+        1280x720
+        1280x1024
+        1920x1080
+
+        Any other resolution  will result in a ValueError being raised.
+        The bits per pixel will always be 24 when retrieved and ignored
+        when set.
+
+        """
+        return VideoMode(self._display.frame_width(),
+                         self._display.frame_height(), 24)
+
+    @mode.setter
+    def mode(self, value):
+        resolution = (value.width, value.height)
+        if resolution in _outputmodes:
+            self._display.mode(_outputmodes[resolution])
         else:
-            self._framebuffer = _video._frame(1)
-            self.frame = self._framebuffer(0)
-        self.width = width
-        self.height = height
-        
-    def __getitem__(self, pixel):
-        """Get one pixel in a frame.
-        
-        The pixel is accessed in the following way: 
-            `frame[x, y]` to get the tuple (r,g,b) 
-        or 
-            `frame[x, y][rgb]` to access a specific color.
-            
-        Examples
-        --------
-        Get the three component of pixel (48,32) as a tuple, assuming the 
-        object is called `frame`:
-        
-        >>> frame[48,32]
-        
-        (128,64,12)
-        
-        Access the green component of pixel (48,32):
-        
-        >>> frame[48,32][1]
-        
-        64
-        
-        Note
-        ----
-        The original frame stores pixels as (b,g,r). Hence, to return a tuple 
-        (r,g,b), we need to return (self.frame[offset+2], self.frame[offset+1],
-        self.frame[offset]).
-            
-        Parameters
-        ----------
-        pixel : list
-            A pixel (r,g,b) of a frame.
-            
-        Returns
-        -------
-        list
-            A list of the current values (r,g,b) of the pixel.
-            
+            raise ValueError(f"Invalid Output resolution "
+                             f"{value.width}x{value.height}")
+
+
+class _FrameCache:
+    _xlnk = None
+
+    def __init__(self, mode, capacity=5):
+        self._cache = []
+        self._mode = mode
+        self._capacity = capacity
+
+    def getframe(self):
+        """Retrieve a frame from the cache or create a new frame if the
+        cache is empty. The freebuffer method of the returned array is
+        overriden to return the object to the cache rather than freeing
+        the object.
+
         """
-        x, y = pixel
-        if 0 <= x < self.width and 0 <= y < self.height:
-            offset = 3 * (y * MAX_FRAME_WIDTH + x)
-            return self.frame[offset+2],self.frame[offset+1],\
-                    self.frame[offset]
+        if self._cache:
+            frame = self._cache.pop()
         else:
-            raise ValueError("Pixel is out of the frame range.")
-            
-    def __setitem__(self, pixel, value):
-        """Set one pixel in a frame.
-        
-        The pixel is accessed in the following way: 
-            `frame[x, y] = (r,g,b)` to set the entire tuple
-        or 
-            `frame[x, y][rgb] = value` to set a specific color.
-        
-        Examples
-        --------
-        Set pixel (0,0), assuming the object is called `frame`:
-        
-        >>> frame[0,0] = (255,255,255)
-        
-        Set the blue component of pixel (0,0) to be 128
-        
-        >>> frame[0,0][2] = 128
-        
-        Note
-        ----
-        The original frame stores pixels as (b,g,r).
-        
-        Parameters
-        ----------
-        pixel : list
-            A pixel (r,g,b) of a frame.
-        value : list
-            A list of the values (r,g,b) to be set for the pixel.
-            
-        Returns
-        -------
-        None
-        
-        """
-        x, y = pixel
-        if 0 <= x < self.width and 0 <= y < self.height:
-            offset = 3 * (y * MAX_FRAME_WIDTH + x)
-            self.frame[offset + 2] = value[0]
-            self.frame[offset + 1] = value[1]
-            self.frame[offset] = value[2]
+            if _FrameCache._xlnk is None:
+                _FrameCache._xlnk = Xlnk()
+            frame = _FrameCache._xlnk.cma_array(
+                shape=self._mode.shape, dtype=np.uint8)
+        frame.original_freebuffer = frame.freebuffer
+        frame.freebuffer = functools.partial(
+            _FrameCache.returnframe, self, frame)
+        return frame
+
+    def returnframe(self, frame):
+        frame.freebuffer = frame.original_freebuffer
+        if len(self._cache) >= self._capacity:
+            frame.freebuffer()
         else:
-            raise ValueError("Pixel is out of the frame range.")
-            
-    def __del__(self):
-        """Delete the frame buffer.
-        
-        Delete the frame buffer and free the memory only if the frame buffer 
-        is not empty.
-        
+            self._cache.append(frame)
+
+    def clear(self):
+        for frame in self._cache:
+            frame.freebuffer()
+        self._cache.clear()
+
+
+class AxiVDMA:
+    """Driver class for the Xilinx VideoDMA IP core
+
+    The driver is split into input and output channels are exposed using the
+    readchannel and writechannel attributes. Each channel has start and
+    stop methods to control the data transfer. All channels MUST be stopped
+    before reprogramming the bitstream or inconsistent behaviour may result.
+
+    The DMA uses a single ownership model of frames in that frames are either
+    owned by the DMA or the user code but not both. S2MMChannel.readframe
+    and MM2SChannel.newframe both return a frame to the user. It is the
+    user's responsibility to either free the frame using the freebuffer()
+    method or to hand ownership back to the DMA using MM2SChannel.writeframe.
+    Once ownership has been returned the user should not access the contents
+    of the frame as the underlying memory may be deleted without warning.
+
+    Attributes
+    ----------
+    readchannel : AxiVDMA.S2MMChannel
+        Video input DMA channel
+    writechannel : AxiVDMA.MM2SChannel
+        Video output DMA channel
+
+    """
+    class _FrameList:
+        """Internal helper class for handling the list of frames associated
+        with a DMA channel. Assumes ownership of all frames it contains
+        unless explicitly removed with takeownership
+
+        """
+
+        def __init__(self, parent, offset, count):
+            self._frames = [None] * count
+            self._mmio = parent._mmio
+            self._offset = offset
+            self._slaves = set()
+            self.count = count
+            self.reload = parent.reload
+
+        def __getitem__(self, index):
+            frame = self._frames[index]
+            return frame
+
+        def takeownership(self, index):
+            self._frames[index] = None
+
+        def __len__(self):
+            return self.count
+
+        def __setitem__(self, index, frame):
+            if self._frames[index] is not None:
+                self._frames[index].freebuffer()
+            self._frames[index] = frame
+            if frame is not None:
+                self._mmio.write(self._offset + 4 * index,
+                                 frame.physical_address)
+            else:
+                self._mmio.write(self._offset + 4 * index, 0)
+            self.reload()
+            for s in self._slaves:
+                s[index] = frame
+                s.takeownership(index)
+
+        def addslave(self, slave):
+            self._slaves.add(slave)
+            for i in range(len(self._frames)):
+                slave[i] = self[i]
+                slave.takeownership(i)
+            slave.reload()
+
+        def removeslave(self, slave):
+            self._slaves.remove(slave)
+
+    class S2MMChannel:
+        """Read channel of the Video DMA
+
+        Brings frames from the video input into memory. Hands ownership of
+        the read frames to the user code.
+
+        Attributes
+        ----------
+        mode : VideoMode
+            The video mode of the DMA channel
+        """
+
+        def __init__(self, parent, interrupt):
+            self._mmio = parent._mmio
+            self._frames = AxiVDMA._FrameList(self, 0xAC, parent.framecount)
+            self._interrupt = Interrupt(interrupt)
+            self._sinkchannel = None
+            self._mode = None
+
+        def _readframe_internal(self):
+            nextframe = self._cache.getframe()
+            previous_frame = (self.activeframe + 1) % len(self._frames)
+            captured = self._frames[previous_frame]
+            self._frames.takeownership(previous_frame)
+            self._frames[previous_frame] = nextframe
+            return captured
+
+        def readframe(self):
+            """Read a frame from the channel and return to the user
+
+            This function may block until a complete frame has been read. A
+            single frame buffer is kept so the first frame read after a long
+            pause in reading may return a stale frame. To ensure an up-to-date
+            frame when starting processing video read an additional time
+            before starting the processing loop.
+
+            Returns
+            -------
+            numpy.ndarray of the video frame
+
+            """
+            while self._mmio.read(0x34) & 0x1000 == 0:
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(
+                    asyncio.ensure_future(self._interrupt.wait()))
+            self._mmio.write(0x34, 0x1000)
+            return self._readframe_internal()
+
+        async def readframe_async(self):
+            """Read a frame from the channel, yielding instead of blocking
+            if no data is available. See readframe for more details
+
+            """
+            while self._mmio.read(0x34) & 0x1000 == 0:
+                await self._interrupt.wait()
+            self._mmio.write(0x34, 0x1000)
+            return self._readframe_internal()
+
+        @property
+        def activeframe(self):
+            """The frame index currently being processed by the DMA
+
+            This process requires clearing any error bits in the DMA channel
+
+            """
+            self._mmio.write(0x34, 0x4090)
+            return (self._mmio.read(0x28) >> 24) & 0x1F
+
+        @property
+        def desiredframe(self):
+            """The next frame index to the processed by the DMA
+
+            """
+            return (self._mmio.read(0x28) >> 8) & 0x1F
+
+        @desiredframe.setter
+        def desiredframe(self, frame_number):
+            if frame_number < 0 or frame_number >= len(self._frames):
+                raise ValueError("Invalid frame index")
+            register_value = self._mmio.read(0x28)
+            mask = ~(0x1F << 8)
+            register_value &= mask
+            register_value |= (frame_number << 8)
+            self._mmio.write(0x28, register_value)
+
+        @property
+        def mode(self):
+            """The video mode of the DMA. Must be set prior to starting.
+            Changing this while the DMA is running will result in the DMA
+            being stopped.
+
+            """
+            return self._mode
+
+        @mode.setter
+        def mode(self, value):
+            if self.running:
+                self.stop()
+            self._mode = value
+
+        @property
+        def running(self):
+            """Is the DMA channel running
+
+            """
+            return (self._mmio.read(0x34) & 0x1) == 0
+
+        @property
+        def parked(self):
+            """Is the channel parked or running in circular buffer mode
+
+            """
+            return self._mmio.read(0x30) & 0x2 == 0
+
+        @parked.setter
+        def parked(self, value):
+            register = self._mmio.read(0x30)
+            if value:
+               register &= ~0x2
+            else:
+               register |= 0x2
+            self._mmio.write(0x30, register)
+
+        def start(self):
+            """Start the DMA. The mode must be set prior to this being called
+
+            """
+            if not self._mode:
+                raise RuntimeError("Video mode not set, channel not started")
+            self.desiredframe = 0
+            self._cache = _FrameCache(self._mode)
+            for i in range(len(self._frames)):
+                self._frames[i] = self._cache.getframe()
+
+            self._writemode()
+            self.reload()
+            self._mmio.write(0x30, 0x00011083)
+            while not self.running:
+                pass
+            self.reload()
+            self.desiredframe = 1
+
+        def stop(self):
+            """Stops the DMA, clears the frame cache and unhooks any tied
+            outputs
+
+            """
+            self.tie(None)
+            self._mmio.write(0x30, 0x00011080)
+            while self.running:
+                pass
+            for i in range(len(self._frames)):
+                self._frames[i] = None
+            if hasattr(self, '_cache'):
+                self._cache.clear()
+
+        def _writemode(self):
+            self._mmio.write(0xA4, self._mode.width *
+                             self._mode.bytes_per_pixel)
+            self._mmio.write(0xA8, self._mode.stride)
+
+        def reload(self):
+            """Reload the configuration of the DMA. Should only be called
+            by the _FrameList class or if you really know what you are doing
+
+            """
+            if self.running:
+                self._mmio.write(0xA0, self._mode.height)
+
+        def reset(self):
+            """Soft reset the DMA. Finishes all transfers before starting
+            the reset process
+
+            """
+            self.stop()
+            self._mmio.write(0x30, 0x00011084)
+            while self._mmio.read(0x30) & 0x4 == 4:
+                pass
+
+        def tie(self, channel):
+            """Ties an output channel to this input channel. This is used
+            to pass video from input to output without invoking the CPU
+            for each frame. Main use case is when some slow processing is
+            being done on a subset of frames while the video is passed
+            through directly to the output. Only one output may be tied
+            to an output. The tie is broken either by calling tie(None) or
+            writing a frame to the tied output channel.
+
+            """
+            if self._sinkchannel:
+                self._frames.removeslave(self._sinkchannel._frames)
+                self._sinkchannel.parked = True
+                self._sinkchannel.sourcechannel = None
+            self._sinkchannel = channel
+            if self._sinkchannel:
+                self._frames.addslave(self._sinkchannel._frames)
+                self._sinkchannel.parked = False
+                self._sinkchannel.framedelay = 1
+                self._sinkchannel.sourcechannel = self
+
+    class MM2SChannel:
+        """DMA channel from memory to a video output.
+
+        Will continually repeat the most recent frame written.
+
+        Attributes
+        ----------
+        mode : VideoMode
+            Video mode of the DMA channel
+
+        """
+
+        def __init__(self, parent, interrupt):
+            self._mmio = parent._mmio
+            self._frames = AxiVDMA._FrameList(self, 0x5C, parent.framecount)
+            self._interrupt = Interrupt(interrupt)
+            self._mode = None
+            self.sourcechannel = None
+
+        def start(self):
+            """Start the DMA channel with a blank screen. The mode must
+            be set prior to calling or a RuntimeError will result.
+
+            """
+            if not self._mode:
+                raise RuntimeError("Video mode not set, channel not started")
+            self._cache = _FrameCache(self._mode)
+            self._frames[0] = self._cache.getframe()
+            self._writemode()
+            self.reload()
+            self._mmio.write(0x00, 0x00011089)
+            while not self.running:
+                pass
+            self.reload()
+            self.desiredframe = 0
+            pass
+
+        def stop(self):
+            """Stop the DMA channel and empty the frame cache
+
+            """
+            self._mmio.write(0x00, 0x00011080)
+            while self.running:
+                pass
+            for i in range(len(self._frames)):
+                self._frames[i] = None
+            if hasattr(self, '_cache'):
+                self._cache.clear()
+
+        def reset(self):
+            """Soft reset the DMA channel
+
+            """
+            self.stop()
+            self._mmio.write(0x00, 0x00011084)
+            while self._mmio.read(0x00) & 0x4 == 4:
+                pass
+
+        def _writeframe_internal(self, frame):
+            if self.sourcechannel:
+                self.sourcechannel.tie(None)
+
+            next_frame = (self.desiredframe + 1) % len(self._frames)
+            self._frames[next_frame] = frame
+            self.desiredframe = next_frame
+
+        def writeframe(self, frame):
+            """Schedule the specified frame to be the next one displayed.
+            Assumes ownership of frame which should no longer be modified
+            by the user. May block if there is already a frame scheduled.
+
+            """
+            while self._mmio.read(0x04) & 0x1000 == 0:
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(
+                    asyncio.ensure_future(self._interrupt.wait()))
+            self._mmio.write(0x04, 0x1000)
+            self._writeframe_internal(frame)
+
+        async def writeframe_async(self, frame):
+            """Same as writeframe() but yields instead of blocking if a
+            frame is already scheduled
+
+            """
+            while self._mmio.read(0x04) & 0x1000 == 0:
+                await self._interrupt.wait()
+            self._mmio.write(0x04, 0x1000)
+            self._writeframe_internal(frame)
+
+        def setframe(self, frame):
+            """Sets a frame without blocking or taking ownership. In most
+            circumstances writeframe() is more appropriate
+
+            """
+            frameindex = self.desiredframe
+            self._frames[frameindex] = frame
+            self._frames.takeownership(frameindex)
+
+        def _writemode(self):
+            self._mmio.write(0x54, self._mode.width *
+                             self._mode.bytes_per_pixel)
+            register = self._mmio.read(0x58)
+            register &= (0xF << 24)
+            register |= self._mode.stride
+            self._mmio.write(0x58, register)
+
+        def reload(self):
+            """Reload the configuration of the DMA. Should only be called
+            by the _FrameList class or if you really know what you are doing
+
+            """
+            if self.running:
+                self._mmio.write(0x50, self._mode.height)
+
+        def newframe(self):
+            """Returns a frame of the appropriate size for the video mode.
+
+            The contents of the frame are undefined and should not be assumed
+            to be black
+
+            Returns
+            -------
+            numpy.ndarray video frame
+
+            """
+            return self._cache.getframe()
+
+        @property
+        def activeframe(self):
+            self._mmio.write(0x04, 0x4090)
+            return (self._mmio.read(0x28) >> 16) & 0x1F
+
+        @property
+        def desiredframe(self):
+            return self._mmio.read(0x28) & 0x1F
+
+        @desiredframe.setter
+        def desiredframe(self, frame_number):
+            if frame_number < 0 or frame_number >= len(self._frames):
+                raise ValueError("Invalid Frame Index")
+            register_value = self._mmio.read(0x28)
+            mask = ~0x1F
+            register_value &= mask
+            register_value |= frame_number
+            self._mmio.write(0x28, register_value)
+
+        @property
+        def running(self):
+            return (self._mmio.read(0x04) & 0x1) == 0
+
+        @property
+        def mode(self):
+            """The video mode of the DMA, must be called prior to starting.
+            If changed while the DMA channel is running the channel will be
+            stopped
+
+            """
+            return self._mode
+
+        @mode.setter
+        def mode(self, value):
+            if self.running:
+                self.stop()
+            self._mode = value
+
+        @property
+        def parked(self):
+            """Is the channel parked or running in circular buffer mode
+
+            """
+            return self._mmio.read(0x00) & 0x2 == 0
+
+        @parked.setter
+        def parked(self, value):
+            register = self._mmio.read(0x00)
+            if value:
+               self.desiredframe = self.activeframe
+               register &= ~0x2
+            else:
+               register |= 0x2
+            self._mmio.write(0x00, register)
+
+        @property
+        def framedelay(self):
+            register = self._mmio.read(0x58)
+            return register >> 24
+
+        @framedelay.setter
+        def framedelay(self, value):
+            register = self._mmio.read(0x58)
+            register &= 0xFFFF
+            register |= value << 24
+            self._mmio.write(0x58, register)
+
+    def __init__(self, name, framecount=4):
+        """Create a new instance of the AXI Video DMA driver
+
         Parameters
         ----------
-        None
-        
-        Returns
-        -------
-        None
-        
+        name : str
+            The name of the IP core to instantiate the driver for
+
         """
-        if self._framebuffer is not None:
-            del self._framebuffer
-            
-    def save_as_jpeg(self, path, width=None, height=None):
-        """Save a video frame to a JPEG image.
-        
-        Note
-        ----
-        The JPEG filename must be included in the path.
-        
+        description = PL.ip_dict[name]
+        self._mmio = MMIO(description['phys_addr'], 256)
+        self.framecount = framecount
+        self.readchannel = AxiVDMA.S2MMChannel(self, f"{name}/s2mm_introut")
+        self.writechannel = AxiVDMA.MM2SChannel(self, f"{name}/mm2s_introut")
+
+
+class ColorConverter:
+    """Driver for the color space converter
+
+    The colorspace convert implements a 3x4 matrix for performing arbitrary
+    linear color conversions. Each coefficient is represented as a 10 bit
+    signed fixed point number with 2 integer bits. The result of the
+    computation can visualised as a table
+
+         in1 in2 in3 1
+    out1  c1  c2  c3 c10
+    out2  c4  c5  c6 c11
+    out3  c7  c8  c9 c12
+
+    The color can be changed mid-stream.
+
+    Attributes
+    ----------
+    colorspace : list of float
+        The coefficients of the colorspace conversion
+
+    """
+
+    def __init__(self, description):
+        """Construct an instance of the driver
+
+        Attributes
+        ----------
+        description : dict
+            IP dict entry for the IP core
+
+        """
+        self._mmio = MMIO(description['phys_addr'], 256)
+
+    @property
+    def colorspace(self):
+        """The colorspace to convert. See the class description for
+        details of the coefficients. The coefficients are a list of
+        floats of length 12
+
+        """
+        return [self._mmio.read(0x10 + 8 * i) / 256 for i in range(12)]
+
+    @colorspace.setter
+    def colorspace(self, color):
+        if len(color) != 12:
+            raise ValueError("Wrong number of elements in color specification")
+        for i, c in enumerate(color):
+            self._mmio.write(0x10 + 8 * i, int(c * 256))
+
+
+class PixelPacker:
+    """Driver for the pixel format convert
+
+    Changes the number of bits per pixel in the video stream. The stream
+    should be paused prior to the width being changed. This can be targeted
+    at either a pixel_pack or a pixel_unpack IP core.For a packer the input
+    is always 24 bits per pixel while for an unpacker the output 24 bits per
+    pixel.
+
+    """
+
+    def __init__(self, description):
+        """Construct an instance of the driver
+
+        Attributes
+        ----------
+        description : dict
+            IP dict entry for the IP core
+
+        """
+        self._mmio = MMIO(description['phys_addr'], 256)
+        self._bpp = 24
+        self._mmio.write(0x10, 0)
+        self._resample = False
+
+    @property
+    def bits_per_pixel(self):
+        """Number of bits per pixel in the stream
+
+        Valid values are 8, 24 and 32. The following table describes the
+        operation for packing and unpacking for each width
+
+        Mode   |Pack                        |Unpack
+        8  bpp |Keep only the first channel |Pad other channels with 0
+        16 bpp |Dependent on resample       |Dependent on resample
+        24 bpp |No change                   |No change
+        32 bpp |Pad channel 4 with 0        |Discard channel 4
+
+        """
+        mode = self._mmio.read(0x10)
+        if mode == 0:
+            return 24
+        elif mode == 1:
+            return 32
+        elif mode == 2:
+            return 8
+        elif mode <= 4:
+            return 16
+
+    @bits_per_pixel.setter
+    def bits_per_pixel(self, value):
+        if value == 24:
+            mode = 0
+        elif value == 32:
+            mode = 1
+        elif value == 8:
+            mode = 2
+        elif value == 16:
+            if self._resample:
+                mode = 4
+            else:
+                mode = 3
+        else:
+            raise ValueError("Bits per pixel must be 8, 16, 24 or 32")
+        self._bpp = value
+        self._mmio.write(0x10, mode)
+
+    @property
+    def resample(self):
+        """Perform chroma resampling in 16 bpp mode
+
+        Boolean property that only affects 16 bpp mode. If True then
+        the two chroma channels are multiplexed on to the second output
+        pixel, otherwise only the first and second channels are transferred
+        and the third is discarded
+        """
+        return self._resample
+
+    @resample.setter
+    def resample(self, value):
+        self._resample = value
+        # Make sure the mode is updated
+        if self.bits_per_pixel == 16:
+            self.bits_per_pixel = 16
+
+
+COLOR_IN_BGR = [1, 0, 0,
+                0, 1, 0,
+                0, 0, 1,
+                0, 0, 0]
+
+COLOR_OUT_BGR = [1, 0, 0,
+                 0, 1, 0,
+                 0, 0, 1,
+                 0, 0, 0]
+
+COLOR_IN_RGB = [0, 0, 1,
+                0, 1, 0,
+                1, 0, 0,
+                0, 0, 0]
+
+COLOR_OUT_RGB = [0, 0, 1,
+                 0, 1, 0,
+                 1, 0, 0,
+                 0, 0, 0]
+
+COLOR_IN_YCBCR = [0.114, 0.587, 0.299,
+                  0.5, -0.331264, -0.168736,
+                  -0.081312, -0.41866, 0.5,
+                  0, 0.5, 0.5]
+
+COLOR_OUT_YCBCR = [1, 1.772, 0,
+                   1, -0.3344136, -0.714136,
+                   1, 0, 1.402,
+                   -0.886, 0.529136, -0.701]
+
+COLOR_OUT_GRAY = [1, 0, 0,
+                  1, 0, 0,
+                  1, 0, 0,
+                  0, 0, 0]
+
+
+class PixelFormat:
+    """Wrapper for all of the information about a video format
+
+    Attributes
+    ----------
+    bits_per_pixel : int
+        Number of bits for each pixel
+    in_color : list of float
+        Coefficients from BGR stream to pixel format
+    out_color : list of float
+        Coefficient from pixel format to BGR stream
+
+    """
+
+    def __init__(self, bits_per_pixel, in_color, out_color):
+        self.bits_per_pixel = bits_per_pixel
+        self.in_color = in_color
+        self.out_color = out_color
+
+PIXEL_RGB = PixelFormat(24, COLOR_IN_RGB, COLOR_OUT_RGB)
+PIXEL_RGBA = PixelFormat(32, COLOR_IN_RGB, COLOR_OUT_RGB)
+PIXEL_BGR = PixelFormat(24, COLOR_IN_BGR, COLOR_OUT_BGR)
+PIXEL_YCBCR = PixelFormat(24, COLOR_IN_YCBCR, COLOR_OUT_YCBCR)
+PIXEL_GRAY = PixelFormat(8, COLOR_IN_YCBCR, COLOR_OUT_GRAY)
+
+
+class HDMIIn:
+    """Wrapper for the input video pipeline of the Pynq-Z1 base overlay
+
+    This wrapper assumes the following pipeline structure and naming
+
+    color_convert_in -> pixel_pack ->axi_vdma
+    with vtc_in and axi_gpio_hdmiiin helper IP
+
+    """
+
+    def __init__(self, hierarchy):
+        """Initialise the drivers for the pipeline
+
         Parameters
         ----------
-        path : str
-            The path where the JPEG will be saved.
-        width : int
-            The width of the frame.
-        height : int
-            The height of the frame.
-            
-        Returns
-        -------
-        None
-        
+        hierarchy : str
+            name of the hierarchy containing all of the video blocks
+
         """
-        if width is None:
-            width = self.width
-        if height is None:
-            height = self.height
-        np_frame = (np.frombuffer(self.frame, dtype=np.uint8)). \
-                      reshape(MAX_FRAME_HEIGHT, MAX_FRAME_WIDTH, 3)\
-                        [:height, :width, 2::-1]
-        image = Image.fromarray(np_frame)
-        image.save(path, 'JPEG')
+        ip_dict = PL.ip_dict
+        self._vdma = AxiVDMA(f'{hierarchy}/axi_vdma')
+        self._color = ColorConverter(
+            ip_dict[f'{hierarchy}/hdmi_in/color_convert'])
+        self._pixel = PixelPacker(
+            ip_dict[f'{hierarchy}/hdmi_in/pixel_pack'])
+        self._hdmi = HDMIInFrontend(f'{hierarchy}/hdmi_in/frontend')
+
+    def configure(self, pixelformat=PIXEL_BGR):
+        """Configure the pipeline to use the specified pixel format.
+
+        If the pipeline is running it is stopped prior to the configuration
+        being changed
+
+        Parameters
+        ----------
+        pixelformat : PixelFormat
+            The pixel format to configure the pipeline for
+
+        """
+        if self._vdma.readchannel.running:
+            self._vdma.readchannel.stop()
+        self._color.colorspace = pixelformat.in_color
+        self._pixel.bits_per_pixel = pixelformat.bits_per_pixel
+        self._hdmi.start()
+        input_mode = self._hdmi.mode
+        self._vdma.readchannel.mode = VideoMode(input_mode.width,
+                                                input_mode.height,
+                                                pixelformat.bits_per_pixel)
+
+    def start(self):
+        """Start the pipeline
+
+        """
+        self._vdma.readchannel.start()
+
+    def stop(self):
+        """Stop the pipeline
+
+        """
+        self._vdma.readchannel.stop()
+
+    def close(self):
+        """Uninitialise the drivers, stopping the pipeline beforehand
+
+        """
+        self.stop()
+        self._hdmi.stop()
+
+    @property
+    def colorspace(self):
+        """The colorspace of the pipeline, can be changed without stopping
+        the pipeline
+
+        """
+        return self._color.colorspace
+
+    @colorspace.setter
+    def colorspace(self, new_colorspace):
+        self._color.colorspace = new_colorspace
+
+    @property
+    def mode(self):
+        """Video mode of the input
+
+        """
+        return self._vdma.readchannel.mode
+
+    def readframe(self):
+        """Read a video frame
+
+        See AxiVDMA.S2MMChannel.readframe for details
+
+        """
+        return self._vdma.readchannel.readframe()
+
+    async def readframe_async(self):
+        """Read a video frame
+
+        See AxiVDMA.S2MMChannel.readframe for details
+
+        """
+        return await self._vdma.readchannel.readframe_async()
+
+    def tie(self, output):
+        """Mirror the video input on to an output channel
+
+        Parameters
+        ----------
+        output : HDMIOut
+            The output to mirror on to
+
+        """
+        self._vdma.readchannel.tie(output._vdma.writechannel)
+
+
+class HDMIOut:
+    """Wrapper for the output video pipeline of the Pynq-Z1 base overlay
+
+    This wrapper assumes the following pipeline structure and naming
+
+    axi_vdma -> pixel_unpack -> color_convert
+    with vtc_out and axi_dynclk helper IP
+
+    """
+
+    def __init__(self, hierarchy):
+        """Initialise the drivers for the pipeline
+
+        Parameters
+        ----------
+        hierarchy : str
+            name of the hierarchy containing all of the video blocks
+
+        """
+        ip_dict = PL.ip_dict
+        self._vdma = AxiVDMA(f'{hierarchy}/axi_vdma')
+        self._color = ColorConverter(
+            ip_dict[f'{hierarchy}/hdmi_out/color_convert'])
+        self._pixel = PixelPacker(
+            ip_dict[f'{hierarchy}/hdmi_out/pixel_unpack'])
+        self._hdmi = HDMIOutFrontend(f'{hierarchy}/hdmi_out/frontend')
+
+    def configure(self, mode, pixelformat=None):
+        """Configure the pipeline to use the specified pixel format and size.
+
+        If the pipeline is running it is stopped prior to the configuration
+        being changed
+
+        Parameters
+        ----------
+        mode : VideoMode
+            The video mode to output
+        pixelformat : PixelFormat
+            The pixel format to configure the pipeline for
+
+        """
+        if self._vdma.writechannel.running:
+            self._vdma.writechannel.stop()
+        if pixelformat is None:
+            if mode.bits_per_pixel == 8:
+                pixelformat = PIXEL_GRAY
+            elif mode.bits_per_pixel == 24:
+                pixelformat = PIXEL_BGR
+            elif mode.bits_per_pixel == 32:
+                pixelformat = PIXEL_RGBA
+            else:
+                raise ValueError(
+                    "No default pixel format for ${mode.bits_per_pixel} bpp")
+        if pixelformat.bits_per_pixel != mode.bits_per_pixel:
+            raise ValueError(
+                "Video mode and pixel format have different sized pixels")
+
+        self._color.colorspace = pixelformat.out_color
+        self._pixel.bits_per_pixel = pixelformat.bits_per_pixel
+        self._hdmi.mode = mode
+        self._vdma.writechannel.mode = mode
+        self._hdmi.start()
+
+    def start(self):
+        """Start the pipeline
+
+        """
+        self._vdma.writechannel.start()
+
+    def stop(self):
+        """Stop the pipeline
+
+        """
+        self._vdma.writechannel.stop()
+
+    def close(self):
+        """Close the pipeline an unintialise the drivers
+
+        """
+        self.stop()
+        self._hdmi.stop()
+
+    @property
+    def colorspace(self):
+        """Set the colorspace for the pipeline - can be done without
+        stopping the pipeline
+
+        """
+        return self._color.colorspace
+
+    @colorspace.setter
+    def colorspace(self, new_colorspace):
+        self._color.colorspace = new_colorspace
+
+    @property
+    def mode(self):
+        """The currently configured video mode
+
+        """
+        return self._vdma.writechannel.mode
+
+    def newframe(self):
+        """Return an unintialised video frame of the correct type for the
+        pipeline
+
+        """
+        return self._vdma.writechannel.newframe()
+
+    def writeframe(self, frame):
+        """Write the frame to the video output
+
+        See AxiVDMA.MM2SChannel.writeframe for more details
+
+        """
+        self._vdma.writechannel.writeframe(frame)
+
+    async def writeframe_async(self, frame):
+        """Write the frame to the video output
+
+        See AxiVDMA.MM2SChannel.writeframe for more details
+
+        """
+        await self._vdma.writechannel.writeframe_async(frame)
