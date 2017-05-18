@@ -37,6 +37,7 @@ from .mmio import MMIO
 from .ps import Register
 from .ps import Clocks
 from .pl import PL
+from .pl import PL_SERVER_FILE
 from .pl import Bitstream
 from .pl import Overlay
 from .interrupt import Interrupt
