@@ -27,13 +27,12 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
 import os
-from pynq.pl import PL, PL_SERVER_FILE
+from pynq import PL, PL_SERVER_FILE
 
 # Start the PL server
 if os.path.exists(PL_SERVER_FILE):
