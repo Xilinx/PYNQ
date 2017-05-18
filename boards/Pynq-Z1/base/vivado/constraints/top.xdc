@@ -32,6 +32,7 @@ set_property -dict {PACKAGE_PIN T17 IOSTANDARD LVCMOS33} [get_ports {pdm_audio_s
 
 # HDMI Signals
 create_clock -period 8.334 -waveform {0.000 4.167} [get_ports hdmi_in_clk_p]
+create_clock -period 6.900 -name output_video -waveform {0.000 3.450} [get_pins system_i/video/axi_dynclk/PXL_CLK_O]
 #create_clock -period 8.000 -waveform {0.000 4.000} [get_ports hdmi_in_clk_p]
 
 #set_property -dict { PACKAGE_PIN G15   IOSTANDARD LVCMOS33 } [get_ports { hdmi_rx_cec }]; #IO_L19N_T3_VREF_35 Sch=hdmi_rx_cec
