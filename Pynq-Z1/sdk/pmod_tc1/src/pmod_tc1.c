@@ -42,7 +42,7 @@
  * Switch configuration is done within this program, Pmod should
  * be plugged into upper row of connector.
  * The Pmod TC1 is based on MAX31855 thermocouple-to-digital converter.
- * http://store.digilentinc.com/pmodtc1-k-type-thermocouple-module-with-wire/
+ * https://reference.digilentinc.com/reference/pmod/pmodtc1/reference-manual
  *
  * <pre>
  * MODIFICATION HISTORY:
@@ -50,6 +50,7 @@
  * Ver   Who   Date     Changes
  * ----- ---   ------- -----------------------------------------------
  * 1.00  tfors 10/15/16 release
+ * 1.40  yrq   02/21/17 polishing based on v1.4 release
  *
  * </pre>
  *
@@ -64,6 +65,7 @@
 #define LOG_BASE_ADDRESS (MAILBOX_DATA_PTR(4))
 #define LOG_ITEM_SIZE sizeof(u32)
 #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
+#define SPI_BASEADDR XPAR_SPI_0_BASEADDR
 
 u32 get_sample(){
   /*
@@ -72,8 +74,8 @@ u32 get_sample(){
    */
   u8 raw_data[4];
   spi_transfer(SPI_BASEADDR, 4, raw_data, NULL);
-  u32 v = ( (raw_data[0] << 24) + (raw_data[1] << 16)
-	    + (raw_data[2] << 8) + raw_data[3] );
+  u32 v = ((raw_data[0] << 24) + (raw_data[1] << 16) + \
+           (raw_data[2] << 8) + raw_data[3]);
   return v;
 }
 
@@ -100,28 +102,24 @@ int main(void)
      switch(cmd){
 
         case READ_SINGLE_VALUE:
-      // write out reading, reset mailbox
-      MAILBOX_DATA(0) = get_sample();
-      MAILBOX_CMD_ADDR = 0x0;
-
-      break;
-
-         case READ_AND_LOG:
-       // initialize logging variables, reset cmd
-       cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
-       delay = MAILBOX_DATA(1);
-       MAILBOX_CMD_ADDR = 0x0;
-
-            do{
-               tc1_data = get_sample();
-           cb_push_back(&pmod_log, &tc1_data);
-           delay_ms(delay);
-
-            } while((MAILBOX_CMD_ADDR & 0x1)== 0);
-
+            // write out reading, reset mailbox
+            MAILBOX_DATA(0) = get_sample();
+            MAILBOX_CMD_ADDR = 0x0;
             break;
 
-         default:
+        case READ_AND_LOG:
+            // initialize logging variables, reset cmd
+            cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+            delay = MAILBOX_DATA(1);
+            while(MAILBOX_CMD_ADDR == READ_AND_LOG){
+                tc1_data = get_sample();
+                cb_push_back(&pmod_log, &tc1_data);
+                delay_ms(delay);
+            }
+            MAILBOX_CMD_ADDR = 0x0;
+            break;
+
+        default:
             // reset command
             MAILBOX_CMD_ADDR = 0x0;
             break;

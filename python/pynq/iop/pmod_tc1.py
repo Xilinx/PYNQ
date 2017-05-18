@@ -59,7 +59,7 @@ class Pmod_TC1(object):
     mmio : MMIO
         Memory-mapped I/O instance to read and write instructions and data.
     log_interval_ms : int
-        Time in milliseconds between sampled reads of the TC1 sensor
+        Time in milliseconds between sampled reads of the TC1 sensor.
 
     """
     def __init__(self, if_id):
@@ -102,7 +102,7 @@ class Pmod_TC1(object):
         Parameters
         ----------
         reg_val : int
-            32-bit TC1 register value
+            32-bit TC1 register value.
 
         Returns
         -------
@@ -124,12 +124,13 @@ class Pmod_TC1(object):
         Parameters
         ----------
         reg_val : int
-            32-bit TC1 register value
+            32-bit TC1 register value.
 
         Returns
         -------
         float
             The reference junction temperature in degC.
+
         """
         v = reg_val >> 4
         if v & 0x00000800:
@@ -149,7 +150,7 @@ class Pmod_TC1(object):
 
         Returns
         -------
-        u32
+        int
             The alarm flags from the TC1.
             bit  0 = 1 if thermocouple connection is open-circuit;
             bit  1 = 1 if thermocouple connection is shorted to generated;
