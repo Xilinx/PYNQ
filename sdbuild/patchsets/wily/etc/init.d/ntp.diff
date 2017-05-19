@@ -1,0 +1,11 @@
+--- /home/xilinxfae/myData/installing/auto_dt/full_python4/etc/init.d/ntp	2015-10-02 10:36:18.000000000 +0100
++++ etc/init.d/ntp	1970-01-01 01:06:35.919999410 +0100
+@@ -22,7 +22,7 @@
+ 	. /etc/default/ntp
+ fi
+ 
+-if [ /var/lib/ntp/ntp.conf.dhcp -nt /etc/ntp.conf ]; then
++if [  -e /var/lib/ntp/ntp.conf.dhcp  ]; then
+ 	NTPD_OPTS="$NTPD_OPTS -c /var/lib/ntp/ntp.conf.dhcp"
+ fi
+ 

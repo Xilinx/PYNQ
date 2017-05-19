@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -o errexit
+
+repo=$1
+commit=$2
+directory=$3
+
+if [ -d $directory ]; then
+  if [ ! -d $directory/.git ]; then
+    echo "Directory $directory exists and is not a git repository"
+    exit 1
+  fi
+  cd $directory
+  git remote set-url origin $repo
+  git fetch origin
+  git checkout $commit
+  exit 0
+fi
+
+if [ -e $directory ]; then
+  echo "$directory exists andn is not a directory"
+fi
+
+git clone $repo $directory
+cd $directory
+git checkout $commit
