@@ -9,10 +9,6 @@ if [ $notebook_version -ge 5 ]; then
   notebook_args=--allow-root
 fi
 
-su -c "cd ~xilinx ; jupyter notebook $notebook_args > /var/log/jupyter.log  2>&1 &" -s /bin/bash root
-
-script_name=`readlink -f "$0"`
-
-echo "${script_name}: Jupyter server started"
-
+cd ~xilinx
+jupyter notebook $notebook_args > /var/log/jupyter.log  2>&1 &
 

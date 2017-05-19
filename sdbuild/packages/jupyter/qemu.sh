@@ -23,3 +23,6 @@ jupyter nbextension enable --py --sys-prefix widgetsnbextension
 jupyter contrib nbextension install --user
 jupyter nbextensions_configurator enable --user
 
+mkdir -p /home/xilinx/jupyter_notebooks
+
+systemctl enable jupyter

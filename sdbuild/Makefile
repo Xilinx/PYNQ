@@ -66,6 +66,13 @@ rootfs.img: ${WORKDIR}/rootfs-stage2.img
 	bash ${SCRIPT_DIR}/resize_umount.sh rootfs.img ${WORKDIR}/rootfs_staging
 
 
+chroot: rootfs.img
+	sudo -E ${SCRIPT_DIR}/mount_image.sh rootfs.img ${WORKDIR}/rootfs_staging
+	sudo -E ${SCRIPT_DIR}/enter_chroot.sh ${WORKDIR}/rootfs_staging
+	sudo -E ${SCRIPT_DIR}/cleanup.sh ${WORKDIR}/rootfs_staging
+
+.PHONY: chroot
+
 .PRECIOUS: ${WORKDIR}/rootfs-stage1.img ${WORKDIR}/rootfs-stage2.img rootfs.img
 
 ${WORKDIR}/packages:

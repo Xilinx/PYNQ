@@ -30,3 +30,5 @@ cd /root
 chown xilinx:xilinx /home/xilinx/REVISION
 chown xilinx:xilinx -R /home/xilinx/pynq
 chown xilinx:xilinx -R /home/xilinx/jupyter_notebooks
+
+systemctl enable pl_server

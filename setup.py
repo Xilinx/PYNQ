@@ -204,6 +204,8 @@ setup(name='pynq',
       package_data={
           '': ['tests/*', 'js/*', '*.bin', '*.so', 'bitstream/*', '*.pdm'],
       },
+      scripts=['bin/start_pl_server.py',
+               'bin/stop_pl_server.py'],
       ext_modules=[
           Extension('pynq.lib._video', video,
                     include_dirs=['pynq/lib/_pynq/inc',

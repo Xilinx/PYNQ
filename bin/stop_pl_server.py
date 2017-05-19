@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.6
+
 #   Copyright (c) 2016, Xilinx, Inc.
 #   All rights reserved.
 # 
@@ -32,9 +34,16 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import os
-from pynq import PL, PL_SERVER_FILE
 
-# Start the PL server
+try:
+    from pynq import PL, PL_SERVER_FILE
+except ImportError:
+    pass
+
+# Stop the PL server
 if os.path.exists(PL_SERVER_FILE):
-    os.remove(PL_SERVER_FILE)
-PL.setup()
+    try:
+        PL.client_request()
+        PL.server_update(0)
+    except ConnectionRefusedError:
+        pass
