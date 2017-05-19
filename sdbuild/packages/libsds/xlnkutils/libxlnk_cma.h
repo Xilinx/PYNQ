@@ -26,7 +26,7 @@ static uint32_t xlnkBufPhyPool[2 * XLNK_BUFPOOL_SIZE];
  * mmaping /dev/mem.
  * Required to use bare-metal drivers on linux. Return -1 in case of error.
  */
-uint32_t cma_mmap(uint32_t phyAddr, uint32_t len);
+unsigned long cma_mmap(unsigned long phyAddr, uint32_t len);
 /*
  * Unmap a previously mapped memory space.
  */
@@ -40,7 +40,7 @@ void *cma_alloc(uint32_t len, uint32_t cacheable);
  * Return a physical memory address corresponding to a given Virtual address
  * pointer. Returns NULL on failure.
  */
-uint32_t cma_get_phy_addr(void *buf);
+unsigned long cma_get_phy_addr(void *buf);
 /*
  * Free a previously allocated CMA memory chunk.
  */

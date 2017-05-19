@@ -16,7 +16,7 @@ void cf_xlnk_init(int arg);
 
 /* Functional prototpes from xlnk */
 
-uint32_t xlnkGetBufPhyAddr(void*);
+unsigned long xlnkGetBufPhyAddr(void*);
 
 /* Required to avoid undefined symbol error */
 void add_sw_estimates(void) {}
@@ -46,8 +46,8 @@ uint32_t cma_pages_available(void)
     return num;
 }
 
-uint32_t cma_mmap(uint32_t phyAddr, uint32_t len) {
-    return (uint32_t)sds_mmap((void*)phyAddr, len, NULL);
+unsigned long cma_mmap(unsigned long phyAddr, uint32_t len) {
+    return (unsigned long)sds_mmap((void*)phyAddr, len, NULL);
 }
 
 uint32_t cma_munmap(void* buf, uint32_t len) {
@@ -63,7 +63,7 @@ void *cma_alloc(uint32_t len, uint32_t cacheable) {
     }
 }
 
-uint32_t cma_get_phy_addr(void *buf) {
+unsigned long cma_get_phy_addr(void *buf) {
     return xlnkGetBufPhyAddr(buf);
 }
 
