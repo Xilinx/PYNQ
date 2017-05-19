@@ -1,0 +1,10 @@
+[Unit]
+Description=Wifi Autoconnection
+Wants=networking.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wifi_connect.sh
+
+[Install]
+WantedBy=basic.target

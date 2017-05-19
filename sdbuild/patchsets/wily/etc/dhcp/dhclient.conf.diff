@@ -20,8 +20,8 @@
 -#retry 60;
 -#reboot 10;
 -#select-timeout 5;
-+timeout 30;
-+retry 10;
++timeout 10;
++retry 1;
 +reboot 3;
 +select-timeout 0;
  #initial-interval 2;
