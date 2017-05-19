@@ -1,3 +1,5 @@
+#!/bin/env python3.6
+
 from time import sleep
 from pynq import PL
 from pynq.lib import RGBLED, LED
