@@ -28,45 +28,20 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
+__copyright__   = "Copyright 2017, Xilinx"
 __email__       = "pynq_support@xilinx.com"
 
 
-import os
+# Constants
+from . import intf_const
+from .intf_const import ARDUINO
 
-# GPIO constants
-GPIO_MIN_USER_PIN = 54
+# Interface modules
+from .intf import request_intf
+from .waveform import Waveform
+from .boolean_generator import BooleanGenerator
+from .pattern_generator import PatternGenerator
+from .pattern_analyzer import PatternAnalyzer
+from .fsm_generator import FSMGenerator
 
-# Overlay constants
-BS_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))+"/bitstream/"
-BS_BOOT = BS_SEARCH_PATH + 'base.bit'
-TCL_BOOT = BS_SEARCH_PATH + 'base.tcl'
-BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
-BS_XDEVCFG = "/dev/xdevcfg"
 
-# MMIO constants
-MMIO_FILE_NAME = '/dev/mem'
-MMIO_WORD_LENGTH = 4
-MMIO_WORD_MASK = ~(MMIO_WORD_LENGTH - 1)
-
-# Clock constants
-SRC_CLK_MHZ              = 50.000000
-SCLR_BASE_ADDRESS        = 0xf8000000
-ARM_PLL_DIV_OFFSET       = 0x100
-DDR_PLL_DIV_OFFSET       = 0x104
-IO_PLL_DIV_OFFSET        = 0x108
-PLL_DIV_BIT_OFFSET       = 12
-PLL_DIV_BIT_WIDTH        = 7
-ARM_CLK_REG_OFFSET       = 0X120
-ARM_CLK_SEL_BIT_OFFSET   = 4
-ARM_CLK_SEL_BIT_WIDTH    = 2
-ARM_CLK_DIV_BIT_OFFSET   = 8
-ARM_CLK_DIV_BIT_WIDTH    = 6
-DEFAULT_CLK_MHZ          = [100.000000,142.857143,200.000000,166.666667]
-CLK_CTRL_REG_OFFSET      = [0x170,0x180,0x190,0x1A0]
-CLK_SRC_BIT_OFFSET       = 4
-CLK_SRC_BIT_WIDTH        = 2
-CLK_DIV0_BIT_OFFSET      = 8
-CLK_DIV0_BIT_WIDTH       = 6
-CLK_DIV1_BIT_OFFSET      = 20
-CLK_DIV1_BIT_WIDTH       = 6

@@ -35,9 +35,10 @@ import math
 from datetime import datetime
 from multiprocessing.connection import Listener
 from multiprocessing.connection import Client
-from pynq import general_const
-from pynq import GPIO
-from pynq import MMIO
+from . import general_const
+from .gpio import GPIO
+from .mmio import MMIO
+from .ps import Clocks
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -72,8 +73,8 @@ def _get_ip(tcl_name):
     Note
     ----
     This method requires the absolute path of the '.tcl' file as input.
-    Each entry in the returned dictionary stores a list of strings containing
-    the base and range in hex format, and an empty state.
+    Each entry in the returned dictionary stores a list of:
+    the base address, the address range, and an empty state.
 
     Parameters
     ----------
@@ -156,6 +157,50 @@ def _get_gpio(tcl_name):
 
     return result
 
+def _get_clk(tcl_name):
+    """This method returns all the PL clock divisors and their states.
+
+    Note
+    ----
+    This method requires the absolute path of the '.tcl' file as input.
+    Each entry in the returned dictionary stores the two divisors for
+    clock rate, and the corresponding state (enabled or not).
+
+    For the state, it can be `1` for enabled clock, or `0` for disabled clock.
+
+    So each entry of the returned dictionary is [divisor0, divisor1, state].
+
+    Parameters
+    ----------
+    tcl_name : str
+        The absolute path of the .tcl file.
+
+    Returns
+    -------
+    dict
+        The dictionary storing the divisors, and the clock state.
+
+    """
+    regex0 = 'CONFIG.PCW_FCLK([0-9]+)_PERIPHERAL_DIVISOR([0-9]+) ' + \
+            '{([0-9]+)}' + '.*'
+    regex1 = 'CONFIG.PCW_FPGA_FCLK([0-9]+)_ENABLE ' + \
+             '{([0-9]+)}' + '.*'
+    result = {}
+
+    with open(tcl_name, 'r') as f:
+        for line in f:
+            m0 = re.search(regex0, line, re.IGNORECASE)
+            if m0:
+                if int(m0.group(2))==0:
+                    result[int(m0.group(1))] = [int(m0.group(3))]
+                else:
+                    result[int(m0.group(1))].append(int(m0.group(3)))
+
+            m1 = re.search(regex1, line, re.IGNORECASE)
+            if m1:
+                result[int(m1.group(1))].append(int(m1.group(2)))
+
+    return result
 
 class _InterruptMap:
     """Helper Class to extract interrupt information from a TCL
@@ -208,7 +253,6 @@ class _InterruptMap:
                         "xilinx.com:ip:axi_intc:4.1"
         ps7_pat = "create_bd_cell -type ip -vlnv " \
                   "xilinx.com:ip:processing_system7:5.5"
-        prop_pat = "set_property -dict"
         config_pat = "CONFIG.NUM_PORTS"
         end_pat = "}\n"
         net_pat = "connect_bd_net -net"
@@ -226,8 +270,6 @@ class _InterruptMap:
                     m = re.search('proc create_hier_cell_([^ ]*)', line)
                     if m:
                         current_hier = m.groups(1)[0] + "/"
-                elif prop_pat in line:
-                    in_prop = True
                 elif concat_pat in line:
                     m = re.search(
                         'create_bd_cell -type ip -vlnv ' +
@@ -706,6 +748,11 @@ class Bitstream(PL):
         PL._interrupt_pins = {}
         PL.server_update()
 
+        # Reset all the PL clocks to default
+        Clocks.fclk0_mhz = general_const.DEFAULT_CLK_MHZ[0]
+        Clocks.fclk1_mhz = general_const.DEFAULT_CLK_MHZ[1]
+        Clocks.fclk2_mhz = general_const.DEFAULT_CLK_MHZ[2]
+        Clocks.fclk3_mhz = general_const.DEFAULT_CLK_MHZ[3]
 
 class Overlay(PL):
     """This class keeps track of a single bitstream's state and contents.
@@ -821,7 +868,16 @@ class Overlay(PL):
 
         """
         self.bitstream.download()
+        # Reset the dictionaries stored in PL
         PL.reset()
+
+        # Reset the PL clocks
+        tcl_name = _get_tcl_name(self.bitfile_name)
+        clk_dict = _get_clk(tcl_name)
+        for i in range(4):
+            div0, div1, enabled = clk_dict[i]
+            if enabled:
+                Clocks.set_fclk(i, div0, div1)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
