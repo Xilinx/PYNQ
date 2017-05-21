@@ -27,24 +27,41 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com" 
-
 
 import struct
-from time import sleep
-from pynq import MMIO
-from pynq.iop import request_iop
-from pynq.iop import iop_const
-from pynq.iop import PMODA
-from pynq.iop import PMODB
+from . import Pmod
+from . import MAILBOX_OFFSET
+
+
+__author__ = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 PMOD_ADC_PROGRAM = "pmod_adc.bin"
-PMOD_ADC_LOG_START = iop_const.MAILBOX_OFFSET+16
+PMOD_ADC_LOG_START = MAILBOX_OFFSET+16
 PMOD_ADC_LOG_END = PMOD_ADC_LOG_START+(1000*4)
 
-class Pmod_ADC(object):
+
+def _reg2float(reg):
+    """Converts 32-bit register value to floats in Python.
+
+    Parameters
+    ----------
+    reg: int
+        A 32-bit register value read from the mailbox.
+
+    Returns
+    -------
+    float
+        A float number translated from the register value.
+
+    """
+    s = struct.pack('>l', reg)
+    return round(struct.unpack('>f', s)[0], 4)
+
+
+class PmodADC(object):
     """This class controls an Analog to Digital Converter Pmod.
     
     The Pmod AD2 (PB 200-217) is an analog-to-digital converter powered by 
@@ -53,47 +70,36 @@ class Pmod_ADC(object):
     
     Attributes
     ----------
-    iop : _IOP
-        I/O processor instance used by the ADC
-    mmio : MMIO
-        Memory-mapped I/O instance to read and write instructions and data.
+    microblaze : Pmod
+        Microblaze processor instance used by this module.
     log_running : int
         The state of the log (0: stopped, 1: started).
         
     """
 
-    def __init__(self, if_id):
+    def __init__(self, mb_info):
         """Return a new instance of an ADC object.
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (1, 2) corresponding to (PMODA, PMODB).
-            
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
+
         """
-        if not if_id in [PMODA, PMODB]:
-            raise ValueError("No such IOP for Pmod device.")
-            
-        self.iop = request_iop(if_id, PMOD_ADC_PROGRAM)
-        self.mmio = self.iop.mmio
+        self.microblaze = Pmod(mb_info, PMOD_ADC_PROGRAM)
         self.log_running = 0
-        
-        self.iop.start()
     
     def reset(self):
-        """Reset the Pmod ADC.
+        """Reset the ADC.
         
         Returns
         -------
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET + 
-                                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x1):
-            sleep(0.001)
-            
+        self.microblaze.write_blocking_command(0x1)
+
     def read_raw(self, ch1=1, ch2=0, ch3=0):
         """Get the raw value from the Pmod ADC.
         
@@ -125,7 +131,7 @@ class Pmod_ADC(object):
         -------
         list
             The raw values read from the 3 channels of the Pmod ADC.
-        
+
         """
         if ch1 not in range(2):
             raise ValueError("Valid value for ch1 is 0 or 1.")
@@ -133,27 +139,22 @@ class Pmod_ADC(object):
             raise ValueError("Valid value for ch2 is 0 or 1.")
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
-        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 3    
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 3
        
         # Send the command
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
-        
-        # Wait for I/O processor to complete
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
-                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
+        self.microblaze.write_blocking_command(cmd)
 
         # Read the samples from ADC
-        readings=[]
+        readings = self.microblaze.read_mailbox([0, 4, 8])
+        results = []
         if ch1:
-            readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET))
+            results.append(readings[0])
         if ch2:
-            readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET+4))
+            results.append(readings[1])
         if ch3:
-            readings.append(self.mmio.read(iop_const.MAILBOX_OFFSET+8))
-        return readings
-        
+            results.append(readings[2])
+        return results
+
     def read(self, ch1=1, ch2=0, ch3=0):
         """Get the voltage from the Pmod ADC.
         
@@ -191,30 +192,22 @@ class Pmod_ADC(object):
             raise ValueError("Valid value for ch2 is 0 or 1.")
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
-        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 5    
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 5
        
         # Send the command
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
-        
-        # Wait for I/O processor to complete
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
-                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
+        self.microblaze.write_blocking_command(cmd)
 
         # Read the last sample from ADC
-        readings=[]
+        readings = self.microblaze.read_mailbox([0, 4, 8])
+        results = []
         if ch1:
-            readings.append(self._reg2float(self.mmio.read(
-                                        iop_const.MAILBOX_OFFSET)))
+            results.append(_reg2float(readings[0]))
         if ch2:
-            readings.append(self._reg2float(self.mmio.read(
-                                        iop_const.MAILBOX_OFFSET+4)))
+            results.append(_reg2float(readings[1]))
         if ch3:
-            readings.append(self._reg2float(self.mmio.read(
-                                        iop_const.MAILBOX_OFFSET+8)))
-        return readings
-        
+            results.append(_reg2float(readings[2]))
+        return results
+
     def start_log_raw(self, ch1=1, ch2=0, ch3=0, log_interval_us=100):
         """Start the log of raw values with the interval specified.
         
@@ -247,16 +240,14 @@ class Pmod_ADC(object):
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         
-        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 7    
-        
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 7
         self.log_running = 1
         
         # Send log interval
-        self.mmio.write(iop_const.MAILBOX_OFFSET, log_interval_us)
+        self.microblaze.write_mailbox([0], [log_interval_us])
         
         # Send the command
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
+        self.microblaze.write_non_blocking_command(cmd)
         
     def start_log(self, ch1=1, ch2=0, ch3=0, log_interval_us=100):
         """Start the log of voltage values with the interval specified.
@@ -290,17 +281,16 @@ class Pmod_ADC(object):
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         
-        cmd= (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 9    
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 9
         
         self.log_running = 1
-        
-        # Send log interval and the channel number
-        self.mmio.write(iop_const.MAILBOX_OFFSET, log_interval_us)
-        
+
+        # Send log interval
+        self.microblaze.write_mailbox([0], [log_interval_us])
+
         # Send the command
-        self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
-        
+        self.microblaze.write_non_blocking_command(cmd)
+
     def stop_log_raw(self):
         """Stop the log of raw values.
         
@@ -313,8 +303,7 @@ class Pmod_ADC(object):
         
         """
         if self.log_running == 1:
-            self.mmio.write(iop_const.MAILBOX_OFFSET+
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+            self.microblaze.write_non_blocking_command(0x1)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -331,8 +320,7 @@ class Pmod_ADC(object):
         
         """
         if self.log_running == 1:
-            self.mmio.write(iop_const.MAILBOX_OFFSET+\
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
+            self.microblaze.write_non_blocking_command(0x1)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -352,21 +340,24 @@ class Pmod_ADC(object):
         self.stop_log_raw()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
         readings = list()
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            for i in range(head_ptr,tail_ptr,4):
-                readings.append(self.mmio.read(i))
+            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
+            data = self.microblaze.read(offsets)
+            readings += data
         else:
-            for i in range(head_ptr,PMOD_ADC_LOG_END,4):
-                readings.append(self.mmio.read(i))
-            for i in range(PMOD_ADC_LOG_START,tail_ptr,4):
-                readings.append(self.mmio.read(i))
+            offsets = [i for i in range(head_ptr, PMOD_ADC_LOG_END, 4)]
+            data = self.microblaze.read(offsets)
+            readings += data
+
+            offsets = [i for i in range(PMOD_ADC_LOG_START, tail_ptr, 4)]
+            data = self.microblaze.read(offsets)
+            readings += data
         return readings
         
     def get_log(self):
@@ -384,39 +375,22 @@ class Pmod_ADC(object):
         self.stop_log()
 
         # Prep iterators and results list
-        head_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0x8)
-        tail_ptr = self.mmio.read(iop_const.MAILBOX_OFFSET+0xC)
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
         readings = list()
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            for i in range(head_ptr,tail_ptr,4):
-                readings.append(float("{0:.4f}"\
-                    .format(self._reg2float(self.mmio.read(i)))))
+            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
+            data = self.microblaze.read(offsets)
+            readings += [_reg2float(i) for i in data]
         else:
-            for i in range(head_ptr,PMOD_ADC_LOG_END,4):
-                readings.append(float("{0:.4f}"\
-                    .format(self._reg2float(self.mmio.read(i)))))
-            for i in range(PMOD_ADC_LOG_START,tail_ptr,4):
-                readings.append(float("{0:.4f}"\
-                    .format(self._reg2float(self.mmio.read(i)))))
+            offsets = [i for i in range(head_ptr, PMOD_ADC_LOG_END, 4)]
+            data = self.microblaze.read(offsets)
+            readings += [_reg2float(i) for i in data]
+
+            offsets = [i for i in range(PMOD_ADC_LOG_START, tail_ptr, 4)]
+            data = self.microblaze.read(offsets)
+            readings += [_reg2float(i) for i in data]
         return readings
-        
-    def _reg2float(self, reg):
-        """Converts 32-bit register value to floats in Python.
-        
-        Parameters
-        ----------
-        reg: int
-            A 32-bit register value read from the mailbox.
-            
-        Returns
-        -------
-        float
-            A float number translated from the register value.
-        
-        """
-        s = struct.pack('>l', reg)
-        return round(struct.unpack('>f', s)[0], 4)

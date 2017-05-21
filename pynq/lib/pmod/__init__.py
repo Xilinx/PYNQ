@@ -27,13 +27,39 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Graham Schelle"
+
+from .__const__ import *
+from .pmod import Pmod
+from .pmod_devmode import PmodDevMode
+from .pmod_adc import PmodADC
+from .pmod_dac import PmodDAC
+from .pmod_oled import PmodOLED
+from .pmod_led8 import PmodLED8
+from .pmod_io import PmodIO
+from .pmod_iic import PmodIIC
+from .pmod_dpot import PmodDPOT
+from .pmod_tc1 import PmodTC1
+from .pmod_tmp2 import PmodTMP2
+from .pmod_als import PmodALS
+from .pmod_cable import PmodCable
+from .pmod_timer import PmodTimer
+from .pmod_pwm import PmodPWM
+from .pmod_grove_pir import PmodGrovePIR
+from .pmod_grove_adc import PmodGroveADC
+from .pmod_grove_oled import PmodGroveOLED
+from .pmod_grove_imu import PmodGroveIMU
+from .pmod_grove_ledbar import PmodGroveLEDbar
+from .pmod_grove_tmp import PmodGroveTMP
+from .pmod_grove_light import PmodGroveLight
+from .pmod_grove_buzzer import PmodGroveBuzzer
+from .pmod_grove_color import PmodGroveColor
+from .pmod_grove_dlight import PmodGroveDlight
+from .pmod_grove_ear_hr import PmodGroveEarHR
+from .pmod_grove_finger_hr import PmodGroveFingerHR
+from .pmod_grove_haptic_motor import PmodGroveHapticMotor
+from .pmod_grove_th02 import PmodGroveTH02
+
+
+__author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
-
-from .audio import Audio
-from .video import HDMI
-from .video import Frame
-from .dma import DMA
-from .trace_buffer import Trace_Buffer
-from .usb_wifi import Usb_Wifi

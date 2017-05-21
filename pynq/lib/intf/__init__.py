@@ -28,16 +28,14 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Constants
-from . import intf_const
 from .intf_const import *
-
-# Interface modules
-from .intf import request_intf
+from .intf_microblaze import IntfMicroblaze
 from .waveform import Waveform
 from .boolean_builder import BooleanBuilder
 from .pattern_builder import PatternBuilder
 from .trace_analyzer import TraceAnalyzer
 from .fsm_builder import FSMBuilder
+
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"

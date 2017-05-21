@@ -38,6 +38,7 @@ __email__ = "pynq_support@xilinx.com"
 # from .trace_buffer import Trace_Buffer
 # from .usb_wifi import Usb_Wifi
 
+from .pynqmicroblaze import PynqMicroblaze
 from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
