@@ -1,1 +1,1 @@
-systemctl enable resizefs
+systemctl enable wifi_connect

@@ -8,4 +8,4 @@ else
   PATH=/opt/$PYNQ_PYTHON/bin:$PATH
 fi
 
-$PYNQ_PYTHON /usr/local/bin/flash_leds.py &
+$PYNQ_PYTHON /usr/local/bin/flash_leds.py

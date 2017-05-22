@@ -21,9 +21,10 @@ sudo -E pip3.6 install .
 cd ..
 
 old_hostname=$(hostname)
-pynq_git/scripts/linux/hostname.sh
+pynq_hostname.sh
 hostname $old_hostname
 rm -rf pynq_git
+rm -rf jupyter_notebooks_*
 
 cd /root
 
