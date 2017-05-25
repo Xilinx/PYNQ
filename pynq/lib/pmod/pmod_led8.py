@@ -34,6 +34,7 @@ from . import PMOD_DIO_BASEADDR
 from . import PMOD_DIO_TRI_OFFSET
 from . import PMOD_DIO_DATA_OFFSET
 from . import PMOD_CFG_DIO_ALLOUTPUT
+from . import PMOD_NUM_DIGITAL_PINS
 
 
 __author__ = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
@@ -54,7 +55,7 @@ class PmodLED8(PmodDevMode):
     iop_switch_config :list
         Microblaze processor IO switch configuration (8 integers).
     index : int
-        Index of the pin on LED8, from 0 to 7.
+        Index of the pin on LED8, starting from 0.
         
     """
 
@@ -67,11 +68,12 @@ class PmodLED8(PmodDevMode):
             A dictionary storing Microblaze information, such as the
             IP name and the reset name.
         index: int
-            The index of the pin in a Pmod, from 0 to 7.
+            The index of the pin in a Pmod, starting from 0.
             
         """
-        if index not in range(8):
-            raise ValueError("Valid pin indexes are 0 - 7.")
+        if index not in range(PMOD_NUM_DIGITAL_PINS):
+            raise ValueError(f"Valid pin indexes are 0 - "
+                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
 
         super().__init__(mb_info, PMOD_SWCFG_DIOALL)
         self.index = index

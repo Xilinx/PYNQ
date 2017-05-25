@@ -31,14 +31,18 @@
 import time
 import struct
 from . import Pmod
+from . import PMOD_NUM_DIGITAL_PINS
 
 
-__author__ = "Parimal Patel, Yun Rock Qu"
+__author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
 PMOD_PWM_PROGRAM = "pmod_pwm.bin"
+CONFIG_IOP_SWITCH = 0x1
+GENERATE = 0x3
+STOP = 0x5
 
 
 class PmodPWM(object):
@@ -62,16 +66,17 @@ class PmodPWM(object):
             The specific pin that runs PWM.
             
         """
-        if index not in range(8):
-            raise ValueError("Valid pin indexes are 0 - 7.")
+        if index not in range(PMOD_NUM_DIGITAL_PINS):
+            raise ValueError(f"Valid pin indexes are 0 - "
+                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
 
         self.microblaze = Pmod(mb_info, PMOD_PWM_PROGRAM)
         
         # Write PWM pin config
-        self.microblaze.write_mailbox([0], index)
+        self.microblaze.write_mailbox(0, index)
         
         # Write configuration and wait for ACK
-        self.microblaze.write_blocking_command(0x1)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
             
     def generate(self, period, duty_cycle):
         """Generate pwm signal with desired period and percent duty cycle.
@@ -93,8 +98,8 @@ class PmodPWM(object):
         if duty_cycle not in range(1, 99):
             raise ValueError("Valid duty cycle is between 1 and 99.")
 
-        self.microblaze.write_mailbox([0, 4], [period, duty_cycle])
-        self.microblaze.write_blocking_command(0x3)
+        self.microblaze.write_mailbox(0, [period, duty_cycle])
+        self.microblaze.write_blocking_command(GENERATE)
 
     def stop(self):
         """Stops PWM generation.
@@ -104,4 +109,4 @@ class PmodPWM(object):
         None
 
         """
-        self.microblaze.write_blocking_command(0x5)
+        self.microblaze.write_blocking_command(STOP)

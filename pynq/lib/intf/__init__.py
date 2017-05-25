@@ -27,7 +27,7 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Constants
+
 from .intf_const import *
 from .intf_microblaze import IntfMicroblaze
 from .waveform import Waveform

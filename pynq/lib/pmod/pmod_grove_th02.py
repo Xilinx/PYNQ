@@ -41,6 +41,10 @@ __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
 PMOD_GROVE_TH02_PROGRAM = "pmod_grove_th02.bin"
 GROVE_TH02_LOG_START = MAILBOX_OFFSET+16
 GROVE_TH02_LOG_END = GROVE_TH02_LOG_START+(500*8)
+CONFIG_IOP_SWITCH = 0x1
+READ_DATA = 0x2
+READ_AND_LOG_DATA = 0x3
+STOP_LOG = 0xC
 
 
 class PmodGroveTH02(object):
@@ -79,8 +83,8 @@ class PmodGroveTH02(object):
         self.log_interval_ms = 1000
         self.log_running = 0
 
-        self.microblaze.write_mailbox([0, 4], gr_pin)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read(self):
         """Read the temperature and humidity values from the TH02 peripheral.
@@ -91,8 +95,8 @@ class PmodGroveTH02(object):
             Tuple containing (temperature, humidity)
         
         """
-        self.microblaze.write_blocking_command(2)
-        [tmp, humidity] = self.microblaze.read_mailbox([0, 4])
+        self.microblaze.write_blocking_command(READ_DATA)
+        [tmp, humidity] = self.microblaze.read_mailbox(0, 2)
         tmp = tmp/32 - 50
         humidity = humidity/16 - 24
         return tmp, humidity
@@ -118,8 +122,8 @@ class PmodGroveTH02(object):
 
         self.log_running = 1
         self.log_interval_ms = log_interval_ms
-        self.microblaze.write_mailbox([0x4], [log_interval_ms])
-        self.microblaze.write_non_blocking_command(3)
+        self.microblaze.write_mailbox(0x4, log_interval_ms)
+        self.microblaze.write_non_blocking_command(READ_AND_LOG_DATA)
 
     def stop_log(self):
         """Stop recording the values in the log.
@@ -132,7 +136,7 @@ class PmodGroveTH02(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(13)
+            self.microblaze.write_non_blocking_command(STOP_LOG)
             self.log_running = 0
         else:
             raise RuntimeError("No grove TH02 log running.")
@@ -150,7 +154,7 @@ class PmodGroveTH02(object):
         self.stop_log()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = list()
 
         # sweep circular buffer for samples
@@ -158,21 +162,18 @@ class PmodGroveTH02(object):
             return None
         elif head_ptr < tail_ptr:
             for i in range(head_ptr, tail_ptr, 8):
-                offsets = [i, i+4]
-                [temp, humid] = self.microblaze.read_mailbox(offsets)
+                [temp, humid] = self.microblaze.read_mailbox(i, 2)
                 temp = temp/32 - 50
                 humid = humid/16 - 24
                 readings.append((temp, humid))
         else:
             for i in range(head_ptr, GROVE_TH02_LOG_END, 8):
-                offsets = [i, i+4]
-                [temp, humid] = self.microblaze.read_mailbox(offsets)
+                [temp, humid] = self.microblaze.read_mailbox(i, 2)
                 temp = temp/32 - 50
                 humid = humid/16 - 24
                 readings.append((temp, humid))
             for i in range(GROVE_TH02_LOG_END, tail_ptr, 8):
-                offsets = [i, i+4]
-                [temp, humid] = self.microblaze.read_mailbox(offsets)
+                [temp, humid] = self.microblaze.read_mailbox(i, 2)
                 temp = temp/32 - 50
                 humid = humid/16 - 24
                 readings.append((temp, humid))

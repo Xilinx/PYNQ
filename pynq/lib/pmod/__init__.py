@@ -60,6 +60,6 @@ from .pmod_grove_haptic_motor import PmodGroveHapticMotor
 from .pmod_grove_th02 import PmodGroveTH02
 
 
-__author__ = "Yun Rock Qu"
+__author__ = "Graham Schelle, Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"

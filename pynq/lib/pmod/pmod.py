@@ -31,10 +31,6 @@ import asyncio
 import os
 import sys
 import math
-from pynq import MMIO
-from pynq import GPIO
-from pynq import PL
-from pynq import Interrupt
 from . import MAILBOX_OFFSET
 from . import MAILBOX_PY2IOP_CMD_OFFSET
 from . import BIN_LOCATION
@@ -61,8 +57,8 @@ class Pmod(PynqMicroblaze):
         The absolute path of the Microblaze program.
     state : str
         The status (IDLE, RUNNING, or STOPPED) of the Microblaze.
-    gpio : GPIO
-        The GPIO instance associated with the Microblaze.
+    reset : GPIO
+        The reset pin associated with the Microblaze.
     mmio : MMIO
         The MMIO instance associated with the Microblaze.
     interrupt : Event
@@ -115,50 +111,19 @@ class Pmod(PynqMicroblaze):
             When another Microblaze program is already loaded.
 
         """
-        ip_dict = PL.ip_dict
-        gpio_dict = PL.gpio_dict
-        intr_dict = PL.interrupt_pins
+        if not os.path.isabs(mb_program):
+            mb_program = os.path.join(BIN_LOCATION, mb_program)
 
-        ip_name = mb_info['ip_name']
-        rst_name = mb_info['rst_name']
+        super().__init__(mb_info, mb_program, intr_pin, intr_ack_pin)
 
-        if ip_name not in ip_dict.keys():
-            raise ValueError(f"No such IP {ip_name}.")
-        if rst_name not in gpio_dict.keys():
-            raise ValueError(f"No such reset pin {rst_name}.")
-        if intr_ack_pin not in gpio_dict.keys():
-            intr_ack_pin = None
-        if intr_pin not in intr_dict.keys():
-            intr_pin = None
-
-        addr_base = ip_dict[ip_name]['phys_addr']
-        addr_range = ip_dict[ip_name]['addr_range']
-        ip_state = ip_dict[ip_name]['state']
-        gpio_uix = gpio_dict[rst_name]['index']
-        intr_ack_gpio = gpio_dict[intr_ack_pin]['index']
-
-        mb_path = mb_program
-        if not os.path.isabs(mb_path):
-            mb_path = os.path.join(BIN_LOCATION, mb_path)
-
-        if (ip_state is None) or (ip_state == mb_path):
-            # case 1
-            super().__init__(ip_name, addr_base, addr_range, mb_program,
-                             rst_name, gpio_uix,
-                             intr_pin, intr_ack_gpio)
-        else:
-            # case 2
-            raise RuntimeError('Another program {} already running.'
-                               .format(ip_state))
-
-    def write_mailbox(self, offsets, data):
+    def write_mailbox(self, data_offset, data):
         """This method write data into the mailbox of the Microblaze.
 
         Parameters
         ----------
-        offsets : list
-            A list of offsets where data are to be written.
-        data : list
+        data_offset : int
+            The offset for mailbox data, 0,4,... for MAILBOX 0,1,...
+        data : int/list
             A list of 32b words to be written into the mailbox.
 
         Returns
@@ -166,25 +131,27 @@ class Pmod(PynqMicroblaze):
         None
 
         """
-        mailbox_offsets = [(MAILBOX_OFFSET + offset) for offset in offsets]
-        self.write(mailbox_offsets, data)
+        offset = MAILBOX_OFFSET + data_offset
+        self.write(offset, data)
 
-    def read_mailbox(self, offsets):
+    def read_mailbox(self, data_offset, num_words=1):
         """This method reads mailbox data from the Microblaze.
 
         Parameters
         ----------
-        offsets : list
-            A list of offsets where data are read from.
+        data_offset : int
+            The offset for mailbox data, 0,4,... for MAILBOX 0,1,...
+        num_words : int
+            Number of 32b words to read from Microblaze mailbox.
 
         Returns
         -------
-        list
-            list of data read from mailbox.
+        int/list
+            An int of a list of data read from the mailbox.
 
         """
-        mailbox_offsets = [(MAILBOX_OFFSET + offset) for offset in offsets]
-        return self.read(mailbox_offsets)
+        offset = MAILBOX_OFFSET + data_offset
+        return self.read(offset, num_words)
 
     def write_blocking_command(self, command):
         """This method writes a blocking command to the Microblaze.
@@ -202,9 +169,8 @@ class Pmod(PynqMicroblaze):
         None
 
         """
-        self.mmio.write(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET, command)
-        while not (self.mmio.read(MAILBOX_OFFSET +
-                                  MAILBOX_PY2DIF_CMD_OFFSET) == 0):
+        self.write(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET, command)
+        while self.read(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET) != 0:
             pass
 
     def write_non_blocking_command(self, command):
@@ -223,4 +189,4 @@ class Pmod(PynqMicroblaze):
         None
 
         """
-        self.mmio.write(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET, command)
+        self.write(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET, command)

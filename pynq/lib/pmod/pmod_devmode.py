@@ -200,12 +200,12 @@ class PmodDevMode(object):
         
         """
         # Write the address and data
-        self.microblaze.write([MAILBOX_PY2IOP_ADDR_OFFSET], [address])
-        self.microblaze.write([MAILBOX_PY2IOP_DATA_OFFSET], [data])
+        self.microblaze.write(MAILBOX_PY2IOP_ADDR_OFFSET, address)
+        self.microblaze.write(MAILBOX_PY2IOP_DATA_OFFSET, data)
 
         # Build the write command
         cmd_word = get_cmd_word(WRITE_CMD, d_width, d_length)
-        self.microblaze.write([MAILBOX_PY2IOP_CMD_OFFSET], [cmd_word])
+        self.microblaze.write(MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
 
         # Wait for ACK in steps of 1ms
         countdown = timeout
@@ -238,11 +238,11 @@ class PmodDevMode(object):
         
         """
         # Write the address
-        self.microblaze.write([MAILBOX_PY2IOP_ADDR_OFFSET], [address])
+        self.microblaze.write(MAILBOX_PY2IOP_ADDR_OFFSET, address)
 
         # Build the read command
         cmd_word = get_cmd_word(READ_CMD, d_width, d_length)
-        self.microblaze.write([MAILBOX_PY2IOP_CMD_OFFSET], [cmd_word])
+        self.microblaze.write(MAILBOX_PY2IOP_CMD_OFFSET, cmd_word)
 
         # Wait for ACK in steps of 1ms
         countdown = timeout
@@ -253,7 +253,7 @@ class PmodDevMode(object):
         # If ACK is not received, alert users.
         if countdown == 0:
             raise RuntimeError("PmodDevMode read_cmd() not acknowledged.")
-        [result] = self.microblaze.read([MAILBOX_PY2IOP_DATA_OFFSET])
+        result = self.microblaze.read(MAILBOX_PY2IOP_DATA_OFFSET)
         return result
 
     def is_cmd_mailbox_idle(self): 
@@ -265,5 +265,5 @@ class PmodDevMode(object):
             True if the command in the mailbox is idle.
         
         """
-        [mb_cmd_word] = self.microblaze.read([MAILBOX_PY2IOP_CMD_OFFSET])
+        mb_cmd_word = self.microblaze.read(MAILBOX_PY2IOP_CMD_OFFSET)
         return (mb_cmd_word & 0x1) == 0

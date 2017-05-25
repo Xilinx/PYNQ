@@ -28,7 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import time
 from . import Pmod
 
 
@@ -38,6 +37,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 PMOD_DAC_PROGRAM = "pmod_dac.bin"
+FIXEDGEN = 0x3
 
 
 class PmodDAC(object):
@@ -95,5 +95,5 @@ class PmodDAC(object):
 
         # Calculate the voltage value and write to DAC
         int_val = int(value / 0.000610351)
-        cmd = (int_val << 20) | 0x3
+        cmd = (int_val << 20) | FIXEDGEN
         self.microblaze.write_blocking_command(cmd)

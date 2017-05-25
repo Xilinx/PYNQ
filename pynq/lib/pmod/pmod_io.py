@@ -35,6 +35,7 @@ from . import PMOD_DIO_TRI_OFFSET
 from . import PMOD_DIO_DATA_OFFSET
 from . import PMOD_CFG_DIO_ALLINPUT
 from . import PMOD_CFG_DIO_ALLOUTPUT
+from . import PMOD_NUM_DIGITAL_PINS
 
 
 __author__ = "Yun Rock Qu"
@@ -59,7 +60,7 @@ class PmodIO(PmodDevMode):
     microblaze : Pmod
         Microblaze processor instance used by this module.
     index : int
-        The index of the Pmod pin, from 0 to 7.
+        The index of the Pmod pin, starting from 0.
     direction : str
         Input 'in' or output 'out'.
     
@@ -73,13 +74,14 @@ class PmodIO(PmodDevMode):
             A dictionary storing Microblaze information, such as the
             IP name and the reset name.
         index: int
-            The index of the Pmod pin, from 0 to 7.
+            The index of the Pmod pin, starting from 0.
         direction : str
             Input 'in' or output 'out'.
             
         """
-        if index not in range(8):
-            raise ValueError("Valid pin indexes are 0 - 7.")
+        if index not in range(PMOD_NUM_DIGITAL_PINS):
+            raise ValueError(f"Valid pin indexes are 0 - "
+                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
         if direction not in ['in', 'out']:
             raise ValueError("Direction can only be 'in', or 'out'.")
 

@@ -29,8 +29,10 @@
 
 
 import struct
+from math import ceil
 from . import Arduino
 from . import MAILBOX_OFFSET
+from . import ARDUINO_NUM_ANALOG_PINS
 
 
 __author__ = "Yun Rock Qu"
@@ -41,6 +43,12 @@ __email__ = "pynq_support@xilinx.com"
 ARDUINO_ANALOG_PROGRAM = "arduino_analog.bin"
 ARDUINO_ANALOG_LOG_START = MAILBOX_OFFSET+16
 ARDUINO_ANALOG_SAMPLES = 1000
+CONFIG_IOP_SWITCH = 0x1
+GET_RAW_DATA = 0x3
+GET_VOLTAGE = 0x5
+READ_AND_LOG_RAW = 0x7
+READ_AND_LOG_FLOAT = 0x9
+RESET_ANALOG = 0xB
 
 
 def _reg2float(reg):
@@ -98,8 +106,9 @@ class ArduinoAnalog(object):
             
         """
         for pin in gr_pin:
-            if pin not in range(6):
-                raise ValueError("Analog pin number can only be 0 - 5.")
+            if pin not in range(ARDUINO_NUM_ANALOG_PINS):
+                raise ValueError(f"Analog pin number can only be 0 - "
+                                 f"{ARDUINO_NUM_ANALOG_PINS-1}.")
 
         self.microblaze = Arduino(mb_info, ARDUINO_ANALOG_PROGRAM)
         self.log_interval_ms = 1000
@@ -108,12 +117,11 @@ class ArduinoAnalog(object):
         self.num_channels = len(gr_pin)
 
         # Enable all the analog pins
-        offsets = [4*i for i in range(6)]
-        data = [0 for _ in range(6)]
-        self.microblaze.write_mailbox(offsets, data)
+        data = [0 for _ in range(ARDUINO_NUM_ANALOG_PINS)]
+        self.microblaze.write_mailbox(0, data)
         
         # Write configuration and wait for ACK
-        self.microblaze.write_blocking_command(0x1)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read_raw(self):
         """Read the analog raw value from the analog peripheral.
@@ -127,11 +135,10 @@ class ArduinoAnalog(object):
         data_channels = 0
         for channel in self.gr_pin:
             data_channels |= (0x1 << channel)
-        cmd = (data_channels << 8) + 0x3
+        cmd = (data_channels << 8) + GET_RAW_DATA
         self.microblaze.write_blocking_command(cmd)
 
-        offsets = [4*i for i in range(self.num_channels)]
-        return self.microblaze.read_mailbox(offsets)
+        return self.microblaze.read_mailbox(0, self.num_channels)
         
     def read(self):
         """Read the voltage value from the analog peripheral.
@@ -145,11 +152,10 @@ class ArduinoAnalog(object):
         data_channels = 0
         for channel in self.gr_pin:
             data_channels |= (0x1 << channel)
-        cmd = (data_channels << 8) + 0x5
+        cmd = (data_channels << 8) + GET_VOLTAGE
         self.microblaze.write_blocking_command(cmd)
 
-        offsets = [4 * i for i in range(self.num_channels)]
-        raw = self.microblaze.read_mailbox(offsets)
+        raw = self.microblaze.read_mailbox(0, self.num_channels)
         return [float("{0:.4f}".format(_reg2float(i))) for i in raw]
         
     def set_log_interval_ms(self, log_interval_ms):
@@ -172,7 +178,7 @@ class ArduinoAnalog(object):
             raise ValueError("Time between samples should be no less than 0.")
         
         self.log_interval_ms = log_interval_ms
-        self.microblaze.write_mailbox([4], [log_interval_ms])
+        self.microblaze.write_mailbox(4, log_interval_ms)
 
     def start_log_raw(self):
         """Start recording raw data in a log.
@@ -191,7 +197,7 @@ class ArduinoAnalog(object):
         data_channels = 0
         for channel in self.gr_pin:
             data_channels |= (0x1 << channel)
-        cmd = (data_channels << 8) + 0x7
+        cmd = (data_channels << 8) + READ_AND_LOG_RAW
         self.microblaze.write_non_blocking_command(cmd)
                         
     def start_log(self):
@@ -211,7 +217,7 @@ class ArduinoAnalog(object):
         data_channels = 0
         for channel in self.gr_pin:
             data_channels |= (0x1 << channel)
-        cmd = (data_channels << 8) + 0x9
+        cmd = (data_channels << 8) + READ_AND_LOG_FLOAT
         self.microblaze.write_non_blocking_command(cmd)
 
     def stop_log_raw(self):
@@ -225,7 +231,7 @@ class ArduinoAnalog(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(0xB)
+            self.microblaze.write_non_blocking_command(RESET_ANALOG)
             self.log_running = 0
         else:
             raise RuntimeError("No analog log running.")
@@ -241,7 +247,7 @@ class ArduinoAnalog(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(0xB)
+            self.microblaze.write_non_blocking_command(RESET_ANALOG)
             self.log_running = 0
         else:
             raise RuntimeError("No analog log running.")
@@ -259,7 +265,7 @@ class ArduinoAnalog(object):
         self.stop_log()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = []
         for _ in range(self.num_channels):
             readings.append([])
@@ -272,23 +278,21 @@ class ArduinoAnalog(object):
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            for j in range(self.num_channels):
-                offsets = [i+4*j for i in range(head_ptr,
-                                                tail_ptr,
-                                                4*self.num_channels)]
-                readings[j] += self.microblaze.read(offsets)
+            for i in range(head_ptr, tail_ptr, 4*self.num_channels):
+                raw = self.microblaze.read(i, self.num_channels)
+                for j in range(self.num_channels):
+                    readings[j].append(raw[j])
         else:
-            for j in range(self.num_channels):
-                offsets = [i+4*j for i in range(head_ptr,
-                                                log_end,
-                                                4*self.num_channels)]
-                readings[j] += self.microblaze.read(offsets)
+            for i in range(head_ptr, log_end, 4*self.num_channels):
+                raw = self.microblaze.read(i, self.num_channels)
+                for j in range(self.num_channels):
+                    readings[j].append(raw[j])
 
-            for j in range(self.num_channels):
-                offsets = [i+4*j for i in range(ARDUINO_ANALOG_LOG_START,
-                                                tail_ptr,
-                                                4*self.num_channels)]
-                readings[j] += self.microblaze.read(offsets)
+            for i in range(ARDUINO_ANALOG_LOG_START, tail_ptr,
+                           4*self.num_channels):
+                raw = self.microblaze.read(i, self.num_channels)
+                for j in range(self.num_channels):
+                    readings[j].append(raw[j])
         return readings
 
     def get_log(self):
@@ -304,7 +308,7 @@ class ArduinoAnalog(object):
         self.stop_log()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = []
         for _ in range(self.num_channels):
             readings.append([])
@@ -317,29 +321,25 @@ class ArduinoAnalog(object):
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            for j in range(self.num_channels):
-                offsets = [i+4*j for i in range(head_ptr,
-                                                tail_ptr,
-                                                4*self.num_channels)]
-                raw = self.microblaze.read(offsets)
-                readings[j] += [float("{0:.4f}".format(_reg2float(i)))
-                                for i in raw]
-        else:
-            for j in range(self.num_channels):
-                offsets = [i+4*j for i in range(head_ptr,
-                                                log_end,
-                                                4*self.num_channels)]
-                raw = self.microblaze.read(offsets)
-                readings[j] += [float("{0:.4f}".format(_reg2float(i)))
-                                for i in raw]
+            for i in range(head_ptr, tail_ptr, 4*self.num_channels):
+                raw = self.microblaze.read(i, self.num_channels)
+                for j in range(self.num_channels):
+                    readings[j].append(float("{0:.4f}".format(
+                        _reg2float(raw[j]))))
 
-            for j in range(self.num_channels):
-                offsets = [i+4*j for i in range(ARDUINO_ANALOG_LOG_START,
-                                                tail_ptr,
-                                                4*self.num_channels)]
-                raw = self.microblaze.read(offsets)
-                readings[j] += [float("{0:.4f}".format(_reg2float(i)))
-                                for i in raw]
+        else:
+            for i in range(head_ptr, log_end, 4*self.num_channels):
+                raw = self.microblaze.read(i, self.num_channels)
+                for j in range(self.num_channels):
+                    readings[j].append(float("{0:.4f}".format(
+                        _reg2float(raw[j]))))
+
+            for i in range(ARDUINO_ANALOG_LOG_START, tail_ptr,
+                           4*self.num_channels):
+                raw = self.microblaze.read(i, self.num_channels)
+                for j in range(self.num_channels):
+                    readings[j].append(float("{0:.4f}".format(
+                        _reg2float(raw[j]))))
         return readings
         
     def reset(self):
@@ -350,4 +350,4 @@ class ArduinoAnalog(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0xB)
+        self.microblaze.write_blocking_command(RESET_ANALOG)

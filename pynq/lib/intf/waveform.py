@@ -27,10 +27,12 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 import os
 import json
 import IPython.core.display
-from .intf_const import BOARD_DIO_SPECIFICATION
+from . import PYNQZ1_DIO_SPECIFICATION
+
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
@@ -149,7 +151,7 @@ class Waveform:
     """
 
     def __init__(self, waveform_dict, stimulus_name=None,
-                 analysis_name=None, intf_spec=BOARD_DIO_SPECIFICATION):
+                 analysis_name=None, intf_spec=PYNQZ1_DIO_SPECIFICATION):
         """Initializer for this wrapper class.
 
         Parameters

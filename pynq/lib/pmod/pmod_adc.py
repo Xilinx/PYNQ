@@ -29,6 +29,7 @@
 
 
 import struct
+from math import ceil
 from . import Pmod
 from . import MAILBOX_OFFSET
 
@@ -41,6 +42,11 @@ __email__ = "pynq_support@xilinx.com"
 PMOD_ADC_PROGRAM = "pmod_adc.bin"
 PMOD_ADC_LOG_START = MAILBOX_OFFSET+16
 PMOD_ADC_LOG_END = PMOD_ADC_LOG_START+(1000*4)
+RESET_ADC = 0x1
+READ_RAW_DATA = 0x3
+READ_VOLTAGE = 0x5
+READ_AND_LOG_RAW_DATA = 0x7
+READ_AND_LOG_VOLTAGE = 0x9
 
 
 def _reg2float(reg):
@@ -98,7 +104,7 @@ class PmodADC(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0x1)
+        self.microblaze.write_blocking_command(RESET_ADC)
 
     def read_raw(self, ch1=1, ch2=0, ch3=0):
         """Get the raw value from the Pmod ADC.
@@ -139,13 +145,13 @@ class PmodADC(object):
             raise ValueError("Valid value for ch2 is 0 or 1.")
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
-        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 3
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | READ_RAW_DATA
        
         # Send the command
         self.microblaze.write_blocking_command(cmd)
 
         # Read the samples from ADC
-        readings = self.microblaze.read_mailbox([0, 4, 8])
+        readings = self.microblaze.read_mailbox(0, 3)
         results = []
         if ch1:
             results.append(readings[0])
@@ -192,13 +198,13 @@ class PmodADC(object):
             raise ValueError("Valid value for ch2 is 0 or 1.")
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
-        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 5
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | READ_VOLTAGE
        
         # Send the command
         self.microblaze.write_blocking_command(cmd)
 
         # Read the last sample from ADC
-        readings = self.microblaze.read_mailbox([0, 4, 8])
+        readings = self.microblaze.read_mailbox(0, 3)
         results = []
         if ch1:
             results.append(_reg2float(readings[0]))
@@ -240,11 +246,11 @@ class PmodADC(object):
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         
-        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 7
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | READ_AND_LOG_RAW_DATA
         self.log_running = 1
         
         # Send log interval
-        self.microblaze.write_mailbox([0], [log_interval_us])
+        self.microblaze.write_mailbox(0, log_interval_us)
         
         # Send the command
         self.microblaze.write_non_blocking_command(cmd)
@@ -281,12 +287,12 @@ class PmodADC(object):
         if ch3 not in range(2):
             raise ValueError("Valid value for ch3 is 0 or 1.")
         
-        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | 9
+        cmd = (ch3 << 6) | (ch2 << 5) | (ch1 << 4) | READ_AND_LOG_VOLTAGE
         
         self.log_running = 1
 
         # Send log interval
-        self.microblaze.write_mailbox([0], [log_interval_us])
+        self.microblaze.write_mailbox(0, log_interval_us)
 
         # Send the command
         self.microblaze.write_non_blocking_command(cmd)
@@ -303,7 +309,7 @@ class PmodADC(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(0x1)
+            self.microblaze.write_non_blocking_command(RESET_ADC)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -320,7 +326,7 @@ class PmodADC(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(0x1)
+            self.microblaze.write_non_blocking_command(RESET_ADC)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -340,23 +346,23 @@ class PmodADC(object):
         self.stop_log_raw()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = list()
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
         else:
-            offsets = [i for i in range(head_ptr, PMOD_ADC_LOG_END, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((PMOD_ADC_LOG_END - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
 
-            offsets = [i for i in range(PMOD_ADC_LOG_START, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - PMOD_ADC_LOG_START) / 4))
+            data = self.microblaze.read(PMOD_ADC_LOG_START, num_words)
             readings += data
         return readings
         
@@ -375,22 +381,22 @@ class PmodADC(object):
         self.stop_log()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = list()
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += [_reg2float(i) for i in data]
         else:
-            offsets = [i for i in range(head_ptr, PMOD_ADC_LOG_END, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((PMOD_ADC_LOG_END - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += [_reg2float(i) for i in data]
 
-            offsets = [i for i in range(PMOD_ADC_LOG_START, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - PMOD_ADC_LOG_START) / 4))
+            data = self.microblaze.read(PMOD_ADC_LOG_START, num_words)
             readings += [_reg2float(i) for i in data]
         return readings

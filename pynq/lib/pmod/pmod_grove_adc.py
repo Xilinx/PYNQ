@@ -29,6 +29,7 @@
 
 
 import struct
+from math import ceil
 from . import Pmod
 from . import PMOD_GROVE_G3
 from . import PMOD_GROVE_G4
@@ -43,6 +44,18 @@ __email__ = "pynq_support@xilinx.com"
 PMOD_GROVE_ADC_PROGRAM = "pmod_grove_adc.bin"
 GROVE_ADC_LOG_START = MAILBOX_OFFSET+16
 GROVE_ADC_LOG_END = GROVE_ADC_LOG_START+(1000*4)
+CONFIG_IOP_SWITCH = 0x1
+READ_RAW_DATA = 0x2
+READ_VOLTAGE = 0x3
+READ_AND_LOG_RAW_DATA = 0x4
+READ_AND_LOG_VOLTAGE = 0x5
+SET_LOW_LEVEL = 0x6
+SET_HIGH_LEVEL = 0x7
+SET_HYSTERESIS_LEVEL = 0x8
+READ_LOWEST_LEVEL = 0x9
+READ_HIGHEST_LEVEL = 0xA
+READ_STATUS = 0xB
+RESET_ADC = 0xC
 
 
 def _reg2float(reg):
@@ -103,8 +116,8 @@ class PmodGroveADC(object):
         self.log_interval_ms = 1000
         self.log_running = 0
         
-        self.microblaze.write_mailbox([0, 4], gr_pin)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read_raw(self):
         """Read the ADC raw value from the Grove ADC peripheral.
@@ -115,8 +128,8 @@ class PmodGroveADC(object):
             The raw value from the sensor.
         
         """
-        self.microblaze.write_blocking_command(2)
-        [value] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(READ_RAW_DATA)
+        value = self.microblaze.read_mailbox(0)
         return value
 
     def read(self):
@@ -128,8 +141,8 @@ class PmodGroveADC(object):
             The float value after translation.
         
         """
-        self.microblaze.write_blocking_command(3)
-        [value] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(READ_VOLTAGE)
+        value = self.microblaze.read_mailbox(0)
         return _reg2float(value)
 
     def set_log_interval_ms(self, log_interval_ms):
@@ -152,7 +165,7 @@ class PmodGroveADC(object):
             raise ValueError("Time between samples should be no less than 0.")
         
         self.log_interval_ms = log_interval_ms
-        self.microblaze.write_mailbox([4], [log_interval_ms])
+        self.microblaze.write_mailbox(0x4, log_interval_ms)
 
     def start_log_raw(self):
         """Start recording raw data in a log.
@@ -167,7 +180,7 @@ class PmodGroveADC(object):
         """
         self.log_running = 1
         self.set_log_interval_ms(self.log_interval_ms)
-        self.microblaze.write_non_blocking_command(4)
+        self.microblaze.write_non_blocking_command(READ_AND_LOG_RAW_DATA)
 
     def start_log(self):
         """Start recording multiple voltage values (float) in a log.
@@ -182,7 +195,7 @@ class PmodGroveADC(object):
         """
         self.log_running = 1
         self.set_log_interval_ms(self.log_interval_ms)
-        self.microblaze.write_non_blocking_command(5)
+        self.microblaze.write_non_blocking_command(READ_AND_LOG_VOLTAGE)
                         
     def stop_log_raw(self):
         """Stop recording the raw values in the log.
@@ -195,7 +208,7 @@ class PmodGroveADC(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(12)
+            self.microblaze.write_non_blocking_command(RESET_ADC)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -211,7 +224,7 @@ class PmodGroveADC(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(12)
+            self.microblaze.write_non_blocking_command(RESET_ADC)
             self.log_running = 0
         else:
             raise RuntimeError("No grove ADC log running.")
@@ -229,23 +242,23 @@ class PmodGroveADC(object):
         self.stop_log()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = list()
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
         else:
-            offsets = [i for i in range(head_ptr, PMOD_ALS_LOG_END, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((PMOD_ALS_LOG_END - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
 
-            offsets = [i for i in range(PMOD_ALS_LOG_START, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - PMOD_ALS_LOG_START) / 4))
+            data = self.microblaze.read(PMOD_ALS_LOG_START, num_words)
             readings += data
         return readings
         
@@ -262,23 +275,23 @@ class PmodGroveADC(object):
         self.stop_log()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = list()
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += [float("{0:.4f}".format(_reg2float(i))) for i in data]
         else:
-            offsets = [i for i in range(head_ptr, GROVE_ADC_LOG_END, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((GROVE_ADC_LOG_END - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += [float("{0:.4f}".format(_reg2float(i))) for i in data]
 
-            offsets = [i for i in range(GROVE_ADC_LOG_START, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - GROVE_ADC_LOG_START) / 4))
+            data = self.microblaze.read(GROVE_ADC_LOG_START, num_words)
             readings += [float("{0:.4f}".format(_reg2float(i))) for i in data]
         return readings
 
@@ -290,4 +303,4 @@ class PmodGroveADC(object):
         None
         
         """
-        self.microblaze.write_blocking_command(12)
+        self.microblaze.write_blocking_command(RESET_ADC)

@@ -41,6 +41,16 @@ __email__ = "pynq_support@xilinx.com"
 
 
 PMOD_GROVE_LEDBAR_PROGRAM = "pmod_grove_ledbar.bin"
+HIGH = 0xFF
+LOW = 0x01
+MED = 0xAA
+OFF = 0x00
+CONFIG_IOP_SWITCH = 0x1
+RESET = 0x3
+WRITE_LEDS = 0x5
+SET_BRIGHTNESS = 0x7
+SET_LEVEL = 0x9
+READ_LEDS = 0xB
 
 
 class PmodGroveLEDbar(object):
@@ -74,8 +84,8 @@ class PmodGroveLEDbar(object):
             raise ValueError("Group number can only be G1 - G4.")
 
         self.microblaze = Pmod(mb_info, PMOD_GROVE_LEDBAR_PROGRAM)
-        self.microblaze.write_mailbox([0, 4], gr_pin)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def reset(self):
         """Resets the LEDbar.
@@ -87,7 +97,7 @@ class PmodGroveLEDbar(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0x3)
+        self.microblaze.write_blocking_command(RESET)
         
     def write_binary(self, data_in):
         """Set individual LEDs in the LEDbar based on 10 bit binary input.
@@ -106,10 +116,10 @@ class PmodGroveLEDbar(object):
         None
         
         """
-        self.microblaze.write_mailbox([0], [data_in])
-        self.microblaze.write_blocking_command(0x5)
+        self.microblaze.write_mailbox(0, data_in)
+        self.microblaze.write_blocking_command(WRITE_LEDS)
 
-    def write_brightness(self, data_in, brightness=[0xAA]*10):
+    def write_brightness(self, data_in, brightness=[MED]*10):
         """Set individual LEDs with 3 level brightness control.
         
         Each bit in the 10-bit `data_in` points to a LED position on the
@@ -134,11 +144,10 @@ class PmodGroveLEDbar(object):
         None
         
         """
-        offsets = [4*i for i in range(len(brightness)+1)]
         data = [data_in]
         data += brightness
-        self.microblaze.write_mailbox(offsets, data)
-        self.microblaze.write_blocking_command(0x7)
+        self.microblaze.write_mailbox(0, data)
+        self.microblaze.write_blocking_command(SET_BRIGHTNESS)
 
     def write_level(self, level, bright_level, green_to_red):
         """Set the level to which the leds are to be lit in levels 1 - 10.
@@ -169,9 +178,8 @@ class PmodGroveLEDbar(object):
         None
         
         """
-        self.microblaze.write_mailbox([0, 0x4, 0x8],
-                                      [level, bright_level, green_to_red])
-        self.microblaze.write_blocking_command(0x9)
+        self.microblaze.write_mailbox(0, [level, bright_level, green_to_red])
+        self.microblaze.write_blocking_command(SET_LEVEL)
 
     def read(self):
         """Reads the current status of LEDbar.
@@ -189,6 +197,6 @@ class PmodGroveLEDbar(object):
             String of 10 binary bits.
         
         """
-        self.microblaze.write_blocking_command(0xB)
-        [value] = self.microblaze.read_mailbox([0x0])
+        self.microblaze.write_blocking_command(READ_LEDS)
+        value = self.microblaze.read_mailbox(0x0)
         return bin(value)[2:].zfill(10)

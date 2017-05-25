@@ -45,6 +45,13 @@ __email__ = "pynq_support@xilinx.com"
 
 
 ARDUINO_LCD18_PROGRAM = "arduino_lcd18.bin"
+CONFIG_IOP_SWITCH = 0x1
+CLEAR_SCREEN = 0x3
+DISPLAY = 0x5
+DRAW_LINE = 0x7
+PRINT_STRING = 0x9
+FILL_RECTANGLE = 0xB
+READ_BUTTON = 0xD
 
 
 def _convert_color(color):
@@ -103,7 +110,7 @@ class ArduinoLCD18(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0x3)
+        self.microblaze.write_blocking_command(CLEAR_SCREEN)
 
     def display(self, img_path, x_pos=0, y_pos=127, orientation=3,
                 background=None, frames=1):
@@ -231,22 +238,21 @@ class ArduinoLCD18(object):
                     buf1[index] = bytes([temp & 0xFF])
                     buf1[index + 1] = bytes([(temp & 0xFF00) >> 8])
 
-            offsets = [4*i for i in range(8)]
             data = [x_pos, y_pos, width, height,
                     phy_addr, background16, orientation, frames]
-            self.microblaze.write_mailbox(offsets, data)
+            self.microblaze.write_mailbox(0, data)
 
             # Ensure interrupt is reset before issuing command
-            if self.iop.interrupt:
-                self.iop.interrupt.clear()
-            self.microblaze.write_non_blocking_command(0x5)
+            if self.microblaze.interrupt:
+                self.microblaze.interrupt.clear()
+            self.microblaze.write_non_blocking_command(DISPLAY)
             while self.microblaze.read([MAILBOX_OFFSET +
                                         MAILBOX_PY2IOP_CMD_OFFSET]) != [0]:
-                if self.iop.interrupt:
-                    yield from self.iop.interrupt.wait()
+                if self.microblaze.interrupt:
+                    yield from self.microblaze.interrupt.wait()
         finally:
-            if self.iop.interrupt:
-                self.iop.interrupt.clear()
+            if self.microblaze.interrupt:
+                self.microblaze.interrupt.clear()
             self.buf_manager.cma_free(buf0)
 
     def draw_line(self, x_start_pos, y_start_pos, x_end_pos, y_end_pos,
@@ -308,11 +314,10 @@ class ArduinoLCD18(object):
             background = [0, 0, 0]
         background16 = _convert_color(background)
 
-        offsets = [4 * i for i in range(7)]
         data = [x_start_pos, y_start_pos, x_end_pos, y_end_pos,
                 color16, background16, orientation]
-        self.microblaze.write_mailbox(offsets, data)
-        self.microblaze.write_blocking_command(0x7)
+        self.microblaze.write_mailbox(0, data)
+        self.microblaze.write_blocking_command(DRAW_LINE)
 
     def print_string(self, x_start_pos, y_start_pos, text,
                      color=None, background=None, orientation=3):
@@ -373,10 +378,9 @@ class ArduinoLCD18(object):
         count = len(text)
         for _ in range(count % 4):
             temp_txt = temp_txt + str('\0')
-        offsets = [4 * i for i in range(5 + int(ceil(count/4)))]
+
         data = [x_start_pos, y_start_pos,
                 color16, background16, orientation]
-
         temp = 0
         for i in range(len(temp_txt)):
             temp = temp | (ord(temp_txt[i]) << 8 * (i % 4))
@@ -384,8 +388,8 @@ class ArduinoLCD18(object):
                 data.append(temp)
                 temp = 0
 
-        self.microblaze.write_mailbox(offsets, data)
-        self.microblaze.write_blocking_command(0x9)
+        self.microblaze.write_mailbox(0, data)
+        self.microblaze.write_blocking_command(PRINT_STRING)
 
     def draw_filled_rectangle(self, x_start_pos, y_start_pos, width, height,
                               color=None, background=None, orientation=3):
@@ -444,11 +448,10 @@ class ArduinoLCD18(object):
             background = [0, 0, 0]
         background16 = _convert_color(background)
 
-        offsets = [4 * i for i in range(7)]
         data = [x_start_pos, y_start_pos, width, height,
                 color16, background16, orientation]
-        self.microblaze.write_mailbox(offsets, data)
-        self.microblaze.write_blocking_command(0xB)
+        self.microblaze.write_mailbox(0, data)
+        self.microblaze.write_blocking_command(FILL_RECTANGLE)
 
     def read_joystick(self):
         """Read the joystick values.
@@ -470,6 +473,6 @@ class ArduinoLCD18(object):
             Indicating the direction towards which the button is pushed.
 
         """
-        self.microblaze.write_blocking_command(0xD)
-        [value] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(READ_BUTTON)
+        value = self.microblaze.read_mailbox(0)
         return value

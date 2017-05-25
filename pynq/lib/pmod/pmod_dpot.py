@@ -28,7 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import time
 from . import Pmod
 
 
@@ -38,6 +37,9 @@ __email__ = "pynq_support@xilinx.com"
 
 
 PMOD_DPOT_PROGRAM = "pmod_dpot.bin"
+CANCEL = 0x1
+SET_POT_SIMPLE = 0x3
+SET_POT_RAMP = 0x5
 
 
 class PmodDPOT(object):
@@ -93,11 +95,10 @@ class PmodDPOT(object):
         if log_ms < 0:
             raise ValueError("Requested log_ms value cannot be less than 0.")
 
-        self.microblaze.write_non_blocking_command(1)
-        self.microblaze.write_mailbox([0, 4, 8],
-                                      [val, step, log_ms])
+        self.microblaze.write_non_blocking_command(CANCEL)
+        self.microblaze.write_mailbox(0, [val, step, log_ms])
 
         if step == 0:
-            self.microblaze.write_non_blocking_command(3)
+            self.microblaze.write_non_blocking_command(SET_POT_SIMPLE)
         else:
-            self.microblaze.write_non_blocking_command(5)
+            self.microblaze.write_non_blocking_command(SET_POT_RAMP)

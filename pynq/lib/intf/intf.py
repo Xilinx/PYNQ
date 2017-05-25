@@ -64,8 +64,8 @@ class IntfMicroblaze(PynqMicroblaze):
         The absolute path of the Microblaze program.
     state : str
         The status (IDLE, RUNNING, or STOPPED) of the Microblaze.
-    gpio : GPIO
-        The GPIO instance associated with the Microblaze.
+    reset : GPIO
+        The reset pin associated with the Microblaze.
     mmio : MMIO
         The MMIO instance associated with the Microblaze.
     interrupt : Event
@@ -120,35 +120,10 @@ class IntfMicroblaze(PynqMicroblaze):
             When another Microblaze program is already loaded.
 
         """
-        ip_dict = PL.ip_dict
-        gpio_dict = PL.gpio_dict
+        if not os.path.isabs(mb_program):
+            mb_program = os.path.join(BIN_LOCATION, mb_program)
 
-        ip_name = mb_info['ip_name']
-        rst_name = mb_info['rst_name']
-
-        if ip_name not in ip_dict.keys():
-            raise ValueError(f"No such IP {ip_name}.")
-        if rst_name not in gpio_dict.keys():
-            raise ValueError(f"No such reset pin {rst_name}.")
-
-        addr_base = ip_dict[ip_name]['phys_addr']
-        addr_range = ip_dict[ip_name]['addr_range']
-        ip_state = ip_dict[ip_name]['state']
-        gpio_uix = gpio_dict[rst_name]['index']
-
-        mb_path = mb_program
-        if not os.path.isabs(mb_path):
-            mb_path = os.path.join(BIN_LOCATION, mb_path)
-
-        if (ip_state is None) or (ip_state == mb_path):
-            # case 1
-            super().__init__(ip_name, addr_base, addr_range, mb_program,
-                             rst_name, gpio_uix)
-        else:
-            # case 2
-            raise RuntimeError('Another program {} already running.'
-                               .format(ip_state))
-
+        super().__init__(mb_info, mb_program, intr_pin, intr_ack_pin)
         self.clk = Clocks
         self.buf_manager = Xlnk()
         self.buffers = dict()
@@ -166,8 +141,7 @@ class IntfMicroblaze(PynqMicroblaze):
         None
 
         """
-        offsets = [(MAILBOX_OFFSET + 4*i) for i in range(len(ctrl_parameters))]
-        self.write(offsets, ctrl_parameters)
+        self.write(MAILBOX_OFFSET, ctrl_parameters)
 
     def read_results(self, num_words):
         """This method reads results from the Microblaze.
@@ -183,8 +157,7 @@ class IntfMicroblaze(PynqMicroblaze):
             list of results read from mailbox
 
         """
-        offsets = [(MAILBOX_OFFSET + 4 * i) for i in range(num_words)]
-        return self.read(offsets)
+        return self.read(MAILBOX_OFFSET, num_words)
 
     def write_command(self, command):
         """This method writes the commands to the Microblaze.
@@ -202,8 +175,8 @@ class IntfMicroblaze(PynqMicroblaze):
         None
 
         """
-        self.write([MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET], [command])
-        while self.read([MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET]) != [0]:
+        self.write(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET, command)
+        while self.read(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET) != 0:
             pass
 
     def start(self):

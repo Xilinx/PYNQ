@@ -29,7 +29,6 @@
 
 
 import os
-import re
 import numpy as np
 
 
@@ -40,7 +39,6 @@ __email__ = "pynq_support@xilinx.com"
 
 # Microblaze constants
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__)) + "/"
-BOARD = re.sub(r"[^\w\s]", '', os.environ['BOARD']).upper()
 
 # Interface mailbox constants
 MAILBOX_OFFSET = 0xF000
@@ -58,7 +56,7 @@ CMD_GENERATE_FSM_STOP = 0x00B
 CMD_TRACE_FSM_ONLY = 0x00D
 
 CMD_INTF_SWITCH_CONFIG = 0x1
-CMD_READ_INTF_SWITCH_CONFIG = 0xa
+CMD_READ_INTF_SWITCH_CONFIG = 0xA
 CMD_CONFIG_CFG = 0x2
 CMD_CONFIG_PG = 0x3
 CMD_CONFIG_SMG = 0x4
@@ -70,7 +68,7 @@ CMD_ARM_TRACE = 0x9
 CMD_RUN = 0xD
 CMD_STOP = 0xE
 CMD_RUN_STATUS = 0xF
-CMD_READ_CFG_DIRECTION = 0xc
+CMD_READ_CFG_DIRECTION = 0xC
 
 IOSWITCH_BG_SELECT = 0
 IOSWITCH_PG_SELECT = 1
@@ -79,8 +77,8 @@ CMDS_ARM_BUILDER_LIST = [CMD_ARM_CFG, CMD_ARM_PG, CMD_ARM_SMG, CMD_ARM_TRACE]
 INTF_MICROBLAZE_BIN = "arduino_intf.bin"
 
 # PYNQ-Z1 specification
-PYNQZ1_ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
-                  'rst_name': 'mb_reset_3'}
+PYNQZ1_INTF_ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
+                       'rst_name': 'mb_reset_3'}
 PYNQZ1_DIO_SPECIFICATION = {'clock_mhz': 10,
                             'interface_width': 20,
                             'monitor_width': 64,
@@ -166,10 +164,6 @@ PYNQZ1_DIO_SPECIFICATION = {'clock_mhz': 10,
                                             'A5': 61,
                                             }
                             }
-
-# Board specification
-BOARD_DIO_SPECIFICATION = eval(BOARD + '_DIO_SPECIFICATION')
-BOARD_ARDUINO = eval(BOARD + '_ARDUINO')
 
 # FSM generator constants
 FSM_BRAM_ADDR_WIDTH = 13

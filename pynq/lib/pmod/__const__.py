@@ -37,17 +37,12 @@ __email__ = "pynq_support@xilinx.com"
 
 # Microblaze constants
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__)) + "/"
-BOARD = re.sub(r"[^\w\s]", '', os.environ['BOARD']).upper()
 
 # PYNQ-Z1 constants
-PYNQZ1_PMODA = {'ip_name': 'mb_bram_ctrl_1',
-                'rst_name': 'mb_reset_1'}
-PYNQZ1_PMODB = {'ip_name': 'mb_bram_ctrl_2',
-                'rst_name': 'mb_reset_2'}
-
-# Board specification
-PMODA = eval(BOARD + '_PMODA')
-PMODB = eval(BOARD + '_PMODB')
+PYNQZ1_BASE_PMODA = {'ip_name': 'mb_bram_ctrl_1',
+                     'rst_name': 'mb_reset_1'}
+PYNQZ1_BASE_PMODB = {'ip_name': 'mb_bram_ctrl_2',
+                     'rst_name': 'mb_reset_2'}
 
 # Pmod mailbox constants
 MAILBOX_OFFSET = 0xF000
@@ -66,6 +61,7 @@ PMOD_SWITCHCONFIG_BASEADDR = 0x44A00000
 PMOD_SWITCHCONFIG_NUMREGS = 8
 
 # Each Pmod pin can be tied to digital IO, SPI, or IIC
+PMOD_NUM_DIGITAL_PINS = 8
 PMOD_SWCFG_DIO0 = 0
 PMOD_SWCFG_DIO1 = 1
 PMOD_SWCFG_DIO2 = 2

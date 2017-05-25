@@ -39,6 +39,13 @@ __email__ = "pynq_support@xilinx.com"
 
 
 ARDUINO_GROVE_IMU_PROGRAM = "arduino_grove_imu.bin"
+CONFIG_IOP_SWITCH = 0x1
+GET_ACCL_DATA = 0x3
+GET_GYRO_DATA = 0x5
+GET_COMPASS_DATA = 0x7
+GET_TEMPERATURE = 0xB
+GET_PRESSURE = 0xD
+RESET = 0xF
 
 
 def _reg2float(reg):
@@ -128,7 +135,7 @@ class ArduinoGroveIMU(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0xF)
+        self.microblaze.write_blocking_command(RESET)
         
     def get_accl(self):
         """Get the data from the accelerometer.
@@ -139,8 +146,8 @@ class ArduinoGroveIMU(object):
             A list of the acceleration data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.microblaze.write_blocking_command(0x3)
-        data = self.microblaze.read_mailbox([0, 4, 8])
+        self.microblaze.write_blocking_command(GET_ACCL_DATA)
+        data = self.microblaze.read_mailbox(0, 3)
         [ax, ay, az] = [_reg2int(i) for i in data]
         return [float("{0:.2f}".format(ax / 16384)),
                 float("{0:.2f}".format(ay / 16384)),
@@ -155,8 +162,8 @@ class ArduinoGroveIMU(object):
             A list of the gyro data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.microblaze.write_blocking_command(0x5)
-        data = self.microblaze.read_mailbox([0, 4, 8])
+        self.microblaze.write_blocking_command(GET_GYRO_DATA)
+        data = self.microblaze.read_mailbox(0, 3)
         [gx, gy, gz] = [_reg2int(i) for i in data]
         return [float("{0:.2f}".format(gx * 250 / 32768)),
                 float("{0:.2f}".format(gy * 250 / 32768)),
@@ -171,8 +178,8 @@ class ArduinoGroveIMU(object):
             A list of the compass data along X-axis, Y-axis, and Z-axis.
         
         """
-        self.microblaze.write_blocking_command(0x7)
-        data = self.microblaze.read_mailbox([0, 4, 8])
+        self.microblaze.write_blocking_command(GET_COMPASS_DATA)
+        data = self.microblaze.read_mailbox(0, 3)
         [mx, my, mz] = [_reg2int(i) for i in data]
         return [float("{0:.2f}".format(mx * 1200 / 4096)),
                 float("{0:.2f}".format(my * 1200 / 4096)),
@@ -230,8 +237,8 @@ class ArduinoGroveIMU(object):
             The temperature value.
         
         """
-        self.microblaze.write_blocking_command(0xB)
-        [value] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(GET_TEMPERATURE)
+        value = self.microblaze.read_mailbox(0)
         return _reg2float(value)
         
     def get_pressure(self):
@@ -243,8 +250,8 @@ class ArduinoGroveIMU(object):
             The pressure value.
         
         """
-        self.microblaze.write_blocking_command(0xD)
-        [value] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(GET_PRESSURE)
+        value = self.microblaze.read_mailbox(0)
         return _reg2float(value)
         
     def get_atm(self):

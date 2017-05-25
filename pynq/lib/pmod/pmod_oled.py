@@ -37,6 +37,10 @@ __email__ = "pynq_support@xilinx.com"
 
 
 PMOD_OLED_PROGRAM = "pmod_oled.bin"
+CLEAR_DISPLAY = 0x1
+PRINT_STRING = 0x3
+DRAW_LINE = 0x5
+DRAW_RECT = 0x7
 
 
 class PmodOLED(object):
@@ -80,7 +84,7 @@ class PmodOLED(object):
         None
         
         """             
-        self.microblaze.write_blocking_command(0x1)
+        self.microblaze.write_blocking_command(CLEAR_DISPLAY)
             
     def write(self, text, x=0, y=0):
         """Write a new text string on the OLED.
@@ -107,13 +111,12 @@ class PmodOLED(object):
             raise ValueError("Text too long to be displayed.")
 
         # First write length, x, y, then write rest of string
-        offsets = [4*i for i in range(3+len(text))]
         data = [len(text), x, y]
         data += [ord(char) for char in text]
-        self.microblaze.write_mailbox(offsets, data)
+        self.microblaze.write_mailbox(0, data)
 
         # Finally write the print string command
-        self.microblaze.write_blocking_command(0x3)
+        self.microblaze.write_blocking_command(PRINT_STRING)
 
     def draw_line(self, x1, y1, x2, y2):
         """Draw a straight line on the OLED.
@@ -143,9 +146,8 @@ class PmodOLED(object):
         if not 0 <= y2 <= 255:
             raise ValueError("Y-position should be in [0, 255]")
 
-        self.microblaze.write_mailbox([0x0, 0x4, 0x8, 0xC],
-                                      [x1, y1, x2, y2])
-        self.microblaze.write_blocking_command(0x5)
+        self.microblaze.write_mailbox(0, [x1, y1, x2, y2])
+        self.microblaze.write_blocking_command(DRAW_LINE)
 
     def draw_rect(self, x1, y1, x2, y2):
         """Draw a rectangle on the OLED.
@@ -175,6 +177,5 @@ class PmodOLED(object):
         if not 0 <= y2 <= 255:
             raise ValueError("Y-position should be in [0, 255]")
 
-        self.microblaze.write_mailbox([0x0, 0x4, 0x8, 0xC],
-                                      [x1, y1, x2, y2])
-        self.microblaze.write_blocking_command(0x7)
+        self.microblaze.write_mailbox(0, [x1, y1, x2, y2])
+        self.microblaze.write_blocking_command(DRAW_RECT)

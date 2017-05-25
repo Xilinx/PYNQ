@@ -28,7 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import re
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -37,14 +36,10 @@ __email__ = "pynq_support@xilinx.com"
 
 # Microblaze constants
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__)) + "/"
-BOARD = re.sub(r"[^\w\s]", '', os.environ['BOARD']).upper()
 
 # PYNQ-Z1 constants
-PYNQZ1_ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
-                  'rst_name': 'mb_reset_3'}
-
-# Board specification
-ARDUINO = eval(BOARD + '_ARDUINO')
+PYNQZ1_BASE_ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
+                       'rst_name': 'mb_reset_3'}
 
 # Arduino mailbox constants
 MAILBOX_OFFSET = 0xF000
@@ -63,6 +58,8 @@ ARDUINO_SWITCHCONFIG_BASEADDR = 0x44A20000
 ARDUINO_SWITCHCONFIG_NUMREGS = 19
 
 # Each arduino pin can be tied to digital IO, SPI, or IIC
+ARDUINO_NUM_DIGITAL_PINS = 14
+ARDUINO_NUM_ANALOG_PINS = 6
 ARDUINO_SWCFG_AIO = 0x0
 ARDUINO_SWCFG_AINT = 0x0
 ARDUINO_SWCFG_SDA = 0x2

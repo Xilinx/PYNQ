@@ -41,6 +41,9 @@ __email__ = "pynq_support@xilinx.com"
 
 
 PMOD_GROVE_BUZZER_PROGRAM = "pmod_grove_buzzer.bin"
+CONFIG_IOP_SWITCH = 0x1
+PLAY_TONE = 0x3
+PLAY_DEMO = 0x5
 
 
 class PmodGroveBuzzer(object):
@@ -77,8 +80,8 @@ class PmodGroveBuzzer(object):
             raise ValueError("Group number can only be G1 - G4.")
 
         self.microblaze = Pmod(mb_info, PMOD_GROVE_BUZZER_PROGRAM)
-        self.microblaze.write_mailbox([0, 4], gr_pin)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def play_tone(self, tone_period, num_cycles):
         """Play a single tone with tone_period for num_cycles
@@ -100,8 +103,8 @@ class PmodGroveBuzzer(object):
         if num_cycles not in range(1, 32768):
             raise ValueError("Valid number of cycles is between 1 and 32767.")
 
-        self.microblaze.write_mailbox([0, 4], [tone_period, num_cycles])
-        self.microblaze.write_blocking_command(0x3)
+        self.microblaze.write_mailbox(0, [tone_period, num_cycles])
+        self.microblaze.write_blocking_command(PLAY_TONE)
 
     def play_melody(self):
         """Play a melody.
@@ -111,4 +114,4 @@ class PmodGroveBuzzer(object):
         None
                 
         """
-        self.microblaze.write_blocking_command(0x5)
+        self.microblaze.write_blocking_command(PLAY_DEMO)

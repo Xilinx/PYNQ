@@ -27,10 +27,9 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import asyncio
+
 import os
-import sys
-import math
+import asyncio
 from pynq import MMIO
 from pynq import GPIO
 from pynq import PL
@@ -97,8 +96,8 @@ class PynqMicroblaze:
         The absolute path of the Microblaze program.
     state : str
         The status (IDLE, RUNNING, or STOPPED) of the Microblaze.
-    gpio : GPIO
-        The GPIO instance associated with the Microblaze.
+    reset : GPIO
+        The reset pin associated with the Microblaze.
     mmio : MMIO
         The MMIO instance associated with the Microblaze.
     interrupt : Event
@@ -106,23 +105,15 @@ class PynqMicroblaze:
 
     """
 
-    def __init__(self, ip_name, addr_base, addr_range, mb_program,
-                 rst_name, gpio_uix,
+    def __init__(self, mb_info, mb_program,
                  intr_pin=None, intr_ack_gpio=None):
         """Create a new Microblaze object.
 
         Parameters
         ----------
-        ip_name : str
-            The name of the IP corresponding to the Microblaze.
-        rst_name : str
-            The name of the reset pin for the Microblaze.
-        addr_base : int
-            The base address for the MMIO.
-        addr_range : int
-            The address range for the MMIO.
-        gpio_uix : int
-            The user index of the GPIO, starting from 0.
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the 
+            IP name and the reset name.
         mb_program : str
             The Microblaze program loaded for the processor.
         intr_pin : str
@@ -131,16 +122,46 @@ class PynqMicroblaze:
             Number of the GPIO pin used to clear the interrupt.
 
         """
-        self.ip_name = ip_name
-        self.rst_name = rst_name
-        self.mb_program = mb_program
-        self.state = 'IDLE'
-        self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
-        self.mmio = MMIO(addr_base, addr_range)
-        self.interrupt = None
+        ip_dict = PL.ip_dict
+        gpio_dict = PL.gpio_dict
+        intr_dict = PL.interrupt_pins
+
+        ip_name = mb_info['ip_name']
+        rst_name = mb_info['rst_name']
+
+        if not os.path.isfile(mb_program):
+            raise ValueError(f'{mb_program} does not exist.')
+        if ip_name not in ip_dict.keys():
+            raise ValueError(f"No such IP {ip_name}.")
+        if rst_name not in gpio_dict.keys():
+            raise ValueError(f"No such reset pin {rst_name}.")
+        if intr_ack_gpio not in gpio_dict.keys():
+            intr_ack_gpio = None
+        if intr_pin not in intr_dict.keys():
+            intr_pin = None
+
+        addr_base = ip_dict[ip_name]['phys_addr']
+        addr_range = ip_dict[ip_name]['addr_range']
+        ip_state = ip_dict[ip_name]['state']
+        gpio_uix = gpio_dict[rst_name]['index']
+        intr_ack_gpio = gpio_dict[intr_ack_gpio]['index']
+
+        if (ip_state is None) or (ip_state == mb_program):
+            # case 1
+            self.ip_name = ip_name
+            self.rst_name = rst_name
+            self.mb_program = mb_program
+            self.state = 'IDLE'
+            self.reset = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
+            self.mmio = MMIO(addr_base, addr_range)
+        else:
+            # case 2
+            raise RuntimeError('Another program {} already running.'
+                               .format(ip_state))
 
         if intr_pin and intr_ack_gpio:
             self.interrupt = MBInterruptEvent(intr_pin, intr_ack_gpio)
+
         self.program()
 
     def run(self):
@@ -154,7 +175,7 @@ class PynqMicroblaze:
 
         """
         self.state = 'RUNNING'
-        self.gpio.write(0)
+        self.reset.write(0)
 
     def reset(self):
         """Reset the Microblaze to stop it from running.
@@ -167,7 +188,7 @@ class PynqMicroblaze:
 
         """
         self.state = 'STOPPED'
-        self.gpio.write(1)
+        self.reset.write(1)
 
     def program(self):
         """This method programs the Microblaze.
@@ -186,14 +207,14 @@ class PynqMicroblaze:
             self.interrupt.clear()
         self.run()
 
-    def write(self, offsets, data):
+    def write(self, offset, data):
         """This method write data into the shared memory of the Microblaze.
 
         Parameters
         ----------
-        offsets : list
-            A list of offsets where data are to be written.
-        data : list
+        offset : int
+            The beginning offset where data are written into.
+        data : int/list
             A list of 32b words to be written.
 
         Returns
@@ -201,24 +222,33 @@ class PynqMicroblaze:
         None
 
         """
-        if len(offsets) != len(data):
-            raise ValueError("Offsets length not equal to data length.")
+        if type(data) is int:
+            self.mmio.write(offset, data)
+        elif type(data) is list:
+            for i, word in enumerate(data):
+                self.mmio.write(offset + 4*i, word)
+        else:
+            raise ValueError('Type of write data has to be int or lists.')
 
-        for offset, word in zip(offsets, data):
-            self.mmio.write(offset, word)
-
-    def read(self, offsets):
+    def read(self, offset, length=1):
         """This method reads data from the shared memory of Microblaze.
 
         Parameters
         ----------
-        offsets : list
-            A list of offsets where data are read from.
+        offset : int
+            The beginning offset where data are read from.
+        length : int
+            The number of data (32-bit int) to be read.
 
         Returns
         -------
-        list
-            list of data read from the shared memory.
+        int/list
+            An int of a list of data read from the shared memory.
 
         """
-        return [self.mmio.read(offset) for offset in offsets]
+        if length == 1:
+            return self.mmio.read(offset)
+        elif length > 1:
+            return [self.mmio.read(offset + 4*i) for i in range(length)]
+        else:
+            raise ValueError('Length of read data has to be 1 or more.')

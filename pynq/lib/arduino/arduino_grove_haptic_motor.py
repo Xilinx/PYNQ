@@ -37,6 +37,10 @@ __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
 
 
 ARDUINO_GROVE_HAPTIC_MOTOR_PROGRAM = "arduino_grove_haptic_motor.bin"
+CONFIG_IOP_SWITCH = 0x1
+START_WAVEFORM = 0x2
+STOP_WAVEFORM = 0x3
+READ_IS_PLAYING = 0x4
 
 
 class ArduinoGroveHapticMotor(object):
@@ -66,7 +70,7 @@ class ArduinoGroveHapticMotor(object):
             raise ValueError("Group number can only be I2C.")
 
         self.microblaze = Arduino(mb_info, ARDUINO_GROVE_HAPTIC_MOTOR_PROGRAM)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def play(self, effect):
         """Play a vibration effect on the Grove Haptic Motor peripheral.
@@ -85,8 +89,8 @@ class ArduinoGroveHapticMotor(object):
         """
         if (effect < 1) or (effect > 127):
             raise ValueError("Valid effect identifiers are within 1 and 127.")
-        self.microblaze.write_mailbox([0, 4], [effect, 0])
-        self.microblaze.write_blocking_command(2)
+        self.microblaze.write_mailbox(0, [effect, 0])
+        self.microblaze.write_blocking_command(START_WAVEFORM)
 
     def play_sequence(self, sequence):
         """Play a sequence of effects possibly separated by pauses.
@@ -127,9 +131,8 @@ class ArduinoGroveHapticMotor(object):
                                      "1 and 127.")
         sequence += [0] * (8 - length)
 
-        offsets = [i * 4 for i in range(8)]
-        self.microblaze.write_mailbox(offsets, sequence)
-        self.microblaze.write_blocking_command(2)
+        self.microblaze.write_mailbox(0, sequence)
+        self.microblaze.write_blocking_command(START_WAVEFORM)
 
     def stop(self):
         """Stop an effect or a sequence on the motor peripheral.
@@ -139,7 +142,7 @@ class ArduinoGroveHapticMotor(object):
         None
 
         """
-        self.microblaze.write_blocking_command(3)
+        self.microblaze.write_blocking_command(STOP_WAVEFORM)
 
     def is_playing(self):
         """Check if a vibration effect is running on the motor.
@@ -150,6 +153,6 @@ class ArduinoGroveHapticMotor(object):
             True if a vibration effect is playing, false otherwise
 
         """
-        self.microblaze.write_blocking_command(4)
-        [flag] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(READ_IS_PLAYING)
+        flag = self.microblaze.read_mailbox(0)
         return flag == 1

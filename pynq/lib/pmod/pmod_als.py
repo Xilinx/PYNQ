@@ -28,6 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+from math import ceil
 from . import Pmod
 from . import MAILBOX_OFFSET
 
@@ -40,6 +41,9 @@ __email__ = "pynq_support@xilinx.com"
 PMOD_ALS_PROGRAM = "pmod_als.bin"
 PMOD_ALS_LOG_START = MAILBOX_OFFSET+16
 PMOD_ALS_LOG_END = PMOD_ALS_LOG_START+(1000*4)
+RESET = 0x1
+READ_SINGLE_VALUE = 0x3
+READ_AND_LOG = 0x7
 
 
 class PmodALS(object):
@@ -79,8 +83,8 @@ class PmodALS(object):
             The current sensor value.
         
         """
-        self.microblaze.write_blocking_command(3)
-        [data] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(READ_SINGLE_VALUE)
+        data = self.microblaze.read_mailbox(0)
         return data
 
     def set_log_interval_ms(self, log_interval_ms):
@@ -103,7 +107,7 @@ class PmodALS(object):
             raise ValueError("Log length should not be less than 0.")
         
         self.log_interval_ms = log_interval_ms
-        self.microblaze.write_mailbox([0x4], [log_interval_ms])
+        self.microblaze.write_mailbox(0x4, log_interval_ms)
 
     def start_log(self):
         """Start recording multiple values in a log.
@@ -117,7 +121,7 @@ class PmodALS(object):
 
         """
         self.set_log_interval_ms(self.log_interval_ms)
-        self.microblaze.write_non_blocking_command(7)
+        self.microblaze.write_non_blocking_command(READ_AND_LOG)
 
     def stop_log(self):
         """Stop recording multiple values in a log.
@@ -129,7 +133,7 @@ class PmodALS(object):
         None
         
         """
-        self.microblaze.write_non_blocking_command(1)
+        self.microblaze.write_non_blocking_command(RESET)
 
     def get_log(self):
         """Return list of logged samples.
@@ -143,23 +147,22 @@ class PmodALS(object):
         self.stop_log()
 
         # prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = []
 
         # sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
         else:
-            offsets = [i for i in range(head_ptr, PMOD_ALS_LOG_END, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((PMOD_ALS_LOG_END - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
 
-            offsets = [i for i in range(PMOD_ALS_LOG_START, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - PMOD_ALS_LOG_START) / 4))
+            data = self.microblaze.read(PMOD_ALS_LOG_START, num_words)
             readings += data
-
         return readings

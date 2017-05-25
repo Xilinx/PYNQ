@@ -37,6 +37,9 @@ __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
 
 
 ARDUINO_GROVE_DLIGHT_PROGRAM = "arduino_grove_dlight.bin"
+CONFIG_IOP_SWITCH = 0x1
+GET_LIGHT_VALUE = 0x3
+GET_LUX_VALUE = 0x5
 
 
 class ArduinoGroveDLight(object):
@@ -67,7 +70,7 @@ class ArduinoGroveDLight(object):
             raise ValueError("Group number can only be I2C.")
 
         self.microblaze = Arduino(mb_info, ARDUINO_GROVE_DLIGHT_PROGRAM)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read_raw_light(self):
         """Read the visible and IR channel values.
@@ -80,8 +83,8 @@ class ArduinoGroveDLight(object):
             A tuple containing 2 integer values ch0 (visible) and ch1 (IR).
 
         """
-        self.microblaze.write_blocking_command(3)
-        ch0, ch1 = self.microblaze.read_mailbox([0, 4])
+        self.microblaze.write_blocking_command(GET_LIGHT_VALUE)
+        ch0, ch1 = self.microblaze.read_mailbox(0, 2)
         return ch0, ch1
 
     def read_lux(self):
@@ -93,6 +96,6 @@ class ArduinoGroveDLight(object):
             The lux value from the sensor
 
         """
-        self.microblaze.write_blocking_command(5)
-        [lux] = self.microblaze.read_mailbox([0x8])
+        self.microblaze.write_blocking_command(GET_LUX_VALUE)
+        lux = self.microblaze.read_mailbox(0x8)
         return lux

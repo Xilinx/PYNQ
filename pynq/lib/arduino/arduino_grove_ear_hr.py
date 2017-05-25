@@ -43,6 +43,7 @@ __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
 
 
 ARDUINO_GROVE_EAR_HR_PROGRAM = "arduino_grove_ear_hr.bin"
+CONFIG_IOP_SWITCH = 0x1
 
 
 class ArduinoGroveEarHR(object):
@@ -77,8 +78,8 @@ class ArduinoGroveEarHR(object):
                 raise ValueError("Group number can only be G1 - G7.")
 
         self.microblaze = Arduino(mb_info, ARDUINO_GROVE_EAR_HR_PROGRAM)
-        self.microblaze.write_mailbox([0], [gr_pin[0]])
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin[0])
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read(self):
         """Read the heart rate from the sensor.
@@ -108,6 +109,6 @@ class ArduinoGroveEarHR(object):
             Number of heart beats and the time elapsed between 2 latest beats.
 
         """
-        [beats] = self.microblaze.read_mailbox([0x4])
-        interval_ms = self.microblaze.read_mailbox([0x8 + (beats % 4) * 4])
+        beats = self.microblaze.read_mailbox(0x4)
+        interval_ms = self.microblaze.read_mailbox(0x8 + (beats % 4) * 4)
         return beats, interval_ms

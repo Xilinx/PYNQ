@@ -44,6 +44,9 @@ __email__ = "pynq_support@xilinx.com"
 
 
 ARDUINO_GROVE_BUZZER_PROGRAM = "arduino_grove_buzzer.bin"
+CONFIG_IOP_SWITCH = 0x1
+PLAY_TONE = 0x3
+PLAY_DEMO = 0x5
 
 
 class ArduinoGroveBuzzer(object):
@@ -83,8 +86,8 @@ class ArduinoGroveBuzzer(object):
             raise ValueError("Buzzer group number can only be G1 - G7.")
 
         self.microblaze = Arduino(mb_info, ARDUINO_GROVE_BUZZER_PROGRAM)
-        self.microblaze.write_mailbox([0, 4], gr_pin)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def play_tone(self, tone_period, num_cycles):
         """Play a single tone with tone_period for num_cycles
@@ -106,8 +109,8 @@ class ArduinoGroveBuzzer(object):
         if num_cycles not in range(1, 32768):
             raise ValueError("Valid number of cycles is between 1 and 32767.")
 
-        self.microblaze.write_mailbox([0, 4], [tone_period, num_cycles])
-        self.microblaze.write_blocking_command(0x3)
+        self.microblaze.write_mailbox(0, [tone_period, num_cycles])
+        self.microblaze.write_blocking_command(PLAY_TONE)
 
     def play_melody(self):
         """Play a melody.
@@ -117,4 +120,4 @@ class ArduinoGroveBuzzer(object):
         None
 
         """
-        self.microblaze.write_blocking_command(0x5)
+        self.microblaze.write_blocking_command(PLAY_DEMO)

@@ -38,6 +38,10 @@ __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
 
 
 PMOD_GROVE_COLOR_PROGRAM = "pmod_grove_color.bin"
+CONFIG_IOP_SWITCH = 0x1
+READ_DATA = 0x2
+READ_AND_LOG_DATA = 0x3
+STOP_LOG = 0xC
 
 
 class PmodGroveColor(object):
@@ -69,8 +73,8 @@ class PmodGroveColor(object):
             raise ValueError("Group number can only be G3 - G4.")
 
         self.microblaze = Pmod(mb_info, PMOD_GROVE_COLOR_PROGRAM)
-        self.microblaze.write_mailbox([0, 4], gr_pin)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read(self):
         """Read the color values from the Grove Color peripheral.
@@ -85,6 +89,6 @@ class PmodGroveColor(object):
             A list of (red, green, blue, clear) components.
         
         """
-        self.microblaze.write_blocking_command(2)
-        colors = self.microblaze.read_mailbox([0x0, 0x4, 0x8, 0xC])
+        self.microblaze.write_blocking_command(READ_DATA)
+        colors = self.microblaze.read_mailbox(0, 4)
         return colors

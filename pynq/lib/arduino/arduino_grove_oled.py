@@ -38,6 +38,19 @@ __email__ = "pynq_support@xilinx.com"
 
 
 ARDUINO_GROVE_OLED_PROGRAM = "arduino_grove_oled.bin"
+CONFIG_IOP_SWITCH = 0x1
+SET_NORMAL_DISPLAY = 0x3
+SET_INVERSE_DISPLAY = 0x5
+SET_GRAY_LEVEL = 0x7
+SET_PAGE_MODE = 0x9
+SET_HORIZONTAL_MODE = 0xB
+SET_TEXT_XY = 0xD
+CLEAR_DISPLAY = 0xF
+SET_CONTRAST_LEVEL = 0x11
+PUT_STRING = 0x13
+SET_HORIZONTAL_SCROLL = 0x15
+ENABLE_SCROLL = 0x17
+DISABLE_SCROLL = 0x19
 
 
 class ArduinoGroveOLED(object):
@@ -92,13 +105,12 @@ class ArduinoGroveOLED(object):
         
         """
         # First write length, then write rest of string
-        offsets = [i * 4 for i in range(len(text) + 1)]
         data = [len(text)]
         data += [ord(char) for char in text]
-        self.microblaze.write_mailbox(offsets, data)
+        self.microblaze.write_mailbox(0, data)
 
         # Finally write the print string command
-        self.microblaze.write_blocking_command(0x13)
+        self.microblaze.write_blocking_command(PUT_STRING)
 
     def clear(self):
         """Clear the OLED screen.
@@ -110,7 +122,7 @@ class ArduinoGroveOLED(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0xF)
+        self.microblaze.write_blocking_command(CLEAR_DISPLAY)
 
     def set_position(self, row, column):
         """Set the position of the display.
@@ -130,10 +142,10 @@ class ArduinoGroveOLED(object):
         
         """
         # First write row and column positions
-        self.microblaze.write_mailbox([0, 4], [row, column])
+        self.microblaze.write_mailbox(0, [row, column])
 
         # Then write the command
-        self.microblaze.write_blocking_command(0xD)
+        self.microblaze.write_blocking_command(SET_TEXT_XY)
 
     def set_normal_mode(self):
         """Set the display mode to normal.
@@ -143,7 +155,7 @@ class ArduinoGroveOLED(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0x3)
+        self.microblaze.write_blocking_command(SET_NORMAL_DISPLAY)
 
     def set_inverse_mode(self):
         """Set the display mode to inverse.
@@ -153,7 +165,7 @@ class ArduinoGroveOLED(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0x5)
+        self.microblaze.write_blocking_command(SET_INVERSE_DISPLAY)
 
     def set_page_mode(self):
         """Set the display mode to paged.
@@ -163,7 +175,7 @@ class ArduinoGroveOLED(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0x9)
+        self.microblaze.write_blocking_command(SET_PAGE_MODE)
 
     def set_horizontal_mode(self):
         """Set the display mode to horizontal.
@@ -173,7 +185,7 @@ class ArduinoGroveOLED(object):
         None
         
         """
-        self.microblaze.write_blocking_command(0xB)
+        self.microblaze.write_blocking_command(SET_HORIZONTAL_MODE)
 
     def set_contrast(self, brightness):
         """Set the contrast level for the OLED display.
@@ -193,7 +205,7 @@ class ArduinoGroveOLED(object):
         # First write the brightness
         if brightness not in range(0, 256):
             raise ValueError("Valid brightness is between 0 and 255.")
-        self.microblaze.write_mailbox([0], [brightness])
+        self.microblaze.write_mailbox(0, brightness)
 
         # Then write the command
-        self.microblaze.write_blocking_command(0x11)
+        self.microblaze.write_blocking_command(SET_CONTRAST_LEVEL)

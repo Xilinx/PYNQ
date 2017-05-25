@@ -28,6 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+from math import ceil
 from . import Pmod
 from . import PMOD_GROVE_G3
 from . import PMOD_GROVE_G4
@@ -41,6 +42,10 @@ __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
 PMOD_GROVE_FINGER_HR_PROGRAM = "pmod_grove_finger_hr.bin"
 GROVE_FINGER_HR_LOG_START = iop_const.MAILBOX_OFFSET+16
 GROVE_FINGER_HR_LOG_END = GROVE_FINGER_HR_LOG_START+(1000*4)
+CONFIG_IOP_SWITCH = 0x1
+READ_DATA = 0x2
+READ_AND_LOG_DATA = 0x3
+STOP_LOG = 0xC
 
 
 class PmodGroveFingerHR(object):
@@ -79,8 +84,8 @@ class PmodGroveFingerHR(object):
         self.log_interval_ms = 1000
         self.log_running = 0
 
-        self.microblaze.write_mailbox([0, 4], gr_pin)
-        self.microblaze.write_blocking_command(1)
+        self.microblaze.write_mailbox(0, gr_pin)
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read(self):
         """Read the heart rate value from the Grove Finger HR peripheral.
@@ -91,8 +96,8 @@ class PmodGroveFingerHR(object):
             An integer representing the heart rate frequency.
         
         """
-        self.microblaze.write_blocking_command(2)
-        [freq] = self.microblaze.read_mailbox([0])
+        self.microblaze.write_blocking_command(READ_DATA)
+        freq = self.microblaze.read_mailbox(0)
         return freq
 
     def start_log(self, log_interval_ms=100):
@@ -116,8 +121,8 @@ class PmodGroveFingerHR(object):
 
         self.log_running = 1
         self.log_interval_ms = log_interval_ms
-        self.microblaze.write_mailbox([0x4], [log_interval_ms])
-        self.microblaze.write_non_blocking_command(3)
+        self.microblaze.write_mailbox(0x4, log_interval_ms)
+        self.microblaze.write_non_blocking_command(READ_AND_LOG_DATA)
 
     def stop_log(self):
         """Stop recording the values in the log.
@@ -130,7 +135,7 @@ class PmodGroveFingerHR(object):
         
         """
         if self.log_running == 1:
-            self.microblaze.write_non_blocking_command(13)
+            self.microblaze.write_non_blocking_command(STOP_LOG)
             self.log_running = 0
         else:
             raise RuntimeError("No grove finger HR log running.")
@@ -148,24 +153,22 @@ class PmodGroveFingerHR(object):
         self.stop_log()
 
         # Prep iterators and results list
-        [head_ptr, tail_ptr] = self.microblaze.read_mailbox([0x8, 0xC])
+        [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
         readings = list()
 
         # Sweep circular buffer for samples
         if head_ptr == tail_ptr:
             return None
         elif head_ptr < tail_ptr:
-            offsets = [i for i in range(head_ptr, tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
         else:
-            offsets = [i for i in range(head_ptr,
-                                        GROVE_FINGER_HR_LOG_END, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((GROVE_FINGER_HR_LOG_END - head_ptr) / 4))
+            data = self.microblaze.read(head_ptr, num_words)
             readings += data
 
-            offsets = [i for i in range(GROVE_FINGER_HR_LOG_START,
-                                        tail_ptr, 4)]
-            data = self.microblaze.read(offsets)
+            num_words = int(ceil((tail_ptr - GROVE_FINGER_HR_LOG_START) / 4))
+            data = self.microblaze.read(GROVE_FINGER_HR_LOG_START, num_words)
             readings += data
         return readings

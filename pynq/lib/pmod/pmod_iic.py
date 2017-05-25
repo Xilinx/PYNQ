@@ -38,6 +38,7 @@ from . import PMOD_XIIC_DTR_REG_OFFSET
 from . import PMOD_XIIC_CR_REG_OFFSET
 from . import PMOD_XIIC_RFD_REG_OFFSET
 from . import PMOD_XIIC_DRR_REG_OFFSET
+from . import PMOD_NUM_DIGITAL_PINS
 
 
 __author__ = "Yun Rock Qu"
@@ -95,13 +96,15 @@ class PmodIIC(PmodDevMode):
             The IIC device address.
             
         """
-        if scl_pin not in range(8):
-            raise ValueError("Valid SCL pin numbers are 0 - 7.")
-        if sda_pin not in range(8):
-            raise ValueError("Valid SDA pin numbers are 0 - 7.")
+        if scl_pin not in range(PMOD_NUM_DIGITAL_PINS):
+            raise ValueError(f"Valid SCL pin numbers are 0 - "
+                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
+        if sda_pin not in range(PMOD_NUM_DIGITAL_PINS):
+            raise ValueError(f"Valid SDA pin numbers are 0 - "
+                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
         
         switchconfig = []
-        for i in range(8):
+        for i in range(PMOD_NUM_DIGITAL_PINS):
             if i == sda_pin:
                 switchconfig.append(PMOD_SWCFG_IIC0_SDA)
             elif i == scl_pin:
