@@ -105,9 +105,29 @@ class PynqMicroblaze:
 
     """
 
-    def __init__(self, mb_info, mb_program,
-                 intr_pin=None, intr_ack_gpio=None):
+    def __init__(self, mb_info, mb_program):
         """Create a new Microblaze object.
+
+        It looks for active instances on the same Microblaze, and prevents 
+        users from silently reloading the Microblaze program. Users are 
+        notified with an exception if a program is already running on the
+        selected Microblaze, to prevent unwanted behavior.
+
+        Two cases:
+
+        1.  No previous Microblaze program loaded in the system, 
+        or users want to request another instance using the same program.
+        No exception will be raised in this case.
+
+        2.  There is a previous Microblaze program loaded in the system.
+        Users want to request another instance with a different 
+        program. An exception will be raised.
+
+        Note
+        ----
+        When a Microblaze program is already loaded in the system, and users
+        want to instantiate another object using a different Microblaze 
+        program, users are in danger of losing existing objects.
 
         Parameters
         ----------
@@ -121,47 +141,78 @@ class PynqMicroblaze:
         intr_ack_gpio : int
             Number of the GPIO pin used to clear the interrupt.
 
+        Raises
+        ------
+        RuntimeError
+            When another Microblaze program is already loaded.
+
+        Examples
+        --------
+        The `mb_info` is a dictionary storing Microblaze information:
+
+        >>> mb_info = {'ip_name': 'mb_bram_ctrl_1',
+        'rst_name': 'mb_reset_1', 
+        'intr_pin_name': 'iop1/dff_en_reset_0/q', 
+        'intr_ack_name': 'mb_1_intr_ack'}
+
         """
         ip_dict = PL.ip_dict
         gpio_dict = PL.gpio_dict
         intr_dict = PL.interrupt_pins
 
-        ip_name = mb_info['ip_name']
-        rst_name = mb_info['rst_name']
-
+        # Check program path
         if not os.path.isfile(mb_program):
             raise ValueError(f'{mb_program} does not exist.')
+
+        # Get IP information
+        ip_name = mb_info['ip_name']
         if ip_name not in ip_dict.keys():
             raise ValueError(f"No such IP {ip_name}.")
-        if rst_name not in gpio_dict.keys():
-            raise ValueError(f"No such reset pin {rst_name}.")
-        if intr_ack_gpio not in gpio_dict.keys():
-            intr_ack_gpio = None
-        if intr_pin not in intr_dict.keys():
-            intr_pin = None
-
         addr_base = ip_dict[ip_name]['phys_addr']
         addr_range = ip_dict[ip_name]['addr_range']
         ip_state = ip_dict[ip_name]['state']
-        gpio_uix = gpio_dict[rst_name]['index']
-        intr_ack_gpio = gpio_dict[intr_ack_gpio]['index']
-
-        if (ip_state is None) or (ip_state == mb_program):
-            # case 1
-            self.ip_name = ip_name
-            self.rst_name = rst_name
-            self.mb_program = mb_program
-            self.state = 'IDLE'
-            self.reset = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
-            self.mmio = MMIO(addr_base, addr_range)
-        else:
-            # case 2
+        if (ip_state is not None) and (ip_state != mb_program):
             raise RuntimeError('Another program {} already running.'
                                .format(ip_state))
 
-        if intr_pin and intr_ack_gpio:
-            self.interrupt = MBInterruptEvent(intr_pin, intr_ack_gpio)
+        # Get reset information
+        rst_name = mb_info['rst_name']
+        if rst_name not in gpio_dict.keys():
+            raise ValueError(f"No such reset pin {rst_name}.")
+        gpio_uix = gpio_dict[rst_name]['index']
 
+        # Get interrupt pin information
+        if 'intr_pin_name' in mb_info:
+            intr_pin_name = mb_info['intr_pin_name']
+            if intr_pin_name not in intr_dict.keys():
+                raise ValueError(f"No such interrupt pin {intr_pin_name}.")
+        else:
+            intr_pin_name = None
+
+        # Get interrupt ACK information
+        if 'intr_ack_name' in mb_info:
+            intr_ack_name = mb_info['intr_ack_name']
+            if intr_ack_name not in gpio_dict.keys():
+                raise ValueError(f"No such interrupt ACK {intr_ack_name}.")
+            intr_ack_gpio = gpio_dict[intr_ack_name]['index']
+        else:
+            intr_ack_gpio = None
+
+        # Set basic attributes
+        self.ip_name = ip_name
+        self.rst_name = rst_name
+        self.mb_program = mb_program
+        self.state = 'IDLE'
+        self.reset = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
+        self.mmio = MMIO(addr_base, addr_range)
+
+        # Set optional attributes
+        if (intr_pin_name is not None) and (intr_ack_gpio is not None):
+            self.interrupt = MBInterruptEvent(intr_pin, intr_ack_gpio)
+        else:
+            self.interrupt = None
+
+        # Reset, program, and run
         self.program()
 
     def run(self):

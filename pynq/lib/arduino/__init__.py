@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .__const__ import *
+from .constants import *
 from .arduino import Arduino
 from .arduino_devmode import ArduinoDevMode
 from .arduino_io import ArduinoIO

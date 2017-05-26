@@ -66,31 +66,12 @@ class Arduino(PynqMicroblaze):
 
     """
 
-    def __init__(self, mb_info, mb_program,
-                 intr_pin=None, intr_ack_pin=None):
+    def __init__(self, mb_info, mb_program):
         """Create a new Microblaze object.
 
-        It looks for active instances on the same Arduino ID, and prevents 
-        users from instantiating different types of Arduino instances on the 
-        same interface. Users are notified with an exception if the selected 
-        interface is already hooked to another type of Arduino instance, 
-        to prevent unwanted behavior.
-    
-        Two cases:
+        This method leverages the initialization method of its parent. It 
+        also deals with relative / absolute path of the program.
 
-        1.  No previous Arduino program loaded in the system with the same ID, 
-        or users want to request another instance with the same program.
-        No exception will be raised in this case.
-
-        2.  There is A previous Arduino program loaded in the system with the 
-        same ID. Users want to request another instance with a different 
-        program. An exception will be raised.
-    
-        Note
-        ----
-        When a Arduino program is already loaded in the system with the same 
-        interface ID, users are in danger of losing the old instance.
-    
         Parameters
         ----------
         mb_info : dict
@@ -98,23 +79,21 @@ class Arduino(PynqMicroblaze):
             IP name and the reset name.
         mb_program : str
             The Microblaze program loaded for the processor.
-        intr_pin : str
-            Name of the interrupt pin for the Microblaze.
-        intr_ack_gpio : int
-            Number of the GPIO pin used to clear the interrupt.
 
-        Raises
-        ------
-        ValueError
-            When the `ip_name` or the `rst_name` cannot be found in the PL.
-        RuntimeError
-            When another Microblaze program is already loaded.
+        Examples
+        --------
+        The `mb_info` is a dictionary storing Microblaze information:
+
+        >>> mb_info = {'ip_name': 'mb_bram_ctrl_3',
+        'rst_name': 'mb_reset_3', 
+        'intr_pin_name': 'iop3/dff_en_reset_0/q', 
+        'intr_ack_name': 'mb_3_intr_ack'}
 
         """
         if not os.path.isabs(mb_program):
             mb_program = os.path.join(BIN_LOCATION, mb_program)
 
-        super().__init__(mb_info, mb_program, intr_pin, intr_ack_pin)
+        super().__init__(mb_info, mb_program)
 
     def write_mailbox(self, data_offset, data):
         """This method write data into the mailbox of the Microblaze.

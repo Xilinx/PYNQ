@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .__const__ import *
+from .constants import *
 from .pmod import Pmod
 from .pmod_devmode import PmodDevMode
 from .pmod_adc import PmodADC

@@ -28,8 +28,8 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .intf_const import *
-from .intf_microblaze import IntfMicroblaze
+from .constants import *
+from .intf import Intf
 from .waveform import Waveform
 from .boolean_builder import BooleanBuilder
 from .pattern_builder import PatternBuilder
