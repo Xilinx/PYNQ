@@ -98,5 +98,12 @@ checkenv:
 	${QEMU_EXE} -version | fgrep 2.8.0
 	vivado -version | fgrep 2016.1
 	sudo -n true
+	bash ${SCRIPT_DIR}/check_mounts.sh
 
-.PHONY: checkenv
+clean: checkenv
+	-rm -rf .build rootfs.img
+
+distclean: clean
+	-rm -rf .ccache
+
+.PHONY: checkenv clean distclean
