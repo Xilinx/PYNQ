@@ -1,0 +1,4 @@
+ddr=00:0a:35:00:01:22
+kernel_image=uImage
+devicetree_image=devicetree.dtb
+sdboot=if mmcinfo; then echo UENV Copying Linux from SD to RAM... && load mmc 0 0x3000000 ${kernel_image} && load mmc 0 0x2A00000 ${devicetree_image} && bootm 0x3000000 - 0x2A00000; fi

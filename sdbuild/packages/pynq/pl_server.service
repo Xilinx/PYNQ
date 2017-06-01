@@ -1,0 +1,10 @@
+[Unit]
+Description=PYNQ PL Server
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/pl_server.sh
+ExecStop=/opt/python3.6/bin/python3.6 /opt/python3.6/bin/stop_pl_server.py
+
+[Install]
+WantedBy=basic.target

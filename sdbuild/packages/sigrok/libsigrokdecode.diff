@@ -1,0 +1,185 @@
+diff -ur a/libsigrokdecode-0.3.0/decoders/i2c/pd.py b/libsigrokdecode-0.3.0/decoders/i2c/pd.py
+--- a/libsigrokdecode-0.3.0/decoders/i2c/pd.py	2014-05-06 22:09:08.000000000 +0100
++++ b/libsigrokdecode-0.3.0/decoders/i2c/pd.py	2017-01-19 10:32:39.048170100 +0000
+@@ -164,7 +164,12 @@
+         self.pdu_bits = 0
+         cmd = 'START REPEAT' if (self.is_repeat_start == 1) else 'START'
+         self.putp([cmd, None])
+-        self.putx([proto[cmd][0], proto[cmd][1:]])
++        
++        # Adding starting and ending sample numbers
++        temp_list = proto[cmd][1:]
++        temp_list[0] = str(self.ss) + '-' + str(self.es) + '  ' + temp_list[0]
++        self.putx([proto[cmd][0], temp_list])
++        
+         self.state = 'FIND ADDRESS'
+         self.bitcount = self.databyte = 0
+         self.is_repeat_start = 1
+@@ -232,8 +237,11 @@
+             self.putx([proto[cmd][0], w])
+             self.ss, self.es = self.byte_ss, self.samplenum
+ 
+-        self.putx([proto[cmd][0], ['%s: %02X' % (proto[cmd][1], d),
+-                   '%s: %02X' % (proto[cmd][2], d), '%02X' % d]])
++        # Adding starting and ending sample numbers
++        temp_list = ['%s: %02X' % (proto[cmd][1], d),
++                     '%s: %02X' % (proto[cmd][2], d), '%02X' % d]
++        temp_list[0] = str(self.ss) + '-' + str(self.es) + '  ' + temp_list[0]
++        self.putx([proto[cmd][0], temp_list])
+ 
+         # Done with this packet.
+         self.bitcount = self.databyte = 0
+@@ -244,7 +252,12 @@
+         self.ss, self.es = self.samplenum, self.samplenum + self.bitwidth
+         cmd = 'NACK' if (sda == 1) else 'ACK'
+         self.putp([cmd, None])
+-        self.putx([proto[cmd][0], proto[cmd][1:]])
++        
++        # Adding starting and ending sample numbers
++        temp_list = proto[cmd][1:]
++        temp_list[0] = str(self.ss) + '-' + str(self.es) + '  ' + temp_list[0]
++        self.putx([proto[cmd][0], temp_list])
++        
+         # There could be multiple data bytes in a row, so either find
+         # another data byte or a STOP condition next.
+         self.state = 'FIND DATA'
+@@ -258,7 +271,12 @@
+         cmd = 'STOP'
+         self.ss, self.es = self.samplenum, self.samplenum
+         self.putp([cmd, None])
+-        self.putx([proto[cmd][0], proto[cmd][1:]])
++        
++        # Adding starting and ending sample numbers
++        temp_list = proto[cmd][1:]
++        temp_list[0] = str(self.ss) + '-' + str(self.es) + '  ' + temp_list[0]
++        self.putx([proto[cmd][0], temp_list])
++        
+         self.state = 'FIND START'
+         self.is_repeat_start = 0
+         self.wr = -1
+diff -ur a/libsigrokdecode-0.3.0/decoders/spi/pd.py b/libsigrokdecode-0.3.0/decoders/spi/pd.py
+--- a/libsigrokdecode-0.3.0/decoders/spi/pd.py	2014-05-06 22:09:08.000000000 +0100
++++ b/libsigrokdecode-0.3.0/decoders/spi/pd.py	2017-01-19 10:32:39.086170100 +0000
+@@ -34,7 +34,7 @@
+    channel was not supplied.
+  - 'BITS': <data1>/<data2> contain a list of bit values in this MISO/MOSI data
+    item, and for each of those also their respective start-/endsample numbers.
+- - 'CS CHANGE': <data1> is the old CS# pin value, <data2> is the new value.
++ - 'CS CHANGE': <data1> is the old CS pin value, <data2> is the new value.
+    Both data items are Python numbers (0/1), not strings.
+ 
+ Examples:
+@@ -75,10 +75,10 @@
+     optional_channels = (
+         {'id': 'miso', 'name': 'MISO', 'desc': 'Master in, slave out'},
+         {'id': 'mosi', 'name': 'MOSI', 'desc': 'Master out, slave in'},
+-        {'id': 'cs', 'name': 'CS#', 'desc': 'Chip-select'},
++        {'id': 'cs', 'name': 'CS', 'desc': 'Chip-select'},
+     )
+     options = (
+-        {'id': 'cs_polarity', 'desc': 'CS# polarity', 'default': 'active-low',
++        {'id': 'cs_polarity', 'desc': 'CS polarity', 'default': 'active-low',
+             'values': ('active-low', 'active-high')},
+         {'id': 'cpol', 'desc': 'Clock polarity', 'default': 0,
+             'values': (0, 1)},
+@@ -112,6 +112,7 @@
+         self.mosibits = []
+         self.startsample = -1
+         self.samplenum = -1
++        self.ss = self.es = -1
+         self.cs_was_deasserted = False
+         self.oldcs = -1
+         self.oldpins = None
+@@ -139,12 +140,12 @@
+         si_bits = self.mosibits if self.have_mosi else None
+ 
+         if self.have_miso:
+-            ss, es = self.misobits[-1][1], self.misobits[0][2]
++            self.ss, self.es = self.misobits[-1][1], self.misobits[0][2]
+         if self.have_mosi:
+-            ss, es = self.mosibits[-1][1], self.mosibits[0][2]
++            self.ss, self.es = self.mosibits[-1][1], self.mosibits[0][2]
+ 
+-        self.put(ss, es, self.out_python, ['BITS', si_bits, so_bits])
+-        self.put(ss, es, self.out_python, ['DATA', si, so])
++        self.put(self.ss, self.es, self.out_python, ['BITS', si_bits, so_bits])
++        self.put(self.ss, self.es, self.out_python, ['DATA', si, so])
+ 
+         # Bit annotations.
+         if self.have_miso:
+@@ -154,11 +155,15 @@
+             for bit in self.mosibits:
+                 self.put(bit[1], bit[2], self.out_ann, [3, ['%d' % bit[0]]])
+ 
+-        # Dataword annotations.
++        # Dataword annotations: adding sample numbers
+         if self.have_miso:
+-            self.put(ss, es, self.out_ann, [0, ['%02X' % self.misodata]])
++            self.put(self.ss, self.es, self.out_ann, 
++                    [0, [str(self.ss) + '-' + str(self.es) + \
++                    '  ' + 'MISO: %02X' % self.misodata]])
+         if self.have_mosi:
+-            self.put(ss, es, self.out_ann, [1, ['%02X' % self.mosidata]])
++            self.put(self.ss, self.es, self.out_ann, 
++                    [1, [str(self.ss) + '-' + str(self.es) + \
++                    '  ' + 'MOSI: %02X' % self.mosidata]])
+ 
+     def reset_decoder_state(self):
+         self.misodata = 0 if self.have_miso else None
+@@ -195,17 +200,17 @@
+                 self.mosidata |= mosi << self.bitcount
+ 
+         # Guesstimate the endsample for this bit (can be overridden below).
+-        es = self.samplenum
++        self.es = self.samplenum
+         if self.bitcount > 0:
+             if self.have_miso:
+-                es += self.samplenum - self.misobits[0][1]
++                self.es += self.samplenum - self.misobits[0][1]
+             elif self.have_mosi:
+-                es += self.samplenum - self.mosibits[0][1]
++                self.es += self.samplenum - self.mosibits[0][1]
+ 
+         if self.have_miso:
+-            self.misobits.insert(0, [miso, self.samplenum, es])
++            self.misobits.insert(0, [miso, self.samplenum, self.es])
+         if self.have_mosi:
+-            self.mosibits.insert(0, [mosi, self.samplenum, es])
++            self.mosibits.insert(0, [mosi, self.samplenum, self.es])
+ 
+         if self.bitcount > 0 and self.have_miso:
+             self.misobits[1][2] = self.samplenum
+@@ -227,17 +232,19 @@
+         self.put(self.startsample, self.samplenum, self.out_bitrate, bitrate)
+ 
+         if self.have_cs and self.cs_was_deasserted:
+-            self.putw([4, ['CS# was deasserted during this data word!']])
+-
++            self.putw([4, [str(self.ss) + '-' + str(self.es) + \
++                        '  ' + 'CS was deasserted during this data word!']])
++                        
+         self.reset_decoder_state()
+ 
+     def find_clk_edge(self, miso, mosi, clk, cs):
+         if self.have_cs and self.oldcs != cs:
+-            # Send all CS# pin value changes.
++            # Send all CS pin value changes.
+             self.put(self.samplenum, self.samplenum, self.out_python,
+-                     ['CS-CHANGE', self.oldcs, cs])
++                     [str(self.samplenum) + '-' + str(self.samplenum) + \
++                     '  ' + 'CS-CHANGE', self.oldcs, cs])
+             self.oldcs = cs
+-            # Reset decoder state when CS# changes (and the CS# pin is used).
++            # Reset decoder state when CS changes (and the CS pin is used).
+             self.reset_decoder_state()
+ 
+         # Ignore sample if the clock pin hasn't changed.
+@@ -263,7 +270,7 @@
+     def decode(self, ss, es, data):
+         if self.samplerate is None:
+             raise Exception("Cannot decode without samplerate.")
+-        # Either MISO or MOSI can be omitted (but not both). CS# is optional.
++        # Either MISO or MOSI can be omitted (but not both). CS is optional.
+         for (self.samplenum, pins) in data:
+ 
+             # Ignore identical samples early on (for performance reasons).
