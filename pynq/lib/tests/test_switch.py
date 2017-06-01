@@ -27,13 +27,15 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import pytest
 from pynq.board import Switch
+
+
+__author__ = "Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
     
 @pytest.mark.run(order=8)
 def test_switch_all():
@@ -47,9 +49,9 @@ def test_switch_all():
     input("Then hit enter...")
     switches = [Switch(index) for index in range(2)] 
     for index in range(2):
-        assert switches[index].read()==0, \
+        assert switches[index].read() == 0, \
             "Switch {} reads wrong values.".format(index)
     input("Now switch them on (upper position) and hit enter...")
     for index in range(2):
-        assert switches[index].read()==1, \
+        assert switches[index].read() == 1, \
             "Switch {} reads wrong values.".format(index)

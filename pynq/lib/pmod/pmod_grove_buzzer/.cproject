@@ -30,7 +30,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.1275212156" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.772363899" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1571417352" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/include"/>
 								</option>
 								<inputType id="xilinx.gnu.compiler.input.1662327031" name="C source files" superClass="xilinx.gnu.compiler.input"/>
 							</tool>
@@ -41,7 +41,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.2104727442" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.1405700348" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.981793852" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/include"/>
 								</option>
 							</tool>
 							<tool id="xilinx.gnu.mb.toolchain.archiver.1733775023" name="MicroBlaze archiver" superClass="xilinx.gnu.mb.toolchain.archiver"/>
@@ -50,7 +50,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.1814743886" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.2138726069" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1124416547" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1735166350" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>
@@ -67,7 +67,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.701945854" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.2146786634" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1021895728" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.2090556194" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>
@@ -110,7 +110,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.1650769050" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.1448354796" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1584903155" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/include"/>
 								</option>
 								<inputType id="xilinx.gnu.compiler.input.1186178862" name="C source files" superClass="xilinx.gnu.compiler.input"/>
 							</tool>
@@ -121,7 +121,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.2013963603" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.1263678292" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1073465960" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/include"/>
 								</option>
 							</tool>
 							<tool id="xilinx.gnu.mb.toolchain.archiver.124755409" name="MicroBlaze archiver" superClass="xilinx.gnu.mb.toolchain.archiver"/>
@@ -130,7 +130,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.48863956" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.1514360435" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1004260571" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.658637700" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>
@@ -147,7 +147,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.1875311477" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.1984955028" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1272948903" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_pmod/iop1_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_pmod_iop/iop1_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1308819240" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>

@@ -27,18 +27,21 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Anurag Dubey"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 import os
 import signal
 import sys
 import cffi
 import resource
 
+
+__author__ = "Anurag Dubey"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
 if os.getuid() != 0:
     raise RuntimeError("Root permission needed by the library.")
+
 
 def sig_handler(signum, frame):
     print("Invalid Memory Access!")

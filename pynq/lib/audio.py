@@ -27,10 +27,6 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Benedikt Janssen"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 import os
 import math
 import numpy
@@ -41,7 +37,13 @@ from pynq import PL
 from pynq import GPIO
 from pynq import MMIO
 
+__author__ = "Benedikt Janssen"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
+
 
 class Audio:
     """Class to interact with audio controller.
@@ -63,7 +65,7 @@ class Audio:
         Sample length of the current buffer content.
         
     """
-    def __init__(self, ip='SEG_d_axi_pdm_1_S_AXI_reg',
+    def __init__(self, ip='audio/d_axi_pdm_1',
                  rst="audio_path_sel"):
         """Return a new Audio object.
         
@@ -82,8 +84,9 @@ class Audio:
         if rst not in PL.gpio_dict:
             raise LookupError("No such reset pin in the overlay.")
 
-        self.mmio = MMIO(PL.ip_dict[ip][0], PL.ip_dict[ip][1])
-        self.gpio = GPIO(GPIO.get_gpio_pin(PL.gpio_dict[rst][0]), 'out')
+        self.mmio = MMIO(PL.ip_dict[ip]['phys_addr'],
+                         PL.ip_dict[ip]['addr_range'])
+        self.gpio = GPIO(GPIO.get_gpio_pin(PL.gpio_dict[rst]['index']), 'out')
         
         self._ffi = cffi.FFI()
         self._libaudio = self._ffi.dlopen(LIB_SEARCH_PATH + "/libaudio.so")
@@ -97,8 +100,8 @@ class Audio:
                                           unsigned int * BufAddr, 
                                           unsigned int Num_Samles_32Bit);""")
         
-        char_adrp  = self._ffi.from_buffer(self.mmio.mem)
-        self._uint_adrpv  = self._ffi.cast('unsigned int', char_adrp)
+        char_adrp = self._ffi.from_buffer(self.mmio.mem)
+        self._uint_adrpv = self._ffi.cast('unsigned int', char_adrp)
         
         self.buffer = numpy.zeros(0).astype(numpy.int)
         self.sample_rate = 0
@@ -120,14 +123,14 @@ class Audio:
         
         """
         if not 0 < seconds <= 60:
-            raise ValueError("Recording time has to be in (0,60].")
+            raise ValueError("Recording time has to be in (0, 60].")
             
         num_samples_32b = math.ceil(seconds * 192000)
         
         # Create data buffer
         self.buffer = numpy.zeros(num_samples_32b, dtype=numpy.int)
-        char_datp  = self._ffi.from_buffer(self.buffer)
-        uint_datp  = self._ffi.cast('unsigned int*', char_datp)
+        char_datp = self._ffi.from_buffer(self.buffer)
+        uint_datp = self._ffi.cast('unsigned int*', char_datp)
         
         # Record
         start = time.time()
@@ -145,14 +148,11 @@ class Audio:
         None
         
         """
-        char_datp  = self._ffi.from_buffer(self.buffer)
-        uint_datp  = self._ffi.cast('unsigned int*', char_datp)
-        
-        char_adrp  = self._ffi.from_buffer(self.mmio.mem)
-        uint_adrp  = self._ffi.cast('unsigned int', char_adrp)
+        char_datp = self._ffi.from_buffer(self.buffer)
+        uint_datp = self._ffi.cast('unsigned int*', char_datp)
         
         self._libaudio._Pynq_play(self._uint_adrpv, uint_datp, 
-                                       len(self.buffer))
+                                  len(self.buffer))
         
     def bypass_start(self):
         """Stream audio controller input directly to output.
@@ -198,7 +198,7 @@ class Audio:
         """
         if self.buffer.dtype.type != numpy.int32:
             raise ValueError("Internal audio buffer should be of type int32.")
-        if not isinstance(file, str) :
+        if not isinstance(file, str):
             raise ValueError("File name has to be a string.")
         
         if os.path.isdir(os.path.dirname(file)):
@@ -240,7 +240,7 @@ class Audio:
         None
         
         """
-        if not isinstance(file, str) :
+        if not isinstance(file, str):
             raise ValueError("File name has to be a string.")
             
         if os.path.isdir(os.path.dirname(file)):
@@ -276,7 +276,7 @@ class Audio:
         None
         
         """
-        if not isinstance(file, str) :
+        if not isinstance(file, str):
             raise ValueError("File name has to be a string.")
             
         if os.path.isdir(os.path.dirname(file)):
@@ -292,4 +292,3 @@ class Audio:
             print("Number of frames:   " + str(pdm_file.getnframes()))
             print("Compression type:   " + str(pdm_file.getcomptype()))
             print("Compression name:   " + str(pdm_file.getcompname()))
-            

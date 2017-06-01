@@ -27,11 +27,6 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2015, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
-
 import sys
 import select
 import termios
@@ -39,6 +34,12 @@ from time import sleep
 import pytest
 from pynq.board import RGBLED
 from pynq.tests.util import user_answer_yes
+
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2015, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 @pytest.mark.run(order=7)
 def test_rgbleds():
@@ -48,11 +49,11 @@ def test_rgbleds():
     on it to test the API, requesting user confirmation.
     
     """     
-    rgbleds = [RGBLED(index) for index in [4,5]]
+    rgbleds = [RGBLED(index) for index in [4, 5]]
     
     for rgbled in rgbleds:
         rgbled.off()
-        assert rgbled.read()==0, 'Wrong state for RGBLED.'
+        assert rgbled.read() == 0, 'Wrong state for RGBLED.'
         
     print("\nShowing 7 colors of RGBLED. Press enter to stop...", end="")
     color = 0
@@ -60,7 +61,7 @@ def test_rgbleds():
         color = (color + 1) % 8
         for rgbled in rgbleds:
             rgbled.write(color)
-            assert rgbled.read()==color, 'Wrong state for RGBLED.'
+            assert rgbled.read() == color, 'Wrong state for RGBLED.'
         sleep(0.5)
         if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
             termios.tcflush(sys.stdin, termios.TCIOFLUSH)
@@ -68,6 +69,6 @@ def test_rgbleds():
             
     for rgbled in rgbleds:
         rgbled.off()
-        assert rgbled.read()==0, 'Wrong state for RGBLED.'
+        assert rgbled.read() == 0, 'Wrong state for RGBLED.'
         
     assert user_answer_yes("RGBLEDs showing 7 colors during the test?")

@@ -27,10 +27,6 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2015, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import sys
 import select
@@ -39,6 +35,11 @@ from time import sleep
 import pytest
 from pynq.board import LED
 from pynq.tests.util import user_answer_yes
+
+__author__ = "Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2015, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 @pytest.mark.run(order=5)
 def test_leds_on():
@@ -54,19 +55,20 @@ def test_leds_on():
         
     led = leds[0]
     led.on()
-    assert led.read()==1 
+    assert led.read() == 1
     assert user_answer_yes("\nOnboard LED 0 on?")
     led.off()
-    assert led.read()==0
+    assert led.read() == 0
     assert user_answer_yes("Onboard LED 0 off?")
     led.toggle()
-    assert led.read()==1
+    assert led.read() == 1
     led.write(0)
-    assert led.read()==0
+    assert led.read() == 0
     led.write(1)
-    assert led.read()==1
+    assert led.read() == 1
     led.off()
-    
+
+
 @pytest.mark.run(order=6)
 def test_leds_toggle():
     """Test for the LED class and its wrapper functions.
@@ -76,7 +78,7 @@ def test_leds_toggle():
     """
     leds = [LED(index) for index in range(4)]
     
-    print("\nToggling onboard LEDs. Press enter to stop toggling...",end='')
+    print("\nToggling onboard LEDs. Press enter to stop toggling...", end='')
     for i in range(4):
         leds[i].write(i % 2)
     while True:

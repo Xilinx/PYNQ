@@ -30,7 +30,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.1458657140" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.1207262452" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.830858164" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/include"/>
 								</option>
 								<inputType id="xilinx.gnu.compiler.input.1892865713" name="C source files" superClass="xilinx.gnu.compiler.input"/>
 							</tool>
@@ -41,7 +41,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.190970185" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.544191794" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.927983551" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/include"/>
 								</option>
 							</tool>
 							<tool id="xilinx.gnu.mb.toolchain.archiver.957513216" name="MicroBlaze archiver" superClass="xilinx.gnu.mb.toolchain.archiver"/>
@@ -50,7 +50,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.1102561531" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.2037533189" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.355681251" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1086918013" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>
@@ -67,7 +67,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.348375083" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.2144332049" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1840565551" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1600958410" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>
@@ -110,7 +110,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.1083130242" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.1639377472" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.189598633" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/include"/>
 								</option>
 								<inputType id="xilinx.gnu.compiler.input.1261696113" name="C source files" superClass="xilinx.gnu.compiler.input"/>
 							</tool>
@@ -121,7 +121,7 @@
 								<option id="xilinx.gnu.mb.compiler.inferred.norelax.1617036992" superClass="xilinx.gnu.mb.compiler.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.658989013" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.129100023" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/include"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/include"/>
 								</option>
 							</tool>
 							<tool id="xilinx.gnu.mb.toolchain.archiver.539568528" name="MicroBlaze archiver" superClass="xilinx.gnu.mb.toolchain.archiver"/>
@@ -130,7 +130,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.1452520924" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.1228371475" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1732412858" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.602485572" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>
@@ -147,7 +147,7 @@
 								<option id="xilinx.gnu.mb.linker.inferred.norelax.1349510457" superClass="xilinx.gnu.mb.linker.inferred.norelax" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.1613671240" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1034140823" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../../bsp_arduino/iop3_mb/lib"/>
+									<listOptionValue builtIn="false" value="../../bsp_arduino_iop/iop3_mb/lib"/>
 								</option>
 								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1928861639" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lgcc,-lc,--end-group"/>
