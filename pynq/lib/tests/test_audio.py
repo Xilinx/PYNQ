@@ -27,21 +27,23 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
-
 import os
 import sys
 import select
 import termios
 import pytest
 from pynq import PL
-from pynq.drivers import Audio 
+from pynq.drivers import Audio
 from pynq.tests.util import user_answer_yes
 
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
 flag = user_answer_yes("\nAUDIO OUT connected?")
+
 
 @pytest.mark.run(order=31)
 @pytest.mark.skipif(not flag, reason="need audio out attached")
@@ -54,9 +56,11 @@ def test_audio_out():
     """
     audio_t = Audio()
     
-    assert audio_t.mmio.base_addr==PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][0],\
+    assert audio_t.mmio.base_addr == \
+        PL.ip_dict['audio/d_axi_pdm_1']['phys_addr'],\
         'Wrong base address for audio IP.'
-    assert audio_t.mmio.length==PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][1],\
+    assert audio_t.mmio.length == \
+        PL.ip_dict['audio/d_axi_pdm_1']['addr_range'],\
         'Wrong address range for audio IP.'
     
     print("\nSpeaking into the MIC for 5 seconds...")
@@ -66,6 +70,7 @@ def test_audio_out():
     assert user_answer_yes("Heard playback on AUDIO OUT?")
     
     del audio_t
+
 
 @pytest.mark.run(order=32)
 @pytest.mark.skipif(not flag, reason="need audio out attached")
@@ -98,4 +103,3 @@ def test_audio_playback():
     
     os.remove("/home/xilinx/pynq/drivers/tests/recorded.pdm")
     del audio_t
-    

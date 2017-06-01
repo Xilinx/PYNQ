@@ -77,7 +77,8 @@ pynq_package:
 	@echo
 	-${PYNQ_PYTHON} /home/xilinx/scripts/stop_pl_server.py
 	-rm -rf ${PYNQ_DIR}/*
-	cp -rf ${REPO_DIR}/${BOARD}/sdk/bin/*.bin ${REPO_DIR}/python/pynq/iop/
+	cp -rf ${REPO_DIR}/${BOARD}/sdk/bin_iop/*.bin ${REPO_DIR}/python/pynq/iop/
+	cp -rf ${REPO_DIR}/${BOARD}/sdk/bin_intf/*.bin ${REPO_DIR}/python/pynq/intf/
 	cp -rf ${REPO_DIR}/${BOARD}/bitstream ${REPO_DIR}/python/pynq/
 	cd ${REPO_DIR}/python ; sudo -H ${PYNQ_PYTHON} -m pip install --upgrade .
 	${PYNQ_PYTHON} /home/xilinx/scripts/start_pl_server.py &

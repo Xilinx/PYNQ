@@ -27,13 +27,14 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
-
 import pytest
 from pynq.board import Button
+
+
+__author__ = "Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 @pytest.mark.run(order=9)
 def test_btn_all():
@@ -46,10 +47,10 @@ def test_btn_all():
     buttons = [Button(index) for index in range(4)]
     print("")
     for index in range(4):
-        assert buttons[index].read()==0, \
+        assert buttons[index].read() == 0, \
             "Button {} reads wrong values.".format(index)
     for index in range(4):
         input("Hit enter while pressing Button {0} (BTN{0})...".format(index))
-        assert buttons[index].read()==1, \
+        assert buttons[index].read() == 1, \
             "Button {} reads wrong values.".format(index)
 
