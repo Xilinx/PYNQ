@@ -31,10 +31,11 @@ import os
 import re
 import mmap
 import math
+from copy import deepcopy
 from datetime import datetime
 from multiprocessing.connection import Listener
 from multiprocessing.connection import Client
-from pynq import MMIO
+from .mmio import MMIO
 from .ps import Clocks
 
 __author__ = "Yun Rock Qu"
@@ -142,7 +143,8 @@ class _TCL:
         # Key strings to search for in the TCL file
         hier_start_pat = "create_hier_cell"
         hier_end_pat = "}\n"
-        hier_regex = "proc create_hier_cell_([^ ]*)"
+        hier_outer_pattern = "proc "
+        hier_inner_regex = "create_hier_cell_([^ ]*)"
         config_pat = "CONFIG."
         config_regex = "CONFIG.(.+?) \{(.+?)\}"
         clk_divisor_regex = 'PCW_FCLK(.+?)_PERIPHERAL_DIVISOR(.+?)'
@@ -158,61 +160,73 @@ class _TCL:
                      "\[get_bd_addr_spaces "
         ip_pat = "create_bd_cell -type ip -vlnv "
         ip_regex = "create_bd_cell -type ip -vlnv " + \
-                   "(.+?):(.+?):(.+?):(.+?) (.+?) "
+                   "(.+?):(.+?):(.+?):(.+?) ([^ ]*)"
 
         # Parsing state
         current_hier = ""
         last_concat = ""
         in_prop = False
         gpio_idx = None
-        ip_dict = {}
-        gpio_dict = {}
+        gpio_dict = dict()
+        hier_dict = dict()
+        hier_dict[current_hier] = dict()
 
         with open(tcl_name, 'r') as f:
             for line in f:
-                if not line.lstrip().startswith('#'):
+                if not line.lstrip().startswith('#') and \
+                        not line.lstrip().startswith('catch'):
                     # Matching address segment
                     if not in_prop and addr_pat in line:
                         m = re.search(addr_regex, line, re.IGNORECASE)
                         if m:
-                            for key, value in ip_dict.items():
-                                if m.group(3).startswith(key):
-                                    self.ip_dict[key] = dict()
-                                    self.ip_dict[key]['phys_addr'] = \
-                                        int(m.group(2), 16)
-                                    self.ip_dict[key]['addr_range'] = \
-                                        int(m.group(1), 16)
-                                    self.ip_dict[key]['type'] = \
-                                        value
-                                    self.ip_dict[key]['state'] = None
+                            for ip_dict0 in hier_dict:
+                                for ip_name, ip_type in \
+                                        hier_dict[ip_dict0].items():
+                                    ip = (ip_dict0 + '/' + ip_name).lstrip('/')
+                                    if m.group(3).startswith(ip):
+                                        self.ip_dict[ip] = dict()
+                                        self.ip_dict[ip]['phys_addr'] = \
+                                            int(m.group(2), 16)
+                                        self.ip_dict[ip]['addr_range'] = \
+                                            int(m.group(1), 16)
+                                        self.ip_dict[ip]['type'] = ip_type
+                                        self.ip_dict[ip]['state'] = None
 
                     # Matching hierarchical cell
                     elif not in_prop and hier_start_pat in line:
-                        m = re.search(hier_regex, line)
-                        if m:
-                            current_hier = m.group(1) + "/"
+                        m = re.search(hier_inner_regex, line)
+                        if m and hier_outer_pattern in line:
+                            current_hier = m.group(1)
+                            hier_dict[current_hier] = {}
+                        elif m and hier_outer_pattern not in line:
+                            if m.group(1) in hier_dict:
+                                new_name = current_hier + '/' + m.group(1)
+                                hier_dict[new_name] = deepcopy(
+                                    hier_dict[m.group(1)])
                     elif not in_prop and hier_end_pat == line:
                         current_hier = ""
 
                     # Matching IP cells in root design
                     elif not in_prop and ip_pat in line:
                         m = re.search(ip_regex, line)
-                        hier_name = current_hier + m.group(5)
                         if m.group(3) == "processing_system7":
-                            self.ps7_name = hier_name
+                            self.ps7_name = m.group(5)
                             addr_regex += (self.ps7_name + "/Data\] " +
                                            "\[get_bd_addr_segs (.+?)\] " +
                                            "([A-Za-z0-9_]+)")
                         else:
-                            ip_type = ':'.join([m.group(1), m.group(2),
-                                                m.group(3), m.group(4)])
-                            ip_dict[hier_name] = ip_type
+                            ip_type = ':'.join([m.group(1),
+                                                m.group(2),
+                                                m.group(3),
+                                                m.group(4)])
+                            ip_name = m.group(5)
+                            hier_dict[current_hier][ip_name] = ip_type
+                            ip = (current_hier + '/' + ip_name).lstrip('/')
                             if m.group(3) == "xlconcat":
-                                last_concat = current_hier + m.group(5)
-                                self.concat_cells[last_concat] = 2
+                                last_concat = ip
+                                self.concat_cells[ip] = 2
                             elif m.group(3) == "axi_intc":
-                                self.intc_names.append(current_hier +
-                                                       m.group(5))
+                                self.intc_names.append(ip)
 
                     # Matching nets
                     elif not in_prop and net_pat in line:
@@ -560,8 +574,8 @@ class PLMeta(type):
         """
         cls.client_request()
         with open(data, 'rb') as bin_file:
-            size = (math.ceil(os.fstat(bin_file.fileno()).st_size /
-                              mmap.PAGESIZE)) * mmap.PAGESIZE
+            size = int((math.ceil(os.fstat(bin_file.fileno()).st_size /
+                              mmap.PAGESIZE)) * mmap.PAGESIZE)
             mmio = MMIO(cls._ip_dict[ip_name]['phys_addr'], size)
             buf = bin_file.read(size)
             mmio.write(0, buf)
@@ -655,7 +669,9 @@ class Bitstream(PL):
             raise TypeError("Bitstream name has to be a string.")
 
         bitfile_abs = os.path.abspath(bitfile_name)
-        bitfile_overlay_abs = os.path.join(PYNQ_PATH, bitfile_name.replace('.bit', ''), bitfile_name)
+        bitfile_overlay_abs = os.path.join(PYNQ_PATH,
+                                           bitfile_name.replace('.bit', ''),
+                                           bitfile_name)
 
         if os.path.isfile(bitfile_name):
             self.bitfile_name = bitfile_abs
@@ -797,17 +813,6 @@ class Overlay(PL):
 
         """
         super().__init__()
-
-        # # Set the bitfile name
-        # if not isinstance(bitfile_name, str):
-        #     raise TypeError("Bitstream name has to be a string.")
-        # if os.path.isfile(bitfile_name):
-        #     self.bitfile_name = bitfile_name
-        # elif os.path.isfile(BS_SEARCH_PATH + bitfile_name):
-        #     self.bitfile_name = BS_SEARCH_PATH + bitfile_name
-        # else:
-        #     raise IOError('Bitstream file {} does not exist.'
-        #                   .format(bitfile_name))
 
         # Set the bitstream
         self.bitstream = Bitstream(bitfile_name)
