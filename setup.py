@@ -134,7 +134,7 @@ def fill_notebooks_dir():
 
     # boards/BOARD/OVERLAY_NAME/notebooks/*
     for ol, nb_dir in overlay_notebook_folders:
-        pynq_notebook_files.extend([(os.path.join(notebooks_dir, root.replace(nb_dir, f'{ol}/')),
+        pynq_notebook_files.extend([(os.path.join(notebooks_dir, root.replace(nb_dir, '{}/'.format(ol))),
                                      [os.path.join(root, f) for f in files]) for root, dirs, files in os.walk(nb_dir)])
 
     # docs/source/<subset of notebooks>
@@ -157,7 +157,8 @@ def fill_notebooks_dir():
 
     # rename and copy getting started notebooks
     for ix, getting_started_nb in enumerate(getting_started_notebooks):
-        new_nb_name = f'{ix+1}_{getting_started_nb.split("_",1)[1]}'
+        base_name = getting_started_nb.split("_",1)[1]
+        new_nb_name = '{}_{}'.format(ix+1, base_name)
         src_file = os.path.join(notebooks_getting_started_dir, getting_started_nb)
         dst_file = os.path.join(notebooks_getting_started_dir, new_nb_name)
         shutil.move(src_file, dst_file)
@@ -187,12 +188,33 @@ def run_make(src_path, dst_path, output_lib):
 
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install':
-    run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
-    run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    try:
+        run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
+    except:
+        print('Unable to build DMA library')
+    
+    try:
+        run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    except:
+        print('Unable to build Audio library')                                        
 
     backup_notebooks()
     fill_notebooks_dir()
 
+arch = os.uname()[-1]
+# if x86, assume ReadTheDocs and don't build external modules
+if arch in ('x86_64'):
+    external_modules=[]
+else:
+    external_modules=[
+        Extension('pynq.lib._video', video,
+                 include_dirs=['pynq/lib/_pynq/inc',
+                               'pynq/lib/_pynq/bsp/ps7_cortexa9_0/include'],
+                 libraries=['sds_lib'],
+                 library_dirs=['/usr/lib'],
+                 ),
+      ]
+ 
 setup(name='pynq',
       version='1.5',
       description='Python for Xilinx package',
@@ -204,13 +226,6 @@ setup(name='pynq',
       package_data={
           '': ['tests/*', 'js/*', '*.bin', '*.so', 'bitstream/*', '*.pdm'],
       },
-      ext_modules=[
-          Extension('pynq.lib._video', video,
-                    include_dirs=['pynq/lib/_pynq/inc',
-                                  'pynq/lib/_pynq/bsp/ps7_cortexa9_0/include'],
-                    libraries=['sds_lib'],
-                    library_dirs=['/usr/lib'],
-                    ),
-      ],
+      ext_modules=external_modules,
       data_files=pynq_data_files
       )
