@@ -168,106 +168,109 @@ class _TCL:
         ip_dict = {}
         gpio_dict = {}
 
-        with open(tcl_name, 'r') as f:
-            for line in f:
-                if not line.lstrip().startswith('#'):
-                    # Matching address segment
-                    if not in_prop and addr_pat in line:
-                        m = re.search(addr_regex, line, re.IGNORECASE)
-                        if m:
-                            for key, value in ip_dict.items():
-                                if m.group(3).startswith(key):
-                                    self.ip_dict[key] = dict()
-                                    self.ip_dict[key]['phys_addr'] = \
-                                        int(m.group(2), 16)
-                                    self.ip_dict[key]['addr_range'] = \
-                                        int(m.group(1), 16)
-                                    self.ip_dict[key]['type'] = \
-                                        value
-                                    self.ip_dict[key]['state'] = None
+        try:
+            with open(tcl_name, 'r') as f:
+                for line in f:
+                    if not line.lstrip().startswith('#'):
+                        # Matching address segment
+                        if not in_prop and addr_pat in line:
+                            m = re.search(addr_regex, line, re.IGNORECASE)
+                            if m:
+                                for key, value in ip_dict.items():
+                                    if m.group(3).startswith(key):
+                                        self.ip_dict[key] = dict()
+                                        self.ip_dict[key]['phys_addr'] = \
+                                            int(m.group(2), 16)
+                                        self.ip_dict[key]['addr_range'] = \
+                                            int(m.group(1), 16)
+                                        self.ip_dict[key]['type'] = \
+                                            value
+                                        self.ip_dict[key]['state'] = None
 
-                    # Matching hierarchical cell
-                    elif not in_prop and hier_start_pat in line:
-                        m = re.search(hier_regex, line)
-                        if m:
-                            current_hier = m.group(1) + "/"
-                    elif not in_prop and hier_end_pat == line:
-                        current_hier = ""
+                        # Matching hierarchical cell
+                        elif not in_prop and hier_start_pat in line:
+                            m = re.search(hier_regex, line)
+                            if m:
+                                current_hier = m.group(1) + "/"
+                        elif not in_prop and hier_end_pat == line:
+                            current_hier = ""
 
-                    # Matching IP cells in root design
-                    elif not in_prop and ip_pat in line:
-                        m = re.search(ip_regex, line)
-                        hier_name = current_hier + m.group(5)
-                        if m.group(3) == "processing_system7":
-                            self.ps7_name = hier_name
-                            addr_regex += (self.ps7_name + "/Data\] " +
-                                           "\[get_bd_addr_segs (.+?)\] " +
-                                           "([A-Za-z0-9_]+)")
-                        else:
-                            ip_type = ':'.join([m.group(1), m.group(2),
-                                                m.group(3), m.group(4)])
-                            ip_dict[hier_name] = ip_type
-                            if m.group(3) == "xlconcat":
-                                last_concat = current_hier + m.group(5)
-                                self.concat_cells[last_concat] = 2
-                            elif m.group(3) == "axi_intc":
-                                self.intc_names.append(current_hier +
-                                                       m.group(5))
+                        # Matching IP cells in root design
+                        elif not in_prop and ip_pat in line:
+                            m = re.search(ip_regex, line)
+                            hier_name = current_hier + m.group(5)
+                            if m.group(3) == "processing_system7":
+                                self.ps7_name = hier_name
+                                addr_regex += (self.ps7_name + "/Data\] " +
+                                               "\[get_bd_addr_segs (.+?)\] " +
+                                               "([A-Za-z0-9_]+)")
+                            else:
+                                ip_type = ':'.join([m.group(1), m.group(2),
+                                                    m.group(3), m.group(4)])
+                                ip_dict[hier_name] = ip_type
+                                if m.group(3) == "xlconcat":
+                                    last_concat = current_hier + m.group(5)
+                                    self.concat_cells[last_concat] = 2
+                                elif m.group(3) == "axi_intc":
+                                    self.intc_names.append(current_hier +
+                                                           m.group(5))
 
-                    # Matching nets
-                    elif not in_prop and net_pat in line:
-                        new_pins = [current_hier + v for v in
-                                    re.findall(net_regex, line, re.IGNORECASE)]
-                        indexes = set()
-                        for p in new_pins:
-                            if p in self.pins:
-                                indexes.add(self.pins[p])
-                        if len(indexes) == 0:
-                            index = len(self.nets)
-                            self.nets.append(set())
-                        else:
-                            to_merge = []
-                            while len(indexes) > 1:
-                                to_merge.append(indexes.pop())
-                            index = indexes.pop()
-                            for i in to_merge:
-                                self.nets[index] |= self.nets[i]
-                        self.nets[index] |= set(new_pins)
-                        for p in self.nets[index]:
-                            self.pins[p] = index
+                        # Matching nets
+                        elif not in_prop and net_pat in line:
+                            new_pins = [current_hier + v for v in
+                                        re.findall(net_regex, line, re.IGNORECASE)]
+                            indexes = set()
+                            for p in new_pins:
+                                if p in self.pins:
+                                    indexes.add(self.pins[p])
+                            if len(indexes) == 0:
+                                index = len(self.nets)
+                                self.nets.append(set())
+                            else:
+                                to_merge = []
+                                while len(indexes) > 1:
+                                    to_merge.append(indexes.pop())
+                                index = indexes.pop()
+                                for i in to_merge:
+                                    self.nets[index] |= self.nets[i]
+                            self.nets[index] |= set(new_pins)
+                            for p in self.nets[index]:
+                                self.pins[p] = index
 
-                    # Matching IP configurations
-                    elif not in_prop and prop_start_pat in line:
-                        in_prop = True
-                    elif in_prop and prop_end_pat in line:
-                        m = re.search(prop_name_regex, line, re.IGNORECASE)
-                        if m:
-                            if gpio_idx is not None:
-                                gpio_dict[m.group(1)] = gpio_idx
-                                gpio_idx = None
-                        in_prop = False
-                    elif in_prop and config_pat in line:
-                        m1 = re.search(config_regex, line)
-                        if m1.group(1) == "NUM_PORTS":
-                            self.concat_cells[last_concat] = int(m1.group(2))
-                        elif m1.group(1) == 'DIN_FROM':
-                            gpio_idx = int(m1.group(2))
-                        elif 'FCLK' in m1.group(1):
-                            m2 = re.search(clk_divisor_regex, m1.group(1))
-                            m3 = re.search(clk_enable_regex, m1.group(1))
-                            if m2:
-                                fclk_index = int(m2.group(1))
-                                if fclk_index not in self.clock_dict:
-                                    self.clock_dict[fclk_index] = {}
-                                divisor_name = 'divisor' + m2.group(2)
-                                self.clock_dict[fclk_index][divisor_name] = \
-                                    int(m1.group(2))
-                            if m3:
-                                fclk_index = int(m3.group(1))
-                                if fclk_index not in self.clock_dict:
-                                    self.clock_dict[fclk_index] = {}
-                                self.clock_dict[fclk_index]['enable'] = \
-                                    int(m1.group(2))
+                        # Matching IP configurations
+                        elif not in_prop and prop_start_pat in line:
+                            in_prop = True
+                        elif in_prop and prop_end_pat in line:
+                            m = re.search(prop_name_regex, line, re.IGNORECASE)
+                            if m:
+                                if gpio_idx is not None:
+                                    gpio_dict[m.group(1)] = gpio_idx
+                                    gpio_idx = None
+                            in_prop = False
+                        elif in_prop and config_pat in line:
+                            m1 = re.search(config_regex, line)
+                            if m1.group(1) == "NUM_PORTS":
+                                self.concat_cells[last_concat] = int(m1.group(2))
+                            elif m1.group(1) == 'DIN_FROM':
+                                gpio_idx = int(m1.group(2))
+                            elif 'FCLK' in m1.group(1):
+                                m2 = re.search(clk_divisor_regex, m1.group(1))
+                                m3 = re.search(clk_enable_regex, m1.group(1))
+                                if m2:
+                                    fclk_index = int(m2.group(1))
+                                    if fclk_index not in self.clock_dict:
+                                        self.clock_dict[fclk_index] = {}
+                                    divisor_name = 'divisor' + m2.group(2)
+                                    self.clock_dict[fclk_index][divisor_name] = \
+                                        int(m1.group(2))
+                                if m3:
+                                    fclk_index = int(m3.group(1))
+                                    if fclk_index not in self.clock_dict:
+                                        self.clock_dict[fclk_index] = {}
+                                    self.clock_dict[fclk_index]['enable'] = \
+                                        int(m1.group(2))
+        except:
+            print("Can't open ", tcl_name)
 
         if self.ps7_name + "/IRQ_F2P" in self.pins:
             ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
@@ -559,6 +562,7 @@ class PLMeta(type):
 
         """
         cls.client_request()
+
         with open(data, 'rb') as bin_file:
             size = (math.ceil(os.fstat(bin_file.fileno()).st_size /
                               mmap.PAGESIZE)) * mmap.PAGESIZE
@@ -679,18 +683,20 @@ class Bitstream(PL):
         None
 
         """
-        # Compose bitfile name, open bitfile
-        with open(self.bitfile_name, 'rb') as f:
-            buf = f.read()
+        try:
+            # Compose bitfile name, open bitfile
+            with open(self.bitfile_name, 'rb') as f:
+                buf = f.read()
 
-        # Set is_partial_bitfile device attribute to 0
-        with open(BS_IS_PARTIAL, 'w') as fd:
-            fd.write('0')
+            # Set is_partial_bitfile device attribute to 0
+            with open(BS_IS_PARTIAL, 'w') as fd:
+                fd.write('0')
 
-        # Write bitfile to xdevcfg device
-        with open(BS_XDEVCFG, 'wb') as f:
-            f.write(buf)
-
+            # Write bitfile to xdevcfg device
+            with open(BS_XDEVCFG, 'wb') as f:
+                f.write(buf)
+        except:
+            print("Bitstream download(): Can't open ", self.bitfile_name)
         t = datetime.now()
         self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
                 t.year, t.month, t.day,

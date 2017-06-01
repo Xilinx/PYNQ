@@ -28,6 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import numpy as np
+import os        
 from .mmio import MMIO
 
 
@@ -136,12 +137,17 @@ class Register:
         self.address = address
         self.width = width
 
-        if width == 32:
-            self._buffer = MMIO(address).array.astype(np.uint32, copy=False)
-        elif width == 64:
-            self._buffer = MMIO(address).array.astype(np.uint64, copy=False)
+        arch = os.uname()[-1]
+        if arch in ('x86_64'):
+                         
+            self._buffer = []
         else:
-            raise ValueError("Supported register width is 32 or 64.")
+            if width == 32:
+                self._buffer = MMIO(address).array.astype(np.uint32, copy=False)
+            elif width == 64:
+                self._buffer = MMIO(address).array.astype(np.uint64, copy=False)
+            else:
+                raise ValueError("Supported register width is 32 or 64.")
 
     def __getitem__(self, index):
         """Get the register value.
@@ -173,11 +179,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError(f"Slicing endpoint {start} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError('Slicing endpoint {} is not in range 0'.format(start),
+                                 " - {}.".format(self.width))
             if stop not in range(self.width):
-                raise ValueError(f"Slicing endpoint {stop} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(stop),
+                                 " - {}.".format(self.width))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop
@@ -202,7 +208,10 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
-        curr_val = int.from_bytes(self._buffer, byteorder='little')
+        try:
+            curr_val = int.from_bytes(self._buffer, byteorder='little')
+        except:
+            pass
         if isinstance(index, int):
             if value != 0 and value != 1:
                 raise ValueError("Value to be set should be either 0 or 1.")
@@ -223,11 +232,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError(f"Slicing endpoint {start} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(start),
+                                 " - {}.".format(self.width))
             if stop not in range(self.width):
-                raise ValueError(f"Slicing endpoint {stop} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(stop),
+                                 " - {}.".format(self.width))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop
