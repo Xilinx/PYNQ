@@ -1,0 +1,22 @@
+BOOT_CONFIG_DIR := $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
+BOOT_CONFIG_ABS = $(CURDIR)/${BOOT_CONFIG_DIR}
+
+PYNQ_REPO ?= https://github.com/Xilinx/PYNQ.git
+PYNQ_COMMIT ?= db597b9f1020c547340569cf207e490b7b8cd2b4
+
+LINUX_REPO ?= https://github.com/Xilinx/linux-xlnx.git
+LINUX_COMMIT ?= 4e93098735caeb862042d6bf601503666cdc0b69
+
+UBOOT_REPO ?= https://github.com/Digilent/u-boot-digilent.git
+UBOOT_COMMIT ?= e2382ceaffc0c36dc21c01576c1e454af0e01ca1
+
+BOARD = Pynq-Z1
+BOARD_PART = xc7z020clg400-1
+PS_CONFIG_TCL ?= ${BOOT_CONFIG_ABS}/ps7_config.tcl
+BOARD_CONSTRAINTS ?= ${BOOT_CONFIG_ABS}/constraints.xdc
+
+LINUX_CONFIG ?= ${BOOT_CONFIG_ABS}/kernel.config
+UBOOT_CONFIG ?= ${BOOT_CONFIG_ABS}/u-boot.config
+BOARD_DTSI ?= ${BOOT_CONFIG_ABS}/pynq.dtsi
+
+include ${BOOT_CONFIG_DIR}/../common/Zynq7000.makefile

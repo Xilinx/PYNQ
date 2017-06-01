@@ -1,0 +1,9 @@
+[Unit]
+Description=Resize Filesystem on SD card
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/resizefs.sh
+
+[Install]
+WantedBy=basic.target
