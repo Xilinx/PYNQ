@@ -29,13 +29,20 @@
 
 import os
 import re
+from collections import OrderedDict
 import numpy as np
 from pyeda.inter import exprvar
 from pyeda.inter import expr2truthtable
 from pynq import Register
-from .intf_const import INTF_MICROBLAZE_BIN, PYNQZ1_DIO_SPECIFICATION, \
-    CMD_READ_CFG_DIRECTION, MAILBOX_OFFSET, CMD_CONFIG_CFG, \
-    CMD_ARM_CFG, CMD_RUN, CMD_STOP, IOSWITCH_BG_SELECT
+from .intf_const import INTF_MICROBLAZE_BIN
+from .intf_const import PYNQZ1_DIO_SPECIFICATION
+from .intf_const import CMD_READ_CFG_DIRECTION
+from .intf_const import MAILBOX_OFFSET
+from .intf_const import CMD_CONFIG_CFG
+from .intf_const import CMD_ARM_CFG
+from .intf_const import CMD_RUN
+from .intf_const import CMD_STOP
+from .intf_const import IOSWITCH_BG_SELECT
 from .intf import request_intf, _INTF
 from .trace_analyzer import TraceAnalyzer
 from .waveform import Waveform
@@ -72,8 +79,7 @@ class BooleanBuilder:
         An output pin in the format of string.
 
     """
-
-    def __init__(self, intf_microblaze, expr=None,
+    def __init__(self, intf_microblaze, expr,
                  intf_spec=PYNQZ1_DIO_SPECIFICATION,
                  use_analyzer=True, num_analyzer_samples=16):
         """Return a new Arduino_CFG object.
@@ -85,9 +91,8 @@ class BooleanBuilder:
 
         Note that D14 is A0, D15 is A1, ..., and D19 is A5 on the header.
 
-        The input boolean expression can be of the following formats:
-        (1) `D0 & D1 | D2`, or
-        (2) `D4 = D0 & D1 | D2`.
+        The input boolean expression can be of the following format:
+        `D4 = D0 & D1 | D2`.
 
         If no input boolean expression is specified, the default function
         implemented is `D0 & D1 & D2 & D3`.
@@ -96,6 +101,8 @@ class BooleanBuilder:
         ----------
         intf_microblaze : _INTF/int
             The interface object or interface ID.
+        expr : str
+            The boolean expression to be configured.
         intf_spec : dict
             The interface specification.
         use_analyzer : bool
@@ -104,7 +111,6 @@ class BooleanBuilder:
             Number of analyzer samples to capture.
 
         """
-
         if isinstance(intf_microblaze, _INTF):
             self.intf = intf_microblaze
         elif isinstance(intf_microblaze, int):
@@ -112,8 +118,7 @@ class BooleanBuilder:
         else:
             raise TypeError(
                 "intf_microblaze has to be a intf._INTF or int type.")
-
-
+        self.expr = None
         self.intf_spec = intf_spec
         self.output_pin = None
         self.input_pins = None
@@ -126,10 +131,7 @@ class BooleanBuilder:
         else:
             self.analyzer = None
 
-        if expr is not None:
-            self.config(expr)
-        else:
-            self.expr = expr
+        self.config(expr)
 
     def _config_ioswitch(self):
         """Configure the IO switch.
@@ -139,9 +141,12 @@ class BooleanBuilder:
 
         """
         # gather which pins are being used
-        ioswitch_pins = [self.intf_spec['output_pin_map'][ins]
-                         for ins in self.input_pins]
-        ioswitch_pins.append(self.intf_spec['output_pin_map'][self.output_pin])
+        ioswitch_pins = [self.intf_spec['traceable_outputs'][ins]
+                         for ins in self.input_pins
+                         if ins in self.intf_spec['traceable_outputs']]
+        if self.output_pin in self.intf_spec['traceable_outputs']:
+            ioswitch_pins.append(
+                self.intf_spec['traceable_outputs'][self.output_pin])
 
         # send list to intf processor for handling
         self.intf.config_ioswitch(ioswitch_pins, IOSWITCH_BG_SELECT)
@@ -149,7 +154,10 @@ class BooleanBuilder:
     def config(self, expr):
         """Configure the CFG with new boolean expression.
 
-        Implements boolean function at specified IO pins.
+        Implements boolean function at specified IO pins. 
+        
+        This method is called during initialization, but can also be called 
+        separately if users want to change the boolean expressions.
 
         Parameters
         ----------
@@ -173,15 +181,21 @@ class BooleanBuilder:
         # parse boolean expression into output & input string
         expr_out, expr_in = expr.split("=")
         expr_out = expr_out.strip()
-        if expr_out in self.intf_spec['output_pin_map']:
-            self.output_pin = expr_out
-            output_pin_num = self.intf_spec['output_pin_map'][self.output_pin]
+        self.output_pin = expr_out
+        if self.output_pin in self.intf_spec['traceable_outputs']:
+            output_pin_num = self.intf_spec[
+                'traceable_outputs'][self.output_pin]
+        elif self.output_pin in self.intf_spec['non_traceable_outputs']:
+            output_pin_num = self.intf_spec[
+                'non_traceable_outputs'][self.output_pin]
         else:
             raise ValueError(f"Invalid output pin {expr_out}.")
 
-        # parse the used pins
-        self.input_pins = list(
-                           set(re.sub("\W+", " ", expr_in).strip().split(' ')))
+        # parse the used pins preserving the order
+        non_unique_inputs = re.sub("\W+", " ", expr_in).strip().split(' ')
+        self.input_pins = list(OrderedDict.fromkeys(non_unique_inputs))
+        if not 1 <= len(self.input_pins) <= 5:
+            raise ValueError("Expect 1 - 5 inputs for each CFGLUT.")
         input_pins_with_dontcares = self.input_pins[:]
 
         # need 5 inputs to CFGLUT - any unspecified inputs will be don't cares
@@ -222,8 +236,18 @@ class BooleanBuilder:
             lsb = i * 5
             msb = (i + 1) * 5 - 1
             if truth_table_inputs[i] in self.input_pins:
-                input_pin_ix = self.intf_spec['output_pin_map']\
-                    [truth_table_inputs[i]]
+                if truth_table_inputs[i] in self.intf_spec[
+                        'traceable_inputs'] and truth_table_inputs[i] \
+                        in self.intf_spec['traceable_outputs']:
+                    input_pin_ix = self.intf_spec[
+                        'traceable_outputs'][truth_table_inputs[i]]
+                elif truth_table_inputs[i] in self.intf_spec[
+                        'non_traceable_inputs']:
+                    input_pin_ix = self.intf_spec[
+                        'non_traceable_inputs'][truth_table_inputs[i]]
+                else:
+                    raise ValueError(f"Invalid input pin "
+                                     f"{truth_table_inputs[i]}.")
             else:
                 input_pin_ix = 0x1f
             mailbox_regs[output_pin_num * 2][msb:lsb] = input_pin_ix
@@ -248,10 +272,20 @@ class BooleanBuilder:
                          'text': f'Boolean Logic Builder ({self.expr})'}}
 
         # Append four inputs and one output to waveform view
+        stimulus_traced = False
         for name in self.input_pins:
-            waveform_dict['signal'][0].append({'name': name, 'pin': name})
-        for name in [self.output_pin]:
-            waveform_dict['signal'][-1].append({'name': name, 'pin': name})
+            if name in self.intf_spec['traceable_inputs']:
+                stimulus_traced = True
+                waveform_dict['signal'][0].append({'name': name, 'pin': name})
+        if not stimulus_traced:
+            del(waveform_dict['signal'][0])
+
+        if self.output_pin in self.intf_spec['traceable_outputs']:
+            waveform_dict['signal'][-1].append({'name': self.output_pin,
+                                                'pin': self.output_pin})
+        else:
+            del (waveform_dict['signal'][-1])
+
         self.waveform = Waveform(waveform_dict,
                                  stimulus_name='stimulus',
                                  analysis_name='analysis')
@@ -272,7 +306,14 @@ class BooleanBuilder:
             self.analyzer.arm()
 
     def is_armed(self):
-        """ Check if this builder's hardware is armed """
+        """Check if this builder's hardware is armed.
+
+        Returns
+        -------
+        Bool
+            True if the builder's hardware is armed.
+
+        """
         return self.intf.armed_builders[CMD_ARM_CFG]
 
     def run(self):
@@ -281,7 +322,6 @@ class BooleanBuilder:
         This method will start to run the boolean generation.
 
         """
-        self.arm()
         self.intf.write_command(CMD_RUN)
 
     def stop(self):
@@ -306,4 +346,3 @@ class BooleanBuilder:
             raise ValueError("Trace disabled, please enable and rerun.")
 
         self.waveform.display()
-

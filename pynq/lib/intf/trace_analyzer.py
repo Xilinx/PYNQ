@@ -29,10 +29,17 @@
 
 import os
 import re
+from collections import OrderedDict
 import numpy as np
-from .intf_const import INTF_MICROBLAZE_BIN, CMD_CONFIG_TRACE, \
-    BYTE_WIDTH_TO_CTYPE, CMD_ARM_TRACE, BYTE_WIDTH_TO_NPTYPE
-from .intf import request_intf, _INTF
+from .intf_const import INTF_MICROBLAZE_BIN
+from .intf_const import CMD_CONFIG_TRACE
+from .intf_const import BYTE_WIDTH_TO_CTYPE
+from .intf_const import CMD_ARM_TRACE
+from .intf_const import BYTE_WIDTH_TO_NPTYPE
+from .intf_const import MAX_NUM_TRACE_SAMPLES
+from .intf import request_intf
+from .intf import _INTF
+
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
@@ -62,6 +69,42 @@ def bitstring_to_wave(bitstring):
     return re.sub(bit_regex, insert_dots, bitstring)
 
 
+def get_tri_state_pins(input_dict, output_dict, tri_dict):
+    """Function to check tri-state pin specifications.
+
+    Any tri-state pin requires the output pin, input pin, and the tri-state
+    selection pin to be specified. If any one is missing, this method will
+    raise an exception.
+
+    Parameters
+    ----------
+    input_dict : dict
+        A dictionary storing the input pin mapping.
+    output_dict : dict
+        A dictionary storing the output pin mapping.
+    tri_dict : dict
+        A dictionary storing the tri-state pin mapping.
+
+    Returns
+    -------
+    list, list, list
+        A list storing unique tri-state pin names, non tri-state inputs, and
+        non tri-state outputs.
+
+    """
+    input_pins = list(OrderedDict.fromkeys(input_dict.keys()))
+    output_pins = list(OrderedDict.fromkeys(output_dict.keys()))
+    tri_pins = list(OrderedDict.fromkeys(tri_dict.keys()))
+    if not set(tri_pins) & set(input_pins) == \
+            set(tri_pins) & set(output_pins) == set(tri_pins):
+        raise ValueError("Tri-state pins must specify inputs, "
+                         "outputs, and tri-states.")
+
+    non_tri_inputs = [i for i in input_pins if i not in tri_pins]
+    non_tri_outputs = [i for i in output_pins if i not in tri_pins]
+    return tri_pins, non_tri_inputs, non_tri_outputs
+
+
 class TraceAnalyzer:
     """Class for the Trace Analyzer.
 
@@ -80,7 +123,8 @@ class TraceAnalyzer:
         The raw data samples expressed in numpy array.
 
     """
-    def __init__(self, intf_microblaze, num_samples=4096, trace_spec=None):
+    def __init__(self, intf_microblaze, num_samples=MAX_NUM_TRACE_SAMPLES,
+                 trace_spec=None):
         """Return a new Arduino_PG object.
 
         Parameters
@@ -102,15 +146,23 @@ class TraceAnalyzer:
             raise TypeError(
                 "intf_microblaze has to be a intf._INTF or int type.")
 
+        if not 1 <= num_samples <= MAX_NUM_TRACE_SAMPLES:
+            raise ValueError(f'Number of samples should be in '
+                             f'[1, {MAX_NUM_TRACE_SAMPLES}]')
+
         self.trace_spec = trace_spec
         self.num_samples = num_samples
         self.samples = None
+        self.config()
 
     def config(self):
         """Configure the trace analyzer.
         
         This method prepares the trace analyzer by sending configuration 
         parameters to the intf Microblaze.
+
+        This method is called during initialization, but can also be called 
+        separately if users want to reconfigure the trace buffer.
 
         """
         # Get width in bytes and send to allocator held with intf Microblaze
@@ -120,9 +172,9 @@ class TraceAnalyzer:
         if 'trace_buf' in self.intf.buffers:
             buffer_phy_addr = self.intf.get_phy_addr_from_buffer('trace_buf')
         else:
-            buffer_phy_addr = self.intf.allocate_buffer('trace_buf',
-                            self.num_samples,
-                            data_type=BYTE_WIDTH_TO_CTYPE[trace_byte_width])
+            buffer_phy_addr = self.intf.allocate_buffer(
+                'trace_buf', self.num_samples,
+                data_type=BYTE_WIDTH_TO_CTYPE[trace_byte_width])
 
         self.intf.write_control([buffer_phy_addr, self.num_samples, 0, 0])
         self.intf.write_command(CMD_CONFIG_TRACE)
@@ -136,7 +188,14 @@ class TraceAnalyzer:
         self.intf.write_command(CMD_ARM_TRACE)
 
     def is_armed(self):
-        """ Check if this builder's hardware is armed """
+        """Check if this builder's hardware is armed.
+
+        Returns
+        -------
+        Bool
+            True if the builder's hardware is armed.
+
+        """
         return self.intf.armed_builders[CMD_ARM_CFG]
 
     def run(self):
@@ -202,6 +261,10 @@ class TraceAnalyzer:
         if self.trace_spec is None:
             raise TypeError(
                 "Cannot use Trace Analyzer without a valid trace_spec.")
+        tri_state_pins, non_tri_inputs, non_tri_outputs = \
+            get_tri_state_pins(self.trace_spec['traceable_inputs'],
+                               self.trace_spec['traceable_outputs'],
+                               self.trace_spec['traceable_tri_states'])
 
         trace_bit_width = self.trace_spec['monitor_width']
         trace_byte_width = round(trace_bit_width / 8)
@@ -220,16 +283,32 @@ class TraceAnalyzer:
             self.trace_spec['monitor_width']).T[::-1]
 
         wavelanes = list()
-        for pin_label in self.trace_spec['input_pin_map']:
+        # Adding tri-state captures
+        for pin_label in tri_state_pins:
             output_lane = temp_lanes[
-                self.trace_spec['output_pin_map'][pin_label]]
+                self.trace_spec['traceable_outputs'][pin_label]]
             input_lane = temp_lanes[
-                self.trace_spec['input_pin_map'][pin_label]]
+                self.trace_spec['traceable_inputs'][pin_label]]
             tri_lane = temp_lanes[
-                self.trace_spec['tri_pin_map'][pin_label]]
+                self.trace_spec['traceable_tri_states'][pin_label]]
             cond_list = [tri_lane == 0, tri_lane == 1]
             choice_list = [output_lane, input_lane]
             temp_lane = np.select(cond_list, choice_list)
+            bitstring = ''.join(temp_lane.astype(str).tolist())
+            wave = bitstring_to_wave(bitstring)
+            wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
+
+        # Adding non tri-state captures
+        for pin_label in non_tri_inputs:
+            temp_lane = temp_lanes[
+                self.trace_spec['traceable_inputs'][pin_label]]
+            bitstring = ''.join(temp_lane.astype(str).tolist())
+            wave = bitstring_to_wave(bitstring)
+            wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
+
+        for pin_label in non_tri_outputs:
+            temp_lane = temp_lanes[
+                self.trace_spec['traceable_outputs'][pin_label]]
             bitstring = ''.join(temp_lane.astype(str).tolist())
             wave = bitstring_to_wave(bitstring)
             wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})

@@ -34,15 +34,25 @@ import numpy as np
 import pygraphviz as pgv
 from IPython.display import Image, display
 from .intf_const import FSM_BRAM_ADDR_WIDTH
+from .intf_const import MAX_NUM_TRACE_SAMPLES
+from .intf_const import FSM_MIN_STATE_BITS
 from .intf_const import FSM_MAX_STATE_BITS
+from .intf_const import FSM_MIN_NUM_STATES
+from .intf_const import FSM_MAX_NUM_STATES
+from .intf_const import FSM_MIN_INPUT_BITS
 from .intf_const import FSM_MAX_INPUT_BITS
 from .intf_const import FSM_MAX_STATE_INPUT_BITS
 from .intf_const import FSM_MAX_OUTPUT_BITS
+from .intf_const import FSM_MIN_OUTPUT_BITS
 from .intf_const import INTF_MICROBLAZE_BIN
 from .intf_const import PYNQZ1_DIO_SPECIFICATION
-from .intf_const import CMD_CONFIG_SMG, CMD_ARM_SMG, CMD_RUN, \
-    IOSWITCH_SMG_SELECT, CMD_STOP
-from .intf import request_intf, _INTF
+from .intf_const import CMD_CONFIG_SMG
+from .intf_const import CMD_ARM_SMG
+from .intf_const import CMD_RUN
+from .intf_const import CMD_STOP
+from .intf_const import IOSWITCH_SMG_SELECT
+from .intf import request_intf
+from .intf import _INTF
 from .trace_analyzer import TraceAnalyzer
 from .waveform import Waveform
 
@@ -68,12 +78,12 @@ def check_pins(fsm_spec, key, intf_spec):
 
     """
     for i in fsm_spec[key]:
-        if i[1] not in intf_spec['output_pin_map']:
+        if i[1] not in intf_spec['traceable_outputs']:
             raise ValueError(
                 f"{i[1]} not in output pin map - please check fsm_spec.")
 
 
-def check_num_bits(num_bits, label, maximum):
+def check_num_bits(num_bits, label, minimum=0, maximum=32):
     """Check whether the number of bits are still in a valid range.
 
     This method will raise an exception if `num_bits` is out of range.
@@ -84,13 +94,15 @@ def check_num_bits(num_bits, label, maximum):
         The number of bits of a specific field.
     label : str
         The label of the field.
+    minimum : int
+        The minimum number of bits allowed in that field.
     maximum : int
         The maximum number of bits allowed in that field.
 
     """
-    if num_bits > maximum:
-        raise ValueError(f'{label} used more than the maximum number ' +
-                         f'({maximum}) of bits allowed.')
+    if not minimum <= num_bits <= maximum:
+        raise ValueError(f'{num_bits} bits used for {label}, out of range: ' +
+                         f'[{minimum}, {maximum}].')
 
 
 def check_moore(num_states, num_outputs):
@@ -108,9 +120,8 @@ def check_moore(num_states, num_outputs):
 
     """
     if num_states < num_outputs:
-        raise ValueError("Specified FSM is not Moore: " +
-                         "{} states but {} outputs.".format(num_states,
-                                                            num_outputs))
+        raise ValueError(f"Specified FSM is not Moore: " +
+                         f"{num_states} states but {num_outputs} outputs.")
 
 
 def check_duplicate(fsm_spec, key):
@@ -275,7 +286,7 @@ def get_bram_addr_offsets(num_states, num_input_bits):
     else:
         index_offset = ceil(log(num_states, 2))
     return index_offset, \
-           [i * 2 ** index_offset for i in range(2 ** num_input_bits)]
+        [i * 2 ** index_offset for i in range(2 ** num_input_bits)]
 
 
 class FSMBuilder:
@@ -309,6 +320,8 @@ class FSMBuilder:
     ----------
     intf : _INTF
         INTF instance used by Arduino_PG class.
+    frequency_mhz: float
+        The frequency of the running FSM / captured samples, in MHz.
     num_input_bits : int
         The number of input bits / pins.
     num_outputs : int
@@ -336,10 +349,10 @@ class FSMBuilder:
 
     """
 
-    def __init__(self, intf_microblaze, fsm_spec=None,
+    def __init__(self, intf_microblaze, fsm_spec=None, frequency_mhz=10,
                  intf_spec=PYNQZ1_DIO_SPECIFICATION,
                  use_analyzer=True, use_state_bits=False,
-                 num_analyzer_samples=4096):
+                 num_analyzer_samples=MAX_NUM_TRACE_SAMPLES):
         """Initialize the FSM builder class.
 
         Users can specify the `fsm_spec` when instantiating the object, or
@@ -364,6 +377,10 @@ class FSMBuilder:
         fsm_spec : dict
             The FSM specification, with inputs (list), outputs (list),
             states (list), and transitions (list).
+        frequency_mhz: float
+            The frequency of the FSM and captured samples, in MHz.
+        intf_spec : dict
+            The interface specification.
         use_analyzer : bool
             Indicate whether to use the analyzer to capture the trace as well.
         use_state_bits : bool
@@ -379,6 +396,7 @@ class FSMBuilder:
                 "intf_microblaze has to be a intf._INTF or int type.")
 
         self.intf_spec = intf_spec
+        self.frequency_mhz = 0
         self.num_input_bits = 0
         self.num_outputs = 0
         self.num_output_bits = 0
@@ -407,9 +425,10 @@ class FSMBuilder:
 
         if fsm_spec:
             self.fsm_spec = self.parse_fsm_spec(fsm_spec, use_state_bits)
-            self.config()
         else:
             self.fsm_spec = None
+
+        self.config(frequency_mhz)
 
     def parse_fsm_spec(self, fsm_spec_in, use_state_bits):
         """Parse a given FSM specification.
@@ -448,16 +467,20 @@ class FSMBuilder:
                                     if i[3]]))
         self.num_output_bits = len(fsm_spec['outputs'])
         self.num_states = len(fsm_spec['states'])
-        self.num_state_bits = ceil(log(self.num_states, 2))
+        self.num_state_bits = int(ceil(log(self.num_states, 2)))
         self.input_pins = [i[1] for i in fsm_spec['inputs']]
         self.output_pins = [i[1] for i in fsm_spec['outputs']]
 
-        check_num_bits(self.num_input_bits, 'inputs', FSM_MAX_INPUT_BITS)
-        check_num_bits(self.num_output_bits,
-                             'outputs', FSM_MAX_OUTPUT_BITS)
-        check_num_bits(self.num_state_bits, 'states', FSM_MAX_STATE_BITS)
+        check_num_bits(self.num_input_bits, 'inputs',
+                       FSM_MIN_INPUT_BITS, FSM_MAX_INPUT_BITS)
+        check_num_bits(self.num_output_bits, 'outputs',
+                       FSM_MIN_OUTPUT_BITS, FSM_MAX_OUTPUT_BITS)
+        check_num_bits(self.num_state_bits, 'states',
+                       FSM_MIN_STATE_BITS, FSM_MAX_STATE_BITS)
         check_num_bits(self.num_input_bits + self.num_state_bits,
-                             'states and inputs', FSM_MAX_STATE_INPUT_BITS)
+                       'states and inputs',
+                       FSM_MIN_INPUT_BITS + FSM_MIN_STATE_BITS,
+                       FSM_MAX_STATE_INPUT_BITS)
         check_moore(self.num_states, self.num_outputs)
         check_pins(fsm_spec, 'inputs', self.intf_spec)
         check_pins(fsm_spec, 'outputs', self.intf_spec)
@@ -475,7 +498,7 @@ class FSMBuilder:
             for bit in range(self.num_state_bits):
                 output_bit_name = 'state_bit' + str(bit)
                 found_pin = False
-                for pin in self.intf_spec['output_pin_map']:
+                for pin in self.intf_spec['traceable_outputs']:
                     if pin not in total_pins_used:
                         state_pins = [(output_bit_name, pin)] + state_pins
                         total_pins_used.append(pin)
@@ -574,9 +597,9 @@ class FSMBuilder:
                 if zero_list:
                     new_row = deepcopy(transitions_copy2[index])
                     transitions_copy2.append(expand_transition(new_row,
-                                                                     zero_list))
+                                                               zero_list))
                     transitions_copy2.append(expand_transition(new_row,
-                                                                     one_list))
+                                                               one_list))
         expanded_transitions = list()
         for row in transitions_copy2:
             if '-' not in row[0] and row not in expanded_transitions:
@@ -602,7 +625,7 @@ class FSMBuilder:
 
         """
         _, addr_offsets = get_bram_addr_offsets(self.num_states,
-                                                      self.num_input_bits)
+                                                self.num_input_bits)
         # Load default values into BRAM data
         for input_value, offset_addr in enumerate(addr_offsets):
             for state_name in self.state_names:
@@ -634,9 +657,9 @@ class FSMBuilder:
 
         """
         # gather which pins are being used
-        ioswitch_pins = [self.intf_spec['output_pin_map'][ins[1]]
+        ioswitch_pins = [self.intf_spec['traceable_outputs'][ins[1]]
                          for ins in self.fsm_spec['inputs']]
-        ioswitch_pins.extend([self.intf_spec['output_pin_map'][outs[1]]
+        ioswitch_pins.extend([self.intf_spec['traceable_outputs'][outs[1]]
                               for outs in self.fsm_spec['outputs']])
 
         # send list to _INTF processor for handling
@@ -647,7 +670,10 @@ class FSMBuilder:
 
         This method will configure the FSM based on supplied configuration 
         specification. Users can send the samples to PatternAnalyzer for 
-        additional analysis.
+        additional analysis. 
+
+        This method is called during initialization, but can also be called 
+        separately if users want to change the clock frequency.
 
         Parameters
         ----------
@@ -656,6 +682,7 @@ class FSMBuilder:
 
         """
         # Set the FSM frequency
+        self.frequency_mhz = frequency_mhz
         self.intf.clk.fclk1_mhz = frequency_mhz
 
         # Configure the IO switch
@@ -673,20 +700,20 @@ class FSMBuilder:
         # Setup configurations
         config = list()
         index_offset, _ = get_bram_addr_offsets(self.num_states,
-                                                      self.num_input_bits)
+                                                self.num_input_bits)
 
         # Configuration for bit 8,7,6,5 (slvreg 0)
         config_shared_pins = 0x1f1f1f1f
         shared_input_bits = min(self.num_input_bits, 9 - index_offset)
         if 5 <= index_offset <= 8:
             for i in range(shared_input_bits):
-                config_shared_pins = ((config_shared_pins << 8) +
-                        (0x80 + self.intf_spec['output_pin_map'][
-                        self.input_pins[i]])) & \
-                        0xffffffff
+                config_shared_pins = \
+                    ((config_shared_pins << 8) +
+                     (0x80 + self.intf_spec['traceable_outputs'][
+                         self.input_pins[i]])) & 0xffffffff
             for _ in range(5, index_offset):
-                config_shared_pins = ((config_shared_pins << 8) + 0x1f) & \
-                    0xffffffff
+                config_shared_pins = \
+                    ((config_shared_pins << 8) + 0x1f) & 0xffffffff
         config.append(config_shared_pins)
 
         # Configuration for bit 12,11,10,9 (slvreg 1)
@@ -695,9 +722,10 @@ class FSMBuilder:
             if self.num_input_bits > shared_input_bits:
                 dedicated_input_bits = self.num_input_bits - shared_input_bits
                 for i in range(dedicated_input_bits):
-                    config_input_pins = ((config_input_pins << 8) +
-                        (0x80 + self.intf_spec['output_pin_map'][
-                        self.input_pins[i + shared_input_bits]])) & \
+                    config_input_pins = \
+                        ((config_input_pins << 8) +
+                         (0x80 + self.intf_spec['traceable_outputs'][
+                             self.input_pins[i + shared_input_bits]])) & \
                         0xffffffff
         config.append(config_input_pins)
 
@@ -707,9 +735,10 @@ class FSMBuilder:
         for _ in range(fully_used_reg):
             config_output_pins = 0x0
             for i in range(3, -1, -1):
-                config_output_pins = ((config_output_pins << 8) +
-                    self.intf_spec['output_pin_map'][
-                    self.output_pins[i + assigned_output_pins]]) & \
+                config_output_pins = \
+                    ((config_output_pins << 8) +
+                     self.intf_spec['traceable_outputs'][
+                         self.output_pins[i + assigned_output_pins]]) & \
                     0xffffffff
             assigned_output_pins += 4
             config.append(config_output_pins)
@@ -718,9 +747,10 @@ class FSMBuilder:
             config_output_pins = 0x0
             if j == fully_used_reg:
                 for i in range(remaining_pins - 1, -1, -1):
-                    config_output_pins = ((config_output_pins << 8) +
-                        self.intf_spec['output_pin_map'][
-                        self.output_pins[i + assigned_output_pins]]) & \
+                    config_output_pins = \
+                        ((config_output_pins << 8) +
+                         self.intf_spec['traceable_outputs'][
+                             self.output_pins[i + assigned_output_pins]]) & \
                         0xffffffff
                 assigned_output_pins += remaining_pins
             config.append(config_output_pins)
@@ -729,7 +759,7 @@ class FSMBuilder:
         direction_mask = 0xfffff
         for pin in range(20):
             for pin_label in self.output_pins:
-                if self.intf_spec['output_pin_map'][pin_label] == pin:
+                if self.intf_spec['traceable_outputs'][pin_label] == pin:
                     direction_mask &= (~(1 << pin))
         config.append(direction_mask)
 
@@ -759,7 +789,14 @@ class FSMBuilder:
             self.analyzer.arm()
 
     def is_armed(self):
-        """ Check if this builder's hardware is armed """
+        """Check if this builder's hardware is armed.
+
+        Returns
+        -------
+        Bool
+            True of the builder's hardware is armed.
+
+        """
         return self.intf.armed_builders[CMD_ARM_SMG]
 
     def stop(self):
@@ -780,7 +817,6 @@ class FSMBuilder:
         To rerun the generation, users have to do config(), arm(), and run().
 
         """
-        self.arm()
         self.intf.write_command(CMD_RUN)
 
     def show_state_diagram(self, file_name='fsm_spec.png'):
@@ -836,4 +872,3 @@ class FSMBuilder:
         else:
             raise ValueError("Trace disabled, please enable and rerun.")
         self.waveform.display()
-
