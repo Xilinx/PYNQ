@@ -98,9 +98,8 @@ class _INTF:
         self.clk = Clocks
         self.buf_manager = Xlnk()
         self.buffers = dict()
-        self.armed_builders = {k: False for k in intf_const.CMDS_ARM_BUILDER_LIST}
-
-
+        self.armed_builders = {k: False 
+                               for k in intf_const.CMDS_ARM_BUILDER_LIST}
         self.program()
 
     def start(self):
@@ -368,7 +367,8 @@ class _INTF:
         self.write_command(intf_const.CMD_INTF_SWITCH_CONFIG)
 
 
-def request_intf(if_id=intf_const.ARDUINO, mb_program=intf_const.INTF_MICROBLAZE_BIN):
+def request_intf(if_id=intf_const.ARDUINO, 
+                 mb_program=intf_const.INTF_MICROBLAZE_BIN):
     """This is the interface to request an I/O Processor.
 
     It looks for active instances on the same interface ID, and prevents
@@ -432,7 +432,7 @@ def request_intf(if_id=intf_const.ARDUINO, mb_program=intf_const.INTF_MICROBLAZE
     gpio_uix = gpio_dict[rst_pin]['index']
 
     if (ip_state is None) or \
-        (ip_state == (intf_const.BIN_LOCATION + mb_program)):
+       (ip_state == (intf_const.BIN_LOCATION + mb_program)):
         # case 1
         return _INTF(dif, addr_base, addr_range, gpio_uix, mb_program)
     else:

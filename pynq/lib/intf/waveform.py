@@ -205,7 +205,7 @@ class Waveform:
         for group in self.waveform_dict['signal']:
             if group and (group[0] == group_name):
                 return group[1:]
-        raise ValueError("WaveLane group {} not found.".format(group_name))
+        return []
 
     @property
     def stimulus_group(self):
@@ -412,9 +412,9 @@ class Waveform:
 
         """
         if group_name == self.stimulus:
-            valid_pins = intf_spec['output_pin_map']
+            valid_pins = intf_spec['traceable_outputs']
         elif group_name == self.analysis:
-            valid_pins = intf_spec['input_pin_map']
+            valid_pins = intf_spec['traceable_inputs']
         else:
             raise ValueError("Valid group names are {},{}.".format(
                 self.stimulus, self.analysis))
@@ -486,9 +486,6 @@ class Waveform:
                                      'wave': wave}
                         update.append(temp_dict)
                 break
-
-        if not pin_to_name:
-            raise ValueError("WaveLane group {} not found.".format(group_name))
 
         for index, group in enumerate(self.waveform_dict['signal']):
             if group and (group[0] == group_name):
