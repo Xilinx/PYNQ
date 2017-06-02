@@ -322,7 +322,10 @@ class BooleanBuilder:
         This method will start to run the boolean generation.
 
         """
-        self.intf.write_command(CMD_RUN)
+        if not self.is_armed():
+            self.arm()
+
+        self.intf.run()
 
     def stop(self):
         """Stop the boolean generation.
@@ -330,7 +333,7 @@ class BooleanBuilder:
         This method will stop the currently running boolean generation.
 
         """
-        self.intf.write_command(CMD_STOP)
+        self.intf.stop()
 
     def show_waveform(self):
         """Display the boolean logic generation in a Jupyter notebook.

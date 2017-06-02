@@ -809,7 +809,10 @@ class FSMBuilder:
         This function should be called if a new `fsm_spec` is provided.
 
         """
-        self.intf.write_command(CMD_STOP)
+        if not self.is_armed():
+            self.arm()
+
+        self.intf.stop()
 
     def run(self):
         """Start generating patterns.
@@ -817,7 +820,7 @@ class FSMBuilder:
         To rerun the generation, users have to do config(), arm(), and run().
 
         """
-        self.intf.write_command(CMD_RUN)
+        self.intf.run()
 
     def show_state_diagram(self, file_name='fsm_spec.png'):
         """Display the state machine in Jupyter notebook.
