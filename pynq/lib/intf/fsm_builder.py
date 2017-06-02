@@ -27,6 +27,7 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 import os
 from copy import deepcopy
 from math import ceil, log
@@ -48,8 +49,6 @@ from .intf_const import INTF_MICROBLAZE_BIN
 from .intf_const import PYNQZ1_DIO_SPECIFICATION
 from .intf_const import CMD_CONFIG_SMG
 from .intf_const import CMD_ARM_SMG
-from .intf_const import CMD_RUN
-from .intf_const import CMD_STOP
 from .intf_const import IOSWITCH_SMG_SELECT
 from .intf import request_intf
 from .intf import _INTF

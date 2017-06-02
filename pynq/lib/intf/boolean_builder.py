@@ -27,10 +27,9 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
+
 import re
 from collections import OrderedDict
-import numpy as np
 from pyeda.inter import exprvar
 from pyeda.inter import expr2truthtable
 from pynq import Register
@@ -40,12 +39,11 @@ from .intf_const import CMD_READ_CFG_DIRECTION
 from .intf_const import MAILBOX_OFFSET
 from .intf_const import CMD_CONFIG_CFG
 from .intf_const import CMD_ARM_CFG
-from .intf_const import CMD_RUN
-from .intf_const import CMD_STOP
 from .intf_const import IOSWITCH_BG_SELECT
 from .intf import request_intf, _INTF
 from .trace_analyzer import TraceAnalyzer
 from .waveform import Waveform
+
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
@@ -284,7 +282,7 @@ class BooleanBuilder:
             waveform_dict['signal'][-1].append({'name': self.output_pin,
                                                 'pin': self.output_pin})
         else:
-            del (waveform_dict['signal'][-1])
+            del(waveform_dict['signal'][-1])
 
         self.waveform = Waveform(waveform_dict,
                                  stimulus_name='stimulus',
