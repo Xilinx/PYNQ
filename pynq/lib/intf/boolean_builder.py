@@ -180,11 +180,12 @@ class BooleanBuilder:
             raise ValueError(f"Invalid output pin {expr_out}.")
 
         # parse the used pins
-        self.input_pins = re.sub("\W+", " ", expr_in).strip().split(' ')
+        self.input_pins = list(
+                           set(re.sub("\W+", " ", expr_in).strip().split(' ')))
         input_pins_with_dontcares = self.input_pins[:]
 
         # need 5 inputs to CFGLUT - any unspecified inputs will be don't cares
-        for i in range(len(self.input_pins), 5):
+        for i in range(len(input_pins_with_dontcares), 5):
             expr_in = f'({expr_in} & X{i})|({expr_in} & ~X{i})'
             input_pins_with_dontcares.append(f'X{i}')
 
