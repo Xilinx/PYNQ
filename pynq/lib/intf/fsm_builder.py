@@ -798,6 +798,17 @@ class FSMBuilder:
         """
         return self.intf.armed_builders[CMD_ARM_SMG]
 
+    def run(self):
+        """Start generating patterns.
+
+        To rerun the generation, users have to do config(), arm(), and run().
+
+        """
+        if not self.is_armed():
+            self.arm()
+
+        self.intf.run()
+
     def stop(self):
         """Stop the FSM pattern builder.
 
@@ -808,18 +819,7 @@ class FSMBuilder:
         This function should be called if a new `fsm_spec` is provided.
 
         """
-        if not self.is_armed():
-            self.arm()
-
         self.intf.stop()
-
-    def run(self):
-        """Start generating patterns.
-
-        To rerun the generation, users have to do config(), arm(), and run().
-
-        """
-        self.intf.run()
 
     def show_state_diagram(self, file_name='fsm_spec.png'):
         """Display the state machine in Jupyter notebook.
