@@ -341,7 +341,10 @@ class PatternBuilder:
         This method will start to run the pattern generation.
 
         """
-        self.intf.write_command(CMD_RUN)
+        if not self.is_armed():
+            self.arm()
+
+        self.intf.run()
 
     def stop(self):
         """Stop the pattern generation.
@@ -349,7 +352,7 @@ class PatternBuilder:
         This method will stop the currently running pattern generation.
         
         """
-        self.intf.write_command(CMD_STOP)
+        self.intf.stop()
 
     def show_waveform(self):
         """Display the waveform in Jupyter notebook.

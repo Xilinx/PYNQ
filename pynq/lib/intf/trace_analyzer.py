@@ -196,7 +196,7 @@ class TraceAnalyzer:
             True if the builder's hardware is armed.
 
         """
-        return self.intf.armed_builders[CMD_ARM_CFG]
+        return self.intf.armed_builders[CMD_ARM_TRACE]
 
     def run(self):
         """Start the pattern analysis.
@@ -204,6 +204,9 @@ class TraceAnalyzer:
         This method will send the start command to the intf Microblaze.
 
         """
+        if not self.is_armed():
+            self.arm()
+
         self.intf.run()
 
     def stop(self):
