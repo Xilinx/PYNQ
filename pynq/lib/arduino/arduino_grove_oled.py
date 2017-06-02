@@ -53,7 +53,7 @@ ENABLE_SCROLL = 0x17
 DISABLE_SCROLL = 0x19
 
 
-class ArduinoGroveOLED(object):
+class Grove_OLED(object):
     """This class controls the Grove IIC OLED.
 
     Grove LED 128x64 Display module is an OLED monochrome 128x64 matrix

@@ -84,7 +84,7 @@ def _get_cmd_word(cmd, d_width, d_length):
     return word
 
 
-class ArduinoDevMode(object):
+class Arduino_DevMode(object):
     """Control an IO processor running the developer mode program. 
     
     This class will wait for Python to send commands to IO processor.

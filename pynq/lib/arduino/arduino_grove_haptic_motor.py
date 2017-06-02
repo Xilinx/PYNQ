@@ -43,7 +43,7 @@ STOP_WAVEFORM = 0x3
 READ_IS_PLAYING = 0x4
 
 
-class ArduinoGroveHapticMotor(object):
+class Grove_HapticMotor(object):
     """This class controls the Grove Haptic Motor based on the DRV2605L.
     Hardware version v0.9. 
     

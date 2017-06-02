@@ -53,7 +53,7 @@ SET_LEVEL = 0x9
 READ_LEDS = 0xB
 
 
-class PmodGroveLEDbar(object):
+class Grove_LEDbar(object):
     """This class controls the Grove LED BAR. 
     
     Grove LED Bar is comprised of a 10 segment LED gauge bar and an MY9221 LED

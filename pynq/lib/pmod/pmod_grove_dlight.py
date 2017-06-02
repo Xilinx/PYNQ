@@ -43,7 +43,7 @@ GET_LIGHT_VALUE = 0x3
 GET_LUX_VALUE = 0x5
 
 
-class PmodGroveDlight(object):
+class Grove_Dlight(object):
     """This class controls the Grove IIC color sensor.
     
     Grove Color sensor based on the TCS3414CS. 

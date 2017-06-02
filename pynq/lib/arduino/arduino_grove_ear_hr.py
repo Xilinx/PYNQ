@@ -46,7 +46,7 @@ ARDUINO_GROVE_EAR_HR_PROGRAM = "arduino_grove_ear_hr.bin"
 CONFIG_IOP_SWITCH = 0x1
 
 
-class ArduinoGroveEarHR(object):
+class Grove_EarHR(object):
     """This class controls the Grove ear clip heart rate sensor. 
     Sensor model: MED03212P.
     

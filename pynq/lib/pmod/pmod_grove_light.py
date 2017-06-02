@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import PmodGroveADC
+from . import Grove_ADC
 
 
 __author__ = "Yun Rock Qu"
@@ -64,7 +64,7 @@ def _int2r(val):
     return float("{0:.2f}".format(r_sensor))
 
 
-class PmodGroveLight(PmodGroveADC):
+class Grove_Light(Grove_ADC):
     """This class controls the grove light sensor.
     
     This class inherits from the grove ADC class. To use this module, grove 

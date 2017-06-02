@@ -84,7 +84,7 @@ def _get_cmd_word(cmd, d_width, d_length):
     return word
 
 
-class PmodDevMode(object):
+class Pmod_DevMode(object):
     """Control a Microblaze processor running the developer mode program. 
     
     This class will wait for Python to send commands to Microblaze processor.

@@ -45,7 +45,7 @@ GENERATE = 0x3
 STOP = 0x5
 
 
-class PmodPWM(object):
+class Pmod_PWM(object):
     """This class uses the PWM of the IOP. 
 
     Attributes

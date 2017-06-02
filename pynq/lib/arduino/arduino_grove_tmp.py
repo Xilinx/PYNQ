@@ -29,7 +29,7 @@
 
 
 from math import log
-from . import ArduinoGroveADC
+from . import Grove_ADC
 
 
 __author__ = "Yun Rock Qu"
@@ -37,7 +37,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class ArduinoGroveTMP(Grove_ADC):
+class Grove_TMP(Grove_ADC):
     """This class controls the grove temperature sensor.
     
     This class inherits from the Grove_ADC class. To use this module, grove 

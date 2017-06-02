@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import ArduinoDevMode
+from . import Arduino_DevMode
 from . import ARDUINO_SWCFG_DIOALL
 from . import ARDUINO_DIO_BASEADDR
 from . import ARDUINO_DIO_TRI_OFFSET
@@ -44,7 +44,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class ArduinoIO(ArduinoDevMode):
+class Arduino_IO(Arduino_DevMode):
     """This class controls the Arduino IO pins as inputs or outputs.
     
     Note

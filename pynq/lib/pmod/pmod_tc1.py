@@ -114,7 +114,7 @@ def reg_to_alarms(reg_val):
     return reg_val & 0x0001000f
 
 
-class PmodTC1(object):
+class Pmod_TC1(object):
     """This class controls a thermocouple Pmod.
 
     The Digilent PmodTC1 is a cold-junction thermocouple-to-digital converter

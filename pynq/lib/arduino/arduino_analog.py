@@ -69,7 +69,7 @@ def _reg2float(reg):
     return struct.unpack('>f', s)[0]
 
 
-class ArduinoAnalog(object):
+class Arduino_Analog(object):
     """This class controls the Arduino Analog. 
     
     XADC is an internal analog controller in the hardware. This class

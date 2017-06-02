@@ -46,7 +46,7 @@ PLAY_TONE = 0x3
 PLAY_DEMO = 0x5
 
 
-class PmodGroveBuzzer(object):
+class Grove_Buzzer(object):
     """This class controls the Grove Buzzer.
     
     The grove buzzer module has a piezo buzzer as the main component. 

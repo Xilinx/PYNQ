@@ -48,7 +48,7 @@ READ_AND_LOG_DATA = 0x3
 STOP_LOG = 0xC
 
 
-class PmodGroveFingerHR(object):
+class Grove_FingerHR(object):
     """This class controls the Grove finger clip heart rate sensor. 
     
     Grove Finger sensor based on the TCS3414CS. 

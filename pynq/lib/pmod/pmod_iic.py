@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import PmodDevMode
+from . import Pmod_DevMode
 from . import PMOD_SWCFG_IIC0_SDA
 from . import PMOD_SWCFG_IIC0_SCL
 from . import PMOD_SWCFG_IIC0_DIO
@@ -49,7 +49,7 @@ __email__ = "pynq_support@xilinx.com"
 I2C_DELAY = .001
 
 
-class PmodIIC(PmodDevMode):
+class Pmod_IIC(Pmod_DevMode):
     """This class controls the Pmod IIC pins.
     
     Note

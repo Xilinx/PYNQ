@@ -42,7 +42,7 @@ SET_POT_SIMPLE = 0x3
 SET_POT_RAMP = 0x5
 
 
-class PmodDPOT(object):
+class Pmod_DPOT(object):
     """This class controls a digital potentiometer Pmod.
     
     The Pmod DPOT (PB 200-239) is a digital potentiometer powered by the 

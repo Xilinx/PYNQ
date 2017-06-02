@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import PmodIO
+from . import Pmod_IO
 from . import PMOD_GROVE_G1
 from . import PMOD_GROVE_G2
 
@@ -38,7 +38,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class PmodGrovePIR(PmodIO):
+class Grove_PIR(Pmod_IO):
     """This class controls the PIR motion sensor.
 
     Hardware version: v1.2.

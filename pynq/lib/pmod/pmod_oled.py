@@ -43,7 +43,7 @@ DRAW_LINE = 0x5
 DRAW_RECT = 0x7
 
 
-class PmodOLED(object):
+class Pmod_OLED(object):
     """This class controls an OLED Pmod.
 
     The Pmod OLED (PB 200-222) is 128x32 pixel monochrome organic LED (OLED) 

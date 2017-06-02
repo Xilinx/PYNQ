@@ -46,7 +46,7 @@ READ_SINGLE_VALUE = 0x3
 READ_AND_LOG = 0x7
 
 
-class PmodALS(object):
+class Pmod_ALS(object):
     """This class controls a light sensor Pmod.
     
     The Digilent Pmod ALS demonstrates light-to-digital sensing through a

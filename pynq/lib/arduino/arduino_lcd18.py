@@ -74,7 +74,7 @@ def _convert_color(color):
     return ((blue & 0xF8) << 8) | ((green & 0xFC) << 3) | ((red & 0xF8) >> 3)
 
 
-class ArduinoLCD18(object):
+class Arduino_LCD18(object):
     """This class controls the Adafruit 1.8" LCD shield from AdaFruit. 
     
     The LCD panel consists of ST7735 LCD controller, a joystick, and a microSD

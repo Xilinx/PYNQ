@@ -77,8 +77,8 @@ CMDS_ARM_BUILDER_LIST = [CMD_ARM_CFG, CMD_ARM_PG, CMD_ARM_SMG, CMD_ARM_TRACE]
 INTF_MICROBLAZE_BIN = "arduino_intf.bin"
 
 # PYNQ-Z1 specification
-PYNQZ1_INTF_ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
-                       'rst_name': 'mb_reset_3'}
+ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
+           'rst_name': 'mb_reset_3'}
 PYNQZ1_DIO_SPECIFICATION = {'clock_mhz': 10,
                             'interface_width': 20,
                             'monitor_width': 64,

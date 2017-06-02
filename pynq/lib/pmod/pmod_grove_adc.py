@@ -76,7 +76,7 @@ def _reg2float(reg):
     return struct.unpack('>f', s)[0]
 
 
-class PmodGroveADC(object):
+class Grove_ADC(object):
     """This class controls the Grove IIC ADC. 
     
     Grove ADC is a 12-bit precision ADC module based on ADC121C021. Hardware

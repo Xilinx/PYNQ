@@ -46,7 +46,7 @@ READ_AND_LOG_DATA = 0x3
 STOP_LOG = 0xC
 
 
-class ArduinoGroveTH02(object):
+class Grove_TH02(object):
     """This class controls the Grove I2C Temperature and Humidity sensor. 
     
     Temperature & humidity sensor (high-accuracy & mini).

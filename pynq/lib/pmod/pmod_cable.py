@@ -38,7 +38,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class PmodCable(Pmod_IO):
+class Pmod_Cable(Pmod_IO):
     """This class can be used for a cable connecting Pmod interfaces.
     
     This class inherits from the Pmod IO class.

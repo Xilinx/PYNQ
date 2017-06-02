@@ -47,7 +47,7 @@ COUNT_EVENTS = 0xB
 MEASURE_PERIOD = 0xD
 
 
-class PmodTimer(object):
+class Pmod_Timer(object):
     """This class uses the timer's capture and generation capabilities.
 
     Attributes

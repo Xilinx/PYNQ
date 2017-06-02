@@ -38,10 +38,10 @@ __email__ = "pynq_support@xilinx.com"
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 # PYNQ-Z1 constants
-PYNQZ1_BASE_ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
-                       'rst_name': 'mb_reset_3',
-                       'intr_pin_name': 'iop3/dff_en_reset_0/q',
-                       'intr_ack_name': 'mb_3_intr_ack'}
+ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
+           'rst_name': 'mb_reset_3',
+           'intr_pin_name': 'iop3/dff_en_reset_0/q',
+           'intr_ack_name': 'mb_3_intr_ack'}
 
 # Arduino mailbox constants
 MAILBOX_OFFSET = 0xF000

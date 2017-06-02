@@ -81,7 +81,7 @@ def _reg2float(reg):
     return float("{0:.1f}".format(result))
 
 
-class PmodTMP2(object):
+class Pmod_TMP2(object):
     """This class controls a temperature sensor Pmod.
     
     The Pmod TMP2 (PB 200-221) is an ambient temperature sensor powered by 

@@ -95,7 +95,7 @@ def _reg2int(reg):
     return result
 
 
-class PmodGroveIMU(object):
+class Grove_IMU(object):
     """This class controls the Grove IIC IMU. 
 
     Grove IMU 10DOF is a combination of grove IMU 9DOF (MPU9250) and grove 

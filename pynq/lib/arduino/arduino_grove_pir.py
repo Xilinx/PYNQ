@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import ArduinoIO
+from . import Arduino_IO
 from . import ARDUINO_GROVE_G1
 from . import ARDUINO_GROVE_G2
 from . import ARDUINO_GROVE_G3
@@ -43,7 +43,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class ArduinoGrovePIR(ArduinoIO):
+class Grove_PIR(Arduino_IO):
     """This class controls the PIR motion sensor.
 
     Hardware version: v1.2.

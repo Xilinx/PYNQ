@@ -43,7 +43,7 @@ READ_AND_LOG_DATA = 0x3
 STOP_LOG = 0xC
 
 
-class ArduinoGroveColor(object):
+class Grove_Color(object):
     """This class controls the Grove IIC Color sensor. 
     
     Grove Color sensor based on the TCS3414CS. 

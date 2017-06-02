@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import PmodDevMode
+from . import Pmod_DevMode
 from . import PMOD_SWCFG_DIOALL
 from . import PMOD_DIO_BASEADDR
 from . import PMOD_DIO_TRI_OFFSET
@@ -43,7 +43,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class PmodIO(PmodDevMode):
+class Pmod_IO(Pmod_DevMode):
     """This class controls the Pmod IO pins as inputs or outputs.
     
     Note

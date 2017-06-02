@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import PmodDevMode
+from . import Pmod_DevMode
 from . import PMOD_SWCFG_DIOALL
 from . import PMOD_DIO_BASEADDR
 from . import PMOD_DIO_TRI_OFFSET
@@ -42,7 +42,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class PmodLED8(PmodDevMode):
+class Pmod_LED8(Pmod_DevMode):
     """This class controls a single LED on the LED8 Pmod.
     
     The Pmod LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be

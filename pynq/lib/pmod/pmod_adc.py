@@ -67,7 +67,7 @@ def _reg2float(reg):
     return round(struct.unpack('>f', s)[0], 4)
 
 
-class PmodADC(object):
+class Pmod_ADC(object):
     """This class controls an Analog to Digital Converter Pmod.
     
     The Pmod AD2 (PB 200-217) is an analog-to-digital converter powered by 

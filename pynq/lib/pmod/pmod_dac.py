@@ -40,7 +40,7 @@ PMOD_DAC_PROGRAM = "pmod_dac.bin"
 FIXEDGEN = 0x3
 
 
-class PmodDAC(object):
+class Pmod_DAC(object):
     """This class controls a Digital to Analog Converter Pmod.
     
     The Pmod DA4 (PB 200-245) is an 8 channel 12-bit digital-to-analog 

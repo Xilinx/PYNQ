@@ -27,9 +27,6 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Graham Schelle"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 # from .audio import Audio
 # from .video import HDMI
@@ -38,14 +35,17 @@ __email__ = "pynq_support@xilinx.com"
 # from .trace_buffer import Trace_Buffer
 # from .usb_wifi import Usb_Wifi
 
+
 from .pynqmicroblaze import PynqMicroblaze
 from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
 from .button import Button
+from .pmod import *
+from .arduino import *
+from .intf import *
 
-from .intf import request_intf
-from .intf import FSMBuilder
-from .intf import PatternBuilder
-from .intf import BooleanBuilder
-from .intf import Waveform
+
+__author__ = "Graham Schelle"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
