@@ -135,32 +135,49 @@ class _TCL:
         self.pins = {}
         self.prop = []
         self.interrupt_pins = {}
-        self.ps7_name = ""
+        self.ps_name = ""
         self.ip_dict = {}
         self.gpio_dict = {}
         self.clock_dict = {}
 
         # Key strings to search for in the TCL file
-        hier_start_pat = "create_hier_cell"
-        hier_end_pat = "}\n"
-        hier_outer_pattern = "proc "
-        hier_inner_regex = "create_hier_cell_([^ ]*)"
-        config_pat = "CONFIG."
-        config_regex = "CONFIG.(.+?) \{(.+?)\}"
-        clk_divisor_regex = 'PCW_FCLK(.+?)_PERIPHERAL_DIVISOR(.+?)'
-        clk_enable_regex = 'PCW_FPGA_FCLK(.+?)_ENABLE'
+        family_pat = "create_project"
+        family_regex = "(?P<family_str>xc.{2}).*"
+        family_ps_dict = {"xc7z": "processing_system7",
+                          "xczu": "zynq_ultra_ps_e"}
+        family_irq_dict = {"xc7z": "IRQ_F2P",
+                           "xczu": "pl_ps_irq0"}
+        family_gpio_dict = {"xc7z": "GPIO_O",
+                            "xczu": "emio_gpio_o"}
+        hier_use_pat = "create_hier_cell"
+        hier_proc_def_pat = f"proc {hier_use_pat}"
+        hier_def_regex = "create_hier_cell_(?P<name>[^ ]*)"
+        hier_proc_end_pat = "}\n"
+        hier_use_regex = ("create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
+                          "(?P<instance_name>[^ ]*)\n")
+
+        config_ip_pat = "CONFIG."
+        config_regex = "CONFIG.(?P<key>.+?) \{(?P<value>.+?)\}"
+        clk_odiv_regex = 'PCW_FCLK(?P<idx>.+?)_PERIPHERAL_DIVISOR(?P<div>.+?)'
+        clk_enable_regex = 'PCW_FPGA_FCLK(?P<idx>.+?)_ENABLE'
         prop_start_pat = "set_property -dict ["
         prop_end_pat = "]"
-        prop_name_regex = "\] \$(.+?)$"
+        prop_name_regex = "\] \$(?P<instance_name>.+?)$"
         net_pat = "connect_bd_net -net"
-        net_regex = "\[get_bd_pins ([^]]+)\]"
+        net_regex = "\[get_bd_pins (?P<name>[^]]+)\]"
         addr_pat = "create_bd_addr_seg"
-        addr_regex = "create_bd_addr_seg -range (0[xX][0-9a-fA-F]+) " + \
-                     "-offset (0[xX][0-9a-fA-F]+) " + \
-                     "\[get_bd_addr_spaces "
+        addr_regex = ("create_bd_addr_seg " +
+                      "-range (?P<range>0[xX][0-9a-fA-F]+) " +
+                      "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +
+                      "\[get_bd_addr_spaces ")
         ip_pat = "create_bd_cell -type ip -vlnv "
-        ip_regex = "create_bd_cell -type ip -vlnv " + \
-                   "(.+?):(.+?):(.+?):(.+?) ([^ ]*)"
+        ip_regex = ("create_bd_cell -type ip -vlnv " +
+                    "(?P<author>.+?):" +
+                    "(?P<type>.+?):" +
+                    "(?P<ip_name>.+?):" +
+                    "(?P<version>.+?) " +
+                    "(?P<instance_name>[^ ]*)")
+        ignore_regex = "\s*(\#|catch).*"
 
         # Parsing state
         current_hier = ""
@@ -173,123 +190,147 @@ class _TCL:
 
         with open(tcl_name, 'r') as f:
             for line in f:
-                if not line.lstrip().startswith('#') and \
-                        not line.lstrip().startswith('catch'):
-                    # Matching address segment
-                    if not in_prop and addr_pat in line:
-                        m = re.search(addr_regex, line, re.IGNORECASE)
-                        if m:
-                            for ip_dict0 in hier_dict:
-                                for ip_name, ip_type in \
-                                        hier_dict[ip_dict0].items():
-                                    ip = (ip_dict0 + '/' + ip_name).lstrip('/')
-                                    if m.group(3).startswith(ip):
-                                        self.ip_dict[ip] = dict()
-                                        self.ip_dict[ip]['phys_addr'] = \
-                                            int(m.group(2), 16)
-                                        self.ip_dict[ip]['addr_range'] = \
-                                            int(m.group(1), 16)
-                                        self.ip_dict[ip]['type'] = ip_type
-                                        self.ip_dict[ip]['state'] = None
+                if re.match(ignore_regex, line):
+                    continue
 
-                    # Matching hierarchical cell
-                    elif not in_prop and hier_start_pat in line:
-                        m = re.search(hier_inner_regex, line)
-                        if m and hier_outer_pattern in line:
-                            current_hier = m.group(1)
-                            hier_dict[current_hier] = {}
-                        elif m and hier_outer_pattern not in line:
-                            if m.group(1) in hier_dict:
-                                new_name = current_hier + '/' + m.group(1)
-                                hier_dict[new_name] = deepcopy(
-                                    hier_dict[m.group(1)])
-                    elif not in_prop and hier_end_pat == line:
-                        current_hier = ""
+                # Matching IP configurations
+                elif prop_start_pat in line:
+                    in_prop = True
 
-                    # Matching IP cells in root design
-                    elif not in_prop and ip_pat in line:
-                        m = re.search(ip_regex, line)
-                        if m.group(3) == "processing_system7":
-                            self.ps7_name = m.group(5)
-                            addr_regex += (self.ps7_name + "/Data\] " +
-                                           "\[get_bd_addr_segs (.+?)\] " +
-                                           "([A-Za-z0-9_]+)")
-                        else:
-                            ip_type = ':'.join([m.group(1),
-                                                m.group(2),
-                                                m.group(3),
-                                                m.group(4)])
-                            ip_name = m.group(5)
-                            hier_dict[current_hier][ip_name] = ip_type
-                            ip = (current_hier + '/' + ip_name).lstrip('/')
-                            if m.group(3) == "xlconcat":
-                                last_concat = ip
-                                self.concat_cells[ip] = 2
-                            elif m.group(3) == "axi_intc":
-                                self.intc_names.append(ip)
-
-                    # Matching nets
-                    elif not in_prop and net_pat in line:
-                        new_pins = [current_hier + v for v in
-                                    re.findall(net_regex, line, re.IGNORECASE)]
-                        indexes = set()
-                        for p in new_pins:
-                            if p in self.pins:
-                                indexes.add(self.pins[p])
-                        if len(indexes) == 0:
-                            index = len(self.nets)
-                            self.nets.append(set())
-                        else:
-                            to_merge = []
-                            while len(indexes) > 1:
-                                to_merge.append(indexes.pop())
-                            index = indexes.pop()
-                            for i in to_merge:
-                                self.nets[index] |= self.nets[i]
-                        self.nets[index] |= set(new_pins)
-                        for p in self.nets[index]:
-                            self.pins[p] = index
-
-                    # Matching IP configurations
-                    elif not in_prop and prop_start_pat in line:
-                        in_prop = True
-                    elif in_prop and prop_end_pat in line:
+                # Matching Property declarations
+                elif in_prop:
+                    if prop_end_pat in line:
                         m = re.search(prop_name_regex, line, re.IGNORECASE)
-                        if m:
-                            if gpio_idx is not None:
-                                gpio_dict[m.group(1)] = gpio_idx
-                                gpio_idx = None
+                        if m and gpio_idx is not None:
+                            name = m.group("instance_name")
+                            gpio_dict[name] = gpio_idx
+                            gpio_idx = None
                         in_prop = False
-                    elif in_prop and config_pat in line:
+
+                    elif config_ip_pat in line:
                         m1 = re.search(config_regex, line)
-                        if m1.group(1) == "NUM_PORTS":
-                            self.concat_cells[last_concat] = int(m1.group(2))
-                        elif m1.group(1) == 'DIN_FROM':
-                            gpio_idx = int(m1.group(2))
-                        elif 'FCLK' in m1.group(1):
-                            m2 = re.search(clk_divisor_regex, m1.group(1))
-                            m3 = re.search(clk_enable_regex, m1.group(1))
-                            if m2:
-                                fclk_index = int(m2.group(1))
-                                if fclk_index not in self.clock_dict:
-                                    self.clock_dict[fclk_index] = {}
-                                divisor_name = 'divisor' + m2.group(2)
-                                self.clock_dict[fclk_index][divisor_name] = \
-                                    int(m1.group(2))
-                            if m3:
-                                fclk_index = int(m3.group(1))
-                                if fclk_index not in self.clock_dict:
-                                    self.clock_dict[fclk_index] = {}
-                                self.clock_dict[fclk_index]['enable'] = \
-                                    int(m1.group(2))
+                        key = m1.group("key")
+                        value = m1.group("value")
 
-        if self.ps7_name + "/IRQ_F2P" in self.pins:
-            ps7_irq_net = self.pins[self.ps7_name + "/IRQ_F2P"]
-            self._add_interrupt_pins(ps7_irq_net, "", 0)
+                        if key == "NUM_PORTS":
+                            self.concat_cells[last_concat] = int(value)
 
-        if self.ps7_name + "/GPIO_O" in self.pins:
-            ps7_gpio_net = self.pins[self.ps7_name + "/GPIO_O"]
-            self._add_gpio_pins(ps7_gpio_net, gpio_dict)
+                        elif key == 'DIN_FROM':
+                            gpio_idx = int(value)
+
+                        elif "FCLK" in line and "PERIPHERAL_DIVISOR" in line:
+                            m2 = re.search(clk_odiv_regex, key)
+                            idx = int(m2.group("idx"))
+                            if idx not in self.clock_dict:
+                                self.clock_dict[idx] = {}
+                            divisor_name = 'divisor' + m2.group("div")
+                            self.clock_dict[idx][divisor_name] = int(value)
+
+                        elif "FCLK" in line and "ENABLE" in line:
+                            m3 = re.search(clk_enable_regex, key)
+                            idx = int(m3.group("idx"))
+                            if idx not in self.clock_dict:
+                                self.clock_dict[idx] = {}
+                            self.clock_dict[idx]['enable'] = int(value)
+
+                # Match project/family declaration
+                elif family_pat in line:
+                    m = re.search(family_regex, line, re.IGNORECASE)
+                    self.family = m.group("family_str")
+
+                # Matching address segment
+                elif addr_pat in line:
+                    m = re.search(addr_regex, line, re.IGNORECASE)
+                    if m:
+                        for ip_dict0 in hier_dict:
+                            for ip_name, ip_type in \
+                                    hier_dict[ip_dict0].items():
+                                ip = (ip_dict0 + '/' + ip_name).lstrip('/')
+                                if m.group("hier").startswith(ip):
+                                    self.ip_dict[ip] = dict()
+                                    self.ip_dict[ip]['phys_addr'] = \
+                                        int(m.group("addr"), 16)
+                                    self.ip_dict[ip]['addr_range'] = \
+                                        int(m.group("range"), 16)
+                                    self.ip_dict[ip]['type'] = ip_type
+                                    self.ip_dict[ip]['state'] = None
+
+                # Match hierarchical cell definition
+                elif hier_proc_def_pat in line:
+                    m = re.search(hier_def_regex, line)
+                    hier_name = m.group("name")
+                    current_hier = hier_name
+                    hier_dict[current_hier] = dict()
+
+                elif hier_proc_end_pat == line:
+                    current_hier = ""
+
+                # Match hierarchical cell use/instantiation
+                elif hier_use_pat in line:
+                    m = re.search(hier_use_regex, line)
+                    hier_name = m.group("hier_name")
+                    inst_name = m.group("instance_name")
+                    inst_path = (current_hier + '/' + inst_name).lstrip('/')
+                    inst_dict = dict()
+                    for path in hier_dict:
+                        psplit = path.split('/')
+                        if psplit[0] == hier_name:
+                            inst_path += path.lstrip(hier_name)
+                            inst_dict[inst_path] = deepcopy(hier_dict[path])
+                    hier_dict.update(inst_dict)
+
+                # Matching IP cells in root design
+                elif ip_pat in line:
+                    m = re.search(ip_regex, line)
+                    ip_name = m.group("ip_name")
+                    instance_name = m.group("instance_name")
+                    if m.group("ip_name") == family_ps_dict[self.family]:
+                        self.ps_name = instance_name
+                        addr_regex += (instance_name + "/Data\] " +
+                                       "\[get_bd_addr_segs (?P<hier>.+?)\] " +
+                                       "(?P<name>[A-Za-z0-9_]+)")
+                    else:
+                        ip_type = ':'.join([m.group(1), m.group(2),
+                                            m.group(3), m.group(4)])
+                        hier_dict[current_hier][instance_name] = ip_type
+
+                        ip = (current_hier + '/' + instance_name).lstrip('/')
+                        if ip_name == "xlconcat":
+                            last_concat = ip
+                            self.concat_cells[ip] = 2
+                        elif ip_name == "axi_intc":
+                            self.intc_names.append(ip)
+
+                # Matching nets
+                elif net_pat in line:
+                    mpins = re.findall(net_regex, line, re.IGNORECASE)
+                    new_pins = [(current_hier + "/" + v).lstrip('/') for v in
+                                mpins]
+                    indexes = {self.pins[p] for p in new_pins if
+                               p in self.pins}
+                    if len(indexes) == 0:
+                        index = len(self.nets)
+                        self.nets.append(set())
+                    else:
+                        to_merge = []
+                        while len(indexes) > 1:
+                            to_merge.append(indexes.pop())
+                        index = indexes.pop()
+                        for i in to_merge:
+                            self.nets[index] |= self.nets[i]
+                    self.nets[index] |= set(new_pins)
+                    for p in self.nets[index]:
+                        self.pins[p] = index
+
+        if self.ps_name + "/" + family_irq_dict[self.family] in self.pins:
+            ps_irq_net = self.pins[
+                self.ps_name + "/" + family_irq_dict[self.family]]
+            self._add_interrupt_pins(ps_irq_net, "", 0)
+
+        if self.ps_name + "/" + family_gpio_dict[self.family] in self.pins:
+            ps_gpio_net = self.pins[
+                self.ps_name + "/" + family_gpio_dict[self.family]]
+            self._add_gpio_pins(ps_gpio_net, gpio_dict)
 
     def _add_gpio_pins(self, net, gpio_dict):
         net_pins = self.nets[net]
@@ -546,11 +587,20 @@ class PLMeta(type):
             cls._interrupt_controllers = tcl.interrupt_controllers
             cls._interrupt_pins = tcl.interrupt_pins
         else:
-            cls._ip_dict.clear()
-            cls._gpio_dict.clear()
-            cls._interrupt_controllers.clear()
-            cls._interrupt_pins.clear()
+            cls.clear_dict()
         cls.server_update()
+
+    def clear_dict(cls):
+        """Clear all the dictionaries stored in PL.
+
+        This method will clear all the related dictionaries, including IP
+        dictionary, GPIO dictionary, etc.
+        
+        """
+        cls._ip_dict.clear()
+        cls._gpio_dict.clear()
+        cls._interrupt_controllers.clear()
+        cls._interrupt_pins.clear()
 
     def load_ip_data(cls, ip_name, data):
         """This method writes data to the addressable IP.
@@ -575,7 +625,7 @@ class PLMeta(type):
         cls.client_request()
         with open(data, 'rb') as bin_file:
             size = int((math.ceil(os.fstat(bin_file.fileno()).st_size /
-                              mmap.PAGESIZE)) * mmap.PAGESIZE)
+                                  mmap.PAGESIZE)) * mmap.PAGESIZE)
             mmio = MMIO(cls._ip_dict[ip_name]['phys_addr'], size)
             buf = bin_file.read(size)
             mmio.write(0, buf)
@@ -716,10 +766,7 @@ class Bitstream(PL):
         PL.client_request()
         PL._bitfile_name = self.bitfile_name
         PL._timestamp = self.timestamp
-        PL._ip_dict.clear()
-        PL._gpio_dict.clear()
-        PL._interrupt_controllers.clear()
-        PL._interrupt_pins.clear()
+        PL.clear_dict()
         PL.server_update()
 
 
