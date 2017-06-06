@@ -103,7 +103,7 @@ def _get_uio_device(irq):
     with open('/proc/interrupts', 'r') as f:
         for line in f:
             cols = line.split()
-            if len(cols) >= 6:
+            if len(cols) >= 7:
                 if cols[4] == str(irq):
                     # Hack to work on multiple kernel versions
                     dev_names = [cols[5], cols[6]]
