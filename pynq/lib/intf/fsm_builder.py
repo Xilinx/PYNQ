@@ -590,6 +590,9 @@ class FSMBuilder:
         transitions_copy2 = deepcopy(transitions_copy1)
         for index, row in enumerate(transitions_copy2):
             input_list = list(row[0])
+            if len(input_list) != self.num_input_bits:
+                raise ValueError(f'{self.num_input_bits} input bits required '
+                                 f'for each transition.')
             wildcard = '-'
             if wildcard in input_list:
                 zero_list, one_list = replace_wildcard(input_list)
@@ -703,29 +706,27 @@ class FSMBuilder:
 
         # Configuration for bit 8,7,6,5 (slvreg 0)
         config_shared_pins = 0x1f1f1f1f
-        shared_input_bits = min(self.num_input_bits, 9 - index_offset)
-        if 5 <= index_offset <= 8:
-            for i in range(shared_input_bits):
-                config_shared_pins = \
-                    ((config_shared_pins << 8) +
-                     (0x80 + self.intf_spec['traceable_outputs'][
-                         self.input_pins[i]])) & 0xffffffff
-            for _ in range(5, index_offset):
-                config_shared_pins = \
-                    ((config_shared_pins << 8) + 0x1f) & 0xffffffff
+        shared_input_bits = min(self.num_input_bits,
+                                FSM_MAX_STATE_BITS - index_offset)
+        for i in range(shared_input_bits):
+            config_shared_pins = \
+                ((config_shared_pins << 8) +
+                 (0x80 + self.intf_spec['traceable_outputs'][
+                     self.input_pins[i - shared_input_bits]])) & 0xffffffff
+        for _ in range(5, index_offset):
+            config_shared_pins = \
+                ((config_shared_pins << 8) + 0x1f) & 0xffffffff
         config.append(config_shared_pins)
 
         # Configuration for bit 12,11,10,9 (slvreg 1)
         config_input_pins = 0x1f1f1f1f
-        if 9 <= index_offset <= 12:
-            if self.num_input_bits > shared_input_bits:
-                dedicated_input_bits = self.num_input_bits - shared_input_bits
-                for i in range(dedicated_input_bits):
-                    config_input_pins = \
-                        ((config_input_pins << 8) +
-                         (0x80 + self.intf_spec['traceable_outputs'][
-                             self.input_pins[i + shared_input_bits]])) & \
-                        0xffffffff
+        if self.num_input_bits > shared_input_bits:
+            dedicated_input_bits = self.num_input_bits - shared_input_bits
+            for i in range(dedicated_input_bits):
+                config_input_pins = \
+                    ((config_input_pins << 8) +
+                     (0x80 + self.intf_spec['traceable_outputs'][
+                         self.input_pins[i]])) & 0xffffffff
         config.append(config_input_pins)
 
         # Configuration for bit 31 - 13 (slvreg 6,5,4,3,2)
