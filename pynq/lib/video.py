@@ -28,6 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import asyncio
+import contextlib
 import functools
 import numpy as np
 import time
@@ -346,6 +347,7 @@ class AxiVDMA:
             captured = self._frames[previous_frame]
             self._frames.takeownership(previous_frame)
             self._frames[previous_frame] = nextframe
+            self.irqframecount = 1
             return captured
 
         def readframe(self):
@@ -444,6 +446,18 @@ class AxiVDMA:
                register |= 0x2
             self._mmio.write(0x30, register)
 
+        @property
+        def irqframecount(self):
+            register = self._mmio.read(0x30)
+            return (register >> 16) & 0xFF
+
+        @irqframecount.setter
+        def irqframecount(self, val):
+            register = self._mmio.read(0x30)
+            newregister = (register & 0xFF00FFFF) | (val << 16)
+            if register != newregister:
+                self._mmio.write(0x30, newregister)
+
         def start(self):
             """Start the DMA. The mode must be set prior to this being called
 
@@ -457,7 +471,9 @@ class AxiVDMA:
 
             self._writemode()
             self.reload()
-            self._mmio.write(0x30, 0x00011083)
+            self._mmio.write(0x30, 0x00011083) # Start DMA
+            self.irqframecount = 4 # Ensure all frames are written to
+            self._mmio.write(0x34, 0x1000) # Clear any interrupts
             while not self.running:
                 pass
             self.reload()
@@ -977,18 +993,36 @@ class HDMIIn:
         self._vdma.readchannel.mode = VideoMode(input_mode.width,
                                                 input_mode.height,
                                                 pixelformat.bits_per_pixel)
+        return self._closecontextmanager()
 
     def start(self):
         """Start the pipeline
 
         """
         self._vdma.readchannel.start()
+        return self._stopcontextmanager()
 
     def stop(self):
         """Stop the pipeline
 
         """
         self._vdma.readchannel.stop()
+
+    @contextlib.contextmanager
+    def _stopcontextmanager(self):
+        """Context Manager to stop the VDMA at the end of the block
+
+        """
+        yield
+        self.stop()
+
+    @contextlib.contextmanager
+    def _closecontextmanager(self):
+        """Context Manager to close the HDMI port at the end of the block
+
+        """
+        yield
+        self.close()
 
     def close(self):
         """Uninitialise the drivers, stopping the pipeline beforehand
@@ -1106,12 +1140,14 @@ class HDMIOut:
         self._hdmi.mode = mode
         self._vdma.writechannel.mode = mode
         self._hdmi.start()
+        return self._closecontextmanager()
 
     def start(self):
         """Start the pipeline
 
         """
         self._vdma.writechannel.start()
+        return self._stopcontextmanager()
 
     def stop(self):
         """Stop the pipeline
@@ -1125,6 +1161,22 @@ class HDMIOut:
         """
         self.stop()
         self._hdmi.stop()
+
+    @contextlib.contextmanager
+    def _stopcontextmanager(self):
+        """Context Manager to stop the VDMA at the end of the block
+
+        """
+        yield
+        self.stop()
+
+    @contextlib.contextmanager
+    def _closecontextmanager(self):
+        """Context Manager to close the HDMI port at the end of the block
+
+        """
+        yield
+        self.close()
 
     @property
     def colorspace(self):
