@@ -6,6 +6,7 @@ set -e
 
 target=$1
 
+board=$(cat ${WORKDIR}/board)
 fss="proc dev"
 
 # Make sure that our version of QEMU is on the PATH
@@ -45,6 +46,7 @@ adduser --home /home/xilinx xilinx --disabled-password --gecos "Xilinx User,,,,"
 echo -e "xilinx\\nxilinx" | passwd xilinx
 echo -e "xilinx\\nxilinx" | smbpasswd -a xilinx
 echo -e "xilinx\\nxilinx" | passwd root
+echo "BOARD=${board}" >> /etc/environment
 
 adduser xilinx adm
 adduser xilinx sudo
