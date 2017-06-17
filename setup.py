@@ -216,3 +216,7 @@ setup(name='pynq',
       ],
       data_files=pynq_data_files
       )
+
+if board:
+    print('Restarting PL server')
+    subprocess.run(['systemctl' ,'restart', 'pl_server'])
