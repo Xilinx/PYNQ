@@ -690,6 +690,32 @@ class PL(metaclass=PLMeta):
             raise EnvironmentError('Root permissions required.')
 
 
+def _stop_server():
+    """Entry point for the stop_pl_server.py script
+
+    This function will attempt to stop the PL server in
+    a controlled manner. It should not be called by user code
+
+    """
+    try:
+        PL.client_request()
+        PL.server_update(0)
+    except:
+        pass
+
+def _start_server():
+    """Entry point for the start_pl_server.py script
+
+    Starts the PL server using the default server file.  Should
+    not be called by user code - use PL.setup() instead to
+    customise the server.
+
+    """
+    if os.path.exists(PL_SERVER_FILE):
+       os.remove(PL_SERVER_FILE)
+    PL.setup()
+
+
 class Bitstream(PL):
     """This class instantiates a programmable logic bitstream.
 
