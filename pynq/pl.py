@@ -536,7 +536,11 @@ class PLMeta(type):
         None
 
         """
-        cls._remote = Client(address, family='AF_UNIX', authkey=key)
+        try:
+            cls._remote = Client(address, family='AF_UNIX', authkey=key)
+        except FileNotFoundError:
+            raise ConnectionError(
+                       "Could not connect to Pynq PL server") from None
         cls._bitfile_name, cls._timestamp, \
             cls._ip_dict, cls._gpio_dict, \
             cls._interrupt_controllers, \
