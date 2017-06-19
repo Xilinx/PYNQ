@@ -32,8 +32,9 @@ from random import randint
 import numpy as np
 import pytest
 from pynq import Overlay
-from pynq.intf import intf_const
-from pynq.intf import request_intf
+from pynq.lib.intf import Intf
+from pynq.lib.intf import ARDUINO
+from pynq.lib.intf import MAILBOX_OFFSET
 
 
 __author__ = "Yun Rock Qu"
@@ -41,68 +42,57 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-ol = Overlay("interface.bit")
+try:
+    _ = Overlay('interface.bit')
+    flag = True
+except IOError:
+    flag = False
 
 
-@pytest.mark.run(order=40)
-def test_request_intf():
-    """Test for the method request_intf().
+@pytest.mark.skipif(not flag, reason="need interface overlay to run")
+def test_intf():
+    """Test for interface Microblaze processor.
 
-    Test whether the request_intf() can return an object without errors.
+    First test whether Intf() can return an object without errors.
 
-    """
-    fixed_id = 3
-    exception_raised = False
-    try:
-        request_intf(fixed_id, 'arduino_intf.bin')
-    except LookupError:
-        exception_raised = True
-    assert not exception_raised, 'request_intf() should not raise exception.'
-
-    ol.reset()
-
-
-@pytest.mark.run(order=41)
-def test_request_intf_same():
-    """Test for the method request_intf().
-
-    The request_intf() should not raise any exception since the previous INTF
+    Then no exception should raise when the previous processor
     runs the same program.
 
-    """
-    fixed_id = 3
-    exception_raised = False
-    request_intf(fixed_id, 'arduino_intf.bin')
-    try:
-        request_intf(fixed_id, 'arduino_intf.bin')
-    except LookupError:
-        exception_raised = True
-    assert not exception_raised, 'request_intf() should not raise exception.'
+    Finally test multiple functions / attributes of the instance of Intf().
 
+    """
+    ol = Overlay('interface.bit')
+    ol.download()
+
+    # Test Intf() initialization
+    exception_raised = False
+    try:
+        _ = Intf(ARDUINO, 'arduino_intf.bin')
+    except RuntimeError:
+        exception_raised = True
+    assert not exception_raised, 'Intf() should not raise exception.'
     ol.reset()
 
-
-@pytest.mark.run(order=42)
-def test_intf():
-    """Test for the _INTF class.
-
-    Test multiple functions / attributes of the instance returned by 
-    request_intf().
-
-    """
-    fixed_id = 3
-    intf = request_intf(fixed_id, 'arduino_intf.bin')
+    exception_raised = False
+    _ = Intf(ARDUINO, 'arduino_intf.bin')
+    try:
+        _ = Intf(ARDUINO, 'arduino_intf.bin')
+    except RuntimeError:
+        exception_raised = True
+    assert not exception_raised, 'Intf() should not raise exception.'
+    ol.reset()
 
     # Test whether control parameters can be written into the mailbox
+    intf = Intf(ARDUINO, 'arduino_intf.bin')
     data_write = list()
     for i in range(10):
         data_write.append(randint(0, pow(2, 32) - 1))
 
     intf.write_control(data_write)
     for index in range(10):
-        data_read = intf.mmio.read(intf_const.MAILBOX_OFFSET + 4 * index)
+        data_read = intf.read(MAILBOX_OFFSET + 4 * index)
         assert data_write[index] == data_read, \
-            f'Mailbox location {i} read {data_read} != write {data_write}.'
+            f'Mailbox location {index} read {data_read} != write {data_write}.'
 
     # Test the capability to allocate buffers
     num_samples = 100
@@ -137,5 +127,4 @@ def test_intf():
     intf.reset_buffers()
     assert len(intf.buffers) == 0, \
         'Buffers are not empty after resetting.'
-
     ol.reset()

@@ -33,14 +33,14 @@ from collections import OrderedDict
 from pyeda.inter import exprvar
 from pyeda.inter import expr2truthtable
 from pynq import Register
-from .intf_const import INTF_MICROBLAZE_BIN
-from .intf_const import PYNQZ1_DIO_SPECIFICATION
-from .intf_const import CMD_READ_CFG_DIRECTION
-from .intf_const import MAILBOX_OFFSET
-from .intf_const import CMD_CONFIG_CFG
-from .intf_const import CMD_ARM_CFG
-from .intf_const import IOSWITCH_BG_SELECT
-from .intf import request_intf, _INTF
+from . import INTF_MICROBLAZE_BIN
+from . import PYNQZ1_DIO_SPECIFICATION
+from . import CMD_READ_CFG_DIRECTION
+from . import MAILBOX_OFFSET
+from . import CMD_CONFIG_CFG
+from . import CMD_ARM_CFG
+from . import IOSWITCH_BG_SELECT
+from .intf import Intf
 from .trace_analyzer import TraceAnalyzer
 from .waveform import Waveform
 
@@ -51,7 +51,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 class BooleanBuilder:
-    """Class for the Combinational Function Builder.
+    """Class for the Boolean builder.
 
     This class can implement any combinational function on user IO pins. Since
     each LUT5 takes 5 inputs, the basic function that users can implement is
@@ -63,8 +63,8 @@ class BooleanBuilder:
 
     Attributes
     ----------
-    intf : _INTF
-        INTF instance used by Arduino_CFG class.
+    intf : Intf
+        The interface Microblaze object used by this class.
     expr : str
         The boolean expression in string format.
     intf_spec : dict
@@ -80,7 +80,7 @@ class BooleanBuilder:
     def __init__(self, intf_microblaze, expr,
                  intf_spec=PYNQZ1_DIO_SPECIFICATION,
                  use_analyzer=True, num_analyzer_samples=16):
-        """Return a new Arduino_CFG object.
+        """Return a new Boolean builder object.
         
         For ARDUINO, the available input pins are data pins D0 - D19,
         and the onboard push buttons PB0 - PB3. 
@@ -97,8 +97,9 @@ class BooleanBuilder:
 
         Parameters
         ----------
-        intf_microblaze : _INTF/int
-            The interface object or interface ID.
+        intf_microblaze : Intf/dict
+            The interface Microblaze object, or a dictionary storing 
+            Microblaze information, such as the IP name and the reset name.
         expr : str
             The boolean expression to be configured.
         intf_spec : dict
@@ -109,13 +110,14 @@ class BooleanBuilder:
             Number of analyzer samples to capture.
 
         """
-        if isinstance(intf_microblaze, _INTF):
+        if isinstance(intf_microblaze, Intf):
             self.intf = intf_microblaze
-        elif isinstance(intf_microblaze, int):
-            self.intf = request_intf(intf_microblaze, INTF_MICROBLAZE_BIN)
+        elif isinstance(intf_microblaze, dict):
+            self.intf = Intf(intf_microblaze)
         else:
             raise TypeError(
-                "intf_microblaze has to be a intf._INTF or int type.")
+                "Parameter intf_microblaze has to be intf.Intf or dict.")
+
         self.expr = None
         self.intf_spec = intf_spec
         self.output_pin = None
@@ -150,10 +152,10 @@ class BooleanBuilder:
         self.intf.config_ioswitch(ioswitch_pins, IOSWITCH_BG_SELECT)
 
     def config(self, expr):
-        """Configure the CFG with new boolean expression.
+        """Configure the builder with new boolean expression.
 
-        Implements boolean function at specified IO pins. 
-        
+        Implements boolean function at specified IO pins.
+
         This method is called during initialization, but can also be called 
         separately if users want to change the boolean expressions.
 
@@ -222,7 +224,7 @@ class BooleanBuilder:
         self._config_ioswitch()
 
         # Get current BG bit enables
-        mailbox_addr = self.intf.addr_base + MAILBOX_OFFSET
+        mailbox_addr = self.intf.mmio.base_addr + MAILBOX_OFFSET
         mailbox_regs = [Register(addr) for addr in range(
             mailbox_addr, mailbox_addr + 4 * 64, 4)]
         self.intf.write_command(CMD_READ_CFG_DIRECTION)
@@ -262,12 +264,12 @@ class BooleanBuilder:
 
         # setup waveform view - stimulus from inputs, analysis on outputs
         waveform_dict = {'signal': [
-                ['stimulus'],
-                {},
-                ['analysis']],
-                'foot': {'tick': 1},
-                'head': {'tick': 1,
-                         'text': f'Boolean Logic Builder ({self.expr})'}}
+            ['stimulus'],
+            {},
+            ['analysis']],
+            'foot': {'tick': 1},
+            'head': {'tick': 1,
+                     'text': f'Boolean Logic Builder ({self.expr})'}}
 
         # Append four inputs and one output to waveform view
         stimulus_traced = False
@@ -276,13 +278,13 @@ class BooleanBuilder:
                 stimulus_traced = True
                 waveform_dict['signal'][0].append({'name': name, 'pin': name})
         if not stimulus_traced:
-            del(waveform_dict['signal'][0])
+            del (waveform_dict['signal'][0])
 
         if self.output_pin in self.intf_spec['traceable_outputs']:
             waveform_dict['signal'][-1].append({'name': self.output_pin,
                                                 'pin': self.output_pin})
         else:
-            del(waveform_dict['signal'][-1])
+            del (waveform_dict['signal'][-1])
 
         self.waveform = Waveform(waveform_dict,
                                  stimulus_name='stimulus',
@@ -314,7 +316,7 @@ class BooleanBuilder:
         """
         return self.intf.armed_builders[CMD_ARM_CFG]
 
-    def run(self):
+    def start(self):
         """Run the boolean generation.
 
         This method will start to run the boolean generation.
@@ -323,15 +325,20 @@ class BooleanBuilder:
         if not self.is_armed():
             self.arm()
 
-        self.intf.run()
+        self.intf.start()
 
-    def stop(self):
+    def stop(self, free_buffer=True):
         """Stop the boolean generation.
 
         This method will stop the currently running boolean generation.
 
+        Parameters
+        ----------
+        free_buffer : Bool
+            The flag indicating whether or not to free the analyzer buffer.
+
         """
-        self.intf.stop()
+        self.intf.stop(free_buffer)
 
     def show_waveform(self):
         """Display the boolean logic generation in a Jupyter notebook.
