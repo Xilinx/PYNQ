@@ -34,24 +34,23 @@ from math import ceil, log
 import numpy as np
 import pygraphviz as pgv
 from IPython.display import Image, display
-from .intf_const import FSM_BRAM_ADDR_WIDTH
-from .intf_const import MAX_NUM_TRACE_SAMPLES
-from .intf_const import FSM_MIN_STATE_BITS
-from .intf_const import FSM_MAX_STATE_BITS
-from .intf_const import FSM_MIN_NUM_STATES
-from .intf_const import FSM_MAX_NUM_STATES
-from .intf_const import FSM_MIN_INPUT_BITS
-from .intf_const import FSM_MAX_INPUT_BITS
-from .intf_const import FSM_MAX_STATE_INPUT_BITS
-from .intf_const import FSM_MAX_OUTPUT_BITS
-from .intf_const import FSM_MIN_OUTPUT_BITS
-from .intf_const import INTF_MICROBLAZE_BIN
-from .intf_const import PYNQZ1_DIO_SPECIFICATION
-from .intf_const import CMD_CONFIG_SMG
-from .intf_const import CMD_ARM_SMG
-from .intf_const import IOSWITCH_SMG_SELECT
-from .intf import request_intf
-from .intf import _INTF
+from . import FSM_BRAM_ADDR_WIDTH
+from . import MAX_NUM_TRACE_SAMPLES
+from . import FSM_MIN_STATE_BITS
+from . import FSM_MAX_STATE_BITS
+from . import FSM_MIN_NUM_STATES
+from . import FSM_MAX_NUM_STATES
+from . import FSM_MIN_INPUT_BITS
+from . import FSM_MAX_INPUT_BITS
+from . import FSM_MAX_STATE_INPUT_BITS
+from . import FSM_MAX_OUTPUT_BITS
+from . import FSM_MIN_OUTPUT_BITS
+from . import INTF_MICROBLAZE_BIN
+from . import PYNQZ1_DIO_SPECIFICATION
+from . import CMD_CONFIG_SMG
+from . import CMD_ARM_SMG
+from . import IOSWITCH_SMG_SELECT
+from .intf import Intf
 from .trace_analyzer import TraceAnalyzer
 from .waveform import Waveform
 
@@ -289,7 +288,7 @@ def get_bram_addr_offsets(num_states, num_input_bits):
 
 
 class FSMBuilder:
-    """Class for Finite State Machine Builder.
+    """Class for Finite State Machine builder.
 
     This class enables users to specify a Finite State Machine (FSM). Users
     have to provide a FSM in the following format.
@@ -317,8 +316,8 @@ class FSMBuilder:
 
     Attributes
     ----------
-    intf : _INTF
-        INTF instance used by Arduino_PG class.
+    intf : Intf
+        The interface Microblaze object used by this class.
     frequency_mhz: float
         The frequency of the running FSM / captured samples, in MHz.
     num_input_bits : int
@@ -371,28 +370,29 @@ class FSMBuilder:
 
         Parameters
         ----------
-        intf_microblaze : _INTF/int
-            The interface object or interface ID.
+        intf_microblaze : Intf/dict
+            The interface Microblaze object, or a dictionary storing 
+            Microblaze information, such as the IP name and the reset name.
         fsm_spec : dict
             The FSM specification, with inputs (list), outputs (list),
             states (list), and transitions (list).
         frequency_mhz: float
             The frequency of the FSM and captured samples, in MHz.
         intf_spec : dict
-            The interface specification.
+            The interface specification, usually board-dependent.
         use_analyzer : bool
             Indicate whether to use the analyzer to capture the trace as well.
         use_state_bits : bool
             Whether to check the state bits in the final output pins.
 
         """
-        if isinstance(intf_microblaze, _INTF):
+        if isinstance(intf_microblaze, Intf):
             self.intf = intf_microblaze
-        elif isinstance(intf_microblaze, int):
-            self.intf = request_intf(intf_microblaze, INTF_MICROBLAZE_BIN)
+        elif isinstance(intf_microblaze, dict):
+            self.intf = Intf(intf_microblaze)
         else:
             raise TypeError(
-                "intf_microblaze has to be a intf._INTF or int type.")
+                "Parameter intf_microblaze has to be intf.Intf or dict.")
 
         self.intf_spec = intf_spec
         self.frequency_mhz = 0
@@ -799,7 +799,7 @@ class FSMBuilder:
         """
         return self.intf.armed_builders[CMD_ARM_SMG]
 
-    def run(self):
+    def start(self):
         """Start generating patterns.
 
         To rerun the generation, users have to do config(), arm(), and run().
@@ -808,9 +808,9 @@ class FSMBuilder:
         if not self.is_armed():
             self.arm()
 
-        self.intf.run()
+        self.intf.start()
 
-    def stop(self):
+    def stop(self, free_buffer=True):
         """Stop the FSM pattern builder.
 
         Note this command will stop the pattern generation from FSM, so
@@ -819,8 +819,13 @@ class FSMBuilder:
 
         This function should be called if a new `fsm_spec` is provided.
 
+        Parameters
+        ----------
+        free_buffer : Bool
+            The flag indicating whether or not to free the analyzer buffer.
+
         """
-        self.intf.stop()
+        self.intf.stop(free_buffer)
 
     def show_state_diagram(self, file_name='fsm_spec.png'):
         """Display the state machine in Jupyter notebook.

@@ -56,7 +56,7 @@ CMD_GENERATE_FSM_STOP = 0x00B
 CMD_TRACE_FSM_ONLY = 0x00D
 
 CMD_INTF_SWITCH_CONFIG = 0x1
-CMD_READ_INTF_SWITCH_CONFIG = 0xa
+CMD_READ_INTF_SWITCH_CONFIG = 0xA
 CMD_CONFIG_CFG = 0x2
 CMD_CONFIG_PG = 0x3
 CMD_CONFIG_SMG = 0x4
@@ -68,17 +68,17 @@ CMD_ARM_TRACE = 0x9
 CMD_RUN = 0xD
 CMD_STOP = 0xE
 CMD_RUN_STATUS = 0xF
-CMD_READ_CFG_DIRECTION = 0xc
+CMD_READ_CFG_DIRECTION = 0xC
 
 IOSWITCH_BG_SELECT = 0
 IOSWITCH_PG_SELECT = 1
 IOSWITCH_SMG_SELECT = 2
-
 CMDS_ARM_BUILDER_LIST = [CMD_ARM_CFG, CMD_ARM_PG, CMD_ARM_SMG, CMD_ARM_TRACE]
 INTF_MICROBLAZE_BIN = "arduino_intf.bin"
-ARDUINO = 3
-INTERFACE_ID = [ARDUINO]
 
+# PYNQ-Z1 specification
+ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
+           'rst_name': 'mb_3_reset'}
 PYNQZ1_DIO_SPECIFICATION = {'clock_mhz': 10,
                             'interface_width': 20,
                             'monitor_width': 64,
@@ -191,7 +191,7 @@ FSM_MAX_OUTPUT_BITS = 19
 MAX_NUM_PATTERN_SAMPLES = 4096
 
 # Trace analyzer constants
-MAX_NUM_TRACE_SAMPLES = 4096
+MAX_NUM_TRACE_SAMPLES = 65536
 
 # CData Width to Type Conversion
 BYTE_WIDTH_TO_CTYPE = {4: "unsigned int",

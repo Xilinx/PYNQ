@@ -27,41 +27,54 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import os
+import math
 import numpy as np
-from pynq import MMIO
-from pynq import GPIO
 from pynq import PL
 from pynq import Clocks
 from pynq import Xlnk
 from pynq import Register
-from . import intf_const
+from pynq.lib import PynqMicroblaze
+from . import MAILBOX_OFFSET
+from . import MAILBOX_PY2DIF_CMD_OFFSET
+from . import BIN_LOCATION
+from . import CMD_RUN
+from . import CMD_STOP
+from . import CMD_READ_INTF_SWITCH_CONFIG
+from . import CMD_INTF_SWITCH_CONFIG
+from . import CMDS_ARM_BUILDER_LIST
+from . import INTF_MICROBLAZE_BIN
+
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "yunq@xilinx.com"
 
 
-class _INTF:
-    """This class controls the digital interface instances in the system.
+class Intf(PynqMicroblaze):
+    """This class controls the Intf Microblaze instances in the system.
 
-    This class servers as the agent to communicate with the interface
-    processor in PL. The interface processor has a Microblaze which
-    can be reprogrammed to interface with digital IO pins.
-
-    The functions (or types) available for the interface agent include
-    Combination Function Generator, Pattern Generator,
-    and Finite State Machine.
+    This class inherits from the PynqMicroblaze class. It extends 
+    PynqMicroblaze with capability to control boolean generators, pattern
+    generators, and Finite State Machine (FSM) generators.
 
     Attributes
     ----------
+    ip_name : str
+        The name of the IP corresponding to the Microblaze.
+    rst_name : str
+        The name of the reset pin for the Microblaze.
     mb_program : str
         The absolute path of the Microblaze program.
     state : str
-        The status (IDLE, RUNNING, or STOPPED) of the interface.
-    gpio : GPIO
-        The GPIO instance associated with this interface.
+        The status (IDLE, RUNNING, or STOPPED) of the Microblaze.
+    reset : GPIO
+        The reset pin associated with the Microblaze.
     mmio : MMIO
-        The MMIO instance associated with this interface.
+        The MMIO instance associated with the Microblaze.
+    interrupt : Event
+        An asyncio.Event-like class for waiting on and clearing interrupts.
     clk : Clocks
         The instance to control PL clocks.
     buf_manager : Xlnk
@@ -69,79 +82,44 @@ class _INTF:
     buffers : dict
         A dictionary of cffi.FFI.CData buffer, each can be accessed similarly
         as arrays.
+    armed_builders : dict
+        A dictionary keeping track of the armed builders.
 
     """
 
-    def __init__(self, ip_name, addr_base, addr_range, gpio_uix, mb_program):
-        """Create a new interface object.
+    def __init__(self, mb_info, mb_program=INTF_MICROBLAZE_BIN):
+        """Create a new Microblaze object.
+
+        This method leverages the initialization method of its parent. It 
+        also deals with relative / absolute path of the program.
 
         Parameters
         ----------
-        ip_name : str
-            The name of the IP corresponding to the interface.
-        addr_base : int
-            The base address for the MMIO in hex format.
-        addr_range : int
-            The address range for the MMIO in hex format.
-        gpio_uix : int
-            The user index of the GPIO, starting from 0.
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the 
+            IP name and the reset name.
         mb_program : str
-            The Microblaze program loaded for the interface.
+            The Microblaze program loaded for the processor.
+
+        Examples
+        --------
+        The `mb_info` is a dictionary storing Microblaze information:
+
+        >>> mb_info = {'ip_name': 'mb_bram_ctrl_3',
+        'rst_name': 'mb_reset_3', 
+        'intr_pin_name': 'iop3/dff_en_reset_0/q', 
+        'intr_ack_name': 'mb_3_intr_ack'}
 
         """
-        self.ip_name = ip_name
-        self.mb_program = intf_const.BIN_LOCATION + mb_program
-        self.state = 'IDLE'
-        self.addr_base = addr_base
-        self.gpio = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
-        self.mmio = MMIO(addr_base, addr_range)
+        if not os.path.isabs(mb_program):
+            mb_program = os.path.join(BIN_LOCATION, mb_program)
+
+        super().__init__(mb_info, mb_program)
         self.clk = Clocks
         self.buf_manager = Xlnk()
         self.buffers = dict()
-        self.armed_builders = {k: False 
-                               for k in intf_const.CMDS_ARM_BUILDER_LIST}
-        self.program()
-
-    def start(self):
-        """Start the Microblaze of the current interface.
-
-        This method will update the status of the interface.
-
-        Returns
-        -------
-        None
-
-        """
-        self.state = 'RUNNING'
-        self.gpio.write(0)
-
-    def reset(self):
-        """Stop the Microblaze of the current interface.
-
-        This method will update the status of the interface.
-
-        Returns
-        -------
-        None
-
-        """
-        self.state = 'STOPPED'
-        self.gpio.write(1)
-
-    def program(self):
-        """This method programs the Microblaze of the interface.
-
-        This method is called in __init__(); it can also be called after that.
-        It uses the attribute "self.mb_program" to program the Microblaze.
-
-        Returns
-        -------
-        None
-
-        """
-        self.reset()
-        PL.load_ip_data(self.ip_name, self.mb_program)
-        self.start()
+        self.armed_builders = {k: False
+                               for k in CMDS_ARM_BUILDER_LIST}
 
     def write_control(self, ctrl_parameters):
         """This method writes control parameters to the Microblaze.
@@ -156,8 +134,7 @@ class _INTF:
         None
 
         """
-        for i, j in enumerate(ctrl_parameters):
-            self.mmio.write(intf_const.MAILBOX_OFFSET + 4 * i, j)
+        self.write(MAILBOX_OFFSET, ctrl_parameters)
 
     def read_results(self, num_words):
         """This method reads results from the Microblaze.
@@ -173,8 +150,7 @@ class _INTF:
             list of results read from mailbox
 
         """
-        return [self.mmio.read(intf_const.MAILBOX_OFFSET + i * 4)
-                for i in range(num_words)]
+        return self.read(MAILBOX_OFFSET, num_words)
 
     def write_command(self, command):
         """This method writes the commands to the Microblaze.
@@ -192,35 +168,43 @@ class _INTF:
         None
 
         """
-        self.mmio.write(intf_const.MAILBOX_OFFSET +
-                        intf_const.MAILBOX_PY2DIF_CMD_OFFSET, command)
-        while not (self.mmio.read(intf_const.MAILBOX_OFFSET +
-                                  intf_const.MAILBOX_PY2DIF_CMD_OFFSET) == 0):
+        self.write(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET, command)
+        while self.read(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET) != 0:
             pass
 
-        # Bookkeeping on which builders are armed
-        if command in self.armed_builders:
-            self.armed_builders[command] = True
-        elif command == intf_const.CMD_RUN:
-            self.armed_builders = {k: False for k in self.armed_builders}
-
-    def run(self):
-        """Run the command.
+    def start(self):
+        """Send the command `RUN` to the Microblaze.
         
-        Send the run command to the Microblaze, and wait for the Microblaze
+        Send the command to the Microblaze, and wait for the Microblaze
         to return control.
 
         """
-        self.write_command(intf_const.CMD_RUN)
+        self.write_command(CMD_RUN)
 
-    def stop(self):
-        """Run the command.
+    def stop(self, free_buffer=True):
+        """Send the command `STOP` to the Microblaze.
 
-        Send the stop command to the Microblaze, and wait for the Microblaze
+        Send the command to the Microblaze, and wait for the Microblaze
         to return control.
 
+        This method can free the managed buffers after use if `free_buffer`
+        is set to True; this can prevent the program from leaking memory.
+
+        If users want to continue to use the managed buffers, users
+        can set `free_buffer` to False. In this case, the modules like trace 
+        analyzer do not have to be reconfigured, and their corresponding 
+        buffers can be reused easily.
+
+        Parameters
+        ----------
+        free_buffer : Bool
+            The flag indicating whether or not to reset all the buffers.
+
         """
-        self.write_command(intf_const.CMD_STOP)
+        self.write_command(CMD_STOP)
+
+        if free_buffer:
+            self.reset_buffers()
 
     def allocate_buffer(self, name, num_samples, data_type="unsigned int"):
         """This method allocates the source or the destination buffers.
@@ -297,10 +281,8 @@ class _INTF:
         if name in self.buffers:
             self.buf_manager.cma_free(self.buffers[name])
             del(self.buffers[name])
-        else:
-            raise ValueError(f"No such buffer {name} allocated previously.")
 
-    def get_phy_addr_from_buffer(self, name):
+    def phy_addr_from_buffer(self, name):
         """Get the physical address from the buffer.
 
         The method takes the name of the buffer as input, and returns the 
@@ -335,9 +317,9 @@ class _INTF:
 
     def config_ioswitch(self, ioswitch_pins, ioswitch_select_value):
         """Configure the IO switch.
-        
+
         This method configures the IO switch based on the input parameters.
-        
+
         Parameters
         ----------
         ioswitch_pins : list
@@ -347,8 +329,8 @@ class _INTF:
         
         """
         # read switch config
-        mailbox_addr = self.addr_base + intf_const.MAILBOX_OFFSET
-        self.write_command(intf_const.CMD_READ_INTF_SWITCH_CONFIG)
+        self.write_command(CMD_READ_INTF_SWITCH_CONFIG)
+        mailbox_addr = self.mmio.base_addr + MAILBOX_OFFSET
         ioswitch_config = [Register(addr)
                            for addr in [mailbox_addr, mailbox_addr + 4]]
 
@@ -364,78 +346,4 @@ class _INTF:
                 ioswitch_config[1][msb:lsb] = ioswitch_select_value
 
         # write switch config
-        self.write_command(intf_const.CMD_INTF_SWITCH_CONFIG)
-
-
-def request_intf(if_id=intf_const.ARDUINO, 
-                 mb_program=intf_const.INTF_MICROBLAZE_BIN):
-    """This is the interface to request an I/O Processor.
-
-    It looks for active instances on the same interface ID, and prevents
-    users from instantiating different types of interfaces on the same ID.
-    Users are notified with an exception if the selected interface is already 
-    hooked to another type of interface, to prevent unwanted behavior.
-
-    Two cases:
-    1.  No previous interface in the system with the same ID, or users want to
-    request another instance with the same program. 
-    Do not raises an exception.
-    2.  There is A previous interface in the system with the same ID. Users 
-    want to request another instance with a different program. 
-    Raises an exception.
-
-    Note
-    ----
-    When an interface is already in the system with the same interface ID, 
-    users are in danger of losing the old instances.
-
-    For bitstream `interface.bit`, the interface IDs are
-    {1, 2, 3} <=> {PMODA, PMODB, ARDUINO}.
-    For different bitstreams, this mapping can be different.
-
-    Parameters
-    ----------
-    if_id : int
-        Interface ID (1, 2, 3) corresponding to (PMODA, PMODB, ARDUINO).
-    mb_program : str
-        Program to be loaded on the interface controller.
-
-    Returns
-    -------
-    _INTF
-        An _INTF object with the updated Microblaze program.
-
-    Raises
-    ------
-    ValueError
-        When the INTF name or the GPIO name cannot be found in the PL.
-    LookupError
-        When another INTF is in the system with the same interface ID.
-
-    """
-    ip_dict = PL.ip_dict
-    gpio_dict = PL.gpio_dict
-    dif = f"mb_bram_ctrl_{if_id}"
-    rst_pin = f"mb_{if_id}_reset"
-
-    ip = [k for k, _ in ip_dict.items()]
-    gpio = [k for k, _ in gpio_dict.items()]
-
-    if dif not in ip:
-        raise ValueError("No such IP for INTF {}.".format(if_id))
-    if rst_pin not in gpio:
-        raise ValueError("No such GPIO pin for INTF {}.".format(if_id))
-
-    addr_base = ip_dict[dif]['phys_addr']
-    addr_range = ip_dict[dif]['addr_range']
-    ip_state = ip_dict[dif]['state']
-    gpio_uix = gpio_dict[rst_pin]['index']
-
-    if (ip_state is None) or \
-       (ip_state == (intf_const.BIN_LOCATION + mb_program)):
-        # case 1
-        return _INTF(dif, addr_base, addr_range, gpio_uix, mb_program)
-    else:
-        # case 2
-        raise LookupError('Another INTF program {} already running. '
-                          .format(ip_state))
+        self.write_command(CMD_INTF_SWITCH_CONFIG)

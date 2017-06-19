@@ -30,15 +30,14 @@
 
 import re
 import numpy as np
-from .intf_const import INTF_MICROBLAZE_BIN
-from .intf_const import MAX_NUM_PATTERN_SAMPLES
-from .intf_const import MAX_NUM_TRACE_SAMPLES
-from .intf_const import IOSWITCH_PG_SELECT
-from .intf_const import PYNQZ1_DIO_SPECIFICATION
-from .intf_const import CMD_CONFIG_PG
-from .intf_const import CMD_ARM_PG
-from .intf import request_intf
-from .intf import _INTF
+from . import INTF_MICROBLAZE_BIN
+from . import MAX_NUM_PATTERN_SAMPLES
+from . import MAX_NUM_TRACE_SAMPLES
+from . import IOSWITCH_PG_SELECT
+from . import PYNQZ1_DIO_SPECIFICATION
+from . import CMD_CONFIG_PG
+from . import CMD_ARM_PG
+from .intf import Intf
 from .waveform import Waveform
 from .trace_analyzer import TraceAnalyzer
 
@@ -113,7 +112,7 @@ def int_to_sample(bits):
 
 
 class PatternBuilder:
-    """Class for the Pattern Builder.
+    """Class for the Pattern builder.
 
     This class can generate digital IO patterns / stimulus on output pins.
     Users can specify whether to use a pin as input or output.
@@ -121,7 +120,7 @@ class PatternBuilder:
     Attributes
     ----------
     intf : _INTF
-        INTF instance used by Arduino_PG class.
+        The interface Microblaze object used by this class.
     frequency_mhz: float
         The frequency of the running FSM / captured samples, in MHz.
     waveform : Waveform
@@ -134,18 +133,18 @@ class PatternBuilder:
         The number of analyzer samples to capture.
 
     """
-
     def __init__(self, intf_microblaze, waveform_dict, frequency_mhz=10,
                  stimulus_name=None, analysis_name=None,
                  intf_spec=PYNQZ1_DIO_SPECIFICATION,
                  use_analyzer=True,
                  num_analyzer_samples=MAX_NUM_TRACE_SAMPLES):
-        """Return a new Arduino_PG object.
+        """Return a new pattern builder object.
 
         Parameters
         ----------
-        intf_microblaze : _INTF/int
-            The interface object or interface ID.
+        intf_microblaze : Intf/dict
+            The interface Microblaze object, or a dictionary storing 
+            Microblaze information, such as the IP name and the reset name.
         waveform_dict : dict
             Waveform dictionary in WaveJSON format.
         frequency_mhz: float
@@ -160,29 +159,29 @@ class PatternBuilder:
             The number of analyzer samples to capture.
 
         """
-        if isinstance(intf_microblaze, _INTF):
+        if isinstance(intf_microblaze, Intf):
             self.intf = intf_microblaze
-        elif isinstance(intf_microblaze, int):
-            self.intf = request_intf(intf_microblaze, INTF_MICROBLAZE_BIN)
+        elif isinstance(intf_microblaze, dict):
+            self.intf = Intf(intf_microblaze)
         else:
             raise TypeError(
-                "intf_microblaze has to be a intf._INTF or int type.")
+                "Parameter intf_microblaze has to be intf.Intf or dict.")
 
         self.intf_spec = intf_spec
         self.frequency_mhz = 0
+        self.stimulus_group = None
         self.stimulus_name = stimulus_name
+        self.stimulus_names = None
+        self.stimulus_pins = None
+        self.stimulus_waves = None
+        self.analysis_group = None
         self.analysis_name = analysis_name
+        self.analysis_names = None
+        self.analysis_pins = None
         self.src_samples = None
         self.dst_samples = None
         self.waveform_dict = None
         self.waveform = None
-        self.stimulus_group = None
-        self.analysis_group = None
-        self.stimulus_names = None
-        self.stimulus_pins = None
-        self.stimulus_waves = None
-        self.analysis_names = None
-        self.analysis_pins = None
         self.num_analyzer_samples = num_analyzer_samples
         self._longest_wave = None
         self._max_wave_length = 0
@@ -257,14 +256,13 @@ class PatternBuilder:
 
         Returns
         -------
-        (numpy.ndarray,numpy.ndarray)
-            The generated samples, and the captured samples.
+        None
 
         """
-
         # Update Waveform based on waveform_dict
         self.waveform_dict = waveform_dict
-        self.waveform = Waveform(self.waveform_dict,
+        self.frequency_mhz = frequency_mhz
+        self.waveform = Waveform(waveform_dict, 
                                  stimulus_name=self.stimulus_name,
                                  analysis_name=self.analysis_name)
         self.stimulus_group = self.waveform.stimulus_group
@@ -275,12 +273,15 @@ class PatternBuilder:
         self.analysis_names = self.waveform.analysis_names
         self.analysis_pins = self.waveform.analysis_pins
 
-        if self.stimulus_names:
+        if self.stimulus_name:
             self._longest_wave, self._max_wave_length = \
                 self._get_max_wave_length()
+        elif self.analysis_name:
+            self._longest_wave, self._max_wave_length = \
+                '', num_analyzer_samples
         else:
-            self._longest_wave, self._max_wave_length = '', 0
-
+            raise ValueError("Must specify at least one "
+                             "stimulus/analysis group.")
         self._make_same_wave_length()
 
         # Set other PG parameters
@@ -347,7 +348,7 @@ class PatternBuilder:
         """
         return self.intf.armed_builders[CMD_ARM_PG]
 
-    def run(self):
+    def start(self):
         """Run the pattern generation.
 
         This method will start to run the pattern generation.
@@ -356,15 +357,20 @@ class PatternBuilder:
         if not self.is_armed():
             self.arm()
 
-        self.intf.run()
+        self.intf.start()
 
-    def stop(self):
+    def stop(self, free_buffer=True):
         """Stop the pattern generation.
         
         This method will stop the currently running pattern generation.
-        
+
+        Parameters
+        ----------
+        free_buffer : Bool
+            The flag indicating whether or not to free the analyzer buffer.
+
         """
-        self.intf.stop()
+        self.intf.stop(free_buffer)
 
     def show_waveform(self):
         """Display the waveform in Jupyter notebook.

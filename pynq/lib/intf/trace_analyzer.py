@@ -31,14 +31,13 @@
 import re
 from collections import OrderedDict
 import numpy as np
-from .intf_const import INTF_MICROBLAZE_BIN
-from .intf_const import CMD_CONFIG_TRACE
-from .intf_const import BYTE_WIDTH_TO_CTYPE
-from .intf_const import CMD_ARM_TRACE
-from .intf_const import BYTE_WIDTH_TO_NPTYPE
-from .intf_const import MAX_NUM_TRACE_SAMPLES
-from .intf import request_intf
-from .intf import _INTF
+from . import INTF_MICROBLAZE_BIN
+from . import CMD_CONFIG_TRACE
+from . import BYTE_WIDTH_TO_CTYPE
+from . import CMD_ARM_TRACE
+from . import BYTE_WIDTH_TO_NPTYPE
+from . import MAX_NUM_TRACE_SAMPLES
+from .intf import Intf
 
 
 __author__ = "Yun Rock Qu"
@@ -113,8 +112,8 @@ class TraceAnalyzer:
 
     Attributes
     ----------
-    intf : _INTF
-        INTF instance used by Arduino_PG class.
+    intf : Intf
+        The interface Microblaze object used by this class.
     trace_spec : dict
         The trace spec of similar format as PYNQZ1_DIO_SPECIFICATION.
     num_samples : int
@@ -125,26 +124,26 @@ class TraceAnalyzer:
     """
     def __init__(self, intf_microblaze, num_samples=MAX_NUM_TRACE_SAMPLES,
                  trace_spec=None):
-        """Return a new Arduino_PG object.
+        """Return a new trace analyzer object.
 
         Parameters
         ----------
-        intf_microblaze : _INTF/int
-            The interface object or interface ID.
+        intf_microblaze : Intf/dict
+            The interface Microblaze object, or a dictionary storing 
+            Microblaze information, such as the IP name and the reset name.
         num_samples : int
             The number of samples to be analyzed.
         trace_spec : dict
             The trace spec of similar format as PYNQZ1_DIO_SPECIFICATION.
 
         """
-
-        if isinstance(intf_microblaze, _INTF):
+        if isinstance(intf_microblaze, Intf):
             self.intf = intf_microblaze
-        elif isinstance(intf_microblaze, int):
-            self.intf = request_intf(intf_microblaze, INTF_MICROBLAZE_BIN)
+        elif isinstance(intf_microblaze, dict):
+            self.intf = Intf(intf_microblaze)
         else:
             raise TypeError(
-                "intf_microblaze has to be a intf._INTF or int type.")
+                "Parameter intf_microblaze has to be intf.Intf or dict.")
 
         if not 1 <= num_samples <= MAX_NUM_TRACE_SAMPLES:
             raise ValueError(f'Number of samples should be in '
@@ -170,7 +169,7 @@ class TraceAnalyzer:
         trace_byte_width = round(trace_bit_width / 8)
 
         if 'trace_buf' in self.intf.buffers:
-            buffer_phy_addr = self.intf.get_phy_addr_from_buffer('trace_buf')
+            buffer_phy_addr = self.intf.phy_addr_from_buffer('trace_buf')
         else:
             buffer_phy_addr = self.intf.allocate_buffer(
                 'trace_buf', self.num_samples,
@@ -181,7 +180,7 @@ class TraceAnalyzer:
 
     def arm(self):
         """Arm the analyzer.
-        
+
         This method prepares the trace analyzer before analyzing samples.
 
         """
@@ -198,36 +197,31 @@ class TraceAnalyzer:
         """
         return self.intf.armed_builders[CMD_ARM_TRACE]
 
-    def run(self):
+    def start(self):
         """Start the pattern analysis.
-        
+
         This method will send the start command to the intf Microblaze.
 
         """
         if not self.is_armed():
             self.arm()
 
-        self.intf.run()
+        self.intf.start()
 
-    def stop(self):
+    def stop(self, free_buffer=True):
         """Stop the pattern analysis.
-        
+
         This method will send the stop command to the intf Microblaze.
-        
-        """
-        self.intf.stop()
 
-    def reset(self):
-        """Free the trace buffer after use.
+        This method can also free the analyzer buffer after use.
 
-        Most of the time, users want to keep the trace buffer alive in order
-        to continuously dump data into it; this method is a standalone method
-        to free that buffer after use. 
-        
-        This method has to be called separately (in rare cases).
+        Parameters
+        ----------
+        free_buffer : Bool
+            The flag indicating whether or not to free the analyzer buffer.
 
         """
-        self.intf.free_buffer('trace_buf')
+        self.intf.stop(free_buffer)
 
     def analyze(self, trace_spec=None):
         """Analyze the captured pattern.
@@ -268,7 +262,6 @@ class TraceAnalyzer:
             get_tri_state_pins(self.trace_spec['traceable_inputs'],
                                self.trace_spec['traceable_outputs'],
                                self.trace_spec['traceable_tri_states'])
-
         trace_bit_width = self.trace_spec['monitor_width']
         trace_byte_width = round(trace_bit_width / 8)
 
