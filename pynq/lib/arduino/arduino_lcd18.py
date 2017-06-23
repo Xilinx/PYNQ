@@ -27,22 +27,32 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Parimal Patel, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
 
-
+from math import ceil
 import asyncio
 import os
 from PIL import Image
 from numpy import array
-from pynq import MMIO
 from pynq import Xlnk
-from pynq.iop import request_iop
-from pynq.iop import iop_const
-from pynq.iop import ARDUINO
+from . import Arduino
+from . import MAILBOX_OFFSET
+from . import MAILBOX_PY2IOP_CMD_OFFSET
+
+
+__author__ = "Parimal Patel, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 ARDUINO_LCD18_PROGRAM = "arduino_lcd18.bin"
+CONFIG_IOP_SWITCH = 0x1
+CLEAR_SCREEN = 0x3
+DISPLAY = 0x5
+DRAW_LINE = 0x7
+PRINT_STRING = 0x9
+FILL_RECTANGLE = 0xB
+READ_BUTTON = 0xD
+
 
 def _convert_color(color):
     """Convert a 24-bit color to 16-bit.
@@ -63,6 +73,7 @@ def _convert_color(color):
     red, green, blue = color
     return ((blue & 0xF8) << 8) | ((green & 0xFC) << 3) | ((red & 0xF8) >> 3)
 
+
 class Arduino_LCD18(object):
     """This class controls the Adafruit 1.8" LCD shield from AdaFruit. 
     
@@ -72,30 +83,24 @@ class Arduino_LCD18(object):
     
     Attributes
     ----------
-    iop : _IOP
-        I/O processor instance used by Arduino_LCD18.
-    mmio : MMIO
-        Memory-mapped I/O instance to read and write instructions and data.
+    microblaze : Arduino
+        Microblaze processor instance used by this module.
     buf_manager : Xlnk
         DDR management unit that provides the physical address of the image.
         
     """
-    def __init__(self, if_id):
+    def __init__(self, mb_info):
         """Return a new instance of an Arduino_LCD18 object.
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (3) corresponding to (ARDUINO).
-            
-        """
-        if not if_id in [ARDUINO]:
-            raise ValueError("No such IOP for Arduino LCD device.")
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
 
-        self.iop = request_iop(if_id, ARDUINO_LCD18_PROGRAM)
-        self.mmio = self.iop.mmio
+        """
+        self.microblaze = Arduino(mb_info, ARDUINO_LCD18_PROGRAM)
         self.buf_manager = Xlnk()
-        self.iop.start()
 
     def clear(self):
         """Clear the screen.
@@ -105,14 +110,10 @@ class Arduino_LCD18(object):
         None
         
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET+
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
+        self.microblaze.write_blocking_command(CLEAR_SCREEN)
 
-    def display(self, img_path, x_pos = 0, y_pos = 127, orientation = 3,
-                background = None, frames = 1):
+    def display(self, img_path, x_pos=0, y_pos=127, orientation=3,
+                background=None, frames=1):
         """Animate the image at the desired location for multiple frames.
 
         The maximum screen resolution is 160x128.
@@ -154,13 +155,13 @@ class Arduino_LCD18(object):
         """
         task = asyncio.ensure_future(
                     self.display_async(img_path, x_pos, y_pos, orientation,
-                                  background, frames))
+                                       background, frames))
         loop = asyncio.get_event_loop()
         loop.run_until_complete(task)
 
     @asyncio.coroutine
     def display_async(self, img_path, x_pos=0, y_pos=127,
-                orientation=3, background=None, frames=1):
+                      orientation=3, background=None, frames=1):
         """Animate the image at the desired location for multiple frames.
 
         The maximum screen resolution is 160x128.
@@ -200,24 +201,24 @@ class Arduino_LCD18(object):
         None
 
         """
-        if not x_pos in range(160):
+        if x_pos not in range(160):
             raise ValueError("Valid x_pos is 0 - 159.")
-        if not y_pos in range(128):
+        if y_pos not in range(128):
             raise ValueError("Valid y_pos is 0 - 127.")
-        if not orientation in [1,3]:
+        if orientation not in [1, 3]:
             raise ValueError("Valid orientation is 1 or 3.")
-        if not frames in range(1,65536):
+        if frames not in range(1, 65536):
             raise ValueError("Valid number of frames is 1 - 65535.")
         if not os.path.isfile(img_path):
             raise ValueError("Specified image file does not exist.")
 
         if background is None:
-            background = [0,0,0]
+            background = [0, 0, 0]
         background16 = _convert_color(background)
 
         image_file = Image.open(img_path)
         width, height = image_file.size
-        if not width in range(161) or not height in range(129):
+        if width not in range(161) or height not in range(129):
             raise ValueError("Picture too large to be fit in 160x128 screen.")
         image_file.resize((width, height), Image.ANTIALIAS)
         image_array = array(image_file)
@@ -237,30 +238,25 @@ class Arduino_LCD18(object):
                     buf1[index] = bytes([temp & 0xFF])
                     buf1[index + 1] = bytes([(temp & 0xFF00) >> 8])
 
-            self.mmio.write(iop_const.MAILBOX_OFFSET, x_pos)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+4, y_pos)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+8, width)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+0xc, height)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+0x10, phy_addr)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+0x14, background16)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+0x18, orientation)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+0x1c, frames)
+            data = [x_pos, y_pos, width, height,
+                    phy_addr, background16, orientation, frames]
+            self.microblaze.write_mailbox(0, data)
+
             # Ensure interrupt is reset before issuing command
-            if self.iop.interrupt:
-                self.iop.interrupt.clear()
-            self.mmio.write(iop_const.MAILBOX_OFFSET +
-                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-            while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-                if self.iop.interrupt:
-                    yield from self.iop.interrupt.wait()
+            if self.microblaze.interrupt:
+                self.microblaze.interrupt.clear()
+            self.microblaze.write_non_blocking_command(DISPLAY)
+            while self.microblaze.read(MAILBOX_OFFSET +
+                                       MAILBOX_PY2IOP_CMD_OFFSET) != 0:
+                if self.microblaze.interrupt:
+                    yield from self.microblaze.interrupt.wait()
         finally:
-            if self.iop.interrupt:
-                self.iop.interrupt.clear()
+            if self.microblaze.interrupt:
+                self.microblaze.interrupt.clear()
             self.buf_manager.cma_free(buf0)
 
-    def draw_line(self,x_start_pos,y_start_pos,x_end_pos,y_end_pos,
-                  color=None,background=None,orientation=3):
+    def draw_line(self, x_start_pos, y_start_pos, x_end_pos, y_end_pos,
+                  color=None, background=None, orientation=3):
         """Draw a line from starting point to ending point.
 
         The maximum screen resolution is 160x128.
@@ -300,40 +296,31 @@ class Arduino_LCD18(object):
         None
 
         """
-        if not x_start_pos in range(160):
+        if x_start_pos not in range(160):
             raise ValueError("Valid x start position is 0 - 159.")
-        if not y_start_pos in range(128):
+        if y_start_pos not in range(128):
             raise ValueError("Valid y start position is 0 - 127.")
-        if not x_end_pos in range(160):
+        if x_end_pos not in range(160):
             raise ValueError("Valid x end position is 0 - 159.")
-        if not y_end_pos in range(128):
+        if y_end_pos not in range(128):
             raise ValueError("Valid y end position is 0 - 127.")
-        if not orientation in [1,3]:
+        if orientation not in [1, 3]:
             raise ValueError("Valid orientation is 1 or 3.")
 
         if color is None:
-            color = [255,255,255]
+            color = [255, 255, 255]
         color16 = _convert_color(color)
         if background is None:
-            background = [0,0,0]
+            background = [0, 0, 0]
         background16 = _convert_color(background)
 
-        self.mmio.write(iop_const.MAILBOX_OFFSET, x_start_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+4, y_start_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+8, x_end_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0xc, y_end_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0x10, color16)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0x14, background16)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0x18, orientation)
+        data = [x_start_pos, y_start_pos, x_end_pos, y_end_pos,
+                color16, background16, orientation]
+        self.microblaze.write_mailbox(0, data)
+        self.microblaze.write_blocking_command(DRAW_LINE)
 
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
-
-    def print_string(self,x_start_pos,y_start_pos,text,
-                     color=None,background=None,orientation=3):
+    def print_string(self, x_start_pos, y_start_pos, text,
+                     color=None, background=None, orientation=3):
         """Draw a character with a specific color.
 
         The maximum screen resolution is 160x128.
@@ -371,47 +358,40 @@ class Arduino_LCD18(object):
         None
 
         """
-        if not x_start_pos in range(160):
+        if x_start_pos not in range(160):
             raise ValueError("Valid x start position is 0 - 159.")
-        if not y_start_pos in range(128):
+        if y_start_pos not in range(128):
             raise ValueError("Valid y start position is 0 - 127.")
-        if not type(text) is str:
+        if type(text) is not str:
             raise ValueError("Character has to be of string type.")
-        if not orientation in [1,3]:
+        if orientation not in [1, 3]:
             raise ValueError("Valid orientation is 1 or 3.")
 
         if color is None:
-            color = [255,255,255]
+            color = [255, 255, 255]
         color16 = _convert_color(color)
         if background is None:
-            background = [0,0,0]
+            background = [0, 0, 0]
         background16 = _convert_color(background)
-
-        self.mmio.write(iop_const.MAILBOX_OFFSET, x_start_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 4, y_start_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 8, color16)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0xc, background16)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x10, orientation)
 
         temp_txt = text
         count = len(text)
         for _ in range(count % 4):
             temp_txt = temp_txt + str('\0')
 
+        data = [x_start_pos, y_start_pos,
+                color16, background16, orientation]
         temp = 0
         for i in range(len(temp_txt)):
             temp = temp | (ord(temp_txt[i]) << 8 * (i % 4))
             if i % 4 == 3:
-                self.mmio.write(iop_const.MAILBOX_OFFSET + 0x14 + i - 3, temp)
+                data.append(temp)
                 temp = 0
 
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x9)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
-            
-    def draw_filled_rectangle(self,x_start_pos,y_start_pos,width,height,
+        self.microblaze.write_mailbox(0, data)
+        self.microblaze.write_blocking_command(PRINT_STRING)
+
+    def draw_filled_rectangle(self, x_start_pos, y_start_pos, width, height,
                               color=None, background=None, orientation=3):
         """Draw a filled rectangle.
 
@@ -450,37 +430,28 @@ class Arduino_LCD18(object):
         None
 
         """
-        if not x_start_pos in range(160):
+        if x_start_pos not in range(160):
             raise ValueError("Valid x start position is 0 - 159.")
-        if not y_start_pos in range(128):
+        if y_start_pos not in range(128):
             raise ValueError("Valid y start position is 0 - 127.")
-        if not width in range(160):
+        if width not in range(160):
             raise ValueError("Valid x end position is 0 - 159.")
-        if not height in range(128):
+        if height not in range(128):
             raise ValueError("Valid y end position is 0 - 127.")
-        if not orientation in [1,3]:
+        if orientation not in [1, 3]:
             raise ValueError("Valid orientation is 1 or 3.")
 
         if color is None:
-            color = [255,255,255]
+            color = [255, 255, 255]
         color16 = _convert_color(color)
         if background is None:
-            background = [0,0,0]
+            background = [0, 0, 0]
         background16 = _convert_color(background)
 
-        self.mmio.write(iop_const.MAILBOX_OFFSET, x_start_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+4, y_start_pos)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+8, width)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0xc, height)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0x10, color16)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0x14, background16)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0x18, orientation)
-
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xb)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
+        data = [x_start_pos, y_start_pos, width, height,
+                color16, background16, orientation]
+        self.microblaze.write_mailbox(0, data)
+        self.microblaze.write_blocking_command(FILL_RECTANGLE)
 
     def read_joystick(self):
         """Read the joystick values.
@@ -502,10 +473,6 @@ class Arduino_LCD18(object):
             Indicating the direction towards which the button is pushed.
 
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0xd)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
-        return self.mmio.read(iop_const.MAILBOX_OFFSET)
-        
+        self.microblaze.write_blocking_command(READ_BUTTON)
+        value = self.microblaze.read_mailbox(0)
+        return value

@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////////////////////
 // Module Name: xup_2_to_1_mux_vector
 /////////////////////////////////////////////////////////////////
-module xup_2_to_1_mux_vector #(parameter SIZE = 4 , DELAY = 3)(
+module xup_2_to_1_mux_vector #(parameter SIZE = 32 , DELAY = 3)(
    input wire [SIZE-1:0] a,
    input wire [SIZE-1:0] b,
    input wire sel,
