@@ -29,6 +29,7 @@
 
 import numpy as np
 import os
+import warnings
 from .mmio import MMIO
 
 
@@ -139,6 +140,7 @@ class Register:
             The width of the register, e.g., 32 (default) or 64.
 
         """
+        
         self.address = address
         self.width = width
 
@@ -160,6 +162,7 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
+        
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         if isinstance(index, int):
             mask = 1 << index
@@ -208,6 +211,7 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
+        
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         if isinstance(index, int):
             if value != 0 and value != 1:
@@ -254,6 +258,7 @@ class Register:
         is a string in hex format.
 
         """
+
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         return hex(curr_val)
 
@@ -264,21 +269,30 @@ class ClocksMeta(type):
     Since this is the meta class for all the clocks, no attributes or methods
     are exposed to users. Users should use the class `Clocks` instead.
 
-    """
-    arm_pll_reg = Register(SCLR_BASE_ADDRESS + ARM_PLL_DIV_OFFSET)
-    ddr_pll_reg = Register(SCLR_BASE_ADDRESS + DDR_PLL_DIV_OFFSET)
-    io_pll_reg = Register(SCLR_BASE_ADDRESS + IO_PLL_DIV_OFFSET)
-    arm_clk_reg = Register(SCLR_BASE_ADDRESS + ARM_CLK_REG_OFFSET)
-    fclk0_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[0])
-    fclk1_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[1])
-    fclk2_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[2])
-    fclk3_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[3])
+    Note
+    ----
+    If this class is parsed on an unsupported architecture it will issue
+    a warning and leave class variables undefined
 
-    arm_pll_fdiv = arm_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
-    ddr_pll_fdiv = ddr_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
-    io_pll_fdiv = io_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
-    arm_clk_sel = arm_clk_reg[ARM_CLK_SEL_MSB:ARM_CLK_SEL_LSB]
-    arm_clk_div = arm_clk_reg[ARM_CLK_DIV_MSB:ARM_CLK_DIV_LSB]
+    """
+    if CPU_ARCH_IS_SUPPORTED:
+        arm_pll_reg = Register(SCLR_BASE_ADDRESS + ARM_PLL_DIV_OFFSET)
+        ddr_pll_reg = Register(SCLR_BASE_ADDRESS + DDR_PLL_DIV_OFFSET)
+        io_pll_reg = Register(SCLR_BASE_ADDRESS + IO_PLL_DIV_OFFSET)
+        arm_clk_reg = Register(SCLR_BASE_ADDRESS + ARM_CLK_REG_OFFSET)
+        fclk0_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[0])
+        fclk1_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[1])
+        fclk2_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[2])
+        fclk3_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[3])
+        
+        arm_pll_fdiv = arm_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
+        ddr_pll_fdiv = ddr_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
+        io_pll_fdiv = io_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
+        arm_clk_sel = arm_clk_reg[ARM_CLK_SEL_MSB:ARM_CLK_SEL_LSB]
+        arm_clk_div = arm_clk_reg[ARM_CLK_DIV_MSB:ARM_CLK_DIV_LSB]
+    else:
+        warnings.warn("Pynq does not support the CPU Architecture: {}"
+                      .format(CPU_ARCH), ResourceWarning)
 
     @property
     def cpu_mhz(cls):

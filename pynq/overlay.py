@@ -31,9 +31,10 @@ import collections
 import importlib.util
 import os
 import re
+import warnings
 from copy import deepcopy
 from .mmio import MMIO
-from .ps import Clocks
+from .ps import Clocks, CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 from .pl import PL
 from .pl import Bitstream
 from .pl import _TCL
@@ -262,11 +263,6 @@ class DefaultOverlay(PL):
 
         An overlay instantiates a bitstream object as a member initially.
 
-        Note
-        ----
-        This class requires a Vivado '.tcl' file to be next to bitstream file
-        with same name (e.g. base.bit and base.tcl).
-
         Parameters
         ----------
         bitfile_name : str
@@ -275,7 +271,20 @@ class DefaultOverlay(PL):
             Whether the overlay should be downloaded. If None then the
             overlay will be downloaded if it isn't already loaded.
 
+        Note
+        ----
+        This class requires a Vivado '.tcl' file to be next to bitstream file
+        with same name (e.g. base.bit and base.tcl).
+
+        If this method is called on an unsupported architecture it will warn and
+        return without initialization.
+
         """
+        if not CPU_ARCH_IS_SUPPORTED:
+            warnings.warn("Pynq does not support the CPU Architecture: {}"
+                          .format(CPU_ARCH), ResourceWarning)
+            return
+
         super().__init__()
 
         # Set the bitstream

@@ -32,12 +32,18 @@ import contextlib
 import functools
 import numpy as np
 import time
+import warnings
 
 from pynq import DefaultIP
 from pynq import DefaultHierarchy
 from pynq import Xlnk
-import pynq.lib._video
+from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 
+if CPU_ARCH_IS_SUPPORTED:
+    import pynq.lib._video
+else:
+    warnings.warn("Pynq does not support the CPU Architecture: {}"
+                  .format(CPU_ARCH), ResourceWarning)       
 
 __author__ = "Giuseppe Natale, Yun Rock Qu, Peter Ogden"
 __copyright__ = "Copyright 2016, Xilinx"
