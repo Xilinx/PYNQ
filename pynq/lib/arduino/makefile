@@ -13,7 +13,8 @@ MBBINS =  	arduino_analog.bin \
 		arduino_grove_finger_hr.bin \
 		arduino_grove_haptic_motor.bin \
 		arduino_grove_th02.bin \
-		arduino_lcd18.bin
+		arduino_lcd18.bin \
+		arduino_mailbox.bin
 
 all: arduino_bins
 	@echo "Completed Microblaze Projects' Builds"

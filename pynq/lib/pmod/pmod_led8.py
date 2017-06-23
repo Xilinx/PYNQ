@@ -27,17 +27,22 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+
+from . import Pmod_DevMode
+from . import PMOD_SWCFG_DIOALL
+from . import PMOD_DIO_BASEADDR
+from . import PMOD_DIO_TRI_OFFSET
+from . import PMOD_DIO_DATA_OFFSET
+from . import PMOD_CFG_DIO_ALLOUTPUT
+from . import PMOD_NUM_DIGITAL_PINS
 
 
-from pynq.iop import iop_const
-from pynq.iop import DevMode
-from pynq.iop import PMODA
-from pynq.iop import PMODB
+__author__ = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
-class Pmod_LED8(object):
+
+class Pmod_LED8(Pmod_DevMode):
     """This class controls a single LED on the LED8 Pmod.
     
     The Pmod LED8 (PB 200-163) has eight high-brightness LEDs. Each LED can be
@@ -45,38 +50,37 @@ class Pmod_LED8(object):
     
     Attributes
     ----------
-    iop : _IOP
-        I/O processor instance used by LED8.
+    microblaze : Pmod
+        Microblaze processor instance used by this module.
+    iop_switch_config :list
+        Microblaze processor IO switch configuration (8 integers).
     index : int
-        Index of the pin on LED8, from 0 to 7.
+        Index of the pin on LED8, starting from 0.
         
     """
 
-    def __init__(self, if_id, index):
+    def __init__(self, mb_info, index):
         """Return a new instance of a LED object.
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (1, 2) corresponding to (PMODA, PMODB).
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
         index: int
-            The index of the pin in a Pmod, from 0 to 7.
+            The index of the pin in a Pmod, starting from 0.
             
         """
-        if not if_id in [PMODA, PMODB]:
-            raise ValueError("No such IOP for Pmod device.")
-        if not index in range(8):
-            raise ValueError("Valid pin indexes are 0 - 7.")
-            
-        self.iop = DevMode(if_id, iop_const.PMOD_SWCFG_DIOALL) 
-        self.index = index
-        
-        self.iop.start()
-        self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR +
-                            iop_const.PMOD_DIO_TRI_OFFSET,
-                            iop_const.PMOD_CFG_DIO_ALLOUTPUT)
+        if index not in range(PMOD_NUM_DIGITAL_PINS):
+            raise ValueError(f"Valid pin indexes are 0 - "
+                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
 
-        self.iop.load_switch_config()
+        super().__init__(mb_info, PMOD_SWCFG_DIOALL)
+        self.index = index
+        self.start()
+        self.write_cmd(PMOD_DIO_BASEADDR +
+                       PMOD_DIO_TRI_OFFSET,
+                       PMOD_CFG_DIO_ALLOUTPUT)
                   
     def toggle(self):  
         """Flip the bit of a single LED.
@@ -91,9 +95,9 @@ class Pmod_LED8(object):
         None
         
         """
-        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                                        iop_const.PMOD_DIO_DATA_OFFSET)
-        new_val  = curr_val ^ (0x1 << self.index)
+        curr_val = self.read_cmd(PMOD_DIO_BASEADDR +
+                                 PMOD_DIO_DATA_OFFSET)
+        new_val = curr_val ^ (0x1 << self.index)
         self._set_leds_values(new_val)
         
     def on(self):  
@@ -104,11 +108,11 @@ class Pmod_LED8(object):
         None
         
         """
-        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                                        iop_const.PMOD_DIO_DATA_OFFSET)
-        new_val  = curr_val | (0x1 << self.index)
+        curr_val = self.read_cmd(PMOD_DIO_BASEADDR +
+                                 PMOD_DIO_DATA_OFFSET)
+        new_val = curr_val | (0x1 << self.index)
         self._set_leds_values(new_val)
-     
+
     def off(self):    
         """Turn off a single LED.
         
@@ -117,9 +121,9 @@ class Pmod_LED8(object):
         None
         
         """
-        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                                        iop_const.PMOD_DIO_DATA_OFFSET)
-        new_val  = curr_val & (0xff ^ (0x1 << self.index))
+        curr_val = self.read_cmd(PMOD_DIO_BASEADDR +
+                                 PMOD_DIO_DATA_OFFSET)
+        new_val = curr_val & (0xff ^ (0x1 << self.index))
         self._set_leds_values(new_val)
 
     def write(self, value):
@@ -139,7 +143,7 @@ class Pmod_LED8(object):
         None
         
         """
-        if not value in (0,1):
+        if value not in (0, 1):
             raise ValueError("LED8 can only write 0 or 1.")
         if value:
             self.on()
@@ -155,8 +159,8 @@ class Pmod_LED8(object):
             The data (0 or 1) read out from the selected pin.
         
         """
-        curr_val = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                                        iop_const.PMOD_DIO_DATA_OFFSET)
+        curr_val = self.read_cmd(PMOD_DIO_BASEADDR +
+                                 PMOD_DIO_DATA_OFFSET)
         return (curr_val >> self.index) & 0x1 
     
     def _set_leds_values(self, value):
@@ -177,6 +181,5 @@ class Pmod_LED8(object):
         None
         
         """
-        self.iop.write_cmd(iop_const.PMOD_DIO_BASEADDR + \
-                            iop_const.PMOD_DIO_DATA_OFFSET, value)
-                         
+        self.write_cmd(PMOD_DIO_BASEADDR +
+                       PMOD_DIO_DATA_OFFSET, value)

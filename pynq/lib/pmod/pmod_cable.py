@@ -27,15 +27,16 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+
+from . import Pmod_IO
+from . import PMOD_DIO_BASEADDR
+from . import PMOD_DIO_DATA_OFFSET
 
 
-from pynq.iop import iop_const
-from pynq.iop import Pmod_IO
-from pynq.iop import PMODA
-from pynq.iop import PMODB
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 class Pmod_Cable(Pmod_IO):
     """This class can be used for a cable connecting Pmod interfaces.
@@ -51,8 +52,8 @@ class Pmod_Cable(Pmod_IO):
     
     Attributes
     ----------
-    iop : _IOP
-        The _IOP object returned from the DevMode.
+    microblaze : Pmod
+        Microblaze processor instance used by this module.
     index : int
         The index of the Pmod pin, from 0 to 7.
     direction : str
@@ -61,7 +62,7 @@ class Pmod_Cable(Pmod_IO):
         Either 'straight' or 'loopback'.
     
     """
-    def __init__(self, if_id, index, direction, cable): 
+    def __init__(self, mb_info, index, direction, cable):
         """Return a new instance of a Cable object.
     
         Only the cable type is checked during initialization, since all the
@@ -69,8 +70,9 @@ class Pmod_Cable(Pmod_IO):
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (1, 2) corresponding to (PMODA, PMODB).
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
         index: int
             The index of the pin in a Pmod, from 0 to 7.
         direction : str
@@ -79,14 +81,12 @@ class Pmod_Cable(Pmod_IO):
             Either 'straight' or 'loopback'.
             
         """
-        if not if_id in [PMODA, PMODB]:
-            raise ValueError("No such IOP for Pmod device.")
-        if not cable in ['straight', 'loopback']:
+        if cable not in ['straight', 'loopback']:
             raise ValueError("Cable can only be 'straight', or 'loopback'.")
-        
-        super().__init__(if_id, index, direction)
+
+        super().__init__(mb_info, index, direction)
         self.cable = cable
-        
+
     def set_cable(self, cable):
         """Set the type for the cable.
 
@@ -112,7 +112,9 @@ class Pmod_Cable(Pmod_IO):
     def read(self):
         """Receive the value from the Pmod cable.
         
-        This class overrides the read() method in the Pmod IO class.
+        This method overrides the read() method in the Pmod IO class. 
+        There are no new `write()` method defined in this class, so
+        the `read()` will be inherited from Pmod IO class.
         
         Note
         ----
@@ -136,10 +138,9 @@ class Pmod_Cable(Pmod_IO):
             The data (0 or 1) on the specified Pmod IO pin.
         
         """
-        raw_value = self.iop.read_cmd(iop_const.PMOD_DIO_BASEADDR+
-                                        iop_const.PMOD_DIO_DATA_OFFSET)
+        raw_value = self.read_cmd(PMOD_DIO_BASEADDR + PMOD_DIO_DATA_OFFSET)
                                         
-        if self.cable=='straight':
+        if self.cable == 'straight':
             if self.index < 4:
                 return (raw_value >> (self.index+4)) & 0x1
             else:

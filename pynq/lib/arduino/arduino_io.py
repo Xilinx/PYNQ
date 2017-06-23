@@ -27,16 +27,24 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+
+from . import Arduino_DevMode
+from . import ARDUINO_SWCFG_DIOALL
+from . import ARDUINO_DIO_BASEADDR
+from . import ARDUINO_DIO_TRI_OFFSET
+from . import ARDUINO_DIO_DATA_OFFSET
+from . import ARDUINO_CFG_DIO_ALLINPUT
+from . import ARDUINO_CFG_DIO_ALLOUTPUT
+from . import ARDUINO_NUM_ANALOG_PINS
+from . import ARDUINO_NUM_DIGITAL_PINS
 
 
-from pynq.iop import iop_const
-from pynq.iop import DevMode
-from pynq.iop import ARDUINO
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
-class Arduino_IO(object):
+
+class Arduino_IO(Arduino_DevMode):
     """This class controls the Arduino IO pins as inputs or outputs.
     
     Note
@@ -53,60 +61,60 @@ class Arduino_IO(object):
     
     Attributes
     ----------
-    iop : _IOP
-        The _IOP object returned from the DevMode.
+    microblaze : Arduino
+        Microblaze processor instance used by this module.
     index : int
         The index of the Arduino pin, from 0 to 19.
     direction : str
         Input 'in' or output 'out'.
     
     """
-    def __init__(self, if_id, index, direction): 
+    def __init__(self, mb_info, index, direction): 
         """Return a new instance of a Arduino IO object.
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (3) corresponding to (ARDUINO).
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
         index: int
-            The index of the Arduino pin, from 0 to 19.
+            The index of the Arduino pin, starting from 0.
         direction : str
             Input 'in' or output 'out'.
             
         """
-        if not if_id in [ARDUINO]:
-            raise ValueError("No such IOP for Arduino device.")
-        if index not in range(20):
-            raise ValueError("Valid pin indexes are 0 - 19.")
+        num_pins = ARDUINO_NUM_ANALOG_PINS + ARDUINO_NUM_DIGITAL_PINS
+        if index not in range(num_pins):
+            raise ValueError(f"Valid pin indexes are 0 - "
+                             f"{num_pins-1}.")
         if direction not in ['in', 'out']:
             raise ValueError("Direction can only be 'in', or 'out'.")
-            
-        self.iop = DevMode(if_id, iop_const.ARDUINO_SWCFG_DIOALL)
+
+        super().__init__(mb_info, ARDUINO_SWCFG_DIOALL)
         self.index = index
         self.direction = direction
-        
-        self.iop.start()
-        if self.index in range(14):
+
+        self.microblaze.start()
+        if self.index in range(ARDUINO_NUM_DIGITAL_PINS):
             if self.direction == 'in':
-                self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_TRI_OFFSET, 
-                                   iop_const.ARDUINO_CFG_DIO_ALLINPUT)
+                self.write_cmd(ARDUINO_DIO_BASEADDR +
+                               ARDUINO_DIO_TRI_OFFSET,
+                               ARDUINO_CFG_DIO_ALLINPUT)
             else:
-                self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_TRI_OFFSET, 
-                                   iop_const.ARDUINO_CFG_DIO_ALLOUTPUT)
+                self.write_cmd(ARDUINO_DIO_BASEADDR +
+                               ARDUINO_DIO_TRI_OFFSET,
+                               ARDUINO_CFG_DIO_ALLOUTPUT)
         else:
             if self.direction == 'in':
-                self.iop.write_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                   iop_const.ARDUINO_AIO_TRI_OFFSET, 
-                                   iop_const.ARDUINO_CFG_AIO_ALLINPUT)
+                self.write_cmd(ARDUINO_AIO_BASEADDR +
+                               ARDUINO_AIO_TRI_OFFSET,
+                               ARDUINO_CFG_AIO_ALLINPUT)
             else:
-                self.iop.write_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                   iop_const.ARDUINO_AIO_TRI_OFFSET, 
-                                   iop_const.ARDUINO_CFG_AIO_ALLOUTPUT)
-                            
-        self.iop.load_switch_config()
-    
+                self.write_cmd(ARDUINO_AIO_BASEADDR +
+                               ARDUINO_AIO_TRI_OFFSET,
+                               ARDUINO_CFG_AIO_ALLOUTPUT)
+        self.microblaze.load_switch_config()
+
     def write(self, value): 
         """Send the value to the offboard Arduino IO device.
 
@@ -124,38 +132,40 @@ class Arduino_IO(object):
         None
             
         """
-        if not value in (0,1):
+        if value not in (0, 1):
             raise ValueError("Arduino IO can only write 0 or 1.")
         if not self.direction == 'out':
             raise ValueError('Arduino IO used as output, declared as input.')
 
-        if self.index in range(0,14):
+        if self.index in range(ARDUINO_NUM_DIGITAL_PINS):
             if value:
-                cur_val = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                           iop_const.ARDUINO_DIO_DATA_OFFSET)
-                new_val = cur_val | (0x1<<self.index)
-                self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_DATA_OFFSET, new_val)
+                cur_val = self.read_cmd(ARDUINO_DIO_BASEADDR +
+                                        ARDUINO_DIO_DATA_OFFSET)
+                new_val = cur_val | (0x1 << self.index)
+                self.write_cmd(ARDUINO_DIO_BASEADDR +
+                               ARDUINO_DIO_DATA_OFFSET, new_val)
             else:
-                cur_val = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                           iop_const.ARDUINO_DIO_DATA_OFFSET)
-                new_val = cur_val & (0xffffffff ^ (0x1<<self.index))
-                self.iop.write_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                   iop_const.ARDUINO_DIO_DATA_OFFSET, new_val)
+                cur_val = self.read_cmd(ARDUINO_DIO_BASEADDR +
+                                        ARDUINO_DIO_DATA_OFFSET)
+                new_val = cur_val & (0xffffffff ^ (0x1 << self.index))
+                self.write_cmd(ARDUINO_DIO_BASEADDR +
+                               ARDUINO_DIO_DATA_OFFSET, new_val)
         else:
             if value:
-                cur_val = self.iop.read_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                           iop_const.ARDUINO_AIO_DATA_OFFSET)
-                new_val = cur_val | (0x1<<(self.index-14))
-                self.iop.write_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                   iop_const.ARDUINO_AIO_DATA_OFFSET, new_val)
+                cur_val = self.read_cmd(ARDUINO_AIO_BASEADDR +
+                                        ARDUINO_AIO_DATA_OFFSET)
+                new_val = cur_val | (0x1 << (
+                    self.index-ARDUINO_NUM_DIGITAL_PINS))
+                self.write_cmd(ARDUINO_AIO_BASEADDR +
+                               ARDUINO_AIO_DATA_OFFSET, new_val)
             else:
-                cur_val = self.iop.read_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                           iop_const.ARDUINO_AIO_DATA_OFFSET)
-                new_val = cur_val & (0xffffffff ^ (0x1<<(self.index-14)))
-                self.iop.write_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                   iop_const.ARDUINO_AIO_DATA_OFFSET, new_val)
-            
+                cur_val = self.read_cmd(ARDUINO_AIO_BASEADDR +
+                                        ARDUINO_AIO_DATA_OFFSET)
+                new_val = cur_val & (0xffffffff ^ (0x1 << (
+                    self.index-ARDUINO_NUM_DIGITAL_PINS)))
+                self.write_cmd(ARDUINO_AIO_BASEADDR +
+                               ARDUINO_AIO_DATA_OFFSET, new_val)
+
     def read(self):
         """Receive the value from the offboard Arduino IO device.
 
@@ -172,15 +182,15 @@ class Arduino_IO(object):
         if not self.direction == 'in':
             raise ValueError('Arduino IO used as input, declared as output.')
         
-        if self.index in range(0,14):
-            raw_value = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                          iop_const.ARDUINO_DIO_DATA_OFFSET)
+        if self.index in range(ARDUINO_NUM_DIGITAL_PINS):
+            raw_value = self.read_cmd(ARDUINO_DIO_BASEADDR +
+                                      ARDUINO_DIO_DATA_OFFSET)
             return (raw_value >> self.index) & 0x1
         else:
-            raw_value = self.iop.read_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                          iop_const.ARDUINO_AIO_DATA_OFFSET)
-            return (raw_value >> (self.index-14)) & 0x1
-            
+            raw_value = self.read_cmd(ARDUINO_AIO_BASEADDR +
+                                      ARDUINO_AIO_DATA_OFFSET)
+            return (raw_value >> (self.index-ARDUINO_NUM_DIGITAL_PINS)) & 0x1
+
     def _state(self):
         """Retrieve the current state of the Arduino IO.
         
@@ -193,12 +203,11 @@ class Arduino_IO(object):
             The data (0 or 1) on the specified Arduino IO pin.
         
         """
-        if self.index in range(0,14):
-            raw_value = self.iop.read_cmd(iop_const.ARDUINO_DIO_BASEADDR + \
-                                          iop_const.ARDUINO_DIO_DATA_OFFSET)
+        if self.index in range(ARDUINO_NUM_DIGITAL_PINS):
+            raw_value = self.read_cmd(ARDUINO_DIO_BASEADDR +
+                                      ARDUINO_DIO_DATA_OFFSET)
             return (raw_value >> self.index) & 0x1
         else:
-            raw_value = self.iop.read_cmd(iop_const.ARDUINO_AIO_BASEADDR + \
-                                          iop_const.ARDUINO_AIO_DATA_OFFSET)
-            return (raw_value >> (self.index-14)) & 0x1
-        
+            raw_value = self.read_cmd(ARDUINO_AIO_BASEADDR +
+                                      ARDUINO_AIO_DATA_OFFSET)
+            return (raw_value >> (self.index-ARDUINO_NUM_DIGITAL_PINS)) & 0x1

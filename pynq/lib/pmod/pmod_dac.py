@@ -27,19 +27,18 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+
+from . import Pmod
 
 
-import time
-from pynq import MMIO
-from pynq.iop import request_iop
-from pynq.iop import iop_const
-from pynq.iop import PMODA
-from pynq.iop import PMODB
+__author__ = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 PMOD_DAC_PROGRAM = "pmod_dac.bin"
+FIXEDGEN = 0x3
+
 
 class Pmod_DAC(object):
     """This class controls a Digital to Analog Converter Pmod.
@@ -49,14 +48,12 @@ class Pmod_DAC(object):
 
     Attributes
     ----------
-    iop : _IOP
-        I/O processor instance used by the DAC
-    mmio : MMIO
-        Memory-mapped I/O instance to read and write instructions and data.
+    microblaze : Pmod
+        Microblaze processor instance used by this module.
         
     """
 
-    def __init__(self, if_id, value=None):
+    def __init__(self, mb_info, value=None):
         """Return a new instance of a DAC object.
     
         Note
@@ -66,20 +63,12 @@ class Pmod_DAC(object):
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (1, 2) corresponding to (PMODA, PMODB).
-        value: float
-            The value to be written to the DAC Pmod.
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
             
         """
-        if not if_id in [PMODA, PMODB]:
-            raise ValueError("No such IOP for Pmod device.")
-            
-        self.iop = request_iop(if_id, PMOD_DAC_PROGRAM)
-        self.mmio = self.iop.mmio
-
-        self.iop.start()
-
+        self.microblaze = Pmod(mb_info, PMOD_DAC_PROGRAM)
         if value:
             self.write(value)
 
@@ -94,25 +83,17 @@ class Pmod_DAC(object):
         Parameters
         ----------
         value : float
-            The value to be written to the DAC Pmod
+            The value to be written to the DAC.
             
         Returns
         -------
         None
 
         """
-        if not 0.00 <= value <= 2.00:
+        if not 0.00 <= value <= 2:
             raise ValueError("Requested value not in range [0.00, 2.00].")
-        
+
         # Calculate the voltage value and write to DAC
         int_val = int(value / 0.000610351)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 
-                        (int_val << 20) | 0x3)
-        
-        # Wait for I/O Processor to complete
-        while (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                              iop_const.MAILBOX_PY2IOP_CMD_OFFSET)
-                              & 0x1) == 0x1:
-            time.sleep(0.001)
-            
+        cmd = (int_val << 20) | FIXEDGEN
+        self.microblaze.write_blocking_command(cmd)

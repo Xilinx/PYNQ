@@ -27,19 +27,20 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Cathal McCabe, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+
+from . import Pmod
 
 
-import time
-from pynq import MMIO
-from pynq.iop import request_iop
-from pynq.iop import iop_const
-from pynq.iop import PMODA
-from pynq.iop import PMODB
+__author__ = "Cathal McCabe, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 PMOD_DPOT_PROGRAM = "pmod_dpot.bin"
+CANCEL = 0x1
+SET_POT_SIMPLE = 0x3
+SET_POT_RAMP = 0x5
+
 
 class Pmod_DPOT(object):
     """This class controls a digital potentiometer Pmod.
@@ -49,32 +50,25 @@ class Pmod_DPOT(object):
 
     Attributes
     ----------
-    iop : _IOP
-        I/O processor instance used by DPOT
-    mmio : MMIO
-        Memory-mapped I/O instance to read and write instructions and data.
+    microblaze : Pmod
+        Microblaze processor instance used by this module.
         
     """
-    def __init__(self, if_id):
+    def __init__(self, mb_info):
         """Return a new instance of a DPOT object. 
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (1, 2) corresponding to (PMODA, PMODB).
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
             
         """
-        if not if_id in [PMODA, PMODB]:
-            raise ValueError("No such IOP for Pmod device.")
-            
-        self.iop = request_iop(if_id, PMOD_DPOT_PROGRAM)
-        self.mmio = self.iop.mmio
-        
-        self.iop.start()
+        self.microblaze = Pmod(mb_info, PMOD_DPOT_PROGRAM)
     
     def write(self, val, step=0, log_ms=0):
         """Write the value into the DPOT.
-        
+
         This method will write the parameters "value", "step", and "log_ms" 
         all together into the DPOT Pmod. The parameter "log_ms" is only used
         for debug; users can ignore this parameter.
@@ -93,45 +87,18 @@ class Pmod_DPOT(object):
         None
         
         """
-        if not 0<=val<=255:
+        if not 0 <= val <= 255:
             raise ValueError("Initial value should be in range [0, 255].")    
-        if not 0<=step<=(255-val):
-            raise ValueError("Ramp steps should be in range [0, {}]."\
-                            .format(255-val))
-        if log_ms<0:
+        if not 0 <= step <= (255-val):
+            raise ValueError("Ramp steps should be in range [0, {}]."
+                             .format(255-val))
+        if log_ms < 0:
             raise ValueError("Requested log_ms value cannot be less than 0.")
-        
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 1)
-                        
-        self.mmio.write(iop_const.MAILBOX_OFFSET, val)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+4, step)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+8, log_ms)
-      
-        if step == 0:
-            self.mmio.write(iop_const.MAILBOX_OFFSET +
-                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)
-        else:
-            self.mmio.write(iop_const.MAILBOX_OFFSET +
-                            iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 5)
 
-    def _read_hex(self, addr_offset):
-        """Read Hex value from Microblaze address space.
-        
-        Note
-        ----
-        This method should not be used directly. It should be only used for 
-        debug.
-        
-        Parameters
-        ----------
-        addr_offset : int
-            The MMIO address to be read from.
-            
-        Returns
-        -------
-        str
-            The data read from the MMIO address expressed in hex.
-            
-        """
-        return hex(self.mmio.read(addr_offset)) 
+        self.microblaze.write_non_blocking_command(CANCEL)
+        self.microblaze.write_mailbox(0, [val, step, log_ms])
+
+        if step == 0:
+            self.microblaze.write_non_blocking_command(SET_POT_SIMPLE)
+        else:
+            self.microblaze.write_non_blocking_command(SET_POT_RAMP)
