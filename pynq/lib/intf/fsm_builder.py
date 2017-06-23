@@ -78,7 +78,8 @@ def check_pins(fsm_spec, key, intf_spec):
     for i in fsm_spec[key]:
         if i[1] not in intf_spec['traceable_outputs']:
             raise ValueError(
-                f"{i[1]} not in output pin map - please check fsm_spec.")
+                "{} not in output pin map - please check fsm_spec."
+                .format(i[1]))
 
 
 def check_num_bits(num_bits, label, minimum=0, maximum=32):
@@ -99,8 +100,8 @@ def check_num_bits(num_bits, label, minimum=0, maximum=32):
 
     """
     if not minimum <= num_bits <= maximum:
-        raise ValueError(f'{num_bits} bits used for {label}, out of range: ' +
-                         f'[{minimum}, {maximum}].')
+        raise ValueError('{0} bits used for {1}, out of range: [{2}, {3}].'
+                         .format(num_bits, label, minimum, maximum))
 
 
 def check_moore(num_states, num_outputs):
@@ -118,8 +119,9 @@ def check_moore(num_states, num_outputs):
 
     """
     if num_states < num_outputs:
-        raise ValueError(f"Specified FSM is not Moore: " +
-                         f"{num_states} states but {num_outputs} outputs.")
+        raise ValueError("Specified FSM is not Moore: "
+                         "{} states but {} outputs."
+                         .format(num_states, num_outputs))
 
 
 def check_duplicate(fsm_spec, key):
@@ -591,8 +593,9 @@ class FSMBuilder:
         for index, row in enumerate(transitions_copy2):
             input_list = list(row[0])
             if len(input_list) != self.num_input_bits:
-                raise ValueError(f'{self.num_input_bits} input bits required '
-                                 f'for each transition.')
+                raise ValueError('{} input bits required '
+                                 'for each transition.'
+                                 .format(self.num_input_bits))
             wildcard = '-'
             if wildcard in input_list:
                 zero_list, one_list = replace_wildcard(input_list)

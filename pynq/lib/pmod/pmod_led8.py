@@ -72,8 +72,8 @@ class Pmod_LED8(Pmod_DevMode):
             
         """
         if index not in range(PMOD_NUM_DIGITAL_PINS):
-            raise ValueError(f"Valid pin indexes are 0 - "
-                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
+            raise ValueError("Valid pin indexes are 0 - {}."
+                             .format(PMOD_NUM_DIGITAL_PINS-1))
 
         super().__init__(mb_info, PMOD_SWCFG_DIOALL)
         self.index = index

@@ -85,8 +85,8 @@ class VideoMode:
             self.shape = (self.height, self.width, self.bytes_per_pixel)
 
     def __repr__(self):
-        return (f"VideoMode: width={self.width} "
-                f"height={self.height} bpp={self.bits_per_pixel}")
+        return ("VideoMode: width={} height={} bpp={}"
+                .format(self.width, self.height, self.bits_per_pixel))
 
 
 class HDMIInFrontend(DefaultHierarchy):
@@ -111,13 +111,13 @@ class HDMIInFrontend(DefaultHierarchy):
 
         """
         ip_dict = self.description
-        gpio_description = ip_dict['ip'][f'axi_gpio_hdmiin']
+        gpio_description = ip_dict['ip']['axi_gpio_hdmiin']
         gpio_dict = {
             'BASEADDR': gpio_description['phys_addr'],
             'INTERRUPT_PRESENT': 1,
             'IS_DUAL': 1,
         }
-        vtc_description = ip_dict['ip'][f'vtc_in']
+        vtc_description = ip_dict['ip']['vtc_in']
         vtc_capture_addr = vtc_description['phys_addr']
         self._capture = pynq.lib._video._capture(gpio_dict,
                                                  vtc_capture_addr,
@@ -188,8 +188,8 @@ class HDMIOutFrontend(DefaultHierarchy):
         """
         super().__init__(description)
         ip_dict = self.description['ip']
-        vtc_description = ip_dict[f'vtc_out']
-        clock_description = ip_dict[f'axi_dynclk']
+        vtc_description = ip_dict['vtc_out']
+        clock_description = ip_dict['axi_dynclk']
         vtc_capture_addr = vtc_description['phys_addr']
         clock_addr = clock_description['phys_addr']
         self._display = pynq.lib._video._display(vtc_capture_addr,
@@ -225,8 +225,8 @@ class HDMIOutFrontend(DefaultHierarchy):
         if resolution in _outputmodes:
             self._display.mode(_outputmodes[resolution])
         else:
-            raise ValueError(f"Invalid Output resolution "
-                             f"{value.width}x{value.height}")
+            raise ValueError("Invalid Output resolution {}x{}"
+                             .format(value.width, value.height))
 
 
 class _FrameCache:

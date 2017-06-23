@@ -182,11 +182,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError(f"Slicing endpoint {start} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(start),
+                                 " - {}.".format(self.width))
             if stop not in range(self.width):
-                raise ValueError(f"Slicing endpoint {stop} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {stop} is not in range 0".format(stop),
+                                 " - {}.".format(self.width))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop
@@ -233,11 +233,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError(f"Slicing endpoint {start} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(start),
+                                 " - {}.".format(self.width))
             if stop not in range(self.width):
-                raise ValueError(f"Slicing endpoint {stop} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(stop),
+                                 " - {}.".format(self.width))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop

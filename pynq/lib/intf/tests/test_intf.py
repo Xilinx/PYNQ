@@ -92,7 +92,8 @@ def test_intf():
     for index in range(10):
         data_read = intf.read(MAILBOX_OFFSET + 4 * index)
         assert data_write[index] == data_read, \
-            f'Mailbox location {index} read {data_read} != write {data_write}.'
+            'Mailbox location {0} read {1} != write {2}' \
+            .format(index, data_read, data_write)
 
     # Test the capability to allocate buffers
     num_samples = 100

@@ -59,7 +59,7 @@ class Interrupt(object):
 
         """
         if pinname not in PL.interrupt_pins:
-            raise ValueError("No Pin of name {0} found".format(pinname))
+            raise ValueError("No Pin of name {} found".format(pinname))
 
         parentname = PL.interrupt_pins[pinname]['controller']
         self.number = PL.interrupt_pins[pinname]['index']
@@ -212,7 +212,7 @@ class _InterruptController(object):
             uiodev = _get_uio_device(61 + number)
             if uiodev is None:
                 raise ValueError('Could not find UIO device for interrupt pin '
-                                 'for IRQ number {0}'.format(number))
+                                 'for IRQ number {}'.format(number))
             self.parent = _UioController(uiodev)
             self.number = 0
         else:

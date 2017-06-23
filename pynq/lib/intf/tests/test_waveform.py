@@ -61,8 +61,8 @@ def test_waveform():
     for i in range(interface_width):
         wavelane1 = dict()
         wavelane2 = dict()
-        wavelane1['name'] = f'clk{i}'
-        wavelane2['name'] = f'clk{i}'
+        wavelane1['name'] = 'clk{}'.format(i)
+        wavelane2['name'] = 'clk{}'.format(i)
         wavelane1['pin'] = all_pins[i]
         wavelane2['pin'] = all_pins[i]
         correct_data['signal'][-1].append(wavelane2)

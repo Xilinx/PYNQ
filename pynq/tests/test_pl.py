@@ -187,19 +187,19 @@ def test_overlay1():
 
     ol1.download()
     assert not ol1.bitstream.timestamp == '', \
-        f'Overlay 1 ({bitfile1}) has an empty timestamp.'
+        'Overlay 1 ({}) has an empty timestamp.'.format(bitfile1)
     assert ol1.is_loaded(), \
-        f'Overlay 1 ({bitfile1}) should be loaded.'
+        'Overlay 1 ({}) should be loaded.'.format(bitfile1)
     assert Clocks.cpu_mhz == cpu_mhz, \
         'CPU frequency should not be changed.'
     assert Clocks.fclk0_mhz == bitfile1_fclk0_mhz, \
-        f'FCLK0 frequency not correct after downloading {bitfile1}.'
+        'FCLK0 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk1_mhz == bitfile1_fclk1_mhz, \
-        f'FCLK1 frequency not correct after downloading {bitfile1}.'
+        'FCLK1 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk2_mhz == bitfile1_fclk2_mhz, \
-        f'FCLK2 frequency not correct after downloading {bitfile1}.'
+        'FCLK2 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk3_mhz == bitfile1_fclk3_mhz, \
-        f'FCLK3 frequency not correct after downloading {bitfile1}.'
+        'FCLK3 frequency not correct after downloading {}.'.format(bitfile1)
 
 
 @pytest.mark.run(order=30)
@@ -216,19 +216,19 @@ def test_overlay2():
 
     ol2.download()
     assert not ol2.bitstream.timestamp == '', \
-        f'Overlay 2 ({bitfile1}) has an empty timestamp.'
+        'Overlay 2 ({}) has an empty timestamp.'.format(bitfile1)
     assert ol2.is_loaded(), \
-        f'Overlay 2 ({bitfile1}) should be loaded.'
+        'Overlay 2 ({}) should be loaded.'.format(bitfile1)
     assert Clocks.cpu_mhz == cpu_mhz, \
         'CPU frequency should not be changed.'
     assert Clocks.fclk0_mhz == bitfile1_fclk0_mhz, \
-        f'FCLK0 frequency not correct after downloading {bitfile1}.'
+        'FCLK0 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk1_mhz == bitfile1_fclk1_mhz, \
-        f'FCLK1 frequency not correct after downloading {bitfile1}.'
+        'FCLK1 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk2_mhz == bitfile1_fclk2_mhz, \
-        f'FCLK2 frequency not correct after downloading {bitfile1}.'
+        'FCLK2 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk3_mhz == bitfile1_fclk3_mhz, \
-        f'FCLK3 frequency not correct after downloading {bitfile1}.'
+        'FCLK3 frequency not correct after downloading {}.'.format(bitfile1)
 
 
 @pytest.mark.run(order=39)
@@ -245,19 +245,19 @@ def test_overlay3():
 
     ol3.download()
     assert not ol3.bitstream.timestamp == '', \
-        f'Overlay 3 ({bitfile2}) has an empty timestamp.'
+        'Overlay 3 ({}) has an empty timestamp.'.format(bitfile2)
     assert ol3.is_loaded(), \
-        f'Overlay 3 ({bitfile2}) should be loaded.'
+        'Overlay 3 ({}) should be loaded.'.format(bitfile2)
     assert Clocks.cpu_mhz == cpu_mhz, \
         'CPU frequency should not be changed.'
     assert Clocks.fclk0_mhz == bitfile2_fclk0_mhz, \
-        f'FCLK0 frequency not correct after downloading {bitfile2}.'
+        'FCLK0 frequency not correct after downloading {}.'.format(bitfile2)
     assert Clocks.fclk1_mhz == bitfile2_fclk1_mhz, \
-        f'FCLK1 frequency not correct after downloading {bitfile2}.'
+        'FCLK1 frequency not correct after downloading {}.'.format(bitfile2)
     assert Clocks.fclk2_mhz == bitfile2_fclk2_mhz, \
-        f'FCLK2 frequency not correct after downloading {bitfile2}.'
+        'FCLK2 frequency not correct after downloading {}.'.format(bitfile2)
     assert Clocks.fclk3_mhz == bitfile2_fclk3_mhz, \
-        f'FCLK3 frequency not correct after downloading {bitfile2}.'
+        'FCLK3 frequency not correct after downloading {}.'.format(bitfile2)
 
 
 @pytest.mark.run(order=49)
@@ -274,19 +274,19 @@ def test_end():
 
     ol1.download()
     assert not ol1.bitstream.timestamp == '', \
-        f'Overlay 1 ({bitfile1}) has an empty timestamp.'
+        'Overlay 1 ({}) has an empty timestamp.'.format(bitfile1)
     assert ol1.is_loaded(), \
-        f'Overlay 1 ({bitfile1}) should be loaded.'
+        'Overlay 1 ({}) should be loaded.'.format(bitfile1)
     assert Clocks.cpu_mhz == cpu_mhz, \
         'CPU frequency should not be changed.'
     assert Clocks.fclk0_mhz == bitfile1_fclk0_mhz, \
-        f'FCLK0 frequency not correct after downloading {bitfile1}.'
+        'FCLK0 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk1_mhz == bitfile1_fclk1_mhz, \
-        f'FCLK1 frequency not correct after downloading {bitfile1}.'
+        'FCLK1 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk2_mhz == bitfile1_fclk2_mhz, \
-        f'FCLK2 frequency not correct after downloading {bitfile1}.'
+        'FCLK2 frequency not correct after downloading {}.'.format(bitfile1)
     assert Clocks.fclk3_mhz == bitfile1_fclk3_mhz, \
-        f'FCLK3 frequency not correct after downloading {bitfile1}.'
+        'FCLK3 frequency not correct after downloading {}.'.format(bitfile1)
 
     del ol1
     del ol2
