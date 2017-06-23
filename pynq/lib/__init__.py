@@ -42,3 +42,9 @@ from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
 from .button import Button
+
+from .intf import request_intf
+from .intf import FSMBuilder
+from .intf import PatternBuilder
+from .intf import BooleanBuilder
+from .intf import Waveform
