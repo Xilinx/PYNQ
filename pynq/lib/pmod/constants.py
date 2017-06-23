@@ -39,14 +39,14 @@ __email__ = "pynq_support@xilinx.com"
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 # PYNQ-Z1 constants
-PMODA = {'ip_name': 'mb_bram_ctrl_1',
-         'rst_name': 'mb_1_reset',
+PMODA = {'ip_name': 'iop1/mb_bram_ctrl_1',
+         'rst_name': 'mb_iop1_reset',
          'intr_pin_name': 'iop1/dff_en_reset_0/q',
-         'intr_ack_name': 'mb_1_intr_ack'}
-PMODB = {'ip_name': 'mb_bram_ctrl_2',
-         'rst_name': 'mb_2_reset',
+         'intr_ack_name': 'mb_iop1_intr_ack'}
+PMODB = {'ip_name': 'iop2/mb_bram_ctrl_2',
+         'rst_name': 'mb_iop2_reset',
          'intr_pin_name': 'iop2/dff_en_reset_0/q',
-         'intr_ack_name': 'mb_2_intr_ack'}
+         'intr_ack_name': 'mb_iop2_intr_ack'}
 
 # Pmod mailbox constants
 MAILBOX_OFFSET = 0xF000
