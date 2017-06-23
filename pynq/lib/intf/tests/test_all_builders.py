@@ -102,7 +102,8 @@ def test_all_builders():
                                 ['00', 'S3', 'S0', '1'],
                                 ['01', 'S3', 'S2', '1'],
                                 ['1-', '*', 'S0', '']]}
-    print(f"\nConnect {rst} to GND, and {direction} to VCC.")
+    print("\nConnect {} to GND, and {} to VCC."
+          .format(rst, direction))
     input("Hit enter after done ...")
     fsm = FSMBuilder(microblaze_intf, fsm_spec,
                      use_analyzer=True,
@@ -120,8 +121,8 @@ def test_all_builders():
     for i in range(3, 7):
         wavelane1 = dict()
         wavelane2 = dict()
-        wavelane1['name'] = f'clk{i}'
-        wavelane2['name'] = f'clk{i}'
+        wavelane1['name'] = 'clk{}'.format(i)
+        wavelane2['name'] = 'clk{}'.format(i)
         wavelane1['pin'] = all_pins[i]
         wavelane2['pin'] = all_pins[i]
         loopback1['signal'][-1].append(wavelane2)
@@ -152,8 +153,8 @@ def test_all_builders():
         list(PYNQZ1_DIO_SPECIFICATION['non_traceable_outputs'].keys())[0] +
         '=' + ('|'.join(in_pins)))
 
-    print(f'Connect randomly {in_pins} to VCC or GND.')
-    input(f'Hit enter after done ...')
+    print('Connect randomly {} to VCC or GND.'.format(in_pins))
+    input('Hit enter after done ...')
     bgs = [BooleanBuilder(microblaze_intf, expr=expr,
                           use_analyzer=True,
                           num_analyzer_samples=num_samples) for expr in fx]
@@ -231,7 +232,7 @@ def test_all_builders():
     expr = re.sub(r"\b{}\b".format(wavelane['name']),
                   str_replace, expr)
     expr = expr.replace('=', '==')
-    assert eval(expr), f"Boolean builder fails for {fx[0]}."
+    assert eval(expr), "Boolean builder fails for {}.".format(fx[0])
 
     for bg in bgs:
         bg.stop()

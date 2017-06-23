@@ -67,8 +67,8 @@ class Pmod_PWM(object):
             
         """
         if index not in range(PMOD_NUM_DIGITAL_PINS):
-            raise ValueError(f"Valid pin indexes are 0 - "
-                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
+            raise ValueError("Valid pin indexes are 0 - {}."
+                             .format(PMOD_NUM_DIGITAL_PINS-1))
 
         self.microblaze = Pmod(mb_info, PMOD_PWM_PROGRAM)
         

@@ -85,8 +85,8 @@ class Arduino_IO(Arduino_DevMode):
         """
         num_pins = ARDUINO_NUM_ANALOG_PINS + ARDUINO_NUM_DIGITAL_PINS
         if index not in range(num_pins):
-            raise ValueError(f"Valid pin indexes are 0 - "
-                             f"{num_pins-1}.")
+            raise ValueError("Valid pin indexes are 0 - {}."
+                             .format(num_pins-1))
         if direction not in ['in', 'out']:
             raise ValueError("Direction can only be 'in', or 'out'.")
 

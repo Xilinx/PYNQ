@@ -80,8 +80,8 @@ class Pmod_IO(Pmod_DevMode):
             
         """
         if index not in range(PMOD_NUM_DIGITAL_PINS):
-            raise ValueError(f"Valid pin indexes are 0 - "
-                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
+            raise ValueError("Valid pin indexes are 0 - {}."
+                             .format(PMOD_NUM_DIGITAL_PINS-1))
         if direction not in ['in', 'out']:
             raise ValueError("Direction can only be 'in', or 'out'.")
 

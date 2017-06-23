@@ -93,7 +93,8 @@ def test_trace_analyzer():
                 analyzer.intf.reset_buffers()
             del analyzer
         assert exception_raised, \
-            f'Should raise exception when capturing {num_samples} sample(s).'
+            'Should raise exception when capturing {} sample(s).' \
+            .format(num_samples)
 
     # Test 2: 1, 2, or MAX_NUM_TRACE_SAMPLES samples
     for num_samples in [1, 2, MAX_NUM_TRACE_SAMPLES]:
@@ -125,7 +126,8 @@ def test_trace_analyzer():
         analyzers[i].analyze()
         analyzers[i].stop(free_buffer=False)
         assert len(analyzers[i].samples) == num_samples[i], \
-            f'Analyzer {i} not getting correct number of samples.'
+            'Analyzer {} not getting correct number of samples.' \
+            .format(i)
     microblaze_intf.reset_buffers()
 
     ol.reset()

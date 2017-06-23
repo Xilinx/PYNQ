@@ -189,7 +189,7 @@ class BooleanBuilder:
             output_pin_num = self.intf_spec[
                 'non_traceable_outputs'][self.output_pin]
         else:
-            raise ValueError(f"Invalid output pin {expr_out}.")
+            raise ValueError("Invalid output pin {}.".format(expr_out))
 
         # parse the used pins preserving the order
         non_unique_inputs = re.sub("\W+", " ", expr_in).strip().split(' ')
@@ -200,8 +200,8 @@ class BooleanBuilder:
 
         # need 5 inputs to CFGLUT - any unspecified inputs will be don't cares
         for i in range(len(input_pins_with_dontcares), 5):
-            expr_in = f'({expr_in} & X{i})|({expr_in} & ~X{i})'
-            input_pins_with_dontcares.append(f'X{i}')
+            expr_in = '({0} & X{1})|({0} & ~X{1})'.format(expr_in, i)
+            input_pins_with_dontcares.append('X{}'.format(i))
 
         # map to truth table
         p0, p1, p2, p3, p4 = map(exprvar, input_pins_with_dontcares)
@@ -209,7 +209,7 @@ class BooleanBuilder:
 
         # Use regular expression to match and replace whole word only
         for orig_name, p_name in zip(input_pins_with_dontcares,
-                                     [f'p{i}' for i in range(5)]):
+                                     ['p{}'.format(i) for i in range(5)]):
             expr_p = re.sub(r"\b{}\b".format(orig_name), p_name, expr_p)
 
         truth_table = expr2truthtable(eval(expr_p))
@@ -246,8 +246,8 @@ class BooleanBuilder:
                     input_pin_ix = self.intf_spec[
                         'non_traceable_inputs'][truth_table_inputs[i]]
                 else:
-                    raise ValueError(f"Invalid input pin "
-                                     f"{truth_table_inputs[i]}.")
+                    raise ValueError("Invalid input pin {}."
+                                     .format(truth_table_inputs[i]))
             else:
                 input_pin_ix = 0x1f
             mailbox_regs[output_pin_num * 2][msb:lsb] = input_pin_ix
@@ -269,7 +269,7 @@ class BooleanBuilder:
             ['analysis']],
             'foot': {'tick': 1},
             'head': {'tick': 1,
-                     'text': f'Boolean Logic Builder ({self.expr})'}}
+                     'text': 'Boolean Logic Builder ({})'.format(self.expr)}}
 
         # Append four inputs and one output to waveform view
         stimulus_traced = False

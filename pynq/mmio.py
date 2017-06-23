@@ -193,4 +193,4 @@ class MMIO:
 
         """
         if self.debug:
-            print('MMIO Debug: {0}'.format(s.format(*args)))
+            print('MMIO Debug: {}'.format(s.format(*args)))

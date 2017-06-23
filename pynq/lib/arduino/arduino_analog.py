@@ -107,8 +107,8 @@ class Arduino_Analog(object):
         """
         for pin in gr_pin:
             if pin not in range(ARDUINO_NUM_ANALOG_PINS):
-                raise ValueError(f"Analog pin number can only be 0 - "
-                                 f"{ARDUINO_NUM_ANALOG_PINS-1}.")
+                raise ValueError("Analog pin number can only be 0 - {}."
+                                 .format(ARDUINO_NUM_ANALOG_PINS-1))
 
         self.microblaze = Arduino(mb_info, ARDUINO_ANALOG_PROGRAM)
         self.log_interval_ms = 1000

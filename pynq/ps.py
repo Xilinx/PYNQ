@@ -28,6 +28,8 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import numpy as np
+import os
+import warnings
 from .mmio import MMIO
 
 
@@ -35,6 +37,11 @@ __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
+# Pynq Family Constants
+ZYNQ_ARCH = "armv7l"
+CPU_ARCH = os.uname().machine
+CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH]
+              
 # Clock constants
 SRC_CLK_MHZ = 50.0
 DEFAULT_CLK_MHZ = 100.0
@@ -133,6 +140,7 @@ class Register:
             The width of the register, e.g., 32 (default) or 64.
 
         """
+        
         self.address = address
         self.width = width
 
@@ -154,6 +162,7 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
+        
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         if isinstance(index, int):
             mask = 1 << index
@@ -173,11 +182,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError(f"Slicing endpoint {start} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(start),
+                                 " - {}.".format(self.width))
             if stop not in range(self.width):
-                raise ValueError(f"Slicing endpoint {stop} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {stop} is not in range 0".format(stop),
+                                 " - {}.".format(self.width))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop
@@ -202,6 +211,7 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
+        
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         if isinstance(index, int):
             if value != 0 and value != 1:
@@ -223,11 +233,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError(f"Slicing endpoint {start} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(start),
+                                 " - {}.".format(self.width))
             if stop not in range(self.width):
-                raise ValueError(f"Slicing endpoint {stop} is not in range 0"
-                                 f" - {self.width}.")
+                raise ValueError("Slicing endpoint {} is not in range 0".format(stop),
+                                 " - {}.".format(self.width))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop
@@ -248,6 +258,7 @@ class Register:
         is a string in hex format.
 
         """
+
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         return hex(curr_val)
 
@@ -258,21 +269,30 @@ class ClocksMeta(type):
     Since this is the meta class for all the clocks, no attributes or methods
     are exposed to users. Users should use the class `Clocks` instead.
 
-    """
-    arm_pll_reg = Register(SCLR_BASE_ADDRESS + ARM_PLL_DIV_OFFSET)
-    ddr_pll_reg = Register(SCLR_BASE_ADDRESS + DDR_PLL_DIV_OFFSET)
-    io_pll_reg = Register(SCLR_BASE_ADDRESS + IO_PLL_DIV_OFFSET)
-    arm_clk_reg = Register(SCLR_BASE_ADDRESS + ARM_CLK_REG_OFFSET)
-    fclk0_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[0])
-    fclk1_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[1])
-    fclk2_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[2])
-    fclk3_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[3])
+    Note
+    ----
+    If this class is parsed on an unsupported architecture it will issue
+    a warning and leave class variables undefined
 
-    arm_pll_fdiv = arm_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
-    ddr_pll_fdiv = ddr_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
-    io_pll_fdiv = io_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
-    arm_clk_sel = arm_clk_reg[ARM_CLK_SEL_MSB:ARM_CLK_SEL_LSB]
-    arm_clk_div = arm_clk_reg[ARM_CLK_DIV_MSB:ARM_CLK_DIV_LSB]
+    """
+    if CPU_ARCH_IS_SUPPORTED:
+        arm_pll_reg = Register(SCLR_BASE_ADDRESS + ARM_PLL_DIV_OFFSET)
+        ddr_pll_reg = Register(SCLR_BASE_ADDRESS + DDR_PLL_DIV_OFFSET)
+        io_pll_reg = Register(SCLR_BASE_ADDRESS + IO_PLL_DIV_OFFSET)
+        arm_clk_reg = Register(SCLR_BASE_ADDRESS + ARM_CLK_REG_OFFSET)
+        fclk0_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[0])
+        fclk1_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[1])
+        fclk2_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[2])
+        fclk3_reg = Register(SCLR_BASE_ADDRESS + CLK_CTRL_REG_OFFSET[3])
+        
+        arm_pll_fdiv = arm_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
+        ddr_pll_fdiv = ddr_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
+        io_pll_fdiv = io_pll_reg[PLL_DIV_MSB:PLL_DIV_LSB]
+        arm_clk_sel = arm_clk_reg[ARM_CLK_SEL_MSB:ARM_CLK_SEL_LSB]
+        arm_clk_div = arm_clk_reg[ARM_CLK_DIV_MSB:ARM_CLK_DIV_LSB]
+    else:
+        warnings.warn("Pynq does not support the CPU Architecture: {}"
+                      .format(CPU_ARCH), ResourceWarning)
 
     @property
     def cpu_mhz(cls):

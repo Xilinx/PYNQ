@@ -133,8 +133,8 @@ class AxiGPIO(DefaultIP):
 
             """
             if val > self._mask:
-                raise ValueError(
-                    f"{val} to large for {self._stop - self._start} bits")
+                raise ValueError("{} too large for {} bits"
+                                 .format(val, self.stop - self.start))
             self._parent.write(val << self._start, self._mask << self._start)
 
         def on(self):

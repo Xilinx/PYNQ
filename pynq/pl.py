@@ -31,12 +31,13 @@ import os
 import re
 import mmap
 import math
+import warnings
 from copy import deepcopy
 from datetime import datetime
 from multiprocessing.connection import Listener
 from multiprocessing.connection import Client
 from .mmio import MMIO
-from .ps import Clocks
+from .ps import Clocks, CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -123,10 +124,16 @@ class _TCL:
             The tcl filename to parse. This is opened directly so should be
             fully qualified
 
+        Note
+        ----
+        If this method is called on an unsupported architecture it will warn and
+        return without initialization
+
         """
+        
         if not isinstance(tcl_name, str):
             raise TypeError("tcl_name has to be a string")
-
+        
         # Initialize result variables
         self.intc_names = []
         self.interrupt_controllers = {}
@@ -150,7 +157,7 @@ class _TCL:
         family_gpio_dict = {"xc7z": "GPIO_O",
                             "xczu": "emio_gpio_o"}
         hier_use_pat = "create_hier_cell"
-        hier_proc_def_pat = f"proc {hier_use_pat}"
+        hier_proc_def_pat = "proc {}".format(hier_use_pat)
         hier_def_regex = "create_hier_cell_(?P<name>[^ ]*)"
         hier_proc_end_pat = "}\n"
         hier_use_regex = ("create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
@@ -341,7 +348,7 @@ class _TCL:
                 gpio_names.append(m.group(1))
         for n, i in gpio_dict.items():
             if n in gpio_names:
-                output_net = self.pins[f'{n}/Dout']
+                output_net = self.pins['{}/Dout'.format(n)]
                 output_pins = self.nets[output_net]
                 self.gpio_dict[n] = {'index': i, 'state': None,
                                      'pins': output_pins}
@@ -383,21 +390,29 @@ class PLMeta(type):
     This is not a class for users. Hence there is no attribute or method
     exposed to users.
 
+    Note
+    ----
+    If this metaclass is parsed on an unsupported architecture it will issue
+    a warning and leave class variables undefined
+
     """
     _bitfile_name = BS_BOOT
     _timestamp = ""
-
-    _tcl = _TCL(TCL_BOOT)
-    _ip_dict = _tcl.ip_dict
-    _gpio_dict = _tcl.gpio_dict
-    _interrupt_controllers = _tcl.interrupt_controllers
-    _interrupt_pins = _tcl.interrupt_pins
-    _status = 1
-
-    _server = None
-    _host = None
-    _remote = None
-
+    
+    if CPU_ARCH_IS_SUPPORTED:
+        _tcl = _TCL(TCL_BOOT)
+        _ip_dict = _tcl.ip_dict
+        _gpio_dict = _tcl.gpio_dict
+        _interrupt_controllers = _tcl.interrupt_controllers
+        _interrupt_pins = _tcl.interrupt_pins
+        _status = 1
+        _server = None
+        _host = None
+        _remote = None
+    else:
+        warnings.warn("Pynq does not support the CPU Architecture: {}"
+                     .format(CPU_ARCH), ResourceWarning)
+    
     @property
     def bitfile_name(cls):
         """The getter for the attribute `bitfile_name`.
@@ -407,7 +422,17 @@ class PLMeta(type):
         str
             The absolute path of the bitstream currently on PL.
 
+        Note
+        ----
+        If this method is called on an unsupported architecture it will warn 
+        and return an empty string
+
         """
+        if not CPU_ARCH_IS_SUPPORTED:
+            warnings.warn("Pynq does not support the CPU Architecture: {}"
+                          .format(CPU_ARCH), ResourceWarning)
+            return ""
+        
         cls.client_request()
         cls.server_update()
         return cls._bitfile_name
@@ -658,8 +683,8 @@ class PL(metaclass=PLMeta):
         All the addressable IPs from PS7. Key is the name of the IP; value is
         a dictionary mapping the physical address, address range, IP type, 
         configuration dictionary, and the state associated with that IP:
-        {str: {'phys_addr' : int, 'addr_range' : int, 
-               'type' : str, 'config' : dict, 'state' : str}}.
+        {str: {'phys_addr' : int, 'addr_range' : int, \ 
+        'type' : str, 'config' : dict, 'state' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
         value is a dictionary mapping user index (starting from 0),
@@ -771,13 +796,16 @@ class Bitstream(PL):
 
         Note
         ----
-        The class variables held by the singleton PL will also be updated.
+        The class variables held by the singleton PL will also be updated. In
+        addition, if this method is called on an unsupported architecture it
+        will warn and return.
 
         Returns
         -------
         None
 
         """
+
         # Compose bitfile name, open bitfile
         with open(self.bitfile_name, 'rb') as f:
             buf = f.read()
