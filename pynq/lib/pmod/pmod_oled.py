@@ -27,18 +27,21 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+
+from . import Pmod
 
 
-from pynq import MMIO
-from pynq.iop import request_iop
-from pynq.iop import iop_const
-from pynq.iop import PMODA
-from pynq.iop import PMODB
+__author__ = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 PMOD_OLED_PROGRAM = "pmod_oled.bin"
+CLEAR_DISPLAY = 0x1
+PRINT_STRING = 0x3
+DRAW_LINE = 0x5
+DRAW_RECT = 0x7
+
 
 class Pmod_OLED(object):
     """This class controls an OLED Pmod.
@@ -48,33 +51,26 @@ class Pmod_OLED(object):
     
     Attributes
     ----------
-    iop : _IOP
-        I/O processor instance used by the OLED
-    mmio : MMIO
-        Memory-mapped I/O instance to read and write instructions and data.
-        
+    microblaze : Pmod
+        Microblaze processor instance used by this module.
+
     """
 
-    def __init__(self, if_id, text=None):
+    def __init__(self, mb_info, text=None):
         """Return a new instance of an OLED object. 
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (1, 2) corresponding to (PMODA, PMODB).
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
         text: str
             The text to be displayed after initialization.
             
         """
-        if not if_id in [PMODA, PMODB]:
-            raise ValueError("No such IOP for Pmod device.")
-            
-        self.iop = request_iop(if_id, PMOD_OLED_PROGRAM)
-        self.mmio = self.iop.mmio
-        
-        self.iop.start()
+        self.microblaze = Pmod(mb_info, PMOD_OLED_PROGRAM)
+
         self.clear()
-        
         if text:
             self.write(text)
             
@@ -88,18 +84,11 @@ class Pmod_OLED(object):
         None
         
         """             
-        # Write the clear command
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
-        
-        # Wait for the command to be cleared
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
-            pass
+        self.microblaze.write_blocking_command(CLEAR_DISPLAY)
             
     def write(self, text, x=0, y=0):
         """Write a new text string on the OLED.
-        
+
         Parameters
         ----------
         text : str
@@ -108,11 +97,11 @@ class Pmod_OLED(object):
             The x-position of the display.
         y : int
             The y-position of the display.
-            
+
         Returns
         -------
         None
-        
+
         """
         if not 0 <= x <= 255:
             raise ValueError("X-position should be in [0, 255]")
@@ -120,26 +109,15 @@ class Pmod_OLED(object):
             raise ValueError("Y-position should be in [0, 255]")
         if len(text) >= 64:
             raise ValueError("Text too long to be displayed.")
-            
-        # First write length, x, y
-        self.mmio.write(iop_const.MAILBOX_OFFSET, len(text))
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, x)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, y)
-        
-        # Then write rest of string
-        for i in range(len(text)):
-            self.mmio.write(iop_const.MAILBOX_OFFSET + 0xC + i*4, 
-                            ord(text[i]))
-                       
+
+        # First write length, x, y, then write rest of string
+        data = [len(text), x, y]
+        data += [ord(char) for char in text]
+        self.microblaze.write_mailbox(0, data)
+
         # Finally write the print string command
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        
-        # Wait for the command to be cleared
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
-            pass
-        
+        self.microblaze.write_blocking_command(PRINT_STRING)
+
     def draw_line(self, x1, y1, x2, y2):
         """Draw a straight line on the OLED.
         
@@ -167,22 +145,13 @@ class Pmod_OLED(object):
             raise ValueError("Y-position should be in [0, 255]")
         if not 0 <= y2 <= 255:
             raise ValueError("Y-position should be in [0, 255]")
-            
-        self.mmio.write(iop_const.MAILBOX_OFFSET, x1)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, y1)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, x2)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0xC, y2)
-                    
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-                        
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
-            pass
-            
+
+        self.microblaze.write_mailbox(0, [x1, y1, x2, y2])
+        self.microblaze.write_blocking_command(DRAW_LINE)
+
     def draw_rect(self, x1, y1, x2, y2):
         """Draw a rectangle on the OLED.
-        
+
         Parameters
         ----------
         x1 : int
@@ -207,15 +176,6 @@ class Pmod_OLED(object):
             raise ValueError("Y-position should be in [0, 255]")
         if not 0 <= y2 <= 255:
             raise ValueError("Y-position should be in [0, 255]")
-            
-        self.mmio.write(iop_const.MAILBOX_OFFSET, x1)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x4, y1)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0x8, x2)
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 0xC, y2)
-                    
-        self.mmio.write(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x7)
-                        
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET + 
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0x0):
-            pass
+
+        self.microblaze.write_mailbox(0, [x1, y1, x2, y2])
+        self.microblaze.write_blocking_command(DRAW_RECT)

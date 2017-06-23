@@ -10,7 +10,7 @@ BIN_IOP = pmod_adc.bin \
 		pmod_dpot.bin \
 		pmod_timer.bin \
 		pmod_pwm.bin \
-		mailbox.bin \
+		pmod_mailbox.bin \
 		pmod_grove_adc.bin \
 		pmod_grove_oled.bin \
 		pmod_grove_imu.bin \

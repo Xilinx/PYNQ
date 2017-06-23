@@ -27,63 +27,58 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Parimal Patel"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import time
 import struct
-from pynq import MMIO
-from pynq.iop import request_iop
-from pynq.iop import iop_const
-from pynq.iop import PMODA
-from pynq.iop import PMODB
+from . import Pmod
+from . import PMOD_NUM_DIGITAL_PINS
+
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 PMOD_PWM_PROGRAM = "pmod_pwm.bin"
+CONFIG_IOP_SWITCH = 0x1
+GENERATE = 0x3
+STOP = 0x5
+
 
 class Pmod_PWM(object):
     """This class uses the PWM of the IOP. 
 
     Attributes
     ----------
-    iop : _IOP
-        I/O processor instance used by Pmod_PWM.
-    mmio : MMIO
-        Memory-mapped I/O instance to read and write instructions and data.
-            
+    microblaze : Pmod
+        Microblaze processor instance used by this module.
+
     """
-    def __init__(self, if_id, index): 
+    def __init__(self, mb_info, index):
         """Return a new instance of an GROVE_PWM object. 
         
         Parameters
         ----------
-        if_id : int
-            The interface ID (1, 2) corresponding to (PMODA, PMODB).
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the
+            IP name and the reset name.
         index : int
             The specific pin that runs PWM.
             
         """
-        if not if_id in [PMODA, PMODB]:
-            raise ValueError("No such IOP for Pmod device.")
-        if not index in range(8):
-            raise ValueError("Valid pin indexes are 0 - 7.")
-            
-        self.iop = request_iop(if_id, PMOD_PWM_PROGRAM)
-        self.mmio = self.iop.mmio
-        self.iop.start()
+        if index not in range(PMOD_NUM_DIGITAL_PINS):
+            raise ValueError(f"Valid pin indexes are 0 - "
+                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
+
+        self.microblaze = Pmod(mb_info, PMOD_PWM_PROGRAM)
         
         # Write PWM pin config
-        self.mmio.write(iop_const.MAILBOX_OFFSET, index)
+        self.microblaze.write_mailbox(0, index)
         
         # Write configuration and wait for ACK
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x1)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
+        self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
             
-    def generate(self,period,duty_cycle):
+    def generate(self, period, duty_cycle):
         """Generate pwm signal with desired period and percent duty cycle.
         
         Parameters
@@ -98,30 +93,20 @@ class Pmod_PWM(object):
         None
                 
         """
-        if period not in range(1,65536):
+        if period not in range(1, 65536):
             raise ValueError("Valid tone period is between 1 and 65536.")
-        if duty_cycle not in range(1,99):
+        if duty_cycle not in range(1, 99):
             raise ValueError("Valid duty cycle is between 1 and 99.")
-            
-        self.mmio.write(iop_const.MAILBOX_OFFSET, period)
-        self.mmio.write(iop_const.MAILBOX_OFFSET+0x4, duty_cycle)
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x3)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
-            
+
+        self.microblaze.write_mailbox(0, [period, duty_cycle])
+        self.microblaze.write_blocking_command(GENERATE)
+
     def stop(self):
         """Stops PWM generation.
-            
+
         Returns
         -------
         None
-        
+
         """
-        self.mmio.write(iop_const.MAILBOX_OFFSET +
-                        iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 0x5)
-        while not (self.mmio.read(iop_const.MAILBOX_OFFSET +
-                                  iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 0):
-            pass
-            
+        self.microblaze.write_blocking_command(STOP)
