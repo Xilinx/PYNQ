@@ -38,10 +38,9 @@ import cffi
 import resource
 import functools
 import numbers
+import warnings
 import numpy as np
-
-if os.getuid() != 0:
-    raise RuntimeError("Root permission needed by the library.")
+from .ps import CPU_ARCH_IS_SUPPORTED
 
 def sig_handler(signum, frame):
     print("Invalid Memory Access!")
@@ -62,7 +61,12 @@ uint32_t cma_pages_available();
 void _xlnk_reset();
 """)
 
-libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
+if not CPU_ARCH_IS_SUPPORTED:
+    warnings.warn("Unsupported CPU Architecture")
+elif os.getuid() != 0:
+    raise RuntimeError("Root permission needed by the library.")
+else:
+    libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")    
 
 class CMABuffer(np.ndarray):
     def __del__(self):
