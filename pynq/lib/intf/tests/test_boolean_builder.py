@@ -80,7 +80,7 @@ def test_bool_builder():
     ol.download()
 
     # Test 1: manual test
-    input(f'\nDisconnect all the pins. Hit enter after done ...')
+    input('\nDisconnect all the pins. Hit enter after done ...')
     pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
     first_6_pins = [k for k in list(pin_dict.keys())[:6]]
     out_pin = first_6_pins[5]
@@ -90,11 +90,11 @@ def test_bool_builder():
     bool_builder.arm()
     bool_builder.start()
     bool_builder.show_waveform()
-    print(f'Connect all of {in_pins} to GND ...')
-    assert user_answer_yes(f"{out_pin} outputs logic low?"), \
+    print('Connect all of {} to GND ...'.format(in_pins))
+    assert user_answer_yes("{} outputs logic low?".format(out_pin)), \
         "Boolean configurator fails to show logic low."
-    print(f'Connect any of {in_pins} to VCC ...')
-    assert user_answer_yes(f"{out_pin} outputs logic high?"), \
+    print('Connect any of {} to VCC ...'.format(in_pins))
+    assert user_answer_yes("{} outputs logic high?".format(out_pin)), \
         "Boolean configurator fails to show logic high."
 
     bool_builder0 = BooleanBuilder(if_id, expr=or_expr, use_analyzer=False)
@@ -118,8 +118,8 @@ def test_bool_builder():
     for i in range(5):
         fx.append(out_pins[i] + '=' + ('&'.join(sample(in_pins, i+1))))
 
-    print(f'Connect randomly {in_pins} to VCC or GND.')
-    input(f'Hit enter after done ...')
+    print('Connect randomly {} to VCC or GND.'.format(in_pins))
+    input('Hit enter after done ...')
     bgs = [BooleanBuilder(microblaze_intf, expr=fx[i]) for i in range(5)]
 
     for i in range(5):
@@ -149,7 +149,7 @@ def test_bool_builder():
         expr = re.sub(r"\b{}\b".format(wavelane['name']),
                       str_replace, expr)
         expr = expr.replace('=', '==')
-        assert eval(expr), f"Boolean builder fails for {fx[i]}."
+        assert eval(expr), "Boolean builder fails for {}.".format(fx[i])
 
     for bg in bgs:
         bg.stop()
@@ -203,8 +203,9 @@ def test_bool_builder():
     microblaze_intf = Intf(if_id)
     bgs = [BooleanBuilder(microblaze_intf, expr=expr) for expr in fx]
     for voltage in ['VCC', 'GND']:
-        print(f'Disconnect all the pins. Connect only {in_pin} to {voltage}.')
-        input(f'Press enter when done ...')
+        print('Disconnect all the pins. Connect only {} to {}.'
+              .format(in_pin, voltage))
+        input('Press enter when done ...')
         for i in range(num_bgs):
             bgs[i].arm()
         microblaze_intf.start()
@@ -236,7 +237,7 @@ def test_bool_builder():
                           str_replace, expr)
 
             expr = expr.replace('=', '==')
-            assert eval(expr), f"Boolean builder fails for {fx[i]}."
+            assert eval(expr), "Boolean builder fails for {}.".format(fx[i])
 
     for bg in bgs:
         bg.stop()

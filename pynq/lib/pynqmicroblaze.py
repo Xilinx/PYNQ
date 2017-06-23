@@ -158,12 +158,13 @@ class PynqMicroblaze:
 
         # Check program path
         if not os.path.isfile(mb_program):
-            raise ValueError(f'{mb_program} does not exist.')
+            raise ValueError('{} does not exist.'
+                             .format(mb_program))
 
         # Get IP information
         ip_name = mb_info['ip_name']
         if ip_name not in ip_dict.keys():
-            raise ValueError(f"No such IP {ip_name}.")
+            raise ValueError("No such IP {}.".format(ip_name))
         addr_base = ip_dict[ip_name]['phys_addr']
         addr_range = ip_dict[ip_name]['addr_range']
         ip_state = ip_dict[ip_name]['state']
@@ -174,14 +175,16 @@ class PynqMicroblaze:
         # Get reset information
         rst_name = mb_info['rst_name']
         if rst_name not in gpio_dict.keys():
-            raise ValueError(f"No such reset pin {rst_name}.")
+            raise ValueError("No such reset pin {}."
+                             .format(rst_name))
         gpio_uix = gpio_dict[rst_name]['index']
 
         # Get interrupt pin information
         if 'intr_pin_name' in mb_info:
             intr_pin_name = mb_info['intr_pin_name']
             if intr_pin_name not in intr_dict.keys():
-                raise ValueError(f"No such interrupt pin {intr_pin_name}.")
+                raise ValueError("No such interrupt pin {}."
+                                 .format(intr_pin_name))
         else:
             intr_pin_name = None
 
@@ -189,7 +192,8 @@ class PynqMicroblaze:
         if 'intr_ack_name' in mb_info:
             intr_ack_name = mb_info['intr_ack_name']
             if intr_ack_name not in gpio_dict.keys():
-                raise ValueError(f"No such interrupt ACK {intr_ack_name}.")
+                raise ValueError("No such interrupt ACK {}."
+                                 .format(intr_ack_name))
             intr_ack_gpio = gpio_dict[intr_ack_name]['index']
         else:
             intr_ack_gpio = None
@@ -310,11 +314,11 @@ class MicroblazeHierarchy(DefaultHierarchy):
     """
     def __init__(self, description, mbtype="Unknown"):
         super().__init__(description)
-        hierarchy = description['fullpath']
-        self._mb_info = {'ip_name': f'{hierarchy}/mb_bram_ctrl',
-                         'rst_name': f'mb_{hierarchy}_reset',
-                         'intr_pin_name': f'{hierarchy}/dff_en_reset_0/q',
-                         'intr_ack_name': f'mb_{hierarchy}_intr_ack',
+        hier = description['fullpath']
+        self._mb_info = {'ip_name': '{}/mb_bram_ctrl'.format(hier),
+                         'rst_name': 'mb_{}_reset'.format(hier),
+                         'intr_pin_name': '{}/dff_en_reset_0/q'.format(hier),
+                         'intr_ack_name': 'mb_{}_intr_ack'.format(hier),
                          'mbtype': mbtype}
 
     def load(self, program, *args, **kwargs):

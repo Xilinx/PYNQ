@@ -157,7 +157,7 @@ class _TCL:
         family_gpio_dict = {"xc7z": "GPIO_O",
                             "xczu": "emio_gpio_o"}
         hier_use_pat = "create_hier_cell"
-        hier_proc_def_pat = f"proc {hier_use_pat}"
+        hier_proc_def_pat = "proc {}".format(hier_use_pat)
         hier_def_regex = "create_hier_cell_(?P<name>[^ ]*)"
         hier_proc_end_pat = "}\n"
         hier_use_regex = ("create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
@@ -348,7 +348,7 @@ class _TCL:
                 gpio_names.append(m.group(1))
         for n, i in gpio_dict.items():
             if n in gpio_names:
-                output_net = self.pins[f'{n}/Dout']
+                output_net = self.pins['{}/Dout'.format(n)]
                 output_pins = self.nets[output_net]
                 self.gpio_dict[n] = {'index': i, 'state': None,
                                      'pins': output_pins}
@@ -683,8 +683,8 @@ class PL(metaclass=PLMeta):
         All the addressable IPs from PS7. Key is the name of the IP; value is
         a dictionary mapping the physical address, address range, IP type, 
         configuration dictionary, and the state associated with that IP:
-        {str: {'phys_addr' : int, 'addr_range' : int, 
-               'type' : str, 'config' : dict, 'state' : str}}.
+        {str: {'phys_addr' : int, 'addr_range' : int, \ 
+        'type' : str, 'config' : dict, 'state' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
         value is a dictionary mapping user index (starting from 0),

@@ -151,7 +151,8 @@ def test_pmod_cable():
         sleep(0.001)
         recv_data[7-i] = rx[7-i].read()
         assert send_data == recv_data,\
-            f'Sent {send_data} != received {recv_data} at Pin {7-i}.'
+            'Sent {} != received {} at Pin {}' \
+            .format(send_data, recv_data, 7-i)
 
     print('Generating tests for left shifting a \"0\"...')
     send_data = [1, 1, 1, 1, 1, 1, 1, 0]
@@ -163,7 +164,8 @@ def test_pmod_cable():
         sleep(0.001)
         recv_data[7-i] = rx[7-i].read()
         assert send_data == recv_data,\
-            f'Sent {send_data} != received {recv_data} at Pin {7-i}.'
+            'Sent {} != received {} at Pin {}' \
+            .format(send_data, recv_data, 7-i)
 
     print('Generating 100 random tests...')
     for _ in range(100):

@@ -96,11 +96,11 @@ class Pmod_IIC(Pmod_DevMode):
             
         """
         if scl_pin not in range(PMOD_NUM_DIGITAL_PINS):
-            raise ValueError(f"Valid SCL pin numbers are 0 - "
-                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
+            raise ValueError("Valid SCL pin numbers are 0 - {}."
+                             .format(PMOD_NUM_DIGITAL_PINS-1))
         if sda_pin not in range(PMOD_NUM_DIGITAL_PINS):
-            raise ValueError(f"Valid SDA pin numbers are 0 - "
-                             f"{PMOD_NUM_DIGITAL_PINS-1}.")
+            raise ValueError("Valid SDA pin numbers are 0 - {}."
+                             .format(PMOD_NUM_DIGITAL_PINS-1))
         
         switchconfig = []
         for i in range(PMOD_NUM_DIGITAL_PINS):

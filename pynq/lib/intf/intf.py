@@ -260,7 +260,8 @@ class Intf(PynqMicroblaze):
 
         """
         if name not in self.buffers:
-            raise ValueError(f"No such buffer {name} allocated previously.")
+            raise ValueError("No such buffer {} allocated previously."
+                             .format(name))
         buffer = self.buffers[name]
         buf_temp = self.buf_manager.cma_get_buffer(buffer,
                                                    num_bytes)
@@ -300,7 +301,8 @@ class Intf(PynqMicroblaze):
 
         """
         if name not in self.buffers:
-            raise ValueError(f"No such buffer {name} allocated previously.")
+            raise ValueError("No such buffer {} allocated previously."
+                             .format(name))
         return self.buf_manager.cma_get_phy_addr(self.buffers[name])
 
     def reset_buffers(self):

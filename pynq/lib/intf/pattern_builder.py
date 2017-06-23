@@ -407,8 +407,8 @@ class PatternBuilder:
                 max_wave_length = len(wave)
 
         if not 1 <= max_wave_length <= MAX_NUM_PATTERN_SAMPLES:
-            raise ValueError(f"Waves should have 1 - "
-                             f"{MAX_NUM_PATTERN_SAMPLES} samples.")
+            raise ValueError("Waves should have 1 - "
+                             "{} samples.".format(MAX_NUM_PATTERN_SAMPLES))
         return name_of_longest_wave, max_wave_length
 
     def _make_same_wave_length(self):
@@ -432,5 +432,7 @@ class PatternBuilder:
             len_diff = self._max_wave_length - len(wave)
             if len_diff > 0:
                 self.stimulus_waves[index] = wave + wave[-1] * len_diff
-                print(f"WaveLane {self.stimulus_names[index]} extended to " +
-                      f"{self._max_wave_length} tokens.")
+                print("WaveLane {0} extended to {1} tokens."
+                      .format(self.stimulus_names[index], 
+                              self._max_wave_length))
+

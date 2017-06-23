@@ -55,7 +55,7 @@ def _subhierarchy(description, hierarchy):
     """
     return {k.partition('/')[2]: v
             for k, v in description.items()
-            if k.startswith(f'{hierarchy}/')}
+            if k.startswith('{}/'.format(hierarchy))}
 
 
 def _hierarchical_description(description, path):
@@ -87,19 +87,19 @@ def _hierarchical_description(description, path):
     ipnames = {k for k, v in description.items() if k.count('/') ==
                0 and 'type' in v}
     if path:
-        prefix = f'{path}/'
+        prefix = '{}/'.format(path)
     else:
         prefix = ''
 
     hierarchy_dict = dict()
     for h in hierarchies:
         hierarchy_dict[h] = _hierarchical_description(
-            _subhierarchy(description, h), f'{prefix}{h}')
+            _subhierarchy(description, h), '{}{}'.format(prefix, h))
 
     ip_dict = dict()
     for ip in ipnames:
         ipdescription = deepcopy(description[ip])
-        ipdescription['fullpath'] = f'{prefix}{ip}'
+        ipdescription['fullpath'] = '{}{}'.format(prefix, ip)
         ipdescription['interrupts'] = dict()
         ipdescription['gpio'] = dict()
         ip_dict[ip] = ipdescription
@@ -257,7 +257,7 @@ class DefaultOverlay(PL):
         {str: {'controller' : str, 'index' : int}}.
 
     """
-
+        
     def __init__(self, bitfile_name, download):
         """Return a new Overlay object.
 
@@ -527,7 +527,7 @@ class _IPMap:
             return gpio
         else:
             raise AttributeError(
-                f"Could not find IP or hierarchy {key} in overlay")
+                "Could not find IP or hierarchy {} in overlay".format(key))
 
     def _keys(self):
         """The set of keys that can be accessed through the IP map
@@ -556,7 +556,8 @@ def _classname(class_):
     stored in the `_classaliases` dictionaries.
 
     """
-    rawname = f"{class_.__module__}.{class_.__name__}"
+    rawname = "{}.{}".format(class_.__module__, class_.__name__)
+                                            
     if rawname in _classaliases:
         return _class_aliases[rawname]
     else:
@@ -582,15 +583,17 @@ def _build_docstring(description, name, type_):
 
     """
     lines = []
-    lines.append(f"Default documentation for {type_} {name}. The following")
-    lines.append(f"attributes are available on this {type_}:")
+    lines.append("Default documentation for {} {}. The following"
+                 .format(type_, name))
+    lines.append("attributes are available on this {}:".format(type_))
     lines.append("")
 
     lines.append("IP Blocks")
     lines.append("----------")
     if description['ip']:
         for ip, details in description['ip'].items():
-            lines.append(f"{ip : <20} : {_classname(details['driver'])}")
+            lines.append("{0 : <20} : {1}"
+                         .format(ip, _classname(details['driver'])))
     else:
         lines.append("None")
     lines.append("")
@@ -599,8 +602,8 @@ def _build_docstring(description, name, type_):
     lines.append("-----------")
     if description['hierarchies']:
         for hierarchy, details in description['hierarchies'].items():
-            lines.append(
-                f"{hierarchy : <20} : {_classname(details['driver'])}")
+            lines.append("{0 : <20} : {1}"
+                         .format(hierarchy, _classname(details['driver'])))
     else:
         lines.append("None")
     lines.append("")
@@ -609,7 +612,8 @@ def _build_docstring(description, name, type_):
     lines.append("----------")
     if description['interrupts']:
         for interrupt in description['interrupts'].keys():
-            lines.append(f"{interrupt : <20} : pynq.interrupt.Interrupt")
+            lines.append("{0 : <20} : pynq.interrupt.Interrupt"
+                         .format(interrupt))
     else:
         lines.append("None")
     lines.append("")
@@ -618,7 +622,7 @@ def _build_docstring(description, name, type_):
     lines.append("------------")
     if description['gpio']:
         for gpio in description['gpio'].keys():
-            lines.append(f"{gpio : <20} : pynq.gpio.GPIO")
+            lines.append("{0 : <20} : pynq.gpio.GPIO".format(gpio))
     else:
         lines.append("None")
     lines.append("")

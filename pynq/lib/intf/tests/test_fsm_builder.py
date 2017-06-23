@@ -132,7 +132,8 @@ def test_fsm_builder():
                        use_analyzer=True,
                        num_analyzer_samples=max_num_samples)
 
-    print(f"\nConnect {rst} to GND, and {direction} to VCC.")
+    print("\nConnect {} to GND, and {} to VCC.".format(rst, direction))
+          
     input("Hit enter after done ...")
 
     fsm_0.config(frequency_mhz=10)
@@ -186,7 +187,8 @@ def test_fsm_builder():
     assert matched, 'Analysis not matching the generated pattern.'
 
     # Test 2: running at 10MHz
-    print(f"Connect both {rst} and {direction} to GND.")
+    print("Connect both {} and {} to GND.".format(rst, direction))
+    
     input("Hit enter after done ...")
     fsm_1 = FSMBuilder(if_id, fsm_spec,
                        use_analyzer=True,
@@ -310,8 +312,8 @@ def test_fsm_builder():
         if fsm_0:
             fsm_0.intf.reset_buffers()
             del fsm_0
-    assert exception_raised, f'Should raise exception for less than ' \
-                             f'{FSM_MIN_NUM_STATES} states.'
+    assert exception_raised, 'Should raise exception for less than ' \
+                             '{} states.'.format(FSM_MIN_NUM_STATES)
 
     # Test 4: test more than the maximum number of states
     exception_raised = False
@@ -322,10 +324,10 @@ def test_fsm_builder():
                           'states': [],
                           'transitions': [['1', '*', 'S0', '']]}
         for i in range(FSM_MAX_NUM_STATES+1):
-            current_state = f'S{i}'
-            next_state = f'S{(i+1)%(FSM_MAX_NUM_STATES+1)}'
+            current_state = 'S{}'.format(i)
+            next_state = 'S{}'.format((i+1)%(FSM_MAX_NUM_STATES+1))
             fsm_spec_state['states'].append(current_state)
-            output_pattern = f'{randint(0,1)}'
+            output_pattern = '{}'.format(randint(0,1))
             transition = ['0', current_state, next_state, output_pattern]
             fsm_spec_state['transitions'].append(transition)
         fsm_0 = FSMBuilder(if_id, fsm_spec_state,
@@ -342,14 +344,15 @@ def test_fsm_builder():
         if fsm_0:
             fsm_0.intf.reset_buffers()
             del fsm_0
-    assert exception_raised, f'Should raise exception for more than ' \
-                             f'{FSM_MAX_NUM_STATES} states.'
+    assert exception_raised, 'Should raise exception for more than ' \
+                             '{} states.'.format(FSM_MAX_NUM_STATES)
 
     # Test 5: test two or maximum number of states
     input_pin = list(pin_dict.keys())[0]
     output_pin = list(pin_dict.keys())[1]
 
-    print(f"Connect {input_pin} to GND, and disconnect other pins.")
+    print("Connect {} to GND, and disconnect "
+          "other pins.".format(input_pin))
     input("Hit enter after done ...")
 
     for num_states in [2, FSM_MAX_NUM_STATES]:
@@ -359,10 +362,10 @@ def test_fsm_builder():
                           'transitions': [['1', '*', 'S0', '']]}
         test_pattern = []
         for i in range(num_states):
-            current_state = f'S{i}'
-            next_state = f'S{(i+1)% num_states}'
+            current_state = 'S{}'.format(i)
+            next_state = 'S{}'.format((i+1)% num_states)
             fsm_spec_state['states'].append(current_state)
-            output_pattern = f'{randint(0,1)}'
+            output_pattern = '{}'.format(randint(0,1))
             transition = ['0', current_state, next_state, output_pattern]
             fsm_spec_state['transitions'].append(transition)
             test_pattern.append(int(output_pattern))
@@ -406,8 +409,8 @@ def test_fsm_builder():
     input_pins = all_pins[:FSM_MAX_INPUT_BITS]
     output_pins = all_pins[FSM_MAX_INPUT_BITS:]
 
-    print(f"Connect {input_pins} to GND.")
-    print(f"Disconnect all other pins.")
+    print("Connect {} to GND.".format(input_pins))
+    print("Disconnect all other pins.")
     input("Hit enter after done ...")
     fsm_spec_inout = {'inputs': [],
                       'outputs': [],
@@ -417,20 +420,22 @@ def test_fsm_builder():
     num_states = 2**(FSM_MAX_STATE_INPUT_BITS - FSM_MAX_INPUT_BITS)
     # prepare the input pins
     for i in range(len(input_pins)):
-        fsm_spec_inout['inputs'].append((f'input{i}', input_pins[i]))
+        fsm_spec_inout['inputs'].append(('input{}'.format(i),
+                                         input_pins[i]))
 
     # prepare the output pins
     for i in range(len(output_pins)):
-        fsm_spec_inout['outputs'].append((f'output{i}', output_pins[i]))
+        fsm_spec_inout['outputs'].append(('output{}'.format(i),
+                                          output_pins[i]))
 
     # prepare the states and transitions
     for i in range(num_states):
-        current_state = f'S{i}'
-        next_state = f'S{(i+1)% num_states}'
+        current_state = 'S{}'.format(i)
+        next_state = 'S{}'.format((i+1)% num_states)
         fsm_spec_inout['states'].append(current_state)
         output_pattern = ''
         for test_lane in test_lanes:
-            random_1bit = f'{randint(0,1)}'
+            random_1bit = '{}'.format(randint(0,1))
             output_pattern += random_1bit
             test_lane += random_1bit
         transition = ['0'*len(input_pins), current_state, next_state,
@@ -458,7 +463,7 @@ def test_fsm_builder():
         if wavegroup and wavegroup[0] == 'analysis':
             for wavelane in wavegroup[1:]:
                 for j in range(len(output_pins)):
-                    if wavelane['name'] == f'output{j}':
+                    if wavelane['name'] == 'output{}'.format(j):
                         test_strings[j] = wavelane['wave']
                         test_arrays[j] = np.array(bitstring_to_int(
                                         wave_to_bitstring(test_strings[j])))
@@ -479,7 +484,7 @@ def test_fsm_builder():
             for i in range(1, len(output_pins)):
                 assert np.array_equal(candidate_arrays[i][1:],
                                       test_arrays[i][1:]), \
-                    f'output{i} not synchronized with other outputs.'
+                    'output{} not synchronized with other outputs.'.format(i)
             matched = True
             break
     assert matched, 'Analysis not matching the generated pattern.'
@@ -492,7 +497,7 @@ def test_fsm_builder():
     input_pin = all_pins[0]
     output_pins = all_pins[1:]
 
-    print(f"Disconnect all the pins.")
+    print("Disconnect all the pins.")
     input("Hit enter after done ...")
     fsm_spec_inout = {'inputs': [],
                       'outputs': [],
@@ -501,20 +506,21 @@ def test_fsm_builder():
     test_lanes = [[] for _ in range(len(output_pins))]
     num_states = 2 ** FSM_MAX_STATE_BITS
     # prepare the input pins
-    fsm_spec_inout['inputs'].append((f'input0', input_pin))
+    fsm_spec_inout['inputs'].append(('input0', input_pin))
 
     # prepare the output pins
     for i in range(len(output_pins)):
-        fsm_spec_inout['outputs'].append((f'output{i}', output_pins[i]))
+        fsm_spec_inout['outputs'].append(('output{}'.format(i), 
+                                          output_pins[i]))
 
     # prepare the states and transitions
     for i in range(num_states):
-        current_state = f'S{i}'
-        next_state = f'S{(i+1)% num_states}'
+        current_state = 'S{}'.format(i)
+        next_state = 'S{}'.format((i+1)% num_states)
         fsm_spec_inout['states'].append(current_state)
         output_pattern = ''
         for test_lane in test_lanes:
-            random_1bit = f'{randint(0,1)}'
+            random_1bit = '{}'.format(randint(0,1))
             output_pattern += random_1bit
             test_lane += random_1bit
         transition = ['-', current_state, next_state, output_pattern]
@@ -542,7 +548,7 @@ def test_fsm_builder():
         if wavegroup and wavegroup[0] == 'analysis':
             for wavelane in wavegroup[1:]:
                 for j in range(len(output_pins)):
-                    if wavelane['name'] == f'output{j}':
+                    if wavelane['name'] == 'output{}'.format(j):
                         test_strings[j] = wavelane['wave']
                         test_arrays[j] = np.array(bitstring_to_int(
                             wave_to_bitstring(test_strings[j])))
@@ -560,7 +566,7 @@ def test_fsm_builder():
             for i in range(1, len(output_pins)):
                 assert np.array_equal(candidate_arrays[i][1:],
                                       test_arrays[i][1:]), \
-                    f'output{i} not synchronized with other outputs.'
+                    'output{} not synchronized with other outputs.'.format(i)
             matched = True
             break
     assert matched, 'Analysis not matching the generated pattern.'

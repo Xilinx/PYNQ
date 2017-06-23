@@ -146,8 +146,8 @@ class TraceAnalyzer:
                 "Parameter intf_microblaze has to be intf.Intf or dict.")
 
         if not 1 <= num_samples <= MAX_NUM_TRACE_SAMPLES:
-            raise ValueError(f'Number of samples should be in '
-                             f'[1, {MAX_NUM_TRACE_SAMPLES}]')
+            raise ValueError('Number of samples should be in [1, {}]'
+                             .format(MAX_NUM_TRACE_SAMPLES))
 
         self.trace_spec = trace_spec
         self.num_samples = num_samples
