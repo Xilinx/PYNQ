@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Source the environment as the init system won't
+set -a
 . /etc/environment
+set +a
 notebook_args=
 notebook_version=$(jupyter notebook --version | grep -o '^[0-9]*')
 
