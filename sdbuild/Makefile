@@ -50,7 +50,10 @@ ${WORKDIR}/multistrap.config: ${MULTISTRAP_CONFIG} | ${WORKDIR}
 ${WORKDIR}/PYNQ: | ${WORKDIR}
 	git clone ../ $@
 
-${WORKDIR}/rootfs-stage1.img: ${WORKDIR}/multistrap.config ${BOOT_FILES}  ${KERNEL_DEB} | ${WORKDIR} ${WORKDIR}/config_diff ${CCACHEDIR}
+${WORKDIR}/board | ${WORKDIR}
+	echo ${BOARD} > $@
+
+${WORKDIR}/rootfs-stage1.img: ${WORKDIR}/multistrap.config ${WORKDIR}/board ${BOOT_FILES}  ${KERNEL_DEB} | ${WORKDIR} ${WORKDIR}/config_diff ${CCACHEDIR}
 	sudo -E ${SCRIPT_DIR}/create_mount_img.sh ${WORKDIR}/rootfs-stage1.img ${WORKDIR}/rootfs_staging
 	sudo -E ${SCRIPT_DIR}/create_rootfs.sh ${WORKDIR}/rootfs_staging
 	sudo -E ${SCRIPT_DIR}/unmount_image.sh ${WORKDIR}/rootfs_staging ${WORKDIR}/rootfs-stage1.img

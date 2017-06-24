@@ -5,5 +5,5 @@
 +PATH="/opt/sigrok/bin:/opt/microblaze-xilinx-elf/bin:/opt/python3.6/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 +LC_ALL=en_US.UTF-8
 +LANG=en_US.UTF-8
-+BOARD=Pynq-Z1
++PYNQ_JUPYTER_NOTEBOOKS=/home/xilinx/jupyter_notebooks
 +PYNQ_PYTHON=python3.6
