@@ -553,12 +553,7 @@ class _DMAChannel:
         self._mmio = mmio
         self._offset = offset
         self._interrupt = interrupt
-        if interrupt:
-            self._mmio.write(offset, 0x1001)
-        else:
-            self._mmio.write(offset, 0x0001)
-        while not self.running:
-            pass
+        self.start()
 
     @property
     def running(self):
@@ -575,6 +570,17 @@ class _DMAChannel:
 
         """
         return self._mmio.read(self._offset + 4) & 0x02 == 0x02
+
+    def start(self):
+        """Start the DMA engine if stopped
+
+        """
+        if self._interrupt:
+            self._mmio.write(offset, 0x1001)
+        else:
+            self._mmio.write(offset, 0x0001)
+        while not self.running:
+            pass
 
     def stop(self):
         """Stops the DMA channel and aborts the current transfer
@@ -598,6 +604,10 @@ class _DMAChannel:
             An xlnk allocated array to be transferred
 
         """
+        if not self.running:
+            raise RuntimeError('DMA channel not started')
+        if not self.idle:
+            raise RuntimeError('DMA channel not idle')
         self._mmio.write(self._offset + 0x18, buffer.physical_address)
         self._mmio.write(self._offset + 0x28, buffer.nbytes)
 
@@ -605,6 +615,8 @@ class _DMAChannel:
         """Wait for the transfer to complete
 
         """
+        if not self.running:
+            raise RuntimeError('DMA channel not started')
         while not self.idle:
             pass
 
@@ -612,6 +624,8 @@ class _DMAChannel:
         """Wait for the transfer to complete
 
         """
+        if not self.running:
+            raise RuntimeError('DMA channel not started')
         while not self.idle:
             await self._interrupt.wait()
         self._clear_interrupt()

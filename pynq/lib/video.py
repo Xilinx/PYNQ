@@ -378,6 +378,8 @@ class AxiVDMA(DefaultIP):
             numpy.ndarray of the video frame
 
             """
+            if not self.running:
+                raise RuntimeError('DMA channel not started')
             while self._mmio.read(0x34) & 0x1000 == 0:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
@@ -390,6 +392,8 @@ class AxiVDMA(DefaultIP):
             if no data is available. See readframe for more details
 
             """
+            if not self.running:
+                raise RuntimeError('DMA channel not started')
             while self._mmio.read(0x34) & 0x1000 == 0:
                 await self._interrupt.wait()
             self._mmio.write(0x34, 0x1000)
@@ -623,6 +627,8 @@ class AxiVDMA(DefaultIP):
             by the user. May block if there is already a frame scheduled.
 
             """
+            if not self.running:
+                raise RuntimeError('DMA channel not started')
             while self._mmio.read(0x04) & 0x1000 == 0:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
@@ -635,6 +641,8 @@ class AxiVDMA(DefaultIP):
             frame is already scheduled
 
             """
+            if not self.running:
+                raise RuntimeError('DMA channel not started')
             while self._mmio.read(0x04) & 0x1000 == 0:
                 await self._interrupt.wait()
             self._mmio.write(0x04, 0x1000)
