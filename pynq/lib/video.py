@@ -805,6 +805,16 @@ class ColorConverter(DefaultIP):
 
     bindto = ['xilinx.com:hls:color_convert:1.0']
 
+    @staticmethod
+    def _signextend(value):
+        """Sign extend a 10-bit number
+
+        Derived from https://stackoverflow.com/questions/32030412/
+                             twos-complement-sign-extension-python
+
+        """
+        return (value & 0x1FF) - (value & 0x200)
+
     @property
     def colorspace(self):
         """The colorspace to convert. See the class description for
@@ -812,7 +822,8 @@ class ColorConverter(DefaultIP):
         floats of length 12
 
         """
-        return [self.read(0x10 + 8 * i) / 256 for i in range(12)]
+        return [ColorConverter._signextend(self.read(0x10 + 8 * i)) / 256
+                for i in range(12)]
 
     @colorspace.setter
     def colorspace(self, color):
