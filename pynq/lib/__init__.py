@@ -91,12 +91,12 @@ from .pmod import Grove_FingerHR
 from .pmod import Grove_HapticMotor
 from .pmod import Grove_TH02
 
-# from .intf import Intf
-# from .intf import Waveform
-# from .intf import BooleanBuilder
-# from .intf import PatternBuilder
-# from .intf import TraceAnalyzer
-# from .intf import FSMBuilder
+from .intf import Intf
+from .intf import Waveform
+from .intf import BooleanBuilder
+from .intf import PatternBuilder
+from .intf import TraceAnalyzer
+from .intf import FSMBuilder
 
 
 __author__ = "Graham Schelle"
