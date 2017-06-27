@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2017, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from pynq import DefaultIP
 import os
 import sys
 import cffi
@@ -35,9 +36,9 @@ import signal
 import numpy as np
 
 
-__author__ = "Anurag Dubey"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
+__author__ = 'Peter Ogden, Anurag Dubey'
+__copyright__ = 'Copyright 2017, Xilinx'
+__email__ = 'pynq_support@xilinx.com'
 
 
 ffi = cffi.FFI()
@@ -186,7 +187,7 @@ class timeout:
         signal.alarm(0)
 
 
-class DMA:
+class LegacyDMA:
     """Python class which controls DMA.
 
     This is a generic DMA class that can be used to access main memory.
@@ -533,3 +534,134 @@ class DMA:
         """
         self.free_buf()
         self.__init__(self.phyAddress, self.direction, attr_dict)
+
+
+class _DMAChannel:
+    """Drives a single channel of the Xilinx AXI DMA
+
+    This driver is designed to be used in conjunction with the
+    `Xlnk.cma_array` method of memory allocation. The channel has
+    main functions `transfer` and `wait` which start and wait for
+    the transfer to finish respectively. If interrupts are enabled
+    there is also a `wait_async` coroutine.
+
+    This class should not be constructed directly, instead used
+    through the AxiDMA class.
+
+    """
+    def __init__(self, mmio, offset, interrupt=None):
+        self._mmio = mmio
+        self._offset = offset
+        self._interrupt = interrupt
+        if interrupt:
+            self._mmio.write(offset, 0x1001)
+        else:
+            self._mmio.write(offset, 0x0001)
+        while not self.running:
+            pass
+
+    @property
+    def running(self):
+        """True if the DMA engine is currently running
+
+        """
+        return self._mmio.read(self._offset + 4) & 0x01 == 0x00
+
+    @property
+    def idle(self):
+        """True if the DMA engine is idle
+
+        `transfer` can only be called when the DMA is idle
+
+        """
+        return self._mmio.read(self._offset + 4) & 0x02 == 0x02
+
+    def stop(self):
+        """Stops the DMA channel and aborts the current transfer
+
+        """
+        self._mmio.write(self._offset, 0x0000)
+        while self.running:
+            pass
+
+    def _clear_interrupt(self):
+        self._mmio.write(self._offset + 4, 0x1000)
+
+    def transfer(self, buffer):
+        """Transfer memory with the DMA
+
+        Transfer must only be called when the channel is idle.
+
+        Parameters
+        ----------
+        buffer : CMABuffer
+            An xlnk allocated array to be transferred
+
+        """
+        self._mmio.write(self._offset + 0x18, buffer.physical_address)
+        self._mmio.write(self._offset + 0x28, buffer.nbytes)
+
+    def wait(self):
+        """Wait for the transfer to complete
+
+        """
+        while not self.idle:
+            pass
+
+    async def wait_async(self):
+        """Wait for the transfer to complete
+
+        """
+        while not self.idle:
+            await self._interrupt.wait()
+        self._clear_interrupt()
+
+
+class DMA(DefaultIP):
+    """Class for Interacting with the AXI Simple DMA Engine
+
+    This class provides two attributes for the read and write channels.
+    The read channel copies data from the stream into memory and
+    the write channel copies data from memory to the output stream.
+    Both channels have an identical API consisting of `transfer` and
+    `wait` functions. If interrupts have been enabled and connected
+    for the DMA engine then `wait_async` is also present.
+
+    Buffers to be transferred must be allocated through the Xlnk driver
+    using the cma_array function either directly or indirectly. This
+    means that Frames from the video subsystem can be transferred using
+    this class.
+
+    Attributes
+    ----------
+    readchannel : _DMAChannel
+        The stream to memory channel
+    writechannel : _DMAChannel
+        The memory to stream channel
+
+    """
+    def __init__(self, description, *args, **kwargs):
+        """Create an instance of the DMA Driver
+
+        Parameters
+        ----------
+        description : dict
+            The entry in the IP dict describing the DMA engine
+
+        """
+        if type(description) is not dict or args or kwargs:
+            raise RuntimeError('You appear to want the old DMA driver which '
+                               'has been deprecated and moved to '
+                               'pynq.lib.deprecated')
+        super().__init__(description=description)
+        if 'mm2s_introut' in description['interrupts']:
+            self.sendchannel = _DMAChannel(self.mmio, 0x0, self.mm2s_introut)
+        else:
+            self.sendchannel = _DMAChannel(self.mmio, 0x0)
+
+        if 's2mm_introut' in description['interrupts']:
+            self.recvchannel = _DMAChannel(self.mmio, 0x30, self.s2mm_introut)
+        else:
+            self.recvchannel = _DMAChannel(self.mmio, 0x30)
+
+    bindto = ['xilinx.com:ip:axi_dma:7.1']

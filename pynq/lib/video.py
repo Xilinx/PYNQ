@@ -33,7 +33,9 @@ import functools
 import numpy as np
 import time
 
-from pynq import Interrupt, MMIO, PL, Xlnk
+from pynq import DefaultIP
+from pynq import DefaultHierarchy
+from pynq import Xlnk
 import pynq.lib._video
 
 
@@ -81,7 +83,7 @@ class VideoMode:
                 f"height={self.height} bpp={self.bits_per_pixel}")
 
 
-class HDMIInFrontend:
+class HDMIInFrontend(DefaultHierarchy):
     """Class for interacting the with HDMI input frontend
 
     This class is used for enabling the HDMI input and retrieving
@@ -94,25 +96,26 @@ class HDMIInFrontend:
 
     """
 
-    def __init__(self, hierarchy, init_timeout=10):
-        ip_dict = PL.ip_dict
-        gpio_description = ip_dict[f'{hierarchy}/axi_gpio_hdmiin']
+    def __init__(self, description):
+        super().__init__(description)
+
+    def start(self, init_timeout=10):
+        """Method that blocks until the video mode is
+        successfully detected
+
+        """
+        ip_dict = self.description
+        gpio_description = ip_dict['ip'][f'axi_gpio_hdmiin']
         gpio_dict = {
             'BASEADDR': gpio_description['phys_addr'],
             'INTERRUPT_PRESENT': 1,
             'IS_DUAL': 1,
         }
-        vtc_description = ip_dict[f'{hierarchy}/vtc_in']
+        vtc_description = ip_dict['ip'][f'vtc_in']
         vtc_capture_addr = vtc_description['phys_addr']
         self._capture = pynq.lib._video._capture(gpio_dict,
                                                  vtc_capture_addr,
                                                  init_timeout)
-
-    def start(self):
-        """Method that blocks until the video mode is
-        successfully detected
-
-        """
 
         while self.mode.height == 0:
             pass
@@ -126,6 +129,11 @@ class HDMIInFrontend:
 
         """
         pass
+
+    @staticmethod
+    def checkhierarchy(description):
+        return ('vtc_in' in description['ip'] and
+                'axi_gpio_hdmiin' in description['ip'])
 
     @property
     def mode(self):
@@ -142,7 +150,7 @@ _outputmodes = {
 }
 
 
-class HDMIOutFrontend:
+class HDMIOutFrontend(DefaultHierarchy):
     """Class for interacting the HDMI output frontend
 
     This class is used for enabling the HDMI output and setting
@@ -156,7 +164,12 @@ class HDMIOutFrontend:
 
     """
 
-    def __init__(self, hierarchy):
+    @staticmethod
+    def checkhierarchy(description):
+        return ('vtc_out' in description['ip'] and
+                'axi_dynclk' in description['ip'])
+
+    def __init__(self, description):
         """Create the HDMI output front end
 
         Parameters
@@ -167,9 +180,10 @@ class HDMIOutFrontend:
             The IP dictionary entry for the clock generator to use
 
         """
-        ip_dict = PL.ip_dict
-        vtc_description = ip_dict[f'{hierarchy}/vtc_out']
-        clock_description = ip_dict[f'{hierarchy}/axi_dynclk']
+        super().__init__(description)
+        ip_dict = self.description['ip']
+        vtc_description = ip_dict[f'vtc_out']
+        clock_description = ip_dict[f'axi_dynclk']
         vtc_capture_addr = vtc_description['phys_addr']
         clock_addr = clock_description['phys_addr']
         self._display = pynq.lib._video._display(vtc_capture_addr,
@@ -249,7 +263,7 @@ class _FrameCache:
         self._cache.clear()
 
 
-class AxiVDMA:
+class AxiVDMA(DefaultIP):
     """Driver class for the Xilinx VideoDMA IP core
 
     The driver is split into input and output channels are exposed using the
@@ -335,9 +349,9 @@ class AxiVDMA:
         """
 
         def __init__(self, parent, interrupt):
-            self._mmio = parent._mmio
+            self._mmio = parent.mmio
             self._frames = AxiVDMA._FrameList(self, 0xAC, parent.framecount)
-            self._interrupt = Interrupt(interrupt)
+            self._interrupt = interrupt
             self._sinkchannel = None
             self._mode = None
 
@@ -441,9 +455,9 @@ class AxiVDMA:
         def parked(self, value):
             register = self._mmio.read(0x30)
             if value:
-               register &= ~0x2
+                register &= ~0x2
             else:
-               register |= 0x2
+                register |= 0x2
             self._mmio.write(0x30, register)
 
         @property
@@ -471,9 +485,9 @@ class AxiVDMA:
 
             self._writemode()
             self.reload()
-            self._mmio.write(0x30, 0x00011083) # Start DMA
-            self.irqframecount = 4 # Ensure all frames are written to
-            self._mmio.write(0x34, 0x1000) # Clear any interrupts
+            self._mmio.write(0x30, 0x00011083)  # Start DMA
+            self.irqframecount = 4  # Ensure all frames are written to
+            self._mmio.write(0x34, 0x1000)  # Clear any interrupts
             while not self.running:
                 pass
             self.reload()
@@ -550,9 +564,9 @@ class AxiVDMA:
         """
 
         def __init__(self, parent, interrupt):
-            self._mmio = parent._mmio
+            self._mmio = parent.mmio
             self._frames = AxiVDMA._FrameList(self, 0x5C, parent.framecount)
-            self._interrupt = Interrupt(interrupt)
+            self._interrupt = interrupt
             self._mode = None
             self.sourcechannel = None
 
@@ -713,10 +727,10 @@ class AxiVDMA:
         def parked(self, value):
             register = self._mmio.read(0x00)
             if value:
-               self.desiredframe = self.activeframe
-               register &= ~0x2
+                self.desiredframe = self.activeframe
+                register &= ~0x2
             else:
-               register |= 0x2
+                register |= 0x2
             self._mmio.write(0x00, register)
 
         @property
@@ -731,7 +745,7 @@ class AxiVDMA:
             register |= value << 24
             self._mmio.write(0x58, register)
 
-    def __init__(self, name, framecount=4):
+    def __init__(self, description, framecount=4):
         """Create a new instance of the AXI Video DMA driver
 
         Parameters
@@ -740,14 +754,15 @@ class AxiVDMA:
             The name of the IP core to instantiate the driver for
 
         """
-        description = PL.ip_dict[name]
-        self._mmio = MMIO(description['phys_addr'], 256)
+        super().__init__(description)
         self.framecount = framecount
-        self.readchannel = AxiVDMA.S2MMChannel(self, f"{name}/s2mm_introut")
-        self.writechannel = AxiVDMA.MM2SChannel(self, f"{name}/mm2s_introut")
+        self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut)
+        self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut)
+
+    bindto = ['xilinx.com:ip:axi_vdma:6.2']
 
 
-class ColorConverter:
+class ColorConverter(DefaultIP):
     """Driver for the color space converter
 
     The colorspace convert implements a 3x4 matrix for performing arbitrary
@@ -778,7 +793,9 @@ class ColorConverter:
             IP dict entry for the IP core
 
         """
-        self._mmio = MMIO(description['phys_addr'], 256)
+        super().__init__(description)
+
+    bindto = ['xilinx.com:hls:color_convert:1.0']
 
     @property
     def colorspace(self):
@@ -787,17 +804,17 @@ class ColorConverter:
         floats of length 12
 
         """
-        return [self._mmio.read(0x10 + 8 * i) / 256 for i in range(12)]
+        return [self.read(0x10 + 8 * i) / 256 for i in range(12)]
 
     @colorspace.setter
     def colorspace(self, color):
         if len(color) != 12:
             raise ValueError("Wrong number of elements in color specification")
         for i, c in enumerate(color):
-            self._mmio.write(0x10 + 8 * i, int(c * 256))
+            self.write(0x10 + 8 * i, int(c * 256))
 
 
-class PixelPacker:
+class PixelPacker(DefaultIP):
     """Driver for the pixel format convert
 
     Changes the number of bits per pixel in the video stream. The stream
@@ -817,10 +834,13 @@ class PixelPacker:
             IP dict entry for the IP core
 
         """
-        self._mmio = MMIO(description['phys_addr'], 256)
+        super().__init__(description)
         self._bpp = 24
-        self._mmio.write(0x10, 0)
+        self.write(0x10, 0)
         self._resample = False
+
+    bindto = ['xilinx.com:hls:pixel_pack:1.0',
+              'xilinx.com:hls:pixel_unpack:1.0']
 
     @property
     def bits_per_pixel(self):
@@ -836,7 +856,7 @@ class PixelPacker:
         32 bpp |Pad channel 4 with 0        |Discard channel 4
 
         """
-        mode = self._mmio.read(0x10)
+        mode = self.read(0x10)
         if mode == 0:
             return 24
         elif mode == 1:
@@ -862,7 +882,7 @@ class PixelPacker:
         else:
             raise ValueError("Bits per pixel must be 8, 16, 24 or 32")
         self._bpp = value
-        self._mmio.write(0x10, mode)
+        self.write(0x10, mode)
 
     @property
     def resample(self):
@@ -938,6 +958,7 @@ class PixelFormat:
         self.in_color = in_color
         self.out_color = out_color
 
+
 PIXEL_RGB = PixelFormat(24, COLOR_IN_RGB, COLOR_OUT_RGB)
 PIXEL_RGBA = PixelFormat(32, COLOR_IN_RGB, COLOR_OUT_RGB)
 PIXEL_BGR = PixelFormat(24, COLOR_IN_BGR, COLOR_OUT_BGR)
@@ -945,7 +966,7 @@ PIXEL_YCBCR = PixelFormat(24, COLOR_IN_YCBCR, COLOR_OUT_YCBCR)
 PIXEL_GRAY = PixelFormat(8, COLOR_IN_YCBCR, COLOR_OUT_GRAY)
 
 
-class HDMIIn:
+class HDMIIn(DefaultHierarchy):
     """Wrapper for the input video pipeline of the Pynq-Z1 base overlay
 
     This wrapper assumes the following pipeline structure and naming
@@ -953,24 +974,42 @@ class HDMIIn:
     color_convert_in -> pixel_pack ->axi_vdma
     with vtc_in and axi_gpio_hdmiiin helper IP
 
+    Attributes
+    ----------
+    frontend : pynq.lib.video.HDMIInFrontend
+        The HDMI frontend for signal detection
+    color_convert : pynq.lib.video.ColorConverter
+        The input color format converter
+    pixel_pack : pynq.lib.video.PixelPacker
+        Converts the input pixel size to that required by the VDMA
+
     """
 
-    def __init__(self, hierarchy):
+    @staticmethod
+    def checkhierarchy(description):
+        if 'frontend' in description['hierarchies']:
+            frontend_dict = description['hierarchies']['frontend']
+        else:
+            return False
+        return ('pixel_pack' in description['ip'] and
+                'color_convert' in description['ip'] and
+                HDMIInFrontend.checkhierarchy(frontend_dict))
+
+    def __init__(self, description, vdma=None):
         """Initialise the drivers for the pipeline
 
         Parameters
         ----------
-        hierarchy : str
+        path : str
             name of the hierarchy containing all of the video blocks
 
         """
-        ip_dict = PL.ip_dict
-        self._vdma = AxiVDMA(f'{hierarchy}/axi_vdma')
-        self._color = ColorConverter(
-            ip_dict[f'{hierarchy}/hdmi_in/color_convert'])
-        self._pixel = PixelPacker(
-            ip_dict[f'{hierarchy}/hdmi_in/pixel_pack'])
-        self._hdmi = HDMIInFrontend(f'{hierarchy}/hdmi_in/frontend')
+        super().__init__(description)
+        ip_dict = self.description
+        self._vdma = vdma
+        self._color = self.color_convert
+        self._pixel = self.pixel_pack
+        self._hdmi = self.frontend
 
     def configure(self, pixelformat=PIXEL_BGR):
         """Configure the pipeline to use the specified pixel format.
@@ -1078,32 +1117,49 @@ class HDMIIn:
         self._vdma.readchannel.tie(output._vdma.writechannel)
 
 
-class HDMIOut:
+class HDMIOut(DefaultHierarchy):
     """Wrapper for the output video pipeline of the Pynq-Z1 base overlay
 
     This wrapper assumes the following pipeline structure and naming
 
-    axi_vdma -> pixel_unpack -> color_convert
+    axi_vdma -> pixel_unpack -> color_convert -> frontend
     with vtc_out and axi_dynclk helper IP
+
+    Attributes
+    ----------
+    frontend : pynq.lib.video.HDMIOutFrontend
+        The HDMI frontend for mode setting
+    color_convert : pynq.lib.video.ColorConverter
+        The output color format converter
+    pixel_unpack : pynq.lib.video.PixelPacker
+        Converts the input pixel size to 24 bits-per-pixel
 
     """
 
-    def __init__(self, hierarchy):
+    @staticmethod
+    def checkhierarchy(description):
+        if 'frontend' in description['hierarchies']:
+            frontend_hierarchy = description['hierarchies']['frontend']
+        else:
+            return False
+        return ('pixel_unpack' in description['ip'] and
+                'color_convert' in description['ip'] and
+                HDMIOutFrontend.checkhierarchy(frontend_hierarchy))
+
+    def __init__(self, description, vdma=None):
         """Initialise the drivers for the pipeline
 
         Parameters
         ----------
-        hierarchy : str
+        path : str
             name of the hierarchy containing all of the video blocks
 
         """
-        ip_dict = PL.ip_dict
-        self._vdma = AxiVDMA(f'{hierarchy}/axi_vdma')
-        self._color = ColorConverter(
-            ip_dict[f'{hierarchy}/hdmi_out/color_convert'])
-        self._pixel = PixelPacker(
-            ip_dict[f'{hierarchy}/hdmi_out/pixel_unpack'])
-        self._hdmi = HDMIOutFrontend(f'{hierarchy}/hdmi_out/frontend')
+        super().__init__(description)
+        self._vdma = vdma
+        self._color = self.color_convert
+        self._pixel = self.pixel_unpack
+        self._hdmi = self.frontend
 
     def configure(self, mode, pixelformat=None):
         """Configure the pipeline to use the specified pixel format and size.
@@ -1219,3 +1275,42 @@ class HDMIOut:
 
         """
         await self._vdma.writechannel.writeframe_async(frame)
+
+
+class HDMIWrapper(DefaultHierarchy):
+    """Hierarchy driver for the entire Pynq-Z1 video subsystem.
+
+    Exposes the input, output and video DMA as attributes. For most
+    use cases the wrappers for the input and output pipelines are
+    sufficient and the VDMA will not need to be used directly.
+
+    Attributes
+    ----------
+    hdmi_in : pynq.lib.video.HDMIIn
+        The HDMI input pipeline
+    hdmi_out : pynq.lib.video.HDMIOut
+        The HDMI output pipeline
+    axi_vdma : pynq.lib.video.AxiVDMA
+        The video DMA.
+
+    """
+    @staticmethod
+    def checkhierarchy(description):
+        if 'hdmi_in' in description['hierarchies']:
+            in_dict = description['hierarchies']['hdmi_in']
+        else:
+            return False
+        if 'hdmi_out' in description['hierarchies']:
+            out_dict = description['hierarchies']['hdmi_out']
+        else:
+            return False
+        return ('axi_vdma' in description['ip'] and
+                HDMIIn.checkhierarchy(in_dict) and
+                HDMIOut.checkhierarchy(out_dict))
+
+    def __init__(self, description):
+        super().__init__(description)
+        in_dict = description['hierarchies']['hdmi_in']
+        out_dict = description['hierarchies']['hdmi_out']
+        self.hdmi_in = HDMIIn(in_dict, self.axi_vdma)
+        self.hdmi_out = HDMIOut(out_dict, self.axi_vdma)
