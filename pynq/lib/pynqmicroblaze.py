@@ -34,7 +34,7 @@ from pynq import MMIO
 from pynq import GPIO
 from pynq import PL
 from pynq import Interrupt
-
+from pynq import DefaultHierarchy
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -299,3 +299,52 @@ class PynqMicroblaze:
             return [self.mmio.read(offset + 4*i) for i in range(length)]
         else:
             raise ValueError('Length of read data has to be 1 or more.')
+
+
+class MicroblazeHierarchy(DefaultHierarchy):
+    """Hierarchy driver for the microblaze subsystem.
+
+    Enables the user to `load` programs on to the microblaze. All function
+    calls and member accesses are delegated to the loaded program.
+
+    """
+    def __init__(self, description, mbtype="Unknown"):
+        super().__init__(description)
+        hierarchy = description['fullpath']
+        self._mb_info = {'ip_name': f'{hierarchy}/mb_bram_ctrl',
+                         'rst_name': f'mb_{hierarchy}_reset',
+                         'intr_pin_name': f'{hierarchy}/dff_en_reset_0/q',
+                         'intr_ack_name': f'mb_{hierarchy}_intr_ack',
+                         'mbtype': mbtype}
+
+    def load(self, program, *args, **kwargs):
+        """Load a program on to the microblaze.
+
+        The program should be the class to instantiate and any
+        additional program arguments passed afterwards.
+
+        """
+        self._program = program(self._mb_info, *args, **kwargs)
+
+    def __getattr__(self, key):
+        if self._program:
+            return getattr(self._program, key)
+        else:
+            raise AttributeError('Attribute unknown and no program loaded')
+
+    @property
+    def mbtype(self):
+        """The defined type of the microblaze subsystem. Used by driver programs
+        to limit what microblaze subsystems the program is run on. The Pynq-Z1
+        base overlay has 'Ardiuno' and 'Pmod' microblaze types.
+
+        """
+        return self._mb_info['mbtype']
+
+    @mbtype.setter
+    def mbtype(self, value):
+        self._mb_info['mbtype'] = value
+
+    @staticmethod
+    def checkhierarchy(description):
+        return 'mb_bram_ctrl' in description['ip']

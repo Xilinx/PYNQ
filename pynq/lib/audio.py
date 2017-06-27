@@ -40,10 +40,12 @@ import time
 from pynq import PL
 from pynq import GPIO
 from pynq import MMIO
+from pynq import DefaultHierarchy
 
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
 
-class Audio:
+
+class Audio(DefaultHierarchy):
     """Class to interact with audio controller.
     
     Each audio sample is a 32-bit integer. The audio controller supports only 
@@ -63,28 +65,38 @@ class Audio:
         Sample length of the current buffer content.
         
     """
-    def __init__(self, ip='SEG_d_axi_pdm_1_S_AXI_reg',
-                 rst="audio_path_sel"):
-        """Return a new Audio object.
-        
-        The PL is queried to get the base address and length.
+    def __init__(self, description, gpio_name=None):
+        """Return a new Audio object based on the hierarchy description.
         
         Parameters
         ----------
-        ip : str
-            The name of the IP required for the audio driver.
-        rst : str
-            The name of the GPIO pins used as reset for the audio driver.
-        
-        """
-        if ip not in PL.ip_dict:
-            raise LookupError("No such audio IP in the overlay.")
-        if rst not in PL.gpio_dict:
-            raise LookupError("No such reset pin in the overlay.")
+        description : dict
+            The hierarchical description of the hierarchy
+        gpio_name : str
+            The name of the audio path selection GPIO. If None then the GPIO
+            pin in the hierarchy is used, otherwise the gpio_name is searched
+            in the list of pins on the hierarchy and the PL.gpio_dict.
 
-        self.mmio = MMIO(PL.ip_dict[ip][0], PL.ip_dict[ip][1])
-        self.gpio = GPIO(GPIO.get_gpio_pin(PL.gpio_dict[rst][0]), 'out')
-        
+        """
+        super().__init__(description)
+
+        self.mmio = self.d_axi_pdm_1.mmio
+        if gpio_name is None:
+            if len(description['gpio']) == 0:
+                raise RuntimeError('Could not find audio path select GPIO')
+            elif len(description['gpio']) > 1:
+                raise RuntimeError('Multiple possible GPIO pins')
+            pin_name = next(iter(description['gpio'].keys()))
+            self.gpio = getattr(self, pin_name)
+        else:
+            if gpio_name in description['gpio']:
+                self.gpio = getattr(self, pin_name)
+            elif gpio_name in PL.gpio_dict:
+                pin = GPIO.get_gpio_pin(PL.gpio_dict[gpio_name]['index'])
+                self.gpio = GPIO(pin, 'out')
+            else:
+                raise RuntimeError('Provided gpio_name not found')
+
         self._ffi = cffi.FFI()
         self._libaudio = self._ffi.dlopen(LIB_SEARCH_PATH + "/libaudio.so")
         self._ffi.cdef("""unsigned int Xil_Out32(unsigned int Addr, 
@@ -292,4 +304,14 @@ class Audio:
             print("Number of frames:   " + str(pdm_file.getnframes()))
             print("Compression type:   " + str(pdm_file.getcomptype()))
             print("Compression name:   " + str(pdm_file.getcompname()))
-            
+
+    @staticmethod
+    def checkhierarchy(description):
+        """Hierarchy can be bound if it contains the 'd_axi_pdm_1' IP
+        and it contains exactly one GPIO pin.
+
+        """
+        if ('d_axi_pdm_1' in description['ip'] and
+                len(description['gpio']) == 1):
+            return True
+        return False
