@@ -27,14 +27,13 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
-
-
 import os
 import mmap
 import numpy as np
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
 
 class MMIO:
@@ -75,7 +74,7 @@ class MMIO:
 
         """
         if base_addr < 0 or length < 0:
-            raise ValueError("Negative offset or negative length.")
+            raise ValueError("Base address or length cannot be negative.")
 
         euid = os.geteuid()
         if euid != 0:
@@ -99,7 +98,7 @@ class MMIO:
         self.mmap_file = os.open('/dev/mem',
                                  os.O_RDWR | os.O_SYNC)
 
-        self.mem = mmap.mmap(self.mmap_file, (self.length + self.virt_offset),
+        self.mem = mmap.mmap(self.mmap_file, self.length + self.virt_offset,
                              mmap.MAP_SHARED,
                              mmap.PROT_READ | mmap.PROT_WRITE,
                              offset=self.virt_base)
@@ -128,13 +127,13 @@ class MMIO:
             A list of data read out from MMIO
 
         """
-        if not length == 4:
+        if length != 4:
             raise ValueError("MMIO currently only supports 4-byte reads.")
-        if offset < 0 or length < 0:
-            raise ValueError("Negative offset or negative length.")
+        if offset < 0:
+            raise ValueError("Offset cannot be negative.")
         idx = offset >> 2
-        if idx << 2 != offset:
-            raise MemoryError('Read operation unaligned.')
+        if offset % 4:
+            raise MemoryError('Unaligned read: offset must be multiple of 4.')
 
         self._debug('Reading {0} bytes from offset {1:x}',
                     length, offset)
@@ -158,11 +157,11 @@ class MMIO:
 
         """
         if offset < 0:
-            raise ValueError("Negative offset.")
+            raise ValueError("Offset cannot be negative.")
 
         idx = offset >> 2
-        if idx << 2 != offset:
-            raise MemoryError('Write operation not aligned.')
+        if offset % 4:
+            raise MemoryError('Unaligned write: offset must be multiple of 4.')
 
         if type(data) is int:
             self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
@@ -171,10 +170,11 @@ class MMIO:
         elif type(data) is bytes:
             length = len(data)
             num_words = length >> 2
-            if num_words << 2 != length:
-                raise MemoryError('Need an integer number of words')
+            if length % 4:
+                raise MemoryError(
+                    'Unaligned write: data length must be multiple of 4.')
             buf = np.frombuffer(data, np.uint32, num_words, 0)
-            self.array[offset:offset + num_words] = buf
+            self.array[idx:idx + num_words] = buf
         else:
             raise ValueError("Data type must be int or bytes.")
 
@@ -187,6 +187,7 @@ class MMIO:
             The debug information format string
         *args : any
             The arguments to be formatted
+
         Returns
         -------
         None
