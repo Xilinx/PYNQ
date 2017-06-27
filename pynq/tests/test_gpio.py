@@ -27,15 +27,17 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import os
 import math
 import pytest
 from pynq.gpio import GPIO, GPIO_MIN_USER_PIN
+
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
 
 @pytest.mark.run(order=3)
 def test_gpio():
@@ -48,30 +50,31 @@ def test_gpio():
     
     """
     # Find the GPIO base pin
+    index = 0
     for root, dirs, files in os.walk('/sys/class/gpio'):
-            for name in dirs:
-                if 'gpiochip' in name:
-                    index = int(''.join(x for x in name if x.isdigit()))
+        for name in dirs:
+            if 'gpiochip' in name:
+                index = int(''.join(x for x in name if x.isdigit()))
+                break
     base = GPIO.get_gpio_base()
+    assert base == index, 'GPIO base not parsed correctly.'
+
     gpio_min = base + GPIO_MIN_USER_PIN
-    gpio_max = 2**(math.ceil(math.log(gpio_min, 2)))
-            
+    gpio_max = 2**int(math.ceil(math.log(gpio_min, 2)))
+
     for index in range(gpio_min, gpio_max):
         g = GPIO(index, 'in')
-        with pytest.raises(Exception) as error_infor:
+        with pytest.raises(Exception):
             # GPIO type is 'in'. Hence g.write() is illegal. 
-            # Test will pass if exception is raised.
             g.write()
         del g
         
         g = GPIO(index, 'out')
-        with pytest.raises(Exception) as error_infor:
+        with pytest.raises(Exception):
             # GPIO type is 'out'. Hence g.read() is illegal. 
-            # Test will pass if exception is raised.
             g.read()
-        with pytest.raises(Exception) as error_infor:
+        with pytest.raises(Exception):
             # write() only accepts integer 0 or 1 (not 'str'). 
-            # Test will pass if exception is raised.
             g.write('1')
         
         del g
