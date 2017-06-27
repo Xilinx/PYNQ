@@ -36,6 +36,9 @@
 # from .usb_wifi import Usb_Wifi
 
 from .pynqmicroblaze import PynqMicroblaze
+from .axigpio import AxiGPIO
+from .dma import DMA
+from .dma import LegacyDMA
 from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
