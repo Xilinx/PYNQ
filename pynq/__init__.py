@@ -38,10 +38,13 @@ from .ps import Clocks
 from .pl import PL
 from .pl import PL_SERVER_FILE
 from .pl import Bitstream
-from .pl import Overlay
 from .ps import Register
 from .ps import Clocks
 from .interrupt import Interrupt
 from .xlnk import Xlnk
+from .overlay import Overlay
+from .overlay import DefaultOverlay
+from .overlay import DefaultHierarchy
+from .overlay import DefaultIP
 
 __all__ = ['lib', 'tests']
