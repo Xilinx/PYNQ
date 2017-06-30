@@ -10,5 +10,6 @@ if [ $notebook_version -ge 5 ]; then
 fi
 
 cd ~xilinx
+export SHELL=/bin/bash
 jupyter notebook $notebook_args > /var/log/jupyter.log  2>&1 &
 
