@@ -46,8 +46,10 @@
  # 1.00a yrq 02/21/2017 initial release
  # 1.00b yrq 03/30/2017 fixed names, fixed interrupt connection
  # 1.00c pp  05/10/2017 release
- # 1.00d pp  06/22/2017 made pb_debounce timed to FCLK0 instead of FCLK1
+ # 1.00d pp  06/22/2017 Made pb_debounce timed to FCLK0 instead of FCLK1
  #                      removed unconnected debug ports
+ # 1.00e pp  06/29/2017 Changed constant_20bit_0 instance name to 
+ #                      constant_20bit_logic1, set value to 1048575 (0xFFFFF)
  # </pre>
  #
 ###############################################################################
@@ -248,7 +250,7 @@ CONFIG.C_IS_DUAL {1} \
   set_property -dict [ list \
 CONFIG.C_ALL_OUTPUTS {0} \
 CONFIG.C_ALL_OUTPUTS_2 {0} \
-CONFIG.C_GPIO2_WIDTH {7} \
+CONFIG.C_GPIO2_WIDTH {6} \
 CONFIG.C_GPIO_WIDTH {20} \
 CONFIG.C_IS_DUAL {1} \
  ] $axi_gpio_pg_tri_control
@@ -1144,12 +1146,12 @@ CONFIG.SIZE {24} \
   # Create instance: concat_cfg_data_i_pb, and set properties
   set concat_cfg_data_i_pb [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 concat_cfg_data_i_pb ]
 
-  # Create instance: constant_20bit_0, and set properties
-  set constant_20bit_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_20bit_0 ]
+  # Create instance: constant_20bit_logic1, and set properties
+  set constant_20bit_logic1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_20bit_logic1 ]
   set_property -dict [ list \
-CONFIG.CONST_VAL {0} \
+CONFIG.CONST_VAL {1048575} \
 CONFIG.CONST_WIDTH {20} \
- ] $constant_20bit_0
+ ] $constant_20bit_logic1
 
   # Create instance: dff_en_reset_0, and set properties
   set dff_en_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:XUP:dff_en_reset:1.0 dff_en_reset_0 ]
@@ -1278,7 +1280,7 @@ CONFIG.DOUT_WIDTH {20} \
   connect_bd_net -net cfg_data_mux_vector_y [get_bd_pins cfg_data_mux_vector/y] [get_bd_pins slice_cfg_data_o_19_0/Din] [get_bd_pins slice_cfg_data_o_23_20/Din]
   connect_bd_net -net clk1_1 [get_bd_pins pg_tracebuffer_clk] [get_bd_pins mb_axi_periph/M07_ACLK] [get_bd_pins mb_axi_periph/M08_ACLK] [get_bd_pins pg_o/m_axi_s2mm_aclk] [get_bd_pins smg_0/clkb]
   connect_bd_net -net concat_cfg_data_i_pb_dout [get_bd_pins cfg_0/shield2cfg_data_in] [get_bd_pins concat_cfg_data_i_pb/dout]
-  connect_bd_net -net constant_20bit_0_dout [get_bd_pins constant_20bit_0/dout] [get_bd_pins interface_switch_0/asm2sw_data_o] [get_bd_pins interface_switch_0/asm2sw_tri_o]
+  connect_bd_net -net constant_20bit_logic1_dout [get_bd_pins constant_20bit_logic1/dout] [get_bd_pins interface_switch_0/asm2sw_data_o] [get_bd_pins interface_switch_0/asm2sw_tri_o]
   connect_bd_net -net dff_en_reset_0_q [get_bd_pins iop3_intr_req] [get_bd_pins dff_en_reset_0/q]
   connect_bd_net -net enb_1 [get_bd_pins pg_o/smg_enb] [get_bd_pins smg_0/enb]
   connect_bd_net -net func_sel_concat_dout [get_bd_pins func_sel_concat/dout] [get_bd_pins interface_switch_0/sel]
@@ -1333,7 +1335,7 @@ preplace inst axi_intc_0 -pg 1 -lvl 3 -y 660 -defaultsOSRD
 preplace inst slice_cfg_data_o_23_20 -pg 1 -lvl 10 -y 1110 -defaultsOSRD
 preplace inst mb -pg 1 -lvl 4 -y 1030 -defaultsOSRD
 preplace inst func_sel_concat -pg 1 -lvl 8 -y 420 -defaultsOSRD
-preplace inst constant_20bit_0 -pg 1 -lvl 8 -y 540 -defaultsOSRD
+preplace inst constant_20bit_logic1 -pg 1 -lvl 8 -y 540 -defaultsOSRD
 preplace inst concat_cfg_data_i_pb -pg 1 -lvl 2 -y 1080 -defaultsOSRD
 preplace inst cfg_0 -pg 1 -lvl 3 -y 1040 -defaultsOSRD
 preplace inst axi_cdma_0 -pg 1 -lvl 8 -y 670 -defaultsOSRD
@@ -1361,7 +1363,7 @@ preplace netloc axi_mem_intercon_M01_AXI 1 9 2 NJ 930 NJ
 preplace netloc smg_0_doutb 1 9 2 3090 470 3420
 preplace netloc smg_0_fsm2sw 1 8 3 2640 450 NJ 450 3450
 preplace netloc cfg_0_cfg2shield_tri_out 1 3 5 NJ 860 NJ 860 NJ 860 NJ 860 NJ
-preplace netloc constant_20bit_0_dout 1 8 1 2600
+preplace netloc constant_20bit_logic1_dout 1 8 1 2600
 preplace netloc mb_axi_periph_M04_AXI 1 2 8 710 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ
 preplace netloc microblaze_0_dlmb_1 1 4 1 1690
 preplace netloc enb_1 1 9 2 3080 20 3450
@@ -3032,7 +3034,6 @@ file copy -force ./interface/interface.sdk/interface.hdf .
 
 # move and rename bitstream to final location
 file copy -force ./interface/interface.runs/impl_1/top.bit interface.bit
-
 
 
 
