@@ -1,0 +1,13 @@
+--- ../rootfs/etc/ssh/ssh_config	2015-09-11 10:51:46.000000000 +0100
++++ ../imagefs/etc/ssh/ssh_config	2016-06-22 23:24:40.512048709 +0100
+@@ -18,8 +18,8 @@
+ 
+ Host *
+ #   ForwardAgent no
+-#   ForwardX11 no
+-#   ForwardX11Trusted yes
++ForwardX11 yes
++ForwardX11Trusted yes
+ #   RhostsRSAAuthentication no
+ #   RSAAuthentication yes
+ #   PasswordAuthentication yes

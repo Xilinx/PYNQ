@@ -1,0 +1,9 @@
+[Unit]
+Description=Jupyter Notebook Server
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/start_jupyter.sh
+
+[Install]
+WantedBy=basic.target

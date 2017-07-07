@@ -1,0 +1,8 @@
+diff --git a/eth0 b/eth0
+new file mode 100644
+index 0000000..81922ce
+--- /dev/null
++++ b/eth0
+@@ -0,0 +1,2 @@
++auto eth0
++iface eth0 inet dhcp
