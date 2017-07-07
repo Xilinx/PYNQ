@@ -57,24 +57,38 @@ CMD_TRACE_FSM_ONLY = 0x00D
 
 CMD_INTF_SWITCH_CONFIG = 0x1
 CMD_READ_INTF_SWITCH_CONFIG = 0xA
+CMD_READ_CFG_DIRECTION = 0xC
 CMD_CONFIG_CFG = 0x2
 CMD_CONFIG_PG = 0x3
 CMD_CONFIG_SMG = 0x4
 CMD_CONFIG_TRACE = 0x5
-CMD_ARM_CFG = 0x6
-CMD_ARM_PG = 0x7
-CMD_ARM_SMG = 0x8
-CMD_ARM_TRACE = 0x9
 CMD_RUN = 0xD
 CMD_STOP = 0xE
-CMD_RUN_STATUS = 0xF
-CMD_READ_CFG_DIRECTION = 0xC
+CMD_CHECK_STATUS = 0xF
+CMD_STEP = 0xB
+CMD_RESET = 0x10
 
+RESET_STATE = 1
+READY_STATE = 2
+RUNNING_STATE = 4
+
+CFG_ENGINE_BIT = 0x100
+PG_ENGINE_BIT = 0x200
+SMG_ENGINE_BIT = 0x400
+TRACE_ENGINE_BIT = 0x800
+
+BUILDER_STATE = {'RESET': RESET_STATE,
+                 'READY': READY_STATE,
+                 'RUNNING': RUNNING_STATE}
 IOSWITCH_BG_SELECT = 0
 IOSWITCH_PG_SELECT = 1
 IOSWITCH_SMG_SELECT = 2
-CMDS_ARM_BUILDER_LIST = [CMD_ARM_CFG, CMD_ARM_PG, CMD_ARM_SMG, CMD_ARM_TRACE]
-INTF_MICROBLAZE_BIN = "arduino_intf.bin"
+IOSWITCH_DISCONNECT = 3
+BUILDER_ENGINE_DICT = {'BooleanBuilder': CFG_ENGINE_BIT,
+                       'PatternBuilder': PG_ENGINE_BIT,
+                       'FSMBuilder': SMG_ENGINE_BIT,
+                       'TraceAnalyzer': TRACE_ENGINE_BIT}
+INTF_MICROBLAZE_BIN = "arduino_dio.bin"
 
 # PYNQ-Z1 specification
 ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
@@ -101,13 +115,7 @@ PYNQZ1_DIO_SPECIFICATION = {'clock_mhz': 10,
                                                   'D16': 16,
                                                   'D17': 17,
                                                   'D18': 18,
-                                                  'D19': 19,
-                                                  'A0': 14,
-                                                  'A1': 15,
-                                                  'A2': 16,
-                                                  'A3': 17,
-                                                  'A4': 18,
-                                                  'A5': 19
+                                                  'D19': 19
                                                   },
                             'traceable_inputs': {'D0': 20,
                                                  'D1': 21,
@@ -128,13 +136,7 @@ PYNQZ1_DIO_SPECIFICATION = {'clock_mhz': 10,
                                                  'D16': 36,
                                                  'D17': 37,
                                                  'D18': 38,
-                                                 'D19': 39,
-                                                 'A0': 34,
-                                                 'A1': 35,
-                                                 'A2': 36,
-                                                 'A3': 37,
-                                                 'A4': 38,
-                                                 'A5': 39
+                                                 'D19': 39
                                                  },
                             'traceable_tri_states': {'D0': 42,
                                                      'D1': 43,
@@ -155,13 +157,7 @@ PYNQZ1_DIO_SPECIFICATION = {'clock_mhz': 10,
                                                      'D16': 58,
                                                      'D17': 59,
                                                      'D18': 60,
-                                                     'D19': 61,
-                                                     'A0': 56,
-                                                     'A1': 57,
-                                                     'A2': 58,
-                                                     'A3': 59,
-                                                     'A4': 60,
-                                                     'A5': 61
+                                                     'D19': 61
                                                      },
                             'non_traceable_inputs': {'PB0': 20,
                                                      'PB1': 21,
@@ -180,18 +176,24 @@ FSM_BRAM_ADDR_WIDTH = 13
 FSM_MIN_STATE_BITS = 1
 FSM_MAX_STATE_BITS = 9
 FSM_MIN_NUM_STATES = 2
-FSM_MAX_NUM_STATES = 512
+FSM_MAX_NUM_STATES = 256
 FSM_MIN_INPUT_BITS = 1
 FSM_MAX_INPUT_BITS = 8
 FSM_MAX_STATE_INPUT_BITS = 13
 FSM_MIN_OUTPUT_BITS = 1
 FSM_MAX_OUTPUT_BITS = 19
+FSM_DUMMY_STATE_BRAM_ADDRESS = 0x1FFF
 
 # Pattern generator constants
-MAX_NUM_PATTERN_SAMPLES = 4096
+MAX_NUM_PATTERN_SAMPLES = 4095
 
 # Trace analyzer constants
-MAX_NUM_TRACE_SAMPLES = 65536
+MAX_NUM_TRACE_SAMPLES = 65535
+
+# Clock constants
+DEFAULT_CLOCK_FREQUENCY_MHZ = 10
+MIN_CLOCK_FREQUENCY_MHZ = 0.252
+MAX_CLOCK_FREQUENCY_MHZ = 100
 
 # CData Width to Type Conversion
 BYTE_WIDTH_TO_CTYPE = {4: "unsigned int",

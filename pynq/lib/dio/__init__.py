@@ -29,7 +29,7 @@
 
 
 from .constants import *
-from .intf import Intf
+from .builder_controller import BuilderController
 from .waveform import Waveform
 from .boolean_builder import BooleanBuilder
 from .pattern_builder import PatternBuilder

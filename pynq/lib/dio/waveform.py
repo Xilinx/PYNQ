@@ -31,12 +31,15 @@
 import os
 import json
 import IPython.core.display
-from . import PYNQZ1_DIO_SPECIFICATION
+from .constants import *
 
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+
+PYNQ_JUPYTER_NOTEBOOKS = '/home/xilinx/jupyter_notebooks'
 
 
 def _verify_wave_tokens(wave_lane):
@@ -64,8 +67,10 @@ def _verify_wave_tokens(wave_lane):
 def draw_wavedrom(data):
     """Display the waveform using the Wavedrom package.
 
-    This method requires 2 javascript files to be copied locally. Users
-    can call this method directly to draw any wavedrom data.
+    This method requires 2 javascript files to be present. We get the relative
+    paths for the 2 files in order to proceed.
+
+    Users can call this method directly to draw any wavedrom data.
 
     Example usage:
 
@@ -81,12 +86,14 @@ def draw_wavedrom(data):
     >>> draw_wavedrom(a)
 
     """
-    if not (os.path.isfile('./js/WaveDrom.js') and
-            os.path.isfile('./js/WaveDromSkin.js')):
-        if os.system("cp -rf " +
-                     os.path.dirname(os.path.realpath(__file__)) +
-                     '/js ./'):
-            raise RuntimeError('Cannot copy WaveDrom javascripts.')
+    wavedrom_js = '/js/WaveDrom.js'
+    wavedromskin_js = '/js/WaveDromSkin.js'
+    if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedrom_js):
+        raise RuntimeError(f'Cannot locate {wavedrom_js}.')
+    if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedromskin_js):
+        raise RuntimeError(f'Cannot locate {wavedromskin_js}.')
+    current_path = os.getcwd()
+    relative_path = os.path.relpath(PYNQ_JUPYTER_NOTEBOOKS, current_path)
 
     htmldata = '<script type="WaveDrom">' + json.dumps(data) + '</script>'
     IPython.core.display.display_html(IPython.core.display.HTML(htmldata))
@@ -94,7 +101,8 @@ def draw_wavedrom(data):
     IPython.core.display.display_javascript(
         IPython.core.display.Javascript(
             data=jsdata,
-            lib=['files/js/WaveDrom.js', 'files/js/WaveDromSkin.js']))
+            lib=[relative_path + '/js/WaveDrom.js',
+                 relative_path + '/js/WaveDromSkin.js']))
 
 
 class Waveform:
@@ -139,9 +147,11 @@ class Waveform:
     ----------
     waveform_dict : dict
         The json data stored in the dictionary.
-    stimulus : str
+    intf_spec : dict
+        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+    stimulus_group_name : str
         Name of the WaveLane group for the stimulus, defaulted to `stimulus`.
-    analysis : str
+    analysis_group_name : str
         Name of the WaveLane group for the analysis, defaulted to `analysis`.
     stimulus_group : list
         A group of lanes, each lane being a dict of name, pin label,and wave.
@@ -150,31 +160,34 @@ class Waveform:
 
     """
 
-    def __init__(self, waveform_dict, stimulus_name=None,
-                 analysis_name=None, intf_spec=PYNQZ1_DIO_SPECIFICATION):
+    def __init__(self, waveform_dict,
+                 intf_spec_name='PYNQZ1_DIO_SPECIFICATION',
+                 stimulus_group_name=None, analysis_group_name=None):
         """Initializer for this wrapper class.
 
         Parameters
         ----------
         waveform_dict : dict
             Waveform dictionary in WaveJSON format.
-        stimulus_name : str
+        intf_spec_name : str
+            The name of the interface specification.
+        stimulus_group_name : str
             Name of the WaveLane group for the stimulus, defaulted to
             `stimulus`.
-        analysis_name : str
+        analysis_group_name : str
             Name of the WaveLane group for the analysis, defaulted to
             `analysis`.
 
         """
         self.waveform_dict = waveform_dict
-        self.stimulus = stimulus_name
-        self.analysis = analysis_name
+        self.stimulus_group_name = stimulus_group_name
+        self.analysis_group_name = analysis_group_name
+        self.intf_spec = eval(intf_spec_name)
 
-        if intf_spec is not None:
-            if self.stimulus is not None:
-                self._verify_lanes(stimulus_name, intf_spec)
-            if self.analysis is not None:
-                self._verify_lanes(analysis_name, intf_spec)
+        if self.stimulus_group_name is not None:
+            self._verify_lanes(stimulus_group_name)
+        if self.analysis_group_name is not None:
+            self._verify_lanes(analysis_group_name)
 
     def display(self):
         """Display the waveform using the Wavedrom package.
@@ -224,7 +237,7 @@ class Waveform:
             and wave.
 
         """
-        return self._get_wavelane_group(self.stimulus)
+        return self._get_wavelane_group(self.stimulus_group_name)
 
     @property
     def analysis_group(self):
@@ -241,7 +254,7 @@ class Waveform:
             and wave.
 
         """
-        return self._get_wavelane_group(self.analysis)
+        return self._get_wavelane_group(self.analysis_group_name)
 
     def _get_wavelane_names(self, group_name):
         """Returns all the names of a given group of WaveLanes.
@@ -277,7 +290,7 @@ class Waveform:
             A list of names for all the stimulus WaveLanes.
 
         """
-        return self._get_wavelane_names(self.stimulus)
+        return self._get_wavelane_names(self.stimulus_group_name)
 
     @property
     def analysis_names(self):
@@ -292,7 +305,7 @@ class Waveform:
             A list of names for all the analysis WaveLanes.
 
         """
-        return self._get_wavelane_names(self.analysis)
+        return self._get_wavelane_names(self.analysis_group_name)
 
     def _get_wavelane_pins(self, group_name):
         """Returns all the pin labels of a given group of WaveLanes.
@@ -328,7 +341,7 @@ class Waveform:
             A list of pin labels for all the stimulus WaveLanes.
 
         """
-        return self._get_wavelane_pins(self.stimulus)
+        return self._get_wavelane_pins(self.stimulus_group_name)
 
     @property
     def analysis_pins(self):
@@ -343,7 +356,7 @@ class Waveform:
             A list of pin labels for all the analysis WaveLanes.
 
         """
-        return self._get_wavelane_pins(self.analysis)
+        return self._get_wavelane_pins(self.analysis_group_name)
 
     def _get_wavelane_waves(self, group_name):
         """Returns all the waves for a specific group of WaveLanes.
@@ -378,7 +391,7 @@ class Waveform:
             A list of waves for all the stimulus WaveLanes.
 
         """
-        return self._get_wavelane_waves(self.stimulus)
+        return self._get_wavelane_waves(self.stimulus_group_name)
 
     @property
     def analysis_waves(self):
@@ -393,9 +406,9 @@ class Waveform:
             A list of waves for all the analysis WaveLanes.
 
         """
-        return self._get_wavelane_waves(self.analysis)
+        return self._get_wavelane_waves(self.analysis_group_name)
 
-    def _verify_lanes(self, group_name, intf_spec):
+    def _verify_lanes(self, group_name):
         """Verify the pin labels, names, and tokens for all lanes in the group.
 
         Typical group names are `stimulus` and `analysis` by default.
@@ -413,13 +426,13 @@ class Waveform:
             duplicated lane names, or the wave token is not valid.
 
         """
-        if group_name == self.stimulus:
-            valid_pins = intf_spec['traceable_outputs']
-        elif group_name == self.analysis:
-            valid_pins = intf_spec['traceable_inputs']
+        if group_name == self.stimulus_group_name:
+            valid_pins = self.intf_spec['traceable_outputs']
+        elif group_name == self.analysis_group_name:
+            valid_pins = self.intf_spec['traceable_inputs']
         else:
             raise ValueError("Valid group names are {},{}.".format(
-                self.stimulus, self.analysis))
+                self.stimulus_group_name, self.analysis_group_name))
 
         lane_group = self._get_wavelane_group(group_name)
         pin_labels = set()
@@ -474,7 +487,7 @@ class Waveform:
 
         """
         pin_to_name = {}
-        update = [group_name]
+        updated_group = [group_name]
         for group in self.waveform_dict['signal']:
             if group and (group[0] == group_name):
                 for wavelane in group[1:]:
@@ -483,12 +496,12 @@ class Waveform:
                 for wavelane in wavelane_group:
                     pin, wave = wavelane['pin'], wavelane['wave']
                     if pin in pin_to_name:
-                        temp_dict = {'name': pin_to_name[pin],
-                                     'pin': pin,
-                                     'wave': wave}
-                        update.append(temp_dict)
+                        updated_dict = {'name': pin_to_name[pin],
+                                        'pin': pin,
+                                        'wave': wave}
+                        updated_group.append(updated_dict)
                 break
 
         for index, group in enumerate(self.waveform_dict['signal']):
             if group and (group[0] == group_name):
-                self.waveform_dict['signal'][index] = update
+                self.waveform_dict['signal'][index] = updated_group
