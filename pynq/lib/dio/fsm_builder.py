@@ -34,23 +34,8 @@ from math import ceil, log
 import numpy as np
 import pygraphviz as pgv
 from IPython.display import Image, display
-from . import FSM_BRAM_ADDR_WIDTH
-from . import MAX_NUM_TRACE_SAMPLES
-from . import FSM_MIN_STATE_BITS
-from . import FSM_MAX_STATE_BITS
-from . import FSM_MIN_NUM_STATES
-from . import FSM_MAX_NUM_STATES
-from . import FSM_MIN_INPUT_BITS
-from . import FSM_MAX_INPUT_BITS
-from . import FSM_MAX_STATE_INPUT_BITS
-from . import FSM_MAX_OUTPUT_BITS
-from . import FSM_MIN_OUTPUT_BITS
-from . import INTF_MICROBLAZE_BIN
-from . import PYNQZ1_DIO_SPECIFICATION
-from . import CMD_CONFIG_SMG
-from . import CMD_ARM_SMG
-from . import IOSWITCH_SMG_SELECT
-from .intf import Intf
+from .constants import *
+from .builder_controller import BuilderController
 from .trace_analyzer import TraceAnalyzer
 from .waveform import Waveform
 
@@ -258,9 +243,9 @@ def get_bram_addr_offsets(num_states, num_input_bits):
     """Get address offsets from given number of states and inputs.
 
     This method returns the index offset for input bits. For example, if less
-    than 32 states are used, then the index offset will be 5. If the number
-    of states used is greater than 32 but less than 64, then the index offset
-    will be 6.
+    than 32 states are used, then the index offset will be 5. 
+    If the number of states used is greater than 32 but less than 64, then 
+    the index offset will be 6.
 
     This method also returns the address offsets for BRAM data. The returned
     list contains 2**`num_input_bits` offsets. The distance between 2 address
@@ -316,10 +301,13 @@ class FSMBuilder:
 
     Attributes
     ----------
-    intf : Intf
-        The interface Microblaze object used by this class.
-    frequency_mhz: float
-        The frequency of the running FSM / captured samples, in MHz.
+    builder_controller : BuilderController
+        The builder controller for this class.
+    intf_spec : dict
+        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+    fsm_spec : dict
+        The FSM specification, with inputs (list), outputs (list),
+        states (list), and transitions (list).
     num_input_bits : int
         The number of input bits / pins.
     num_outputs : int
@@ -340,21 +328,19 @@ class FSMBuilder:
         List of output pins on Arduino header.
     use_state_bits : bool
         Flag indicating whether the state bits are shown on output pins.
-    analyzer : PatternAnalyzer
+    analyzer : TraceAnalyzer
         Analyzer to analyze the raw capture from the pins.
+    num_analyzer_samples : int
+        The number of analyzer samples to capture.
+    frequency_mhz: float
+        The frequency of the running FSM / captured samples, in MHz.
     waveform : Waveform
         The Waveform object used for Wavedrom display.
 
     """
 
-    def __init__(self, intf_microblaze, fsm_spec=None, frequency_mhz=10,
-                 intf_spec=PYNQZ1_DIO_SPECIFICATION,
-                 use_analyzer=True, use_state_bits=False,
-                 num_analyzer_samples=MAX_NUM_TRACE_SAMPLES):
+    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
         """Initialize the FSM builder class.
-
-        Users can specify the `fsm_spec` when instantiating the object, or
-        provide this specification later, and call `parse_fsm_spec()`.
 
         If `use_state_bits` is set to True, the state bits will be shown as
         outputs. The last few outputs may get replaced by state bits,
@@ -370,32 +356,21 @@ class FSMBuilder:
 
         Parameters
         ----------
-        intf_microblaze : Intf/dict
-            The interface Microblaze object, or a dictionary storing 
-            Microblaze information, such as the IP name and the reset name.
-        fsm_spec : dict
-            The FSM specification, with inputs (list), outputs (list),
-            states (list), and transitions (list).
-        frequency_mhz: float
-            The frequency of the FSM and captured samples, in MHz.
-        intf_spec : dict
-            The interface specification, usually board-dependent.
-        use_analyzer : bool
-            Indicate whether to use the analyzer to capture the trace as well.
-        use_state_bits : bool
-            Whether to check the state bits in the final output pins.
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the 
+            IP name and the reset name.
+        intf_spec_name : str
+            The name of the interface specification.
 
         """
-        if isinstance(intf_microblaze, Intf):
-            self.intf = intf_microblaze
-        elif isinstance(intf_microblaze, dict):
-            self.intf = Intf(intf_microblaze)
-        else:
-            raise TypeError(
-                "Parameter intf_microblaze has to be intf.Intf or dict.")
+        # Book-keep controller-related parameters
+        self.builder_controller = BuilderController(mb_info, intf_spec_name)
+        self.intf_spec = eval(intf_spec_name)
+        self._mb_info = mb_info
+        self._intf_spec_name = intf_spec_name
 
-        self.intf_spec = intf_spec
-        self.frequency_mhz = 0
+        # Parameters to be cleared at reset
+        self.fsm_spec = dict()
         self.num_input_bits = 0
         self.num_outputs = 0
         self.num_output_bits = 0
@@ -405,40 +380,84 @@ class FSMBuilder:
         self.transitions = list()
         self.input_pins = list()
         self.output_pins = list()
-        self.use_state_bits = use_state_bits
+        self.use_state_bits = False
         self.waveform = None
-
+        self.frequency_mhz = 0
         self._state_names2codes = dict()
         self._state_names2outputs = dict()
         self._expanded_transitions = list()
         self._encoded_transitions = list()
         self._bram_data = np.zeros(2 ** FSM_BRAM_ADDR_WIDTH, dtype=np.uint32)
 
+        # Trace analyzer will be attached by default
+        self.analyzer = None
+        self.num_analyzer_samples = 0
+        self.trace()
+
+    def __repr__(self):
+        """Disambiguation of the object.
+
+        Users can call `repr(object_name)` to display the object information.
+
+        """
+        parameter_list = list()
+        parameter_list.append(f'num_analyzer_samples='
+                              f'{self.num_analyzer_samples}')
+        parameter_list.append(f'frequency_mhz='
+                              f'{self.frequency_mhz}')
+        parameter_list.append(f'use_state_bits='
+                              f'{self.use_state_bits}')
+        parameter_string = ", ".join(map(str, parameter_list))
+        return f'{self.__class__.__name__}({parameter_string})'
+
+    @property
+    def status(self):
+        """Return the builder's status.
+
+        Returns
+        -------
+        str
+            Indicating the current status of the builder; can be 
+            'RESET', 'READY', or 'RUNNING'.
+
+        """
+        self.builder_controller.check_status()
+        return self.builder_controller.status[self.__class__.__name__]
+
+    def trace(self, use_analyzer=True,
+              num_analyzer_samples=MAX_NUM_TRACE_SAMPLES):
+        """Configure the trace analyzer.
+
+        By default, the trace analyzer is always on, unless users explicitly
+        disable it.
+
+        Parameters
+        ----------
+        use_analyzer : bool
+            Whether to use the analyzer to capture the trace.
+        num_analyzer_samples : int
+            The number of analyzer samples to capture.
+
+        """
         if use_analyzer:
-            self.analyzer = TraceAnalyzer(
-                self.intf,
-                num_samples=num_analyzer_samples,
-                trace_spec=intf_spec)
+            self.analyzer = TraceAnalyzer(self._mb_info,
+                                          intf_spec_name=self._intf_spec_name)
+            self.num_analyzer_samples = num_analyzer_samples
         else:
             self.analyzer = None
+            self.num_analyzer_samples = 0
 
-        if fsm_spec:
-            self.fsm_spec = self.parse_fsm_spec(fsm_spec, use_state_bits)
-        else:
-            self.fsm_spec = None
-
-        self.config(frequency_mhz)
-
-    def parse_fsm_spec(self, fsm_spec_in, use_state_bits):
+    def _parse_fsm_spec(self, fsm_spec_in, use_state_bits):
         """Parse a given FSM specification.
-
-        This method can be called during initialization, or by users.
 
         If `use_state_bits` is set to True, this method will modify the
         given transition table; the last few outputs may get altered if
         there are not enough pins for both state bits and output bits.
         In that case, the last few output bits will reflect the current
         state code.
+
+        After calling this method, the `self.fsm_spec` dictionary will be 
+        modified if `use_state_bits` is set to True. 
 
         Parameters
         ----------
@@ -447,11 +466,6 @@ class FSMBuilder:
             states (list), and transitions (list).
         use_state_bits : bool
             Whether to check the state bits in the final output pins.
-
-        Returns
-        -------
-        dict
-            A modified dictionary if `use_state_bits` is set to True.
 
         """
         fsm_spec = deepcopy(fsm_spec_in)
@@ -525,7 +539,6 @@ class FSMBuilder:
             self.num_outputs = len(set([i[3] for i in fsm_spec['transitions']
                                         if i[3]]))
             self.num_output_bits = len(fsm_spec['outputs'])
-            self.output_pins = [i[1] for i in fsm_spec['outputs']]
 
         self._state_names2outputs = {
             state_name: row[3] for row in fsm_spec['transitions']
@@ -539,7 +552,22 @@ class FSMBuilder:
                                      for i in self._expanded_transitions]
         self.input_pins = [i[1] for i in fsm_spec['inputs']]
         self.output_pins = [i[1] for i in fsm_spec['outputs']]
+
+        # Check whether input and output pins are disjoint
         check_pin_conflict(self.input_pins, self.output_pins)
+
+        # Check used pins on the controller
+        for i in self.input_pins + self.output_pins:
+            if self.builder_controller.pin_map[i] != 'UNUSED':
+                raise ValueError(
+                    f"Pin conflict: {self.builder_controller.pin_map[i]} "
+                    f"already in use.")
+
+        # Reserve pins only if there are no conflicts for any pin
+        for i in self.output_pins:
+            self.builder_controller.pin_map[i] = 'OUTPUT'
+        for i in self.input_pins:
+            self.builder_controller.pin_map[i] = 'INPUT'
 
         waveform_dict = {'signal': [
             ['analysis']],
@@ -547,9 +575,10 @@ class FSMBuilder:
             'head': {'tick': 1, 'text': 'Finite State Machine'}}
         for name, pin in (fsm_spec['inputs'] + fsm_spec['outputs']):
             waveform_dict['signal'][0].append({'name': name, 'pin': pin})
-        self.waveform = Waveform(waveform_dict, analysis_name='analysis')
+        self.waveform = Waveform(waveform_dict, analysis_group_name='analysis')
 
-        return fsm_spec
+        # Finally update all dictionaries
+        self.fsm_spec = fsm_spec
 
     def _expand_all_transitions(self, transitions):
         """Expand all the state transitions, resolving wildcards.
@@ -558,7 +587,7 @@ class FSMBuilder:
         For example: [['1-', '*', 'S0', '']] will be converted to
         [['10', 'S1', 'S0', ''],['11', 'S1', 'S0', '']], ...].
 
-        This method is called internally during initialization of this class.
+        This method is called internally during setup of this class.
 
         Parameters
         ----------
@@ -608,8 +637,8 @@ class FSMBuilder:
                 expanded_transitions.append(row)
         return transitions_copy1, expanded_transitions
 
-    def _config_load_buffer(self):
-        """Load the BRAM data into the main memory.
+    def _prepare_bram_data(self):
+        """Prepare the data to be loaded into the BRAM.
 
         This method prepares the data to be loaded into BRAM: it first loads
         the data into main memory as a numpy array, with all the values set
@@ -619,11 +648,22 @@ class FSMBuilder:
         After this method is called, users can manually check the memory
         content to verify the memory is loaded with correct values.
 
+        The dummy state is used to compensate the erroneous sample at the 
+        beginning of the trace. The last BRAM address is reserved for this
+        state. The content of the address is 0, meaning that all outputs
+        will be 0, and this dummy state will always go to the first state
+        of the FSM.
+
         For the memory content to be loaded, it has the following format:
         Bits 31 - 13 : used for outputs.
         Bits 12 - 9  : used for inputs.
         Bits 8 - 5   : used for inputs or states.
         Bits 4 - 0   : used for states.
+
+        Returns
+        -------
+        int
+            The BRAM address where the FSM should get started.
 
         """
         _, addr_offsets = get_bram_addr_offsets(self.num_states,
@@ -639,6 +679,9 @@ class FSMBuilder:
                     (output_value << FSM_MAX_STATE_INPUT_BITS) + \
                     next_state_code
 
+        # Prepare the dummy state where the FSM actually starts
+        self._bram_data[FSM_DUMMY_STATE_BRAM_ADDRESS] = 0
+
         # Update BRAM data based on state transitions
         for input_value, offset_addr in enumerate(addr_offsets):
             for transition in self._encoded_transitions:
@@ -651,53 +694,42 @@ class FSMBuilder:
                         (output_value << FSM_MAX_STATE_INPUT_BITS) + \
                         next_state_code
 
-    def _config_ioswitch(self):
-        """Configure the IO switch.
-
-        Will only be used internally. The method collects the pins used and 
-        sends the list _INTF for handling.
-
-        """
-        # gather which pins are being used
-        ioswitch_pins = [self.intf_spec['traceable_outputs'][ins[1]]
-                         for ins in self.fsm_spec['inputs']]
-        ioswitch_pins.extend([self.intf_spec['traceable_outputs'][outs[1]]
-                              for outs in self.fsm_spec['outputs']])
-
-        # send list to _INTF processor for handling
-        self.intf.config_ioswitch(ioswitch_pins, IOSWITCH_SMG_SELECT)
-
-    def config(self, frequency_mhz=10):
+    def setup(self, fsm_spec, use_state_bits=False,
+              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ):
         """Configure the programmable FSM builder.
 
         This method will configure the FSM based on supplied configuration 
         specification. Users can send the samples to PatternAnalyzer for 
         additional analysis. 
 
-        This method is called during initialization, but can also be called 
-        separately if users want to change the clock frequency.
-
         Parameters
         ----------
+        fsm_spec : dict
+            The FSM specification, with inputs (list), outputs (list),
+            states (list), and transitions (list).
+        use_state_bits : bool
+            Whether to check the state bits in the final output pins.
         frequency_mhz: float
             The frequency of the FSM and captured samples, in MHz.
 
         """
-        # Set the FSM frequency
-        self.frequency_mhz = frequency_mhz
-        self.intf.clk.fclk1_mhz = frequency_mhz
+        if not MIN_CLOCK_FREQUENCY_MHZ <= frequency_mhz <= \
+                MAX_CLOCK_FREQUENCY_MHZ:
+            raise ValueError(f"Clock frequency out of range "
+                             f"[{MIN_CLOCK_FREQUENCY_MHZ}, "
+                             f"{MAX_CLOCK_FREQUENCY_MHZ}]")
 
-        # Configure the IO switch
-        self._config_ioswitch()
+        # Parse the FSM specification
+        self._parse_fsm_spec(fsm_spec, use_state_bits)
 
         # Load BRAM data into the main memory
-        self._config_load_buffer()
-        bram_data_addr = self.intf.allocate_buffer('bram_data_buf',
-                                                   2 ** FSM_BRAM_ADDR_WIDTH,
-                                                   data_type='unsigned int')
+        self._prepare_bram_data()
+        bram_data_addr = self.builder_controller.allocate_buffer(
+            'bram_data_buf', 2 ** FSM_BRAM_ADDR_WIDTH,
+            data_type='unsigned int')
 
         for index, data in enumerate(self._bram_data):
-            self.intf.buffers['bram_data_buf'][index] = data
+            self.builder_controller.buffers['bram_data_buf'][index] = data
 
         # Setup configurations
         config = list()
@@ -766,68 +798,155 @@ class FSMBuilder:
         # Send BRAM data address
         config.append(bram_data_addr)
 
-        # Wait for the interface processor to return control
-        self.intf.write_control(config)
-        self.intf.write_command(CMD_CONFIG_SMG)
+        # Send the dummy state address where FSM should start
+        config.append(FSM_DUMMY_STATE_BRAM_ADDRESS)
 
-        # configure the trace analyzer
+        # Wait for the interface processor to return control
+        self.builder_controller.write_control(config)
+        self.builder_controller.write_command(CMD_CONFIG_SMG)
+
+        # Configure the trace analyzer and frequency
         if self.analyzer is not None:
-            self.analyzer.config()
+            self.analyzer.setup(self.num_analyzer_samples,
+                                frequency_mhz)
+        else:
+            self.builder_controller.clk.fclk1_mhz = frequency_mhz
+        self.frequency_mhz = frequency_mhz
 
         # Free the BRAM buffer
-        self.intf.free_buffer('bram_data_buf')
+        self.builder_controller.free_buffer('bram_data_buf')
 
-    def arm(self):
-        """Arm the FSM builder.
-        
-        This method will prepare the FSM builder.
+        # Update builder status
+        self.builder_controller.check_status()
+
+    def reset(self):
+        """Reset the FSM builder.
+
+        This method will bring the builder from any state to 
+        'RESET' state.
 
         """
-        self.intf.write_command(CMD_ARM_SMG)
+        # Stop the running builder if necessary
+        self.stop()
 
+        # Clear all the reserved pins
+        for i in self.output_pins + self.input_pins:
+            self.builder_controller.pin_map[i] = 'UNUSED'
+
+        self.fsm_spec.clear()
+        self.num_input_bits = 0
+        self.num_outputs = 0
+        self.num_output_bits = 0
+        self.num_states = 0
+        self.num_state_bits = 0
+        self.state_names.clear()
+        self.transitions.clear()
+        self.input_pins.clear()
+        self.output_pins.clear()
+        self.use_state_bits = False
+        self.waveform = None
+        self.frequency_mhz = 0
+        self._state_names2codes.clear()
+        self._state_names2outputs.clear()
+        self._expanded_transitions.clear()
+        self._encoded_transitions.clear()
+        self._bram_data = np.zeros(2 ** FSM_BRAM_ADDR_WIDTH, dtype=np.uint32)
+
+        # Send the reset command
+        cmd_reset = CMD_RESET | SMG_ENGINE_BIT
         if self.analyzer is not None:
-            self.analyzer.arm()
+            cmd_reset |= TRACE_ENGINE_BIT
+        self.builder_controller.write_command(cmd_reset)
+        self.builder_controller.check_status()
 
-    def is_armed(self):
-        """Check if this builder's hardware is armed.
+    def connect(self):
+        """Method to configure the IO switch.
 
-        Returns
-        -------
-        Bool
-            True of the builder's hardware is armed.
-
-        """
-        return self.intf.armed_builders[CMD_ARM_SMG]
-
-    def start(self):
-        """Start generating patterns.
-
-        To rerun the generation, users have to do config(), arm(), and run().
+        Usually this method should only be used internally. Users only need
+        to use `run()` method.
 
         """
-        if not self.is_armed():
-            self.arm()
+        # Gather which pins are being used
+        ioswitch_pins = [self.intf_spec['traceable_outputs'][ins[1]]
+                         for ins in self.fsm_spec['inputs']]
+        ioswitch_pins.extend([self.intf_spec['traceable_outputs'][outs[1]]
+                              for outs in self.fsm_spec['outputs']])
 
-        self.intf.start()
+        # Send list to Microblaze processor for handling
+        self.builder_controller.config_ioswitch(ioswitch_pins,
+                                                IOSWITCH_SMG_SELECT)
 
-    def stop(self, free_buffer=True):
-        """Stop the FSM pattern builder.
+    def disconnect(self):
+        """Method to disconnect the IO switch.
 
-        Note this command will stop the pattern generation from FSM, so
-        users will see all-zero samples captured unless the FSM is started
-        again.
-
-        This function should be called if a new `fsm_spec` is provided.
-
-        Parameters
-        ----------
-        free_buffer : Bool
-            The flag indicating whether or not to free the analyzer buffer.
+        Usually this method should only be used internally. Users only need
+        to use `stop()` method.
 
         """
-        self.intf.stop(free_buffer)
+        # Gather which pins are being used
+        ioswitch_pins = [self.intf_spec['traceable_outputs'][ins[1]]
+                         for ins in self.fsm_spec['inputs']]
+        ioswitch_pins.extend([self.intf_spec['traceable_outputs'][outs[1]]
+                              for outs in self.fsm_spec['outputs']])
 
-    def show_state_diagram(self, file_name='fsm_spec.png'):
+        # Send list to Microblaze processor for handling
+        self.builder_controller.config_ioswitch(ioswitch_pins,
+                                                IOSWITCH_DISCONNECT)
+
+    def run(self):
+        """Run the FSM builder.
+
+        The method will first collects the pins used and sends the list to 
+        Microblaze for handling. Then it will start to run the FSM 
+        builder.
+
+        """
+        if self.builder_controller.status[self.__class__.__name__] == 'RESET':
+            raise ValueError("Builder must be at least READY before RUNNING.")
+        self.connect()
+
+        # Run FSM, possibly together with trace analyzer
+        cmd_run = CMD_RUN | SMG_ENGINE_BIT
+        if self.analyzer is not None:
+            cmd_run |= TRACE_ENGINE_BIT
+        self.builder_controller.write_command(cmd_run)
+        self.builder_controller.check_status()
+
+    def step(self):
+        """Step the FSM builder.
+
+        The method will first collects the pins used and sends the list to 
+        Microblaze for handling. Then it will start to step the FSM 
+        builder.
+
+        """
+        if self.builder_controller.status[self.__class__.__name__] == 'RESET':
+            raise ValueError("Builder must be at least READY before RUNNING.")
+        self.connect()
+
+        # Step FSM, possibly together with trace analyzer
+        cmd_step = CMD_STEP | SMG_ENGINE_BIT
+        if self.analyzer is not None:
+            cmd_step |= TRACE_ENGINE_BIT
+        self.builder_controller.write_command(cmd_step)
+        self.builder_controller.check_status()
+
+    def stop(self):
+        """Stop the FSM builder.
+
+        This command will stop the pattern generated from FSM.
+
+        """
+        if self.builder_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            cmd_stop = CMD_STOP | SMG_ENGINE_BIT
+            if self.analyzer is not None:
+                cmd_stop |= TRACE_ENGINE_BIT
+            self.builder_controller.write_command(cmd_stop)
+            self.disconnect()
+            self.builder_controller.check_status()
+
+    def show_state_diagram(self, file_name='fsm_spec.png', save_png=False):
         """Display the state machine in Jupyter notebook.
 
         This method uses the installed package `pygraphviz`. References:
@@ -840,8 +959,15 @@ class FSMBuilder:
         ----------
         file_name : str
             The name / path of the picture for the FSM diagram.
+        save_png : bool
+            Whether to save the PNG showing the state diagram.
 
         """
+        if self.builder_controller.status[
+                self.__class__.__name__] == 'RESET':
+            raise ValueError("Builder must be setup before "
+                             "showing state diagram.")
+
         with open('fsm_spec.dot', 'w') as f:
             f.write("digraph {\n" +
                     "    graph [fontsize=10 splines=true overlap=false]\n" +
@@ -865,7 +991,10 @@ class FSMBuilder:
         graph.layout(prog='dot')
         graph.draw(file_name)
         display(Image(filename=file_name))
-        os.system("rm -rf fsm_spec.dot")
+        os.remove("fsm_spec.dot")
+
+        if not save_png:
+            os.remove(file_name)
 
     def show_waveform(self):
         """Display the waveform.
@@ -874,9 +1003,9 @@ class FSMBuilder:
         javascripts will be copied into the current directory.
 
         """
-        if self.analyzer:
-            analysis_group = self.analyzer.analyze()
-            self.waveform.update('analysis', analysis_group)
-        else:
+        if self.analyzer is None:
             raise ValueError("Trace disabled, please enable and rerun.")
+
+        analysis_group = self.analyzer.analyze()
+        self.waveform.update('analysis', analysis_group)
         self.waveform.display()
