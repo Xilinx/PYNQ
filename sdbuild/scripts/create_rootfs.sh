@@ -46,7 +46,7 @@ adduser --home /home/xilinx xilinx --disabled-password --gecos "Xilinx User,,,,"
 echo -e "xilinx\\nxilinx" | passwd xilinx
 echo -e "xilinx\\nxilinx" | smbpasswd -a xilinx
 echo -e "xilinx\\nxilinx" | passwd root
-echo "BOARD=${BOARD}" >> /etc/environment
+echo "BOARD=${board}" >> /etc/environment
 
 adduser xilinx adm
 adduser xilinx sudo
