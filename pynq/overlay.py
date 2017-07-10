@@ -292,7 +292,7 @@ class DefaultOverlay(PL):
             self.ip_dict, self.gpio_dict, self.interrupt_pins)
         self._ip_map = _IPMap(description)
         if download is None:
-            download = bitfile_name == PL.bitfile_name
+            download = bitfile_name != PL.bitfile_name
         if download: 
             self.download()
 
@@ -724,4 +724,4 @@ def Overlay(bitfile, download=None, class_=None):
         spec.loader.exec_module(module)
         return module.Overlay(bitfile, download)
     else:
-        return DocumentOverlay(bitfile)
+        return DocumentOverlay(bitfile, download)
