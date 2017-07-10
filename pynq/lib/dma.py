@@ -576,11 +576,12 @@ class _DMAChannel:
 
         """
         if self._interrupt:
-            self._mmio.write(offset, 0x1001)
+            self._mmio.write(self._offset, 0x1001)
         else:
-            self._mmio.write(offset, 0x0001)
+            self._mmio.write(self._offset, 0x0001)
         while not self.running:
             pass
+        self._first_transfer = True
 
     def stop(self):
         """Stops the DMA channel and aborts the current transfer
@@ -606,10 +607,11 @@ class _DMAChannel:
         """
         if not self.running:
             raise RuntimeError('DMA channel not started')
-        if not self.idle:
+        if not self.idle and not self._first_transfer:
             raise RuntimeError('DMA channel not idle')
         self._mmio.write(self._offset + 0x18, buffer.physical_address)
         self._mmio.write(self._offset + 0x28, buffer.nbytes)
+        self._first_transfer = False
 
     def wait(self):
         """Wait for the transfer to complete
