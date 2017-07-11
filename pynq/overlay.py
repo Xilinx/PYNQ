@@ -276,15 +276,7 @@ class DefaultOverlay(PL):
         This class requires a Vivado '.tcl' file to be next to bitstream file
         with same name (e.g. base.bit and base.tcl).
 
-        If this method is called on an unsupported architecture it will warn and
-        return without initialization.
-
         """
-        if not CPU_ARCH_IS_SUPPORTED:
-            warnings.warn("Pynq does not support the CPU Architecture: {}"
-                          .format(CPU_ARCH), ResourceWarning)
-            return
-
         super().__init__()
 
         # Set the bitstream
@@ -723,7 +715,18 @@ def Overlay(bitfile, download=None, class_=None):
     -------
     Instantiated overlay
 
+    Note
+    ----
+
+    If this method is called on an unsupported architecture it will warn and
+    return None
+
     """
+    if not CPU_ARCH_IS_SUPPORTED:
+        warnings.warn("Pynq does not support the CPU Architecture: {}"
+                      .format(CPU_ARCH), ResourceWarning)
+        return None
+    
     bitfile_path = os.path.join(
         PYNQ_PATH, bitfile.replace('.bit', ''), bitfile)
     python_path = os.path.splitext(bitfile_path)[0] + '.py'
