@@ -1,272 +1,231 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2017, Xilinx, Inc.
 #   All rights reserved.
-# 
-#   Redistribution and use in source and binary forms, with or without 
+#
+#   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions are met:
 #
-#   1.  Redistributions of source code must retain the above copyright notice, 
+#   1.  Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
 #
-#   2.  Redistributions in binary form must reproduce the above copyright 
-#       notice, this list of conditions and the following disclaimer in the 
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
 #
-#   3.  Neither the name of the copyright holder nor the names of its 
-#       contributors may be used to endorse or promote products derived from 
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
 #       this software without specific prior written permission.
 #
 #   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
 #   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-__author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
 
 
 from time import sleep
+import cv2
+import numpy as np
 import pytest
 from pynq import Overlay
-from pynq.drivers import HDMI
+from pynq.lib.video import *
 from pynq.tests.util import user_answer_yes
 
-flag_hdmi_in = user_answer_yes("\nHDMI IN connected to a video source?")
-flag_hdmi_out = user_answer_yes("HDMI OUT connected to a monitor?")
-flag_hdmi = flag_hdmi_in and flag_hdmi_out
 
-@pytest.mark.run(order=33)
-@pytest.mark.skipif(not flag_hdmi_in, reason="need HDMI IN connected")
-def test_hdmi_in():
-    """Test for the HDMI class with direction set as input.
-    
-    It may take some time to load the frames. After that, the direction, 
-    frame size, and the frame index will all be tested.
-    
-    """
-    hdmi_in = HDMI('in')
-    print("\nLoading (may take a few seconds)...")
-    sleep(5)
-    assert hdmi_in.direction=='in', 'Wrong HDMI direction.'
-    
-    hdmi_in.start()
-    frame_raw = hdmi_in.frame_raw()
-    assert len(frame_raw)==1920*1080*3, 'Wrong HDMI frame size.'
-    
-    index = hdmi_in.frame_index()
-    hdmi_in.frame_index(index+1)
-    assert not hdmi_in.frame_index()==index, 'Wrong HDMI frame index.'
-    
-    hdmi_in.stop()
-    del hdmi_in
-    
-@pytest.mark.run(order=34)
-@pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
-def test_hdmi_out():
-    """Test for the HDMI class with direction set as output.
-    
-    Test the direction, the display mode, and the state. For the state 
-    information, `0` means `stopped`, while `1` means `started`.
-    
-    """
-    hdmi_out = HDMI('out')
-    
-    assert hdmi_out.direction=='out', 'Wrong direction for HDMI.'
-    hdmi_out.mode(2)
-    assert hdmi_out.mode(2)=="1280x720@60Hz", 'Wrong HDMI display mode.'
-    hdmi_out.start()
-    assert hdmi_out.state()==1, 'Wrong HDMI state.'
-    
-    index = hdmi_out.frame_index()
-    hdmi_out.frame_index_next()
-    assert not hdmi_out.frame_index()==index, 'Wrong HDMI frame index.'
-    
-    hdmi_out.stop()
-    del hdmi_out
+__author__ = "Peter Ogden"
+__copyright__ = "Copyright 2017, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
-@pytest.mark.run(order=35)
-@pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
-def test_pattern_colorbar():
-    """Test for the HDMI class with color bar pattern.
-    
-    This test will show 8 vertical color bars on the screen. 
-    
-    """
-    hdmi_out = HDMI('out')
-    hdmi_out.mode(2)
-    hdmi_out.start()
-    
-    frame = hdmi_out.frame()
-    index = hdmi_out.frame_index()
-    hdmi_out.frame_index_next()
-    
-    xint = int(frame.width / 8)
-    xinc = 256.0 / xint
-    fcolor =  0.0
-    xcurrentint = 1
-    for xcoi in range(frame.width):
-        if xcurrentint > 7:
-            wred = 255
-            wblue = 255
-            wgreen = 255
-        else:
-            if xcurrentint & 0b001:
-                wred = int(fcolor)
-            else:
-                wred = 0
-            if xcurrentint & 0b010:
-                wblue = int(fcolor)
-            else:
-                wblue = 0
-            if xcurrentint & 0b100:
-                wgreen = int(fcolor)
-            else:
-                wgreen = 0
-            fcolor += xinc
-            if fcolor >= 256.0:
-                fcolor = 0.0
-                xcurrentint += 1
-            
-        for ycoi in range(frame.height):
-            frame[xcoi, ycoi] = (wred, wgreen, wblue)
 
-    hdmi_out.frame(index, frame)
-    hdmi_out.frame_index(index)
+flag_hdmi = user_answer_yes(
+    "\nAre the HDMI input and output connected together?")
 
-    assert user_answer_yes("\nColor bar pattern showing on screen?")
-    
-    hdmi_out.stop()
-    del hdmi_out
-    
-@pytest.mark.run(order=36)
-@pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
-def test_pattern_blended():
-    """Test for the HDMI class with blended color pattern.
-    
-    This test will show a blended color pattern on the screen. 
-    
-    """
-    hdmi_out = HDMI('out')
-    hdmi_out.mode(2)
-    hdmi_out.start()
-    
-    frame_raw = hdmi_out.frame_raw()
-    index = hdmi_out.frame_index()             
-    hdmi_out.frame_index_next() 
 
-    hint = hdmi_out.frame_width() / 4
-    xleft = hint * 3
-    xmid = hint * 2 * 3
-    xright = hint *3 *3
-    xinc = 256.0 / hint
-    yint = hdmi_out.frame_height() / 4
-    yinc = 256.0 / yint
-    fblue = 0.0
-    fred = 256.0
-    for hcoi in range(0,hdmi_out.frame_width()*3, 3):
-        if fred >= 256.0:
-            wred = 255
-        else:
-            wred = int(fred)
-        if fblue >= 256.0:
-            wblue = 255
-        else:
-            wblue = int(fblue)
-        ipixeladdr = hcoi
-        fgreen = 0.0
-        for wcoi in range(hdmi_out.frame_height()):
-            if fgreen >= 256.0:
-                wgreen = 255
-            else:
-                wgreen = int(fgreen)
-            frame_raw[ipixeladdr] = wblue
-            frame_raw[ipixeladdr + 1] = wgreen
-            frame_raw[ipixeladdr + 2] = wred
-            if wcoi < yint:
-                fgreen += yinc
-            elif wcoi < 2*yint:
-                fgreen -= yinc
-            elif wcoi < 3*yint:
-                fgreen += yinc
-            else:
-                fgreen -= yinc
-            ipixeladdr += 1920*3
-        if hcoi < xleft:
-            fblue = 0.0
-            fred -= xinc
-        elif hcoi < xmid:
-            fblue += xinc
-            fred += xinc
-        elif hcoi < xright:    
-            fblue -= xinc
-            fred -= xinc
-        else:
-            fblue += xinc
-            fred = 0.0
-        
-    hdmi_out.frame_raw(index, frame_raw)
-    hdmi_out.frame_index(index)
+def load_test_image_rgb(frame):
+    shape = frame.shape
+    framesize = shape[0:2]
+    framesize_t = shape[1:-1:-1]
+    rowval = np.arange(shape[0], dtype=np.uint8)
+    colval = np.arange(shape[1], dtype=np.uint8)
+    frame[:, :, 0] = np.broadcast_to(rowval[:, np.newaxis], framesize)
+    frame[:, :, 1] = np.broadcast_to(colval[np.newaxis, :], framesize)
+    np.outer(rowval, colval, out=frame[:, :, 2])
 
-    assert user_answer_yes("\nBlended pattern showing on screen?")
-    
-    hdmi_out.stop()
-    del hdmi_out
-    
-@pytest.mark.run(order=37)
-@pytest.mark.skipif(not flag_hdmi_out, reason="need HDMI OUT connected")
-def test_hdmi_state():
-    """Test the state information of an HDMI object.
-    
-    This test will test all the available resolution modes, and the state.
-    For the state information, `0` means `stopped`, while `1` means `started`.
-    
+
+@pytest.fixture(scope="function")
+def video():
+    base = Overlay('base.bit', download=True)
+    yield base.video
+    base.video.hdmi_in.close()
+    base.video.hdmi_out.close()
+
+
+@pytest.mark.skipif(not flag_hdmi, reason="need HDMI loopback")
+def test_hdmi_pipeline(video):
+    """Test for the HDMI pipe.
+
+    Outputs a known image on the HDMI out and reads a single frame from the
+    HDMI input and checks that it matches.
+
     """
-    hdmi_out = HDMI('out')
-    hdmi_out.mode(2)
-    hdmi_out.start()
-    
-    assert hdmi_out.mode(0) == "640x480@60Hz", 'Wrong HDMI display mode.'
-    assert hdmi_out.mode(1) == "800x600@60Hz", 'Wrong HDMI display mode.'
-    assert hdmi_out.mode(2) == "1280x720@60Hz", 'Wrong HDMI display mode.'
-    assert hdmi_out.mode(3) == "1280x1024@60Hz", 'Wrong HDMI display mode.'
-    assert hdmi_out.mode(4) == "1920x1080@60Hz", 'Wrong HDMI display mode.'
-    
-    hdmi_out.stop()
-    assert hdmi_out.state()==0, 'Wrong HDMI state.'
-    hdmi_out.start()
-    assert hdmi_out.state()==1, 'Wrong HDMI state.'
-    hdmi_out.stop()
-    assert hdmi_out.state()==0, 'Wrong HDMI state.'
-    
-    del hdmi_out
-    
-@pytest.mark.run(order=38)
-@pytest.mark.skipif(not flag_hdmi, reason="need HDMI IN and OUT connected")
-def test_hdmi_state():
-    """Test the HDMI streaming video.
-    
-    This test requires the video to be streamed into the HDMI IN. Users should
-    see live video from a monitor to which the HDMI OUT is connected.
-    
+    hdmi_in = video.hdmi_in
+    hdmi_out = video.hdmi_out
+    mode = VideoMode(1280, 720, 24)
+    ref_frame = np.ndarray(shape=mode.shape, dtype=np.uint8)
+    load_test_image_rgb(ref_frame)
+    with hdmi_out.configure(mode):
+        hdmi_out.start()
+        out_frame = hdmi_out.newframe()
+        out_frame[:] = ref_frame
+        hdmi_out.writeframe(out_frame)
+        hdmi_in.configure()
+        with hdmi_in.start():
+            in_frame = hdmi_in.readframe()
+            assert np.array_equal(in_frame, ref_frame)
+            in_frame.freebuffer()
+
+
+@pytest.mark.skipif(not flag_hdmi, reason="need HDMI loopback")
+def test_hdmi_latency(video):
+    """Test the latency of the video pipeline
+
+    Changes the image on the input and times how it takes for the new
+    image to appear at the input. Only a small part of the image is checked
+    against the reference in each loop
+
     """
-    hdmi_out = HDMI('out')
-    hdmi_in = HDMI('in',frame_list=hdmi_out.frame_list)
-    
-    hdmi_out.mode(2)
-    hdmi_in.start()
-    hdmi_out.start()
-    
-    assert user_answer_yes("\nSee live video on screen?")
-    
-    hdmi_in.stop()
-    hdmi_out.stop()
-    del hdmi_in
-    del hdmi_out
-    
+    hdmi_in = video.hdmi_in
+    hdmi_out = video.hdmi_out
+    mode = VideoMode(1280, 720, 24)
+    ref_frame = np.ndarray(shape=mode.shape, dtype=np.uint8)
+    load_test_image_rgb(ref_frame)
+    with hdmi_out.configure(mode):
+        hdmi_out.start()
+        hdmi_in.configure()
+        out_frame = hdmi_out.newframe()
+        out_frame[:] = ref_frame
+        with hdmi_in.start():
+            # Dummy frame read to make sure everything is initialised
+            in_frame = hdmi_in.readframe()
+            hdmi_out.writeframe(out_frame)
+            count = 0
+            while in_frame[1, 1, 1] != ref_frame[1, 1, 1]:
+                in_frame.freebuffer()
+                in_frame = hdmi_in.readframe()
+                count += 1
+            assert np.array_equal(in_frame, ref_frame)
+            assert count < 5
+            in_frame.freebuffer()
+
+
+def generate_colorspace(inchannel, outchannel):
+    colorspace = [0.0] * 12
+    colorspace[outchannel * 3 + inchannel] = 1.0
+    return colorspace
+
+
+@pytest.mark.skipif(not flag_hdmi, reason="need HDMI loopback")
+def test_hdmi_8bit_output(video):
+    """Test that the 8-bit mode of the video interface works correctly
+
+    This test outputs 8-bits per pixel on the output and cycles through
+    each channel using the color converter making sure the output is
+    correct
+
+    """
+    hdmi_in = video.hdmi_in
+    hdmi_out = video.hdmi_out
+    out_mode = VideoMode(1280, 720, 8)
+    in_mode = VideoMode(1280, 720, 24)
+    ref_frame = np.ndarray(shape=in_mode.shape, dtype=np.uint8)
+    load_test_image_rgb(ref_frame)
+    with hdmi_out.configure(out_mode):
+        hdmi_out.start()
+        out_frame = hdmi_out.newframe()
+        out_frame[:] = ref_frame[:, :, 0]
+        hdmi_out.writeframe(out_frame)
+        with hdmi_in.configure():
+            for i in range(3):
+                hdmi_out.colorspace = generate_colorspace(0, i)
+                hdmi_in.start()
+                with hdmi_in.readframe() as in_frame:
+                    assert np.array_equal(
+                        in_frame[:, :, i], ref_frame[:, :, 0])
+                hdmi_in.stop()
+
+
+@pytest.mark.skipif(not flag_hdmi, reason="need HDMI loopback")
+def test_hdmi_8bit_input(video):
+    """Test that the 8-bit mode of the video interface works correctly
+
+    This test outputs 8-bits per pixel on the output and cycles through
+    each channel using the color converter making sure the output is
+    correct
+
+    """
+    hdmi_in = video.hdmi_in
+    hdmi_out = video.hdmi_out
+    out_mode = VideoMode(1280, 720, 24)
+    in_mode = VideoMode(1280, 720, 8)
+    ref_frame = np.ndarray(shape=out_mode.shape, dtype=np.uint8)
+    load_test_image_rgb(ref_frame)
+    with hdmi_out.configure(out_mode):
+        hdmi_out.start()
+        out_frame = hdmi_out.newframe()
+        out_frame[:] = ref_frame[:]
+        hdmi_out.writeframe(out_frame)
+        with hdmi_in.configure(PIXEL_GRAY):
+            for i in range(3):
+                hdmi_in.colorspace = generate_colorspace(i, 0)
+                hdmi_in.start()
+                with hdmi_in.readframe() as in_frame:
+                    assert np.array_equal(in_frame, ref_frame[:, :, i])
+                hdmi_in.stop()
+
+
+@pytest.mark.skipif(not flag_hdmi, reason="need HDMI loopback")
+def test_hdmi_tie(video):
+    hdmi_in = video.hdmi_in
+    hdmi_out = video.hdmi_out
+    mode = VideoMode(1280, 720, 24)
+    with hdmi_out.configure(mode):
+        hdmi_out.start()
+        with hdmi_in.configure():
+            hdmi_in.start()
+            # Ensure the frame cache is populated
+            for i in range(5):
+                hdmi_in.readframe().freebuffer()
+            frames = [hdmi_out.newframe() for _ in range(6)]
+            for i in range(6):
+                frames[i][:] = [i]
+            for i in range(6):
+                hdmi_out.writeframe(frames[i])
+            hdmi_in.tie(hdmi_out)
+            last_val = 6
+            start_time = time.time()
+            for i in range(60):
+                in_frame = hdmi_in.readframe()
+                this_val = in_frame[0, 0, 0]
+                assert this_val == last_val + 1 or this_val < last_val,\
+                    "Frame skipped"
+                in_frame.freebuffer()
+            end_time = time.time()
+            assert end_time - start_time < 1.1, "Missed reads"
+
+
+def test_colorspace_readwrite(video):
+    colorspace = [-1.5, -1.25, -1,
+                  0.5, 0, 0.125,
+                  0.5, 1, 1.5,
+                  0, 0, 0]
+
+    video.hdmi_in.color_convert.colorspace = colorspace
+    assert video.hdmi_in.color_convert.colorspace == colorspace
+
+    video.hdmi_out.color_convert.colorspace = colorspace
+    assert video.hdmi_out.color_convert.colorspace == colorspace
