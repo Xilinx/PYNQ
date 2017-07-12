@@ -85,9 +85,9 @@ class BaseOverlay(pynq.DefaultOverlay):
             self.leds.setlength(4)
             self.switches.setlength(4)
             self.buttons.setlength(4)
-            self.leds.setdirection(pynq.lib.AxiGPIO.Output)
-            self.switches.setdirection(pynq.lib.AxiGPIO.Input)
-            self.buttons.setdirection(pynq.lib.AxiGPIO.Input)
+            self.leds.setdirection("out")
+            self.switches.setdirection("in")
+            self.buttons.setdirection("in")
 
             self.rgbleds = ([None] * 4) + [pynq.lib.RGBLED(i)
                                            for i in range(4, 6)]
