@@ -52,7 +52,7 @@ class AxiGPIO(DefaultIP):
 
     """
     class Input:
-        """Class representing an input channel.
+        """Class representing wires in an input channel.
 
         This class should be passed to `setdirection` to indicate the
         channel should be used for input only. It should not be used
@@ -101,7 +101,7 @@ class AxiGPIO(DefaultIP):
             ))
 
     class Output:
-        """Class representing an output channel.
+        """Class representing wires in an output channel.
 
         This class should be passed to `setdirection` to indicate the
         channel should be used for output only. It should not be used
@@ -113,6 +113,16 @@ class AxiGPIO(DefaultIP):
             self._start = start
             self._stop = stop
             self._mask = (1 << (stop - start)) - 1
+
+        def read(self):
+            """Reads the value of all the wires in the slice
+
+            If there is more than one wire in the slice then the least
+            significant bit of the return value corresponds to the
+            wire with the lowest index.
+
+            """
+            return (self._parent._val >> self._start) & self._mask
 
         def write(self, val):
             """Set the value of the slice
@@ -145,8 +155,8 @@ class AxiGPIO(DefaultIP):
             """
             self.write((~self._parent.val >> self._start) & self._mask)
 
-    class InOut(Input, Output):
-        """Class representing an inout channel.
+    class InOut(Output, Input):
+        """Class representing wires in an inout channel.
 
         This class should be passed to `setdirection` to indicate the
         channel should be used for both input and output. It should not
@@ -161,18 +171,40 @@ class AxiGPIO(DefaultIP):
             self._trimask = self._mask << start
 
         def read(self):
+            """Reads the value of all the wires in the slice
+
+            Changes the tristate of the slice to input.
+            If there is more than one wire in the slice then the least
+            significant bit of the return value corresponds to the
+            wire with the lowest index.
+
+            """
             self._parent.trimask |= self._trimask
             return super().read()
 
         def write(self, val):
+            """Set the value of the slice
+
+            Changes the tristate of the slice to output.
+            If the slice consists of more than one wire then the least
+            significant bit of `val` corresponds to the lowest index
+            wire.
+
+            """
             self._parent.trimask &= ~self._trimask
             return super().write(val)
 
     class Channel:
         """Class representing a single channel of the GPIO controller.
 
-        This class should not used directly, instead accessed through the
-        `AxiGPIO` classes attributes. This class exposes the wires
+        Wires are and bundles of wires can be accessed using array notation
+        with the methods on the wires determined by the type of the channel::
+
+            input_channel[0].read()
+            output_channel[1:3].on()
+
+        This class instantiated not used directly, instead accessed through
+        the `AxiGPIO` classes attributes. This class exposes the wires
         connected to the channel as an array or elements. Slices of the
         array can be assigned simultaneously.
 
@@ -231,12 +263,17 @@ class AxiGPIO(DefaultIP):
         def setdirection(self, direction):
             """Set the direction of the channel
 
-            Must be one of AxiGPIO.{Input, Output, InOut}
+            Must be one of AxiGPIO.{Input, Output, InOut} or the string
+            'in', 'out', or 'inout'
 
             """
+            if type(direction) is str:
+                if direction in _direction_map:
+                    direction = _direction_map[direction]
             if direction not in [AxiGPIO.Input, AxiGPIO.Output, AxiGPIO.InOut]:
                 raise ValueError(
-                    "direction should be one of AxiGPIO.{Input,Output,InOut}")
+                    "direction should be one of AxiGPIO.{Input,Output,InOut} "
+                    "or the string 'in', 'out' or 'inout'")
             self.slicetype = direction
 
         @asyncio.coroutine
@@ -290,7 +327,8 @@ class AxiGPIO(DefaultIP):
     def setdirection(self, direction, channel=1):
         """Sets the direction of a channel in the controller
 
-        Must be one of AxiGPIO.{Input, Output, InOut}
+        Must be one of AxiGPIO.{Input, Output, InOut} or the string
+        'in', 'out' or 'inout'
 
         """
         if direction not in [AxiGPIO.Input, AxiGPIO.Output, AxiGPIO.InOut]:
@@ -302,3 +340,7 @@ class AxiGPIO(DefaultIP):
         return self.channel1[idx]
 
     bindto = ['xilinx.com:ip:axi_gpio:2.0']
+
+_direction_map = { "in": AxiGPIO.Input,
+                   "out": AxiGPIO.Output,
+                   "inout": AxiGPIO.InOut }
