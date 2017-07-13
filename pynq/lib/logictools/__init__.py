@@ -29,12 +29,12 @@
 
 
 from .constants import *
-from .intf import Intf
+from .logictools_controller import LogicToolsController
 from .waveform import Waveform
-from .boolean_builder import BooleanBuilder
-from .pattern_builder import PatternBuilder
+from .boolean_generator import BooleanGenerator
+from .pattern_generator import PatternGenerator
 from .trace_analyzer import TraceAnalyzer
-from .fsm_builder import FSMBuilder
+from .fsm_generator import FSMGenerator
 
 
 __author__ = "Yun Rock Qu"
