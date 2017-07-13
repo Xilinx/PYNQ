@@ -29,22 +29,13 @@
 
 
 import os
-import math
 import numpy as np
 from pynq import PL
 from pynq import Clocks
 from pynq import Xlnk
 from pynq import Register
 from pynq.lib import PynqMicroblaze
-from . import MAILBOX_OFFSET
-from . import MAILBOX_PY2DIF_CMD_OFFSET
-from . import BIN_LOCATION
-from . import CMD_RUN
-from . import CMD_STOP
-from . import CMD_READ_INTF_SWITCH_CONFIG
-from . import CMD_INTF_SWITCH_CONFIG
-from . import CMDS_ARM_BUILDER_LIST
-from . import INTF_MICROBLAZE_BIN
+from .constants import *
 
 
 __author__ = "Yun Rock Qu"
@@ -52,10 +43,10 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "yunq@xilinx.com"
 
 
-class Intf(PynqMicroblaze):
-    """This class controls the Intf Microblaze instances in the system.
+class LogicToolsController(PynqMicroblaze):
+    """This class controls all the logic generators.
 
-    This class inherits from the PynqMicroblaze class. It extends 
+    This class uses the PynqMicroblaze class. It extends 
     PynqMicroblaze with capability to control boolean generators, pattern
     generators, and Finite State Machine (FSM) generators.
 
@@ -82,24 +73,32 @@ class Intf(PynqMicroblaze):
     buffers : dict
         A dictionary of cffi.FFI.CData buffer, each can be accessed similarly
         as arrays.
-    armed_builders : dict
-        A dictionary keeping track of the armed builders.
+    intf_spec : dict
+        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+    pin_map : dict
+        A dictionary of pins available from the interface specification.
+    status : dict
+        A dictionary keeping track of the generator status.
 
     """
+    __instance = None
+    __initialized = False
+    __time_stamp = None
 
-    def __init__(self, mb_info, mb_program=INTF_MICROBLAZE_BIN):
+    def __new__(cls, mb_info, intf_spec_name):
         """Create a new Microblaze object.
 
-        This method leverages the initialization method of its parent. It 
-        also deals with relative / absolute path of the program.
+        This method overwrites the default `new()` method so that the same
+        instance can be reused by many modules. The internal variable 
+        `__instance` is private and used as a singleton.
 
         Parameters
         ----------
         mb_info : dict
             A dictionary storing Microblaze information, such as the 
             IP name and the reset name.
-        mb_program : str
-            The Microblaze program loaded for the processor.
+        intf_spec_name : str
+            The name of the interface specification.
 
         Examples
         --------
@@ -111,15 +110,70 @@ class Intf(PynqMicroblaze):
         'intr_ack_name': 'mb_3_intr_ack'}
 
         """
-        if not os.path.isabs(mb_program):
-            mb_program = os.path.join(BIN_LOCATION, mb_program)
+        if cls.__instance is None or cls.__time_stamp != PL.timestamp:
+            cls.__instance = PynqMicroblaze.__new__(cls)
+            cls.__time_stamp = PL.timestamp
+            cls.__initialized = False
+        return cls.__instance
 
-        super().__init__(mb_info, mb_program)
-        self.clk = Clocks
-        self.buf_manager = Xlnk()
-        self.buffers = dict()
-        self.armed_builders = {k: False
-                               for k in CMDS_ARM_BUILDER_LIST}
+    def __init__(self, mb_info, intf_spec_name):
+        """Initialize the created Microblaze object.
+
+        This method leverages the initialization method of its parent. It 
+        also deals with relative / absolute path of the program.
+
+        Parameters
+        ----------
+        mb_info : dict
+            A dictionary storing Microblaze information, such as the 
+            IP name and the reset name.
+        intf_spec_name : str
+            The name of the interface specification.
+
+        Examples
+        --------
+        The `mb_info` is a dictionary storing Microblaze information:
+
+        >>> mb_info = {'ip_name': 'mb_bram_ctrl_3',
+        'rst_name': 'mb_reset_3', 
+        'intr_pin_name': 'iop3/dff_en_reset_0/q', 
+        'intr_ack_name': 'mb_3_intr_ack'}
+
+        """
+        if not os.path.isabs(LOGICTOOLS_MICROBLAZE_BIN):
+            mb_program = os.path.join(BIN_LOCATION, LOGICTOOLS_MICROBLAZE_BIN)
+        else:
+            mb_program = LOGICTOOLS_MICROBLAZE_BIN
+
+        if not self.__initialized:
+            super().__init__(mb_info, mb_program)
+
+            self.clk = Clocks
+            self.buf_manager = Xlnk()
+            self.buffers = dict()
+            self.status = {k: 'RESET'
+                           for k in GENERATOR_ENGINE_DICT.keys()}
+            self.intf_spec = eval(intf_spec_name)
+            pin_list = list(
+                set(self.intf_spec['traceable_outputs'].keys()) |
+                set(self.intf_spec['traceable_inputs'].keys()) |
+                set(self.intf_spec['non_traceable_outputs'].keys()) |
+                set(self.intf_spec['non_traceable_inputs'].keys()))
+            self.pin_map = {k: 'UNUSED' for k in pin_list}
+            self.__class__.__initialized = True
+
+    def program(self):
+        """This method programs the Microblaze.
+
+        This method is called in `__init__()`; it can also be called after 
+        that. It overwrites the `program()` method defined in the parent class.
+
+        """
+        super().reset()
+        PL.load_ip_data(self.ip_name, self.mb_program)
+        if self.interrupt:
+            self.interrupt.clear()
+        super().run()
 
     def write_control(self, ctrl_parameters):
         """This method writes control parameters to the Microblaze.
@@ -172,39 +226,145 @@ class Intf(PynqMicroblaze):
         while self.read(MAILBOX_OFFSET + MAILBOX_PY2DIF_CMD_OFFSET) != 0:
             pass
 
-    def start(self):
+    def check_status(self):
+        """Check the status of all the generators.
+
+        This method will send the command to the Microblaze, and wait for the 
+        Microblaze to return the status for all the generator.
+
+        """
+        self.write_command(CMD_CHECK_STATUS)
+        one_hot_status_list = self.read_results(len(GENERATOR_ENGINE_DICT))
+        generator_name_list = GENERATOR_ENGINE_DICT.keys()
+        for generator_name, one_hot_status in zip(generator_name_list,
+                                                  one_hot_status_list):
+            for state_name, state_code in GENERATOR_STATE.items():
+                if one_hot_status == state_code:
+                    self.status[generator_name] = state_name
+                    break
+
+    def reset(self, generator_list):
+        """Reset the specified generators.
+
+        After reset, the corresponding generators will have to be setup again
+        before it can be run or step. During reset, each generator will be 
+        stopped first.
+
+        Parameters
+        ----------
+        generator_list : list
+            A list of generators in any state, each being a generator object.
+
+        """
+        self.stop(generator_list)
+        cmd_reset = CMD_RESET
+        for generator in generator_list:
+            generator_type = generator.__class__.__name__
+            cmd_reset |= GENERATOR_ENGINE_DICT[generator_type]
+            if generator.analyzer is not None:
+                analyzer_type = generator.analyzer.__class__.__name__
+                cmd_reset |= GENERATOR_ENGINE_DICT[analyzer_type]
+        self.write_command(cmd_reset)
+        for generator in generator_list:
+            generator.reset()
+        self.check_status()
+
+    def run(self, generator_list):
         """Send the command `RUN` to the Microblaze.
-        
+
         Send the command to the Microblaze, and wait for the Microblaze
         to return control.
 
-        """
-        self.write_command(CMD_RUN)
+        Valid generators must be objects of BooleanGenerator, PatternGenerator, 
+        FSMGenerator, or TraceAnalyzer.
 
-    def stop(self, free_buffer=True):
+        Parameters
+        ----------
+        generator_list : list
+            A list of READY generators, each being a generator object.
+
+        """
+        cmd_run = CMD_RUN
+        for generator in generator_list:
+            generator_type = generator.__class__.__name__
+            if self.status[generator_type] == 'RESET':
+                raise ValueError(
+                        "{} must be at least READY before RUNNING.".format(
+                            generator_type))
+            else:
+                generator.connect()
+                cmd_run |= GENERATOR_ENGINE_DICT[generator_type]
+                if generator.analyzer is not None:
+                    analyzer_type = generator.analyzer.__class__.__name__
+                    cmd_run |= GENERATOR_ENGINE_DICT[analyzer_type]
+        self.write_command(cmd_run)
+        self.check_status()
+
+    def step(self, generator_list):
+        """Send the command `STEP` to the Microblaze.
+
+        Send the command to the Microblaze, and wait for the Microblaze
+        to return control.
+
+        Valid generators must be objects of BooleanGenerator, PatternGenerator, 
+        FSMGenerator, or TraceAnalyzer.
+
+        Parameters
+        ----------
+        generator_list : list
+            A list of READY generators, each being a generator object.
+
+        """
+        cmd_step = CMD_STEP
+        for generator in generator_list:
+            generator_type = generator.__class__.__name__
+            if self.status[generator_type] == 'RESET':
+                raise ValueError(
+                    "{} must be at least READY before RUNNING.".format(
+                        generator_type))
+            else:
+                generator.connect()
+                cmd_step |= GENERATOR_ENGINE_DICT[generator_type]
+                if generator.analyzer is not None:
+                    analyzer_type = generator.analyzer.__class__.__name__
+                    cmd_step |= GENERATOR_ENGINE_DICT[analyzer_type]
+        self.write_command(cmd_step)
+        self.check_status()
+
+    def stop(self, generator_list):
         """Send the command `STOP` to the Microblaze.
 
         Send the command to the Microblaze, and wait for the Microblaze
         to return control.
 
-        This method can free the managed buffers after use if `free_buffer`
-        is set to True; this can prevent the program from leaking memory.
-
-        If users want to continue to use the managed buffers, users
-        can set `free_buffer` to False. In this case, the modules like trace 
-        analyzer do not have to be reconfigured, and their corresponding 
-        buffers can be reused easily.
+        Valid generators must be objects of BooleanGenerator, PatternGenerator, 
+        FSMGenerator, or TraceAnalyzer.
 
         Parameters
         ----------
-        free_buffer : Bool
-            The flag indicating whether or not to reset all the buffers.
+        generator_list : list
+            A list of RUNNING generators, each being a generator object.
 
         """
-        self.write_command(CMD_STOP)
+        cmd_stop = CMD_STOP
+        for generator in generator_list:
+            generator_type = generator.__class__.__name__
+            cmd_stop |= GENERATOR_ENGINE_DICT[generator_type]
+            if generator.analyzer is not None:
+                analyzer_type = generator.analyzer.__class__.__name__
+                cmd_stop |= GENERATOR_ENGINE_DICT[analyzer_type]
+        self.write_command(cmd_stop)
+        for generator in generator_list:
+            generator.disconnect()
+        self.check_status()
 
-        if free_buffer:
-            self.reset_buffers()
+    def __del__(self):
+        """Clean up the object when it is no longer used.
+
+        Contiguous memory buffers have to be freed.
+
+        """
+        self.reset_buffers()
 
     def allocate_buffer(self, name, num_samples, data_type="unsigned int"):
         """This method allocates the source or the destination buffers.
@@ -260,8 +420,8 @@ class Intf(PynqMicroblaze):
 
         """
         if name not in self.buffers:
-            raise ValueError("No such buffer {} allocated previously."
-                             .format(name))
+            raise ValueError("No such buffer {} allocated previously.".format(
+                name))
         buffer = self.buffers[name]
         buf_temp = self.buf_manager.cma_get_buffer(buffer,
                                                    num_bytes)
@@ -281,19 +441,19 @@ class Intf(PynqMicroblaze):
         """
         if name in self.buffers:
             self.buf_manager.cma_free(self.buffers[name])
-            del(self.buffers[name])
+            del (self.buffers[name])
 
     def phy_addr_from_buffer(self, name):
         """Get the physical address from the buffer.
 
         The method takes the name of the buffer as input, and returns the 
         physical address.
-        
+
         Parameters
         ----------
         name : str
             The name of the buffer.
-        
+
         Returns
         -------
         int
@@ -301,8 +461,8 @@ class Intf(PynqMicroblaze):
 
         """
         if name not in self.buffers:
-            raise ValueError("No such buffer {} allocated previously."
-                             .format(name))
+            raise ValueError(
+                "No such buffer {} allocated previously.".format(name))
         return self.buf_manager.cma_get_phy_addr(self.buffers[name])
 
     def reset_buffers(self):
@@ -328,15 +488,15 @@ class Intf(PynqMicroblaze):
             List of pins to be configured.
         ioswitch_select_value : int
             Function selection parameter.
-        
+
         """
-        # read switch config
+        # Read switch config
         self.write_command(CMD_READ_INTF_SWITCH_CONFIG)
         mailbox_addr = self.mmio.base_addr + MAILBOX_OFFSET
         ioswitch_config = [Register(addr)
                            for addr in [mailbox_addr, mailbox_addr + 4]]
 
-        # modify switch for requested entries
+        # Modify switch for requested entries
         for ix in ioswitch_pins:
             if ix < 10:
                 lsb = ix * 2
@@ -347,5 +507,5 @@ class Intf(PynqMicroblaze):
                 msb = (ix - 10) * 2 + 1
                 ioswitch_config[1][msb:lsb] = ioswitch_select_value
 
-        # write switch config
+        # Write switch config
         self.write_command(CMD_INTF_SWITCH_CONFIG)

@@ -32,11 +32,11 @@ from random import sample
 import pytest
 from pynq import Overlay
 from pynq.tests.util import user_answer_yes
-from pynq.lib.intf import TraceAnalyzer
-from pynq.lib.intf import Intf
-from pynq.lib.intf import ARDUINO
-from pynq.lib.intf import PYNQZ1_DIO_SPECIFICATION
-from pynq.lib.intf import MAX_NUM_TRACE_SAMPLES
+from pynq.lib.logictools import LogicToolsController
+from pynq.lib.logictools import TraceAnalyzer
+from pynq.lib.logictools import ARDUINO
+from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import MAX_NUM_TRACE_SAMPLES
 
 
 __author__ = "Yun Rock Qu"
@@ -45,18 +45,18 @@ __email__ = "pynq_support@xilinx.com"
 
 
 try:
-    _ = Overlay('interface.bit')
+    ol = Overlay('logictools.bit')
     flag0 = True
 except IOError:
     flag0 = False
 flag1 = user_answer_yes("\nTest trace analyzers?")
 if flag1:
-    if_id = ARDUINO
+    mb_info = ARDUINO
 flag = flag0 and flag1
 
 
-@pytest.mark.skipif(not flag, reason="need interface overlay to run")
-def test_trace_analyzer():
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_trace_max_samples():
     """Test for the TraceAnalyzer class.
 
     The loop back data tests will be conducted for pattern generator and 
@@ -66,68 +66,85 @@ def test_trace_analyzer():
     The 1st group of tests will examine 0, or (MAX_NUM_TRACE_SAMPLES + 1)
     samples. An exception should be raised in these cases.
 
-    The 2nd group of tests will examine 1, 2, or MAX_NUM_TRACE_SAMPLES
-    samples. No exception should be raised in these cases.
-
-    The 3rd group of tests will examine a special scenario where 2
-    trace analyzers are instantiated. The 2nd instantiated analyzer asks for 
-    fewer samples than the 1st analyzer, then the 1st analyzer can still see 
-    its original number of samples.
-
     """
-    ol = Overlay('interface.bit')
     ol.download()
-
-    # Test 1: 0 / (MAX_NUM_TRACE_SAMPLES + 1) samples
-    intf_spec = PYNQZ1_DIO_SPECIFICATION
     for num_samples in [0, MAX_NUM_TRACE_SAMPLES + 1]:
         exception_raised = False
         analyzer = None
         try:
-            analyzer = TraceAnalyzer(ARDUINO, num_samples=num_samples,
-                                     trace_spec=intf_spec)
+            analyzer = TraceAnalyzer(mb_info)
+            analyzer.setup(num_analyzer_samples=num_samples)
         except ValueError:
             exception_raised = True
         finally:
-            if analyzer:
-                analyzer.intf.reset_buffers()
-            del analyzer
+            analyzer.logictools_controller.reset_buffers()
+            analyzer.__del__()
         assert exception_raised, \
-            'Should raise exception when capturing {} sample(s).' \
-            .format(num_samples)
+            'Should raise exception when capturing {} sample(s).'.format(
+                num_samples)
 
-    # Test 2: 1, 2, or MAX_NUM_TRACE_SAMPLES samples
+
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_trace_states():
+    """Test for the TraceAnalyzer class.
+
+    The 2nd group of tests will examine 1, 2, or MAX_NUM_TRACE_SAMPLES
+    samples. No exception should be raised in these cases. For each case,
+    all the methods are tested, and the states of the trace analyzer have been
+    checked.
+
+    """
+    ol.download()
     for num_samples in [1, 2, MAX_NUM_TRACE_SAMPLES]:
-        analyzer = TraceAnalyzer(ARDUINO, num_samples=num_samples,
-                                 trace_spec=intf_spec)
-        assert 'trace_buf' in analyzer.intf.buffers, \
-            'trace_buf is not allocated before use.'
-        analyzer.arm()
-        analyzer.start()
-        analyzer.analyze()
-        assert analyzer.samples is not None, \
-            'raw samples are empty in the trace analyzer.'
-        analyzer.stop()
-        assert 'trace_buf' not in analyzer.intf.buffers, \
-            'trace_buf is not freed after use.'
-        del analyzer
+        analyzer = TraceAnalyzer(mb_info)
+        assert analyzer.status == 'RESET'
 
-    # Test 3: later analyzer asks for fewer samples then previous analyzer
-    microblaze_intf = Intf(ARDUINO)
+        analyzer.setup(num_analyzer_samples=num_samples)
+        assert analyzer.status == 'READY'
+
+        analyzer.run()
+        analyzer.stop()
+        assert analyzer.status == 'READY'
+
+        analyzer.analyze()
+        analyzer.reset()
+        assert analyzer.status == 'RESET'
+
+        analyzer.__del__()
+
+
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_trace_buffers():
+    """Test for the TraceAnalyzer class.
+
+    The 3rd group of tests will examine a scenario where 2 trace analyzers are
+    instantiated. This should be no problem since the trace analyzer is 
+    implemented as a singleton.
+    
+    """
+    ol.download()
     num_samples = sorted(
         sample([k for k in range(MAX_NUM_TRACE_SAMPLES)], 2))
     analyzers = [None, None]
     for i in range(2):
-        analyzers[i] = TraceAnalyzer(microblaze_intf,
-                                     num_samples=num_samples[i],
-                                     trace_spec=PYNQZ1_DIO_SPECIFICATION)
-        analyzers[i].arm()
-        analyzers[i].start()
-        analyzers[i].analyze()
-        analyzers[i].stop(free_buffer=False)
-        assert len(analyzers[i].samples) == num_samples[i], \
-            'Analyzer {} not getting correct number of samples.' \
-            .format(i)
-    microblaze_intf.reset_buffers()
+        analyzers[i] = TraceAnalyzer(mb_info)
+        analyzers[i].setup(num_analyzer_samples=num_samples[i])
+        assert 'trace_buf' in analyzers[i].logictools_controller.buffers, \
+            'Analyzer with {} samples does not allocate trace_buf.'.format(
+                num_samples[i])
 
-    ol.reset()
+        analyzers[i].run()
+        analyzers[i].analyze()
+        assert analyzers[i].samples is not None, \
+            'Analyzer with {} samples has empty raw samples.'.format(
+                num_samples[i])
+
+        analyzers[i].stop()
+        assert len(analyzers[i].samples) == num_samples[i], \
+            'Analyzer with {} samples gets wrong number of samples.'.format(
+                num_samples[i])
+
+        analyzers[i].reset()
+        analyzers[i].__del__()
+        assert 'trace_buf' not in analyzers[i].logictools_controller.buffers, \
+            'trace_buf is not freed after use.'

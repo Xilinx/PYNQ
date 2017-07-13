@@ -1,14 +1,14 @@
 # Makefile to build select Microblaze projects.
 
 
-BIN_INTF = arduino_intf.bin
+BIN_LOGICTOOLS = logictools.bin
 
-all: intf_bins
+all: logictools_bins
 	@echo
 	@tput setaf 2 ; echo "Completed Microblaze Projects' Builds"; tput sgr0;
 	@echo
 
-intf_bins: $(BIN_INTF)
+logictools_bins: $(BIN_LOGICTOOLS)
 	@cp */Debug/*.bin .
 
 %.bin: FORCE
