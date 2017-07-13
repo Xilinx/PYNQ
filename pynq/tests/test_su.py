@@ -27,14 +27,16 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import os
 import pytest
-    
+
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
 @pytest.mark.run(order=1)
 def test_superuser():
     """Test whether the user have the root privilege.
@@ -44,4 +46,4 @@ def test_superuser():
     To pass all of the pytests, need the root access.
     
     """
-    assert os.geteuid()==0, "Need ROOT access in order to run tests." 
+    assert os.geteuid() == 0, "Need ROOT access in order to run tests."
