@@ -28,15 +28,32 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .constants import *
-from .intf import Intf
-from .waveform import Waveform
-from .boolean_builder import BooleanBuilder
-from .pattern_builder import PatternBuilder
-from .trace_analyzer import TraceAnalyzer
-from .fsm_builder import FSMBuilder
+import pynq
+import pynq.lib
 
 
 __author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2017, Xilinx"
+__copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+
+class LogicToolsOverlay(pynq.DefaultOverlay):
+    """ The logictools overlay for the Pynq-Z1
+
+    This overlay is implemented to control Boolean generators, 
+    Pattern generators, FSM generators, and trace analyzers.
+
+    Attributes
+    ----------
+    pmoda : IOP
+         IO processor connected to the PMODA interface
+    pmodb : IOP
+         IO processor connected to the PMODB interface
+    arduino : IOP
+         IO processor connected to the Arduino interface
+
+    """
+    def __init__(self, bitfile, download):
+        super().__init__(bitfile, download)
+
+Overlay = LogicToolsOverlay
