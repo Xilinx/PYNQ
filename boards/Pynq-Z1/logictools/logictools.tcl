@@ -46,6 +46,10 @@
  # 1.00a yrq 02/21/2017 initial release
  # 1.00b yrq 03/30/2017 fixed names, fixed interrupt connection
  # 1.00c pp  05/10/2017 release
+ # 1.00d pp  06/22/2017 Made pb_debounce timed to FCLK0 instead of FCLK1
+ #                      removed unconnected debug ports
+ # 1.00e pp  06/29/2017 Changed constant_20bit_0 instance name to 
+ #                      constant_20bit_logic1, set value to 1048575 (0xFFFFF)
  # </pre>
  #
 ###############################################################################
@@ -219,7 +223,7 @@ proc create_hier_cell_pg { parentCell nameHier } {
 
   # Create pins
   create_bd_pin -dir O -from 0 -to 0 Dout
-  create_bd_pin -dir O -from 17 -to 0 addrB
+  create_bd_pin -dir O -from 15 -to 0 addrB
   create_bd_pin -dir O -from 19 -to 0 gpio_io_o
   create_bd_pin -dir O pg_enb
   create_bd_pin -dir O pg_enb_1d
@@ -237,7 +241,7 @@ proc create_hier_cell_pg { parentCell nameHier } {
 CONFIG.C_ALL_OUTPUTS {0} \
 CONFIG.C_ALL_OUTPUTS_2 {0} \
 CONFIG.C_GPIO2_WIDTH {1} \
-CONFIG.C_GPIO_WIDTH {18} \
+CONFIG.C_GPIO_WIDTH {16} \
 CONFIG.C_IS_DUAL {1} \
  ] $axi_gpio_pg_nsamples_single
 
@@ -246,13 +250,16 @@ CONFIG.C_IS_DUAL {1} \
   set_property -dict [ list \
 CONFIG.C_ALL_OUTPUTS {0} \
 CONFIG.C_ALL_OUTPUTS_2 {0} \
-CONFIG.C_GPIO2_WIDTH {7} \
+CONFIG.C_GPIO2_WIDTH {6} \
 CONFIG.C_GPIO_WIDTH {20} \
 CONFIG.C_IS_DUAL {1} \
  ] $axi_gpio_pg_tri_control
 
   # Create instance: pg_controller_0, and set properties
   set pg_controller_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:pg_controller:1.0 pg_controller_0 ]
+  set_property -dict [ list \
+CONFIG.ADDR_WIDTH {16} \
+ ] $pg_controller_0
 
   # Create instance: slice_5_0, and set properties
   set slice_5_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 slice_5_0 ]
@@ -277,6 +284,9 @@ CONFIG.DOUT_WIDTH {1} \
 
   # Create instance: trace_only_controller_0, and set properties
   set trace_only_controller_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:trace_only_controller:1.0 trace_only_controller_0 ]
+  set_property -dict [ list \
+CONFIG.ADDR_WIDTH {16} \
+ ] $trace_only_controller_0
 
   # Create interface connections
   connect_bd_intf_net -intf_net mb_axi_periph_M04_AXI [get_bd_intf_pins S_AXI] [get_bd_intf_pins axi_gpio_pg_tri_control/S_AXI]
@@ -345,8 +355,6 @@ proc create_hier_cell_smg_0 { parentCell nameHier } {
 
   # Create pins
   create_bd_pin -dir I clkb
-  create_bd_pin -dir O -from 31 -to 0 dout
-  create_bd_pin -dir O -from 31 -to 0 doutb
   create_bd_pin -dir I enb
   create_bd_pin -dir I rstb
   create_bd_pin -dir I -type clk s_axi_aclk
@@ -354,7 +362,6 @@ proc create_hier_cell_smg_0 { parentCell nameHier } {
   create_bd_pin -dir O -from 19 -to 0 smgdata2sw
   create_bd_pin -dir O -from 19 -to 0 smgtri2sw
   create_bd_pin -dir I -from 19 -to 0 sw2smg
-  create_bd_pin -dir O -from 31 -to 0 y
 
   # Create instance: axi_bram_ctrl_1, and set properties
   set axi_bram_ctrl_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 axi_bram_ctrl_1 ]
@@ -544,9 +551,6 @@ proc create_hier_cell_pg_o { parentCell nameHier } {
   create_bd_pin -dir I -from 0 -to 0 -type rst axi_resetn
   create_bd_pin -dir O -from 19 -to 0 gpio_io_o
   create_bd_pin -dir I -type clk m_axi_s2mm_aclk
-  create_bd_pin -dir I -from 31 -to 0 probe4
-  create_bd_pin -dir I -from 31 -to 0 probe5
-  create_bd_pin -dir I -from 31 -to 0 probe6
   create_bd_pin -dir I -type clk s_axi_aclk
   create_bd_pin -dir I -from 0 -to 0 -type rst s_axi_aresetn
   create_bd_pin -dir O smg_enb
@@ -624,12 +628,12 @@ CONFIG.NUM_PORTS {5} \
 CONFIG.NUM_PORTS {8} \
  ] $concat_tkeep
 
-  # Create instance: constant_12bit_0, and set properties
-  set constant_12bit_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_12bit_0 ]
+  # Create instance: constant_14bit_0, and set properties
+  set constant_14bit_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_14bit_0 ]
   set_property -dict [ list \
 CONFIG.CONST_VAL {0} \
-CONFIG.CONST_WIDTH {12} \
- ] $constant_12bit_0
+CONFIG.CONST_WIDTH {14} \
+ ] $constant_14bit_0
 
   # Create instance: constant_2bit_0, and set properties
   set constant_2bit_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_2bit_0 ]
@@ -708,7 +712,7 @@ CONFIG.DOUT_WIDTH {20} \
   connect_bd_net -net concat_addrB_dout [get_bd_pins blk_mem_gen_0/addrb] [get_bd_pins concat_addrB/dout]
   connect_bd_net -net concat_arduino_dout [get_bd_pins concat_arduino/dout] [get_bd_pins trace_cntrl_0/A_TDATA]
   connect_bd_net -net concat_tkeep_dout [get_bd_pins concat_tkeep/dout] [get_bd_pins trace_cntrl_0/A_TKEEP]
-  connect_bd_net -net constant_12bit_0_dout [get_bd_pins concat_addrB/In2] [get_bd_pins constant_12bit_0/dout]
+  connect_bd_net -net constant_14bit_0_dout [get_bd_pins concat_addrB/In2] [get_bd_pins constant_14bit_0/dout]
   connect_bd_net -net constant_2bit_0_dout [get_bd_pins concat_addrB/In0] [get_bd_pins constant_2bit_0/dout]
   connect_bd_net -net constant_2bits_0_dout [get_bd_pins concat_arduino/In2] [get_bd_pins concat_arduino/In4] [get_bd_pins constant_2bits_0/dout]
   connect_bd_net -net constant_32bit_0_dout [get_bd_pins blk_mem_gen_0/dinb] [get_bd_pins constant_32bit_0/dout]
@@ -740,19 +744,16 @@ preplace port smg_rst -pg 1 -y 930 -defaultsOSRD
 preplace port S_AXI1 -pg 1 -y 780 -defaultsOSRD
 preplace port S_AXI2 -pg 1 -y 800 -defaultsOSRD
 preplace port M00_AXI -pg 1 -y 120 -defaultsOSRD
-preplace portBus probe4 -pg 1 -y 20 -defaultsOSRD
 preplace portBus In0 -pg 1 -y 90 -defaultsOSRD
-preplace portBus probe5 -pg 1 -y 60 -defaultsOSRD
 preplace portBus In1 -pg 1 -y 110 -defaultsOSRD
 preplace portBus Dout1 -pg 1 -y 890 -defaultsOSRD
-preplace portBus probe6 -pg 1 -y 130 -defaultsOSRD
 preplace portBus In3 -pg 1 -y 190 -defaultsOSRD
 preplace portBus Dout -pg 1 -y 850 -defaultsOSRD
 preplace portBus ARESETN -pg 1 -y 210 -defaultsOSRD
 preplace portBus axi_resetn -pg 1 -y 570 -defaultsOSRD
 preplace portBus s_axi_aresetn -pg 1 -y 820 -defaultsOSRD
 preplace portBus gpio_io_o -pg 1 -y 560 -defaultsOSRD
-preplace inst constant_12bit_0 -pg 1 -lvl 4 -y 1080 -defaultsOSRD
+preplace inst constant_14bit_0 -pg 1 -lvl 4 -y 1080 -defaultsOSRD
 preplace inst axi_dma_0 -pg 1 -lvl 5 -y 80 -defaultsOSRD
 preplace inst axi_mem_intercon_1 -pg 1 -lvl 6 -y 120 -defaultsOSRD
 preplace inst slice_pg_data -pg 1 -lvl 6 -y 850 -defaultsOSRD
@@ -776,7 +777,7 @@ preplace netloc logic_0_dout 1 5 1 NJ
 preplace netloc constant_4bit_0_dout 1 5 1 NJ
 preplace netloc axi_gpio_pg_tri_control_gpio_io_o 1 5 2 NJ 560 NJ
 preplace netloc constant_tkeep_tstrb_dout 1 2 1 NJ
-preplace netloc constant_12bit_0_dout 1 4 1 NJ
+preplace netloc constant_14bit_0_dout 1 4 1 NJ
 preplace netloc ar2sw_data_i_1 1 0 2 NJ 100 NJ
 preplace netloc constant_2bit_0_dout 1 4 1 NJ
 preplace netloc ap_rst_n_1 1 0 6 NJ 570 NJ 570 410 180 730 180 1060 180 1420
@@ -1145,12 +1146,12 @@ CONFIG.SIZE {24} \
   # Create instance: concat_cfg_data_i_pb, and set properties
   set concat_cfg_data_i_pb [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 concat_cfg_data_i_pb ]
 
-  # Create instance: constant_20bit_0, and set properties
-  set constant_20bit_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_20bit_0 ]
+  # Create instance: constant_20bit_logic1, and set properties
+  set constant_20bit_logic1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_20bit_logic1 ]
   set_property -dict [ list \
-CONFIG.CONST_VAL {0} \
+CONFIG.CONST_VAL {1048575} \
 CONFIG.CONST_WIDTH {20} \
- ] $constant_20bit_0
+ ] $constant_20bit_logic1
 
   # Create instance: dff_en_reset_0, and set properties
   set dff_en_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:XUP:dff_en_reset:1.0 dff_en_reset_0 ]
@@ -1279,7 +1280,7 @@ CONFIG.DOUT_WIDTH {20} \
   connect_bd_net -net cfg_data_mux_vector_y [get_bd_pins cfg_data_mux_vector/y] [get_bd_pins slice_cfg_data_o_19_0/Din] [get_bd_pins slice_cfg_data_o_23_20/Din]
   connect_bd_net -net clk1_1 [get_bd_pins pg_tracebuffer_clk] [get_bd_pins mb_axi_periph/M07_ACLK] [get_bd_pins mb_axi_periph/M08_ACLK] [get_bd_pins pg_o/m_axi_s2mm_aclk] [get_bd_pins smg_0/clkb]
   connect_bd_net -net concat_cfg_data_i_pb_dout [get_bd_pins cfg_0/shield2cfg_data_in] [get_bd_pins concat_cfg_data_i_pb/dout]
-  connect_bd_net -net constant_20bit_0_dout [get_bd_pins constant_20bit_0/dout] [get_bd_pins interface_switch_0/asm2sw_data_o] [get_bd_pins interface_switch_0/asm2sw_tri_o]
+  connect_bd_net -net constant_20bit_logic1_dout [get_bd_pins constant_20bit_logic1/dout] [get_bd_pins interface_switch_0/asm2sw_data_o] [get_bd_pins interface_switch_0/asm2sw_tri_o]
   connect_bd_net -net dff_en_reset_0_q [get_bd_pins iop3_intr_req] [get_bd_pins dff_en_reset_0/q]
   connect_bd_net -net enb_1 [get_bd_pins pg_o/smg_enb] [get_bd_pins smg_0/enb]
   connect_bd_net -net func_sel_concat_dout [get_bd_pins func_sel_concat/dout] [get_bd_pins interface_switch_0/sel]
@@ -1297,17 +1298,14 @@ CONFIG.DOUT_WIDTH {20} \
   connect_bd_net -net pg_o_Dout [get_bd_pins interface_switch_0/pg2sw_data_o] [get_bd_pins pg_o/Dout]
   connect_bd_net -net pg_o_Dout1 [get_bd_pins cfg_data_mux_vector/sel] [get_bd_pins pg_o/Dout1]
   connect_bd_net -net pg_o_smg_rst [get_bd_pins pg_o/smg_rst] [get_bd_pins smg_0/rstb]
-  connect_bd_net -net probe6_1 [get_bd_pins pg_o/probe6] [get_bd_pins smg_0/dout]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins clk] [get_bd_pins axi_cdma_0/m_axi_aclk] [get_bd_pins axi_cdma_0/s_axi_lite_aclk] [get_bd_pins axi_intc_0/s_axi_aclk] [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/M01_ACLK] [get_bd_pins axi_mem_intercon/M02_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins cfg_0/s_axi_aclk] [get_bd_pins dff_en_reset_0/clk] [get_bd_pins function_sel/s_axi_aclk] [get_bd_pins iop3_intr/s_axi_aclk] [get_bd_pins mb/Clk] [get_bd_pins mb3_lmb/LMB_Clk] [get_bd_pins mb_axi_periph/ACLK] [get_bd_pins mb_axi_periph/M00_ACLK] [get_bd_pins mb_axi_periph/M01_ACLK] [get_bd_pins mb_axi_periph/M02_ACLK] [get_bd_pins mb_axi_periph/M03_ACLK] [get_bd_pins mb_axi_periph/M04_ACLK] [get_bd_pins mb_axi_periph/M05_ACLK] [get_bd_pins mb_axi_periph/M06_ACLK] [get_bd_pins mb_axi_periph/M09_ACLK] [get_bd_pins mb_axi_periph/M10_ACLK] [get_bd_pins mb_axi_periph/M11_ACLK] [get_bd_pins mb_axi_periph/M12_ACLK] [get_bd_pins mb_axi_periph/S00_ACLK] [get_bd_pins pg_o/s_axi_aclk] [get_bd_pins rst_clk_wiz_1_100M/slowest_sync_clk] [get_bd_pins smg_0/s_axi_aclk]
   connect_bd_net -net reset_1 [get_bd_pins mb_3_intr_ack] [get_bd_pins dff_en_reset_0/reset]
   connect_bd_net -net rst_clk_wiz_1_100M_bus_struct_reset [get_bd_pins mb3_lmb/SYS_Rst] [get_bd_pins rst_clk_wiz_1_100M/bus_struct_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_mb_reset [get_bd_pins mb/Reset] [get_bd_pins rst_clk_wiz_1_100M/mb_reset]
   connect_bd_net -net slice_cfg_data_o_19_0_Dout [get_bd_pins interface_switch_0/cfg2sw_data_o] [get_bd_pins slice_cfg_data_o_19_0/Dout]
   connect_bd_net -net slice_cfg_tri_o_19_0_Dout [get_bd_pins interface_switch_0/cfg2sw_tri_o] [get_bd_pins slice_cfg_tri_o_19_0/Dout]
-  connect_bd_net -net smg_0_doutb [get_bd_pins pg_o/probe4] [get_bd_pins smg_0/doutb]
   connect_bd_net -net smg_0_fsm2sw [get_bd_pins interface_switch_0/smg2sw_data_o] [get_bd_pins smg_0/smgdata2sw]
   connect_bd_net -net smg_0_tri2sw [get_bd_pins interface_switch_0/smg2sw_tri_o] [get_bd_pins smg_0/smgtri2sw]
-  connect_bd_net -net smg_0_y [get_bd_pins pg_o/probe5] [get_bd_pins smg_0/y]
   connect_bd_net -net sw2smg_1 [get_bd_pins interface_switch_0/sw2smg_data_i] [get_bd_pins smg_0/sw2smg]
 
   # Perform GUI Layout
@@ -1337,7 +1335,7 @@ preplace inst axi_intc_0 -pg 1 -lvl 3 -y 660 -defaultsOSRD
 preplace inst slice_cfg_data_o_23_20 -pg 1 -lvl 10 -y 1110 -defaultsOSRD
 preplace inst mb -pg 1 -lvl 4 -y 1030 -defaultsOSRD
 preplace inst func_sel_concat -pg 1 -lvl 8 -y 420 -defaultsOSRD
-preplace inst constant_20bit_0 -pg 1 -lvl 8 -y 540 -defaultsOSRD
+preplace inst constant_20bit_logic1 -pg 1 -lvl 8 -y 540 -defaultsOSRD
 preplace inst concat_cfg_data_i_pb -pg 1 -lvl 2 -y 1080 -defaultsOSRD
 preplace inst cfg_0 -pg 1 -lvl 3 -y 1040 -defaultsOSRD
 preplace inst axi_cdma_0 -pg 1 -lvl 8 -y 670 -defaultsOSRD
@@ -1365,7 +1363,7 @@ preplace netloc axi_mem_intercon_M01_AXI 1 9 2 NJ 930 NJ
 preplace netloc smg_0_doutb 1 9 2 3090 470 3420
 preplace netloc smg_0_fsm2sw 1 8 3 2640 450 NJ 450 3450
 preplace netloc cfg_0_cfg2shield_tri_out 1 3 5 NJ 860 NJ 860 NJ 860 NJ 860 NJ
-preplace netloc constant_20bit_0_dout 1 8 1 2600
+preplace netloc constant_20bit_logic1_dout 1 8 1 2600
 preplace netloc mb_axi_periph_M04_AXI 1 2 8 710 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ 120 NJ
 preplace netloc microblaze_0_dlmb_1 1 4 1 1690
 preplace netloc enb_1 1 9 2 3080 20 3450
@@ -1398,7 +1396,6 @@ preplace netloc mb_axi_periph_M06_AXI 1 2 1 750
 preplace netloc ap_rst_n_1 1 0 10 NJ 480 390 10 NJ 10 NJ 10 NJ 10 NJ 10 NJ 10 NJ 10 NJ 10 2980
 preplace netloc slice_cfg_data_o_19_0_Dout 1 8 1 2580
 preplace netloc mb_axi_periph_M07_AXI 1 2 8 740 180 NJ 180 NJ 180 NJ 180 NJ 180 NJ 180 NJ 180 NJ
-preplace netloc probe6_1 1 9 2 3100 480 3410
 preplace netloc mb_1_reset_Dout 1 0 1 NJ
 preplace netloc pg_o_Dout1 1 6 5 2060 30 NJ 30 NJ 30 NJ 10 3440
 preplace netloc function_sel_gpio2_io_o 1 3 5 1230 430 NJ 430 NJ 430 NJ 430 N
@@ -2949,7 +2946,8 @@ CONFIG.DOUT_WIDTH {1} \
   connect_bd_net -net pmod_io_switch_0_sw2pmod_data_out [get_bd_ports pmodJA_data_out] [get_bd_pins iop1/sw2pmod_data_out]
   connect_bd_net -net pmod_io_switch_0_sw2pmod_tri_out [get_bd_ports pmodJA_tri_out] [get_bd_pins iop1/sw2pmod_tri_out]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins iop1/clk] [get_bd_pins iop2/clk] [get_bd_pins iop3/clk] [get_bd_pins mb_bram_ctrl_1/s_axi_aclk] [get_bd_pins mb_bram_ctrl_2/s_axi_aclk] [get_bd_pins mb_bram_ctrl_3/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/M03_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK] [get_bd_pins rst_processing_system7_0_100M/slowest_sync_clk] [get_bd_pins system_interrupts/s_axi_aclk]
-  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports pg_clk] [get_bd_pins debounce_pb_0/clk] [get_bd_pins debounce_pb_1/clk] [get_bd_pins debounce_pb_2/clk] [get_bd_pins debounce_pb_3/clk] [get_bd_pins iop3/pg_tracebuffer_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK] [get_bd_pins rst_processing_system7_0_200M/slowest_sync_clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports pg_clk] [get_bd_pins iop3/pg_tracebuffer_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK] [get_bd_pins rst_processing_system7_0_200M/slowest_sync_clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins debounce_pb_0/clk] [get_bd_pins debounce_pb_1/clk] [get_bd_pins debounce_pb_2/clk] [get_bd_pins debounce_pb_3/clk] 
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_processing_system7_0_100M/ext_reset_in] [get_bd_pins rst_processing_system7_0_200M/ext_reset_in]
   connect_bd_net -net processing_system7_0_GPIO_O [get_bd_pins mb_1_intr_ack/Din] [get_bd_pins mb_1_reset/Din] [get_bd_pins mb_2_intr_ack/Din] [get_bd_pins mb_2_reset/Din] [get_bd_pins mb_3_intr_ack/Din] [get_bd_pins mb_3_reset/Din] [get_bd_pins processing_system7_0/GPIO_O]
   connect_bd_net -net rst_processing_system7_0_100M_interconnect_aresetn [get_bd_pins processing_system7_0_axi_periph/ARESETN] [get_bd_pins rst_processing_system7_0_100M/interconnect_aresetn]
@@ -3036,7 +3034,6 @@ file copy -force ./interface/interface.sdk/interface.hdf .
 
 # move and rename bitstream to final location
 file copy -force ./interface/interface.runs/impl_1/top.bit interface.bit
-
 
 
 
