@@ -136,7 +136,7 @@ class Pmod_DevMode(object):
         """
         self.microblaze.reset()
 
-    def load_switch_config(self, config=None):
+    def load_switch_config(self, config):
         """Load the Microblaze processor's switch configuration.
         
         This method will update switch config.
@@ -152,9 +152,7 @@ class Pmod_DevMode(object):
             If the config argument is not of the correct type.
             
         """
-        if config is None:
-            config = PMOD_SWCFG_DIOALL
-        elif not len(config) == PMOD_SWITCHCONFIG_NUMREGS:
+        if not len(config) == PMOD_SWITCHCONFIG_NUMREGS:
             raise ValueError('Invalid switch config {}.'.format(config))
 
         # Build switch config word
