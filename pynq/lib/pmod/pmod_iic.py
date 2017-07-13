@@ -28,9 +28,11 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+from time import sleep
 from . import Pmod_DevMode
 from . import PMOD_SWCFG_IIC0_SDA
 from . import PMOD_SWCFG_IIC0_SCL
+from . import PMOD_SWCFG_DIO0
 from . import PMOD_XIIC_0_BASEADDR
 from . import PMOD_XIIC_SR_REG_OFFSET
 from . import PMOD_XIIC_DTR_REG_OFFSET
@@ -112,6 +114,7 @@ class Pmod_IIC(Pmod_DevMode):
                 switchconfig.append(PMOD_SWCFG_DIO0)
 
         super().__init__(mb_info, switchconfig)
+        self.start()
         self.iic_addr = iic_addr
         self.sr_addr = PMOD_XIIC_0_BASEADDR + PMOD_XIIC_SR_REG_OFFSET
         self.dtr_addr = PMOD_XIIC_0_BASEADDR + PMOD_XIIC_DTR_REG_OFFSET
