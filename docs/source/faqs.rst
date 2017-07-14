@@ -149,21 +149,17 @@ How do I change the hostname?
 ======================================================
 
 If you have multiple boards on the same network, you should give them different host names. 
-You can run the following script to change the hostname:
+You can change the hostname by editing the Linux hostname file:
 
    .. code-block:: console
    
-      sudo /home/xilinx/scripts/hostname.sh NEW_HOST_NAME
+      /etc/hostname
    
 What is the user account and password?
 ======================================================
 
 Username and password for all Linux, jupyter and samba logins are: ``xilinx/xilinx``
    
-I can't log in to the Jupyter portal with Safari on Mac OS
-========================================================================
-
-This is a known issue with Safari and is related to Safari not authenticating the Jupyter password properly. To workaround, you can use another browser, or disable the password
 
 How do I enable/disable the Jupyter notebook password
 ======================================================
@@ -210,11 +206,8 @@ General Questions
       
 Does Pynq support Python 2.7?
 ======================================================
-Python 2.7 is loaded on Zynq® and Python 2.7 scripts can be executed. Pynq, however, is based on Python 3.4.  No attempts have been made to ensure backward compatibility with Python 2.7.
+Python 2.7 is loaded on Zynq® and Python 2.7 scripts can be executed. The PYNQ v1.5 release, is based on Python 3.6.  No attempts have been made to ensure backward compatibility with Python 2.7.
 
-Where can I get the PYNQ-Z1 image?
-=========================================
-You can `Download the PYNQ-Z1 image <https://files.digilent.com/Products/PYNQ/pynq_z1_image_2016_09_14.zip>`_ here
 
 How do I write the Micro SD card image
 =========================================

@@ -1,9 +1,70 @@
 ************************
-Change log
+Change Log
 ************************
 
 .. contents:: Table of Contents
    :depth: 2
+
+
+Version 1.5 
+============================
+
+Image release:
+
+Documentation updated:  
+
+* Pynq API/driver changes
+   * Overlay() automatically downloads an overlays on instantiation. Explicit .download() is not required
+   * DMA driver replaced with new version
+   * The pynq.iop subpackage has been restructured into lib.arduino and lib.pmod
+
+   For example:
+   .. code-block:: Python
+   
+      from pynq.iop import Arduino_Analog
+   
+   is replaced by:
+
+   .. code-block:: Python
+   
+      from pynq.lib.arduino import Arduino_Analog
+
+
+      
+   * Video API has been changed to support to support new video architecture, Numpy objects, and color space/pixel width conversion 
+   * New PynqMicroblaze module to allow control of a MicroBlaze subsystem
+   * New AxiGPIO driver
+   * New DMA driver
+
+* Linux changes   
+   * Addition USB Ethernet drivers added
+   * Start-up process added to systemd services 
+   
+* New Python Packages 
+   * cython 
+
+* Updated Python Pacakges 
+
+* Other changes
+
+* IP changes
+   * Updated Trace Analyzer
+   * Updated Video subsytem with improved performance, and support for color space transforms, and grayscale conversion
+   * Added new logictools overlay IP: Pattern Generator, Boolean Generator, FSM Generator
+   
+* Overlay changes
+   * Added logictools overlay
+   * Updated to new trace buffer IP in the base overlay
+
+   
+* Documentation changes
+   * Restructured documentation
+   * Added Create Overlays section
+   * Added section on Logictools overlay
+   * Expanded Interrupts section
+   * Added PYNQ IP section
+   * Expanded IOP sections
+   * Added PYNQ image build section 
 
 Version 1.4 
 ============================
@@ -27,7 +88,7 @@ Documentation updated:  10 Feb 2017
    * pygraphviz
    * pyeda
    
-* Updated Python Pacakges 
+* Updated Python Packages 
    * pynq
    * Jupyter Notebook Extension added
    * IPython upgraded to support Python 3.6
@@ -41,7 +102,7 @@ Documentation updated:  10 Feb 2017
 
 * Base overlay changes
    * IOP interface to DDR added (Pmod and Arduino IOP)
-   * Interrupt controller from overlay to PS added. IOP GPIO connected to Interrupt controller. 
+   * Interrupt controller from overlay to PS added. IOP GPIO connected to interrupt controller. 
    * Arduino GPIO base address has changed due to merge of GPIO into a single block.  `arduino_grove_ledbar` and `arduino_grove_buzzer` compiled binaries are not backward compatible with previous Pynq overlay/image.
 
 * Pynq API/driver changes

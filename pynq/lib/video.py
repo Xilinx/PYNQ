@@ -784,10 +784,10 @@ class ColorConverter(DefaultIP):
     signed fixed point number with 2 integer bits. The result of the
     computation can visualised as a table
 
-         in1 in2 in3 1
-    out1  c1  c2  c3 c10
-    out2  c4  c5  c6 c11
-    out3  c7  c8  c9 c12
+    #      in1 in2 in3 1
+    # out1  c1  c2  c3 c10
+    # out2  c4  c5  c6 c11
+    # out3  c7  c8  c9 c12
 
     The color can be changed mid-stream.
 
@@ -874,11 +874,11 @@ class PixelPacker(DefaultIP):
         Valid values are 8, 24 and 32. The following table describes the
         operation for packing and unpacking for each width
 
-        Mode   |Pack                        |Unpack
-        8  bpp |Keep only the first channel |Pad other channels with 0
-        16 bpp |Dependent on resample       |Dependent on resample
-        24 bpp |No change                   |No change
-        32 bpp |Pad channel 4 with 0        |Discard channel 4
+        Mode     Pack                          Unpack
+        8  bpp   Keep only the first channel   Pad other channels with 0
+        16 bpp   Dependent on resample         Dependent on resample
+        24 bpp   No change                     No change
+        32 bpp   Pad channel 4 with 0          Discard channel 4
 
         """
         mode = self.read(0x10)
