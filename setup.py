@@ -112,8 +112,7 @@ bsp_standalone = \
      'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
 
 getting_started_notebooks = \
-    ['3_jupyter_notebook.ipynb', '4_programming_python.ipynb', '5_programming_onboard.ipynb',
-     '8_base_overlay_iop.ipynb', '9_base_overlay_video.ipynb', '10_base_overlay_audio.ipynb']
+    ['3_jupyter_notebook.ipynb', '4_programming_python.ipynb']
 
 # Merge BSP src to _video src
 video = []
