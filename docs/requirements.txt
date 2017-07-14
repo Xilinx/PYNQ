@@ -9,3 +9,6 @@ pynq
 jupyter_client
 cffi
 ipython
+pytest
+pyeda
+pygraphviz
