@@ -9,7 +9,7 @@ Python productivity for Zynq (PYNQ) Documentation
 .. toctree::
    :maxdepth: 2
    
-   1_getting_started_index
+   getting_started
    2_pynq
    3_jupyter_notebook
    4_programming_python
