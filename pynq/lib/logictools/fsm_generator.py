@@ -573,14 +573,6 @@ class FSMGenerator:
         for i in self.input_pins:
             self.logictools_controller.pin_map[i] = 'INPUT'
 
-        waveform_dict = {'signal': [
-            ['analysis']],
-            'foot': {'tock': 1},
-            'head': {'text': 'Finite State Machine'}}
-        for name, pin in (fsm_spec['inputs'] + fsm_spec['outputs']):
-            waveform_dict['signal'][0].append({'name': name, 'pin': pin})
-        self.waveform = Waveform(waveform_dict, analysis_group_name='analysis')
-
         # Finally update all dictionaries
         self.fsm_spec = fsm_spec
 
@@ -810,6 +802,14 @@ class FSMGenerator:
         self.logictools_controller.write_control(config)
         self.logictools_controller.write_command(CMD_CONFIG_FSM)
 
+        # Configure the waveform object
+        waveform_dict = {'signal': [
+            ['analysis']],
+            'head': {'text': 'Finite State Machine'}}
+        for name, pin in (self.fsm_spec['inputs'] + self.fsm_spec['outputs']):
+            waveform_dict['signal'][0].append({'name': name, 'pin': pin})
+        self.waveform = Waveform(waveform_dict, analysis_group_name='analysis')
+
         # Configure the trace analyzer and frequency
         if self.analyzer is not None:
             self.analyzer.setup(self.num_analyzer_samples,
@@ -823,6 +823,7 @@ class FSMGenerator:
 
         # Update generator status
         self.logictools_controller.check_status()
+        self.logictools_controller.steps = 0
 
     def reset(self):
         """Reset the FSM generator.
@@ -911,13 +912,14 @@ class FSMGenerator:
             raise ValueError(
                 "Generator must be at least READY before RUNNING.")
         self.connect()
+        self.logictools_controller.steps = 0
 
-        # Run FSM, possibly together with trace analyzer
         cmd_run = CMD_RUN | FSM_ENGINE_BIT
         if self.analyzer is not None:
             cmd_run |= TRACE_ENGINE_BIT
         self.logictools_controller.write_command(cmd_run)
         self.logictools_controller.check_status()
+        self.analyze()
 
     def step(self):
         """Step the FSM generator.
@@ -931,14 +933,36 @@ class FSMGenerator:
                 self.__class__.__name__] == 'RESET':
             raise ValueError(
                 "Generator must be at least READY before RUNNING.")
-        self.connect()
 
-        # Step FSM, possibly together with trace analyzer
+        if self.logictools_controller.steps == 0:
+            self.connect()
+            cmd_step = CMD_STEP | FSM_ENGINE_BIT
+            if self.analyzer is not None:
+                cmd_step |= TRACE_ENGINE_BIT
+            self.logictools_controller.write_command(cmd_step)
+        self.logictools_controller.steps += 1
+
         cmd_step = CMD_STEP | FSM_ENGINE_BIT
         if self.analyzer is not None:
             cmd_step |= TRACE_ENGINE_BIT
         self.logictools_controller.write_command(cmd_step)
         self.logictools_controller.check_status()
+        self.analyze()
+
+    def analyze(self):
+        """Update the captured samples.
+
+        This method updates the captured samples from the trace analyzer.
+        It is required after each step() / run().
+
+        """
+        if self.analyzer is not None:
+            analysis_group = self.analyzer.analyze(
+                self.logictools_controller.steps)
+            if self.logictools_controller.steps:
+                self.waveform.append('analysis', analysis_group)
+            else:
+                self.waveform.update('analysis', analysis_group)
 
     def stop(self):
         """Stop the FSM generator.
@@ -946,14 +970,23 @@ class FSMGenerator:
         This command will stop the pattern generated from FSM.
 
         """
-        if self.logictools_controller.status[
-                self.__class__.__name__] == 'RUNNING':
-            cmd_stop = CMD_STOP | FSM_ENGINE_BIT
-            if self.analyzer is not None:
-                cmd_stop |= TRACE_ENGINE_BIT
-            self.logictools_controller.write_command(cmd_stop)
-            self.disconnect()
-            self.logictools_controller.check_status()
+        cmd_stop = CMD_STOP | FSM_ENGINE_BIT
+        if self.analyzer is not None:
+            cmd_stop |= TRACE_ENGINE_BIT
+        self.logictools_controller.write_command(cmd_stop)
+        self.disconnect()
+        self.logictools_controller.check_status()
+        self.clear_wave()
+        self.logictools_controller.steps = 0
+
+    def clear_wave(self):
+        """Clear the waveform object so new patterns can be accepted.
+
+        This function is required after each `stop()`.
+
+        """
+        if self.waveform:
+            self.waveform.clear_wave('analysis')
 
     def show_state_diagram(self, file_name='fsm_spec.png', save_png=False):
         """Display the state machine in Jupyter notebook.
@@ -1015,8 +1048,13 @@ class FSMGenerator:
         if self.analyzer is None:
             raise ValueError("Trace disabled, please enable and rerun.")
 
-        analysis_group = self.analyzer.analyze()
-        self.waveform.update('analysis', analysis_group)
+        if 0 < self.logictools_controller.steps < 3:
+            for key in self.waveform.waveform_dict:
+                for annotation in ['tick', 'tock']:
+                    if annotation in self.waveform.waveform_dict[key]:
+                        del self.waveform.waveform_dict[key][annotation]
+        else:
+            self.waveform.waveform_dict['foot'] = {'tock': 1}
         self.waveform.display()
 
     def __del__(self):
@@ -1025,5 +1063,9 @@ class FSMGenerator:
         Need to reset the buffers used in this instance.
 
         """
+        if self.logictools_controller.status[
+                self.__class__.__name__] != 'RESET':
+            self.reset()
+            self.logictools_controller.check_status()
         if self.analyzer:
             self.analyzer.__del__()
