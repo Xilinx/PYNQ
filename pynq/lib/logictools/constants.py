@@ -81,7 +81,7 @@ GENERATOR_ENGINE_DICT = {'BooleanGenerator': BOOLEAN_ENGINE_BIT,
                          'PatternGenerator': PATTERN_ENGINE_BIT,
                          'FSMGenerator': FSM_ENGINE_BIT,
                          'TraceAnalyzer': TRACE_ENGINE_BIT}
-LOGICTOOLS_MICROBLAZE_BIN = "logictools.bin"
+LOGICTOOLS_MICROBLAZE_BIN = "logictools_controller.bin"
 
 # PYNQ-Z1 specification
 ARDUINO = {'ip_name': 'mb_bram_ctrl_3',
