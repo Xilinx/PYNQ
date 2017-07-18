@@ -305,16 +305,12 @@ class BooleanGenerator:
             # Construct the command word
             self.logictools_controller.write_command(CMD_CONFIG_BOOLEAN)
 
-            # Setup waveform view - stimulus from inputs, analysis on outputs
+            # Prepare the waveform object
             waveform_dict = {'signal': [
                 ['stimulus'],
                 {},
                 ['analysis']],
                 'head': {'text': '{}: {}'.format(expr_label, expression)}}
-
-            # Display footer only when there are enough samples
-            if self.num_analyzer_samples >= 3:
-                waveform_dict['foot'] = {'tock': 1}
 
             # Append four inputs and one output to waveform view
             stimulus_traced = False
@@ -360,6 +356,7 @@ class BooleanGenerator:
 
         # Update generator status
         self.logictools_controller.check_status()
+        self.logictools_controller.steps = 0
 
     def reset(self):
         """Reset the boolean generator.
@@ -441,11 +438,14 @@ class BooleanGenerator:
             raise ValueError(
                 "Generator must be at least READY before RUNNING.")
         self.connect()
+        self.logictools_controller.steps = 0
+
         cmd_run = CMD_RUN | BOOLEAN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_run |= TRACE_ENGINE_BIT
         self.logictools_controller.write_command(cmd_run)
         self.logictools_controller.check_status()
+        self.analyze()
 
     def step(self):
         """Step the boolean generator.
@@ -459,12 +459,43 @@ class BooleanGenerator:
                 self.__class__.__name__] == 'RESET':
             raise ValueError(
                 "Generator must be at least READY before RUNNING.")
-        self.connect()
+
+        if self.logictools_controller.steps == 0:
+            self.connect()
+            cmd_step = CMD_STEP | BOOLEAN_ENGINE_BIT
+            if self.analyzer is not None:
+                cmd_step |= TRACE_ENGINE_BIT
+            self.logictools_controller.write_command(cmd_step)
+        self.logictools_controller.steps += 1
+
         cmd_step = CMD_STEP | BOOLEAN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_step |= TRACE_ENGINE_BIT
         self.logictools_controller.write_command(cmd_step)
         self.logictools_controller.check_status()
+        self.analyze()
+
+    def analyze(self):
+        """Update the captured samples.
+
+        This method updates the captured samples from the trace analyzer.
+        It is required after each step() / run()
+
+        """
+        if self.analyzer is not None:
+            analysis_group = self.analyzer.analyze(
+                self.logictools_controller.steps)
+            for expr_label in self.expressions.keys():
+                if self.logictools_controller.steps:
+                    self.waveforms[expr_label].append('stimulus',
+                                                      analysis_group)
+                    self.waveforms[expr_label].append('analysis',
+                                                      analysis_group)
+                else:
+                    self.waveforms[expr_label].update('stimulus',
+                                                      analysis_group)
+                    self.waveforms[expr_label].update('analysis',
+                                                      analysis_group)
 
     def stop(self):
         """Stop the boolean generator.
@@ -472,14 +503,25 @@ class BooleanGenerator:
         This method will stop the currently running boolean generator.
 
         """
-        if self.logictools_controller.status[
-                self.__class__.__name__] == 'RUNNING':
-            cmd_stop = CMD_STOP | BOOLEAN_ENGINE_BIT
-            if self.analyzer is not None:
-                cmd_stop |= TRACE_ENGINE_BIT
-            self.logictools_controller.write_command(cmd_stop)
-            self.disconnect()
-            self.logictools_controller.check_status()
+        cmd_stop = CMD_STOP | BOOLEAN_ENGINE_BIT
+        if self.analyzer is not None:
+            cmd_stop |= TRACE_ENGINE_BIT
+        self.logictools_controller.write_command(cmd_stop)
+        self.disconnect()
+        self.logictools_controller.check_status()
+        self.clear_wave()
+        self.logictools_controller.steps = 0
+
+    def clear_wave(self):
+        """Clear the waveform object so new patterns can be accepted.
+
+        This function is required after each `stop()`.
+
+        """
+        for expr_label in self.expressions.keys():
+            if self.waveforms[expr_label]:
+                self.waveforms[expr_label].clear_wave('stimulus')
+                self.waveforms[expr_label].clear_wave('analysis')
 
     def show_waveform(self):
         """Display the boolean logic generator in a Jupyter notebook.
@@ -490,10 +532,16 @@ class BooleanGenerator:
         if self.analyzer is None:
             raise ValueError("Trace disabled, please enable and rerun.")
 
-        analysis_group = self.analyzer.analyze()
         for expr_label in self.expressions.keys():
-            self.waveforms[expr_label].update('stimulus', analysis_group)
-            self.waveforms[expr_label].update('analysis', analysis_group)
+            if 0 < self.logictools_controller.steps < 3:
+                for key in self.waveforms[expr_label].waveform_dict:
+                    for annotation in ['tick', 'tock']:
+                        if annotation in self.waveforms[
+                                expr_label].waveform_dict[key]:
+                            del self.waveforms[
+                                expr_label].waveform_dict[key][annotation]
+            else:
+                self.waveforms[expr_label].waveform_dict['foot'] = {'tock': 1}
             self.waveforms[expr_label].display()
 
     def __del__(self):
@@ -502,5 +550,9 @@ class BooleanGenerator:
         Need to reset the buffers used in this instance.
 
         """
+        if self.logictools_controller.status[
+                self.__class__.__name__] != 'RESET':
+            self.reset()
+            self.logictools_controller.check_status()
         if self.analyzer:
             self.analyzer.__del__()

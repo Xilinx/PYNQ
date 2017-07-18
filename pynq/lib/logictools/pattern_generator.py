@@ -28,82 +28,20 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import re
 from copy import deepcopy
 import numpy as np
 from .constants import *
 from .logictools_controller import LogicToolsController
 from .waveform import Waveform
+from .waveform import wave_to_bitstring
+from .waveform import bitstring_to_int
+from .waveform import int_to_sample
 from .trace_analyzer import TraceAnalyzer
 
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
-
-
-def wave_to_bitstring(wave):
-    """Function to convert a pattern consisting of `l`, `h`, and dot to a
-    sequence of `0` and `1`.
-
-    Parameters
-    ----------
-    wave : str
-        The input string to convert.
-
-    Returns
-    -------
-    str
-        A bit sequence of 0's and 1's.
-
-    """
-    substitution_map = {'l': '0', 'h': '1'}
-
-    def delete_dots(match):
-        return substitution_map[match.group()[0]] * len(match.group())
-
-    wave_regex = re.compile(r'[l]\.*|[h]\.*')
-    return re.sub(wave_regex, delete_dots, wave)
-
-
-def bitstring_to_int(bitstring):
-    """Function to convert a bit string to integer list.
-
-    For example, if the bit string is '0110', then the integer list will be
-    [0,1,1,0].
-
-    Parameters
-    ----------
-    bitstring : str
-        The input string to convert.
-
-    Returns
-    -------
-    list
-        A list of elements, each element being 0 or 1.
-
-    """
-    return [int(i, 10) for i in list(bitstring)]
-
-
-def int_to_sample(bits):
-    """Function to convert a bit list into a multi-bit sample.
-
-    Example: [1, 1, 1, 0] will be converted to 7, since the LSB of the 
-    sample appears first in the sequence.
-
-    Parameters
-    ----------
-    bits : list
-        A list of bits, each element being 0 or 1.
-
-    Returns
-    -------
-    int
-        A numpy uint32 converted from the bit samples.
-
-    """
-    return np.uint32(int("".join(map(str, list(bits[::-1]))), 2))
 
 
 class PatternGenerator:
@@ -248,7 +186,7 @@ class PatternGenerator:
         return self._longest_wave
 
     def trace(self, use_analyzer=True,
-              num_analyzer_samples=MAX_NUM_TRACE_SAMPLES):
+              num_analyzer_samples=MAX_NUM_PATTERN_SAMPLES):
         """Configure the trace analyzer.
 
         By default, the trace analyzer is always on, unless users explicitly
@@ -274,6 +212,7 @@ class PatternGenerator:
 
     def setup(self, waveform_dict,
               stimulus_group_name=None, analysis_group_name=None,
+              mode='single',
               frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ):
         """Configure the pattern generator with a single bit pattern.
 
@@ -289,6 +228,9 @@ class PatternGenerator:
         Users can ignore the returned data in case only the pattern
         generator is required.
 
+        Mode `single` means the pattern will be generated only once, while 
+        mode `multiple` means the pattern will be generated repeatedly.
+
         Parameters
         ----------
         waveform_dict : dict
@@ -297,6 +239,8 @@ class PatternGenerator:
             Name of the WaveLane group for the stimulus if used.
         analysis_group_name : str
             Name of the WaveLane group for the analysis if used.
+        mode : str
+            Mode of the pattern generator, can be `single` or `multiple`.
         frequency_mhz: float
             The frequency of the captured samples, in MHz.
 
@@ -373,9 +317,15 @@ class PatternGenerator:
             for index, data in enumerate(self.src_samples):
                 self.logictools_controller.buffers['src_buf'][index + 1] = data
 
-        # Wait for the Microblaze processor to return control (1 : multiple)
-        self.logictools_controller.write_control([direction_mask, src_addr,
-                                                 1 + num_valid_samples, 1])
+        # Wait for the Microblaze processor to return control
+        if mode == 'multiple':
+            self.logictools_controller.write_control(
+                [direction_mask, src_addr, 1 + num_valid_samples, 1])
+        elif mode == 'single':
+            self.logictools_controller.write_control(
+                [direction_mask, src_addr, 1 + num_valid_samples, 0])
+        else:
+            raise ValueError("Mode can only be single or multiple.")
         self.logictools_controller.write_command(CMD_CONFIG_PATTERN)
 
         # Configure the trace analyzer and frequency
@@ -391,6 +341,7 @@ class PatternGenerator:
 
         # Update generator status
         self.logictools_controller.check_status()
+        self.logictools_controller.steps = 0
 
     def reset(self):
         """Reset the pattern generator.
@@ -475,11 +426,14 @@ class PatternGenerator:
             raise ValueError(
                 "Generator must be at least READY before RUNNING.")
         self.connect()
+        self.logictools_controller.steps = 0
+
         cmd_run = CMD_RUN | PATTERN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_run |= TRACE_ENGINE_BIT
         self.logictools_controller.write_command(cmd_run)
         self.logictools_controller.check_status()
+        self.analyze()
 
     def step(self):
         """Step the pattern generator.
@@ -493,12 +447,38 @@ class PatternGenerator:
                 self.__class__.__name__] == 'RESET':
             raise ValueError(
                 "Generator must be at least READY before RUNNING.")
-        self.connect()
+
+        if self.logictools_controller.steps == 0:
+            self.connect()
+            cmd_step = CMD_STEP | PATTERN_ENGINE_BIT
+            if self.analyzer is not None:
+                cmd_step |= TRACE_ENGINE_BIT
+            self.logictools_controller.write_command(cmd_step)
+        self.logictools_controller.steps += 1
+
         cmd_step = CMD_STEP | PATTERN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_step |= TRACE_ENGINE_BIT
         self.logictools_controller.write_command(cmd_step)
         self.logictools_controller.check_status()
+        self.analyze()
+
+    def analyze(self):
+        """Update the captured samples.
+
+        This method updates the captured samples from the trace analyzer.
+        It is required after each step() / run()
+
+        """
+        if self.analyzer is not None:
+            self.analysis_group = self.analyzer.analyze(
+                self.logictools_controller.steps)
+            if self.logictools_controller.steps:
+                self.waveform.append(self.analysis_group_name,
+                                     self.analysis_group)
+            else:
+                self.waveform.update(self.analysis_group_name,
+                                     self.analysis_group)
 
     def stop(self):
         """Stop the pattern generation.
@@ -506,14 +486,23 @@ class PatternGenerator:
         This method will stop the currently running pattern generator.
 
         """
-        if self.logictools_controller.status[
-                self.__class__.__name__] == 'RUNNING':
-            cmd_stop = CMD_STOP | PATTERN_ENGINE_BIT
-            if self.analyzer is not None:
-                cmd_stop |= TRACE_ENGINE_BIT
-            self.logictools_controller.write_command(cmd_stop)
-            self.disconnect()
-            self.logictools_controller.check_status()
+        cmd_stop = CMD_STOP | PATTERN_ENGINE_BIT
+        if self.analyzer is not None:
+            cmd_stop |= TRACE_ENGINE_BIT
+        self.logictools_controller.write_command(cmd_stop)
+        self.disconnect()
+        self.logictools_controller.check_status()
+        self.clear_wave()
+        self.logictools_controller.steps = 0
+
+    def clear_wave(self):
+        """Clear the waveform object so new patterns can be accepted.
+
+        This function is required after each `stop()`.
+
+        """
+        if self.waveform:
+            self.waveform.clear_wave(self.analysis_group_name)
 
     def show_waveform(self):
         """Display the waveform in Jupyter notebook.
@@ -525,8 +514,14 @@ class PatternGenerator:
         if self.analyzer is None:
             raise ValueError("Trace disabled, please enable and rerun.")
 
-        self.analysis_group = self.analyzer.analyze()
-        self.waveform.update(self.analysis_group_name, self.analysis_group)
+        if 0 < self.logictools_controller.steps < 3:
+            for key in self.waveform.waveform_dict:
+                for annotation in ['tick', 'tock']:
+                    if annotation in self.waveform.waveform_dict[key]:
+                        del self.waveform.waveform_dict[key][annotation]
+        else:
+            self.waveform.waveform_dict['foot'] = {'tock': 1}
+
         self.waveform.display()
 
     def _get_max_wave_length(self):
@@ -581,5 +576,9 @@ class PatternGenerator:
         Need to reset the buffers used in this instance.
 
         """
+        if self.logictools_controller.status[
+                self.__class__.__name__] != 'RESET':
+            self.reset()
+            self.logictools_controller.check_status()
         if self.analyzer:
             self.analyzer.__del__()

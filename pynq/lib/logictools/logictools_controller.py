@@ -79,6 +79,9 @@ class LogicToolsController(PynqMicroblaze):
         A dictionary of pins available from the interface specification.
     status : dict
         A dictionary keeping track of the generator status.
+    steps : int
+        The number of steps during `step()` method. Equals 
+        `num_analyzer_samples` when `run()` is called.
 
     """
     __instance = None
@@ -160,6 +163,7 @@ class LogicToolsController(PynqMicroblaze):
                 set(self.intf_spec['non_traceable_outputs'].keys()) |
                 set(self.intf_spec['non_traceable_inputs'].keys()))
             self.pin_map = {k: 'UNUSED' for k in pin_list}
+            self.steps = 0
             self.__class__.__initialized = True
 
     def program(self):
@@ -267,6 +271,7 @@ class LogicToolsController(PynqMicroblaze):
         self.write_command(cmd_reset)
         for generator in generator_list:
             generator.reset()
+        self.steps = 0
         self.check_status()
 
     def run(self, generator_list):
@@ -284,20 +289,25 @@ class LogicToolsController(PynqMicroblaze):
             A list of READY generators, each being a generator object.
 
         """
-        cmd_run = CMD_RUN
         for generator in generator_list:
             generator_type = generator.__class__.__name__
             if self.status[generator_type] == 'RESET':
                 raise ValueError(
                         "{} must be at least READY before RUNNING.".format(
                             generator_type))
-            else:
-                generator.connect()
-                cmd_run |= GENERATOR_ENGINE_DICT[generator_type]
-                if generator.analyzer is not None:
-                    analyzer_type = generator.analyzer.__class__.__name__
-                    cmd_run |= GENERATOR_ENGINE_DICT[analyzer_type]
+
+        cmd_run = CMD_RUN
+        for generator in generator_list:
+            generator_type = generator.__class__.__name__
+            generator.connect()
+            cmd_run |= GENERATOR_ENGINE_DICT[generator_type]
+            if generator.analyzer is not None:
+                analyzer_type = generator.analyzer.__class__.__name__
+                cmd_run |= GENERATOR_ENGINE_DICT[analyzer_type]
+
         self.write_command(cmd_run)
+        for generator in generator_list:
+            generator.analyze()
         self.check_status()
 
     def step(self, generator_list):
@@ -315,20 +325,30 @@ class LogicToolsController(PynqMicroblaze):
             A list of READY generators, each being a generator object.
 
         """
-        cmd_step = CMD_STEP
         for generator in generator_list:
             generator_type = generator.__class__.__name__
             if self.status[generator_type] == 'RESET':
                 raise ValueError(
                     "{} must be at least READY before RUNNING.".format(
                         generator_type))
-            else:
+
+        cmd_step = CMD_STEP
+        for generator in generator_list:
+            generator_type = generator.__class__.__name__
+            cmd_step |= GENERATOR_ENGINE_DICT[generator_type]
+            if generator.analyzer is not None:
+                analyzer_type = generator.analyzer.__class__.__name__
+                cmd_step |= GENERATOR_ENGINE_DICT[analyzer_type]
+
+        if self.steps == 0:
+            for generator in generator_list:
                 generator.connect()
-                cmd_step |= GENERATOR_ENGINE_DICT[generator_type]
-                if generator.analyzer is not None:
-                    analyzer_type = generator.analyzer.__class__.__name__
-                    cmd_step |= GENERATOR_ENGINE_DICT[analyzer_type]
+            self.write_command(cmd_step)
+        self.steps += 1
+
         self.write_command(cmd_step)
+        for generator in generator_list:
+            generator.analyze()
         self.check_status()
 
     def stop(self, generator_list):
@@ -356,6 +376,8 @@ class LogicToolsController(PynqMicroblaze):
         self.write_command(cmd_stop)
         for generator in generator_list:
             generator.disconnect()
+            generator.clear_wave()
+        self.steps = 0
         self.check_status()
 
     def __del__(self):

@@ -29,6 +29,7 @@
 
 
 from copy import deepcopy
+import re
 import os
 import json
 import IPython.core.display
@@ -41,6 +42,93 @@ __email__ = "pynq_support@xilinx.com"
 
 
 PYNQ_JUPYTER_NOTEBOOKS = '/home/xilinx/jupyter_notebooks'
+
+
+def bitstring_to_wave(bitstring):
+    """Function to convert a pattern consisting of `0`, `1` into a sequence
+    of `l`, `h`, and dots.
+
+    For example, if the bit string is "010011000111", then the result will be
+    "lhl.h.l..h..".
+
+    Returns
+    -------
+    str
+        New wave tokens with valid tokens and dots.
+
+    """
+    substitution_map = {'0': 'l', '1': 'h', '.': '.'}
+
+    def insert_dots(match):
+        return substitution_map[match.group()[0]] + \
+            '.' * (len(match.group()) - 1)
+
+    bit_regex = re.compile(r'[0][0]*|[1][1]*')
+    return re.sub(bit_regex, insert_dots, bitstring)
+
+
+def wave_to_bitstring(wave):
+    """Function to convert a pattern consisting of `l`, `h`, and dot to a
+    sequence of `0` and `1`.
+
+    Parameters
+    ----------
+    wave : str
+        The input string to convert.
+
+    Returns
+    -------
+    str
+        A bit sequence of 0's and 1's.
+
+    """
+    substitution_map = {'l': '0', 'h': '1'}
+
+    def delete_dots(match):
+        return substitution_map[match.group()[0]] * len(match.group())
+
+    wave_regex = re.compile(r'[l]\.*|[h]\.*')
+    return re.sub(wave_regex, delete_dots, wave)
+
+
+def bitstring_to_int(bitstring):
+    """Function to convert a bit string to integer list.
+
+    For example, if the bit string is '0110', then the integer list will be
+    [0,1,1,0].
+
+    Parameters
+    ----------
+    bitstring : str
+        The input string to convert.
+
+    Returns
+    -------
+    list
+        A list of elements, each element being 0 or 1.
+
+    """
+    return [int(i, 10) for i in list(bitstring)]
+
+
+def int_to_sample(bits):
+    """Function to convert a bit list into a multi-bit sample.
+
+    Example: [1, 1, 1, 0] will be converted to 7, since the LSB of the 
+    sample appears first in the sequence.
+
+    Parameters
+    ----------
+    bits : list
+        A list of bits, each element being 0 or 1.
+
+    Returns
+    -------
+    int
+        A numpy uint32 converted from the bit samples.
+
+    """
+    return np.uint32(int("".join(map(str, list(bits[::-1]))), 2))
 
 
 def _verify_wave_tokens(wave_lane):
@@ -475,7 +563,6 @@ class Waveform:
         {'name': '', 'pin': 'D2', 'wave': 'lhlhlhlh....'}]
 
         Note the all the lanes should have the same number of samples.
-        There are 20 such lanes returned by the analyzer.
         Note each lane in the analysis group has its pin number. Based on this
         information, this function only updates the lanes specified.
 
@@ -506,3 +593,77 @@ class Waveform:
         for index, group in enumerate(self.waveform_dict['signal']):
             if group and (group[0] == group_name):
                 self.waveform_dict['signal'][index] = updated_group
+
+    def append(self, group_name, wavelane_group):
+        """Append new data to the existing waveform dictionary.
+
+        A typical use case of this method is that it gets the output returned
+        by the analyzer and append new data to the dictionary.
+
+        Since the analyzer only knows the pin labels, the data returned from
+        the pattern analyzer is usually of format:
+
+        [{'name': '', 'pin': 'D1', 'wave': 'l...h...lhlh'},
+        {'name': '', 'pin': 'D2', 'wave': 'lhlhlhlh....'}]
+
+        Note the all the lanes should have the same number of samples.
+        Note each lane in the analysis group has its pin number. Based on this
+        information, this function only updates the lanes specified.
+
+        Parameters
+        ----------
+        group_name : str
+            The name of the WaveLane group to be updated.
+        wavelane_group : list
+            The WaveLane group specified for updating.
+
+        """
+        pin_to_name = {}
+        pin_to_wave = {}
+        updated_group = [group_name]
+        for group in self.waveform_dict['signal']:
+            if group and (group[0] == group_name):
+                for wavelane in group[1:]:
+                    name, pin = wavelane['name'], wavelane['pin']
+                    if 'wave' in wavelane:
+                        pin_to_wave[pin] = wavelane['wave']
+                    else:
+                        pin_to_wave[pin] = ''
+                    pin_to_name[pin] = name
+                for wavelane in wavelane_group:
+                    pin, wave = wavelane['pin'], wavelane['wave']
+                    if pin in pin_to_name:
+                        if pin_to_wave[pin]:
+                            merged_wave = bitstring_to_wave(
+                                wave_to_bitstring(pin_to_wave[pin]) +
+                                wave_to_bitstring(wave))
+                        else:
+                            merged_wave = wave
+                        updated_dict = {'name': pin_to_name[pin],
+                                        'pin': pin,
+                                        'wave': merged_wave}
+                        updated_group.append(updated_dict)
+                break
+
+        for index, group in enumerate(self.waveform_dict['signal']):
+            if group and (group[0] == group_name):
+                self.waveform_dict['signal'][index] = updated_group
+
+    def clear_wave(self, group_name):
+        """Clear the wave in the existing waveform dictionary.
+
+        This method will clear the wave stored in each wavelane, so that 
+        a brand-new waveform dict can be constructed.
+
+        Parameters
+        ----------
+        group_name : str
+            The name of the WaveLane group to be updated.
+
+        """
+        for index, group in enumerate(self.waveform_dict['signal']):
+            if group and (group[0] == group_name):
+                for lane_index, wavelane in enumerate(group):
+                    if type(wavelane) is dict and 'wave' in wavelane:
+                        self.waveform_dict[
+                            'signal'][index][lane_index]['wave'] = ''

@@ -1,14 +1,14 @@
 # Makefile to build select Microblaze projects.
 
 
-BIN_LOGICTOOLS = logictools.bin
+BIN_LOGICTOOLS_CONTROLLER = logictools_controller.bin
 
-all: logictools_bins
+all: logictools_controller_bins
 	@echo
 	@tput setaf 2 ; echo "Completed Microblaze Projects' Builds"; tput sgr0;
 	@echo
 
-logictools_bins: $(BIN_LOGICTOOLS)
+logictools_controller_bins: $(BIN_LOGICTOOLS_CONTROLLER)
 	@cp */Debug/*.bin .
 
 %.bin: FORCE

@@ -28,39 +28,16 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import re
 from collections import OrderedDict
 import numpy as np
 from .constants import *
 from .logictools_controller import LogicToolsController
+from .waveform import bitstring_to_wave
 
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
-
-
-def bitstring_to_wave(bitstring):
-    """Function to convert a pattern consisting of `0`, `1` into a sequence
-    of `l`, `h`, and dots.
-
-    For example, if the bit string is "010011000111", then the result will be
-    "lhl.h.l..h..".
-
-    Returns
-    -------
-    str
-        New wave tokens with valid tokens and dots.
-
-    """
-    substitution_map = {'0': 'l', '1': 'h', '.': '.'}
-
-    def insert_dots(match):
-        return substitution_map[match.group()[0]] + \
-            '.' * (len(match.group()) - 1)
-
-    bit_regex = re.compile(r'[0][0]*|[1][1]*')
-    return re.sub(bit_regex, insert_dots, bitstring)
 
 
 def get_tri_state_pins(input_dict, output_dict, tri_dict):
@@ -319,7 +296,7 @@ class TraceAnalyzer:
         self.logictools_controller.reset_buffers()
         self.__class__.__initialized = False
 
-    def analyze(self):
+    def analyze(self, steps):
         """Analyze the captured pattern.
 
         This function will process the captured pattern and put the pattern
@@ -340,6 +317,12 @@ class TraceAnalyzer:
         The first sample captured is a dummy sample (for both pattern generator
         and FSM generator), therefore we have to discard the first sample.
 
+        Parameters
+        ----------
+        steps : int
+            Number of samples to analyze, if it is non-zero, it means the 
+            generator is working in the `step()` mode.
+
         Returns
         -------
         list
@@ -358,10 +341,15 @@ class TraceAnalyzer:
             'trace_buf', (1 + self.num_analyzer_samples) * trace_byte_width,
             dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
 
-        # Exclude the first dummy sample
-        num_valid_samples = len(samples) - 1
-        self.samples = np.zeros(num_valid_samples, dtype='>i8')
-        np.copyto(self.samples, samples[1:])
+        # Exclude the first dummy sample when not in step()
+        if steps == 0:
+            num_valid_samples = len(samples) - 1
+            self.samples = np.zeros(num_valid_samples, dtype='>i8')
+            np.copyto(self.samples, samples[1:])
+        else:
+            num_valid_samples = 1
+            self.samples = np.zeros(num_valid_samples, dtype='>i8')
+            np.copyto(self.samples, samples[0])
         temp_bytes = np.frombuffer(self.samples, dtype=np.uint8)
         bit_array = np.unpackbits(temp_bytes)
         temp_lanes = bit_array.reshape(
