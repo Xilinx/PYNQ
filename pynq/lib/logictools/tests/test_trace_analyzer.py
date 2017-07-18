@@ -85,10 +85,10 @@ def test_trace_max_samples():
 
 
 @pytest.mark.skipif(not flag, reason="need correct overlay to run")
-def test_trace_states():
+def test_trace_run():
     """Test for the TraceAnalyzer class.
 
-    The 2nd group of tests will examine 1, 2, or MAX_NUM_TRACE_SAMPLES
+    This group of tests will examine 1, 2, or MAX_NUM_TRACE_SAMPLES
     samples. No exception should be raised in these cases. For each case,
     all the methods are tested, and the states of the trace analyzer have been
     checked.
@@ -106,7 +106,36 @@ def test_trace_states():
         analyzer.stop()
         assert analyzer.status == 'READY'
 
-        analyzer.analyze()
+        analyzer.analyze(0)
+        analyzer.reset()
+        assert analyzer.status == 'RESET'
+
+        analyzer.__del__()
+
+
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_trace_step():
+    """Test for the TraceAnalyzer class.
+
+    This group of tests will try to analyze 1, 2, or MAX_NUM_TRACE_SAMPLES
+    samples. No exception should be raised in these cases. For each case,
+    all the methods are tested, and the states of the trace analyzer have been
+    checked.
+
+    """
+    ol.download()
+    for num_samples in [1, 2, MAX_NUM_TRACE_SAMPLES]:
+        analyzer = TraceAnalyzer(mb_info)
+        assert analyzer.status == 'RESET'
+
+        analyzer.setup(num_analyzer_samples=MAX_NUM_TRACE_SAMPLES)
+        assert analyzer.status == 'READY'
+
+        analyzer.run()
+        analyzer.stop()
+        assert analyzer.status == 'READY'
+
+        analyzer.analyze(num_samples)
         analyzer.reset()
         assert analyzer.status == 'RESET'
 
@@ -117,7 +146,7 @@ def test_trace_states():
 def test_trace_buffers():
     """Test for the TraceAnalyzer class.
 
-    The 3rd group of tests will examine a scenario where 2 trace analyzers are
+    This group of tests will examine a scenario where 2 trace analyzers are
     instantiated. This should be no problem since the trace analyzer is 
     implemented as a singleton.
     
@@ -134,7 +163,7 @@ def test_trace_buffers():
                 num_samples[i])
 
         analyzers[i].run()
-        analyzers[i].analyze()
+        analyzers[i].analyze(0)
         assert analyzers[i].samples is not None, \
             'Analyzer with {} samples has empty raw samples.'.format(
                 num_samples[i])
