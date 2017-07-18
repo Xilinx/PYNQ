@@ -14,3 +14,4 @@ Overlay Design Methodology
    overlay_design_methodology/iop_index
    overlay_design_methodology/packaging_overlays
    overlay_design_methodology/attributes.ipynb
+   overlay_design_methodology/interrupts

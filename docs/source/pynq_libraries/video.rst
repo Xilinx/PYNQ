@@ -1,32 +1,42 @@
+Video
+=====
 
-Video Subsystem
-============================
+The Video subsystem consists of a HDMI-in block, a HDMI-out block, and a Video
+DMA.
 
-The Video subsystem consists of a HDMI-in block, a HDMI-out block, and a Video DMA.
-   
-.. image:: ../../images/video_subsystem.png
+Video data can be captured from the HDMI-in, and streamed to DRAM using the
+Video DMA, or streamed from DRAM to the HDMI-out.
+
+The video subsystem also supports color space conversions, e.g. from YCrCb to
+RGB and back, and changing the number of channels in each pixel. This is
+accomplished by hardware blocks integrated into both the HDMI-in and HDMI-out
+blocks.
+
+Block Diagram
+-------------
+.. image:: ../images/video_subsystem.png
    :align: center
-   
-Video data can be captured from the HDMI-in, and streamed to DRAM using the Video DMA, or streamed from DRAM to the HDMI-out.
-
-The video subsystem also supports color space conversions, e.g. from YCrCb to RGB and back, and changing the number of channels in each pixel. This is accomplished by hardware blocks integrated into both the HDMI-in and HDMI-out blocks. 
 
 HDMI-In
-------------
+^^^^^^^
    
-.. image:: ../../images/hdmi_in_subsystem.png
+.. image:: ../images/hdmi_in_subsystem.png
    :align: center
 
-The Pixel Unpack and the Color Convert block allow conversion between different color spaces at runtime. See below for more information on the color space. 
+The Pixel Unpack and the Color Convert block allow conversion between different
+color spaces at runtime. See below for more information on the color space.
 
 
 HDMI-Out
---------------
+^^^^^^^^
    
-.. image:: ../../images/hdmi_out_subsystem.png
+.. image:: ../images/hdmi_out_subsystem.png
    :align: center
 
-The HDMI-out is similar to HDMI-in. It has a Pixel Pack block (instead of the *Unpack* block for HDMI-in) and a Color Convert block. 
+The HDMI-out is similar to HDMI-in. It has a Pixel Pack block (instead of the *Unpack* block for HDMI-in) and a Color Convert block.
+
+Examples
+--------
 
 Color space conversion
 ---------------------------
@@ -132,9 +142,16 @@ For the PYNQ-Z1 which has a 16-bit DRAM, up to 1080p cwgraysc (8-bits per pixel)
 Examples
 ------------------
 
-Basic HDMI operation
-^^^^^^^^^^^^^^^^^^^^^^^^
+For more examples, see the `PYNQ video notebooks on GitHub
+<https://github.com/Xilinx/PYNQ/tree/image_v1.5/boards/Pynq-Z1/base/notebooks/video>`_
+or on the board in the following directory:
 
+   .. code-block:: console
+
+      <Jupyter Home>base\video
+
+Initialization
+^^^^^^^^^^^^^^
 Set up an instance of the HDMI-in, and HDMI-out. 
 
 .. code-block:: Python
@@ -145,13 +162,20 @@ Set up an instance of the HDMI-in, and HDMI-out.
     hdmi_in = base.video.hdmi_in
     hdmi_out = base.video.hdmi_out
 
-The HDMI-in interface is enabled using the ``configure`` function which can optionally take a colorspace parameter. If no colorspace is specified then 24-bit BGR is used by default. The HDMI-in *mode* can be used to configure the HDMI-out block. This specifies the output color space and resolution. 
+Configuration
+^^^^^^^^^^^^^    
+The HDMI-in interface is enabled using the ``configure`` function which can
+optionally take a colorspace parameter. If no colorspace is specified then
+24-bit BGR is used by default. The HDMI-in *mode* can be used to configure the
+HDMI-out block. This specifies the output color space and resolution.
 
 .. code-block:: Python
 
     hdmi_in.configure()
     hdmi_out.configure(hdmi_in.mode)
-    
+
+Running
+^^^^^^^
 Once the HDMI controllers have been configured, they can be started:
 
 .. code-block:: Python
@@ -165,7 +189,9 @@ To connect a simple stream from HDMI-in to HDMI-out, the two streams can be tied
 
     hdmi_in.tie(hdmi_out)
 
-This takes the unmodified input stream and passes it directly to the output. While the input and output are tied frames can still be read from the input but any call to ``hdmi_out.writeframe`` will end the tie.
+This takes the unmodified input stream and passes it directly to the
+output. While the input and output are tied frames can still be read from the
+input but any call to ``hdmi_out.writeframe`` will end the tie.
 
 .. code-block:: Python
 
@@ -173,11 +199,7 @@ This takes the unmodified input stream and passes it directly to the output. Whi
     ...
     hdmi_out.writeframe(frame)
     
-This would allow some processing could be carried out on the HDMI-in *frame* before writing it to the HDMI-out.
+This would allow some processing could be carried out on the HDMI-in *frame*
+before writing it to the HDMI-out.
 
 
-For more examples, see the `PYNQ video notebooks on GitHub <https://github.com/Xilinx/PYNQ/tree/image_v1.5/boards/Pynq-Z1/base/notebooks/video>`_ or on the board in the following directory:
-
-   .. code-block:: console
-
-      <Jupyter Home>base\video
