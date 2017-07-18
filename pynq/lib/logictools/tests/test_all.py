@@ -37,9 +37,9 @@ import numpy as np
 import pytest
 from pynq import Overlay
 from pynq.tests.util import user_answer_yes
-from pynq.lib.logictools.pattern_generator import bitstring_to_int
-from pynq.lib.logictools.pattern_generator import wave_to_bitstring
-from pynq.lib.logictools.trace_analyzer import bitstring_to_wave
+from pynq.lib.logictools.waveform import bitstring_to_int
+from pynq.lib.logictools.waveform import wave_to_bitstring
+from pynq.lib.logictools.waveform import bitstring_to_wave
 from pynq.lib.logictools import FSMGenerator
 from pynq.lib.logictools import PatternGenerator
 from pynq.lib.logictools import BooleanGenerator
@@ -230,15 +230,15 @@ def test_all_generators_data():
     pattern_generator.show_waveform()
     fsm_generator.show_waveform()
 
+    check_boolean_data(boolean_generator)
+    check_pattern_data(pattern_generator)
+    check_fsm_data(fsm_generator)
+
     logictools_controller.stop([fsm_generator,
                                 pattern_generator,
                                 boolean_generator])
     for generator_name in logictools_controller.status:
         assert logictools_controller.status[generator_name] == 'READY'
-
-    check_boolean_data(boolean_generator)
-    check_pattern_data(pattern_generator)
-    check_fsm_data(fsm_generator)
 
     logictools_controller.reset([fsm_generator,
                                 pattern_generator,

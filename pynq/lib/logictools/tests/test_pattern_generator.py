@@ -34,7 +34,7 @@ import pytest
 from pynq import Overlay
 from pynq.tests.util import user_answer_yes
 from pynq.lib.logictools import PatternGenerator
-from pynq.lib.logictools.pattern_generator import wave_to_bitstring
+from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import ARDUINO
 from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
 from pynq.lib.logictools import MAX_NUM_PATTERN_SAMPLES
@@ -171,8 +171,6 @@ def test_pattern_state():
     assert pattern_generator.status == 'RUNNING'
 
     pattern_generator.show_waveform()
-    pattern_generator.stop()
-    assert pattern_generator.status == 'READY'
 
     loopback_recv = pattern_generator.waveform.waveform_dict
     list1 = list2 = list3 = list()
@@ -191,6 +189,8 @@ def test_pattern_state():
     assert list2 == list3, \
         'Stimulus not equal to analysis in captured patterns.'
 
+    pattern_generator.stop()
+    assert pattern_generator.status == 'READY'
     pattern_generator.reset()
     assert pattern_generator.status == 'RESET'
     del pattern_generator
@@ -274,7 +274,6 @@ def test_pattern_random():
                                 frequency_mhz=100)
         pattern_generator.run()
         pattern_generator.show_waveform()
-        pattern_generator.stop()
 
         loopback_recv = pattern_generator.waveform.waveform_dict
         list1 = list2 = list3 = list()
@@ -301,5 +300,6 @@ def test_pattern_random():
         assert list2 == list3, \
             'Stimulus not equal to analysis in captured patterns.'
 
+        pattern_generator.stop()
         pattern_generator.reset()
         del pattern_generator

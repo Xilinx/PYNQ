@@ -34,8 +34,8 @@ import numpy as np
 import pytest
 from pynq import Overlay
 from pynq.tests.util import user_answer_yes
-from pynq.lib.logictools.pattern_generator import bitstring_to_int
-from pynq.lib.logictools.pattern_generator import wave_to_bitstring
+from pynq.lib.logictools.waveform import bitstring_to_int
+from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import FSMGenerator
 from pynq.lib.logictools import ARDUINO
 from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
@@ -300,9 +300,6 @@ def test_fsm_num_samples():
             fsm_generator.show_waveform()
             assert fsm_generator.status == 'RUNNING'
 
-            fsm_generator.stop()
-            assert fsm_generator.status == 'READY'
-
             test_string = ''
             for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
                 if wavegroup and wavegroup[0] == 'analysis':
@@ -316,6 +313,9 @@ def test_fsm_num_samples():
                                   golden_test_array[:num_samples]), \
                 'Data pattern not correct when running at {}MHz.'.format(
                     fsm_frequency_mhz)
+
+            fsm_generator.stop()
+            assert fsm_generator.status == 'READY'
 
             fsm_generator.reset()
             assert fsm_generator.status == 'RESET'
@@ -353,7 +353,6 @@ def test_fsm_state_bits():
                             frequency_mhz=fsm_frequency_mhz)
         fsm_generator.run()
         fsm_generator.show_waveform()
-        fsm_generator.stop()
 
         test_string = state_bit0_string = state_bit1_string = ''
         for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
@@ -382,6 +381,7 @@ def test_fsm_state_bits():
             'Data pattern not correct when running at {}MHz.'.format(
                     fsm_frequency_mhz)
 
+        fsm_generator.stop()
         fsm_generator.reset()
         del fsm_generator
 
@@ -472,7 +472,6 @@ def test_fsm_num_states2():
         fsm_generator.setup(fsm_spec, frequency_mhz=100)
         fsm_generator.run()
         fsm_generator.show_waveform()
-        fsm_generator.stop()
 
         test_string = ''
         for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
@@ -492,6 +491,7 @@ def test_fsm_num_states2():
                               golden_test_array[:MAX_NUM_TRACE_SAMPLES]), \
             'Analysis not matching the generated pattern.'
 
+        fsm_generator.stop()
         fsm_generator.reset()
         del fsm_generator
 
@@ -522,7 +522,6 @@ def test_fsm_max_in_out():
     fsm_generator.setup(fsm_spec_inout, frequency_mhz=100)
     fsm_generator.run()
     fsm_generator.show_waveform()
-    fsm_generator.stop()
 
     test_strings = ['' for _ in range(num_output_pins)]
     test_arrays = [[] for _ in range(num_output_pins)]
@@ -544,6 +543,7 @@ def test_fsm_max_in_out():
                               golden_arrays[i][:MAX_NUM_TRACE_SAMPLES]), \
             'Output{} not matching the generated pattern.'.format(i)
 
+    fsm_generator.stop()
     fsm_generator.reset()
     del fsm_generator
 
@@ -573,7 +573,6 @@ def test_fsm_free_run():
     fsm_generator.setup(fsm_spec_inout, frequency_mhz=100)
     fsm_generator.run()
     fsm_generator.show_waveform()
-    fsm_generator.stop()
 
     test_strings = ['' for _ in range(num_output_pins)]
     test_arrays = [[] for _ in range(num_output_pins)]
@@ -592,5 +591,6 @@ def test_fsm_free_run():
         assert np.array_equal(test_arrays[i], golden_arrays[i]), \
             'Output{} not matching the generated pattern.'.format(i)
 
+    fsm_generator.stop()
     fsm_generator.reset()
     del fsm_generator
