@@ -11,7 +11,7 @@ Python productivity for Zynq (PYNQ) Documentation
    
    getting_started
    pynq_introduction
-   3_jupyter_notebook
+   jupyter_notebooks
    4_programming_python
    5_overlays_index
    creating_overlays_index
