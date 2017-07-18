@@ -10,7 +10,7 @@ Python productivity for Zynq (PYNQ) Documentation
    :maxdepth: 2
    
    getting_started
-   2_pynq
+   pynq_introduction
    3_jupyter_notebook
    4_programming_python
    5_overlays_index
