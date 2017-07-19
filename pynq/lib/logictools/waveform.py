@@ -178,9 +178,9 @@ def draw_wavedrom(data):
     wavedrom_js = '/js/WaveDrom.js'
     wavedromskin_js = '/js/WaveDromSkin.js'
     if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedrom_js):
-        raise RuntimeError(f'Cannot locate {wavedrom_js}.')
+        raise RuntimeError('Cannot locate {}.'.format(wavedrom_js))
     if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedromskin_js):
-        raise RuntimeError(f'Cannot locate {wavedromskin_js}.')
+        raise RuntimeError('Cannot locate {}.'.format(wavedromskin_js))
     current_path = os.getcwd()
     relative_path = os.path.relpath(PYNQ_JUPYTER_NOTEBOOKS, current_path)
 
