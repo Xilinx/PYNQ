@@ -2,9 +2,6 @@
 Verification
 ************
 
-.. contents:: Table of Contents
-   :depth: 2
- 
 This section documents the test infrastructure supplied with the `pynq` package. It is organized as follows:
 
 * *Running Tests* : describes how to run the pytest.
