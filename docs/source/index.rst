@@ -18,8 +18,8 @@ Python productivity for Zynq (PYNQ) Documentation
    overlay_design_methodology
    python_package
    modules
+   pynq_microsd_card
    verification
-   image_build
    faqs
    glossary
    references
