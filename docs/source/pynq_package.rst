@@ -1,23 +1,9 @@
-*********************
+****************
 ``pynq`` Package
-*********************
+****************
 
-All PYNQ code is contained in the *pynq* Python package and is can be found on
-the board at /home/xilinx/pynq.  This package is derived from the Github
-repository ``<GitHub repository>/pynq``.
-
-The pynq folder contains the Python source code for the PYNQ package and is
-organised as follows:
-
-.. image:: ./images/pynq_package_root.png
-   :align: center
-
-Subpackages:
-
-* lib - contains pmod, arduino and logictools modules, and modules for various
-  peripherals and IP (GPIO, DMA, Video, Audio)
-* notebooks - example Jupyter notebooks
-* tests - contains 
+All PYNQ code is contained in the *pynq* Python package and can be found on the
+on the `Github repository <https://github.com/xilinx/PYNQ/>`_.
 
 To learn more about Python package structures, please refer to the `official
 python documentation
@@ -25,39 +11,39 @@ python documentation
 
 Foundational modules:
 
-* ps.py - supports reading and writing of PS registers
-* pl.py - supports management of PL and includes generation of dictionaries from
-  overlay Tcl and download of overlays
-* overlay.py - used for management of overlays. This includes checking status,
-  loading overlays, and assignment of drivers
+  * pynq.ps - Facilitates management of the Processing System (PS) and PS/PL
+    interface.
+  * pynq.pl - Facilitates management of the Programmable Logic (PL).
+  * pynq.overlay - Manages the state, drivers, and and contents of overlays.
 
-The PS module allows the Zynq PS control and status register to be read and set
-at runtime. Reading of the ARM CPU clock, and setting of the PL clocks is
-currently supported.
+Data Movement modules:
 
-The PL module is used to manage the PL, including downloading of the overlay
-file. It acts as a singleton for the Overlay class. The overlay Tcl file is
-parsed by the PL module to generate the IP, GPIO, Interrupt, and interrupt pin
-dictionaries.
+  * pynq.mmio - Implements PYNQ Memory Mapped IO (MMIO) API
+  * pynq.gpio - Implements PYNQ General-Purpose IO (GPIO) by wrapping the Linux
+    Sysfs API
+  * pynq.xlnk - Implements Contiguous Memory Allocation for PYNQ DMA
 
-The overlay module inherits from the PL module and is used to manage the state
-and contents of a single overlay file. The Overlay module adds additional
-functionality to the PL module. For example, the PL module contains the method
-to download the overlay file. The Overlay module checks the required PL clock
-and sets them before calling the PL download() method.
+Interrupt/AsyncIO Module:
 
-Interrupt class:
+  * pynq.interrupt - Implements PYNQ asyncio
 
-* interrupt.py - PYNQ asyncio interrupt implementation
+Subpackages:
 
-Data movement classes:
-
-* mmio.py
-* xlnk.py 
-* gpio.py
-
-
+  * pynq.lib - Contains subpackages with drivers for for PMOD, Arduino and
+    Logictools PYNQ Libraries, and drivers for various communication controllers
+    (GPIO, DMA, Video, Audio)
+    
 .. toctree::
-   :maxdepth: 4
+    :hidden:
+       
+    pynq_package/pynq.interrupt
+    pynq_package/pynq.gpio
+    pynq_package/pynq.lib
+    pynq_package/pynq.mmio
+    pynq_package/pynq.overlay
+    pynq_package/pynq.ps
+    pynq_package/pynq.pl
+    pynq_package/pynq.xlnk
 
-   pynq_package/pynq
+
+    
