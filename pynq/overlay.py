@@ -236,7 +236,7 @@ class DefaultOverlay(PL):
         All the addressable IPs from PS7. Key is the name of the IP; value is
         a dictionary mapping the physical address, address range, IP type,
         configuration dictionary, and the state associated with that IP:
-        {str: {'phys_addr' : int, 'addr_range' : int,
+        {str: {'phys_addr' : int, 'addr_range' : int,\
                'type' : str, 'config' : dict, 'state' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
@@ -474,6 +474,7 @@ class DefaultIP(metaclass=RegisterIP):
         """Write to the MMIO device
 
         Parameters
+        ----------
         offset : int
             Address to write to
         value : int or bytes
