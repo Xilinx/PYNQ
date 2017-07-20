@@ -832,10 +832,10 @@ class FSMGenerator:
         'RESET' state.
 
         """
-        # Stop the running generator if necessary
-        self.stop()
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            self.stop()
 
-        # Clear all the reserved pins
         for i in self.output_pins + self.input_pins:
             self.logictools_controller.pin_map[i] = 'UNUSED'
 
@@ -858,7 +858,6 @@ class FSMGenerator:
         self._encoded_transitions.clear()
         self._bram_data = np.zeros(2 ** FSM_BRAM_ADDR_WIDTH, dtype=np.uint32)
 
-        # Send the reset command
         cmd_reset = CMD_RESET | FSM_ENGINE_BIT
         if self.analyzer is not None:
             cmd_reset |= TRACE_ENGINE_BIT

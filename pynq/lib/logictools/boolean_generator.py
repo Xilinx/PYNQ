@@ -365,10 +365,10 @@ class BooleanGenerator:
         'RESET' state.
 
         """
-        # Stop the running generator if necessary
-        self.stop()
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            self.stop()
 
-        # Clear all the reserved pins
         for i in self.output_pins + self.input_pins:
             self.logictools_controller.pin_map[i] = 'UNUSED'
 
@@ -378,7 +378,6 @@ class BooleanGenerator:
         self.waveforms.clear()
         self.frequency_mhz = 0
 
-        # Send the reset command
         cmd_reset = CMD_RESET | BOOLEAN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_reset |= TRACE_ENGINE_BIT
@@ -519,7 +518,7 @@ class BooleanGenerator:
 
         """
         for expr_label in self.expressions.keys():
-            if self.waveforms[expr_label]:
+            if expr_label in self.waveforms and self.waveforms[expr_label]:
                 self.waveforms[expr_label].clear_wave('stimulus')
                 self.waveforms[expr_label].clear_wave('analysis')
 

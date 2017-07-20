@@ -350,10 +350,10 @@ class PatternGenerator:
         'RESET' state.
 
         """
-        # Stop the running generator if necessary
-        self.stop()
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            self.stop()
 
-        # Clear all the reserved pins
         for i in self.stimulus_pins + self.analysis_pins:
             self.logictools_controller.pin_map[i] = 'UNUSED'
 
@@ -374,7 +374,6 @@ class PatternGenerator:
         self._longest_wave = None
         self._max_wave_length = 0
 
-        # Send the reset command
         cmd_reset = CMD_RESET | PATTERN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_reset |= TRACE_ENGINE_BIT
