@@ -55,7 +55,7 @@ class PatternGenerator:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     stimulus_group : dict
         A group of stimulus wavelanes. 
     stimulus_group_name : str
@@ -93,7 +93,8 @@ class PatternGenerator:
         The frequency of the running generator / captured samples, in MHz.
 
     """
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Return a new pattern generator object.
 
         Parameters

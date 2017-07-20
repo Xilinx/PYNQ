@@ -39,7 +39,7 @@ from pynq.lib.logictools import LogicToolsController
 from pynq.lib.logictools import BooleanGenerator
 from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 
 
 __author__ = "Yun Rock Qu"
@@ -68,7 +68,7 @@ def test_bool_state():
     """
     ol.download()
     input('\nDisconnect all the pins. Hit enter after done ...')
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_6_pins = [k for k in list(pin_dict.keys())[:6]]
     out_pin = first_6_pins[5]
     in_pins = first_6_pins[0:5]
@@ -139,7 +139,7 @@ def test_bool_multiple():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_10_pins = [k for k in list(pin_dict.keys())[:10]]
     in_pins = first_10_pins[0:5]
     out_pins = first_10_pins[5:10]
@@ -203,7 +203,7 @@ def test_bool_step():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_10_pins = [k for k in list(pin_dict.keys())[:10]]
     in_pins = first_10_pins[0:5]
     out_pins = first_10_pins[5:10]
@@ -261,7 +261,7 @@ def test_bool_zero_inputs():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_1_pin = list(pin_dict.keys())[0]
     expr_no_input = first_1_pin + '='
 
@@ -286,7 +286,7 @@ def test_bool_six_inputs():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_1_pin = list(pin_dict.keys())[0]
     next_6_pins = [k for k in list(pin_dict.keys())[1:7]]
     expr_6_inputs = first_1_pin + '=' + ('&'.join(next_6_pins))
@@ -312,7 +312,7 @@ def test_bool_zero_outputs():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_1_pin = list(pin_dict.keys())[0]
     expr_no_rhs = first_1_pin
 
@@ -340,8 +340,8 @@ def test_bool_max_num_expr():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-    interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+    interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
     all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
     num_expressions = interface_width - 1
     in_pin = all_pins[0]

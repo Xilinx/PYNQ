@@ -38,7 +38,7 @@ from pynq.lib.logictools.waveform import bitstring_to_int
 from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import FSMGenerator
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 from pynq.lib.logictools import MAX_NUM_TRACE_SAMPLES
 from pynq.lib.logictools import FSM_MIN_NUM_STATES
 from pynq.lib.logictools import FSM_MAX_NUM_STATES
@@ -62,8 +62,8 @@ if flag1:
 flag = flag0 and flag1
 
 
-pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
 
 
 def build_fsm_spec_4_state(direction_logic_value):

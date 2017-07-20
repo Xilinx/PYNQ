@@ -239,7 +239,7 @@ class Waveform:
     waveform_dict : dict
         The json data stored in the dictionary.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     stimulus_group_name : str
         Name of the WaveLane group for the stimulus, defaulted to `stimulus`.
     analysis_group_name : str
@@ -252,7 +252,7 @@ class Waveform:
     """
 
     def __init__(self, waveform_dict,
-                 intf_spec_name='PYNQZ1_DIO_SPECIFICATION',
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION',
                  stimulus_group_name=None, analysis_group_name=None):
         """Initializer for this wrapper class.
 

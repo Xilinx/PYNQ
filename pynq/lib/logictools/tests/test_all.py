@@ -46,7 +46,7 @@ from pynq.lib.logictools import PatternGenerator
 from pynq.lib.logictools import BooleanGenerator
 from pynq.lib.logictools import LogicToolsController
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 from pynq.lib.logictools import MAX_NUM_PATTERN_SAMPLES
 from pynq.lib.logictools import FSM_MIN_STATE_BITS
 from pynq.lib.logictools import FSM_MAX_STATE_BITS
@@ -74,8 +74,8 @@ if flag1:
 flag = flag0 and flag1
 
 
-pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
 all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
 
 # FSM spec
@@ -139,9 +139,9 @@ test_expressions = list()
 test_expressions.append(all_pins[12] + '=' + ('&'.join(in_pins)))
 test_expressions.append(
     all_pins[13] + '=' +
-    list(PYNQZ1_DIO_SPECIFICATION['non_traceable_inputs'].keys())[0])
+    list(PYNQZ1_LOGICTOOLS_SPECIFICATION['non_traceable_inputs'].keys())[0])
 test_expressions.append(
-    list(PYNQZ1_DIO_SPECIFICATION['non_traceable_outputs'].keys())[0] +
+    list(PYNQZ1_LOGICTOOLS_SPECIFICATION['non_traceable_outputs'].keys())[0] +
     '=' + ('|'.join(in_pins)))
 
 
@@ -213,8 +213,8 @@ def test_all_generators_data():
 
     """
     ol.download()
-    logictools_controller = LogicToolsController(mb_info,
-                                                 'PYNQZ1_DIO_SPECIFICATION')
+    logictools_controller = LogicToolsController(
+        mb_info, 'PYNQZ1_LOGICTOOLS_SPECIFICATION')
     for generator_name in logictools_controller.status:
         assert logictools_controller.status[generator_name] == 'RESET'
 
@@ -279,8 +279,8 @@ def test_all_generators_step():
 
     """
     ol.download()
-    logictools_controller = LogicToolsController(mb_info,
-                                                 'PYNQZ1_DIO_SPECIFICATION')
+    logictools_controller = LogicToolsController(
+        mb_info, 'PYNQZ1_LOGICTOOLS_SPECIFICATION')
     for generator_name in logictools_controller.status:
         assert logictools_controller.status[generator_name] == 'RESET'
 

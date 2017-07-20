@@ -305,7 +305,7 @@ class FSMGenerator:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     fsm_spec : dict
         The FSM specification, with inputs (list), outputs (list),
         states (list), and transitions (list).
@@ -340,7 +340,8 @@ class FSMGenerator:
 
     """
 
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Initialize the FSM generator class.
 
         If `use_state_bits` is set to True, the state bits will be shown as

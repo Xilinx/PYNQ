@@ -36,7 +36,7 @@ from pynq.tests.util import user_answer_yes
 from pynq.lib.logictools import PatternGenerator
 from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 from pynq.lib.logictools import MAX_NUM_PATTERN_SAMPLES
 
 
@@ -79,8 +79,8 @@ def build_loopback_pattern(num_samples):
         ['analysis']],
         'foot': {'tock': 1},
         'head': {'text': 'Loopback Test'}}
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-    interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+    interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
     all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
     for i in range(interface_width):
         wavelane1 = dict()
@@ -125,8 +125,8 @@ def build_random_pattern(num_samples):
         ['analysis']],
         'foot': {'tock': 1},
         'head': {'text': 'Random Test'}}
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-    interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+    interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
     all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
     for i in range(interface_width):
         wavelane1 = dict()

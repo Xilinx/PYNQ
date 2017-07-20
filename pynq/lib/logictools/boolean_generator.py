@@ -61,7 +61,7 @@ class BooleanGenerator:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     expressions : list/dict
         The boolean expressions, each expression being a string.
     waveforms : dict
@@ -78,7 +78,8 @@ class BooleanGenerator:
         The frequency of the captured samples, in MHz.
 
     """
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Return a new Boolean generator object.
         
         For ARDUINO, the available input pins are data pins D0 - D19,
