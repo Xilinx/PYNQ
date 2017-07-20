@@ -30,6 +30,7 @@
 
 import re
 from math import ceil
+from time import sleep
 from random import randint
 from random import choice
 from copy import deepcopy
@@ -94,24 +95,43 @@ fsm_spec = {'inputs': [('rst', rst), ('direction', direction)],
 output_pattern = [0, 1, 0, 0]
 
 # Pattern spec
-loopback_sent = {'signal': [
+loopback_max_samples = {'signal': [
                     ['stimulus'],
                     {},
                     ['analysis']],
-                 'foot': {'tock': 1},
-                 'head': {'text': 'Loopback Test'}}
+            'foot': {'tock': 1},
+            'head': {'text': 'Loopback Test'}}
+loopback_64_samples = deepcopy(loopback_max_samples)
 for i in range(3, 7):
-    stimulus_lane = dict()
-    analysis_lane = dict()
-    stimulus_lane['name'] = 'clk{}'.format(i)
-    analysis_lane['name'] = 'clk{}'.format(i)
-    stimulus_lane['pin'] = all_pins[i]
-    analysis_lane['pin'] = all_pins[i]
-    loopback_sent['signal'][-1].append(analysis_lane)
+    stimulus_lane_max_samples = dict()
+    analysis_lane_max_samples = dict()
+    stimulus_lane_max_samples['name'] = 'clk{}'.format(i)
+    analysis_lane_max_samples['name'] = 'clk{}'.format(i)
+    stimulus_lane_max_samples['pin'] = all_pins[i]
+    analysis_lane_max_samples['pin'] = all_pins[i]
+    loopback_max_samples['signal'][-1].append(analysis_lane_max_samples)
     bitstring = ''.join(['{}'.format(randint(0, 1))
                          for _ in range(MAX_NUM_PATTERN_SAMPLES)])
-    stimulus_lane['wave'] = bitstring_to_wave(bitstring)
-    loopback_sent['signal'][0].append(stimulus_lane)
+    stimulus_lane_max_samples['wave'] = bitstring_to_wave(bitstring)
+    loopback_max_samples['signal'][0].append(stimulus_lane_max_samples)
+for i in range(3, 7):
+    stimulus_lane_64_samples = dict()
+    analysis_lane_64_samples = dict()
+    stimulus_lane_64_samples['name'] = 'clk{}'.format(i)
+    analysis_lane_64_samples['name'] = 'clk{}'.format(i)
+    stimulus_lane_64_samples['pin'] = all_pins[i]
+    analysis_lane_64_samples['pin'] = all_pins[i]
+    loopback_64_samples['signal'][-1].append(analysis_lane_64_samples)
+    if i == 3:
+        bitstring = '01' * 32
+    elif i == 4:
+        bitstring = '0011' * 16
+    elif i == 5:
+        bitstring = ('0' * 4 + '1' * 4) * 8
+    else:
+        bitstring = ('0' * 8 + '1' * 8) * 4
+    stimulus_lane_64_samples['wave'] = bitstring_to_wave(bitstring)
+    loopback_64_samples['signal'][0].append(stimulus_lane_64_samples)
 
 # Boolean spec
 in_pins = all_pins[7:12]
@@ -149,7 +169,7 @@ def test_all_generators_state():
     pattern_generator = PatternGenerator(mb_info)
     assert pattern_generator.status == 'RESET'
     pattern_generator.trace(use_analyzer=False)
-    pattern_generator.setup(loopback_sent,
+    pattern_generator.setup(loopback_max_samples,
                             stimulus_group_name='stimulus',
                             analysis_group_name='analysis',
                             frequency_mhz=10)
@@ -210,7 +230,7 @@ def test_all_generators_data():
                         frequency_mhz=100)
     pattern_generator = PatternGenerator(mb_info)
     pattern_generator.trace(num_analyzer_samples=num_samples)
-    pattern_generator.setup(loopback_sent,
+    pattern_generator.setup(loopback_max_samples,
                             stimulus_group_name='stimulus',
                             analysis_group_name='analysis',
                             frequency_mhz=100)
@@ -231,8 +251,8 @@ def test_all_generators_data():
     fsm_generator.show_waveform()
 
     check_boolean_data(boolean_generator)
-    check_pattern_data(pattern_generator)
-    check_fsm_data(fsm_generator)
+    check_pattern_data(pattern_generator, num_samples)
+    check_fsm_data(fsm_generator, num_samples)
 
     logictools_controller.stop([fsm_generator,
                                 pattern_generator,
@@ -248,13 +268,88 @@ def test_all_generators_data():
     del fsm_generator, pattern_generator, boolean_generator
 
 
-def check_fsm_data(fsm_generator):
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_all_generators_step():
+    """Test all the generator classes implemented in this overlay.
+
+    In this test, the boolean generators, pattern generators, and 
+    FSM generators are tested together by calling the `step()` method. By
+    stepping for enough number of samples, the waveform should look identical
+    to the results received by calling `run()` directly.
+
+    """
+    ol.download()
+    logictools_controller = LogicToolsController(mb_info,
+                                                 'PYNQZ1_DIO_SPECIFICATION')
+    for generator_name in logictools_controller.status:
+        assert logictools_controller.status[generator_name] == 'RESET'
+
+    print("\nConnect {} to GND, and {} to VCC.".format(rst, direction))
+    input("Hit enter after done ...")
+    print('Connect randomly {} to VCC or GND.'.format(in_pins))
+    input("Hit enter after done ...")
+
+    num_samples = 64
+    fsm_generator = FSMGenerator(mb_info)
+    fsm_generator.trace(num_analyzer_samples=num_samples)
+    fsm_generator.setup(fsm_spec,
+                        frequency_mhz=10)
+    pattern_generator = PatternGenerator(mb_info)
+    pattern_generator.trace(num_analyzer_samples=num_samples)
+    pattern_generator.setup(loopback_64_samples,
+                            stimulus_group_name='stimulus',
+                            analysis_group_name='analysis',
+                            frequency_mhz=10)
+    boolean_generator = BooleanGenerator(mb_info)
+    boolean_generator.trace(num_analyzer_samples=num_samples)
+    boolean_generator.setup(expressions=test_expressions,
+                            frequency_mhz=10)
+
+    logictools_controller.run([fsm_generator,
+                               pattern_generator,
+                               boolean_generator])
+    logictools_controller.stop([fsm_generator,
+                                pattern_generator,
+                                boolean_generator])
+    for _ in range(num_samples):
+        logictools_controller.step([fsm_generator,
+                                    pattern_generator,
+                                    boolean_generator])
+    for generator_name in logictools_controller.status:
+        if generator_name != 'TraceAnalyzer':
+            assert logictools_controller.status[generator_name] == 'RUNNING'
+
+    boolean_generator.show_waveform()
+    pattern_generator.show_waveform()
+    fsm_generator.show_waveform()
+
+    check_boolean_data(boolean_generator)
+    check_pattern_data(pattern_generator, num_samples)
+    check_fsm_data(fsm_generator, num_samples)
+
+    logictools_controller.stop([fsm_generator,
+                                pattern_generator,
+                                boolean_generator])
+    for generator_name in logictools_controller.status:
+        assert logictools_controller.status[generator_name] == 'READY'
+
+    logictools_controller.reset([fsm_generator,
+                                pattern_generator,
+                                boolean_generator])
+    for generator_name in logictools_controller.status:
+        assert logictools_controller.status[generator_name] == 'RESET'
+    del fsm_generator, pattern_generator, boolean_generator
+
+
+def check_fsm_data(fsm_generator, num_samples):
     """Check whether the FSM generator returns correct data pattern.
 
     Parameters
     ----------
     fsm_generator : FSMGenerator
         The FSM generator after a successful run.
+    num_samples : int
+        The number of samples to test.
 
     """
     fsm_generator.show_waveform()
@@ -266,7 +361,6 @@ def check_fsm_data(fsm_generator):
                     test_string = wavelane['wave']
     test_array = np.array(bitstring_to_int(wave_to_bitstring(test_string)))
 
-    num_samples = MAX_NUM_PATTERN_SAMPLES
     golden_test_array = np.tile(np.array(output_pattern),
                                 ceil(num_samples / 4))
     assert np.array_equal(test_array,
@@ -274,19 +368,25 @@ def check_fsm_data(fsm_generator):
         'Analysis not matching the generated pattern in FSM.'
 
 
-def check_pattern_data(pattern_generator):
+def check_pattern_data(pattern_generator, num_samples):
     """Check whether the pattern generator returns correct data pattern.
 
     Parameters
     ----------
     pattern_generator : PatternGenerator
         The pattern generator after a successful run.
+    num_samples : int
+        The number of samples to test.
 
     """
+    if num_samples == MAX_NUM_PATTERN_SAMPLES:
+        data_pattern_sent = loopback_max_samples
+    else:
+        data_pattern_sent = loopback_64_samples
     pattern_generator.show_waveform()
     loopback_recv = pattern_generator.waveform.waveform_dict
     stimulus_sent = stimulus_recv = analysis_recv = list()
-    for wavelane_group in loopback_sent['signal']:
+    for wavelane_group in data_pattern_sent['signal']:
         if wavelane_group and wavelane_group[0] == 'stimulus':
             stimulus_sent = wavelane_group[1:]
 
