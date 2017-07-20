@@ -1,6 +1,6 @@
-*****************
-PYNQ MicroSD Card
-*****************
+************
+PYNQ SD Card
+************
 
 The source files for the PYNQ image flow build can be found here:
 
@@ -20,7 +20,7 @@ The image flow will create the Zynq Boot.bin, the Linux Device tree blob, and
 the Linux kernel.
 
 Building the Image
-=========================
+==================
 
 It is recommended to use a Virtual machine to run the image build flow. Root
 permissions are required, and the flow has been tested on Ubuntu 16.04.  Vivado
@@ -35,7 +35,7 @@ make. The build flow can take several hours.
 
 
 Retargeting to a different board
-==================================
+================================
 
 To build the PYNQ image for another Zynq board the board configuration must be
 modified. The configuration settings for the board are defined in the Zynq PS

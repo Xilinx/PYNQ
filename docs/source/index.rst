@@ -16,7 +16,7 @@ Python productivity for Zynq (PYNQ) Documentation
    pynq_overlays
    pynq_libraries
    overlay_design_methodology
-   pynq_microsd_card
+   pynq_sd_card
    pynq_package
    verification
    faqs
