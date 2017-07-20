@@ -1,6 +1,10 @@
 pynq.lib.arduino Package
 ========================
 
+The pynq.lib.arduino package is a collection of drivers for controlling
+peripherals attached to an Arduino pin interface. The Arduino interface can
+control Arduino peripherals or Grove peripherals (via the PYNQ Grove shield)
+
 pynq.lib.arduino.arduino_analog Module
 --------------------------------------
 
