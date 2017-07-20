@@ -54,7 +54,7 @@ To make your own PYNQ Micro-SD card:
    
 \* For detailed instructions for writing the SD card using different operating
 systems, see the `Appendix: Writing the SD card image
-<appendix.rst#writing-the-sd-card-image>`_.
+<appendix.html#writing-the-sd-card-image>`_.
    
 Board Setup
 --------------
@@ -351,6 +351,5 @@ Troubleshooting
 ===============
 
 If you are having problems, please see the `Frequently asked questions
-<../faqs.html>`_ or go the `PYNQ support forum
-<http://www.pynq.io/support.html>`_
+<faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io/support.html>`_
 
