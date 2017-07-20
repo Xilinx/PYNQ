@@ -32,7 +32,7 @@ cd ${libsigrokdecode}
 patch -p2 -i $patch_file
 export PKG_CONFIG_PATH=/opt/sigrok/lib/pkgconfig
 ./configure --prefix=/opt/sigrok
-make -j 4
+make
 make install
 cd ..
 
