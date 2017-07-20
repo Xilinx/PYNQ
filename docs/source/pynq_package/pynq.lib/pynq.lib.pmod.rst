@@ -1,6 +1,9 @@
 pynq.lib.pmod Package
 =====================
 
+The pynq.lib.pmod package is a collection of drivers for controlling
+peripherals attached to an PMOD pin interface. The PMOD interface can
+control PMOD peripherals or Grove peripherals (via the PYNQ Grove shield)
 
 pynq.lib.pmod.pmod_adc Module
 -----------------------------
