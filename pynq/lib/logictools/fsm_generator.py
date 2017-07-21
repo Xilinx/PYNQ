@@ -305,7 +305,7 @@ class FSMGenerator:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     fsm_spec : dict
         The FSM specification, with inputs (list), outputs (list),
         states (list), and transitions (list).
@@ -340,7 +340,8 @@ class FSMGenerator:
 
     """
 
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Initialize the FSM generator class.
 
         If `use_state_bits` is set to True, the state bits will be shown as
@@ -832,10 +833,10 @@ class FSMGenerator:
         'RESET' state.
 
         """
-        # Stop the running generator if necessary
-        self.stop()
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            self.stop()
 
-        # Clear all the reserved pins
         for i in self.output_pins + self.input_pins:
             self.logictools_controller.pin_map[i] = 'UNUSED'
 
@@ -858,7 +859,6 @@ class FSMGenerator:
         self._encoded_transitions.clear()
         self._bram_data = np.zeros(2 ** FSM_BRAM_ADDR_WIDTH, dtype=np.uint32)
 
-        # Send the reset command
         cmd_reset = CMD_RESET | FSM_ENGINE_BIT
         if self.analyzer is not None:
             cmd_reset |= TRACE_ENGINE_BIT
