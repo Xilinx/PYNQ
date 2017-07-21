@@ -32,7 +32,7 @@ import os
 from copy import deepcopy
 import pytest
 from pynq.lib.logictools import Waveform
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 
 
 __author__ = "Yun Rock Qu"
@@ -47,8 +47,8 @@ correct_data = {'signal': [
     'foot': {'tock': 1},
     'head': {'text': 'Loopback Test'}}
 
-pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
 all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
 for i in range(interface_width):
     wavelane1 = dict()

@@ -36,7 +36,7 @@ from pynq.tests.util import user_answer_yes
 from pynq.lib.logictools import PatternGenerator
 from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 from pynq.lib.logictools import MAX_NUM_PATTERN_SAMPLES
 
 
@@ -79,8 +79,8 @@ def build_loopback_pattern(num_samples):
         ['analysis']],
         'foot': {'tock': 1},
         'head': {'text': 'Loopback Test'}}
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-    interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+    interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
     all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
     for i in range(interface_width):
         wavelane1 = dict()
@@ -125,14 +125,14 @@ def build_random_pattern(num_samples):
         ['analysis']],
         'foot': {'tock': 1},
         'head': {'text': 'Random Test'}}
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-    interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+    interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
     all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
     for i in range(interface_width):
         wavelane1 = dict()
         wavelane2 = dict()
-        wavelane1['name'] = f'signal{i}'
-        wavelane2['name'] = f'signal{i}'
+        wavelane1['name'] = 'signal{}'.format(i)
+        wavelane2['name'] = 'signal{}'.format(i)
         wavelane1['pin'] = all_pins[i]
         wavelane2['pin'] = all_pins[i]
         random_pattern['signal'][-1].append(wavelane2)
@@ -232,6 +232,10 @@ def test_pattern_num_samples():
     This test will examine 0 sample and more than the maximum number 
     of samples. In these cases, exception should be raised.
 
+    Here the `MAX_NUM_PATTERN_SAMPLE` is used for display purpose. The maximum
+    number of samples that can be captured by the trace analyzer is defined
+    as `MAX_NUM_TRACE_SAMPLES`.
+
     """
     ol.download()
     for num_samples in [0, MAX_NUM_PATTERN_SAMPLES+1]:
@@ -303,3 +307,58 @@ def test_pattern_random():
         pattern_generator.stop()
         pattern_generator.reset()
         del pattern_generator
+
+
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_pattern_step():
+    """Test for the PatternGenerator class.
+
+    This test will examine a moderate number of 128 samples (in order
+    to shorten testing time). For theses cases, random signals will be used, 
+    and all the pins will be used to build the pattern. Each sample is 
+    captured after advancing the `step()`.
+
+    """
+    ol.download()
+    num_samples = 128
+    loopback_sent = build_random_pattern(num_samples)
+    pattern_generator = PatternGenerator(mb_info)
+    pattern_generator.trace(use_analyzer=True,
+                            num_analyzer_samples=num_samples)
+    pattern_generator.setup(loopback_sent,
+                            stimulus_group_name='stimulus',
+                            analysis_group_name='analysis',
+                            frequency_mhz=100)
+
+    for _ in range(num_samples):
+        pattern_generator.step()
+        pattern_generator.show_waveform()
+
+    loopback_recv = pattern_generator.waveform.waveform_dict
+    list1 = list2 = list3 = list()
+    for wavelane_group in loopback_sent['signal']:
+        if wavelane_group and wavelane_group[0] == 'stimulus':
+            for i in wavelane_group[1:]:
+                temp = deepcopy(i)
+                temp['wave'] = wave_to_bitstring(i['wave'])
+                list1.append(temp)
+
+    for wavelane_group in loopback_recv['signal']:
+        if wavelane_group and wavelane_group[0] == 'stimulus':
+            for i in wavelane_group[1:]:
+                temp = deepcopy(i)
+                temp['wave'] = wave_to_bitstring(i['wave'])
+                list2.append(temp)
+        elif wavelane_group and wavelane_group[0] == 'analysis':
+            for i in wavelane_group[1:]:
+                temp = deepcopy(i)
+                temp['wave'] = wave_to_bitstring(i['wave'])
+                list3.append(temp)
+    assert list1 == list2, \
+        'Stimulus not equal in generated and captured patterns.'
+    assert list2 == list3, \
+        'Stimulus not equal to analysis in captured patterns.'
+
+    pattern_generator.stop()
+    pattern_generator.reset()
+    del pattern_generator
