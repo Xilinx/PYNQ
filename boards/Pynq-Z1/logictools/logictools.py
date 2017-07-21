@@ -46,14 +46,23 @@ class LogicToolsOverlay(pynq.DefaultOverlay):
     Attributes
     ----------
     pmoda : IOP
-         IO processor connected to the PMODA interface
+         IO processor connected to the PMODA interface.
     pmodb : IOP
-         IO processor connected to the PMODB interface
-    arduino : IOP
-         IO processor connected to the Arduino interface
+         IO processor connected to the PMODB interface.
+    arduino : LCP
+         Logic controller processor connected to the Arduino interface.
 
     """
     def __init__(self, bitfile, download):
         super().__init__(bitfile, download)
+        if self.is_loaded():
+            self.pmoda = self.iop1
+            self.pmodb = self.iop2
+            self.arduino = self.lcp
+
+            self.pmoda.mbtype = "Pmod"
+            self.pmodb.mbtype = "Pmod"
+            self.arduino.mbtype = "Logictools"
+
 
 Overlay = LogicToolsOverlay
