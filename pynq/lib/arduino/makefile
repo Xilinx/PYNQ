@@ -1,7 +1,7 @@
 # Makefile to build select Microblaze projects.
 
 
-MBBINS =  	arduino_analog.bin \
+BIN_ARDUINO = arduino_analog.bin \
 		arduino_grove_adc.bin \
 		arduino_grove_oled.bin \
 		arduino_grove_imu.bin \
@@ -17,13 +17,15 @@ MBBINS =  	arduino_analog.bin \
 		arduino_mailbox.bin
 
 all: arduino_bins
-	@echo "Completed Microblaze Projects' Builds"
+	@echo
+	@tput setaf 2 ; echo "Completed Microblaze Projects' Builds"; tput sgr0;
+	@echo
 
-%.bin: FORCE 
-	cd $(subst .bin,,$@)/Debug && make clean && make 
-
-arduino_bins: $(MBBINS)
+arduino_bins: $(BIN_ARDUINO)
 	@cp */Debug/*.bin .
+
+%.bin: FORCE
+	cd $(subst .bin,,$@)/Debug && make clean && make 
 
 clean:
 	rm -f */Debug/*.bin

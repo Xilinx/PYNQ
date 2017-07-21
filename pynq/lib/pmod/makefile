@@ -1,7 +1,7 @@
 # Makefile to build select Microblaze projects.
 
 
-BIN_IOP = pmod_adc.bin \
+BIN_PMOD = pmod_adc.bin \
 		pmod_dac.bin \
 		pmod_oled.bin \
 		pmod_als.bin \
@@ -21,20 +21,18 @@ BIN_IOP = pmod_adc.bin \
 		pmod_grove_ear_hr.bin \
 		pmod_grove_finger_hr.bin \
 		pmod_grove_haptic_motor.bin \
-		pmod_grove_th02.bin 
+		pmod_grove_th02.bin
 
-BIN_INTF = arduino_intf.bin
-
-all: bin_iop bin_intf
+all: iop_bins
 	@echo
 	@tput setaf 2 ; echo "Completed Microblaze Projects' Builds"; tput sgr0;
 	@echo
 
+iop_bins: $(BIN_PMOD)
+	@cp */Debug/*.bin .
+
 %.bin: FORCE
 	cd $(subst .bin,,$@)/Debug && make clean && make 
-
-iop_bins: $(MBBINS)
-	@cp */Debug/*.bin .
 
 clean:
 	rm -f */Debug/*.bin
