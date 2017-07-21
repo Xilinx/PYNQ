@@ -1,30 +1,30 @@
 
-#ifndef SMG_IO_SWITCH_H
-#define SMG_IO_SWITCH_H
+#ifndef FSM_IO_SWITCH_H
+#define FSM_IO_SWITCH_H
 
 
 /****************** Include Files ********************/
 #include "xil_types.h"
 #include "xstatus.h"
 
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG0_OFFSET 0
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG1_OFFSET 4
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG2_OFFSET 8
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG3_OFFSET 12
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG4_OFFSET 16
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG5_OFFSET 20
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG6_OFFSET 24
-#define SMG_IO_SWITCH_S00_AXI_SLV_REG7_OFFSET 28
+#define FSM_IO_SWITCH_S_AXI_SLV_REG0_OFFSET 0
+#define FSM_IO_SWITCH_S_AXI_SLV_REG1_OFFSET 4
+#define FSM_IO_SWITCH_S_AXI_SLV_REG2_OFFSET 8
+#define FSM_IO_SWITCH_S_AXI_SLV_REG3_OFFSET 12
+#define FSM_IO_SWITCH_S_AXI_SLV_REG4_OFFSET 16
+#define FSM_IO_SWITCH_S_AXI_SLV_REG5_OFFSET 20
+#define FSM_IO_SWITCH_S_AXI_SLV_REG6_OFFSET 24
+#define FSM_IO_SWITCH_S_AXI_SLV_REG7_OFFSET 28
 
 
 /**************************** Type Definitions *****************************/
 /**
  *
- * Write a value to a SMG_IO_SWITCH register. A 32 bit write is performed.
+ * Write a value to a FSM_IO_SWITCH register. A 32 bit write is performed.
  * If the component is implemented in a smaller width, only the least
  * significant data is written.
  *
- * @param   BaseAddress is the base address of the SMG_IO_SWITCHdevice.
+ * @param   BaseAddress is the base address of the FSM_IO_SWITCHdevice.
  * @param   RegOffset is the register offset from the base to write to.
  * @param   Data is the data written to the register.
  *
@@ -32,30 +32,30 @@
  *
  * @note
  * C-style signature:
- * 	void SMG_IO_SWITCH_mWriteReg(u32 BaseAddress, unsigned RegOffset, u32 Data)
+ * 	void FSM_IO_SWITCH_mWriteReg(u32 BaseAddress, unsigned RegOffset, u32 Data)
  *
  */
-#define SMG_IO_SWITCH_mWriteReg(BaseAddress, RegOffset, Data) \
+#define FSM_IO_SWITCH_mWriteReg(BaseAddress, RegOffset, Data) \
   	Xil_Out32((BaseAddress) + (RegOffset), (u32)(Data))
 
 /**
  *
- * Read a value from a SMG_IO_SWITCH register. A 32 bit read is performed.
+ * Read a value from a FSM_IO_SWITCH register. A 32 bit read is performed.
  * If the component is implemented in a smaller width, only the least
  * significant data is read from the register. The most significant data
  * will be read as 0.
  *
- * @param   BaseAddress is the base address of the SMG_IO_SWITCH device.
+ * @param   BaseAddress is the base address of the FSM_IO_SWITCH device.
  * @param   RegOffset is the register offset from the base to write to.
  *
  * @return  Data is the data from the register.
  *
  * @note
  * C-style signature:
- * 	u32 SMG_IO_SWITCH_mReadReg(u32 BaseAddress, unsigned RegOffset)
+ * 	u32 FSM_IO_SWITCH_mReadReg(u32 BaseAddress, unsigned RegOffset)
  *
  */
-#define SMG_IO_SWITCH_mReadReg(BaseAddress, RegOffset) \
+#define FSM_IO_SWITCH_mReadReg(BaseAddress, RegOffset) \
     Xil_In32((BaseAddress) + (RegOffset))
 
 /************************** Function Prototypes ****************************/
@@ -67,7 +67,7 @@
  * If the hardware system is not built correctly, this function may never
  * return to the caller.
  *
- * @param   baseaddr_p is the base address of the SMG_IO_SWITCH instance to be worked on.
+ * @param   baseaddr_p is the base address of the FSM_IO_SWITCH instance to be worked on.
  *
  * @return
  *
@@ -78,6 +78,6 @@
  * @note    Self test may fail if data memory and device are not on the same bus.
  *
  */
-XStatus SMG_IO_SWITCH_Reg_SelfTest(void * baseaddr_p);
+XStatus FSM_IO_SWITCH_Reg_SelfTest(void * baseaddr_p);
 
-#endif // SMG_IO_SWITCH_H
+#endif // FSM_IO_SWITCH_H

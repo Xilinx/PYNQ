@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>arduino_intf</name>
-	<comment>Created by SDK v2016.1. if_arduino_bsp - iop3_mb</comment>
+	<name>logictools_controller</name>
+	<comment>Created by SDK v2016.1. bsp_logictools_controller - lcp_lcp_mb_mb</comment>
 	<projects>
-		<project>if_arduino_bsp</project>
+		<project>bsp_logictools_controller</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
