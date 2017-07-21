@@ -35,7 +35,7 @@ from pynq.tests.util import user_answer_yes
 from pynq.lib.logictools import LogicToolsController
 from pynq.lib.logictools import TraceAnalyzer
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 from pynq.lib.logictools import MAX_NUM_TRACE_SAMPLES
 
 

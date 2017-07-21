@@ -37,8 +37,9 @@ from pynq import Overlay
 from pynq.tests.util import user_answer_yes
 from pynq.lib.logictools import LogicToolsController
 from pynq.lib.logictools import BooleanGenerator
+from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 
 
 __author__ = "Yun Rock Qu"
@@ -67,7 +68,7 @@ def test_bool_state():
     """
     ol.download()
     input('\nDisconnect all the pins. Hit enter after done ...')
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_6_pins = [k for k in list(pin_dict.keys())[:6]]
     out_pin = first_6_pins[5]
     in_pins = first_6_pins[0:5]
@@ -90,6 +91,12 @@ def test_bool_state():
     print('Connect any of {} to VCC ...'.format(in_pins))
     assert user_answer_yes("{} outputs logic high?".format(out_pin)), \
         "Boolean configurator fails to show logic high."
+
+    bool_generator.stop()
+    assert bool_generator.status == 'READY'
+
+    bool_generator.step()
+    assert bool_generator.status == 'RUNNING'
 
     bool_generator.stop()
     assert bool_generator.status == 'READY'
@@ -132,7 +139,7 @@ def test_bool_multiple():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_10_pins = [k for k in list(pin_dict.keys())[:10]]
     in_pins = first_10_pins[0:5]
     out_pins = first_10_pins[5:10]
@@ -187,6 +194,66 @@ def test_bool_multiple():
 
 
 @pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_bool_step():
+    """Test for the BooleanGenerator class.
+
+    This test will test whether the `step()` method works correctly.
+    Users will be asked to change input values during the test. The test
+    scenario is also an extreme case where only 2 samples are captured.
+
+    """
+    ol.download()
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+    first_10_pins = [k for k in list(pin_dict.keys())[:10]]
+    in_pins = first_10_pins[0:5]
+    out_pins = first_10_pins[5:10]
+    test_expressions = list()
+    operations = ['&', '|', '^']
+    for i in range(5):
+        operation = choice(operations)
+        test_expressions.append(out_pins[i] + '=' +
+                                (operation.join(sample(in_pins, i+1))))
+
+    print('\nConnect randomly {} to VCC or GND.'.format(in_pins))
+    input('Hit enter after done ...')
+
+    bool_generator = BooleanGenerator(mb_info)
+    bool_generator.trace(num_analyzer_samples=2)
+    bool_generator.setup(expressions=test_expressions)
+
+    for i in range(2):
+        print('Change some of the connections from {}.'.format(in_pins))
+        input('Hit enter after done ...')
+        bool_generator.step()
+        bool_generator.show_waveform()
+
+        for expr_label in bool_generator.expressions.keys():
+            waveform = bool_generator.waveforms[expr_label]
+            wavelanes_in = waveform.waveform_dict['signal'][0][1:]
+            wavelanes_out = waveform.waveform_dict['signal'][-1][1:]
+            expr = deepcopy(bool_generator.expressions[expr_label])
+            for wavelane in wavelanes_in:
+                wavelane_bitstring = wave_to_bitstring(wavelane['wave'])
+                str_replace = wavelane_bitstring[i]
+                expr = re.sub(r"\b{}\b".format(wavelane['name']),
+                              str_replace, expr)
+
+            wavelane = wavelanes_out[0]
+            wavelane_bitstring = wave_to_bitstring(wavelane['wave'])
+            str_replace = wavelane_bitstring[i]
+            expr = re.sub(r"\b{}\b".format(wavelane['name']),
+                          str_replace, expr)
+            expr = expr.replace('=', '==')
+            assert eval(expr), "Boolean expression {} not evaluating " \
+                               "correctly in step {}.".format(
+                bool_generator.expressions[expr_label], i)
+
+    bool_generator.stop()
+    bool_generator.reset()
+    del bool_generator
+
+
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
 def test_bool_zero_inputs():
     """Test for the BooleanGenerator class.
 
@@ -194,7 +261,7 @@ def test_bool_zero_inputs():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_1_pin = list(pin_dict.keys())[0]
     expr_no_input = first_1_pin + '='
 
@@ -219,7 +286,7 @@ def test_bool_six_inputs():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_1_pin = list(pin_dict.keys())[0]
     next_6_pins = [k for k in list(pin_dict.keys())[1:7]]
     expr_6_inputs = first_1_pin + '=' + ('&'.join(next_6_pins))
@@ -245,7 +312,7 @@ def test_bool_zero_outputs():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
     first_1_pin = list(pin_dict.keys())[0]
     expr_no_rhs = first_1_pin
 
@@ -273,8 +340,8 @@ def test_bool_max_num_expr():
 
     """
     ol.download()
-    pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-    interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+    pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+    interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
     all_pins = [k for k in list(pin_dict.keys())[:interface_width]]
     num_expressions = interface_width - 1
     in_pin = all_pins[0]
@@ -302,22 +369,14 @@ def test_bool_max_num_expr():
             expr = deepcopy(bool_generator.expressions[expr_label])
 
             wavelane = wavelanes_in[0]
-            if 'h' == wavelane['wave'][0]:
-                str_replace = '1'
-            elif 'l' == wavelane['wave'][0]:
-                str_replace = '0'
-            else:
-                raise ValueError("Unrecognizable pattern captured.")
+            wavelane_bitstring = wave_to_bitstring(wavelane['wave'])
+            str_replace = wavelane_bitstring[0]
             expr = re.sub(r"\b{}\b".format(wavelane['name']),
                           str_replace, expr)
 
             wavelane = wavelanes_out[0]
-            if 'h' == wavelane['wave'][0]:
-                str_replace = '1'
-            elif 'l' == wavelane['wave'][0]:
-                str_replace = '0'
-            else:
-                raise ValueError("Unrecognizable pattern captured.")
+            wavelane_bitstring = wave_to_bitstring(wavelane['wave'])
+            str_replace = wavelane_bitstring[0]
             expr = re.sub(r"\b{}\b".format(wavelane['name']),
                           str_replace, expr)
 
