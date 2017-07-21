@@ -47,6 +47,7 @@ uvloop
 transitions
 pyeda
 pycurl
+nbwavedrom
 EOT
 
 pip3.6 install numpy requests
