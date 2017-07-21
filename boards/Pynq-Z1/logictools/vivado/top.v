@@ -29,7 +29,7 @@ module top(
     pg_clk,
     pmodJA,
     pmodJB,
-    LED,
+    led,
     pb_input,
     ar_shield
     );
@@ -59,7 +59,7 @@ module top(
     output pg_clk;
     inout [7:0]pmodJA;
     inout [7:0]pmodJB;
-    inout [3:0] LED;
+    output [3:0] led;
     inout [19:0] ar_shield;
     input [3:0] pb_input;
   
@@ -86,54 +86,25 @@ module top(
     wire FIXED_IO_ps_srstb;
       
     wire pg_clk;
-    wire [3:0] LED;
     wire [7:0]pmodJA;
     wire [7:0]pmodJB;
     wire [19:0] ar_shield;
 
-    wire [19:0]ar2sw_data_i;
-    wire [3:0]cfg2led;
-    wire [3:0]pb_in;
+    wire [19:0]arduino_data_i;
     wire [7:0]pmodJA_data_in;
     wire [7:0]pmodJA_data_out;
     wire [7:0]pmodJA_tri_out;
     wire [7:0]pmodJB_data_in;
     wire [7:0]pmodJB_data_out;
     wire [7:0]pmodJB_tri_out;
-    wire rgbled;
-    wire [19:0]sw2ar_data_o;
-    wire [19:0]sw2ar_tri_o;
-
-   // LED related iobufs
-    IOBUF led_ins_0
-         (.I(cfg2led[0]),
-          .IO(LED[0]),
-          .O(),                                 // for LED data is not sent back to the cfglut 
-          .T(1'b0));
-
-    IOBUF led_ins_1
-         (.I(cfg2led[1]),
-          .IO(LED[1]),
-          .O(),                                 // for LED data is not sent back to the cfglut 
-          .T(1'b0));
-
-    IOBUF led_ins_2
-         (.I(cfg2led[2]),
-          .IO(LED[2]),
-          .O(),                                 // for LED data is not sent back to the cfglut 
-          .T(1'b0));
-
-    IOBUF led_ins_3
-         (.I(cfg2led[3]),
-          .IO(LED[3]),
-          .O(),                                 // for LED data is not sent back to the cfglut 
-          .T(1'b0));
+    wire [19:0]arduino_data_o;
+    wire [19:0]arduino_tri_o;
 
     
 // pmodJB related iobufs
     genvar i;
     generate
-        for (i=0; i < 20; i=i+1)
+        for (i=0; i < 8; i=i+1)
         begin: pmodJB_iobuf
             IOBUF pmodJB_data_iobuf_i(
                 .I(pmodJB_data_out[i]), 
@@ -146,7 +117,7 @@ module top(
 
 // pmodJA related iobufs
     generate
-    for (i=0; i < 20; i=i+1)
+    for (i=0; i < 8; i=i+1)
     begin: pmodJA_iobuf
         IOBUF pmodJA_data_iobuf_i(
             .I(pmodJA_data_out[i]), 
@@ -162,10 +133,10 @@ module top(
         for (i=0; i < 20; i=i+1)
         begin: shield_ar
             IOBUF shield_ar_i(
-                .I(sw2ar_data_o[i]), 
+                .I(arduino_data_o[i]), 
                 .IO(ar_shield[i]), 
-                .O(ar2sw_data_i[i]), 
-                .T(sw2ar_tri_o[i]) 
+                .O(arduino_data_i[i]), 
+                .T(arduino_tri_o[i]) 
                 );
         end
     endgenerate
@@ -195,8 +166,8 @@ module top(
         .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
 
         .pg_clk(pg_clk),
-        .ar2sw_data_i(ar2sw_data_i),
-        .cfg2led(cfg2led),
+        .arduino_data_i(arduino_data_i),
+        .led(led),
         .pb_in(pb_input),
         .pmodJA_data_in(pmodJA_data_in),
         .pmodJA_data_out(pmodJA_data_out),
@@ -204,7 +175,7 @@ module top(
         .pmodJB_data_in(pmodJB_data_in),
         .pmodJB_data_out(pmodJB_data_out),
         .pmodJB_tri_out(pmodJB_tri_out),
-        .sw2ar_data_o(sw2ar_data_o),
-        .sw2ar_tri_o(sw2ar_tri_o)
+        .arduino_data_o(arduino_data_o),
+        .arduino_tri_o(arduino_tri_o)
         );
 endmodule
