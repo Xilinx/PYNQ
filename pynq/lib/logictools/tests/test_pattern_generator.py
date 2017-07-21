@@ -131,8 +131,8 @@ def build_random_pattern(num_samples):
     for i in range(interface_width):
         wavelane1 = dict()
         wavelane2 = dict()
-        wavelane1['name'] = f'signal{i}'
-        wavelane2['name'] = f'signal{i}'
+        wavelane1['name'] = 'signal{}'.format(i)
+        wavelane2['name'] = 'signal{}'.format(i)
         wavelane1['pin'] = all_pins[i]
         wavelane2['pin'] = all_pins[i]
         random_pattern['signal'][-1].append(wavelane2)
