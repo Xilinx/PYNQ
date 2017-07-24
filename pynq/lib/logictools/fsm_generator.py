@@ -279,21 +279,21 @@ class FSMGenerator:
     This class enables users to specify a Finite State Machine (FSM). Users
     have to provide a FSM in the following format.
 
-    fsm_spec = {'inputs': [('reset','D0'), ('direction','D1')],
-    'outputs': [('alpha','D3'), ('beta','D4'), ('gamma','D5')],
-    'states': ('S0', 'S1', 'S2', 'S3', 'S4', 'S5'),
-    'transitions': [['00', 'S0', 'S1', '000'],
-                    ['01', 'S0', 'S5', '000'],
-                    ['00', 'S1', 'S2', '001'],
-                    ['01', 'S1', 'S0', '001'],
-                    ['00', 'S2', 'S3', '010'],
-                    ['01', 'S2', 'S1', '010'],
-                    ['00', 'S3', 'S4', '011'],
-                    ['01', 'S3', 'S2', '011'],
-                    ['00', 'S4', 'S5', '100'],
-                    ['01', 'S4', 'S3', '100'],
-                    ['00', 'S5', 'S0', '101'],
-                    ['01', 'S5', 'S4', '101'],
+    fsm_spec = {'inputs': [('reset','D0'), ('direction','D1')],\n
+    'outputs': [('alpha','D3'), ('beta','D4'), ('gamma','D5')],\n
+    'states': ('S0', 'S1', 'S2', 'S3', 'S4', 'S5'),\n
+    'transitions': [['00', 'S0', 'S1', '000'],\n
+                    ['01', 'S0', 'S5', '000'],\n
+                    ['00', 'S1', 'S2', '001'],\n
+                    ['01', 'S1', 'S0', '001'],\n
+                    ['00', 'S2', 'S3', '010'],\n
+                    ['01', 'S2', 'S1', '010'],\n
+                    ['00', 'S3', 'S4', '011'],\n
+                    ['01', 'S3', 'S2', '011'],\n
+                    ['00', 'S4', 'S5', '100'],\n
+                    ['01', 'S4', 'S3', '100'],\n
+                    ['00', 'S5', 'S0', '101'],\n
+                    ['01', 'S5', 'S4', '101'],\n
                     ['1-', '*',  'S0', '']]}
 
     The current implementation assumes Moore machine, so the output is decided
