@@ -546,12 +546,12 @@ _class_aliases = {
 def _classname(class_):
     """Returns the full name for a class. Has option for overriding
     some class names to hide internal details. The overrides are
-    stored in the `_classaliases` dictionaries.
+    stored in the `_class_aliases` dictionaries.
 
     """
     rawname = "{}.{}".format(class_.__module__, class_.__name__)
                                             
-    if rawname in _classaliases:
+    if rawname in _class_aliases:
         return _class_aliases[rawname]
     else:
         return rawname
@@ -585,7 +585,7 @@ def _build_docstring(description, name, type_):
     lines.append("----------")
     if description['ip']:
         for ip, details in description['ip'].items():
-            lines.append("{0 : <20} : {1}"
+            lines.append("{0: <20} : {1}"
                          .format(ip, _classname(details['driver'])))
     else:
         lines.append("None")
@@ -595,7 +595,7 @@ def _build_docstring(description, name, type_):
     lines.append("-----------")
     if description['hierarchies']:
         for hierarchy, details in description['hierarchies'].items():
-            lines.append("{0 : <20} : {1}"
+            lines.append("{0: <20} : {1}"
                          .format(hierarchy, _classname(details['driver'])))
     else:
         lines.append("None")
@@ -605,7 +605,7 @@ def _build_docstring(description, name, type_):
     lines.append("----------")
     if description['interrupts']:
         for interrupt in description['interrupts'].keys():
-            lines.append("{0 : <20} : pynq.interrupt.Interrupt"
+            lines.append("{0: <20} : pynq.interrupt.Interrupt"
                          .format(interrupt))
     else:
         lines.append("None")
@@ -615,7 +615,7 @@ def _build_docstring(description, name, type_):
     lines.append("------------")
     if description['gpio']:
         for gpio in description['gpio'].keys():
-            lines.append("{0 : <20} : pynq.gpio.GPIO".format(gpio))
+            lines.append("{0: <20} : pynq.gpio.GPIO".format(gpio))
     else:
         lines.append("None")
     lines.append("")
