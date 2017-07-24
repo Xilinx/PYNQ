@@ -35,6 +35,8 @@ import IPython.display
 import json
 import os
 import subprocess
+import base64
+from xml.dom import minidom
 from .constants import *
 
 
@@ -287,17 +289,29 @@ def _draw_phantomjs(data, phantomjs, wavedrom_cli):
     wavedrom_cli : str
         The absolute path of the Wavedrom-cli Javascript.
 
-    Returns
-    -------
-    IPython.display.SVG
-        An SVG display of the data.
-
     """
     prog = subprocess.Popen([
         phantomjs, wavedrom_cli, '-i', '-', '-s', '-'],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, _ = prog.communicate(data.encode('utf-8'))
-    IPython.display.display(IPython.display.SVG(stdout))
+    svg, _ = prog.communicate(data.encode('utf-8'))
+
+    # This code based on IPython.core.display.SVG
+    x = minidom.parseString(svg)
+    found_svg = x.getElementsByTagName('svg')
+    if found_svg:
+        svg = found_svg[0].toxml()
+    else:
+        # fallback on the input, trust the user
+        # but this is probably an error.
+        pass
+
+    svgdata = base64.b64encode(svg.encode('utf-8')).decode('ascii')
+    htmldata = ('<div class="output_svg">'
+                '<img class="svg" style="max-width: none"'
+                'src="data:image/svg+xml;base64,{0}" alt="Image"></img>'
+                '</div>').format(svgdata)
+
+    IPython.display.display(IPython.display.HTML(htmldata))
 
 
 def _find_wavedrom_cli():
