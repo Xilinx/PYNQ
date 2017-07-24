@@ -8,10 +8,6 @@ started using PYNQ.  Any issues can be posted to `the PYNQ support forum
 
 PYNQ-Z1 Setup Guide
 ===================
-
-This guide will show you how to setup your computer and PYNQ-Z1 board to get
-started using PYNQ.  Any issues can be posted to `the PYNQ support forum
-<https://groups.google.com/forum/#!forum/pynq_project>`_.
      
 Prerequisites
 -------------
@@ -137,7 +133,7 @@ without Internet access.
 \* See `Appendix: Assign your PC/Laptop a static IP address
 <appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
 
-Turning On the Pynq-Z1
+Turning On the PYNQ-Z1
 ----------------------
 
 As indicated in step 6 in the diagram above, slide the power switch to the *ON*
@@ -203,7 +199,7 @@ The example notebooks have been divided into categories
 When you open a notebook and make any changes, or execute cells, the notebook
 document will be modified. It is recommended that you "Save a copy" when you
 open a new notebook. If you want to restore the original versions, you can
-download all the example notebooks from the `PYNQ GitHub page
+download all the example notebooks from `GitHub
 <https://www.github.com/xilinx/pynq>`_ .
 
 Accessing Files on The Board
@@ -259,15 +255,13 @@ Terminal**.
        
 This will open a terminal inside the browser as root.
 
-Edit the existing entry in the Linux hostname file to change the hostname of the
-board. The ``vi`` editor can be used to edit this file:
+Use the preloaded pynq_hostname.sh script to change your board's hostname.
 
 .. code-block:: console
     
-    vi /etc/hostname
+    pynq_hostname.sh <NEW HOSTNAME>
 
-Type *i* to enter edit (insert) mode, change the hostname, and type *:wq* to
-save and exit. The board must be restarted for the changes to be applied.
+The board must be restarted for the changes to be applied.
 
 .. code-block:: console
     
