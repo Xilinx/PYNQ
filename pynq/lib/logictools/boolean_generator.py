@@ -151,7 +151,8 @@ class BooleanGenerator:
         self.logictools_controller.check_status()
         return self.logictools_controller.status[self.__class__.__name__]
 
-    def trace(self, use_analyzer=True, num_analyzer_samples=16):
+    def trace(self, use_analyzer=True,
+              num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES):
         """Configure the trace analyzer.
 
         By default, the trace analyzer is always on, unless users explicitly

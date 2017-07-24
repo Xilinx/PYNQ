@@ -187,7 +187,7 @@ class PatternGenerator:
         return self._longest_wave
 
     def trace(self, use_analyzer=True,
-              num_analyzer_samples=MAX_NUM_PATTERN_SAMPLES):
+              num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES):
         """Configure the trace analyzer.
 
         By default, the trace analyzer is always on, unless users explicitly
