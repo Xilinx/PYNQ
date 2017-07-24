@@ -180,7 +180,7 @@ class TraceAnalyzer:
         self.logictools_controller.check_status()
         return self.logictools_controller.status[self.__class__.__name__]
 
-    def setup(self, num_analyzer_samples=MAX_NUM_TRACE_SAMPLES,
+    def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
               frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ):
         """Configure the trace analyzer.
         
