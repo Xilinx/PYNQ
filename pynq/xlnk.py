@@ -230,8 +230,9 @@ class Xlnk:
     def cma_array(self, shape, dtype=np.uint32):
         if isinstance(shape, numbers.Integral):
             shape = [shape]
+        dtype = np.dtype(dtype)
         elements = functools.reduce(lambda value, total: value * total, shape)
-        length = elements * dtype().itemsize
+        length = elements * dtype.itemsize
         buffer_pointer = self.cma_alloc(length)
         buffer = self.cma_get_buffer(buffer_pointer, length)
         array = np.frombuffer(buffer, dtype=dtype).reshape(shape)
