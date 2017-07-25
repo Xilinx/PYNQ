@@ -31,18 +31,18 @@ For a complete list of pytest options, please refer to `Usage and Invocations - 
 
 Collection Phase
 ----------------
-During this phase, the pytest will collect all the test modules in the current directory and all of its child directories. The user will be asked if a Pmod is connected, and to which port it is connected. 
+During this phase, the pytest will collect all the test modules in the current directory and all of its child directories. The user will be asked whether a device is connected, and to which port it is connected. 
 
 For example:
 
 .. code-block:: console
 
    Pmod OLED attached to the board? ([yes]/no)>>> yes
-   Type in the interface ID of the Pmod OLED (A or B):
+   Type in the interface ID of the Pmod OLED (PMODA/PMODB):
 
 For the answer to the first question, "yes", "YES", "Yes", "y", and "Y" are acceptable; the same applies for "no" as an answer. You can also press *Enter*; this is equivalent to "yes".
 
-Type "A" (for PMODA) or "B" (for PMODB).
+For the following question, type "PMODA" for devices connected to PMODA interface, or "PMODB" for devices connected to PMODB interface.
 
 Answering "No" will skip the corresponding test(s) during the testing phase.
 
@@ -52,8 +52,8 @@ The test suite will guide the user through all the tests implemented in the pynq
 
 .. code-block:: console
 
-   test_led0 ...
-   Onboard LED 0 on? ([yes]/no)>>>
+   test_led8 ...
+   Pmod LED 0 on? ([yes]/no)>>>
 
 Again press "Enter", or type "yes", "no" etc.
 
@@ -73,12 +73,9 @@ First of all, the pytest package has to be imported:
    
 Step 2
 ------
-Decorators can be specified directly above the methods. For example, you can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More information on decorators can be found in `Marking test functions with attributes - Pytest <http://doc.pytest.org/en/latest/mark.html>`_.
+Decorators can be specified directly above the methods. For example, users can specify (1) the order of this test in the entire pytest process, and (2) the condition to skip the corresponding test. More information on decorators can be found in `Marking test functions with attributes - Pytest <http://doc.pytest.org/en/latest/mark.html>`_.
 
-.. code-block:: python
-
-   @pytest.mark.run(order=26) 
-   @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
+An example will be given in the next step.
 
 Step 3
 ------
@@ -86,9 +83,9 @@ Directly below decorators, you can write some assertions/tests. See the example 
 
 .. code-block:: python
 
-    @pytest.mark.run(order=26) 
-    @pytest.mark.skipif(not flag, reason="need both ADC and DAC attached")
-    def test_loop_single():
+    @pytest.mark.skipif(not flag,
+                        reason="need ADC and DAC attached to the base overlay")
+    def test_dac_adc_loop():
         """Test for writing a single value via the loop.
         
         First check whether read() correctly returns a string. Then ask the users 
@@ -97,7 +94,11 @@ Directly below decorators, you can write some assertions/tests. See the example 
         
         The exception is raised when the difference is more than 10% and more than
         0.1V.
-        
+
+        The second test writes a sequence of voltages on the DAC and read from 
+        the ADC, then checks whether they are approximately the same 
+        (with a delta of 10%).
+
         Note
         ----
         Users can use a straight cable (instead of wires) to do this test.
@@ -105,10 +106,10 @@ Directly below decorators, you can write some assertions/tests. See the example 
         Pmod interface.
         
         """
-        global dac,adc
+        Overlay('base.bit').download()
         dac = Pmod_DAC(dac_id)
         adc = Pmod_ADC(adc_id)
-    
+
         value = float(input("\nInsert a voltage in the range of [0.00, 2.00]: "))
         assert value<=2.00, 'Input voltage should not be higher than 2.00V.'
         assert value>=0.00, 'Input voltage should not be lower than 0.00V.'
@@ -116,6 +117,16 @@ Directly below decorators, you can write some assertions/tests. See the example 
         sleep(0.05)
         assert round(abs(value-adc.read()[0]),2)<max(0.1, 0.1*value), \
                 'Read value != write value.'
+
+        print('Generating 100 random voltages from 0.00V to 2.00V...')
+        for _ in range(100):
+            value = round(0.0001*randint(0, 20000), 4)
+            dac.write(value)
+            sleep(0.05)
+            assert round(abs(value-adc.read()[0]), 2) < max(0.1, 0.1*value), \
+                'Read value {} != write value {}.'.format(adc.read(), value)
+
+        del dac, adc
 
 Note the `assert` statements specify the desired condition, and raise exceptions whenever that condition is not met. A customized exception message can be attached at the end of the `assert` methods, as shown in the example above.
 
