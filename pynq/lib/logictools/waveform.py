@@ -158,9 +158,6 @@ def _verify_wave_tokens(wave_lane):
 def draw_wavedrom(data):
     """Display the waveform using the Wavedrom package.
 
-    This method requires 2 javascript files to be present. We get the relative
-    paths for the 2 files in order to proceed.
-
     Users can call this method directly to draw any wavedrom data.
 
     Example usage:
@@ -176,24 +173,188 @@ def draw_wavedrom(data):
         ]}
     >>> draw_wavedrom(a)
 
+    More information can be found at:
+    https://github.com/witchard/nbwavedrom
+
+    Parameters
+    ----------
+    data : dict
+        A dictionary of data as shown in the example.
+
     """
-    wavedrom_js = '/js/WaveDrom.js'
-    wavedromskin_js = '/js/WaveDromSkin.js'
-    if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedrom_js):
-        raise RuntimeError('Cannot locate {}.'.format(wavedrom_js))
-    if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedromskin_js):
-        raise RuntimeError('Cannot locate {}.'.format(wavedromskin_js))
+    data = _dump_json_data(data)
+    phantomjs = _find_phantomjs()
+    if phantomjs:
+        wavedrom_cli = _find_wavedrom_cli()
+        return _draw_phantomjs(data, phantomjs, wavedrom_cli)
+    else:
+        return _draw_javascript(data)
+
+
+def _dump_json_data(data):
+    """Convert the data into Json dump.
+
+    Parameters
+    ----------
+    data : dict
+        A dictionary of the Json formatted data.
+
+    Returns
+    -------
+    str
+        A Json dump of the original data.
+
+    """
+    return json.dumps(data)
+
+
+def _draw_javascript(data):
+    """Display the waveform using the Wavedrom Javascript.
+
+    This method requires 2 javascript files to be present. We get the relative
+    paths for the 2 files in order to proceed.
+    Users can call this method directly to draw any wavedrom data.
+
+    Parameters
+    ----------
+    data : str
+        A dump of a Json formatted data.
+
+    """
+    wavedrom_js = 'wavedrom.js'
+    wavedromskin_js = 'wavedromskin.js'
+
+    if not (_is_javascript_present(wavedrom_js) and
+            _is_javascript_present(wavedromskin_js)):
+        _copy_javascripts()
+
     current_path = os.getcwd()
     relative_path = os.path.relpath(PYNQ_JUPYTER_NOTEBOOKS, current_path)
 
-    htmldata = '<script type="WaveDrom">' + json.dumps(data) + '</script>'
+    htmldata = '<script type="WaveDrom">' + data + '</script>'
     IPython.core.display.display_html(IPython.core.display.HTML(htmldata))
     jsdata = 'WaveDrom.ProcessAll();'
     IPython.core.display.display_javascript(
         IPython.core.display.Javascript(
             data=jsdata,
-            lib=[relative_path + '/js/WaveDrom.js',
-                 relative_path + '/js/WaveDromSkin.js']))
+            lib=[relative_path + '/js/wavedrom.js',
+                 relative_path + '/js/wavedromskin.js']))
+
+
+def _is_javascript_present(javascript_name):
+    """Check whether the Javascripts are present in the notebook folder.
+
+    Parameters
+    ----------
+    javascript_name : str
+        The name of the JS file.
+
+    Returns
+    -------
+    bool
+        True if the specified javascript is present.
+
+    """
+    file_path = os.path.join(PYNQ_JUPYTER_NOTEBOOKS, 'js', javascript_name)
+    return os.path.isfile(file_path)
+
+
+def _copy_javascripts():
+    """Copy the required javascripts from the pynq package to notebook folder.
+
+    This method is only required when rendering the wavedrom using 
+    javascripts. This is not required for PhantomJS.
+
+    """
+    src_folder = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), 'js')
+    dst_folder = PYNQ_JUPYTER_NOTEBOOKS
+    if os.system('cp -rf ' + src_folder + ' ' + dst_folder):
+        raise RuntimeError('Cannot copy the javascripts.')
+
+
+def _draw_phantomjs(data, phantomjs, wavedrom_cli):
+    """Draw the wavedrom using PhantomJS.
+
+    This method requires the PhantomJS to be properly installed on the board.
+
+    Parameters
+    ----------
+    data : str
+        A dump of a Json formatted data.
+    phantomjs : str
+        The absolute path of the PhantomJS executable.
+    wavedrom_cli : str
+        The absolute path of the Wavedrom-cli Javascript.
+
+    Returns
+    -------
+    IPython.display.SVG
+        An SVG display of the data.
+
+    """
+    prog = subprocess.Popen([
+        phantomjs, wavedrom_cli, '-i', '-', '-s', '-'],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, _ = prog.communicate(data.encode('utf-8'))
+    IPython.display.display(IPython.display.SVG(stdout))
+
+
+def _find_wavedrom_cli():
+    """Get path for the Wavedrom CLI Javascript file.
+
+    For more information, please check:
+    https://github.com/witchard/nbwavedrom
+
+    Parameters
+    ----------
+    str
+        The name of the JS file.
+
+    Returns
+    -------
+    str
+        The full path of the JS file.
+
+    """
+    jsfile = 'wavedrom-cli.js'
+    base = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(base, 'js', jsfile)
+
+
+def _find_phantomjs():
+    """Find the PhantomJS executable path.
+
+    Returns
+    -------
+    str
+        The path of the PhantomJS executable file.
+
+    """
+    program = 'phantomjs'
+    for path in os.environ['PATH'].split(os.pathsep):
+        path = path.strip('"')
+        exe_file = os.path.join(path, program)
+        if _is_exe(exe_file):
+            return exe_file
+    return None
+
+
+def _is_exe(path):
+    """Check whether the file is accessible.
+
+    Parameters
+    ----------
+    path : str
+        The path of the file.
+
+    Returns
+    -------
+    bool
+        The file can be found at the specified path and can be accessed.
+
+    """
+    return os.path.isfile(path) and os.access(path, os.X_OK)
 
 
 class Waveform:
