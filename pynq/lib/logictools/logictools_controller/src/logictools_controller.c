@@ -293,16 +293,18 @@ int main (void) {
 
 	// set all Arduino header pins as unused/input as default by driving
 	// tri-state controls to 1 and selecting channel 3 of the interface switch.
-	// Channel 3 data_o is connected to logic0 tri_o is connected to logic1
-	// and data_i is left open. All Arduino pins have PULL UP in xdc file
+	// Channel 3 data_o is connected to logic0, tri_o is connected to logic1
+	// and data_i is left open. All Arduino pins have PULL UP in xdc file.
 	// function select for pins 9:0
 	Xil_Out32(XPAR_FUNCTION_SEL_BASEADDR,0xffffffff);
 	// function select for pins 19:10
 	Xil_Out32(XPAR_FUNCTION_SEL_BASEADDR+8,0xffffffff);
 
 	// Following code configures all CFGLUTs to y=I0 & I1 & I2 & I3 & I4
-	for(i=0; i<48; i++)
-		Xil_Out32(XPAR_BOOLEAN_BASEADDR+4*i,0x80000000);
+	for(i=0; i<48; i=i+2) {
+		Xil_Out32(XPAR_BOOLEAN_BASEADDR+4*i,0x01ffffff);
+		Xil_Out32(XPAR_BOOLEAN_BASEADDR+4*(i+1),0x80000000);
+	}
 	// tristate all outputs
 	Xil_Out32(XPAR_BOOLEAN_BASEADDR+4*48,0x00ffffff);
 	// program all CFGLUTs
