@@ -56,7 +56,7 @@ module top(
     gpio_shield_sw_d13_d2_tri_io,
     gpio_shield_sw_d1_d0_tri_io,
     ck_an_tri_io,
-    ck_gpio_tri_io,
+    ck_gpio_tri_io,	
     hdmi_in_clk_n,
     hdmi_in_clk_p,
     hdmi_in_data_n,
@@ -215,70 +215,10 @@ module top(
   wire [5:0]sw2shield_tri_out_a5_a0;
   wire [11:0]sw2shield_tri_out_d13_d2;
   wire [1:0]sw2shield_tri_out_d1_d0;
-  wire [0:0]ck_gpio_tri_i_0;
-  wire [1:1]ck_gpio_tri_i_1;
-  wire [10:10]ck_gpio_tri_i_10;
-  wire [11:11]ck_gpio_tri_i_11;
-  wire [12:12]ck_gpio_tri_i_12;
-  wire [13:13]ck_gpio_tri_i_13;
-  wire [14:14]ck_gpio_tri_i_14;
-  wire [15:15]ck_gpio_tri_i_15;
-  wire [2:2]ck_gpio_tri_i_2;
-  wire [3:3]ck_gpio_tri_i_3;
-  wire [4:4]ck_gpio_tri_i_4;
-  wire [5:5]ck_gpio_tri_i_5;
-  wire [6:6]ck_gpio_tri_i_6;
-  wire [7:7]ck_gpio_tri_i_7;
-  wire [8:8]ck_gpio_tri_i_8;
-  wire [9:9]ck_gpio_tri_i_9;
-  wire [0:0]ck_gpio_tri_io_0;
-  wire [1:1]ck_gpio_tri_io_1;
-  wire [10:10]ck_gpio_tri_io_10;
-  wire [11:11]ck_gpio_tri_io_11;
-  wire [12:12]ck_gpio_tri_io_12;
-  wire [13:13]ck_gpio_tri_io_13;
-  wire [14:14]ck_gpio_tri_io_14;
-  wire [15:15]ck_gpio_tri_io_15;
-  wire [2:2]ck_gpio_tri_io_2;
-  wire [3:3]ck_gpio_tri_io_3;
-  wire [4:4]ck_gpio_tri_io_4;
-  wire [5:5]ck_gpio_tri_io_5;
-  wire [6:6]ck_gpio_tri_io_6;
-  wire [7:7]ck_gpio_tri_io_7;
-  wire [8:8]ck_gpio_tri_io_8;
-  wire [9:9]ck_gpio_tri_io_9;
-  wire [0:0]ck_gpio_tri_o_0;
-  wire [1:1]ck_gpio_tri_o_1;
-  wire [10:10]ck_gpio_tri_o_10;
-  wire [11:11]ck_gpio_tri_o_11;
-  wire [12:12]ck_gpio_tri_o_12;
-  wire [13:13]ck_gpio_tri_o_13;
-  wire [14:14]ck_gpio_tri_o_14;
-  wire [15:15]ck_gpio_tri_o_15;
-  wire [2:2]ck_gpio_tri_o_2;
-  wire [3:3]ck_gpio_tri_o_3;
-  wire [4:4]ck_gpio_tri_o_4;
-  wire [5:5]ck_gpio_tri_o_5;
-  wire [6:6]ck_gpio_tri_o_6;
-  wire [7:7]ck_gpio_tri_o_7;
-  wire [8:8]ck_gpio_tri_o_8;
-  wire [9:9]ck_gpio_tri_o_9;
-  wire [0:0]ck_gpio_tri_t_0;
-  wire [1:1]ck_gpio_tri_t_1;
-  wire [10:10]ck_gpio_tri_t_10;
-  wire [11:11]ck_gpio_tri_t_11;
-  wire [12:12]ck_gpio_tri_t_12;
-  wire [13:13]ck_gpio_tri_t_13;
-  wire [14:14]ck_gpio_tri_t_14;
-  wire [15:15]ck_gpio_tri_t_15;
-  wire [2:2]ck_gpio_tri_t_2;
-  wire [3:3]ck_gpio_tri_t_3;
-  wire [4:4]ck_gpio_tri_t_4;
-  wire [5:5]ck_gpio_tri_t_5;
-  wire [6:6]ck_gpio_tri_t_6;
-  wire [7:7]ck_gpio_tri_t_7;
-  wire [8:8]ck_gpio_tri_t_8;
-  wire [9:9]ck_gpio_tri_t_9;
+  wire [15:0]ck_gpio_tri_i;
+  wire [15:0]ck_gpio_tri_io;
+  wire [15:0]ck_gpio_tri_o;
+  wire [15:0]ck_gpio_tri_t;
   wire hdmi_in_clk_n;
   wire hdmi_in_clk_p;
   wire [2:0]hdmi_in_data_n;
@@ -312,14 +252,8 @@ module top(
   wire sw2shield_sda_o_out;
   wire sw2shield_sda_t_out;
 
-//  wire iic_sw_shield_scl_i;
   wire iic_sw_shield_scl_io;
-//  wire iic_sw_shield_scl_o;
-//  wire iic_sw_shield_scl_t;
-//  wire iic_sw_shield_sda_i;
   wire iic_sw_shield_sda_io;
-//  wire iic_sw_shield_sda_o;
-//  wire iic_sw_shield_sda_t;
   wire [3:0]leds_4bits_tri_o;
   wire [7:0]pmodJA_data_in;
   wire [7:0]pmodJA_data_out;
@@ -352,88 +286,20 @@ module top(
   wire [5:0]rgbleds_6bits_tri_o;
   wire [0:0]pwm_audio_o;
 
-// ChipKit related header signals
-  IOBUF ck_gpio_tri_iobuf_0
-       (.I(ck_gpio_tri_o_0),
-        .IO(ck_gpio_tri_io[0]),
-        .O(ck_gpio_tri_i_0),
-        .T(ck_gpio_tri_t_0));
-  IOBUF ck_gpio_tri_iobuf_1
-       (.I(ck_gpio_tri_o_1),
-        .IO(ck_gpio_tri_io[1]),
-        .O(ck_gpio_tri_i_1),
-        .T(ck_gpio_tri_t_1));
-  IOBUF ck_gpio_tri_iobuf_10
-       (.I(ck_gpio_tri_o_10),
-        .IO(ck_gpio_tri_io[10]),
-        .O(ck_gpio_tri_i_10),
-        .T(ck_gpio_tri_t_10));
-  IOBUF ck_gpio_tri_iobuf_11
-       (.I(ck_gpio_tri_o_11),
-        .IO(ck_gpio_tri_io[11]),
-        .O(ck_gpio_tri_i_11),
-        .T(ck_gpio_tri_t_11));
-  IOBUF ck_gpio_tri_iobuf_12
-       (.I(ck_gpio_tri_o_12),
-        .IO(ck_gpio_tri_io[12]),
-        .O(ck_gpio_tri_i_12),
-        .T(ck_gpio_tri_t_12));
-  IOBUF ck_gpio_tri_iobuf_13
-       (.I(ck_gpio_tri_o_13),
-        .IO(ck_gpio_tri_io[13]),
-        .O(ck_gpio_tri_i_13),
-        .T(ck_gpio_tri_t_13));
-  IOBUF ck_gpio_tri_iobuf_14
-       (.I(ck_gpio_tri_o_14),
-        .IO(ck_gpio_tri_io[14]),
-        .O(ck_gpio_tri_i_14),
-        .T(ck_gpio_tri_t_14));
-  IOBUF ck_gpio_tri_iobuf_15
-       (.I(ck_gpio_tri_o_15),
-        .IO(ck_gpio_tri_io[15]),
-        .O(ck_gpio_tri_i_15),
-        .T(ck_gpio_tri_t_15));
-  IOBUF ck_gpio_tri_iobuf_2
-       (.I(ck_gpio_tri_o_2),
-        .IO(ck_gpio_tri_io[2]),
-        .O(ck_gpio_tri_i_2),
-        .T(ck_gpio_tri_t_2));
-  IOBUF ck_gpio_tri_iobuf_3
-       (.I(ck_gpio_tri_o_3),
-        .IO(ck_gpio_tri_io[3]),
-        .O(ck_gpio_tri_i_3),
-        .T(ck_gpio_tri_t_3));
-  IOBUF ck_gpio_tri_iobuf_4
-       (.I(ck_gpio_tri_o_4),
-        .IO(ck_gpio_tri_io[4]),
-        .O(ck_gpio_tri_i_4),
-        .T(ck_gpio_tri_t_4));
-  IOBUF ck_gpio_tri_iobuf_5
-       (.I(ck_gpio_tri_o_5),
-        .IO(ck_gpio_tri_io[5]),
-        .O(ck_gpio_tri_i_5),
-        .T(ck_gpio_tri_t_5));
-  IOBUF ck_gpio_tri_iobuf_6
-       (.I(ck_gpio_tri_o_6),
-        .IO(ck_gpio_tri_io[6]),
-        .O(ck_gpio_tri_i_6),
-        .T(ck_gpio_tri_t_6));
-  IOBUF ck_gpio_tri_iobuf_7
-       (.I(ck_gpio_tri_o_7),
-        .IO(ck_gpio_tri_io[7]),
-        .O(ck_gpio_tri_i_7),
-        .T(ck_gpio_tri_t_7));
-  IOBUF ck_gpio_tri_iobuf_8
-       (.I(ck_gpio_tri_o_8),
-        .IO(ck_gpio_tri_io[8]),
-        .O(ck_gpio_tri_i_8),
-        .T(ck_gpio_tri_t_8));
-  IOBUF ck_gpio_tri_iobuf_9
-       (.I(ck_gpio_tri_o_9),
-        .IO(ck_gpio_tri_io[9]),
-        .O(ck_gpio_tri_i_9),
-        .T(ck_gpio_tri_t_9));
-
+  // ChipKit related header signals
+  genvar i;
+  generate
+	for (i=0; i < 15; i=i+1)
+	begin: ck_gpio_iobuf
+		IOBUF ck_gpio_tri_iobuf_i(
+			.I(ck_gpio_tri_o[i]), 
+			.IO(ck_gpio_tri_io[i]), 
+			.O(ck_gpio_tri_i[i]), 
+			.T(ck_gpio_tri_t[i]) 
+			);
+	end
+  endgenerate
+  
 // for HDMI in
 IOBUF hdmi_in_ddc_scl_iobuf
  (.I(hdmi_in_ddc_scl_o),
@@ -457,188 +323,65 @@ IOBUF hdmi_out_ddc_sda_iobuf
     .O(hdmi_out_ddc_sda_i),
     .T(hdmi_out_ddc_sda_t));
 // pmodJB related iobufs
-IOBUF pmodJB_data_iobuf_0
-   (.I(pmodJB_data_out[0]),
-    .IO(pmodJB[0]),
-    .O(pmodJB_data_in[0]),
-    .T(pmodJB_tri_out[0]));
-IOBUF pmodJB_data_iobuf_1
-   (.I(pmodJB_data_out[1]),
-    .IO(pmodJB[1]),
-    .O(pmodJB_data_in[1]),
-    .T(pmodJB_tri_out[1]));
-IOBUF pmodJB_data_iobuf2
-   (.I(pmodJB_data_out[2]),
-    .IO(pmodJB[2]),
-    .O(pmodJB_data_in[2]),
-    .T(pmodJB_tri_out[2]));
-IOBUF pmodJB_data_iobuf_3
-   (.I(pmodJB_data_out[3]),
-    .IO(pmodJB[3]),
-    .O(pmodJB_data_in[3]),
-    .T(pmodJB_tri_out[3]));
-IOBUF pmodJB_data_iobuf_4
-   (.I(pmodJB_data_out[4]),
-    .IO(pmodJB[4]),
-    .O(pmodJB_data_in[4]),
-    .T(pmodJB_tri_out[4]));
-IOBUF pmodJB_data_iobuf_5
-   (.I(pmodJB_data_out[5]),
-    .IO(pmodJB[5]),
-    .O(pmodJB_data_in[5]),
-    .T(pmodJB_tri_out[5]));
-IOBUF pmodJB_data_iobuf_6
-   (.I(pmodJB_data_out[6]),
-    .IO(pmodJB[6]),
-    .O(pmodJB_data_in[6]),
-    .T(pmodJB_tri_out[6]));
-IOBUF pmodJB_data_iobuf_7
-   (.I(pmodJB_data_out[7]),
-    .IO(pmodJB[7]),
-    .O(pmodJB_data_in[7]),
-    .T(pmodJB_tri_out[7]));
+    generate
+        for (i=0; i < 8; i=i+1)
+        begin: pmodJB_iobuf
+            IOBUF pmodJB_data_iobuf_i(
+                .I(pmodJB_data_out[i]), 
+                .IO(pmodJB[i]), 
+                .O(pmodJB_data_in[i]), 
+                .T(pmodJB_tri_out[i]) 
+                );
+        end
+    endgenerate
 // pmodJA related iobufs
-IOBUF pmodJA_data_iobuf_0
-     (.I(pmodJA_data_out[0]),
-      .IO(pmodJA[0]),
-      .O(pmodJA_data_in[0]),
-      .T(pmodJA_tri_out[0]));
-IOBUF pmodJA_data_iobuf_1
-     (.I(pmodJA_data_out[1]),
-      .IO(pmodJA[1]),
-      .O(pmodJA_data_in[1]),
-      .T(pmodJA_tri_out[1]));
-IOBUF pmodJA_data_iobuf2
-     (.I(pmodJA_data_out[2]),
-      .IO(pmodJA[2]),
-      .O(pmodJA_data_in[2]),
-      .T(pmodJA_tri_out[2]));
-IOBUF pmodJA_data_iobuf_3
-     (.I(pmodJA_data_out[3]),
-      .IO(pmodJA[3]),
-      .O(pmodJA_data_in[3]),
-      .T(pmodJA_tri_out[3]));
-IOBUF pmodJA_data_iobuf_4
-     (.I(pmodJA_data_out[4]),
-      .IO(pmodJA[4]),
-      .O(pmodJA_data_in[4]),
-      .T(pmodJA_tri_out[4]));
-IOBUF pmodJA_data_iobuf_5
-     (.I(pmodJA_data_out[5]),
-      .IO(pmodJA[5]),
-      .O(pmodJA_data_in[5]),
-      .T(pmodJA_tri_out[5]));
-IOBUF pmodJA_data_iobuf_6
-     (.I(pmodJA_data_out[6]),
-      .IO(pmodJA[6]),
-      .O(pmodJA_data_in[6]),
-      .T(pmodJA_tri_out[6]));
-IOBUF pmodJA_data_iobuf_7
-     (.I(pmodJA_data_out[7]),
-      .IO(pmodJA[7]),
-      .O(pmodJA_data_in[7]),
-      .T(pmodJA_tri_out[7]));        
+    generate
+        for (i=0; i < 8; i=i+1)
+        begin: pmodJA_iobuf
+            IOBUF pmodJA_data_iobuf_i(
+                .I(pmodJA_data_out[i]), 
+                .IO(pmodJA[i]), 
+                .O(pmodJA_data_in[i]), 
+                .T(pmodJA_tri_out[i]) 
+                );
+        end
+    endgenerate
+
 // Arduino shield related iobufs
-IOBUF gpio_shield_sw_a5_a0_tri_iobuf_0
-     (.I(sw2shield_data_out_a5_a0[0]),
-      .IO(gpio_shield_sw_a5_a0_tri_io[0]),
-      .O(shield2sw_data_in_a5_a0[0]),
-      .T(sw2shield_tri_out_a5_a0[0]));
-IOBUF gpio_shield_sw_a5_a0_tri_iobuf_1
-     (.I(sw2shield_data_out_a5_a0[1]),
-      .IO(gpio_shield_sw_a5_a0_tri_io[1]),
-      .O(shield2sw_data_in_a5_a0[1]),
-      .T(sw2shield_tri_out_a5_a0[1]));
-IOBUF gpio_shield_sw_a5_a0_tri_iobuf_2
-     (.I(sw2shield_data_out_a5_a0[2]),
-      .IO(gpio_shield_sw_a5_a0_tri_io[2]),
-      .O(shield2sw_data_in_a5_a0[2]),
-      .T(sw2shield_tri_out_a5_a0[2]));
-IOBUF gpio_shield_sw_a5_a0_tri_iobuf_3
-     (.I(sw2shield_data_out_a5_a0[3]),
-      .IO(gpio_shield_sw_a5_a0_tri_io[3]),
-      .O(shield2sw_data_in_a5_a0[3]),
-      .T(sw2shield_tri_out_a5_a0[3]));
-IOBUF gpio_shield_sw_a5_a0_tri_iobuf_4
-     (.I(sw2shield_data_out_a5_a0[4]),
-      .IO(gpio_shield_sw_a5_a0_tri_io[4]),
-      .O(shield2sw_data_in_a5_a0[4]),
-      .T(sw2shield_tri_out_a5_a0[4]));
-IOBUF gpio_shield_sw_a5_a0_tri_iobuf_5
-     (.I(sw2shield_data_out_a5_a0[5]),
-      .IO(gpio_shield_sw_a5_a0_tri_io[5]),
-      .O(shield2sw_data_in_a5_a0[5]),
-      .T(sw2shield_tri_out_a5_a0[5]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_0
-     (.I(sw2shield_data_out_d13_d2[0]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[0]),
-      .O(shield2sw_data_in_d13_d2[0]),
-      .T(sw2shield_tri_out_d13_d2[0]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_1
-     (.I(sw2shield_data_out_d13_d2[1]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[1]),
-      .O(shield2sw_data_in_d13_d2[1]),
-      .T(sw2shield_tri_out_d13_d2[1]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_10
-     (.I(sw2shield_data_out_d13_d2[10]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[10]),
-      .O(shield2sw_data_in_d13_d2[10]),
-      .T(sw2shield_tri_out_d13_d2[10]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_11
-     (.I(sw2shield_data_out_d13_d2[11]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[11]),
-      .O(shield2sw_data_in_d13_d2[11]),
-      .T(sw2shield_tri_out_d13_d2[11]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_2
-     (.I(sw2shield_data_out_d13_d2[2]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[2]),
-      .O(shield2sw_data_in_d13_d2[2]),
-      .T(sw2shield_tri_out_d13_d2[2]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_3
-     (.I(sw2shield_data_out_d13_d2[3]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[3]),
-      .O(shield2sw_data_in_d13_d2[3]),
-      .T(sw2shield_tri_out_d13_d2[3]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_4
-     (.I(sw2shield_data_out_d13_d2[4]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[4]),
-      .O(shield2sw_data_in_d13_d2[4]),
-      .T(sw2shield_tri_out_d13_d2[4]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_5
-     (.I(sw2shield_data_out_d13_d2[5]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[5]),
-      .O(shield2sw_data_in_d13_d2[5]),
-      .T(sw2shield_tri_out_d13_d2[5]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_6
-     (.I(sw2shield_data_out_d13_d2[6]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[6]),
-      .O(shield2sw_data_in_d13_d2[6]),
-      .T(sw2shield_tri_out_d13_d2[6]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_7
-     (.I(sw2shield_data_out_d13_d2[7]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[7]),
-      .O(shield2sw_data_in_d13_d2[7]),
-      .T(sw2shield_tri_out_d13_d2[7]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_8
-     (.I(sw2shield_data_out_d13_d2[8]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[8]),
-      .O(shield2sw_data_in_d13_d2[8]),
-      .T(sw2shield_tri_out_d13_d2[8]));
-IOBUF gpio_shield_sw_d13_d2_tri_iobuf_9
-     (.I(sw2shield_data_out_d13_d2[9]),
-      .IO(gpio_shield_sw_d13_d2_tri_io[9]),
-      .O(shield2sw_data_in_d13_d2[9]),
-      .T(sw2shield_tri_out_d13_d2[9]));
-IOBUF gpio_shield_sw_d1_d0_tri_iobuf_0
-     (.I(sw2shield_data_out_d1_d0[0]),
-      .IO(gpio_shield_sw_d1_d0_tri_io[0]),
-      .O(shield2sw_data_in_d1_d0[0]),
-      .T(sw2shield_tri_out_d1_d0[0]));
-IOBUF gpio_shield_sw_d1_d0_tri_iobuf_1
-     (.I(sw2shield_data_out_d1_d0[1]),
-      .IO(gpio_shield_sw_d1_d0_tri_io[1]),
-      .O(shield2sw_data_in_d1_d0[1]),
-      .T(sw2shield_tri_out_d1_d0[1]));
+    generate
+        for (i=0; i < 6; i=i+1)
+        begin: gpio_shield_sw_a5_a0_iobuf
+            IOBUF gpio_shield_sw_a5_a0_iobuf_i(
+                .I(sw2shield_data_out_a5_a0[i]), 
+                .IO(gpio_shield_sw_a5_a0_tri_io[i]), 
+                .O(shield2sw_data_in_a5_a0[i]), 
+                .T(sw2shield_tri_out_a5_a0[i]) 
+                );
+        end
+    endgenerate
+    generate
+        for (i=0; i < 12; i=i+1)
+        begin: gpio_shield_sw_d13_d2_iobuf
+            IOBUF gpio_shield_sw_d13_d2_i(
+                .I(sw2shield_data_out_d13_d2[i]), 
+                .IO(gpio_shield_sw_d13_d2_tri_io[i]), 
+                .O(shield2sw_data_in_d13_d2[i]), 
+                .T(sw2shield_tri_out_d13_d2[i]) 
+                );
+        end
+    endgenerate
+    generate
+        for (i=0; i < 2; i=i+1)
+        begin: gpio_shield_sw_d1_d0_iobuf
+            IOBUF gpio_shield_sw_d1_d0_i(
+                .I(sw2shield_data_out_d1_d0[i]), 
+                .IO(gpio_shield_sw_d1_d0_tri_io[i]), 
+                .O(shield2sw_data_in_d1_d0[i]), 
+                .T(sw2shield_tri_out_d1_d0[i]) 
+                );
+        end
+    endgenerate
+	  
 // Dedicated Arduino IIC shield2sw_scl_i_in
 IOBUF iic_sw_shield_scl_iobuf
      (.I(sw2shield_scl_o_out),
@@ -694,12 +437,10 @@ system system_i
     .FIXED_IO_ps_clk(FIXED_IO_ps_clk),
     .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
     .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
-    .Vaux0_v_n(Vaux0_v_n),
+        .Vaux0_v_n(Vaux0_v_n),
     .Vaux0_v_p(Vaux0_v_p),
     .Vaux12_v_n(Vaux12_v_n),
     .Vaux12_v_p(Vaux12_v_p),
-    .Vaux8_v_n(Vaux8_v_n),
-    .Vaux8_v_p(Vaux8_v_p),
     .Vaux13_v_n(Vaux13_v_n),
     .Vaux13_v_p(Vaux13_v_p),
     .Vaux15_v_n(Vaux15_v_n),
@@ -710,35 +451,16 @@ system system_i
     .Vaux5_v_p(Vaux5_v_p),
     .Vaux6_v_n(Vaux6_v_n),
     .Vaux6_v_p(Vaux6_v_p),
+    .Vaux8_v_n(Vaux8_v_n),
+    .Vaux8_v_p(Vaux8_v_p),
     .Vaux9_v_n(Vaux9_v_n),
     .Vaux9_v_p(Vaux9_v_p),
     .Vp_Vn_v_n(Vp_Vn_v_n),
     .Vp_Vn_v_p(Vp_Vn_v_p),
     .btns_4bits_tri_i(btns_4bits_tri_i),
-//    .ck_an_tri_i({ck_an_tri_i_5,ck_an_tri_i_4,ck_an_tri_i_3,ck_an_tri_i_2,ck_an_tri_i_1,ck_an_tri_i_0}),
-//    .ck_an_tri_o({ck_an_tri_o_5,ck_an_tri_o_4,ck_an_tri_o_3,ck_an_tri_o_2,ck_an_tri_o_1,ck_an_tri_o_0}),
-//    .ck_an_tri_t({ck_an_tri_t_5,ck_an_tri_t_4,ck_an_tri_t_3,ck_an_tri_t_2,ck_an_tri_t_1,ck_an_tri_t_0}),
-    .ck_gpio_tri_i({ck_gpio_tri_i_15,ck_gpio_tri_i_14,ck_gpio_tri_i_13,ck_gpio_tri_i_12,ck_gpio_tri_i_11,ck_gpio_tri_i_10,ck_gpio_tri_i_9,ck_gpio_tri_i_8,ck_gpio_tri_i_7,ck_gpio_tri_i_6,ck_gpio_tri_i_5,ck_gpio_tri_i_4,ck_gpio_tri_i_3,ck_gpio_tri_i_2,ck_gpio_tri_i_1,ck_gpio_tri_i_0}),
-    .ck_gpio_tri_o({ck_gpio_tri_o_15,ck_gpio_tri_o_14,ck_gpio_tri_o_13,ck_gpio_tri_o_12,ck_gpio_tri_o_11,ck_gpio_tri_o_10,ck_gpio_tri_o_9,ck_gpio_tri_o_8,ck_gpio_tri_o_7,ck_gpio_tri_o_6,ck_gpio_tri_o_5,ck_gpio_tri_o_4,ck_gpio_tri_o_3,ck_gpio_tri_o_2,ck_gpio_tri_o_1,ck_gpio_tri_o_0}),
-    .ck_gpio_tri_t({ck_gpio_tri_t_15,ck_gpio_tri_t_14,ck_gpio_tri_t_13,ck_gpio_tri_t_12,ck_gpio_tri_t_11,ck_gpio_tri_t_10,ck_gpio_tri_t_9,ck_gpio_tri_t_8,ck_gpio_tri_t_7,ck_gpio_tri_t_6,ck_gpio_tri_t_5,ck_gpio_tri_t_4,ck_gpio_tri_t_3,ck_gpio_tri_t_2,ck_gpio_tri_t_1,ck_gpio_tri_t_0}),
-//    .gpio_shield_sw_a5_a0_tri_i({gpio_shield_sw_a5_a0_tri_i_5,gpio_shield_sw_a5_a0_tri_i_4,gpio_shield_sw_a5_a0_tri_i_3,gpio_shield_sw_a5_a0_tri_i_2,gpio_shield_sw_a5_a0_tri_i_1,gpio_shield_sw_a5_a0_tri_i_0}),
-//    .gpio_shield_sw_a5_a0_tri_o({gpio_shield_sw_a5_a0_tri_o_5,gpio_shield_sw_a5_a0_tri_o_4,gpio_shield_sw_a5_a0_tri_o_3,gpio_shield_sw_a5_a0_tri_o_2,gpio_shield_sw_a5_a0_tri_o_1,gpio_shield_sw_a5_a0_tri_o_0}),
-//    .gpio_shield_sw_a5_a0_tri_t({gpio_shield_sw_a5_a0_tri_t_5,gpio_shield_sw_a5_a0_tri_t_4,gpio_shield_sw_a5_a0_tri_t_3,gpio_shield_sw_a5_a0_tri_t_2,gpio_shield_sw_a5_a0_tri_t_1,gpio_shield_sw_a5_a0_tri_t_0}),
-//    .gpio_shield_sw_d13_d2_tri_i({gpio_shield_sw_d13_d2_tri_i_11,gpio_shield_sw_d13_d2_tri_i_10,gpio_shield_sw_d13_d2_tri_i_9,gpio_shield_sw_d13_d2_tri_i_8,gpio_shield_sw_d13_d2_tri_i_7,gpio_shield_sw_d13_d2_tri_i_6,gpio_shield_sw_d13_d2_tri_i_5,gpio_shield_sw_d13_d2_tri_i_4,gpio_shield_sw_d13_d2_tri_i_3,gpio_shield_sw_d13_d2_tri_i_2,gpio_shield_sw_d13_d2_tri_i_1,gpio_shield_sw_d13_d2_tri_i_0}),
-//    .gpio_shield_sw_d13_d2_tri_o({gpio_shield_sw_d13_d2_tri_o_11,gpio_shield_sw_d13_d2_tri_o_10,gpio_shield_sw_d13_d2_tri_o_9,gpio_shield_sw_d13_d2_tri_o_8,gpio_shield_sw_d13_d2_tri_o_7,gpio_shield_sw_d13_d2_tri_o_6,gpio_shield_sw_d13_d2_tri_o_5,gpio_shield_sw_d13_d2_tri_o_4,gpio_shield_sw_d13_d2_tri_o_3,gpio_shield_sw_d13_d2_tri_o_2,gpio_shield_sw_d13_d2_tri_o_1,gpio_shield_sw_d13_d2_tri_o_0}),
-//    .gpio_shield_sw_d13_d2_tri_t({gpio_shield_sw_d13_d2_tri_t_11,gpio_shield_sw_d13_d2_tri_t_10,gpio_shield_sw_d13_d2_tri_t_9,gpio_shield_sw_d13_d2_tri_t_8,gpio_shield_sw_d13_d2_tri_t_7,gpio_shield_sw_d13_d2_tri_t_6,gpio_shield_sw_d13_d2_tri_t_5,gpio_shield_sw_d13_d2_tri_t_4,gpio_shield_sw_d13_d2_tri_t_3,gpio_shield_sw_d13_d2_tri_t_2,gpio_shield_sw_d13_d2_tri_t_1,gpio_shield_sw_d13_d2_tri_t_0}),
-//    .gpio_shield_sw_d1_d0_tri_i({gpio_shield_sw_d1_d0_tri_i_1,gpio_shield_sw_d1_d0_tri_i_0}),
-//    .gpio_shield_sw_d1_d0_tri_o({gpio_shield_sw_d1_d0_tri_o_1,gpio_shield_sw_d1_d0_tri_o_0}),
-//    .gpio_shield_sw_d1_d0_tri_t({gpio_shield_sw_d1_d0_tri_t_1,gpio_shield_sw_d1_d0_tri_t_0}),
-    .shield2sw_data_in_a5_a0(shield2sw_data_in_a5_a0),
-    .shield2sw_data_in_d13_d2(shield2sw_data_in_d13_d2),
-    .shield2sw_data_in_d1_d0(shield2sw_data_in_d1_d0),
-    .sw2shield_data_out_a5_a0(sw2shield_data_out_a5_a0),
-    .sw2shield_data_out_d13_d2(sw2shield_data_out_d13_d2),
-    .sw2shield_data_out_d1_d0(sw2shield_data_out_d1_d0),
-    .sw2shield_tri_out_a5_a0(sw2shield_tri_out_a5_a0),
-    .sw2shield_tri_out_d13_d2(sw2shield_tri_out_d13_d2),
-    .sw2shield_tri_out_d1_d0(sw2shield_tri_out_d1_d0),
+    .ck_gpio_tri_i({ck_gpio_tri_i[15],ck_gpio_tri_i[14],ck_gpio_tri_i[13],ck_gpio_tri_i[12],ck_gpio_tri_i[11],ck_gpio_tri_i[10],ck_gpio_tri_i[9],ck_gpio_tri_i[8],ck_gpio_tri_i[7],ck_gpio_tri_i[6],ck_gpio_tri_i[5],ck_gpio_tri_i[4],ck_gpio_tri_i[3],ck_gpio_tri_i[2],ck_gpio_tri_i[1],ck_gpio_tri_i[0]}),
+    .ck_gpio_tri_o({ck_gpio_tri_o[15],ck_gpio_tri_o[14],ck_gpio_tri_o[13],ck_gpio_tri_o[12],ck_gpio_tri_o[11],ck_gpio_tri_o[10],ck_gpio_tri_o[9],ck_gpio_tri_o[8],ck_gpio_tri_o[7],ck_gpio_tri_o[6],ck_gpio_tri_o[5],ck_gpio_tri_o[4],ck_gpio_tri_o[3],ck_gpio_tri_o[2],ck_gpio_tri_o[1],ck_gpio_tri_o[0]}),
+    .ck_gpio_tri_t({ck_gpio_tri_t[15],ck_gpio_tri_t[14],ck_gpio_tri_t[13],ck_gpio_tri_t[12],ck_gpio_tri_t[11],ck_gpio_tri_t[10],ck_gpio_tri_t[9],ck_gpio_tri_t[8],ck_gpio_tri_t[7],ck_gpio_tri_t[6],ck_gpio_tri_t[5],ck_gpio_tri_t[4],ck_gpio_tri_t[3],ck_gpio_tri_t[2],ck_gpio_tri_t[1],ck_gpio_tri_t[0]}),
     .hdmi_in_clk_n(hdmi_in_clk_n),
     .hdmi_in_clk_p(hdmi_in_clk_p),
     .hdmi_in_data_n(hdmi_in_data_n),
@@ -761,30 +483,23 @@ system system_i
     .hdmi_out_ddc_sda_o(hdmi_out_ddc_sda_o),
     .hdmi_out_ddc_sda_t(hdmi_out_ddc_sda_t),
     .hdmi_out_hpd(hdmi_out_hpd),
-//    .iic_sw_shield_scl_i(iic_sw_shield_scl_i),
-//    .iic_sw_shield_scl_o(iic_sw_shield_scl_o),
-//    .iic_sw_shield_scl_t(iic_sw_shield_scl_t),
-//    .iic_sw_shield_sda_i(iic_sw_shield_sda_i),
-//    .iic_sw_shield_sda_o(iic_sw_shield_sda_o),
-//    .iic_sw_shield_sda_t(iic_sw_shield_sda_t),
-    .shield2sw_scl_i_in(shield2sw_scl_i_in),
-    .shield2sw_sda_i_in(shield2sw_sda_i_in),
-    .sw2shield_scl_o_out(sw2shield_scl_o_out),
-    .sw2shield_scl_t_out(sw2shield_scl_t_out),
-    .sw2shield_sda_o_out(sw2shield_sda_o_out),
-    .sw2shield_sda_t_out(sw2shield_sda_t_out),
     .leds_4bits_tri_o(leds_4bits_tri_o),
-    .pmodJB_data_in(pmodJB_data_in),
-    .pmodJB_data_out(pmodJB_data_out),
-    .pmodJB_tri_out(pmodJB_tri_out),
-    .pmodJA_data_in(pmodJA_data_in),
-    .pmodJA_data_out(pmodJA_data_out),
-    .pmodJA_tri_out(pmodJA_tri_out),
     .pdm_audio_shutdown(pdm_audio_shutdown),
     .pdm_m_clk(pdm_m_clk),
     .pdm_m_data_i(pdm_m_data_i),
-    .rgbleds_6bits_tri_o(rgbleds_6bits_tri_o),    
+    .pmodJA_data_in(pmodJA_data_in),
+    .pmodJA_data_out(pmodJA_data_out),
+    .pmodJA_tri_out(pmodJA_tri_out),
+    .pmodJB_data_in(pmodJB_data_in),
+    .pmodJB_data_out(pmodJB_data_out),
+    .pmodJB_tri_out(pmodJB_tri_out),
     .pwm_audio_o(pwm_audio_o),
+    .rgbleds_6bits_tri_o(rgbleds_6bits_tri_o),
+    .shield2sw_data_in_a5_a0(shield2sw_data_in_a5_a0),
+    .shield2sw_data_in_d13_d2(shield2sw_data_in_d13_d2),
+    .shield2sw_data_in_d1_d0(shield2sw_data_in_d1_d0),
+    .shield2sw_scl_i_in(shield2sw_scl_i_in),
+    .shield2sw_sda_i_in(shield2sw_sda_i_in),
     .spi_sw_shield_io0_i(spi_sw_shield_io0_i),
     .spi_sw_shield_io0_o(spi_sw_shield_io0_o),
     .spi_sw_shield_io0_t(spi_sw_shield_io0_t),
@@ -797,6 +512,16 @@ system system_i
     .spi_sw_shield_ss_i(spi_sw_shield_ss_i),
     .spi_sw_shield_ss_o(spi_sw_shield_ss_o),
     .spi_sw_shield_ss_t(spi_sw_shield_ss_t),
+    .sw2shield_data_out_a5_a0(sw2shield_data_out_a5_a0),
+    .sw2shield_data_out_d13_d2(sw2shield_data_out_d13_d2),
+    .sw2shield_data_out_d1_d0(sw2shield_data_out_d1_d0),
+    .sw2shield_scl_o_out(sw2shield_scl_o_out),
+    .sw2shield_scl_t_out(sw2shield_scl_t_out),
+    .sw2shield_sda_o_out(sw2shield_sda_o_out),
+    .sw2shield_sda_t_out(sw2shield_sda_t_out),
+    .sw2shield_tri_out_a5_a0(sw2shield_tri_out_a5_a0),
+    .sw2shield_tri_out_d13_d2(sw2shield_tri_out_d13_d2),
+    .sw2shield_tri_out_d1_d0(sw2shield_tri_out_d1_d0),
     .sws_2bits_tri_i(sws_2bits_tri_i));
         
 endmodule
