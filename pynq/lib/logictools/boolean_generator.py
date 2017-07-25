@@ -210,6 +210,13 @@ class BooleanGenerator:
         else:
             raise ValueError("Expressions must be list or dict.")
 
+        mailbox_addr = self.logictools_controller.mmio.base_addr + \
+            MAILBOX_OFFSET
+        mailbox_regs = [Register(addr) for addr in range(
+            mailbox_addr, mailbox_addr + 4 * 64, 4)]
+        for offset in range(0, 48, 2):
+            mailbox_regs[offset][31:0] = 0x1FFFFFF
+
         for expr_label, expression in self.expressions.items():
             if not isinstance(expression, str):
                 raise TypeError("Boolean expression has to be a string.")
@@ -267,10 +274,6 @@ class BooleanGenerator:
                 truth_num = (truth_num << 1) + int(truth_list[i][-1])
 
             # Get current boolean generator bit enables
-            mailbox_addr = self.logictools_controller.mmio.base_addr + \
-                MAILBOX_OFFSET
-            mailbox_regs = [Register(addr) for addr in range(
-                mailbox_addr, mailbox_addr + 4 * 64, 4)]
             self.logictools_controller.write_command(
                 CMD_READ_BOOLEAN_DIRECTION)
             bit_enables = mailbox_regs[0][31:0]
