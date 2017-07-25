@@ -130,12 +130,12 @@ def _find_entry(hierarchy, path):
         return None
 
 
-def _assign_drivers(description):
+def _assign_drivers(description, ignore_version):
     """Assigns a driver for each IP and hierarchy in the description.
 
     """
     for name, details in description['hierarchies'].items():
-        _assign_drivers(details)
+        _assign_drivers(details, ignore_version)
         details['driver'] = DocumentHierarchy
         for hip in _hierarchy_drivers:
             if hip.checkhierarchy(details):
@@ -143,13 +143,30 @@ def _assign_drivers(description):
                 break
 
     for name, details in description['ip'].items():
-        if details['type'] in _ip_drivers:
-            details['driver'] = _ip_drivers[details['type']]
+        ip_type = details['type']
+        if ip_type in _ip_drivers:
+            details['driver'] = _ip_drivers[ip_type]
         else:
-            details['driver'] = DefaultIP
+            no_version_ip = ip_type.rpartition(':')[0]
+            if no_version_ip in _ip_drivers:
+                if ignore_version:
+                    details['driver'] = _ip_drivers[no_version_ip]
+                else:
+                    other_versions = [v for v in _ip_drivers.keys()
+                                      if v.startswith(no_version_ip + ":")]
+                    message = (
+                       "IP {0} is of type {1} and driver found for [{2}]. " +
+                       "Use ignore_version=True to use this driver."
+                       ).format(details['fullpath'],
+                                details['type'],
+                                ", ".join(other_versions))
+                    warnings.warn(message, UserWarning)
+                    details['driver'] = DefaultIP
+            else:
+                details['driver'] = DefaultIP
 
 
-def _complete_description(ip_dict, gpio_dict, interrupts):
+def _complete_description(ip_dict, gpio_dict, interrupts, ignore_version):
     """Returns a complete hierarchical description of an overlay based
     on the three dictionaries parsed from the TCL.
 
@@ -173,7 +190,7 @@ def _complete_description(ip_dict, gpio_dict, interrupts):
                 description['fullpath'] = pin
                 entry['gpio'][leafname] = description
 
-    _assign_drivers(starting_dict)
+    _assign_drivers(starting_dict, ignore_version)
     return starting_dict
 
 _class_aliases = {
@@ -354,7 +371,7 @@ class Overlay(Bitstream, metaclass=DocumentOverlay):
 
     """
         
-    def __init__(self, bitfile_name, download=True):
+    def __init__(self, bitfile_name, download=True, ignore_version=False):
         """Return a new Overlay object.
 
         An overlay instantiates a bitstream object as a member initially.
@@ -386,7 +403,7 @@ class Overlay(Bitstream, metaclass=DocumentOverlay):
         self.clock_dict = tcl.clock_dict
 
         description = _complete_description(
-            self.ip_dict, self.gpio_dict, self.interrupt_pins)
+            self.ip_dict, self.gpio_dict, self.interrupt_pins, ignore_version)
         self._ip_map = _IPMap(description)
         if download: 
             self.download()
@@ -512,6 +529,7 @@ class RegisterIP(type):
         if 'bindto' in attrs:
             for vlnv in cls.bindto:
                 _ip_drivers[vlnv] = cls
+                _ip_drivers[vlnv.rpartition(':')[0]] = cls
         return super().__init__(name, bases, attrs)
 
 
