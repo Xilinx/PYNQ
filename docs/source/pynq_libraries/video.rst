@@ -203,3 +203,31 @@ This would allow some processing could be carried out on the HDMI-in *frame*
 before writing it to the HDMI-out.
 
 
+Video Pipeline
+^^^^^^^^^^^^^^
+
+As the ``hdmi_in.readframe`` and ``hdmi_out.writeframe`` functions may
+potentially block if a complete frame has not yet been read or written,
+``_async`` versions of these functions also exist. One use for the asynchronous
+versions is if frames are being transferred to a separate accelerator using a
+DMA engine. The DMA driver is also asyncio aware so the computation can be
+written as two tasks. One to retrieve frames from the Video DMA and forward them
+to the accelerator and a second task to bring frames back from the accelerator.
+
+.. code-block:: Python
+
+    async def readframes():
+        while True:
+            frame = await hdmi_in.readframe_async()
+            dma.sendchannel.transfer(frame)
+            await dma.sendchannel.wait_async()
+            frame.freebuffer()
+
+    async def writeframes():
+        while True:
+            frame = hdmi_out.newframe()
+            dma.recvchannel.transfer(frame)
+            await dma.recvchannel.wait()
+            await hdmi_out.writeframe_async(frame)
+
+

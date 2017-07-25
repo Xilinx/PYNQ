@@ -1,23 +1,25 @@
+Writing Applications
+====================
 
-IO Processors: Writing applications
-=======================================
+The previous section described the software architecture and the software build
+process. This section will cover how to write the IOP application and also the
+corresponding Python interface.
 
-.. contents:: Table of Contents
-   :depth: 2
-
-Introduction
---------------------
-
-The previous section described the software architecture and the software build process. This section will cover how to write the IOP application and also the corresponding Python interface. 
-
-The section assumes that the hardware platform and the BSPs have already been generated as detailed in the previous section. 
+The section assumes that the hardware platform and the BSPs have already been
+generated as detailed in the previous section.
 
 IOP header files and libraries
----------------------------------
+------------------------------
 
-A library is provided for the IOPs which includes an API for local peripherals (IIC, SPI, Timer, Uart, GPIO), the configurable switch, links to the peripheral addresses, and mappings for the mailbox used in the existing IOP peripheral applications provided with Pynq. This library can be used to write custom IOP applications. 
+A library is provided for the IOPs which includes an API for local peripherals
+(IIC, SPI, Timer, Uart, GPIO), the configurable switch, links to the peripheral
+addresses, and mappings for the mailbox used in the existing IOP peripheral
+applications provided with Pynq. This library can be used to write custom IOP
+applications.
 
-The only IP that is specific to each IOP is the configurable switch. There is a ``pmod_io_switch`` and an ``arduino_io_switch``. The header files for the IOPs are associated with the corresponding configurable switch, and can be found here
+The only IP that is specific to each IOP is the configurable switch. There is a
+``pmod_io_switch`` and an ``arduino_io_switch``. The header files for the IOPs
+are associated with the corresponding configurable switch, and can be found here
 
 :: 
    
@@ -26,15 +28,18 @@ The only IP that is specific to each IOP is the configurable switch. There is a 
       <GitHub Repository>/boards/<board name>/vivado/ip/arduino_io_switch_1.0/  \
    drivers/arduino_io_switch_v1_0/src/arduino.h
 
-The corresponding C code, ``pmod.c`` and ``arduino.c`` can also be found in this directory. 
+The corresponding C code, ``pmod.c`` and ``arduino.c`` can also be found in this
+directory.
  
 Configurable switch header files
------------------------------------
+--------------------------------
 
-There is a separate header file that corresponds to each configurable switch. These files include the API for the configuration switch and predefined constants that can be used to connect to the physical interface on the board. 
+There is a separate header file that corresponds to each configurable
+switch. These files include the API for the configuration switch and predefined
+constants that can be used to connect to the physical interface on the board.
 
 Pmod Configurable Switch header
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can find the header file for the Pmod IOP switch here:
 
@@ -47,7 +52,7 @@ This code is automatically compiled into the Board Support Package (BSP).
 
 
 Arduino
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^
 
 The corresponding files for the Arduino IOP switch can be found here:
 
@@ -57,8 +62,8 @@ The corresponding files for the Arduino IOP switch can be found here:
    drivers/arduino_io_switch_1.0/src/arduino_io_switch.h
 
 
-Files to include
-^^^^^^^^^^^^^^^^^^^^^^^
+Files to Include
+^^^^^^^^^^^^^^^^
 
 To use these files in an IOP application, include the header file(s):
 
@@ -77,26 +82,41 @@ or for an Arduino IOP:
    #include "arduino.h"
    #include "arduino_io_switch.h"
 
-Pmod applications should call ``pmod_init()`` at the beginning of the application, and Arduino applications, ``arduino_init()``. This will initialize all the IOP peripherals in the subsystem.  
+Pmod applications should call ``pmod_init()`` at the beginning of the
+application, and Arduino applications, ``arduino_init()``. This will initialize
+all the IOP peripherals in the subsystem.
 
    
 Controlling the Pmod IOP Switch
------------------------------------
+-------------------------------
 
-The IOP switch needs to be configured by the IOP application before any peripherals can be used. This can be done statically from within the application, or the application can allow Python to write a switch configuration to shared memory, which can be used to configure the switch. This functionality must be implemented by the user, but existing IOP applications can be used as a guide. For example, the ``arduino_lcd18`` IOP project shows and example of reading the switch configuration from the mailbox, and using this to configure the switch. 
+The IOP switch needs to be configured by the IOP application before any
+peripherals can be used. This can be done statically from within the
+application, or the application can allow Python to write a switch configuration
+to shared memory, which can be used to configure the switch. This functionality
+must be implemented by the user, but existing IOP applications can be used as a
+guide. For example, the ``arduino_lcd18`` IOP project shows and example of
+reading the switch configuration from the mailbox, and using this to configure
+the switch.
 
-There are 8 data pins on a Pmod port, that can be connected to any of 16 internal peripheral pins (8x GPIO, 2x SPI, 4x IIC, 2x Timer). This means the configuration switch for the Pmod has 8 connections to make to the data pins. 
+There are 8 data pins on a Pmod port, that can be connected to any of 16
+internal peripheral pins (8x GPIO, 2x SPI, 4x IIC, 2x Timer). This means the
+configuration switch for the Pmod has 8 connections to make to the data pins.
 
-Each pin can be configured by writing a 4 bit value to the corresponding place in the IOP Switch configuration register. The first nibble (4-bits) configures the first pin, the second nibble the second pin and so on. 
+Each pin can be configured by writing a 4 bit value to the corresponding place
+in the IOP Switch configuration register. The first nibble (4-bits) configures
+the first pin, the second nibble the second pin and so on.
 
-The following function, part of the provided pmod_io_switch_v1_0 driver (``pmod.h``) can be used to configure the switch from an IOP application. 
+The following function, part of the provided pmod_io_switch_v1_0 driver
+(``pmod.h``) can be used to configure the switch from an IOP application.
 
 .. code-block:: c
 
    void config_pmod_switch(char pin0, char pin1, char pin2, char pin3, char pin4, \
        char pin5, char pin6, char pin7);
 
-While each parameter is a "char" only the lower 4-bits are used to configure each pin.
+While each parameter is a "char" only the lower 4-bits are used to configure
+each pin.
 
 Switch mappings used for IOP Switch configuration:
 
@@ -139,7 +159,8 @@ This would connect a SPI interface:
 * Pin 6: GPIO_6
 * Pin 7: GPIO_7
 
-Note that if two or more pins are connected to the same signal, the pins are OR'd together internally. 
+Note that if two or more pins are connected to the same signal, the pins are
+OR'd together internally.
 
 
 .. code-block:: c
@@ -181,7 +202,8 @@ D13  D_GPIO          D_INT                                        D_SPICLK
                                                                                                
 ===  ======  =====   =========  ======  ======  ================  ========  ====  =============
 
-For example, to connect the UART to D0 and D1, write D_UART to the configuration register for D0 and D1. 
+For example, to connect the UART to D0 and D1, write D_UART to the configuration
+register for D0 and D1.
 
 .. code-block:: c
 
@@ -206,9 +228,12 @@ First note that the ``pmod.h`` header file is included.
 
    #include "pmod.h"
    
-Some *COMMANDS* are defined. These values can be chosen to be any value. The corresponding Python code will send the appropriate command values to control the IOP application. 
+Some *COMMANDS* are defined. These values can be chosen to be any value. The
+corresponding Python code will send the appropriate command values to control
+the IOP application.
 
-By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands can be any non-zero value.
+By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands
+can be any non-zero value.
 
    
 .. code-block:: c
@@ -222,7 +247,9 @@ By convention, 0x0 is reserved for no command/idle/acknowledge, and IOP commands
    #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
 
-The ALS peripheral has as SPI interface. The user defined function get_sample()  calls an SPI function *spi_transfer()*, defined in pmod.h, to read data from the device.  
+The ALS peripheral has as SPI interface. The user defined function get_sample()
+calls an SPI function *spi_transfer()*, defined in pmod.h, to read data from the
+device.
 
   
 .. code-block:: c
@@ -238,7 +265,11 @@ The ALS peripheral has as SPI interface. The user defined function get_sample() 
       return ( ((raw_data[1] & 0xf0) >> 4) + ((raw_data[0] & 0x0f) << 4) );
    }
 
-In ``main()`` notice ``config_pmod_switch()`` is called to initialize the switch with a static configuration. This application does not allow the switch configuration to be modified from Python. This means that if you want to use this code with a different pin configuration, the C code must be modified and recompiled. 
+In ``main()`` notice ``config_pmod_switch()`` is called to initialize the switch
+with a static configuration. This application does not allow the switch
+configuration to be modified from Python. This means that if you want to use
+this code with a different pin configuration, the C code must be modified and
+recompiled.
    
 .. code-block:: c
 
@@ -255,7 +286,9 @@ In ``main()`` notice ``config_pmod_switch()`` is called to initialize the switch
       get_sample();
 
       
-Next, the ``while(1)`` loop continually checks the ``MAILBOX_CMD_ADDR`` for a non-zero command. Once a command is received from Python, the command is decoded, and executed. 
+Next, the ``while(1)`` loop continually checks the ``MAILBOX_CMD_ADDR`` for a
+non-zero command. Once a command is received from Python, the command is
+decoded, and executed.
 
 .. code-block:: c
 
@@ -267,9 +300,11 @@ Next, the ``while(1)`` loop continually checks the ``MAILBOX_CMD_ADDR`` for a no
          cmd = MAILBOX_CMD_ADDR;
 
 
-Taking the first case, reading a single value; ``get_sample()`` is called and a value returned to the first position (0) of the ``MAILBOX_DATA``. 
+Taking the first case, reading a single value; ``get_sample()`` is called and a
+value returned to the first position (0) of the ``MAILBOX_DATA``.
 
-``MAILBOX_CMD_ADDR`` is reset to zero to acknowledge to the ARM processor that the operation is complete and data is available in the mailbox. 
+``MAILBOX_CMD_ADDR`` is reset to zero to acknowledge to the ARM processor that
+the operation is complete and data is available in the mailbox.
 
 
 .. code-block:: c
@@ -311,13 +346,14 @@ Remaining code:
 
 
 Examining the Python Code
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-With the IOP Driver written, the Python class can be built that will communicate with that IOP. 
+With the IOP Driver written, the Python class can be built that will communicate
+with that IOP.
  
 ``<GitHub Repository>/pynq/lib/pmod/pmod_als.py``
   
-First the Pmod package is imported: 
+First the Pmod package is imported:
 
 .. code-block:: python
 
@@ -325,7 +361,8 @@ First the Pmod package is imported:
 
    PMOD_ALS_PROGRAM = "pmod_als.bin"
 
-The MicroBlaze binary file for the IOP is defined. This is the application executable, and will be loaded into the IOP instruction memory. 
+The MicroBlaze binary file for the IOP is defined. This is the application
+executable, and will be loaded into the IOP instruction memory.
 
 The ALS class and an initialization method are defined:
 
@@ -335,46 +372,61 @@ The ALS class and an initialization method are defined:
    
       def __init__(self, mb_info):
 
-The initialization function for the module requires an IOP index. For Grove peripherals and the StickIt connector, the StickIt port number can also be used for initialization.  The ``__init__`` is called when a module is instantiated. e.g. from Python:
+The initialization function for the module requires an IOP index. For Grove
+peripherals and the StickIt connector, the StickIt port number can also be used
+for initialization.  The ``__init__`` is called when a module is
+instantiated. e.g. from Python:
 
 .. code-block:: python
 
     from pynq.lib.pmod import Pmod_ALS
     als = Pmod_ALS(0)
 
-This will create a *Pmod_ALS* instance, and and load the MicroBlaze executable (PMOD_ALS_PROGRAM) into the instruction memory of the specified IOP.
+This will create a *Pmod_ALS* instance, and and load the MicroBlaze executable
+(PMOD_ALS_PROGRAM) into the instruction memory of the specified IOP.
 
-In the initialization method, an instance of the ``microblaze`` class is created. This class contains 
+In the initialization method, an instance of the ``microblaze`` class is
+created. This class contains
 
-An MMIO class is also instantiated to enable read and write to the shared memory.  
+An MMIO class is also instantiated to enable read and write to the shared
+memory.
 
 .. code-block:: python
 
     self.mmio = self.iop.mmio
 
-Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP will be running the als.bin executable.    
+Finally, the iop.start() call pulls the IOP out of reset. After this, the IOP
+will be running the als.bin executable.
 
 .. code-block:: python
 
     self.iop.start()
 
 Example of Python Class Runtime Methods
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The read method in the Pmod_ALS class will simply read an ALS sample and return that value to the caller.  The following steps demonstrate a Python to MicroBlaze read transaction specific to the ALS class.
+The read method in the Pmod_ALS class will simply read an ALS sample and return
+that value to the caller.  The following steps demonstrate a Python to
+MicroBlaze read transaction specific to the ALS class.
 
 .. code-block:: python
 
     def read(self):
 
-First, the command is written to the MicroBlaze shared memory using mmio.write(). In this case the value 0x3 represents a read command. This value is user defined in the Python code, and must match the value the C program running on the IOP expects for the same function.
+First, the command is written to the MicroBlaze shared memory using
+mmio.write(). In this case the value 0x3 represents a read command. This value
+is user defined in the Python code, and must match the value the C program
+running on the IOP expects for the same function.
 
 .. code-block:: python
 
     self.mmio.write(iop_const.MAILBOX_OFFSET+
                         iop_const.MAILBOX_PY2IOP_CMD_OFFSET, 3)     
 
-When the IOP is finished, it will write 0x0 to the command area. The Python code now uses mmio.read() to check if the command is still pending (in this case, when the 0x3 value is still present at the ``CMD_OFFSET``).  While the command is pending, the Python class blocks.  
+When the IOP is finished, it will write 0x0 to the command area. The Python code
+now uses mmio.read() to check if the command is still pending (in this case,
+when the 0x3 value is still present at the ``CMD_OFFSET``).  While the command
+is pending, the Python class blocks.
 
 .. code-block:: python
 
@@ -382,10 +434,13 @@ When the IOP is finished, it will write 0x0 to the command area. The Python code
                                 iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == 3):
         pass
             
-Once the command is no longer 0x3, i.e. the acknowledge has been received, the result is read from the ``DATA`` area of the shared memory ``MAILBOX_OFFSET`` using `mmio.read()`.
+Once the command is no longer 0x3, i.e. the acknowledge has been received, the
+result is read from the ``DATA`` area of the shared memory ``MAILBOX_OFFSET``
+using `mmio.read()`.
 
 .. code-block:: python
 
     return self.mmio.read(iop_const.MAILBOX_OFFSET)
 
-Notice the iop_const values are used in these function calls, values that are predefined in ``iop_const.py``. 
+Notice the iop_const values are used in these function calls, values that are
+predefined in ``iop_const.py``.

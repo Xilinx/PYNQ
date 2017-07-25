@@ -1,8 +1,8 @@
+Python Packaging
+================
 
-Packaging overlays
-====================
-
-An overlay, tcl, and Python can be placed anywhere in the filesystem, but this is not good practice. 
+An overlay, tcl, and Python can be placed anywhere in the filesystem, but this
+is not good practice.
 
 The default location for the base PYNQ overlay and tcl is : 
    
@@ -12,17 +12,21 @@ The PYNQ Python can be found here:
 
    ``<GitHub Repository>/python/pynq``
 
-You can fork PYNQ from github, and add Python code to the PYNQ package. However, for custom overlays, you can create your own repository and package it to allow other users to install your overlay using pip.
+You can fork PYNQ from github, and add Python code to the PYNQ package. However,
+for custom overlays, you can create your own repository and package it to allow
+other users to install your overlay using pip.
 
-There are different ways to package a project for installation with pip. One example is provided below. 
+There are different ways to package a project for installation with pip. One
+example is provided below.
 
 See pip install for more details, and more packaging options.
 https://pip.pypa.io/en/stable/reference/pip_install
 
 Example
---------
+-------
 
-The following example assume an overlay that exists in the root of a GitHub repository.
+The following example assume an overlay that exists in the root of a GitHub
+repository.
 
 Assume the repository has the following structure:
    
@@ -37,9 +41,11 @@ Assume the repository has the following structure:
    * license   
    
    
-Add a setup.py to the root of your repository. This file will imports the necessary packages, and specifies some setup instructions for your package including the package name, version, url, and files to include. 
+Add a setup.py to the root of your repository. This file will imports the
+necessary packages, and specifies some setup instructions for your package
+including the package name, version, url, and files to include.
 
-The setuptools package can be used to install your package. 
+The setuptools package can be used to install your package.
 
 Example setup.py : 
 
