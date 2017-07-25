@@ -37,7 +37,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class LogicToolsOverlay(pynq.DefaultOverlay):
+class LogicToolsOverlay(pynq.Overlay):
     """ The logictools overlay for the Pynq-Z1
 
     This overlay is implemented to control Boolean generators, 
@@ -53,8 +53,8 @@ class LogicToolsOverlay(pynq.DefaultOverlay):
          Logic controller processor connected to the Arduino interface.
 
     """
-    def __init__(self, bitfile, download):
-        super().__init__(bitfile, download)
+    def __init__(self, bitfile, **kwargs):
+        super().__init__(bitfile, **kwargs)
         if self.is_loaded():
             self.pmoda = self.iop1
             self.pmodb = self.iop2
@@ -63,6 +63,3 @@ class LogicToolsOverlay(pynq.DefaultOverlay):
             self.pmoda.mbtype = "Pmod"
             self.pmodb.mbtype = "Pmod"
             self.arduino.mbtype = "Logictools"
-
-
-Overlay = LogicToolsOverlay

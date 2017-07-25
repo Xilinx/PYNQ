@@ -39,7 +39,6 @@ from .pl import PL
 from .pl import Bitstream
 from .pl import _TCL
 from .pl import _get_tcl_name
-from .pl import PYNQ_PATH
 from .interrupt import Interrupt
 from .gpio import GPIO
 
@@ -177,8 +176,105 @@ def _complete_description(ip_dict, gpio_dict, interrupts):
     _assign_drivers(starting_dict)
     return starting_dict
 
+_class_aliases = {
+    'pynq.overlay.DocumentOverlay': 'pynq.overlay.DefaultOverlay',
+    'pynq.overlay.DocumentHierarchy': 'pynq.overlay.DefaultHierarchy'
+}
 
-class DefaultOverlay(PL):
+
+def _classname(class_):
+    """Returns the full name for a class. Has option for overriding
+    some class names to hide internal details. The overrides are
+    stored in the `_class_aliases` dictionaries.
+
+    """
+    rawname = "{}.{}".format(class_.__module__, class_.__name__)
+
+    if rawname in _class_aliases:
+        return _class_aliases[rawname]
+    else:
+        return rawname
+
+
+def _build_docstring(description, name, type_):
+    """Helper function to build a documentation string for
+    a hierarchical description.
+
+    Parameters
+    ----------
+    description : dict
+        The description to document.
+    name : str
+        The name of the object - inserted into the doc string
+    type_ : str
+        The type of the object - generally 'overlay' or 'hierarchy'
+
+    Returns
+    -------
+    str : The generated documentation string
+
+    """
+    lines = []
+    lines.append("Default documentation for {} {}. The following"
+                 .format(type_, name))
+    lines.append("attributes are available on this {}:".format(type_))
+    lines.append("")
+
+    lines.append("IP Blocks")
+    lines.append("----------")
+    if description['ip']:
+        for ip, details in description['ip'].items():
+            lines.append("{0: <20} : {1}"
+                         .format(ip, _classname(details['driver'])))
+    else:
+        lines.append("None")
+    lines.append("")
+
+    lines.append("Hierarchies")
+    lines.append("-----------")
+    if description['hierarchies']:
+        for hierarchy, details in description['hierarchies'].items():
+            lines.append("{0: <20} : {1}"
+                         .format(hierarchy, _classname(details['driver'])))
+    else:
+        lines.append("None")
+    lines.append("")
+
+    lines.append("Interrupts")
+    lines.append("----------")
+    if description['interrupts']:
+        for interrupt in description['interrupts'].keys():
+            lines.append("{0: <20} : pynq.interrupt.Interrupt"
+                         .format(interrupt))
+    else:
+        lines.append("None")
+    lines.append("")
+
+    lines.append("GPIO Outputs")
+    lines.append("------------")
+    if description['gpio']:
+        for gpio in description['gpio'].keys():
+            lines.append("{0: <20} : pynq.gpio.GPIO".format(gpio))
+    else:
+        lines.append("None")
+    lines.append("")
+    return '\n    '.join(lines)
+
+
+class DocumentOverlay(type):
+    def __call__(cls, bitfile, *args, **kwargs):
+       if Bitstream in cls.__bases__:
+           newcls = type(cls.__name__, cls.__bases__, dict(cls.__dict__))
+           obj = newcls.__call__(bitfile, *args, **kwargs)
+           newcls.__doc__ = _build_docstring(obj._ip_map._description,
+                                             bitfile,
+                                             "overlay")
+           return obj
+       else:
+           return super().__call__(bitfile, *args, **kwargs)
+
+
+class Overlay(Bitstream, metaclass=DocumentOverlay):
     """This class keeps track of a single bitstream's state and contents.
 
     The overlay class holds the state of the bitstream and enables run-time
@@ -258,7 +354,7 @@ class DefaultOverlay(PL):
 
     """
         
-    def __init__(self, bitfile_name, download):
+    def __init__(self, bitfile_name, download=True):
         """Return a new Overlay object.
 
         An overlay instantiates a bitstream object as a member initially.
@@ -277,11 +373,11 @@ class DefaultOverlay(PL):
         with same name (e.g. base.bit and base.tcl).
 
         """
-        super().__init__()
+        # We need to be explicit here due to the way dynamic class
+        # class construction interacts with super. Subclasses of
+        # Overlay work correctly however.
+        Bitstream.__init__(self, bitfile_name)
 
-        # Set the bitstream
-        self.bitstream = Bitstream(bitfile_name)
-        self.bitfile_name = self.bitstream.bitfile_name
         tcl = _TCL(_get_tcl_name(self.bitfile_name))
         self.ip_dict = tcl.ip_dict
         self.gpio_dict = tcl.gpio_dict
@@ -292,8 +388,6 @@ class DefaultOverlay(PL):
         description = _complete_description(
             self.ip_dict, self.gpio_dict, self.interrupt_pins)
         self._ip_map = _IPMap(description)
-        if download is None:
-            download = bitfile_name != PL.bitfile_name
         if download: 
             self.download()
 
@@ -330,7 +424,7 @@ class DefaultOverlay(PL):
             else:
                 Clocks.set_fclk(i)
 
-        self.bitstream.download()
+        Bitstream.download(self)
         PL.reset()
 
     def is_loaded(self):
@@ -347,8 +441,8 @@ class DefaultOverlay(PL):
         """
         PL.client_request()
         PL.server_update()
-        if not self.bitstream.timestamp == '':
-            return self.bitstream.timestamp == PL._timestamp
+        if not self.timestamp == '':
+            return self.timestamp == PL._timestamp
         else:
             return self.bitfile_name == PL._bitfile_name
 
@@ -537,89 +631,6 @@ class _IPMap:
                           self._keys()))
 
 
-_class_aliases = {
-    'pynq.overlay.DocumentOverlay': 'pynq.overlay.DefaultOverlay',
-    'pynq.overlay.DocumentHierarchy': 'pynq.overlay.DefaultHierarchy'
-}
-
-
-def _classname(class_):
-    """Returns the full name for a class. Has option for overriding
-    some class names to hide internal details. The overrides are
-    stored in the `_class_aliases` dictionaries.
-
-    """
-    rawname = "{}.{}".format(class_.__module__, class_.__name__)
-                                            
-    if rawname in _class_aliases:
-        return _class_aliases[rawname]
-    else:
-        return rawname
-
-
-def _build_docstring(description, name, type_):
-    """Helper function to build a documentation string for
-    a hierarchical description.
-
-    Parameters
-    ----------
-    description : dict
-        The description to document.
-    name : str
-        The name of the object - inserted into the doc string
-    type_ : str
-        The type of the object - generally 'overlay' or 'hierarchy'
-
-    Returns
-    -------
-    str : The generated documentation string
-
-    """
-    lines = []
-    lines.append("Default documentation for {} {}. The following"
-                 .format(type_, name))
-    lines.append("attributes are available on this {}:".format(type_))
-    lines.append("")
-
-    lines.append("IP Blocks")
-    lines.append("----------")
-    if description['ip']:
-        for ip, details in description['ip'].items():
-            lines.append("{0: <20} : {1}"
-                         .format(ip, _classname(details['driver'])))
-    else:
-        lines.append("None")
-    lines.append("")
-
-    lines.append("Hierarchies")
-    lines.append("-----------")
-    if description['hierarchies']:
-        for hierarchy, details in description['hierarchies'].items():
-            lines.append("{0: <20} : {1}"
-                         .format(hierarchy, _classname(details['driver'])))
-    else:
-        lines.append("None")
-    lines.append("")
-
-    lines.append("Interrupts")
-    lines.append("----------")
-    if description['interrupts']:
-        for interrupt in description['interrupts'].keys():
-            lines.append("{0: <20} : pynq.interrupt.Interrupt"
-                         .format(interrupt))
-    else:
-        lines.append("None")
-    lines.append("")
-
-    lines.append("GPIO Outputs")
-    lines.append("------------")
-    if description['gpio']:
-        for gpio in description['gpio'].keys():
-            lines.append("{0: <20} : pynq.gpio.GPIO".format(gpio))
-    else:
-        lines.append("None")
-    lines.append("")
-    return '\n    '.join(lines)
 
 
 def DocumentOverlay(bitfile, download):
@@ -693,52 +704,3 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
 
         """
         return False
-
-
-def Overlay(bitfile, download=None, class_=None):
-    """Instantiate and download an overlay.
-
-    This class will return an instance of `class_` if one is provided.
-    If no preference is specified and a python file is located with the
-    bitfile then the `Overlay` function in that file will be called. If
-    no python file is provided then a `DefaultOverlay` will be returned.
-
-    Parameters
-    ----------
-    bitfile : str
-        Bitstream file to load. The bitfile should either be an absolute
-        path or one of the installed bitstreams in the pynq installation
-        directory.
-    class_ : class
-        Class to return instead of the overlay-specified default.
-
-    Returns
-    -------
-    Instantiated overlay
-
-    Note
-    ----
-
-    If this method is called on an unsupported architecture it will warn and
-    return None
-
-    """
-    if not CPU_ARCH_IS_SUPPORTED:
-        warnings.warn("Pynq does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
-        return None
-    
-    bitfile_path = os.path.join(
-        PYNQ_PATH, bitfile.replace('.bit', ''), bitfile)
-    python_path = os.path.splitext(bitfile_path)[0] + '.py'
-    if class_:
-        return class_(bitfile, download)
-    elif os.path.exists(python_path):
-        spec = importlib.util.spec_from_file_location(
-            os.path.splitext(os.path.basename(bitfile_path))[0],
-            python_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module.Overlay(bitfile, download)
-    else:
-        return DocumentOverlay(bitfile, download)

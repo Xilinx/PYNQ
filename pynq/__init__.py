@@ -43,7 +43,6 @@ from .ps import Clocks
 from .interrupt import Interrupt
 from .xlnk import Xlnk
 from .overlay import Overlay
-from .overlay import DefaultOverlay
 from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
 
