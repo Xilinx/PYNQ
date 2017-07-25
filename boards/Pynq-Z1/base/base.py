@@ -75,8 +75,8 @@ class BaseOverlay(pynq.DefaultOverlay):
             self.pmodb = self.iop2
             self.arduino = self.iop3
 
-            self.pmoda.mbtype = "PMOD"
-            self.pmodb.mbtype = "PMOD"
+            self.pmoda.mbtype = "Pmod"
+            self.pmodb.mbtype = "Pmod"
             self.arduino.mbtype = "Arduino"
 
             self.leds = self.swsleds_gpio.channel2

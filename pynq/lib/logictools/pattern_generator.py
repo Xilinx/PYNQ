@@ -55,7 +55,7 @@ class PatternGenerator:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     stimulus_group : dict
         A group of stimulus wavelanes. 
     stimulus_group_name : str
@@ -93,7 +93,8 @@ class PatternGenerator:
         The frequency of the running generator / captured samples, in MHz.
 
     """
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Return a new pattern generator object.
 
         Parameters
@@ -186,7 +187,7 @@ class PatternGenerator:
         return self._longest_wave
 
     def trace(self, use_analyzer=True,
-              num_analyzer_samples=MAX_NUM_PATTERN_SAMPLES):
+              num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES):
         """Configure the trace analyzer.
 
         By default, the trace analyzer is always on, unless users explicitly
@@ -350,10 +351,10 @@ class PatternGenerator:
         'RESET' state.
 
         """
-        # Stop the running generator if necessary
-        self.stop()
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            self.stop()
 
-        # Clear all the reserved pins
         for i in self.stimulus_pins + self.analysis_pins:
             self.logictools_controller.pin_map[i] = 'UNUSED'
 
@@ -374,7 +375,6 @@ class PatternGenerator:
         self._longest_wave = None
         self._max_wave_length = 0
 
-        # Send the reset command
         cmd_reset = CMD_RESET | PATTERN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_reset |= TRACE_ENGINE_BIT

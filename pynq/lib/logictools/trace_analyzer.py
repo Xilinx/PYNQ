@@ -90,7 +90,7 @@ class TraceAnalyzer:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     num_analyzer_samples : int
         The number of samples to be analyzed.
     samples : numpy.ndarray
@@ -102,7 +102,8 @@ class TraceAnalyzer:
     __instance = None
     __initialized = False
 
-    def __new__(cls, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __new__(cls, mb_info, 
+                intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Create a new trace analyzer object.
 
         This method overwrites the default `new()` method so that the same
@@ -122,7 +123,8 @@ class TraceAnalyzer:
             cls.__instance = object.__new__(cls)
         return cls.__instance
 
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info, 
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Return a new trace analyzer object.
 
         Parameters
@@ -178,7 +180,7 @@ class TraceAnalyzer:
         self.logictools_controller.check_status()
         return self.logictools_controller.status[self.__class__.__name__]
 
-    def setup(self, num_analyzer_samples=MAX_NUM_TRACE_SAMPLES,
+    def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
               frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ):
         """Configure the trace analyzer.
         

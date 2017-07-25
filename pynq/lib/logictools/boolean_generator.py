@@ -61,7 +61,7 @@ class BooleanGenerator:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     expressions : list/dict
         The boolean expressions, each expression being a string.
     waveforms : dict
@@ -78,7 +78,8 @@ class BooleanGenerator:
         The frequency of the captured samples, in MHz.
 
     """
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Return a new Boolean generator object.
         
         For ARDUINO, the available input pins are data pins D0 - D19,
@@ -150,7 +151,8 @@ class BooleanGenerator:
         self.logictools_controller.check_status()
         return self.logictools_controller.status[self.__class__.__name__]
 
-    def trace(self, use_analyzer=True, num_analyzer_samples=16):
+    def trace(self, use_analyzer=True,
+              num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES):
         """Configure the trace analyzer.
 
         By default, the trace analyzer is always on, unless users explicitly
@@ -365,10 +367,10 @@ class BooleanGenerator:
         'RESET' state.
 
         """
-        # Stop the running generator if necessary
-        self.stop()
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            self.stop()
 
-        # Clear all the reserved pins
         for i in self.output_pins + self.input_pins:
             self.logictools_controller.pin_map[i] = 'UNUSED'
 
@@ -378,7 +380,6 @@ class BooleanGenerator:
         self.waveforms.clear()
         self.frequency_mhz = 0
 
-        # Send the reset command
         cmd_reset = CMD_RESET | BOOLEAN_ENGINE_BIT
         if self.analyzer is not None:
             cmd_reset |= TRACE_ENGINE_BIT
@@ -519,7 +520,7 @@ class BooleanGenerator:
 
         """
         for expr_label in self.expressions.keys():
-            if self.waveforms[expr_label]:
+            if expr_label in self.waveforms and self.waveforms[expr_label]:
                 self.waveforms[expr_label].clear_wave('stimulus')
                 self.waveforms[expr_label].clear_wave('analysis')
 

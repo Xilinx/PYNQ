@@ -279,21 +279,21 @@ class FSMGenerator:
     This class enables users to specify a Finite State Machine (FSM). Users
     have to provide a FSM in the following format.
 
-    fsm_spec = {'inputs': [('reset','D0'), ('direction','D1')],
-    'outputs': [('alpha','D3'), ('beta','D4'), ('gamma','D5')],
-    'states': ('S0', 'S1', 'S2', 'S3', 'S4', 'S5'),
-    'transitions': [['00', 'S0', 'S1', '000'],
-                    ['01', 'S0', 'S5', '000'],
-                    ['00', 'S1', 'S2', '001'],
-                    ['01', 'S1', 'S0', '001'],
-                    ['00', 'S2', 'S3', '010'],
-                    ['01', 'S2', 'S1', '010'],
-                    ['00', 'S3', 'S4', '011'],
-                    ['01', 'S3', 'S2', '011'],
-                    ['00', 'S4', 'S5', '100'],
-                    ['01', 'S4', 'S3', '100'],
-                    ['00', 'S5', 'S0', '101'],
-                    ['01', 'S5', 'S4', '101'],
+    fsm_spec = {'inputs': [('reset','D0'), ('direction','D1')],\n
+    'outputs': [('alpha','D3'), ('beta','D4'), ('gamma','D5')],\n
+    'states': ('S0', 'S1', 'S2', 'S3', 'S4', 'S5'),\n
+    'transitions': [['00', 'S0', 'S1', '000'],\n
+                    ['01', 'S0', 'S5', '000'],\n
+                    ['00', 'S1', 'S2', '001'],\n
+                    ['01', 'S1', 'S0', '001'],\n
+                    ['00', 'S2', 'S3', '010'],\n
+                    ['01', 'S2', 'S1', '010'],\n
+                    ['00', 'S3', 'S4', '011'],\n
+                    ['01', 'S3', 'S2', '011'],\n
+                    ['00', 'S4', 'S5', '100'],\n
+                    ['01', 'S4', 'S3', '100'],\n
+                    ['00', 'S5', 'S0', '101'],\n
+                    ['01', 'S5', 'S4', '101'],\n
                     ['1-', '*',  'S0', '']]}
 
     The current implementation assumes Moore machine, so the output is decided
@@ -305,7 +305,7 @@ class FSMGenerator:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     fsm_spec : dict
         The FSM specification, with inputs (list), outputs (list),
         states (list), and transitions (list).
@@ -340,7 +340,8 @@ class FSMGenerator:
 
     """
 
-    def __init__(self, mb_info, intf_spec_name='PYNQZ1_DIO_SPECIFICATION'):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Initialize the FSM generator class.
 
         If `use_state_bits` is set to True, the state bits will be shown as
@@ -427,7 +428,7 @@ class FSMGenerator:
         return self.logictools_controller.status[self.__class__.__name__]
 
     def trace(self, use_analyzer=True,
-              num_analyzer_samples=MAX_NUM_TRACE_SAMPLES):
+              num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES):
         """Configure the trace analyzer.
 
         By default, the trace analyzer is always on, unless users explicitly
@@ -832,10 +833,10 @@ class FSMGenerator:
         'RESET' state.
 
         """
-        # Stop the running generator if necessary
-        self.stop()
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RUNNING':
+            self.stop()
 
-        # Clear all the reserved pins
         for i in self.output_pins + self.input_pins:
             self.logictools_controller.pin_map[i] = 'UNUSED'
 
@@ -858,7 +859,6 @@ class FSMGenerator:
         self._encoded_transitions.clear()
         self._bram_data = np.zeros(2 ** FSM_BRAM_ADDR_WIDTH, dtype=np.uint32)
 
-        # Send the reset command
         cmd_reset = CMD_RESET | FSM_ENGINE_BIT
         if self.analyzer is not None:
             cmd_reset |= TRACE_ENGINE_BIT

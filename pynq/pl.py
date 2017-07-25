@@ -165,8 +165,9 @@ class _TCL:
 
         config_ip_pat = "CONFIG."
         config_regex = "CONFIG.(?P<key>.+?) \{(?P<value>.+?)\}"
-        clk_odiv_regex = 'PCW_FCLK(?P<idx>.+?)_PERIPHERAL_DIVISOR(?P<div>.+?)'
-        clk_enable_regex = 'PCW_FPGA_FCLK(?P<idx>.+?)_ENABLE'
+        clk_odiv_regex = 'PCW_FCLK(?P<idx>.+?)_PERIPHERAL_DIVISOR' \
+                         '(?P<div>[01])$'
+        clk_enable_regex = 'PCW_FPGA_FCLK(?P<idx>.+?)_ENABLE$'
         prop_start_pat = "set_property -dict ["
         prop_end_pat = "]"
         prop_name_regex = "\] \$(?P<instance_name>.+?)$"

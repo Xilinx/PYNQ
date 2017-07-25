@@ -83,6 +83,7 @@ def reg_to_ref(reg_val):
     -------
     float
         The reference junction temperature in degC.
+
     """
     v = reg_val >> 4
     if v & 0x00000800:
@@ -143,7 +144,7 @@ class Pmod_TC1(object):
         self.microblaze = Pmod(mb_info, PMOD_TC1_PROGRAM)
         self.log_interval_ms = 1000
 
-    def read(self):
+    def read_raw(self):
         """Read full 32-bit register of TC1 Pmod.
 
         Returns
@@ -154,6 +155,43 @@ class Pmod_TC1(object):
         """
         self.microblaze.write_blocking_command(READ_SINGLE_VALUE)
         return self.microblaze.read_mailbox(0)
+
+    def read_junction_temperature(self):
+        """Read the reference junction temperature.
+
+        Returns
+        -------
+        float
+            The reference junction temperature in degC.
+
+        """
+        return reg_to_ref(self.read_raw())
+
+    def read_thermocouple_temperature(self):
+        """Read the reference junction temperature.
+
+        Returns
+        -------
+        float
+            The thermocouple temperature in degC.
+
+        """
+        return reg_to_tc(self.read_raw())
+
+    def read_alarm_flags(self):
+        """Read the alarm flags from the raw value.
+
+        Returns
+        -------
+        u32
+            The alarm flags from the TC1.
+            bit  0 = 1 if thermocouple connection is open-circuit;
+            bit  1 = 1 if thermocouple connection is shorted to generated;
+            bit  2 = 1 if thermocouple connection is shorted to VCC;
+            bit 16 = 1 if any if bits 0-2 are 1.
+
+        """
+        return reg_to_alarms(self.read_raw())
 
     def set_log_interval_ms(self, log_interval_ms):
         """Set the length of the log in the TC1 Pmod.
@@ -206,9 +244,14 @@ class Pmod_TC1(object):
     def get_log(self):
         """Return list of logged samples.
 
+        Note
+        ----
+        The logged samples are raw 32-bit samples captured from the sensor.
+
         Returns
         -------
-        List of valid samples from the TC1 sensor
+        list
+            List of valid samples from the TC1 sensor
 
         """
         # Stop logging

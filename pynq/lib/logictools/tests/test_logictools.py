@@ -62,8 +62,10 @@ def test_controller_init():
     exception_raised = False
     controller1 = controller2 = None
     try:
-        controller1 = LogicToolsController(ARDUINO, 'PYNQZ1_DIO_SPECIFICATION')
-        controller2 = LogicToolsController(ARDUINO, 'PYNQZ1_DIO_SPECIFICATION')
+        controller1 = LogicToolsController(ARDUINO,
+                                           'PYNQZ1_LOGICTOOLS_SPECIFICATION')
+        controller2 = LogicToolsController(ARDUINO,
+                                           'PYNQZ1_LOGICTOOLS_SPECIFICATION')
     except RuntimeError:
         exception_raised = True
     assert not exception_raised, \
@@ -79,7 +81,8 @@ def test_controller_mailbox():
 
     """
     ol.download()
-    controller = LogicToolsController(ARDUINO, 'PYNQZ1_DIO_SPECIFICATION')
+    controller = LogicToolsController(ARDUINO,
+                                      'PYNQZ1_LOGICTOOLS_SPECIFICATION')
     data_write = list()
     for i in range(10):
         data_write.append(randint(0, pow(2, 32) - 1))
@@ -101,7 +104,8 @@ def test_controller_buffer():
 
     """
     ol.download()
-    controller = LogicToolsController(ARDUINO, 'PYNQZ1_DIO_SPECIFICATION')
+    controller = LogicToolsController(ARDUINO,
+                                      'PYNQZ1_LOGICTOOLS_SPECIFICATION')
     num_samples = MAX_NUM_TRACE_SAMPLES + 1
     test_data_32_addr = controller.allocate_buffer(
         'test_data_32_buf', num_samples, data_type='unsigned int')
@@ -120,7 +124,8 @@ def test_controller_data():
 
     """
     ol.download()
-    controller = LogicToolsController(ARDUINO, 'PYNQZ1_DIO_SPECIFICATION')
+    controller = LogicToolsController(ARDUINO,
+                                      'PYNQZ1_LOGICTOOLS_SPECIFICATION')
     num_samples = MAX_NUM_TRACE_SAMPLES + 1
     data_32_write = np.random.randint(0, 2**32, num_samples, dtype=np.uint32)
     data_64_write = np.random.randint(0, 2**64, num_samples, dtype=np.uint64)

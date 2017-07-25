@@ -116,8 +116,8 @@ static int videocapture_init(videocaptureObject *self, PyObject *args){
     if (!PyDict_Check(gpio_dict))
         return -1;
 
-    int status = VideoInitialize(self->capture, gpio_dict, 
-                                 vtcBaseAddress, init_timeout);
+    int status = VideoInitialize(self->capture, NULL, gpio_dict, 
+                                 vtcBaseAddress, NULL, 0, init_timeout);
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
                      "_video._capture initialization failed [%d]: "

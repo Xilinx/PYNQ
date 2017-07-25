@@ -30,9 +30,11 @@
 
 from copy import deepcopy
 import re
-import os
-import json
 import IPython.core.display
+import IPython.display
+import json
+import os
+import subprocess
 from .constants import *
 
 
@@ -178,9 +180,9 @@ def draw_wavedrom(data):
     wavedrom_js = '/js/WaveDrom.js'
     wavedromskin_js = '/js/WaveDromSkin.js'
     if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedrom_js):
-        raise RuntimeError(f'Cannot locate {wavedrom_js}.')
+        raise RuntimeError('Cannot locate {}.'.format(wavedrom_js))
     if not os.path.isfile(PYNQ_JUPYTER_NOTEBOOKS + wavedromskin_js):
-        raise RuntimeError(f'Cannot locate {wavedromskin_js}.')
+        raise RuntimeError('Cannot locate {}.'.format(wavedromskin_js))
     current_path = os.getcwd()
     relative_path = os.path.relpath(PYNQ_JUPYTER_NOTEBOOKS, current_path)
 
@@ -237,7 +239,7 @@ class Waveform:
     waveform_dict : dict
         The json data stored in the dictionary.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     stimulus_group_name : str
         Name of the WaveLane group for the stimulus, defaulted to `stimulus`.
     analysis_group_name : str
@@ -250,7 +252,7 @@ class Waveform:
     """
 
     def __init__(self, waveform_dict,
-                 intf_spec_name='PYNQZ1_DIO_SPECIFICATION',
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION',
                  stimulus_group_name=None, analysis_group_name=None):
         """Initializer for this wrapper class.
 

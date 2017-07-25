@@ -80,7 +80,9 @@ else:
 
 # Video source files
 _video_src = ['pynq/lib/_pynq/_video/_video.c', 'pynq/lib/_pynq/_video/_capture.c',
-              'pynq/lib/_pynq/_video/_display.c',
+              'pynq/lib/_pynq/_video/_display.c', 'pynq/lib/_pynq/_video/_frame.c',
+              'pynq/lib/_pynq/_video/_legacy_display.c',
+              'pynq/lib/_pynq/_video/_legacy_capture.c',
               'pynq/lib/_pynq/src/gpio.c', 'pynq/lib/_pynq/src/py_xaxivdma.c',
               'pynq/lib/_pynq/src/py_xvtc.c', 'pynq/lib/_pynq/src/utils.c',
               'pynq/lib/_pynq/src/py_xgpio.c',
@@ -112,7 +114,7 @@ bsp_standalone = \
      'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
 
 getting_started_notebooks = \
-    ['3_jupyter_notebook.ipynb', '4_programming_python.ipynb']
+    ['jupyter_notebooks.ipynb', 'python_environment.ipynb']
 
 # Merge BSP src to _video src
 video = []
@@ -217,7 +219,7 @@ else:
     ext_modules = []
 
 setup(name='pynq',
-      version='1.5',
+      version='2.0',
       description='Python for Xilinx package',
       author='XilinxPythonProject',
       author_email='pynq_support@xilinx.com',

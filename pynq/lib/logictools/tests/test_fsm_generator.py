@@ -38,7 +38,7 @@ from pynq.lib.logictools.waveform import bitstring_to_int
 from pynq.lib.logictools.waveform import wave_to_bitstring
 from pynq.lib.logictools import FSMGenerator
 from pynq.lib.logictools import ARDUINO
-from pynq.lib.logictools import PYNQZ1_DIO_SPECIFICATION
+from pynq.lib.logictools import PYNQZ1_LOGICTOOLS_SPECIFICATION
 from pynq.lib.logictools import MAX_NUM_TRACE_SAMPLES
 from pynq.lib.logictools import FSM_MIN_NUM_STATES
 from pynq.lib.logictools import FSM_MAX_NUM_STATES
@@ -62,8 +62,8 @@ if flag1:
 flag = flag0 and flag1
 
 
-pin_dict = PYNQZ1_DIO_SPECIFICATION['traceable_outputs']
-interface_width = PYNQZ1_DIO_SPECIFICATION['interface_width']
+pin_dict = PYNQZ1_LOGICTOOLS_SPECIFICATION['traceable_outputs']
+interface_width = PYNQZ1_LOGICTOOLS_SPECIFICATION['interface_width']
 
 
 def build_fsm_spec_4_state(direction_logic_value):
@@ -375,10 +375,91 @@ def test_fsm_state_bits():
             'Data pattern not correct when running at {}MHz.'.format(
                     fsm_frequency_mhz)
         assert np.array_equal(golden_state_bit0_array, state_bit0_array), \
-            'Data pattern not correct when running at {}MHz.'.format(
+            'State bit0 not correct when running at {}MHz.'.format(
                     fsm_frequency_mhz)
         assert np.array_equal(golden_state_bit1_array, state_bit1_array), \
-            'Data pattern not correct when running at {}MHz.'.format(
+            'State bit1 not correct when running at {}MHz.'.format(
+                    fsm_frequency_mhz)
+
+        fsm_generator.stop()
+        fsm_generator.reset()
+        del fsm_generator
+
+
+@pytest.mark.skipif(not flag, reason="need correct overlay to run")
+def test_fsm_step():
+    """Test for the Finite State Machine Generator class.
+
+    This test is similar to the above test, but in this test,
+    we will test the `step()` method, and ask users to change the input
+    logic values in the middle of the test.
+
+    """
+    ol.download()
+
+    rst, direction = list(pin_dict.keys())[1:3]
+    print("")
+
+    fsm_spec_4_state, output_pattern_up, \
+        state_bit0_pattern_up, \
+        state_bit1_pattern_up = build_fsm_spec_4_state(0)
+    _, output_pattern_down, \
+        state_bit0_pattern_down, \
+        state_bit1_pattern_down = build_fsm_spec_4_state(1)
+    output_pattern_down.append(output_pattern_down.pop(0))
+    state_bit0_pattern_down.append(state_bit0_pattern_down.pop(0))
+    state_bit1_pattern_down.append(state_bit1_pattern_down.pop(0))
+    fsm_period = len(fsm_spec_4_state['states'])
+    golden_test_array = np.array(output_pattern_up +
+                                 output_pattern_down[1:])
+    golden_state_bit0_array = np.array(state_bit0_pattern_up +
+                                       state_bit0_pattern_down[1:])
+    golden_state_bit1_array = np.array(state_bit1_pattern_up +
+                                       state_bit1_pattern_down[1:])
+
+    for fsm_frequency_mhz in [10, 100]:
+        fsm_generator = FSMGenerator(mb_info)
+        fsm_generator.trace(use_analyzer=True,
+                            num_analyzer_samples=fsm_period)
+        fsm_generator.setup(fsm_spec_4_state,
+                            use_state_bits=True,
+                            frequency_mhz=fsm_frequency_mhz)
+        print("Connect both {} and {} to GND.".format(rst, direction))
+        input("Hit enter after done ...")
+        for _ in range(len(output_pattern_up)-1):
+            fsm_generator.step()
+            fsm_generator.show_waveform()
+        print("Connect {} to GND, and {} to VCC.".format(rst, direction))
+        input("Hit enter after done ...")
+        for _ in range(len(output_pattern_down)):
+            fsm_generator.step()
+            fsm_generator.show_waveform()
+
+        test_string = state_bit0_string = state_bit1_string = ''
+        for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
+            if wavegroup and wavegroup[0] == 'analysis':
+                for wavelane in wavegroup[1:]:
+                    if wavelane['name'] == 'test':
+                        test_string = wavelane['wave']
+                    if wavelane['name'] == 'state_bit0':
+                        state_bit0_string = wavelane['wave']
+                    if wavelane['name'] == 'state_bit1':
+                        state_bit1_string = wavelane['wave']
+        test_array = np.array(bitstring_to_int(
+            wave_to_bitstring(test_string)))
+        state_bit0_array = np.array(bitstring_to_int(
+            wave_to_bitstring(state_bit0_string)))
+        state_bit1_array = np.array(bitstring_to_int(
+            wave_to_bitstring(state_bit1_string)))
+
+        assert np.array_equal(golden_test_array, test_array), \
+            'Data pattern not correct when stepping at {}MHz.'.format(
+                    fsm_frequency_mhz)
+        assert np.array_equal(golden_state_bit0_array, state_bit0_array), \
+            'State bit0 not correct when stepping at {}MHz.'.format(
+                    fsm_frequency_mhz)
+        assert np.array_equal(golden_state_bit1_array, state_bit1_array), \
+            'State bit1 not correct when stepping at {}MHz.'.format(
                     fsm_frequency_mhz)
 
         fsm_generator.stop()

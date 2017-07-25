@@ -74,7 +74,7 @@ class LogicToolsController(PynqMicroblaze):
         A dictionary of cffi.FFI.CData buffer, each can be accessed similarly
         as arrays.
     intf_spec : dict
-        The interface specification, e.g., PYNQZ1_DIO_SPECIFICATION.
+        The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     pin_map : dict
         A dictionary of pins available from the interface specification.
     status : dict

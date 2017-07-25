@@ -111,8 +111,8 @@ static int videodisplay_init(videodisplayObject *self, PyObject *args){
                           &dynClkAddress, &fHdmi))
         return -1;
 
-    int status = DisplayInitialize(self->display, vtcBaseAddress, 
-                                   dynClkAddress, fHdmi);
+    int status = DisplayInitialize(self->display, NULL, vtcBaseAddress,
+                                   dynClkAddress, fHdmi, NULL, 0);
 
     if (status != XST_SUCCESS){
         PyErr_Format(PyExc_LookupError, 
