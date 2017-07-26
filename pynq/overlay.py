@@ -48,88 +48,6 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-def _subhierarchy(description, hierarchy):
-    """Returns a hierarchical subset of an IP dict
-
-    """
-    return {k.partition('/')[2]: v
-            for k, v in description.items()
-            if k.startswith('{}/'.format(hierarchy))}
-
-
-def _hierarchical_description(description, path):
-    """Creates a hierarchical description of an IP dict
-
-    The description is a recursively structured collection of
-    dictionaries. There are four dictionary types:
-
-    hierarchies: { 'ip': ip, 'hierarchies': hierarchies,
-                   'interrupts': interrupts, 'gpio': gpio,
-                   'fullpath': str }
-
-    ip: Subset of ip_dict containing IP directly in the hierarchy
-        with each entry containing having additional members
-        {'fullpath': str, 'interrupts': interrupts, 'gpio': gpio}
-
-    interrupts: Dict of pin name to entry in PL.interrupt_pins
-                with each entry also having a 'fullpath' entry.
-
-    gpio: Dict of pin name to entry in PL.gpio_dict with each
-          entry also having a 'fullpath' entry.
-
-    This function creates the skeleton hierachies without interrupt
-    or gpio information.
-
-    """
-    hierarchies = {k.partition('/')[0]
-                   for k in description.keys() if k.count('/')}
-    ipnames = {k for k, v in description.items() if k.count('/') ==
-               0 and 'type' in v}
-    if path:
-        prefix = '{}/'.format(path)
-    else:
-        prefix = ''
-
-    hierarchy_dict = dict()
-    for h in hierarchies:
-        hierarchy_dict[h] = _hierarchical_description(
-            _subhierarchy(description, h), '{}{}'.format(prefix, h))
-
-    ip_dict = dict()
-    for ip in ipnames:
-        ipdescription = deepcopy(description[ip])
-        ipdescription['fullpath'] = '{}{}'.format(prefix, ip)
-        ipdescription['interrupts'] = dict()
-        ipdescription['gpio'] = dict()
-        ip_dict[ip] = ipdescription
-
-    newdescription = {'ip': ip_dict,
-                      'hierarchies': hierarchy_dict,
-                      'interrupts': {},
-                      'gpio': {},
-                      'fullpath': path}
-    return newdescription
-
-
-def _find_entry(hierarchy, path):
-    """Helper function to find an entry in a hierarchical description
-    based on a path. Return None if the path cannot be found.
-
-    """
-    base, _, rest = path.partition('/')
-    if not rest:
-        return hierarchy
-    elif base in hierarchy['hierarchies']:
-        return _find_entry(hierarchy['hierarchies'][base], rest)
-    elif base in hierarchy['ip']:
-        if rest.count('/'):
-            return None
-        else:
-            return hierarchy['ip'][base]
-    else:
-        return None
-
-
 def _assign_drivers(description, ignore_version):
     """Assigns a driver for each IP and hierarchy in the description.
 
@@ -166,29 +84,18 @@ def _assign_drivers(description, ignore_version):
                 details['driver'] = DefaultIP
 
 
-def _complete_description(ip_dict, gpio_dict, interrupts, ignore_version):
+def _complete_description(ip_dict, hierarchy_dict, ignore_version):
     """Returns a complete hierarchical description of an overlay based
     on the three dictionaries parsed from the TCL.
 
     """
-    starting_dict = _hierarchical_description(ip_dict, '')
-
-    for interrupt, details in interrupts.items():
-        entry = _find_entry(starting_dict, interrupt)
-        if entry:
-            _, _, leafname = interrupt.rpartition('/')
-            description = deepcopy(details)
-            description['fullpath'] = interrupt
-            entry['interrupts'][leafname] = description
-
-    for gpio, details in gpio_dict.items():
-        for pin in details['pins']:
-            entry = _find_entry(starting_dict, pin)
-            if entry:
-                _, _, leafname = pin.rpartition('/')
-                description = deepcopy(details)
-                description['fullpath'] = pin
-                entry['gpio'][leafname] = description
+    starting_dict = dict()
+    starting_dict['ip'] = {k: v for k, v in ip_dict.items()
+                           if k.count('/') == 0}
+    starting_dict['hierarchies'] = {k: v for k, v in hierarchy_dict.items()
+                                    if k.count('/') == 0}
+    starting_dict['interrupts'] = dict()
+    starting_dict['gpio'] = dict()
 
     _assign_drivers(starting_dict, ignore_version)
     return starting_dict
@@ -400,10 +307,11 @@ class Overlay(Bitstream, metaclass=DocumentOverlay):
         self.gpio_dict = tcl.gpio_dict
         self.interrupt_controllers = tcl.interrupt_controllers
         self.interrupt_pins = tcl.interrupt_pins
+        self.hierarchy_dict = tcl.hierarchy_dict
         self.clock_dict = tcl.clock_dict
 
         description = _complete_description(
-            self.ip_dict, self.gpio_dict, self.interrupt_pins, ignore_version)
+            self.ip_dict, self.hierarchy_dict, ignore_version)
         self._ip_map = _IPMap(description)
         if download: 
             self.download()
