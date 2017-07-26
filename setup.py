@@ -131,7 +131,7 @@ def fill_notebooks_dir():
         return None
 
     # boards/BOARD/OVERLAY/notebooks
-    overlay_notebook_folders = [(ol, os.path.join(board_folder, ol, 'notebooks/')) for ol in os.listdir(board_folder)
+    overlay_notebook_folders = [(ol, os.path.join(board_folder, ol, 'notebooks/')) for ol in list(os.listdir(board_folder)) + ['.']
                                 if os.path.isdir(os.path.join(board_folder, ol, 'notebooks'))]
 
     # pynq/notebooks/*
