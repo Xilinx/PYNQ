@@ -85,15 +85,19 @@ class _TCL:
     ----------
     ip_dict : dict
         All the addressable IPs from PS7. Key is the name of the IP; value is
-        a dictionary mapping the physical address, address range, IP type, 
-        configuration dictionary, and the state associated with that IP:
-        {str: {'phys_addr' : int, 'addr_range' : int, 
-               'type' : str, 'config' : dict, 'state' : str}}.
+        a dictionary mapping the physical address, address range, IP type,
+        configuration dictionary, the state associated with that IP, any
+        interrupts and GPIO pins attached to the IP and the full path to the
+        IP in the block design:
+        {str: {'phys_addr' : int, 'addr_range' : int,
+               'type' : str, 'config' : dict, 'state' : str,
+               'interrupts' : dict, 'gpio' : dict, 'fullpath' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
         value is a dictionary mapping user index (starting from 0),
-        and the state associated with that GPIO pin: 
-        {str: {'index' : int, 'state' : str}}.
+        the state associated with that GPIO pin and the pins in block diagram
+        attached to the GPIO:
+        {str: {'index' : int, 'state' : str, 'pins' : [str]}}.
     interrupt_controllers : dict
         All AXI interrupt controllers in the system attached to
         a PS7 interrupt line. Key is the name of the controller;
@@ -102,10 +106,19 @@ class _TCL:
         {str: {'parent': str, 'index' : int}}. 
         The PS7 is the root of the hierarchy and is unnamed.
     interrupt_pins : dict
-        All pins in the design attached to an interrupt controller. 
-        Key is the name of the pin; value is a dictionary 
-        mapping the interrupt controller and the line index used: 
+        All pins in the design attached to an interrupt controller.
+        Key is the name of the pin; value is a dictionary
+        mapping the interrupt controller and the line index used:
         {str: {'controller' : str, 'index' : int}}.
+    hierarchy_dict : dict
+        All of the hierarchies in the block design containing addressable IP.
+        The keys are the hiearachies and the values are dictionaries
+        containing the IP and sub-hierarchies contained in the hierarchy and
+        and GPIO and interrupts attached to the hierarchy. The keys in
+        dictionaries are relative to the hierarchy and the ip dict only
+        contains immediately contained IP - not those in sub-hierarchies.
+        {str: {'ip': dict, 'hierarchies': dict, 'interrupts': dict,
+               'gpio': dict, 'fullpath': str}}
     clock_dict : dict
         All the PL clocks that can be controlled by the PS. Key is the index
         of the clock (e.g., 0 for `fclk0`); value is a dictionary mapping the 
@@ -262,6 +275,9 @@ class _TCL:
                                         int(m.group("range"), 16)
                                     self.ip_dict[ip]['type'] = ip_type
                                     self.ip_dict[ip]['state'] = None
+                                    self.ip_dict[ip]['interrupts'] = dict()
+                                    self.ip_dict[ip]['gpio'] = dict()
+                                    self.ip_dict[ip]['fullpath'] = ip
 
                 # Match hierarchical cell definition
                 elif hier_proc_def_pat in line:
@@ -340,6 +356,9 @@ class _TCL:
                 self.ps_name + "/" + family_gpio_dict[self.family]]
             self._add_gpio_pins(ps_gpio_net, gpio_dict)
 
+        self._build_hierarchy_dict()
+        self._assign_interrupts_gpio()
+
     def _add_gpio_pins(self, net, gpio_dict):
         net_pins = self.nets[net]
         gpio_names = []
@@ -374,7 +393,8 @@ class _TCL:
                     return offset + 1
         for p in net_pins:
             self.interrupt_pins[p] = {'controller': parent,
-                                      'index': offset}
+                                      'index': offset,
+                                      'fullpath': p}
         return offset + 1
 
     def _add_concat_pins(self, name, parent, offset):
@@ -383,6 +403,44 @@ class _TCL:
             net = self.pins[name + "/In" + str(i)]
             offset = self._add_interrupt_pins(net, parent, offset)
         return offset
+
+    def _assign_interrupts_gpio(self):
+        for interrupt, val in self.interrupt_pins.items():
+            block, _ , pin = interrupt.rpartition('/')
+            if block in self.ip_dict:
+                self.ip_dict[block]['interrupts'][pin] = val
+            if block in self.hierarchy_dict:
+                self.hierarchy_dict[block]['interrupts'][pin] = val
+
+        for gpio in self.gpio_dict.values():
+            for connection in gpio['pins']:
+                ip, _, pin = connection.rpartition('/')
+                if ip in self.ip_dict:
+                    self.ip_dict[ip]['gpio'][pin] = gpio
+                elif ip in self.hierarchy_dict:
+                    self.hierarchy_dict[ip]['gpio'][pin] = gpio
+
+    def _build_hierarchy_dict(self):
+        hierarchies = {k.rpartition('/')[0] for k in self.ip_dict.keys()
+                       if k.count('/') > 0}
+        self.hierarchy_dict = dict()
+        for hier in hierarchies:
+            self.hierarchy_dict[hier] = {
+                'ip': dict(),
+                'hierarchies': dict(),
+                'interrupts': dict(),
+                'gpio': dict(),
+                'fullpath': hier,
+            }
+        for name, val in self.ip_dict.items():
+            hier, _, ip = name.rpartition('/')
+            if hier:
+               self.hierarchy_dict[hier]['ip'][ip] = val
+
+        for name, val in self.hierarchy_dict.items():
+            hier, _, subhier = name.rpartition('/')
+            if hier:
+               self.hierarchy_dict[hier]['hierarchies'][subhier] = val
 
 
 class PLMeta(type):
@@ -406,6 +464,7 @@ class PLMeta(type):
         _gpio_dict = _tcl.gpio_dict
         _interrupt_controllers = _tcl.interrupt_controllers
         _interrupt_pins = _tcl.interrupt_pins
+        _hierarchy_dict = _tcl.hierarchy_dict
         _status = 1
         _server = None
         _host = None
@@ -508,6 +567,20 @@ class PLMeta(type):
         cls.server_update()
         return cls._interrupt_pins
 
+    @property
+    def hierarchy_dict(cls):
+        """The getter for the attribute `hierarchy_dict`
+
+        Returns
+        -------
+        dict
+            The dictionary containing the hierarchies in the design
+
+        """
+        cls.client_request()
+        cls.server_update()
+        return cls._hierarchy_dict
+
     def setup(cls, address=PL_SERVER_FILE, key=b'xilinx'):
         """Start the PL server and accept client connections.
 
@@ -536,11 +609,12 @@ class PLMeta(type):
                             cls._ip_dict,
                             cls._gpio_dict,
                             cls._interrupt_controllers,
-                            cls._interrupt_pins])
+                            cls._interrupt_pins,
+                            cls._hierarchy_dict])
             cls._bitfile_name, cls._timestamp, \
                 cls._ip_dict, cls._gpio_dict, \
                 cls._interrupt_controllers, cls._interrupt_pins, \
-                cls._status = cls._host.recv()
+                cls._hierarchy_dict, cls._status = cls._host.recv()
             cls._host.close()
 
         cls._server.close()
@@ -573,7 +647,8 @@ class PLMeta(type):
         cls._bitfile_name, cls._timestamp, \
             cls._ip_dict, cls._gpio_dict, \
             cls._interrupt_controllers, \
-            cls._interrupt_pins = cls._remote.recv()
+            cls._interrupt_pins, \
+            cls._hierarchy_dict = cls._remote.recv()
 
     def server_update(cls, continued=1):
         """Client sends the attributes to the server.
@@ -598,6 +673,7 @@ class PLMeta(type):
                           cls._gpio_dict,
                           cls._interrupt_controllers,
                           cls._interrupt_pins,
+                          cls._hierarchy_dict,
                           continued])
         cls._remote.close()
 
@@ -634,6 +710,7 @@ class PLMeta(type):
         cls._gpio_dict.clear()
         cls._interrupt_controllers.clear()
         cls._interrupt_pins.clear()
+        cls._hierarchy_dict.clear()
 
     def load_ip_data(cls, ip_name, data):
         """This method writes data to the addressable IP.
@@ -682,15 +759,19 @@ class PL(metaclass=PLMeta):
         year, month, day, hour, minute, second, microsecond.
     ip_dict : dict
         All the addressable IPs from PS7. Key is the name of the IP; value is
-        a dictionary mapping the physical address, address range, IP type, 
-        configuration dictionary, and the state associated with that IP:
-        {str: {'phys_addr' : int, 'addr_range' : int, \ 
-        'type' : str, 'config' : dict, 'state' : str}}.
+        a dictionary mapping the physical address, address range, IP type,
+        configuration dictionary, the state associated with that IP, any
+        interrupts and GPIO pins attached to the IP and the full path to the
+        IP in the block design:
+        {str: {'phys_addr' : int, 'addr_range' : int,
+               'type' : str, 'config' : dict, 'state' : str,
+               'interrupts' : dict, 'gpio' : dict, 'fullpath' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
         value is a dictionary mapping user index (starting from 0),
-        and the state associated with that GPIO pin: 
-        {str: {'index' : int, 'state' : str}}.
+        the state associated with that GPIO pin and the pins in block diagram
+        attached to the GPIO:
+        {str: {'index' : int, 'state' : str, 'pins' : [str]}}.
     interrupt_controllers : dict
         All AXI interrupt controllers in the system attached to
         a PS7 interrupt line. Key is the name of the controller;
@@ -699,10 +780,19 @@ class PL(metaclass=PLMeta):
         {str: {'parent': str, 'index' : int}}. 
         The PS7 is the root of the hierarchy and is unnamed.
     interrupt_pins : dict
-        All pins in the design attached to an interrupt controller. 
-        Key is the name of the pin; value is a dictionary 
-        mapping the interrupt controller and the line index used: 
+        All pins in the design attached to an interrupt controller.
+        Key is the name of the pin; value is a dictionary
+        mapping the interrupt controller and the line index used:
         {str: {'controller' : str, 'index' : int}}.
+    hierarchy_dict : dict
+        All of the hierarchies in the block design containing addressable IP.
+        The keys are the hiearachies and the values are dictionaries
+        containing the IP and sub-hierarchies contained in the hierarchy and
+        and GPIO and interrupts attached to the hierarchy. The keys in
+        dictionaries are relative to the hierarchy and the ip dict only
+        contains immediately contained IP - not those in sub-hierarchies.
+        {str: {'ip': dict, 'hierarchies': dict, 'interrupts': dict,
+               'gpio': dict, 'fullpath': str}}
 
     """
     def __init__(self):
