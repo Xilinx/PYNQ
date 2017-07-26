@@ -176,9 +176,11 @@ is defined:
 
 .. code-block:: Python
 
+    base = pynq.Overlay('base.bit')
+
     async def button_to_led(number):
-        button = pynq.board.Button(number)
-        led = pynq.board.LED(number)
+        button = base.buttons[number]
+        led = base.leds[number]
         while True:
             await button.wait_for_level_async(1)
             led.on()
@@ -222,8 +224,8 @@ function can be called from an external asyncio event loop (set up elsewhere),
 or the function can set up its own event loop and then call its asyncio function
 from the event loop.
 
-Async function
-^^^^^^^^^^^^^^
+Async functions
+^^^^^^^^^^^^^^^
 
 By convention, the PYNQ python API offers both an asyncio coroutine and a
 blocking function call for all interrupt-driven functions. It is recommended
@@ -257,14 +259,14 @@ and running it until the coroutine completes.
     
     def interrupt_handler(self):   
     
-        if self.interrupt is None:
+        if self.iop.interrupt is None:
             raise RuntimeError('Interrupts not available in this Overlay')
         loop = asyncio.get_event_loop()
         loop.run_until_complete(asyncio.ensure_future(
             self.interrupt_handler_async()
         ))
 
-Custom Interrupt Hansling
+Custom Interrupt Handling
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Python *Interrupt* class can be found here:
@@ -276,14 +278,15 @@ The Python *Interrupt* class can be found here:
 This class abstracts away management of the AXI interrupt controller in the
 PL. It is not necessary to examine this code in detail to use interrupts. The
 interrupt class takes the pin name of the interrupt line and offers a single
-``wait`` coroutine. The interrupt is only enabled in the hardware for as long as
+``wait_async`` coroutine and the corresponding ``wait`` function that wraps it.
+The interrupt is only enabled in the hardware for as long as
 a coroutine is waiting on an *Interrupt* object. The general pattern for using
 an Interrupt is as follows:
 
 .. code-block:: Python
 
     while condition:
-        await interrupt.wait()
+        await interrupt.wait_async()
         # Clear interrupt
 
 This pattern avoids race conditions between the interrupt and the controller and

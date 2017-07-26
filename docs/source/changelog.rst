@@ -42,6 +42,18 @@ Documentation updated:
    * Overlay() automatically downloads an overlays on instantiation. Explicit
      .download() is not required
    * DMA driver replaced with new version
+
+     The buffer is no longer owned by the DMA driver and should instead be
+     allocated using `Xlnk.cma_array`. Driver exposes both directions of the DMA
+     engine. For example:
+
+     .. code-block:: Python
+
+        send_buffer = xlnk.cma_array(1024, np.float32)
+        dma.sendchannel.transfer(send_buffer)
+        dma.wait()
+        # wait dma.wait_async() also available in coroutines
+
    * The pynq.iop subpackage has been restructured into lib.arduino and lib.pmod
 
    For example:
@@ -61,7 +73,12 @@ Documentation updated:
      Numpy objects, and color space/pixel width conversion
    * New PynqMicroblaze module to allow control of a MicroBlaze subsystem
    * New AxiGPIO driver
-   * New DMA driver
+   * New DefaultIP driver to access MMIO, interrupts and GPIO for an IP and
+     is used as the base class for all IP drivers
+   * New DefaultHierarchy driver to access contained IP as attributes and is
+     used as the base class for all hierarchy drivers
+   * Uniform method for instantiating drivers by passing in an entry from the
+     IP or hierarchy dictionary
 
 * Linux changes   
    * Addition USB Ethernet drivers added
