@@ -315,27 +315,11 @@ class MicroblazeHierarchy(DefaultHierarchy):
     def __init__(self, description, mbtype="Unknown"):
         super().__init__(description)
         hier = description['fullpath']
-        self._mb_info = {'ip_name': '{}/mb_bram_ctrl'.format(hier),
+        self.mb_info = {'ip_name': '{}/mb_bram_ctrl'.format(hier),
                          'rst_name': 'mb_{}_reset'.format(hier),
                          'intr_pin_name': '{}/dff_en_reset_0/q'.format(hier),
                          'intr_ack_name': 'mb_{}_intr_ack'.format(hier),
                          'mbtype': mbtype}
-        self._program = None
-
-    def load(self, program, *args, **kwargs):
-        """Load a program on to the microblaze.
-
-        The program should be the class to instantiate and any
-        additional program arguments passed afterwards.
-
-        """
-        self._program = program(self._mb_info, *args, **kwargs)
-
-    def __getattr__(self, key):
-        if self._program:
-            return getattr(self._program, key)
-        else:
-            raise AttributeError('Attribute unknown and no program loaded')
 
     @property
     def mbtype(self):
@@ -344,11 +328,11 @@ class MicroblazeHierarchy(DefaultHierarchy):
         base overlay has 'Ardiuno' and 'Pmod' microblaze types.
 
         """
-        return self._mb_info['mbtype']
+        return self.mb_info['mbtype']
 
     @mbtype.setter
     def mbtype(self, value):
-        self._mb_info['mbtype'] = value
+        self.mb_info['mbtype'] = value
 
     @staticmethod
     def checkhierarchy(description):

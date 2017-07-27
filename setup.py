@@ -50,7 +50,7 @@ if 'BOARD' not in os.environ:
 else:
     board = os.environ['BOARD']
     board_folder = 'boards/{}/'.format(board)
-    pynq_data_files = [(os.path.join('{}/pynq'.format(site.getsitepackages()[0]), root.replace(board_folder, '')),
+    pynq_data_files = [(os.path.join('{}/pynq/overlays'.format(site.getsitepackages()[0]), root.replace(board_folder, '')),
                         [os.path.join(root, f) for f in files]) for root, dirs, files in os.walk(board_folder)]
 
 # Pynq Family Constants

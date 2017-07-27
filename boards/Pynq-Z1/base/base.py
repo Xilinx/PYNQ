@@ -38,7 +38,7 @@ __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class BaseOverlay(pynq.DefaultOverlay):
+class BaseOverlay(pynq.Overlay):
     """ The Base overlay for the Pynq-Z1
 
     This overlay is designed to interact with all of the on board peripherals
@@ -68,16 +68,16 @@ class BaseOverlay(pynq.DefaultOverlay):
 
     """
 
-    def __init__(self, bitfile, download):
-        super().__init__(bitfile, download)
+    def __init__(self, bitfile, **kwargs):
+        super().__init__(bitfile, **kwargs)
         if self.is_loaded():
-            self.pmoda = self.iop1
-            self.pmodb = self.iop2
-            self.arduino = self.iop3
+            self.iop1.mbtype = "Pmod"
+            self.iop2.mbtype = "Pmod"
+            self.iop3.mbtype = "Arduino"
 
-            self.pmoda.mbtype = "Pmod"
-            self.pmodb.mbtype = "Pmod"
-            self.arduino.mbtype = "Arduino"
+            self.PMODA = self.iop1.mb_info
+            self.PMODB = self.iop2.mb_info
+            self.ARDUINO = self.iop3.mb_info
 
             self.leds = self.swsleds_gpio.channel2
             self.switches = self.swsleds_gpio.channel1
@@ -91,6 +91,3 @@ class BaseOverlay(pynq.DefaultOverlay):
 
             self.rgbleds = ([None] * 4) + [pynq.lib.RGBLED(i)
                                            for i in range(4, 6)]
-
-
-Overlay = BaseOverlay
