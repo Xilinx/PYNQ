@@ -1016,9 +1016,12 @@ class HDMIIn(DefaultHierarchy):
             frontend_dict = description['hierarchies']['frontend']
         else:
             return False
-        return ('pixel_pack' in description['ip'] and
-                'color_convert' in description['ip'] and
-                HDMIInFrontend.checkhierarchy(frontend_dict))
+        return (
+            'pixel_pack' in description['ip'] and
+            'color_convert' in description['ip'] and
+            description['ip']['pixel_pack']['driver'] == PixelPacker and
+            description['ip']['color_convert']['driver'] == ColorConverter and
+            HDMIInFrontend.checkhierarchy(frontend_dict))
 
     def __init__(self, description, vdma=None):
         """Initialise the drivers for the pipeline
@@ -1167,9 +1170,12 @@ class HDMIOut(DefaultHierarchy):
             frontend_hierarchy = description['hierarchies']['frontend']
         else:
             return False
-        return ('pixel_unpack' in description['ip'] and
-                'color_convert' in description['ip'] and
-                HDMIOutFrontend.checkhierarchy(frontend_hierarchy))
+        return (
+            'pixel_unpack' in description['ip'] and
+            'color_convert' in description['ip'] and
+            description['ip']['pixel_unpack']['driver'] == PixelPacker and
+            description['ip']['color_convert']['driver'] == ColorConverter and
+            HDMIOutFrontend.checkhierarchy(frontend_hierarchy))
 
     def __init__(self, description, vdma=None):
         """Initialise the drivers for the pipeline
@@ -1330,6 +1336,7 @@ class HDMIWrapper(DefaultHierarchy):
         else:
             return False
         return ('axi_vdma' in description['ip'] and
+                description['ip']['axi_vdma']['driver'] == AxiVDMA and
                 HDMIIn.checkhierarchy(in_dict) and
                 HDMIOut.checkhierarchy(out_dict))
 

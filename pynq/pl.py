@@ -45,8 +45,8 @@ __email__ = "pynq_support@xilinx.com"
 
 # Overlay constants
 PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
-BS_BOOT = os.path.join(PYNQ_PATH, 'base', 'base.bit')
-TCL_BOOT = os.path.join(PYNQ_PATH, 'base', 'base.tcl')
+BS_BOOT = os.path.join(PYNQ_PATH, 'overlays', 'base', 'base.bit')
+TCL_BOOT = os.path.join(PYNQ_PATH, 'overlays', 'base', 'base.tcl')
 
 BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
 BS_XDEVCFG = "/dev/xdevcfg"
@@ -742,7 +742,7 @@ def _start_server():
     PL.setup()
 
 
-class Bitstream(PL):
+class Bitstream:
     """This class instantiates a programmable logic bitstream.
 
     Attributes
@@ -779,6 +779,7 @@ class Bitstream(PL):
 
         bitfile_abs = os.path.abspath(bitfile_name)
         bitfile_overlay_abs = os.path.join(PYNQ_PATH,
+                                           'overlays',
                                            bitfile_name.replace('.bit', ''),
                                            bitfile_name)
 
