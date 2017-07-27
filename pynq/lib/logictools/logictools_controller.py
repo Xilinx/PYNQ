@@ -88,7 +88,8 @@ class LogicToolsController(PynqMicroblaze):
     __initialized = False
     __time_stamp = None
 
-    def __new__(cls, mb_info, intf_spec_name):
+    def __new__(cls, mb_info,
+                intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Create a new Microblaze object.
 
         This method overwrites the default `new()` method so that the same
@@ -119,7 +120,8 @@ class LogicToolsController(PynqMicroblaze):
             cls.__initialized = False
         return cls.__instance
 
-    def __init__(self, mb_info, intf_spec_name):
+    def __init__(self, mb_info,
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
         """Initialize the created Microblaze object.
 
         This method leverages the initialization method of its parent. It 
