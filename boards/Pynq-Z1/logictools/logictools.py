@@ -29,7 +29,11 @@
 
 
 import pynq
-import pynq.lib
+from pynq.lib import LogicToolsController
+from pynq.lib import BooleanGenerator
+from pynq.lib import PatternGenerator
+from pynq.lib import TraceAnalyzer
+from pynq.lib import FSMGenerator
 
 
 __author__ = "Yun Rock Qu"
@@ -63,3 +67,9 @@ class LogicToolsOverlay(pynq.Overlay):
             self.PMODA = self.iop1.mb_info
             self.PMODB = self.iop2.mb_info
             self.ARDUINO = self.lcp.mb_info
+
+            self.boolean_generator = BooleanGenerator(self.ARDUINO)
+            self.pattern_generator = PatternGenerator(self.ARDUINO)
+            self.fsm_generator = FSMGenerator(self.ARDUINO)
+            self.trace_analyzer = TraceAnalyzer(self.ARDUINO)
+            self.logictools_controller = LogicToolsController(self.ARDUINO)
