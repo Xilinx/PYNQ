@@ -344,13 +344,13 @@ CONFIG.CONST_VAL {0} \
   current_bd_instance $oldCurInst
 }
 
-# Hierarchical cell: mb3_lmb
-proc create_hier_cell_mb3_lmb { parentCell nameHier } {
+# Hierarchical cell: lcp_lmb
+proc create_hier_cell_lcp_lmb { parentCell nameHier } {
 
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_mb3_lmb() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" create_hier_cell_lcp_lmb() - Empty argument(s)!"}
      return
   }
 
@@ -940,12 +940,11 @@ proc create_hier_cell_lcp_mb { parentCell nameHier } {
   create_bd_pin -dir O -from 0 -to 0 boolean_data_sel
   create_bd_pin -dir O -from 5 -to 0 controls_input
   create_bd_pin -dir I -from 0 -to 0 -type rst ext_reset_in
+  create_bd_pin -dir O -from 0 -to 0 gpio_io_o
   create_bd_pin -dir O -from 39 -to 0 interface_switch_sel
   create_bd_pin -dir I -type clk m_axi_aclk
   create_bd_pin -dir I -type rst mb_debug_sys_rst
   create_bd_pin -dir O -from 0 -to 0 -type rst peripheral_aresetn
-  create_bd_pin -dir O -type intr q
-  create_bd_pin -dir I -from 0 -to 0 reset
   create_bd_pin -dir I -type clk sample_clk
 
   # Create instance: axi_cdma_0, and set properties
@@ -989,21 +988,16 @@ CONFIG.DIN_WIDTH {7} \
 CONFIG.DOUT_WIDTH {6} \
  ] $controls_input
 
-  # Create instance: dff_en_reset_0, and set properties
-  set dff_en_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:XUP:dff_en_reset:1.0 dff_en_reset_0 ]
-
   # Create instance: generator_select
   create_hier_cell_generator_select $hier_obj generator_select
 
-  # Create instance: mb3_intr, and set properties
-  set mb3_intr [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 mb3_intr ]
+  # Create instance: lcp_intr, and set properties
+  set lcp_intr [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 lcp_intr ]
   set_property -dict [ list \
 CONFIG.C_ALL_OUTPUTS {1} \
 CONFIG.C_GPIO_WIDTH {1} \
- ] $mb3_intr
+ ] $lcp_intr
 
-  # Create instance: logic_1, and set properties
-  set logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 logic_1 ]
 
   # Create instance: mb, and set properties
   set mb [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:9.6 mb ]
@@ -1014,8 +1008,8 @@ CONFIG.C_D_LMB {1} \
 CONFIG.C_I_LMB {1} \
  ] $mb
 
-  # Create instance: mb3_lmb
-  create_hier_cell_mb3_lmb $hier_obj mb3_lmb
+  # Create instance: lcp_lmb
+  create_hier_cell_lcp_lmb $hier_obj lcp_lmb
 
   # Create instance: mb_axi_periph, and set properties
   set mb_axi_periph [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 mb_axi_periph ]
@@ -1047,14 +1041,14 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_intf_net -intf_net mb_axi_periph_M08_AXI [get_bd_intf_pins M08_AXI] [get_bd_intf_pins mb_axi_periph/M08_AXI]
   connect_bd_intf_net -intf_net mb_axi_periph_M09_AXI [get_bd_intf_pins M09_AXI] [get_bd_intf_pins mb_axi_periph/M09_AXI]
   connect_bd_intf_net -intf_net mb_axi_periph_M11_AXI [get_bd_intf_pins M11_AXI] [get_bd_intf_pins mb_axi_periph/M11_AXI]
-  connect_bd_intf_net -intf_net mb_axi_periph_M12_AXI [get_bd_intf_pins mb3_intr/S_AXI] [get_bd_intf_pins mb_axi_periph/M12_AXI]
-  connect_bd_intf_net -intf_net mb_bram_ctrl_1_BRAM_PORTA [get_bd_intf_pins BRAM_PORTB] [get_bd_intf_pins mb3_lmb/BRAM_PORTB]
+  connect_bd_intf_net -intf_net mb_axi_periph_M12_AXI [get_bd_intf_pins lcp_intr/S_AXI] [get_bd_intf_pins mb_axi_periph/M12_AXI]
+  connect_bd_intf_net -intf_net mb_bram_ctrl_1_BRAM_PORTA [get_bd_intf_pins BRAM_PORTB] [get_bd_intf_pins lcp_lmb/BRAM_PORTB]
   connect_bd_intf_net -intf_net microblaze_0_debug [get_bd_intf_pins DEBUG] [get_bd_intf_pins mb/DEBUG]
-  connect_bd_intf_net -intf_net microblaze_0_dlmb_1 [get_bd_intf_pins mb/DLMB] [get_bd_intf_pins mb3_lmb/DLMB]
-  connect_bd_intf_net -intf_net microblaze_0_ilmb_1 [get_bd_intf_pins mb/ILMB] [get_bd_intf_pins mb3_lmb/ILMB]
+  connect_bd_intf_net -intf_net microblaze_0_dlmb_1 [get_bd_intf_pins lcp_lmb/DLMB] [get_bd_intf_pins mb/DLMB]
+  connect_bd_intf_net -intf_net microblaze_0_ilmb_1 [get_bd_intf_pins lcp_lmb/ILMB] [get_bd_intf_pins mb/ILMB]
 
   # Create port connections
-  connect_bd_net -net ARESETN_1 [get_bd_pins axi_mem_intercon/ARESETN] [get_bd_pins controllers_reg/s_axi_aresetn] [get_bd_pins mb3_intr/s_axi_aresetn] [get_bd_pins mb_axi_periph/ARESETN] [get_bd_pins mb_axi_periph/M00_ARESETN] [get_bd_pins mb_axi_periph/M01_ARESETN] [get_bd_pins mb_axi_periph/M02_ARESETN] [get_bd_pins mb_axi_periph/M03_ARESETN] [get_bd_pins mb_axi_periph/M04_ARESETN] [get_bd_pins mb_axi_periph/M05_ARESETN] [get_bd_pins mb_axi_periph/M06_ARESETN] [get_bd_pins mb_axi_periph/S00_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/interconnect_aresetn]
+  connect_bd_net -net ARESETN_1 [get_bd_pins axi_mem_intercon/ARESETN] [get_bd_pins controllers_reg/s_axi_aresetn] [get_bd_pins lcp_intr/s_axi_aresetn] [get_bd_pins mb_axi_periph/ARESETN] [get_bd_pins mb_axi_periph/M00_ARESETN] [get_bd_pins mb_axi_periph/M01_ARESETN] [get_bd_pins mb_axi_periph/M02_ARESETN] [get_bd_pins mb_axi_periph/M03_ARESETN] [get_bd_pins mb_axi_periph/M04_ARESETN] [get_bd_pins mb_axi_periph/M05_ARESETN] [get_bd_pins mb_axi_periph/M06_ARESETN] [get_bd_pins mb_axi_periph/S00_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/interconnect_aresetn]
   connect_bd_net -net M10_ARESETN_1 [get_bd_pins M02_ARESETN] [get_bd_pins axi_mem_intercon/M02_ARESETN] [get_bd_pins mb_axi_periph/M10_ARESETN] [get_bd_pins mb_axi_periph/M11_ARESETN] [get_bd_pins mb_axi_periph/M12_ARESETN]
   connect_bd_net -net S00_ARESETN_1 [get_bd_pins peripheral_aresetn] [get_bd_pins axi_cdma_0/s_axi_lite_aresetn] [get_bd_pins axi_intc_0/s_axi_aresetn] [get_bd_pins axi_mem_intercon/M00_ARESETN] [get_bd_pins axi_mem_intercon/M01_ARESETN] [get_bd_pins axi_mem_intercon/S00_ARESETN] [get_bd_pins generator_select/s_axi_aresetn] [get_bd_pins mb_axi_periph/M09_ARESETN] [get_bd_pins rst_clk_wiz_1_100M/peripheral_aresetn]
   connect_bd_net -net ap_rst_n_1 [get_bd_pins M08_ARESETN] [get_bd_pins mb_axi_periph/M07_ARESETN] [get_bd_pins mb_axi_periph/M08_ARESETN]
@@ -1063,16 +1057,13 @@ CONFIG.C_AUX_RESET_HIGH {1} \
   connect_bd_net -net clk1_1 [get_bd_pins sample_clk] [get_bd_pins mb_axi_periph/M07_ACLK] [get_bd_pins mb_axi_periph/M08_ACLK]
   connect_bd_net -net controllers_reg_gpio_io_o [get_bd_pins boolean_data_sel/Din] [get_bd_pins controllers_reg/gpio_io_i] [get_bd_pins controllers_reg/gpio_io_o] [get_bd_pins controls_input/Din]
   connect_bd_net -net controls_input_Dout [get_bd_pins controls_input] [get_bd_pins controls_input/Dout]
-  connect_bd_net -net dff_en_reset_0_q [get_bd_pins q] [get_bd_pins dff_en_reset_0/q]
   connect_bd_net -net generator_select_dout [get_bd_pins interface_switch_sel] [get_bd_pins generator_select/dout]
-  connect_bd_net -net mb3_intr_gpio_io_o [get_bd_pins dff_en_reset_0/en] [get_bd_pins mb3_intr/gpio_io_o]
+  connect_bd_net -net lcp_intr_gpio_io_o [get_bd_pins gpio_io_o] [get_bd_pins lcp_intr/gpio_io_o]
   connect_bd_net -net logic_1_dout [get_bd_pins ext_reset_in] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
-  connect_bd_net -net logic_1_dout1 [get_bd_pins dff_en_reset_0/d] [get_bd_pins logic_1/dout]
   connect_bd_net -net mb_iop1_reset_Dout [get_bd_pins aux_reset_in] [get_bd_pins rst_clk_wiz_1_100M/aux_reset_in]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins mb_debug_sys_rst] [get_bd_pins rst_clk_wiz_1_100M/mb_debug_sys_rst]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins m_axi_aclk] [get_bd_pins axi_cdma_0/m_axi_aclk] [get_bd_pins axi_cdma_0/s_axi_lite_aclk] [get_bd_pins axi_intc_0/s_axi_aclk] [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/M01_ACLK] [get_bd_pins axi_mem_intercon/M02_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins controllers_reg/s_axi_aclk] [get_bd_pins dff_en_reset_0/clk] [get_bd_pins generator_select/s_axi_aclk] [get_bd_pins mb3_intr/s_axi_aclk] [get_bd_pins mb/Clk] [get_bd_pins mb3_lmb/LMB_Clk] [get_bd_pins mb_axi_periph/ACLK] [get_bd_pins mb_axi_periph/M00_ACLK] [get_bd_pins mb_axi_periph/M01_ACLK] [get_bd_pins mb_axi_periph/M02_ACLK] [get_bd_pins mb_axi_periph/M03_ACLK] [get_bd_pins mb_axi_periph/M04_ACLK] [get_bd_pins mb_axi_periph/M05_ACLK] [get_bd_pins mb_axi_periph/M06_ACLK] [get_bd_pins mb_axi_periph/M09_ACLK] [get_bd_pins mb_axi_periph/M10_ACLK] [get_bd_pins mb_axi_periph/M11_ACLK] [get_bd_pins mb_axi_periph/M12_ACLK] [get_bd_pins mb_axi_periph/S00_ACLK] [get_bd_pins rst_clk_wiz_1_100M/slowest_sync_clk]
-  connect_bd_net -net reset_1 [get_bd_pins reset] [get_bd_pins dff_en_reset_0/reset]
-  connect_bd_net -net rst_clk_wiz_1_100M_bus_struct_reset [get_bd_pins mb3_lmb/SYS_Rst] [get_bd_pins rst_clk_wiz_1_100M/bus_struct_reset]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins m_axi_aclk] [get_bd_pins axi_cdma_0/m_axi_aclk] [get_bd_pins axi_cdma_0/s_axi_lite_aclk] [get_bd_pins axi_intc_0/s_axi_aclk] [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/M01_ACLK] [get_bd_pins axi_mem_intercon/M02_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins controllers_reg/s_axi_aclk] [get_bd_pins generator_select/s_axi_aclk] [get_bd_pins lcp_intr/s_axi_aclk] [get_bd_pins lcp_lmb/LMB_Clk] [get_bd_pins mb/Clk] [get_bd_pins mb_axi_periph/ACLK] [get_bd_pins mb_axi_periph/M00_ACLK] [get_bd_pins mb_axi_periph/M01_ACLK] [get_bd_pins mb_axi_periph/M02_ACLK] [get_bd_pins mb_axi_periph/M03_ACLK] [get_bd_pins mb_axi_periph/M04_ACLK] [get_bd_pins mb_axi_periph/M05_ACLK] [get_bd_pins mb_axi_periph/M06_ACLK] [get_bd_pins mb_axi_periph/M09_ACLK] [get_bd_pins mb_axi_periph/M10_ACLK] [get_bd_pins mb_axi_periph/M11_ACLK] [get_bd_pins mb_axi_periph/M12_ACLK] [get_bd_pins mb_axi_periph/S00_ACLK] [get_bd_pins rst_clk_wiz_1_100M/slowest_sync_clk]
+  connect_bd_net -net rst_clk_wiz_1_100M_bus_struct_reset [get_bd_pins lcp_lmb/SYS_Rst] [get_bd_pins rst_clk_wiz_1_100M/bus_struct_reset]
   connect_bd_net -net rst_clk_wiz_1_100M_mb_reset [get_bd_pins mb/Reset] [get_bd_pins rst_clk_wiz_1_100M/mb_reset]
 
   # Restore current instance
@@ -1536,11 +1527,17 @@ proc create_hier_cell_lcp { parentCell nameHier } {
   # Create instance: boolean_generator
   create_hier_cell_boolean_generator $hier_obj boolean_generator
 
+  # Create instance: dff_en_reset_0, and set properties
+  set dff_en_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:XUP:dff_en_reset:1.0 dff_en_reset_0 ]
+
   # Create instance: interface_switch, and set properties
   set interface_switch [ create_bd_cell -type ip -vlnv xilinx.com:user:interface_switch:1.0 interface_switch ]
 
   # Create instance: lcp_mb
   create_hier_cell_lcp_mb $hier_obj lcp_mb
+
+  # Create instance: logic_1, and set properties
+  set logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 logic_1 ]
 
   # Create instance: mb_bram_ctrl, and set properties
   set mb_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 mb_bram_ctrl ]
@@ -1579,22 +1576,24 @@ CONFIG.SINGLE_PORT_BRAM {1} \
   connect_bd_net -net boolean2led [get_bd_pins led] [get_bd_pins boolean_generator/Dout]
   connect_bd_net -net clk1_1 [get_bd_pins sample_clk] [get_bd_pins FSM_generator/sample_clk] [get_bd_pins lcp_mb/sample_clk] [get_bd_pins pattern_generator/sample_clk] [get_bd_pins trace_analyzer/sample_clk]
   connect_bd_net -net controls_input_Dout [get_bd_pins FSM_generator/controls_input] [get_bd_pins lcp_mb/controls_input] [get_bd_pins pattern_generator/controls_input] [get_bd_pins trace_analyzer/controls_input]
-  connect_bd_net -net dff_en_reset_0_q [get_bd_pins lcp_intr_req] [get_bd_pins lcp_mb/q]
+  connect_bd_net -net dff_en_reset_0_q [get_bd_pins lcp_intr_req] [get_bd_pins dff_en_reset_0/q]
   connect_bd_net -net dpb_o_dpb_data_out [get_bd_pins interface_switch/pattern_data_i] [get_bd_pins pattern_generator/pattern_data_out]
   connect_bd_net -net dpb_o_dpb_tri_control [get_bd_pins interface_switch/pattern_tri_i] [get_bd_pins pattern_generator/pattern_tri_control]
   connect_bd_net -net interface_switch_0_boolean_data_o [get_bd_pins boolean_generator/boolean_data_i] [get_bd_pins interface_switch/boolean_data_o]
   connect_bd_net -net interface_switch_0_fsm_data_o [get_bd_pins FSM_generator/fsm_data_i] [get_bd_pins interface_switch/fsm_data_o]
   connect_bd_net -net interface_switch_0_sw2ar_data_o [get_bd_pins arduino_data_o] [get_bd_pins interface_switch/switch_data_o] [get_bd_pins trace_analyzer/switch_data_o]
   connect_bd_net -net interface_switch_0_sw2ar_tri_o [get_bd_pins arduino_tri_o] [get_bd_pins interface_switch/switch_tri_o] [get_bd_pins trace_analyzer/switch_tri_o]
+  connect_bd_net -net lcp_intr_ack_1 [get_bd_pins lcp_intr_ack] [get_bd_pins dff_en_reset_0/reset]
   connect_bd_net -net lcp_mb_Dout1 [get_bd_pins boolean_generator/sel] [get_bd_pins lcp_mb/boolean_data_sel]
   connect_bd_net -net lcp_mb_dout2 [get_bd_pins interface_switch/sel] [get_bd_pins lcp_mb/interface_switch_sel]
+  connect_bd_net -net lcp_mb_gpio_io_o [get_bd_pins dff_en_reset_0/en] [get_bd_pins lcp_mb/gpio_io_o]
   connect_bd_net -net logic_1_dout [get_bd_pins ext_reset_in] [get_bd_pins lcp_mb/ext_reset_in]
+  connect_bd_net -net logic_1_dout1 [get_bd_pins dff_en_reset_0/d] [get_bd_pins logic_1/dout]
   connect_bd_net -net mb_iop1_reset_Dout [get_bd_pins aux_reset_in] [get_bd_pins lcp_mb/aux_reset_in]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins mb_debug_sys_rst] [get_bd_pins lcp_mb/mb_debug_sys_rst]
   connect_bd_net -net pattern_generator_nSamples [get_bd_pins pattern_generator/nSamples] [get_bd_pins trace_analyzer/numSample]
   connect_bd_net -net pb_in_1 [get_bd_pins pb_in] [get_bd_pins boolean_generator/pb_in]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins clk] [get_bd_pins FSM_generator/s_axi_aclk] [get_bd_pins boolean_generator/s_axi_aclk] [get_bd_pins lcp_mb/m_axi_aclk] [get_bd_pins mb_bram_ctrl/s_axi_aclk] [get_bd_pins pattern_generator/s_axi_aclk]
-  connect_bd_net -net reset_1 [get_bd_pins lcp_intr_ack] [get_bd_pins lcp_mb/reset]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins clk] [get_bd_pins FSM_generator/s_axi_aclk] [get_bd_pins boolean_generator/s_axi_aclk] [get_bd_pins dff_en_reset_0/clk] [get_bd_pins lcp_mb/m_axi_aclk] [get_bd_pins mb_bram_ctrl/s_axi_aclk] [get_bd_pins pattern_generator/s_axi_aclk]
   connect_bd_net -net slice_boolean_data_o_19_0_Dout [get_bd_pins boolean_generator/boolean_data_o] [get_bd_pins interface_switch/boolean_data_i]
   connect_bd_net -net slice_boolean_tri_o_19_0_Dout [get_bd_pins boolean_generator/boolean_tri_o] [get_bd_pins interface_switch/boolean_tri_i]
   connect_bd_net -net smb_0_smbdata2sw [get_bd_pins FSM_generator/fsm_data_o] [get_bd_pins interface_switch/fsm_data_i]
@@ -2224,23 +2223,23 @@ CONFIG.DIN_WIDTH {7} \
 CONFIG.DOUT_WIDTH {1} \
  ] $mb_iop2_reset
 
-  # Create instance: mb_3_intr_ack, and set properties
-  set mb_3_intr_ack [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 mb_3_intr_ack ]
+  # Create instance: mb_lcp_intr_ack, and set properties
+  set mb_lcp_intr_ack [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 mb_lcp_intr_ack ]
   set_property -dict [ list \
 CONFIG.DIN_FROM {6} \
 CONFIG.DIN_TO {6} \
 CONFIG.DIN_WIDTH {7} \
 CONFIG.DOUT_WIDTH {1} \
- ] $mb_3_intr_ack
+ ] $mb_lcp_intr_ack
 
-  # Create instance: mb_3_reset, and set properties
-  set mb_3_reset [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 mb_3_reset ]
+  # Create instance: mb_lcp_reset, and set properties
+  set mb_lcp_reset [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 mb_lcp_reset ]
   set_property -dict [ list \
 CONFIG.DIN_FROM {2} \
 CONFIG.DIN_TO {2} \
 CONFIG.DIN_WIDTH {7} \
 CONFIG.DOUT_WIDTH {1} \
- ] $mb_3_reset
+ ] $mb_lcp_reset
 
   # Create instance: mdm_1, and set properties
   set mdm_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mdm:3.2 mdm_1 ]
@@ -3163,8 +3162,8 @@ CONFIG.NUM_MI {4} \
   connect_bd_net -net mb_iop1_reset_Dout [get_bd_pins iop1/aux_reset_in] [get_bd_pins mb_iop1_reset/Dout]
   connect_bd_net -net mb_iop2_intr_ack_Dout [get_bd_pins iop2/iop2_intr_ack] [get_bd_pins mb_iop2_intr_ack/Dout]
   connect_bd_net -net mb_iop2_reset_Dout [get_bd_pins iop2/aux_reset_in] [get_bd_pins mb_iop2_reset/Dout]
-  connect_bd_net -net mb_3_intr_ack_Dout [get_bd_pins lcp/lcp_intr_ack] [get_bd_pins mb_3_intr_ack/Dout]
-  connect_bd_net -net mb_3_reset_Dout [get_bd_pins lcp/aux_reset_in] [get_bd_pins mb_3_reset/Dout]
+  connect_bd_net -net mb_lcp_intr_ack_Dout [get_bd_pins lcp/lcp_intr_ack] [get_bd_pins mb_lcp_intr_ack/Dout]
+  connect_bd_net -net mb_lcp_reset_Dout [get_bd_pins lcp/aux_reset_in] [get_bd_pins mb_lcp_reset/Dout]
   connect_bd_net -net mb_JB1_sw2pmod_data_out [get_bd_ports pmodJB_data_out] [get_bd_pins iop2/sw2pmod_data_out]
   connect_bd_net -net mb_JB1_sw2pmod_tri_out [get_bd_ports pmodJB_tri_out] [get_bd_pins iop2/sw2pmod_tri_out]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins iop1/mb_debug_sys_rst] [get_bd_pins iop2/mb_debug_sys_rst] [get_bd_pins lcp/mb_debug_sys_rst] [get_bd_pins mdm_1/Debug_SYS_Rst]
@@ -3176,7 +3175,7 @@ CONFIG.NUM_MI {4} \
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins debounced_pb/clk] [get_bd_pins iop1/clk] [get_bd_pins iop2/clk] [get_bd_pins lcp/clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/M03_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK] [get_bd_pins rst_processing_system7_0_100M/slowest_sync_clk] [get_bd_pins system_interrupts/s_axi_aclk]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports pg_clk] [get_bd_pins lcp/sample_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK] [get_bd_pins rst_processing_system7_0_200M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_processing_system7_0_100M/ext_reset_in] [get_bd_pins rst_processing_system7_0_200M/ext_reset_in]
-  connect_bd_net -net processing_system7_0_GPIO_O [get_bd_pins mb_iop1_intr_ack/Din] [get_bd_pins mb_iop1_reset/Din] [get_bd_pins mb_iop2_intr_ack/Din] [get_bd_pins mb_iop2_reset/Din] [get_bd_pins mb_3_intr_ack/Din] [get_bd_pins mb_3_reset/Din] [get_bd_pins processing_system7_0/GPIO_O]
+  connect_bd_net -net processing_system7_0_GPIO_O [get_bd_pins mb_iop1_intr_ack/Din] [get_bd_pins mb_iop1_reset/Din] [get_bd_pins mb_iop2_intr_ack/Din] [get_bd_pins mb_iop2_reset/Din] [get_bd_pins mb_lcp_intr_ack/Din] [get_bd_pins mb_lcp_reset/Din] [get_bd_pins processing_system7_0/GPIO_O]
   connect_bd_net -net rst_processing_system7_0_100M_interconnect_aresetn [get_bd_pins processing_system7_0_axi_periph/ARESETN] [get_bd_pins rst_processing_system7_0_100M/interconnect_aresetn]
   connect_bd_net -net rst_processing_system7_0_100M_peripheral_aresetn [get_bd_pins iop1/s_axi_aresetn] [get_bd_pins iop2/s_axi_aresetn] [get_bd_pins lcp/M10_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M00_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M01_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M02_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M03_ARESETN] [get_bd_pins processing_system7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn] [get_bd_pins system_interrupts/s_axi_aresetn]
   connect_bd_net -net rst_processing_system7_0_200M_interconnect_aresetn [get_bd_pins lcp/ARESETN] [get_bd_pins rst_processing_system7_0_200M/interconnect_aresetn]
@@ -3218,9 +3217,9 @@ CONFIG.NUM_MI {4} \
   create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/boolean_generator/boolean_generator/S_AXI/S_AXI_reg] SEG_boolean_generator_0_S_AXI_reg
   create_bd_addr_seg -range 0x00010000 -offset 0x40050000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/lcp_mb/controllers_reg/S_AXI/Reg] SEG_controllers_reg_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x40020000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/lcp_mb/generator_select/function_sel/S_AXI/Reg] SEG_function_sel_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40040000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/lcp_mb/mb3_intr/S_AXI/Reg] SEG_mb3_intr_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/lcp_mb/mb3_lmb/lmb_bram_if_cntlr/SLMB1/Mem] SEG_lmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces lcp/lcp_mb/mb/Instruction] [get_bd_addr_segs lcp/lcp_mb/mb3_lmb/lmb_bram_if_cntlr/SLMB/Mem] SEG_lmb_bram_if_cntlr_Mem
+  create_bd_addr_seg -range 0x00010000 -offset 0x40040000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/lcp_mb/lcp_intr/S_AXI/Reg] SEG_lcp_intr_Reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/lcp_mb/lcp_lmb/lmb_bram_if_cntlr/SLMB1/Mem] SEG_lmb_bram_if_cntlr_Mem
+  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces lcp/lcp_mb/mb/Instruction] [get_bd_addr_segs lcp/lcp_mb/lcp_lmb/lmb_bram_if_cntlr/SLMB/Mem] SEG_lmb_bram_if_cntlr_Mem
   create_bd_addr_seg -range 0x00010000 -offset 0x40030000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/FSM_generator/fsm_bram_rst_addr/S_AXI/Reg] SEG_smg_bram_enab_rstb_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x44A20000 [get_bd_addr_spaces lcp/lcp_mb/mb/Data] [get_bd_addr_segs lcp/trace_analyzer/trace_cntrl_0/s_axi_trace_cntrl/Reg] SEG_trace_cntrl_0_Reg
   create_bd_addr_seg -range 0x20000000 -offset 0x20000000 [get_bd_addr_spaces lcp/trace_analyzer/axi_dma_0/Data_S2MM] [get_bd_addr_segs processing_system7_0/S_AXI_HP2/HP2_DDR_LOWOCM] SEG_processing_system7_0_HP2_DDR_LOWOCM
