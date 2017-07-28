@@ -97,7 +97,6 @@ class Pmod_IO(Pmod_DevMode):
             self.write_cmd(PMOD_DIO_BASEADDR +
                            PMOD_DIO_TRI_OFFSET,
                            PMOD_CFG_DIO_ALLOUTPUT)
-        self.load_switch_config()
 
     def write(self, value): 
         """Send the value to the offboard Pmod IO device.
