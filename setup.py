@@ -164,8 +164,7 @@ def fill_notebooks_dir():
 
     # rename and copy getting started notebooks
     for ix, getting_started_nb in enumerate(getting_started_notebooks):
-        base_name = getting_started_nb.split("_",1)[1]
-        new_nb_name = '{}_{}'.format(ix + 1, base_name)
+        new_nb_name = '{}_{}'.format(ix + 1, getting_started_nb)
         src_file = os.path.join(notebooks_getting_started_dir, getting_started_nb)
         dst_file = os.path.join(notebooks_getting_started_dir, new_nb_name)
         shutil.move(src_file, dst_file)
