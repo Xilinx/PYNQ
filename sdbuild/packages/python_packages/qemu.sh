@@ -48,6 +48,8 @@ transitions
 pyeda
 pycurl
 nbwavedrom
+Cython
+RISE
 EOT
 
 pip3.6 install numpy requests
