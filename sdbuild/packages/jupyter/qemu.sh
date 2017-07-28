@@ -23,6 +23,9 @@ jupyter nbextension enable --py --sys-prefix widgetsnbextension
 jupyter contrib nbextension install --user
 jupyter nbextensions_configurator enable --user
 
+jupyter nbextension install rise --py --sys-prefix
+jupyter nbextension enable rise --py --sys-prefix
+
 mkdir -p /home/xilinx/jupyter_notebooks
 
 systemctl enable jupyter
