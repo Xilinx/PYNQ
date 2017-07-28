@@ -7,7 +7,7 @@ builddir=/root/phantom
 mkdir $builddir
 cd $builddir
 
-git clone git://github.com/ariya/phantomjs.git
+git clone https://github.com/ariya/phantomjs.git
 cd phantomjs
 git checkout 2.1.1
 git submodule init
