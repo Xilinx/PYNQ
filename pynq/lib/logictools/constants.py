@@ -85,7 +85,7 @@ LOGICTOOLS_MICROBLAZE_BIN = "logictools_controller.bin"
 
 # PYNQ-Z1 specification
 ARDUINO = {'ip_name': 'lcp/mb_bram_ctrl',
-           'rst_name': 'mb_3_reset'}
+           'rst_name': 'mb_lcp_reset'}
 PYNQZ1_LOGICTOOLS_SPECIFICATION = {'clock_mhz': 10,
                                    'interface_width': 20,
                                    'monitor_width': 64,
