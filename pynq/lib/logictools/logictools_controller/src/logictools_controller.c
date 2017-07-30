@@ -186,7 +186,6 @@ u32 pattern_multiple, pattern_status=RESET_STATE;
 u32 fsm_status=RESET_STATE, trace_status=RESET_STATE;
 u32 msw_compare, lsw_compare;
 u32 boolean_status=RESET_STATE;
-u32 trace_running;
 
 int pattern_generator_config(void) {
 	pattern_multiple = 0;
@@ -319,11 +318,11 @@ int main (void) {
 	first_step=0;
 	// issue stop pulse to PATTERN, Trace, FSM, to make their enables false
 	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x06);
-	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x04);
-	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x24);
+	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00); // 0x04);
+	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x12);
 	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00);
 	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x0A);
-	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x08);
+	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00); // 0x08);
 	// Disconnect BOOLEAN output
 	Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x0);
 
@@ -442,7 +441,6 @@ int main (void) {
 			MAILBOX_CMD_ADDR = 0x0;
 			break;
 		case RUN:
-			if(!(XAxiDma_Busy(&AxiDma,XAXIDMA_DEVICE_TO_DMA))) trace_running=0;
 			// [11]:TRACE, [10]:FSM, [9]:PATTERN, [8]:BOOLEAN
             switch((cmd & 0xf00) >> 8) {
             case TRACE_FSM_PATTERN_BOOLEAN:
@@ -569,7 +567,6 @@ int main (void) {
 			MAILBOX_CMD_ADDR = 0x0;
 			break;
     	case STEP:
-    		if(!(XAxiDma_Busy(&AxiDma,XAXIDMA_DEVICE_TO_DMA))) trace_running=0;
     		if(first_step==0) {
     			// save number of samples so can be restored when stopped
     			saved_trace_numofsamples=trace_numofsamples;
@@ -579,7 +576,7 @@ int main (void) {
     		// [11]:TRACE, [10]:FSM, [9]:PATTERN, [8]:BOOLEAN
 			switch((cmd & 0xf00) >> 8) {
 			case TRACE_FSM_PATTERN_BOOLEAN:
-				if(trace_running==0) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace, FSM, PATTERN with BOOLEAN o/p
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x7C);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x40);
@@ -589,7 +586,7 @@ int main (void) {
 				pattern_status=RUN_STATE;
 				break;
 			case TRACE_FSM_PATTERN:
-				if(trace_running==0) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace, FSM, PATTERN with no BOOLEAN o/p
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x3C);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00);
@@ -598,7 +595,7 @@ int main (void) {
 				pattern_status=RUN_STATE;
 				break;
 			case TRACE_FSM_BOOLEAN:
-				if(trace_running==0) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace and FSM with BOOLEAN enabled
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x78);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x40);
@@ -607,7 +604,7 @@ int main (void) {
 				fsm_status=RUN_STATE;
 				break;
 			case TRACE_FSM:
-				if(trace_running==0) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace and FSM with no BOOLEAN o/p
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x38);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00);
@@ -615,7 +612,7 @@ int main (void) {
 				fsm_status=RUN_STATE;
 				break;
 			case TRACE_PATTERN_BOOLEAN:
-				if(trace_running) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace and PATTERN with BOOLEAN o/p
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x74);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x40);
@@ -624,7 +621,7 @@ int main (void) {
 				pattern_status=RUN_STATE;
 				break;
 			case TRACE_PATTERN:
-				if(trace_running==0) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace and PATTERN with no BOOLEAN o/p
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x34);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00);
@@ -647,7 +644,7 @@ int main (void) {
 				pattern_status=RUN_STATE;
 				break;
 			case TRACE_BOOLEAN:
-				if(trace_running==0) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace with BOOLEAN output
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x70);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x40);
@@ -655,7 +652,7 @@ int main (void) {
 				trace_status=RUN_STATE;
 				break;
 			case TRACE:
-				if(trace_running==0) run_tracebuffer();
+				run_tracebuffer();
 				// Issue step pulse to Trace with no BOOLEAN o/p
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x30);
 				Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00);
@@ -713,7 +710,7 @@ int main (void) {
 				else {
 					// issue stop pulse to Trace with no BOOLEAN o/p
 					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x12);
-					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x10);
+					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00); // 10);
 				}
 				if(first_step) {
 					// restore saved number of samples during STEP
@@ -732,7 +729,7 @@ int main (void) {
 				else {
 					// issue stop pulse to FSM with no BOOLEAN o/p
 					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x0A);
-					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x08);
+					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00);
 				}
 				fsm_status=READY_STATE;
 			}
@@ -746,7 +743,7 @@ int main (void) {
 				else {
 					// issue stop pulse to PATTERN with no BOOLEAN o/p
 					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x06);
-					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x04);
+					Xil_Out32(XPAR_CONTROLLERS_REG_BASEADDR,0x00);
 				}
 				pattern_status=READY_STATE;
 			}
@@ -762,7 +759,6 @@ int main (void) {
 		case CHECK_STATUS:
 			if(trace_status==RUN_STATE) {
 				if(!(XAxiDma_Busy(&AxiDma,XAXIDMA_DEVICE_TO_DMA))) {
-					trace_running=0;
 					trace_status=READY_STATE;
 				}
 			}
