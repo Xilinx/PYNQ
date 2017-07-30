@@ -26,6 +26,8 @@ module pattern_controller #(parameter ADDR_WIDTH = 18)(
     wire cnt_done;
     reg [ADDR_WIDTH-1:0] count;
     wire single_cnt_done;
+    wire step;
+	reg step_mode=0;
     
     // pulsed output generation
     pulse_gen sync_start(.async_in(controls_input[0]&controls_input[2]), .sync_clk(clk), .pulsed_out(start));
@@ -39,8 +41,18 @@ module pattern_controller #(parameter ADDR_WIDTH = 18)(
                    
     always @(posedge clk)
     if (!reset_n)
+        step_mode <= 0;
+    else if(stop) 
+        step_mode <= 0;
+    else if(step)
+        step_mode <= 1;
+    else 
+        step_mode <= step_mode;
+
+    always @(posedge clk)
+    if (!reset_n)
         count <= 0;
-    else if(start || ((cnt_done) & (pattern_enb) & (single_b)) || stop) // ((start) || (cnt_done)))
+    else if(start || ((cnt_done) & (pattern_enb) & (single_b)) || stop) 
         count <= 0;
     else if(pattern_enb & ~cnt_done)
         count <= count + 1;
@@ -56,7 +68,7 @@ module pattern_controller #(parameter ADDR_WIDTH = 18)(
     end
     else
     begin
-        if(start)         // start asserted
+        if((start) && (step_mode==0)) // start asserted in non-step mode 
         begin
             pattern_enb <= 1;
             step_executed <= 0;
@@ -85,7 +97,7 @@ module pattern_controller #(parameter ADDR_WIDTH = 18)(
             step_executed_1 <= 0;
             pattern_enb <=0;
         end
-        else if ((single_cnt_done) && (single_b==0)) 
+        else if ((step_mode) && (single_cnt_done) && (single_b==0)) 
         begin
             pattern_enb <= 1;
         end
