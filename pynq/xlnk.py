@@ -48,14 +48,48 @@ def sig_handler(signum, frame):
     sys.exit(127)
 signal.signal(signal.SIGSEGV, sig_handler)
 
-class CMABuffer(np.ndarray):
+class ContiguousArray(np.ndarray):
+    """A subclass of numpy.ndarray which is allocated using
+    physically contiguous memory for use with DMA engines and
+    hardware accelerators. As physically contiguous memory is a
+    limited resource it is strongly recommended to free the
+    underlying buffer with `close` when the buffer is no longer
+    needed. Alternatively a `with` statement can be used to
+    automatically free the memory at the end of the scope.
+
+    This class should not be constructed directly and instead
+    created using `Xlnk.cma_array`.
+
+    Attributes
+    ----------
+    pointer: cdata void*
+        The virtual address pointer to the memory location
+    physical_address: int
+        The physical address to the array
+
+    """
     def __del__(self):
         self.freebuffer()
 
     def freebuffer(self):
+        """Free the underlying memory
+
+        This will free the memory regardless of whether other objects
+        may still be using the buffer so ensure that no other references
+        to the array exist prior to freeing.
+
+        """
         if hasattr(self, 'pointer') and self.pointer:
             self.allocator.cma_free(self.pointer)
             self.pointer = 0
+
+    def close(self):
+        """Free the underlying memory
+
+        See `freebuffer` for more details
+
+        """
+        self.freebuffer()
 
     def __enter__(self):
         return self
@@ -228,6 +262,29 @@ class Xlnk:
         return self.ffi.buffer(buf, length)
     
     def cma_array(self, shape, dtype=np.uint32):
+        """Get a contiguously allocated numpy array
+
+        Create a numpy array with physically contiguously array. The
+        physical address of the array can be found using the
+        `physical_address` attribute of the returned object. The array
+        should be freed using either `array.freebuffer()` or
+        `array.close()` when the array is no longer required.
+        Alternatively `cma_array` may be used in a `with` statement to
+        automatically free the memory at the end of the block.
+
+        Parameters
+        ----------
+        shape : int or tuple of int
+            The dimensions of the array to construct
+        dtype : numpy.dtype or str
+            The data type to construct - defaults to 32-bit unsigned int
+
+        Returns
+        -------
+        numpy.ndarray:
+            The numpy array
+
+        """
         if isinstance(shape, numbers.Integral):
             shape = [shape]
         dtype = np.dtype(dtype)
@@ -236,7 +293,7 @@ class Xlnk:
         buffer_pointer = self.cma_alloc(length)
         buffer = self.cma_get_buffer(buffer_pointer, length)
         array = np.frombuffer(buffer, dtype=dtype).reshape(shape)
-        view = array.view(CMABuffer)
+        view = array.view(ContiguousArray)
         view.allocator = self
         view.pointer = buffer_pointer
         view.physical_address = self.cma_get_phy_addr(view.pointer)
