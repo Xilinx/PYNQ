@@ -608,14 +608,14 @@ class _DMAChannel:
     def _clear_interrupt(self):
         self._mmio.write(self._offset + 4, 0x1000)
 
-    def transfer(self, buffer):
+    def transfer(self, array):
         """Transfer memory with the DMA
 
         Transfer must only be called when the channel is idle.
 
         Parameters
         ----------
-        buffer : CMABuffer
+        array : ContiguousArray
             An xlnk allocated array to be transferred
 
         """
@@ -623,8 +623,8 @@ class _DMAChannel:
             raise RuntimeError('DMA channel not started')
         if not self.idle and not self._first_transfer:
             raise RuntimeError('DMA channel not idle')
-        self._mmio.write(self._offset + 0x18, buffer.physical_address)
-        self._mmio.write(self._offset + 0x28, buffer.nbytes)
+        self._mmio.write(self._offset + 0x18, array.physical_address)
+        self._mmio.write(self._offset + 0x28, array.nbytes)
         self._first_transfer = False
 
     def wait(self):
@@ -664,9 +664,9 @@ class DMA(DefaultIP):
 
     Attributes
     ----------
-    readchannel : _DMAChannel
+    recvchannel : _DMAChannel
         The stream to memory channel
-    writechannel : _DMAChannel
+    sendchannel : _DMAChannel
         The memory to stream channel
 
     """
