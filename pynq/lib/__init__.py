@@ -73,6 +73,9 @@ from .logictools import PatternGenerator
 from .logictools import TraceAnalyzer
 from .logictools import FSMGenerator
 
+from . import video
+from . import audio
+from . import dma
 
 __author__ = "Graham Schelle"
 __copyright__ = "Copyright 2016, Xilinx"
