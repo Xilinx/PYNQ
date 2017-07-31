@@ -46,4 +46,6 @@ from .overlay import Overlay
 from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
 
+from . import lib
+
 __all__ = ['lib', 'tests']
