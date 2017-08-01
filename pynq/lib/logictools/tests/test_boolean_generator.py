@@ -84,7 +84,6 @@ def test_bool_state():
     bool_generator.run()
     assert bool_generator.status == 'RUNNING'
 
-    bool_generator.show_waveform()
     print('Connect all of {} to GND ...'.format(in_pins))
     assert user_answer_yes("{} outputs logic low?".format(out_pin)), \
         "Boolean configurator fails to show logic low."
@@ -157,7 +156,6 @@ def test_bool_multiple():
     bool_generator.trace()
     bool_generator.setup(expressions=test_expressions)
     bool_generator.run()
-    bool_generator.show_waveform()
 
     for expr_label in bool_generator.expressions.keys():
         waveform = bool_generator.waveforms[expr_label]
@@ -225,7 +223,6 @@ def test_bool_step():
         print('Change some of the connections from {}.'.format(in_pins))
         input('Hit enter after done ...')
         bool_generator.step()
-        bool_generator.show_waveform()
 
         for expr_label in bool_generator.expressions.keys():
             waveform = bool_generator.waveforms[expr_label]
@@ -360,7 +357,6 @@ def test_bool_max_num_expr():
         bool_generator.trace()
         bool_generator.setup(expressions=test_expressions)
         bool_generator.run()
-        bool_generator.show_waveform()
 
         for expr_label in bool_generator.expressions.keys():
             waveform = bool_generator.waveforms[expr_label]

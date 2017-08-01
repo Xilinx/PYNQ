@@ -170,8 +170,6 @@ def test_pattern_state():
     pattern_generator.run()
     assert pattern_generator.status == 'RUNNING'
 
-    pattern_generator.show_waveform()
-
     loopback_recv = pattern_generator.waveform.waveform_dict
     list1 = list2 = list3 = list()
     for wavelane_group in loopback_sent['signal']:
@@ -277,7 +275,6 @@ def test_pattern_random():
                                 analysis_group_name='analysis',
                                 frequency_mhz=100)
         pattern_generator.run()
-        pattern_generator.show_waveform()
 
         loopback_recv = pattern_generator.waveform.waveform_dict
         list1 = list2 = list3 = list()
@@ -332,7 +329,6 @@ def test_pattern_step():
 
     for _ in range(num_samples):
         pattern_generator.step()
-        pattern_generator.show_waveform()
 
     loopback_recv = pattern_generator.waveform.waveform_dict
     list1 = list2 = list3 = list()
