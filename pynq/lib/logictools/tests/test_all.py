@@ -246,10 +246,6 @@ def test_all_generators_data():
         if generator_name != 'TraceAnalyzer':
             assert logictools_controller.status[generator_name] == 'RUNNING'
 
-    boolean_generator.show_waveform()
-    pattern_generator.show_waveform()
-    fsm_generator.show_waveform()
-
     check_boolean_data(boolean_generator)
     check_pattern_data(pattern_generator, num_samples)
     check_fsm_data(fsm_generator, num_samples)
@@ -305,12 +301,6 @@ def test_all_generators_step():
     boolean_generator.setup(expressions=test_expressions,
                             frequency_mhz=10)
 
-    logictools_controller.run([fsm_generator,
-                               pattern_generator,
-                               boolean_generator])
-    logictools_controller.stop([fsm_generator,
-                                pattern_generator,
-                                boolean_generator])
     for _ in range(num_samples):
         logictools_controller.step([fsm_generator,
                                     pattern_generator,
@@ -318,10 +308,6 @@ def test_all_generators_step():
     for generator_name in logictools_controller.status:
         if generator_name != 'TraceAnalyzer':
             assert logictools_controller.status[generator_name] == 'RUNNING'
-
-    boolean_generator.show_waveform()
-    pattern_generator.show_waveform()
-    fsm_generator.show_waveform()
 
     check_boolean_data(boolean_generator)
     check_pattern_data(pattern_generator, num_samples)
@@ -352,7 +338,6 @@ def check_fsm_data(fsm_generator, num_samples):
         The number of samples to test.
 
     """
-    fsm_generator.show_waveform()
     test_string = ''
     for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
         if wavegroup and wavegroup[0] == 'analysis':
@@ -383,7 +368,6 @@ def check_pattern_data(pattern_generator, num_samples):
         data_pattern_sent = loopback_max_samples
     else:
         data_pattern_sent = loopback_64_samples
-    pattern_generator.show_waveform()
     loopback_recv = pattern_generator.waveform.waveform_dict
     stimulus_sent = stimulus_recv = analysis_recv = list()
     for wavelane_group in data_pattern_sent['signal']:
@@ -411,7 +395,6 @@ def check_boolean_data(boolean_generator):
         The boolean generator after a successful run.
 
     """
-    boolean_generator.show_waveform()
     expression_label = 'Boolean expression 0'
     wavelanes_in = boolean_generator.waveforms[
                        expression_label].waveform_dict['signal'][0][1:]
