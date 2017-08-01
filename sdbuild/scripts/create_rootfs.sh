@@ -91,8 +91,6 @@ do
   $dry_run sudo patch $target/${f%.diff} < ${WORKDIR}/config_diff/$f
 done
 
-$script_dir/get_revision.sh > $target/home/xilinx/REVISION
-
 $dry_run cp ${WORKDIR}/boot_files/* $target/boot
 
 $script_dir/kill_chroot_processes.sh $target
