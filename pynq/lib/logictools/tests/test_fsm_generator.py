@@ -297,7 +297,6 @@ def test_fsm_num_samples():
                 'bram_data_buf is not freed after use.'
 
             fsm_generator.run()
-            fsm_generator.show_waveform()
             assert fsm_generator.status == 'RUNNING'
 
             test_string = ''
@@ -352,7 +351,6 @@ def test_fsm_state_bits():
                             use_state_bits=True,
                             frequency_mhz=fsm_frequency_mhz)
         fsm_generator.run()
-        fsm_generator.show_waveform()
 
         test_string = state_bit0_string = state_bit1_string = ''
         for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
@@ -428,12 +426,10 @@ def test_fsm_step():
         input("Hit enter after done ...")
         for _ in range(len(output_pattern_up)-1):
             fsm_generator.step()
-            fsm_generator.show_waveform()
         print("Connect {} to GND, and {} to VCC.".format(rst, direction))
         input("Hit enter after done ...")
         for _ in range(len(output_pattern_down)):
             fsm_generator.step()
-            fsm_generator.show_waveform()
 
         test_string = state_bit0_string = state_bit1_string = ''
         for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
@@ -552,7 +548,6 @@ def test_fsm_num_states2():
                             num_analyzer_samples=MAX_NUM_TRACE_SAMPLES)
         fsm_generator.setup(fsm_spec, frequency_mhz=100)
         fsm_generator.run()
-        fsm_generator.show_waveform()
 
         test_string = ''
         for wavegroup in fsm_generator.waveform.waveform_dict['signal']:
@@ -602,7 +597,6 @@ def test_fsm_max_in_out():
                         num_analyzer_samples=MAX_NUM_TRACE_SAMPLES)
     fsm_generator.setup(fsm_spec_inout, frequency_mhz=100)
     fsm_generator.run()
-    fsm_generator.show_waveform()
 
     test_strings = ['' for _ in range(num_output_pins)]
     test_arrays = [[] for _ in range(num_output_pins)]
@@ -653,7 +647,6 @@ def test_fsm_free_run():
                         num_analyzer_samples=period)
     fsm_generator.setup(fsm_spec_inout, frequency_mhz=100)
     fsm_generator.run()
-    fsm_generator.show_waveform()
 
     test_strings = ['' for _ in range(num_output_pins)]
     test_arrays = [[] for _ in range(num_output_pins)]
