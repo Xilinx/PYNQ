@@ -98,6 +98,7 @@ ${WORKDIR}/config_diff:
 ${WORKDIR}/release_info: ${WORKDIR}
 	echo "BUILD_RELEASE=${RELEASE}" > $@
 
+
 checkenv: ${WORKDIR}/release_info
 ifeq "${RELEASE}" "${BUILD_RELEASE}"
 	which dtc
@@ -109,6 +110,7 @@ ifeq "${RELEASE}" "${BUILD_RELEASE}"
 	${QEMU_EXE} -version | fgrep 2.8.0
 	vivado -version | fgrep 2016.1
 	sudo -n true
+	bash ${SCRIPT_DIR}/check_Env.sh
 	bash ${SCRIPT_DIR}/check_mounts.sh
 else
 	echo "Release ${BUILD_RELEASE} currently in build area, please run make clean RELEASE=${BUILD_RELEASE} to clean the workspace before building a different release"
