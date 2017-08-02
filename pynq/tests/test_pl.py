@@ -109,7 +109,7 @@ def test_overlay():
         bitfile1_fclk1_mhz = Clocks.fclk1_mhz
         bitfile1_fclk2_mhz = Clocks.fclk2_mhz
         bitfile1_fclk3_mhz = Clocks.fclk3_mhz
-        assert not ol.bitstream.timestamp == '', \
+        assert not ol.timestamp == '', \
             'Overlay ({}) has an empty timestamp.'.format(ol.bitfile_name)
         assert ol.is_loaded(), \
             'Overlay ({}) should be loaded.'.format(ol.bitfile_name)

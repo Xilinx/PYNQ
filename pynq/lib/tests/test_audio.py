@@ -27,24 +27,29 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import os
-import sys
-import select
-import termios
 import pytest
-from pynq import PL
-from pynq.drivers import Audio 
+from pynq import Overlay
+from pynq.overlays.base import BaseOverlay
 from pynq.tests.util import user_answer_yes
 
-flag = user_answer_yes("\nAUDIO OUT connected?")
 
-@pytest.mark.run(order=31)
-@pytest.mark.skipif(not flag, reason="need audio out attached")
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
+try:
+    ol = Overlay('base.bit', download=False)
+    flag0 = True
+except IOError:
+    flag0 = False
+flag1 = user_answer_yes("\nAUDIO OUT connected?")
+flag = flag0 and flag1
+
+
+@pytest.mark.skipif(not flag, reason="need base overlay and audio attached")
 def test_audio_out():
     """Test whether audio out works properly.
     
@@ -52,50 +57,48 @@ def test_audio_out():
     sample and play it back.
     
     """
-    audio_t = Audio()
-    
-    assert audio_t.mmio.base_addr==PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][0],\
-        'Wrong base address for audio IP.'
-    assert audio_t.mmio.length==PL.ip_dict['SEG_d_axi_pdm_1_S_AXI_reg'][1],\
-        'Wrong address range for audio IP.'
-    
+    base = BaseOverlay("base.bit")
+    audio_t = base.audio
+
     print("\nSpeaking into the MIC for 5 seconds...")
     audio_t.record(5)
     input("Hit enter to play back...")
     audio_t.play()
     assert user_answer_yes("Heard playback on AUDIO OUT?")
-    
+
     del audio_t
 
-@pytest.mark.run(order=32)
-@pytest.mark.skipif(not flag, reason="need audio out attached")
+
+@pytest.mark.skipif(not flag, reason="need base overlay and audio attached")
 def test_audio_playback():
     """Test the functionality of handling pdm files.
-    
+
     Test whether the `*.pdm` file can be handled properly.
-    
+
     There are 2 steps in this test:
-    
+
     1. Load and play a pre-stored pdm file.
-    
+
     2. Record a pdm file and play it back.
-    
+
     """
-    audio_t = Audio()
-    
+    base = BaseOverlay("base.bit")
+    audio_t = base.audio
+    welcome_audio_path = "/home/xilinx/pynq/lib/tests/pynq_welcome.pdm"
+    record_audio_path = "/home/xilinx/pynq/lib/tests/recorded.pdm"
+
     print("\nPlaying an audio file...")
-    audio_t.load("/home/xilinx/pynq/drivers/tests/pynq_welcome.pdm")
+    audio_t.load(welcome_audio_path)
     audio_t.play()
     assert user_answer_yes("Heard welcome message?")
-    
+
     print("Speaking into the MIC for 5 seconds...")
     audio_t.record(5)
-    audio_t.save("/home/xilinx/pynq/drivers/tests/recorded.pdm")
+    audio_t.save(record_audio_path)
     input("Audio file saved. Hit enter to play back...")
-    audio_t.load("/home/xilinx/pynq/drivers/tests/recorded.pdm")
+    audio_t.load(record_audio_path)
     audio_t.play()
     assert user_answer_yes("Heard recorded sound?")
-    
-    os.remove("/home/xilinx/pynq/drivers/tests/recorded.pdm")
+
+    os.remove(record_audio_path)
     del audio_t
-    

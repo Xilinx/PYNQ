@@ -27,29 +27,45 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
 
-
+from time import sleep
 import pytest
-from pynq.board import Switch
-    
-@pytest.mark.run(order=8)
-def test_switch_all():
+from pynq import Overlay
+from pynq.overlays.base import BaseOverlay
+from pynq.tests.util import user_answer_yes
+
+
+__author__ = "Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
+try:
+    ol = Overlay('base.bit', download=False)
+    flag0 = True
+except IOError:
+    flag0 = False
+flag1 = user_answer_yes("\nTest onboard switches?")
+flag = flag0 and flag1
+
+
+@pytest.mark.skipif(not flag, reason="need base overlay and onboard switches")
+def test_switch_read():
     """Test for the Switch class and its wrapper functions.
-    
-    Instantiates 2 Switch objects on index 0 ~ 1 and performs some 
-    actions on it, requesting user confirmation.
-    
-    """ 
+
+    Read the 2 Switch objects, requesting user confirmation. A time delay
+    is added when reading the values from the switches. This is to compensate
+    the delay for asyncio read.
+
+    """
+    base = BaseOverlay("base.bit")
     print("\nSet the 2 switches (SW0 ~ SW1) off (lower position).") 
     input("Then hit enter...")
-    switches = [Switch(index) for index in range(2)] 
-    for index in range(2):
-        assert switches[index].read()==0, \
+    switches = base.switches
+    for index, switch in enumerate(switches):
+        assert switch.read() == 0, \
             "Switch {} reads wrong values.".format(index)
     input("Now switch them on (upper position) and hit enter...")
-    for index in range(2):
-        assert switches[index].read()==1, \
+    for index, switch in enumerate(switches):
+        assert switch.read() == 1, \
             "Switch {} reads wrong values.".format(index)

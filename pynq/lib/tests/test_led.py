@@ -27,56 +27,61 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2015, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import sys
 import select
 import termios
 from time import sleep
 import pytest
-from pynq.board import LED
+from pynq import Overlay
+from pynq.overlays.base import BaseOverlay
 from pynq.tests.util import user_answer_yes
 
-@pytest.mark.run(order=5)
-def test_leds_on():
+
+__author__ = "Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2015, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
+try:
+    ol = Overlay('base.bit', download=False)
+    flag0 = True
+except IOError:
+    flag0 = False
+flag1 = user_answer_yes("\nTest onboard LEDs?")
+flag = flag0 and flag1
+
+
+@pytest.mark.skipif(not flag, reason="need base overlay and onboard LEDs")
+def test_leds_on_off():
     """Test for the LED class and its wrapper functions.
-    
-    Instantiates a LED object on index 0 and performs some actions 
-    on it to test LED's API, requesting user confirmation.
-    
+
+    Control the LED objects, requesting user confirmation.
+
     """
-    leds = [LED(index) for index in range(4)]
+    base = BaseOverlay("base.bit")
+    leds = base.leds
     for led in leds:
         led.off()
-        
+
     led = leds[0]
     led.on()
-    assert led.read()==1 
     assert user_answer_yes("\nOnboard LED 0 on?")
     led.off()
-    assert led.read()==0
     assert user_answer_yes("Onboard LED 0 off?")
-    led.toggle()
-    assert led.read()==1
-    led.write(0)
-    assert led.read()==0
-    led.write(1)
-    assert led.read()==1
-    led.off()
-    
-@pytest.mark.run(order=6)
+
+
+@pytest.mark.skipif(not flag, reason="need base overlay and onboard buttons")
 def test_leds_toggle():
     """Test for the LED class and its wrapper functions.
-    
-    Instantiates 4 LED objects and toggles them.
-    
+
+    Control the LED objects, requesting user confirmation.
+
     """
-    leds = [LED(index) for index in range(4)]
+    base = BaseOverlay("base.bit")
+    leds = base.leds
     
-    print("\nToggling onboard LEDs. Press enter to stop toggling...",end='')
+    print("\nToggling onboard LEDs. Press enter to stop toggling...", end='')
     for i in range(4):
         leds[i].write(i % 2)
     while True:
@@ -86,7 +91,7 @@ def test_leds_toggle():
         if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
             termios.tcflush(sys.stdin, termios.TCIOFLUSH)
             break
-            
+
     for led in leds:
         led.off()
     assert user_answer_yes("LEDs toggling during the test?")
