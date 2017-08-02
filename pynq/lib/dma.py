@@ -42,6 +42,7 @@ __author__ = 'Peter Ogden, Anurag Dubey'
 __copyright__ = 'Copyright 2017, Xilinx'
 __email__ = 'pynq_support@xilinx.com'
 
+
 class timeout:
     """Internal timeout functions.
 
@@ -62,6 +63,7 @@ class timeout:
 
     def __exit__(self, type, value, traceback):
         signal.alarm(0)
+
 
 class LegacyDMA:
     """Python class which controls DMA.
@@ -178,9 +180,10 @@ class LegacyDMA:
     int XAxiDma_Resume(XAxiDma * InstancePtr);
     uint32_t XAxiDma_Busy(XAxiDma *InstancePtr,int Direction);
     uint32_t XAxiDma_SimpleTransfer(XAxiDma *InstancePtr,\
-    uint32_t * BuffAddr, uint32_t Length,int Direction);
+        uint32_t * BuffAddr, uint32_t Length,int Direction);
     int XAxiDma_SelectKeyHole(XAxiDma *InstancePtr, int Direction, int Select);
-    int XAxiDma_SelectCyclicMode(XAxiDma *InstancePtr, int Direction, int Select);
+    int XAxiDma_SelectCyclicMode(XAxiDma *InstancePtr,\
+        int Direction, int Select);
     int XAxiDma_Selftest(XAxiDma * InstancePtr);
     void DisableInterruptsAll(XAxiDma * InstancePtr);
     """)
@@ -271,9 +274,12 @@ class LegacyDMA:
         self.DMAengine = self.ffi.new("XAxiDma *")
         self.DMAinstance = self.ffi.new("XAxiDma_Config *")
         self.Configuration = {}
+        self._TransferInitiated = 0
+        self._bufPtr = None
         self._gen_config(address, direction, attr_dict)
 
-        status = self.libdma.XAxiDma_CfgInitialize(self.DMAengine, self.DMAinstance)
+        status = self.libdma.XAxiDma_CfgInitialize(
+            self.DMAengine, self.DMAinstance)
         if status != 0:
             raise RuntimeError("Failed to initialize DMA!")
         self.libdma.XAxiDma_Reset(self.DMAengine)
@@ -317,10 +323,6 @@ class LegacyDMA:
         """Destructor for DMA object.
 
         Frees the internal buffer and Resets the DMA.
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------
@@ -422,8 +424,8 @@ class LegacyDMA:
         else:
             self.libxlnk.cma_free(self.buf)
             self.buf = self.libxlnk.cma_alloc(num_bytes, cacheable)
-        bufPhyAddr = self.libxlnk.cma_get_phy_addr(self.buf)
-        self._bufPtr = self.ffi.cast("uint32_t *", bufPhyAddr)
+        bufphyaddr = self.libxlnk.cma_get_phy_addr(self.buf)
+        self._bufPtr = self.ffi.cast("uint32_t *", bufphyaddr)
         self.bufLength = num_bytes
 
     def free_buf(self):
@@ -431,10 +433,6 @@ class LegacyDMA:
 
         Use this to free a previously allocated memory buffer.
         This is specially useful for reallocations.
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------
@@ -462,8 +460,8 @@ class LegacyDMA:
         """
         if self._TransferInitiated == 0:
             return
-        Error = "DMA wait timed out."
-        with timeout(seconds=wait_timeout, error_message=Error):
+        error = "DMA wait timed out."
+        with timeout(seconds=wait_timeout, error_message=error):
             while True:
                 if self.libdma.XAxiDma_Busy(self.DMAengine,
                                             self.direction) == 0:
@@ -567,6 +565,7 @@ class _DMAChannel:
         self._mmio = mmio
         self._offset = offset
         self._interrupt = interrupt
+        self._first_transfer = False
         self.start()
 
     @property
