@@ -9,21 +9,31 @@ OUTDIR ?= $(CURDIR)/.build/boot_files
 CCACHEDIR := $(CURDIR)/.ccache
 SCRIPT_DIR := $(CURDIR)/scripts
 
-RELEASE ?= v1.4-Pynq-Z1
+PYNQ_UPDATE := ${WORKDIR}/PYNQ/.git/HEAD
+
+RELEASE ?= Pynq-Z1-Wily
 -include ${WORKDIR}/release_info
 BUILD_RELEASE ?= ${RELEASE}
 
 all: checkenv rootfs.img
 
+PYNQ_MASTER_COMMIT := $(shell git rev-parse HEAD)
+PYNQ_CLONED_COMMIT := $(shell cd ${WORKDIR}/PYNQ && git rev-parse HEAD)
 
 include releases/${RELEASE}.config
 include boot_configs/${BOOT_CONFIG}/config
 include rootfs_configs/${ROOTFS_CONFIG}/config
 
-PACKAGES := ${STAGE1_PACKAGES} ${STAGE2_PACKAGES}
+PACKAGES := ${STAGE2_PACKAGES} ${STAGE3_PACKAGES}
 PACKAGE_DIRS := $(patsubst %, ${WORKDIR}/packages/%, ${PACKAGES})
 
--include $(patsubst %, packages/%/Makefile, ${PACKAGES})
+-include $(patsubst %, packages/%/Makefile, ${STAGE2_PACKAGES})
+STAGE2_PACKAGE_BUILD := ${PACKAGE_BUILD}
+PACKAGE_BUILD :=
+
+-include $(patsubst %, packages/%/Makefile, ${STAGE3_PACKAGES})
+STAGE3_PACKAGE_BUILD := ${PACKAGE_BUILD}
+PACKAGE_BUILD := ${STAGE2_PACKAGE_BUILD} ${STAGE3_PACKAGE_BUILD}
 
 package_build: ${PACKAGE_BUILD}
 package_dirs: ${PACKAGE_DIRS}
@@ -51,24 +61,32 @@ ${WORKDIR}/multistrap.config: ${MULTISTRAP_CONFIG} | ${WORKDIR}
 ${WORKDIR}/PYNQ: | ${WORKDIR}
 	git clone ../ $@
 
+${PYNQ_UPDATE}: | ${WORKDIR}/PYNQ
+	cd ${WORKDIR}/PYNQ && git fetch origin && git checkout ${PYNQ_MASTER_COMMIT}
+
+ifneq "${PYNQ_MASTER_COMMIT}" "${PYNQ_CLONED_COMMIT}"
+.PHONY: ${PYNQ_UPDATE}
+endif
+
 ${WORKDIR}/board: | ${WORKDIR}
 	echo ${BOARD} > $@
 
-${WORKDIR}/rootfs-stage1.img: ${WORKDIR}/multistrap.config ${WORKDIR}/board ${BOOT_FILES}  ${KERNEL_DEB} | ${WORKDIR} ${WORKDIR}/config_diff ${CCACHEDIR}
+${WORKDIR}/rootfs-stage1.img: ${WORKDIR}/multistrap.config ${WORKDIR}/board ${KERNEL_DEB} | ${WORKDIR} ${WORKDIR}/config_diff ${CCACHEDIR}
 	sudo -E ${SCRIPT_DIR}/create_mount_img.sh ${WORKDIR_REL}/rootfs-stage1.img ${WORKDIR}/rootfs_staging
 	sudo -E ${SCRIPT_DIR}/create_rootfs.sh ${WORKDIR}/rootfs_staging
 	sudo -E ${SCRIPT_DIR}/unmount_image.sh ${WORKDIR}/rootfs_staging ${WORKDIR_REL}/rootfs-stage1.img
 
-${WORKDIR}/rootfs-stage2.img: ${WORKDIR}/rootfs-stage1.img ${PACKAGE_BUILD} | ${PACKAGE_DIRS}
+${WORKDIR}/rootfs-stage2.img: ${WORKDIR}/rootfs-stage1.img ${STAGE2_PACKAGE_BUILD} | ${PACKAGE_DIRS}
 	cp --sparse=always ${WORKDIR}/rootfs-stage1.img ${WORKDIR}/rootfs-stage2.img
 	sudo -E ${SCRIPT_DIR}/mount_image.sh ${WORKDIR_REL}/rootfs-stage2.img ${WORKDIR}/rootfs_staging
-	sudo -E ${SCRIPT_DIR}/install_packages.sh ${WORKDIR}/rootfs_staging ${STAGE1_PACKAGES}
+	sudo -E ${SCRIPT_DIR}/install_packages.sh ${WORKDIR}/rootfs_staging ${STAGE2_PACKAGES}
 	sudo -E ${SCRIPT_DIR}/unmount_image.sh ${WORKDIR}/rootfs_staging ${WORKDIR_REL}/rootfs-stage2.img
 
-rootfs.img: ${WORKDIR}/rootfs-stage2.img
+rootfs.img: ${WORKDIR}/rootfs-stage2.img ${BOOT_FILES} ${STAGE3_PACKAGE_BUILD}
 	cp --sparse=always ${WORKDIR}/rootfs-stage2.img rootfs.img
 	sudo -E ${SCRIPT_DIR}/mount_image.sh rootfs.img ${WORKDIR}/rootfs_staging
-	sudo -E ${SCRIPT_DIR}/install_packages.sh ${WORKDIR}/rootfs_staging ${STAGE2_PACKAGES}
+	sudo -E cp ${BOOT_FILES} ${WORKDIR}/rootfs_staging/boot
+	sudo -E ${SCRIPT_DIR}/install_packages.sh ${WORKDIR}/rootfs_staging ${STAGE3_PACKAGES}
 	sudo -E ${SCRIPT_DIR}/cleanup.sh ${WORKDIR}/rootfs_staging
 	bash ${SCRIPT_DIR}/resize_umount.sh rootfs.img ${WORKDIR}/rootfs_staging
 
@@ -118,6 +136,7 @@ else
 endif
 
 clean: checkenv
+	-chmod u+w -R .build/gcc_mb
 	-rm -rf .build rootfs.img
 
 distclean: clean

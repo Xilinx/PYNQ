@@ -7,7 +7,7 @@ GCC_MB_WORKDIR := ${WORKDIR}/gcc-mb
 export CT_COMPILE_ROOT = ${GCC_MB_WORKDIR}
 export CT_SOURCE_ROOT = ${GCC_MB_SOURCEDIR}
 
-PACKAGE_BUILD += ${GCC_MB_WORKDIR}/microblazeel-xilinx-elf/bin/mb-gcc
+${STAGE}PACKAGE_BUILD += ${GCC_MB_WORKDIR}/microblazeel-xilinx-elf/bin/mb-gcc
 
 ${GCC_MB_WORKDIR}/binutils: | ${GCC_MB_WORKDIR}
 	git_clone_checkout ${MB_BINUTILS_REPO} ${MB_BINUTILS_COMMIT} ${GCC_MB_WORKDIR}/binutils
