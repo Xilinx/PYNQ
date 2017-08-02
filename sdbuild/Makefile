@@ -11,7 +11,7 @@ SCRIPT_DIR := $(CURDIR)/scripts
 
 PYNQ_UPDATE := ${WORKDIR}/PYNQ/.git/HEAD
 
-RELEASE ?= v1.4-Pynq-Z1
+RELEASE ?= Pynq-Z1-Wily
 -include ${WORKDIR}/release_info
 BUILD_RELEASE ?= ${RELEASE}
 
