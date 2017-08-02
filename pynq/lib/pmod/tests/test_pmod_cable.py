@@ -45,7 +45,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 try:
-    _ = Overlay('base.bit')
+    _ = Overlay('base.bit', download=False)
     flag0 = True
 except IOError:
     flag0 = False
@@ -92,7 +92,6 @@ def test_pmod_cable():
     
     """
     ol = Overlay('base.bit')
-    ol.download()
     print('\nTesting Pmod IO cable...')
     assert not send_id == recv_id, \
         "The sender port cannot be the receiver port."
