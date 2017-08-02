@@ -91,6 +91,4 @@ do
   $dry_run sudo patch $target/${f%.diff} < ${WORKDIR}/config_diff/$f
 done
 
-$dry_run cp ${WORKDIR}/boot_files/* $target/boot
-
 $script_dir/kill_chroot_processes.sh $target
