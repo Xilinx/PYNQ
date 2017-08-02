@@ -27,29 +27,40 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Giuseppe Natale, Yun Rock Qu"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
-
 
 import pytest
-from pynq.board import Button
+from pynq import Overlay
+from pynq.overlays.base import BaseOverlay
+from pynq.tests.util import user_answer_yes
 
-@pytest.mark.run(order=9)
-def test_btn_all():
+
+__author__ = "Giuseppe Natale, Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+
+try:
+    ol = Overlay('base.bit', download=False)
+    flag0 = True
+except IOError:
+    flag0 = False
+flag1 = user_answer_yes("\nTest onboard buttons?")
+flag = flag0 and flag1
+
+
+@pytest.mark.skipif(not flag, reason="need base overlay and onboard buttons")
+def test_btn_read():
     """Test for the Button class and its wrapper functions.
-    
-    Instantiates 4 Button objects on index 0 ~ 3 and performs some 
-    actions on it, requesting user confirmation.
-    
+
+    Read button index 0 ~ 3, requesting user confirmation.
+
     """
-    buttons = [Button(index) for index in range(4)]
+    base = BaseOverlay("base.bit")
     print("")
     for index in range(4):
-        assert buttons[index].read()==0, \
+        assert base.buttons[index].read() == 0, \
             "Button {} reads wrong values.".format(index)
     for index in range(4):
         input("Hit enter while pressing Button {0} (BTN{0})...".format(index))
-        assert buttons[index].read()==1, \
+        assert base.buttons[index].read() == 1, \
             "Button {} reads wrong values.".format(index)
-
