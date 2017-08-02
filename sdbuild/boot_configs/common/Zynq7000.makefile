@@ -13,7 +13,7 @@ export BOARD_CONSTRAINTS
 
 SOURCEDIR := ${makefileDir}
 
-BOOT_FILES := ${OUTDIR} ${OUTDIR}/devicetree.dtb ${OUTDIR}/uImage ${OUTDIR}/BOOT.bin ${OUTDIR}/uEnv.txt
+BOOT_FILES := ${OUTDIR}/devicetree.dtb ${OUTDIR}/uImage ${OUTDIR}/BOOT.bin ${OUTDIR}/uEnv.txt
 
 KERNEL_DEB := ${WORKDIR}/linux-headers-4.6.0-xilinx.deb
 
@@ -23,7 +23,7 @@ ${KERNEL_DEB}: ${WORKDIR}/linux/.config
 	mv ${WORKDIR}/linux-headers* ${WORKDIR}/linux-headers-4.6.0-xilinx.deb
 	mv ${WORKDIR}/linux-image* ${WORKDIR}/linux-image-4.6.0-xilinx.deb
 
-${OUTDIR}/devicetree.dtb: ${WORKDIR}/pynq_dts/system.dts ${WORKDIR}/pynq_dts/board.dtsi
+${OUTDIR}/devicetree.dtb: ${WORKDIR}/pynq_dts/system.dts ${WORKDIR}/pynq_dts/board.dtsi | ${OUTDIR}
 	cd ${WORKDIR}/pynq_dts && bash ${SOURCEDIR}/compile_dtc.sh > $@
 
 ${WORKDIR}/pynq_dts/board.dtsi: ${BOARD_DTSI}
@@ -47,10 +47,10 @@ ${WORKDIR}/linux/.config: ${LINUX_CONFIG} | ${WORKDIR}/linux
 ${WORKDIR}/linux/arch/arm/boot/uImage: ${WORKDIR}/linux/.config
 	cd ${WORKDIR}/linux && make ${LINUX_MAKE_ARGS} uImage
 
-${OUTDIR}/uImage: ${WORKDIR}/linux/arch/arm/boot/uImage
+${OUTDIR}/uImage: ${WORKDIR}/linux/arch/arm/boot/uImage | ${OUTDIR}
 	cp $< $@
 
-${OUTDIR}/BOOT.bin: ${SOURCEDIR}/zynq.bif ${WORKDIR}/fsbl.elf ${WORKDIR}/u-boot.elf ${WORKDIR}/bitstream.bit
+${OUTDIR}/BOOT.bin: ${SOURCEDIR}/zynq.bif ${WORKDIR}/fsbl.elf ${WORKDIR}/u-boot.elf ${WORKDIR}/bitstream.bit | ${OUTDIR}
 	cd ${WORKDIR} && bootgen -image ${SOURCEDIR}/zynq.bif -o ${OUTDIR}/BOOT.bin -w
 
 ${WORKDIR}/fsbl.elf: ${WORKDIR}/fsbl/executable.elf
@@ -74,7 +74,7 @@ ${WORKDIR}/u-boot/.config: ${UBOOT_CONFIG} | ${WORKDIR}/u-boot
 ${WORKDIR}/bitstream.bit: ${BOOT_BITSTREAM} 
 	cp $< $@
 
-${BOOT_BITSTREAM}: ${WORKDIR}/PYNQ
+${BOOT_BITSTREAM}: ${PYNQ_UPDATE} |${WORKDIR}/PYNQ
 
-${OUTDIR}/uEnv.txt: ${SOURCEDIR}/zynq-uEnv.txt
+${OUTDIR}/uEnv.txt: ${SOURCEDIR}/zynq-uEnv.txt | ${OUTDIR}
 	cp $< $@
