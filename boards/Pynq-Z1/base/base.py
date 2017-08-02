@@ -83,7 +83,7 @@ class BaseOverlay(pynq.Overlay):
             self.switches = self.swsleds_gpio.channel1
             self.buttons = self.btns_gpio.channel1
             self.leds.setlength(4)
-            self.switches.setlength(4)
+            self.switches.setlength(2)
             self.buttons.setlength(4)
             self.leds.setdirection("out")
             self.switches.setdirection("in")
