@@ -44,7 +44,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 try:
-    _ = Overlay('base.bit')
+    _ = Overlay('base.bit', download=False)
     flag0 = True
 except IOError:
     flag0 = False

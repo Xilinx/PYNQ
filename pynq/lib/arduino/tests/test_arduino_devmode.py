@@ -47,7 +47,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 try:
-    _ = Overlay('interface.bit')
+    _ = Overlay('interface.bit', download=False)
     flag = True
 except IOError:
     flag = False
@@ -65,7 +65,6 @@ def test_arduino_devmode():
 
     """
     ol = Overlay('base.bit')
-    ol.download()
 
     for mb_info in [ARDUINO]:
         assert Arduino_DevMode(mb_info, ARDUINO_SWCFG_DIOALL) is not None

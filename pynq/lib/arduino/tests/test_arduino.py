@@ -40,7 +40,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 try:
-    _ = Overlay('base.bit')
+    _ = Overlay('base.bit', download=False)
     flag = True
 except IOError:
     flag = False
@@ -62,7 +62,6 @@ def test_arduino_microblaze():
     
     """
     ol = Overlay('base.bit')
-    ol.download()
 
     for mb_info in [ARDUINO]:
         exception_raised = False

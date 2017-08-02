@@ -44,7 +44,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 try:
-    ol = Overlay('logictools.bit')
+    ol = Overlay('logictools.bit', download=False)
     flag = True
 except IOError:
     flag = False
