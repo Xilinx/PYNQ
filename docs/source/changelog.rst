@@ -48,6 +48,7 @@ Documentation updated:
      engine. For example:
 
      .. code-block:: Python
+
         send_buffer = xlnk.cma_array(1024, np.float32)
         dma.sendchannel.transfer(send_buffer)
         dma.wait()
