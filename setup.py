@@ -287,7 +287,8 @@ def run_make(src_path, dst_path, output_lib):
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
     run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
-    run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    if CPU_ARCH == ZYNQ_ARCH:
+        run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
     backup_notebooks()
     copy_common_notebooks()
     copy_getting_started_notebooks()
@@ -297,7 +298,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
     change_ownership()
 
 
-if CPU_ARCH_IS_SUPPORTED:
+if (CPU_ARCH == ZYNQ_ARCH):
     ext_modules = [
         Extension('pynq.lib._video', video,
                   include_dirs=['pynq/lib/_pynq/inc',
@@ -307,7 +308,7 @@ if CPU_ARCH_IS_SUPPORTED:
                   ),
     ]
 else:
-    warnings.warn("PYNQ does not support the CPU Architecture: {}"
+    warnings.warn("Video Library does not support the CPU Architecture: {}"
                   .format(CPU_ARCH), ResourceWarning)
     ext_modules = []
 
