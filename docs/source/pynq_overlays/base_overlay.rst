@@ -1,15 +1,23 @@
 Base Overlay
 ============
 
-The base overlay design is intended to include the hardware IP to control the
-board peripherals, and connects these IP blocks to the Zynq PS. If a base
+The purpose of the base overlay design is to allow PYNQ to use peripherals on a
+board out-of-the-box. The design includes hardware IP to control peripherals on
+the target board, and connects these IP blocks to the Zynq PS. If a base
 overlay is available for a board, peripherals can be used from the Python
 environment immediately after the system boots.
 
 Board peripherals typically include GPIO devices (LEDs, Switches, Buttons),
-Video, Audio, and any other custom interfaces. In the case of a general purpose
-interfaces, for example Pmod and Arduino headers, the base overlay may include
-an IOP for the interface, or a simple GPIO interface.
+Video, Audio, and other custom interfaces. 
+
+As the base overlay includes IP for the peripehrals on a board, it can also be
+used as a reference design for creating new customized overlays.
+
+In the case of general purpose interfaces, for example Pmod or Arduino headers,
+the base overlay may include a PYNQ IOP (Input/Output Porcessor). An IOP allows
+control of devices with different interfaces and protocols on the same port
+without requiring a change to the programmable logic design. See the PYNQ
+Libraries section for more information on IOPs.
 
 PYNQ-Z1 Block Diagram
 ---------------------
@@ -26,35 +34,34 @@ This PYNQ-Z1 overlay includes the following hardware:
     * User LEDs, Switches, Pushbuttons
     * 2x PMOD IOP
     * Arduino IOP
-    * Trace buffer
 
 HDMI 
------
+----
 
-The HDMI controllers are connected directly to the HDMI interfaces. There is no
-external HDMI circuitry on the board.
+The PYNQ-Z1 has HDMI in and HDMI out ports. The HDMI interfaces are connected
+directly to PL pins. i.e. There is no external HDMI circuitry on the board. The
+HDMI interfaces are controlled by HDMI IP in the programmable logic.
 
-TODO: what do we want to do with reference links?
-	  
-`Digilent HDMI reference for the PYNQ-Z1 board
-<https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#hdmi>`_
-
-Both HDMI interfaces are connected to PS DRAM. Video can be streamed from the
+The HDMI IP is connected to PS DRAM. Video can be streamed from the
 HDMI *in* to memory, and from memory to HDMI *out*. This allows processing of
 video data from python, or writing an image or Video stream from Python to the
 HDMI out.
 
-Note that Jupyter notebooks supports embedded video. However, video captured
-from the HDMI will be in raw format and would not be suitable for playback in a
+Note that while Jupyter notebook supports embedded video, video captured from
+the HDMI will be in raw format and would not be suitable for playback in a
 notebook without appropriate encoding.
+
+For information on the physical HDMI interface ports, see the
+`Digilent HDMI reference for the PYNQ-Z1 board
+<https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#hdmi>`_
 
 HDMI In
 ^^^^^^^
 
-The HDMI in interface can capture standard HDMI resolutions. After a HDMI source
-has been connected, and the HDMI controller started, it will automatically
-detect the incoming data. The resolution can be read from the HDMI Python class,
-and the image data can be streamed to DDR memory.
+The HDMI in IP can capture standard HDMI resolutions. After a HDMI source has
+been connected, and the HDMI controller for the IP is started, it will
+automatically detect the incoming data. The resolution can be read from the HDMI
+Python class, and the image data can be streamed to the PS DRAM.
 
 HDMI Out
 ^^^^^^^^
@@ -63,93 +70,93 @@ The HDMI out IP supports the following resolutions:
 
     * 640x480  
     * 800x600 
-    * 1024x768  
+    * 1280x720 (720p)
     * 1280x1024
+    * 1920x1080 (1080p)\*
 
-While the Pynq-Z1 cannot meet the offical HDMI specification for 1920x1080
-(1080p), some HDMI devices at this resolution may work.
+\*While the Pynq-Z1 cannot meet the offical HDMI specification for 1080p, some
+HDMI devices at this resolution may work.
 
-Data can be streamed from DDR memory to the HDMI output. The Pynq HDMI Out
-python instance contains framebuffers to allow for smooth display of video data.
+Data can be streamed from the PS DRAM to the HDMI output. The HDMI Out
+controller contains framebuffers to allow for smooth display of video data.
 
-See the `PYNQ Z1 base overlay video notebook
-<./pynq-z1_base_overlay_video.html>`_ which shows examples of using the HDMI in
-and out. The notebook can also be found on the board in the getting started
-directory.
+See the *PYNQ Z1 base overlay video notebook* which can be found in the getting 
+started
+directory on the board.
 
-
-Mic in 
--------
+Mic In 
+------
 
 The PYNQ-Z1 board has an integrated mic on the board and is connected directly
-to the Zynq PL pins. This means the board does not have an audio codec. The Mic
+to the Zynq PL pins, and does not have an external audio codec. The Mic
 generates audio data in PDM format.
 
-`Digilent MIC in reference for the PYNQ-Z1 board
+For more information on the audio hardware, see the `Digilent MIC in reference 
+for the PYNQ-Z1 board
 <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#microphone>`_
 
-Audio out
+Audio Out
 ---------
 
 The audio out IP is connected to a standard 3.5mm audio jack on the board. The
 audio output is PWM driven mono.
 
-`Digilent Audio Out reference for the PYNQ-Z1 board <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output>`_
+See the *pynq-z1_base_overlay_audio.ipynb* notebook in the *getting started*
+directory for examples of using the audio.
 
-See the `pynq-z1_base_overlay_audio.ipynb
-<https://github.com/xilinx/PYNQ/blob/master/boards/Pynq-Z1/base/notebooks/audio/pynq-z1_base_overlay_audio.ipynb>`_
-notebook in the *getting started* directory for examples of using the audio.
-
+For more information on the audio hardware, see the `Digilent Audio Out 
+reference for the PYNQ-Z1 board <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output>`_
 
 User IO
 -------
 
 The PYNQ-Z1 board includes two tri-color LEDs, 2 switches, 4 push buttons, and 4
-individual LEDs. In the base overlay, the user IO is connected directly to the
-PS, and can be controlled directly from Python.
-
+individual LEDs. These IO are connected directly to Zynq PL pins. In the PYNQ-Z1
+base overlay, these IO are routed to the PS GPIO, and can be controlled directly
+from Python.
 
 IOPs
 ----
 
-IOPs are dedicated IO processor subsystems that allow peripherals with different
-IO standards to be connected to the system on demand. This allows a software
-programmer to use a wide range of peripherals with different interfaces and
-protocols. The same overlay can be used to support different peripheral.
+IOPs (Input/Output Processors) are dedicated MicroBlaze soft-processor
+subsystems that allow peripherals with different IO standards to be connected to
+the system on demand. This allows a software programmer to use a wide range of
+peripherals with different interfaces and protocols. By using an IOP, the same
+overlay can be used to support different peripheral without requiring a
+different overlay for each peripheral.
 
-There are two types of IOPs: Pmod, and Arduino. Both types of IOPs have a
-similar architecture, but have different configurations of IP to connect to
-supported peripherals.
+There are two types of IOPs: Pmod, and Arduino.  The Pmod and Arduino ports,
+which the IOPs connect to, have a different number of pins and can support
+different sets of peripherals. Both types of IOP have a similar architecture,
+but have different IP configurations to support the different sets of peripehral
+and interface pins.
 
-Pmods are covered in more detail in the next section. 
-
-Trace Analyzer
---------------
-
-A trace analyzer is available and can be used to capture trace data on the Pmod,
-and Arduino interfaces for debug. The trace buffer is connected to the PS
-DRAM. This allows trace data on the interfaces to be streamed back to DRAM for
-analysis in Python.
-
-Trace data can be displayed as decoded waveforms inside a Jupyter notebook.
+IOPs are covered in more detail in the next section. 
 
 Python API
 ----------
 
-TODO:  Move the help() call from loading an overlay to here. Currently this
-	  source and output is embedded in a notebook...
-
+The Python API for the peripherals in the base overlay is covered in the next
+section on PYNQ Libraries. Example notebooks are also provided on the board
+which show how to use the base overlay.
 
 Rebuilding the Overlay
 ----------------------
 
-The project files for the logictools overlay(s) can be found here:
+The project files for the overlays can be found here:
 
 .. code-block:: console
 
-   ``<GitHub Repository>/boards/<board>/base``
+   <GitHub Repository>/boards/<board>/base
 
-To rebuild the logictools overlay run *make* in the directory above. 
+Linux
+^^^^^
+To rebuild an overlay source the Xilinx tools and run *make* in the overlay
+directory.
 
-All source code for the hardware blocks is provided in the PYNQ Repository. Each
-block can also be reused standalone in a custom overlay.
+Windows
+^^^^^^^
+Open Vivado, change to the overlay directory, and source the .tcl file. The .tcl
+can also be sourced from the Vivado Tcl shell. Note that you must change to the
+overlay directory, as the .tcl file has relative paths that will break if it is
+sourced from a different location.

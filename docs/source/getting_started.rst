@@ -49,11 +49,10 @@ To make your own PYNQ Micro-SD card:
         * Linux/MacOS: Use the built in *dd* command\*
    
 \* For detailed instructions for writing the SD card using different operating
-systems, see the `Appendix: Writing the SD card image
-<appendix.html#writing-the-sd-card-image>`_.
+systems, see :ref:`writing-the-sd-card`.
    
 Board Setup
---------------
+-----------
 
    .. image:: images/pynqz1_setup.jpg
       :align: center
@@ -130,8 +129,7 @@ without Internet access.
 | 3. Browse to  http://192.168.2.99:9090                 |
 +--------------------------------------------------------+
 
-\* See `Appendix: Assign your PC/Laptop a static IP address
-<appendix.html#assign-your-laptop-pc-a-static-ip-address>`_
+\* See :ref:`assign-your-computer-a-static-IP`
 
 Turning On the PYNQ-Z1
 ----------------------
@@ -344,6 +342,5 @@ your settings.
 Troubleshooting
 ===============
 
-If you are having problems, please see the `Frequently asked questions
-<faqs.html>`_ or go the `PYNQ support forum <http://www.pynq.io/support.html>`_
+If you are having problems, please see the :ref:`faqs` or go the `PYNQ support forum <http://www.pynq.io/support.html>`_
 
