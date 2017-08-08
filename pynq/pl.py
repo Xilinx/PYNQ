@@ -89,8 +89,8 @@ class _TCL:
         configuration dictionary, the state associated with that IP, any
         interrupts and GPIO pins attached to the IP and the full path to the
         IP in the block design:
-        {str: {'phys_addr' : int, 'addr_range' : int,
-               'type' : str, 'config' : dict, 'state' : str,
+        {str: {'phys_addr' : int, 'addr_range' : int,\
+               'type' : str, 'config' : dict, 'state' : str,\
                'interrupts' : dict, 'gpio' : dict, 'fullpath' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
@@ -117,7 +117,7 @@ class _TCL:
         and GPIO and interrupts attached to the hierarchy. The keys in
         dictionaries are relative to the hierarchy and the ip dict only
         contains immediately contained IP - not those in sub-hierarchies.
-        {str: {'ip': dict, 'hierarchies': dict, 'interrupts': dict,
+        {str: {'ip': dict, 'hierarchies': dict, 'interrupts': dict,\
                'gpio': dict, 'fullpath': str}}
     clock_dict : dict
         All the PL clocks that can be controlled by the PS. Key is the index
@@ -763,8 +763,8 @@ class PL(metaclass=PLMeta):
         configuration dictionary, the state associated with that IP, any
         interrupts and GPIO pins attached to the IP and the full path to the
         IP in the block design:
-        {str: {'phys_addr' : int, 'addr_range' : int,
-               'type' : str, 'config' : dict, 'state' : str,
+        {str: {'phys_addr' : int, 'addr_range' : int,\
+               'type' : str, 'config' : dict, 'state' : str,\
                'interrupts' : dict, 'gpio' : dict, 'fullpath' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
@@ -791,7 +791,7 @@ class PL(metaclass=PLMeta):
         and GPIO and interrupts attached to the hierarchy. The keys in
         dictionaries are relative to the hierarchy and the ip dict only
         contains immediately contained IP - not those in sub-hierarchies.
-        {str: {'ip': dict, 'hierarchies': dict, 'interrupts': dict,
+        {str: {'ip': dict, 'hierarchies': dict, 'interrupts': dict,\
                'gpio': dict, 'fullpath': str}}
 
     """

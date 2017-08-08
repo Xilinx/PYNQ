@@ -1,7 +1,6 @@
 Pynq MicroBlaze Subsystem
 =========================
 
-TODO: This figure needs to show an External Interface (which goes to DDR/PS)
 
 A PYNQ MicroBlaze subsystem consists of a MicroBlaze processor, AXI
 interconnect, Interrupt controller, an Interrupt Requester, and External System

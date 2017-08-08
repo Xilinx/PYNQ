@@ -39,8 +39,8 @@ Image release:
 Documentation updated:  
 
 * Pynq API/driver changes
-   * Overlay() automatically downloads an overlays on instantiation. Explicit
-     .download() is not required
+   * Overlay() automatically downloads an overlays on instantiation by default. 
+     Explicit .download() is not required
    * DMA driver replaced with new version
 
      The buffer is no longer owned by the DMA driver and should instead be
@@ -48,6 +48,7 @@ Documentation updated:
      engine. For example:
 
      .. code-block:: Python
+
         send_buffer = xlnk.cma_array(1024, np.float32)
         dma.sendchannel.transfer(send_buffer)
         dma.wait()
@@ -55,16 +56,16 @@ Documentation updated:
 
    * The pynq.iop subpackage has been restructured into lib.arduino and lib.pmod
 
-   For example:
-   .. code-block:: Python
+      For example:
+      .. code-block:: Python
    
-      from pynq.iop import Arduino_Analog
+         from pynq.iop import Arduino_Analog 
    
-   is replaced by:
+      is replaced by:
 
-   .. code-block:: Python
-   
-      from pynq.lib.arduino import Arduino_Analog
+      .. code-block:: Python
+      
+         from pynq.lib.arduino import Arduino_Analog
 
 
       
