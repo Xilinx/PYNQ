@@ -74,7 +74,7 @@ class RGBLED(object):
         
         """
         if index not in [4, 5]:
-            raise ValueError("Index for onboard RGBLEDs should be 4 - 5.")
+            raise ValueError("Index for onboard RGBLEDs should be 4 or 5.")
             
         self.index = index
         if RGBLED._mmio is None:
@@ -95,7 +95,7 @@ class RGBLED(object):
         
         """
         if color not in range(8):
-            raise ValueError("RGB values should be between 0 and 7.")
+            raise ValueError("color should be an integer value from 0 to 7.")
 
         rgb_mask = 0x7 << ((self.index-RGBLEDS_START_INDEX)*3)
         new_val = (RGBLED._rgbleds_val & ~rgb_mask) | \
