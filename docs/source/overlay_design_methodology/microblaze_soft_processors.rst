@@ -1,8 +1,12 @@
 **************************
-Microblaze Soft Processors
+MicroBlaze Soft Processors
 **************************
 
-Need text here...
+The MicroBlaze Soft Processor subsystem gives flexibility to support a wide range of hardware peripherals from Python. The MicroBlaze soft processor is intended as an offload processor, and can deal with the low level communication protocols and data processing and provides data from a sensor that can be accessed from Python. The subsystem is deterministic, and is suitable for real-time control. 
+
+MicroBlaze applications will typically be developed in C or C++, and will run bare-metal. 
+
+The following sections show how to develop applications for the MicroBlaze soft processors running inside an overlay. 
 
 .. toctree::
     :maxdepth: 2
