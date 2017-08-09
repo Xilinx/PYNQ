@@ -8,7 +8,7 @@ The *logictools* overlay consists of programmable hardware blocks to connect to
 external digital logic circuits. Finite state machines, Boolean logic functions
 and digital patterns can be generated from Python. A programmable switch
 connects the inputs and outputs from the hardware blocks to external IO
-pins. The logictools overlay can also has a trace analyzer to capture data from
+pins. The logictools overlay can also have a trace analyzer to capture data from
 the IO interface for analysis and debug.
 
 PYNQ-Z1 Block Diagram
