@@ -148,7 +148,7 @@ The project files for the overlays can be found here:
 
 Linux
 ^^^^^
-To rebuild an overlay source the Xilixn tools and run *make* in the overlay
+To rebuild an overlay source the Xilinx tools and run *make* in the overlay
 directory.
 
 Windows
