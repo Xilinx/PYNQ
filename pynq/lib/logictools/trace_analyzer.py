@@ -92,8 +92,7 @@ class _MBTraceAnalyzer:
     When a pin is specified as input, the response can be captured.
 
     On logictools overlay, multiple generators are sharing the same trace
-    analyzer. Since there is only one analyzer on the hardware, this class is 
-    implemented as a singleton.
+    analyzer.
 
     Attributes
     ----------
@@ -109,29 +108,6 @@ class _MBTraceAnalyzer:
         The frequency of the trace analyzer, in MHz.
 
     """
-    __instance = None
-    __initialized = False
-
-    def __new__(cls, mb_info, intf_spec_name):
-        """Create a new trace analyzer object.
-
-        This method overwrites the default `new()` method so that the same
-        instance can be reused by many modules. The internal variable 
-        `__instance` is private and used as a singleton.
-
-        Parameters
-        ----------
-        mb_info : dict
-            A dictionary storing Microblaze information, such as the 
-            IP name and the reset name.
-        intf_spec_name : str
-            The name of the interface specification.
-
-        """
-        if cls.__instance is None:
-            cls.__instance = object.__new__(cls)
-        return cls.__instance
-
     def __init__(self, mb_info, intf_spec_name):
         """Return a new trace analyzer object.
 
@@ -140,25 +116,25 @@ class _MBTraceAnalyzer:
         mb_info : dict
             A dictionary storing Microblaze information, such as the 
             IP name and the reset name.
-        intf_spec_name : str
+        intf_spec_name : str/dict
             The name of the interface specification.
 
         """
-        if not self.__initialized:
-            # Book-keep controller-related parameters
-            self.logictools_controller = LogicToolsController(mb_info,
-                                                              intf_spec_name)
+        # Book-keep controller-related parameters
+        self.logictools_controller = LogicToolsController(mb_info,
+                                                          intf_spec_name)
+        if type(intf_spec_name) is str:
             self.intf_spec = eval(intf_spec_name)
-            self._mb_info = mb_info
-            self._intf_spec_name = intf_spec_name
+        elif type(intf_spec_name) is dict:
+            self.intf_spec = intf_spec_name
+        else:
+            raise ValueError("Interface specification has to be str or dict.")
+        self._mb_info = mb_info
 
-            # Parameters to be cleared at reset
-            self.num_analyzer_samples = 0
-            self.samples = None
-            self.frequency_mhz = 0
-
-            # Singleton related parameter
-            self.__class__.__initialized = True
+        # Parameters to be cleared at reset
+        self.num_analyzer_samples = 0
+        self.samples = None
+        self.frequency_mhz = 0
 
     def __repr__(self):
         """Disambiguation of the object.
@@ -189,7 +165,8 @@ class _MBTraceAnalyzer:
         return self.logictools_controller.status[self.__class__.__name__]
 
     def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
-              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ):
+              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
+              fclk_name='fclk1_mhz'):
         """Configure the trace analyzer.
         
         This method prepares the trace analyzer by sending configuration 
@@ -213,6 +190,8 @@ class _MBTraceAnalyzer:
             The number of samples to be analyzed.
         frequency_mhz: float
             The frequency of the captured samples, in MHz.
+        fclk_name : str
+            The name of the fclk controlled by clock management object.
 
         """
         if not 1 <= num_analyzer_samples <= MAX_NUM_TRACE_SAMPLES:
@@ -225,7 +204,7 @@ class _MBTraceAnalyzer:
             raise ValueError("Clock frequency out of range "
                              "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ,
                                                MAX_CLOCK_FREQUENCY_MHZ))
-        self.logictools_controller.clk.fclk1_mhz = frequency_mhz
+        setattr(self.logictools_controller.clk, fclk_name, frequency_mhz)
         self.frequency_mhz = frequency_mhz
 
         trace_bit_width = self.intf_spec['monitor_width']
@@ -306,7 +285,6 @@ class _MBTraceAnalyzer:
 
         """
         self.logictools_controller.reset_buffers()
-        self.__class__.__initialized = False
 
     def analyze(self, steps):
         """Analyze the captured pattern.
@@ -494,7 +472,8 @@ class _PSTraceAnalyzer:
         return self._status
 
     def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
-              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ):
+              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
+              fclk_name='fclk3_mhz'):
         """Configure the trace analyzer.
 
         This method prepares the trace analyzer by sending configuration 
@@ -518,6 +497,8 @@ class _PSTraceAnalyzer:
             The number of samples to be analyzed.
         frequency_mhz: float
             The frequency of the captured samples, in MHz.
+        fclk_name : str
+            The name of the fclk controlled by clock management object.
 
         """
         if not 1 <= num_analyzer_samples <= MAX_NUM_TRACE_SAMPLES:
@@ -530,7 +511,7 @@ class _PSTraceAnalyzer:
             raise ValueError("Clock frequency out of range "
                              "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ,
                                                MAX_CLOCK_FREQUENCY_MHZ))
-        self.clk.fclk3_mhz = frequency_mhz
+        setattr(self.clk, fclk_name, frequency_mhz)
         self.frequency_mhz = frequency_mhz
 
         trace_bit_width = self.intf_spec['monitor_width']

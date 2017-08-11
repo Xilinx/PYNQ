@@ -163,10 +163,6 @@ PYNQZ1_LOGICTOOLS_SPECIFICATION = {'clock_mhz': 10,
                                                              'LD3': 23
                                                              }
                                    }
-TRACE_ANALYZER_PMODA = {'axi_dma_0': {'addr_range': 65536,
-                                      'phys_addr': 0x80400000},
-                        'trace_cntrl_0': {'addr_range': 65536,
-                                          'phys_addr': 0x83C10000}}
 PYNQZ1_PMODA_SPECIFICATION = {'clock_mhz': 10,
                               'interface_width': 8,
                               'monitor_width': 64,
@@ -198,10 +194,6 @@ PYNQZ1_PMODA_SPECIFICATION = {'clock_mhz': 10,
                                                        'D7': 23
                                                        }
                               }
-TRACE_ANALYZER_PMODB = {'axi_dma_0': {'addr_range': 65536,
-                                      'phys_addr': 0x80420000},
-                        'trace_cntrl_0': {'addr_range': 65536,
-                                          'phys_addr': 0x83C20000}}
 PYNQZ1_PMODB_SPECIFICATION = {'clock_mhz': 10,
                               'interface_width': 8,
                               'monitor_width': 64,
@@ -233,10 +225,6 @@ PYNQZ1_PMODB_SPECIFICATION = {'clock_mhz': 10,
                                                        'D7': 23
                                                        }
                               }
-TRACE_ANALYZER_ARDUINO = {'axi_dma_0':  {'addr_range': 65536,
-                                         'phys_addr': 0x80410000},
-                          'trace_cntrl_0': {'addr_range': 65536,
-                                            'phys_addr': 0x83C00000}}
 PYNQZ1_ARDUINO_SPECIFICATION = {'clock_mhz': 10,
                                 'interface_width': 20,
                                 'monitor_width': 64,

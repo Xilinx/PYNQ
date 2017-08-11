@@ -100,16 +100,20 @@ class BooleanGenerator:
         mb_info : dict
             A dictionary storing Microblaze information, such as the 
             IP name and the reset name.
-        intf_spec_name : str
+        intf_spec_name : str/dict
             The name of the interface specification.
 
         """
         # Book-keep controller-related parameters
         self.logictools_controller = LogicToolsController(mb_info,
                                                           intf_spec_name)
-        self.intf_spec = eval(intf_spec_name)
+        if type(intf_spec_name) is str:
+            self.intf_spec = eval(intf_spec_name)
+        elif type(intf_spec_name) is dict:
+            self.intf_spec = intf_spec_name
+        else:
+            raise ValueError("Interface specification has to be str or dict.")
         self._mb_info = mb_info
-        self._intf_spec_name = intf_spec_name
 
         # Parameters to be cleared at reset
         self.expressions = dict()
@@ -169,7 +173,7 @@ class BooleanGenerator:
         """
         if use_analyzer:
             self.analyzer = TraceAnalyzer(self._mb_info,
-                                          intf_spec_name=self._intf_spec_name)
+                                          intf_spec_name=self.intf_spec)
             self.num_analyzer_samples = num_analyzer_samples
         else:
             if self.analyzer is not None:
