@@ -32,6 +32,8 @@ import pynq
 import pynq.lib
 import pynq.lib.video
 import pynq.lib.audio
+from pynq.lib.logictools import TraceAnalyzer
+
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2017, Xilinx"
@@ -47,12 +49,18 @@ class BaseOverlay(pynq.Overlay):
 
     Attributes
     ----------
-    pmoda : IOP
+    iop1 : IOP
          IO processor connected to the PMODA interface
-    pmodb : IOP
+    iop2 : IOP
          IO processor connected to the PMODB interface
-    arduino : IOP
+    iop3 : IOP
          IO processor connected to the Arduino/ChipKit interface
+    trace_pmoda : pynq.logictools.TraceAnalyzer
+        Trace analyzer block on PMODA interface, controlled by PS.
+    trace_pmodb : pynq.logictools.TraceAnalyzer
+        Trace analyzer block on PMODB interface, controlled by PS. 
+    trace_arduino : pynq.logictools.TraceAnalyzer
+        Trace analyzer block on Arduino interface, controlled by PS. 
     leds : AxiGPIO
          4-bit output GPIO for interacting with the green LEDs LD0-3
     buttons : AxiGPIO
@@ -88,6 +96,15 @@ class BaseOverlay(pynq.Overlay):
             self.leds.setdirection("out")
             self.switches.setdirection("in")
             self.buttons.setdirection("in")
-
             self.rgbleds = ([None] * 4) + [pynq.lib.RGBLED(i)
                                            for i in range(4, 6)]
+
+            self.trace_pmoda = TraceAnalyzer(
+                self.trace_analyzer_pmoda.description['ip'],
+                'PYNQZ1_PMODA_SPECIFICATION')
+            self.trace_pmodb = TraceAnalyzer(
+                self.trace_analyzer_pmodb.description['ip'],
+                'PYNQZ1_PMODB_SPECIFICATION')
+            self.trace_arduino = TraceAnalyzer(
+                self.trace_analyzer_arduino.description['ip'],
+                'PYNQZ1_ARDUINO_SPECIFICATION')
