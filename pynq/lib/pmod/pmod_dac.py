@@ -59,7 +59,7 @@ class Pmod_DAC(object):
         Note
         ----
         The floating point number to be written should be in the range 
-        of [0.00, 2.00]. 
+        of [0.00, 2.50]. 
         
         Parameters
         ----------
@@ -77,8 +77,7 @@ class Pmod_DAC(object):
 
         Note
         ----
-        User is not allowed to use a number outside of the range [0.00, 2.00] 
-        as the input value.
+        Input value must be in the range [0.00, 2.50] 
 
         Parameters
         ----------
@@ -90,10 +89,10 @@ class Pmod_DAC(object):
         None
 
         """
-        if not 0.00 <= value <= 2:
-            raise ValueError("Requested value not in range [0.00, 2.00].")
+        if not 0.00 <= value <= 2.5:
+            raise ValueError("Requested value not in range [0.00, 2.50].")
 
         # Calculate the voltage value and write to DAC
-        int_val = int(value / 0.000610351)
+        int_val = int(value / 0.0006105)
         cmd = (int_val << 20) | FIXEDGEN
         self.microblaze.write_blocking_command(cmd)

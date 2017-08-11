@@ -11,6 +11,20 @@ connects the inputs and outputs from the hardware blocks to external IO
 pins. The logictools overlay can also has a trace analyzer to capture data from
 the IO interface for analysis and debug.
 
+The logictools library is a collection of three generators: The Boolean
+Generator, which creates combination boolean functions that read input pins and
+drive output pins; The Pattern Generator which drives digital patterns on the
+output pins, and the Finite State Machine (FSM) Generator that creates
+sequential logic that reads inputs pins and drives output pins.
+
+Along with the three generators, we provide a Trace Analyzer which can be used
+to capture input pins and output pins - either driven by external wires or by
+the three generators provided in the same package.
+
+The FSM, Boolean, and Pattern generators operate in a similar way, and will be
+conisdered together. The Trace Analyzer will be considered seperately.
+
+
 PYNQ-Z1 Block Diagram
 ---------------------
 
@@ -23,7 +37,6 @@ The PYNQ-Z1 Logictools overlay includes four main hardware blocks:
 * FSM Generator
 * Boolean Generator
 * Trace Analyzer
-
 
 Pattern Generator
 -----------------
@@ -40,8 +53,10 @@ external IO pins.
 
 Boolean Generator
 -----------------
-The *Boolean Generator* can create independent combinatorial Boolean logic functions. The
-external IO pins are used as inputs and outputs to the Boolean functions.
+
+The *Boolean Generator* can create independent combinatorial Boolean logic
+functions. The external IO pins are used as inputs and outputs to the Boolean
+functions.
 
 Trace Analyzer
 --------------
@@ -57,34 +72,31 @@ states to verify or debug a design.
 Python API
 ----------
 
-The API for the logictools generators and trace analyzer can be found in the PYNQ libraries section. 
-
+The API for the logictools generators and trace analyzer can be found in the
+PYNQ libraries section.
 
 Rebuilding the Overlay
------------------------
+----------------------
 
 The project files for the logictools overlay can be found here:
 
 .. code-block:: console
 
-   ``<GitHub Repository>/boards/<board>/logictools``
+   <GitHub Repository>/boards/<board>/logictools
 
 To rebuild the logictools overlay run *make* in the directory above. 
 
 
-Logictools IP and  project files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Logictools IP and Project Files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All source code for the hardware blocks is provided. Each block can also be reused standalone in a custom overlay. 
+All source code for the hardware blocks is provided. Each block can also be
+reused standalone in a custom overlay.
 
-The source files for the logictools IP can be found in the same location as the other PYNQ IP:
+The source files for the logictools IP can be found in the same location as the
+other PYNQ IP:
 
 .. code-block:: console
 
-   ``<GitHub Repository>/boards/ip``
+   <GitHub Repository>/boards/ip
 
-   
-
-
-
-   
