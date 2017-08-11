@@ -1,6 +1,9 @@
 Logictools Overlay
 ==================
 
+Introduction
+---------------------
+
 The *logictools* overlay consists of programmable hardware blocks to connect to
 external digital logic circuits. Finite state machines, Boolean logic functions
 and digital patterns can be generated from Python. A programmable switch
@@ -35,7 +38,6 @@ The PYNQ-Z1 Logictools overlay includes four main hardware blocks:
 * Boolean Generator
 * Trace Analyzer
 
-
 Pattern Generator
 -----------------
 
@@ -51,6 +53,7 @@ external IO pins.
 
 Boolean Generator
 -----------------
+
 The *Boolean Generator* can create independent combinatorial Boolean logic
 functions. The external IO pins are used as inputs and outputs to the Boolean
 functions.
@@ -68,9 +71,9 @@ states to verify or debug a design.
 
 Python API
 ----------
+
 The API for the logictools generators and trace analyzer can be found in the
 PYNQ libraries section.
-
 
 Rebuilding the Overlay
 ----------------------
@@ -79,7 +82,7 @@ The project files for the logictools overlay can be found here:
 
 .. code-block:: console
 
-   ``<GitHub Repository>/boards/<board>/logictools``
+   <GitHub Repository>/boards/<board>/logictools
 
 To rebuild the logictools overlay run *make* in the directory above. 
 
@@ -95,5 +98,5 @@ other PYNQ IP:
 
 .. code-block:: console
 
-   ``<GitHub Repository>/boards/ip``
+   <GitHub Repository>/boards/ip
 

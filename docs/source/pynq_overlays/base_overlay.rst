@@ -80,7 +80,8 @@ HDMI devices at this resolution may work.
 Data can be streamed from the PS DRAM to the HDMI output. The HDMI Out
 controller contains framebuffers to allow for smooth display of video data.
 
-See the *PYNQ Z1 base overlay video notebook* which can be found in the getting started
+See the *PYNQ Z1 base overlay video notebook* which can be found in the getting 
+started
 directory on the board.
 
 Mic In 
@@ -90,7 +91,8 @@ The PYNQ-Z1 board has an integrated mic on the board and is connected directly
 to the Zynq PL pins, and does not have an external audio codec. The Mic
 generates audio data in PDM format.
 
-For more information see the `Digilent MIC in reference for the PYNQ-Z1 board
+For more information on the audio hardware, see the `Digilent MIC in reference 
+for the PYNQ-Z1 board
 <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#microphone>`_
 
 Audio Out
@@ -102,7 +104,8 @@ audio output is PWM driven mono.
 See the *pynq-z1_base_overlay_audio.ipynb* notebook in the *getting started*
 directory for examples of using the audio.
 
-For more information see the `Digilent Audio Out reference for the PYNQ-Z1 board <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output>`_
+For more information on the audio hardware, see the `Digilent Audio Out 
+reference for the PYNQ-Z1 board <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output>`_
 
 User IO
 -------

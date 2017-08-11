@@ -85,7 +85,5 @@ Block Diagram
 Examples
 --------
 
-Need Examples...
-
-Deprecated
-----------
+For Pmod examples, on the board, see the base/Pmod directory in the Jupyter home
+ area. 
