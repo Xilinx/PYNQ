@@ -82,7 +82,7 @@ programmability. For example, an IOP can be used on Pmod, and Arduino
 interfaces. IP from the PYNQ DIO overlay can be reused to provide run-time
 configurability.
 
-See the previous section on `PYNQ IP <../pynq_ip_index.html>`_
+See the section :ref:`pynq-libraries`
 
 Zynq PS Settings
 ----------------
