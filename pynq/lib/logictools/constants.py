@@ -163,6 +163,147 @@ PYNQZ1_LOGICTOOLS_SPECIFICATION = {'clock_mhz': 10,
                                                              'LD3': 23
                                                              }
                                    }
+TRACE_ANALYZER_PMODA = {'axi_dma_0': {'addr_range': 65536,
+                                      'phys_addr': 0x80400000},
+                        'trace_cntrl_0': {'addr_range': 65536,
+                                          'phys_addr': 0x83C10000}}
+PYNQZ1_PMODA_SPECIFICATION = {'clock_mhz': 10,
+                              'interface_width': 8,
+                              'monitor_width': 64,
+                              'traceable_outputs': {'D0': 0,
+                                                    'D1': 1,
+                                                    'D2': 2,
+                                                    'D3': 3,
+                                                    'D4': 4,
+                                                    'D5': 5,
+                                                    'D6': 6,
+                                                    'D7': 7
+                                                    },
+                              'traceable_inputs': {'D0': 8,
+                                                   'D1': 9,
+                                                   'D2': 10,
+                                                   'D3': 11,
+                                                   'D4': 12,
+                                                   'D5': 13,
+                                                   'D6': 14,
+                                                   'D7': 15
+                                                   },
+                              'traceable_tri_states': {'D0': 16,
+                                                       'D1': 17,
+                                                       'D2': 18,
+                                                       'D3': 19,
+                                                       'D4': 20,
+                                                       'D5': 21,
+                                                       'D6': 22,
+                                                       'D7': 23
+                                                       }
+                              }
+TRACE_ANALYZER_PMODB = {'axi_dma_0': {'addr_range': 65536,
+                                      'phys_addr': 0x80420000},
+                        'trace_cntrl_0': {'addr_range': 65536,
+                                          'phys_addr': 0x83C20000}}
+PYNQZ1_PMODB_SPECIFICATION = {'clock_mhz': 10,
+                              'interface_width': 8,
+                              'monitor_width': 64,
+                              'traceable_outputs': {'D0': 0,
+                                                    'D1': 1,
+                                                    'D2': 2,
+                                                    'D3': 3,
+                                                    'D4': 4,
+                                                    'D5': 5,
+                                                    'D6': 6,
+                                                    'D7': 7
+                                                    },
+                              'traceable_inputs': {'D0': 8,
+                                                   'D1': 9,
+                                                   'D2': 10,
+                                                   'D3': 11,
+                                                   'D4': 12,
+                                                   'D5': 13,
+                                                   'D6': 14,
+                                                   'D7': 15
+                                                   },
+                              'traceable_tri_states': {'D0': 16,
+                                                       'D1': 17,
+                                                       'D2': 18,
+                                                       'D3': 19,
+                                                       'D4': 20,
+                                                       'D5': 21,
+                                                       'D6': 22,
+                                                       'D7': 23
+                                                       }
+                              }
+TRACE_ANALYZER_ARDUINO = {'axi_dma_0':  {'addr_range': 65536,
+                                         'phys_addr': 0x80410000},
+                          'trace_cntrl_0': {'addr_range': 65536,
+                                            'phys_addr': 0x83C00000}}
+PYNQZ1_ARDUINO_SPECIFICATION = {'clock_mhz': 10,
+                                'interface_width': 20,
+                                'monitor_width': 64,
+                                'traceable_outputs': {'A0': 0,
+                                                      'A1': 1,
+                                                      'A2': 2,
+                                                      'A3': 3,
+                                                      'A4': 4,
+                                                      'A5': 5,
+                                                      'D0': 6,
+                                                      'D1': 7,
+                                                      'D2': 8,
+                                                      'D3': 9,
+                                                      'D4': 10,
+                                                      'D5': 11,
+                                                      'D6': 12,
+                                                      'D7': 13,
+                                                      'D8': 14,
+                                                      'D9': 15,
+                                                      'D10': 16,
+                                                      'D11': 17,
+                                                      'D12': 18,
+                                                      'D13': 19
+                                                      },
+                                'traceable_inputs': {'A0': 20,
+                                                     'A1': 21,
+                                                     'A2': 22,
+                                                     'A3': 23,
+                                                     'A4': 24,
+                                                     'A5': 25,
+                                                     'D0': 26,
+                                                     'D1': 27,
+                                                     'D2': 28,
+                                                     'D3': 29,
+                                                     'D4': 30,
+                                                     'D5': 31,
+                                                     'D6': 32,
+                                                     'D7': 33,
+                                                     'D8': 34,
+                                                     'D9': 35,
+                                                     'D10': 36,
+                                                     'D11': 37,
+                                                     'D12': 38,
+                                                     'D13': 39,
+                                                     },
+                                'traceable_tri_states': {'A0': 42,
+                                                         'A1': 43,
+                                                         'A2': 44,
+                                                         'A3': 45,
+                                                         'A4': 46,
+                                                         'A5': 47,
+                                                         'D0': 48,
+                                                         'D1': 49,
+                                                         'D2': 50,
+                                                         'D3': 51,
+                                                         'D4': 52,
+                                                         'D5': 53,
+                                                         'D6': 54,
+                                                         'D7': 55,
+                                                         'D8': 56,
+                                                         'D9': 57,
+                                                         'D10': 58,
+                                                         'D11': 59,
+                                                         'D12': 60,
+                                                         'D13': 61
+                                                         }
+                                }
 
 # FSM generator constants
 FSM_BRAM_ADDR_WIDTH = 13
@@ -188,6 +329,10 @@ DEFAULT_NUM_TRACE_SAMPLES = 128
 DEFAULT_CLOCK_FREQUENCY_MHZ = 10
 MIN_CLOCK_FREQUENCY_MHZ = 0.252
 MAX_CLOCK_FREQUENCY_MHZ = 100
+TRACE_CNTRL_ADDR_AP_CTRL = 0x00
+TRACE_CNTRL_DATA_COMPARE_LSW = 0x10
+TRACE_CNTRL_DATA_COMPARE_MSW = 0x14
+TRACE_CNTRL_LENGTH = 0x1C
 
 # CData Width to Type Conversion
 BYTE_WIDTH_TO_CTYPE = {4: "unsigned int",
