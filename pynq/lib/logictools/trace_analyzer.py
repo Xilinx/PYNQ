@@ -427,7 +427,7 @@ class _PSTraceAnalyzer:
         ----------
         ip_info : dict
             The dictionary containing the IP associated with the analyzer.
-        intf_spec_name : str
+        intf_spec_name : str/dict
             The name of the interface specification.
 
         """
@@ -436,7 +436,14 @@ class _PSTraceAnalyzer:
         self.trace_control = MMIO(trace_cntrl_info['phys_addr'],
                                   trace_cntrl_info['addr_range'])
         self.dma = DMA(trace_dma_info)
-        self.intf_spec = eval(intf_spec_name)
+
+        if type(intf_spec_name) is str:
+            self.intf_spec = eval(intf_spec_name)
+        elif type(intf_spec_name) is dict:
+            self.intf_spec = intf_spec_name
+        else:
+            raise ValueError("Interface specification has to be str or dict.")
+
         self.num_analyzer_samples = 0
         self.samples = None
         self._cma_array = None

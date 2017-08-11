@@ -32,6 +32,7 @@ import pynq
 import pynq.lib
 import pynq.lib.video
 import pynq.lib.audio
+from .constants import *
 from pynq.lib.logictools import TraceAnalyzer
 
 
@@ -101,10 +102,10 @@ class BaseOverlay(pynq.Overlay):
 
             self.trace_pmoda = TraceAnalyzer(
                 self.trace_analyzer_pmoda.description['ip'],
-                'PYNQZ1_PMODA_SPECIFICATION')
+                PYNQZ1_PMODA_SPECIFICATION)
             self.trace_pmodb = TraceAnalyzer(
                 self.trace_analyzer_pmodb.description['ip'],
-                'PYNQZ1_PMODB_SPECIFICATION')
+                PYNQZ1_PMODB_SPECIFICATION)
             self.trace_arduino = TraceAnalyzer(
                 self.trace_analyzer_arduino.description['ip'],
-                'PYNQZ1_ARDUINO_SPECIFICATION')
+                PYNQZ1_ARDUINO_SPECIFICATION)
