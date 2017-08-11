@@ -86,8 +86,7 @@ LOGICTOOLS_MICROBLAZE_BIN = "logictools_controller.bin"
 # PYNQ-Z1 specification
 ARDUINO = {'ip_name': 'lcp/mb_bram_ctrl',
            'rst_name': 'mb_lcp_reset'}
-PYNQZ1_LOGICTOOLS_SPECIFICATION = {'clock_mhz': 10,
-                                   'interface_width': 20,
+PYNQZ1_LOGICTOOLS_SPECIFICATION = {'interface_width': 20,
                                    'monitor_width': 64,
                                    'traceable_outputs': {'D0': 0,
                                                          'D1': 1,
@@ -163,8 +162,7 @@ PYNQZ1_LOGICTOOLS_SPECIFICATION = {'clock_mhz': 10,
                                                              'LD3': 23
                                                              }
                                    }
-PYNQZ1_PMODA_SPECIFICATION = {'clock_mhz': 10,
-                              'interface_width': 8,
+PYNQZ1_PMODA_SPECIFICATION = {'interface_width': 8,
                               'monitor_width': 64,
                               'traceable_outputs': {'D0': 0,
                                                     'D1': 1,
@@ -194,8 +192,7 @@ PYNQZ1_PMODA_SPECIFICATION = {'clock_mhz': 10,
                                                        'D7': 23
                                                        }
                               }
-PYNQZ1_PMODB_SPECIFICATION = {'clock_mhz': 10,
-                              'interface_width': 8,
+PYNQZ1_PMODB_SPECIFICATION = {'interface_width': 8,
                               'monitor_width': 64,
                               'traceable_outputs': {'D0': 0,
                                                     'D1': 1,
@@ -225,8 +222,7 @@ PYNQZ1_PMODB_SPECIFICATION = {'clock_mhz': 10,
                                                        'D7': 23
                                                        }
                               }
-PYNQZ1_ARDUINO_SPECIFICATION = {'clock_mhz': 10,
-                                'interface_width': 20,
+PYNQZ1_ARDUINO_SPECIFICATION = {'interface_width': 20,
                                 'monitor_width': 64,
                                 'traceable_outputs': {'A0': 0,
                                                       'A1': 1,
