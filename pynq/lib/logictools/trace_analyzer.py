@@ -166,7 +166,7 @@ class _MBTraceAnalyzer:
 
     def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
               frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
-              fclk_name='fclk1_mhz'):
+              fclk_index=1):
         """Configure the trace analyzer.
         
         This method prepares the trace analyzer by sending configuration 
@@ -190,8 +190,8 @@ class _MBTraceAnalyzer:
             The number of samples to be analyzed.
         frequency_mhz: float
             The frequency of the captured samples, in MHz.
-        fclk_name : str
-            The name of the fclk controlled by clock management object.
+        fclk_index : int
+            The index of the fclk controlled by clock management object.
 
         """
         if not 1 <= num_analyzer_samples <= MAX_NUM_TRACE_SAMPLES:
@@ -204,7 +204,8 @@ class _MBTraceAnalyzer:
             raise ValueError("Clock frequency out of range "
                              "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ,
                                                MAX_CLOCK_FREQUENCY_MHZ))
-        setattr(self.logictools_controller.clk, fclk_name, frequency_mhz)
+        setattr(self.logictools_controller.clk,
+                "fclk{}_mhz".format(fclk_index), frequency_mhz)
         self.frequency_mhz = frequency_mhz
 
         trace_bit_width = self.intf_spec['monitor_width']
@@ -473,7 +474,7 @@ class _PSTraceAnalyzer:
 
     def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
               frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
-              fclk_name='fclk3_mhz'):
+              fclk_index=3):
         """Configure the trace analyzer.
 
         This method prepares the trace analyzer by sending configuration 
@@ -497,8 +498,8 @@ class _PSTraceAnalyzer:
             The number of samples to be analyzed.
         frequency_mhz: float
             The frequency of the captured samples, in MHz.
-        fclk_name : str
-            The name of the fclk controlled by clock management object.
+        fclk_index : int
+            The index of the fclk controlled by clock management object.
 
         """
         if not 1 <= num_analyzer_samples <= MAX_NUM_TRACE_SAMPLES:
@@ -511,7 +512,8 @@ class _PSTraceAnalyzer:
             raise ValueError("Clock frequency out of range "
                              "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ,
                                                MAX_CLOCK_FREQUENCY_MHZ))
-        setattr(self.clk, fclk_name, frequency_mhz)
+        setattr(self.clk,
+                "fclk{}_mhz".format(fclk_index), frequency_mhz)
         self.frequency_mhz = frequency_mhz
 
         trace_bit_width = self.intf_spec['monitor_width']
