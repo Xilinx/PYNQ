@@ -27,9 +27,9 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Anurag Dubey"
-__copyright__   = "Copyright 2016, Xilinx"
-__email__       = "pynq_support@xilinx.com"
+__author__ = "Anurag Dubey"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
 import os
 import signal
@@ -42,11 +42,13 @@ import warnings
 import numpy as np
 from .ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 
+
 def sig_handler(signum, frame):
     print("Invalid Memory Access!")
     Xlnk().xlnk_reset()
     sys.exit(127)
 signal.signal(signal.SIGSEGV, sig_handler)
+
 
 class ContiguousArray(np.ndarray):
     """A subclass of numpy.ndarray which is allocated using
@@ -97,6 +99,7 @@ class ContiguousArray(np.ndarray):
     def __exit__(self, exc_type, exc_value, traceback):
         self.freebuffer()
         return 0
+
 
 class Xlnk:
     """Class to enable CMA memory management.
@@ -298,8 +301,7 @@ class Xlnk:
         view.pointer = buffer_pointer
         view.physical_address = self.cma_get_phy_addr(view.pointer)
         return view
-        
-        
+
     def cma_get_phy_addr(self, buf_ptr):
         """Get the physical address of a buffer.
         
@@ -345,7 +347,7 @@ class Xlnk:
         self.ffi.memmove(dest, src, nbytes)
     
     @staticmethod
-    def cma_cast(data, data_type = "void"):
+    def cma_cast(data, data_type="void"):
         """Cast underlying buffer to a specific C-Type.
     
         Input buffer should be a valid object which was allocated through 

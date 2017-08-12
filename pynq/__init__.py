@@ -27,10 +27,6 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
-
 from .gpio import GPIO
 from .mmio import MMIO
 from .ps import Register
@@ -45,7 +41,11 @@ from .xlnk import Xlnk
 from .overlay import Overlay
 from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
-
 from . import lib
+
+
+__author__ = "Yun Rock Qu"
+__copyright__ = "Copyright 2016, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
 __all__ = ['lib', 'tests']
