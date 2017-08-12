@@ -138,7 +138,7 @@ def _build_docstring(description, name, type_):
     str : The generated documentation string
 
     """
-    lines = []
+    lines = list()
     lines.append("Default documentation for {} {}. The following"
                  .format(type_, name))
     lines.append("attributes are available on this {}:".format(type_))
@@ -187,15 +187,15 @@ def _build_docstring(description, name, type_):
 
 class DocumentOverlay(type):
     def __call__(cls, bitfile, *args, **kwargs):
-       if Bitstream in cls.__bases__:
-           newcls = type(cls.__name__, cls.__bases__, dict(cls.__dict__))
-           obj = newcls.__call__(bitfile, *args, **kwargs)
-           newcls.__doc__ = _build_docstring(obj._ip_map._description,
-                                             bitfile,
-                                             "overlay")
-           return obj
-       else:
-           return super().__call__(bitfile, *args, **kwargs)
+        if Bitstream in cls.__bases__:
+            newcls = type(cls.__name__, cls.__bases__, dict(cls.__dict__))
+            obj = newcls.__call__(bitfile, *args, **kwargs)
+            newcls.__doc__ = _build_docstring(obj._ip_map._description,
+                                              bitfile,
+                                              "overlay")
+            return obj
+        else:
+            return super().__call__(bitfile, *args, **kwargs)
 
 
 class Overlay(Bitstream, metaclass=DocumentOverlay):
@@ -555,8 +555,6 @@ class _IPMap:
         return sorted(set(super().__dir__() +
                           list(self.__dict__.keys()) +
                           self._keys()))
-
-
 
 
 def DocumentOverlay(bitfile, download):
