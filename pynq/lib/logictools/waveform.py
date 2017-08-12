@@ -832,6 +832,9 @@ class Waveform:
         This method will clear the wave stored in each wavelane, so that 
         a brand-new waveform dict can be constructed.
 
+        Annotation is assumed to have an empty name, so the entire annotation
+        lane will get deleted in this method.
+
         Parameters
         ----------
         group_name : str
@@ -844,3 +847,28 @@ class Waveform:
                     if type(wavelane) is dict and 'wave' in wavelane:
                         self.waveform_dict[
                             'signal'][index][lane_index]['wave'] = ''
+                    if not wavelane['name']:
+                        del self.waveform_dict['signal'][index][lane_index]
+
+    def annotate(self, group_name, wavelane_group):
+        """Add annotation to the existing waveform dictionary.
+
+        This method will add annotation wavelane into the specified group.
+        Usually this is used in combination with the trace analyzer.
+
+        The annotation usually has the following format:
+        [{name: '', 
+          wave: 'x.444x4.x', 
+          data: ['read', 'write', 'read', 'data']}]
+
+        Parameters
+        ----------
+        group_name : str
+            The name of the WaveLane group to be updated.
+        wavelane_group : list
+            The WaveLane group specified for updating.
+
+        """
+        for index, group in enumerate(self.waveform_dict['signal']):
+            if group and (group[0] == group_name):
+                self.waveform_dict['signal'][index].append(wavelane_group)

@@ -86,8 +86,7 @@ LOGICTOOLS_MICROBLAZE_BIN = "logictools_controller.bin"
 # PYNQ-Z1 specification
 ARDUINO = {'ip_name': 'lcp/mb_bram_ctrl',
            'rst_name': 'mb_lcp_reset'}
-PYNQZ1_LOGICTOOLS_SPECIFICATION = {'clock_mhz': 10,
-                                   'interface_width': 20,
+PYNQZ1_LOGICTOOLS_SPECIFICATION = {'interface_width': 20,
                                    'monitor_width': 64,
                                    'traceable_outputs': {'D0': 0,
                                                          'D1': 1,
@@ -188,6 +187,10 @@ DEFAULT_NUM_TRACE_SAMPLES = 128
 DEFAULT_CLOCK_FREQUENCY_MHZ = 10
 MIN_CLOCK_FREQUENCY_MHZ = 0.252
 MAX_CLOCK_FREQUENCY_MHZ = 100
+TRACE_CNTRL_ADDR_AP_CTRL = 0x00
+TRACE_CNTRL_DATA_COMPARE_LSW = 0x10
+TRACE_CNTRL_DATA_COMPARE_MSW = 0x14
+TRACE_CNTRL_LENGTH = 0x1C
 
 # CData Width to Type Conversion
 BYTE_WIDTH_TO_CTYPE = {4: "unsigned int",
