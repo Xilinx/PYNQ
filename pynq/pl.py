@@ -139,8 +139,8 @@ class _TCL:
 
         Note
         ----
-        If this method is called on an unsupported architecture it will warn and
-        return without initialization
+        If this method is called on an unsupported architecture it will warn 
+        and return without initialization
 
         """
         
@@ -406,7 +406,7 @@ class _TCL:
 
     def _assign_interrupts_gpio(self):
         for interrupt, val in self.interrupt_pins.items():
-            block, _ , pin = interrupt.rpartition('/')
+            block, _, pin = interrupt.rpartition('/')
             if block in self.ip_dict:
                 self.ip_dict[block]['interrupts'][pin] = val
             if block in self.hierarchy_dict:
@@ -435,12 +435,12 @@ class _TCL:
         for name, val in self.ip_dict.items():
             hier, _, ip = name.rpartition('/')
             if hier:
-               self.hierarchy_dict[hier]['ip'][ip] = val
+                self.hierarchy_dict[hier]['ip'][ip] = val
 
         for name, val in self.hierarchy_dict.items():
             hier, _, subhier = name.rpartition('/')
             if hier:
-               self.hierarchy_dict[hier]['hierarchies'][subhier] = val
+                self.hierarchy_dict[hier]['hierarchies'][subhier] = val
 
 
 class PLMeta(type):
@@ -471,8 +471,8 @@ class PLMeta(type):
         _remote = None
     else:
         warnings.warn("Pynq does not support the CPU Architecture: {}"
-                     .format(CPU_ARCH), ResourceWarning)
-    
+                      .format(CPU_ARCH), ResourceWarning)
+
     @property
     def bitfile_name(cls):
         """The getter for the attribute `bitfile_name`.
@@ -819,6 +819,7 @@ def _stop_server():
     except:
         pass
 
+
 def _start_server():
     """Entry point for the start_pl_server.py script
 
@@ -828,7 +829,7 @@ def _start_server():
 
     """
     if os.path.exists(PL_SERVER_FILE):
-       os.remove(PL_SERVER_FILE)
+        os.remove(PL_SERVER_FILE)
     PL.setup()
 
 
