@@ -143,7 +143,7 @@ Examples
 ------------------
 
 For more examples, see the `PYNQ video notebooks on GitHub
-<https://github.com/Xilinx/PYNQ/tree/image_v1.5/boards/Pynq-Z1/base/notebooks/video>`_
+<https://github.com/Xilinx/PYNQ/tree/v2.0/boards/Pynq-Z1/base/notebooks/video>`_
 or on the board in the following directory:
 
    .. code-block:: console
