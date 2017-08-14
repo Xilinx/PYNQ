@@ -12,7 +12,7 @@
  #prepend domain-name-servers 127.0.0.1;
  request subnet-mask, broadcast-address, time-offset, routers,
  	domain-name, domain-name-servers, domain-search, host-name,
-@@ -26,31 +23,13 @@
+@@ -26,31 +23,10 @@
  	rfc3442-classless-static-routes, ntp-servers,
  	dhcp6.fqdn, dhcp6.sntp-servers;
  #require subnet-mask, domain-name-servers;
@@ -49,6 +49,3 @@
 -#  rebind 2 2000/1/12 00:00:01;
 -#  expire 2 2000/1/12 00:00:01;
 -#}
-+alias {   interface "eth0";
-+fixed-address 192.168.2.99;
-+option subnet-mask 255.255.255.0; }

@@ -33,4 +33,11 @@ EOF
 partx -u ${TGTPART}
 resize2fs ${TGTPART}
 echo "RESIZED=1" | tee -a /etc/environment
+echo "Adding Swap"
+
+fallocate -l 1G /var/swap
+mkswap /var/swap
+echo "/var/swap none swap sw 0 0" >> /etc/fstab
+swapon /var/swap
+
 echo "Done!"

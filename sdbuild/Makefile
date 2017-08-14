@@ -136,7 +136,7 @@ else
 endif
 
 clean: checkenv
-	-chmod u+w -R .build/gcc_mb
+	-chmod u+w -R .build/gcc-mb
 	-rm -rf .build rootfs.img
 
 distclean: clean
