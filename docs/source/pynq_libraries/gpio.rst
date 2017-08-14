@@ -1,41 +1,49 @@
 GPIO: LEDs, Buttons and Switches
 ================================
 
-Zynq boards usually include basic onboard peripherals including buttons,
-switches, and LEDs. These peripherals are usually connected to the Zynq PL and
-controlled using an AXI GPIO controller in an overlay. It is also possible to
-build an overlay which connects these peripherals to the Zynq PS GPIO
-controller.
+The AXI GPIO controller can be used in an overlay to connect to external LEDs, 
+buttons, switches, or to connect directly to external IO. 
 
-The GPIO IO are bidirectional pins, capable of reading input or writing
-outputs. Reading or writing the GPIO will automatically set a direction.
+PYNQ provides an ``AxiGPIO`` class to control GPIO that includes ``read()`` and 
+``write()`` methods. ``read()`` returns the current value from the GPIO, and 
+``write(val)`` writes a *value*. 
 
 There are also methods to explicitly ``setdirection()``, to set the direction of
-the channel (input/output), ``setlength()`` set the number of wires connected to
-the channel, and a ``wait_for_interrupt_async()``. See the Asyncio section for
-details on the *_async()* method.
+the channel (input/output), ``setlength()``, to set the number of wires 
+connected to the channel, and a ``wait_for_interrupt_async()`` to support 
+interrupts on GPIO using Asyncio. See the Asyncio section for details on the 
+*_async()* method.
 
-Block Diagram
--------------
+The ``AxiGPIO`` class is automatically assigned to AXI GPIO instances discovered
+in an overlay. This allows an AXI GPIO object to be used immediately without 
+needing to import the AxiGPIO class, or set up each object before it can be 
+used.
+
+The ``AxiGPIO`` class should not be used direcly in Python, but can be used as a
+ready made API when creating custom overlays with AXI GPIO controllers.
+
+See help(AxiGPIO) for more information. 
 
 Examples
 --------
 
-PYNQ provides an ``AxiGPIO`` class to control GPIO. It provides ``read()`` and ``write()`` methods. 
-
-``read()`` returns the current value from the GPIO
-
-``write(val, mask)`` writes a *value*. *mask* can be used to mask of bits of the channel. 
- 
-For example:
+In the base overlay for the Pynq-Z1, three *AxiGPIO* instances are available:
 
 .. code-block:: console
 
-   AxiGPIO.write(0x3, 0xf)  # Set the two lower bits to ones and the upper bits to zeros. 
-   AxiGPIO.write(0x3, 0x3)  # Set the two lower bits to ones and leaves remaining bits unchanged
+   btns_gpio            : pynq.lib.axigpio.AxiGPIO
+   rgbleds_gpio         : pynq.lib.axigpio.AxiGPIO
+   swsleds_gpio         : pynq.lib.axigpio.AxiGPIO
 
-All GPIO can be accessed using this class, or this class can be extended to
-write a custom class for a GPIO device.
+After the overlay is loaded, the ``AxiGPIO`` class is already available and can 
+be used directly from each *AxiGPIO* object. 
 
-For example the PYNQ-Z1 base overlay has AXI GPIO connected to the LEDs, push
-buttons, dip switches and multi-color LEDs. These peripherals extend the
+.. code-block:: Python
+
+   from pynq import Overlay
+   base = Overlay("base.bit")
+   
+   base.btns_gpio.read()
+   
+   base.rgbleds_gpio.write(0x3)  
+   

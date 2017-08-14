@@ -7,8 +7,8 @@ Frequently Asked Questions (FAQs)
 Troubleshooting
 ===============
 
-I can't connect to my board!
-----------------------------
+I can't connect to my board
+---------------------------
   
 1. Check the board is powered on (Red LED LD13) and that the bitstream has been
    loaded (Green "DONE" LED LD12)
@@ -50,16 +50,16 @@ or
    * If you are using a docking station, when your laptop is docked, the
      Ethernet port on the PC may be disabled.
    
-My board is not powering on (No Red LED)!
------------------------------------------
+My board is not powering on (No Red LED)
+----------------------------------------
 
 The board can be powered by USB cable, or power adapter (7 - 15V V 2.1mm
 centre-positive barrel jack). Make sure Jumper JP5 is set to USB or REG (for
 power adapter). If powering the board via USB, make sure the USB port is fully
 powered. Laptops in low power mode may reduce the available power to a USB port.
 
-The bitstream is not loading (No Green LED)!
---------------------------------------------
+The bitstream is not loading (No Green LED)
+-------------------------------------------
 
 * Check the Micro-SD card is inserted correctly (the socket is spring loaded, so
   push it in until you feel it click into place).
@@ -69,8 +69,8 @@ The bitstream is not loading (No Green LED)!
 If the Linux boot does not start, or fails, you may need to flash the Micro SD
 card with the PYNQ-Z1 image.
 
-The hostname of the board is not resolving/not found!
------------------------------------------------------
+The hostname of the board is not resolving/not found
+----------------------------------------------------
 
 It may take the hostname (pynq) some time to resolve on your network. If you
 know the IP address of the board, it may be faster to use the IP address to
@@ -87,8 +87,8 @@ connecting a terminal to the board. You can run `ifconfig` in the Linux shell on
 the board to check the network settings. Check the settings for *eth0* and look
 for an IP address.
 
-I don't have an Ethernet port on my PC/Laptop!
-----------------------------------------------
+I don't have an Ethernet port on my PC/Laptop
+---------------------------------------------
 
 If you don't have an Ethernet port, you can get a USB to Ethernet adapter.
 

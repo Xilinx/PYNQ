@@ -24,5 +24,5 @@ See the `PYNQ audio notebook on GitHub <https://github.com/Xilinx/PYNQ/blob/v1.5
 
    .. code-block:: console
 
-      base\audio\audio_playback.ipynb
+      <Jupyter Home>\base\audio\audio_playback.ipynb
 

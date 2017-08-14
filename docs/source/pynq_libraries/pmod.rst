@@ -4,7 +4,7 @@ PMOD
 A Pmod port is an open 12-pin interface that is supported by a range of Pmod
 peripherals from Digilent and third party manufacturers.  Typical Pmod
 peripherals include sensors (voltage, light, temperature), communication
-interfaces (Ethernet, serial, WiFi, bluetooth), and input and output interfaces
+interfaces (Ethernet, serial, WiFi, Bluetooth), and input and output interfaces
 (buttons, switches, LEDs).
 
 .. image:: ../images/pmod.png
@@ -82,8 +82,19 @@ Block Diagram
 .. image:: ../images/pmod_iop.jpg
    :align: center
 
+IOP drivers are provided for the following Pmods:
+
+* Pmod ADC (AD2)
+* Pmod Ambient Light Sensor
+* Pmod DAC (DA4)
+* Pmod Digital Potentiometer
+* Pmod OLED
+* Pmod PWM
+* Pmod Temperature sensor
+* Pmod TC1 Thermocouple
+
 Examples
 --------
 
-For Pmod examples, on the board, see the base/Pmod directory in the Jupyter home
- area. 
+For Pmod examples, see the base/Pmod directory in the Jupyter home area on the 
+board.
