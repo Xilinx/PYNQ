@@ -148,7 +148,7 @@ or on the board in the following directory:
 
    .. code-block:: console
 
-      <Jupyter Home>base\video
+      <Jupyter Home>\base\video
 
 Initialization
 ^^^^^^^^^^^^^^
