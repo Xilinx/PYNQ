@@ -74,6 +74,17 @@ Block Diagram
 .. image:: ../images/arduino_iop.jpg
    :align: center
    
+The Arduino interface can be used to connect to Arduino shields. The PYNQ Shield
+ can also be used to connect multiple Grove peripherals to the Arduino shield. 
+
+ .. image:: ../images/arduino_shield.jpg
+   :align: center
+ 
 
 Examples
 --------
+
+An IOP driver is provided for the AdaFruit 1.8" LCD Shield. An example on 
+how to use it can be found in the base/Arduino directory in the Jupyter home 
+area on the board, along with an example on how to use the Analog pins, and an 
+example of using a Grove peripherals. 

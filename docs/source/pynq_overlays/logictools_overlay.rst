@@ -11,19 +11,6 @@ connects the inputs and outputs from the hardware blocks to external IO
 pins. The logictools overlay can also has a trace analyzer to capture data from
 the IO interface for analysis and debug.
 
-The logictools library is a collection of three generators: The Boolean
-Generator, which creates combination boolean functions that read input pins and
-drive output pins; The Pattern Generator which drives digital patterns on the
-output pins, and the Finite State Machine (FSM) Generator that creates
-sequential logic that reads inputs pins and drives output pins.
-
-Along with the three generators, we provide a Trace Analyzer which can be used
-to capture input pins and output pins - either driven by external wires or by
-the three generators provided in the same package.
-
-The FSM, Boolean, and Pattern generators operate in a similar way, and will be
-conisdered together. The Trace Analyzer will be considered seperately.
-
 
 PYNQ-Z1 Block Diagram
 ---------------------
@@ -38,15 +25,22 @@ The PYNQ-Z1 Logictools overlay includes four main hardware blocks:
 * Boolean Generator
 * Trace Analyzer
 
+Each block is configured using a textual description specified in Python. 
+No compilation of the configuration is required. This means a configuration can 
+be loaded directly to the generator and run immediately.
+
+
 Pattern Generator
 -----------------
 
-The *Pattern Generator* can be programmed to generate and stream digital
-patterns to the IO pins. This can be used as a stimulus to an external circuit.
+The *Pattern Generator* can be configured to generate and stream arbitrary 
+digital patterns to the external IO pins. The Pattern Generator can be used as a
+stimulus to test or control an external circuit.
 
 
 Finite State Machine (FSM) Generator
 ------------------------------------
+
 The *FSM Generator* can create a finite state machine from a Python
 description. The inputs and outputs and states of the FSM can be connected to
 external IO pins.
@@ -60,6 +54,7 @@ functions.
 
 Trace Analyzer
 --------------
+
 The *Trace Analyzer* can capture IO signals and stream the data to the PS DRAM
 for analysis in the Python environment. The Trace Analyzer can be used
 standalone to capture external IO signals, or used in combination with the other
@@ -78,14 +73,53 @@ PYNQ libraries section.
 Rebuilding the Overlay
 ----------------------
 
+The process to rebuild the logictools overlay is similar to the base overlay. 
+
 The project files for the logictools overlay can be found here:
 
 .. code-block:: console
 
    <GitHub Repository>/boards/<board>/logictools
 
-To rebuild the logictools overlay run *make* in the directory above. 
 
+Linux
+^^^^^
+To rebuild the overlay, source the Xilinx tools and run *make* in the overlay
+directory.
+
+Assuming PYNQ has been cloned to /home: 
+
+.. code-block:: console
+
+   cd /home/PYNQ/boards/Pynq-Z1/logictools
+   $ make 
+
+Windows
+^^^^^^^
+
+To rebuild from the Vivado GUI: open Vivado. 
+In the Vivado Tcl command line window change to the *logictools* directory, and 
+source the Tcl files as indicated below. 
+
+Assuming PYNQ has been cloned to c:/
+ 
+.. code-block:: console
+
+   cd c:/PYNQ/boards/Pynq-Z1/logictools
+   source ./build_logictools_ip.tcl
+   source ./logictools.tcl
+
+To build from the command line: open the Vivado 2016.1 Tcl Shell, and run the 
+following:
+
+.. code-block:: console
+
+   cd c:/PYNQ/boards/Pynq-Z1/logictools
+   vivado -mode batch -source build_logictools_ip.tcl
+   vivado -mode batch -source logictools.tcl
+   
+Note that you must change to the overlay directory, as the .tcl files has 
+relative paths that will break if sourced from a different location.
 
 Logictools IP and Project Files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -10,11 +10,11 @@ environment immediately after the system boots.
 Board peripherals typically include GPIO devices (LEDs, Switches, Buttons),
 Video, Audio, and other custom interfaces. 
 
-As the base overlay includes IP for the peripehrals on a board, it can also be
+As the base overlay includes IP for the peripherals on a board, it can also be
 used as a reference design for creating new customized overlays.
 
 In the case of general purpose interfaces, for example Pmod or Arduino headers,
-the base overlay may include a PYNQ IOP (Input/Output Porcessor). An IOP allows
+the base overlay may include a PYNQ IOP (Input/Output Processor). An IOP allows
 control of devices with different interfaces and protocols on the same port
 without requiring a change to the programmable logic design. See the PYNQ
 Libraries section for more information on IOPs.
@@ -74,7 +74,7 @@ The HDMI out IP supports the following resolutions:
     * 1280x1024
     * 1920x1080 (1080p)\*
 
-\*While the Pynq-Z1 cannot meet the offical HDMI specification for 1080p, some
+\*While the Pynq-Z1 cannot meet the official HDMI specification for 1080p, some
 HDMI devices at this resolution may work.
 
 Data can be streamed from the PS DRAM to the HDMI output. The HDMI Out
@@ -128,7 +128,7 @@ different overlay for each peripheral.
 There are two types of IOPs: Pmod, and Arduino.  The Pmod and Arduino ports,
 which the IOPs connect to, have a different number of pins and can support
 different sets of peripherals. Both types of IOP have a similar architecture,
-but have different IP configurations to support the different sets of peripehral
+but have different IP configurations to support the different sets of peripheral
 and interface pins.
 
 IOPs are covered in more detail in the next section. 
@@ -149,14 +149,50 @@ The project files for the overlays can be found here:
 
    <GitHub Repository>/boards/<board>/base
 
+A Makefile is provided to rebuild the base overlay in Linux. The Makefile calls 
+two tcl files. The first Tcl files compiles any HLS IP used in the design. The 
+second Tcl builds the overlay. 
+
+In Windows, the two Tcl files can be sourced in Vivado to rebuild the overlay. 
+
 Linux
 ^^^^^
-To rebuild an overlay source the Xilinx tools and run *make* in the overlay
+To rebuild the overlay, source the Xilinx tools and run *make* in the overlay 
 directory.
+
+Assuming PYNQ has been cloned to /home: 
+
+.. code-block:: console
+
+   cd /home/PYNQ/boards/Pynq-Z1/base
+   $ make 
 
 Windows
 ^^^^^^^
-Open Vivado, change to the overlay directory, and source the .tcl file. The .tcl
-can also be sourced from the Vivado Tcl shell. Note that you must change to the
-overlay directory, as the .tcl file has relative paths that will break if it is
-sourced from a different location.
+
+The Tcl files to rebuild the overlay can be sourced from the Vivado GUI, or from
+ the Vivado Tcl Shell (command line). 
+
+To rebuild from the Vivado GUI: open Vivado. 
+In the Vivado Tcl command line window change to the *base* directory, and source
+the Tcl files as indicated below. 
+
+Assuming PYNQ has been cloned to c:/
+ 
+.. code-block:: console
+
+   cd c:/PYNQ/boards/Pynq-Z1/base
+   source ./build_base_ip.tcl
+   source ./base.tcl
+
+To build from the command line: open the Vivado 2016.1 Tcl Shell, and run the 
+following:
+
+.. code-block:: console
+
+   cd c:/PYNQ/boards/Pynq-Z1/base
+   vivado -mode batch -source build_base_ip.tcl
+   vivado -mode batch -source base.tcl
+   
+Note that you must change to the overlay directory, as the .tcl files has 
+relative paths that will break if sourced from a different location.

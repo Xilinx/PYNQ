@@ -17,10 +17,24 @@ with pull-up resistors (IIC), as indicated in the image.
 
 .. image:: ../images/adapter_mapping.JPG
    :align: center
-	   
-Block Diagram
--------------
+
+IOP drivers are provided for the following Grove peripherals using the 
+PYNQ Grove adapter with a Pmod port:
+
+* Grove ADC
+* Grove Buzzer
+* Grove Color bar
+* Grove Color sensor
+* Grove Ear-clip heart rate sensor
+* Grove Haptic Motor
+* Grove IMU
+* Grove LED bar
+* Grove OLED
+* Grove Temperature and Humidity Sensor
 
 
 Examples
 --------
+
+Grove examples can be found in the base/Pmod directory in the Jupyter home area 
+on the board.
