@@ -1,60 +1,73 @@
 Logictools
 ==========
 
-It contains three generation libraries: The Boolean Generator, which creates
-combination boolean functions that read input pins and drive output pins; The
-Pattern Generator which drives digital patterns on the output pins; and the
-Finite State Machine (FSM) Generator which creates sequential logic that reads
-inputs pins and drives output pins.
+There are three libraries to support the Boolean, FSM, and Digital Pattern 
+Generators in the logic tools overlay. 
 
-Along with the three generators, we provide a Trace Analyzer library which can
-be used to capture and display waveforms
+There is also a Trace Analyzer library which can be used to capture and display 
+waveforms
 
 Example notebooks demonstrating how to use the logictools overlay can be found
 in the *logictools* directory in the Jupyter home area on the board.
 
-States
-------
 
-The state diagram for all the generators or analyzers is shown below:
+Operation
+---------
+
+The basic operation of the main hardware blocks in the logictools overlay is the
+same. A set of methods which is common to all blocks is used to control basic 
+operations, ``setup()``, ``run()``, ``step()``, ``stop()``, ``reset()``. The 
+operation of these methods will be described later. 
+
+Each block may have additional unique methods to provide functionality 
+specific to that block. 
+
+The state diagram for the blocks is shown below:
 
 .. image:: ../images/logictools_states.png
    :align: center
 
-Any one of these generators, or any combination can be configured and run
-synchronously. Note the states introduced in the following few sections are the
-states of the generators / analyzers themselves; they are to be distinguished
-from the states stored in an FSM.
+Any one of these hardware blocks, or any combination can be configured and run
+synchronously following the state diagram above. 
+
+Operating states
+----------------
 
 RESET
 ^^^^^
 
-The interface switch is attached to the external IO pins. Initially, all IO
-accessible to the logictools overlay are configured as not connected. This
-prevents the inadvertent driving of any external circuitry that is connected to
-the board.
+This is the state a block will start in after the overlay is loaded. A block 
+will remain in the reset state until it has been configured using the 
+``setup()`` method. It will return to this state if ``reset()`` is called. 
+
+In the reset state, all IO accessible to the logictools overlay are disconnected
+from the main logictools hardware blocks. This prevents the inadvertent driving
+of any external circuitry that is connected to the board. This is done by 
+configuring the interface switch to disconnect all IO from the internal 
+hardware. 
 
 The Pattern Generator contains BRAM to store the pattern to be generated. The
-BRAM is configured with zeros initially.
+BRAM is configured with zeros in this state.
 
 Similarly, the FSM Generator configuration is stored in a BRAM which is also
-configured with zeros initially.
+configured with zeros in this state.
 
 READY
 ^^^^^
 
-In this state, the generator / analyzer IPs have been configured. The input and
-output pins on the interfacing header are reserved, but not connected yet.
+In this state, the generators / analyzer have been configured. The input and
+output pins that will be connected have been specified, and reserved, but the 
+interface switch has not bee configured to connect these pins to the internal 
+hardware. 
 
-Logictools controller will also initialize contiguous memory locations if
-necessary. The sample clock rate is also configured in this state.
 
 RUNNING
 ^^^^^^^
 
-Once a block has been in the READY state, it can be run. The external IO are
-connected to the block though the interface switch, and the hardware block will
-start operating.
+Once the generators are in the ready state, calling run() or step() will move 
+them to the READY state. When moving to this state, the interface switch is 
+configured to connect external IO. The hardware block(s) will start operating in
+this state.
 
 Running will start the block running in single-shot mode by default. In this
 mode, the generator will run until enough number of samples are captured by the
@@ -85,48 +98,49 @@ setup()
 
 Each block must be configured using the ``setup()`` method before it can be
 used. This defines a configuration for the block, and the configuration for the
-Interface Switch to connect the external IO to the builder. Note that the
-configuration is defined, but the IO are not connected during setup.
+Interface Switch to connect the external IO. Note that the configuration is 
+defined, but the IO are not connected during setup.
 
 run()
 ^^^^^
 
-The ``run()`` method will perform a normal run for the generator. The specified
-number of samples will be captured. This method will put the generator to the
-RUNNING state.
+The ``run()`` method will move a block to the *RUNNING* state and the block will
+start operating. The specified number of samples will be captured by the Trace 
+Analyzer. 
 
 step()
 ^^^^^^
 
-Instead of running, all the generators can also be single stepped.
+The ``step()`` method is similar to ``run()``, but instead of running, all the 
+generators are single stepped (advanced one clock cycle) each time the *step* 
+method is called.
 
 When stepping the Pattern Generator, it will step until the end of the
 configured pattern. It will not loop back to the beginning.
 
-The FSM Generator can be single stepped until a enough number of samples are
-captured.
+The FSM Generator can be single stepped until a enough samples are captured by 
+the Trace Analyzer.
 
 stop()
 ^^^^^^
 
-If a block is running, it must be stopped before running again.
+If a block is running, it must be stopped before re-running.
 
-Users do not have to call ``stop()`` between 2 consecutive steps.
-
-Once a builder is stopped, its outputs are disconnected from the IO.
+Once a block is stopped, its outputs are disconnected from the external IO, 
+and will only be reconnected when the block is set to run again. 
 
 trace()
 ^^^^^^^
 
-Trace is enabled by default for each block. i.e. the Trace Analyzer will capture
-trace data for all connected blocks by default. The ``trace()`` method
-enables/disables the Trace Analyzer for that block.
+Trace is enabled by default for each block. When trace is enabled, the Trace 
+Analyzer will capture trace data for all connected blocks. The ``trace()`` 
+method can be used to enable/disable the Trace Analyzer for each block.
 
 reset()
 ^^^^^^^
 
 This method resets the generator to its initial state. This method needs to be
-called if users want to use a different configuration for the generator.
+called before changing the configuration for a hardware block.
 
 Boolean Generator
 -----------------
@@ -134,10 +148,13 @@ Boolean Generator
 The Boolean Generator supports up to Boolean functions of up to five inputs on
 each output pin. AND, OR, NOT, and XOR operators are supported.
 
+.. image:: ../images/boolean_generator.png
+   :align: center
+   
 On the PYNQ-Z1 the 20 digital pins of the Arduino shield interface (D0 - D19)
 can be used as inputs or outputs. The 4 pushbuttons (PB0 - PB3) can be used as
 additional inputs, and the 4 user LEDs (LD0 - LD3) can be used as additional
-ouputs. This gives a maximum of 24 inputs and outputs available to the Boolean
+outputs. This gives a maximum of 24 inputs and outputs available to the Boolean
 Generator, supporting up to 24 Boolean functions.
 
 Boolean functions are specified, as strings.  
@@ -216,7 +233,7 @@ IO. This can be used to test or control external circuits or devices.
 .. image:: ../images/pattern_generator.png
    :align: center
 
-The Pattern Generator supports upto 64K pattern words. Though the memory is
+The Pattern Generator supports up to 64K pattern words. Though the memory is
 32-bits wide, only least significant 20 bits are used which are routed to the
 Arduino pins. A data word is generated once every rising edge of the sample
 clock.
@@ -225,7 +242,7 @@ The sample clock is programmable. The minimum sample clock speed is 252 KHz, and
 the maximum speed is 10 MHz.
 
 The Pattern Generator class is instantiated by importing it from the logictools
-subpackage.
+sub-package.
 
 Examples
 ^^^^^^^^
@@ -244,6 +261,9 @@ Finite State Machine (FSM) Generator
 
 The FSM Generator can generate a finite state machine in programmable hardware
 from a Python description.
+
+.. image:: ../images/fsm_generator.png
+   :align: center
 
 The FSM generator has an internal Block Memory which implements the finite state
 machine. The 20 pins on the Arduino shield header are available. The FSM must
@@ -313,9 +333,8 @@ The trace analyzer monitors the external PL Input/Output Blocks (IOBs) on the
 PMOD and Arduino interfaces. The IOBs are tri-state. This means three internal
 signals are associated with each pin; an input (I), and output (O) and a
 tri-state signal (T). The Tri-state signal controls whether the pin is being
-used as a input or output.
-
-The trace analyzer is connected to all 3 signals for each IOP (PMOD and
+used as a input or output. The trace analyzer is connected to all 3 signals for 
+each IOP (PMOD and
 Arduino).
 
 .. image:: ../images/trace_analyzer.png

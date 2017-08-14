@@ -6,7 +6,7 @@ A PYNQ MicroBlaze subsystem consists of a MicroBlaze processor, AXI
 interconnect, Interrupt controller, an Interrupt Requester, and External System
 Interface, and Block RAM and memory controllers.
 
-The AXI interconnect connects the microblaze to the interrupt controller,
+The AXI interconnect connects the MicroBlaze to the interrupt controller,
 interrupt requester, and external interface.
 
 * The Interrupt Controller is the interface for other communication or
@@ -16,7 +16,7 @@ interrupt requester, and external interface.
   other communication, behavioral controllers, or DDR Memory.
 * The Block RAM holds MicroBlaze Instructions and Data.
 
-The Block RAMis dual-ported: One port connected to the MicroBlaze Instruction
+The Block RAM is dual-ported: One port connected to the MicroBlaze Instruction
 and Data ports; The other port is connected to the ARM® Cortex®-A9 processor for
 communication.
 
@@ -28,16 +28,22 @@ defines a set of communication and behavioral controllers that are controlled by
 Python. There are currently three IOPs provided with Pynq: Arduino, PMOD, and
 Logictools.
 
+The MicroBlaze subsystem can be controlled by the ``PynqMicroblaze`` class. This
+allows loading of programs from Python, controlling executing by triggering the
+processor reset signal, reading and writing to shared data memory, and managing
+interrupts received from the subsystem. 
+
+
 Block Diagram
 -------------
 .. image:: ../images/mb_subsystem.png
    :align: center
 
-Examples
---------
-The MicroBlaze subsystem can be controlled by the PynqMicroblaze module. 
+API
+---
 
-The class is instantiated with the name of the MicroBlaze subsystem and program to run. 
+The ``PynqMicroblaze`` class is used to control the processor subsystem, and is 
+instantiated with the name of the MicroBlaze subsystem and program to run. 
 
 .. code-block:: Python
 
@@ -51,8 +57,10 @@ This includes the following methods:
 
 * ``program()`` - Writes the program specified during class instantiation to the shared memory of Microblaze.
 * ``read(offset, length=1)`` - Reads data from the shared memory of Microblaze.
-* ``reset()`` - Reset the Microblaze to stop it from running.
-* ``run()`` - Start the Microblaze to run program loaded.
+* ``reset()`` - Reset the MicroBlaze to stop it from running.
+* ``run()`` - Start the MicroBlaze to run program loaded.
 * ``write(offset, data)`` - Write data into the shared memory of the Microblaze.
+
+
 
 

@@ -27,9 +27,9 @@ Interrupt/AsyncIO Module:
 
   * pynq.interrupt - Implements PYNQ asyncio
 
-Subpackages:
+Sub-packages:
 
-  * pynq.lib - Contains subpackages with drivers for for PMOD, Arduino and
+  * pynq.lib - Contains sub-packages with drivers for for PMOD, Arduino and
     Logictools PYNQ Libraries, and drivers for various communication controllers
     (GPIO, DMA, Video, Audio)
     
