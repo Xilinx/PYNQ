@@ -19,19 +19,24 @@ You can <a href="https://files.digilent.com/Products/PYNQ/pynq_z1_image_2017_02_
 
 ## Quick Start
 
-See the <a href="http://pynq.readthedocs.io/en/latest/1_getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
+See the <a href="http://pynq.readthedocs.io/en/latest/getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
 
-## Modify Python
+## Python Source Code
 
-All Python code for the `pynq` package can be found in the `/python` folder. This folder can be found on the board after the board boots with the precompiled image. 
+All Python code for the `pynq` package can be found in the `/pynq` folder. This folder can be found on the board after the board boots with the precompiled image.
 
-You can clone this repository, edit the Python code and copy it directly to the corresponding folder on the board. (You may need to reboot the board to load the changes.)
+You can clone this repository, edit the Python source code and copy it directly to the corresponding folder on the board. (You may need to reboot the board to load the changes.)
+
+SDK software projects and Python-C source codes are also stored along with the Python source code. After installing the `pynq` package, the compiled target files will be saved automatically into the `pynq` package.
 
 ## Board Files and Overlays
 
-All board related files including Vivado and SDK software projects, bitstreams, and example notebooks, can be found in the `/Pynq-Z1` folder.
+All board related files including Vivado projects, bitstreams, and example notebooks, can be found in the `/boards` folder.
 
-You can rebuild the base overlay by running *make* in `/Pynq-Z1/vivado/base`. This will generate a bitstream in `/Pynq-Z1/bitstream`. You can also find the project tcl file here. You can use the base overlay as a starting point for creating a new overlay. If you create a new overlay, you should also save the tcl and bitstream to this directory, and copy both files to `/bitstream` on the board.
+You can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). This will generate a bitstream in the overlay folder. You can also find the project tcl file here. 
+
+You can use the base overlay as a starting point for creating a new overlay. If you create a new overlay, you should make sure
+both the bitstream file `<overlay_name>.bit` and the tcl file `<overlay_name>.tcl` are inside `/pynq/overlays/<overlay_name>` folder.
 
 ## Contribute
 
@@ -41,7 +46,7 @@ Contributions to this repository are welcomed. To submit a project for inclusion
 
 2. Clone (download) the fork to a local computer using *git clone*.
 
-3. You can modify the Vivado project, bitstream, SDK project, or notebook in the corresponding folder in `/Pynq-Z1`.
+3. You can modify the Vivado project, bitstream, SDK project, Python source code, or notebook in the corresponding folders.
 
 5. Modify the documentation if necessary.
 
