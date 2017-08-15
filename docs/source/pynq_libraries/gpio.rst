@@ -8,14 +8,14 @@ The AXI GPIO has two channels that can be connected to two sets of up to 32-bit
 pins. 
 
 .. image:: ../images/gpio.png
-   :align center  
+   :align: center  
    
 The interrupt signal, *ip2intc_irpt* from the AXI GPIO can be connected directly
 to an AXI interrupt controller, or connected through a concatenation block to 
 the controller if there is more than one interrupt in the system. 
 
 .. image:: ../images/gpio_interrupt.png
-   :align center  
+   :align: center  
 
 PYNQ provides an ``AxiGPIO`` class to control GPIO that includes ``read()`` and 
 ``write()`` methods. 

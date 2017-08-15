@@ -34,6 +34,7 @@ This PYNQ-Z1 overlay includes the following hardware:
     * User LEDs, Switches, Pushbuttons
     * 2x PMOD IOP
     * Arduino IOP
+    * 3x Trace Analyzer (PMODA, PMODb, ARDUINO)
 
 HDMI 
 ----
@@ -80,9 +81,10 @@ HDMI devices at this resolution may work.
 Data can be streamed from the PS DRAM to the HDMI output. The HDMI Out
 controller contains framebuffers to allow for smooth display of video data.
 
-See the *PYNQ Z1 base overlay video notebook* which can be found in the getting 
-started
-directory on the board.
+Video Examples
+----------------
+
+See example video notebooks in the *base/video* directory on the board.
 
 Mic In 
 ------
@@ -101,11 +103,13 @@ Audio Out
 The audio out IP is connected to a standard 3.5mm audio jack on the board. The
 audio output is PWM driven mono.
 
-See the *pynq-z1_base_overlay_audio.ipynb* notebook in the *getting started*
-directory for examples of using the audio.
-
 For more information on the audio hardware, see the `Digilent Audio Out 
 reference for the PYNQ-Z1 board <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output>`_
+
+Audio Example
+--------------
+
+See the audio example notebook in the *base/audio* directory on the board.
 
 User IO
 -------
@@ -132,6 +136,19 @@ but have different IP configurations to support the different sets of peripheral
 and interface pins.
 
 IOPs are covered in more detail in the next section. 
+
+Trace Analyzer
+----------------
+
+Trace Analyzer blocks are connected to the interface pins for the two Pmod IOPs,
+and the Arduino IOP. The Trace Analyzer can capture IO signals and stream the 
+data to the PS DRAM for analysis in the Python environment.
+
+Using the Python Wavedrom packager, the signals from the Trace Analyzer can be 
+displayed as waveforms in a Jupyter notebook. 
+
+See the Trace Analyzer notebook in the *base/trace* directory on the 
+board for an example on how to use the Trace Analyzer.
 
 Python API
 ----------
