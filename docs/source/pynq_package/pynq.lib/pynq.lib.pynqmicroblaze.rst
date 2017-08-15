@@ -1,3 +1,5 @@
+.. _pynq-lib-pynqmicroblaze:
+
 pynq.lib.pynqmicroblaze Module
 ==============================
 

@@ -1,3 +1,5 @@
+.. _pynq-lib-logictools:
+
 pynq.lib.logictools Package
 ===========================
 

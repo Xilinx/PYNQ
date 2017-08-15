@@ -1,3 +1,5 @@
+.. _pynq-interrupts:
+
 pynq.interrupt Module
 =====================
 

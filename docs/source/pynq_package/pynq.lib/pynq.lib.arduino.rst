@@ -1,3 +1,5 @@
+.. _pynq-lib-arduino:
+
 pynq.lib.arduino Package
 ========================
 

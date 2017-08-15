@@ -1,3 +1,5 @@
+.. _base-overlay:
+
 Base Overlay
 ============
 

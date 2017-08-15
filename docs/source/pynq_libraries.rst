@@ -44,18 +44,16 @@ with a breadboard. Note that while a peripheral can be physically connected to
 the Zynq PL pins, a controller must be built into the overlay, and a software
 driver provided, before the peripheral can be used.
 
-
-
 .. toctree::
     :maxdepth: 1
     :hidden:
        
-    pynq_libraries/gpio.rst
+    pynq_libraries/axigpio.rst
     pynq_libraries/audio.rst
     pynq_libraries/video.rst
     pynq_libraries/pynq_microblaze_subsystem.rst
     pynq_libraries/pmod.rst
-    pynq_libraries/grove.rst
     pynq_libraries/arduino.rst
+    pynq_libraries/grove.rst
     pynq_libraries/logictools.rst
        

@@ -1,9 +1,10 @@
+.. _arduino:
+
 Arduino
 =======
 
-An Arduino IOP is available to control the Arduino interface. The Arduino IOP is
-similar to the PMOD IOP, but has some additional internal peripherals (extra
-timers, an extra I2c, and SPI, a UART, and an XADC). 
+The Arduino subpackage is a collection of drivers for controlling
+peripherals attached to a Arduino port.
 
 An Arduino connector can be used to connect to Arduino compatible shields to
 FPGA pins. Remember that appropriate controllers must be implemented in an
@@ -15,44 +16,55 @@ hardware using wires.
    :align: center
 
 
-As indicated in the diagram, the Arduino IOP has a MicroBlaze, a configurable
-switch, and the following peripherals:
+Block Diagram
+-------------
 
-============================= ==========================================
-2x AXI I2C                     `AXI I2C Data sheet <http://www.xilinx.com/support/documentation/ip_documentation/axi_iic/v2_0/pg090-axi-iic.pdf>`_
-2x AXI SPI                     `AXI SPI Data sheet <http://www.xilinx.com/support/documentation/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf>`_
-3x AXI GPIO                    `AXI GPIO Data sheet <http://www.xilinx.com/support/documentation/ip_documentation/axi_gpio/v2_0/pg144-axi-gpio.pdf>`_ 
-6x AXI Timer                   `AXI Timer Data sheet <http://www.xilinx.com/support/documentation/ip_documentation/axi_timer/v2_0/pg079-axi-timer.pdf>`_
-1x AXI UART                    `AXI UART Data sheet <https://www.xilinx.com/support/documentation/ip_documentation/axi_uartlite/v2_0/pg142-axi-uartlite.pdf>`_ 
-1x AXI Interrupt controller    `AXI Interrupt controller Data sheet <https://www.xilinx.com/support/documentation/ip_documentation/axi_intc/v4_1/pg099-axi-intc.pdf>`_ 
-1x AXI XADC                    `AXI XADC Data sheet <https://www.xilinx.com/support/documentation/ip_documentation/axi_xadc/v1_00_a/pg019_axi_xadc.pdf>`_ 
-============================= ==========================================
+An Arduino IOP is available to control the Arduino interface, if provided. The
+Arduino IOP is similar to the PMOD IOP, with more AXI Controllers.
 
-The I2C, SPI, GPIO and Timer blocks are the same as the Pmod IOP blocks. The
-only difference in the Arduino IOP with these blocks is that for the IIC and
-SPI, 2 interfaces are enabled, for the GPIO 3 blocks are include, and 6 timers.
+.. image:: ../images/arduino_iop.jpg
+   :align: center
 
-The I2C configuration is:
-   * Frequency: 100KHz
-   * Address mode: 7 bit
+As indicated in the diagram, the Arduino IOP has a PYNQ MicroBlaze Subsystem, a
+configurable switch, and the following AXI controllers:
+
+* 2x AXI I2C
+
+  * Frequency: 100KHz
+  * Address mode: 7 bit
+
+* 2x AXI SPI
+
+  * Master mode
+  * Transaction Width: 8
+  * SCK Frequency: 6.25 MHz
+  * FIFO Depth: 16
+
+.. note:: One SPI controller is connected to the Arduino interface dedicated SPI pins.
    
-The SPI configuration is:
-   * Standard mode
-   * Transaction width: 8
-   * Frequency: 6.25 MHz (100MHz/16)
-   * Master mode
-   * Fifo depth: 16
+	      
+* 3x AXI GPIO
 
-One SPI controller always connected to the Arduino interface dedicated SPI pins.
-   
-There are three GPIO block available. They support 16 input or output pins on
-the Arduino interface (D0 - D15).
+  * 16 Input/Output pins total
 
-There are six timers available.  There is a UART controller, with a fixed
-configuration of 9600 baud. The UART can be connected to the Arduino UART
-pins. The UART configuration is hard coded, and is part of the overlay. It is
-not possible to modify the UART configuration in software.
+* 6x AXI Timer
 
+  * 32 bits    
+  * 1 Generate Output
+  * 1 PWM Output
+
+* 1x AXI UART
+
+  * 9600 Baud
+
+* 1x AXI XADC
+
+  * 1V peak-to-peak *
+  
+.. warning::
+   Analog inputs are supported via the internal Xilinx XADC. This supports inputs
+   of 1V peak-to-peak. Note that the Arduino interface supports 0-5V analog inputs
+   which is not supported by Zynq without external circuitry.
 
 ==========   =========================
 Peripheral   Pins
@@ -64,27 +76,27 @@ PWM          D3, D5, D6, D9, D10, D11
 Timer        D3 - D6 and D8 - D11
 ==========   =========================
 
-Analog inputs are supported via the internal Xilinx XADC. This supports inputs
-of 1V peak-to-peak. Note that the Arduino interface supports 0-5V analog inputs
-which is not supported by Zynq without external circuitry.
-
-Block Diagram
--------------
-
-.. image:: ../images/arduino_iop.jpg
-   :align: center
-   
-The Arduino interface can be used to connect to Arduino shields. The PYNQ Shield
- can also be used to connect multiple Grove peripherals to the Arduino shield. 
-
- .. image:: ../images/arduino_shield.jpg
-   :align: center
- 
-
 Examples
 --------
 
-An IOP driver is provided for the AdaFruit 1.8" LCD Shield. An example on 
-how to use it can be found in the base/Arduino directory in the Jupyter home 
-area on the board, along with an example on how to use the Analog pins, and an 
-example of using a Grove peripherals. 
+In the :ref:`base-overlay`, one Arduino instance is available: arduino
+(iop3). After the overlay is loaded this instance can be accessed as follows:
+
+.. code-block:: Python
+
+   from pynq.overlays.base import BaseOverlay
+   from pynq.lib.arduino import Arduino_LCD18
+
+   lcd = Arduino_LCD18(base.ARDUINO)
+   lcd.clear()
+
+More information about the Arduino subpackage, its components, and its API can be
+found in the :ref:`pynq-lib-arduino` section.
+
+For more examples, see the Arduino Notebooks folder on the Pynq-Z1 board in the
+following directory:
+
+.. code-block:: console
+
+   <Jupyter Home>/base/arduino/
+
