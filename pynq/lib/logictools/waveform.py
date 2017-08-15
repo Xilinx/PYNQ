@@ -29,14 +29,15 @@
 
 
 from copy import deepcopy
-import re
-import IPython.core.display
-import IPython.display
-import json
 import os
+import re
+import json
 import subprocess
 import base64
 from xml.dom import minidom
+import numpy as np
+import IPython.core.display
+import IPython.display
 from .constants import *
 
 
@@ -758,13 +759,15 @@ class Waveform:
                 for wavelane in group[1:]:
                     name, pin = wavelane['name'], wavelane['pin']
                     pin_to_name[pin] = name
-                for wavelane in wavelane_group:
-                    pin, wave = wavelane['pin'], wavelane['wave']
-                    if pin in pin_to_name:
-                        updated_dict = {'name': pin_to_name[pin],
-                                        'pin': pin,
-                                        'wave': wave}
-                        updated_group.append(updated_dict)
+                for pin in pin_to_name:
+                    for wavelane in wavelane_group:
+                        if pin == wavelane['pin']:
+                            wave = wavelane['wave']
+                            updated_dict = {'name': pin_to_name[pin],
+                                            'pin': pin,
+                                            'wave': wave}
+                            updated_group.append(updated_dict)
+                            break
                 break
 
         for index, group in enumerate(self.waveform_dict['signal']):
@@ -807,19 +810,21 @@ class Waveform:
                     else:
                         pin_to_wave[pin] = ''
                     pin_to_name[pin] = name
-                for wavelane in wavelane_group:
-                    pin, wave = wavelane['pin'], wavelane['wave']
-                    if pin in pin_to_name:
-                        if pin_to_wave[pin]:
-                            merged_wave = bitstring_to_wave(
-                                wave_to_bitstring(pin_to_wave[pin]) +
-                                wave_to_bitstring(wave))
-                        else:
-                            merged_wave = wave
-                        updated_dict = {'name': pin_to_name[pin],
-                                        'pin': pin,
-                                        'wave': merged_wave}
-                        updated_group.append(updated_dict)
+                for pin in pin_to_name:
+                    for wavelane in wavelane_group:
+                        if pin == wavelane['pin']:
+                            wave = wavelane['wave']
+                            if pin_to_wave[pin]:
+                                merged_wave = bitstring_to_wave(
+                                    wave_to_bitstring(pin_to_wave[pin]) +
+                                    wave_to_bitstring(wave))
+                            else:
+                                merged_wave = wave
+                            updated_dict = {'name': pin_to_name[pin],
+                                            'pin': pin,
+                                            'wave': merged_wave}
+                            updated_group.append(updated_dict)
+                            break
                 break
 
         for index, group in enumerate(self.waveform_dict['signal']):
@@ -844,11 +849,12 @@ class Waveform:
         for index, group in enumerate(self.waveform_dict['signal']):
             if group and (group[0] == group_name):
                 for lane_index, wavelane in enumerate(group):
-                    if type(wavelane) is dict and 'wave' in wavelane:
-                        self.waveform_dict[
-                            'signal'][index][lane_index]['wave'] = ''
-                    if not wavelane['name']:
-                        del self.waveform_dict['signal'][index][lane_index]
+                    if type(wavelane) is dict:
+                        if 'wave' in wavelane:
+                            self.waveform_dict[
+                                'signal'][index][lane_index]['wave'] = ''
+                        if not wavelane['name']:
+                            del self.waveform_dict['signal'][index][lane_index]
 
     def annotate(self, group_name, wavelane_group):
         """Add annotation to the existing waveform dictionary.
