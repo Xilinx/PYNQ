@@ -4,6 +4,9 @@ Logictools
 There are three libraries to support the Boolean, FSM, and Digital Pattern 
 Generators in the logic tools overlay. 
 
+.. image:: ../images/logictools_bd.png
+   :align center
+   
 There is also a Trace Analyzer library which can be used to capture and display 
 waveforms
 

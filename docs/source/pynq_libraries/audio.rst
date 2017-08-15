@@ -20,7 +20,9 @@ The PYNQ Audio module includes the following methods:
 * ``record(seconds)`` - Record data from audio controller to audio buffer.
 * ``save(file)`` - Save audio buffer content to a file.
 
-See the `PYNQ audio notebook on GitHub <https://github.com/Xilinx/PYNQ/blob/v1.5/boards/Pynq-Z1/base/notebooks/audio/audio_playback.ipynb>`_ or in the following directory on the board:
+See the `PYNQ audio notebook on GitHub
+<https://github.com/Xilinx/PYNQ/tree/v2.0/boards/Pynq-Z1/base/notebooks/audio/audio_playback.ipynb>`_
+or in the following directory on the board:
 
    .. code-block:: console
 

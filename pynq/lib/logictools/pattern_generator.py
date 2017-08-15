@@ -548,9 +548,6 @@ class PatternGenerator:
                 name_of_longest_wave = self.stimulus_names[index]
                 max_wave_length = len(wave)
 
-        if not 1 <= max_wave_length <= MAX_NUM_PATTERN_SAMPLES:
-            raise ValueError("Waves should have 1 - "
-                             "{} samples.".format(MAX_NUM_PATTERN_SAMPLES))
         return name_of_longest_wave, max_wave_length
 
     def _make_same_wave_length(self):
