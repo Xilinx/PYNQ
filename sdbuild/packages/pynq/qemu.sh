@@ -11,8 +11,6 @@ export PYNQ_PYTHON=python3.6
 
 cd /home/xilinx
 mkdir -p jupyter_notebooks
-mkdir -p jupyter_notebooks/slides
-mv /root/reveal.js jupyter_notebooks/slides
 
 ln -s /opt/python3.6/lib/python3.6/site-packages/pynq pynq
 
