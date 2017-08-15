@@ -27,6 +27,8 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import warnings
 import numpy as np
 import os
 import warnings
@@ -41,7 +43,7 @@ __email__ = "pynq_support@xilinx.com"
 ZYNQ_ARCH = "armv7l"
 CPU_ARCH = os.uname().machine
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH]
-              
+
 # Clock constants
 SRC_CLK_MHZ = 50.0
 DEFAULT_CLK_MHZ = 100.0
@@ -64,12 +66,18 @@ CLK_DIV0_LSB = 8
 CLK_DIV0_MSB = 13
 CLK_DIV1_LSB = 20
 CLK_DIV1_MSB = 25
+VALID_CLOCK_DIV_PRODUCTS = sorted(list(set(
+    (np.multiply(
+        np.arange(1 << (CLK_DIV1_MSB - CLK_DIV1_LSB + 1)).reshape(
+            1 << (CLK_DIV1_MSB - CLK_DIV1_LSB + 1), 1),
+        np.arange(1 << (CLK_DIV0_MSB - CLK_DIV0_LSB + 1)))).reshape(-1))))
 
 
 def _get_2_divisors(freq_high, freq_desired, reg0_width, reg1_width):
     """Return 2 divisors of the specified width for frequency divider.
 
-    Exception will be raised if no such pair of divisors can be found.
+    Warning will be raised if the closest clock rate achievable 
+    differs more than 1 percent of the desired value.
 
     Parameters
     ----------
@@ -88,18 +96,20 @@ def _get_2_divisors(freq_high, freq_desired, reg0_width, reg1_width):
         A pair of 2 divisors, each of 6 bits at most.
 
     """
+    div_product_desired = round(freq_high / freq_desired, 6)
+    _, q0 = min(enumerate(VALID_CLOCK_DIV_PRODUCTS),
+                key=lambda x: abs(x[1] - div_product_desired))
+    if abs(freq_desired - freq_high / q0) > 0.01 * freq_desired:
+        warnings.warn(
+            "Setting frequency to the closet possible value {}MHz.".format(
+                round(freq_high / q0, 5)))
+
     max_val0 = 1 << reg0_width
     max_val1 = 1 << reg1_width
-    q0 = round(freq_high/freq_desired)
-    bound = min(int(q0 / 2), max_val0)
-    for i in range(1, bound):
-        q1, r1 = divmod(q0, i)
-        if i < max_val0-1 and q1 > max_val1-1:
-            continue
-        if r1 == 0:
-            return i, q1
-        if i == bound - 1:
-            raise ValueError("Not possible to get the desired frequency.")
+    for i in range(1, max_val0):
+        for j in range(1, max_val1):
+            if i * j == q0:
+                return i, j
 
 
 class Register:
