@@ -1,3 +1,5 @@
+.. _pynq-lib-video:
+
 pynq.lib.video Module
 =====================
 

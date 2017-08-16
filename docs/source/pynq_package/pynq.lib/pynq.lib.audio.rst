@@ -1,3 +1,5 @@
+.. _pynq-lib-audio:
+
 pynq.lib.audio Module
 =====================
 

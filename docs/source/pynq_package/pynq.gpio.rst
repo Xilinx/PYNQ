@@ -1,3 +1,5 @@
+.. _pynq-gpio:
+   
 pynq.gpio Module
 ================
 

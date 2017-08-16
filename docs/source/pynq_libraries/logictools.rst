@@ -1,21 +1,19 @@
 Logictools
 ==========
 
-There are three libraries to support the Boolean, FSM, and Digital Pattern 
-Generators in the logic tools overlay. 
+The logictools subpackage contains drivers for the Trace Analyzer, and the three
+PYNQ hardware generators: Boolean Generator, FSM Generator, and Pattern
+Generator.
+
+Block Diagram
+-------------
 
 .. image:: ../images/logictools_bd.png
    :align: center
    
-There is also a Trace Analyzer library which can be used to capture and display 
-waveforms
 
-Example notebooks demonstrating how to use the logictools overlay can be found
-in the *logictools* directory in the Jupyter home area on the board.
-
-
-Operation
----------
+States
+------
 
 The basic operation of the main hardware blocks in the logictools overlay is the
 same. A set of methods which is common to all blocks is used to control basic 
@@ -31,10 +29,7 @@ The state diagram for the blocks is shown below:
    :align: center
 
 Any one of these hardware blocks, or any combination can be configured and run
-synchronously following the state diagram above. 
-
-Operating states
-----------------
+synchronously following the state diagram above.
 
 RESET
 ^^^^^
@@ -151,6 +146,9 @@ Boolean Generator
 The Boolean Generator supports up to Boolean functions of up to five inputs on
 each output pin. AND, OR, NOT, and XOR operators are supported.
 
+Block Diagram
+^^^^^^^^^^^^^
+
 .. image:: ../images/boolean_generator.png
    :align: center
    
@@ -171,7 +169,6 @@ XORed to produce the value on LED0:
 
 Combinatorial Boolean expressions can be defined in a Python list using the
 expressions & (AND), | (OR), ! (NOT), ^ (XOR).
-
 
 The expression defines if a pin is used as an input or output.
 
@@ -226,12 +223,24 @@ the currently used pins.
 
    boolean_generator.reset()
    
+More information about the Boolean Generator module and its API can be found in the
+:ref:`pynq-lib-logictools` section.
+
+For more examples see the Logictools Notebooks folder on the Pynq-Z1 board in
+the following directory: 
+
+.. code-block:: console
+
+   <Jupyter Home>/logictools/
    
 Pattern Generator
 -----------------
 
 The Pattern Generator allows arbitrary digital patterns to be streamed to
 IO. This can be used to test or control external circuits or devices.
+
+Block Diagram
+^^^^^^^^^^^^^
 
 .. image:: ../images/pattern_generator.png
    :align: center
@@ -258,12 +267,24 @@ Examples
 
    pattern_generator = logictools.pattern_generator
 
+More information about the Pattern Generator module and its API can be found in the
+:ref:`pynq-lib-logictools` section.
 
-Finite State Machine (FSM) Generator
-------------------------------------
+For more examples see the Logictools Notebooks folder on the Pynq-Z1 board in
+the following directory: 
 
-The FSM Generator can generate a finite state machine in programmable hardware
-from a Python description.
+.. code-block:: console
+
+   <Jupyter Home>/logictools/
+
+FSM Generator
+-------------
+
+The Finite State Machine (FSM) Generator can generate a finite state machine in
+programmable hardware from a Python description.
+
+Block Diagram
+^^^^^^^^^^^^^
 
 .. image:: ../images/fsm_generator.png
    :align: center
@@ -316,6 +337,16 @@ Example of a state diagram:
 .. image:: ../images/logictools_fsm_state_diagram.png
    :align: center
 
+More information about the FSM Generator module and its API can be found in the
+:ref:`pynq-lib-logictools` section.
+
+For more examples see the Logictools Notebooks folder on the Pynq-Z1 board in
+the following directory: 
+
+.. code-block:: console
+
+   <Jupyter Home>/logictools/
+
 Trace Analyzer
 --------------
 
@@ -340,8 +371,25 @@ used as a input or output. The trace analyzer is connected to all 3 signals for
 each IOP (PMOD and
 Arduino).
 
+Block Diagram
+^^^^^^^^^^^^^
+
 .. image:: ../images/trace_analyzer.png
    :align: center
 
 This allows the trace analyzer to read the tri-state, determine if the IOB is in
 input, or output mode, and read the appropriate trace data.
+
+Examples
+^^^^^^^^
+
+More information about the Trace Analyzer module and its API can be found in the
+:ref:`pynq-lib-logictools` section.
+
+For more examples see the Logictools Notebooks folder on the Pynq-Z1 board in
+the following directory: 
+
+.. code-block:: console
+
+   <Jupyter Home>/logictools/
+
