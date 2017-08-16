@@ -46,9 +46,6 @@ but Vivado should be used to generate and export the Tcl file for the block
 diagram. This automatically generated Tcl should ensure that it can be parsed
 correctly by the PYNQ.
 
-Generate overlay Tcl file
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
 To generate the Tcl for the Block Diagram from the Vivado GUI:
 
    * Click **File > Export > Block Design**  
