@@ -10,7 +10,9 @@ Zynq PS (including the PS DRAM) and PL.
 * GPIO - General Purpose Input/Output
 
 The class used depends on the Zynq PS interface the IP is connected to, and the
-interface of the IP.
+interface of the IP. Fore more information on these classes, please refer to
+:ref:`pynq-libraries`.
+
 
 GPIO
 ----
