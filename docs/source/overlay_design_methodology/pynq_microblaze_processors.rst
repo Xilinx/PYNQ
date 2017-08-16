@@ -190,9 +190,9 @@ the `Xilinx Vivado WebPack
 
 The full source code for all supported Pynq MicroBlaze peripherals is available 
 from the project GitHub. Pynq ships with precompiled Pynq MicroBlaze 
-executables to support various peripherals, so Xilinx software is only
-needed if you intend to modify existing code, or build your own Pynq MicroBlaze
-applications/peripheral drivers.
+executables to support various peripherals (see :ref:`pynq-libraries`), 
+so Xilinx software is only needed if you intend to modify existing code, or 
+build your own Pynq MicroBlaze applications/peripheral drivers.
 
 The current Pynq release is built using Vivado and SDK 2016.1. it is recommended
 to use the same version to rebuild existing Vivado and SDK projects. If you only
