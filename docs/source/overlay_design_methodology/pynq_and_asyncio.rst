@@ -1,3 +1,5 @@
+.. _pynq-and-asyncio:
+
 PYNQ and AsyncIO
 ================
 

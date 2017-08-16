@@ -1,3 +1,5 @@
+.. _pynq-overlays:
+
 *************
 PYNQ Overlays
 *************

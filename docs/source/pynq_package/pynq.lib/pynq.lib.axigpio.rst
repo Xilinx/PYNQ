@@ -1,3 +1,5 @@
+.. _pynq-lib-axigpio:
+
 pynq.lib.axigpio Module
 =======================
 

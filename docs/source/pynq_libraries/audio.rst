@@ -1,30 +1,43 @@
 Audio
 =====
-The audio subsystem in the PYNQ-Z1 base overlay consists of an IP block to drive
-the PWM mono output, and another block to read the PDM input from the MIC.
+
+The Audio module provides methods to read audio from the input microphone, play
+audio to the output speaker, or read and write audio files. The audio module
+talks to the audio IP subsystem in the :ref:`base-overlay` to drive the Pulse
+Width Modulation (PWM) mono output, and another block to read the Pulse Density
+Modulated (PDM) input from the microphone.
 
 Block Diagram
 -------------
 
 .. image:: ../images/audio_subsystem.png
    :align: center
-   
+
 Examples
 --------
-The PYNQ Audio module includes the following methods:
 
-* ``bypass_start()`` - Stream audio controller input directly to output.
-* ``bypass_stop()`` - Stop streaming input to output directly.
-* ``load(file)`` - Loads file into internal audio buffer.
-* ``play()`` - Play audio buffer via audio jack.
-* ``record(seconds)`` - Record data from audio controller to audio buffer.
-* ``save(file)`` - Save audio buffer content to a file.
+In the :ref:`base-overlay`, a single Audio instance is available: audio.  After
+the overlay is loaded this instance can be accessed as follows:
 
-See the `PYNQ audio notebook on GitHub
-<https://github.com/Xilinx/PYNQ/tree/v2.0/boards/Pynq-Z1/base/notebooks/audio/audio_playback.ipynb>`_
-or in the following directory on the board:
+.. code-block:: Python
 
-   .. code-block:: console
+   from pynq.overlays.base import BaseOverlay
+   base = BaseOverlay("base.bit")
+   pAudio = base.audio
+		
+   pAudio.load("/home/xilinx/pynq/lib/tests/pynq_welcome.pdm")
+   pAudio.play()
 
-      <Jupyter Home>\base\audio\audio_playback.ipynb
+More information about the Audio module and the API for reading and writing
+audio interfaces, or loading and saving audio files can be found in the
+:ref:`pynq-lib-audio` section.
+
+For more examples see the "Welcome to Pynq Audio" notebook on the PYNQ-Z1 board
+at:
+
+.. code-block:: console
+
+   <Jupyter Home>/base/audio/audio_playback.ipynb
+
+
 
