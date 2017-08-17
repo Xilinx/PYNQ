@@ -115,7 +115,8 @@ Set up an instance of the HDMI-in, and HDMI-out.
 .. code-block:: Python
 
     from pynq import Overlay
-
+    from pynq.lib.video import * 
+		
     base = Overlay('base.bit')
     hdmi_in = base.video.hdmi_in
     hdmi_out = base.video.hdmi_out
