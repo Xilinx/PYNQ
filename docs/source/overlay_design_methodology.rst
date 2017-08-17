@@ -36,7 +36,7 @@ detail. Hardware design will be familiar to Zynq, and FPGA hardware developers.
    overlay_design_methodology/overlay_design 
    overlay_design_methodology/board_settings
    overlay_design_methodology/pspl_interface
-   overlay_design_methodology/microblaze_soft_processors
+   overlay_design_methodology/pynq_microblaze_subsystem
    overlay_design_methodology/python-c_integration
    overlay_design_methodology/pynq_and_asyncio
    overlay_design_methodology/python_overlay_api

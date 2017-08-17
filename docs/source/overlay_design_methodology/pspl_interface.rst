@@ -1,7 +1,7 @@
 PS/PL Interfaces
 ================
 
-There are four Pynq classes that are used to manage data movement between the
+There are four ``pynq`` classes that are used to manage data movement between the
 Zynq PS (including the PS DRAM) and PL.
 
 * MMIO - Memory Mapped IO
@@ -120,7 +120,7 @@ Writing data to the buffer:
 DMA
 ---
 
-The PYNQ DMA class supports the `AXI Direct Memory Access IP
+The ``pynq`` DMA class supports the `AXI Direct Memory Access IP
 <https://www.xilinx.com/support/documentation/ip_documentation/axi_dma/v7_1/pg021_axi_dma.pdf>`_.
 This allows data to be read from DRAM, and sent to an AXI stream, or received
 from a stream and written to DRAM.
@@ -130,7 +130,7 @@ This example assumes the overlay contains two AXI Direct Memory Access IP, one
 with a read channel from DRAM, and an AXI Master stream interface (for an output
 stream), and the other with a write channel to DRAM, and an AXI Slave stream
 interface (for an input stream). The two DMAs are connected in a loopback
-configuration through an AXI FIFO
+configuration through an AXI FIFO.
 
 In the Python code, two DMA instances are created, one for sending data, and the
 other for receiving.
