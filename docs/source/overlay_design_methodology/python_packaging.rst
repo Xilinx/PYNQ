@@ -1,53 +1,43 @@
 Python Packaging
 ================
 
-An overlay, tcl, and Python can be placed anywhere in the filesystem, but this
-is not good practice.
+PYNQ uses pip - the Python Packaging Authority's recommended Python Package
+Installer to install and deliver custom installations of PYNQ. pip's flexible
+package delivery model has many useful features.
 
-The default location for the base PYNQ overlay and tcl is : 
-   
-   ``<GitHub Repository>/boards/<board name>/bitstream``
+Packaging ``pynq`` for Distribution
+-----------------------------------
 
-The PYNQ Python can be found here:
+Packaging the pynq Python project that pip can use is hugely beneficial, but
+requires carful thought and project architecture. There are many useful
+references that provide up-to-date information. For more information about how
+the pynq library is packaged see the following links:
 
-   ``<GitHub Repository>/python/pynq``
+* `Open Sourcing a Python Project The Right
+  way <https://jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way>`_
 
-You can fork PYNQ from github, and add Python code to the PYNQ package. However,
-for custom overlays, you can create your own repository and package it to allow
-other users to install your overlay using pip.
+* `How to Package Your Python Code
+  <https://python-packaging.readthedocs.io/en/latest/index.html>`_
 
-There are different ways to package a project for installation with pip. One
-example is provided below.
+Delivering Non-Python Files
+---------------------------
 
-See pip install for more details, and more packaging options.
-https://pip.pypa.io/en/stable/reference/pip_install
+One extremely useful feature that pip provides is the ability to deliver
+non-python files. In the PYNQ project this is useful for delivering FPGA
+binaries (.bit), overlay TCL source files (.tcl), PYNQ MicroBlaze binaries
+(.bin), and Jupyter Notebooks (.ipynb), along side the pynq Python libaries.
 
-Example
--------
+From a Terminal on the PYNQ board, installing the pynq Python libraries is
+as simple as running:
 
-The following example assume an overlay that exists in the root of a GitHub
-repository.
+.. code-block :: console
 
-Assume the repository has the following structure:
-   
-   * notebooks/
-      * new_overlay.ipynb
-   * new_overlay/
-      * new_overlay.bit
-      * new_overlay.tcl
-      * __init.py
-      * new_overlay.py
-   * readme.md
-   * license   
-   
-   
-Add a setup.py to the root of your repository. This file will imports the
-necessary packages, and specifies some setup instructions for your package
-including the package name, version, url, and files to include.
+   sudo pip3.6 install --upgrade git+https://github.com/Xilinx/PYNQ.git
 
-The setuptools package can be used to install your package.
+After pip finishes installation, the board must be rebooted.
 
-Example setup.py : 
+An example of using pip's **setup.py** file to provide non-python content is
+shown below:
 
 .. code-block :: python
 
@@ -58,28 +48,46 @@ Example setup.py :
    import new_overlay
 
    setup(
-       name = "new_overlay",
-       version = new_overlay.__version__,
-       url = 'https://github.com/your_github/new_overlay',
-       license = 'All rights reserved.',
-       author = "Your Name",
-       author_email = "your@email.com",
-       packages = ['new_overlay'],
-       package_data = {
-       '' : ['*.bit','*.tcl','*.py','*.so'],
-       },
-       description = "New custom overlay for PYNQ-Z1"
+      name = "new_overlay",
+      version = new_overlay.__version__,
+      url = 'https://github.com/your_github/new_overlay',
+      license = 'All rights reserved.',
+      author = "Your Name",
+      author_email = "your@email.com",
+      packages = ['new_overlay'],
+      package_data = {
+      '' : ['*.bit','*.tcl','*.py','*.so'],
+      },
+      install_requires=[
+          'pynq',
+      ],
+      dependency_links=['http://github.com/xilinx/PYNQ'],
+      description = "New custom overlay for PYNQ-Z1"
    )
 
-**package_data** specifies which files will be installed as part of the package.
-   
-   
-From a terminal, the new package can be installed by running:
+The ``package_data`` argument specifies which files will be installed as part of
+the package.
 
-.. code-block :: console
+Using ``pynq`` as a Dependency
+------------------------------
 
-   sudo pip install --upgrade 'git+https://github.com/your_github/new_overlay'
-   
-   
-   
+One of the most useful features of pip is the abililty to *depend* on a project,
+instead of forking or modifying it.
+
+When designing overlays, the best practice for re-using pynq code is to
+create a Python project as described above and add pynq as a dependency. A
+good example of this is the `BNN-PYNQ project
+<https://github.com/Xilinx/BNN-PYNQ>`_.
+
+The BNN-PYNQ project is an Overlay that *depends* on pynq but does not
+modify it. The developers list pynq as a dependency in the pip configuration
+files, which installs pynq (if it isn't already). After installation, the
+BNN-PYNQ files are added to the installation: notebooks, overlays, and drivers
+are installed alongside pynq without modifying or breaking the previous
+source code.
+
+Needless to say, we highly recommend *depending* on pynq instead of *forking
+and modifying* pynq. An example of depending on pynq is shown in the code
+segment from the previous section.
+
 
