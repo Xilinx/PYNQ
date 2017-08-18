@@ -25,7 +25,11 @@ See the <a href="http://pynq.readthedocs.io/en/latest/getting_started.html" targ
 
 All Python code for the `pynq` package can be found in the `/pynq` folder. This folder can be found on the board after the board boots with the precompiled image.
 
-You can clone this repository, edit the Python source code and copy it directly to the corresponding folder on the board. (You may need to reboot the board to load the changes.)
+To update your PYNQ SD card to the latest ``pynq`` package, you can run the following command from a terminal connected to your board:
+
+```console
+sudo pip3.6 install --upgrade git+https://github.com/Xilinx/PYNQ.git
+```
 
 SDK software projects and Python-C source codes are also stored along with the Python source code. After installing the `pynq` package, the compiled target files will be saved automatically into the `pynq` package.
 
@@ -33,10 +37,7 @@ SDK software projects and Python-C source codes are also stored along with the P
 
 All board related files including Vivado projects, bitstreams, and example notebooks, can be found in the `/boards` folder.
 
-You can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). This will generate a bitstream in the overlay folder. You can also find the project tcl file here. 
-
-You can use the base overlay as a starting point for creating a new overlay. If you create a new overlay, you should make sure
-both the bitstream file `<overlay_name>.bit` and the tcl file `<overlay_name>.tcl` are inside `/pynq/overlays/<overlay_name>` folder.
+In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
 
 ## Contribute
 
@@ -48,11 +49,11 @@ Contributions to this repository are welcomed. To submit a project for inclusion
 
 3. You can modify the Vivado project, bitstream, SDK project, Python source code, or notebook in the corresponding folders.
 
-5. Modify the documentation if necessary.
+4. Modify the documentation if necessary.
 
-6. Use *git add*-->*git commit*-->*git push* to add changes to your fork.
+5. Use *git add*-->*git commit*-->*git push* to add changes to your fork.
 
-7. Then submit a pull request by clicking the *pull request* button on your github repo.
+6. Then submit a pull request by clicking the *pull request* button on your github repo.
 
 Check the <a href="http://git.huit.harvard.edu/guide/" target="_blank">guide to git</a> for more information.
 
