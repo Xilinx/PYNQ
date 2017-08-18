@@ -1,3 +1,5 @@
+.. _pynq-sd-card:
+
 ************
 PYNQ SD Card
 ************

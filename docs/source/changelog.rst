@@ -2,10 +2,6 @@
 Change Log
 ************************
 
-.. contents:: Table of Contents
-   :depth: 2
-
-
 Version 2.0
 ============================
 
@@ -20,8 +16,11 @@ This version of the documentation refers to the new image. The previous version
 of the documentation, corresponding to the previous image release, can be
 accessed from the ReadTheDocs version menu.
 
-Summary of updates
------------------------
+Image release:
+
+Documentation updated:  
+
+Changelog Summary: 
 
 * Repository restructured to provide better support for multiple platforms
 * PYNQ Image build flow now available
@@ -29,10 +28,6 @@ Summary of updates
   transforms, and grayscale conversion
 * New Logictools overlay
 * New Overlay Design Methodology section
-
-Image release:
-
-Documentation updated:  
 
 * Pynq API/driver changes
    * Overlay() automatically downloads an overlays on instantiation by default. 
@@ -53,6 +48,7 @@ Documentation updated:
    * The pynq.iop subpackage has been restructured into lib.arduino and lib.pmod
 
       For example:
+
       .. code-block:: Python
    
          from pynq.iop import Arduino_Analog 
@@ -83,10 +79,6 @@ Documentation updated:
 * New Python Packages 
    * cython 
 
-* Updated Python Pacakges 
-
-* Other changes
-
 * IP changes
    * Updated Trace Analyzer
    * Updated Video subsytem with improved performance, and support for color
@@ -101,12 +93,13 @@ Documentation updated:
    
 * Documentation changes
    * Restructured documentation
-   * Added Create Overlays section
-   * Added section on Logictools overlay
-   * Expanded Interrupts section
-   * Added PYNQ IP section
-   * Expanded IOP sections
-   * Added PYNQ image build section 
+   * Added :ref:`pynq-overlays` section describing each overlay and its hardware
+     components
+   * Added :ref:`pynq-libraries` section descriping Python API for each hardware
+     component
+   * Added :ref:`pynq-package` section for Python Docstrings
+   * Creating Overlays section renamed to :ref:`overlay-design-methodology`
+   * Added :ref:`pynq-sd-card` section describing PYNQ image build process
 
 Version 1.4 
 ============================
