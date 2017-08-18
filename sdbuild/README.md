@@ -58,7 +58,7 @@ multiple boards.
 ### Root filesystem configurations
 
 A root filesystem configuration consists of a directory containing a `config`
-file  living the `rootfs_configs` directory. The config file is responsible for
+file in the `rootfs_configs` directory. The config file is responsible for
 setting the multistrap configuration to be used to generate the initial
 filesystem, a set of *patch sets* to apply to configure the image and a series
 of *packages* to install. Packages are split into two stages - stage one
