@@ -138,7 +138,7 @@ MicroBlaze have a similar architecture, but have different IP configurations
 to support the different sets of peripheral and interface pins.
 
 PYNQ MicroBlaze block diagram and examples can be found in 
-:ref:`pynq-libraries`. 
+:ref:`pynq-microblaze-subsystem`. 
 
 Trace Analyzer
 ----------------
