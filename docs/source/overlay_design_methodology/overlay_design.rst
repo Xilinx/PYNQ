@@ -46,9 +46,6 @@ but Vivado should be used to generate and export the Tcl file for the block
 diagram. This automatically generated Tcl should ensure that it can be parsed
 correctly by the PYNQ.
 
-Generate overlay Tcl file
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
 To generate the Tcl for the Block Diagram from the Vivado GUI:
 
    * Click **File > Export > Block Design**  
@@ -59,7 +56,8 @@ Or, run the following in the Tcl console:
 
    write_bd_tcl
       
-The Tcl filename should match the .bit filename. E.g. my_overlay.bit and my_overlay.tcl
+The Tcl filename should match the .bit filename. For example, `my_overlay.bit` 
+and `my_overlay.tcl`.
 
 The Tcl is parsed when the overlay is instantiated and downloaded. 
 
@@ -78,11 +76,10 @@ Programmability
 
 An overlay should have post-bitstream programmability to allow customization of
 the system. A number of reusable PYNQ IP blocks are available to support
-programmability. For example, an IOP can be used on Pmod, and Arduino
-interfaces. IP from the PYNQ DIO overlay can be reused to provide run-time
+programmability. For example, a PYNQ MicroBlaze can be used on Pmod, and Arduino
+interfaces. IP from the various overlays can be reused to provide run-time
 configurability.
 
-See the section :ref:`pynq-libraries`
 
 Zynq PS Settings
 ----------------
@@ -109,10 +106,10 @@ Existing Overlays
 -----------------
 
 Existing overlays can be used as a starting point to create a new overlay. The
-*base* overlay can be found in the *boards* directory in the Pynq repository,
+*base* overlay can be found in the *boards* directory in the PYNQ repository,
 and includes reference IP for peripherals on the board:
 
-   ``<GitHub repository>/boards/<board name>/vivado/base``
+   ``<PYNQ repository>/boards/Pynq-Z1/base``
   
 A makefile exists in each folder that can be used to rebuild the Vivado project
 and generate the bitstream and Tcl for the overlay. (On windows, instead of
@@ -121,5 +118,5 @@ using *make*, the Tcl file can be sourced from Vivado.)
 The bitstream and Tcl for the overlay are available on the board, and also in
 the GitHub project repository:
 
-   ``<GitHub Repository>/boards/<board name>/bitstream/``
+   ``<PYNQ repository>/boards/Pynq-Z1/base``
 

@@ -1,3 +1,5 @@
+.. _pynq-lib-switch:
+
 pynq.lib.switch Module
 ======================
 
