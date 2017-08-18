@@ -1,3 +1,5 @@
+.. _overlay-design-methodology:
+
 **************************
 Overlay Design Methodology
 **************************

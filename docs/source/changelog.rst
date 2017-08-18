@@ -2,39 +2,37 @@
 Change Log
 ************************
 
-.. contents:: Table of Contents
-   :depth: 2
-
-
 Version 2.0
 ============================
 
-The latest PYNQ image for the Pynq-Z1: 
+Image release: pynq_z1_image_v2.0
 
-* The PYNQ v2.0 image will be available for download here 
+Documentation updated: 18 Aug 2017
 
-This image corresponds to the `v2.0 tag branch on the Pynq GitHub repository
-<https://github.com/Xilinx/PYNQ/tree/v2.0>`_.
-
-This version of the documentation refers to the new image. The previous version
-of the documentation, corresponding to the previous image release, can be
-accessed from the ReadTheDocs version menu.
-
-Summary of updates
------------------------
-
-* Repository restructured to provide better support for multiple platforms
+* Overlay changes
+   * New logictools overlay
+   * Updated to new Trace Analyzer IP in the base overlay
+* Repository Changes
+   * Repository restructured to provide better support for multiple platforms
+   * Repository now supports direct pip install
+      * update_pynq.sh is now deprecated
 * PYNQ Image build flow now available
-* Improved Video subsytem with improved performance, and support for color space
-  transforms, and grayscale conversion
-* New Logictools overlay
-* New Overlay Design Methodology section
+* Pynq API Changes
+   * pynq.lib combines previous packages: pynq.board, pynq.iop, pynq.drivers
+   * The pynq.iop subpackage has been restructured into lib.arduino and lib.pmod
 
-Image release:
+      For example:
 
-Documentation updated:  
+      .. code-block:: Python
+   
+         from pynq.iop import Arduino_Analog 
+   
+      is replaced by:
 
-* Pynq API/driver changes
+      .. code-block:: Python
+      
+         from pynq.lib.arduino import Arduino_Analog
+
    * Overlay() automatically downloads an overlays on instantiation by default. 
      Explicit .download() is not required
    * DMA driver replaced with new version
@@ -50,63 +48,35 @@ Documentation updated:
         dma.wait()
         # wait dma.wait_async() also available in coroutines
 
-   * The pynq.iop subpackage has been restructured into lib.arduino and lib.pmod
 
-      For example:
-      .. code-block:: Python
-   
-         from pynq.iop import Arduino_Analog 
-   
-      is replaced by:
-
-      .. code-block:: Python
-      
-         from pynq.lib.arduino import Arduino_Analog
-
-
-      
-   * Video API has been changed to support to support new video architecture,
-     Numpy objects, and color space/pixel width conversion
-   * New PynqMicroblaze module to allow control of a MicroBlaze subsystem
-   * New AxiGPIO driver
+   * New Video subsystem with support for openCV style frame passing, color space
+     transforms, and grayscale conversion
+   * New PynqMicroblaze parent class to implement any PYNQ MicroBlaze subsystem
    * New DefaultIP driver to access MMIO, interrupts and GPIO for an IP and
      is used as the base class for all IP drivers
    * New DefaultHierarchy driver to access contained IP as attributes and is
      used as the base class for all hierarchy drivers
-   * Uniform method for instantiating drivers by passing in an entry from the
-     IP or hierarchy dictionary
-
+   * New AxiGPIO driver
 * Linux changes   
    * Addition USB Ethernet drivers added
    * Start-up process added to systemd services 
-   
 * New Python Packages 
    * cython 
-
-* Updated Python Pacakges 
-
-* Other changes
-
 * IP changes
-   * Updated Trace Analyzer
-   * Updated Video subsytem with improved performance, and support for color
-     space transforms, and grayscale conversion
+   * Updated Trace Analyzer, deprecated Trace Buffer
+   * Updated Video subsytem with added HLS IP to do color space transforms, and
+     grayscale conversion
    * Added new logictools overlay IP: Pattern Generator, Boolean Generator, FSM
      Generator
-   
-* Overlay changes
-   * Added logictools overlay
-   * Updated to new trace buffer IP in the base overlay
-
-   
 * Documentation changes
    * Restructured documentation
-   * Added Create Overlays section
-   * Added section on Logictools overlay
-   * Expanded Interrupts section
-   * Added PYNQ IP section
-   * Expanded IOP sections
-   * Added PYNQ image build section 
+   * Added :ref:`pynq-overlays` section describing each overlay and its hardware
+     components
+   * Added :ref:`pynq-libraries` section descriping Python API for each hardware
+     component
+   * Added :ref:`pynq-package` section for Python Docstrings
+   * Creating Overlays section renamed to :ref:`overlay-design-methodology`
+   * Added :ref:`pynq-sd-card` section describing PYNQ image build process
 
 Version 1.4 
 ============================
