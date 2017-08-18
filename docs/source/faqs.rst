@@ -21,11 +21,12 @@ I can't connect to my board
    
       ping pynq
 
-or 
+   or 
 
    .. code-block:: console
    
       ping 192.168.2.99
+      
       
    (The default IP address of the board is : 192.168.2.99)
    
@@ -119,20 +120,21 @@ cable.
 
 See :ref:`assign-your-computer-a-static-ip`.
 
-I can't connect to the Jupyter portal or the Samba shared drive!
-----------------------------------------------------------------
+I can't connect to the Jupyter portal!
+--------------------------------------
+
+If your board is powered on, and you see the Red and Green LEDs, but still 
+can't connect to the Jupyter Portal, or see the Samba shared drive, 
+then you need to verify your IP adddresses.
 
 By default, the board has DHCP enabled. If you plug the board into a home
 router, or network switch connected to your network, it should be allocated an
 IP address automatically. If not, it should fall back to a static IP address of
-`192.168.2.99`
-   
+`192.168.2.99`.
+
 If you plug the Ethernet cable directly to your computer, you will need to
 configure your network card to have an IP in the same address
 range, e.g. `192.168.2.1`.
-   
-I have verified the IP addresses, but I still cannot connect to the board.
---------------------------------------------------------------------------
 
 VPN
 ^^^
@@ -184,7 +186,7 @@ How do I find my hostname?
 
 Connect to the board using a terminal and run:
 
-.. code-block:: console
+   .. code-block:: console
    
       hostname
    
@@ -198,9 +200,9 @@ host names.  You can change the hostname by editing the Linux hostname files:
 What is the user account and password?
 --------------------------------------
 
-Username and password for all Linux, Jupyter and Samba logins are:
-``xilinx/xilinx``.
-   
+The username for all Linux, Jupyter and Samba logins is ``xilinx``. 
+The password is ``xilinx``.
+
 
 How do I enable/disable the Jupyter notebook password?
 ------------------------------------------------------
