@@ -7,7 +7,7 @@ The Arduino subpackage is a collection of drivers for controlling
 peripherals attached to a Arduino port.
 
 An Arduino connector can be used to connect to Arduino compatible shields to
-FPGA pins. Remember that appropriate controllers must be implemented in an
+PL pins. Remember that appropriate controllers must be implemented in an
 overlay and connected to the corresponding pins before a shield can be
 used. Arduino pins can also be used as general purpose pins to connect to custom
 hardware using wires.
@@ -19,14 +19,15 @@ hardware using wires.
 Block Diagram
 -------------
 
-An Arduino IOP is available to control the Arduino interface, if provided. The
-Arduino IOP is similar to the PMOD IOP, with more AXI Controllers.
+An Arduino PYNQ MicroBlaze is available to control the Arduino interface, 
+if provided. The Arduino PYNQ MicroBlaze is similar to the Pmod PYNQ MicroBlaze, 
+with more AXI Controllers.
 
 .. image:: ../images/arduino_iop.jpg
    :align: center
 
-As indicated in the diagram, the Arduino IOP has a PYNQ MicroBlaze Subsystem, a
-configurable switch, and the following AXI controllers:
+As indicated in the diagram, the Arduino PYNQ MicroBlaze has a PYNQ MicroBlaze 
+Subsystem, a configurable switch, and the following AXI controllers:
 
 * 2x AXI I2C
 
@@ -79,8 +80,8 @@ Timer        D3 - D6 and D8 - D11
 Examples
 --------
 
-In the :ref:`base-overlay`, one Arduino instance is available: arduino
-(iop3). After the overlay is loaded this instance can be accessed as follows:
+In the :ref:`base-overlay`, one Arduino PYNQ MicroBlaze instance is available. 
+After the overlay is loaded this instance can be accessed as follows:
 
 .. code-block:: Python
 
@@ -93,10 +94,10 @@ In the :ref:`base-overlay`, one Arduino instance is available: arduino
 More information about the Arduino subpackage, its components, and its API can be
 found in the :ref:`pynq-lib-arduino` section.
 
-For more examples, see the Arduino Notebooks folder on the Pynq-Z1 board in the
-following directory:
+For more examples, see the notebooks in the following directory on the PYNQ-Z1 
+board: 
 
 .. code-block:: console
 
-   <Jupyter Home>/base/arduino/
+   <Jupyter Dashboard>/base/arduino/
 
