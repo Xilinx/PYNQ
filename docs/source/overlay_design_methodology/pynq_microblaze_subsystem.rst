@@ -428,7 +428,7 @@ all the PYNQ MicroBlaze peripherals in the subsystem.
 
    
 Controlling the Pmod PYNQ MicroBlaze Switch
--------------------------------
+-------------------------------------------
 
 The PYNQ MicroBlaze switch needs to be configured by the PYNQ MicroBlaze 
 application before any peripherals can be used. This can be done statically 
@@ -511,7 +511,7 @@ OR'd together internally.
 This is not recommended and should not be done unintentionally. 
 
 Controlling the Arduino PYNQ MicroBlaze Switch
--------------------------------------
+----------------------------------------------
 
 Switch mappings used for IO switch configuration:
 
