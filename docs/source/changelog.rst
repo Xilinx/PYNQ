@@ -12,14 +12,11 @@ Documentation updated: 18 Aug 2017
 * Overlay changes
    * New logictools overlay
    * Updated to new Trace Analyzer IP in the base overlay
-   
 * Repository Changes
-  * Repository restructured to provide better support for multiple platforms
-  * Repository now supports direct ``pip install``
-    * update_pynq.sh is now deprecated
-
+   * Repository restructured to provide better support for multiple platforms
+   * Repository now supports direct pip install
+      * update_pynq.sh is now deprecated
 * PYNQ Image build flow now available
-
 * Pynq API Changes
    * pynq.lib combines previous packages: pynq.board, pynq.iop, pynq.drivers
    * The pynq.iop subpackage has been restructured into lib.arduino and lib.pmod
@@ -54,31 +51,23 @@ Documentation updated: 18 Aug 2017
 
    * New Video subsystem with support for openCV style frame passing, color space
      transforms, and grayscale conversion
-
    * New PynqMicroblaze parent class to implement any PYNQ MicroBlaze subsystem
-
    * New DefaultIP driver to access MMIO, interrupts and GPIO for an IP and
      is used as the base class for all IP drivers
-
    * New DefaultHierarchy driver to access contained IP as attributes and is
      used as the base class for all hierarchy drivers
-
    * New AxiGPIO driver
-
 * Linux changes   
    * Addition USB Ethernet drivers added
    * Start-up process added to systemd services 
-   
 * New Python Packages 
    * cython 
-
 * IP changes
    * Updated Trace Analyzer, deprecated Trace Buffer
    * Updated Video subsytem with added HLS IP to do color space transforms, and
      grayscale conversion
    * Added new logictools overlay IP: Pattern Generator, Boolean Generator, FSM
      Generator
-   
 * Documentation changes
    * Restructured documentation
    * Added :ref:`pynq-overlays` section describing each overlay and its hardware
