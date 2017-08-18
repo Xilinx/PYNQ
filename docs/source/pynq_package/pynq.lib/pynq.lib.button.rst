@@ -1,3 +1,5 @@
+.. _pynq-lib-button:
+
 pynq.lib.button Module
 ======================
 
