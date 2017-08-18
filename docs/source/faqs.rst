@@ -15,33 +15,30 @@ I can't connect to my board
 
 2. Your board and PC/laptop must be on the same network, or have a direct
    network connection. Check that you can *ping* the board (hostname, or IP
-   address) from a command prompt or terminal on your host PC
+   address) from a command prompt or terminal on your host PC:
    
    .. code-block:: console
    
-      >ping pynq
+      ping pynq
 
-or 
+   or 
 
    .. code-block:: console
    
-      >ping 192.168.2.99
+      ping 192.168.2.99
+      
       
    (The default IP address of the board is : 192.168.2.99)
    
 3. Log on to the board through a terminal, and check the system is
-   running. i.e. that the Linux shell is accessible. See below for details on
+   running, i.e. that the Linux shell is accessible. See below for details on
    logging on with a terminal.
 
-4. From a terminal, check you can ping the board from your host PC, and also
-   ping your host PC from the board
-
-   If you can't ping the board, or the host PC, check your network settings.
+4. If you can't ping the board, or the host PC, check your network settings.
          
-   * You must ensure board your PC and board are connected to the same network,
-     and have IP addresses in the same range. If your network cables is
-     connected directly to your PC/laptop and board, you may need to set a
-     static IP address for your PC/laptop manually. See
+   * You must ensure your PC/laptop and board have IP addresses in the same range. 
+     If your network cables are connected directly to your PC/laptop and board, 
+     you may need to set a static IP address for your PC/laptop manually. See
      :ref:`assign-your-computer-a-static-ip`.
          
    * If you have a proxy setup, you may need to add a rule to bypass the board
@@ -76,16 +73,19 @@ It may take the hostname (pynq) some time to resolve on your network. If you
 know the IP address of the board, it may be faster to use the IP address to
 navigate to the Jupyter portal instead of the hostname.
 
-e.g. In your browser, go to:
+For example, in your browser, go to http://192.168.2.99:9090 if the board is
+using the static IP address 192.168.2.99.
+
+You can find the IP by first connecting a terminal to the board, then running 
+the following command in Linux command line:
 
    .. code-block:: console
    
-      http://192.168.2.99:9090
+      ifconfig
 
-You need to know the IP address of the board first. You can find the IP by
-connecting a terminal to the board. You can run `ifconfig` in the Linux shell on
-the board to check the network settings. Check the settings for *eth0* and look
-for an IP address.
+Check the settings for *eth0* and look for an IP address.
+
+
 
 I don't have an Ethernet port on my PC/Laptop
 ---------------------------------------------
@@ -118,25 +118,23 @@ need to assign a static IP address in the same range to the computer.  This
 allows your computer and board to communicate to each other over the Ethernet
 cable.
 
-See :ref:`assign-your-computer-a-static-ip`
+See :ref:`assign-your-computer-a-static-ip`.
 
 I can't connect to the Jupyter portal!
 --------------------------------------
 
-My Board is powered on, and I see the Red and Green LEDs, but I can't connect to
-the Jupyter Portal, or see the Samba shared drive:
+If your board is powered on, and you see the Red and Green LEDs, but still 
+can't connect to the Jupyter Portal, or see the Samba shared drive, 
+then you need to verify your IP adddresses.
 
 By default, the board has DHCP enabled. If you plug the board into a home
 router, or network switch connected to your network, it should be allocated an
 IP address automatically. If not, it should fall back to a static IP address of
-`192.168.2.99`
-   
+`192.168.2.99`.
+
 If you plug the Ethernet cable directly to your computer, you will need to
 configure your network card to have an IP in the same address
-range. e.g. `192.168.2.1`
-   
-My board is connected, and I have verified the IP addresses on the board and my
-network interface, but I cannot connect to the board.
+range, e.g. `192.168.2.1`.
 
 VPN
 ^^^
@@ -168,8 +166,14 @@ change the settings as you would for any other Linux machine.
 How do I find the IP address of the board?
 ------------------------------------------
 
-Connect to the board using a terminal (see above) and type 'hostname -I' to find
-the IP address for the eth0 Ethernet adapter or the WiFi dongle.
+Connect to the board using a terminal (see above) and type:
+
+   .. code-block:: console
+   
+      hostname -I
+
+This will help you find the IP address for the eth0 Ethernet adapter or 
+the WiFi dongle.
    
 How do I set/change the static IP address on the board?
 -------------------------------------------------------
@@ -180,24 +184,25 @@ board's static IP here.
 How do I find my hostname?
 --------------------------
 
-Connect to the board using a terminal and run ``hostname``
+Connect to the board using a terminal and run:
+
+   .. code-block:: console
+   
+      hostname
    
 How do I change the hostname?
 -----------------------------
 
 If you have multiple boards on the same network, you should give them different
-host names.  You can change the hostname by editing the Linux hostname file:
-
-   .. code-block:: console
-   
-      /etc/hostname
+host names.  You can change the hostname by editing the Linux hostname files:
+``/etc/hostname`` and ``/etc/hosts``.
    
 What is the user account and password?
 --------------------------------------
 
-Username and password for all Linux, jupyter and samba logins are:
-``xilinx/xilinx``
-   
+The username for all Linux, Jupyter and Samba logins is ``xilinx``. 
+The password is ``xilinx``.
+
 
 How do I enable/disable the Jupyter notebook password?
 ------------------------------------------------------
@@ -225,7 +230,7 @@ A hashed password is saved in the Jupyter Notebook configuration file.
 
       /root/.jupyter/jupyter_notebook_config.py
 
-You can create a hashed password using the function `IPython.lib.passwd()`:
+You can create a hashed password using the function ``IPython.lib.passwd()``:
 
    .. code-block:: python
    
@@ -255,7 +260,7 @@ backward compatibility with Python 2.7.
 How do I write the Micro SD card image?
 ---------------------------------------
 
-You can find instructions in :ref:`writing-the-sd-card`
+You can find instructions in :ref:`writing-the-sd-card`.
 
 What type of Micro SD card do I need?
 -------------------------------------
@@ -267,9 +272,7 @@ rating.
 How do I connect to the board using a terminal?
 -----------------------------------------------
 
-To do this, you need to connect to the board using a terminal.
-   
-To connect a terminal:
+To do this, you need to connect to the board using a terminal:
 
 Connect a Micro USB cable to the board and your PC/Laptop, and use a terminal
 emulator (puTTY, TeraTerm etc) to connect to the board.
@@ -281,7 +284,4 @@ emulator (puTTY, TeraTerm etc) to connect to the board.
    * 1 stop bit
    * No Parity
    * No Flow Control
-   
-
-Once you connect to the board, you can configure the network interface in Linux
    

@@ -2,9 +2,6 @@
 Glossary
 ********
 
-.. contents:: Table of Contents
-   :depth: 2
-
 .. glossary::
 
 
@@ -15,16 +12,13 @@ A-G
    All Programmable System on Chip
 
   BSP 
-   A board support package (BSP) is a collection of low-level libraries and drivers.  The Xilinx® software development Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package
+   A board support package (BSP) is a collection of low-level libraries and drivers. The Xilinx® software development Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package
 
   FPGA
    `Field Programmable Gate Arrays (FPGAs) <http://www.xilinx.com/training/fpga/fpga-field-programmable-gate-array.htm>`_ are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks.
 
 H-R
 ===
-
-  Hardware Platform
-   An SDK project
    
   HDF
    Hardware Definition File (.hdf). This file is created by Vivado and contains information about a processor system in an FPGA overlay. The HDF specifies the peripherals that exist in the system, and the memory map. This is used by the BSP to build software libraries to support the available peripherals.
@@ -35,8 +29,8 @@ H-R
   IIC
    Inter-Integrated Circuit; multi-master, multi-slave, single-ended, serial computer bus protocol
 
-  IOPs
-   Input/Output Processors
+  IOP
+   Input/Output Processor.
 
   Jupyter (Notebooks)
    `Jupyter <https://www.jupyter.org>`_ is an open source project consisting of an interactive, web application that allows users to create and share notebook documents that contain live code and the full range of rich media supported by modern browsers. These include text, images, videos, LaTeX-styled equations, and interactive widgets. The Jupyter framework is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities. Its uses include: data cleaning and transformation, numerical simulation, statistical modelling, machine learning and much more.
