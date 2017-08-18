@@ -1,10 +1,8 @@
 Logictools Overlay
 ==================
 
-Introduction
----------------------
 
-The *logictools* overlay consists of programmable hardware blocks to connect to
+The logictools overlay consists of programmable hardware blocks to connect to
 external digital logic circuits. Finite state machines, Boolean logic functions
 and digital patterns can be generated from Python. A programmable switch
 connects the inputs and outputs from the hardware blocks to external IO
@@ -18,7 +16,7 @@ PYNQ-Z1 Block Diagram
 .. image:: ../images/logictools_pynqz1.png
    :align: center
 
-The PYNQ-Z1 Logictools overlay includes four main hardware blocks:
+The logictools overlay on PYNQ-Z1 includes four main hardware blocks:
 
 * Pattern Generator
 * FSM Generator
@@ -63,74 +61,75 @@ E.g. the trace analyzer can be used with the pattern generator to verify the
 data sent to the external pins, or with the FSM to check the input, output or
 states to verify or debug a design.
 
+PYNQ MicroBlaze
+---------------
+
+A PYNQ MicroBlaze is used to control all the generators and analyzers. The
+PYNQ MicroBlaze subsystem on logictools overlay also manages contiguous memory
+buffers, configures the clock frequency, and keeps track of the generator 
+status. For more information, please see :ref:`pynq-libraries`. 
 
 Python API
 ----------
 
-The API for the logictools generators and trace analyzer can be found in the
-PYNQ libraries section.
+The API for the logictools generators and trace analyzer can be found in 
+:ref:`pynq-libraries`.
 
 Rebuilding the Overlay
 ----------------------
 
 The process to rebuild the logictools overlay is similar to the base overlay. 
 
+All source code for the hardware blocks is provided. Each block can also be
+reused standalone in a custom overlay.
+
+The source files for the logictools IP can be found in:
+
+.. code-block:: console
+
+   <PYNQ Repository>/boards/ip
+
 The project files for the logictools overlay can be found here:
 
 .. code-block:: console
 
-   <GitHub Repository>/boards/<board>/logictools
+   <PYNQ Repository>/boards/<board_name>/logictools
 
 
 Linux
 ^^^^^
-To rebuild the overlay, source the Xilinx tools and run *make* in the overlay
-directory.
-
-Assuming PYNQ has been cloned to /home: 
+To rebuild the overlay, source the Xilinx tools first. Then assuming PYNQ has 
+been cloned: 
 
 .. code-block:: console
 
-   cd /home/PYNQ/boards/Pynq-Z1/logictools
-   $ make 
+   cd <PYNQ Repository>/boards/Pynq-Z1/logictools
+   make 
 
 Windows
 ^^^^^^^
 
-To rebuild from the Vivado GUI: open Vivado. 
-In the Vivado Tcl command line window change to the *logictools* directory, and 
-source the Tcl files as indicated below. 
+To rebuild from the Vivado GUI, open Vivado. In the Vivado Tcl command line 
+window, change to the correct directory, and source the Tcl files as 
+indicated below. 
 
-Assuming PYNQ has been cloned to c:/
+Assuming PYNQ has been cloned:
  
 .. code-block:: console
 
-   cd c:/PYNQ/boards/Pynq-Z1/logictools
+   cd <PYNQ Repository>/boards/Pynq-Z1/logictools
    source ./build_logictools_ip.tcl
    source ./logictools.tcl
 
-To build from the command line: open the Vivado 2016.1 Tcl Shell, and run the 
+To build from the command line, open the Vivado 2016.1 Tcl Shell, and run the 
 following:
 
 .. code-block:: console
 
-   cd c:/PYNQ/boards/Pynq-Z1/logictools
+   cd <PYNQ Repository>/boards/Pynq-Z1/logictools
    vivado -mode batch -source build_logictools_ip.tcl
    vivado -mode batch -source logictools.tcl
    
 Note that you must change to the overlay directory, as the .tcl files has 
 relative paths that will break if sourced from a different location.
-
-Logictools IP and Project Files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-All source code for the hardware blocks is provided. Each block can also be
-reused standalone in a custom overlay.
-
-The source files for the logictools IP can be found in the same location as the
-other PYNQ IP:
-
-.. code-block:: console
-
-   <GitHub Repository>/boards/ip
 
