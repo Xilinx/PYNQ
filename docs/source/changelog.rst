@@ -5,7 +5,7 @@ Change Log
 Version 2.0
 ============================
 
-Image release: pynq_z1_image_v2.0
+Image release: pynq_z1_v2.0
 
 Documentation updated: 18 Aug 2017
 
