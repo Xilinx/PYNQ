@@ -23,8 +23,8 @@ asynchronous, IO-bound tasks.
 The foundation of asyncio in Pynq is the ``Interrupt`` class which provides an
 asyncio-style Event that can be used for waiting for interrupts to be
 raised. Other classes such as the regular and video DMA engines, AXI GPIO driver
-and the IOP interface are build on top of the interrupt event to provide asyncio
-coroutines for any functions that might otherwise block.
+and the Pynq Microblaze interface are build on top of the interrupt event to
+provide asyncio coroutines for any functions that might otherwise block.
 
 Asyncio Fundamentals
 --------------------
@@ -178,7 +178,7 @@ is defined:
 
 .. code-block:: Python
 
-    base = pynq.Overlay('base.bit')
+    base = pynq.overlays.base.BaseOverlay('base.bit')
 
     async def button_to_led(number):
         button = base.buttons[number]
@@ -217,7 +217,7 @@ e.g.
 .. code-block:: Python
 
     def __init__(self)
-        self.iop = request_iop(iop_id, IOP_EXECUTABLE)
+        self.iop = pynq.lib.PynqMicroblaze(mb_info, IOP_EXECUTABLE)
         if self.iop.interrupt is None:
            warn("Interrupts not available in this Overlay")
 
@@ -288,7 +288,7 @@ an Interrupt is as follows:
 .. code-block:: Python
 
     while condition:
-        await interrupt.wait_async()
+        await interrupt.wait()
         # Clear interrupt
 
 This pattern avoids race conditions between the interrupt and the controller and
