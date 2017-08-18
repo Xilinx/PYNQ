@@ -3,30 +3,31 @@
 Grove
 =====
 
-The Grove subpackage provides drivers for Grove peripherals on PMOD pins using
-the *PYNQ Grove Adapter* and on Arduino pins using the *PYNQ Arduino Shield*
+The Grove peripherals can be accessed on Pmod pins using
+the *PYNQ Grove Adapter* and on Arduino pins using the *PYNQ Shield*.
 
 Block Diagram
 -------------
 
-There are two shields available to connect Grove peripherals to the PYNQ-Z1
+There are two connectors available to connect Grove peripherals to the PYNQ-Z1
 Board.
 
-PMOD
+Pmod
 ^^^^
 
-The first option for connecting Grove peripherals uses the PMOD IOP.
+The first option for connecting Grove peripherals uses the Pmod PYNQ 
+MicroBlaze.
 
 .. image:: ../images/pmod.png
    :align: center
 	
-Grove devices can be connected to PYNQ-Z1 through the PMOD ports using the *PYNQ
-Grove Adapter*
+Grove devices can be connected to PYNQ-Z1 through the Pmod ports using the 
+*PYNQ Grove Adapter*.
 
 .. image:: ../images/pmod_grove_adapter.jpg
    :align: center
 
-On the *PYNQ Grove Adapter* G1 and G2 map to PMOD pins [0,4] and [1,5], which
+On the *PYNQ Grove Adapter* G1 and G2 map to Pmod pins [0,4] and [1,5], which
 are connected to pins with pull-down resistors. Ports G1 and G2 support the SPI
 protocol, GPIO, and timer Grove peripherals, but not IIC peripherals. Ports G3
 and G4 map to pins [2,6], [3,7], which are connected to pins with pull-up
@@ -45,18 +46,19 @@ SPI          G1, G2
 Arduino
 ^^^^^^^
 
-The second option for connecting Grove peripherals uses the Arduino IOP.
+The second option for connecting Grove peripherals uses the Arduino PYNQ 
+MicroBlaze.
 
 .. image:: ../images/arduino_iop.jpg
    :align: center
 	
-Grove devices can be connected to PYNQ-Z1 through the PMOD ports using the *PYNQ
-Arduino shield*
+Grove devices can be connected to PYNQ-Z1 through the Arduino ports using the 
+*PYNQ Shield*.
 
 .. image:: ../images/arduino_shield.jpg
    :align: center
 
-On the *PYNQ Arduino Shield* there are 4 IIC Grove connectors (labeled I2C), 8
+On the *PYNQ Shield* there are 4 IIC Grove connectors (labeled I2C), 8
 vertical Grove Connectors (labeled G1-G7 and UART), and four horizontal Grove
 Connectors (labeled A1-A4). The SCL and SDA pins are connected to the SCL and
 SDA pins on the Arduino header.
@@ -72,16 +74,16 @@ SPI          G7, G6
 GPIO         UART, G1 - G7
 ==========   =========================
 
-A list of drivers provided for Grove peripherals can be found in the
-:ref:`pynq-lib-pmod` section for the *PYNQ Grove Adapter* and in the
-:ref:`pynq-lib-arduino` for the *PYNQ Arduino Shield*.
+A list of drivers provided for Grove peripherals can be found in 
+:ref:`pynq-lib-pmod` for the *PYNQ Grove Adapter* and in 
+:ref:`pynq-lib-arduino` for the *PYNQ Shield*.
 
 Examples
 --------
 
-In the :ref:`base-overlay`, two PMOD instances are available: PMODA (iop1) and
-PMODB (iop2). After the overlay is loaded Grove adapters connected theses
-instances can be accessed as follows:
+In :ref:`base-overlay`, two Pmod instances are available: PMODA and
+PMODB. After the overlay is loaded, the Grove peripherals can be accessed 
+as follows:
 
 .. code-block:: Python
 
@@ -94,19 +96,18 @@ instances can be accessed as follows:
    grove_buzzer = Grove_Buzzer(base.PMODB,PMOD_GROVE_G1)
    grove_buzzer.play_melody()
 
-More information about the Grove drivers in the PMOD subpackage, the supported
-peripherals and APIs can be found in the :ref:`pynq-lib-pmod` section.
+More information about the Grove drivers in the Pmod subpackage, the supported
+peripherals, and APIs can be found in :ref:`pynq-lib-pmod`.
 
-For more examples using the *PYNQ Grove Adapter*, see the PMOD Notebooks folder
-on the Pynq-Z1 board in the following directory:
+For more examples using the *PYNQ Grove Adapter*, see the notebooks in the 
+following directory on the PYNQ-Z1 board:
 
 .. code-block:: console
 
-   <Jupyter Home>/base/pmod/
+   <Jupyter Dashboard>/base/pmod/
 
-In the :ref:`base-overlay`, one Arduino IOP instance is available:
-Arduino. After the overlay is loaded Grove adapters connected theses instances
-can be accessed as follows:
+In :ref:`base-overlay`, one Arduino PYNQ MicroBlaze instance is available. 
+After the overlay is loaded, the Grove peripherals can be accessed as follows:
 
 .. code-block:: Python
 
@@ -119,13 +120,13 @@ can be accessed as follows:
    ledbar = Grove_LEDbar(base.ARDUINO,ARDUINO_GROVE_G4)
    ledbar.reset()
 
-More information about the Grove drivers in the Arduino subpackage, the supported
-peripherals and APIs can be found in the :ref:`pynq-lib-arduino` section.
+More information about the Grove drivers in the Arduino subpackage, the 
+supported peripherals, and APIs can be found in :ref:`pynq-lib-arduino`.
 
-For more examples using the *PYNQ Arduino Shield*, see the Arduino Notebooks
-folder on the Pynq-Z1 board in the following directory:
+For more examples using the *PYNQ Shield*, see the notebooks in the following 
+directory on the PYNQ-Z1 board:
 
 .. code-block:: console
 
-   <Jupyter Home>/base/arduino/
+   <Jupyter Dashboard>/base/arduino/
    
