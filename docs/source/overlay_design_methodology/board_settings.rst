@@ -12,7 +12,7 @@ project can be rebuilt using the makefile/TCL available here:
 
    .. code-block:: console
 
-      <GitHub repository>/boards/<board name>/vivado/base
+      <GitHub repository>/boards/Pynq-Z1/base
       
 The base design can be used as a starting point to create a new design.
 

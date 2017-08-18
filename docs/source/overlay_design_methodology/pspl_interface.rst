@@ -1,7 +1,7 @@
 PS/PL Interfaces
 ================
 
-There are four PYNQ classes that are used to manage data movement between the
+There are four ``pynq`` classes that are used to manage data movement between the
 Zynq PS (including the PS DRAM) and PL.
 
 * MMIO - Memory Mapped IO
@@ -10,7 +10,9 @@ Zynq PS (including the PS DRAM) and PL.
 * GPIO - General Purpose Input/Output
 
 The class used depends on the Zynq PS interface the IP is connected to, and the
-interface of the IP.
+interface of the IP. Fore more information on these classes, please refer to
+:ref:`pynq-libraries`.
+
 
 GPIO
 ----
@@ -32,14 +34,15 @@ command can transfer 32 bits of data. MMIO is most appropriate for reading and
 writing small amounts of data.
 
 The following example sets up an MMIO instance to access memory location from
-the IP_BASE_ADDRESS (0x40000000) to the IP_BASE_ADDRESS + ADDRESS RANGE
+the ``IP_BASE_ADDRESS`` (0x40000000) to the ``IP_BASE_ADDRESS + ADDRESS RANGE``
 (0x40001000).
 
-Some *data* (e.g. 0xdeadbeef) is sent to location ADDRESS_OFFSET
-(0x10). ADDRESS_OFFSET is offset from the IP base address IP_BASE_ADDRESS. This
-means 0xdeadbeef will be written to 0x40000010.
+Some data (e.g. ``0xdeadbeef``) is sent to location ``ADDRESS_OFFSET``
+(0x10). ``ADDRESS_OFFSET`` is offset from the IP base address 
+``IP_BASE_ADDRESS``. This means ``0xdeadbeef`` will be written to 
+``0x40000010``.
 
-The same location is then read and stored in *result*. 
+The same location is then read and stored in ``result``. 
 
 .. code-block:: Python
 
@@ -54,8 +57,8 @@ The same location is then read and stored in *result*.
    self.mmio.write(ADDRESS_OFFSET, data)
    result = self.mmio.read(ADDRESS_OFFSET)
 
-This example assumes the memory mapped area defined for the MMIO, 0x40000000 -
-0x40001000, is accessible to the PS.
+This example assumes the memory mapped area defined for the MMIO, 
+from ``0x40000000`` to ``0x40001000``, is accessible to the PS.
 
 Xlnk
 ----
@@ -78,13 +81,13 @@ memory can be allocated in Linux using Xlnk. Then the physical pointer is sent
 to the MicroBlaze, and finally the MicroBlaze program and write data to the
 memory buffer using the pointer.
 
-Xlnk can allocate arrays using the Python NumPy package. This allows the data
+Xlnk can allocate arrays using the Python ``NumPy`` package. This allows the data
 type, and size/shape of the array to be specified using NumPy.
 
 Xlnk is also used implicitly by the DMA class to allocate memory. 
 
 
-Create an Xlnk instance, *xlnk* and use ``cma_array()`` to allocate a *unsigned
+Create an Xlnk instance and use ``cma_array()`` to allocate a *unsigned
 32-bit int* contiguous block of memory of 5 elements:
 
 Allocating the memory buffer:
@@ -117,7 +120,7 @@ Writing data to the buffer:
 DMA
 ---
 
-The PYNQ DMA class supports the `AXI Direct Memory Access IP
+The ``pynq`` DMA class supports the `AXI Direct Memory Access IP
 <https://www.xilinx.com/support/documentation/ip_documentation/axi_dma/v7_1/pg021_axi_dma.pdf>`_.
 This allows data to be read from DRAM, and sent to an AXI stream, or received
 from a stream and written to DRAM.
@@ -127,7 +130,7 @@ This example assumes the overlay contains two AXI Direct Memory Access IP, one
 with a read channel from DRAM, and an AXI Master stream interface (for an output
 stream), and the other with a write channel to DRAM, and an AXI Slave stream
 interface (for an input stream). The two DMAs are connected in a loopback
-configuration through an AXI FIFO
+configuration through an AXI FIFO.
 
 In the Python code, two DMA instances are created, one for sending data, and the
 other for receiving.
