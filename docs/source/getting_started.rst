@@ -43,7 +43,7 @@ Micro SD card preloaded with the PYNQ-Z1 image, you can skip this step.
 To make your own PYNQ Micro-SD card:
 
   1. `Download the PYNQ-Z1 image
-     <https://files.digilent.com/Products/PYNQ/pynq_z1_image_2017_02_10.zip>`_
+     <https://files.digilent.com/Products/PYNQ/pynq_z1_v2.0.img.zip>`_
   2. Unzip the image 
   3. Write the image to a blank Micro SD card (minimum 8GB recommended)
    
