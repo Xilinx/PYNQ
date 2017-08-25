@@ -289,6 +289,8 @@ if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
     run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
     if CPU_ARCH == ZYNQ_ARCH:
         run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    elif CPU_ARCH == ZU_ARCH:
+        run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/", "libdisplayport.so")
     backup_notebooks()
     copy_common_notebooks()
     copy_getting_started_notebooks()
