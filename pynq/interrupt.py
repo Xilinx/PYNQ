@@ -32,7 +32,9 @@ import asyncio
 import functools
 import os
 import weakref
+import warnings
 from .pl import PL
+from .ps import CPU_ARCH, ZU_ARCH, ZYNQ_ARCH
 from .mmio import MMIO
 
 __author__ = "Peter Ogden"
@@ -105,15 +107,14 @@ def _get_uio_device(irq):
         for line in f:
             cols = line.split()
             if len(cols) >= 7:
-                if cols[4] == str(irq):
-                    # Hack to work on multiple kernel versions
-                    dev_names = [cols[5], cols[6]]
+                if cols[-3] == str(irq):
+                    dev_names = cols[-1]
     if dev_names is None:
         return None
     for dev in os.listdir("/sys/class/uio"):
         with open('/sys/class/uio/' + dev + '/name', 'r') as f:
             name = f.read().strip()
-        if name in dev_names:
+        if name == dev_names:
             return '/dev/' + dev
     return None
 
@@ -155,6 +156,13 @@ class _InterruptController(object):
     """
     _controllers = []
     _last_timestamp = None
+    if CPU_ARCH == ZYNQ_ARCH:
+        irq_offset = 61
+    elif CPU_ARCH == ZU_ARCH:
+        irq_offset = 121
+    else:
+        warnings.warn("Pynq does not support the CPU Architecture: {}"
+                      .format(CPU_ARCH), ResourceWarning)
 
     @staticmethod
     def get_controller(name):
@@ -209,7 +217,7 @@ class _InterruptController(object):
         parent = PL.interrupt_controllers[name]['parent']
         number = PL.interrupt_controllers[name]['index']
         if parent == "":
-            uiodev = _get_uio_device(61 + number)
+            uiodev = _get_uio_device(self.irq_offset + number)
             if uiodev is None:
                 raise ValueError('Could not find UIO device for interrupt pin '
                                  'for IRQ number {}'.format(number))
