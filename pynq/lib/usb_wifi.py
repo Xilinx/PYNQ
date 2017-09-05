@@ -91,7 +91,7 @@ class Usb_Wifi(object):
         """
 
         # get bash string into string format for key search
-        wifikey_str = sproc.check_output('wpa_passphrase {} {}'.format(ssid,
+        wifikey_str = sproc.check_output('wpa_passphrase "{}" "{}"'.format(ssid,
                                          password), shell=True)
         wifikey_tokens = wifikey_str.decode().split('\n')
 
