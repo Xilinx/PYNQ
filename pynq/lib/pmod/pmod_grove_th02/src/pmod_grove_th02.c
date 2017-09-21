@@ -34,7 +34,7 @@
  *
  * @file pmod_grove_th02.c
  * IOP code (MicroBlaze) for grove Temperature & Humidity Sensor.
- * The sensor has to be connected to a PMOD interface 
+ * The sensor has to be connected to a Pmod interface 
  * via a shield socket.
  * http://wiki.seeed.cc/Grove-TemptureAndHumidity_Sensor-High-Accuracy_\
  * AndMini-v1.0
@@ -45,7 +45,7 @@
  * Ver   Who  Date     Changes
  * ----- --- -------- -----------------------------------------------
  * 1.00a ldt 07/05/16 release
- * 1.00b gn  10/24/16 support for PYNQ-Z1
+ * 1.00b gn  10/24/16 support for Pmod interface.
  *
  * </pre>
  *
