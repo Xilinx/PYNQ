@@ -231,7 +231,6 @@ class Xlnk:
         2. This buffer is allocated inside the kernel space using
         xlnk driver. The maximum allocatable memory is defined
         at kernel build time using the CMA memory parameters.
-        For Pynq-Z1 kernel, it is specified as 128MB.
         
         The unit of `length` depends upon the `data_type` argument.
         
