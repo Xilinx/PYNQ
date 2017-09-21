@@ -999,7 +999,7 @@ PIXEL_GRAY = PixelFormat(8, COLOR_IN_YCBCR, COLOR_OUT_GRAY)
 
 
 class HDMIIn(DefaultHierarchy):
-    """Wrapper for the input video pipeline of the Pynq-Z1 base overlay
+    """Wrapper for the input video pipeline.
 
     This wrapper assumes the following pipeline structure and naming
 
@@ -1153,7 +1153,7 @@ class HDMIIn(DefaultHierarchy):
 
 
 class HDMIOut(DefaultHierarchy):
-    """Wrapper for the output video pipeline of the Pynq-Z1 base overlay
+    """Wrapper for the output video pipeline.
 
     This wrapper assumes the following pipeline structure and naming
 
@@ -1316,7 +1316,7 @@ class HDMIOut(DefaultHierarchy):
 
 
 class HDMIWrapper(DefaultHierarchy):
-    """Hierarchy driver for the entire Pynq-Z1 video subsystem.
+    """Hierarchy driver for the entire video subsystem.
 
     Exposes the input, output and video DMA as attributes. For most
     use cases the wrappers for the input and output pipelines are
@@ -1359,7 +1359,7 @@ class DisplayPort:
     """Driver for the DisplayPort output on Zynq Ultrascale Plus devices
 
     This driver provides a zero-copy interface to the DisplayPort output
-    exposing a similar API to the HDMI interface of the Pynq-Z1 board.
+    exposing a similar API to the HDMI interface.
     The API should be configured with a PixelFormat containing a FourCC
     which will be passed to the Linux video subsystem.
 
