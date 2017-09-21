@@ -330,9 +330,8 @@ class MicroblazeHierarchy(DefaultHierarchy):
 
     @property
     def mbtype(self):
-        """The defined type of the microblaze subsystem. Used by driver programs
-        to limit what microblaze subsystems the program is run on. The Pynq-Z1
-        base overlay has 'Ardiuno' and 'Pmod' microblaze types.
+        """The defined type of the microblaze subsystem. Used by driver 
+        programs to limit what microblaze subsystems the program is run on.
 
         """
         return self.mb_info['mbtype']
