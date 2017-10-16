@@ -1,0 +1,9 @@
+--- ../rootfs/etc/environment	2016-12-19 16:01:21.026382772 +0000
++++ ../imagefs/etc/environment	1970-01-01 01:00:22.380003747 +0100
+@@ -1 +1,5 @@
+-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
++PATH="/opt/sigrok/bin:/opt/microblazeel-xilinx-elf/bin:/opt/python3.6/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
++LC_ALL=en_US.UTF-8
++LANG=en_US.UTF-8
++PYNQ_JUPYTER_NOTEBOOKS=/home/xilinx/jupyter_notebooks
++PYNQ_PYTHON=python3.6

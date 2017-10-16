@@ -11,7 +11,7 @@ SCRIPT_DIR := $(CURDIR)/scripts
 
 PYNQ_UPDATE := ${WORKDIR}/PYNQ/.git/HEAD
 
-RELEASE ?= Pynq-Z1-Wily
+RELEASE ?= Pynq-Z1-Xenial
 -include ${WORKDIR}/release_info
 BUILD_RELEASE ?= ${RELEASE}
 
@@ -126,7 +126,7 @@ ifeq "${RELEASE}" "${BUILD_RELEASE}"
 	which microblaze-xilinx-elf-gcc
 	which ct-ng
 	${QEMU_EXE} -version | fgrep 2.8.0
-	vivado -version | fgrep 2016.1
+	vivado -version | fgrep 2017.2
 	sudo -n true
 	bash ${SCRIPT_DIR}/check_Env.sh
 	bash ${SCRIPT_DIR}/check_mounts.sh
