@@ -1,0 +1,11 @@
+--- ../rootfs/lib/systemd/system/serial-getty@.service	2015-10-15 13:37:04.000000000 +0100
++++ ../imagefs/lib/systemd/system/serial-getty@.service	2016-07-29 19:17:04.397124415 +0100
+@@ -20,7 +20,7 @@
+ IgnoreOnIsolate=yes
+ 
+ [Service]
+-ExecStart=-/sbin/agetty --keep-baud 115200,38400,9600 %I $TERM
++ExecStart=-/sbin/agetty --autologin xilinx --keep-baud 115200,38400,9600 %I $TERM
+ Type=idle
+ Restart=always
+ UtmpIdentifier=%I

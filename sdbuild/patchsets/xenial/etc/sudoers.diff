@@ -1,0 +1,12 @@
+--- sudoers	2017-01-18 11:58:45.660457644 +0000
++++ sudoers.new	2017-01-18 11:59:17.788456515 +0000
+@@ -6,9 +6,7 @@
+ #
+ # See the man page for details on how to write a sudoers file.
+ #
+-Defaults	env_reset
+ Defaults	mail_badpass
+-Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ 
+ # Host alias specification
+ 
