@@ -14,6 +14,18 @@
 			interrupts = <0x0 0x1d 0x4>;
 		};
 
+		ethernet@e000b000 {
+			phy-handle = <&ethernet_phy>;
+                        ethernet_phy: ethernet-phy@1{
+				reg = <1>;
+			};
+		};
+
+		slcr@f8000000 {
+			clkc@100 {
+				fclk-enable = <0xf>;
+			};
+		};
 	};
 
 
