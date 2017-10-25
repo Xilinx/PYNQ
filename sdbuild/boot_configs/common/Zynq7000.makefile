@@ -5,7 +5,7 @@ LINUX_MAKE_ARGS ?= ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- UIMAGE_LOADADDR=2
 BOOT_BITSTREAM ?= ${WORKDIR}/PYNQ/boards/${BOARD}/base/base.bit
 
 DTC_REPO := https://github.com/Xilinx/device-tree-xlnx.git
-DTC_COMMIT := 11f81055d1afad67398fa5ef443b32be8bc74433
+DTC_COMMIT := 43551819a116e862d8cc796755f81586ecaca666
 
 export BOARD_PART
 export PS_CONFIG_TCL
