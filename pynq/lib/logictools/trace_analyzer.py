@@ -416,10 +416,10 @@ class _PSTraceAnalyzer:
         to no larger than 10MHz in order for the signals to be captured
         on pins / wires.
 
-        For PMODA and PMODB, pin numbers 0-7 correspond to the pins on the
+        For Pmod header, pin numbers 0-7 correspond to the pins on the
         Pmod interface.
 
-        For ARDUINO, pin numbers 0-13 correspond to D0-D13;
+        For Arduino header, pin numbers 0-13 correspond to D0-D13;
         pin numbers 14-19 correspond to A0-A5;
         pin numbers 20-21 correspond to SDA and SCL.
 
@@ -702,6 +702,7 @@ class TraceAnalyzer:
         self.trace_csv = ''
         self.trace_sr = ''
         self.trace_pd = ''
+        self.trace_txt = ''
         self.probes = OrderedDict({})
         self.intf_spec = self._trace_analyzer.intf_spec
         self.frequency_mhz = self._trace_analyzer.frequency_mhz
@@ -775,6 +776,8 @@ class TraceAnalyzer:
             raise RuntimeError("Cannot remove trace sr file.")
         if os.system('rm -rf ' + self.trace_pd):
             raise RuntimeError("Cannot remove trace pd file.")
+        if os.system('rm -rf ' + self.trace_txt):
+            raise RuntimeError("Cannot remove trace txt file.")
 
     def run(self):
         """Start the trace capture.
@@ -1195,9 +1198,9 @@ class TraceAnalyzer:
             decoded_abs = os.getcwd() + '/' + decoded_file
 
         dir_name, _ = os.path.splitext(self.trace_sr)
-        temp_file = dir_name + '.temp'
-        if os.system('rm -rf ' + temp_file):
-            raise RuntimeError("Cannot remove temporary file.")
+        txt_file = dir_name + '.txt'
+        if os.system('rm -rf ' + txt_file):
+            raise RuntimeError("Cannot remove temporary txt file.")
         if os.system('rm -rf ' + decoded_abs):
             raise RuntimeError("Cannot remove old decoded file.")
 
@@ -1207,12 +1210,12 @@ class TraceAnalyzer:
             if i != 'NC':
                 pd_annotation += (':' + i.lower() + '=' + i)
         command = "sigrok-cli -i " + self.trace_sr + " -P " + \
-                  self.protocol + options + pd_annotation + (' > ' + temp_file)
+                  self.protocol + options + pd_annotation + (' > ' + txt_file)
         if os.system(command):
             raise RuntimeError('Sigrok-cli decode failed.')
 
         f_decoded = open(decoded_abs, 'w')
-        f_temp = open(temp_file, 'r')
+        f_temp = open(txt_file, 'r')
         j = 0
         for line in f_temp:
             m = re.search('([0-9]+)-([0-9]+)( +)(.*)', line)
@@ -1231,9 +1234,8 @@ class TraceAnalyzer:
         f_temp.close()
         f_decoded.close()
         self.trace_pd = decoded_abs
+        self.trace_txt = txt_file
 
-        if os.system('rm -rf ' + temp_file):
-            raise RuntimeError("Cannot remove temporary file.")
         if os.path.getsize(self.trace_pd) == 0:
             raise RuntimeError("No transactions and decoded file is empty.")
 
@@ -1276,3 +1278,36 @@ class TraceAnalyzer:
         pd_file.close()
 
         return annotation_lane
+
+    def get_transactions(self):
+        """List all the transactions captured.
+
+        The transaction list will only be non-empty after users have run
+        `decode()` method. An exception will be raised if the transaction
+        is empty, or the text file cannot be found.
+
+        Returns
+        -------
+        list
+            A list of dictionaries. Each bus event is a dictionary:
+            [{'command': str, 'begin': int, 'end': int}]
+        """
+        transactions = list()
+        if not self.trace_txt:
+            raise ValueError("Trace has to be decoded first.")
+
+        zero_based_correction = 1
+        with open(self.trace_txt, 'r') as f:
+            i = 1
+            for line in f:
+                m = re.search('(?P<begin>[0-9]+)-(?P<end>[0-9]+)' +
+                              '(?P<whitespace> +)(?P<command>.*)', line)
+                if m:
+                    cmd = dict()
+                    cmd['command'] = m.group('command')
+                    cmd['begin'] = int(m.group('begin'))+zero_based_correction
+                    cmd['end'] = int(m.group('end'))+zero_based_correction
+                    transactions.append(cmd)
+                i += 1
+
+        return transactions
