@@ -12,11 +12,14 @@ ${STAGE}PACKAGE_BUILD += ${GCC_MB_WORKDIR}/microblazeel-xilinx-elf/bin/mb-gcc
 ${GCC_MB_WORKDIR}/binutils: | ${GCC_MB_WORKDIR}
 	git_clone_checkout ${MB_BINUTILS_REPO} ${MB_BINUTILS_COMMIT} ${GCC_MB_WORKDIR}/binutils
 
-${GCC_MB_WORKDIR}/microblazeel-xilinx-elf/bin/mb-gcc: | ${GCC_MB_WORKDIR}/samples ${GCC_MB_WORKDIR}/binutils
+${GCC_MB_WORKDIR}/microblazeel-xilinx-elf/bin/mb-gcc: | ${GCC_MB_WORKDIR}/samples ${GCC_MB_WORKDIR}/binutils ${GCC_MB_WORKDIR}/patches
 	cd ${GCC_MB_WORKDIR} && ${GCC_MB_SOURCEDIR}/build.sh
 
 ${GCC_MB_WORKDIR}/samples: | ${GCC_MB_SOURCEDIR}/samples ${GCC_MB_WORKDIR}
 	cp -r ${GCC_MB_SOURCEDIR}/samples $@
+
+${GCC_MB_WORKDIR}/patches: | ${GCC_MB_SOURCEDIR}/patches ${GCC_MB_WORKDIR}
+	cp -r ${GCC_MB_SOURCEDIR}/patches $@
 
 ${GCC_MB_WORKDIR}:
 	mkdir -p $@

@@ -1,0 +1,8 @@
+diff --git a/99-default.link b/99-default.link
+new file mode 120000
+index 0000000..dc1dc0c
+--- /dev/null
++++ b/99-default.link
+@@ -0,0 +1 @@
++/dev/null
+\ No newline at end of file

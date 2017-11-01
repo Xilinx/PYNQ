@@ -34,6 +34,7 @@ lib32stdc++6
 libgnutls-dev
 libssl-dev
 kpartx
+nfs-common
 zerofree
 u-boot-tools
 EOT
