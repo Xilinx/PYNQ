@@ -41,7 +41,7 @@ import stat
 import warnings
 from datetime import datetime
 
-''' Board specific package delivery setup '''
+# Board specific package delivery setup
 if 'BOARD' not in os.environ:
     print("Please set the BOARD environment variable to get any BOARD specific overlays (e.g. Pynq-Z1).")
     board = None
@@ -53,12 +53,12 @@ else:
     pynq_data_files = [(os.path.join('{}/pynq/overlays'.format(site.getsitepackages()[0]), root.replace(board_folder, '')),
                         [os.path.join(root, f) for f in files]) for root, dirs, files in os.walk(board_folder)]
 
-# Pynq Family Constants
+# Device family constants
 ZYNQ_ARCH = "armv7l"
 CPU_ARCH = os.uname().machine
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH]
 
-''' Notebook Delivery '''
+# Notebook delivery
 default_nb_dir = '/home/xilinx/jupyter_notebooks'
 if 'PYNQ_JUPYTER_NOTEBOOKS' in os.environ:
     notebooks_dir = os.environ['PYNQ_JUPYTER_NOTEBOOKS']
@@ -114,7 +114,9 @@ bsp_standalone = \
      'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
 
 getting_started_notebooks = \
-    ['jupyter_notebooks.ipynb', 'python_environment.ipynb']
+    ['jupyter_notebooks.ipynb', 
+     'python_environment.ipynb',
+     'jupyter_notebooks_advanced_features.ipynb']
 
 # Merge BSP src to _video src
 video = []
@@ -125,61 +127,102 @@ video.extend(bsp_vtc)
 video.extend(_video_src)
 
 
-# Build Package Data files - notebooks, overlays
-def fill_notebooks_dir():
+# Copy notebooks in pynq/notebooks
+def copy_common_notebooks():
     if notebooks_dir is None:
         return None
 
-    # boards/BOARD/OVERLAY/notebooks
-    overlay_notebook_folders = [(ol, os.path.join(board_folder, ol, 'notebooks/')) for ol in list(os.listdir(board_folder)) + ['.']
-                                if os.path.isdir(os.path.join(board_folder, ol, 'notebooks'))]
+    common_folders_files = [f for f in os.listdir('pynq/notebooks/')]
+    for basename in common_folders_files:
+        dst_folder_file = os.path.join(notebooks_dir, basename)
+        src_folder_file = os.path.join('pynq/notebooks/', basename)
 
-    # pynq/notebooks/*
-    pynq_notebook_files = ([(os.path.join(notebooks_dir, root.replace('pynq/notebooks/', '')),
-                             [os.path.join(root, f) for f in files]) for root, dirs, files in
-                            os.walk('pynq/notebooks/')])
+        if os.path.isdir(dst_folder_file):
+            shutil.rmtree(dst_folder_file)
+            shutil.copytree(src_folder_file, dst_folder_file)
+        elif os.path.isfile(dst_folder_file):
+            os.remove(dst_folder_file)
+            shutil.copy(src_folder_file, dst_folder_file)
 
-    # boards/BOARD/OVERLAY_NAME/notebooks/*
-    for ol, nb_dir in overlay_notebook_folders:
-        pynq_notebook_files.extend([(os.path.join(notebooks_dir, root.replace(nb_dir, '{}/'.format(ol))),
-                                     [os.path.join(root, f) for f in files]) for root, dirs, files in os.walk(nb_dir)])
 
-    # docs/source/<subset of notebooks>
-    pynq_notebook_files.append((notebooks_getting_started_dir,
-                                [os.path.join('docs', 'source', nb) for nb in getting_started_notebooks]))
+# Copy notebooks in boards/BOARD/notebooks/getting_started
+def copy_getting_started_notebooks():
+    if notebooks_dir is None:
+        return None
 
-    # docs/source/images/*
-    pynq_notebook_files.extend([(notebooks_getting_started_dst_img_dir,
-                                 [os.path.join(root, f) for f in files])
-                                for root, dirs, files in os.walk(notebooks_getting_started_src_img_dir)])
+    src_folder = os.path.join(board_folder, 'notebooks/getting_started')
+    dst_folder = notebooks_getting_started_dir
+    if os.path.isdir(dst_folder):
+        shutil.rmtree(dst_folder)
+    shutil.copytree(src_folder, dst_folder)
 
-    # copy notebooks into final destination
-    for dst, files in pynq_notebook_files:
-        if not os.path.exists(dst):
-            os.makedirs(dst)
-        for file in files:
-            shutil.copy(file, dst)
-            dst_file = os.path.join(dst, os.path.basename(file))
-            os.chmod(dst_file, os.stat(dst_file).st_mode | stat.S_IWOTH)
 
-    # rename and copy getting started notebooks
+# Copy notebooks in boards/BOARD/OVERLAY/notebooks
+def copy_overlay_notebooks():
+    if notebooks_dir is None:
+        return None
+
+    overlay_notebook_folders = [
+        (os.path.join(notebooks_dir, overlay),
+         os.path.join(board_folder, overlay, 'notebooks/'))
+        for overlay in list(os.listdir(board_folder))
+        if os.path.isdir(os.path.join(board_folder, overlay, 'notebooks'))]
+
+    for dst_folder, src_folder in overlay_notebook_folders:
+        if os.path.exists(dst_folder):
+            shutil.rmtree(dst_folder)
+        shutil.copytree(src_folder, dst_folder)
+
+
+# Copy documentation files in docs/source and docs/source/images
+def copy_documentation_files():
+    if notebooks_dir is None:
+        return None
+
+    doc_files = list()
+    doc_files.append((notebooks_getting_started_dir,
+                      [os.path.join('docs', 'source', nb)
+                       for nb in getting_started_notebooks]))
+    doc_files.extend([(notebooks_getting_started_dst_img_dir,
+                       [os.path.join(root, f) for f in files])
+                      for root, dirs, files in os.walk(
+            notebooks_getting_started_src_img_dir)])
+
+    for dst, files in doc_files:
+        for f in files:
+            shutil.copy(f, dst)
+
+
+# Rename and copy getting started notebooks
+def rename_notebooks():
+    if notebooks_dir is None:
+        return None
+
     for ix, getting_started_nb in enumerate(getting_started_notebooks):
         new_nb_name = '{}_{}'.format(ix + 1, getting_started_nb)
-        src_file = os.path.join(notebooks_getting_started_dir, getting_started_nb)
-        dst_file = os.path.join(notebooks_getting_started_dir, new_nb_name)
+        src_file = os.path.join(notebooks_getting_started_dir,
+                                getting_started_nb)
+        dst_file = os.path.join(notebooks_getting_started_dir,
+                                new_nb_name)
         shutil.move(src_file, dst_file)
 
 
-# Backup Notebooks
+# Change ownership of the notebook folder
+def change_ownership():
+    subprocess.run(['chown', '-R', 'xilinx:xilinx', notebooks_dir])
+
+
+# Backup notebooks
 def backup_notebooks():
     if notebooks_dir is None:
         return None
 
-    notebooks_dir_backup = '{}_{}'.format(notebooks_dir, datetime.now().strftime("%Y_%m_%d_%H-%M-%S"))
+    notebooks_dir_backup = '{}_{}'.format(notebooks_dir, 
+        datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
     try:
         shutil.copytree(notebooks_dir, notebooks_dir_backup)
     except Exception as e:
-        print('Unable to backup notebooks {}'.format(e))
+        print('Unable to backup notebooks.')
         raise e
     return notebooks_dir_backup
 
@@ -187,8 +230,8 @@ def backup_notebooks():
 # Run Makefiles here
 def run_make(src_path, dst_path, output_lib):
     status = subprocess.check_call(["make", "-C", src_path])
-    if status is not 0:
-        print("Error while running make for", output_lib, "Exiting..")
+    if status != 0:
+        print("Error while running make for ", output_lib)
         sys.exit(1)
     shutil.copyfile(src_path + output_lib, dst_path + output_lib)
 
@@ -196,12 +239,14 @@ def run_make(src_path, dst_path, output_lib):
 if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
     run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
     run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
-
     backup_notebooks()
-    fill_notebooks_dir()
-elif(not CPU_ARCH_IS_SUPPORTED):
-    warnings.warn("Pynq does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), ResourceWarning)
+    copy_common_notebooks()
+    copy_getting_started_notebooks()
+    copy_overlay_notebooks()
+    copy_documentation_files()
+    rename_notebooks()
+    change_ownership()
+
 
 if CPU_ARCH_IS_SUPPORTED:
     ext_modules = [
@@ -213,23 +258,24 @@ if CPU_ARCH_IS_SUPPORTED:
         ),
     ]
 else:
-    warnings.warn("Pynq does not support the CPU Architecture: {}"
+    warnings.warn("PYNQ does not support the CPU Architecture: {}"
                   .format(CPU_ARCH), ResourceWarning)
     ext_modules = []
 
+
 setup(name='pynq',
-      version='2.0',
-      description='Python for Xilinx package',
-      author='XilinxPythonProject',
+      version='2.1',
+      description='(PY)thon productivity for zy(NQ)',
+      author='Xilinx PYNQ Development Team',
       author_email='pynq_support@xilinx.com',
       url='https://github.com/Xilinx/PYNQ',
       packages=find_packages(),
       download_url='https://github.com/Xilinx/PYNQ',
       package_data={
-          '': ['tests/*', 'js/*', '*.bin', '*.so', 'bitstream/*', '*.pdm'],
+          '': ['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'],
       },
       entry_points={
-          'console_scripts' : [
+          'console_scripts': [
               'start_pl_server.py = pynq.pl:_start_server',
               'stop_pl_server.py = pynq.pl:_stop_server'
           ]
@@ -240,4 +286,4 @@ setup(name='pynq',
 
 if board:
     print('Restarting PL server')
-    subprocess.run(['systemctl' ,'restart', 'pl_server'])
+    subprocess.run(['systemctl', 'restart', 'pl_server'])
