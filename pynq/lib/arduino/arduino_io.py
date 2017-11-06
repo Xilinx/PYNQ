@@ -94,7 +94,7 @@ class Arduino_IO(Arduino_DevMode):
         self.index = index
         self.direction = direction
 
-        self.microblaze.start()
+        self.start()
         if self.index in range(ARDUINO_NUM_DIGITAL_PINS):
             if self.direction == 'in':
                 self.write_cmd(ARDUINO_DIO_BASEADDR +
@@ -113,7 +113,6 @@ class Arduino_IO(Arduino_DevMode):
                 self.write_cmd(ARDUINO_AIO_BASEADDR +
                                ARDUINO_AIO_TRI_OFFSET,
                                ARDUINO_CFG_AIO_ALLOUTPUT)
-        self.microblaze.load_switch_config()
 
     def write(self, value): 
         """Send the value to the offboard Arduino IO device.
