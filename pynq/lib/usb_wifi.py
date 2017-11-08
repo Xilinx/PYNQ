@@ -35,6 +35,7 @@ import os
 import re
 import subprocess as sproc
 
+
 class Usb_Wifi(object):
     """This class controls the usb dongle wifi connection.
 
@@ -51,7 +52,7 @@ class Usb_Wifi(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, interface=None):
         """Initializes the wireless connection and assign devices identifier.
 
         Network devices are checked to find wireless components.
@@ -64,8 +65,12 @@ class Usb_Wifi(object):
         for line in net_devices.splitlines():
             m = re.match('^([\d]): ([\w]+): *', line)
             if m:
-                if m.group(2) != 'lo' and m.group(2) != 'eth0':
+                if interface is None and m.group(2).startswith('wl'):
                     self.wifi_port = m.group(2)
+                    break
+                elif interface is not None and m.group(2) == interface:
+                    self.wifi_port = m.group(2)
+                    break
 
         if not self.wifi_port:
             raise ValueError("""Wifi device not found. Re-attach the device
@@ -96,6 +101,7 @@ class Usb_Wifi(object):
         wifikey_tokens = wifikey_str.decode().split('\n')
 
         # search clean list for tpsk key value
+        wifi_wpa_key = ''
         for key_val in wifikey_tokens:
             if '\tpsk=' in key_val:
                 wifi_wpa_key = key_val.split('=')[1]
