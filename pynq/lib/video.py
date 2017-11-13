@@ -773,7 +773,8 @@ class AxiVDMA(DefaultIP):
         self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut)
         self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut)
 
-    bindto = ['xilinx.com:ip:axi_vdma:6.2']
+    bindto = ['xilinx.com:ip:axi_vdma:6.2',
+              'xilinx.com:ip:axi_vdma:6.3']
 
 
 class ColorConverter(DefaultIP):
