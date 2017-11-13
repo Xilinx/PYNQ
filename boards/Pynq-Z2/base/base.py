@@ -36,7 +36,7 @@ from .constants import *
 from pynq.lib.logictools import TraceAnalyzer
 
 
-__author__ = "Peter Ogden"
+__author__ = "Peter Ogden, Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
@@ -55,7 +55,11 @@ class BaseOverlay(pynq.Overlay):
     iop2 : IOP
          IO processor connected to the PMODB interface
     iop3 : IOP
-         IO processor connected to the Arduino/ChipKit interface
+         IO processor connected to the Arduino interface
+    iop4 : IOP
+         IO processor connected to the RaspberryPi interface
+    trace_raspberrypi : pynq.logictools.TraceAnalyzer
+        Trace analyzer block on RaspberryPi interface, controlled by PS.
     trace_pmoda : pynq.logictools.TraceAnalyzer
         Trace analyzer block on PMODA interface, controlled by PS.
     trace_pmodb : pynq.logictools.TraceAnalyzer
@@ -83,10 +87,12 @@ class BaseOverlay(pynq.Overlay):
             self.iop1.mbtype = "Pmod"
             self.iop2.mbtype = "Pmod"
             self.iop3.mbtype = "Arduino"
+            self.iop4.mbtype = "RaspberryPi"
 
             self.PMODA = self.iop1.mb_info
             self.PMODB = self.iop2.mb_info
             self.ARDUINO = self.iop3.mb_info
+            self.RASPBERRYPI = self.iop4.mb_info
 
             self.leds = self.swsleds_gpio.channel2
             self.switches = self.swsleds_gpio.channel1
@@ -100,8 +106,11 @@ class BaseOverlay(pynq.Overlay):
             self.rgbleds = ([None] * 4) + [pynq.lib.RGBLED(i)
                                            for i in range(4, 6)]
 
+            self.trace_raspberrypi = TraceAnalyzer(
+                self.trace_analyzer_pi.description['ip'],
+                PYNQZ2_RASPBERRYPI_SPECIFICATION)
             self.trace_pmoda = TraceAnalyzer(
-                self.trace_analyzer_pmoda.description['ip'],
+                self.trace_analyzer_pi.description['ip'],
                 PYNQZ2_PMODA_SPECIFICATION)
             self.trace_pmodb = TraceAnalyzer(
                 self.trace_analyzer_pmodb.description['ip'],
