@@ -47,40 +47,32 @@ __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-def get_tri_state_pins(input_dict, output_dict, tri_dict):
+def get_tri_state_pins(io_pin_dict, tri_dict):
     """Function to check tri-state pin specifications.
 
-    Any tri-state pin requires the output pin, input pin, and the tri-state
+    Any tri-state pin requires the input/output pin, and the tri-state
     selection pin to be specified. If any one is missing, this method will
     raise an exception.
 
     Parameters
     ----------
-    input_dict : dict
-        A dictionary storing the input pin mapping.
-    output_dict : dict
-        A dictionary storing the output pin mapping.
+    io_pin_dict : dict
+        A dictionary storing the input/output pin mapping.
     tri_dict : dict
         A dictionary storing the tri-state pin mapping.
 
     Returns
     -------
-    list, list, list
-        A list storing unique tri-state pin names, non tri-state inputs, and
-        non tri-state outputs.
+    list
+        A list storing unique tri-state and non tri-state pin names.
 
     """
-    input_pins = list(OrderedDict.fromkeys(input_dict.keys()))
-    output_pins = list(OrderedDict.fromkeys(output_dict.keys()))
+    io_pins = list(OrderedDict.fromkeys(io_pin_dict.keys()))
     tri_pins = list(OrderedDict.fromkeys(tri_dict.keys()))
-    if not set(tri_pins) & set(input_pins) == \
-            set(tri_pins) & set(output_pins) == set(tri_pins):
-        raise ValueError("Tri-state pins must specify inputs, "
-                         "outputs, and tri-states.")
+    if set(tri_pins) & set(io_pins) != set(tri_pins):
+        raise ValueError("Tri-state pins must specify I/O and tri-state pins.")
 
-    non_tri_inputs = [i for i in input_pins if i not in tri_pins]
-    non_tri_outputs = [i for i in output_pins if i not in tri_pins]
-    return tri_pins, non_tri_inputs, non_tri_outputs
+    return io_pins
 
 
 class _MBTraceAnalyzer:
@@ -98,6 +90,9 @@ class _MBTraceAnalyzer:
     ----------
     logictools_controller : LogicToolsController
         The generator controller for this class.
+    mb_info : dict
+        A dictionary storing Microblaze information, such as the 
+        IP name and the reset name.
     intf_spec : dict
         The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
     num_analyzer_samples : int
@@ -121,15 +116,16 @@ class _MBTraceAnalyzer:
 
         """
         # Book-keep controller-related parameters
-        self.logictools_controller = LogicToolsController(mb_info,
-                                                          intf_spec_name)
         if type(intf_spec_name) is str:
             self.intf_spec = eval(intf_spec_name)
         elif type(intf_spec_name) is dict:
             self.intf_spec = intf_spec_name
         else:
             raise ValueError("Interface specification has to be str or dict.")
-        self._mb_info = mb_info
+
+        self.mb_info = mb_info
+        self.logictools_controller = LogicToolsController(mb_info,
+                                                          intf_spec_name)
 
         # Parameters to be cleared at reset
         self.num_analyzer_samples = 0
@@ -321,10 +317,8 @@ class _MBTraceAnalyzer:
             and the waveform pattern in string format.
 
         """
-        tri_state_pins, non_tri_inputs, non_tri_outputs = \
-            get_tri_state_pins(self.intf_spec['traceable_inputs'],
-                               self.intf_spec['traceable_outputs'],
-                               self.intf_spec['traceable_tri_states'])
+        io_pins = get_tri_state_pins(self.intf_spec['traceable_io_pins'],
+                                     self.intf_spec['traceable_tri_states'])
         trace_bit_width = self.intf_spec['monitor_width']
         trace_byte_width = round(trace_bit_width / 8)
 
@@ -333,13 +327,14 @@ class _MBTraceAnalyzer:
             dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
 
         # Exclude the first dummy sample when not in step()
+        data_type = '>i{}'.format(trace_byte_width)
         if steps == 0:
             num_valid_samples = len(samples) - 1
-            self.samples = np.zeros(num_valid_samples, dtype='>i8')
+            self.samples = np.zeros(num_valid_samples, dtype=data_type)
             np.copyto(self.samples, samples[1:])
         else:
             num_valid_samples = 1
-            self.samples = np.zeros(num_valid_samples, dtype='>i8')
+            self.samples = np.zeros(num_valid_samples, dtype=data_type)
             np.copyto(self.samples, samples[0])
         temp_bytes = np.frombuffer(self.samples, dtype=np.uint8)
         bit_array = np.unpackbits(temp_bytes)
@@ -348,32 +343,9 @@ class _MBTraceAnalyzer:
             self.intf_spec['monitor_width']).T[::-1]
 
         wavelanes = list()
-        # Adding tri-state captures
-        for pin_label in tri_state_pins:
-            output_lane = temp_lanes[
-                self.intf_spec['traceable_outputs'][pin_label]]
-            input_lane = temp_lanes[
-                self.intf_spec['traceable_inputs'][pin_label]]
-            tri_lane = temp_lanes[
-                self.intf_spec['traceable_tri_states'][pin_label]]
-            cond_list = [tri_lane == 0, tri_lane == 1]
-            choice_list = [output_lane, input_lane]
-            temp_lane = np.select(cond_list, choice_list)
-            bitstring = ''.join(temp_lane.astype(str).tolist())
-            wave = bitstring_to_wave(bitstring)
-            wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
-
-        # Adding non tri-state captures
-        for pin_label in non_tri_inputs:
+        for pin_label in io_pins:
             temp_lane = temp_lanes[
-                self.intf_spec['traceable_inputs'][pin_label]]
-            bitstring = ''.join(temp_lane.astype(str).tolist())
-            wave = bitstring_to_wave(bitstring)
-            wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
-
-        for pin_label in non_tri_outputs:
-            temp_lane = temp_lanes[
-                self.intf_spec['traceable_outputs'][pin_label]]
+                self.intf_spec['traceable_io_pins'][pin_label]]
             bitstring = ''.join(temp_lane.astype(str).tolist())
             wave = bitstring_to_wave(bitstring)
             wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
@@ -431,12 +403,6 @@ class _PSTraceAnalyzer:
             The name of the interface specification.
 
         """
-        trace_cntrl_info = ip_info['trace_cntrl_0']
-        trace_dma_info = ip_info['axi_dma_0']
-        self.trace_control = MMIO(trace_cntrl_info['phys_addr'],
-                                  trace_cntrl_info['addr_range'])
-        self.dma = DMA(trace_dma_info)
-
         if type(intf_spec_name) is str:
             self.intf_spec = eval(intf_spec_name)
         elif type(intf_spec_name) is dict:
@@ -444,6 +410,12 @@ class _PSTraceAnalyzer:
         else:
             raise ValueError("Interface specification has to be str or dict.")
 
+        trace_cntrl_info = ip_info['trace_cntrl_{}_0'.format(
+            self.intf_spec['monitor_width'])]
+        trace_dma_info = ip_info['axi_dma_0']
+        self.trace_control = MMIO(trace_cntrl_info['phys_addr'],
+                                  trace_cntrl_info['addr_range'])
+        self.dma = DMA(trace_dma_info)
         self.num_analyzer_samples = 0
         self.samples = None
         self._cma_array = None
@@ -523,8 +495,7 @@ class _PSTraceAnalyzer:
                 "fclk{}_mhz".format(fclk_index), frequency_mhz)
         self.frequency_mhz = frequency_mhz
 
-        trace_bit_width = self.intf_spec['monitor_width']
-        trace_byte_width = round(trace_bit_width / 8)
+        trace_byte_width = round(self.intf_spec['monitor_width'] / 8)
         self._cma_array = self.xlnk.cma_array(
             [1, self.num_analyzer_samples],
             dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
@@ -615,16 +586,17 @@ class _PSTraceAnalyzer:
             and the waveform pattern in string format.
 
         """
-        tri_state_pins, non_tri_inputs, non_tri_outputs = \
-            get_tri_state_pins(self.intf_spec['traceable_inputs'],
-                               self.intf_spec['traceable_outputs'],
-                               self.intf_spec['traceable_tri_states'])
+        io_pins = get_tri_state_pins(self.intf_spec['traceable_io_pins'],
+                                     self.intf_spec['traceable_tri_states'])
 
         if steps == 0:
             num_valid_samples = self.num_analyzer_samples
         else:
             num_valid_samples = steps
-        self.samples = np.zeros(num_valid_samples, dtype='>i8')
+
+        trace_byte_width = round(self.intf_spec['monitor_width'] / 8)
+        data_type = '>i{}'.format(trace_byte_width)
+        self.samples = np.zeros(num_valid_samples, dtype=data_type)
         np.copyto(self.samples, self._cma_array)
         temp_bytes = np.frombuffer(self.samples, dtype=np.uint8)
         bit_array = np.unpackbits(temp_bytes)
@@ -633,16 +605,9 @@ class _PSTraceAnalyzer:
             self.intf_spec['monitor_width']).T[::-1]
 
         wavelanes = list()
-        for pin_label in tri_state_pins:
-            output_lane = temp_lanes[
-                self.intf_spec['traceable_outputs'][pin_label]]
-            input_lane = temp_lanes[
-                self.intf_spec['traceable_inputs'][pin_label]]
-            tri_lane = temp_lanes[
-                self.intf_spec['traceable_tri_states'][pin_label]]
-            cond_list = [tri_lane == 0, tri_lane == 1]
-            choice_list = [output_lane, input_lane]
-            temp_lane = np.select(cond_list, choice_list)
+        for pin_label in io_pins:
+            temp_lane = temp_lanes[
+                self.intf_spec['traceable_io_pins'][pin_label]]
             bitstring = ''.join(temp_lane.astype(str).tolist())
             wave = bitstring_to_wave(bitstring)
             wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
@@ -1019,8 +984,8 @@ class TraceAnalyzer:
         """Parse the input data and generate a `*.csv` file.
 
         This method can be used along with the DMA. The input data is assumed
-        to be 64-bit. The generated `*.csv` file can be then used as the trace
-        file.
+        to be 64-bit or 32-bit. The generated `*.csv` file can be then used
+        as the trace file.
 
         This method also returns the wavelanes based on the given positions.
         The data output has a similar format as `analyze()`:
@@ -1065,9 +1030,7 @@ class TraceAnalyzer:
         if os.system('rm -rf ' + trace_csv_abs):
             raise RuntimeError("Cannot remove old trace_csv file.")
 
-        tri_state_pins, _, _ = \
-            get_tri_state_pins(self.intf_spec['traceable_inputs'],
-                               self.intf_spec['traceable_outputs'],
+        _ = get_tri_state_pins(self.intf_spec['traceable_io_pins'],
                                self.intf_spec['traceable_tri_states'])
         self.num_decoded_samples = stop_pos - start_pos
         temp_bytes = np.frombuffer(self.samples[start_pos:stop_pos],
@@ -1081,16 +1044,8 @@ class TraceAnalyzer:
         temp_samples = None
         for index, pin_name in enumerate(self.probes.keys()):
             pin_label = self.probes[pin_name]
-            output_lane = temp_lanes[
-                self.intf_spec['traceable_outputs'][pin_label]]
-            input_lane = temp_lanes[
-                self.intf_spec['traceable_inputs'][pin_label]]
-            tri_lane = temp_lanes[
-                self.intf_spec['traceable_tri_states'][pin_label]]
-            cond_list = [tri_lane == 0, tri_lane == 1]
-            choice_list = [output_lane, input_lane]
-            temp_lane = np.select(cond_list, choice_list)
-
+            temp_lane = temp_lanes[
+                self.intf_spec['traceable_io_pins'][pin_label]]
             bitstring = ''.join(temp_lane.astype(str).tolist())
             wave = bitstring_to_wave(bitstring)
             wavelanes.append({'name': pin_name,
