@@ -102,7 +102,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project base base -part xc7z020clg400-1
+   create_project base base -part xc7z020clg400-1 -force
 }
 
 set_property  ip_repo_paths  ../../ip [current_project]
@@ -2003,7 +2003,7 @@ CONFIG.CONST_WIDTH {4} \
  ] $constant_tkeep_tstrb
 
   # Create instance: trace_cntrl_32_0, and set properties
-  set trace_cntrl_32_0 [ create_bd_cell -type ip -vlnv xilinx:hls:trace_cntrl_32:1.4 trace_cntrl_32_0 ]
+  set trace_cntrl_32_0 [ create_bd_cell -type ip -vlnv xilinx.com:hls:trace_cntrl_32:1.4 trace_cntrl_32_0 ]
 
   # Create interface connections
   connect_bd_intf_net -intf_net S_AXI_1 [get_bd_intf_pins S_AXI] [get_bd_intf_pins trace_cntrl_32_0/s_axi_trace_cntrl]
@@ -2095,7 +2095,7 @@ CONFIG.CONST_WIDTH {8} \
  ] $constant_tkeep_tstrb
 
   # Create instance: trace_cntrl_64_0, and set properties
-  set trace_cntrl_64_0 [ create_bd_cell -type ip -vlnv xilinx:hls:trace_cntrl_64:1.4 trace_cntrl_64_0 ]
+  set trace_cntrl_64_0 [ create_bd_cell -type ip -vlnv xilinx.com:hls:trace_cntrl_64:1.4 trace_cntrl_64_0 ]
 
   # Create interface connections
   connect_bd_intf_net -intf_net S_AXI_1 [get_bd_intf_pins S_AXI] [get_bd_intf_pins trace_cntrl_64_0/s_axi_trace_cntrl]
@@ -2187,7 +2187,7 @@ CONFIG.CONST_WIDTH {8} \
  ] $constant_tkeep_tstrb
 
   # Create instance: trace_cntrl_64_0, and set properties
-  set trace_cntrl_64_0 [ create_bd_cell -type ip -vlnv xilinx:hls:trace_cntrl_64:1.4 trace_cntrl_64_0 ]
+  set trace_cntrl_64_0 [ create_bd_cell -type ip -vlnv xilinx.com:hls:trace_cntrl_64:1.4 trace_cntrl_64_0 ]
 
   # Create interface connections
   connect_bd_intf_net -intf_net S_AXI_1 [get_bd_intf_pins S_AXI] [get_bd_intf_pins trace_cntrl_64_0/s_axi_trace_cntrl]
