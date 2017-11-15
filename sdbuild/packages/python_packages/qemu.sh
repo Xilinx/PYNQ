@@ -13,6 +13,7 @@ pygraphviz --install-option=--include-path=/usr/include/graphviz --install-optio
 beautifulsoup4
 Bottleneck
 cffi
+matplotlib
 chardet
 html5lib
 jupyter
