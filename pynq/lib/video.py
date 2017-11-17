@@ -250,7 +250,7 @@ class _FrameCache:
             if _FrameCache._xlnk is None:
                 _FrameCache._xlnk = Xlnk()
             frame = _FrameCache._xlnk.cma_array(
-                shape=self._mode.shape, dtype=np.uint8)
+                shape=self._mode.shape, dtype=np.uint8, cacheable=1)
         frame.original_freebuffer = frame.freebuffer
         frame.freebuffer = functools.partial(
             _FrameCache.returnframe, self, frame)
@@ -310,6 +310,7 @@ class AxiVDMA(DefaultIP):
 
         def __getitem__(self, index):
             frame = self._frames[index]
+            frame.invalidate()
             return frame
 
         def takeownership(self, index):
@@ -321,6 +322,7 @@ class AxiVDMA(DefaultIP):
         def __setitem__(self, index, frame):
             if self._frames[index] is not None:
                 self._frames[index].freebuffer()
+            frame.flush()
             self._frames[index] = frame
             if frame is not None:
                 self._mmio.write(self._offset + 4 * index,

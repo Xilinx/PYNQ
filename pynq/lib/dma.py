@@ -563,10 +563,11 @@ class _DMAChannel:
     through the AxiDMA class.
 
     """
-    def __init__(self, mmio, offset, interrupt=None):
+    def __init__(self, mmio, offset, flush_before, interrupt=None):
         self._mmio = mmio
         self._offset = offset
         self._interrupt = interrupt
+        self._flush_before = flush_before
         self.start()
 
     @property
@@ -623,8 +624,11 @@ class _DMAChannel:
             raise RuntimeError('DMA channel not started')
         if not self.idle and not self._first_transfer:
             raise RuntimeError('DMA channel not idle')
+        if self._flush_before:
+            array.flush()
         self._mmio.write(self._offset + 0x18, array.physical_address)
         self._mmio.write(self._offset + 0x28, array.nbytes)
+        self._active_buffer = array
         self._first_transfer = False
 
     def wait(self):
@@ -635,6 +639,8 @@ class _DMAChannel:
             raise RuntimeError('DMA channel not started')
         while not self.idle:
             pass
+        if not self._flush_before:
+            self._active_buffer.invalidate()
 
     async def wait_async(self):
         """Wait for the transfer to complete
@@ -645,6 +651,8 @@ class _DMAChannel:
         while not self.idle:
             await self._interrupt.wait()
         self._clear_interrupt()
+        if not self._flush_before:
+            self._active_buffer.invalidate()
 
 
 class DMA(DefaultIP):
@@ -685,13 +693,15 @@ class DMA(DefaultIP):
                                'pynq.lib.deprecated')
         super().__init__(description=description)
         if 'mm2s_introut' in description['interrupts']:
-            self.sendchannel = _DMAChannel(self.mmio, 0x0, self.mm2s_introut)
+            self.sendchannel = _DMAChannel(self.mmio, 0x0,
+                                           True,self.mm2s_introut)
         else:
-            self.sendchannel = _DMAChannel(self.mmio, 0x0)
+            self.sendchannel = _DMAChannel(self.mmio, 0x0, True)
 
         if 's2mm_introut' in description['interrupts']:
-            self.recvchannel = _DMAChannel(self.mmio, 0x30, self.s2mm_introut)
+            self.recvchannel = _DMAChannel(self.mmio, 0x30,
+                                           False, self.s2mm_introut)
         else:
-            self.recvchannel = _DMAChannel(self.mmio, 0x30)
+            self.recvchannel = _DMAChannel(self.mmio, 0x30, False)
 
     bindto = ['xilinx.com:ip:axi_dma:7.1']
