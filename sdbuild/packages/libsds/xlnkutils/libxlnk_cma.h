@@ -52,5 +52,5 @@ uint32_t cma_pages_available();
 /*
  * Extra functions in case user needs to flush or invalidate Cache.
  */
-void xlnkFlushCache(void *buf, int size);
-void xlnkInvalidateCache(void *buf, int size);
+void cma_flush_cache(void *buf, int size);
+void cma_invalidate_cache(void *buf, int size);

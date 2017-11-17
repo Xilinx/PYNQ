@@ -17,6 +17,8 @@ void cf_xlnk_init(int arg);
 /* Functional prototpes from xlnk */
 
 unsigned long xlnkGetBufPhyAddr(void*);
+extern void xlnkFlushCache(void *buf, int size);
+extern void xlnkInvalidateCache(void *addr, int size);
 
 /* Required to avoid undefined symbol error */
 void add_sw_estimates(void) {}
@@ -84,3 +86,34 @@ void open_xlnk(void) {
     cf_xlnk_open(1);
 }
 
+void cma_flush_cache(void* buf, int size) {
+#ifdef __aarch64__
+    uintptr_t begin = (uintptr_t)buf;
+    uintptr_t line = begin &~0x3FULL;
+    uintptr_t end = begin + size;
+
+    uintptr_t stride = 64; // TODO: Make this architecture dependent
+
+    asm volatile(
+    "loop:\n\t"
+    "dc civac, %[line]\n\t"
+    "add %[line], %[line], %[stride]\n\t"
+    "cmp %[line], %[end]\n\t"
+    "b.lt loop\n\t"
+    ::[line] "r" (line),
+    [stride] "r" (stride),
+    [end] "r" (end)
+    : "cc", "memory"
+    );
+#else
+    xlnkFlushCache(buf, size);
+#endif
+}
+
+void cma_invalidate_cache(void* buf, int size) {
+#ifdef __aarch64__
+    cma_flush_cache(buf, size);
+#else
+    xlnkInvalidateCache(buf, size);
+#endif
+}
