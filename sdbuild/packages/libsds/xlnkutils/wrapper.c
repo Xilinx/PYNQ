@@ -17,8 +17,8 @@ void cf_xlnk_init(int arg);
 /* Functional prototpes from xlnk */
 
 unsigned long xlnkGetBufPhyAddr(void*);
-extern void xlnkFlushCache(void *buf, int size);
-extern void xlnkInvalidateCache(void *addr, int size);
+extern void xlnkFlushCache(unsigned int phys_addr, int size);
+extern void xlnkInvalidateCache(unsigned int phys_addr, int size);
 
 /* Required to avoid undefined symbol error */
 void add_sw_estimates(void) {}
@@ -86,7 +86,7 @@ void open_xlnk(void) {
     cf_xlnk_open(1);
 }
 
-void cma_flush_cache(void* buf, int size) {
+void cma_flush_cache(void* buf, unsigned int phys_addr, int size) {
 #ifdef __aarch64__
     uintptr_t begin = (uintptr_t)buf;
     uintptr_t line = begin &~0x3FULL;
@@ -106,14 +106,14 @@ void cma_flush_cache(void* buf, int size) {
     : "cc", "memory"
     );
 #else
-    xlnkFlushCache(buf, size);
+    xlnkFlushCache(phys_addr, size);
 #endif
 }
 
-void cma_invalidate_cache(void* buf, int size) {
+void cma_invalidate_cache(void* buf, unsigned int phys_addr, int size) {
 #ifdef __aarch64__
     cma_flush_cache(buf, size);
 #else
-    xlnkInvalidateCache(buf, size);
+    xlnkInvalidateCache(phys_addr, size);
 #endif
 }
