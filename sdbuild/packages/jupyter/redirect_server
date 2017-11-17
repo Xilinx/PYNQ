@@ -1,0 +1,24 @@
+#!/usr/bin/env python3.6
+
+import os
+import tornado.httpserver
+import tornado.web
+import tornado.ioloop
+
+class RedirectHandler(tornado.web.RequestHandler):
+    def prepare(self):
+        host = self.request.host.split(':')[0]
+        uri = self.request.uri
+        if uri[0] != '/':
+           uri = "/" + uri
+        print(self.request)
+        self.redirect(f"http://{host}:9090{uri}", permanent=True)
+
+
+if __name__ == "__main__":
+    application = tornado.web.Application([
+        ('/.*', RedirectHandler)
+    ])
+    application.listen("80")
+
+    tornado.ioloop.IOLoop.current().start()
