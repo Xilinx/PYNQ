@@ -98,14 +98,14 @@ class ContiguousArray(np.ndarray):
 
         """
         if self.cacheable:
-            Xlnk.libxlnk.cma_flush_cache(self.pointer, self.nbytes)
+            Xlnk.libxlnk.cma_flush_cache(self.pointer, self.physical_address, self.nbytes)
 
     def invalidate(self):
         """Invalidate the underlying memory if necessary
 
         """
         if self.cacheable:
-            Xlnk.libxlnk.cma_invalidate_cache(self.pointer, self.nbytes)
+            Xlnk.libxlnk.cma_invalidate_cache(self.pointer, self.physical_address, self.nbytes)
 
     def __enter__(self):
         return self
@@ -147,8 +147,8 @@ class Xlnk:
     unsigned long cma_get_phy_addr(void *buf);
     void cma_free(void *buf);
     uint32_t cma_pages_available();
-    void cma_flush_cache(void* buf, int size);
-    void cma_invalidate_cache(void* buf, int size);
+    void cma_flush_cache(void* buf, unsigned int phys_addr, int size);
+    void cma_invalidate_cache(void* buf, unsigned int phys_addr, int size);
     void _xlnk_reset();
     """)
     if CPU_ARCH_IS_SUPPORTED:
