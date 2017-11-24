@@ -61,7 +61,7 @@ class LED(object):
         
         """
         if index not in range(4):
-            raise Value("Index for onboard LEDs should be 0 - 3.")
+            raise ValueError("Index for onboard LEDs should be 0 - 3.")
             
         self.index = index
         if LED._mmio is None:
