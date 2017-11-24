@@ -469,7 +469,7 @@ class ClocksMeta(type):
         fclk_div1 = clk_reg[CLK_DIV1_MSB:CLK_DIV1_LSB]
         if fclk_src in [0, 1]:
             fclk_mult = cls.io_pll_fdiv
-        elif src == 2:
+        elif fclk_src == 2:
             fclk_mult = cls.arm_pll_fdiv
         else:
             fclk_mult = cls.ddr_pll_fdiv
