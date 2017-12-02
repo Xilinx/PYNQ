@@ -29,6 +29,7 @@
 
 
 import pynq
+from pynq import GPIO
 import pynq.lib
 import pynq.lib.video
 import pynq.lib.audio
@@ -63,9 +64,7 @@ class BaseOverlay(pynq.Overlay):
     trace_pmoda : pynq.logictools.TraceAnalyzer
         Trace analyzer block on PMODA interface, controlled by PS.
     trace_pmodb : pynq.logictools.TraceAnalyzer
-        Trace analyzer block on PMODB interface, controlled by PS. 
-    trace_arduino : pynq.logictools.TraceAnalyzer
-        Trace analyzer block on Arduino interface, controlled by PS. 
+        Trace analyzer block on PMODB interface, controlled by PS.
     leds : AxiGPIO
          4-bit output GPIO for interacting with the green LEDs LD0-3
     buttons : AxiGPIO
@@ -78,6 +77,8 @@ class BaseOverlay(pynq.Overlay):
          HDMI input and output interfaces
     audio : pynq.lib.audio.Audio
          Headphone jack and on-board microphone
+    pin_select : GPIO
+        The pin selection between PMODA (0) and RASPBERRYPI header (1).
 
     """
 
@@ -94,8 +95,11 @@ class BaseOverlay(pynq.Overlay):
             self.ARDUINO = self.iop3.mb_info
             self.RASPBERRYPI = self.iop4.mb_info
 
-            self.leds = self.swsleds_gpio.channel2
-            self.switches = self.swsleds_gpio.channel1
+            self.pin_select = GPIO(GPIO.get_gpio_pin(
+                self.gpio_dict['pmoda_rp_pin_sel']['index']), "out")
+
+            self.leds = self.leds_gpio.channel1
+            self.switches = self.switches_gpio.channel1
             self.buttons = self.btns_gpio.channel1
             self.leds.setlength(4)
             self.switches.setlength(2)
@@ -115,6 +119,21 @@ class BaseOverlay(pynq.Overlay):
             self.trace_pmodb = TraceAnalyzer(
                 self.trace_analyzer_pmodb.description['ip'],
                 PYNQZ2_PMODB_SPECIFICATION)
-            self.trace_arduino = TraceAnalyzer(
-                self.trace_analyzer_arduino.description['ip'],
-                PYNQZ2_ARDUINO_SPECIFICATION)
+
+    def select_pmoda(self):
+        """Select PMODA in the shared pins.
+
+        This is done by writing a `0` (default) to the `pin_select`
+        GPIO instance.
+
+        """
+        self.pin_select.write(0)
+
+    def select_raspberrypi(self):
+        """Select RASPBERRYPI in the shared pins.
+
+        This is done by writing a `1` to the `pin_select`
+        GPIO instance.
+
+        """
+        self.pin_select.write(1)
