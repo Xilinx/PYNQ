@@ -29,62 +29,41 @@
  *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
-/******************************************************************************
+
+/*****************************************************************************/
+/**
  *
+ * @file audio_direct.h
  *
- * @file i2cps.c
- *
- * Functions to interact with linux I2C. No safe checks here, so users must
- * know what they are doing.
+ *  Library for the audio control block.
  *
  * <pre>
  * MODIFICATION HISTORY:
  *
- * Ver   Who  Date     Changes
- * ----- --- ------- -----------------------------------------------
- * 1.00a gn  02/03/16 release
- * 1.00b yrq 08/31/16 add license header
- *
+ * Ver   Who      Date     Changes
+ * ----- -------- -------- -----------------------------------------------
+ * 1.00a gn       01/24/15 First release
+ * 1.00b yrq      08/31/16 Added license header
+ * 2.10a yrq      11/10/17 Support for audio codec ADAU1761
+ * 
  * </pre>
  *
- *****************************************************************************/
+******************************************************************************/
+/*
+ * Bare audio controller parameters
+ */
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include "i2cps.h"
-
-int setI2C(unsigned int index, long slave_addr){
-    int i2c_fd;
-    char buf[50];
-    sprintf(buf, "/dev/i2c-%d", index);          
-    if((i2c_fd = open(buf, O_RDWR)) < 0)
-        return -1;
-    if (ioctl(i2c_fd, I2C_SLAVE, slave_addr) < 0)
-        return -1;
-    return i2c_fd;
-}
-
-int unsetI2C(int i2c_fd){
-    close(i2c_fd);
-    return 0;    
-}
-
-int writeI2C_asFile(int i2c_fd, unsigned char writebuffer[], 
-                    unsigned char bytes){
-    unsigned char bytesWritten = write(i2c_fd, writebuffer, bytes);
-    if(bytes != bytesWritten)
-        return -1;
-    return 0;
-}
-
-int readI2C_asFile(int i2c_fd, unsigned char readbuffer[], 
-                   unsigned char bytes){
-    unsigned char bytesRead = read(i2c_fd, readbuffer, bytes);
-    if(bytes != bytesRead)
-        return -1;
-    return 0;
-}
+enum audio_direct_regs {
+    //Audio controller registers
+    PDM_RESET_REG               = 0x00;
+    PDM_TRANSFER_CONTROL_REG    = 0x04;
+    PDM_FIFO_CONTROL_REG        = 0x08;
+    PDM_DATA_IN_REG             = 0x0c;
+    PDM_DATA_OUT_REG            = 0x10;
+    PDM_STATUS_REG              = 0x14;
+    //Audio controller Status Register Flags
+    TX_FIFO_EMPTY               = 0;
+    TX_FIFO_FULL                = 1;
+    RX_FIFO_EMPTY               = 16;
+    RX_FIFO_FULL                = 17
+};
