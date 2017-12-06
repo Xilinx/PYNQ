@@ -32,8 +32,9 @@ __copyright__   = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
 __email__       = "luca.cerina@mail.polimi.it"
 
 import os
-import re
 import subprocess as sproc
+import netifaces
+
 
 class Usb_Wifi(object):
     """This class controls the usb dongle wifi connection.
@@ -51,21 +52,24 @@ class Usb_Wifi(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, interface='wlan0'):
         """Initializes the wireless connection and assign devices identifier.
 
         Network devices are checked to find wireless components.
-        If no device is found, wifi_port is not assigned.
+        Program will first try the default wireless interface name `wlan0`;
+        if not found, it will look for interface name starting from `wl`.
 
         """
         self.wifi_port = None
-        net_devices = sproc.check_output('ip a', shell=True).decode()
+        net_device_list = netifaces.interfaces()
 
-        for line in net_devices.splitlines():
-            m = re.match('^([\d]): ([\w]+): *', line)
-            if m:
-                if m.group(2) != 'lo' and m.group(2) != 'eth0':
-                    self.wifi_port = m.group(2)
+        if interface in net_device_list:
+            self.wifi_port = interface
+        else:
+            for net_device in net_device_list:
+                if net_device.startswith('wl'):
+                    self.wifi_port = net_device
+                    break
 
         if not self.wifi_port:
             raise ValueError("""Wifi device not found. Re-attach the device
@@ -91,11 +95,12 @@ class Usb_Wifi(object):
         """
 
         # get bash string into string format for key search
-        wifikey_str = sproc.check_output('wpa_passphrase "{}" "{}"'.format(ssid,
-                                         password), shell=True)
+        wifikey_str = sproc.check_output('wpa_passphrase "{}" "{}"'.format(
+                                         ssid, password), shell=True)
         wifikey_tokens = wifikey_str.decode().split('\n')
 
         # search clean list for tpsk key value
+        wifi_wpa_key = ''
         for key_val in wifikey_tokens:
             if '\tpsk=' in key_val:
                 wifi_wpa_key = key_val.split('=')[1]
