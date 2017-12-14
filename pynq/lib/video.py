@@ -245,16 +245,20 @@ class _FrameCache:
 
         """
         if self._cache:
-            frame = self._cache.pop()
+            frame = _FrameCache._xlnk.cma_array(
+                shape=self._mode.shape, dtype='u1', cacheable=0,
+                pointer=self._cache.pop())
         else:
             if _FrameCache._xlnk is None:
                 _FrameCache._xlnk = Xlnk()
             frame = _FrameCache._xlnk.cma_array(
-                shape=self._mode.shape, dtype=np.uint8, cacheable=1)
-        frame.original_freebuffer = frame.freebuffer
-        frame.freebuffer = functools.partial(
-            _FrameCache.returnframe, self, frame)
+                shape=self._mode.shape, dtype=np.uint8, cacheable=0,
+                cache=self)
         return frame
+
+    def return_pointer(self, pointer):
+        if len(self._cache) < self._capacity:
+            self._cache.append(pointer)
 
     def returnframe(self, frame):
         frame.freebuffer = frame.original_freebuffer
@@ -264,8 +268,6 @@ class _FrameCache:
             self._cache.append(frame)
 
     def clear(self):
-        for frame in self._cache:
-            frame.freebuffer()
         self._cache.clear()
 
 
@@ -310,7 +312,6 @@ class AxiVDMA(DefaultIP):
 
         def __getitem__(self, index):
             frame = self._frames[index]
-            frame.invalidate()
             return frame
 
         def takeownership(self, index):
@@ -320,9 +321,6 @@ class AxiVDMA(DefaultIP):
             return self.count
 
         def __setitem__(self, index, frame):
-            if self._frames[index] is not None:
-                self._frames[index].freebuffer()
-            frame.flush()
             self._frames[index] = frame
             if frame is not None:
                 self._mmio.write(self._offset + 4 * index,
@@ -364,12 +362,14 @@ class AxiVDMA(DefaultIP):
             self._mode = None
 
         def _readframe_internal(self):
+            self.irqframecount = 1
             nextframe = self._cache.getframe()
-            previous_frame = (self.activeframe + 1) % len(self._frames)
+            previous_frame = (self.activeframe + 2) % len(self._frames)
             captured = self._frames[previous_frame]
             self._frames.takeownership(previous_frame)
             self._frames[previous_frame] = nextframe
-            self.irqframecount = 1
+            post_frame = (self.activeframe + 2) % len(self._frames)
+            captured.invalidate()
             return captured
 
         def readframe(self):
@@ -392,6 +392,7 @@ class AxiVDMA(DefaultIP):
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
                     asyncio.ensure_future(self._interrupt.wait()))
+                pass
             self._mmio.write(0x34, 0x1000)
             return self._readframe_internal()
 
@@ -625,6 +626,7 @@ class AxiVDMA(DefaultIP):
             if self.sourcechannel:
                 self.sourcechannel.tie(None)
 
+            frame.flush()
             next_frame = (self.desiredframe + 1) % len(self._frames)
             self._frames[next_frame] = frame
             self.desiredframe = next_frame

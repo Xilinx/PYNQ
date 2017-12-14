@@ -82,7 +82,8 @@ class ContiguousArray(np.ndarray):
 
         """
         if hasattr(self, 'pointer') and self.pointer:
-            self.allocator.cma_free(self.pointer)
+            if self.return_to:
+                self.return_to.return_pointer(self.pointer)
             self.pointer = 0
 
     def close(self):
@@ -280,7 +281,8 @@ class Xlnk:
         self.__check_buftype(buf)
         return self.ffi.buffer(buf, length)
     
-    def cma_array(self, shape, dtype=np.uint32, cacheable=0):
+    def cma_array(self, shape, dtype=np.uint32, cacheable=0,
+                  pointer=None, cache=None):
         """Get a contiguously allocated numpy array
 
         Create a numpy array with physically contiguously array. The
@@ -311,14 +313,17 @@ class Xlnk:
         dtype = np.dtype(dtype)
         elements = functools.reduce(lambda value, total: value * total, shape)
         length = elements * dtype.itemsize
-        buffer_pointer = self.cma_alloc(length, cacheable=cacheable)
-        buffer = self.cma_get_buffer(buffer_pointer, length)
+        if pointer is None:
+            raw_pointer = self.cma_alloc(length, cacheable=cacheable)
+            pointer = self.ffi.gc(raw_pointer, self.cma_free, size=length)
+        buffer = self.cma_get_buffer(pointer, length)
         array = np.frombuffer(buffer, dtype=dtype).reshape(shape)
         view = array.view(ContiguousArray)
         view.allocator = self
-        view.pointer = buffer_pointer
+        view.pointer = pointer
         view.physical_address = self.cma_get_phy_addr(view.pointer)
         view.cacheable = cacheable
+        view.return_to = cache
         return view
 
     def cma_get_phy_addr(self, buf_ptr):
