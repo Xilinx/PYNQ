@@ -39,7 +39,7 @@ xlrd
 XlsxWriter
 xlwt
 scipy
-Pillow
+Pillow==4.2.1
 pandas
 deltasigma
 seaborn
