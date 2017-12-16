@@ -31,6 +31,11 @@ zerofree
 u-boot-tools
 EOT
 
+if [ "$EUID" -eq 0 ] ; then
+    echo "error: Please do not run as root."
+    exit 1
+fi
+
 failed=false
 for i in $DEPS ; do
     dpkg-query -W -f='${Package}\n' | grep ^$i$ > /dev/null
