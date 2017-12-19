@@ -37,28 +37,31 @@ The following example sets up an MMIO instance to access memory location from
 the ``IP_BASE_ADDRESS`` (0x40000000) to the ``IP_BASE_ADDRESS + ADDRESS RANGE``
 (0x40001000).
 
-Some data (e.g. ``0xdeadbeef``) is sent to location ``ADDRESS_OFFSET``
+Some data (e.g. ``0x12345678``) is sent to location ``ADDRESS_OFFSET``
 (0x10). ``ADDRESS_OFFSET`` is offset from the IP base address 
-``IP_BASE_ADDRESS``. This means ``0xdeadbeef`` will be written to 
+``IP_BASE_ADDRESS``. This means ``0x12345678`` will be written to 
 ``0x40000010``.
 
 The same location is then read and stored in ``result``. 
 
 .. code-block:: Python
 
-   IP_BASE_ADDRESS = 0x40000000
-   ADDRESS_RANGE = 0x1000
-   ADDRESS_OFFSET = 0x10
-   
-   from pynq import MMIO   
-   mmio = MMIO(IP_BASE_ADDRESS, ADDRESS_RANGE) 
+   from pynq import MMIO
 
-   data = 0xdeadbeef
-   self.mmio.write(ADDRESS_OFFSET, data)
-   result = self.mmio.read(ADDRESS_OFFSET)
+   BASE_ADDRESS = 0x40000000
+   ARRAY_SIZE = 1024
+
+   mmio = MMIO(BASE_ADDRESS, ARRAY_SIZE)
+
+   data = 0x12345678
+   ADDRESS_OFFSET = 0x10
+   mmio.write(ADDRESS_OFFSET, data)
+   result = mmio.read(ADDRESS_OFFSET)
+   print(hex(result))
+
 
 This example assumes the memory mapped area defined for the MMIO, 
-from ``0x40000000`` to ``0x40001000``, is accessible to the PS.
+from ``0x40000000`` to ``0x40000400``, is accessible to the PS.
 
 Xlnk
 ----
