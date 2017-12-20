@@ -159,6 +159,7 @@ class _TCL:
         self.ip_dict = {}
         self.gpio_dict = {}
         self.clock_dict = {}
+        self.family = "xc7z"
 
         # Key strings to search for in the TCL file
         family_pat = "create_project"
@@ -176,11 +177,16 @@ class _TCL:
         hier_use_regex = ("create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
                           "(?P<instance_name>[^ ]*)\n")
 
-        config_ip_pat = "CONFIG."
+        config_ip_pat = "CONFIG"
+        config_ignore_pat = ".VALUE_SRC"
         config_regex = "CONFIG.(?P<key>.+?) \{(?P<value>.+?)\}"
-        clk_odiv_regex = 'PCW_FCLK(?P<idx>.+?)_PERIPHERAL_DIVISOR' \
-                         '(?P<div>[01])$'
-        clk_enable_regex = 'PCW_FPGA_FCLK(?P<idx>.+?)_ENABLE$'
+        clk_odiv_dict = {
+            'xc7z': 'PCW_FCLK(?P<idx>.+?)_PERIPHERAL_DIVISOR'
+                    '(?P<div>[01])$',
+            'xczu': 'PSU__CRL_APB__PL(?P<idx>.+?)_REF_CTRL__DIVISOR'
+                    '(?P<div>[01])'}
+        clk_enable_dict = {'xc7z': 'PCW_FPGA_FCLK(?P<idx>.+?)_ENABLE$',
+                           'xczu': 'PSU__FPGA_PL(?P<idx>.+?)_ENABLE$'}
         prop_start_pat = "set_property -dict ["
         prop_end_pat = "]"
         prop_name_regex = "\] \$(?P<instance_name>.+?)$"
@@ -228,7 +234,8 @@ class _TCL:
                             gpio_idx = None
                         in_prop = False
 
-                    elif config_ip_pat in line:
+                    elif config_ip_pat in line \
+                            and config_ignore_pat not in line:
                         m1 = re.search(config_regex, line)
                         key = m1.group("key")
                         value = m1.group("value")
@@ -240,18 +247,24 @@ class _TCL:
                             gpio_idx = int(value)
 
                         elif "FCLK" in line and "PERIPHERAL_DIVISOR" in line:
+                            clk_odiv_regex = clk_odiv_dict[self.family]
                             m2 = re.search(clk_odiv_regex, key)
                             idx = int(m2.group("idx"))
                             if idx not in self.clock_dict:
-                                self.clock_dict[idx] = {}
+                                self.clock_dict[idx] = {'enable': 0,
+                                                        'divisor0': 1,
+                                                        'divisor1': 1}
                             divisor_name = 'divisor' + m2.group("div")
                             self.clock_dict[idx][divisor_name] = int(value)
 
                         elif "FCLK" in line and "ENABLE" in line:
+                            clk_enable_regex = clk_enable_dict[self.family]
                             m3 = re.search(clk_enable_regex, key)
                             idx = int(m3.group("idx"))
                             if idx not in self.clock_dict:
-                                self.clock_dict[idx] = {}
+                                self.clock_dict[idx] = {'enable': 0,
+                                                        'divisor0': 1,
+                                                        'divisor1': 1}
                             self.clock_dict[idx]['enable'] = int(value)
 
                 # Match project/family declaration
