@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2002 - 2014 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2002 - 2015 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@
 /*****************************************************************************/
 /**
 * @file xgpio.h
-* @addtogroup gpio_v4_0
+* @addtogroup gpio_v4_1
 * @{
 * @details
 *
@@ -103,6 +103,10 @@
 * 3.01a bss  04/18/13 Updated driver tcl to generate Canonical params in
 *		      xparameters.h. CR#698589
 * 4.0   adk  19/12/13 Updated as per the New Tcl API's
+* 4.1   lks  11/18/15 Updated to use cannonical xparameters in examples and
+*		      clean up of the comments, removed support for DCR bridge
+*		      and removed xgpio_intr_example for CR 900381
+*
 * </pre>
 *****************************************************************************/
 

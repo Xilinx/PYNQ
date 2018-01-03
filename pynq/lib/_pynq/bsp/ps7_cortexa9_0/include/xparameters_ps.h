@@ -69,7 +69,7 @@ extern "C" {
 
 /* Canonical definitions for DDR MEMORY */
 #define XPAR_DDR_MEM_BASEADDR		0x00000000U
-#define XPAR_DDR_MEM_HIGHADDR		0x1FFFFFFFU
+#define XPAR_DDR_MEM_HIGHADDR		0x3FFFFFFFU
 
 /* Canonical definitions for Interrupts  */
 #define XPAR_XUARTPS_0_INTR		XPS_UART0_INT_ID

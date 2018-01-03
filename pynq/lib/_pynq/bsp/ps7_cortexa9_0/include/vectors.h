@@ -67,6 +67,7 @@ extern "C" {
 /************************** Constant Definitions *****************************/
 
 /************************** Function Prototypes ******************************/
+void UndefinedException(void);
 void FIQInterrupt(void);
 void IRQInterrupt(void);
 void SWInterrupt(void);

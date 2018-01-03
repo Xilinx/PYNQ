@@ -62,6 +62,7 @@ extern "C" {
 
 #include "xil_types.h"
 #include "xpseudo_asm.h"
+#include "xil_printf.h"
 
 /************************** Constant Definitions *****************************/
 
@@ -223,11 +224,11 @@ extern "C" {
  */
 u8 Xil_In8(INTPTR Addr);
 u16 Xil_In16(INTPTR Addr);
-u32 Xil_In32(INTPTR Addr);
+u32 Xil_In32(UINTPTR Addr);
 
 void Xil_Out8(INTPTR Addr, u8 Value);
 void Xil_Out16(INTPTR Addr, u16 Value);
-void Xil_Out32(INTPTR Addr, u32 Value);
+void Xil_Out32(UINTPTR Addr, u32 Value);
 
 
 u16 Xil_In16BE(INTPTR Addr);

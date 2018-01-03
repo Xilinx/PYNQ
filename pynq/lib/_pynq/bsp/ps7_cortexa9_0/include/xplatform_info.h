@@ -54,21 +54,31 @@ extern "C" {
 #define XPAR_CSU_BASEADDR 0xFFCA0000U
 #define	XPAR_CSU_VER_OFFSET 0x00000044U
 
+#define XPLAT_ZYNQ_ULTRA_MP_SILICON 0x0
 #define XPLAT_ZYNQ_ULTRA_MP 0x1
 #define XPLAT_ZYNQ_ULTRA_MPVEL 0x2
 #define XPLAT_ZYNQ_ULTRA_MPQEMU 0x3
 #define XPLAT_ZYNQ 0x4
 #define XPLAT_MICROBLAZE 0x5
 
+#define XPS_VERSION_1 0x0
+#define XPS_VERSION_2 0x1
+
 #define XPLAT_INFO_MASK (0xF)
+#define XPS_VERSION_INFO_MASK (0xF)
+
 /**************************** Type Definitions *******************************/
 
 /***************** Macros (Inline Functions) Definitions *********************/
 
 
-u32 XGetPlatform_Info(void);
+u32 XGetPlatform_Info();
 
-#if defined (ARMR5) || (__aarch64__)
+#if defined (ARMR5) || (__aarch64__) || (ARMA53_32)
+u32 XGetPSVersion_Info();
+#endif
+
+#if defined (ARMR5) || (__aarch64__) || (ARMA53_32)
 u32 XGet_Zynq_UltraMp_Platform_info();
 #endif
 /************************** Function Prototypes ******************************/
