@@ -139,9 +139,12 @@ def copy_common_notebooks():
 
         if os.path.isdir(dst_folder_file):
             shutil.rmtree(dst_folder_file)
-            shutil.copytree(src_folder_file, dst_folder_file)
         elif os.path.isfile(dst_folder_file):
             os.remove(dst_folder_file)
+
+        if os.path.isdir(src_folder_file):
+            shutil.copytree(src_folder_file, dst_folder_file)
+        elif os.path.isfile(src_folder_file):
             shutil.copy(src_folder_file, dst_folder_file)
 
 
