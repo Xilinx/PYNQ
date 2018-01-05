@@ -51,6 +51,7 @@ pycurl
 nbwavedrom
 Cython
 RISE
+netifaces
 EOT
 
 pip3.6 install numpy requests
