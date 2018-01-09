@@ -49,21 +49,25 @@
  * </pre>
  *
 ******************************************************************************/
+#ifndef _AUDIO_DIRECT_H_
+#define _AUDIO_DIRECT_H_
+
 /*
  * Bare audio controller parameters
  */
-
 enum audio_direct_regs {
     //Audio controller registers
-    PDM_RESET_REG               = 0x00;
-    PDM_TRANSFER_CONTROL_REG    = 0x04;
-    PDM_FIFO_CONTROL_REG        = 0x08;
-    PDM_DATA_IN_REG             = 0x0c;
-    PDM_DATA_OUT_REG            = 0x10;
-    PDM_STATUS_REG              = 0x14;
+    PDM_RESET_REG               = 0x00,
+    PDM_TRANSFER_CONTROL_REG    = 0x04,
+    PDM_FIFO_CONTROL_REG        = 0x08,
+    PDM_DATA_IN_REG             = 0x0c,
+    PDM_DATA_OUT_REG            = 0x10,
+    PDM_STATUS_REG              = 0x14,
     //Audio controller Status Register Flags
-    TX_FIFO_EMPTY               = 0;
-    TX_FIFO_FULL                = 1;
-    RX_FIFO_EMPTY               = 16;
+    TX_FIFO_EMPTY               = 0,
+    TX_FIFO_FULL                = 1,
+    RX_FIFO_EMPTY               = 16,
     RX_FIFO_FULL                = 17
 };
+
+#endif

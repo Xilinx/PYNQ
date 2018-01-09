@@ -37,7 +37,7 @@ import wave
 import time
 from pynq import PL
 from pynq import GPIO
-from pynq import DefaultHierarchy
+from pynq import DefaultIP
 
 
 __author__ = "Benedikt Janssen, Yun Rock Qu"
@@ -46,7 +46,7 @@ __email__ = "pynq_support@xilinx.com"
 LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-class _AudioDirect(DefaultHierarchy):
+class AudioDirect(DefaultIP):
     """Class to interact with audio controller.
     
     Each audio sample is a 32-bit integer. The audio controller supports only 
@@ -81,22 +81,21 @@ class _AudioDirect(DefaultHierarchy):
         """
         super().__init__(description)
 
-        self.mmio = self.d_axi_pdm_1.mmio
         if gpio_name is None:
-            if len(description['gpio']) == 0:
-                raise RuntimeError('Could not find audio path select GPIO')
-            elif len(description['gpio']) > 1:
-                raise RuntimeError('Multiple possible GPIO pins')
-            pin_name = next(iter(description['gpio'].keys()))
+            if len(self._gpio) == 0:
+                raise RuntimeError('Could not find audio path select GPIO.')
+            elif len(self._gpio) > 1:
+                raise RuntimeError('Multiple possible audio path select GPIO.')
+            pin_name = next(iter(self._gpio.keys()))
             self.gpio = getattr(self, pin_name)
         else:
-            if gpio_name in description['gpio']:
+            if gpio_name in self._gpio:
                 self.gpio = getattr(self, gpio_name)
             elif gpio_name in PL.gpio_dict:
                 pin = GPIO.get_gpio_pin(PL.gpio_dict[gpio_name]['index'])
                 self.gpio = GPIO(pin, 'out')
             else:
-                raise RuntimeError('Provided gpio_name not found')
+                raise RuntimeError('Provided gpio_name not found.')
 
         self._ffi = cffi.FFI()
         self._libaudio = self._ffi.dlopen(LIB_SEARCH_PATH + "/libaudio.so")
@@ -116,6 +115,8 @@ class _AudioDirect(DefaultHierarchy):
         self.buffer = numpy.zeros(0).astype(numpy.int)
         self.sample_rate = 0
         self.sample_len = 0
+
+    bindto = ['xilinx.com:user:audio_direct:1.1']
 
     def record(self, seconds):
         """Record data from audio controller to audio buffer.
@@ -171,7 +172,7 @@ class _AudioDirect(DefaultHierarchy):
         
         """
         self.gpio.write(1)
-        
+
     def bypass_stop(self):
         """Stop streaming input to output directly.
         
@@ -181,7 +182,7 @@ class _AudioDirect(DefaultHierarchy):
         
         """
         self.gpio.write(0)
-        
+
     def save(self, file):
         """Save audio buffer content to a file.
         
@@ -261,8 +262,46 @@ class _AudioDirect(DefaultHierarchy):
             self.sample_len = pdm_file.getnframes()
             self.buffer = temp_buffer.astype(numpy.int32)
 
+    @staticmethod
+    def info(file):
+        """Prints information about the sound files.
 
-class _AudioADAU1761(DefaultHierarchy):
+        The information includes name, channels, samples, frames, etc.
+
+        Note
+        ----
+        The file will be searched in the specified path, or in the
+        working directory in case the path does not exist.
+
+        Parameters
+        ----------
+        file : string
+            File name, with a default extension of `pdm`.
+
+        Returns
+        -------
+        None
+
+        """
+        if not isinstance(file, str):
+            raise ValueError("File name has to be a string.")
+
+        if os.path.isdir(os.path.dirname(file)):
+            file_abs = file
+        else:
+            file_abs = os.getcwd() + '/' + file
+
+        with wave.open(file_abs, 'rb') as sound_file:
+            print("File name:          " + file)
+            print("Number of channels: " + str(sound_file.getnchannels()))
+            print("Sample width:       " + str(sound_file.getsampwidth()))
+            print("Sample rate:        " + str(sound_file.getframerate()))
+            print("Number of frames:   " + str(sound_file.getnframes()))
+            print("Compression type:   " + str(sound_file.getcomptype()))
+            print("Compression name:   " + str(sound_file.getcompname()))
+
+
+class AudioADAU1761(DefaultIP):
     """Class to interact with audio codec controller.
 
     Each raw audio sample is a 24 bits, padded to 32 bits.
@@ -271,10 +310,6 @@ class _AudioADAU1761(DefaultHierarchy):
 
     Attributes
     ----------
-    mmio : MMIO
-        The MMIO object associated with the audio controller.
-    gpio : GPIO
-        The GPIO object, if any, associated with the audo controller.
     buffer : numpy.ndarray
         The numpy array to store the audio.
     sample_rate: int
@@ -287,26 +322,16 @@ class _AudioADAU1761(DefaultHierarchy):
         The index of the UIO instance in /dev.
 
     """
-
-    def __init__(self, description, gpio_name=None):
+    def __init__(self, description):
         """Return a new Audio object based on the hierarchy description.
 
         Parameters
         ----------
         description : dict
             The hierarchical description of the hierarchy
-        gpio_name : str
-            The name of the audio path selection GPIO. Defaulted to None.
 
         """
         super().__init__(description)
-
-        self.mmio = self.audio_codec_ctrl_0.mmio
-        if gpio_name is not None:
-            pin = GPIO.get_gpio_pin(PL.gpio_dict[gpio_name]['index'])
-            self.gpio = GPIO(pin, 'out')
-        else:
-            self.gpio = None
 
         self._ffi = cffi.FFI()
         self._libaudio = self._ffi.dlopen(LIB_SEARCH_PATH + "/libaudio.so")
@@ -331,6 +356,8 @@ class _AudioADAU1761(DefaultHierarchy):
         self.iic_index = None
         self.uio_index = None
         self.configure()
+
+    bindto = ['xilinx.com:user:audio_codec_ctrl:1.0']
 
     def configure(self, sample_rate=48000, iic_index=1, uio_index=1):
         """Configure the audio codec.
@@ -538,34 +565,6 @@ class _AudioADAU1761(DefaultHierarchy):
         samples_4byte += b'\x00'
         self.buffer = numpy.fromstring(samples_4byte, dtype='<u4')
 
-
-class Audio(DefaultHierarchy):
-    """Class to interact with audio direct controller or codec controller.
-
-    This class will instantiate either the direct controller or codec
-    controller, depending on the board arrangement and IP exposed in the
-    overlay.
-
-    """
-    def __new__(cls, description, gpio_name=None):
-        """Return a new Audio object based on the available IPs in the overlay.
-
-        Parameters
-        ----------
-        description : dict
-            The hierarchical description of the hierarchy
-        gpio_name : str
-            The name of the audio path selection GPIO. Defaulted to None.
-
-        """
-        if 'd_axi_pdm_1' in description['ip'] and \
-                len(description['gpio']) == 1:
-            return _AudioDirect(description, gpio_name)
-        elif 'audio_codec_ctrl_0' in description['ip']:
-            return _AudioADAU1761(description, gpio_name)
-        else:
-            return None
-
     @staticmethod
     def info(file):
         """Prints information about the sound files.
@@ -580,7 +579,7 @@ class Audio(DefaultHierarchy):
         Parameters
         ----------
         file : string
-            File name, with a default extension of `pdm` or `wav`.
+            File name, with a default extension of `wav`.
 
         Returns
         -------
@@ -603,16 +602,3 @@ class Audio(DefaultHierarchy):
             print("Number of frames:   " + str(sound_file.getnframes()))
             print("Compression type:   " + str(sound_file.getcomptype()))
             print("Compression name:   " + str(sound_file.getcompname()))
-
-    @staticmethod
-    def checkhierarchy(description):
-        """Hierarchy can be bound if it contains the 'd_axi_pdm_1' IP
-        and it contains exactly one GPIO pin.
-
-        """
-        if 'd_axi_pdm_1' in description['ip'] and \
-                len(description['gpio']) == 1:
-            return True
-        elif 'audio_codec_ctrl_0' in description['ip']:
-            return True
-        return False

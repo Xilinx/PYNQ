@@ -3,7 +3,7 @@ CPP = arm-linux-gnueabihf-g++
 
 INC = -I ../inc/
 
-ifeq ($(BOARD),"Pynq-Z1")
+ifeq ($(BOARD), Pynq-Z1)
 C_SRC += audio_direct.cpp
 OBJSC += audio_direct.o
 else

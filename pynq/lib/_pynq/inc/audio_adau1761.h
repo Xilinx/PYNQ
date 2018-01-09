@@ -54,7 +54,7 @@
 #define _AUDIO_ADAU1761_H_
 
 // Slave address for the ADAU audio controller 8
-#define IIC_SLAVE_ADDR          0x38
+#define IIC_SLAVE_ADDR          0x3B
 
 // I2C Serial Clock frequency in Hertz
 #define IIC_SCLK_RATE           400000
