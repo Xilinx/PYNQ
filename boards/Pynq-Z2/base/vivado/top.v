@@ -1,13 +1,15 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Company: Xilinx Inc
 // Design Name: PYNQ
 // Module Name: top
 // Project Name: PYNQ-Z2
 // Target Devices: ZC7020
-// Tool Versions: 2016.1
+// Tool Versions: 2017.4
+// Note: This design is for the production boards where shared pins are 
+//       different then the pre-production boards
 // Description: 
-//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 module top(
     BCLK,
@@ -52,9 +54,7 @@ module top(
     audio_clk_10MHz,
     btns_4bits_tri_i,
     codec_addr,
-    gpio_shield_sw_a5_a0_tri_io,
-    gpio_shield_sw_d13_d2_tri_io,
-    gpio_shield_sw_d1_d0_tri_io,
+    gpio_shield_sw_a5_a0_d13_d0_tri_io,
     hdmi_in_clk_n,
     hdmi_in_clk_p,
     hdmi_in_data_n,
@@ -66,8 +66,6 @@ module top(
     hdmi_out_clk_p,
     hdmi_out_data_n,
     hdmi_out_data_p,
-//    hdmi_out_ddc_scl_io,
-//    hdmi_out_ddc_sda_io,
     hdmi_out_hpd,
     iic_1_scl_io,
     iic_1_sda_io,
@@ -78,9 +76,7 @@ module top(
     spi_sw_shield_io1_io,
     spi_sw_shield_sck_io,
     spi_sw_shield_ss_io,
-    rp_gpio_io_13_4,
-    rp_gpio_io_23_16,
-    rp_gpio_io_27_26,
+    rp_gpio_io_27_8,
     pmodJA,
     pmodJB,
     rgbleds_6bits_tri_o,
@@ -128,9 +124,7 @@ module top(
   output audio_clk_10MHz;
   input [3:0]btns_4bits_tri_i;
   output [1:0]codec_addr;
-  inout [5:0]gpio_shield_sw_a5_a0_tri_io;
-  inout [11:0]gpio_shield_sw_d13_d2_tri_io;
-  inout [1:0]gpio_shield_sw_d1_d0_tri_io;
+  inout [19:0]gpio_shield_sw_a5_a0_d13_d0_tri_io;
   input hdmi_in_clk_n;
   input hdmi_in_clk_p;
   input [2:0]hdmi_in_data_n;
@@ -142,12 +136,8 @@ module top(
   output hdmi_out_clk_p;
   output [2:0]hdmi_out_data_n;
   output [2:0]hdmi_out_data_p;
-//  inout hdmi_out_ddc_scl_io;
-//  inout hdmi_out_ddc_sda_io;
   output [0:0]hdmi_out_hpd;
-  inout [13:4] rp_gpio_io_13_4;
-  inout [23:16] rp_gpio_io_23_16;
-  inout [27:26] rp_gpio_io_27_26;
+  inout [27:8] rp_gpio_io_27_8;
   inout iic_1_scl_io;
   inout iic_1_sda_io;
   inout iic_sw_shield_scl_io;
@@ -203,16 +193,11 @@ module top(
   wire Vp_Vn_v_p;
   wire audio_clk_10MHz;
   wire [3:0]btns_4bits_tri_i;
+  wire [19:0]gpio_shield_sw_a5_a0_d13_d0_tri_io;
+  wire [19:0]shield2sw_data_i;
+  wire [19:0]sw2shield_data_o;
+  wire [19:0]sw2shield_tri_o;
   wire [1:0]codec_addr;
-  wire [5:0]shield2sw_data_in_a5_a0;
-  wire [11:0]shield2sw_data_in_d13_d2;
-  wire [1:0]shield2sw_data_in_d1_d0;
-  wire [5:0]sw2shield_data_out_a5_a0;
-  wire [11:0]sw2shield_data_out_d13_d2;
-  wire [1:0]sw2shield_data_out_d1_d0;
-  wire [5:0]sw2shield_tri_out_a5_a0;
-  wire [11:0]sw2shield_tri_out_d13_d2;
-  wire [1:0]sw2shield_tri_out_d1_d0;
   wire hdmi_in_clk_n;
   wire hdmi_in_clk_p;
   wire [2:0]hdmi_in_data_n;
@@ -230,14 +215,6 @@ module top(
   wire hdmi_out_clk_p;
   wire [2:0]hdmi_out_data_n;
   wire [2:0]hdmi_out_data_p;
-//  wire hdmi_out_ddc_scl_i;
-//  wire hdmi_out_ddc_scl_io;
-//  wire hdmi_out_ddc_scl_o;
-//  wire hdmi_out_ddc_scl_t;
-//  wire hdmi_out_ddc_sda_i;
-//  wire hdmi_out_ddc_sda_io;
-//  wire hdmi_out_ddc_sda_o;
-//  wire hdmi_out_ddc_sda_t;
   wire [0:0]hdmi_out_hpd;
   wire shield2sw_scl_i_in;
   wire shield2sw_sda_i_in;
@@ -290,9 +267,7 @@ module top(
   wire [27:0]sw2rp_data_out;
   wire [27:0]sw2rp_tri_out;
   wire [27:0]rp2sw_data_in;
-  wire [13:4] rp_gpio_io_13_4;
-  wire [23:16] rp_gpio_io_23_16;
-  wire [27:26] rp_gpio_io_27_26;
+  wire [27:8]rp_gpio_io_27_8;
   wire [7:0] pmodJA_data_out_int;
   wire [7:0] pmodJA_tri_out_int;
 
@@ -309,41 +284,18 @@ module top(
         .O(iic_1_sda_i),
         .T(iic_1_sda_t));
         
-    // RP GPIO
+// RP GPIO
     generate
-        for (i=4; i < 14; i=i+1)
+        for (i=8; i < 28; i=i+1)
         begin: rp_iobuf
             IOBUF rp_i(
                 .I(sw2rp_data_out[i]), 
-                .IO(rp_gpio_io_13_4[i]), 
+                .IO(rp_gpio_io_27_8[i]), 
                 .O(rp2sw_data_in[i]), 
                 .T(sw2rp_tri_out[i]) 
                 );
         end
-    endgenerate
-    generate
-        for (i=16; i < 24; i=i+1)
-        begin: rp_iobuf_1
-            IOBUF rp_i(
-                .I(sw2rp_data_out[i]), 
-                .IO(rp_gpio_io_23_16[i]), 
-                .O(rp2sw_data_in[i]), 
-                .T(sw2rp_tri_out[i]) 
-                );
-        end
-    endgenerate
-    generate
-        for (i=26; i < 28; i=i+1)
-        begin: rp_iobuf_2
-            IOBUF rp_i(
-                .I(sw2rp_data_out[i]), 
-                .IO(rp_gpio_io_27_26[i]), 
-                .O(rp2sw_data_in[i]), 
-                .T(sw2rp_tri_out[i]) 
-                );
-        end
-     endgenerate
-		
+    endgenerate	
 
 // for HDMI in
     IOBUF hdmi_in_ddc_scl_iobuf
@@ -356,17 +308,6 @@ module top(
         .IO(hdmi_in_ddc_sda_io),
         .O(hdmi_in_ddc_sda_i),
         .T(hdmi_in_ddc_sda_t));
-// for HDMI out
-//    IOBUF hdmi_out_ddc_scl_iobuf
-//       (.I(hdmi_out_ddc_scl_o),
-//        .IO(hdmi_out_ddc_scl_io),
-//        .O(hdmi_out_ddc_scl_i),
-//        .T(hdmi_out_ddc_scl_t));
-//    IOBUF hdmi_out_ddc_sda_iobuf
-//       (.I(hdmi_out_ddc_sda_o),
-//        .IO(hdmi_out_ddc_sda_io),
-//        .O(hdmi_out_ddc_sda_i),
-//        .T(hdmi_out_ddc_sda_t));
 
 // pmodJB related iobufs
     generate
@@ -395,35 +336,13 @@ module top(
 
 // Arduino shield related iobufs
     generate
-        for (i=0; i < 6; i=i+1)
-        begin: gpio_shield_sw_a5_a0_iobuf
-            IOBUF gpio_shield_sw_a5_a0_iobuf_i(
-                .I(sw2shield_data_out_a5_a0[i]), 
-                .IO(gpio_shield_sw_a5_a0_tri_io[i]), 
-                .O(shield2sw_data_in_a5_a0[i]), 
-                .T(sw2shield_tri_out_a5_a0[i]) 
-                );
-        end
-    endgenerate
-    generate
-        for (i=0; i < 12; i=i+1)
-        begin: gpio_shield_sw_d13_d2_iobuf
-            IOBUF gpio_shield_sw_d13_d2_i(
-                .I(sw2shield_data_out_d13_d2[i]), 
-                .IO(gpio_shield_sw_d13_d2_tri_io[i]), 
-                .O(shield2sw_data_in_d13_d2[i]), 
-                .T(sw2shield_tri_out_d13_d2[i]) 
-                );
-        end
-    endgenerate
-    generate
-        for (i=0; i < 2; i=i+1)
-        begin: gpio_shield_sw_d1_d0_iobuf
-            IOBUF gpio_shield_sw_d1_d0_i(
-                .I(sw2shield_data_out_d1_d0[i]), 
-                .IO(gpio_shield_sw_d1_d0_tri_io[i]), 
-                .O(shield2sw_data_in_d1_d0[i]), 
-                .T(sw2shield_tri_out_d1_d0[i]) 
+        for (i=0; i < 20; i=i+1)
+        begin: gpio_shield_sw_a5_a0_d13_d0_iobuf_i
+            IOBUF gpio_shield_sw_a5_a0_d13_d0_iobuf_i(
+                .I(sw2shield_data_o[i]), 
+                .IO(gpio_shield_sw_a5_a0_d13_d0_tri_io[i]), 
+                .O(shield2sw_data_i[i]), 
+                .T(sw2shield_tri_o[i]) 
                 );
         end
     endgenerate
@@ -461,21 +380,21 @@ module top(
 		  .O(spi_sw_shield_ss_i),
 		  .T(spi_sw_shield_ss_t));                          
 
-    assign pmodJA_data_out_int[0] = (pmodJA_data_out[0] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[14] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[1] = (pmodJA_data_out[1] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[15] & pmoda_rp_pin_sel);
+    assign pmodJA_data_out_int[0] = (pmodJA_data_out[0] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[4] & pmoda_rp_pin_sel);
+    assign pmodJA_data_out_int[1] = (pmodJA_data_out[1] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[5] & pmoda_rp_pin_sel);
     assign pmodJA_data_out_int[2] = (pmodJA_data_out[2] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[0] & pmoda_rp_pin_sel);
     assign pmodJA_data_out_int[3] = (pmodJA_data_out[3] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[1] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[4] = (pmodJA_data_out[4] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[24] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[5] = (pmodJA_data_out[5] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[25] & pmoda_rp_pin_sel);
+    assign pmodJA_data_out_int[4] = (pmodJA_data_out[4] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[6] & pmoda_rp_pin_sel);
+    assign pmodJA_data_out_int[5] = (pmodJA_data_out[5] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[7] & pmoda_rp_pin_sel);
     assign pmodJA_data_out_int[6] = (pmodJA_data_out[6] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[2] & pmoda_rp_pin_sel);
     assign pmodJA_data_out_int[7] = (pmodJA_data_out[7] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[3] & pmoda_rp_pin_sel);
 
-    assign pmodJA_tri_out_int[0] = (pmodJA_tri_out[0] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[14] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[1] = (pmodJA_tri_out[1] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[15] & pmoda_rp_pin_sel);
+    assign pmodJA_tri_out_int[0] = (pmodJA_tri_out[0] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[4] & pmoda_rp_pin_sel);
+    assign pmodJA_tri_out_int[1] = (pmodJA_tri_out[1] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[5] & pmoda_rp_pin_sel);
     assign pmodJA_tri_out_int[2] = (pmodJA_tri_out[2] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[0] & pmoda_rp_pin_sel);
     assign pmodJA_tri_out_int[3] = (pmodJA_tri_out[3] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[1] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[4] = (pmodJA_tri_out[4] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[24] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[5] = (pmodJA_tri_out[5] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[25] & pmoda_rp_pin_sel);
+    assign pmodJA_tri_out_int[4] = (pmodJA_tri_out[4] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[6] & pmoda_rp_pin_sel);
+    assign pmodJA_tri_out_int[5] = (pmodJA_tri_out[5] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[7] & pmoda_rp_pin_sel);
     assign pmodJA_tri_out_int[6] = (pmodJA_tri_out[6] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[2] & pmoda_rp_pin_sel);
     assign pmodJA_tri_out_int[7] = (pmodJA_tri_out[7] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[3] & pmoda_rp_pin_sel);
     
@@ -543,12 +462,6 @@ system system_i
     .hdmi_out_clk_p(hdmi_out_clk_p),
     .hdmi_out_data_n(hdmi_out_data_n),
     .hdmi_out_data_p(hdmi_out_data_p),
-//    .hdmi_out_ddc_scl_i(hdmi_out_ddc_scl_i),
-//    .hdmi_out_ddc_scl_o(hdmi_out_ddc_scl_o),
-//    .hdmi_out_ddc_scl_t(hdmi_out_ddc_scl_t),
-//    .hdmi_out_ddc_sda_i(hdmi_out_ddc_sda_i),
-//    .hdmi_out_ddc_sda_o(hdmi_out_ddc_sda_o),
-//    .hdmi_out_ddc_sda_t(hdmi_out_ddc_sda_t),
     .hdmi_out_hpd(hdmi_out_hpd),
     .leds_4bits_tri_o(leds_4bits_tri_o),
     .pmodJA_data_in(pmodJA_data_in),
@@ -558,11 +471,9 @@ system system_i
     .pmodJB_data_out(pmodJB_data_out),
     .pmodJB_tri_out(pmodJB_tri_out),
     .pmoda_rp_pin_sel(pmoda_rp_pin_sel),
-    .rp2sw_data_in({rp2sw_data_in[27:26],pmodJA_data_in[5:4],rp2sw_data_in[23:16],pmodJA_data_in[1:0],rp2sw_data_in[13:4],pmodJA_data_in[7:6],pmodJA_data_in[3:2]}),
+    .rp2sw_data_in({rp2sw_data_in[27:8],pmodJA_data_in[5:4],pmodJA_data_in[1:0],pmodJA_data_in[7:6],pmodJA_data_in[3:2]}),
     .rgbleds_6bits_tri_o(rgbleds_6bits_tri_o),
-    .shield2sw_data_in_a5_a0(shield2sw_data_in_a5_a0),
-    .shield2sw_data_in_d13_d2(shield2sw_data_in_d13_d2),
-    .shield2sw_data_in_d1_d0(shield2sw_data_in_d1_d0),
+    .shield2sw_data_i(shield2sw_data_i),
     .shield2sw_scl_i_in(shield2sw_scl_i_in),
     .shield2sw_sda_i_in(shield2sw_sda_i_in),
     .spi_sw_shield_io0_i(spi_sw_shield_io0_i),
@@ -579,16 +490,12 @@ system system_i
     .spi_sw_shield_ss_t(spi_sw_shield_ss_t),
     .sw2rp_data_out(sw2rp_data_out),
     .sw2rp_tri_out(sw2rp_tri_out),
-    .sw2shield_data_out_a5_a0(sw2shield_data_out_a5_a0),
-    .sw2shield_data_out_d13_d2(sw2shield_data_out_d13_d2),
-    .sw2shield_data_out_d1_d0(sw2shield_data_out_d1_d0),
+    .sw2shield_data_o(sw2shield_data_o),
     .sw2shield_scl_o_out(sw2shield_scl_o_out),
     .sw2shield_scl_t_out(sw2shield_scl_t_out),
     .sw2shield_sda_o_out(sw2shield_sda_o_out),
     .sw2shield_sda_t_out(sw2shield_sda_t_out),
-    .sw2shield_tri_out_a5_a0(sw2shield_tri_out_a5_a0),
-    .sw2shield_tri_out_d13_d2(sw2shield_tri_out_d13_d2),
-    .sw2shield_tri_out_d1_d0(sw2shield_tri_out_d1_d0),
+    .sw2shield_tri_o(sw2shield_tri_o),
     .sws_2bits_tri_i(sws_2bits_tri_i));
         
 endmodule

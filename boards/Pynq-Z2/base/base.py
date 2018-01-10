@@ -51,13 +51,13 @@ class BaseOverlay(pynq.Overlay):
 
     Attributes
     ----------
-    iop1 : IOP
+    iop_pmoda : IOP
          IO processor connected to the PMODA interface
-    iop2 : IOP
+    iop_pmodb : IOP
          IO processor connected to the PMODB interface
-    iop3 : IOP
+    iop_arduino : IOP
          IO processor connected to the Arduino interface
-    iop4 : IOP
+    iop_rpi : IOP
          IO processor connected to the RaspberryPi interface
     trace_raspberrypi : pynq.logictools.TraceAnalyzer
         Trace analyzer block on RaspberryPi interface, controlled by PS.
@@ -85,18 +85,19 @@ class BaseOverlay(pynq.Overlay):
     def __init__(self, bitfile, **kwargs):
         super().__init__(bitfile, **kwargs)
         if self.is_loaded():
-            self.iop1.mbtype = "Pmod"
-            self.iop2.mbtype = "Pmod"
-            self.iop3.mbtype = "Arduino"
-            self.iop4.mbtype = "RaspberryPi"
+            self.iop_pmoda.mbtype = "Pmod"
+            self.iop_pmodb.mbtype = "Pmod"
+            self.iop_arduino.mbtype = "Arduino"
+            self.iop_rpi.mbtype = "RaspberryPi"
 
-            self.PMODA = self.iop1.mb_info
-            self.PMODB = self.iop2.mb_info
-            self.ARDUINO = self.iop3.mb_info
-            self.RASPBERRYPI = self.iop4.mb_info
+            self.PMODA = self.iop_pmoda.mb_info
+            self.PMODB = self.iop_pmodb.mb_info
+            self.ARDUINO = self.iop_arduino.mb_info
+            self.RASPBERRYPI = self.iop_rpi.mb_info
 
             self.pin_select = GPIO(GPIO.get_gpio_pin(
                 self.gpio_dict['pmoda_rp_pin_sel']['index']), "out")
+            self.audio = self.audio_codec_ctrl_0
 
             self.leds = self.leds_gpio.channel1
             self.switches = self.switches_gpio.channel1
