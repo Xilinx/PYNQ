@@ -33,7 +33,6 @@ XStatus BOOLEAN_GENERATOR_Reg_SelfTest(void * baseaddr_p)
 	u32 baseaddr;
 	int write_loop_index;
 	int read_loop_index;
-	int Index;
 
 	baseaddr = (u32) baseaddr_p;
 
@@ -49,7 +48,7 @@ XStatus BOOLEAN_GENERATOR_Reg_SelfTest(void * baseaddr_p)
 	for (write_loop_index = 0 ; write_loop_index < 4; write_loop_index++)
 	  BOOLEAN_GENERATOR_mWriteReg (baseaddr, write_loop_index*4, (write_loop_index+1)*READ_WRITE_MUL_FACTOR);
 	for (read_loop_index = 0 ; read_loop_index < 4; read_loop_index++)
-	  if ( BOOLEAN_GENERATOR_mReadReg (baseaddr, read_loop_index*4) != (read_loop_index+1)*READ_WRITE_MUL_FACTOR){
+	  if ( (int)BOOLEAN_GENERATOR_mReadReg (baseaddr, read_loop_index*4) != (int)(read_loop_index+1)*READ_WRITE_MUL_FACTOR){
 	    xil_printf ("Error reading register value at address %x\n", (int)baseaddr + read_loop_index*4);
 	    return XST_FAILURE;
 	  }
