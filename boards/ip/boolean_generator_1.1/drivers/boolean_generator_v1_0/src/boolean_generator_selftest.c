@@ -1,6 +1,6 @@
 
 /***************************** Include Files *******************************/
-#include "d_axi_pdm.h"
+#include "boolean_generator.h"
 #include "xparameters.h"
 #include "stdio.h"
 #include "xil_io.h"
@@ -17,7 +17,7 @@
  * If the hardware system is not built correctly, this function may never
  * return to the caller.
  *
- * @param   baseaddr_p is the base address of the D_AXI_PDMinstance to be worked on.
+ * @param   baseaddr_p is the base address of the BOOLEAN_GENERATORinstance to be worked on.
  *
  * @return
  *
@@ -28,7 +28,7 @@
  * @note    Self test may fail if data memory and device are not on the same bus.
  *
  */
-XStatus D_AXI_PDM_Reg_SelfTest(void * baseaddr_p)
+XStatus BOOLEAN_GENERATOR_Reg_SelfTest(void * baseaddr_p)
 {
 	u32 baseaddr;
 	int write_loop_index;
@@ -46,9 +46,9 @@ XStatus D_AXI_PDM_Reg_SelfTest(void * baseaddr_p)
 	xil_printf("User logic slave module test...\n\r");
 
 	for (write_loop_index = 0 ; write_loop_index < 4; write_loop_index++)
-	  D_AXI_PDM_mWriteReg (baseaddr, write_loop_index*4, (write_loop_index+1)*READ_WRITE_MUL_FACTOR);
+	  BOOLEAN_GENERATOR_mWriteReg (baseaddr, write_loop_index*4, (write_loop_index+1)*READ_WRITE_MUL_FACTOR);
 	for (read_loop_index = 0 ; read_loop_index < 4; read_loop_index++)
-	  if ( (int)D_AXI_PDM_mReadReg (baseaddr, read_loop_index*4) != (int)(read_loop_index+1)*READ_WRITE_MUL_FACTOR){
+	  if ( (int)BOOLEAN_GENERATOR_mReadReg (baseaddr, read_loop_index*4) != (int)(read_loop_index+1)*READ_WRITE_MUL_FACTOR){
 	    xil_printf ("Error reading register value at address %x\n", (int)baseaddr + read_loop_index*4);
 	    return XST_FAILURE;
 	  }

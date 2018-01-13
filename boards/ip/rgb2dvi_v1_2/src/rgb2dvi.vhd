@@ -180,8 +180,8 @@ end generate DataEncoders;
 -- except that it sends blank pixel during blanking
 -- for some reason vid_data is packed in RBG order
 pDataOut(2) <= vid_pData(23 downto 16); -- red is channel 2
-pDataOut(0) <= vid_pData(7 downto 0); -- green is channel 1
-pDataOut(1) <= vid_pData(15 downto 8); -- blue is channel 0
+pDataOut(1) <= vid_pData(7 downto 0); -- green is channel 1
+pDataOut(0) <= vid_pData(15 downto 8); -- blue is channel 0
 pC0(2 downto 1) <= (others => '0'); -- default is low for control signals
 pC1(2 downto 1) <= (others => '0'); -- default is low for control signals
 pC0(0) <= vid_pHSync; -- channel 0 carries control signals too

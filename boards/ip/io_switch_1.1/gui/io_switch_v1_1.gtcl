@@ -1,0 +1,4 @@
+# This file is automatically written.  Do not modify.
+proc gen_USERPARAMETER_C_NUM_PWMS_ENABLEMENT {PWM_Enable } {expr $PWM_Enable}
+proc gen_USERPARAMETER_C_NUM_TIMERS_ENABLEMENT {Timer_Enable } {expr $Timer_Enable}
+proc gen_USERPARAMETER_C_NUM_SS_ENABLEMENT {SPI0_Enable } {expr $SPI0_Enable}
