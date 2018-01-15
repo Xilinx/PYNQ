@@ -58,6 +58,8 @@
 *		      versions of the axi_timer IP. Please check the HW
 *		      Datasheet to see whether this feature is present in the
 *		      version of the IP that you are using.
+* 4.4   mus  07/21/17 Updated XTmrCtr_DisableIntr macro to not to clear
+*             T0INT flag
 * </pre>
 *
 ******************************************************************************/
@@ -379,7 +381,8 @@ XTmrCtr_ReadReg((BaseAddress), (TmrCtrNumber), XTC_TLR_OFFSET)
 #define XTmrCtr_DisableIntr(BaseAddress, TmrCtrNumber)			   \
 	XTmrCtr_WriteReg((BaseAddress), (TmrCtrNumber), XTC_TCSR_OFFSET,  \
 	(XTmrCtr_ReadReg((BaseAddress), (TmrCtrNumber),		   \
-		XTC_TCSR_OFFSET) & ~ XTC_CSR_ENABLE_INT_MASK))
+		XTC_TCSR_OFFSET) & ~ (XTC_CSR_ENABLE_INT_MASK \
+         | XTC_CSR_INT_OCCURED_MASK)))
 
 /****************************************************************************/
 /**

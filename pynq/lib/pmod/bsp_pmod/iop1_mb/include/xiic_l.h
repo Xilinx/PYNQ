@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2002 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2002 - 2016 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -81,8 +81,8 @@
 * 3.2   sk   11/10/15 Used UINTPTR instead of u32 for Baseaddress CR# 867425.
 *                     Changed the prototypes of XIic_Recv, XIic_Send,
 *                     XIic_DynRecv, XIic_DynSend and XIic_DynInit APIs.
-*
-*
+* 3.3   als  06/27/16 Added Low-level XIic_CheckIsBusBusy API.
+* 3.3   als  06/27/16 Added low-level XIic_WaitBusFree API.
 * </pre>
 *
 *****************************************************************************/
@@ -585,6 +585,9 @@ unsigned XIic_DynSend(UINTPTR BaseAddress, u16 Address, u8 *BufferPtr,
 
 int XIic_DynInit(UINTPTR BaseAddress);
 
+u32 XIic_CheckIsBusBusy(UINTPTR BaseAddress);
+
+u32 XIic_WaitBusFree(UINTPTR BaseAddress);
 
 #ifdef __cplusplus
 }

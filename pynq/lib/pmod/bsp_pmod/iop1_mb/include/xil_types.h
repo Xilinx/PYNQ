@@ -34,9 +34,11 @@
 *
 * @file xil_types.h
 *
-* This file contains basic types for Xilinx software IP.
-
+* @addtogroup common_types Basic Data types for Xilinx&reg; Software IP
 *
+* The xil_types.h file contains basic types for Xilinx software IP. These data types
+* are applicable for all processors supported by Xilinx.
+* @{
 * <pre>
 * MODIFICATION HISTORY:
 *
@@ -71,22 +73,28 @@
 #define NULL		0U
 #endif
 
-#define XIL_COMPONENT_IS_READY     0x11111111U  /**< component has been initialized */
-#define XIL_COMPONENT_IS_STARTED   0x22222222U  /**< component has been started */
+#define XIL_COMPONENT_IS_READY     0x11111111U  /**< In device drivers, This macro will be
+                                                 assigend to "IsReady" member of driver
+												 instance to indicate that driver
+												 instance is initialized and ready to use. */
+#define XIL_COMPONENT_IS_STARTED   0x22222222U  /**< In device drivers, This macro will be assigend to
+                                                 "IsStarted" member of driver instance
+												 to indicate that driver instance is
+												 started and it can be enabled. */
 
-/** @name New types
+/* @name New types
  * New simple types.
  * @{
  */
 #ifndef __KERNEL__
 #ifndef XBASIC_TYPES_H
-/**
+/*
  * guarded against xbasic_types.h.
  */
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
-
+/** @}*/
 #define __XUINT64__
 typedef struct
 {
@@ -97,36 +105,32 @@ typedef struct
 
 /*****************************************************************************/
 /**
-* Return the most significant half of the 64 bit data type.
+* @brief    Return the most significant half of the 64 bit data type.
 *
 * @param    x is the 64 bit word.
 *
 * @return   The upper 32 bits of the 64 bit word.
-*
-* @note     None.
 *
 ******************************************************************************/
 #define XUINT64_MSW(x) ((x).Upper)
 
 /*****************************************************************************/
 /**
-* Return the least significant half of the 64 bit data type.
+* @brief    Return the least significant half of the 64 bit data type.
 *
 * @param    x is the 64 bit word.
 *
 * @return   The lower 32 bits of the 64 bit word.
-*
-* @note     None.
 *
 ******************************************************************************/
 #define XUINT64_LSW(x) ((x).Lower)
 
 #endif /* XBASIC_TYPES_H */
 
-/**
+/*
  * xbasic_types.h does not typedef s* or u64
  */
-
+/** @{ */
 typedef char char8;
 typedef int8_t s8;
 typedef int16_t s16;
@@ -138,7 +142,7 @@ typedef int sint32;
 typedef intptr_t INTPTR;
 typedef uintptr_t UINTPTR;
 typedef ptrdiff_t PTRDIFF;
-
+/** @}*/
 #if !defined(LONG) || !defined(ULONG)
 typedef long LONG;
 typedef unsigned long ULONG;
@@ -151,7 +155,7 @@ typedef unsigned long ULONG;
 #include <linux/types.h>
 #endif
 
-
+/** @{ */
 /**
  * This data type defines an interrupt handler for a device.
  * The argument points to the instance of the component
@@ -165,22 +169,24 @@ typedef void (*XInterruptHandler) (void *InstancePtr);
 typedef void (*XExceptionHandler) (void *InstancePtr);
 
 /**
- * UPPER_32_BITS - return bits 32-63 of a number
- * @n: the number we're accessing
+ * @brief  Returns 32-63 bits of a number.
+ * @param  n : Number being accessed.
+ * @return Bits 32-63 of number.
  *
- * A basic shift-right of a 64- or 32-bit quantity.  Use this to suppress
- * the "right shift count >= width of type" warning when that quantity is
- * 32-bits.
+ * @note    A basic shift-right of a 64- or 32-bit quantity.
+ *          Use this to suppress the "right shift count >= width of type"
+ *          warning when that quantity is 32-bits.
  */
 #define UPPER_32_BITS(n) ((u32)(((n) >> 16) >> 16))
 
 /**
- * LOWER_32_BITS - return bits 0-31 of a number
- * @n: the number we're accessing
+ * @brief  Returns 0-31 bits of a number
+ * @param  n : Number being accessed.
+ * @return Bits 0-31 of number
  */
 #define LOWER_32_BITS(n) ((u32)(n))
 
-/*@}*/
+
 
 
 /************************** Constant Definitions *****************************/
@@ -198,3 +204,6 @@ typedef void (*XExceptionHandler) (void *InstancePtr);
 #endif
 
 #endif	/* end of protection macro */
+/**
+* @} End of "addtogroup common_types".
+*/

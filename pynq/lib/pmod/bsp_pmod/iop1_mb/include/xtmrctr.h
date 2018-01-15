@@ -150,6 +150,16 @@
 * 4.0   als  09/30/15 Updated initialization API.
 * 4.1   sk   11/10/15 Used UINTPTR instead of u32 for Baseaddress CR# 867425.
 *                     Changed the prototype of XTmrCtr_CfgInitialize API.
+* 4.2   nsk  15/09/16 Updated tcl, to get correct device id for canonical defines,
+*                     when there exist more than one timer perepheral
+*       ms   01/23/17 Added xil_printf statement in main function for all
+*                     examples to ensure that "Successfully ran" and "Failed"
+*                     strings are available in all examples. This is a fix
+*                     for CR-965028.
+*       ms   03/17/17 Added readme.txt file in examples folder for doxygen
+*                     generation.
+* 4.4   ms   04/18/17 Modified tcl file to add suffix U for all macros
+*                     definitions of tmrctr in xparameters.h
 * </pre>
 *
 ******************************************************************************/

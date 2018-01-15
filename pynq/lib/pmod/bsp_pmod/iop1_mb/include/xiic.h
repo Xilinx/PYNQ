@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2002 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2002 - 2016 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -298,6 +298,18 @@
 * 3.2	sd   18/02/16 In Low level driver in repeated start condition
 *                     NACK for last byte is added. Changes are done in
 *                     XIic_Recv for CR# 862303
+* 3.3   sk   06/17/16 Added bus busy checks for slave send/recv and master
+*                     send/recv.
+* 3.3   als  06/27/16 XIic_IsIicBusy now a wrapper for XIic_CheckIsBusBusy.
+* 3.4   ms   01/23/17 Added xil_printf statement in main function for all
+*                     examples to ensure that "Successfully ran" and "Failed"
+*                     strings are available in all examples. This is a fix
+*                     for CR-965028.
+*       ms   03/17/17 Added readme.txt file in examples folder for doxygen
+*                     generation.
+*       ms   04/05/17 Modified Comment lines in functions of iic
+*                     examples to recognize it as documentation block
+*                     for doxygen generation.
 * </pre>
 *
 ******************************************************************************/
@@ -486,6 +498,24 @@ typedef struct {
 } XIic;
 
 /***************** Macros (Inline Functions) Definitions *********************/
+
+/*****************************************************************************
+*
+* This is a function which tells whether the I2C bus is busy or free.
+*
+* @param	InstancePtr points to the XIic instance to be worked on.
+*
+* @return
+*		- TRUE if the bus is busy.
+*		- FALSE if the bus is NOT busy.
+*
+* @note		None.
+*
+******************************************************************************/
+static inline u32 XIic_IsIicBusy(XIic *InstancePtr)
+{
+	return XIic_CheckIsBusBusy(InstancePtr->BaseAddress);
+}
 
 /************************** Function Prototypes ******************************/
 

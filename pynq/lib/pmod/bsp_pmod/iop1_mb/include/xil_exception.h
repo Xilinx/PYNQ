@@ -34,10 +34,14 @@
 *
 * @file xil_exception.h
 *
-* This header file contains exception related driver functions (or
-* macros) that can be used to access the device. The user should refer to the
-* hardware device specification for more details of the device operation.
+* @addtogroup microblaze_exception_apis Microblaze Exception APIs
 *
+* The xil_exception.h file contains Microblaze specific exception
+* related APIs and macros. Application programs can use these APIs/Macros
+* for various exception related operations (i.e. enable exception, disable
+* exception, register exception hander etc.)
+*
+* @{
 * <pre>
 * MODIFICATION HISTORY:
 *
@@ -48,8 +52,8 @@
 * </pre>
 *
 * @note
-*
-* None.
+*  To use exception related functions, the xil_exception.h file must be added in
+*  source code
 *
 ******************************************************************************/
 
@@ -122,3 +126,6 @@ extern void Xil_ExceptionDisable(void);
 #endif
 
 #endif
+/**
+* @} End of "addtogroup microblaze_exception_apis".
+*/

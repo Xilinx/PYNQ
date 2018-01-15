@@ -286,8 +286,16 @@
 *		      CR#810294.
 * 4.2   sk   11/10/15 Used UINTPTR instead of u32 for Baseaddress CR# 867425.
 *                     Changed the prototype of XSpi_CfgInitialize API.
-* 
-*
+*       ms   01/23/17 Added xil_printf statement in main function for all
+*                     examples to ensure that "Successfully ran" and "Failed"
+*                     strings are available in all examples. This is a
+*                     fix for CR-965028.
+*       ms   03/17/17 Added readme.txt file in examples folder for doxygen
+*                     generation.
+*       ms   04/05/17 Modified Comment lines in functions of spi
+*                     examples to follow doxygen rules.
+* 4.3   ms   04/18/17 Modified tcl file to add suffix U for all macros
+*                     definitions of spi in xparameters.h
 * </pre>
 *
 ******************************************************************************/

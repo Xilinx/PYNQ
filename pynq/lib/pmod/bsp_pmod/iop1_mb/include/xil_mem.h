@@ -1,6 +1,6 @@
-/******************************************************************************
-*
-* Copyright (C) 2008 - 2014 Xilinx, Inc. All rights reserved.
+/******************************************************************************/
+/**
+* Copyright (C) 2015 - 2016 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -29,49 +29,31 @@
 * this Software without prior written authorization from Xilinx.
 *
 ******************************************************************************/
-/*****************************************************************************/
+/****************************************************************************/
 /**
+* @file xil_mem.h
 *
-* @file microblaze_interrupts_i.h
+* @addtogroup common_mem_operation_api Customized APIs for Memory Operations
 *
-* This header file contains identifiers and low-level driver functions (or
-* macros) that can be used to access the device.  The user should refer to the
-* hardware device specification for more details of the device operation.
-* High-level driver functions are defined in xintc.h.
+* The xil_mem.h file contains prototype for functions related
+* to memory operations. These APIs are applicable for all processors supported
+* by Xilinx.
 *
+* @{
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Date     Changes
-* ----- -------- -----------------------------------------------
-* 1.00b 10/03/03 First release
+* Ver   Who      Date     Changes
+* ----- -------- -------- -----------------------------------------------
+* 6.1   nsk      11/07/16 First release.
+*
 * </pre>
 *
-******************************************************************************/
+*****************************************************************************/
 
-#ifndef MICROBLAZE_INTERRUPTS_I_H /* prevent circular inclusions */
-#define MICROBLAZE_INTERRUPTS_I_H /* by using protection macros */
+/************************** Function Prototypes *****************************/
 
-/***************************** Include Files *********************************/
-
-#include "xil_types.h"
-#include "xil_assert.h"
-#include "xil_exception.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct
-{
-   XInterruptHandler Handler;
-   void *CallBackRef;
-} MB_InterruptVectorTableEntry;
-
-#define MB_INTERRUPT_VECTOR_TABLE_ENTRIES	1
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* end of protection macro */
+void Xil_MemCpy(void* dst, const void* src, u32 cnt);
+/**
+* @} End of "addtogroup common_mem_operation_api".
+*/
