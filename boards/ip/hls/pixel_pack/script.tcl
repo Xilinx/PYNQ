@@ -6,8 +6,6 @@ open_solution "solution1"
 set_part {xc7z020clg400-1} -tool vivado
 create_clock -period 7 -name default
 create_clock -period 10 -name control
-csim_design
 csynth_design
-# cosim_design -trace_level all -tool xsim
 export_design -format ip_catalog
 exit

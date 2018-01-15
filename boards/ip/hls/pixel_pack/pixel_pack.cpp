@@ -35,10 +35,12 @@ void pixel_pack(narrow_stream* in_stream, wide_stream* out_stream, int mode, ap_
 #pragma HLS INTERFACE axis depth=24 port=out_stream
 
 	bool last = false;
+	bool delayed_last = false;
 	switch (mode) {
 	case V_24:
-		while (!last) {
+		while (!delayed_last) {
 #pragma HLS pipeline II=4
+			delayed_last = last;
 			ap_uint<96> buffer;
 			ap_uint<4> has_last;
 			ap_uint<4> has_user;
@@ -51,13 +53,14 @@ void pixel_pack(narrow_stream* in_stream, wide_stream* out_stream, int mode, ap_
 					++in_stream;
 				}
 			}
-			for (int i = 0; i < 3; ++i) {
-				out_stream->data = buffer.range(i*32 + 31, i*32);
-				out_stream->user = has_user[i];
-				out_stream->last = has_last[i+1];
-				++out_stream;
+			if (!delayed_last) {
+				for (int i = 0; i < 3; ++i) {
+					out_stream->data = buffer.range(i*32 + 31, i*32);
+					out_stream->user = has_user[i];
+					out_stream->last = has_last[i+1];
+					++out_stream;
+				}
 			}
-
 		}
 		break;
 	case V_32:
@@ -75,8 +78,9 @@ void pixel_pack(narrow_stream* in_stream, wide_stream* out_stream, int mode, ap_
 		}
 		break;
 	case V_8:
-		while (!last) {
+		while (!delayed_last) {
 #pragma HLS pipeline II=4
+			delayed_last = last;
 			bool user = false;
 			ap_uint<32> data;
 			for (int i = 0; i < 4; ++i) {
@@ -87,10 +91,12 @@ void pixel_pack(narrow_stream* in_stream, wide_stream* out_stream, int mode, ap_
 					++in_stream;
 				}
 			}
-			out_stream->user = user;
-			out_stream->last = last;
-			out_stream->data = data;
-			++out_stream;
+			if (!delayed_last) {
+				out_stream->user = user;
+				out_stream->last = last;
+				out_stream->data = data;
+				++out_stream;
+			}
 		}
 		break;
 	case V_16:
