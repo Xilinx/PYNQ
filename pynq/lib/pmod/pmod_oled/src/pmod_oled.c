@@ -49,6 +49,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00a gs  11/19/15 release
  * 1.00b yrq 05/27/16 reduce program size, use pmod_init()
+ * 2.10  yrq 01/12/18 io_switch refactor
  *
  * </pre>
  *
@@ -59,7 +60,10 @@
 #include "xspi_l.h"
 #include "OledChar.h"
 #include "OledGrph.h"
-#include "pmod.h"
+#include "xio_switch.h"
+#include "circular_buffer.h"
+#include "spi.h"
+#include "timer.h"
 
 #define SPI_BASEADDR XPAR_SPI_0_BASEADDR // base address of QSPI[0]
 
@@ -103,6 +107,7 @@
 #define BUFFER_SIZE      1
 
 u8 WriteBuffer[BUFFER_SIZE];
+XTmrCtr TimerCtr;
 
 /************************** Function Prototypes ******************************/
 void OledInit(void);
@@ -200,18 +205,25 @@ int main (void) {
       return XST_FAILURE;
     }
     // set data direction for GPIO
-    XGpio_SetDataDirection(&Gpio, GPIO_CHANNEL, ~(VBAT | VDDC | RST | DC));
-    
-    // Initialize pmod
-    pmod_init(0,0);
+    XGpio_SetDataDirection(&Gpio, GPIO_CHANNEL, (~(VBAT|VDDC|RST|DC))<<4);
+
+    // Initialize IO switch
+    init_io_switch();
+
+    // Initialize SPI
+    spi_init(SPI_BASEADDR, 0, 0);
+    // Initialize timer
+    tmrctr_init(XPAR_TMRCTR_0_DEVICE_ID, &TimerCtr);
+
     /*
-     *  Configuring Pmod IO Switch to connect to SPI[0].SS to pmod bit 0,
+     *  Set IO Switch to connect to SPI[0].SS to pmod bit 0,
      *  SPI[0].MOSI to pmod bit 1, and SPI[0].SCLK to pmod bit 3
      *  rest of the bits are configured to default gpio channels
      */
-    config_pmod_switch(SS,MOSI,GPIO_7,SPICLK,
-                       GPIO_0,GPIO_1,GPIO_2,GPIO_3);
-    
+    set_pin(0, SS0);
+    set_pin(1, MOSI0);
+    set_pin(3, SPICLK0);
+
     // initialize OLED device and driver code
     pinmask=0;
     OledInit();
@@ -256,55 +268,58 @@ void OledInit(void) {
     // Apply power to VCC, command mode, inactive reset pins
     pinmask |= (RST_INACTIVE | VBAT_INACTIVE);
     pinmask &= ~(COMMAND_MODE_LOW|VDDC_ACTIVE_LOW);
+    pinmask = pinmask<<4;
     // command mode, reset inactive
     XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, pinmask);
-    delay_ms(1);
+    delay_ms(1, &TimerCtr);
 
     // send display off command
     WriteBuffer[0]=0xAE;
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
 
     // reset the screen
     pinmask |= (VBAT_INACTIVE);
     pinmask &= ~(COMMAND_MODE_LOW|RST_ACTIVE_LOW|VDDC_ACTIVE_LOW);
-
+    pinmask = pinmask<<4;
     // command mode, reset active
     XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, pinmask);
 
-    delay_ms(1);
+    delay_ms(1, &TimerCtr);
     pinmask |= ( RST_INACTIVE | VBAT_INACTIVE);
     pinmask&=~(COMMAND_MODE_LOW|VDDC_ACTIVE_LOW);
+    pinmask = pinmask<<4;
     XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, pinmask);
 
     // send charge pump and set pre charge period commands
     WriteBuffer[0]=0x8D; // charge buffer 1
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
     WriteBuffer[0]=0x14; // charge buffer 2
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
     WriteBuffer[0]=0xD9; // charge buffer 3
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
     WriteBuffer[0]=0xF1; // charge buffer 4
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
 
     // turn on VBAT and wait 100ms (VBAT is always on)
     pinmask |= ( RST_INACTIVE);
     pinmask&=~(COMMAND_MODE_LOW|VBAT_ACTIVE_LOW|VDDC_ACTIVE_LOW);
+    pinmask = pinmask<<4;
     XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, pinmask);
-    delay_ms(100);
+    delay_ms(100, &TimerCtr);
 
     // send invert display and sequential COM config commands
     WriteBuffer[0]=0xA1; // invert charge buffer 1
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
     WriteBuffer[0]=0xC8; // invert charge buffer 2
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
     WriteBuffer[0]=0xDA; // invert charge buffer 3
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
     WriteBuffer[0]=0x20; // invert charge buffer 4
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
 
     // send display on command
     WriteBuffer[0]=0xAF; // display ON
-    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+    spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
 }
 
 void OledClearBuffer() {
@@ -329,26 +344,28 @@ void OledUpdate(void) {
         // set pin to command mode
         pinmask |= (RST_INACTIVE);
         pinmask&=~(COMMAND_MODE_LOW|VBAT_ACTIVE_LOW|VDDC_ACTIVE_LOW);
+        pinmask = pinmask<<4;
         XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, pinmask);
         // Set the page address
         WriteBuffer[0]=0x22; // set page command
-        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
         WriteBuffer[0]=ipag; // set page number
-        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
         // Start at the left column
         WriteBuffer[0]=0x00; // set low nibble of column
-        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
         WriteBuffer[0]=0x10; // set high nibble of column
-        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+        spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
         // set back to data mode
         pinmask |= (RST_INACTIVE | DATA_MODE);
         pinmask&=~(VBAT_ACTIVE_LOW|VDDC_ACTIVE_LOW);
+        pinmask = pinmask<<4;
         XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, pinmask);
 
         // Copy this memory page of display data.
         for (i = 0; i < ccolOledMax; i += 1) {
             WriteBuffer[0]=pb[i];
-            spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer);
+            spi_transfer(SPI_BASEADDR, 1, NULL, WriteBuffer, &TimerCtr);
         }
         pb += ccolOledMax;
     }
