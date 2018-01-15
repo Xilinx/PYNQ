@@ -40,7 +40,7 @@ BIN_LOCATION = os.path.dirname(os.path.realpath(__file__)) + "/"
 # PYNQ-Z1 constants
 ARDUINO = {'ip_name': 'iop3/mb_bram_ctrl',
            'rst_name': 'mb_iop3_reset',
-           'intr_pin_name': 'iop3/dff_en_reset_0/q',
+           'intr_pin_name': 'iop3/dff_en_reset_vector_0/q',
            'intr_ack_name': 'mb_iop3_intr_ack'}
 
 # Arduino mailbox constants

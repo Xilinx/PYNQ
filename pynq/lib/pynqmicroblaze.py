@@ -316,10 +316,11 @@ class MicroblazeHierarchy(DefaultHierarchy):
         super().__init__(description)
         hier = description['fullpath']
         self.mb_info = {'ip_name': '{}/mb_bram_ctrl'.format(hier),
-                         'rst_name': 'mb_{}_reset'.format(hier),
-                         'intr_pin_name': '{}/dff_en_reset_0/q'.format(hier),
-                         'intr_ack_name': 'mb_{}_intr_ack'.format(hier),
-                         'mbtype': mbtype}
+                        'rst_name': 'mb_{}_reset'.format(hier),
+                        'intr_pin_name': '{}/dff_en_reset_vector_0/q'.format(
+                            hier),
+                        'intr_ack_name': 'mb_{}_intr_ack'.format(hier),
+                        'mbtype': mbtype}
 
     @property
     def mbtype(self):
