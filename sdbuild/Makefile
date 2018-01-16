@@ -126,7 +126,7 @@ ifeq "${RELEASE}" "${BUILD_RELEASE}"
 	which microblaze-xilinx-elf-gcc
 	which ct-ng
 	${QEMU_EXE} -version | fgrep 2.8.0
-	vivado -version | fgrep 2017.2
+	vivado -version | fgrep 2017.4
 	sudo -n true
 	bash ${SCRIPT_DIR}/check_Env.sh
 	bash ${SCRIPT_DIR}/check_mounts.sh
