@@ -2,7 +2,7 @@ BOOT_CONFIG_DIR := $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 BOOT_CONFIG_ABS = $(CURDIR)/${BOOT_CONFIG_DIR}
 
 LINUX_REPO ?= https://github.com/Xilinx/linux-xlnx.git
-LINUX_COMMIT ?= 5d029fdc257cf88e65500db348eda23040af332b
+LINUX_COMMIT ?= xilinx-v2017.4
 
 UBOOT_REPO ?= https://github.com/Digilent/u-boot-digilent.git
 UBOOT_COMMIT ?= e2382ceaffc0c36dc21c01576c1e454af0e01ca1

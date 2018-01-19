@@ -19,9 +19,17 @@ if [ -d $directory ]; then
 fi
 
 if [ -e $directory ]; then
-  echo "$directory exists andn is not a directory"
+  echo "$directory exists and is not a directory"
+  exit 1
 fi
 
-git clone $repo $directory
-cd $directory
-git checkout $commit
+if [[ $commit =~ ^[0-9a-zA-Z]{40}$ ]]; then
+  # If we have a hash then we have to clone the whole repo
+  git clone $repo $directory
+  cd $directory
+  git checkout $commit
+else
+  # For branches and tags we only need the head
+  git clone --depth 1 --branch $commit $repo $directory
+fi
+
