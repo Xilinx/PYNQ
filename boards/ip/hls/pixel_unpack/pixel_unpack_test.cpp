@@ -18,7 +18,7 @@ struct wide_stream {
 	ap_uint<1> last;
 };
 
-void pixel_unpack(wide_stream* in_stream, narrow_stream* out_stream, int mode);
+void pixel_unpack(wide_stream* stream_in_32, narrow_stream* stream_out_24, int mode);
 
 wide_stream input_data[24];
 narrow_stream output_data[96];

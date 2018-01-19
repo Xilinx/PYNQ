@@ -7,5 +7,5 @@ set_part {xc7z020clg400-1} -tool vivado
 create_clock -period 7 -name default
 create_clock -period 10 -name control
 csynth_design
-export_design -format ip_catalog -description "Color Conversion for 24-bit AXI video stream" -display_name "Color Convert"
+export_design -format ip_catalog -description "Color conversion for 24-bit AXI video stream" -display_name "Color Convert"
 exit
