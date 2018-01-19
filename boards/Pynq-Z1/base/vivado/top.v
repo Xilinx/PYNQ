@@ -52,9 +52,7 @@ module top(
     Vp_Vn_v_n,
     Vp_Vn_v_p,
     btns_4bits_tri_i,
-    gpio_shield_sw_a5_a0_tri_io,
-    gpio_shield_sw_d13_d2_tri_io,
-    gpio_shield_sw_d1_d0_tri_io,
+    gpio_shield_sw_a5_a0_d13_d0_tri_io,
     ck_an_tri_io,
     ck_gpio_tri_io,	
     hdmi_in_clk_n,
@@ -129,9 +127,7 @@ module top(
   input Vp_Vn_v_n;
   input Vp_Vn_v_p;
   input [3:0]btns_4bits_tri_i;
-  inout [5:0]gpio_shield_sw_a5_a0_tri_io;
-  inout [11:0]gpio_shield_sw_d13_d2_tri_io;
-  inout [1:0]gpio_shield_sw_d1_d0_tri_io;
+  inout [19:0]gpio_shield_sw_a5_a0_d13_d0_tri_io;
   inout [5:0]ck_an_tri_io;
   inout [15:0]ck_gpio_tri_io;
   input hdmi_in_clk_n;
@@ -163,7 +159,7 @@ module top(
   input pdm_m_data_i;
   output [5:0]rgbleds_6bits_tri_o;
   output [0:0]pwm_audio_o;
-  
+ 
   wire [14:0]DDR_addr;
   wire [2:0]DDR_ba;
   wire DDR_cas_n;
@@ -206,15 +202,7 @@ module top(
   wire Vp_Vn_v_n;
   wire Vp_Vn_v_p;
   wire [3:0]btns_4bits_tri_i;
-  wire [5:0]shield2sw_data_in_a5_a0;
-  wire [11:0]shield2sw_data_in_d13_d2;
-  wire [1:0]shield2sw_data_in_d1_d0;
-  wire [5:0]sw2shield_data_out_a5_a0;
-  wire [11:0]sw2shield_data_out_d13_d2;
-  wire [1:0]sw2shield_data_out_d1_d0;
-  wire [5:0]sw2shield_tri_out_a5_a0;
-  wire [11:0]sw2shield_tri_out_d13_d2;
-  wire [1:0]sw2shield_tri_out_d1_d0;
+  wire [19:0]gpio_shield_sw_a5_a0_d13_d0_tri_io;
   wire [15:0]ck_gpio_tri_i;
   wire [15:0]ck_gpio_tri_io;
   wire [15:0]ck_gpio_tri_o;
@@ -286,10 +274,14 @@ module top(
   wire [5:0]rgbleds_6bits_tri_o;
   wire [0:0]pwm_audio_o;
 
+  wire [19:0]shield2sw_data_i;
+  wire [19:0]sw2shield_data_o;
+  wire [19:0]sw2shield_tri_o;
+
   // ChipKit related header signals
   genvar i;
   generate
-	for (i=0; i < 15; i=i+1)
+	for (i=0; i < 16; i=i+1)
 	begin: ck_gpio_iobuf
 		IOBUF ck_gpio_tri_iobuf_i(
 			.I(ck_gpio_tri_o[i]), 
@@ -349,39 +341,17 @@ IOBUF hdmi_out_ddc_sda_iobuf
 
 // Arduino shield related iobufs
     generate
-        for (i=0; i < 6; i=i+1)
+        for (i=0; i < 20; i=i+1)
         begin: gpio_shield_sw_a5_a0_iobuf
-            IOBUF gpio_shield_sw_a5_a0_iobuf_i(
-                .I(sw2shield_data_out_a5_a0[i]), 
-                .IO(gpio_shield_sw_a5_a0_tri_io[i]), 
-                .O(shield2sw_data_in_a5_a0[i]), 
-                .T(sw2shield_tri_out_a5_a0[i]) 
+            IOBUF gpio_shield_sw_a5_a0_d13_d0_iobuf_i(
+                .I(sw2shield_data_o[i]), 
+                .IO(gpio_shield_sw_a5_a0_d13_d0_tri_io[i]), 
+                .O(shield2sw_data_i[i]), 
+                .T(sw2shield_tri_o[i]) 
                 );
         end
     endgenerate
-    generate
-        for (i=0; i < 12; i=i+1)
-        begin: gpio_shield_sw_d13_d2_iobuf
-            IOBUF gpio_shield_sw_d13_d2_i(
-                .I(sw2shield_data_out_d13_d2[i]), 
-                .IO(gpio_shield_sw_d13_d2_tri_io[i]), 
-                .O(shield2sw_data_in_d13_d2[i]), 
-                .T(sw2shield_tri_out_d13_d2[i]) 
-                );
-        end
-    endgenerate
-    generate
-        for (i=0; i < 2; i=i+1)
-        begin: gpio_shield_sw_d1_d0_iobuf
-            IOBUF gpio_shield_sw_d1_d0_i(
-                .I(sw2shield_data_out_d1_d0[i]), 
-                .IO(gpio_shield_sw_d1_d0_tri_io[i]), 
-                .O(shield2sw_data_in_d1_d0[i]), 
-                .T(sw2shield_tri_out_d1_d0[i]) 
-                );
-        end
-    endgenerate
-	  
+  
 // Dedicated Arduino IIC shield2sw_scl_i_in
 IOBUF iic_sw_shield_scl_iobuf
      (.I(sw2shield_scl_o_out),
@@ -437,7 +407,7 @@ system system_i
     .FIXED_IO_ps_clk(FIXED_IO_ps_clk),
     .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
     .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
-        .Vaux0_v_n(Vaux0_v_n),
+    .Vaux0_v_n(Vaux0_v_n),
     .Vaux0_v_p(Vaux0_v_p),
     .Vaux12_v_n(Vaux12_v_n),
     .Vaux12_v_p(Vaux12_v_p),
@@ -495,9 +465,6 @@ system system_i
     .pmodJB_tri_out(pmodJB_tri_out),
     .pwm_audio_o(pwm_audio_o),
     .rgbleds_6bits_tri_o(rgbleds_6bits_tri_o),
-    .shield2sw_data_in_a5_a0(shield2sw_data_in_a5_a0),
-    .shield2sw_data_in_d13_d2(shield2sw_data_in_d13_d2),
-    .shield2sw_data_in_d1_d0(shield2sw_data_in_d1_d0),
     .shield2sw_scl_i_in(shield2sw_scl_i_in),
     .shield2sw_sda_i_in(shield2sw_sda_i_in),
     .spi_sw_shield_io0_i(spi_sw_shield_io0_i),
@@ -512,16 +479,13 @@ system system_i
     .spi_sw_shield_ss_i(spi_sw_shield_ss_i),
     .spi_sw_shield_ss_o(spi_sw_shield_ss_o),
     .spi_sw_shield_ss_t(spi_sw_shield_ss_t),
-    .sw2shield_data_out_a5_a0(sw2shield_data_out_a5_a0),
-    .sw2shield_data_out_d13_d2(sw2shield_data_out_d13_d2),
-    .sw2shield_data_out_d1_d0(sw2shield_data_out_d1_d0),
     .sw2shield_scl_o_out(sw2shield_scl_o_out),
     .sw2shield_scl_t_out(sw2shield_scl_t_out),
     .sw2shield_sda_o_out(sw2shield_sda_o_out),
-    .sw2shield_sda_t_out(sw2shield_sda_t_out),
-    .sw2shield_tri_out_a5_a0(sw2shield_tri_out_a5_a0),
-    .sw2shield_tri_out_d13_d2(sw2shield_tri_out_d13_d2),
-    .sw2shield_tri_out_d1_d0(sw2shield_tri_out_d1_d0),
+    .sw2shield_sda_t_out(sw2shield_sda_t_out),    
+    .shield2sw_data_i(shield2sw_data_i),
+    .sw2shield_data_o(sw2shield_data_o),
+    .sw2shield_tri_o(sw2shield_tri_o),
     .sws_2bits_tri_i(sws_2bits_tri_i));
-        
+          
 endmodule
