@@ -32,19 +32,19 @@
 /*****************************************************************************/
 /**
 *
-* @file xil_testmemend.h
+* @file xil_testio.h
 *
-* This file contains utility functions to teach endian related memory
+* @addtogroup common_test_utils Test Utilities
+* <h2>I/O test </h2>
+* The xil_testio.h file contains utility functions to test endian related memory
 * IO functions.
-*
-* <b>Memory test description</b>
 *
 * A subset of the memory tests can be selected or all of the tests can be run
 * in order. If there is an error detected by a subtest, the test stops and the
 * failure code is returned. Further tests are not run even if all of the tests
 * are selected.
 *
-*
+* @{
 * <pre>
 * MODIFICATION HISTORY:
 *
@@ -89,3 +89,6 @@ extern s32 Xil_TestIO32(u32 *Addr, s32 Length, u32 Value, s32 Kind, s32 Swap);
 #endif
 
 #endif /* end of protection macro */
+/**
+* @} End of "addtogroup common_test_utils".
+*/

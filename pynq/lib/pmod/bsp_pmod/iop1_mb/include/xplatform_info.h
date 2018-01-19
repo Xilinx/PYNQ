@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2014 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2014 - 2017 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,21 @@
 *
 * @file xplatform_info.h
 *
-* This file contains definitions for various platforms available
+* @addtogroup common_platform_info APIs to Get Platform Information
+*
+* The xplatform_info.h file contains definitions for various available Xilinx&reg;
+* platforms. Also, it contains prototype of APIs, which can be used to get the
+* platform information.
+*
+* @{
+* <pre>
+* MODIFICATION HISTORY:
+*
+* Ver   Who    Date    Changes
+* ----- ---- --------- -------------------------------------------------------
+* 6.4    ms   05/23/17 Added PSU_PMU macro to support XGetPSVersion_Info
+*                      function for PMUFW.
+* </pre>
 *
 ******************************************************************************/
 
@@ -65,6 +79,7 @@ extern "C" {
 #define XPS_VERSION_2 0x1
 
 #define XPLAT_INFO_MASK (0xF)
+#define XPLAT_INFO_SHIFT (0xC)
 #define XPS_VERSION_INFO_MASK (0xF)
 
 /**************************** Type Definitions *******************************/
@@ -74,7 +89,7 @@ extern "C" {
 
 u32 XGetPlatform_Info();
 
-#if defined (ARMR5) || (__aarch64__) || (ARMA53_32)
+#if defined (ARMR5) || (__aarch64__) || (ARMA53_32) || (PSU_PMU)
 u32 XGetPSVersion_Info();
 #endif
 
@@ -89,3 +104,6 @@ u32 XGet_Zynq_UltraMp_Platform_info();
 #endif
 
 #endif /* end of protection macro */
+/**
+* @} End of "addtogroup common_platform_info".
+*/

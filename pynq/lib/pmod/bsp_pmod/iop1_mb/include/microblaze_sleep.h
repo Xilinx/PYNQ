@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2014 Xilinx, Inc. All rights reserved.
+* Copyright (C) 2014-2016 Xilinx, Inc. All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -34,8 +34,12 @@
 *
 * @file microblaze_sleep.h
 *
-* Contains microblaze sleep function API.
+* @addtogroup microblaze_sleep_routines Sleep Routines for Microblaze
 *
+* The microblaze_sleep.h file contains microblaze sleep APIs. These APIs
+* provides delay for requested duration.
+*
+* @{
 * <pre>
 * MODIFICATION HISTORY:
 *
@@ -46,8 +50,7 @@
 * </pre>
 *
 * @note
-*
-* This file may contain architecture-dependent items.
+* The microblaze_sleep.h file may contain architecture-dependent items.
 *
 ******************************************************************************/
 
@@ -63,21 +66,21 @@ extern "C" {
 #include "xil_types.h"
 #include "mb_interface.h"
 #include "xparameters.h"
+#include "sleep.h"
 
 /************************** Constant Definitions *****************************/
 
 /**************************** Type Definitions *******************************/
 
-/***************** Macros (Inline Functions) Definitions *********************/
-
-#define ITERS_PER_MSEC   ((XPAR_CPU_CORE_CLOCK_FREQ_HZ / 1000) / 6)
-
 /************************** Function Prototypes ******************************/
 
-void MB_Sleep(u32 MilliSeconds);
+void MB_Sleep(u32 MilliSeconds) __attribute__((__deprecated__));
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* end of protection macro */
+/**
+* @} End of "addtogroup microblaze_sleep_routines".
+*/

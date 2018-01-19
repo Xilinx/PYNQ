@@ -32,7 +32,7 @@
 /*****************************************************************************/
 /**
 * @file xgpio.h
-* @addtogroup gpio_v4_1
+* @addtogroup gpio_v4_2
 * @{
 * @details
 *
@@ -106,6 +106,17 @@
 * 4.1   lks  11/18/15 Updated to use cannonical xparameters in examples and
 *		      clean up of the comments, removed support for DCR bridge
 *		      and removed xgpio_intr_example for CR 900381
+* 4.2   sk   08/16/16 Used UINTPTR instead of u32 for Baseaddress as part of
+*                     adding 64 bit support. CR# 867425.
+*                     Changed the prototype of XGpio_CfgInitialize API.
+* 4.3   sk   09/29/16 Modified the example to make it work when LED_bits are
+*                     configured as an output. CR# 958644
+*       ms   01/23/17 Added xil_printf statement in main function for all
+*                     examples to ensure that "Successfully ran" and "Failed"
+*                     strings are available in all examples. This is a fix
+*                     for CR-965028.
+*       ms   03/17/17 Added readme.txt file in examples folder for doxygen
+*                     generation.
 *
 * </pre>
 *****************************************************************************/
@@ -133,7 +144,7 @@ extern "C" {
  */
 typedef struct {
 	u16 DeviceId;		/* Unique ID  of device */
-	u32 BaseAddress;	/* Device base address */
+	UINTPTR BaseAddress;	/* Device base address */
 	int InterruptPresent;	/* Are interrupts supported in h/w */
 	int IsDual;		/* Are 2 channels supported in h/w */
 } XGpio_Config;
@@ -144,7 +155,7 @@ typedef struct {
  * to a variable of this type is then passed to the driver API functions.
  */
 typedef struct {
-	u32 BaseAddress;	/* Device base address */
+	UINTPTR BaseAddress;	/* Device base address */
 	u32 IsReady;		/* Device is initialized and ready */
 	int InterruptPresent;	/* Are interrupts supported in h/w */
 	int IsDual;		/* Are 2 channels supported in h/w */
@@ -165,7 +176,7 @@ XGpio_Config *XGpio_LookupConfig(u16 DeviceId);
  * API Basic functions implemented in xgpio.c
  */
 int XGpio_CfgInitialize(XGpio *InstancePtr, XGpio_Config * Config,
-			u32 EffectiveAddr);
+			UINTPTR EffectiveAddr);
 void XGpio_SetDataDirection(XGpio *InstancePtr, unsigned Channel,
 			    u32 DirectionMask);
 u32 XGpio_GetDataDirection(XGpio *InstancePtr, unsigned Channel);

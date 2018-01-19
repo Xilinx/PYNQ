@@ -33,7 +33,7 @@
 /**
 *
 * @file xgpio_l.h
-* @addtogroup gpio_v4_1
+* @addtogroup gpio_v4_2
 * @{
 *
 * This header file contains identifiers and driver functions (or
