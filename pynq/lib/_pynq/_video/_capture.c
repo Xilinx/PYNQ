@@ -195,6 +195,13 @@ static PyObject *videocapture_state(videocaptureObject *self){
     return Py_BuildValue("I", self->capture->state);
 }
 
+static PyObject* videocapture_locked(videocaptureObject* self) {
+    return Py_BuildValue("I", CaptureLocked(self->capture));
+}
+
+static PyObject* videocapture_locklost(videocaptureObject* self) {
+    return Py_BuildValue("I", CaptureLockLost(self->capture));
+}
 
 /*****************************************************************************/
 /* Defining the methods struct                                               */
@@ -214,6 +221,12 @@ static PyMethodDef videocapture_methods[] = {
     },
     {"state", (PyCFunction)videocapture_state, METH_VARARGS,
      "Get the state of the video capture controller."
+    },
+    {"locked", (PyCFunction)videocapture_locked, METH_VARARGS,
+     "Get whether the timing controller has locked on to the input"
+    },
+    {"lock_lost", (PyCFunction)videocapture_locklost, METH_VARARGS,
+     "Get whether the lock has been lost - requires restarting to clear"
     },
     {NULL}  /* Sentinel */
 };

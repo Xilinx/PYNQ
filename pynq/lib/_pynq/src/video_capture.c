@@ -68,6 +68,30 @@
 #include "video_capture.h"
 #include <sys/time.h>
 
+/* This function is taken from the GNU libc documentation */
+static int timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y)
+{
+  /* Perform the carry for the later subtraction by updating y. */
+  if (x->tv_usec < y->tv_usec) {
+    int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+    y->tv_usec -= 1000000 * nsec;
+    y->tv_sec += nsec;
+  }
+  if (x->tv_usec - y->tv_usec > 1000000) {
+    int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+    y->tv_usec += 1000000 * nsec;
+    y->tv_sec -= nsec;
+  }
+
+  /* Compute the time remaining to wait.
+     tv_usec is certainly positive. */
+  result->tv_sec = x->tv_sec - y->tv_sec;
+  result->tv_usec = x->tv_usec - y->tv_usec;
+
+  /* Return 1 if result is negative. */
+  return x->tv_sec < y->tv_sec;
+}
+
 /* ------------------------------------------------------------ */
 /*              Procedure Definitions                           */
 /* ------------------------------------------------------------ */
@@ -292,7 +316,7 @@ int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict,
 
     // from Gpio Isr
     u32 locked = 0, timeout = 0;
-    struct timeval time_1, time_2;
+    struct timeval time_1, time_2, time_locked, time_reset;
     gettimeofday(&time_1, NULL);
     while (!locked && (signed int)timeout < init_timeout){
         locked = XGpio_DiscreteRead(videoPtr->gpio, 2); 
@@ -308,6 +332,46 @@ int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict,
     XVtc_RegUpdateEnable(&videoPtr->vtc);
     XVtc_EnableDetector(&videoPtr->vtc);
     videoPtr->vtcIsInit = 1;
+    locked = 0;
+    u32 islocked = 0;
+    gettimeofday(&time_reset, NULL);
+    while ((signed int)timeout < init_timeout){
+        gettimeofday(&time_2, NULL);
+        u32 islocked = CaptureLocked(videoPtr);
+        if (islocked) {
+            if (locked) {
+                /* Lock is currently stable - if stable for 1 second then exit*/
+                struct timeval diff;
+                timeval_subtract(&diff, &time_2, &time_locked);
+                if (diff.tv_sec > 0) break;
+            } else {
+                /* First time that the system has locked on this iteration */
+                time_locked = time_2;
+                /* Reset the reset timer as well as the VTC is working */
+                time_reset = time_2;
+                locked = islocked;
+            } 
+        } else {
+            if (locked) {
+                locked = 0;
+            } /*else {
+                struct timeval diff;
+                timeval_subtract(&diff, &time_2, &time_reset);
+                if (diff.tv_sec > 4) {
+                    // Reset the VTC if it hasn't locked in 5 seconds
+                    XVtc_Reset(&videoPtr->vtc);
+                    while (XVtc_ReadReg(videoPtr->vtc.Config.BaseAddress, XVTC_CTL_OFFSET) & XVTC_CTL_RESET_MASK);
+                    XVtc_RegUpdateEnable(&videoPtr->vtc);
+                    XVtc_EnableDetector(&videoPtr->vtc);
+                    time_reset = time_2;
+                }
+            }*/
+        }
+        timeout = time_2.tv_sec - time_1.tv_sec;
+    }
+    if (!locked) {
+        return XST_FAILURE;
+    }
     VtcDetect(videoPtr);
 
     return XST_SUCCESS;
@@ -382,3 +446,11 @@ void VtcDetect(VideoCapture *videoPtr){
 }
 
 /************************************************************************/
+
+int CaptureLocked(VideoCapture *videoPtr) {
+	return ((XVtc_ReadReg(videoPtr->vtc.Config.BaseAddress, XVTC_DTSTAT_OFFSET)) & XVTC_STAT_LOCKED_MASK) != 0;
+}
+
+int CaptureLockLost(VideoCapture *videoPtr) {
+	return (XVtc_ReadReg(videoPtr->vtc.Config.BaseAddress, XVTC_ISR_OFFSET) & XVTC_IXR_LOL_MASK) != 0;
+}
