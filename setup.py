@@ -108,10 +108,10 @@ bsp_vtc = \
      'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc_selftest.c']
 
 bsp_standalone = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xplatform_info.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_assert.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_io.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_2/src/xil_exception.c']
+    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xplatform_info.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xil_assert.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xil_io.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xil_exception.c']
 
 getting_started_notebooks = \
     ['jupyter_notebooks.ipynb', 
