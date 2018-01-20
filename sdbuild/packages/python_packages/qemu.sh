@@ -51,6 +51,9 @@ pycurl
 nbwavedrom
 Cython
 RISE
+netifaces
+imutils
+scikit-image
 EOT
 
 pip3.6 install numpy requests
