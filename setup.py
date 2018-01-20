@@ -68,12 +68,12 @@ else:
     notebooks_dir = None
 
 if notebooks_dir is not None:
-    notebooks_getting_started_dir = os.path.join(notebooks_dir, 'getting_started')
-    notebooks_getting_started_dst_img_dir = os.path.join(notebooks_getting_started_dir, 'images')
+    notebooks_getting_started_dst_dir = os.path.join(notebooks_dir, 'getting_started')
+    notebooks_getting_started_dst_img_dir = os.path.join(notebooks_getting_started_dst_dir, 'images')
     notebooks_getting_started_src_dir = os.path.join('docs', 'source')
     notebooks_getting_started_src_img_dir = os.path.join(notebooks_getting_started_src_dir, 'images')
 else:
-    notebooks_getting_started_dir = None
+    notebooks_getting_started_dst_dir = None
     notebooks_getting_started_dst_img_dir = None
     notebooks_getting_started_src_dir = None
     notebooks_getting_started_src_img_dir = None
@@ -139,9 +139,12 @@ def copy_common_notebooks():
 
         if os.path.isdir(dst_folder_file):
             shutil.rmtree(dst_folder_file)
-            shutil.copytree(src_folder_file, dst_folder_file)
         elif os.path.isfile(dst_folder_file):
             os.remove(dst_folder_file)
+
+        if os.path.isdir(src_folder_file):
+            shutil.copytree(src_folder_file, dst_folder_file)
+        elif os.path.isfile(src_folder_file):
             shutil.copy(src_folder_file, dst_folder_file)
 
 
@@ -151,10 +154,11 @@ def copy_getting_started_notebooks():
         return None
 
     src_folder = os.path.join(board_folder, 'notebooks/getting_started')
-    dst_folder = notebooks_getting_started_dir
+    dst_folder = notebooks_getting_started_dst_dir
     if os.path.isdir(dst_folder):
         shutil.rmtree(dst_folder)
-    shutil.copytree(src_folder, dst_folder)
+    if os.path.isdir(src_folder):
+        shutil.copytree(src_folder, dst_folder)
 
 
 # Copy notebooks in boards/BOARD/OVERLAY/notebooks
@@ -162,16 +166,17 @@ def copy_overlay_notebooks():
     if notebooks_dir is None:
         return None
 
-    overlay_notebook_folders = [
-        (os.path.join(notebooks_dir, overlay),
-         os.path.join(board_folder, overlay, 'notebooks/'))
-        for overlay in list(os.listdir(board_folder))
-        if os.path.isdir(os.path.join(board_folder, overlay, 'notebooks'))]
+    if os.path.isdir(board_folder):
+        overlay_notebook_folders = [
+            (os.path.join(notebooks_dir, overlay),
+             os.path.join(board_folder, overlay, 'notebooks/'))
+            for overlay in list(os.listdir(board_folder))
+            if os.path.isdir(os.path.join(board_folder, overlay, 'notebooks'))]
 
-    for dst_folder, src_folder in overlay_notebook_folders:
-        if os.path.exists(dst_folder):
-            shutil.rmtree(dst_folder)
-        shutil.copytree(src_folder, dst_folder)
+        for dst_folder, src_folder in overlay_notebook_folders:
+            if os.path.exists(dst_folder):
+                shutil.rmtree(dst_folder)
+            shutil.copytree(src_folder, dst_folder)
 
 
 # Copy documentation files in docs/source and docs/source/images
@@ -180,14 +185,16 @@ def copy_documentation_files():
         return None
 
     doc_files = list()
-    doc_files.append((notebooks_getting_started_dir,
-                      [os.path.join('docs', 'source', nb)
+    doc_files.append((notebooks_getting_started_dst_dir,
+                      [os.path.join(notebooks_getting_started_src_dir, nb)
                        for nb in getting_started_notebooks]))
     doc_files.extend([(notebooks_getting_started_dst_img_dir,
                        [os.path.join(root, f) for f in files])
                       for root, dirs, files in os.walk(
             notebooks_getting_started_src_img_dir)])
 
+    if not os.path.exists(notebooks_getting_started_dst_img_dir):
+        os.makedirs(notebooks_getting_started_dst_img_dir)
     for dst, files in doc_files:
         for f in files:
             shutil.copy(f, dst)
@@ -200,9 +207,9 @@ def rename_notebooks():
 
     for ix, getting_started_nb in enumerate(getting_started_notebooks):
         new_nb_name = '{}_{}'.format(ix + 1, getting_started_nb)
-        src_file = os.path.join(notebooks_getting_started_dir,
+        src_file = os.path.join(notebooks_getting_started_dst_dir,
                                 getting_started_nb)
-        dst_file = os.path.join(notebooks_getting_started_dir,
+        dst_file = os.path.join(notebooks_getting_started_dst_dir,
                                 new_nb_name)
         shutil.move(src_file, dst_file)
 
@@ -217,8 +224,9 @@ def backup_notebooks():
     if notebooks_dir is None:
         return None
 
-    notebooks_dir_backup = '{}_{}'.format(notebooks_dir, 
-        datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
+    notebooks_dir_backup = '{}_{}'.format(notebooks_dir,
+                                          datetime.now().strftime(
+                                              "%Y_%m_%d_%H_%M_%S"))
     try:
         shutil.copytree(notebooks_dir, notebooks_dir_backup)
     except Exception as e:
@@ -255,7 +263,7 @@ if CPU_ARCH_IS_SUPPORTED:
                                 'pynq/lib/_pynq/bsp/ps7_cortexa9_0/include'],
                   libraries=['sds_lib'],
                   library_dirs=['/usr/lib'],
-        ),
+                  ),
     ]
 else:
     warnings.warn("PYNQ does not support the CPU Architecture: {}"
