@@ -65,7 +65,7 @@ class LED(object):
             
         self.index = index
         if LED._mmio is None:
-            base_addr = PL.ip_dict["swsleds_gpio"]["phys_addr"]
+            base_addr = PL.ip_dict["leds_gpio"]["phys_addr"]
             LED._mmio = MMIO(base_addr, 16)
         LED._mmio.write(LEDS_OFFSET1, 0x0)
 

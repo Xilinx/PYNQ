@@ -58,12 +58,12 @@ class Switch(object):
 
         """
         if Switch._mmio is None:
-            base_addr = PL.ip_dict["swsleds_gpio"]["phys_addr"]
+            base_addr = PL.ip_dict["switches_gpio"]["phys_addr"]
             Switch._mmio = MMIO(base_addr, 512)
         self.index = index
         self.interrupt = None
         try:
-            self.interrupt = Interrupt('swsleds_gpio/ip2intc_irpt')
+            self.interrupt = Interrupt('switches_gpio/ip2intc_irpt')
             # Enable interrupts
             Switch._mmio.write(0x11C, 0x80000000)
             Switch._mmio.write(0x128, 0x00000001)
