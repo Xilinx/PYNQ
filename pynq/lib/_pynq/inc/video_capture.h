@@ -150,6 +150,8 @@ int VideoChangeFrame(VideoCapture *videoPtr, u32 frameIndex);
 //void VtcDetIsr(void *InstancePtr, u32 pendingIrpt);
 //int SetupInterruptSystem(VideoCapture *videoPtr);
 void VtcDetect(VideoCapture *videoPtr);
+int CaptureLocked(VideoCapture* videoPtr);
+int CaptureLockLost(VideoCapture* videoPtr);
 
 /* ------------------------------------------------------------ */
 

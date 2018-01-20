@@ -105,7 +105,7 @@ class HDMIInFrontend(DefaultHierarchy):
     def __init__(self, description):
         super().__init__(description)
 
-    def start(self, init_timeout=10):
+    def start(self, init_timeout=60):
         """Method that blocks until the video mode is
         successfully detected
 
@@ -122,12 +122,6 @@ class HDMIInFrontend(DefaultHierarchy):
         self._capture = pynq.lib._video._capture(gpio_dict,
                                                  vtc_capture_addr,
                                                  init_timeout)
-
-        while self.mode.height == 0:
-            pass
-        # First mode detected is garbage so wait a while for
-        # it to stabilise
-        time.sleep(1)
 
     def stop(self):
         """Currently empty function included for symmetry with
