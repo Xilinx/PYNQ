@@ -36,6 +36,7 @@ __email__ = "pynq_support@xilinx.com"
 
 # Microblaze constants
 BIN_LOCATION = os.path.dirname(os.path.realpath(__file__)) + "/"
+BSP_LOCATION = os.path.join(BIN_LOCATION, "bsp_iop_arduino")
 
 # PYNQ-Z1 constants
 ARDUINO = {'ip_name': 'iop3/mb_bram_ctrl',

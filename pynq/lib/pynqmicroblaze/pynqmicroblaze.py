@@ -320,7 +320,8 @@ class MicroblazeHierarchy(DefaultHierarchy):
                         'intr_pin_name': '{}/dff_en_reset_vector_0/q'.format(
                             hier),
                         'intr_ack_name': 'mb_{}_intr_ack'.format(hier),
-                        'mbtype': mbtype}
+                        'mbtype': mbtype,
+                        'name' : hier}
 
     @property
     def mbtype(self):
