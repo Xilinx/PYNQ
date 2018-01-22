@@ -17,3 +17,5 @@ UBOOT_CONFIG ?= ${BOOT_CONFIG_ABS}/u-boot.config
 BOARD_DTSI ?= ${BOOT_CONFIG_ABS}/pynq.dtsi
 
 include ${BOOT_CONFIG_DIR}/../common/Zynq7000.makefile
+
+VIVADO_VERSION := 2017.4
