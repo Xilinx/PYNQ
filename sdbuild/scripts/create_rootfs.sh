@@ -35,8 +35,11 @@ dpkg --configure -a
 apt-get -y --force-yes purge resolvconf
 apt-get -y --force-yes install resolvconf
 
-dpkg -i /var/cache/apt/archives/linux-image-4.6.0-xilinx.deb
-dpkg -i /var/cache/apt/archives/linux-headers-4.6.0-xilinx.deb
+cd /var/cache/apt/archives
+dpkg -i $KERNEL_IMAGE_DEB
+dpkg -i $KERNEL_HEADER_DEB
+
+apt-get clean
 
 rm -f /boot/*
 
