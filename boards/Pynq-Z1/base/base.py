@@ -50,16 +50,14 @@ class BaseOverlay(pynq.Overlay):
 
     Attributes
     ----------
-    iop1 : IOP
+    iop_pmoda : IOP
          IO processor connected to the PMODA interface
-    iop2 : IOP
+    iop_pmodb : IOP
          IO processor connected to the PMODB interface
-    iop3 : IOP
+    iop_arduino : IOP
          IO processor connected to the Arduino/ChipKit interface
     trace_pmoda : pynq.logictools.TraceAnalyzer
         Trace analyzer block on PMODA interface, controlled by PS.
-    trace_pmodb : pynq.logictools.TraceAnalyzer
-        Trace analyzer block on PMODB interface, controlled by PS. 
     trace_arduino : pynq.logictools.TraceAnalyzer
         Trace analyzer block on Arduino interface, controlled by PS. 
     leds : AxiGPIO
@@ -80,16 +78,16 @@ class BaseOverlay(pynq.Overlay):
     def __init__(self, bitfile, **kwargs):
         super().__init__(bitfile, **kwargs)
         if self.is_loaded():
-            self.iop1.mbtype = "Pmod"
-            self.iop2.mbtype = "Pmod"
-            self.iop3.mbtype = "Arduino"
+            self.iop_pmoda.mbtype = "Pmod"
+            self.iop_pmodb.mbtype = "Pmod"
+            self.iop_arduino.mbtype = "Arduino"
 
-            self.PMODA = self.iop1.mb_info
-            self.PMODB = self.iop2.mb_info
-            self.ARDUINO = self.iop3.mb_info
+            self.PMODA = self.iop_pmoda.mb_info
+            self.PMODB = self.iop_pmodb.mb_info
+            self.ARDUINO = self.iop_arduino.mb_info
 
-            self.leds = self.swsleds_gpio.channel2
-            self.switches = self.swsleds_gpio.channel1
+            self.leds = self.leds_gpio.channel2
+            self.switches = self.switches_gpio.channel1
             self.buttons = self.btns_gpio.channel1
             self.leds.setlength(4)
             self.switches.setlength(2)
@@ -103,9 +101,6 @@ class BaseOverlay(pynq.Overlay):
             self.trace_pmoda = TraceAnalyzer(
                 self.trace_analyzer_pmoda.description['ip'],
                 PYNQZ1_PMODA_SPECIFICATION)
-            self.trace_pmodb = TraceAnalyzer(
-                self.trace_analyzer_pmodb.description['ip'],
-                PYNQZ1_PMODB_SPECIFICATION)
             self.trace_arduino = TraceAnalyzer(
                 self.trace_analyzer_arduino.description['ip'],
                 PYNQZ1_ARDUINO_SPECIFICATION)
