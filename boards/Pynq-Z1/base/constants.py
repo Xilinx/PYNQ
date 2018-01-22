@@ -34,37 +34,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 PYNQZ1_PMODA_SPECIFICATION = {'interface_width': 8,
-                              'monitor_width': 64,
-                              'traceable_outputs': {'D0': 0,
-                                                    'D1': 1,
-                                                    'D2': 2,
-                                                    'D3': 3,
-                                                    'D4': 4,
-                                                    'D5': 5,
-                                                    'D6': 6,
-                                                    'D7': 7
-                                                    },
-                              'traceable_inputs': {'D0': 8,
-                                                   'D1': 9,
-                                                   'D2': 10,
-                                                   'D3': 11,
-                                                   'D4': 12,
-                                                   'D5': 13,
-                                                   'D6': 14,
-                                                   'D7': 15
-                                                   },
-                              'traceable_tri_states': {'D0': 16,
-                                                       'D1': 17,
-                                                       'D2': 18,
-                                                       'D3': 19,
-                                                       'D4': 20,
-                                                       'D5': 21,
-                                                       'D6': 22,
-                                                       'D7': 23
-                                                       }
-                              }
-PYNQZ1_PMODB_SPECIFICATION = {'interface_width': 8,
-                              'monitor_width': 64,
+                              'monitor_width': 32,
                               'traceable_outputs': {'D0': 0,
                                                     'D1': 1,
                                                     'D2': 2,
