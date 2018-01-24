@@ -51,6 +51,9 @@ echo -e "xilinx\\nxilinx" | smbpasswd -a xilinx
 echo -e "xilinx\\nxilinx" | passwd root
 echo "BOARD=${board}" >> /etc/environment
 
+. /etc/environment
+export BOARD
+
 adduser xilinx adm
 adduser xilinx sudo
 
