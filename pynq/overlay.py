@@ -185,20 +185,7 @@ def _build_docstring(description, name, type_):
     return '\n    '.join(lines)
 
 
-class DocumentOverlay(type):
-    def __call__(cls, bitfile, *args, **kwargs):
-        if Bitstream in cls.__bases__:
-            newcls = type(cls.__name__, cls.__bases__, dict(cls.__dict__))
-            obj = newcls.__call__(bitfile, *args, **kwargs)
-            newcls.__doc__ = _build_docstring(obj._ip_map._description,
-                                              bitfile,
-                                              "overlay")
-            return obj
-        else:
-            return super().__call__(bitfile, *args, **kwargs)
-
-
-class Overlay(Bitstream, metaclass=DocumentOverlay):
+class Overlay(Bitstream):
     """This class keeps track of a single bitstream's state and contents.
 
     The overlay class holds the state of the bitstream and enables run-time
@@ -315,6 +302,10 @@ class Overlay(Bitstream, metaclass=DocumentOverlay):
         self._ip_map = _IPMap(description)
         if download: 
             self.download()
+
+        self.__doc__ = _build_docstring(self._ip_map._description,
+                                        bitfile_name,
+                                        "overlay")
 
     def __getattr__(self, key):
         """Overload of __getattr__ to return a driver for an IP or
