@@ -86,6 +86,7 @@ class BaseOverlay(pynq.Overlay):
             self.PMODB = self.iop_pmodb.mb_info
             self.ARDUINO = self.iop_arduino.mb_info
 
+            self.audio = self.audio_direct_0
             self.leds = self.leds_gpio.channel2
             self.switches = self.switches_gpio.channel1
             self.buttons = self.btns_gpio.channel1

@@ -29,62 +29,29 @@
  *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
-/******************************************************************************
+ 
+/*****************************************************************************/
+/**
  *
+ * @file uio.h
  *
- * @file i2cps.c
- *
- * Functions to interact with linux I2C. No safe checks here, so users must
- * know what they are doing.
+ *  Functions to interact with linux UIO.
  *
  * <pre>
  * MODIFICATION HISTORY:
  *
- * Ver   Who  Date     Changes
- * ----- --- ------- -----------------------------------------------
- * 1.00a gn  02/03/16 release
- * 1.00b yrq 08/31/16 add license header
- *
+ * Ver   Who      Date     Changes
+ * ----_ -------- -------- -----------------------------------------------
+ * 1.00  yrq      12/05/17 Initial release
+ * 
  * </pre>
  *
- *****************************************************************************/
+******************************************************************************/
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include "i2cps.h"
+#ifndef __UIO_H__
+#define __UIO_H__
 
-int setI2C(unsigned int index, long slave_addr){
-    int i2c_fd;
-    char buf[50];
-    sprintf(buf, "/dev/i2c-%d", index);          
-    if((i2c_fd = open(buf, O_RDWR)) < 0)
-        return -1;
-    if (ioctl(i2c_fd, I2C_SLAVE, slave_addr) < 0)
-        return -1;
-    return i2c_fd;
-}
+void* setUIO(int uio_index, int length);
+int unsetUIO(void* uio_ptr, int length);
 
-int unsetI2C(int i2c_fd){
-    close(i2c_fd);
-    return 0;    
-}
-
-int writeI2C_asFile(int i2c_fd, unsigned char writebuffer[], 
-                    unsigned char bytes){
-    unsigned char bytesWritten = write(i2c_fd, writebuffer, bytes);
-    if(bytes != bytesWritten)
-        return -1;
-    return 0;
-}
-
-int readI2C_asFile(int i2c_fd, unsigned char readbuffer[], 
-                   unsigned char bytes){
-    unsigned char bytesRead = read(i2c_fd, readbuffer, bytes);
-    if(bytes != bytesRead)
-        return -1;
-    return 0;
-}
+#endif // __UIO_H__

@@ -32,9 +32,9 @@
 /******************************************************************************
  *
  *
- * @file i2cps.c
+ * @file uio.c
  *
- * Functions to interact with linux I2C. No safe checks here, so users must
+ * Functions to interact with linux UIO. No safe checks here, so users must
  * know what they are doing.
  *
  * <pre>
@@ -42,8 +42,7 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
- * 1.00a gn  02/03/16 release
- * 1.00b yrq 08/31/16 add license header
+ * 1.00a yrq 12/05/17 Initial release
  *
  * </pre>
  *
@@ -54,37 +53,37 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
-#include "i2cps.h"
+#include <sys/mman.h>
+#include "uio.h"
 
-int setI2C(unsigned int index, long slave_addr){
-    int i2c_fd;
-    char buf[50];
-    sprintf(buf, "/dev/i2c-%d", index);          
-    if((i2c_fd = open(buf, O_RDWR)) < 0)
-        return -1;
-    if (ioctl(i2c_fd, I2C_SLAVE, slave_addr) < 0)
-        return -1;
-    return i2c_fd;
+/******************************************************************************
+ * Function to set the UIO device.
+ * @param   uio_index is the uio index in /dev list.
+ * @param   length is the length of the MMAP in bytes.
+ * @return  A pointer pointing to the MMAP of the UIO.
+ *****************************************************************************/
+void* setUIO(int uio_index, int length){
+    char uio_buf[32];
+    int uio_fd;
+    void *uio_ptr;
+
+    sprintf(uio_buf, "/dev/uio%d", uio_index);    
+    uio_fd = open(uio_buf, O_RDWR);
+    if (uio_fd < 1) {
+        printf("Invalid UIO device file: %s.\n", uio_buf);
+    }
+    // mmap the UIO devices
+    uio_ptr = mmap(NULL, length, 
+                   PROT_READ|PROT_WRITE, MAP_SHARED, uio_fd, 0);
+    return uio_ptr;
 }
 
-int unsetI2C(int i2c_fd){
-    close(i2c_fd);
-    return 0;    
-}
-
-int writeI2C_asFile(int i2c_fd, unsigned char writebuffer[], 
-                    unsigned char bytes){
-    unsigned char bytesWritten = write(i2c_fd, writebuffer, bytes);
-    if(bytes != bytesWritten)
-        return -1;
-    return 0;
-}
-
-int readI2C_asFile(int i2c_fd, unsigned char readbuffer[], 
-                   unsigned char bytes){
-    unsigned char bytesRead = read(i2c_fd, readbuffer, bytes);
-    if(bytes != bytesRead)
-        return -1;
-    return 0;
+/******************************************************************************
+ * Function to set the UIO device.
+ * @param   uio_ptr is the uio pointer to be freed.
+ * @param   length is the length of the MMAP.
+ * @return  0 on success; -1 otherwise.
+ *****************************************************************************/
+int unsetUIO(void* uio_ptr, int length){
+    return munmap(uio_ptr, length);
 }
