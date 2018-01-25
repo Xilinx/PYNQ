@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2014 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,8 @@
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+* XILINX  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
 * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
@@ -33,6 +33,8 @@
 /**
 *
 * @file xqspips_hw.h
+* @addtogroup qspips_v3_2
+* @{
 *
 * This header file contains the identifiers and basic HW access driver
 * functions (or  macros) that can be used to access the device. Other driver
@@ -57,6 +59,9 @@
 *                    constant definitions.
 * 3.1   hk  08/13/14 Changed definition of CR reset value masks to set/reset
 *                    required bits leaving reserved bits untouched. CR# 796813.
+* 3.2	sk	02/05/15 Add SLCR reset in abort function as a workaround because
+* 					 controller does not update FIFO status flags as expected
+* 					 when thresholds are used.
 *
 * </pre>
 *
@@ -325,6 +330,38 @@ extern "C" {
 /* @} */
 
 
+/** @name SLCR Register
+ *
+ * Register offsets from SLCR base address.
+ *
+ * @{
+ */
+
+#define SLCR_LOCK 0x00000004 /**< SLCR Write Protection Lock */
+#define SLCR_UNLOCK 0x00000008 /**< SLCR Write Protection Unlock */
+#define LQSPI_RST_CTRL 0x00000230 /**< Quad SPI Software Reset Control */
+#define SLCR_LOCKSTA 0x0000000C /**< SLCR Write Protection status */
+
+/* @} */
+
+
+/** @name SLCR Register
+ *
+ * Bit Masks of above SLCR Registers .
+ *
+ * @{
+ */
+
+#ifndef XPAR_XSLCR_0_BASEADDR
+#define XPAR_XSLCR_0_BASEADDR 0xF8000000
+#endif
+#define SLCR_LOCK_MASK 0x767B /**< Write Protection Lock mask*/
+#define SLCR_UNLOCK_MASK 0xDF0D /**< SLCR Write Protection Unlock */
+#define LQSPI_RST_CTRL_MASK 0x3 /**< Quad SPI Software Reset Control */
+
+/* @} */
+
+
 /**************************** Type Definitions *******************************/
 
 /***************** Macros (Inline Functions) Definitions *********************/
@@ -383,3 +420,4 @@ void XQspiPs_LinearInit(u32 BaseAddress);
 #endif
 
 #endif /* end of protection macro */
+/** @} */

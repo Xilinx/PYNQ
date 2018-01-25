@@ -33,7 +33,7 @@
 /**
 *
 * @file xgpio_l.h
-* @addtogroup gpio_v4_0
+* @addtogroup gpio_v4_1
 * @{
 *
 * This header file contains identifiers and driver functions (or
@@ -68,6 +68,7 @@
 *		      XGpio_mGetDataReg and XGpio_mSetDataReg. Users
 *		      should use XGpio_WriteReg/XGpio_ReadReg to achieve the
 *		      same functionality.
+* 4.1  lks   11/18/15 Removed support for DCR bridge
 * </pre>
 *
 ******************************************************************************/
@@ -85,16 +86,6 @@ extern "C" {
 #include "xil_assert.h"
 #include "xil_io.h"
 
-/*
- * XPAR_XGPIO_USE_DCR_BRIDGE has to be set to 1 if the GPIO device is
- * accessed through a DCR bus connected to a bridge
- */
-#define XPAR_XGPIO_USE_DCR_BRIDGE 0
-
-
-#if (XPAR_XGPIO_USE_DCR_BRIDGE != 0)
-#include "xio_dcr.h"
-#endif
 
 /************************** Constant Definitions *****************************/
 
@@ -103,19 +94,6 @@ extern "C" {
  * Register offsets for this device.
  * @{
  */
-#if (XPAR_XGPIO_USE_DCR_BRIDGE != 0)
-
-#define XGPIO_DATA_OFFSET	0x0   /**< Data register for 1st channel */
-#define XGPIO_TRI_OFFSET	0x1   /**< I/O direction reg for 1st channel */
-#define XGPIO_DATA2_OFFSET	0x2   /**< Data register for 2nd channel */
-#define XGPIO_TRI2_OFFSET	0x3   /**< I/O direction reg for 2nd channel */
-
-#define XGPIO_GIE_OFFSET	0x47  /**< Global interrupt enable register */
-#define XGPIO_ISR_OFFSET	0x48  /**< Interrupt status register */
-#define XGPIO_IER_OFFSET	0x4A  /**< Interrupt enable register */
-
-#else
-
 #define XGPIO_DATA_OFFSET	0x0   /**< Data register for 1st channel */
 #define XGPIO_TRI_OFFSET	0x4   /**< I/O direction reg for 1st channel */
 #define XGPIO_DATA2_OFFSET	0x8   /**< Data register for 2nd channel */
@@ -124,8 +102,6 @@ extern "C" {
 #define XGPIO_GIE_OFFSET	0x11C /**< Glogal interrupt enable register */
 #define XGPIO_ISR_OFFSET	0x120 /**< Interrupt status register */
 #define XGPIO_IER_OFFSET	0x128 /**< Interrupt enable register */
-
-#endif
 
 /* @} */
 
@@ -161,20 +137,8 @@ extern "C" {
 
 /***************** Macros (Inline Functions) Definitions *********************/
 
- /*
- * Define the appropriate I/O access method to memory mapped I/O or DCR.
- */
-#if (XPAR_XGPIO_USE_DCR_BRIDGE != 0)
-
-#define XGpio_In32  XIo_DcrIn
-#define XGpio_Out32 XIo_DcrOut
-
-#else
-
 #define XGpio_In32  Xil_In32
 #define XGpio_Out32 Xil_Out32
-
-#endif
 
 
 /****************************************************************************/

@@ -148,6 +148,8 @@
 *                       Modified register offsets from XVTC_* to XVTC_*_OFFSET
 *                       for consistency.
 *                       Added backward compatibility macros.
+* 7.1   vns   10/14/15  Added XVTC_CTL_INTERLACE_MASK macro and
+*                       modified XVTC_CTL_ALLSS_MASK
 * </pre>
 *
 ******************************************************************************/
@@ -285,6 +287,8 @@ extern "C" {
 #define XVTC_CTL_VBPSS_MASK	0x00100000 /**< Vertical Blank Output
 					      *  Polarity Source Mask */
 
+#define XVTC_CTL_INTERLACE_MASK	0x00080000 /**< Interlaced mode */
+
 #define XVTC_CTL_VCSS_MASK	0x00040000 /**< Generator Chroma Polarity
 					      *  and Encoding Source
 					      *  Select Mask */
@@ -313,7 +317,7 @@ extern "C" {
 					      *  Source Select (Frame Size)
 					      *  Mask */
 
-#define XVTC_CTL_ALLSS_MASK	0x03F5EF00 /**< Bit mask for all source
+#define XVTC_CTL_ALLSS_MASK	0x03FDEF00 /**< Bit mask for all source
 					     *  select Mask */
 //#define XVTC_CTL_LP_MASK	0x00000008 /**< Lock Polarity */
 #define XVTC_CTL_SE_MASK	0x00000020 /**< Enable Sync with Detector */

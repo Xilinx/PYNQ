@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2014 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,8 @@
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+* XILINX  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
 * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
@@ -33,6 +33,9 @@
 /**
 *
 * @file xqspips.h
+* @addtogroup qspips_v3_2
+* @{
+* @details
 *
 * This file contains the implementation of the XQspiPs driver. It supports only
 * master mode. User documentation for the driver functions is contained in this
@@ -265,6 +268,11 @@
 *                    CR#737760.
 * 3.1   hk  08/13/14 When writing to the configuration register, set/reset
 *                    required bits leaving reserved bits untouched. CR# 796813.
+* 3.2	sk	02/05/15 Add SLCR reset in abort function as a workaround because
+* 					 controller does not update FIFO status flags as expected
+* 					 when thresholds are used.
+* 3.3   sk  11/07/15 Modified the API prototypes according to MISRAC standards
+*                    to remove compilation warnings. CR# 868893.
 *
 * </pre>
 *
@@ -744,10 +752,10 @@ int XQspiPs_CfgInitialize(XQspiPs *InstancePtr, XQspiPs_Config * Config,
 void XQspiPs_Reset(XQspiPs *InstancePtr);
 void XQspiPs_Abort(XQspiPs *InstancePtr);
 
-int XQspiPs_Transfer(XQspiPs *InstancePtr, u8 *SendBufPtr, u8 *RecvBufPtr,
-		      unsigned ByteCount);
-int XQspiPs_PolledTransfer(XQspiPs *InstancePtr, u8 *SendBufPtr,
-			    u8 *RecvBufPtr, unsigned ByteCount);
+s32 XQspiPs_Transfer(XQspiPs *InstancePtr, u8 *SendBufPtr, u8 *RecvBufPtr,
+		      u32 ByteCount);
+s32 XQspiPs_PolledTransfer(XQspiPs *InstancePtr, u8 *SendBufPtr,
+			    u8 *RecvBufPtr, u32 ByteCount);
 int XQspiPs_LqspiRead(XQspiPs *InstancePtr, u8 *RecvBufPtr,
 			u32 Address, unsigned ByteCount);
 
@@ -765,10 +773,10 @@ int XQspiPs_SelfTest(XQspiPs *InstancePtr);
 /*
  * Functions for options, in xqspips_options.c
  */
-int XQspiPs_SetOptions(XQspiPs *InstancePtr, u32 Options);
+s32 XQspiPs_SetOptions(XQspiPs *InstancePtr, u32 Options);
 u32 XQspiPs_GetOptions(XQspiPs *InstancePtr);
 
-int XQspiPs_SetClkPrescaler(XQspiPs *InstancePtr, u8 Prescaler);
+s32 XQspiPs_SetClkPrescaler(XQspiPs *InstancePtr, u8 Prescaler);
 u8 XQspiPs_GetClkPrescaler(XQspiPs *InstancePtr);
 
 int XQspiPs_SetDelays(XQspiPs *InstancePtr, u8 DelayNss, u8 DelayBtwn,
@@ -780,4 +788,4 @@ void XQspiPs_GetDelays(XQspiPs *InstancePtr, u8 *DelayNss, u8 *DelayBtwn,
 #endif
 
 #endif /* end of protection macro */
-
+/** @} */

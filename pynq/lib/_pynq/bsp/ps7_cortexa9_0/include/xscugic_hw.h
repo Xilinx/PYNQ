@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2014 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,8 @@
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+* XILINX  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
 * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
@@ -33,6 +33,8 @@
 /**
 *
 * @file xscugic_hw.h
+* @addtogroup scugic_v3_1
+* @{
 *
 * This header file contains identifiers and HW access functions (or
 * macros) that can be used to access the device.  The user should refer to the
@@ -63,9 +65,13 @@
 * 1.03a srt  02/27/13 Moved Offset calculation macros from *_hw.c (CR
 *		      702687).
 * 1.04a hk   05/04/13 Fix for CR#705621. Moved function prototypes
-*			  XScuGic_SetPriTrigTypeByDistAddr and
-*             XScuGic_GetPriTrigTypeByDistAddr here from xscugic.h
-*
+*		      XScuGic_SetPriTrigTypeByDistAddr and
+*         	      XScuGic_GetPriTrigTypeByDistAddr here from xscugic.h
+* 3.0	pkp  12/09/14 changed XSCUGIC_MAX_NUM_INTR_INPUTS for
+*		      Zynq Ultrascale Mp
+* 3.0   kvn  02/13/14 Modified code for MISRA-C:2012 compliance.
+* 3.2	pkp  11/09/15 Corrected the interrupt processsor target mask value
+*					  for CPU interface 2 i.e. XSCUGIC_SPI_CPU2_MASK
 * </pre>
 *
 ******************************************************************************/
@@ -89,13 +95,17 @@ extern "C" {
 /*
  * The maximum number of interrupts supported by the hardware.
  */
-#define XSCUGIC_MAX_NUM_INTR_INPUTS    	95
+#ifdef __ARM_NEON__
+#define XSCUGIC_MAX_NUM_INTR_INPUTS    	95U /* Maximum number of interrupt defined by Zynq */
+#else
+#define XSCUGIC_MAX_NUM_INTR_INPUTS    	195U /* Maximum number of interrupt defined by Zynq Ultrascale Mp */
+#endif
 
 /*
  * The maximum priority value that can be used in the GIC.
  */
-#define XSCUGIC_MAX_INTR_PRIO_VAL    	248
-#define XSCUGIC_INTR_PRIO_MASK			0xF8
+#define XSCUGIC_MAX_INTR_PRIO_VAL    	248U
+#define XSCUGIC_INTR_PRIO_MASK			0x000000F8U
 
 /** @name Distributor Interface Register Map
  *
@@ -104,62 +114,62 @@ extern "C" {
  * device.
  * @{
  */
-#define XSCUGIC_DIST_EN_OFFSET		0x00000000 /**< Distributor Enable
-						 	Register */
-#define XSCUGIC_IC_TYPE_OFFSET		0x00000004 /**< Interrupt Controller
-						 	Type Register */
-#define XSCUGIC_DIST_IDENT_OFFSET	0x00000008 /**< Implementor ID
+#define XSCUGIC_DIST_EN_OFFSET		0x00000000U /**< Distributor Enable
 							Register */
-#define XSCUGIC_SECURITY_OFFSET		0x00000080 /**< Interrupt Security
-						 	Register */
-#define XSCUGIC_ENABLE_SET_OFFSET	0x00000100 /**< Enable Set
+#define XSCUGIC_IC_TYPE_OFFSET		0x00000004U /**< Interrupt Controller
+							Type Register */
+#define XSCUGIC_DIST_IDENT_OFFSET	0x00000008U /**< Implementor ID
 							Register */
-#define XSCUGIC_DISABLE_OFFSET		0x00000180 /**< Enable Clear Register */
-#define XSCUGIC_PENDING_SET_OFFSET	0x00000200 /**< Pending Set
+#define XSCUGIC_SECURITY_OFFSET		0x00000080U /**< Interrupt Security
 							Register */
-#define XSCUGIC_PENDING_CLR_OFFSET	0x00000280 /**< Pending Clear
+#define XSCUGIC_ENABLE_SET_OFFSET	0x00000100U /**< Enable Set
 							Register */
-#define XSCUGIC_ACTIVE_OFFSET		0x00000300 /**< Active Status Register */
-#define XSCUGIC_PRIORITY_OFFSET		0x00000400 /**< Priority Level Register */
-#define XSCUGIC_SPI_TARGET_OFFSET	0x00000800 /**< SPI Target
+#define XSCUGIC_DISABLE_OFFSET		0x00000180U /**< Enable Clear Register */
+#define XSCUGIC_PENDING_SET_OFFSET	0x00000200U /**< Pending Set
+							Register */
+#define XSCUGIC_PENDING_CLR_OFFSET	0x00000280U /**< Pending Clear
+							Register */
+#define XSCUGIC_ACTIVE_OFFSET		0x00000300U /**< Active Status Register */
+#define XSCUGIC_PRIORITY_OFFSET		0x00000400U /**< Priority Level Register */
+#define XSCUGIC_SPI_TARGET_OFFSET	0x00000800U /**< SPI Target
 							Register 0x800-0x8FB */
-#define XSCUGIC_INT_CFG_OFFSET		0x00000C00 /**< Interrupt Configuration
-						 	Register 0xC00-0xCFC */
-#define XSCUGIC_PPI_STAT_OFFSET		0x00000D00 /**< PPI Status Register */
-#define XSCUGIC_SPI_STAT_OFFSET		0x00000D04 /**< SPI Status Register
+#define XSCUGIC_INT_CFG_OFFSET		0x00000C00U /**< Interrupt Configuration
+							Register 0xC00-0xCFC */
+#define XSCUGIC_PPI_STAT_OFFSET		0x00000D00U /**< PPI Status Register */
+#define XSCUGIC_SPI_STAT_OFFSET		0x00000D04U /**< SPI Status Register
 							0xd04-0xd7C */
-#define XSCUGIC_AHB_CONFIG_OFFSET	0x00000D80 /**< AHB Configuration
+#define XSCUGIC_AHB_CONFIG_OFFSET	0x00000D80U /**< AHB Configuration
 							Register */
-#define XSCUGIC_SFI_TRIG_OFFSET		0x00000F00 /**< Software Triggered
+#define XSCUGIC_SFI_TRIG_OFFSET		0x00000F00U /**< Software Triggered
 							Interrupt Register */
-#define XSCUGIC_PERPHID_OFFSET		0x00000FD0 /**< Peripheral ID Reg */
-#define XSCUGIC_PCELLID_OFFSET		0x00000FF0 /**< Pcell ID Register */
+#define XSCUGIC_PERPHID_OFFSET		0x00000FD0U /**< Peripheral ID Reg */
+#define XSCUGIC_PCELLID_OFFSET		0x00000FF0U /**< Pcell ID Register */
 /* @} */
 
 /** @name  Distributor Enable Register
  * Controls if the distributor response to external interrupt inputs.
  * @{
  */
-#define XSCUGIC_EN_INT_MASK		0x00000001 /**< Interrupt In Enable */
+#define XSCUGIC_EN_INT_MASK		0x00000001U /**< Interrupt In Enable */
 /* @} */
 
 /** @name  Interrupt Controller Type Register
  * @{
  */
-#define XSCUGIC_LSPI_MASK	0x0000F800 /**< Number of Lockable
+#define XSCUGIC_LSPI_MASK	0x0000F800U /**< Number of Lockable
 						Shared Peripheral
 						Interrupts*/
-#define XSCUGIC_DOMAIN_MASK	0x00000400 /**< Number os Security domains*/
-#define XSCUGIC_CPU_NUM_MASK	0x000000E0 /**< Number of CPU Interfaces */
-#define XSCUGIC_NUM_INT_MASK	0x0000001F /**< Number of Interrupt IDs */
+#define XSCUGIC_DOMAIN_MASK	0x00000400U /**< Number os Security domains*/
+#define XSCUGIC_CPU_NUM_MASK	0x000000E0U /**< Number of CPU Interfaces */
+#define XSCUGIC_NUM_INT_MASK	0x0000001FU /**< Number of Interrupt IDs */
 /* @} */
 
 /** @name  Implementor ID Register
  * Implementor and revision information.
  * @{
  */
-#define XSCUGIC_REV_MASK	0x00FFF000 /**< Revision Number */
-#define XSCUGIC_IMPL_MASK	0x00000FFF /**< Implementor */
+#define XSCUGIC_REV_MASK	0x00FFF000U /**< Revision Number */
+#define XSCUGIC_IMPL_MASK	0x00000FFFU /**< Implementor */
 /* @} */
 
 /** @name  Interrupt Security Registers
@@ -170,7 +180,7 @@ extern "C" {
  * There are up to 32 of these registers staring at location 0x084.
  * @{
  */
-#define XSCUGIC_INT_NS_MASK	0x00000001 /**< Each bit corresponds to an
+#define XSCUGIC_INT_NS_MASK	0x00000001U /**< Each bit corresponds to an
 						INT_ID */
 /* @} */
 
@@ -184,7 +194,7 @@ extern "C" {
  * There are up to 32 of these registers staring at location 0x104.
  * @{
  */
-#define XSCUGIC_INT_EN_MASK	0x00000001 /**< Each bit corresponds to an
+#define XSCUGIC_INT_EN_MASK	0x00000001U /**< Each bit corresponds to an
 						INT_ID */
 /* @} */
 
@@ -198,7 +208,7 @@ extern "C" {
  * There are up to 32 of these registers staring at location 0x184.
  * @{
  */
-#define XSCUGIC_INT_CLR_MASK	0x00000001 /**< Each bit corresponds to an
+#define XSCUGIC_INT_CLR_MASK	0x00000001U /**< Each bit corresponds to an
 						INT_ID */
 /* @} */
 
@@ -212,7 +222,7 @@ extern "C" {
  * There are up to 32 of these registers staring at location 0x204.
  * @{
  */
-#define XSCUGIC_PEND_SET_MASK	0x00000001 /**< Each bit corresponds to an
+#define XSCUGIC_PEND_SET_MASK	0x00000001U /**< Each bit corresponds to an
 						INT_ID */
 /* @} */
 
@@ -226,7 +236,7 @@ extern "C" {
  * There are up to 32 of these registers staring at location 0x284.
  * @{
  */
-#define XSCUGIC_PEND_CLR_MASK	0x00000001 /**< Each bit corresponds to an
+#define XSCUGIC_PEND_CLR_MASK	0x00000001U /**< Each bit corresponds to an
 						INT_ID */
 /* @} */
 
@@ -239,7 +249,7 @@ extern "C" {
  * There are up to 32 of these registers staring at location 0x380.
  * @{
  */
-#define XSCUGIC_ACTIVE_MASK	0x00000001 /**< Each bit corresponds to an
+#define XSCUGIC_ACTIVE_MASK	0x00000001U /**< Each bit corresponds to an
 					      INT_ID */
 /* @} */
 
@@ -253,9 +263,9 @@ extern "C" {
  * There are up to 255 of these registers staring at location 0x420.
  * @{
  */
-#define XSCUGIC_PRIORITY_MASK	0x000000FF /**< Each Byte corresponds to an
+#define XSCUGIC_PRIORITY_MASK	0x000000FFU /**< Each Byte corresponds to an
 						INT_ID */
-#define XSCUGIC_PRIORITY_MAX	0x000000FF /**< Highest value of a priority
+#define XSCUGIC_PRIORITY_MAX	0x000000FFU /**< Highest value of a priority
 						actually the lowest priority*/
 /* @} */
 
@@ -271,14 +281,14 @@ extern "C" {
  * for complete documentation.
  * @{
  */
-#define XSCUGIC_SPI_CPU7_MASK	0x00000080 /**< CPU 7 Mask*/
-#define XSCUGIC_SPI_CPU6_MASK	0x00000040 /**< CPU 6 Mask*/
-#define XSCUGIC_SPI_CPU5_MASK	0x00000020 /**< CPU 5 Mask*/
-#define XSCUGIC_SPI_CPU4_MASK	0x00000010 /**< CPU 4 Mask*/
-#define XSCUGIC_SPI_CPU3_MASK	0x00000008 /**< CPU 3 Mask*/
-#define XSCUGIC_SPI_CPU2_MASK	0x00000003 /**< CPU 2 Mask*/
-#define XSCUGIC_SPI_CPU1_MASK	0x00000002 /**< CPU 1 Mask*/
-#define XSCUGIC_SPI_CPU0_MASK	0x00000001 /**< CPU 0 Mask*/
+#define XSCUGIC_SPI_CPU7_MASK	0x00000080U /**< CPU 7 Mask*/
+#define XSCUGIC_SPI_CPU6_MASK	0x00000040U /**< CPU 6 Mask*/
+#define XSCUGIC_SPI_CPU5_MASK	0x00000020U /**< CPU 5 Mask*/
+#define XSCUGIC_SPI_CPU4_MASK	0x00000010U /**< CPU 4 Mask*/
+#define XSCUGIC_SPI_CPU3_MASK	0x00000008U /**< CPU 3 Mask*/
+#define XSCUGIC_SPI_CPU2_MASK	0x00000004U /**< CPU 2 Mask*/
+#define XSCUGIC_SPI_CPU1_MASK	0x00000002U /**< CPU 1 Mask*/
+#define XSCUGIC_SPI_CPU0_MASK	0x00000001U /**< CPU 0 Mask*/
 /* @} */
 
 /** @name  Interrupt Configuration Register 0xC00-0xCFC
@@ -298,7 +308,7 @@ extern "C" {
  * There are up to 255 of these registers staring at location 0xC08.
  * @{
  */
-#define XSCUGIC_INT_CFG_MASK    0x00000003    /**< */
+#define XSCUGIC_INT_CFG_MASK    0x00000003U    /**< */
 /* @} */
 
 /** @name  PPI Status Register
@@ -308,22 +318,22 @@ extern "C" {
  * This register is aliased for each CPU interface.
  * @{
  */
-#define XSCUGIC_PPI_C15_MASK	0x00008000    /**< PPI Status */
-#define XSCUGIC_PPI_C14_MASK	0x00004000    /**< PPI Status */
-#define XSCUGIC_PPI_C13_MASK	0x00002000    /**< PPI Status */
-#define XSCUGIC_PPI_C12_MASK	0x00001000    /**< PPI Status */
-#define XSCUGIC_PPI_C11_MASK	0x00000800    /**< PPI Status */
-#define XSCUGIC_PPI_C10_MASK	0x00000400    /**< PPI Status */
-#define XSCUGIC_PPI_C09_MASK	0x00000200    /**< PPI Status */
-#define XSCUGIC_PPI_C08_MASK	0x00000100    /**< PPI Status */
-#define XSCUGIC_PPI_C07_MASK	0x00000080    /**< PPI Status */
-#define XSCUGIC_PPI_C06_MASK	0x00000040    /**< PPI Status */
-#define XSCUGIC_PPI_C05_MASK	0x00000020    /**< PPI Status */
-#define XSCUGIC_PPI_C04_MASK	0x00000010    /**< PPI Status */
-#define XSCUGIC_PPI_C03_MASK	0x00000008    /**< PPI Status */
-#define XSCUGIC_PPI_C02_MASK	0x00000004    /**< PPI Status */
-#define XSCUGIC_PPI_C01_MASK	0x00000002    /**< PPI Status */
-#define XSCUGIC_PPI_C00_MASK	0x00000001    /**< PPI Status */
+#define XSCUGIC_PPI_C15_MASK	0x00008000U    /**< PPI Status */
+#define XSCUGIC_PPI_C14_MASK	0x00004000U    /**< PPI Status */
+#define XSCUGIC_PPI_C13_MASK	0x00002000U    /**< PPI Status */
+#define XSCUGIC_PPI_C12_MASK	0x00001000U    /**< PPI Status */
+#define XSCUGIC_PPI_C11_MASK	0x00000800U    /**< PPI Status */
+#define XSCUGIC_PPI_C10_MASK	0x00000400U    /**< PPI Status */
+#define XSCUGIC_PPI_C09_MASK	0x00000200U    /**< PPI Status */
+#define XSCUGIC_PPI_C08_MASK	0x00000100U    /**< PPI Status */
+#define XSCUGIC_PPI_C07_MASK	0x00000080U    /**< PPI Status */
+#define XSCUGIC_PPI_C06_MASK	0x00000040U    /**< PPI Status */
+#define XSCUGIC_PPI_C05_MASK	0x00000020U    /**< PPI Status */
+#define XSCUGIC_PPI_C04_MASK	0x00000010U    /**< PPI Status */
+#define XSCUGIC_PPI_C03_MASK	0x00000008U    /**< PPI Status */
+#define XSCUGIC_PPI_C02_MASK	0x00000004U    /**< PPI Status */
+#define XSCUGIC_PPI_C01_MASK	0x00000002U    /**< PPI Status */
+#define XSCUGIC_PPI_C00_MASK	0x00000001U    /**< PPI Status */
 /* @} */
 
 /** @name  SPI Status Register 0xd04-0xd7C
@@ -332,7 +342,7 @@ extern "C" {
  * configured.
  * @{
  */
-#define XSCUGIC_SPI_N_MASK    0x00000001    /**< Each bit corresponds to an SPI
+#define XSCUGIC_SPI_N_MASK    0x00000001U    /**< Each bit corresponds to an SPI
 					     input */
 /* @} */
 
@@ -341,11 +351,11 @@ extern "C" {
  * of the GIC to be set.
  * @{
  */
-#define XSCUGIC_AHB_END_MASK       0x00000004    /**< 0-GIC uses little Endian,
+#define XSCUGIC_AHB_END_MASK       0x00000004U    /**< 0-GIC uses little Endian,
                                                   1-GIC uses Big Endian */
-#define XSCUGIC_AHB_ENDOVR_MASK    0x00000002    /**< 0-Uses CFGBIGEND control,
+#define XSCUGIC_AHB_ENDOVR_MASK    0x00000002U    /**< 0-Uses CFGBIGEND control,
                                                   1-use the AHB_END bit */
-#define XSCUGIC_AHB_TIE_OFF_MASK   0x00000001    /**< State of CFGBIGEND */
+#define XSCUGIC_AHB_TIE_OFF_MASK   0x00000001U    /**< State of CFGBIGEND */
 
 /* @} */
 
@@ -353,15 +363,15 @@ extern "C" {
  * Controls issueing of software interrupts.
  * @{
  */
-#define XSCUGIC_SFI_SELFTRIG_MASK	0x02010000
-#define XSCUGIC_SFI_TRIG_TRGFILT_MASK    0x03000000    /**< Target List filter
+#define XSCUGIC_SFI_SELFTRIG_MASK	0x02010000U
+#define XSCUGIC_SFI_TRIG_TRGFILT_MASK    0x03000000U    /**< Target List filter
                                                             b00-Use the target List
                                                             b01-All CPUs except requester
                                                             b10-To Requester
                                                             b11-reserved */
-#define XSCUGIC_SFI_TRIG_CPU_MASK	0x00FF0000    /**< CPU Target list */
-#define XSCUGIC_SFI_TRIG_SATT_MASK	0x00008000    /**< 0= Use a secure interrupt */
-#define XSCUGIC_SFI_TRIG_INTID_MASK	0x0000000F    /**< Set to the INTID
+#define XSCUGIC_SFI_TRIG_CPU_MASK	0x00FF0000U    /**< CPU Target list */
+#define XSCUGIC_SFI_TRIG_SATT_MASK	0x00008000U    /**< 0= Use a secure interrupt */
+#define XSCUGIC_SFI_TRIG_INTID_MASK	0x0000000FU    /**< Set to the INTID
                                                         signaled to the CPU*/
 /* @} */
 
@@ -371,16 +381,16 @@ extern "C" {
  * interrupt controller, some registers may be reserved in the hardware device.
  * @{
  */
-#define XSCUGIC_CONTROL_OFFSET		0x00000000 /**< CPU Interface Control
-						 	Register */
-#define XSCUGIC_CPU_PRIOR_OFFSET	0x00000004 /**< Priority Mask Reg */
-#define XSCUGIC_BIN_PT_OFFSET		0x00000008 /**< Binary Point Register */
-#define XSCUGIC_INT_ACK_OFFSET		0x0000000C /**< Interrupt ACK Reg */
-#define XSCUGIC_EOI_OFFSET		0x00000010 /**< End of Interrupt Reg */
-#define XSCUGIC_RUN_PRIOR_OFFSET	0x00000014 /**< Running Priority Reg */
-#define XSCUGIC_HI_PEND_OFFSET		0x00000018 /**< Highest Pending Interrupt
+#define XSCUGIC_CONTROL_OFFSET		0x00000000U /**< CPU Interface Control
 							Register */
-#define XSCUGIC_ALIAS_BIN_PT_OFFSET	0x0000001C /**< Aliased non-Secure
+#define XSCUGIC_CPU_PRIOR_OFFSET	0x00000004U /**< Priority Mask Reg */
+#define XSCUGIC_BIN_PT_OFFSET		0x00000008U /**< Binary Point Register */
+#define XSCUGIC_INT_ACK_OFFSET		0x0000000CU /**< Interrupt ACK Reg */
+#define XSCUGIC_EOI_OFFSET		0x00000010U /**< End of Interrupt Reg */
+#define XSCUGIC_RUN_PRIOR_OFFSET	0x00000014U /**< Running Priority Reg */
+#define XSCUGIC_HI_PEND_OFFSET		0x00000018U /**< Highest Pending Interrupt
+							Register */
+#define XSCUGIC_ALIAS_BIN_PT_OFFSET	0x0000001CU /**< Aliased non-Secure
 						        Binary Point Register */
 
 /**<  0x00000020 to 0x00000FBC are reserved and should not be read or written
@@ -394,16 +404,16 @@ extern "C" {
  * mode.
  * @{
  */
-#define XSCUGIC_CNTR_SBPR_MASK	0x00000010    /**< Secure Binary Pointer,
+#define XSCUGIC_CNTR_SBPR_MASK	0x00000010U    /**< Secure Binary Pointer,
                                                  0=separate registers,
                                                  1=both use bin_pt_s */
-#define XSCUGIC_CNTR_FIQEN_MASK	0x00000008    /**< Use nFIQ_C for secure
+#define XSCUGIC_CNTR_FIQEN_MASK	0x00000008U    /**< Use nFIQ_C for secure
                                                   interrupts,
                                                   0= use IRQ for both,
                                                   1=Use FIQ for secure, IRQ for non*/
-#define XSCUGIC_CNTR_ACKCTL_MASK	0x00000004    /**< Ack control for secure or non secure */
-#define XSCUGIC_CNTR_EN_NS_MASK		0x00000002    /**< Non Secure enable */
-#define XSCUGIC_CNTR_EN_S_MASK		0x00000001    /**< Secure enable, 0=Disabled, 1=Enabled */
+#define XSCUGIC_CNTR_ACKCTL_MASK	0x00000004U    /**< Ack control for secure or non secure */
+#define XSCUGIC_CNTR_EN_NS_MASK		0x00000002U    /**< Non Secure enable */
+#define XSCUGIC_CNTR_EN_S_MASK		0x00000001U    /**< Secure enable, 0=Disabled, 1=Enabled */
 /* @} */
 
 /** @name Priority Mask Register
@@ -412,7 +422,7 @@ extern "C" {
  * lower than the level of the register.
  * @{
  */
-#define XSCUGIC_PRIORITY_MASK		0x000000FF    /**< All interrupts */
+/*#define XSCUGIC_PRIORITY_MASK		0x000000FFU*/   /**< All interrupts */
 /* @} */
 
 /** @name Binary Point Register
@@ -420,7 +430,7 @@ extern "C" {
  * @{
  */
 
-#define XSCUGIC_BIN_PT_MASK	0x00000007  /**< Binary point mask value
+#define XSCUGIC_BIN_PT_MASK	0x00000007U  /**< Binary point mask value
 						Value  Secure  Non-secure
 						b000    0xFE    0xFF
 						b001    0xFC    0xFE
@@ -438,8 +448,8 @@ extern "C" {
  * Identifies the current Pending interrupt, and the CPU ID for software
  * interrupts.
  */
-#define XSCUGIC_ACK_INTID_MASK		0x000003FF /**< Interrupt ID */
-#define XSCUGIC_CPUID_MASK		0x00000C00 /**< CPU ID */
+#define XSCUGIC_ACK_INTID_MASK		0x000003FFU /**< Interrupt ID */
+#define XSCUGIC_CPUID_MASK		0x00000C00U /**< CPU ID */
 /* @} */
 
 /** @name End of Interrupt Register
@@ -447,7 +457,7 @@ extern "C" {
  * Allows the CPU to signal the GIC when it completes an interrupt service
  * routine.
  */
-#define XSCUGIC_EOI_INTID_MASK		0x000003FF /**< Interrupt ID */
+#define XSCUGIC_EOI_INTID_MASK		0x000003FFU /**< Interrupt ID */
 
 /* @} */
 
@@ -456,15 +466,15 @@ extern "C" {
  * Identifies the interrupt priority level of the highest priority active
  * interrupt.
  */
-#define XSCUGIC_RUN_PRIORITY_MASK	0x00000FF    /**< Interrupt Priority */
+#define XSCUGIC_RUN_PRIORITY_MASK	0x000000FFU    /**< Interrupt Priority */
 /* @} */
 
 /*
  * Highest Pending Interrupt register definitions
  * Identifies the interrupt priority of the highest priority pending interupt
  */
-#define XSCUGIC_PEND_INTID_MASK		0x000003FF /**< Pending Interrupt ID */
-#define XSCUGIC_CPUID_MASK		0x00000C00 /**< CPU ID */
+#define XSCUGIC_PEND_INTID_MASK		0x000003FFU /**< Pending Interrupt ID */
+/*#define XSCUGIC_CPUID_MASK		0x00000C00U */	 /**< CPU ID */
 /* @} */
 
 /***************** Macros (Inline Functions) Definitions *********************/
@@ -482,7 +492,7 @@ extern "C" {
 *
 *****************************************************************************/
 #define XSCUGIC_INT_CFG_OFFSET_CALC(InterruptID) \
-	(XSCUGIC_INT_CFG_OFFSET + ((InterruptID/16) * 4))
+	((u32)XSCUGIC_INT_CFG_OFFSET + (((InterruptID)/16U) * 4U))
 
 /****************************************************************************/
 /**
@@ -497,7 +507,7 @@ extern "C" {
 *
 *****************************************************************************/
 #define XSCUGIC_PRIORITY_OFFSET_CALC(InterruptID) \
-	(XSCUGIC_PRIORITY_OFFSET + ((InterruptID/4) * 4))
+	((u32)XSCUGIC_PRIORITY_OFFSET + (((InterruptID)/4U) * 4U))
 
 /****************************************************************************/
 /**
@@ -512,7 +522,7 @@ extern "C" {
 *
 *****************************************************************************/
 #define XSCUGIC_SPI_TARGET_OFFSET_CALC(InterruptID) \
-	(XSCUGIC_SPI_TARGET_OFFSET + ((InterruptID/4) * 4))
+	((u32)XSCUGIC_SPI_TARGET_OFFSET + (((InterruptID)/4U) * 4U))
 
 /****************************************************************************/
 /**
@@ -527,8 +537,8 @@ extern "C" {
 * @note
 *
 *****************************************************************************/
-#define XSCUGIC_ENABLE_DISABLE_OFFSET_CALC(Register, InterruptID) \
-	(Register + ((InterruptID/32) * 4))
+#define XSCUGIC_EN_DIS_OFFSET_CALC(Register, InterruptID) \
+		((Register) + (((InterruptID)/32U) * 4U))
 
 /****************************************************************************/
 /**
@@ -566,7 +576,7 @@ extern "C" {
 *
 *****************************************************************************/
 #define XScuGic_WriteReg(BaseAddress, RegOffset, Data) \
-	(Xil_Out32(((BaseAddress) + (RegOffset)), ((u32)Data)))
+	(Xil_Out32(((BaseAddress) + (RegOffset)), ((u32)(Data))))
 
 
 /****************************************************************************/
@@ -582,13 +592,13 @@ extern "C" {
 * @return	None.
 *
 * @note		C-style signature:
-*		void XScuGic_EnableIntr(u32 DistBaseAddress, u32 Int_Id);
+*		void XScuGic_EnableIntr(u32 DistBaseAddress, u32 Int_Id)
 *
 *****************************************************************************/
 #define XScuGic_EnableIntr(DistBaseAddress, Int_Id) \
 	XScuGic_WriteReg((DistBaseAddress), \
-			 XSCUGIC_ENABLE_SET_OFFSET + ((Int_Id / 32) * 4), \
-			 (1 << (Int_Id % 32)))
+			 XSCUGIC_ENABLE_SET_OFFSET + (((Int_Id) / 32U) * 4U), \
+			 (0x00000001U << ((Int_Id) % 32U)))
 
 /****************************************************************************/
 /**
@@ -604,20 +614,20 @@ extern "C" {
 * @return	None.
 *
 * @note		C-style signature:
-*		void XScuGic_DisableIntr(u32 DistBaseAddress, u32 Int_Id);
+*		void XScuGic_DisableIntr(u32 DistBaseAddress, u32 Int_Id)
 *
 *****************************************************************************/
 #define XScuGic_DisableIntr(DistBaseAddress, Int_Id) \
 	XScuGic_WriteReg((DistBaseAddress), \
-			 XSCUGIC_DISABLE_OFFSET + ((Int_Id / 32) * 4), \
-			 (1 << (Int_Id % 32)))
+			 XSCUGIC_DISABLE_OFFSET + (((Int_Id) / 32U) * 4U), \
+			 (0x00000001U << ((Int_Id) % 32U)))
 
 
 /************************** Function Prototypes ******************************/
 
 void XScuGic_DeviceInterruptHandler(void *DeviceId);
-int  XScuGic_DeviceInitialize(u32 DeviceId);
-void XScuGic_RegisterHandler(u32 BaseAddress, int InterruptId,
+s32  XScuGic_DeviceInitialize(u32 DeviceId);
+void XScuGic_RegisterHandler(u32 BaseAddress, s32 InterruptID,
 			     Xil_InterruptHandler Handler, void *CallBackRef);
 void XScuGic_SetPriTrigTypeByDistAddr(u32 DistBaseAddress, u32 Int_Id,
                                         u8 Priority, u8 Trigger);
@@ -629,4 +639,4 @@ void XScuGic_GetPriTrigTypeByDistAddr(u32 DistBaseAddress, u32 Int_Id,
 #endif
 
 #endif            /* end of protection macro */
-
+/** @} */

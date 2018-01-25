@@ -286,6 +286,8 @@
 * 6.0   vak  27/07/15  Added 64 bit addressing support to the driver.
 * 6.0   vak  26/08/15  Added checks to align hsize and stride based on channel direction
 *                      (read or write)(CR 874861)
+* 6.1   sk   11/10/15 Used UINTPTR instead of u32 for Baseaddress CR# 867425.
+*                     Changed the prototype of XAxiVdma_CfgInitialize API.
 *
 * </pre>
 *
@@ -530,7 +532,7 @@ typedef struct {
 XAxiVdma_Config *XAxiVdma_LookupConfig(u16 DeviceId);
 
 int XAxiVdma_CfgInitialize(XAxiVdma *InstancePtr, XAxiVdma_Config *CfgPtr,
-					u32 EffectiveAddr);
+					UINTPTR EffectiveAddr);
 
 /* Engine and channel operations */
 void XAxiVdma_Reset(XAxiVdma *InstancePtr, u16 Direction);

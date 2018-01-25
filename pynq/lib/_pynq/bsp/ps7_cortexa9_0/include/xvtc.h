@@ -292,6 +292,8 @@
 *                       First Release.
 *                       Implemented following function:
 *                       XVtc_SelfTest.
+* 7.1   vns    10/14/15 Added InterlacedMode feild to XVtc_SourceSelect
+*                       structure
 * </pre>
 *
 ******************************************************************************/
@@ -415,6 +417,7 @@ typedef struct {
 	u8 HFrontPorchSrc;	/**< Horizontal Front Porch Start Register
 				  *  Source Select */
 	u8 HTotalSrc;		/**< Horizontal Total Register Source Select */
+	u8 InterlacedMode;	/**< Interelaced mode */
 
 } XVtc_SourceSelect;
 

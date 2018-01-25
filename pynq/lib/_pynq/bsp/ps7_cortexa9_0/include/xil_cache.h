@@ -56,6 +56,42 @@
 extern "C" {
 #endif
 
+#ifdef __GNUC__
+
+#define asm_cp15_inval_dc_line_mva_poc(param) __asm__ __volatile__("mcr " \
+			XREG_CP15_INVAL_DC_LINE_MVA_POC :: "r" (param));
+
+#define asm_cp15_clean_inval_dc_line_mva_poc(param) __asm__ __volatile__("mcr " \
+			XREG_CP15_CLEAN_INVAL_DC_LINE_MVA_POC :: "r" (param));
+
+#define asm_cp15_inval_ic_line_mva_pou(param) __asm__ __volatile__("mcr " \
+			XREG_CP15_INVAL_IC_LINE_MVA_POU :: "r" (param));
+
+#define asm_cp15_inval_dc_line_sw(param) __asm__ __volatile__("mcr " \
+			XREG_CP15_INVAL_DC_LINE_SW :: "r" (param));
+
+#define asm_cp15_clean_inval_dc_line_sw(param) __asm__ __volatile__("mcr " \
+			XREG_CP15_CLEAN_INVAL_DC_LINE_SW :: "r" (param));
+
+#elif defined (__ICCARM__)
+
+#define asm_cp15_inval_dc_line_mva_poc(param) __asm volatile ("mcr " \
+			XREG_CP15_INVAL_DC_LINE_MVA_POC :: "r" (param));
+
+#define asm_cp15_clean_inval_dc_line_mva_poc(param) __asm volatile ("mcr " \
+			XREG_CP15_CLEAN_INVAL_DC_LINE_MVA_POC :: "r" (param));
+
+#define asm_cp15_inval_ic_line_mva_pou(param) __asm volatile ("mcr " \
+			XREG_CP15_INVAL_IC_LINE_MVA_POU :: "r" (param));
+
+#define asm_cp15_inval_dc_line_sw(param) __asm volatile ("mcr " \
+			XREG_CP15_INVAL_DC_LINE_SW :: "r" (param));
+
+#define asm_cp15_clean_inval_dc_line_sw(param) __asm volatile ("mcr " \
+			XREG_CP15_CLEAN_INVAL_DC_LINE_SW :: "r" (param));
+
+#endif
+
 void Xil_DCacheEnable(void);
 void Xil_DCacheDisable(void);
 void Xil_DCacheInvalidate(void);

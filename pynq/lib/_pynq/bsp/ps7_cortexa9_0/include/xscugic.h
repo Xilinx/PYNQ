@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2014 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,8 @@
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* XILINX CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+* XILINX  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
 * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
@@ -33,6 +33,9 @@
 /**
 *
 * @file xscugic.h
+* @addtogroup scugic_v3_1
+* @{
+* @details
 *
 * The generic interrupt controller driver component.
 *
@@ -132,6 +135,15 @@
 *                     xparameters.h. Fix for CR's 690505, 708928 & 719359.
 * 2.0   adk  12/10/13 Updated as per the New Tcl API's
 * 2.1   adk  25/04/14 Fixed the CR:789373 changes are made in the driver tcl file.
+* 3.00  kvn  02/13/15 Modified code for MISRA-C:2012 compliance.
+* 3.2   asa  02/29/16 Modified DistributorInit function for Zynq AMP case. The
+*			  distributor is left uninitialized for Zynq AMP. It is assumed
+*             that the distributor will be initialized by Linux master. However
+*             for CortexR5 case, the earlier code is left unchanged where the
+*             the interrupt processor target registers in the distributor is
+*             initialized with the corresponding CPU ID on which the application
+*             built over the scugic driver runs.
+*             These changes fix CR#937243.
 *
 * </pre>
 *
@@ -211,7 +223,7 @@ typedef struct
 *****************************************************************************/
 #define XScuGic_CPUWriteReg(InstancePtr, RegOffset, Data) \
 (XScuGic_WriteReg(((InstancePtr)->Config->CpuBaseAddress), (RegOffset), \
-					((u32)Data)))
+					((u32)(Data))))
 
 /****************************************************************************/
 /**
@@ -249,7 +261,7 @@ typedef struct
 *****************************************************************************/
 #define XScuGic_DistWriteReg(InstancePtr, RegOffset, Data) \
 (XScuGic_WriteReg(((InstancePtr)->Config->DistBaseAddress), (RegOffset), \
-					((u32)Data)))
+					((u32)(Data))))
 
 /****************************************************************************/
 /**
@@ -275,23 +287,23 @@ typedef struct
  * Required functions in xscugic.c
  */
 
-int  XScuGic_Connect(XScuGic *InstancePtr, u32 Int_Id,
+s32  XScuGic_Connect(XScuGic *InstancePtr, u32 Int_Id,
 			Xil_InterruptHandler Handler, void *CallBackRef);
 void XScuGic_Disconnect(XScuGic *InstancePtr, u32 Int_Id);
 
 void XScuGic_Enable(XScuGic *InstancePtr, u32 Int_Id);
 void XScuGic_Disable(XScuGic *InstancePtr, u32 Int_Id);
 
-int  XScuGic_CfgInitialize(XScuGic *InstancePtr, XScuGic_Config *ConfigPtr,
+s32  XScuGic_CfgInitialize(XScuGic *InstancePtr, XScuGic_Config *ConfigPtr,
 							u32 EffectiveAddr);
 
-int  XScuGic_SoftwareIntr(XScuGic *InstancePtr, u32 Int_Id, u32 Cpu_Id);
+s32  XScuGic_SoftwareIntr(XScuGic *InstancePtr, u32 Int_Id, u32 Cpu_Id);
 
 void XScuGic_GetPriorityTriggerType(XScuGic *InstancePtr, u32 Int_Id,
 					u8 *Priority, u8 *Trigger);
 void XScuGic_SetPriorityTriggerType(XScuGic *InstancePtr, u32 Int_Id,
 					u8 Priority, u8 Trigger);
-
+void XScuGic_InterruptMaptoCpu(XScuGic *InstancePtr, u8 Cpu_Id, u32 Int_Id);
 /*
  * Initialization functions in xscugic_sinit.c
  */
@@ -305,11 +317,11 @@ void XScuGic_InterruptHandler(XScuGic *InstancePtr);
 /*
  * Self-test functions in xscugic_selftest.c
  */
-int  XScuGic_SelfTest(XScuGic *InstancePtr);
+s32  XScuGic_SelfTest(XScuGic *InstancePtr);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif            /* end of protection macro */
-
+/** @} */
