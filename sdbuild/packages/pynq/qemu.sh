@@ -4,10 +4,8 @@
 set -e
 set -x
 
-export PATH=/opt/python3.6/bin:$PATH
-export BOARD=Pynq-Z1
+. /etc/environment
 export HOME=/root
-export PYNQ_PYTHON=python3.6
 
 cd /home/xilinx
 mkdir -p jupyter_notebooks

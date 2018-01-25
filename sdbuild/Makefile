@@ -1,3 +1,6 @@
+SHELL := /bin/bash
+
+export SHELL
 
 PATH := $(CURDIR)/scripts:$(PATH)
 
