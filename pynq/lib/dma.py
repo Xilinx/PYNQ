@@ -29,7 +29,6 @@
 
 from pynq import DefaultIP
 import os
-import sys
 import cffi
 import functools
 import signal
@@ -41,6 +40,7 @@ from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 __author__ = 'Peter Ogden, Anurag Dubey'
 __copyright__ = 'Copyright 2017, Xilinx'
 __email__ = 'pynq_support@xilinx.com'
+
 
 class timeout:
     """Internal timeout functions.
@@ -62,6 +62,7 @@ class timeout:
 
     def __exit__(self, type, value, traceback):
         signal.alarm(0)
+
 
 class LegacyDMA:
     """Python class which controls DMA.
@@ -105,38 +106,41 @@ class LegacyDMA:
     typedef unsigned int* XAxiDma_Bd[20];
 
     typedef struct {
-        uint32_t ChanBase;           /**< physical base address*/
-        int IsRxChannel;        /**< Is this a receive channel */
-        volatile int RunState;  /**< Whether channel is running */
-        int HasStsCntrlStrm;    /**< Whether has stscntrl stream */
+        uint32_t ChanBase;		/**< physical base address*/
+
+        int IsRxChannel;	/**< Is this a receive channel */
+        volatile int RunState;	/**< Whether channel is running */
+        int HasStsCntrlStrm; 	/**< Whether has stscntrl stream */
         int HasDRE;
         int DataWidth;
         int Addr_ext;
         uint32_t MaxTransferLen;
 
-        uint32_t * FirstBdPhysAddr; /**< Physical address of 1st BD in list */
-        uint32_t * FirstBdAddr;  /**< Virtual address of 1st BD in list */
-        uint32_t * LastBdAddr;  /**< Virtual address of last BD in the list */
-        uint32_t Length;         /**< Total size of ring in bytes */
-        uint32_t * Separation;  /**< Number of bytes between the starting
-                                     address of adjacent BDs */
-        XAxiDma_Bd *FreeHead;   /**< First BD in the free group */
-        XAxiDma_Bd *PreHead;    /**< First BD in the pre-work group */
-        XAxiDma_Bd *HwHead;     /**< First BD in the work group */
-        XAxiDma_Bd *HwTail;     /**< Last BD in the work group */
-        XAxiDma_Bd *PostHead;   /**< First BD in the post-work group */
-        XAxiDma_Bd *BdaRestart; /**< BD to load when channel is started */
-        int FreeCnt;            /**< Number of allocatable BDs in free group */
-        int PreCnt;             /**< Number of BDs in pre-work group */
-        int HwCnt;              /**< Number of BDs in work group */
-        int PostCnt;            /**< Number of BDs in post-work group */
-        int AllCnt;             /**< Total Number of BDs for channel */
-        int RingIndex;          /**< Ring Index */
+        uint32_t* FirstBdPhysAddr;	/**< Physical address of 1st BD in list */
+        uint32_t* FirstBdAddr;	/**< Virtual address of 1st BD in list */
+        uint32_t* LastBdAddr;	/**< Virtual address of last BD in the list */
+        uint32_t Length;		/**< Total size of ring in bytes */
+        uint32_t* Separation;		/**< Number of bytes between the starting 
+        address of adjacent BDs */
+        XAxiDma_Bd *FreeHead;	/**< First BD in the free group */
+        XAxiDma_Bd *PreHead;	/**< First BD in the pre-work group */
+        XAxiDma_Bd *HwHead;	/**< First BD in the work group */
+        XAxiDma_Bd *HwTail;	/**< Last BD in the work group */
+        XAxiDma_Bd *PostHead;	/**< First BD in the post-work group */
+        XAxiDma_Bd *BdaRestart;	/**< BD to load when channel is started */
+        XAxiDma_Bd *CyclicBd;	/**< Useful for Cyclic DMA operations */
+        int FreeCnt;		/**< Number of allocatable BDs in free group */
+        int PreCnt;		/**< Number of BDs in pre-work group */
+        int HwCnt;		/**< Number of BDs in work group */
+        int PostCnt;		/**< Number of BDs in post-work group */
+        int AllCnt;		/**< Total Number of BDs for channel */
+        int RingIndex;		/**< Ring Index */
+        int Cyclic;		/**< Check for cyclic DMA Mode */
     } XAxiDma_BdRing;
 
     typedef struct {
         uint32_t DeviceId;
-        uint32_t * BaseAddr;
+        uint32_t* BaseAddr;
 
         int HasStsCntrlStrm;
         int HasMm2S;
@@ -151,38 +155,41 @@ class LegacyDMA:
         int Mm2SBurstSize;
         int S2MmBurstSize;
         int MicroDmaMode;
-        int AddrWidth;            /**< Address Width */
+        int AddrWidth;		  /**< Address Width */
     } XAxiDma_Config;
 
     typedef struct XAxiDma {
-        uint32_t RegBase;            /* Virtual base address of DMA engine */
-        int HasMm2S;            /* Has transmit channel */
-        int HasS2Mm;            /* Has receive channel */
-        int Initialized;        /* Driver has been initialized */
+        uint32_t RegBase;		/* Virtual base address of DMA engine */
+
+        int HasMm2S;		/* Has transmit channel */
+        int HasS2Mm;		/* Has receive channel */
+        int Initialized;	/* Driver has been initialized */
         int HasSg;
-        XAxiDma_BdRing TxBdRing;     /* BD container management */
-        XAxiDma_BdRing RxBdRing[16]; /* BD container management */
+
+        XAxiDma_BdRing TxBdRing;     
+        /* BD container management for TX channel */
+        XAxiDma_BdRing RxBdRing[16]; 
+        /* BD container management for RX channel */
         int TxNumChannels;
         int RxNumChannels;
         int MicroDmaMode;
-        int AddrWidth;            /**< Address Width */
+        int AddrWidth;		  /**< Address Width */
     } XAxiDma;
 
-    unsigned int getMemoryMap(unsigned int phyAddr, unsigned int len);
-    unsigned int getPhyAddr(void *buf);
-    void frame_free(void *buf);
-    int XAxiDma_CfgInitialize(XAxiDma * InstancePtr, XAxiDma_Config *Config);
-    void XAxiDma_Reset(XAxiDma * InstancePtr);
-    int XAxiDma_ResetIsDone(XAxiDma * InstancePtr);
-    int XAxiDma_Pause(XAxiDma * InstancePtr);
-    int XAxiDma_Resume(XAxiDma * InstancePtr);
-    uint32_t XAxiDma_Busy(XAxiDma *InstancePtr,int Direction);
-    uint32_t XAxiDma_SimpleTransfer(XAxiDma *InstancePtr,\
-    uint32_t * BuffAddr, uint32_t Length,int Direction);
-    int XAxiDma_SelectKeyHole(XAxiDma *InstancePtr, int Direction, int Select);
-    int XAxiDma_SelectCyclicMode(XAxiDma *InstancePtr, int Direction, int Select);
-    int XAxiDma_Selftest(XAxiDma * InstancePtr);
-    void DisableInterruptsAll(XAxiDma * InstancePtr);
+    int AxiDma_CfgInitialize(XAxiDma * InstancePtr, XAxiDma_Config *Config);
+    void AxiDma_Reset(XAxiDma * InstancePtr);
+    int AxiDma_ResetIsDone(XAxiDma * InstancePtr);
+    int AxiDma_Pause(XAxiDma * InstancePtr);
+    int AxiDma_Resume(XAxiDma * InstancePtr);
+    uint32_t AxiDma_Busy(XAxiDma *InstancePtr,int Direction);
+    uint32_t AxiDma_SimpleTransfer(XAxiDma *InstancePtr, uint32_t* BuffPtr, 
+                                uint32_t Length, int Direction);
+    int AxiDma_SelectKeyHole(XAxiDma *InstancePtr, int Direction, 
+                                int Select);
+    int AxiDma_SelectCyclicMode(XAxiDma *InstancePtr, int Direction, 
+                                int Select);
+    int AxiDma_Selftest(XAxiDma * InstancePtr);
+    void AxiDma_DisableInterruptsAll(XAxiDma * InstancePtr);
     """)
     LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
     if CPU_ARCH_IS_SUPPORTED:
@@ -190,7 +197,7 @@ class LegacyDMA:
     else:
         warnings.warn("Pynq does not support the CPU Architecture: {}"
                       .format(CPU_ARCH), ResourceWarning)
-        
+
     DMA_TO_DEV = 0
     DMA_FROM_DEV = 1
     DMA_BIDIRECTIONAL = 3
@@ -220,12 +227,12 @@ class LegacyDMA:
 
     memapi.cdef("""
     static uint32_t xlnkBufCnt = 0;
-    uint32_t cma_mmap(uint32_t phyAddr, uint32_t len);
-    uint32_t cma_munmap(void *buf, uint32_t len);
+    unsigned long cma_mmap(unsigned long phyAddr, uint32_t len);
+    uint32_t cma_munmap(void* buf, uint32_t len);
     void *cma_alloc(uint32_t len, uint32_t cacheable);
-    uint32_t cma_get_phy_addr(void *buf);
+    unsigned long cma_get_phy_addr(void *buf);
     void cma_free(void *buf);
-    uint32_t cma_pages_available();
+    uint32_t cma_pages_available(void);
     """)
 
     if CPU_ARCH_IS_SUPPORTED:
@@ -265,19 +272,22 @@ class LegacyDMA:
 
         """
         self.buf = None
+        self._bufPtr = None
         self.direction = direction
         self.bufLength = None
         self.phyAddress = address
         self.DMAengine = self.ffi.new("XAxiDma *")
         self.DMAinstance = self.ffi.new("XAxiDma_Config *")
         self.Configuration = {}
+        self._TransferInitiated = 0
         self._gen_config(address, direction, attr_dict)
 
-        status = self.libdma.XAxiDma_CfgInitialize(self.DMAengine, self.DMAinstance)
+        status = self.libdma.AxiDma_CfgInitialize(self.DMAengine,
+                                                  self.DMAinstance)
         if status != 0:
             raise RuntimeError("Failed to initialize DMA!")
-        self.libdma.XAxiDma_Reset(self.DMAengine)
-        self.libdma.DisableInterruptsAll(self.DMAengine)
+        self.libdma.AxiDma_Reset(self.DMAengine)
+        self.libdma.AxiDma_DisableInterruptsAll(self.DMAengine)
 
     def _gen_config(self, address, direction, attr_dict):
         """Build configuration and map memory.
@@ -297,11 +307,11 @@ class LegacyDMA:
         self._bufPtr = None
         self._TransferInitiated = 0
         if attr_dict is not None:
-            if type(attr_dict) == dict:
+            if type(attr_dict) is dict:
                 for key in attr_dict.keys():
                     self.DMAinstance.__setattr__(key, attr_dict[key])
             else:
-                print("Warning: Expecting 3rd Arg to be a dict.")
+                raise ValueError("Expecting 3rd Arg to be a dict.")
 
         virt = self.libxlnk.cma_mmap(address, 0x10000)
         if virt == -1:
@@ -318,10 +328,6 @@ class LegacyDMA:
 
         Frees the internal buffer and Resets the DMA.
 
-        Parameters
-        ----------
-        None
-
         Returns
         -------
         None
@@ -329,7 +335,7 @@ class LegacyDMA:
         """
         if self.buf is not None and self.buf is not self.ffi.NULL:
             self.free_buf()
-        self.libdma.XAxiDma_Reset(self.DMAengine)
+        self.libdma.AxiDma_Reset(self.DMAengine)
 
     def transfer(self, num_bytes=-1, direction=-1):
         """Transfer data using DMA (Non-blocking).
@@ -375,12 +381,10 @@ class LegacyDMA:
             raise RuntimeError("Invalid direction for transfer.")
         self.direction = direction
         if self.buf is not None:
-            self.libdma.XAxiDma_SimpleTransfer(
-                self.DMAengine,
-                self._bufPtr,
-                num_bytes,
-                self.direction
-            )
+            if self.libdma.AxiDma_SimpleTransfer(
+                    self.DMAengine, self._bufPtr,
+                    num_bytes, self.direction) != 0:
+                raise RuntimeError("DMA transfer failed.")
             self._TransferInitiated = 1
         else:
             raise RuntimeError("Buffer not allocated.")
@@ -422,8 +426,8 @@ class LegacyDMA:
         else:
             self.libxlnk.cma_free(self.buf)
             self.buf = self.libxlnk.cma_alloc(num_bytes, cacheable)
-        bufPhyAddr = self.libxlnk.cma_get_phy_addr(self.buf)
-        self._bufPtr = self.ffi.cast("uint32_t *", bufPhyAddr)
+        buf_addr = self.libxlnk.cma_get_phy_addr(self.buf)
+        self._bufPtr = self.ffi.cast("uint32_t *", buf_addr)
         self.bufLength = num_bytes
 
     def free_buf(self):
@@ -431,10 +435,6 @@ class LegacyDMA:
 
         Use this to free a previously allocated memory buffer.
         This is specially useful for reallocations.
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------
@@ -462,11 +462,11 @@ class LegacyDMA:
         """
         if self._TransferInitiated == 0:
             return
-        Error = "DMA wait timed out."
-        with timeout(seconds=wait_timeout, error_message=Error):
+        error = "DMA wait timed out."
+        with timeout(seconds=wait_timeout, error_message=error):
             while True:
-                if self.libdma.XAxiDma_Busy(self.DMAengine,
-                                            self.direction) == 0:
+                if self.libdma.AxiDma_Busy(self.DMAengine,
+                                           self.direction) == 0:
                     break
 
     def get_buf(self, width=32):
