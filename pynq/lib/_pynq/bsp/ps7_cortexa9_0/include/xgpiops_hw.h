@@ -33,7 +33,7 @@
 /**
 *
 * @file xgpiops_hw.h
-* @addtogroup gpiops_v3_1
+* @addtogroup gpiops_v3_3
 * @{
 *
 * This header file contains the identifiers and basic driver functions (or

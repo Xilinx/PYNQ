@@ -33,7 +33,7 @@
 /**
  *
  * @file xusbps.h
-* @addtogroup usbps_v2_2
+* @addtogroup usbps_v2_4
 * @{
 * @details
  *
@@ -182,6 +182,11 @@
  * 2.3   kpc 02/19/14 Fixed CR#873972, CR#873974. Corrected the logic for proper
  *                    moving of dTD Head/Tail Pointers. Invalidate the cache
  *                    after buffer receive in Endpoint Buffer Handler.
+ * 2.4   sg  04/26/16 Fixed CR#949693, Corrected the logic for EP flush
+ *       ms  03/17/17 Added readme.txt file in examples folder for doxygen
+ *                    generation.
+ *       ms  04/10/17 Modified filename tag to include the file in doxygen
+ *                    examples.
  * </pre>
  *
  ******************************************************************************/
@@ -801,8 +806,8 @@ typedef struct {
 ******************************************************************************/
 #define XUsbPs_EpFlush(InstancePtr, EpNum, Dir) \
 	XUsbPs_SetBits(InstancePtr, XUSBPS_EPFLUSH_OFFSET,	\
-		EpNum << ((Dir) & XUSBPS_EP_DIRECTION_OUT ?		\
-			XUSBPS_EPFLUSH_RX_SHIFT:XUSBPS_EPFLUSH_TX_SHIFT)) \
+		1 << (EpNum + ((Dir) & XUSBPS_EP_DIRECTION_OUT ?		\
+			XUSBPS_EPFLUSH_RX_SHIFT:XUSBPS_EPFLUSH_TX_SHIFT))) \
 
 /*****************************************************************************/
 /**

@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2013 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2013 - 2016 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@
 /**
 *
 * @file xsdps_hw.h
-* @addtogroup sdps_v2_5
+* @addtogroup sdps_v3_3
 * @{
 *
 * This header file contains the identifiers and basic HW access driver
@@ -50,6 +50,15 @@
 *       kvn    07/15/15 Modified the code according to MISRAC-2012.
 * 2.7   sk     12/10/15 Added support for MMC cards.
 *       sk     03/02/16 Configured the Tap Delay values for eMMC HS200 mode.
+* 2.8   sk     04/20/16 Added new workaround for auto tuning.
+* 3.0   sk     06/09/16 Added support for mkfs to calculate sector count.
+*       sk     07/16/16 Added support for UHS modes.
+*       sk     07/16/16 Added Tap delays accordingly to different SD/eMMC
+*                       operating modes.
+* 3.1   sk     11/07/16 Enable Rst_n bit in ext_csd reg if not enabled.
+* 3.2   sk     03/20/17 Add support for EL1 non-secure mode.
+* 3.3   mn     08/22/17 Updated for Word Access System support
+*       mn     09/06/17 Added support for ARMCC toolchain
 * </pre>
 *
 ******************************************************************************/
@@ -796,6 +805,12 @@ extern "C" {
 #define XSDPS_CUR_LIM_800		3U
 
 #define CSD_SPEC_VER_MASK		0x3C0000U
+#define READ_BLK_LEN_MASK		0x00000F00U
+#define C_SIZE_MULT_MASK		0x00000380U
+#define C_SIZE_LOWER_MASK		0xFFC00000U
+#define C_SIZE_UPPER_MASK		0x00000003U
+#define CSD_STRUCT_MASK			0x00C00000U
+#define CSD_V2_C_SIZE_MASK		0x3FFFFF00U
 
 /* EXT_CSD field definitions */
 #define XSDPS_EXT_CSD_SIZE		512U
@@ -842,6 +857,10 @@ extern "C" {
 #define EXT_CSD_HS_TIMING_HIGH		1U	/* Card is in high speed mode */
 #define EXT_CSD_HS_TIMING_HS200		2U	/* Card is in HS200 mode */
 
+#define EXT_CSD_RST_N_FUN_BYTE		162U
+#define EXT_CSD_RST_N_FUN_TEMP_DIS	0U	/* RST_n signal is temporarily disabled */
+#define EXT_CSD_RST_N_FUN_PERM_EN	1U	/* RST_n signal is permanently enabled */
+#define EXT_CSD_RST_N_FUN_PERM_DIS	2U	/* RST_n signal is permanently disabled */
 
 #define XSDPS_EXT_CSD_CMD_SET		0U
 #define XSDPS_EXT_CSD_SET_BITS		1U
@@ -879,6 +898,10 @@ extern "C" {
 #define XSDPS_MMC_DDR_8_BIT_BUS_ARG		(((u32)XSDPS_EXT_CSD_WRITE_BYTE << 24) \
 					 | ((u32)EXT_CSD_BUS_WIDTH_BYTE << 16) \
 					 | ((u32)EXT_CSD_BUS_WIDTH_DDR_8_BIT << 8))
+
+#define XSDPS_MMC_RST_FUN_EN_ARG		(((u32)XSDPS_EXT_CSD_WRITE_BYTE << 24) \
+					 | ((u32)EXT_CSD_RST_N_FUN_BYTE << 16) \
+					 | ((u32)EXT_CSD_RST_N_FUN_PERM_EN << 8))
 
 #define XSDPS_MMC_DELAY_FOR_SWITCH	1000U
 
@@ -930,6 +953,10 @@ extern "C" {
 #define XSDPS_UHS_SPEED_MODE_SDR50	0x2U
 #define XSDPS_UHS_SPEED_MODE_SDR104	0x3U
 #define XSDPS_UHS_SPEED_MODE_DDR50	0x4U
+#define XSDPS_HIGH_SPEED_MODE		0x5U
+#define XSDPS_DEFAULT_SPEED_MODE	0x6U
+#define XSDPS_HS200_MODE			0x7U
+#define XSDPS_DDR52_MODE			0x4U
 #define XSDPS_SWITCH_CMD_BLKCNT		1U
 #define XSDPS_SWITCH_CMD_BLKSIZE	64U
 #define XSDPS_SWITCH_CMD_HS_GET		0x00FFFFF0U
@@ -970,7 +997,14 @@ extern "C" {
 #define XSDPS_SD_SDR50_MAX_CLK	100000000U
 #define XSDPS_SD_DDR50_MAX_CLK	50000000U
 #define XSDPS_SD_SDR104_MAX_CLK	208000000U
-#define XSDPS_MMC_HS200_MAX_CLK	200000000U
+/*
+ * XSDPS_MMC_HS200_MAX_CLK is set to 150000000 in order to keep it smaller
+ * than the clock value coming from the core. This value is kept to safely
+ * switch to SDR104 mode if the SD card supports it.
+ */
+#define XSDPS_MMC_HS200_MAX_CLK	150000000U
+#define XSDPS_MMC_HSD_MAX_CLK	52000000U
+#define XSDPS_MMC_DDR_MAX_CLK	52000000U
 
 #define XSDPS_CARD_STATE_IDLE		0U
 #define XSDPS_CARD_STATE_RDY		1U
@@ -987,15 +1021,51 @@ extern "C" {
 #define XSDPS_SLOT_REM			0U
 #define XSDPS_SLOT_EMB			1U
 
-#if defined (__arm__) || defined (__aarch64__)
-#define SD_DLL_CTRL 			0x00000358U
-#define SD_ITAPDLY				0x00000314U
-#define SD_OTAPDLYSEL			0x00000318U
-#define SD0_DLL_RST				0x00000004U
-#define SD0_ITAPCHGWIN			0x00000200U
-#define SD0_ITAPDLYENA			0x00000100U
-#define SD0_OTAPDLYENA			0x00000040U
-#define SD0_OTAPDLYSEL_HS200	0x00000003U
+#define XSDPS_WIDTH_8		8U
+#define XSDPS_WIDTH_4		4U
+
+
+#if defined (ARMR5) || defined (__aarch64__) || defined (ARMA53_32)
+#define SD0_ITAPDLY_SEL_MASK		0x000000FFU
+#define SD0_OTAPDLY_SEL_MASK		0x0000003FU
+#define SD1_ITAPDLY_SEL_MASK		0x00FF0000U
+#define SD1_OTAPDLY_SEL_MASK		0x003F0000U
+#define SD_DLL_CTRL 				0x00000358U
+#define SD_ITAPDLY					0x00000314U
+#define SD_OTAPDLY					0x00000318U
+#define SD0_DLL_RST					0x00000004U
+#define SD1_DLL_RST					0x00040000U
+#define SD0_ITAPCHGWIN				0x00000200U
+#define SD0_ITAPDLYENA				0x00000100U
+#define SD0_OTAPDLYENA				0x00000040U
+#define SD1_ITAPCHGWIN				0x02000000U
+#define SD1_ITAPDLYENA				0x01000000U
+#define SD1_OTAPDLYENA				0x00400000U
+
+#define SD0_OTAPDLYSEL_HS200_B0		0x00000003U
+#define SD0_OTAPDLYSEL_HS200_B2		0x00000002U
+#define SD0_ITAPDLYSEL_SD50			0x00000014U
+#define SD0_OTAPDLYSEL_SD50			0x00000003U
+#define SD0_ITAPDLYSEL_SD_DDR50		0x0000003DU
+#define SD0_ITAPDLYSEL_EMMC_DDR50	0x00000012U
+#define SD0_OTAPDLYSEL_SD_DDR50		0x00000004U
+#define SD0_OTAPDLYSEL_EMMC_DDR50	0x00000006U
+#define SD0_ITAPDLYSEL_HSD			0x00000015U
+#define SD0_OTAPDLYSEL_SD_HSD		0x00000005U
+#define SD0_OTAPDLYSEL_EMMC_HSD		0x00000006U
+
+#define SD1_OTAPDLYSEL_HS200_B0		0x00030000U
+#define SD1_OTAPDLYSEL_HS200_B2		0x00020000U
+#define SD1_ITAPDLYSEL_SD50			0x00140000U
+#define SD1_OTAPDLYSEL_SD50			0x00030000U
+#define SD1_ITAPDLYSEL_SD_DDR50		0x003D0000U
+#define SD1_ITAPDLYSEL_EMMC_DDR50	0x00120000U
+#define SD1_OTAPDLYSEL_SD_DDR50		0x00040000U
+#define SD1_OTAPDLYSEL_EMMC_DDR50	0x00060000U
+#define SD1_ITAPDLYSEL_HSD			0x00150000U
+#define SD1_OTAPDLYSEL_SD_HSD		0x00050000U
+#define SD1_OTAPDLYSEL_EMMC_HSD		0x00060000U
+
 #endif
 
 /**************************** Type Definitions *******************************/
@@ -1100,8 +1170,18 @@ extern "C" {
 *		u16 XSdPs_ReadReg(u32 BaseAddress. int RegOffset)
 *
 ******************************************************************************/
-#define XSdPs_ReadReg16(BaseAddress, RegOffset) \
-	XSdPs_In16((BaseAddress) + (RegOffset))
+static INLINE u16 XSdPs_ReadReg16(u32 BaseAddress, u8 RegOffset)
+{
+#if defined (__MICROBLAZE__)
+	u32 Reg;
+	BaseAddress += RegOffset & 0xFC;
+	Reg = XSdPs_In32(BaseAddress);
+	Reg >>= ((RegOffset & 0x3)*8);
+	return (u16)Reg;
+#else
+	return XSdPs_In16((BaseAddress) + (RegOffset));
+#endif
+}
 
 /***************************************************************************/
 /**
@@ -1119,8 +1199,20 @@ extern "C" {
 *		u16 RegisterValue)
 *
 ******************************************************************************/
-#define XSdPs_WriteReg16(BaseAddress, RegOffset, RegisterValue) \
-	XSdPs_Out16((BaseAddress) + (RegOffset), (RegisterValue))
+
+static INLINE void XSdPs_WriteReg16(u32 BaseAddress, u8 RegOffset, u16 RegisterValue)
+{
+#if defined (__MICROBLAZE__)
+	u32 Reg;
+	BaseAddress += RegOffset & 0xFC;
+	Reg = XSdPs_In32(BaseAddress);
+	Reg &= ~(0xFFFF<<((RegOffset & 0x3)*8));
+	Reg |= RegisterValue <<((RegOffset & 0x3)*8);
+	XSdPs_Out32(BaseAddress, Reg);
+#else
+	XSdPs_Out16((BaseAddress) + (RegOffset), (RegisterValue));
+#endif
+}
 
 /****************************************************************************/
 /**
@@ -1136,9 +1228,18 @@ extern "C" {
 *		u8 XSdPs_ReadReg(u32 BaseAddress. int RegOffset)
 *
 ******************************************************************************/
-#define XSdPs_ReadReg8(BaseAddress, RegOffset) \
-	XSdPs_In8((BaseAddress) + (RegOffset))
-
+static INLINE u8 XSdPs_ReadReg8(u32 BaseAddress, u8 RegOffset)
+{
+#if defined (__MICROBLAZE__)
+	u32 Reg;
+	BaseAddress += RegOffset & 0xFC;
+	Reg = XSdPs_In32(BaseAddress);
+	Reg >>= ((RegOffset & 0x3)*8);
+	return (u8)Reg;
+#else
+	return XSdPs_In8((BaseAddress) + (RegOffset));
+#endif
+}
 /***************************************************************************/
 /**
 * Write to a register.
@@ -1155,9 +1256,19 @@ extern "C" {
 *		u8 RegisterValue)
 *
 ******************************************************************************/
-#define XSdPs_WriteReg8(BaseAddress, RegOffset, RegisterValue) \
-	XSdPs_Out8((BaseAddress) + (RegOffset), (RegisterValue))
-
+static INLINE void XSdPs_WriteReg8(u32 BaseAddress, u8 RegOffset, u8 RegisterValue)
+{
+#if defined (__MICROBLAZE__)
+	u32 Reg;
+	BaseAddress += RegOffset & 0xFC;
+	Reg = XSdPs_In32(BaseAddress);
+	Reg &= ~(0xFF<<((RegOffset & 0x3)*8));
+	Reg |= RegisterValue <<((RegOffset & 0x3)*8);
+	XSdPs_Out32(BaseAddress, Reg);
+#else
+	XSdPs_Out8((BaseAddress) + (RegOffset), (RegisterValue));
+#endif
+}
 /***************************************************************************/
 /**
 * Macro to get present status register

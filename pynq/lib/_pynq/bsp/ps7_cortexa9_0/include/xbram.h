@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -113,6 +113,15 @@
 * 4.0   adk  19/12/13 Updated as per the New Tcl API's
 * 4.1   sk   11/10/15 Used UINTPTR instead of u32 for Baseaddress CR# 867425.
 *                     Changed the prototype of XBram_CfgInitialize API.
+*       ms  01/23/17 Modified xil_printf statement in main function for all
+*                    examples to ensure that "Successfully ran" and "Failed"
+*                    strings are available in all examples. This is a fix
+*                    for CR-965028.
+*       ms  03/17/17 Added readme.txt file in examples folder for doxygen
+*                    generation.
+* 4.2   ms  04/18/17 Modified tcl file to add suffix U for all macro
+*                    definitions of bram in xparameters.h
+*       ms  08/07/17 Fixed compilation warnings in xbram_sinit.c
 * </pre>
 *****************************************************************************/
 #ifndef XBRAM_H		/* prevent circular inclusions */

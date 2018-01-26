@@ -33,7 +33,7 @@
 /**
 *
 * @file xemacps_bdring.h
-* @addtogroup emacps_v3_1
+* @addtogroup emacps_v3_4
 * @{
 *
 * The Xiline EmacPs Buffer Descriptor ring driver. This is part of EmacPs
