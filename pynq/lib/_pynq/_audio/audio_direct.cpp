@@ -53,15 +53,6 @@
 #include "xil_types.h"
 #include "audio_direct.h"
 
-u32 Xil_In32(UINTPTR Addr){
-    return *(volatile u32 *) Addr;
-}
-
-void Xil_Out32(UINTPTR Addr, u32 Value){
-    volatile u32 *LocalAddr = (u32 *)Addr;
-    *LocalAddr = Value;
-}
-
 /******************************************************************************
  * Function to support audio recording without the audio codec controller.
  *
