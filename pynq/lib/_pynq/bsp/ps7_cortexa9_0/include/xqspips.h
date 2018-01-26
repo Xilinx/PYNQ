@@ -33,7 +33,7 @@
 /**
 *
 * @file xqspips.h
-* @addtogroup qspips_v3_2
+* @addtogroup qspips_v3_4
 * @{
 * @details
 *
@@ -273,6 +273,14 @@
 * 					 when thresholds are used.
 * 3.3   sk  11/07/15 Modified the API prototypes according to MISRAC standards
 *                    to remove compilation warnings. CR# 868893.
+*       ms  03/17/17 Added readme.txt file in examples folder for doxygen
+*                    generation.
+*       ms  04/05/17 Modified Comment lines in functions of qspips
+*                    examples to recognize it as documentation block
+*                    and modified filename tag in
+*                    xqspips_dual_flash_stack_lqspi_example.c to include it in
+*                    doxygen examples.
+* 3.4   nsk 31/07/17 Added QSPI_BUS_WIDTH parameter in xparameters.h file
 *
 * </pre>
 *

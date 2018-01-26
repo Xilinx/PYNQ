@@ -55,16 +55,20 @@
 * 1.00  kvn    02/14/15 First release
 * 1.1   kvn    06/12/15 Add support for Zynq Ultrascale+ MP.
 *       kvn    08/18/15 Modified Makefile according to compiler changes.
+* 1.3   asa    07/01/16 Made changes to ensure that the file does not compile
+*                       for MB BSPs. Instead it throws up a warning. This
+*                       fixes the CR#953056.
 *
 * </pre>
 *
 ******************************************************************************/
 
 /***************************** Include Files *********************************/
-
+#ifndef __MICROBLAZE__
 #include <xil_types.h>
 
 void XCoresightPs_DccSendByte(u32 BaseAddress, u8 Data);
 
 u8 XCoresightPs_DccRecvByte(u32 BaseAddress);
+#endif
 /** @} */

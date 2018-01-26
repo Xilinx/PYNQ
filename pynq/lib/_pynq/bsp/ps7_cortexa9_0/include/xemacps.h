@@ -33,7 +33,7 @@
 /**
  *
  * @file xemacps.h
-* @addtogroup emacps_v3_1
+* @addtogroup emacps_v3_4
 * @{
 * @details
  *
@@ -316,6 +316,18 @@
  *                     there is no error. CR# 869403
  *            08/10/15 Update upper 32 bit tx and rx queue ptr registers.
  * 3.2   hk   02/22/16 Added SGMII support for Zynq Ultrascale+ MPSoC.
+ * 3.4   ms   01/23/17 Modified xil_printf statement in main function for all
+ *                     examples to ensure that "Successfully ran" and "Failed"
+ *                     strings are available in all examples. This is a fix
+ *                     for CR-965028.
+ *       ms   03/17/17 Modified text file in examples folder for doxygen
+ *                     generation.
+ *       ms   04/05/17 Added tabspace for return statements in functions of
+ *                     xemacps_ieee1588_example.c for proper documentation
+ *                     while generating doxygen.
+ * 3.5   hk   08/14/17 Update cache coherency information of the interface in
+ *                     its config structure.
+ *
  * </pre>
  *
  ****************************************************************************/
@@ -513,6 +525,8 @@ typedef void (*XEmacPs_ErrHandler) (void *CallBackRef, u8 Direction,
 typedef struct {
 	u16 DeviceId;	/**< Unique ID  of device */
 	UINTPTR BaseAddress;/**< Physical base address of IPIF registers */
+	u8 IsCacheCoherent; /**< Applicable only to A53 in EL1 mode;
+				* describes whether Cache Coherent or not */
 } XEmacPs_Config;
 
 

@@ -33,7 +33,7 @@
 /**
 *
 * @file xqspips_hw.h
-* @addtogroup qspips_v3_2
+* @addtogroup qspips_v3_4
 * @{
 *
 * This header file contains the identifiers and basic HW access driver
