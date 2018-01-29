@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -152,7 +152,13 @@
 *		     configuration registers from the PL region.
 *		     xdevcfg_reg_readback_example.c
 * 3.3   sk  04/06/15 Modified XDcfg_ReadMultiBootConfig Macro CR# 851335.
-*
+*       ms  03/17/17 Added readme.txt file in examples folder for doxygen
+*                    generation.
+*       ms  04/10/17 Modified filename tag in interrupt and polled examples
+*                    to include them in doxygen examples.
+* 3.5   ms  04/18/17 Modified tcl file to add suffix U for all macros
+*                    definitions of devcfg in xparameters.h
+*       ms  08/07/17 Fixed compilation warnings in xdevcfg_sinit.c
 * </pre>
 *
 ******************************************************************************/

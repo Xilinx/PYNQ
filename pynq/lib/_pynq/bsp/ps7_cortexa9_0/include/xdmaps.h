@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2009 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2009 - 2016 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal 
@@ -33,7 +33,7 @@
 /**
 *
 * @file xdmaps.h
-* @addtogroup dmaps_v2_1
+* @addtogroup dmaps_v2_3
 * @{
 * @details
 *
@@ -75,6 +75,14 @@
 *			   Users can always use xil_printfs if they want to debug.
 * 2.0   adk    10/12/13  Updated as per the New Tcl API's
 * 2.01  kpc    08/23/14  Fixed the IAR compiler reported errors
+* 2.2   mus    08/12/16  Declared all inline functions in xdmaps.c as extern, to avoid
+*                        linker error for IAR compiler
+* 2.3   ms     01/23/17 Modified xil_printf statement in main function for all
+*                       examples to ensure that "Successfully ran" and "Failed"
+*                       strings are available in all examples. This is a fix
+*                       for CR-965028.
+*       ms     03/17/17 Added readme.txt file in examples folder for doxygen
+*                       generation.
 * </pre>
 *
 *****************************************************************************/
@@ -280,6 +288,29 @@ int XDmaPs_SetFaultHandler(XDmaPs *InstPtr,
 			    void *CallbackRef);
 
 void XDmaPs_Print_DmaProg(XDmaPs_Cmd *Cmd);
+
+/**
+ * To avoid linking error,Declare all inline functions as extern for
+ * IAR compiler
+ */
+#ifdef __ICCARM__
+extern INLINE int XDmaPs_Instr_DMAEND(char *DmaProg);
+extern INLINE void XDmaPs_Memcpy4(char *Dst, char *Src);
+extern INLINE int XDmaPs_Instr_DMAGO(char *DmaProg, unsigned int Cn,
+			       u32 Imm, unsigned int Ns);
+extern INLINE int XDmaPs_Instr_DMALD(char *DmaProg);
+extern INLINE int XDmaPs_Instr_DMALP(char *DmaProg, unsigned Lc,
+	       unsigned LoopIterations);
+extern INLINE int XDmaPs_Instr_DMALPEND(char *DmaProg, char *BodyStart, unsigned Lc);
+extern INLINE int XDmaPs_Instr_DMAMOV(char *DmaProg, unsigned Rd, u32 Imm);
+extern INLINE int XDmaPs_Instr_DMANOP(char *DmaProg);
+extern INLINE int XDmaPs_Instr_DMARMB(char *DmaProg);
+extern INLINE int XDmaPs_Instr_DMASEV(char *DmaProg, unsigned int EventNumber);
+extern INLINE int XDmaPs_Instr_DMAST(char *DmaProg);
+extern INLINE int XDmaPs_Instr_DMAWMB(char *DmaProg);
+extern INLINE unsigned XDmaPs_ToEndianSwapSizeBits(unsigned int EndianSwapSize);
+extern INLINE unsigned XDmaPs_ToBurstSizeBits(unsigned BurstSize);
+#endif
 
 /**
  * Driver done interrupt service routines for the channels.

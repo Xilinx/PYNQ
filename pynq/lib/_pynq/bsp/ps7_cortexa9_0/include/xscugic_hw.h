@@ -33,7 +33,7 @@
 /**
 *
 * @file xscugic_hw.h
-* @addtogroup scugic_v3_1
+* @addtogroup scugic_v3_8
 * @{
 *
 * This header file contains identifiers and HW access functions (or

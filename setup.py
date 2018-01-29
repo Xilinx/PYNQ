@@ -79,42 +79,46 @@ else:
     notebooks_getting_started_src_img_dir = None
 
 # Video source files
-_video_src = ['pynq/lib/_pynq/_video/_video.c', 'pynq/lib/_pynq/_video/_capture.c',
-              'pynq/lib/_pynq/_video/_display.c', 'pynq/lib/_pynq/_video/_frame.c',
+_video_src = ['pynq/lib/_pynq/_video/_video.c',
+              'pynq/lib/_pynq/_video/_capture.c',
+              'pynq/lib/_pynq/_video/_display.c',
+              'pynq/lib/_pynq/_video/_frame.c',
               'pynq/lib/_pynq/_video/_legacy_display.c',
               'pynq/lib/_pynq/_video/_legacy_capture.c',
-              'pynq/lib/_pynq/src/gpio.c', 'pynq/lib/_pynq/src/py_xaxivdma.c',
-              'pynq/lib/_pynq/src/py_xvtc.c', 'pynq/lib/_pynq/src/utils.c',
+              'pynq/lib/_pynq/_video/axivdma_channel.c',
+              'pynq/lib/_pynq/src/gpio.c',
+              'pynq/lib/_pynq/src/py_xaxivdma.c',
+              'pynq/lib/_pynq/src/py_xvtc.c',
+              'pynq/lib/_pynq/src/utils.c',
               'pynq/lib/_pynq/src/py_xgpio.c',
               'pynq/lib/_pynq/src/video_capture.c',
               'pynq/lib/_pynq/src/video_display.c']
 
 # BSP source files
 bsp_axivdma = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_channel.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_intr.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_0/src/xaxivdma_selftest.c']
+    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_4/src/xaxivdma.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_4/src/xaxivdma_intr.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_4/src/xaxivdma_selftest.c']
 
 bsp_gpio = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_extra.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_intr.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_0/src/xgpio_selftest.c']
+    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio_extra.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio_intr.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio_selftest.c']
 
 bsp_vtc = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc_intr.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_0/src/xvtc_selftest.c']
+    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_2/src/xvtc.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_2/src/xvtc_intr.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_2/src/xvtc_selftest.c']
 
 bsp_standalone = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xplatform_info.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xil_assert.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xil_io.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v5_4/src/xil_exception.c']
+    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xplatform_info.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xil_assert.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xil_io.c',
+     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xil_exception.c']
 
 getting_started_notebooks = \
-    ['jupyter_notebooks.ipynb', 
+    ['jupyter_notebooks.ipynb',
      'python_environment.ipynb',
      'jupyter_notebooks_advanced_features.ipynb']
 

@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@
 /**
 *
 * @file xscugic.h
-* @addtogroup scugic_v3_1
+* @addtogroup scugic_v3_8
 * @{
 * @details
 *
@@ -145,6 +145,37 @@
 *             built over the scugic driver runs.
 *             These changes fix CR#937243.
 *
+* 3.4   asa  04/07/16 Created a new static function DoDistributorInit to simplify
+*            the flow and avoid code duplication. Changes are made for
+*            USE_AMP use case for R5. In a scenario (in R5 split mode) when
+*            one R5 is operating with A53 in open amp config and other
+*            R5 running baremetal app, the existing code
+*            had the potential to stop the whole AMP solution to work (if
+*            for some reason the R5 running the baremetal app tasked to
+*            initialize the Distributor hangs or crashes before initializing).
+*            Changes are made so that the R5 under AMP first checks if
+*            the distributor is enabled or not and if not, it does the
+*            standard Distributor initialization.
+*            This fixes the CR#952962.
+* 3.6   ms   01/23/17 Modified xil_printf statement in main function for all
+*                     examples to ensure that "Successfully ran" and "Failed"
+*                     strings are available in all examples. This is a fix
+*                     for CR-965028.
+*       kvn  02/17/17 Add support for changing GIC CPU master at run time.
+*       kvn  02/28/17 Make the CpuId as static variable and Added new
+*                     XScugiC_GetCpuId to access CpuId.
+*       ms   03/17/17 Added readme.txt file in examples folder for doxygen
+*                     generation.
+* 3.7   ms   04/11/17 Modified tcl file to add suffix U for all macro
+*                     definitions of scugic in xparameters.h
+* 3.8   mus  07/05/17 Updated scugic.tcl to add support for intrrupts connected
+*                     through util_reduced_vector IP(OR gate)
+*       mus  07/05/17 Updated xdefine_zynq_canonical_xpars proc to initialize
+*                     the HandlerTable in XScuGic_ConfigTable to 0, it removes
+*                     the compilation warning in xscugic_g.c. Fix for CR#978736.
+*       mus  07/25/17 Updated xdefine_gic_params proc to export correct canonical
+*                     definitions for pl to ps interrupts.Fix for CR#980534
+*
 * </pre>
 *
 ******************************************************************************/
@@ -166,7 +197,12 @@ extern "C" {
 
 /************************** Constant Definitions *****************************/
 
+#define EFUSE_STATUS_OFFSET   0x10
+#define EFUSE_STATUS_CPU_MASK 0x80
 
+#if !defined (ARMR5) && !defined (__aarch64__) && !defined (ARMA53_32)
+#define ARMA9
+#endif
 /**************************** Type Definitions *******************************/
 
 /* The following data type defines each entry in an interrupt vector table.
@@ -304,6 +340,9 @@ void XScuGic_GetPriorityTriggerType(XScuGic *InstancePtr, u32 Int_Id,
 void XScuGic_SetPriorityTriggerType(XScuGic *InstancePtr, u32 Int_Id,
 					u8 Priority, u8 Trigger);
 void XScuGic_InterruptMaptoCpu(XScuGic *InstancePtr, u8 Cpu_Id, u32 Int_Id);
+void XScuGic_Stop(XScuGic *InstancePtr);
+void XScuGic_SetCpuID(u32 CpuCoreId);
+u32 XScuGic_GetCpuID(void);
 /*
  * Initialization functions in xscugic_sinit.c
  */

@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2013 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2013 - 2016 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@
 /**
 *
 * @file xsdps.h
-* @addtogroup sdps_v2_5
+* @addtogroup sdps_v3_3
 * @{
 * @details
 *
@@ -125,6 +125,30 @@
 *                       of SDR50, SDR104 and HS200.
 *       sk     02/16/16 Corrected the Tuning logic.
 *       sk     03/01/16 Removed Bus Width check for eMMC. CR# 938311.
+* 2.8   sk     04/20/16 Added new workaround for auto tuning.
+*              05/03/16 Standard Speed for SD to 19MHz in ZynqMPSoC. CR#951024
+* 3.0   sk     06/09/16 Added support for mkfs to calculate sector count.
+*       sk     07/16/16 Added support for UHS modes.
+*       sk     07/07/16 Used usleep API for both arm and microblaze.
+*       sk     07/16/16 Added Tap delays accordingly to different SD/eMMC
+*                       operating modes.
+*       sk     08/13/16 Removed sleep.h from xsdps.h as a temporary fix for
+*                       CR#956899.
+* 3.1   mi     09/07/16 Removed compilation warnings with extra compiler flags.
+*       sk     10/13/16 Reduced the delay during power cycle to 1ms as per spec
+*       sk     10/19/16 Used emmc_hwreset pin to reset eMMC.
+*       sk     11/07/16 Enable Rst_n bit in ext_csd reg if not enabled.
+*       sk     11/16/16 Issue DLL reset at 31 iteration to load new zero value.
+* 3.2   sk     11/30/16 Modified the voltage switching sequence as per spec.
+*       sk     02/01/17 Added HSD and DDR mode support for eMMC.
+*       sk     02/01/17 Consider bus width parameter from design for switching
+*       vns    02/09/17 Added ARMA53_32 support for ZynqMP CR#968397
+*       sk     03/20/17 Add support for EL1 non-secure mode.
+* 3.3   mn     05/17/17 Add support for 64bit DMA addressing
+* 	mn     08/07/17 Modify driver to support 64-bit DMA in arm64 only
+*       mn     08/17/17 Enabled CCI support for A53 by adding cache coherency
+*                       information.
+*       mn     09/06/17 Resolved compilation errors with IAR toolchain
 *
 * </pre>
 *
@@ -142,6 +166,7 @@ extern "C" {
 #include "xil_cache.h"
 #include "xstatus.h"
 #include "xsdps_hw.h"
+#include "xplatform_info.h"
 #include <string.h>
 
 /************************** Constant Definitions *****************************/
@@ -150,6 +175,9 @@ extern "C" {
 #define MAX_TUNING_COUNT	40U		/**< Maximum Tuning count */
 
 /**************************** Type Definitions *******************************/
+
+typedef void (*XSdPs_ConfigTap) (u32 Bank, u32 DeviceId, u32 CardType);
+
 /**
  * This typedef contains configuration information for the device.
  */
@@ -159,14 +187,28 @@ typedef struct {
 	u32 InputClockHz;		/**< Input clock frequency */
 	u32 CardDetect;			/**< Card Detect */
 	u32 WriteProtect;			/**< Write Protect */
+	u32 BusWidth;			/**< Bus Width */
+	u32 BankNumber;			/**< MIO Bank selection for SD */
+	u32 HasEMIO;			/**< If SD is connected to EMIO */
+	u8 IsCacheCoherent; 		/**< If SD is Cache Coherent or not */
 } XSdPs_Config;
 
 /* ADMA2 descriptor table */
 typedef struct {
 	u16 Attribute;		/**< Attributes of descriptor */
 	u16 Length;		/**< Length of current dma transfer */
+#ifdef __aarch64__
+	u64 Address;		/**< Address of current dma transfer */
+#else
 	u32 Address;		/**< Address of current dma transfer */
+#endif
+#ifdef __ICCARM__
+#pragma data_alignment = 32
 } XSdPs_Adma2Descriptor;
+#pragma data_alignment = 4
+#else
+}  __attribute__((__packed__))XSdPs_Adma2Descriptor;
+#endif
 
 /**
  * The XSdPs driver instance data. The user is required to allocate a
@@ -188,7 +230,10 @@ typedef struct {
 	u32 CardID[4];		/**< Card ID Register */
 	u32 RelCardAddr;	/**< Relative Card Address */
 	u32 CardSpecData[4];	/**< Card Specific Data Register */
+	u32 SectorCount;		/**< Sector Count */
 	u32 SdCardConfig;	/**< Sd Card Configuration Register */
+	u32 Mode;			/**< Bus Speed Mode */
+	XSdPs_ConfigTap Config_TapDelay;	/**< Configuring the tap delays */
 	/**< ADMA Descriptors */
 #ifdef __ICCARM__
 #pragma data_alignment = 32
@@ -219,6 +264,13 @@ s32 XSdPs_Pullup(XSdPs *InstancePtr);
 s32 XSdPs_MmcCardInitialize(XSdPs *InstancePtr);
 s32 XSdPs_CardInitialize(XSdPs *InstancePtr);
 s32 XSdPs_Get_Mmc_ExtCsd(XSdPs *InstancePtr, u8 *ReadBuff);
+s32 XSdPs_Set_Mmc_ExtCsd(XSdPs *InstancePtr, u32 Arg);
+#if defined (ARMR5) || defined (__aarch64__) || defined (ARMA53_32)
+void XSdPs_Identify_UhsMode(XSdPs *InstancePtr, u8 *ReadBuff);
+void XSdPs_ddr50_tapdelay(u32 Bank, u32 DeviceId, u32 CardType);
+void XSdPs_hsd_sdr25_tapdelay(u32 Bank, u32 DeviceId, u32 CardType);
+void XSdPs_sdr104_hs200_tapdelay(u32 Bank, u32 DeviceId, u32 CardType);
+#endif
 
 #ifdef __cplusplus
 }
