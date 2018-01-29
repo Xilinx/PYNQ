@@ -206,7 +206,7 @@ Accessing Files on The Board
 ----------------------------
 
 `Samba <https://www.samba.org/>`_, a file sharing service, is running on the
-board. This allws you to access the Pynq home area as a network drive, to
+board. This allows you to access the Pynq home area as a network drive, to
 transfer files to and from the board.
 
 .. note:: In the examples below change the hostname or IP address to match your
