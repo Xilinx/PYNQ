@@ -22,7 +22,8 @@ struct coeffs {
 };
 
 
-void color_convert(video_stream* in_data, video_stream* out_data, coeffs c1, coeffs c2, coeffs c3, coeffs bias);
+void color_convert(video_stream* stream_in_24, video_stream* stream_out_24, 
+                   coeffs c1, coeffs c2, coeffs c3, coeffs bias);
 
 int main() {
 	video_stream in, out;
@@ -50,7 +51,8 @@ int main() {
 
 
 	color_convert(&in, &out, c1, c2, c3, bias);
-	std::cout << out.data.p1  << " " << out.data.p2 << " " << out.data.p3 << std::endl;
+	std::cout << out.data.p1  << " " << out.data.p2 << " " << \
+    out.data.p3 << std::endl;
 	assert(out.data.p1 == 255);
 	assert(out.data.p2 == 96);
 	assert(out.data.p3 == 191);

@@ -56,6 +56,9 @@
 --   processes:                             "*_PROCESS"
 --   component instantiations:              "<ENTITY_>I_<#|FUNC>"
 ------------------------------------------------------------------------------
+-- Added CODEC_ADDRESS as output port driven by Generics. Value can be changed
+-- by configuring the IP
+------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -107,6 +110,7 @@ entity i2s_ctrl is
   (
     -- ADD USER GENERICS BELOW THIS LINE ---------------
     --USER generics added here
+    C_CODEC_ADDRESS               : std_logic_vector     := B"11";
     -- ADD USER GENERICS ABOVE THIS LINE ---------------
 
     -- DO NOT EDIT BELOW THIS LINE ---------------------
@@ -132,6 +136,7 @@ entity i2s_ctrl is
     LRCLK   :  out  STD_LOGIC;
     SDATA_I :  in   STD_LOGIC;
     SDATA_O :  out  STD_LOGIC;
+	codec_address : out std_logic_vector(1 downto 0);
     -- ADD USER PORTS ABOVE THIS LINE ------------------
 
     -- DO NOT EDIT BELOW THIS LINE ---------------------
@@ -324,5 +329,7 @@ begin
 
   user_Bus2IP_RdCE <= ipif_Bus2IP_RdCE(USER_NUM_REG-1 downto 0);
   user_Bus2IP_WrCE <= ipif_Bus2IP_WrCE(USER_NUM_REG-1 downto 0);
+  
+  codec_address <= C_CODEC_ADDRESS;
 
 end IMP;

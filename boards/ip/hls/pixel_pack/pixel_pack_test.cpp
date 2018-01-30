@@ -18,7 +18,8 @@ struct wide_stream {
 	ap_uint<1> last;
 };
 
-void pixel_pack(narrow_stream* in_stream, wide_stream* out_stream, int mode, ap_uint<8> alpha);
+void pixel_pack(narrow_stream* stream_in_24, wide_stream* stream_out_32, 
+                int mode, ap_uint<8> alpha);
 
 narrow_stream input_data[24];
 wide_stream output_data[24];
