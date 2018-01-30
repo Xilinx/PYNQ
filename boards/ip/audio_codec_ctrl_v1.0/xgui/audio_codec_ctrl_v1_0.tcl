@@ -1,20 +1,8 @@
 # Definitional proc to organize widgets for parameters.
 proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "Component_Name"
-  #Adding Page
-  set Page_0 [ipgui::add_page $IPINST -name "Page 0"]
-  ipgui::add_param $IPINST -name "C_BASEADDR" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_DPHASE_TIMEOUT" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_HIGHADDR" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_NUM_MEM" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_NUM_REG" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_SLV_AWIDTH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_SLV_DWIDTH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_S_AXI_ADDR_WIDTH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_S_AXI_DATA_WIDTH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_S_AXI_MIN_SIZE" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_USE_WSTRB" -parent ${Page_0}
-
+  set C_CODEC_ADDRESS [ipgui::add_param $IPINST -name "C_CODEC_ADDRESS" -widget comboBox]
+  set_property tooltip {Two bit address} ${C_CODEC_ADDRESS}
 
 }
 
@@ -24,6 +12,15 @@ proc update_PARAM_VALUE.C_BASEADDR { PARAM_VALUE.C_BASEADDR } {
 
 proc validate_PARAM_VALUE.C_BASEADDR { PARAM_VALUE.C_BASEADDR } {
 	# Procedure called to validate C_BASEADDR
+	return true
+}
+
+proc update_PARAM_VALUE.C_CODEC_ADDRESS { PARAM_VALUE.C_CODEC_ADDRESS } {
+	# Procedure called to update C_CODEC_ADDRESS when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.C_CODEC_ADDRESS { PARAM_VALUE.C_CODEC_ADDRESS } {
+	# Procedure called to validate C_CODEC_ADDRESS
 	return true
 }
 
@@ -171,5 +168,10 @@ proc update_MODELPARAM_VALUE.C_SLV_AWIDTH { MODELPARAM_VALUE.C_SLV_AWIDTH PARAM_
 proc update_MODELPARAM_VALUE.C_SLV_DWIDTH { MODELPARAM_VALUE.C_SLV_DWIDTH PARAM_VALUE.C_SLV_DWIDTH } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.C_SLV_DWIDTH}] ${MODELPARAM_VALUE.C_SLV_DWIDTH}
+}
+
+proc update_MODELPARAM_VALUE.C_CODEC_ADDRESS { MODELPARAM_VALUE.C_CODEC_ADDRESS PARAM_VALUE.C_CODEC_ADDRESS } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.C_CODEC_ADDRESS}] ${MODELPARAM_VALUE.C_CODEC_ADDRESS}
 }
 
