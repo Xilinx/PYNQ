@@ -32,10 +32,10 @@
 /******************************************************************************
  *
  *
- * @file i2c.c
+ * @file uart.c
  *
- * Implementing I2C related functions for PYNQ Microblaze, 
- * including the IIC read and write.
+ * Implementing UART related functions for PYNQ Microblaze, 
+ * including the UART read and write.
  *
  *
  * <pre>
@@ -43,56 +43,50 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
- * 1.00  yrq 01/09/18 release
- * 1.01  yrq 01/30/18 add protection macro
+ * 1.00  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
  *****************************************************************************/
 #include <xparameters.h>
-#include "i2c.h"
+#include "uart.h"
 
-#ifdef XPAR_XIIC_NUM_INSTANCES
+#ifdef XPAR_XUART_NUM_INSTANCES
 /************************** Function Definitions ***************************/
-int i2c_open_device(unsigned int device){
+int uart_open_device(unsigned int device){
+    int status;
     u16 dev_id;
     int i;
-
+    
     dev_id = (u16)device;
-    for (i=0; i<(signed)XPAR_XIIC_NUM_INSTANCES; i++){
-        if (device == i2c_base_address[i]){
+    for (i=0; i<(signed)XPAR_XUART_NUM_INSTANCES; i++){
+        if (device == uart_base_address[i]){
             dev_id = (u16)i;
             break;
         }
     }
-    i2c_fd[dev_id] = (int)dev_id;
+
+    status = XUartLite_Initialize(&uart_ctrl[dev_id], dev_id);
+    if (status != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    uart_fd[dev_id] = (int)dev_id;
     return (int)dev_id;
 }
 
 
-void i2c_configure(int i2c, unsigned int dev_addr){
-    i2c_dev_address[i2c] = dev_addr;
+void uart_read(int uart, char* read_data, unsigned int length){
+    XUartLite_Send(&uart_ctrl[uart], read_data, length);
 }
 
 
-void i2c_read(int i2c, unsigned char* buffer, unsigned int length){
-    unsigned int base_address, dev_address;
-    base_address = i2c_base_address[i2c];
-    dev_address = i2c_dev_address[i2c];
-    XIic_Recv(base_address, dev_address, buffer, length, XIIC_STOP);
+void uart_write(int uart, const char* write_data, unsigned int length){
+    XUartLite_Send(&uart_ctrl[uart], write_data, length);
 }
 
 
-void i2c_write(int i2c, unsigned char* buffer, unsigned int length){
-    unsigned int base_address, dev_address;
-    base_address = i2c_base_address[i2c];
-    dev_address = i2c_dev_address[i2c];
-    XIic_Send(base_address, dev_address, buffer, length, XIIC_STOP);
-}
-
-
-void i2c_close(int i2c){
-    i2c_fd[i2c] = -1;
+void uart_close(int uart){
+    uart_fd[uart] = -1;
 }
 
 

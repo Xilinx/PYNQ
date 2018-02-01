@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
@@ -51,13 +52,58 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+#include <xparameters.h>
+#ifdef XPAR_XTMRCTR_NUM_INSTANCES
 #include "xtmrctr.h"
+
+// TCSR0 Timer 0 Control and Status Register
+#define TCSR0 0x00
+// TLR0 Timer 0 Load Register
+#define TLR0 0x04
+// TCR0 Timer 0 Counter Register
+#define TCR0 0x08
+// TCSR1 Timer 1 Control and Status Register
+#define TCSR1 0x10
+// TLR1 Timer 1 Load Register
+#define TLR1 0x14
+// TCR1 Timer 1 Counter Register
+#define TCR1 0x18
+// Default period value for 100000 us
+#define MS1_VALUE 99998
+// Default period value for 50% duty cycle
+#define MS2_VALUE 49998
 
 /* 
  * Timer API
  */
-void delay_us(u32 usdelay, XTmrCtr *TmrInstancePtr);
-void delay_ms(u32 msdelay, XTmrCtr *TmrInstancePtr);
-int tmrctr_init(u16 DeviceID, XTmrCtr *TmrInstancePtr);
+static XTmrCtr timer_ctrl[XPAR_XTMRCTR_NUM_INSTANCES];
+static int timer_fd[XPAR_XTMRCTR_NUM_INSTANCES];
+
+const unsigned int timer_base_address[XPAR_XTMRCTR_NUM_INSTANCES] = {
+#ifdef XPAR_TMRCTR_0_BASEADDR
+    XPAR_TMRCTR_0_BASEADDR,
+#endif
+#ifdef XPAR_TMRCTR_1_BASEADDR
+    XPAR_TMRCTR_1_BASEADDR,
+#endif
+};
+
+
+int timer_open_device(unsigned int device);
+void timer_delay(int timer, unsigned int cycles);
+void timer_close(int timer);
+void timer_pwm_generate(int timer, unsigned int period, unsigned int pulse);
+void timer_pwm_stop(int timer);
+
+#endif
+
+
+unsigned int timer_get_num_devices(void){
+#ifdef XPAR_XTMRCTR_NUM_INSTANCES
+    return XPAR_XTMRCTR_NUM_INSTANCES;
+#else
+    return 0;
+#endif
+}
 
 #endif  // _TIMER_H_

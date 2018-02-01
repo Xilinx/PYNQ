@@ -32,10 +32,10 @@
 /******************************************************************************
  *
  *
- * @file timer.c
+ * @file gpio.c
  *
- * Implementing timer related functions for PYNQ Microblaze, 
- * including the delay functions.
+ * Implementing GPIO related functions for PYNQ Microblaze, 
+ * including the GPIO read and write.
  *
  *
  * <pre>
@@ -43,91 +43,99 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
- * 1.00  yrq 01/09/18 release
- * 1.01  yrq 01/30/18 add protection macro
+ * 1.00  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
  *****************************************************************************/
 #include <xparameters.h>
-#include "timer.h"
+#include "gpio.h"
 
-#ifdef XPAR_XTMRCTR_NUM_INSTANCES
+#ifdef XPAR_XGPIO_NUM_INSTANCES
 /************************** Function Definitions ***************************/
-int timer_open_device(unsigned int device) {
+int gpio_open_device(unsigned int device){
     int status;
     u16 dev_id;
     int i;
-    unsigned int base_address;
 
     dev_id = (u16)device;
-    for (i=0; i<(signed)XPAR_XTMRCTR_NUM_INSTANCES; i++){
-        if (device == timer_base_address[i]){
+    for (i=0; i<(signed)XPAR_XGPIO_NUM_INSTANCES; i++){
+        if (device == gpio_base_address[i]){
             dev_id = (u16)i;
-            base_address = timer_base_address[i];
             break;
         }
     }
-    base_address = timer_base_address[dev_id];
 
-    status = XTmrCtr_Initialize(&timer_ctrl[dev_id], dev_id);
+    status = XGpio_Initialize(&gpio_ctrl[dev_id], dev_id);
     if (status != XST_SUCCESS) {
         return XST_FAILURE;
     }
-    XTmrCtr_SetOptions(&timer_ctrl[dev_id], 1,
-        XTC_AUTO_RELOAD_OPTION | XTC_CSR_LOAD_MASK | XTC_CSR_DOWN_COUNT_MASK);
 
-    // Load timer's Load registers (period, high time)
-    XTmrCtr_WriteReg(base_address, 0, TLR0, MS1_VALUE);
-    XTmrCtr_WriteReg(base_address, 1, TLR0, MS2_VALUE);
-    /*
-     * 0010 1011 0110 =>  no cascade, no all timers, enable pwm, 
-     *                    interrupt status, enable timer,
-     *                    no interrupt, no load timer, reload, 
-     *                    no capture, enable external generate, 
-     *                    down counter, generate mode
-     */
-    XTmrCtr_WriteReg(base_address, 0, TCSR0, 0x296);
-    XTmrCtr_WriteReg(base_address, 1, TCSR0, 0x296);
-
-    timer_fd[dev_id] = (int)dev_id;
+    gpio_dev[dev_id].gpio_fd = dev_id;
+    gpio_dev[dev_id].gpio_slice.low = GPIO_INDEX_MIN;
+    gpio_dev[dev_id].gpio_slice.high = GPIO_INDEX_MAX;
+    gpio_dev[dev_id].gpio_slice.channel = 1;
     return (int)dev_id;
 }
 
 
-void timer_delay(int timer, unsigned int cycles){
-    XTmrCtr_SetResetValue(&timer_ctrl[timer], 1, cycles);
-    XTmrCtr_Start(&timer_ctrl[timer], 1);
-    while(!XTmrCtr_IsExpired(&timer_ctrl[timer],1));
-    XTmrCtr_Stop(&timer_ctrl[timer], 1);
+void gpio_configure(int gpio, unsigned int low, unsigned int high, 
+                   unsigned int channel){
+    gpio_dev[gpio].gpio_slice.low = low;
+    gpio_dev[gpio].gpio_slice.high = high;
+    gpio_dev[gpio].gpio_slice.channel = channel;
 }
 
 
-void timer_close(int timer){
-    XTmrCtr_Stop(&timer_ctrl[timer], 0);
-    XTmrCtr_Stop(&timer_ctrl[timer], 1);
-    timer_fd[timer] = -1;
+void gpio_set_direction(int gpio, unsigned int direction){
+    unsigned int channel;
+    channel = gpio_dev[gpio].gpio_slice.channel;
+    XGpio_SetDataDirection(&gpio_ctrl[gpio], channel, direction);
 }
 
 
-void timer_pwm_generate(int timer, unsigned int period, unsigned int pulse){
-    unsigned int base_address;
-    base_address = timer_base_address[timer];
-    XTmrCtr_WriteReg(base_address, 0, TCSR0, 0x296);
-    XTmrCtr_WriteReg(base_address, 1, TCSR0, 0x296);
-    // period in number of clock cycles
-    XTmrCtr_WriteReg(base_address, 0, TLR0, period);
-    // pulse in number of clock cycles
-    XTmrCtr_WriteReg(base_address, 1, TLR0, pulse);
+void gpio_set_slice_direction(int gpio, unsigned int direction){
+    unsigned int mask, low, high, channel, direction_mask;
+    low = gpio_dev[gpio].gpio_slice.low;
+    high = gpio_dev[gpio].gpio_slice.high;
+    channel = gpio_dev[gpio].gpio_slice.channel;
+    mask = (0x1 << (high + 1)) - (0x1 << low);
+    direction_mask = XGpio_GetDataDirection(&gpio_ctrl[gpio], channel);
+    
+    if (direction){
+        // GPIO selected as input
+        direction_mask |= mask;
+    }else{
+        // GPIO selected as output
+        direction_mask &= ~mask;
+    }
+    XGpio_SetDataDirection(&gpio_ctrl[gpio], channel, direction_mask);
 }
 
 
-void timer_pwm_stop(int timer){
-    unsigned int base_address;
-    base_address = timer_base_address[timer];
-    XTmrCtr_WriteReg(base_address, 0, TCSR0, 0);
-    // disable timer 1
-    XTmrCtr_WriteReg(base_address, 1, TCSR0, 0);
+int gpio_read(int gpio){
+    unsigned int read_value, channel;
+    channel = gpio_dev[gpio].gpio_slice.channel;
+    read_value = XGpio_DiscreteRead(&gpio_ctrl[gpio], channel);
+    return (read_value>>gpio) & 0x1;
+}
+
+
+void gpio_write(int gpio, unsigned int data){
+    unsigned int write_value, channel;
+    channel = gpio_dev[gpio].gpio_slice.channel;
+    write_value = XGpio_DiscreteRead(&gpio_ctrl[gpio], channel);
+    if (data==0){
+        write_value &= (~(0x1<<gpio));
+    }else{
+        write_value |= (0x1<<gpio);
+    }
+    XGpio_DiscreteWrite(&gpio_ctrl[gpio], channel, write_value);
+}
+
+
+void gpio_close(int gpio){
+    gpio_dev[gpio].gpio_fd = -1;
 }
 
 

@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
@@ -51,12 +52,42 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 
+#include <xparameters.h>
+#ifdef XPAR_XIIC_NUM_INSTANCES
 #include "xiic.h"
 
 /* 
  * IIC API
  */
-int iic_read(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes); 
-int iic_write(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes);
+static int i2c_fd[XPAR_XIIC_NUM_INSTANCES];
+static unsigned int i2c_dev_address[XPAR_XIIC_NUM_INSTANCES];
+
+const unsigned int i2c_base_address[XPAR_XIIC_NUM_INSTANCES] = {
+#ifdef XPAR_IIC_0_BASEADDR
+    XPAR_IIC_0_BASEADDR,
+#endif
+#ifdef XPAR_IIC_1_BASEADDR
+    XPAR_IIC_1_BASEADDR,
+#endif
+};
+
+
+int i2c_open_device(unsigned int device);
+void i2c_configure(int i2c, unsigned int dev_addr);
+void i2c_read(int i2c, unsigned char* buffer, unsigned int length);
+void i2c_write(int i2c, unsigned char* buffer, unsigned int length);
+void i2c_close(int i2c);
+
+#endif
+
+
+unsigned int i2c_get_num_devices(void){
+#ifdef XPAR_XIIC_NUM_INSTANCES
+    return XPAR_XIIC_NUM_INSTANCES;
+#else
+    return 0;
+#endif
+}
+
 
 #endif  // _I2C_H_

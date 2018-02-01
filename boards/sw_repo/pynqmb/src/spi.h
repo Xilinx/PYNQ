@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
@@ -51,15 +52,43 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
+#include <xparameters.h>
+#ifdef XPAR_XSPI_NUM_INSTANCES
 #include "xspi_l.h"
-#include "xtmrctr.h"
 
 /*
  * SPI API
  */
-void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity);
-void spi_transfer(u32 BaseAddress, int bytecount,
-                  u8* readBuffer, u8* writeBuffer, 
-                  XTmrCtr* TmrInstancePtr);
+static int spi_fd[XPAR_XSPI_NUM_INSTANCES];
+static unsigned int spi_clk_phase[XPAR_XSPI_NUM_INSTANCES];
+static unsigned int spi_clk_polarity[XPAR_XSPI_NUM_INSTANCES];
+
+const unsigned int spi_base_address[XPAR_XSPI_NUM_INSTANCES] = {
+#ifdef XPAR_SPI_0_BASEADDR
+    XPAR_SPI_0_BASEADDR,
+#endif
+#ifdef XPAR_SPI_1_BASEADDR
+    XPAR_SPI_1_BASEADDR,
+#endif
+};
+
+
+int spi_open_device(unsigned int device);
+void spi_configure(int spi, unsigned int clk_phase, unsigned int clk_polarity);
+void spi_transfer(int spi, const char* write_data, char* read_data, 
+                  unsigned int length);
+void spi_close(int spi);
+
+#endif
+
+
+unsigned int spi_get_num_devices(void){
+#ifdef XPAR_XSPI_NUM_INSTANCES
+    return XPAR_XSPI_NUM_INSTANCES;
+#else
+    return 0;
+#endif
+}
+
 
 #endif  // _SPI_H_

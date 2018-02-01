@@ -44,59 +44,112 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
  *****************************************************************************/
+#include <xparameters.h>
 #include "spi.h"
 
+#ifdef XPAR_XSPI_NUM_INSTANCES
 /************************** Function Definitions ***************************/
-void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity){
-    u32 Control;
+int spi_open_device(unsigned int device){
+    u32 control;
+    u16 dev_id;
+    int i;
+    unsigned int base_address;
+    
+    dev_id = (u16)device;
+    for (i=0; i<(signed)XPAR_XSPI_NUM_INSTANCES; i++){
+        if (device == spi_base_address[i]){
+            dev_id = (u16)i;
+            break;
+        }
+    }
+    base_address = spi_base_address[dev_id];
 
     // Soft reset SPI
-    XSpi_WriteReg(BaseAddress, XSP_SRR_OFFSET, 0xA);
+    XSpi_WriteReg(base_address, XSP_SRR_OFFSET, 0xA);
     // Master mode
-    Control = XSpi_ReadReg(BaseAddress, XSP_CR_OFFSET);
+    control = XSpi_ReadReg(base_address, XSP_CR_OFFSET);
     // Master Mode
-    Control |= XSP_CR_MASTER_MODE_MASK;
+    control |= XSP_CR_MASTER_MODE_MASK;
     // Enable SPI
-    Control |= XSP_CR_ENABLE_MASK;
+    control |= XSP_CR_ENABLE_MASK;
     // Slave select manually
-    Control |= XSP_INTR_SLAVE_MODE_MASK;
+    control |= XSP_INTR_SLAVE_MODE_MASK;
     // Enable Transmitter
-    Control &= ~XSP_CR_TRANS_INHIBIT_MASK;
+    control &= ~XSP_CR_TRANS_INHIBIT_MASK;
+    // Write configuration word
+    XSpi_WriteReg(base_address, XSP_CR_OFFSET, control);
+
+    spi_clk_phase[dev_id] = 0;
+    spi_clk_polarity[dev_id] = 0;
+    spi_fd[dev_id] = (int)dev_id;
+    return (int)dev_id;
+}
+
+
+void spi_configure(int spi, unsigned int clk_phase, unsigned int clk_polarity){
+    u32 control;
+    unsigned int base_address;
+    base_address = spi_base_address[spi];
+
+    // Soft reset SPI
+    XSpi_WriteReg(base_address, XSP_SRR_OFFSET, 0xA);
+    // Master mode
+    control = XSpi_ReadReg(base_address, XSP_CR_OFFSET);
+    // Master Mode
+    control |= XSP_CR_MASTER_MODE_MASK;
+    // Enable SPI
+    control |= XSP_CR_ENABLE_MASK;
+    // Slave select manually
+    control |= XSP_INTR_SLAVE_MODE_MASK;
+    // Enable Transmitter
+    control &= ~XSP_CR_TRANS_INHIBIT_MASK;
     // XSP_CR_CLK_PHASE_MASK
-    if(clk_phase)
-        Control |= XSP_CR_CLK_PHASE_MASK;
+    if(clk_phase){
+        control |= XSP_CR_CLK_PHASE_MASK;
+    }
     // XSP_CR_CLK_POLARITY_MASK
-    if(clk_polarity)
-        Control |= XSP_CR_CLK_POLARITY_MASK;
-    XSpi_WriteReg(BaseAddress, XSP_CR_OFFSET, Control);
+    if(clk_polarity){
+        control |= XSP_CR_CLK_POLARITY_MASK;
+    }
+    // Write configuration word
+    XSpi_WriteReg(base_address, XSP_CR_OFFSET, control);
+    // Update clock phase and polarity
+    spi_clk_phase[spi] = clk_phase;
+    spi_clk_polarity[spi] = clk_polarity;
 }
 
-void spi_transfer(u32 BaseAddress, int bytecount,
-                  u8* readBuffer, u8* writeBuffer, 
-                  XTmrCtr* TmrInstancePtr) {
-    int i;
 
-    XSpi_WriteReg(BaseAddress, XSP_SSR_OFFSET, 0xfe);
-    for (i=0; i<bytecount; i++){
-        XSpi_WriteReg(BaseAddress, XSP_DTR_OFFSET, writeBuffer[i]);
-    }
-    while(((XSpi_ReadReg(BaseAddress, XSP_SR_OFFSET) & 0x04)) != 0x04);
-    // delay for about 100 ns
-    XTmrCtr_SetResetValue(TmrInstancePtr, 1, 10);
-    // Start the timer5
-    XTmrCtr_Start(TmrInstancePtr, 1);
-    // Wait for the delay to lapse
-    while(!XTmrCtr_IsExpired(TmrInstancePtr, 1));
-    // Stop the timer5
-    XTmrCtr_Stop(TmrInstancePtr, 1);
+void spi_transfer(int spi, const char* write_data, char* read_data, 
+                  unsigned int length){
+    unsigned int i;
+    unsigned volatile char j;
+    unsigned int base_address;
+    base_address = spi_base_address[spi];
 
-    // Read SPI
-    for(i=0;i< bytecount; i++){
-       readBuffer[i] = XSpi_ReadReg(BaseAddress, XSP_DRR_OFFSET);
+    XSpi_WriteReg(base_address, XSP_SSR_OFFSET, 0xfe);
+    for (i=0; i<length; i++){
+        XSpi_WriteReg(base_address, XSP_DTR_OFFSET, write_data[i]);
     }
-    XSpi_WriteReg(BaseAddress, XSP_SSR_OFFSET, 0xff);
+    while(((XSpi_ReadReg(base_address, XSP_SR_OFFSET) & 0x04)) != 0x04);
+
+    // delay for 10 clock cycles
+    j = 10;
+    while(j--);
+
+    for(i=0; i<length; i++){
+       read_data[i] = XSpi_ReadReg(base_address, XSP_DRR_OFFSET);
+    }
+    XSpi_WriteReg(base_address, XSP_SSR_OFFSET, 0xff);
 }
+
+
+void spi_close(int spi){
+    spi_fd[spi] = -1;
+}
+
+#endif
