@@ -25,14 +25,37 @@ void pyprintf(const char* format, ...) {
         if (in_special) {
             switch (*format) {
             case 'd':
+            case 'o':
+            case 'u':
+            case 'x':
+            case 'X':
             {
                 int val = va_arg(args, int);
                 complete_write(3, &val, sizeof(val));
             }
                 break;
             case 'f':
+            case 'F':
+            case 'g':
+            case 'G':
+            case 'e':
+            case 'E':
             {
                 float val = (double)va_arg(args, double);
+                complete_write(3, &val, sizeof(val));
+            }
+                break;
+            case 's':
+            {
+                char* str = (char*)va_arg(args, char*);
+                short len = strlen(str);
+                complete_write(3, &len, sizeof(len));
+                complete_write(3, str, len);
+            }
+                break;
+            case 'c':
+            {
+                char val = (char)va_arg(args, int);
                 complete_write(3, &val, sizeof(val));
             }
                 break;

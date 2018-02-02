@@ -572,10 +572,14 @@ def _pyprintf(stream):
     args = []
     for i in range(len(format_string)):
         if in_special:
-            if format_string[i:i+1] == b'd':
+            if format_string[i:i+1] in [b'd', b'x', b'X', b'o', b'u']:
                 args.append(stream.read_int32())
-            elif format_string[i:i+1] == b'f':
+            elif format_string[i:i+1] in [b'f', b'F', b'g', b'G', b'e', b'E']:
                 args.append(stream.read_float())
+            elif format_string[i:i+1] == b's':
+                args.append(stream.read_string().decode())
+            elif format_string[i:i+1] == b'c':
+                args.append(stream.read_byte())
             in_special = False
         elif format_string[i:i+1] == b'%':
             in_special = True
