@@ -53,40 +53,42 @@
 
 #ifdef XPAR_XUART_NUM_INSTANCES
 /************************** Function Definitions ***************************/
-int uart_open_device(unsigned int device){
+uart uart_open_device(unsigned int device){
     int status;
     u16 dev_id;
-    int i;
     
     dev_id = (u16)device;
-    for (i=0; i<(signed)XPAR_XUART_NUM_INSTANCES; i++){
-        if (device == uart_base_address[i]){
-            dev_id = (u16)i;
-            break;
-        }
+#ifdef XPAR_UART_0_BASEADDR
+    if (device == XPAR_UART_0_BASEADDR){
+        dev_id = 0;
     }
+#endif
+#ifdef XPAR_UART_1_BASEADDR
+    if (device == XPAR_UART_1_BASEADDR){
+        dev_id = 1;
+    }
+#endif
 
-    status = XUartLite_Initialize(&uart_ctrl[dev_id], dev_id);
+    status = XUartLite_Initialize(&xuart[dev_id], dev_id);
     if (status != XST_SUCCESS) {
-        return XST_FAILURE;
+        return -1;
     }
-    uart_fd[dev_id] = (int)dev_id;
-    return (int)dev_id;
+    return (uart)dev_id;
 }
 
 
-void uart_read(int uart, char* read_data, unsigned int length){
-    XUartLite_Send(&uart_ctrl[uart], read_data, length);
+void uart_read(uart dev_id, char* read_data, unsigned int length){
+    XUartLite_Recv(&xuart[dev_id], read_data, length);
 }
 
 
-void uart_write(int uart, const char* write_data, unsigned int length){
-    XUartLite_Send(&uart_ctrl[uart], write_data, length);
+void uart_write(uart dev_id, char* write_data, unsigned int length){
+    XUartLite_Send(&xuart[dev_id], write_data, length);
 }
 
 
-void uart_close(int uart){
-    uart_fd[uart] = -1;
+void uart_close(uart dev_id){
+    XUartLite_ClearStats(&xuart[dev_id]);
 }
 
 

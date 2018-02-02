@@ -59,22 +59,13 @@
 /* 
  * UART API
  */
-XUartLite uart_ctrl[XPAR_XUART_NUM_INSTANCES];
-static int uart_fd[XPAR_XUART_NUM_INSTANCES];
+typedef int uart;
+static XUartLite xuart[XPAR_XUART_NUM_INSTANCES];
 
-const unsigned int uart_base_address[XPAR_XUART_NUM_INSTANCES] = {
-#ifdef XPAR_UART_0_BASEADDR
-    XPAR_UART_0_BASEADDR,
-#endif
-#ifdef XPAR_UART_1_BASEADDR
-    XPAR_UART_1_BASEADDR,
-#endif
-};
-
-int uart_open_device(unsigned int device);
-void uart_read(int uart, char* read_data, unsigned int length);
-void uart_write(int uart, const char* write_data, unsigned int length);
-void uart_close(int uart);
+uart uart_open_device(unsigned int device);
+void uart_read(uart dev_id, char* read_data, unsigned int length);
+void uart_write(uart dev_id, char* write_data, unsigned int length);
+void uart_close(uart dev_id);
 
 #endif
 

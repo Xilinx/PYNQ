@@ -63,40 +63,32 @@ GPIO_INDEX_MIN = 0,
 GPIO_INDEX_MAX = 31,
 };
 
-/*
- * GPIO bit format:
- * 5:0 low bit - pin index between 0 - 63
- * 11:6 high bit - pin index between 0 - 63
- * 15:12 channel - channel 1 or channel 2
- */
-typedef union {
-    unsigned short gpio_fd;
-    struct {
-        unsigned short low : 6, high : 6, channel : 4;
-    } gpio_slice;
-} gpio_device;
-
 /* 
  * GPIO API
+ * Internal GPIO bit format:
+ * 0:0 valid bit
+ * 6:1 low bit
+ * 12:7 high bit
+ * 15:13 channel 1 or channel 2
+ * 31:16 device
  */
-static XGpio gpio_ctrl[XPAR_XGPIO_NUM_INSTANCES];
-static gpio_device gpio_dev[XPAR_XGPIO_NUM_INSTANCES];
+typedef int _gpio;
+typedef union {
+    int fd;
+    struct {
+        int valid: 1, low : 6, high : 6, channel : 3, device : 16;
+    } _gpio;
+} gpio;
 
-const unsigned int gpio_base_address[XPAR_XGPIO_NUM_INSTANCES] = {
-#ifdef XPAR_GPIO_0_BASEADDR
-    XPAR_GPIO_0_BASEADDR,
-#endif
-#ifdef XPAR_GPIO_1_BASEADDR
-    XPAR_GPIO_1_BASEADDR,
-#endif
-};
+static XGpio xgpio[XPAR_XGPIO_NUM_INSTANCES];
 
-
-int gpio_open_device(unsigned int device);
-void gpio_direct(int gpio, unsigned int direction);
-int gpio_read(int gpio);
-void gpio_write(int gpio, unsigned int data);
-void gpio_close(int gpio);
+gpio gpio_open_device(unsigned int device);
+gpio gpio_configure(gpio mod_id, unsigned int low, unsigned int high, 
+                    unsigned int channel);
+void gpio_set_direction(gpio mod_id, unsigned int direction);
+int gpio_read(gpio mod_id);
+void gpio_write(gpio mod_id, unsigned int data);
+void gpio_close(gpio mod_id);
 
 #endif
 

@@ -54,45 +54,46 @@
 
 #ifdef XPAR_XIIC_NUM_INSTANCES
 /************************** Function Definitions ***************************/
-int i2c_open_device(unsigned int device){
+i2c i2c_open_device(unsigned int device){
+    int status;
     u16 dev_id;
-    int i;
 
     dev_id = (u16)device;
-    for (i=0; i<(signed)XPAR_XIIC_NUM_INSTANCES; i++){
-        if (device == i2c_base_address[i]){
-            dev_id = (u16)i;
-            break;
-        }
+#ifdef XPAR_IIC_0_BASEADDR
+    if (device == XPAR_IIC_0_BASEADDR){
+        dev_id = 0;
     }
-    i2c_fd[dev_id] = (int)dev_id;
-    return (int)dev_id;
+#endif
+#ifdef XPAR_IIC_1_BASEADDR
+    if (device == XPAR_IIC_1_BASEADDR){
+        dev_id = 1;
+    }
+#endif
+
+    status = XIic_Initialize(&xi2c[dev_id], dev_id);
+    if (status != XST_SUCCESS) {
+        return -1;
+    }
+    return (i2c)dev_id;
 }
 
 
-void i2c_configure(int i2c, unsigned int dev_addr){
-    i2c_dev_address[i2c] = dev_addr;
+void i2c_read(i2c dev_id, unsigned int slave_address,
+              unsigned char* buffer, unsigned int length){
+    XIic_Recv(xi2c[dev_id].BaseAddress, 
+              slave_address, buffer, length, XIIC_STOP);
 }
 
 
-void i2c_read(int i2c, unsigned char* buffer, unsigned int length){
-    unsigned int base_address, dev_address;
-    base_address = i2c_base_address[i2c];
-    dev_address = i2c_dev_address[i2c];
-    XIic_Recv(base_address, dev_address, buffer, length, XIIC_STOP);
+void i2c_write(i2c dev_id, unsigned int slave_address,
+               unsigned char* buffer, unsigned int length){
+    XIic_Send(xi2c[dev_id].BaseAddress, 
+              slave_address, buffer, length, XIIC_STOP);
 }
 
 
-void i2c_write(int i2c, unsigned char* buffer, unsigned int length){
-    unsigned int base_address, dev_address;
-    base_address = i2c_base_address[i2c];
-    dev_address = i2c_dev_address[i2c];
-    XIic_Send(base_address, dev_address, buffer, length, XIIC_STOP);
-}
-
-
-void i2c_close(int i2c){
-    i2c_fd[i2c] = -1;
+void i2c_close(i2c dev_id){
+    XIic_ClearStats(&xi2c[dev_id]);
 }
 
 

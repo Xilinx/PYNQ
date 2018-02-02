@@ -76,24 +76,14 @@
 /* 
  * Timer API
  */
-static XTmrCtr timer_ctrl[XPAR_XTMRCTR_NUM_INSTANCES];
-static int timer_fd[XPAR_XTMRCTR_NUM_INSTANCES];
+typedef int timer;
+static XTmrCtr xtimer[XPAR_XTMRCTR_NUM_INSTANCES];
 
-const unsigned int timer_base_address[XPAR_XTMRCTR_NUM_INSTANCES] = {
-#ifdef XPAR_TMRCTR_0_BASEADDR
-    XPAR_TMRCTR_0_BASEADDR,
-#endif
-#ifdef XPAR_TMRCTR_1_BASEADDR
-    XPAR_TMRCTR_1_BASEADDR,
-#endif
-};
-
-
-int timer_open_device(unsigned int device);
-void timer_delay(int timer, unsigned int cycles);
-void timer_close(int timer);
-void timer_pwm_generate(int timer, unsigned int period, unsigned int pulse);
-void timer_pwm_stop(int timer);
+timer timer_open_device(unsigned int device);
+void timer_delay(timer dev_id, unsigned int cycles);
+void timer_close(timer dev_id);
+void timer_pwm_generate(timer dev_id, unsigned int period, unsigned int pulse);
+void timer_pwm_stop(timer dev_id);
 
 #endif
 

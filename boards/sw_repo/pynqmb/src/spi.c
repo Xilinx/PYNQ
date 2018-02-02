@@ -54,21 +54,29 @@
 
 #ifdef XPAR_XSPI_NUM_INSTANCES
 /************************** Function Definitions ***************************/
-int spi_open_device(unsigned int device){
-    u32 control;
+spi spi_open_device(unsigned int device){
+    int status;
     u16 dev_id;
-    int i;
     unsigned int base_address;
+    u32 control;
     
     dev_id = (u16)device;
-    for (i=0; i<(signed)XPAR_XSPI_NUM_INSTANCES; i++){
-        if (device == spi_base_address[i]){
-            dev_id = (u16)i;
-            break;
-        }
+#ifdef XPAR_SPI_0_BASEADDR
+    if (device == XPAR_SPI_0_BASEADDR){
+        dev_id = 0;
     }
-    base_address = spi_base_address[dev_id];
+#endif
+#ifdef XPAR_SPI_1_BASEADDR
+    if (device == XPAR_SPI_1_BASEADDR){
+        dev_id = 1;
+    }
+#endif
 
+    status = XSpi_Initialize(&xspi[dev_id], dev_id);
+    if (status != XST_SUCCESS) {
+        return -1;
+    }
+    base_address = xspi[dev_id].BaseAddr;
     // Soft reset SPI
     XSpi_WriteReg(base_address, XSP_SRR_OFFSET, 0xA);
     // Master mode
@@ -84,18 +92,14 @@ int spi_open_device(unsigned int device){
     // Write configuration word
     XSpi_WriteReg(base_address, XSP_CR_OFFSET, control);
 
-    spi_clk_phase[dev_id] = 0;
-    spi_clk_polarity[dev_id] = 0;
-    spi_fd[dev_id] = (int)dev_id;
-    return (int)dev_id;
+    return (spi)dev_id;
 }
 
 
-void spi_configure(int spi, unsigned int clk_phase, unsigned int clk_polarity){
+spi spi_configure(spi dev_id, unsigned int clk_phase, 
+                   unsigned int clk_polarity){
     u32 control;
-    unsigned int base_address;
-    base_address = spi_base_address[spi];
-
+    unsigned int base_address = xspi[dev_id].BaseAddr;
     // Soft reset SPI
     XSpi_WriteReg(base_address, XSP_SRR_OFFSET, 0xA);
     // Master mode
@@ -118,18 +122,15 @@ void spi_configure(int spi, unsigned int clk_phase, unsigned int clk_polarity){
     }
     // Write configuration word
     XSpi_WriteReg(base_address, XSP_CR_OFFSET, control);
-    // Update clock phase and polarity
-    spi_clk_phase[spi] = clk_phase;
-    spi_clk_polarity[spi] = clk_polarity;
+    return dev_id;
 }
 
 
-void spi_transfer(int spi, const char* write_data, char* read_data, 
+void spi_transfer(spi dev_id, const char* write_data, char* read_data, 
                   unsigned int length){
     unsigned int i;
     unsigned volatile char j;
-    unsigned int base_address;
-    base_address = spi_base_address[spi];
+    unsigned int base_address = xspi[dev_id].BaseAddr;
 
     XSpi_WriteReg(base_address, XSP_SSR_OFFSET, 0xfe);
     for (i=0; i<length; i++){
@@ -148,8 +149,8 @@ void spi_transfer(int spi, const char* write_data, char* read_data,
 }
 
 
-void spi_close(int spi){
-    spi_fd[spi] = -1;
+void spi_close(spi dev_id){
+    XSpi_ClearStats(&xspi[dev_id]);
 }
 
 #endif

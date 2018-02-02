@@ -59,24 +59,16 @@
 /* 
  * IIC API
  */
-static int i2c_fd[XPAR_XIIC_NUM_INSTANCES];
-static unsigned int i2c_dev_address[XPAR_XIIC_NUM_INSTANCES];
-
-const unsigned int i2c_base_address[XPAR_XIIC_NUM_INSTANCES] = {
-#ifdef XPAR_IIC_0_BASEADDR
-    XPAR_IIC_0_BASEADDR,
-#endif
-#ifdef XPAR_IIC_1_BASEADDR
-    XPAR_IIC_1_BASEADDR,
-#endif
-};
+typedef int i2c;
+static XIic xi2c[XPAR_XIIC_NUM_INSTANCES];
 
 
-int i2c_open_device(unsigned int device);
-void i2c_configure(int i2c, unsigned int dev_addr);
-void i2c_read(int i2c, unsigned char* buffer, unsigned int length);
-void i2c_write(int i2c, unsigned char* buffer, unsigned int length);
-void i2c_close(int i2c);
+i2c i2c_open_device(unsigned int device);
+void i2c_read(i2c dev_id, unsigned int slave_address,
+              unsigned char* buffer, unsigned int length);
+void i2c_write(i2c dev_id, unsigned int slave_address,
+               unsigned char* buffer, unsigned int length);
+void i2c_close(i2c dev_id);
 
 #endif
 
