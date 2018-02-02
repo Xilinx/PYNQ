@@ -61,7 +61,7 @@ def check_pins(fsm_spec, key, intf_spec):
 
     """
     for i in fsm_spec[key]:
-        if i[1] not in intf_spec['traceable_outputs']:
+        if i[1] not in intf_spec['traceable_io_pins']:
             raise ValueError("{} not in output pin map - "
                              "please check fsm_spec.".format(i[1]))
 
@@ -520,7 +520,7 @@ class FSMGenerator:
             for bit in range(self.num_state_bits):
                 output_bit_name = 'state_bit' + str(bit)
                 found_pin = False
-                for pin in self.intf_spec['traceable_outputs']:
+                for pin in self.intf_spec['traceable_io_pins']:
                     if pin not in total_pins_used:
                         state_pins = [(output_bit_name, pin)] + state_pins
                         total_pins_used.append(pin)
@@ -745,7 +745,7 @@ class FSMGenerator:
         for i in range(shared_input_bits):
             config_shared_pins = \
                 ((config_shared_pins << 8) +
-                 (0x80 + self.intf_spec['traceable_outputs'][
+                 (0x80 + self.intf_spec['traceable_io_pins'][
                      self.input_pins[i - shared_input_bits]])) & 0xffffffff
         for _ in range(5, index_offset):
             config_shared_pins = \
@@ -759,7 +759,7 @@ class FSMGenerator:
             for i in range(dedicated_input_bits):
                 config_input_pins = \
                     ((config_input_pins << 8) +
-                     (0x80 + self.intf_spec['traceable_outputs'][
+                     (0x80 + self.intf_spec['traceable_io_pins'][
                          self.input_pins[i]])) & 0xffffffff
         config.append(config_input_pins)
 
@@ -771,7 +771,7 @@ class FSMGenerator:
             for i in range(3, -1, -1):
                 config_output_pins = \
                     ((config_output_pins << 8) +
-                     self.intf_spec['traceable_outputs'][
+                     self.intf_spec['traceable_io_pins'][
                          self.output_pins[i + assigned_output_pins]]) & \
                     0xffffffff
             assigned_output_pins += 4
@@ -783,7 +783,7 @@ class FSMGenerator:
                 for i in range(remaining_pins - 1, -1, -1):
                     config_output_pins = \
                         ((config_output_pins << 8) +
-                         self.intf_spec['traceable_outputs'][
+                         self.intf_spec['traceable_io_pins'][
                              self.output_pins[i + assigned_output_pins]]) & \
                         0xffffffff
                 assigned_output_pins += remaining_pins
@@ -793,7 +793,7 @@ class FSMGenerator:
         direction_mask = 0xfffff
         for pin in range(20):
             for pin_label in self.output_pins:
-                if self.intf_spec['traceable_outputs'][pin_label] == pin:
+                if self.intf_spec['traceable_io_pins'][pin_label] == pin:
                     direction_mask &= (~(1 << pin))
         config.append(direction_mask)
 
@@ -877,9 +877,9 @@ class FSMGenerator:
 
         """
         # Gather which pins are being used
-        ioswitch_pins = [self.intf_spec['traceable_outputs'][ins[1]]
+        ioswitch_pins = [self.intf_spec['traceable_io_pins'][ins[1]]
                          for ins in self.fsm_spec['inputs']]
-        ioswitch_pins.extend([self.intf_spec['traceable_outputs'][outs[1]]
+        ioswitch_pins.extend([self.intf_spec['traceable_io_pins'][outs[1]]
                               for outs in self.fsm_spec['outputs']])
 
         # Send list to Microblaze processor for handling
@@ -894,9 +894,9 @@ class FSMGenerator:
 
         """
         # Gather which pins are being used
-        ioswitch_pins = [self.intf_spec['traceable_outputs'][ins[1]]
+        ioswitch_pins = [self.intf_spec['traceable_io_pins'][ins[1]]
                          for ins in self.fsm_spec['inputs']]
-        ioswitch_pins.extend([self.intf_spec['traceable_outputs'][outs[1]]
+        ioswitch_pins.extend([self.intf_spec['traceable_io_pins'][outs[1]]
                               for outs in self.fsm_spec['outputs']])
 
         # Send list to Microblaze processor for handling

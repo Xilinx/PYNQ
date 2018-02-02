@@ -225,7 +225,7 @@ class PatternGenerator:
         pins with the specified number of samples.
 
         Each bit of the 20-bit patterns, from LSB to MSB, corresponds to:
-        D0, D1, ..., D19, A0, A1, ..., A5, respectively.
+        D0, D1, ..., D13, A0, A1, ..., A5, respectively.
 
         Note the all the lanes should have the same number of samples. And the
         token inside wave are already converted into bit string.
@@ -304,7 +304,7 @@ class PatternGenerator:
             data = self.stimulus_waves[:]
             for index, wave in enumerate(data):
                 pin_number = self.intf_spec[
-                    'traceable_outputs'][self.stimulus_pins[index]]
+                    'traceable_io_pins'][self.stimulus_pins[index]]
                 direction_mask &= (~(1 << pin_number))
                 temp_lanes[pin_number] = data[index] = bitstring_to_int(
                     wave_to_bitstring(wave))
@@ -315,20 +315,26 @@ class PatternGenerator:
         # Allocate the source buffer
         src_addr = self.logictools_controller.allocate_buffer(
             'src_buf', 1 + num_valid_samples, data_type="unsigned int")
+        tri_addr = self.logictools_controller.allocate_buffer(
+            'tri_buf', 1 + num_valid_samples, data_type="unsigned int")
 
         # Write samples into source buffer, including the 1st dummy sample
         if self.src_samples is not None:
             self.logictools_controller.buffers['src_buf'][0] = 0
+            self.logictools_controller.buffers['tri_buf'][0] = 0
             for index, data in enumerate(self.src_samples):
-                self.logictools_controller.buffers['src_buf'][index + 1] = data
+                self.logictools_controller.buffers[
+                    'src_buf'][index + 1] = data
+                self.logictools_controller.buffers[
+                    'tri_buf'][index + 1] = direction_mask
 
         # Wait for the Microblaze processor to return control
         if mode == 'multiple':
             self.logictools_controller.write_control(
-                [direction_mask, src_addr, 1 + num_valid_samples, 1])
+                [src_addr, 1 + num_valid_samples, 1, tri_addr])
         elif mode == 'single':
             self.logictools_controller.write_control(
-                [direction_mask, src_addr, 1 + num_valid_samples, 0])
+                [src_addr, 1 + num_valid_samples, 0, tri_addr])
         else:
             raise ValueError("Mode can only be single or multiple.")
         self.logictools_controller.write_command(CMD_CONFIG_PATTERN)
@@ -343,6 +349,7 @@ class PatternGenerator:
 
         # Free the DRAM pattern buffer - pattern now in BRAM
         self.logictools_controller.free_buffer('src_buf')
+        self.logictools_controller.free_buffer('tri_buf')
 
         # Update generator status
         self.logictools_controller.check_status()
@@ -394,7 +401,7 @@ class PatternGenerator:
         """
         # Gather which pins are being used
         pattern_pins = self.analysis_pins + self.stimulus_pins
-        ioswitch_pins = [self.intf_spec['traceable_outputs'][pin]
+        ioswitch_pins = [self.intf_spec['traceable_io_pins'][pin]
                          for pin in pattern_pins]
 
         # Send list to Microblaze processor for handling
@@ -410,7 +417,7 @@ class PatternGenerator:
         """
         # Gather which pins are being used
         pattern_pins = self.analysis_pins + self.stimulus_pins
-        ioswitch_pins = [self.intf_spec['traceable_outputs'][pin]
+        ioswitch_pins = [self.intf_spec['traceable_io_pins'][pin]
                          for pin in pattern_pins]
 
         # Send list to Microblaze processor for handling

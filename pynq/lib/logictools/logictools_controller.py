@@ -121,7 +121,8 @@ class LogicToolsController(PynqMicroblaze):
         return cls.__instance
 
     def __init__(self, mb_info,
-                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
+                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION',
+                 logictools_microblaze_bin=LOGICTOOLS_ARDUINO_BIN):
         """Initialize the created Microblaze object.
 
         This method leverages the initialization method of its parent. It 
@@ -134,6 +135,8 @@ class LogicToolsController(PynqMicroblaze):
             IP name and the reset name.
         intf_spec_name : str
             The name of the interface specification.
+        logictools_microblaze_bin : str
+            The name of the microblaze program to be loaded.
 
         Examples
         --------
@@ -145,10 +148,10 @@ class LogicToolsController(PynqMicroblaze):
         'intr_ack_name': 'mb_3_intr_ack'}
 
         """
-        if not os.path.isabs(LOGICTOOLS_MICROBLAZE_BIN):
-            mb_program = os.path.join(BIN_LOCATION, LOGICTOOLS_MICROBLAZE_BIN)
+        if not os.path.isabs(logictools_microblaze_bin):
+            mb_program = os.path.join(BIN_LOCATION, logictools_microblaze_bin)
         else:
-            mb_program = LOGICTOOLS_MICROBLAZE_BIN
+            mb_program = logictools_microblaze_bin
 
         if not self.__initialized:
             super().__init__(mb_info, mb_program)
@@ -160,8 +163,7 @@ class LogicToolsController(PynqMicroblaze):
                            for k in GENERATOR_ENGINE_DICT.keys()}
             self.intf_spec = eval(intf_spec_name)
             pin_list = list(
-                set(self.intf_spec['traceable_outputs'].keys()) |
-                set(self.intf_spec['traceable_inputs'].keys()) |
+                set(self.intf_spec['traceable_io_pins'].keys()) |
                 set(self.intf_spec['non_traceable_outputs'].keys()) |
                 set(self.intf_spec['non_traceable_inputs'].keys()))
             self.pin_map = {k: 'UNUSED' for k in pin_list}
