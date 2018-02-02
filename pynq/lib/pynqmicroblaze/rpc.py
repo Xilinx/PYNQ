@@ -4,6 +4,7 @@ import functools
 import itertools
 from pycparser import c_ast
 from pycparser import c_generator
+from pycparser.plyparser import ParseError
 from copy import deepcopy
 
 from .compile import preprocess
@@ -669,7 +670,10 @@ class MicroblazeRPC:
 
         """
         preprocessed = preprocess(program_text, mb_info=iop)
-        ast = _parser.parse(preprocessed, filename='program_text')
+        try:
+            ast = _parser.parse(preprocessed, filename='program_text')
+        except ParseError as e:
+            raise RuntimeError("Error parsing code\n" + str(e))
         visitor = FuncDefVisitor()
         visitor.visit(ast)
         main_text = _build_main(program_text, visitor.functions)
