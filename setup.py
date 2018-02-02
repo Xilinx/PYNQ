@@ -37,21 +37,43 @@ import subprocess
 import sys
 import os
 import site
-import stat
 import warnings
 from datetime import datetime
 
+
 # Board specific package delivery setup
+def exclude_from_files(exclude, path):
+    return [file for file in os.listdir(path)
+            if os.path.isfile(os.path.join(path, file))
+            and file != exclude]
+
+
+def exclude_from_dirs(exclude, path):
+    return [folder for folder in os.listdir(path)
+            if os.path.isdir(os.path.join(path, folder))
+            and folder != exclude]
+
+
+def collect_pynq_data_files():
+    return [(os.path.join(
+        '{}/pynq/overlays'.format(site.getsitepackages()[0]), ol),
+             [os.path.join(board_folder, ol, f)
+              for f in exclude_from_files(
+                 'makefile', os.path.join(board_folder, ol))])
+        for ol in exclude_from_dirs('notebooks', board_folder)]
+
+
 if 'BOARD' not in os.environ:
-    print("Please set the BOARD environment variable to get any BOARD specific overlays (e.g. Pynq-Z1).")
+    print("Please set the BOARD environment variable "
+          "to get any BOARD specific overlays (e.g. Pynq-Z1).")
     board = None
     board_folder = None
     pynq_data_files = None
 else:
     board = os.environ['BOARD']
     board_folder = 'boards/{}/'.format(board)
-    pynq_data_files = [(os.path.join('{}/pynq/overlays'.format(site.getsitepackages()[0]), root.replace(board_folder, '')),
-                        [os.path.join(root, f) for f in files]) for root, dirs, files in os.walk(board_folder)]
+    pynq_data_files = collect_pynq_data_files()
+
 
 # Device family constants
 ZYNQ_ARCH = "armv7l"
