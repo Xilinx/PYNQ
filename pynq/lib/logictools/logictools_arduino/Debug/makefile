@@ -25,38 +25,38 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 ELFSIZE += \
-logictools_controller.elf.size \
+logictools_arduino.elf.size \
 
 
 # All Target
-all: logictools_controller.elf secondary-outputs
+all: logictools_arduino.elf secondary-outputs
 
 # Tool invocations
-logictools_controller.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
+logictools_arduino.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MicroBlaze gcc linker'
-	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../bsp_logictools_controller/lcp_lcp_mb_mb/lib -mlittle-endian -mcpu=v9.6 -mxl-soft-mul -Wl,--no-relax -o "logictools_controller.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../bsp_lcp_ar_mb/lcp_ar_mb/lib -mlittle-endian -mcpu=v9.6 -mxl-soft-mul -Wl,--no-relax -o "logictools_arduino.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-logictools_controller.elf.size: logictools_controller.elf
+logictools_arduino.elf.size: logictools_arduino.elf
 	@echo 'Invoking: MicroBlaze Print Size'
-	mb-size logictools_controller.elf  |tee "logictools_controller.elf.size"
+	mb-size logictools_arduino.elf  |tee "logictools_arduino.elf.size"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-logictools_controller.bin: logictools_controller.elf
+logictools_arduino.bin: logictools_arduino.elf
 	@echo 'Invoking: MicroBlaze Bin Gen'
-	mb-objcopy -O binary logictools_controller.elf logictools_controller.bin
+	mb-objcopy -O binary logictools_arduino.elf logictools_arduino.bin
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) logictools_controller.elf logictools_controller.bin
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) logictools_arduino.elf logictools_arduino.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE) logictools_controller.bin
+secondary-outputs: $(ELFSIZE) logictools_arduino.bin
 
 .PHONY: all clean dependents
 .SECONDARY:
