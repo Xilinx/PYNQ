@@ -60,13 +60,13 @@ class LogicToolsOverlay(pynq.Overlay):
     def __init__(self, bitfile, **kwargs):
         super().__init__(bitfile, **kwargs)
         if self.is_loaded():
-            self.iop1.mbtype = "Pmod"
-            self.iop2.mbtype = "Pmod"
-            self.lcp.mbtype = "Logictools"
+            self.iop_pmoda.mbtype = "Pmod"
+            self.iop_pmodb.mbtype = "Pmod"
+            self.lcp_ar.mbtype = "Logictools"
 
-            self.PMODA = self.iop1.mb_info
-            self.PMODB = self.iop2.mb_info
-            self.ARDUINO = self.lcp.mb_info
+            self.PMODA = self.iop_pmoda.mb_info
+            self.PMODB = self.iop_pmodb.mb_info
+            self.ARDUINO = self.lcp_ar.mb_info
 
             self.boolean_generator = BooleanGenerator(self.ARDUINO)
             self.pattern_generator = PatternGenerator(self.ARDUINO)
