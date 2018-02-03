@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>logictools_controller</name>
-	<comment>Created by SDK v2016.1. bsp_logictools_controller - lcp_lcp_mb_mb</comment>
+	<name>logictools_arduino</name>
+	<comment>Created by SDK v2016.1. bsp_lcp_ar_mb - lcp_ar_mb</comment>
 	<projects>
 		<project>bsp_logictools_controller</project>
 	</projects>
