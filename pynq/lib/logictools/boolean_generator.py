@@ -236,9 +236,9 @@ class BooleanGenerator:
                 raise ValueError("The same output pin should not be driven by "
                                  "multiple expressions.")
             self.output_pins.append(expr_out)
-            if expr_out in self.intf_spec['traceable_outputs']:
+            if expr_out in self.intf_spec['traceable_io_pins']:
                 output_pin_num = self.intf_spec[
-                    'traceable_outputs'][expr_out]
+                    'traceable_io_pins'][expr_out]
             elif expr_out in self.intf_spec['non_traceable_outputs']:
                 output_pin_num = self.intf_spec[
                     'non_traceable_outputs'][expr_out]
@@ -289,10 +289,10 @@ class BooleanGenerator:
                 msb = (i + 1) * 5 - 1
                 if truth_table_inputs[i] in unique_input_pins:
                     if truth_table_inputs[i] in self.intf_spec[
-                        'traceable_inputs'] and truth_table_inputs[i] \
-                            in self.intf_spec['traceable_outputs']:
+                        'traceable_io_pins'] and truth_table_inputs[i] \
+                            in self.intf_spec['traceable_io_pins']:
                         input_pin_ix = self.intf_spec[
-                            'traceable_outputs'][truth_table_inputs[i]]
+                            'traceable_io_pins'][truth_table_inputs[i]]
                     elif truth_table_inputs[i] in self.intf_spec[
                             'non_traceable_inputs']:
                         input_pin_ix = self.intf_spec[
@@ -305,11 +305,11 @@ class BooleanGenerator:
                 mailbox_regs[output_pin_num * 2][msb:lsb] = input_pin_ix
 
             mailbox_regs[output_pin_num * 2 + 1][31:0] = truth_num
-            mailbox_regs[48][31:0] = bit_enables
-            mailbox_regs[48][output_pin_num] = 0
+            mailbox_regs[62][31:0] = bit_enables
+            mailbox_regs[62][output_pin_num] = 0
 
-            mailbox_regs[49][31:0] = 0
-            mailbox_regs[49][output_pin_num] = 1
+            mailbox_regs[63][31:0] = 0
+            mailbox_regs[63][output_pin_num] = 1
 
             # Construct the command word
             self.logictools_controller.write_command(CMD_CONFIG_BOOLEAN)
@@ -324,14 +324,14 @@ class BooleanGenerator:
             # Append four inputs and one output to waveform view
             stimulus_traced = False
             for pin_name in unique_input_pins:
-                if pin_name in self.intf_spec['traceable_inputs']:
+                if pin_name in self.intf_spec['traceable_io_pins']:
                     stimulus_traced = True
                     waveform_dict['signal'][0].append({'name': pin_name,
                                                        'pin': pin_name})
             if not stimulus_traced:
                 del (waveform_dict['signal'][0])
 
-            if expr_out in self.intf_spec['traceable_outputs']:
+            if expr_out in self.intf_spec['traceable_io_pins']:
                 waveform_dict['signal'][-1].append({'name': expr_out,
                                                     'pin': expr_out})
             else:
@@ -402,12 +402,12 @@ class BooleanGenerator:
         """
         # Gather which pins are being used
         ioswitch_pins = list()
-        ioswitch_pins += [self.intf_spec['traceable_outputs'][input_pin]
+        ioswitch_pins += [self.intf_spec['traceable_io_pins'][input_pin]
                           for input_pin in self.input_pins
-                          if input_pin in self.intf_spec['traceable_inputs']]
-        ioswitch_pins += [self.intf_spec['traceable_outputs'][output_pin]
+                          if input_pin in self.intf_spec['traceable_io_pins']]
+        ioswitch_pins += [self.intf_spec['traceable_io_pins'][output_pin]
                           for output_pin in self.output_pins
-                          if output_pin in self.intf_spec['traceable_outputs']]
+                          if output_pin in self.intf_spec['traceable_io_pins']]
 
         # Send list to Microblaze processor for handling
         self.logictools_controller.config_ioswitch(ioswitch_pins,
@@ -422,12 +422,12 @@ class BooleanGenerator:
         """
         # Gather which pins are being used
         ioswitch_pins = list()
-        ioswitch_pins += [self.intf_spec['traceable_outputs'][input_pin]
+        ioswitch_pins += [self.intf_spec['traceable_io_pins'][input_pin]
                           for input_pin in self.input_pins
-                          if input_pin in self.intf_spec['traceable_inputs']]
-        ioswitch_pins += [self.intf_spec['traceable_outputs'][output_pin]
+                          if input_pin in self.intf_spec['traceable_io_pins']]
+        ioswitch_pins += [self.intf_spec['traceable_io_pins'][output_pin]
                           for output_pin in self.output_pins
-                          if output_pin in self.intf_spec['traceable_outputs']]
+                          if output_pin in self.intf_spec['traceable_io_pins']]
 
         # Send list to Microblaze processor for handling
         self.logictools_controller.config_ioswitch(ioswitch_pins,

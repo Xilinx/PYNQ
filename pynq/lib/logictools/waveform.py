@@ -694,9 +694,9 @@ class Waveform:
 
         """
         if group_name == self.stimulus_group_name:
-            valid_pins = self.intf_spec['traceable_outputs']
+            valid_pins = self.intf_spec['traceable_io_pins']
         elif group_name == self.analysis_group_name:
-            valid_pins = self.intf_spec['traceable_inputs']
+            valid_pins = self.intf_spec['traceable_io_pins']
         else:
             raise ValueError("Valid group names are {},{}.".format(
                 self.stimulus_group_name, self.analysis_group_name))
