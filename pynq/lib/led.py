@@ -36,8 +36,8 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-LEDS_OFFSET0 = 0x8
-LEDS_OFFSET1 = 0xC
+LEDS_OFFSET0 = 0x0
+LEDS_OFFSET1 = 0x4
 
 
 class LED(object):
