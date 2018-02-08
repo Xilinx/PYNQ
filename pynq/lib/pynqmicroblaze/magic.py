@@ -53,6 +53,9 @@ class _FunctionWrapper:
     def __call__(self, *args):
         return self._function(*args)
 
+    async def call_async(self, *args):
+         return await self._function.call_async(*args)
+
     def reset(self):
         self._mb.reset()
 

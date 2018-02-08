@@ -67,8 +67,9 @@ def dependencies(source, bsp):
 
 
 def _find_bsp(cell_name):
+    target_bsp = "bsp_" + cell_name
     matches = [bsp for bsp in BSPs.keys()
-               if bsp.startswith("bsp_" + cell_name)]
+               if target_bsp.startswith(bsp)]
     if matches:
         return BSPs[max(matches, key=len)]
     raise RuntimeError("BSP not found for " + cell_name)
@@ -76,6 +77,8 @@ def _find_bsp(cell_name):
 
 def preprocess(source, bsp=None, mb_info=None):
     if bsp is None:
+        if hasattr(mb_info, 'mb_info'):
+            mb_info = mb_info.mb_info
         if mb_info is None:
             raise RuntimeError("Must provide either a BSP or mb_info")
         bsp = _find_bsp(mb_info['name'])

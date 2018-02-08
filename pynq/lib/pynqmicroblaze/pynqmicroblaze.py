@@ -168,10 +168,6 @@ class PynqMicroblaze:
         addr_base = ip_dict[ip_name]['phys_addr']
         addr_range = ip_dict[ip_name]['addr_range']
         ip_state = ip_dict[ip_name]['state']
-        if (ip_state is not None) and (ip_state != mb_program):
-            raise RuntimeError('Another program {} already running.'
-                               .format(ip_state))
-
         # Get reset information
         rst_name = mb_info['rst_name']
         if rst_name not in gpio_dict.keys():
@@ -213,6 +209,11 @@ class PynqMicroblaze:
             self.interrupt = None
 
         # Reset, program, and run
+        if (ip_state is not None) and (ip_state != mb_program):
+            self.reset()
+            #raise RuntimeError('Another program {} already running.'
+            #                   .format(ip_state))
+
         self.program()
 
     def run(self):

@@ -183,8 +183,8 @@ class SimpleMBStream:
 
 
 class InterruptMBStream(SimpleMBStream):
-    def __init__(self, iop):
-        super().__init__(iop)
+    def __init__(self, iop, read_offset=0xF400, write_offset=0xF000):
+        super().__init__(iop, read_offset, write_offset)
         self.interrupt = iop.interrupt
 
     async def wait_for_data_async(self):

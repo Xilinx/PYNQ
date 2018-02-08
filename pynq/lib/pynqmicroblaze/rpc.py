@@ -9,6 +9,7 @@ from copy import deepcopy
 
 from .compile import preprocess
 from .streams import SimpleMBStream
+from .streams import InterruptMBStream
 from . import MicroblazeProgram
 
 # Use a global parser and generator
@@ -651,6 +652,64 @@ def _create_typedef_classes(typedefs):
     return classes
 
 
+def _filter_typedefs(typedefs, function_names):
+    used_typedefs = set()
+    for t in typedefs:
+        if len([f for f in function_names if f.startswith(t + "_")]) > 0:
+            used_typedefs.add(t)
+    return used_typedefs
+
+
+class MicroblazeFunction:
+    """Calls a specific function
+
+    """
+    def __init__(self, stream, index, function, return_type):
+        self.stream = stream
+        self.index = index
+        self.function = function
+        self.return_type = return_type
+
+    def _call_function(self, *args):
+        arg_string = struct.pack('l', self.index)
+        arg_string += self.function.pack_args(*args)
+        self.stream.write(arg_string)
+
+    def _handle_stream(self, *args):
+        command = self.stream.read(1)[0]
+        if command != 0:
+            _handle_command(command, self.stream)
+            return None
+        return self.function.receive_response(self.stream, *args)
+
+    def __call__(self, *args):
+        self._call_function(*args)
+        if not self.function.returns:
+            return None
+        return_value = None
+        while return_value is None:
+            return_value = self._handle_stream(*args)
+
+        if self.return_type:
+            return self.return_type(return_value)
+        else:
+            return return_value
+
+    async def call_async(self, *args):
+        self._call_function(*args)
+        if not self.function.returns:
+            return None
+        return_value = None
+        while return_value is None:
+            await self.stream.wait_for_data_async()
+            return_value = self._handle_stream(*args)
+
+        if self.return_type:
+            return self.return_type(return_value)
+        else:
+            return return_value
+
+
 class MicroblazeRPC:
     """ Provides a python interface to the Microblaze based on an RPC
     mechanism.
@@ -681,9 +740,11 @@ class MicroblazeRPC:
         visitor = FuncDefVisitor()
         visitor.visit(ast)
         main_text = _build_main(program_text, visitor.functions)
+        used_typedefs = _filter_typedefs(visitor.typedefs,
+                                         visitor.functions.keys())
         typedef_classes = _create_typedef_classes(visitor.typedefs)
         self._mb = MicroblazeProgram(iop, main_text)
-        self._rpc_stream = SimpleMBStream(
+        self._rpc_stream = InterruptMBStream(
             self._mb, read_offset=0xFC00, write_offset=0xF800)
         self._build_functions(visitor.functions, typedef_classes)
         self._build_constants(visitor.enums)
@@ -703,8 +764,8 @@ class MicroblazeRPC:
             if v.return_interface.typedefname:
                 return_type = typedef_classes[v.return_interface.typedefname]
             setattr(self, k,
-                    functools.partial(
-                        _function_wrapper, self._rpc_stream,
+                    MicroblazeFunction(
+                        self._rpc_stream,
                         index, v, return_type)
                     )
             index += 1
