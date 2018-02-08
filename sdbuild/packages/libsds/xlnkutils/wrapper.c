@@ -2,6 +2,11 @@
 #include <string.h>
 #include <stdint.h>
 #include "libxlnk_cma.h"
+#include <linux/ioctl.h>
+#include <errno.h>
+
+
+#define RESET_IOCTL _IOWR('X', 101, unsigned long)
 
 /* Function prototypes from sdslib */
 void *sds_alloc_cacheable(uint32_t len);
@@ -76,7 +81,15 @@ void cma_free(void *buf) {
 void _xlnk_reset() {
     /* This performs the correct ioctl but probably isn't
        particularly stable as a behaviour */
-    cf_xlnk_init(1);
+    int xlnkfd = open("/dev/xlnk", O_RDWR | O_CLOEXEC);
+    if (xlnkfd < 0) {
+        printf("Reset failed - could not open device: %d\n", xlnkfd);
+        return;
+    }
+    if (ioctl(xlnkfd, RESET_IOCTL, 0) < 0) {
+        printf("Reset failed - IOCTL failed: %d\n", errno);
+    }
+    close(xlnkfd);
 }
 
 /* Constructor to Open xlnk device */
