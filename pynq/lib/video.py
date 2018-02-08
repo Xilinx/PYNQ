@@ -241,7 +241,7 @@ class _FrameCache:
         if self._cache:
             frame = _FrameCache._xlnk.cma_array(
                 shape=self._mode.shape, dtype='u1', cacheable=0,
-                pointer=self._cache.pop())
+                pointer=self._cache.pop(), cache=self)
         else:
             if _FrameCache._xlnk is None:
                 _FrameCache._xlnk = Xlnk()
@@ -253,13 +253,6 @@ class _FrameCache:
     def return_pointer(self, pointer):
         if len(self._cache) < self._capacity:
             self._cache.append(pointer)
-
-    def returnframe(self, frame):
-        frame.freebuffer = frame.original_freebuffer
-        if len(self._cache) >= self._capacity:
-            frame.freebuffer()
-        else:
-            self._cache.append(frame)
 
     def clear(self):
         self._cache.clear()
