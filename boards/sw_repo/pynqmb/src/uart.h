@@ -52,6 +52,11 @@
 #define _UART_H_
 
 #include <xparameters.h>
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#include "xio_switch.h"
+#endif
+
 #ifdef XPAR_XUART_NUM_INSTANCES
 #include "xuartlite.h"
 #include "xuartlite_i.h"
@@ -60,9 +65,9 @@
  * UART API
  */
 typedef int uart;
-static XUartLite xuart[XPAR_XUART_NUM_INSTANCES];
 
 uart uart_open_device(unsigned int device);
+uart uart_open(unsigned int tx, unsigned int int rx);
 void uart_read(uart dev_id, char* read_data, unsigned int length);
 void uart_write(uart dev_id, char* write_data, unsigned int length);
 void uart_close(uart dev_id);

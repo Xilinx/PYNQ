@@ -53,6 +53,11 @@
 #define _I2C_H_
 
 #include <xparameters.h>
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#include "xio_switch.h"
+#endif
+
 #ifdef XPAR_XIIC_NUM_INSTANCES
 #include "xiic.h"
 
@@ -60,10 +65,9 @@
  * IIC API
  */
 typedef int i2c;
-static XIic xi2c[XPAR_XIIC_NUM_INSTANCES];
-
 
 i2c i2c_open_device(unsigned int device);
+i2c i2c_open(unsigned int sda, unsigned int scl);
 void i2c_read(i2c dev_id, unsigned int slave_address,
               unsigned char* buffer, unsigned int length);
 void i2c_write(i2c dev_id, unsigned int slave_address,

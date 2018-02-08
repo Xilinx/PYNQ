@@ -52,6 +52,7 @@
 #include "gpio.h"
 
 #ifdef XPAR_XGPIO_NUM_INSTANCES
+static XGpio xgpio[XPAR_XGPIO_NUM_INSTANCES];
 /************************** Function Definitions ***************************/
 gpio gpio_open_device(unsigned int device){
     int status;
@@ -83,6 +84,16 @@ gpio gpio_open_device(unsigned int device){
     mod_id._gpio.device = dev_id;
     return mod_id;
 }
+
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_GPIO_BASEADDR
+gpio gpio_open(unsigned int pin){
+    set_pin(pin, GPIO);
+    return gpio_open_device(XPAR_IO_SWITCH_0_GPIO_BASEADDR);
+}
+#endif
+#endif
 
 
 gpio gpio_configure(gpio mod_id, unsigned int low, unsigned int high, 

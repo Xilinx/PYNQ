@@ -53,6 +53,7 @@
 #include "timer.h"
 
 #ifdef XPAR_XTMRCTR_NUM_INSTANCES
+static XTmrCtr xtimer[XPAR_XTMRCTR_NUM_INSTANCES];
 /************************** Function Definitions ***************************/
 timer timer_open_device(unsigned int device) {
     int status;
@@ -94,6 +95,16 @@ timer timer_open_device(unsigned int device) {
 
     return (timer)dev_id;
 }
+
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_TIMER0_BASEADDR
+timer timer_open(unsigned int pin){
+    set_pin(pin, TIMER_G0);
+    return timer_open_device(XPAR_IO_SWITCH_0_TIMER0_BASEADDR);
+}
+#endif
+#endif
 
 
 void timer_delay(timer dev_id, unsigned int cycles){

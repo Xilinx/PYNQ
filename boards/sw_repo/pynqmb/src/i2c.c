@@ -53,6 +53,7 @@
 #include "i2c.h"
 
 #ifdef XPAR_XIIC_NUM_INSTANCES
+static XIic xi2c[XPAR_XIIC_NUM_INSTANCES];
 /************************** Function Definitions ***************************/
 i2c i2c_open_device(unsigned int device){
     int status;
@@ -83,6 +84,17 @@ void i2c_read(i2c dev_id, unsigned int slave_address,
     XIic_Recv(xi2c[dev_id].BaseAddress, 
               slave_address, buffer, length, XIIC_STOP);
 }
+
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_I2C0_BASEADDR
+i2c i2c_open(unsigned int sda, unsigned int scl){
+    set_pin(scl, SCL0);
+    set_pin(sda, SDA0);
+    return i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+}
+#endif
+#endif
 
 
 void i2c_write(i2c dev_id, unsigned int slave_address,

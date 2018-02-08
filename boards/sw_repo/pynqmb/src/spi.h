@@ -53,6 +53,11 @@
 #define _SPI_H_
 
 #include <xparameters.h>
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#include "xio_switch.h"
+#endif
+
 #ifdef XPAR_XSPI_NUM_INSTANCES
 #include "xspi_l.h"
 #include "xspi.h"
@@ -61,9 +66,10 @@
  * SPI API
  */
 typedef int spi;
-static XSpi xspi[XPAR_XTMRCTR_NUM_INSTANCES];
 
 spi spi_open_device(unsigned int device);
+spi spi_open(unsigned int spiclk, unsigned int miso, 
+             unsigned int mosi, unsigned int ss);
 spi spi_configure(spi dev_id, unsigned int clk_phase, 
                    unsigned int clk_polarity);
 void spi_transfer(spi dev_id, const char* write_data, char* read_data, 

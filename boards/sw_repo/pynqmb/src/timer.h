@@ -53,6 +53,11 @@
 #define _TIMER_H_
 
 #include <xparameters.h>
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#include "xio_switch.h"
+#endif
+
 #ifdef XPAR_XTMRCTR_NUM_INSTANCES
 #include "xtmrctr.h"
 
@@ -77,9 +82,9 @@
  * Timer API
  */
 typedef int timer;
-static XTmrCtr xtimer[XPAR_XTMRCTR_NUM_INSTANCES];
 
 timer timer_open_device(unsigned int device);
+timer timer_open(unsigned int pin);
 void timer_delay(timer dev_id, unsigned int cycles);
 void timer_close(timer dev_id);
 void timer_pwm_generate(timer dev_id, unsigned int period, unsigned int pulse);

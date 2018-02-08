@@ -52,6 +52,7 @@
 #include "uart.h"
 
 #ifdef XPAR_XUART_NUM_INSTANCES
+static XUartLite xuart[XPAR_XUART_NUM_INSTANCES];
 /************************** Function Definitions ***************************/
 uart uart_open_device(unsigned int device){
     int status;
@@ -75,6 +76,17 @@ uart uart_open_device(unsigned int device){
     }
     return (uart)dev_id;
 }
+
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_UART0_BASEADDR
+uart uart_open(unsigned int tx, unsigned int int rx){
+    set_pin(tx, UART0_TX);
+    set_pin(rx, UART0_RX);
+    return uart_open_device(XPAR_IO_SWITCH_0_UART0_BASEADDR);
+}
+#endif
+#endif
 
 
 void uart_read(uart dev_id, char* read_data, unsigned int length){

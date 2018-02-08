@@ -53,6 +53,7 @@
 #include "spi.h"
 
 #ifdef XPAR_XSPI_NUM_INSTANCES
+static XSpi xspi[XPAR_XTMRCTR_NUM_INSTANCES];
 /************************** Function Definitions ***************************/
 spi spi_open_device(unsigned int device){
     int status;
@@ -94,6 +95,20 @@ spi spi_open_device(unsigned int device){
 
     return (spi)dev_id;
 }
+
+
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_SPI0_BASEADDR
+spi spi_open(unsigned int spiclk, unsigned int miso, 
+             unsigned int mosi, unsigned int ss){
+    set_pin(spiclk, SPICLK0);
+    set_pin(miso, MISO0);
+    set_pin(mosi, MOSI0);
+    set_pin(ss, SS0);
+    return spi_open_device(XPAR_IO_SWITCH_0_SPI0_BASEADDR);
+}
+#endif
+#endif
 
 
 spi spi_configure(spi dev_id, unsigned int clk_phase, 
