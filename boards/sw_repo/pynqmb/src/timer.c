@@ -53,25 +53,28 @@
 #include "timer.h"
 
 #ifdef XPAR_XTMRCTR_NUM_INSTANCES
+#include "xtmrctr.h"
 static XTmrCtr xtimer[XPAR_XTMRCTR_NUM_INSTANCES];
+XTmrCtr* xtimer_ptr = &xtimer[0];
+extern XTmrCtr_Config XTmrCtr_ConfigTable[XPAR_XTMRCTR_NUM_INSTANCES];
+
 /************************** Function Definitions ***************************/
 timer timer_open_device(unsigned int device) {
     int status;
     u16 dev_id;
-    unsigned int base_address;
-
-    dev_id = (u16)device;
-#ifdef XPAR_TMRCTR_0_BASEADDR
-    if (device == XPAR_TMRCTR_0_BASEADDR){
-        dev_id = 0;
+    if (device < XPAR_XTMRCTR_NUM_INSTANCES) {
+        dev_id = (u16)device;
+    } else {
+        int found = 0;
+        for (u16 i = 0; i < XPAR_XTMRCTR_NUM_INSTANCES; ++i) {
+            if (XTmrCtr_ConfigTable[i].BaseAddress == device) {
+                found = 1;
+                dev_id = i;
+                break;
+            }
+        }
+        if (!found) return -1;
     }
-#endif
-#ifdef XPAR_TMRCTR_1_BASEADDR
-    if (device == XPAR_TMRCTR_1_BASEADDR){
-        dev_id = 1;
-    }
-#endif
-
     status = XTmrCtr_Initialize(&xtimer[dev_id], dev_id);
     if (status != XST_SUCCESS) {
         return -1;
@@ -79,27 +82,19 @@ timer timer_open_device(unsigned int device) {
     XTmrCtr_SetOptions(&xtimer[dev_id], 1,
         XTC_AUTO_RELOAD_OPTION | XTC_CSR_LOAD_MASK | XTC_CSR_DOWN_COUNT_MASK);
 
-    // Load timer's Load registers (period, high time)
-    base_address = xtimer[dev_id].BaseAddress;
-    XTmrCtr_WriteReg(base_address, 0, TLR0, MS1_VALUE);
-    XTmrCtr_WriteReg(base_address, 1, TLR0, MS2_VALUE);
-    /*
-     * 0010 1011 0110 =>  no cascade, no all timers, enable pwm, 
-     *                    interrupt status, enable timer,
-     *                    no interrupt, no load timer, reload, 
-     *                    no capture, enable external generate, 
-     *                    down counter, generate mode
-     */
-    XTmrCtr_WriteReg(base_address, 0, TCSR0, 0x296);
-    XTmrCtr_WriteReg(base_address, 1, TCSR0, 0x296);
-
     return (timer)dev_id;
 }
 
 
 #ifdef XPAR_IO_SWITCH_NUM_INSTANCES
 #ifdef XPAR_IO_SWITCH_0_TIMER0_BASEADDR
+#include "xio_switch.h"
+
+static int last_timer0 = -1;
+
 timer timer_open(unsigned int pin){
+    if (last_timer0 != -1) set_pin(last_timer0, GPIO);
+    last_timer0 = pin;
     set_pin(pin, TIMER_G0);
     return timer_open_device(XPAR_IO_SWITCH_0_TIMER0_BASEADDR);
 }
@@ -114,6 +109,21 @@ void timer_delay(timer dev_id, unsigned int cycles){
     XTmrCtr_Stop(&xtimer[dev_id], 1);
 }
 
+
+void delay_us(unsigned int us){
+    unsigned int cycles_per_us = XPAR_MICROBLAZE_CORE_CLOCK_FREQ_HZ / 1000000;
+    timer_delay(0, cycles_per_us * us);
+}
+
+void delay_ms(unsigned int ms){
+    unsigned int cycles_per_ms = XPAR_MICROBLAZE_CORE_CLOCK_FREQ_HZ / 1000;
+    timer_delay(0, cycles_per_ms * ms);
+}
+
+__attribute__((constructor))
+static void init_delay_timer() {
+    timer_open_device(0);
+}
 
 void timer_close(timer dev_id){
     XTmrCtr_Stop(&xtimer[dev_id], 0);
@@ -138,6 +148,11 @@ void timer_pwm_stop(timer dev_id){
     XTmrCtr_WriteReg(base_address, 0, TCSR0, 0);
     // disable timer 1
     XTmrCtr_WriteReg(base_address, 1, TCSR0, 0);
+}
+
+
+unsigned int timer_get_num_devices(void){
+    return XPAR_XTMRCTR_NUM_INSTANCES;
 }
 
 

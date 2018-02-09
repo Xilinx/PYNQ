@@ -52,24 +52,29 @@
 #include "uart.h"
 
 #ifdef XPAR_XUART_NUM_INSTANCES
+#include "xuartlite.h"
+#include "xuartlite_i.h"
 static XUartLite xuart[XPAR_XUART_NUM_INSTANCES];
+XUartLite* xuart_ptr = &xuart[0];
+extern XUartLite_Config XUartLite_ConfigTable[XPAR_XUART_NUM_INSTANCES];
+
 /************************** Function Definitions ***************************/
 uart uart_open_device(unsigned int device){
     int status;
     u16 dev_id;
-    
-    dev_id = (u16)device;
-#ifdef XPAR_UART_0_BASEADDR
-    if (device == XPAR_UART_0_BASEADDR){
-        dev_id = 0;
+    if (device < XPAR_XUART_NUM_INSTANCES) {
+        dev_id = (u16)device;
+    } else {
+        int found = 0;
+        for (u16 i = 0; i < XPAR_XUART_NUM_INSTANCES; ++i) {
+            if (XUartLite_ConfigTable[i].RegBaseAddr == device) {
+                found = 1;
+                dev_id = i;
+                break;
+            }
+        }
+        if (!found) return -1;
     }
-#endif
-#ifdef XPAR_UART_1_BASEADDR
-    if (device == XPAR_UART_1_BASEADDR){
-        dev_id = 1;
-    }
-#endif
-
     status = XUartLite_Initialize(&xuart[dev_id], dev_id);
     if (status != XST_SUCCESS) {
         return -1;
@@ -80,7 +85,15 @@ uart uart_open_device(unsigned int device){
 
 #ifdef XPAR_IO_SWITCH_NUM_INSTANCES
 #ifdef XPAR_IO_SWITCH_0_UART0_BASEADDR
+#include "xio_switch.h"
+static int last_tx = -1;
+static int last_rx = -1;
+
 uart uart_open(unsigned int tx, unsigned int int rx){
+    if (last_tx != -1) set_pin(last_tx, GPIO);
+    if (last_rx != -1) set_pin(last_rx, GPIO);
+    last_tx = tx;
+    last_rx = rx;
     set_pin(tx, UART0_TX);
     set_pin(rx, UART0_RX);
     return uart_open_device(XPAR_IO_SWITCH_0_UART0_BASEADDR);
@@ -103,5 +116,9 @@ void uart_close(uart dev_id){
     XUartLite_ClearStats(&xuart[dev_id]);
 }
 
+
+unsigned int uart_get_num_devices(void){
+    return XPAR_XUART_NUM_INSTANCES;
+}
 
 #endif

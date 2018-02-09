@@ -1,0 +1,36 @@
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER mailbox_bram
+  OPTION supported_peripherals = (lmb_bram_if_cntlr axi_bram_ctrl);
+  OPTION copyfiles = all;
+  OPTION desc = "Mailbox STDIN and STDOUT";
+  OPTION NAME = mailbox_bram;
+  OPTION VERSION = 0.1;
+  OPTION driver_state = ACTIVE;
+  
+  BEGIN INTERFACE stdin
+    PROPERTY header = mailbox_io.h;
+    FUNCTION name = inbyte, value = mailbox_inbyte;
+  END INTERFACE
+  
+  BEGIN INTERFACE stdout
+    PROPERTY header = mailbox_io.h;
+    FUNCTION name = outbyte, value = mailbox_outbyte;
+  END INTERFACE
+  
+  BEGIN INTERFACE stdio
+    PROPERTY header = mailbox_io.h;
+    FUNCTION name = inbyte, value = mailbox_inbyte;
+    FUNCTION name = outbyte, value = mailbox_outbyte;
+  END INTERFACE
+  
+  BEGIN INTERFACE file
+    PROPERTY header = mailbox_io.h;
+	FUNCTION name = open, value = mailbox_open;
+	FUNCTION name = close, value = mailbox_close;
+	FUNCTION name = read, value = mailbox_read;
+	FUNCTION name = write, value = mailbox_write;
+	FUNCTION name = lseek, value = mailbox_lseek;
+  END INTERFACE
+
+END DRIVER

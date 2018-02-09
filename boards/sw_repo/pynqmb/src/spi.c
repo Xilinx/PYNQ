@@ -53,7 +53,11 @@
 #include "spi.h"
 
 #ifdef XPAR_XSPI_NUM_INSTANCES
-static XSpi xspi[XPAR_XTMRCTR_NUM_INSTANCES];
+#include "xspi_l.h"
+#include "xspi.h"
+static XSpi xspi[XPAR_XSPI_NUM_INSTANCES];
+XSpi* xspi_ptr = &xspi[0];
+extern XSpi_Config XSpi_ConfigTable[];
 /************************** Function Definitions ***************************/
 spi spi_open_device(unsigned int device){
     int status;
@@ -61,18 +65,19 @@ spi spi_open_device(unsigned int device){
     unsigned int base_address;
     u32 control;
     
-    dev_id = (u16)device;
-#ifdef XPAR_SPI_0_BASEADDR
-    if (device == XPAR_SPI_0_BASEADDR){
-        dev_id = 0;
+    if (device < XPAR_XSPI_NUM_INSTANCES) {
+        dev_id = (u16)device;
+    } else {
+        int found = 0;
+        for (u16 i = 0; i < XPAR_XSPI_NUM_INSTANCES; ++i) {
+            if (XSpi_ConfigTable[i].BaseAddress == device) {
+                found = 1;
+                dev_id = i;
+                break;
+            }
+        }
+        if (!found) return -1;
     }
-#endif
-#ifdef XPAR_SPI_1_BASEADDR
-    if (device == XPAR_SPI_1_BASEADDR){
-        dev_id = 1;
-    }
-#endif
-
     status = XSpi_Initialize(&xspi[dev_id], dev_id);
     if (status != XST_SUCCESS) {
         return -1;
@@ -99,8 +104,22 @@ spi spi_open_device(unsigned int device){
 
 #ifdef XPAR_IO_SWITCH_NUM_INSTANCES
 #ifdef XPAR_IO_SWITCH_0_SPI0_BASEADDR
+#include "xio_switch.h"
+static int last_spiclk = -1;
+static int last_miso = -1;
+static int last_mosi = -1;
+static int last_ss = -1;
+
 spi spi_open(unsigned int spiclk, unsigned int miso, 
              unsigned int mosi, unsigned int ss){
+    if (last_spiclk != -1) set_pin(last_spiclk, GPIO);
+    if (last_miso != -1) set_pin(last_miso, GPIO);
+    if (last_mosi != -1) set_pin(last_mosi, GPIO);
+    if (last_ss != -1) set_pin(last_ss, GPIO);
+    last_spiclk = spiclk;
+    last_miso = miso;
+    last_mosi = mosi;
+    last_ss = ss;
     set_pin(spiclk, SPICLK0);
     set_pin(miso, MISO0);
     set_pin(mosi, MOSI0);
@@ -166,6 +185,11 @@ void spi_transfer(spi dev_id, const char* write_data, char* read_data,
 
 void spi_close(spi dev_id){
     XSpi_ClearStats(&xspi[dev_id]);
+}
+
+
+unsigned int spi_get_num_devices(void){
+    return XPAR_XSPI_NUM_INSTANCES;
 }
 
 #endif

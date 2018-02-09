@@ -54,12 +54,7 @@
 
 #include <xparameters.h>
 
-#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
-#include "xio_switch.h"
-#endif
-
 #ifdef XPAR_XIIC_NUM_INSTANCES
-#include "xiic.h"
 
 /* 
  * IIC API
@@ -73,17 +68,7 @@ void i2c_read(i2c dev_id, unsigned int slave_address,
 void i2c_write(i2c dev_id, unsigned int slave_address,
                unsigned char* buffer, unsigned int length);
 void i2c_close(i2c dev_id);
+unsigned int i2c_get_num_devices(void);
 
 #endif
-
-
-unsigned int i2c_get_num_devices(void){
-#ifdef XPAR_XIIC_NUM_INSTANCES
-    return XPAR_XIIC_NUM_INSTANCES;
-#else
-    return 0;
-#endif
-}
-
-
 #endif  // _I2C_H_

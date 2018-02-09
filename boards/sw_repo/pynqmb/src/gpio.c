@@ -52,65 +52,91 @@
 #include "gpio.h"
 
 #ifdef XPAR_XGPIO_NUM_INSTANCES
+#include "xgpio_l.h"
+#include "xgpio.h"
+/* 
+ * GPIO API
+ * Internal GPIO bit format:
+ * 0:0 valid bit
+ * 6:1 low bit
+ * 12:7 high bit
+ * 15:13 channel 1 or channel 2
+ * 31:16 device
+ */
+typedef int gpio;
+typedef union {
+    int device;
+    struct {
+        int valid: 1, low : 6, high : 6, channel : 3, device : 16;
+    } _gpio;
+} _gpio;
+
+extern XGpio_Config XGpio_ConfigTable[];
 static XGpio xgpio[XPAR_XGPIO_NUM_INSTANCES];
+XGpio* xgpio_ptr = &xgpio[0];
 /************************** Function Definitions ***************************/
 gpio gpio_open_device(unsigned int device){
     int status;
     u16 dev_id;
-    gpio mod_id;
+    _gpio gpio_dev;
+    if (device < XPAR_XGPIO_NUM_INSTANCES) {
+        dev_id = (u16)device;
+    } else {
+        int found = 0;
+        for (u16 i = 0; i < XPAR_XGPIO_NUM_INSTANCES; ++i) {
+            if (XGpio_ConfigTable[i].BaseAddress == device) {
+                found = 1;
+                dev_id = i;
+                break;
+            }
+        }
+        if (!found) return -1;
 
-    dev_id = (u16)device;
-#ifdef XPAR_GPIO_0_BASEADDR
-    if (device == XPAR_GPIO_0_BASEADDR){
-        dev_id = 0;
     }
-#endif
-#ifdef XPAR_GPIO_1_BASEADDR
-    if (device == XPAR_GPIO_1_BASEADDR){
-        dev_id = 1;
-    }
-#endif
-
     status = XGpio_Initialize(&xgpio[dev_id], dev_id);
     if (status != XST_SUCCESS) {
-        mod_id.fd = -1;
-        return mod_id;
+        return -1;
     }
 
-    mod_id._gpio.valid = 0;
-    mod_id._gpio.low = GPIO_INDEX_MIN;
-    mod_id._gpio.high = GPIO_INDEX_MAX;
-    mod_id._gpio.channel = 1;
-    mod_id._gpio.device = dev_id;
-    return mod_id;
+    gpio_dev._gpio.valid = 0;
+    gpio_dev._gpio.low = GPIO_INDEX_MIN;
+    gpio_dev._gpio.high = GPIO_INDEX_MAX;
+    gpio_dev._gpio.channel = 1;
+    gpio_dev._gpio.device = dev_id;
+    return gpio_dev.device;
 }
-
 
 #ifdef XPAR_IO_SWITCH_NUM_INSTANCES
 #ifdef XPAR_IO_SWITCH_0_GPIO_BASEADDR
-gpio gpio_open(unsigned int pin){
+#include "xio_switch.h"
+gpio gpio_open(unsigned int pin) {
     set_pin(pin, GPIO);
-    return gpio_open_device(XPAR_IO_SWITCH_0_GPIO_BASEADDR);
+    gpio dev = gpio_open_device(XPAR_IO_SWITCH_0_GPIO_BASEADDR);
+    return gpio_configure(dev, pin, pin, 1);
 }
 #endif
 #endif
 
 
-gpio gpio_configure(gpio mod_id, unsigned int low, unsigned int high, 
+gpio gpio_configure(gpio device, unsigned int low, unsigned int high, 
                     unsigned int channel){
-    mod_id._gpio.low = low;
-    mod_id._gpio.high = high;
-    mod_id._gpio.channel = channel;
-    return mod_id;
+    _gpio gpio_dev;
+    gpio_dev.device = device;
+    gpio_dev._gpio.low = low;
+    gpio_dev._gpio.high = high;
+    gpio_dev._gpio.channel = channel;
+    return gpio_dev.device;
 }
 
 
-void gpio_set_direction(gpio mod_id, unsigned int direction){
+void gpio_set_direction(gpio device, unsigned int direction){
     unsigned int mask, low, high, channel, dev_id, direction_mask;
-    low = mod_id._gpio.low;
-    high = mod_id._gpio.high;
-    channel = mod_id._gpio.channel;
-    dev_id = mod_id._gpio.device;
+    _gpio gpio_dev;
+    gpio_dev.device = device;
+    low = gpio_dev._gpio.low;
+    high = gpio_dev._gpio.high;
+    channel = gpio_dev._gpio.channel;
+    dev_id = gpio_dev._gpio.device;
 
     mask = (0x1 << (high + 1)) - (0x1 << low);
     direction_mask = XGpio_GetDataDirection(&xgpio[dev_id], channel);
@@ -125,12 +151,14 @@ void gpio_set_direction(gpio mod_id, unsigned int direction){
 }
 
 
-int gpio_read(gpio mod_id){
+int gpio_read(gpio device){
     unsigned int read_value, mask, low, high, channel, dev_id;
-    low = mod_id._gpio.low;
-    high = mod_id._gpio.high;
-    channel = mod_id._gpio.channel;
-    dev_id = mod_id._gpio.device;
+    _gpio gpio_dev;
+    gpio_dev.device = device;
+    low = gpio_dev._gpio.low;
+    high = gpio_dev._gpio.high;
+    channel = gpio_dev._gpio.channel;
+    dev_id = gpio_dev._gpio.device;
 
     mask = (0x1 << (high + 1)) - (0x1 << low);
     read_value = XGpio_DiscreteRead(&xgpio[dev_id], channel);
@@ -138,22 +166,26 @@ int gpio_read(gpio mod_id){
 }
 
 
-void gpio_write(gpio mod_id, unsigned int data){
+void gpio_write(gpio device, unsigned int data){
     unsigned int write_value, mask, low, high, channel, dev_id;
-    low = mod_id._gpio.low;
-    high = mod_id._gpio.high;
-    channel = mod_id._gpio.channel;
-    dev_id = mod_id._gpio.device;
+    _gpio gpio_dev;
+    gpio_dev.device = device;
+    low = gpio_dev._gpio.low;
+    high = gpio_dev._gpio.high;
+    channel = gpio_dev._gpio.channel;
+    dev_id = gpio_dev._gpio.device;
 
     write_value = XGpio_DiscreteRead(&xgpio[dev_id], channel);
-    mask = (0x1 << (high + 1)) - (0x1 << low);
+    mask = ~(0x1 << (high + 1)) - (0x1 << low);
     write_value = (write_value & mask) | (data << low);
     XGpio_DiscreteWrite(&xgpio[dev_id], channel, write_value);
 }
 
 
-void gpio_close(gpio mod_id){
+void gpio_close(gpio device){
     unsigned int mask, low, high, channel, dev_id;
+    _gpio mod_id;
+    mod_id.device = device;
     low = mod_id._gpio.low;
     high = mod_id._gpio.high;
     channel = mod_id._gpio.channel;
@@ -162,5 +194,9 @@ void gpio_close(gpio mod_id){
     XGpio_DiscreteClear(&xgpio[dev_id], channel, mask);
 }
 
+
+unsigned int gpio_get_num_devices(void){
+    return XPAR_XGPIO_NUM_INSTANCES;
+}
 
 #endif
