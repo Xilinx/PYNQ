@@ -32,10 +32,10 @@
 /******************************************************************************
  *
  *
- * @file timer.c
+ * @file circular_buffer.h
  *
- * Implementing timer related functions for PYNQ Microblaze, 
- * including the delay functions.
+ * Header file for circular buffer on PYNQ Microblaze. 
+ * The circular buffer allows data recording of indefinite length.
  *
  *
  * <pre>
@@ -48,16 +48,40 @@
  * </pre>
  *
  *****************************************************************************/
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#ifndef _CIRCULAR_BUFFER_H_
+#define _CIRCULAR_BUFFER_H_
 
-#include "xtmrctr.h"
+#include <xparameters.h>
+#include "xil_types.h"
 
-/* 
- * Timer API
+#define MAILBOX_CMD_ADDR       (*(volatile u32 *)(0x0000FFFC))
+#define MAILBOX_DATA(x)        (*(volatile u32 *)(0x0000F000 +((x)*4)))
+#define MAILBOX_DATA_PTR(x)    ( (volatile u32 *)(0x0000F000 +((x)*4)))
+#define MAILBOX_DATA_FLOAT(x)     (*(volatile float *)(0x0000F000 +((x)*4)))
+#define MAILBOX_DATA_FLOAT_PTR(x) ( (volatile float *)(0x0000F000 +((x)*4)))
+
+/*
+ * Logging API
+ * Using mailbox as a circular buffer
+ * Modified to match mailbox API
  */
-void delay_us(u32 usdelay, XTmrCtr *TmrInstancePtr);
-void delay_ms(u32 msdelay, XTmrCtr *TmrInstancePtr);
-int tmrctr_init(u16 DeviceID, XTmrCtr *TmrInstancePtr);
+typedef struct circular_buffer
+{
+  volatile void *buffer;     // data buffer
+  void *buffer_end;          // end of data buffer
+  size_t capacity;           // maximum number of items in the buffer
+  size_t count;              // number of items in the buffer
+  size_t sz;                 // size of each item in the buffer
+  volatile void *head;       // pointer to head
+  volatile void *tail;       // pointer to tail
+} circular_buffer;
 
-#endif  // _TIMER_H_
+circular_buffer circular_log;
+
+int cb_init(circular_buffer *cb, volatile u32* log_start_addr,
+            size_t capacity, size_t sz);
+void cb_push_back(circular_buffer *cb, const void *item);
+void cb_push_back_float(circular_buffer *cb, const float *item);
+void cb_push_incr_ptrs(circular_buffer *cb);
+
+#endif  // _CIRCULAR_BUFFER_H_

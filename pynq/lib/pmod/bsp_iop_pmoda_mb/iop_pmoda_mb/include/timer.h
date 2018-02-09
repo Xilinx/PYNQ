@@ -32,10 +32,10 @@
 /******************************************************************************
  *
  *
- * @file i2c.h
+ * @file timer.c
  *
- * Header file for I2C related functions for PYNQ Microblaze, 
- * including the IIC read and write.
+ * Implementing timer related functions for PYNQ Microblaze, 
+ * including the delay functions.
  *
  *
  * <pre>
@@ -44,19 +44,53 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
  *****************************************************************************/
-#ifndef _I2C_H_
-#define _I2C_H_
+#ifndef _TIMER_H_
+#define _TIMER_H_
 
-#include "xiic.h"
+#include <xparameters.h>
+
+#ifdef XPAR_XTMRCTR_NUM_INSTANCES
+
+// TCSR0 Timer 0 Control and Status Register
+#define TCSR0 0x00
+// TLR0 Timer 0 Load Register
+#define TLR0 0x04
+// TCR0 Timer 0 Counter Register
+#define TCR0 0x08
+// TCSR1 Timer 1 Control and Status Register
+#define TCSR1 0x10
+// TLR1 Timer 1 Load Register
+#define TLR1 0x14
+// TCR1 Timer 1 Counter Register
+#define TCR1 0x18
+// Default period value for 100000 us
+#define MS1_VALUE 99998
+// Default period value for 50% duty cycle
+#define MS2_VALUE 49998
 
 /* 
- * IIC API
+ * Timer API
  */
-int iic_read(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes); 
-int iic_write(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes);
+typedef int timer;
 
-#endif  // _I2C_H_
+timer timer_open_device(unsigned int device);
+timer timer_open(unsigned int pin);
+void timer_delay(timer dev_id, unsigned int cycles);
+void timer_close(timer dev_id);
+void timer_pwm_generate(timer dev_id, unsigned int period, unsigned int pulse);
+void timer_pwm_stop(timer dev_id);
+unsigned int timer_get_num_devices(void);
+
+/* 
+ * Higher-level API for users
+ */
+void delay_us(unsigned int us);
+void delay_ms(unsigned int ms);
+
+#endif
+#endif  // _TIMER_H_

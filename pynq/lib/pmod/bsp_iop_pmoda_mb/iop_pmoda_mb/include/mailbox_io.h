@@ -32,10 +32,9 @@
 /******************************************************************************
  *
  *
- * @file spi.h
+ * @file mailbox_io.h
  *
- * Header file SPI related functions for PYNQ Microblaze, 
- * including the SPI initialization and transfer.
+ * Header file for mailbox IO for PYNQ Microblaze.
  *
  *
  * <pre>
@@ -43,23 +42,24 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
- * 1.00  yrq 01/09/18 release
+ * 1.00  po  02/08/18 release
  *
  * </pre>
  *
  *****************************************************************************/
-#ifndef _SPI_H_
-#define _SPI_H_
+#ifndef MAILBOX_IO_H_
+#define MAILBOX_IO_H_
 
-#include "xspi_l.h"
-#include "xtmrctr.h"
+#include <unistd.h>
+#include <stdint.h>
 
-/*
- * SPI API
- */
-void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity);
-void spi_transfer(u32 BaseAddress, int bytecount,
-                  u8* readBuffer, u8* writeBuffer, 
-                  XTmrCtr* TmrInstancePtr);
+char mailbox_inbyte(intptr_t device);
+void mailbox_outbyte(intptr_t device, char c);
+int mailbox_close(int fd);
+int mailbox_open(const char* pathname, int flags, ...);
+ssize_t mailbox_read(int file, void* ptr, size_t len);
+ssize_t mailbox_write(int file, const void* ptr, size_t len);
+long mailbox_lseek(int fd, long offset, int whence);
+int mailbox_available(int fd);
 
-#endif  // _SPI_H_
+#endif

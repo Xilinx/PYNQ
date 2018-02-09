@@ -39,7 +39,8 @@
  * </pre>
  *
  *****************************************************************************/
-
+#ifndef _XIO_SWITCH_H_
+#define _XIO_SWITCH_H_
 /****************** Include Files ********************/
 #include "xil_types.h"
 #include "xstatus.h"
@@ -57,45 +58,47 @@
 #define IO_SWITCH_S_AXI_SLV_REG8_OFFSET 32
 
 // Switch mappings used for the io Switch configuration
-#define GPIO      0x00
-#define UART0_TX  0x02
-#define UART0_RX  0x03
-#define SPICLK0   0x04
-#define MISO0     0x05
-#define MOSI0     0x06
-#define SS0       0x07
-#define SPICLK1   0x08
-#define MISO1     0x09
-#define MOSI1     0x0A
-#define SS1       0x0B
-#define SDA0	  0x0C
-#define SCL0	  0x0D
-#define SDA1	  0x0E
-#define SCL1	  0x0F
-#define PWM0      0x10
-#define PWM1      0x11
-#define PWM2      0x12
-#define PWM3      0x13
-#define PWM4      0x14
-#define PWM5      0x15
-#define TIMER_G0  0x18
-#define TIMER_G1  0x19
-#define TIMER_G2  0x1A
-#define TIMER_G3  0x1B
-#define TIMER_G4  0x1C
-#define TIMER_G5  0x1D
-#define TIMER_G6  0x1E
-#define TIMER_G7  0x1F
-#define UART1_TX  0x22
-#define UART1_RX  0x23
-#define TIMER_IC0 0x38
-#define TIMER_IC1 0x39
-#define TIMER_IC2 0x3A
-#define TIMER_IC3 0x3B
-#define TIMER_IC4 0x3C
-#define TIMER_IC5 0x3D
-#define TIMER_IC6 0x3E
-#define TIMER_IC7 0x3F
+enum io_configuration {
+    GPIO      = 0x00,
+    UART0_TX  = 0x02,
+    UART0_RX  = 0x03,
+    SPICLK0   = 0x04,
+    MISO0     = 0x05,
+    MOSI0     = 0x06,
+    SS0       = 0x07,
+    SPICLK1   = 0x08,
+    MISO1     = 0x09,
+    MOSI1     = 0x0A,
+    SS1       = 0x0B,
+    SDA0      = 0x0C,
+    SCL0      = 0x0D,
+    SDA1      = 0x0E,
+    SCL1      = 0x0F,
+    PWM0      = 0x10,
+    PWM1      = 0x11,
+    PWM2      = 0x12,
+    PWM3      = 0x13,
+    PWM4      = 0x14,
+    PWM5      = 0x15,
+    TIMER_G0  = 0x18,
+    TIMER_G1  = 0x19,
+    TIMER_G2  = 0x1A,
+    TIMER_G3  = 0x1B,
+    TIMER_G4  = 0x1C,
+    TIMER_G5  = 0x1D,
+    TIMER_G6  = 0x1E,
+    TIMER_G7  = 0x1F,
+    UART1_TX  = 0x22,
+    UART1_RX  = 0x23,
+    TIMER_IC0 = 0x38,
+    TIMER_IC1 = 0x39,
+    TIMER_IC2 = 0x3A,
+    TIMER_IC3 = 0x3B,
+    TIMER_IC4 = 0x3C,
+    TIMER_IC5 = 0x3D,
+    TIMER_IC6 = 0x3E,
+    TIMER_IC7 = 0x3F,
+};
 
 #define SWITCH_BASEADDR XPAR_IO_SWITCH_0_S_AXI_BASEADDR
 
@@ -103,3 +106,6 @@
 void config_io_switch(int num_of_pins);
 void set_pin(int pin_number, u8 pin_type);
 void init_io_switch(void);
+
+#endif // _XIO_SWITCH_H_
+
