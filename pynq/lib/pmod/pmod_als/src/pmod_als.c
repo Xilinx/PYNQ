@@ -57,7 +57,9 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
+#include "spi.h"
+#include "timer.h"
+#include "circular_buffer.h"
 
 // MAILBOX_WRITE_CMD
 #define READ_SINGLE_VALUE 0x3
@@ -67,6 +69,7 @@
 #define LOG_ITEM_SIZE sizeof(u32)
 #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
+spi device;
 
 u32 get_sample(){
   /* 
@@ -74,7 +77,7 @@ u32 get_sample(){
    * Two bytes need to be read, and data extracted.
    */
   u8 raw_data[2];
-  spi_transfer(SPI_BASEADDR, 2, raw_data, NULL);
+  spi_transfer(device, NULL, (char*)raw_data, 2);
 //  return ( ((raw_data[0] & 0xf0) >> 4) + ((raw_data[1] & 0x0f) << 4) );
   return ( ((raw_data[1] & 0xf0) >> 4) + ((raw_data[0] & 0x0f) << 4) );
 }
@@ -86,9 +89,8 @@ int main(void)
    u16 als_data;
    u32 delay;
 
-   pmod_init(0,1);
-   config_pmod_switch(SS, GPIO_1, MISO, SPICLK, 
-                      GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+   device = spi_open(3, 2, 1, 0);
+
    // to initialize the device
    get_sample();
 
@@ -110,13 +112,13 @@ int main(void)
 
          case READ_AND_LOG:
        // initialize logging variables, reset cmd
-       cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+       cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
        delay = MAILBOX_DATA(1);
        MAILBOX_CMD_ADDR = 0x0; 
 
             do{
                als_data = get_sample();
-           cb_push_back(&pmod_log, &als_data);
+           cb_push_back(&circular_log, &als_data);
            delay_ms(delay);
 
             } while((MAILBOX_CMD_ADDR & 0x1)== 0);
