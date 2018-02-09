@@ -55,7 +55,9 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
+#include "i2c.h"
+#include "timer.h"
+#include "circular_buffer.h"
 
 // Mailbox commands
 #define READ_SINGLE_VALUE 0x3
@@ -66,13 +68,15 @@
 #define LOG_ITEM_SIZE sizeof(float)
 #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
+i2c device;
+
 float get_sample(){
   u8 raw_data[2];
   u32 sample;
   
   // TMP2 get sample in Celsius (x2 reads to clear stale data)
-  iic_read(XPAR_IIC_0_BASEADDR,0x4b,raw_data,2);
-  iic_read(XPAR_IIC_0_BASEADDR,0x4b,raw_data,2);
+  i2c_read(device,0x4b,raw_data,2);
+  i2c_read(device,0x4b,raw_data,2);
   sample = (raw_data[0] << 8) | raw_data[1];
   return (((float)sample)*0.0625)/8; 
 }
@@ -84,9 +88,8 @@ int main(void)
    u32 delay;
    float temperature;
 
-   pmod_init(0,1);
-   config_pmod_switch(GPIO_0, GPIO_1, SCL, SDA, GPIO_4, GPIO_5, SCL, SDA);
-   
+   device = i2c_open(3, 2);
+
    // Run application
    while(1){
 
@@ -103,14 +106,14 @@ int main(void)
             
         case READ_AND_LOG:    
             // initialize logging variables, reset cmd
-            cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+            cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);    
             MAILBOX_CMD_ADDR = 0x0; 
 
             do{
                 // push sample to log and delay
                 temperature = get_sample();
-                cb_push_back_float(&pmod_log, &temperature);
+                cb_push_back_float(&circular_log, &temperature);
                 delay_ms(delay);
             } while((MAILBOX_CMD_ADDR & 0x1)== 0);
             break;
