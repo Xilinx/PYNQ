@@ -53,9 +53,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
-#include "xgpio_l.h"
-#include "xgpio.h"
+#include <circular_buffer.h>
+#include <gpio.h>
+#include <timer.h>
 
 // Work on 8-bit mode
 #define CONFIG_IOP_SWITCH           0x1
@@ -76,12 +76,10 @@
 #define OFF                         0x00
 
 /*
- * The XGpio driver instance data. The user is required to allocate a
- * variable of this type for every GPIO device in the system. A pointer
- * to a variable of this type is then passed to the driver API functions.
+ * gpio devices for clock and data
  */
-XGpio gpo;
-u32 shift = 0;
+gpio gpio_clk;
+gpio gpio_data;
 
 /* 
  * LED state, Brightness for each LED in
@@ -97,22 +95,23 @@ int level_holder = 0;
 int prev_inverse = 0;
 
 void ledbar_init(){
-    /*
-     * Initialize GPIO driver instance
-     * Set data direction for two pins
-     * Pin 0 = Data
-     * Pin 1 = Clock
-     */
-    XGpio_Initialize(&gpo, XPAR_GPIO_0_DEVICE_ID);
-    // Both pins set as Outputs
-    XGpio_SetDataDirection(&gpo, 1, 0);
+    gpio_set_direction(gpio_clk, GPIO_OUT);
+    gpio_set_direction(gpio_data, GPIO_OUT);
 }
 
 void send_data(u8 data){
     int i;
-    u32 data_state, clk_state, detect, data_internal;
+    u32 data_state, clkval, data_internal;
 
     data_internal = data;
+
+    clkval = 0;
+    gpio_write(gpio_data, 0);
+    // First toggle the clock 8 times
+    for (i = 0; i < 8; ++i) {
+         clkval ^= 1;
+         gpio_write(gpio_clk, clkval);
+    }
 
     // Working in 8-bit mode
     for (i = 0; i < 8; i++){
@@ -121,12 +120,9 @@ void send_data(u8 data){
          * Write it to the data_pin
          */
         data_state = (data_internal & 0x80) ? 0x00000001 : 0x00000000;
-        XGpio_DiscreteWrite(&gpo, 1, data_state<< shift);
-
-        // Read Clock pin and regenerate clock
-        detect = XGpio_DiscreteRead(&gpo, 1);
-        clk_state = detect ^ (2 << shift);
-        XGpio_DiscreteWrite(&gpo, 1, clk_state);
+        gpio_write(gpio_data, data_state);
+        clkval ^= 1;
+        gpio_write(gpio_clk, clkval);
 
         // Shift Incoming data to fetch next bit
         data_internal = data_internal << 1;
@@ -135,14 +131,13 @@ void send_data(u8 data){
 
 void latch_data(){
     int i;
-
-    XGpio_DiscreteWrite(&gpo, 1, 0);
+    gpio_write(gpio_data, 0);
     delay_ms(10);
 
     // Generate four pulses on the data pin as per data sheet
     for (i = 0; i < 4; i++){
-        XGpio_DiscreteWrite(&gpo, 1, 1<<shift);
-        XGpio_DiscreteWrite(&gpo, 1, 0);
+        gpio_write(gpio_data, 1);
+        gpio_write(gpio_data, 0);
     }
 }
 
@@ -334,13 +329,6 @@ int main(void)
     u16 get_bits;
     u16 data;
 
-    arduino_init(0,0,0,0);
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                          A_GPIO, A_GPIO, A_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-    ledbar_init();
     
     while(1){
         // wait and store valid command
@@ -350,12 +338,9 @@ int main(void)
         switch(cmd){
               case CONFIG_IOP_SWITCH:
                   // read new pin configuration
-                  config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                        A_GPIO, A_GPIO, A_GPIO,
-                                        D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                        D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                        D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-                  shift = MAILBOX_DATA(0);
+                  gpio_data = gpio_open(MAILBOX_DATA(0));
+                  gpio_clk = gpio_open(MAILBOX_DATA(0) + 1);
+                  ledbar_init();
                   MAILBOX_CMD_ADDR = 0x0;
                   break;
                   
