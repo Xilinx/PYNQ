@@ -56,8 +56,9 @@
  *****************************************************************************/
  
 #include "xparameters.h"
-#include "pmod.h"
-#include "xgpio.h"
+#include "timer.h"
+#include "circular_buffer.h"
+#include "gpio.h"
 
 // Mailbox commands
 #define CONFIG_IOP_SWITCH       0x1
@@ -68,14 +69,14 @@
 #define SPEAKER_CHANNEL 1
 
 // The driver instance for GPIO Devices
-XGpio pb_speaker;
+gpio pb_speaker;
 
 void generateTone(int period_us) {
     // turn-ON speaker
-    XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 1);
+    gpio_write(pb_speaker, 1);
     delay_us(period_us>>1);
     // turn-OFF speaker
-    XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 0);
+    gpio_write(pb_speaker, 0);
     delay_us(period_us>>1);
 }
 
@@ -125,22 +126,9 @@ int main(void) {
     int period_us = 0x55;
     int num_cycles = 10;
     u32 cmd;
-    u8 iop_pins[8];
-    u32 gpio0, gpio1;
+    u32 gpio0;
 
     // Initialize Pmod
-    pmod_init(0,1);
-    /* 
-     * Configuring Pmod IO Switch to connect GPIO to pmod
-     * bit-0 will be controlled by the software to drive the speaker
-     * Buzzer is connected to bit[0] of the Channel 1 of AXI GPIO instance
-     */
-    config_pmod_switch(GPIO_0, GPIO_0, GPIO_1, GPIO_1, 
-                       GPIO_1, GPIO_1, GPIO_0, GPIO_0);
-    XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
-    XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
-    // initially keep it OFF
-    XGpio_DiscreteWrite(&pb_speaker, 1, 0);
 
     while(1){
         while((MAILBOX_CMD_ADDR & 0x01)==0);
@@ -150,24 +138,8 @@ int main(void) {
             case CONFIG_IOP_SWITCH:
                 // read new pin configuration
                   gpio0 = MAILBOX_DATA(0);
-                  gpio1 = MAILBOX_DATA(1);
-                  iop_pins[0] = GPIO_0;
-                  iop_pins[1] = GPIO_0;
-                  iop_pins[2] = GPIO_0;
-                  iop_pins[3] = GPIO_0;
-                  iop_pins[4] = GPIO_0;
-                  iop_pins[5] = GPIO_0;
-                  iop_pins[6] = GPIO_0;
-                  iop_pins[7] = GPIO_0;
-                  // set new pin configuration
-                  iop_pins[gpio0] = GPIO_0;
-                  iop_pins[gpio1] = GPIO_1;
-                  config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                                     iop_pins[3], iop_pins[4], iop_pins[5], 
-                                     iop_pins[6], iop_pins[7]);
-                  XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
-                  XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
-                  XGpio_DiscreteWrite(&pb_speaker, 1, 0);
+                  pb_speaker = gpio_open(gpio0);
+                  gpio_set_direction(pb_speaker, GPIO_OUT);
                   MAILBOX_CMD_ADDR = 0x0;
                   break;
                   
