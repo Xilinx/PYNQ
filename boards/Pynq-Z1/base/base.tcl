@@ -48,6 +48,7 @@
  # 1.00c pp  01/09/2018 retargeted to 2017.4
  # 1.00d pp  01/09/2018 removed pmodb_trace_analyzer, updated with io_switch
  # 1.00e pp  01/22/2018 updated IPs used, hierarchical blocks updated for ports
+ # 1.00f pp  02/09/2018 fixed iop_pmoda hierarchical port names for PmodJA
  #
  # </pre>
  #
@@ -1927,9 +1928,9 @@ proc create_hier_cell_iop_pmoda { parentCell nameHier } {
   create_bd_pin -dir O -from 0 -to 0 intr_req
   create_bd_pin -dir I -type rst mb_debug_sys_rst
   create_bd_pin -dir O -from 0 -to 0 -type rst peripheral_aresetn
-  create_bd_pin -dir I -from 7 -to 0 pmodJA_data_in
-  create_bd_pin -dir O -from 7 -to 0 pmodJA_data_out
-  create_bd_pin -dir O -from 7 -to 0 pmodJA_tri_out
+  create_bd_pin -dir I -from 7 -to 0 data_i
+  create_bd_pin -dir O -from 7 -to 0 data_o
+  create_bd_pin -dir O -from 7 -to 0 tri_o
   create_bd_pin -dir I -from 0 -to 0 -type rst s_axi_aresetn
 
   # Create instance: dff_en_reset_vector_0, and set properties
@@ -2052,10 +2053,10 @@ proc create_hier_cell_iop_pmoda { parentCell nameHier } {
 
   # Create port connections
   connect_bd_net -net dff_en_reset_vector_0_q [get_bd_pins intr_req] [get_bd_pins dff_en_reset_vector_0/q]
-  connect_bd_net -net io_data_i_0_1 [get_bd_pins pmodJA_data_in] [get_bd_pins io_switch/io_data_i]
+  connect_bd_net -net io_data_i_0_1 [get_bd_pins data_i] [get_bd_pins io_switch/io_data_i]
   connect_bd_net -net io_switch_0_timer_i [get_bd_pins io_switch/timer_i] [get_bd_pins timer/capturetrig0]
-  connect_bd_net -net io_switch_io_data_o [get_bd_pins pmodJA_data_out] [get_bd_pins io_switch/io_data_o]
-  connect_bd_net -net io_switch_io_tri_o [get_bd_pins pmodJA_tri_out] [get_bd_pins io_switch/io_tri_o]
+  connect_bd_net -net io_switch_io_data_o [get_bd_pins data_o] [get_bd_pins io_switch/io_data_o]
+  connect_bd_net -net io_switch_io_tri_o [get_bd_pins tri_o] [get_bd_pins io_switch/io_tri_o]
   connect_bd_net -net iop_pmoda_intr_ack_1 [get_bd_pins intr_ack] [get_bd_pins dff_en_reset_vector_0/reset]
   connect_bd_net -net iop_pmoda_intr_gpio_io_o [get_bd_pins dff_en_reset_vector_0/en] [get_bd_pins intr/gpio_io_o]
   connect_bd_net -net logic_1_dout1 [get_bd_pins dff_en_reset_vector_0/d] [get_bd_pins logic_1/dout] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
@@ -3624,7 +3625,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net constant_8bit_0_dout [get_bd_pins concat_pmoda/In2] [get_bd_pins concat_pmoda/In3] [get_bd_pins constant_8bit_0/dout]
   connect_bd_net -net hdmi_out_hpd_video_gpio_io_o [get_bd_ports hdmi_out_hpd] [get_bd_pins video/hdmi_out_hpd]
   connect_bd_net -net io_data_i_0_1 [get_bd_ports shield2sw_data_i] [get_bd_pins concat_arduino/In0] [get_bd_pins iop_arduino/data_i]
-  connect_bd_net -net io_data_i_0_2 [get_bd_ports pmodJA_data_in] [get_bd_pins concat_pmoda/In0] [get_bd_pins iop_pmoda/pmodJA_data_in]
+  connect_bd_net -net io_data_i_0_2 [get_bd_ports pmodJA_data_in] [get_bd_pins concat_pmoda/In0] [get_bd_pins iop_pmoda/data_i]
   connect_bd_net -net iop_arduino_io_data_o_0 [get_bd_ports sw2shield_data_o] [get_bd_pins iop_arduino/data_o]
   connect_bd_net -net iop_arduino_io_tri_o_0 [get_bd_ports sw2shield_tri_o] [get_bd_pins concat_arduino/In4] [get_bd_pins iop_arduino/tri_o]
   connect_bd_net -net iop_arduino_mb3_intr_req [get_bd_pins iop_arduino/intr_req] [get_bd_pins iop_interrupts/In2]
@@ -3635,9 +3636,9 @@ proc create_root_design { parentCell } {
   connect_bd_net -net iop_interrupts_dout [get_bd_pins concat_interrupts/In3] [get_bd_pins iop_interrupts/dout]
   connect_bd_net -net iop_interrupts_irq [get_bd_pins ps7_0/IRQ_F2P] [get_bd_pins system_interrupts/irq]
   connect_bd_net -net iop_pmoda_intr_ack_Dout [get_bd_pins iop_pmoda/intr_ack] [get_bd_pins mb_iop_pmoda_intr_ack/Dout]
-  connect_bd_net -net iop_pmoda_io_data_o_0 [get_bd_ports pmodJA_data_out] [get_bd_pins iop_pmoda/pmodJA_data_out]
+  connect_bd_net -net iop_pmoda_io_data_o_0 [get_bd_ports pmodJA_data_out] [get_bd_pins iop_pmoda/data_o]
   connect_bd_net -net iop_pmoda_iop_pmoda_intr_req [get_bd_pins iop_interrupts/In0] [get_bd_pins iop_pmoda/intr_req]
-  connect_bd_net -net iop_pmoda_pmodJA_tri_o [get_bd_ports pmodJA_tri_out] [get_bd_pins concat_pmoda/In1] [get_bd_pins iop_pmoda/pmodJA_tri_out]
+  connect_bd_net -net iop_pmoda_pmodJA_tri_o [get_bd_ports pmodJA_tri_out] [get_bd_pins concat_pmoda/In1] [get_bd_pins iop_pmoda/tri_o]
   connect_bd_net -net iop_pmodb_intr_ack_1 [get_bd_pins iop_pmodb/intr_ack] [get_bd_pins mb_iop_pmodb_intr_ack/Dout]
   connect_bd_net -net iop_pmodb_iop_pmodb_intr_req [get_bd_pins iop_interrupts/In1] [get_bd_pins iop_pmodb/intr_req]
   connect_bd_net -net iop_pmodb_sw2pmod_data_out [get_bd_ports pmodJB_data_out] [get_bd_pins iop_pmodb/data_o]
