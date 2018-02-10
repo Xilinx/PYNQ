@@ -53,7 +53,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 #define V_REF 3.30
 
@@ -228,19 +230,20 @@ const unsigned char BasicFont[][8]=
 unsigned char grayH;
 unsigned char grayL;
 char addressingMode;
+static i2c device;
 
 void sendCommand(u8 command){
    u8 buffer[2];
    buffer[0] = OLED_Command_Mode;
    buffer[1] = command;
-   iic_write(XPAR_IIC_0_BASEADDR, OLED_Address, buffer, 2);
+   i2c_write(device, OLED_Address, buffer, 2);
 }
 
 void sendData(u8 data){
    u8 buffer[2];
    buffer[0] = OLED_Data_Mode;
    buffer[1] = data;
-   iic_write(XPAR_IIC_0_BASEADDR, OLED_Address, buffer, 2);
+   i2c_write(device, OLED_Address, buffer, 2);
 }
 
 void oled_init(){
@@ -380,15 +383,9 @@ int main(void)
    int cmd;
    int Row, Column;
 
-   arduino_init(0,0,0,0);
-   config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                         A_GPIO, A_SDA, A_SCL,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-   // Initialization
+   device = i2c_open_device(0);
    oled_init();
-   // Run application
+
    while(1){
 
      // wait and store valid command
@@ -397,12 +394,7 @@ int main(void)
 
       switch(cmd){
          case CONFIG_IOP_SWITCH:
-            // use dedicated I2C
-            config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                  A_GPIO, A_SDA, A_SCL,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+            // use dedicated I2C - no operation needed
             oled_init();
             clearDisplay();
             MAILBOX_CMD_ADDR = 0x0;
