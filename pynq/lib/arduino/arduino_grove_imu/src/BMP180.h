@@ -52,6 +52,8 @@
 #ifndef __BAROMETER_H__
 #define __BAROMETER_H__
 
+#include <stdint.h>
+
 #define DEFAULT_BMP_ADDRESS  0x77
 
 const unsigned char OSS = 0;
