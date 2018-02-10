@@ -54,7 +54,9 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 #define V_REF 3.30
 
@@ -229,19 +231,20 @@ const unsigned char BasicFont[][8]=
 unsigned char grayH;
 unsigned char grayL;
 char addressingMode;
+static i2c device;
 
 void sendCommand(u8 command){
    u8 buffer[2];
    buffer[0] = OLED_Command_Mode;
    buffer[1] = command;
-   iic_write(XPAR_IIC_0_BASEADDR, OLED_Address, buffer, 2);
+   i2c_write(device, OLED_Address, buffer, 2);
 }
 
 void sendData(u8 data){
    u8 buffer[2];
    buffer[0] = OLED_Data_Mode;
    buffer[1] = data;
-   iic_write(XPAR_IIC_0_BASEADDR, OLED_Address, buffer, 2);
+   i2c_write(device, OLED_Address, buffer, 2);
 }
 
 void oled_init(){
@@ -380,11 +383,9 @@ int main(void)
 {
    int cmd;
    int Row, Column;
-   u8 iop_pins[8];
    u32 scl, sda;
 
-   pmod_init(0,1);
-   config_pmod_switch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
+   device = i2c_open(3, 7);
    oled_init();
    
    while(1){
@@ -398,20 +399,7 @@ int main(void)
             // read new pin configuration
             scl = MAILBOX_DATA(0);
             sda = MAILBOX_DATA(1);
-            iop_pins[0] = GPIO_0;
-            iop_pins[1] = GPIO_1;
-            iop_pins[2] = GPIO_2;
-            iop_pins[3] = GPIO_3;
-            iop_pins[4] = GPIO_4;
-            iop_pins[5] = GPIO_5;
-            iop_pins[6] = GPIO_6;
-            iop_pins[7] = GPIO_7;
-            // set new pin configuration
-            iop_pins[scl] = SCL;
-            iop_pins[sda] = SDA;
-            config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                               iop_pins[3], iop_pins[4], iop_pins[5], 
-                               iop_pins[6], iop_pins[7]);
+            device = i2c_open(sda, scl);
             oled_init();
             clearDisplay();
             MAILBOX_CMD_ADDR = 0x0;
