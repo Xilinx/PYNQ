@@ -105,7 +105,7 @@ class PynqMicroblaze:
 
     """
 
-    def __init__(self, mb_info, mb_program):
+    def __init__(self, mb_info, mb_program, force=False):
         """Create a new Microblaze object.
 
         It looks for active instances on the same Microblaze, and prevents 
@@ -168,6 +168,7 @@ class PynqMicroblaze:
         addr_base = ip_dict[ip_name]['phys_addr']
         addr_range = ip_dict[ip_name]['addr_range']
         ip_state = ip_dict[ip_name]['state']
+
         # Get reset information
         rst_name = mb_info['rst_name']
         if rst_name not in gpio_dict.keys():
@@ -202,6 +203,14 @@ class PynqMicroblaze:
         self.reset_pin = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
         self.mmio = MMIO(addr_base, addr_range)
 
+        # Check to see if Microblaze in user
+        if (ip_state is not None) and (ip_state != mb_program):
+            if force:
+                self.reset()
+            else:
+                raise RuntimeError('Another program {} already running.'
+                                   .format(ip_state))
+
         # Set optional attributes
         if (intr_pin_name is not None) and (intr_ack_gpio is not None):
             self.interrupt = MBInterruptEvent(intr_pin_name, intr_ack_gpio)
@@ -209,11 +218,6 @@ class PynqMicroblaze:
             self.interrupt = None
 
         # Reset, program, and run
-        if (ip_state is not None) and (ip_state != mb_program):
-            self.reset()
-            #raise RuntimeError('Another program {} already running.'
-            #                   .format(ip_state))
-
         self.program()
 
     def run(self):

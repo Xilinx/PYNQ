@@ -105,6 +105,15 @@ class MicroblazeProgram(PynqMicroblaze):
         if bsp is None:
             bsp = _find_bsp(mb_info['name'])
 
+        ip_dict = PL.ip_dict
+        ip_name = mb_info['ip_name']
+        if ip_name not in ip_dict.keys():
+            raise ValueError("No such IP {}.".format(ip_name))
+        ip_state = ip_dict[ip_name]['state']
+        force = False
+        if ip_state and ip_state.startswith('/tmp/'):
+            force = True
+
         modules = dependencies(program_text, bsp)
         lib_args = []
         with tempfile.TemporaryDirectory() as tempdir:
@@ -149,15 +158,8 @@ class MicroblazeProgram(PynqMicroblaze):
                 print("Objcopy Failed!")
                 print(result.stderr.decode())
 
-            super().__init__(mb_info, path.join(tempdir, 'a.bin'))
+            super().__init__(mb_info, path.join(tempdir, 'a.bin'), force)
             self.stream = InterruptMBStream(self)
             self.read = self.stream.read
             self.write = self.stream.write
             self.read_async = self.stream.read_async
-
-    def reset(self):
-        PL.client_request()
-        PL._ip_dict[self.ip_name]['state'] = None
-        PL.server_update()
-        super().reset()
-        self.mmio.write(0, (64 * 1024) * b'\x00')
