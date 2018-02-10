@@ -54,9 +54,11 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
 #include "MPU9250.h"
 #include "BMP180.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 #define NUM_SAMPLES              100
 
@@ -69,19 +71,23 @@
 #define GET_PRESSURE            0xD
 #define RESET                   0xF
 
+static i2c device;
+
 // Byte operations
 int iic_readBytes(uint8_t devAddr, uint8_t regAddr, 
                 uint8_t length, uint8_t *data){
-    iic_write(XPAR_IIC_0_BASEADDR, devAddr, &regAddr, 1);
-    return iic_read(XPAR_IIC_0_BASEADDR, devAddr, data, length);
+    i2c_write(device, devAddr, &regAddr, 1);
+    i2c_read(device, devAddr, data, length);
+    return length;
 }
 
 int iic_readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
-    iic_write(XPAR_IIC_0_BASEADDR, devAddr, &regAddr, 1);
-    return iic_read(XPAR_IIC_0_BASEADDR, devAddr, data, 1);
+    i2c_write(device, devAddr, &regAddr, 1);
+    i2c_read(device, devAddr, data, 1);
+    return 1;
 }
 
-int iic_writeBytes(uint8_t devAddr, uint8_t regAddr, 
+void iic_writeBytes(uint8_t devAddr, uint8_t regAddr, 
                 uint8_t length, uint8_t *data){
     int i;
     int len_total = (int)length+1;
@@ -90,14 +96,14 @@ int iic_writeBytes(uint8_t devAddr, uint8_t regAddr,
     for (i=1;i<len_total;i++){
         temp[i]=data[i-1];
     }
-    return iic_write(XPAR_IIC_0_BASEADDR, devAddr, temp, len_total);
+    i2c_write(device, devAddr, temp, len_total);
 }
 
-int iic_writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
+void iic_writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
     uint8_t temp[2];
     temp[0] = regAddr;
     temp[1] = *data;
-    return iic_write(XPAR_IIC_0_BASEADDR, devAddr, temp, 2);
+    i2c_write(device, devAddr, temp, 2);
 }
 
 // Bit operations
@@ -125,7 +131,7 @@ int8_t iic_readBit(uint8_t devAddr, uint8_t regAddr,
     return iic_readBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
 }
     
-int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr, 
+void iic_writeBits(uint8_t devAddr, uint8_t regAddr, 
                      uint8_t bitStart, uint8_t width, uint8_t *data) {
     /*
      * 010 value to write
@@ -148,15 +154,12 @@ int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr,
         b &= ~(mask);
         // combine data with existing byte
         b |= temp;
-        return iic_writeByte(devAddr, regAddr, &b);
-    }
-    else{
-        return (int8_t)0;
+        iic_writeByte(devAddr, regAddr, &b);
     }
 }
-int8_t iic_writeBit(uint8_t devAddr, uint8_t regAddr, 
+void iic_writeBit(uint8_t devAddr, uint8_t regAddr, 
                     uint8_t bitStart, uint8_t *data) {
-    return iic_writeBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
+    iic_writeBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
 }
 
 // MPU9250 driver functions
@@ -342,12 +345,10 @@ int main()
    int16_t ax, ay, az;
    int16_t gx, gy, gz;
    int16_t mx, my, mz;
-   u8 iop_pins[8];
    u32 scl, sda;
-   
-   pmod_init(0,1);
-   config_pmod_switch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
+
    // Initialization
+   device = i2c_open(3, 7);
    mpu_init();
    bmp_init();
    // Run application
@@ -361,20 +362,7 @@ int main()
             // read new pin configuration
             scl = MAILBOX_DATA(0);
             sda = MAILBOX_DATA(1);
-            iop_pins[0] = GPIO_0;
-            iop_pins[1] = GPIO_1;
-            iop_pins[2] = GPIO_2;
-            iop_pins[3] = GPIO_3;
-            iop_pins[4] = GPIO_4;
-            iop_pins[5] = GPIO_5;
-            iop_pins[6] = GPIO_6;
-            iop_pins[7] = GPIO_7;
-            // set new pin configuration
-            iop_pins[scl] = SCL;
-            iop_pins[sda] = SDA;
-            config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                               iop_pins[3], iop_pins[4], iop_pins[5], 
-                               iop_pins[6], iop_pins[7]);
+            device = i2c_open(sda, scl);
             mpu_init();
             bmp_init();
             MAILBOX_CMD_ADDR = 0x0;

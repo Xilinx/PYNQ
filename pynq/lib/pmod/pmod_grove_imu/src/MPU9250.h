@@ -54,6 +54,7 @@
 #define _MPU9250_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 //Magnetometer Registers
 #define MPU9150_RA_MAG_ADDRESS		0x0C
 #define MPU9150_RA_MAG_XOUT_L		0x03
