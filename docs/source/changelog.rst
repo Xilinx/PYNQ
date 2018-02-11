@@ -11,17 +11,17 @@ Documentation updated 14 Feb 2018
 
 * Overlay Changes
    * All overlays updated to build with Vivado 2017.4
-   * Hierarchical IPs port names refactored for readability and portability
+   * Hierarchical IPs' port names refactored for readability and portability
 * IP Changes
    * IP refactored for better portability to new boards and interfaces
-   * IO Switch now with configuration optionss for pmod, arduino, dual pmod,
+   * IO Switch now with configuration options for pmod, arduino, dual pmod,
      and custom I/O connectivity
    * IO Switch now with standard I/O controller interfaces for IIC and SPI
 * Linux changes   
    * Updated to Ubuntu 16.04 LTS (Xenial)
    * Updated kernel to tagged 2017.4 Xilinx release.
 * Microblaze Programming
-   * Ipython magics added for Jupyter programming of Microblazes
+   * IPython magics added for Jupyter programming of Microblazes
    * Microblaze pyprintf, RPC, and Python-callable function generation added.
    * New notebooks added to demonstrate the programming APIs
 * Repository Changes
