@@ -29,9 +29,7 @@ Documentation updated 14 Feb 2018
 * Pynq API Changes
    * Audio class renamed to AudioDirect to allow for future audio codec classes
 * New Python Packages 
-   * TBD 
-
-* Documentation changes
+   * netifaces, imutils, scikit-image 
 
 Version 2.0
 ============================
