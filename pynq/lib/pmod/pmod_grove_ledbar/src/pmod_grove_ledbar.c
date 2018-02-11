@@ -54,9 +54,9 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
-#include "xgpio_l.h"
-#include "xgpio.h"
+#include "gpio.h"
+#include "timer.h"
+#include "circular_buffer.h"
 
 // Work on 8-bit mode
 #define CONFIG_IOP_SWITCH           0x1
@@ -77,11 +77,10 @@
 #define OFF                         0x00
 
 /*
- * The XGpio driver instance data. The user is required to allocate a
- * variable of this type for every GPIO device in the system. A pointer
- * to a variable of this type is then passed to the driver API functions.
+ * gpio devices for clock and data
  */
-XGpio gpo;
+gpio gpio_clk;
+gpio gpio_data;
 
 /* 
  * LED state, Brightness for each LED in
@@ -97,22 +96,23 @@ int level_holder = 0;
 int prev_inverse = 0;
 
 void ledbar_init(){
-    /*
-     * Initialize GPIO driver instance
-     * Set data direction for two pins
-     * Pin 0 = Data   - LSB of the XGpio register
-     * Pin 1 = Clock  - LSB + 1 of the XGpio register
-     */
-    XGpio_Initialize(&gpo, XPAR_GPIO_0_DEVICE_ID);
-    // Both pins set as Outputs
-    XGpio_SetDataDirection(&gpo, 1, 0);
+    gpio_set_direction(gpio_clk, GPIO_OUT);
+    gpio_set_direction(gpio_data, GPIO_OUT);
 }
 
 void send_data(u8 data){
     int i;
-    u8 data_state, clk_state, detect, data_internal;
+    u32 data_state, clkval, data_internal;
 
     data_internal = data;
+
+    clkval = 0;
+    gpio_write(gpio_data, 0);
+    // First toggle the clock 8 times
+    for (i = 0; i < 8; ++i) {
+         clkval ^= 1;
+         gpio_write(gpio_clk, clkval);
+    }
 
     // Working in 8-bit mode
     for (i = 0; i < 8; i++){
@@ -121,13 +121,9 @@ void send_data(u8 data){
          * Write it to the data_pin
          */
         data_state = (data_internal & 0x80) ? 0x00000001 : 0x00000000;
-        XGpio_DiscreteWrite(&gpo, 1, data_state);
-
-        // Read Clock pin and regenerate clock
-        detect = XGpio_DiscreteRead(&gpo, 1);
-        clk_state = (detect & 0x02) ? 0x00000000 : 0x00000001;
-        clk_state = clk_state << 1;
-        XGpio_DiscreteWrite(&gpo, 1, (clk_state & 2));
+        gpio_write(gpio_data, data_state);
+        clkval ^= 1;
+        gpio_write(gpio_clk, clkval);
 
         // Shift Incoming data to fetch next bit
         data_internal = data_internal << 1;
@@ -136,14 +132,13 @@ void send_data(u8 data){
 
 void latch_data(){
     int i;
-
-    XGpio_DiscreteWrite(&gpo, 1, 0);
+    gpio_write(gpio_data, 0);
     delay_ms(10);
 
     // Generate four pulses on the data pin as per data sheet
     for (i = 0; i < 4; i++){
-        XGpio_DiscreteWrite(&gpo, 1, 1);
-        XGpio_DiscreteWrite(&gpo, 1, 0);
+        gpio_write(gpio_data, 1);
+        gpio_write(gpio_data, 0);
     }
 }
 
@@ -334,13 +329,8 @@ int main(void)
     char set_brightness[10];
     u16 get_bits;
     u16 data;
-    u8 iop_pins[8];
     u32 gpin0, gpin1;
 
-    pmod_init(0,1);
-    config_pmod_switch(GPIO_0, GPIO_0, GPIO_1, GPIO_1, 
-                       GPIO_1, GPIO_1, GPIO_0, GPIO_0);
-    ledbar_init();
     while(1){
         // wait and store valid command
         while((MAILBOX_CMD_ADDR & 0x01)==0);
@@ -351,20 +341,8 @@ int main(void)
                   // read new pin configuration
                   gpin0 = MAILBOX_DATA(0);
                   gpin1 = MAILBOX_DATA(1);
-                  iop_pins[0] = GPIO_0;
-                  iop_pins[1] = GPIO_0;
-                  iop_pins[2] = GPIO_0;
-                  iop_pins[3] = GPIO_0;
-                  iop_pins[4] = GPIO_0;
-                  iop_pins[5] = GPIO_0;
-                  iop_pins[6] = GPIO_0;
-                  iop_pins[7] = GPIO_0;
-                  // set new pin configuration
-                  iop_pins[gpin0] = GPIO_0;
-                  iop_pins[gpin1] = GPIO_1;
-                  config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                                     iop_pins[3], iop_pins[4], iop_pins[5], 
-                                     iop_pins[6], iop_pins[7]);
+                  gpio_data = gpio_open(gpin0);
+                  gpio_clk = gpio_open(gpin1);
                   ledbar_init();
                   MAILBOX_CMD_ADDR = 0x0;
                   break;

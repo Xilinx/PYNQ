@@ -3,7 +3,7 @@
 	<name>mailbox</name>
 	<comment>Created by SDK v2015.4. bsp_pmod - iop1_mb</comment>
 	<projects>
-		<project>bsp_pmod</project>
+		<project>bsp_iop_pmod</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

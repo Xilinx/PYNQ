@@ -57,7 +57,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
+#include "i2c.h"
+#include "timer.h"
+#include "circular_buffer.h"
 
 #define IIC_ADDRESS 0x50
 
@@ -95,15 +97,17 @@
 #define REG_ADDR_CONVL         0x06
 #define REG_ADDR_CONVH         0x07
 
+static i2c device;
+
 // Read from a Register
 u32 read_adc(u8 reg){
    u8 data_buffer[2];
    u32 sample;
    
    data_buffer[0] = reg; // Set the address pointer register
-   iic_write(XPAR_IIC_0_BASEADDR, IIC_ADDRESS, data_buffer, 1);
+   i2c_write(device, IIC_ADDRESS, data_buffer, 1);
   
-   iic_read(XPAR_IIC_0_BASEADDR, IIC_ADDRESS,data_buffer,2);
+   i2c_read(device, IIC_ADDRESS,data_buffer,2);
    sample = ((data_buffer[0]&0x0f) << 8) | data_buffer[1];
    return sample; 
 }
@@ -120,7 +124,7 @@ void write_adc(u8 reg, u32 data, u8 bytes){
    }else{
       data_buffer[1] = data & 0xff; // Bits 7:0
    }
-   iic_write(XPAR_IIC_0_BASEADDR, IIC_ADDRESS, data_buffer, bytes+1);
+   i2c_write(device, IIC_ADDRESS, data_buffer, bytes+1);
 }
 
 int main(void)
@@ -130,14 +134,8 @@ int main(void)
 
    u32 adc_raw_value;
    float adc_voltage;
-   
-   // Initialize PMOD and timers
-   arduino_init(0,0,0,0);
-   // Initialize the default switch
-   config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_SDA, A_SCL,
-						    D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-						    D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-						    D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+   device = i2c_open_device(0);
+ 
    // Reset, set Tconvert x 32 (fconvert 27 ksps)
    write_adc(REG_ADDR_CONFIG, 0x20, 1); 
    // Run application
@@ -150,11 +148,6 @@ int main(void)
       switch(cmd){
          case CONFIG_IOP_SWITCH:
             // use dedicated I2C
-            config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                  A_GPIO, A_SDA, A_SCL,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO);
             MAILBOX_CMD_ADDR = 0x0;
             break;
             
@@ -173,13 +166,13 @@ int main(void)
             
          case READ_AND_LOG_RAW_DATA:   
             // initialize logging variables, reset cmd
-            cb_init(&arduino_log, 
+            cb_init(&circular_log, 
                     LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
             while(MAILBOX_CMD_ADDR != RESET_ADC){   
                // push sample to log and delay
                adc_raw_value = 2*read_adc(REG_ADDR_RESULT);
-               cb_push_back(&arduino_log, &adc_raw_value);
+               cb_push_back(&circular_log, &adc_raw_value);
                delay_ms(delay);
             }
             MAILBOX_CMD_ADDR = 0x0;
@@ -187,13 +180,13 @@ int main(void)
             
          case READ_AND_LOG_VOLTAGE:
             // initialize logging variables, reset cmd
-            cb_init(&arduino_log, 
+            cb_init(&circular_log, 
                     LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
             while(MAILBOX_CMD_ADDR != RESET_ADC){
                // push sample to log and delay
                adc_voltage = (float)((read_adc(REG_ADDR_RESULT))*V_REF*2/4096);
-               cb_push_back_float(&arduino_log, &adc_voltage);
+               cb_push_back_float(&circular_log, &adc_voltage);
                delay_ms(delay);
             }
             MAILBOX_CMD_ADDR = 0x0;

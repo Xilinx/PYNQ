@@ -58,7 +58,9 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 #define IIC_ADDRESS 0x50
 
@@ -95,15 +97,17 @@
 #define REG_ADDR_CONVL         0x06
 #define REG_ADDR_CONVH         0x07
 
+i2c device;
+
 // Read from a Register
 u32 read_adc(u8 reg){
    u8 data_buffer[2];
    u32 sample;
    
    data_buffer[0] = reg; // Set the address pointer register
-   iic_write(XPAR_IIC_0_BASEADDR, IIC_ADDRESS, data_buffer, 1);
+   i2c_write(device, IIC_ADDRESS, data_buffer, 1);
   
-   iic_read(XPAR_IIC_0_BASEADDR, IIC_ADDRESS,data_buffer,2);
+   i2c_read(device, IIC_ADDRESS,data_buffer,2);
    sample = ((data_buffer[0]&0x0f) << 8) | data_buffer[1];
    return sample; 
 }
@@ -121,7 +125,7 @@ void write_adc(u8 reg, u32 data, u8 bytes){
       data_buffer[1] = data & 0xff; // Bits 7:0
    }
      
-   iic_write(XPAR_IIC_0_BASEADDR, IIC_ADDRESS, data_buffer, bytes+1);
+   i2c_write(device, IIC_ADDRESS, data_buffer, bytes+1);
 
 }
 
@@ -132,15 +136,8 @@ int main(void)
 
    u32 adc_raw_value;
    float adc_voltage;
-   u8 iop_pins[8];
    u32 scl, sda;
    
-   // Initialize Pmod
-   pmod_init(0,1);
-   // Initialize the default switch
-   config_pmod_switch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
-   // Reset, set Tconvert x 32 (fconvert 27 ksps)
-   write_adc(REG_ADDR_CONFIG, 0x20, 1); 
    // Run application
    while(1){
 
@@ -153,20 +150,8 @@ int main(void)
             // read new pin configuration
             scl = MAILBOX_DATA(0);
             sda = MAILBOX_DATA(1);
-            iop_pins[0] = GPIO_0;
-            iop_pins[1] = GPIO_1;
-            iop_pins[2] = GPIO_2;
-            iop_pins[3] = GPIO_3;
-            iop_pins[4] = GPIO_4;
-            iop_pins[5] = GPIO_5;
-            iop_pins[6] = GPIO_6;
-            iop_pins[7] = GPIO_7;
-            // set new pin configuration
-            iop_pins[scl] = SCL;
-            iop_pins[sda] = SDA;
-            config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                               iop_pins[3], iop_pins[4], iop_pins[5], 
-                               iop_pins[6], iop_pins[7]);
+            device = i2c_open(sda, scl);
+            write_adc(REG_ADDR_CONFIG, 0x20, 1); 
             MAILBOX_CMD_ADDR = 0x0;
             break;
             
@@ -185,12 +170,12 @@ int main(void)
             
          case READ_AND_LOG_RAW_DATA:   
             // initialize logging variables, reset cmd
-            cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+            cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
             while(MAILBOX_CMD_ADDR != RESET_ADC){   
                // push sample to log and delay
                adc_raw_value = 2*read_adc(REG_ADDR_RESULT);
-               cb_push_back(&pmod_log, &adc_raw_value);
+               cb_push_back(&circular_log, &adc_raw_value);
                delay_ms(delay);
             }
             MAILBOX_CMD_ADDR = 0x0;
@@ -198,12 +183,12 @@ int main(void)
             
          case READ_AND_LOG_VOLTAGE:
             // initialize logging variables, reset cmd
-            cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+            cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
             while(MAILBOX_CMD_ADDR != RESET_ADC){
                // push sample to log and delay
                adc_voltage = (float)((read_adc(REG_ADDR_RESULT))*V_REF*2/4096);
-               cb_push_back_float(&pmod_log, &adc_voltage);
+               cb_push_back_float(&circular_log, &adc_voltage);
                delay_ms(delay);
             }
             MAILBOX_CMD_ADDR = 0x0;

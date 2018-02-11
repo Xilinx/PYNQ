@@ -3,7 +3,7 @@
 	<name>arduino_analog</name>
 	<comment>Created by SDK v2016.1. bsp_arduino - iop3_mb</comment>
 	<projects>
-		<project>bsp_arduino</project>
+		<project>bsp_iop_arduino</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

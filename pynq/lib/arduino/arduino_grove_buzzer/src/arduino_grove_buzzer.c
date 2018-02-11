@@ -54,28 +54,25 @@
  *
  *****************************************************************************/
  
-#include "xparameters.h"
-#include "arduino.h"
-#include "xgpio.h"
+#include "circular_buffer.h"
+#include "gpio.h"
+#include "timer.h"
 
 // Mailbox commands
 #define CONFIG_IOP_SWITCH       0x1
 #define PLAY_TONE               0x3
 #define PLAY_DEMO               0x5
 
-// Speaker channel
-#define SPEAKER_CHANNEL 1
-
 // The driver instance for GPIO Devices
-XGpio pb_speaker;
-u32 shift;
+gpio speaker_gpio;
+
 
 void generateTone(int period_us) {
     // turn-ON speaker
-    XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 1<<shift);
+    gpio_write(speaker_gpio, 1);
     delay_us(period_us>>1);
     // turn-OFF speaker
-    XGpio_DiscreteWrite(&pb_speaker, SPEAKER_CHANNEL, 0);
+    gpio_write(speaker_gpio, 0);
     delay_us(period_us>>1);
 }
 
@@ -126,37 +123,14 @@ int main(void) {
     int num_cycles = 10;
     u32 cmd;
 
-    arduino_init(0,0,0,0);
-    /* 
-     * Configuring IO Switch to connect GPIO
-     * bit-0 will be controlled by the software to drive the speaker
-     * Buzzer is connected to bit[0] of the Channel 1 of AXI GPIO instance
-     */
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                          A_GPIO, A_GPIO, A_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-    XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
-    XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
-    // initially keep it OFF
-    XGpio_DiscreteWrite(&pb_speaker, 1, 0);
-
     while(1){
         while((MAILBOX_CMD_ADDR & 0x01)==0);
         cmd = MAILBOX_CMD_ADDR;
         
         switch(cmd){
             case CONFIG_IOP_SWITCH:
-                shift = MAILBOX_DATA(0);
-                config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                      A_GPIO, A_GPIO, A_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-                XGpio_Initialize(&pb_speaker, XPAR_GPIO_0_DEVICE_ID);
-                XGpio_SetDataDirection(&pb_speaker, SPEAKER_CHANNEL, 0x0);
-                XGpio_DiscreteWrite(&pb_speaker, 1, 0);
+                speaker_gpio = gpio_open(MAILBOX_DATA(0));
+                gpio_set_direction(speaker_gpio, GPIO_OUT);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
                 

@@ -84,7 +84,6 @@ int main (void)
 {
     int cmd, count, i;
 
-	arduino_init(0,0,0,0);
     while(1){
         while((MAILBOX_CMD_ADDR & 0x01)==0);
         cmd=MAILBOX_CMD_ADDR;
