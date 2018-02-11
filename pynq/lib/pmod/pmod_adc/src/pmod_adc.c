@@ -55,9 +55,9 @@
 #include "xparameters.h"
 #include "ad7991.h"
 #include "xil_io.h"
-#include "pmod.h"
-
-extern XTmrCtr TimerInst_0;
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 /*****************************************************************************/
 /************************** Macros Definitions *******************************/
@@ -65,7 +65,6 @@ extern XTmrCtr TimerInst_0;
 
 // Reference voltage value = actual value * 10000
 #define VREF 2.048
-#define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
 
 #define RESET_ADC              0x1
 #define READ_RAW_DATA          0x3
@@ -80,7 +79,7 @@ extern XTmrCtr TimerInst_0;
 
 u8 WriteBuffer[10];
 u8 ReadBuffer[10];
-u16 SlaveAddress;
+i2c device;
 
 int main()
 {
@@ -91,18 +90,7 @@ int main()
     u32 adc_raw_value;
     float adc_voltage;
 
-    // initialize Pmod
-    pmod_init(0,1);
-    /*  
-     *  Configuring Pmod IO Switch to connect to I2C[0].
-     *  SCLK to pmod pin 3 and 7, I2C[0].SDA to pmod pin 4 and 8
-     *  rest of the bits are configured to default gpio channels
-     *  i.e. pmod pin 1 to gpio[0], pmod pin 2 to gpio[1],
-     *  pmod pin 5 to gpio[4], and pmod pin 6 to gpio[5]
-     */
-    config_pmod_switch(GPIO_0, GPIO_1, SCL, SDA, 
-                       GPIO_4, GPIO_5, GPIO_6, GPIO_7);
-    
+    device = i2c_open(3, 2);
     // to use internal VREF, bridge JP1 accross pin1 and center pin
     useVref=1;
     // filtering on SDA and SCL is enabled
@@ -161,23 +149,23 @@ int main()
             case READ_AND_LOG_RAW_DATA:
                 // set the delay in us between samples
                 delay = MAILBOX_DATA(0);
-                cb_init(&pmod_log, LOG_BASE_ADDRESS, 
+                cb_init(&circular_log, LOG_BASE_ADDRESS, 
                             LOG_CAPACITY, LOG_ITEM_SIZE);
                 while((MAILBOX_CMD_ADDR & 0xf) != RESET_ADC){
                    if(useChan0)
                    {
                         adc_raw_value = adc_read_raw();
-                        cb_push_back(&pmod_log, &adc_raw_value);
+                        cb_push_back(&circular_log, &adc_raw_value);
                    }
                    if(useChan1)
                    {
                         adc_raw_value = adc_read_raw();
-                        cb_push_back(&pmod_log, &adc_raw_value);
+                        cb_push_back(&circular_log, &adc_raw_value);
                    }
                    if(useChan2)
                    {
                     adc_raw_value = adc_read_raw();
-                    cb_push_back(&pmod_log, &adc_raw_value);
+                    cb_push_back(&circular_log, &adc_raw_value);
                    }
                    delay_us(delay);
                 }
@@ -187,23 +175,23 @@ int main()
             case READ_AND_LOG_VOLTAGE:
                 // set the delay in us between samples
                 delay = MAILBOX_DATA(0);
-                cb_init(&pmod_log, LOG_BASE_ADDRESS, 
+                cb_init(&circular_log, LOG_BASE_ADDRESS, 
                             LOG_CAPACITY, LOG_ITEM_SIZE);
                 while((MAILBOX_CMD_ADDR & 0x0f) != RESET_ADC){
                     if(useChan0)
                     {
                         adc_voltage = adc_read_voltage(VREF);
-                        cb_push_back_float(&pmod_log, &adc_voltage);
+                        cb_push_back_float(&circular_log, &adc_voltage);
                     }
                     if(useChan1)
                     {
                         adc_voltage = adc_read_voltage(VREF);
-                        cb_push_back_float(&pmod_log, &adc_voltage);
+                        cb_push_back_float(&circular_log, &adc_voltage);
                     }
                     if(useChan2)
                     {
                         adc_voltage = adc_read_voltage(VREF);
-                        cb_push_back_float(&pmod_log, &adc_voltage);
+                        cb_push_back_float(&circular_log, &adc_voltage);
                     }
                     delay_us(delay);
                 }

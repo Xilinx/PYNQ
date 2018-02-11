@@ -55,9 +55,11 @@
  *****************************************************************************/
 
 #include "xparameters.h"
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "spi.h"
+#include "timer.h"
 
-#define SPI_BASEADDR XPAR_SPI_0_BASEADDR // base address of QSPI[0]
+static spi device;
 /*
  * Passed parameters in MAILBOX_WRITE_CMD
  * bits 31:20 => delay in microsecond if wave generation mode is selected
@@ -138,7 +140,7 @@ void RefOn(void) {
     WriteBuffer[1]=0x00;
     // write to and update requested channel
     WriteBuffer[0]=0x08;
-    spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+    spi_transfer(device, (char*)WriteBuffer, NULL, 4);
 }
 
 void RefOFF(void) {
@@ -150,7 +152,7 @@ void RefOFF(void) {
     WriteBuffer[1]=0x00;
     // write to and update requested channel
     WriteBuffer[0]=0x08;
-    spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+    spi_transfer(device, (char*)WriteBuffer, NULL, 4);
 }
 
 void FixedGen(u8 channels, u16 fixedvalue) {
@@ -163,7 +165,7 @@ void FixedGen(u8 channels, u16 fixedvalue) {
     // 4 most significant bits don't care | write and update DAC command
     WriteBuffer[0] = 0x03;
 
-    spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+    spi_transfer(device, (char*)WriteBuffer, NULL, 4);
 }
 
 void SqWaveGen(u8 channels, u8 numofcycles, u16 delay) {
@@ -177,14 +179,14 @@ void SqWaveGen(u8 channels, u8 numofcycles, u16 delay) {
             WriteBuffer[2] = 0xff;
             WriteBuffer[1] = (channels << 4) | 0x0f;
             for(j=0; j< 4096; j++) {
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay>2)
                     delay_us(delay/2);
             }
             WriteBuffer[2] = 0x00;
             WriteBuffer[1] = (channels << 4) | 0x00;
             for(j=0; j< 4096; j++) {
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay>2)
                     delay_us(delay/2);
             }
@@ -195,14 +197,14 @@ void SqWaveGen(u8 channels, u8 numofcycles, u16 delay) {
             WriteBuffer[2] = 0xff;
             WriteBuffer[1] = (channels << 4) | 0x0f;
             for(j=0; j< 4096; j++) {
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay>2)
                     delay_us(delay/2);
             }
             WriteBuffer[2] = 0x00;
             WriteBuffer[1] = (channels << 4) | 0x00;
             for(j=0; j< 4096; j++) {
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay>2)
                     delay_us(delay/2);
             }
@@ -221,13 +223,13 @@ void SawToothWaveGen(u8 channels, u8 numofcycles, u16 delay) {
             for(j=0; j< 4096; j++) {
                 WriteBuffer[2] = j & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
             WriteBuffer[2] = 0x00;
             WriteBuffer[1] = (channels << 4) | 0x00;
-            spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+            spi_transfer(device, (char*)WriteBuffer, NULL, 4);
             if(delay)
                 delay_us(delay);
         }
@@ -237,13 +239,13 @@ void SawToothWaveGen(u8 channels, u8 numofcycles, u16 delay) {
             for(j=0; j< 4096; j++) {
                 WriteBuffer[2] = j & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
             WriteBuffer[2] = 0x00;
             WriteBuffer[1] = (channels << 4) | 0x00;
-            spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+            spi_transfer(device, (char*)WriteBuffer, NULL, 4);
             if(delay)
                 delay_us(delay);
         }
@@ -261,14 +263,14 @@ void TriangleWaveGen(u8 channels, u8 numofcycles, u16 delay) {
             for(j=0; j< 4096; j++) {
                 WriteBuffer[2] = j & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
             for(j=4095; j>=0; j--) {
                 WriteBuffer[2] = j & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
@@ -279,14 +281,14 @@ void TriangleWaveGen(u8 channels, u8 numofcycles, u16 delay) {
             for(j=0; j< 4096; j++) {
                 WriteBuffer[2] = j & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
             for(j=4095; j>=0; j--) {
                 WriteBuffer[2] = j & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((j >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
@@ -307,7 +309,7 @@ void SineWaveGen(u8 channels, u8 numofcycles, u16 delay) {
                 num = (sinetable[j%256] << 4);
                 WriteBuffer[2] = num & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
@@ -319,7 +321,7 @@ void SineWaveGen(u8 channels, u8 numofcycles, u16 delay) {
                 num = (sinetable[j%256] << 4);
                 WriteBuffer[2] = num & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
@@ -342,7 +344,7 @@ void RandomWaveGen(u8 channels, u8 numofcycles, u16 delay) {
                 num = MAILBOX_DATA((j%256)+1);
                 WriteBuffer[2] = num & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
@@ -354,7 +356,7 @@ void RandomWaveGen(u8 channels, u8 numofcycles, u16 delay) {
                 num = MAILBOX_DATA((j%256)+1);
                 WriteBuffer[2] = num & 0xff;
                 WriteBuffer[1] = (channels << 4) | ((num >> 8 ) & 0x0f);
-                spi_transfer(SPI_BASEADDR, 4, NULL, WriteBuffer);
+                spi_transfer(device, (char*)WriteBuffer, NULL, 4);
                 if(delay)
                     delay_us(delay);
             }
@@ -384,15 +386,8 @@ int main(void)
     u16 fixedvalue;
     u8 mode, channels;
 
-    pmod_init(0,1);
-    /*
-     *  Configuring Pmod IO Switch to connect to SPI[0].SS to pmod bit 0
-     *  SPI[0].MOSI to pmod bit 1, and SPI[0].SCLK to pmod bit 3
-     *  rest of the bits are configured to default gpio channels 
-     *  i.e. gpio[0] to pmod bit 2, gpio[1] to pmod bit 4, etc.
-     */
-    config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,
-                       GPIO_4,GPIO_5, GPIO_6, GPIO_7);
+    device = spi_open(3, 2, 1, 0);
+    device = spi_configure(device, 0, 1);
 
     RefOn();
     while(1){
@@ -428,7 +423,7 @@ int main(void)
         dac(channels,mode,fixedvalue,numofcycles,delay);
         MAILBOX_CMD_ADDR = 0x0;
     }
-    return XST_SUCCESS;
+    return 0;
 }
 
 

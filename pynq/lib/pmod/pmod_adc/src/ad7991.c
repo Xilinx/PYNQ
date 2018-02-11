@@ -54,9 +54,10 @@
 
 #include "xparameters.h"
 #include "ad7991.h"
-#include "pmod.h"
+#include "i2c.h"
 
-#define IIC_BASEADDR  XPAR_IIC_0_BASEADDR
+
+extern i2c device;
 
 void adc_init(void)
 {
@@ -85,7 +86,7 @@ void adc_init(void)
                
     // Write to the Configuration Register
     WriteBuffer[0]=cfgValue;
-    iic_write(XPAR_IIC_0_BASEADDR, AD7991IICAddr, WriteBuffer, 1);
+    i2c_write(device, AD7991IICAddr, WriteBuffer, 1);
 }
 
 /*  
@@ -117,7 +118,7 @@ void adc_config(char chan3, char chan2, char chan1, char chan0,
                
     // Write to the Configuration Register
     WriteBuffer[0]=cfgValue;
-    iic_write(XPAR_IIC_0_BASEADDR, AD7991IICAddr, WriteBuffer, 1);
+    i2c_write(device, AD7991IICAddr, WriteBuffer, 1);
 }
 
 int adc_read_raw()
@@ -126,7 +127,7 @@ int adc_read_raw()
     u8 rcvbuffer[2];
 
     // Read data from AD7991
-    iic_read(XPAR_IIC_0_BASEADDR, AD7991IICAddr, rcvbuffer, 2);
+    i2c_read(device, AD7991IICAddr, rcvbuffer, 2);
     // The first byte is MSB, while the second byte is LSB
     rxData = ((rcvbuffer[0] << 8) | rcvbuffer[1]);
 

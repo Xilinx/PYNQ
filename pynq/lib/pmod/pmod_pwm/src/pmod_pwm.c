@@ -55,10 +55,10 @@
  * </pre>
  *
  *****************************************************************************/
-#include "xparameters.h"
-#include "xtmrctr_l.h"
-#include "xgpio.h"
-#include "pmod.h"
+
+#include "circular_buffer.h"
+#include "timer.h"
+
 
 // Mailbox commands
 #define CONFIG_IOP_SWITCH       0x1
@@ -71,23 +71,6 @@
  * PWM_HIGH_TIME = (TLR1 + 2) * AXI_CLOCK_PERIOD
  */
 
-// TCSR0 Timer 0 Control and Status Register
-#define TCSR0 0x00
-// TLR0 Timer 0 Load Register
-#define TLR0 0x04
-// TCR0 Timer 0 Counter Register
-#define TCR0 0x08
-// TCSR1 Timer 1 Control and Status Register
-#define TCSR1 0x10
-// TLR1 Timer 1 Load Register
-#define TLR1 0x14
-// TCR1 Timer 1 Counter Register
-#define TCR1 0x18
-// Default period value for 100000 us
-#define MS1_VALUE 99998
-// Default period value for 50% duty cycle
-#define MS2_VALUE 49998
-
 /*
  * Parameters passed in MAILBOX_WRITE_CMD
  * bits 31:16 => period in us
@@ -96,35 +79,18 @@
  */
 
 /************************** Function Prototypes ******************************/
-void setup_timers(void) {
-
-    // Load timer's Load registers (period, high time)
-    XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TLR0, MS1_VALUE);
-    XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TLR0, MS2_VALUE);
-    /*
-     * 0010 1011 0110 =>  no cascade, no all timers, enable pwm, 
-     *                    interrupt status, enable timer,
-     *                    no interrupt, no load timer, reload, 
-     *                    no capture, enable external generate, 
-     *                    down counter, generate mode
-     */
-    XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x296);
-    XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0x296);
-}
+static timer device;
 
 int main(void) {
     u32 cmd;
     u32 Timer1Value, Timer2Value;
-    u8 iop_pins[8];
     u32 pwm_pin;
 
     /*
      * Configuring Pmod IO switch
      * bit-0 is controlled by the pwm
      */
-    config_pmod_switch(PWM,GPIO_1,GPIO_2,GPIO_3,
-                       GPIO_4,GPIO_5,GPIO_6,GPIO_7);
-    setup_timers();
+    device = timer_open(0);
 
     while(1){
         while(MAILBOX_CMD_ADDR==0);
@@ -134,41 +100,19 @@ int main(void) {
             case CONFIG_IOP_SWITCH:
                 // read new pin configuration
                 pwm_pin = MAILBOX_DATA(0);
-                iop_pins[0] = GPIO_0;
-                iop_pins[1] = GPIO_1;
-                iop_pins[2] = GPIO_2;
-                iop_pins[3] = GPIO_3;
-                iop_pins[4] = GPIO_4;
-                iop_pins[5] = GPIO_5;
-                iop_pins[6] = GPIO_6;
-                iop_pins[7] = GPIO_7;
-                // set new pin configuration
-                iop_pins[pwm_pin] = PWM;
-                config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                                   iop_pins[3], iop_pins[4], iop_pins[5], 
-                                   iop_pins[6], iop_pins[7]);
+                device = timer_open(pwm_pin);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
                   
             case GENERATE:
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0x296);
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0x296);
-                // period in us
-                Timer1Value = MAILBOX_DATA(0) & 0x0ffff;
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR,0,
-                                 TLR0,Timer1Value*100);
-                // pulse in us
-                Timer2Value = (MAILBOX_DATA(1) & 0x07f)*Timer1Value/100;
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR,1,
-                                 TLR0,Timer2Value*100);
+                Timer1Value = (MAILBOX_DATA(0) & 0x0ffff) *100;
+                Timer2Value = (MAILBOX_DATA(1) & 0x07f)*Timer1Value;
+                timer_pwm_generate(device, Timer1Value, Timer2Value);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
                 
             case STOP:
-                // disable timer 0
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0, 0);
-                // disable timer 1
-                XTmrCtr_WriteReg(XPAR_TMRCTR_0_BASEADDR, 1, TCSR0, 0);
+                timer_pwm_stop(device);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             

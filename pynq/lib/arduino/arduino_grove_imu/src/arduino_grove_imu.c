@@ -53,9 +53,11 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
 #include "MPU9250.h"
 #include "BMP180.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 #define NUM_SAMPLES              100
 
@@ -68,19 +70,23 @@
 #define GET_PRESSURE            0xD
 #define RESET                   0xF
 
+static i2c device;
+
 // Byte operations
 int iic_readBytes(uint8_t devAddr, uint8_t regAddr, 
                 uint8_t length, uint8_t *data){
-    iic_write(XPAR_IIC_0_BASEADDR, devAddr, &regAddr, 1);
-    return iic_read(XPAR_IIC_0_BASEADDR, devAddr, data, length);
+    i2c_write(device, devAddr, &regAddr, 1);
+    i2c_read(device, devAddr, data, length);
+    return length;
 }
 
 int iic_readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
-    iic_write(XPAR_IIC_0_BASEADDR, devAddr, &regAddr, 1);
-    return iic_read(XPAR_IIC_0_BASEADDR, devAddr, data, 1);
+    i2c_write(device, devAddr, &regAddr, 1);
+    i2c_read(device, devAddr, data, 1);
+    return 1;
 }
 
-int iic_writeBytes(uint8_t devAddr, uint8_t regAddr, 
+void iic_writeBytes(uint8_t devAddr, uint8_t regAddr, 
                 uint8_t length, uint8_t *data){
     int i;
     int len_total = (int)length+1;
@@ -89,14 +95,14 @@ int iic_writeBytes(uint8_t devAddr, uint8_t regAddr,
     for (i=1;i<len_total;i++){
         temp[i]=data[i-1];
     }
-    return iic_write(XPAR_IIC_0_BASEADDR, devAddr, temp, len_total);
+    i2c_write(device, devAddr, temp, len_total);
 }
 
-int iic_writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
+void iic_writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data){
     uint8_t temp[2];
     temp[0] = regAddr;
     temp[1] = *data;
-    return iic_write(XPAR_IIC_0_BASEADDR, devAddr, temp, 2);
+    i2c_write(device, devAddr, temp, 2);
 }
 
 // Bit operations
@@ -124,7 +130,7 @@ int8_t iic_readBit(uint8_t devAddr, uint8_t regAddr,
     return iic_readBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
 }
     
-int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr, 
+void iic_writeBits(uint8_t devAddr, uint8_t regAddr, 
                      uint8_t bitStart, uint8_t width, uint8_t *data) {
     /*
      * 010 value to write
@@ -147,15 +153,12 @@ int8_t iic_writeBits(uint8_t devAddr, uint8_t regAddr,
         b &= ~(mask);
         // combine data with existing byte
         b |= temp;
-        return iic_writeByte(devAddr, regAddr, &b);
-    }
-    else{
-        return (int8_t)0;
+        iic_writeByte(devAddr, regAddr, &b);
     }
 }
-int8_t iic_writeBit(uint8_t devAddr, uint8_t regAddr, 
+void iic_writeBit(uint8_t devAddr, uint8_t regAddr, 
                     uint8_t bitStart, uint8_t *data) {
-    return iic_writeBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
+    iic_writeBits(devAddr, regAddr, bitStart, (uint8_t) 1, data);
 }
 
 // MPU9250 driver functions
@@ -341,14 +344,9 @@ int main()
    int16_t ax, ay, az;
    int16_t gx, gy, gz;
    int16_t mx, my, mz;
-   
-   arduino_init(0,0,0,0);
-   config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                         A_GPIO, A_SDA, A_SCL,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+
    // Initialization
+   device = i2c_open_device(0);
    mpu_init();
    bmp_init();
    // Run application
@@ -359,12 +357,7 @@ int main()
 
       switch(cmd){
           case CONFIG_IOP_SWITCH:
-            // use dedicated I2C
-            config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                  A_GPIO, A_SDA, A_SCL,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+            // use dedicated I2C - no operation needed
             mpu_init();
             bmp_init();
             MAILBOX_CMD_ADDR = 0x0;
