@@ -1,0 +1,62 @@
+###############################################################################
+#
+# Copyright (C) 2005 - 2014 Xilinx, Inc.  All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# Use of the Software is limited solely to applications:
+# (a) running on a Xilinx device, or
+# (b) that interact with a Xilinx device through a bus or interconnect.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# XILINX  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+# OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# Except as contained in this notice, the name of the Xilinx shall not be used
+# in advertising or otherwise to promote the sale, use or other dealings in
+# this Software without prior written authorization from Xilinx.
+#
+###############################################################################
+#
+# MODIFICATION HISTORY:
+#
+# Ver      Who    Date     Changes
+# -------- ------ -------- --------------------------------------------------
+# 4.0     adk    10/12/13  Removed support for xps_gpio
+##############################################################################
+## @BEGIN_CHANGELOG EDK_M
+##
+## 21/11/09 ktn Removed support for opb_gpio and plb_gpio
+##    
+## @END_CHANGELOG
+
+## @BEGIN_CHANGELOG EDK_MS3
+##
+## 06/16/10 sv Added support for axi_gpio
+##    
+## @END_CHANGELOG
+
+
+OPTION psf_version = 2.1;
+
+BEGIN driver intrgpio
+
+  OPTION supported_peripherals = (axi_gpio);
+  OPTION driver_state = ACTIVE;
+   OPTION copyfiles = all;
+     OPTION VERSION = 4.1;
+  OPTION NAME = intrgpio;
+
+END driver

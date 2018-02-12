@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
@@ -51,12 +52,23 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 
-#include "xiic.h"
+#include <xparameters.h>
+
+#ifdef XPAR_XIIC_NUM_INSTANCES
 
 /* 
  * IIC API
  */
-int iic_read(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes); 
-int iic_write(u32 iic_BaseAddress, u32 addr, u8* buffer, u8 numbytes);
+typedef int i2c;
 
+i2c i2c_open_device(unsigned int device);
+i2c i2c_open(unsigned int sda, unsigned int scl);
+void i2c_read(i2c dev_id, unsigned int slave_address,
+              unsigned char* buffer, unsigned int length);
+void i2c_write(i2c dev_id, unsigned int slave_address,
+               unsigned char* buffer, unsigned int length);
+void i2c_close(i2c dev_id);
+unsigned int i2c_get_num_devices(void);
+
+#endif
 #endif  // _I2C_H_

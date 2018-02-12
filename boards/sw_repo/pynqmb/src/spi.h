@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
@@ -51,15 +52,24 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-#include "xspi_l.h"
-#include "xtmrctr.h"
+#include <xparameters.h>
+
+#ifdef XPAR_XSPI_NUM_INSTANCES
 
 /*
  * SPI API
  */
-void spi_init(u32 BaseAddress, u32 clk_phase, u32 clk_polarity);
-void spi_transfer(u32 BaseAddress, int bytecount,
-                  u8* readBuffer, u8* writeBuffer, 
-                  XTmrCtr* TmrInstancePtr);
+typedef int spi;
 
+spi spi_open_device(unsigned int device);
+spi spi_open(unsigned int spiclk, unsigned int miso, 
+             unsigned int mosi, unsigned int ss);
+spi spi_configure(spi dev_id, unsigned int clk_phase, 
+                   unsigned int clk_polarity);
+void spi_transfer(spi dev_id, const char* write_data, char* read_data, 
+                  unsigned int length);
+void spi_close(spi dev_id);
+unsigned int spi_get_num_devices(void);
+
+#endif
 #endif  // _SPI_H_
