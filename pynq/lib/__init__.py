@@ -36,6 +36,7 @@
 # from .usb_wifi import Usb_Wifi
 
 from .pynqmicroblaze import PynqMicroblaze
+from .pynqmicroblaze import MicroblazeRPC
 from .axigpio import AxiGPIO
 from .dma import DMA
 from .dma import LegacyDMA

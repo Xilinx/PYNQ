@@ -32,10 +32,11 @@ import os
 import sys
 import math
 from pynq.lib import PynqMicroblaze
+from pynq.lib.pynqmicroblaze import add_bsp
 from . import MAILBOX_OFFSET
 from . import MAILBOX_PY2IOP_CMD_OFFSET
 from . import BIN_LOCATION
-
+from . import BSP_LOCATION
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -170,3 +171,6 @@ class Pmod(PynqMicroblaze):
 
         """
         self.write(MAILBOX_OFFSET + MAILBOX_PY2IOP_CMD_OFFSET, command)
+
+
+add_bsp(BSP_LOCATION)
