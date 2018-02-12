@@ -32,10 +32,10 @@
 /******************************************************************************
  *
  *
- * @file i2c.c
+ * @file uart.c
  *
- * Implementing I2C related functions for PYNQ Microblaze, 
- * including the IIC read and write.
+ * Implementing UART related functions for PYNQ Microblaze, 
+ * including the UART read and write.
  *
  *
  * <pre>
@@ -43,32 +43,31 @@
  *
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
- * 1.00  yrq 01/09/18 release
- * 1.01  yrq 01/30/18 add protection macro
+ * 1.00  yrq 01/30/18 add protection macro
  *
  * </pre>
  *
  *****************************************************************************/
 #include <xparameters.h>
-#include "i2c.h"
+#include "uart.h"
 
-#ifdef XPAR_XIIC_NUM_INSTANCES
-#include "xiic.h"
-#include "xiic_l.h"
-static XIic xi2c[XPAR_XIIC_NUM_INSTANCES];
-XIic* xi2c_ptr = &xi2c[0];
-extern XIic_Config XIic_ConfigTable[];
+#ifdef XPAR_XUART_NUM_INSTANCES
+#include "xuartlite.h"
+#include "xuartlite_i.h"
+static XUartLite xuart[XPAR_XUART_NUM_INSTANCES];
+XUartLite* xuart_ptr = &xuart[0];
+extern XUartLite_Config XUartLite_ConfigTable[XPAR_XUART_NUM_INSTANCES];
+
 /************************** Function Definitions ***************************/
-i2c i2c_open_device(unsigned int device){
+uart uart_open_device(unsigned int device){
     int status;
     u16 dev_id;
-
-    if (device < XPAR_XIIC_NUM_INSTANCES) {
+    if (device < XPAR_XUART_NUM_INSTANCES) {
         dev_id = (u16)device;
     } else {
         int found = 0;
-        for (u16 i = 0; i < XPAR_XIIC_NUM_INSTANCES; ++i) {
-            if (XIic_ConfigTable[i].BaseAddress == device) {
+        for (u16 i = 0; i < XPAR_XUART_NUM_INSTANCES; ++i) {
+            if (XUartLite_ConfigTable[i].RegBaseAddr == device) {
                 found = 1;
                 dev_id = i;
                 break;
@@ -76,54 +75,50 @@ i2c i2c_open_device(unsigned int device){
         }
         if (!found) return -1;
     }
-    status = XIic_Initialize(&xi2c[dev_id], dev_id);
+    status = XUartLite_Initialize(&xuart[dev_id], dev_id);
     if (status != XST_SUCCESS) {
         return -1;
     }
-    return (i2c)dev_id;
-}
-
-
-void i2c_read(i2c dev_id, unsigned int slave_address,
-              unsigned char* buffer, unsigned int length){
-    XIic_Recv(xi2c[dev_id].BaseAddress, 
-              slave_address, buffer, length, XIIC_STOP);
+    return (uart)dev_id;
 }
 
 
 #ifdef XPAR_IO_SWITCH_NUM_INSTANCES
-#ifdef XPAR_IO_SWITCH_0_I2C0_BASEADDR
+#ifdef XPAR_IO_SWITCH_0_UART0_BASEADDR
 #include "xio_switch.h"
-static int last_sda = -1;
-static int last_scl = -1;
+static int last_tx = -1;
+static int last_rx = -1;
 
-i2c i2c_open(unsigned int sda, unsigned int scl){
-    if (last_sda != -1) set_pin(last_sda, GPIO);
-    if (last_scl != -1) set_pin(last_scl, GPIO);
-    last_sda = sda;
-    last_scl = scl;
-    set_pin(scl, SCL0);
-    set_pin(sda, SDA0);
-    return i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+uart uart_open(unsigned int tx, unsigned int int rx){
+    if (last_tx != -1) set_pin(last_tx, GPIO);
+    if (last_rx != -1) set_pin(last_rx, GPIO);
+    last_tx = tx;
+    last_rx = rx;
+    set_pin(tx, UART0_TX);
+    set_pin(rx, UART0_RX);
+    return uart_open_device(XPAR_IO_SWITCH_0_UART0_BASEADDR);
 }
 #endif
 #endif
 
 
-void i2c_write(i2c dev_id, unsigned int slave_address,
-               unsigned char* buffer, unsigned int length){
-    XIic_Send(xi2c[dev_id].BaseAddress, 
-              slave_address, buffer, length, XIIC_STOP);
+void uart_read(uart dev_id, char* read_data, unsigned int length){
+    XUartLite_Recv(&xuart[dev_id], read_data, length);
 }
 
 
-void i2c_close(i2c dev_id){
-    XIic_ClearStats(&xi2c[dev_id]);
+void uart_write(uart dev_id, char* write_data, unsigned int length){
+    XUartLite_Send(&xuart[dev_id], write_data, length);
 }
 
 
-unsigned int i2c_get_num_devices(void){
-    return XPAR_XIIC_NUM_INSTANCES;
+void uart_close(uart dev_id){
+    XUartLite_ClearStats(&xuart[dev_id]);
+}
+
+
+unsigned int uart_get_num_devices(void){
+    return XPAR_XUART_NUM_INSTANCES;
 }
 
 #endif

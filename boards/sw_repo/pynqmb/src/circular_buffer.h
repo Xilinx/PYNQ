@@ -51,6 +51,7 @@
 #ifndef _CIRCULAR_BUFFER_H_
 #define _CIRCULAR_BUFFER_H_
 
+#include <xparameters.h>
 #include "xil_types.h"
 
 #define MAILBOX_CMD_ADDR       (*(volatile u32 *)(0x0000FFFC))

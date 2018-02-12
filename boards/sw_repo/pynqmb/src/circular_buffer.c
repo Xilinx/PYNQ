@@ -70,6 +70,7 @@ int cb_init(circular_buffer *cb, volatile u32* log_start_addr,
     return 0;
 }
 
+
 void cb_push_back(circular_buffer *cb, const void *item){
     // update data
     u8 i;
@@ -84,6 +85,7 @@ void cb_push_back(circular_buffer *cb, const void *item){
     MAILBOX_DATA(0)  = (u32) item;
 }
 
+
 void cb_push_back_float(circular_buffer *cb, const float *item){
     // update data 
     float* tail_ptr = (float*) cb->tail;
@@ -93,6 +95,7 @@ void cb_push_back_float(circular_buffer *cb, const float *item){
     // update mailbox data
     MAILBOX_DATA_FLOAT(0)  = *item;
 }
+
 
 void cb_push_incr_ptrs(circular_buffer *cb){
     // update pointers
