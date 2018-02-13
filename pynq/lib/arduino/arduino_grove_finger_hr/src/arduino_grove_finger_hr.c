@@ -51,8 +51,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
-
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 // Mailbox commands
 // bit 1 always needs to be sets
 #define CONFIG_IOP_SWITCH      0x1
@@ -68,11 +69,12 @@
 #define LOG_ITEM_SIZE sizeof(float)
 #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
+static i2c device;
 
 u8 read_fingerHR(){
     u8 data;
     data = 0;
-    iic_read(XPAR_IIC_0_BASEADDR, I2CHR_ADDR >> 1, &data, 1);
+    i2c_read(device, I2CHR_ADDR >> 1, &data, 1);
     return data;
 }
 
@@ -82,12 +84,7 @@ int main(void)
     u32 delay;
     u32 hr;
 
-    arduino_init(0,0,0,0);
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                          A_GPIO, A_SDA, A_SCL,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+    device = i2c_open_device(0);
 
     // Run application
     while(1){
@@ -99,11 +96,6 @@ int main(void)
         switch(cmd){
             case CONFIG_IOP_SWITCH:
                 // use dedicated I2C
-                config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                      A_GPIO, A_SDA, A_SCL,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case READ_DATA:
@@ -114,14 +106,14 @@ int main(void)
                 break;
             case READ_AND_LOG_DATA:
                 // initialize logging variables, reset cmd
-                cb_init(&arduino_log, LOG_BASE_ADDRESS, 
+                cb_init(&circular_log, LOG_BASE_ADDRESS, 
                         LOG_CAPACITY, LOG_ITEM_SIZE);
                 delay = MAILBOX_DATA(1);
                 MAILBOX_CMD_ADDR = 0x0;
                 do{
                     // push sample to log and delay
                     hr = read_fingerHR();
-                    cb_push_back(&arduino_log, &hr);
+                    cb_push_back(&circular_log, &hr);
                     delay_ms(delay);
                 } while((MAILBOX_CMD_ADDR & 0x1)== 0);
                 break;
