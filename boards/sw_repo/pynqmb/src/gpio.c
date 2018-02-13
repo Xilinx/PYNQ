@@ -176,7 +176,7 @@ void gpio_write(gpio device, unsigned int data){
     dev_id = gpio_dev._gpio.device;
 
     write_value = XGpio_DiscreteRead(&xgpio[dev_id], channel);
-    mask = ~(0x1 << (high + 1)) - (0x1 << low);
+    mask = ~((0x1 << (high + 1)) - (0x1 << low));
     write_value = (write_value & mask) | (data << low);
     XGpio_DiscreteWrite(&xgpio[dev_id], channel, write_value);
 }
