@@ -32,7 +32,7 @@
 /******************************************************************************
  *
  *
- * @file arduino_grove_dlight.c
+ * @file pmod_grove_dlight.c
  * IOP code (MicroBlaze) for grove digital light sensor.
  * The grove digital light sensor has to be connected to a PMOD interface 
  * via a shield socket.
@@ -50,7 +50,9 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 #define  TSL2561_Control  0x80
 #define  TSL2561_Timing   0x81
@@ -140,29 +142,26 @@ unsigned long lux;
 unsigned long temp;
 
 void init_dlight();
-int write_dlight(u8 reg, u32 data, u8 bytes);
+void write_dlight(u8 reg, u32 data, u8 bytes);
 void getLux_dlight();
 lightPoint readValues_dlight();
 u32 readVisibleLux_dlight();
 u32 calculateLux_dlight(unsigned int iGain, unsigned int tInt,int iType);
 u32 read_dlight(u8 reg);
 
+static i2c device;
 
 int main(void)
 {
     lightPoint lightValue;
     u32 Lux;
     int cmd;
-    u8 iop_pins[8];
     u32 scl, sda;
 
-    // Initialize Pmod
-    pmod_init(0,1);
-    config_pmod_switch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
+    device = i2c_open(3, 7);
     /*initialize the color sensor connection*/
     init_dlight();
 
-    /*Loop reading*/
     while(1)
     {
         // wait and store valid command
@@ -175,20 +174,7 @@ int main(void)
             // read new pin configuration
             scl = MAILBOX_DATA(0);
             sda = MAILBOX_DATA(1);
-            iop_pins[0] = GPIO_0;
-            iop_pins[1] = GPIO_1;
-            iop_pins[2] = GPIO_2;
-            iop_pins[3] = GPIO_3;
-            iop_pins[4] = GPIO_4;
-            iop_pins[5] = GPIO_5;
-            iop_pins[6] = GPIO_6;
-            iop_pins[7] = GPIO_7;
-            // set new pin configuration
-            iop_pins[scl] = SCL;
-            iop_pins[sda] = SDA;
-            config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                               iop_pins[3], iop_pins[4], iop_pins[5], 
-                               iop_pins[6], iop_pins[7]);           
+            device = i2c_open(sda, scl);
             init_dlight();
             MAILBOX_CMD_ADDR = 0x0;
             break;
@@ -221,7 +207,7 @@ void init_dlight()
     write_dlight(TSL2561_Control,0x00,1);
 }
 
-int write_dlight(u8 reg, u32 data, u8 bytes)
+void write_dlight(u8 reg, u32 data, u8 bytes)
 {
     u8 data_buffer[3];
     data_buffer[0] = reg;
@@ -232,7 +218,7 @@ int write_dlight(u8 reg, u32 data, u8 bytes)
         data_buffer[1] = data & 0xff; // Bits 7:0
     }
 
-    return iic_write(IIC_BASEADDR, TSL2561_Address, data_buffer, bytes+1);
+    i2c_write(device, TSL2561_Address, data_buffer, bytes+1);
 }
 
 u32 read_dlight(u8 reg)
@@ -241,9 +227,9 @@ u32 read_dlight(u8 reg)
    u32 sample;
 
    data_buffer[0] = reg; // Set the address pointer register
-   iic_write(IIC_BASEADDR, TSL2561_Address, data_buffer, 1);
+   i2c_write(device, TSL2561_Address, data_buffer, 1);
 
-   iic_read(IIC_BASEADDR, TSL2561_Address,data_buffer,2);
+   i2c_read(device, TSL2561_Address, data_buffer, 2);
    sample = data_buffer[0]&0x0f;
    return sample;
 }
