@@ -50,7 +50,9 @@
  *
  *****************************************************************************/
 
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "i2c.h"
+#include "timer.h"
 
 // Mailbox commands
 // bit 1 always needs to be sets
@@ -125,10 +127,11 @@
 
 
 void init_csens();
-int write_csens(u8 reg, u32 data);
+void write_csens(u8 reg, u32 data);
 void read_csens(u8 reg, u8 *data_buffer, int numbytes);
 void readRGB_csens(u32 rgb[4]);
 
+static i2c device;
 
 void init_csens()
 {
@@ -140,22 +143,22 @@ void init_csens()
     delay_ms(10);
 }
 
-int write_csens(u8 reg, u32 data)
+void write_csens(u8 reg, u32 data)
 {
-    u8 data_buffer[3];
+    u8 data_buffer[2];
     data_buffer[0] = reg;
     data_buffer[1] = data & 0xff; // Bits 7:0
 
-    return iic_write(IIC_BASEADDR, COLOR_SENSOR_ADDR, data_buffer, 2);
+    i2c_write(device, COLOR_SENSOR_ADDR, data_buffer, 2);
 }
 
 void read_csens(u8 reg, u8 *data_buffer, int numbytes){
     data_buffer[0] = reg; // Set the address pointer register
-    iic_write(IIC_BASEADDR, COLOR_SENSOR_ADDR, data_buffer, 1);
+    i2c_write(device, COLOR_SENSOR_ADDR, data_buffer, 1);
 
     delay_ms(READ_DELAY_MS);
 
-    iic_read(IIC_BASEADDR, COLOR_SENSOR_ADDR, data_buffer, numbytes);
+    i2c_read(device, COLOR_SENSOR_ADDR, data_buffer, numbytes);
 }
  
 void readRGB_csens(u32 rgb[4]){
@@ -170,15 +173,11 @@ void readRGB_csens(u32 rgb[4]){
 int main(void)
 {
     u32 cmd;
-    u8 iop_pins[8];
     u32 scl, sda;
     u32 rgb[4];
 
-    // Initialize Pmod
-    pmod_init(0,1);
-    config_pmod_switch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
+    device = i2c_open(3, 7);
 
-    // Run application
     while(1){
         // wait and store valid command
         while((MAILBOX_CMD_ADDR)==0);
@@ -189,21 +188,7 @@ int main(void)
                 // read new pin configuration
                 scl = MAILBOX_DATA(0);
                 sda = MAILBOX_DATA(1);
-                iop_pins[0] = GPIO_0;
-                iop_pins[1] = GPIO_1;
-                iop_pins[2] = GPIO_2;
-                iop_pins[3] = GPIO_3;
-                iop_pins[4] = GPIO_4;
-                iop_pins[5] = GPIO_5;
-                iop_pins[6] = GPIO_6;
-                iop_pins[7] = GPIO_7;
-                // set new pin configuration
-                iop_pins[scl] = SCL;
-                iop_pins[sda] = SDA;
-                // set new pin configuration
-                config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                                   iop_pins[3], iop_pins[4], iop_pins[5], 
-                                   iop_pins[6], iop_pins[7]);
+                device = i2c_open(sda, scl);
                 init_csens();
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
