@@ -50,7 +50,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
+#include "circular_buffer.h"
+#include "i2c.h"
+#include "timer.h"
 
 // Mailbox commands
 // bit 1 always needs to be sets
@@ -125,10 +127,11 @@
 
 
 void init_csens();
-int write_csens(u8 reg, u32 data);
+void write_csens(u8 reg, u32 data);
 void read_csens(u8 reg, u8 *data_buffer, int numbytes);
 void readRGB_csens(u32 rgb[4]);
 
+static i2c device;
 
 void init_csens(){
     write_csens(REG_TIMING, INTEG_MODE_FREE | INTEG_PARAM_PULSE_COUNT1);
@@ -139,18 +142,18 @@ void init_csens(){
     delay_ms(10);
 }
 
-int write_csens(u8 reg, u32 data){
-    u8 data_buffer[3];
+void write_csens(u8 reg, u32 data){
+    u8 data_buffer[2];
     data_buffer[0] = reg;
     data_buffer[1] = data & 0xff; // Bits 7:0
-    return iic_write(XPAR_IIC_0_BASEADDR, COLOR_SENSOR_ADDR, data_buffer, 2);
+    i2c_write(device, COLOR_SENSOR_ADDR, data_buffer, 2);
 }
 
 void read_csens(u8 reg, u8 *data_buffer, int numbytes){
     data_buffer[0] = reg; // Set the address pointer register
-    iic_write(XPAR_IIC_0_BASEADDR, COLOR_SENSOR_ADDR, data_buffer, 1);
+    i2c_write(device, COLOR_SENSOR_ADDR, data_buffer, 1);
     delay_ms(READ_DELAY_MS);
-    iic_read(XPAR_IIC_0_BASEADDR, COLOR_SENSOR_ADDR, data_buffer, numbytes);
+    i2c_read(device, COLOR_SENSOR_ADDR, data_buffer, numbytes);
 }
  
 void readRGB_csens(u32 rgb[4])
@@ -168,12 +171,8 @@ int main(void)
     u32 cmd;
     u32 rgb[4];
 
-    arduino_init(0,0,0,0);
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                          A_GPIO, A_SDA, A_SCL,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+    device = i2c_open_device(0);
+    init_csens();
 
     // Run application
     while(1){
@@ -184,12 +183,6 @@ int main(void)
         switch(cmd){
             case CONFIG_IOP_SWITCH:
                 // use dedicated I2C
-                config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                      A_GPIO, A_SDA, A_SCL,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO);  
-            
                 init_csens();
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
