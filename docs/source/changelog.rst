@@ -12,6 +12,11 @@ Documentation updated 14 Feb 2018
 * Overlay Changes
    * All overlays updated to build with Vivado 2017.4
    * Hierarchical IPs' port names refactored for readability and portability
+   * The IOP hierarchical blocks are renamed from iop_1, 2, 3 to iop_pmoda, iop_pmodb, and iop_arduino
+   * The Microblaze subsystem I/O controllers were renamed to be iop agnostic
+ * Base Overlay Changes
+   * The onboard switches and LEDs controlled are now controlled by two AXI_GPIO IPs.
+   * The 2nd I2C (shared) from the Arduino IOP was removed
 * IP Changes
    * IP refactored for better portability to new boards and interfaces
    * IO Switch now with configuration options for pmod, arduino, dual pmod,
