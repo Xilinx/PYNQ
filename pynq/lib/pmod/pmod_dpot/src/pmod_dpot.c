@@ -57,7 +57,9 @@
  *
  *****************************************************************************/
  
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "spi.h"
 
 /*
  * MAILBOX_WRITE_CMD
@@ -70,15 +72,16 @@
 #define SET_POT_SIMPLE 0x3
 #define SET_POT_RAMP 0x5
 
+static spi device;
+
 int main(void)
 {
    int cmd;
-   u8 dpot_value;
+   char dpot_value;
    u32 step_size, delay;
 
-   pmod_init(0,1);
-   config_pmod_switch(SS, MOSI, GPIO_2, SPICLK, 
-                      GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+   device = spi_open(3,2,1,0);
+   device = spi_configure(device, 0, 1);
 
    // Run application
    while(1){
@@ -93,7 +96,7 @@ int main(void)
             break;
          case SET_POT_SIMPLE:
             dpot_value = MAILBOX_DATA(0);
-            spi_transfer(SPI_BASEADDR, 1, NULL, &dpot_value);
+            spi_transfer(device, &dpot_value, NULL, 1);
             MAILBOX_CMD_ADDR = 0;
             break;
          case SET_POT_RAMP:
@@ -103,7 +106,7 @@ int main(void)
             MAILBOX_CMD_ADDR = 0;
             // do continuously until new command
             do{
-               spi_transfer(SPI_BASEADDR, 1, NULL, &dpot_value);
+               spi_transfer(device, &dpot_value, NULL, 1);
                // Positive ramp
                dpot_value = dpot_value + step_size;
                delay_ms(delay);
