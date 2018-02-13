@@ -53,21 +53,19 @@
 
 #include <stdio.h>
 #include "arduino_grove_th02.h"
-#include "arduino.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
+
+static i2c device;
 
 int main(void){
     u32 cmd;
     u32 delay;
     u32 tmp, humidity;
 
-    arduino_init(0,0,0,0);
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                         A_GPIO, A_SDA, A_SCL,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                         D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+    device = i2c_open_device(0);
 
-    // Run application
     while(1){
       // wait and store valid command
       while((MAILBOX_CMD_ADDR)==0);
@@ -76,12 +74,7 @@ int main(void){
 
       switch(cmd){
         case CONFIG_IOP_SWITCH:
-            // use dedicated I2C
-            config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                  A_GPIO, A_SDA, A_SCL,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+            // use dedicated I2C - no operation needed
 
             MAILBOX_CMD_ADDR = 0x0;
             break;
@@ -96,7 +89,7 @@ int main(void){
             break;
         case READ_AND_LOG_DATA:
             // initialize logging variables, reset cmd
-            cb_init(&arduino_log, LOG_BASE_ADDRESS, LOG_CAPACITY, 
+            cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, 
                     LOG_ITEM_SIZE);
             delay = MAILBOX_DATA(1);
             MAILBOX_CMD_ADDR = 0x0;
@@ -104,8 +97,8 @@ int main(void){
                 // push sample to log and delay
                 tmp = TH02_readTemperature();
                 humidity = TH02_readHumidity();
-                cb_push_back(&arduino_log, &tmp);
-                cb_push_back(&arduino_log, &humidity);
+                cb_push_back(&circular_log, &tmp);
+                cb_push_back(&circular_log, &humidity);
                 delay_ms(delay);
             } while(MAILBOX_CMD_ADDR == 0); // do while no new command
             break;
@@ -142,27 +135,27 @@ void wait_for_data(){
 }
 
 
-int TH02_write(u8 reg, u8 data)
+void TH02_write(u8 reg, u8 data)
 {
     //first is register, second is data
     u8 data_buffer[2];
     data_buffer[0] = reg;
     data_buffer[1] = data;
-    return iic_write(XPAR_IIC_0_BASEADDR, TH02_I2C_DEV_ID, data_buffer, 2);
+    i2c_write(device, TH02_I2C_DEV_ID, data_buffer, 2);
 }
 
 u8 TH02_read(u8 reg){
     u8 data = 0;
     data = reg; // Set the address pointer register
-    iic_write(XPAR_IIC_0_BASEADDR, TH02_I2C_DEV_ID, &data, 1);
-    iic_read(XPAR_IIC_0_BASEADDR, TH02_I2C_DEV_ID,&data, 1);
+    i2c_write(device, TH02_I2C_DEV_ID, &data, 1);
+    i2c_read(device, TH02_I2C_DEV_ID,&data, 1);
     return data;
 }
 
 void TH02_read_3(u8 reg, u8 * data_par){
     data_par[0] = reg; // Set the address pointer register
-    iic_write(XPAR_IIC_0_BASEADDR, TH02_I2C_DEV_ID, data_par, 1);
-    iic_read(XPAR_IIC_0_BASEADDR, TH02_I2C_DEV_ID, data_par, 3);
+    i2c_write(device, TH02_I2C_DEV_ID, data_par, 1);
+    i2c_read(device, TH02_I2C_DEV_ID, data_par, 3);
 }
 
 uint16_t TH02_IIC_ReadData2byte(){

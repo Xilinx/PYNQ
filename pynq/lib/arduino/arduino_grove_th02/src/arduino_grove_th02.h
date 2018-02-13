@@ -54,7 +54,7 @@
 #define _THO2_DEV_H
 
 #include <stdio.h>
-#include "arduino.h"
+#include <xil_types.h>
 
 #define TH02_I2C_DEV_ID      0x40
 #define REG_STATUS           0x00
@@ -85,7 +85,7 @@
 
 uint16_t TH02_readTemperature();
 uint16_t TH02_readHumidity();
-int TH02_write(u8 reg, u8 data);
+void TH02_write(u8 reg, u8 data);
 u8 TH02_read(u8 reg);
 void TH02_read_3(u8 reg, u8 * data_par);
 uint16_t TH02_IIC_ReadData2byte();
