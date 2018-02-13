@@ -122,7 +122,7 @@ Issue a write command to the specified slave.
 Close the I2C device.
 
 SPI Devices
-~~~~~~~~~~~
+-----------
 
 SPI operates on a synchronous transfer of data so rather than read and
 write, only a ``transfer`` function is provided. These functions are all

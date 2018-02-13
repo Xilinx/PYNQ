@@ -54,7 +54,8 @@ is loaded these can be accessed as follows:
 
    base = BaseOverlay('base.bit')
 
-   mb = PynqMicroblaze(base.iop1.mb_info, "/home/xilinx/pynq/lib/pmod/pmod_timer.bin")
+   mb = PynqMicroblaze(base.iop1.mb_info,
+                       "/home/xilinx/pynq/lib/pmod/pmod_timer.bin")
    mb.reset()
 
 More information about the PynqMicroblaze class, and its API can be found in the
@@ -70,7 +71,7 @@ Creating a New PYNQ Microblaze
 Any hierarchy that contains a Microblaze and meets the above requirements of
 having AXI-accessible code memory, a PS interrupt line and a reset line can be
 used in PYNQ. However in order to use your Microblaze with the IPython magic
-you must provide a board support package or BSP. BSPs are generated from Xilinx
+you must provide a board support package (BSP). BSPs are generated from Xilinx
 SDK and contain all of the drivers and configuration data for the peripherals
 attached to the Microblaze.
 
@@ -82,7 +83,8 @@ steps:
 
 1. Export Hardware from Vivado to generate the HDF file
 
-2. In the ``boards/sw_repo`` directory run ``xsct build_xsdk.tcl $HDF_FILE hw_project``
+2. In the ``boards/sw_repo`` directory run ``make HDF=$HDF_FILE``. If no HDF
+   is provided then the Base Overlay BSPs will be generated.
 
 3. Copy the generated BSP on to the board and ensure it is name
    ``bsp_${hierarchy}`` where ``${hierarchy}`` is the name of the Microblaze

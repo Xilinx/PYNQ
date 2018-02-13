@@ -31,6 +31,10 @@ non-void primitive the following semantics:
 -  Non-const pointer types are copied from Python to the Microblaze and
    then copied back after completion of the function.
 
+The timeline of the execution of the function can be seen below:
+
+.. image::../images/ipmb_data_transfer.png
+
 The Python ``struct`` module is used to convert the Python type passed
 to the function into the appropriately sized integer or floating point
 value for the Microblaze. Out of range values will result in an
