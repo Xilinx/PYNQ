@@ -25,6 +25,7 @@ Documentation updated 14 Feb 2018
 * Linux changes   
    * Updated to Ubuntu 16.04 LTS (Xenial)
    * Updated kernel to tagged 2017.4 Xilinx release.
+   * Jupyter now listens on both :80 and :9090 ports
 * Microblaze Programming
    * IPython magics added for Jupyter programming of Microblazes
    * Microblaze pyprintf, RPC, and Python-callable function generation added.
