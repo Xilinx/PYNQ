@@ -38,4 +38,5 @@ from .bsp import Modules
 from .bsp import add_bsp
 from .compile import MicroblazeProgram
 from .rpc import MicroblazeRPC
+from .rpc import MicroblazeLibrary
 from .magic import MicroblazeMagics

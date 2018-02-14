@@ -28,6 +28,7 @@ class PrimitiveWrapper:
     def __init__(self, struct_string, type_):
         self._struct = struct.Struct(struct_string)
         self.typedefname = None
+        self.blocks = False
         self._type = type_
 
     def param_encode(self, old_val):
@@ -58,6 +59,7 @@ class VoidPointerWrapper:
     def __init__(self, type_):
         self._type = type_
         self.typedefname = None
+        self.blocks = False
         self._ptrstruct = struct.Struct('I')
 
     def param_encode(self, old_val):
@@ -110,6 +112,7 @@ class ConstPointerWrapper:
         self._lenstruct = struct.Struct('h')
         self._struct_string = struct_string
         self.typedefname = None
+        self.blocks = False
         self._type = type_
 
     def param_encode(self, old_val):
@@ -149,6 +152,7 @@ class PointerWrapper:
         self._lenstruct = struct.Struct('h')
         self._struct_string = struct_string
         self.typedefname = None
+        self.blocks = True
         self._type = type_
 
     def param_encode(self, old_val):
@@ -192,6 +196,7 @@ class VoidWrapper:
     """
     def __init__(self):
         self.typedefname = None
+        self.blocks = False
 
     def param_encode(self, old_val):
         return b''
@@ -352,7 +357,7 @@ class FuncAdapter:
         self.name = decl.type.declname
         self.docstring = ""
         self.arg_interfaces = []
-
+        self.blocks = False
         block_contents = []
         post_block_contents = []
         func_args = []
@@ -368,6 +373,7 @@ class FuncAdapter:
                 post_block_contents.extend(interface.post_argument(f'arg{i}'))
                 func_args.append(c_ast.ID(f'arg{i}'))
                 self.arg_interfaces.append(interface)
+                self.blocks = self.blocks | interface.blocks
 
         function_call = c_ast.FuncCall(c_ast.ID(self.name),
                                        c_ast.ExprList(func_args))
@@ -382,8 +388,13 @@ class FuncAdapter:
             block_contents.append(ret_assign)
             block_contents.append(_generate_write('return_command'))
             block_contents.append(_generate_write('ret'))
+            self.blocks = True
         else:
             block_contents.append(function_call)
+            if self.blocks:
+                block_contents.append(_generate_write('return_command'))
+            else:
+                block_contents.append(_generate_write('void_command'))
 
         block_contents.extend(post_block_contents)
         self.call_ast = c_ast.Compound(block_contents)
@@ -535,6 +546,7 @@ def _build_main(program_text, functions):
     #include <unistd.h>
     #include <mailbox_io.h>
     static const char return_command = 0;
+    static const char void_command = 2;
 
     static void _rpc_read(void* data, int size) {
         int available = mailbox_available(2);
@@ -589,7 +601,9 @@ def _pyprintf(stream):
 
 
 def _handle_command(command, stream):
-    if command == 1:  # print command
+    if command == 1:  # Void return
+        pass
+    if command == 2:  # print command
         _pyprintf(stream)
     else:
         raise RuntimeError(f'Unknown command {command}')
@@ -679,16 +693,17 @@ class MicroblazeFunction:
         command = self.stream.read(1)[0]
         if command != 0:
             _handle_command(command, self.stream)
-            return None
-        return self.function.receive_response(self.stream, *args)
+            return None, False
+        return self.function.receive_response(self.stream, *args), True
 
     def __call__(self, *args):
         self._call_function(*args)
-        if not self.function.returns:
+        if not self.function.blocks:
             return None
         return_value = None
-        while return_value is None:
-            return_value = self._handle_stream(*args)
+        done = False
+        while not done:
+            return_value, done = self._handle_stream(*args)
 
         if self.return_type:
             return self.return_type(return_value)
@@ -697,12 +712,13 @@ class MicroblazeFunction:
 
     async def call_async(self, *args):
         self._call_function(*args)
-        if not self.function.returns:
+        if not self.function.blocks:
             return None
         return_value = None
+        done = False
         while return_value is None:
             await self.stream.wait_for_data_async()
-            return_value = self._handle_stream(*args)
+            return_value, done = self._handle_stream(*args)
 
         if self.return_type:
             return self.return_type(return_value)
@@ -794,3 +810,31 @@ class MicroblazeRPC:
 
         """
         self.reset()
+
+
+class MicroblazeLibrary(MicroblazeRPC):
+    """Provides simple Python-only access to a set of Microblaze libraries.
+
+    The members of this class are determined by the libraries chosen and can
+    determined either by using ``dir`` on the instance or the ``?`` operator
+    inside of IPython
+
+
+    """
+    def __init__(self, iop, libraries):
+        """Create a Python API for a list of C libraries
+
+        Parameters
+        ----------
+
+        iop : mb_info or MicroblazeHierarchy
+             The IOP to load the libraries on
+        libraries : [str]
+             The names of the libraries to load
+
+        Libraries should be passed as the name of the header file containing
+        the desired functions but without the ``.h`` extension
+
+        """
+        source_text = "\n".join([f'#include <{lib}.h>' for lib in libraries])
+        super().__init__(iop, source_text)
