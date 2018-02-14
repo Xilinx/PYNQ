@@ -1,3 +1,36 @@
+#   Copyright (c) 2016, Xilinx, Inc.
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+__author__ = "Peter Ogden"
+__copyright__ = "Copyright 2017, Xilinx"
+__email__ = "ogden@xilinx.com"
+
 import pycparser
 import struct
 import functools
@@ -74,13 +107,13 @@ class VoidPointerWrapper:
     def pre_argument(self, name):
         commands = []
         commands.append(_generate_decl(
-            f'{name}_int',
-            c_ast.TypeDecl(f'{name}_int', [],
+            name + '_int',
+            c_ast.TypeDecl(name + '_int', [],
                            c_ast.IdentifierType(['unsigned', 'int']))))
-        commands.append(_generate_read(f'{name}_int'))
+        commands.append(_generate_read(name +'_int'))
         commands.append(c_ast.Assignment(
             '|=',
-            c_ast.ID(f'{name}_int'),
+            c_ast.ID(name + '_int'),
             c_ast.Constant('int', '0x20000000')))
         commands.append(
             c_ast.Decl(name, [], [], [],
@@ -94,7 +127,7 @@ class VoidPointerWrapper:
                                      [], c_ast.TypeDecl(
                                           None, [],
                                           c_ast.IdentifierType(['void'])))),
-                            c_ast.ID(f'{name}_int')),
+                            c_ast.ID(name + '_int')),
                        []
                        ))
         return commands
@@ -129,13 +162,13 @@ class ConstPointerWrapper:
         commands = []
         commands.append(
             _generate_decl(
-                f'{name}_len',
-                c_ast.TypeDecl(f'{name}_len', [],
+                name + '_len',
+                c_ast.TypeDecl(name + '_len', [],
                                c_ast.IdentifierType(['unsigned', 'short']))))
-        commands.append(_generate_read(f'{name}_len'))
+        commands.append(_generate_read(name + '_len'))
         commands.append(_generate_arraydecl(name,
                                             self._type,
-                                            c_ast.ID(f'{name}_len')))
+                                            c_ast.ID(name + '_len')))
         commands.append(_generate_read(name, address=False))
         return commands
 
@@ -173,19 +206,19 @@ class PointerWrapper:
         commands = []
         commands.append(
             _generate_decl(
-                f'{name}_len',
-                c_ast.TypeDecl(f'{name}_len', [],
+                name + '_len',
+                c_ast.TypeDecl(name + '_len', [],
                                c_ast.IdentifierType(['unsigned', 'short']))))
-        commands.append(_generate_read(f'{name}_len'))
+        commands.append(_generate_read(name + '_len'))
         commands.append(_generate_arraydecl(name,
                                             self._type,
-                                            c_ast.ID(f'{name}_len')))
+                                            c_ast.ID(name + '_len')))
         commands.append(_generate_read(name, address=False))
         return commands
 
     def post_argument(self, name):
         commands = []
-        commands.append(_generate_write(f'{name}_len'))
+        commands.append(_generate_write(name + '_len'))
         commands.append(_generate_write(name, address=False))
         return commands
 
@@ -251,7 +284,7 @@ def _type_to_struct_string(tdecl):
             return 'B'
     if name == 'float':
         return 'f'
-    raise RuntimeError(f'Unknown type {name}')
+    raise RuntimeError('Unknown type {}'.format(name))
 
 
 def _type_to_interface(tdecl, typedefs):
@@ -369,9 +402,10 @@ class FuncAdapter:
                 interface = _type_to_interface(arg.type, typedefs)
                 if type(interface) is VoidWrapper:
                     continue
-                block_contents.extend(interface.pre_argument(f'arg{i}'))
-                post_block_contents.extend(interface.post_argument(f'arg{i}'))
-                func_args.append(c_ast.ID(f'arg{i}'))
+                block_contents.extend(interface.pre_argument('arg' + str(i)))
+                post_block_contents.extend(interface.post_argument(
+                    'arg' + str(i)))
+                func_args.append(c_ast.ID('arg' + str(i)))
                 self.arg_interfaces.append(interface)
                 self.blocks = self.blocks | interface.blocks
 
@@ -473,7 +507,8 @@ class FuncDefVisitor(pycparser.c_ast.NodeVisitor):
             self.functions[name] = FuncAdapter(node, self.typedefs)
         except RuntimeError as e:
             if node.coord.file == '<stdin>':
-                print(f"Could not create interface for funcion {name}: {e}")
+                print("Could not create interface for funcion {}: {}".format(
+                    name, e))
 
     def visit_Enum(self, node):
         enum = ParsedEnum()
@@ -496,7 +531,7 @@ def _build_case(functions):
     cases = []
     for i, func in enumerate(functions.values()):
         case = c_ast.Case(
-            c_ast.Constant('int', f'{i}'),
+            c_ast.Constant('int', str(i)),
             [
                 func.call_ast,
                 c_ast.Break()
@@ -606,7 +641,7 @@ def _handle_command(command, stream):
     if command == 2:  # print command
         _pyprintf(stream)
     else:
-        raise RuntimeError(f'Unknown command {command}')
+        raise RuntimeError('Unknown command {}'.format(command))
 
 
 def _function_wrapper(stream, index, adapter, return_type, *args):
@@ -789,7 +824,7 @@ class MicroblazeRPC:
     def _populate_typedefs(self, typedef_classes, functions):
         for name, cls in typedef_classes.items():
             for fname, func in functions.items():
-                if fname.startswith(f'{name}_'):
+                if fname.startswith(name + "_"):
                     subname = fname[len(name)+1:]
                     if (len(func.arg_interfaces) > 0 and
                             func.arg_interfaces[0].typedefname == name):
@@ -836,5 +871,6 @@ class MicroblazeLibrary(MicroblazeRPC):
         the desired functions but without the ``.h`` extension
 
         """
-        source_text = "\n".join([f'#include <{lib}.h>' for lib in libraries])
+        source_text = "\n".join(['#include <{}.h>'.format(lib)
+                                 for lib in libraries])
         super().__init__(iop, source_text)

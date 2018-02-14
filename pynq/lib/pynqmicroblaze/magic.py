@@ -67,7 +67,7 @@ class _FunctionWrapper:
 class MicroblazeMagics(Magics):
     def name2obj(self, name):
         _proxy = _DataHolder()
-        exec(f"_proxy.obj = {name}", locals(), self.shell.user_ns)
+        exec("_proxy.obj = {}".format(name), locals(), self.shell.user_ns)
         return _proxy.obj
 
     @cell_magic
