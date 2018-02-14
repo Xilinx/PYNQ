@@ -128,8 +128,8 @@ class MicroblazeProgram(PynqMicroblaze):
                 lib_args.append('-L')
                 lib_args.append(lib_path)
             for lib in bsp.libraries:
-                lib_args.append(f'-l{lib}')
-            args.append(f'-Wl,{bsp.linker_script}')
+                lib_args.append('-l{}'.format(lib))
+            args.append('-Wl,{}'.format(bsp.linker_script))
             args.extend(bsp.ldflags)
 
             for module in modules:
@@ -141,7 +141,7 @@ class MicroblazeProgram(PynqMicroblaze):
                     lib_args.append('-L')
                     lib_args.append(lib_path)
                 for lib in module.libraries:
-                    lib_args.append(f'-l{lib}')
+                    lib_args.append('-l{}'.format(lib))
 
             with open(path.join(tempdir, 'main.c'), 'w') as f:
                 f.write('#line 1 "cell_magic"\n')
