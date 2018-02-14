@@ -1,3 +1,5 @@
+.. _pynq-lib-dma:
+
 pynq.lib.dma Module
 ===================
 

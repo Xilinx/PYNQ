@@ -29,7 +29,7 @@ with more AXI Controllers.
 As indicated in the diagram, the Arduino PYNQ MicroBlaze has a PYNQ MicroBlaze 
 Subsystem, a configurable switch, and the following AXI controllers:
 
-* 2x AXI I2C
+* AXI I2C
 
   * Frequency: 100KHz
   * Address mode: 7 bit
@@ -67,11 +67,24 @@ Subsystem, a configurable switch, and the following AXI controllers:
    of 1V peak-to-peak. Note that the Arduino interface supports 0-5V analog inputs
    which is not supported by Zynq without external circuitry.
 
+
+* AXI Interrupt controller
+
+  Manages the interrupts of peripherals in the MicroBlaze subsystem. 
+  
+* Interrupt GPIO
+
+  An additional AXI GPIO is used to signal interrupt requests to the PS
+  
+* Configurable Switch
+  
+  Allows routing of signals from dedicated peripherals to the external interface. 
+  
 ==========   =========================
 Peripheral   Pins
 ==========   =========================
 UART         D0, D1
-I2C          A4, A5
+I2C          SCL, SDA
 SPI*         D10 - D13
 PWM          D3, D5, D6, D9, D10, D11
 Timer        D3 - D6 and D8 - D11
