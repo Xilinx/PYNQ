@@ -50,7 +50,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "gpio.h"
 
 // Mailbox commands
 // bit 1 always needs to be sets
@@ -65,9 +67,11 @@
 #define MIN_HB_TIME_DIFF_MS    200*CORRECTION_FACTOR
 #define MAX_HB_TIME_DIFF_MS    2500*CORRECTION_FACTOR
 
-u8 getPinValue(u8 pin)
+static gpio device;
+
+u8 getPinValue()
 {
-    return (Xil_In8(XPAR_GPIO_0_BASEADDR) >> pin) & 0x1;
+    return gpio_read(device);
 }
 
 int main(void)
@@ -80,14 +84,9 @@ int main(void)
     u8 signalPin;
     u32 time;
 
-    arduino_init(0,0,0,0);
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                          A_GPIO, A_SDA, A_SCL,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+    device = gpio_open_device(0);
+    gpio_set_direction(device, 1);
 
-    // Run application
     while(1)
     {
         // check if configuration is required
@@ -96,16 +95,6 @@ int main(void)
             // read signal pin
             signalPin = MAILBOX_DATA(0);
 
-            // set pin configuration
-            config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                  A_GPIO, A_SDA, A_SCL,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-
-            // configure GPIO for read
-            Xil_Out8(XPAR_GPIO_0_BASEADDR + GPIO_TRI_OFFSET, 0xff);
-
             // initialize mailbox data
             MAILBOX_DATA(1) = 0;
             MAILBOX_DATA(2) = 0;
@@ -113,8 +102,8 @@ int main(void)
             MAILBOX_DATA(4) = 0;
             MAILBOX_DATA(5) = 0;
 
-
-            inter = oldInter = getPinValue(signalPin);
+            device = gpio_configure(device, signalPin, signalPin, 1);
+            inter = oldInter = getPinValue();
             time = MAX_HB_TIME_DIFF_MS;
             numBeats = 0;
 
@@ -130,7 +119,7 @@ int main(void)
             if(time > MIN_HB_TIME_DIFF_MS) {
 
                 oldInter = inter;
-                inter = getPinValue(signalPin);
+                inter = getPinValue();
 
                 if(!oldInter && inter) {
                     // interrupt detected on raising transition

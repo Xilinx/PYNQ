@@ -51,7 +51,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 
 // Mailbox commands
@@ -99,28 +101,29 @@
 #define DRV2605_ADDRESS 0x5A
 
 
-int write_hapt(u8 reg, u8 data);
+void write_hapt(u8 reg, u8 data);
 u8 read_hapt(u8 reg);
 void play_hapt(u8 *waveforms);
 void stop_hapt();
 u32 is_playing_hapt();
 void auto_calibrate_hapt();
 
+static i2c device;
 
-int write_hapt(u8 reg, u8 data)
+void write_hapt(u8 reg, u8 data)
 {
     u8 data_buffer[2];
     data_buffer[0] = reg;
     data_buffer[1] = data;
-    return iic_write(XPAR_IIC_0_BASEADDR, DRV2605_ADDRESS, data_buffer, 2);
+    i2c_write(device, DRV2605_ADDRESS, data_buffer, 2);
 }
 
 u8 read_hapt(u8 reg){
     u8 data;
 
     data = reg; // Set the address pointer register
-    iic_write(XPAR_IIC_0_BASEADDR, DRV2605_ADDRESS, &data, 1);
-    iic_read(XPAR_IIC_0_BASEADDR, DRV2605_ADDRESS, &data, 1);
+    i2c_write(device, DRV2605_ADDRESS, &data, 1);
+    i2c_read(device, DRV2605_ADDRESS, &data, 1);
     return data;
 }
 
@@ -180,12 +183,7 @@ int main(void)
     int i;
     u8 waveforms[8];
 
-    arduino_init(0,0,0,0);
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                          A_GPIO, A_SDA, A_SCL,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+    device = i2c_open_device(0);
 
     // Run application
     while(1){
@@ -196,16 +194,8 @@ int main(void)
 
         switch(cmd){
             case CONFIG_IOP_SWITCH:
-                // use dedicated I2C
-                config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                      A_GPIO, A_SDA, A_SCL,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                      D_GPIO, D_GPIO, D_GPIO, D_GPIO);
-
-                // perform driver calibration
+                // use dedicated I2C - no operation needed
                 auto_calibrate_hapt();
-
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case START_WAVEFORM:

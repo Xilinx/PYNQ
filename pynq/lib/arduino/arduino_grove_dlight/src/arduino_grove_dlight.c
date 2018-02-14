@@ -50,7 +50,9 @@
  *
  *****************************************************************************/
 
-#include "arduino.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"               
 
 #define  TSL2561_Control  0x80
 #define  TSL2561_Timing   0x81
@@ -140,12 +142,14 @@ unsigned long lux;
 unsigned long temp;
 
 void init_dlight();
-int write_dlight(u8 reg, u32 data, u8 bytes);
+void write_dlight(u8 reg, u32 data, u8 bytes);
 void getLux_dlight();
 lightPoint readValues_dlight();
 u32 readVisibleLux_dlight();
 u32 calculateLux_dlight(unsigned int iGain, unsigned int tInt,int iType);
 u32 read_dlight(u8 reg);
+
+static i2c device;
 
 int main(void)
 {
@@ -153,15 +157,9 @@ int main(void)
     u32 Lux;
     int cmd;
 
-    arduino_init(0,0,0,0);
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                          A_GPIO, A_SDA, A_SCL,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                          D_GPIO, D_GPIO, D_GPIO, D_GPIO);
+    device = i2c_open_device(0);
     init_dlight();
 
-    /*Loop reading*/
     while(1)
     {
         // wait and store valid command
@@ -172,11 +170,6 @@ int main(void)
         {
         case CONFIG_IOP_SWITCH:
             // use dedicated I2C
-            config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, 
-                                  A_GPIO, A_SDA, A_SCL,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                                  D_GPIO, D_GPIO, D_GPIO, D_GPIO);     
             init_dlight();
             MAILBOX_CMD_ADDR = 0x0;
             break;
@@ -209,7 +202,7 @@ void init_dlight()
     write_dlight(TSL2561_Control,0x00,1);
 }
 
-int write_dlight(u8 reg, u32 data, u8 bytes)
+void write_dlight(u8 reg, u32 data, u8 bytes)
 {
     u8 data_buffer[3];
     data_buffer[0] = reg;
@@ -220,8 +213,7 @@ int write_dlight(u8 reg, u32 data, u8 bytes)
         data_buffer[1] = data & 0xff; // Bits 7:0
     }
 
-    return iic_write(XPAR_IIC_0_BASEADDR, TSL2561_Address, data_buffer, 
-                     bytes+1);
+    i2c_write(device, TSL2561_Address, data_buffer, bytes+1);
 }
 
 u32 read_dlight(u8 reg)
@@ -230,9 +222,9 @@ u32 read_dlight(u8 reg)
    u32 sample;
 
    data_buffer[0] = reg; // Set the address pointer register
-   iic_write(XPAR_IIC_0_BASEADDR, TSL2561_Address, data_buffer, 1);
+   i2c_write(device, TSL2561_Address, data_buffer, 1);
 
-   iic_read(XPAR_IIC_0_BASEADDR, TSL2561_Address,data_buffer,2);
+   i2c_read(device, TSL2561_Address, data_buffer, 2);
    sample = data_buffer[0]&0x0f;
    return sample;
 }

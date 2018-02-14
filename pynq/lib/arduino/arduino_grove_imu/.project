@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>arduino_grove_imu</name>
-	<comment>Created by SDK v2015.4. bsp_iop_arduino_mb - iop_arduino_mb</comment>
+	<comment>Created by SDK v2015.4. bsp_iop_arduino - iop_arduino_mb</comment>
 	<projects>
-		<project>bsp_iop_arduino_mb</project>
+		<project>bsp_iop_arduino</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

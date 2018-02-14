@@ -50,8 +50,11 @@
 #include <stdint.h>
 #include "xparameters.h"
 #include "ST7735.h"
-#include "arduino.h"
-#include "xgpio.h"
+#include "circular_buffer.h"
+#include "gpio.h"
+#include "spi.h"
+#include "timer.h"
+#include "xio_switch.h"
 #include "xil_cache.h"
 #include "xsysmon.h"
 #include "logo.h"
@@ -64,7 +67,6 @@
 #define FILL_RECTANGLE          0xb
 #define READ_BUTTON             0xd
 
-#define XPAR_D13_D0_DEVICE_ID   XPAR_GPIO_0_DEVICE_ID
 #define V_REF 3.33
 #define SYSMON_DEVICE_ID XPAR_SYSMON_0_DEVICE_ID
 
@@ -83,33 +85,12 @@ int16_t abs_int16_t(int16_t x){
     }
 }
 
-XGpio d13_d0_gpio;
+gpio gpio_device;
+spi spi_device;
 u16 reset_dc_d7_to_d0;
 static XSysMon SysMonInst;
 XSysMon_Config *SysMonConfigPtr;
 XSysMon *SysMonInstPtr = &SysMonInst;
-
-int SetupGpio(void) {
-    int Status;
-
-    Status = XGpio_Initialize(&d13_d0_gpio, XPAR_D13_D0_DEVICE_ID);
-    if (Status != XST_SUCCESS) {
-         return XST_FAILURE;
-    }
-
-    // set the direction for all signals of channel 1 to be output
-    XGpio_SetDataDirection(&d13_d0_gpio, 1, 0x00000000);
-
-    /*
-     * write 0 to all data pins
-     * reset = 1 -> not in reset state
-     * dc = 0    -> in command mode
-     */
-    reset_dc_d7_to_d0 = 0x200;    
-    XGpio_DiscreteWrite(&d13_d0_gpio,1,reset_dc_d7_to_d0);
-
-    return 0;
-}
 
 void display(int16_t x_pos, int16_t y_pos, int16_t width, int16_t height, 
              uint16_t *image, int16_t bg, int16_t orientation, 
@@ -203,40 +184,49 @@ int main(void)
     u16 color, bgcolor, textsize, width, height;
     u16 background;
     u16 analog_read;
-    u8 iop_pins[19];
     char *pt;
     u32 logo_ptr;
 
     // disable DCache
     Xil_DCacheDisable();
 
-    // initialize SPIs with clk_polarity and clk_phase as 0
-    arduino_init(0,0,0,0);
+    /*
+     * initialize SPIs with clk_polarity and clk_phase as 0
+     * Configure D10-D13 as Shared SPI (MISO is not used)
+     */
+    init_io_switch();
+    spi_device = spi_open(13, 12, 11, 10);
+    spi_device = spi_configure(spi_device, 0, 0);
 
     // SysMon Initialize
     SysMonConfigPtr = XSysMon_LookupConfig(SYSMON_DEVICE_ID);
     if(SysMonConfigPtr == NULL)
-        xil_printf("LookupConfig FAILURE\n\r");
+        return -1;
     xStatus = XSysMon_CfgInitialize(SysMonInstPtr,SysMonConfigPtr,
                                     SysMonConfigPtr->BaseAddress);
     if(XST_SUCCESS != xStatus)
-        xil_printf("CfgInitialize FAILED\r\n");
+        return -1;
 
     // Clear the old status
     XSysMon_GetStatus(SysMonInstPtr);
 
     /*
-     * Configure A0-A5 as GPIO, D0-D9 as GPIO, 
-     * D10-D13 as Shared SPI (MISO is not used)
+     * Configure A0-A5 as GPIO, D0-D9 as GPIO
+     * set the direction for all signals of channel 1 to be output
      */
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO,
-                           D_GPIO, D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                           D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                           D_SS, D_MOSI, D_GPIO, D_SPICLK);
+    gpio_device = gpio_open_device(0);
+    gpio_device = gpio_configure(gpio_device, 0, 9, 1);
+    gpio_set_direction(gpio_device, 0);
+    /*
+     * write 0 to all data pins
+     * reset = 1 -> not in reset state
+     * dc = 0    -> in command mode
+     */
+    reset_dc_d7_to_d0 = 0x200;
+    gpio_write(gpio_device, reset_dc_d7_to_d0);
 
-    SetupGpio();
-    Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR+4,0x0);
-    Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
+    Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR+4,0x0);
+    Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x0);
 
     ST7735_InitR(INITR_REDTAB);
     orientation=3;
@@ -257,34 +247,7 @@ int main(void)
 
         switch(cmd) {
             case CONFIG_IOP_SWITCH:
-                // Assign default pin configurations
-                iop_pins[0] = A_GPIO;
-                iop_pins[1] = A_GPIO;
-                iop_pins[2] = A_GPIO;
-                iop_pins[3] = A_GPIO;
-                iop_pins[4] = A_GPIO;
-                iop_pins[5] = A_GPIO;
-                iop_pins[6] = D_GPIO;
-                iop_pins[7] = D_GPIO;
-                iop_pins[8] = D_GPIO;
-                iop_pins[9] = D_GPIO;
-                iop_pins[10] = D_GPIO;
-                iop_pins[11] = D_GPIO;
-                iop_pins[12] = D_GPIO;
-                iop_pins[13] = D_GPIO;
-                iop_pins[14] = D_GPIO;
-                iop_pins[15] = D_SS;
-                iop_pins[16] = D_MOSI;
-                iop_pins[17] = MAILBOX_DATA(0);
-                iop_pins[18] = D_SPICLK;
-                config_arduino_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                                      iop_pins[3], iop_pins[4], iop_pins[5], 
-                                      iop_pins[6], iop_pins[7], iop_pins[8], 
-                                      iop_pins[9], iop_pins[10], iop_pins[11],
-                                      iop_pins[12], iop_pins[13], 
-                                      iop_pins[14], iop_pins[15],
-                                      iop_pins[16], iop_pins[17], 
-                                      iop_pins[18]);
+                // Assign default pin configurations - no operations needed
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case CLEAR_SCREEN:
@@ -304,8 +267,8 @@ int main(void)
                 // display picture
                 display(pix_x1, pix_y1, width, height, 
                             (uint16_t *) logo_ptr,bgcolor,orientation,times);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x1);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case DRAW_LINE:
@@ -323,8 +286,8 @@ int main(void)
                 }
                 ST7735_SetRotation(orientation);
                 draw_line(pix_x1,pix_y1,pix_x2,pix_y2,color);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x1);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case PRINT_STRING:
@@ -333,8 +296,7 @@ int main(void)
                 color = MAILBOX_DATA(2);
                 bgcolor = MAILBOX_DATA(3);
                 orientation = MAILBOX_DATA(4);
-                pt = (char *)XPAR_IOP3_MB3_LMB_LMB_BRAM_IF_CNTLR_BASEADDR + \
-                      0x0F000 + 5*4;
+                pt = (char *)0x0F000 + 5*4;
                 // fill screen and set orientation
                 if (background!=bgcolor){
                     ST7735_FillScreen(bgcolor);
@@ -344,8 +306,8 @@ int main(void)
                 // currently only supporting size 1
                 textsize = 1;
                 ST7735_DrawString(pix_x1,pix_y1,pt,color,bgcolor,textsize);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x1);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case FILL_RECTANGLE:
@@ -363,8 +325,8 @@ int main(void)
                 }
                 ST7735_SetRotation(orientation);
                 ST7735_FillRect(pix_x1,pix_y1,width,height,color);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x1);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case READ_BUTTON: 
@@ -391,8 +353,8 @@ int main(void)
                 else
                     // no button pressed
                     MAILBOX_DATA(0)=0;
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x1);
-                Xil_Out32(XPAR_IOP3_MB3_INTR_BASEADDR,0x0);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x1);
+                Xil_Out32(XPAR_IOP_ARDUINO_INTR_BASEADDR,0x0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             default:
@@ -400,4 +362,5 @@ int main(void)
                 break;
         }
     }
+    return 0;
 }

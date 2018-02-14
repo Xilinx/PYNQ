@@ -42,7 +42,6 @@ from .arduino_grove_ledbar import Grove_LEDbar
 from .arduino_grove_tmp import Grove_TMP
 from .arduino_grove_light import Grove_Light
 from .arduino_grove_buzzer import Grove_Buzzer
-from .arduino_grove_color import Grove_Color
 from .arduino_grove_dlight import Grove_Dlight
 from .arduino_grove_ear_hr import Grove_EarHR
 from .arduino_grove_finger_hr import Grove_FingerHR

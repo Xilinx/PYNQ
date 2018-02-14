@@ -32,7 +32,7 @@
 /******************************************************************************
  *
  *
- * @file arduino_grove_haptic_motor.c
+ * @file pmod_grove_haptic_motor.c
  * IOP code (MicroBlaze) for grove haptic motor.
  * The haptic motor has to be connected to a PMOD interface 
  * via a shield socket.
@@ -50,7 +50,9 @@
  * </pre>
  *
  *****************************************************************************/
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
 
 
 // Mailbox commands
@@ -98,28 +100,29 @@
 #define DRV2605_ADDRESS 0x5A
 
 
-int write_hapt(u8 reg, u8 data);
+void write_hapt(u8 reg, u8 data);
 u8 read_hapt(u8 reg);
 void play_hapt(u8 *waveforms);
 void stop_hapt();
 u32 is_playing_hapt();
 void auto_calibrate_hapt();
 
+static i2c device;
 
-int write_hapt(u8 reg, u8 data)
+void write_hapt(u8 reg, u8 data)
 {
     u8 data_buffer[2];
     data_buffer[0] = reg;
     data_buffer[1] = data;
-    return iic_write(IIC_BASEADDR, DRV2605_ADDRESS, data_buffer, 2);
+    i2c_write(device, DRV2605_ADDRESS, data_buffer, 2);
 }
 
 u8 read_hapt(u8 reg){
     u8 data;
 
     data = reg; // Set the address pointer register
-    iic_write(IIC_BASEADDR, DRV2605_ADDRESS, &data, 1);
-    iic_read(IIC_BASEADDR, DRV2605_ADDRESS, &data, 1);
+    i2c_write(device, DRV2605_ADDRESS, &data, 1);
+    i2c_read(device, DRV2605_ADDRESS, &data, 1);
     return data;
 }
 
@@ -177,16 +180,11 @@ int main(void)
 {
     u32 cmd;
     int i;
-    u8 iop_pins[8];
     u8 waveforms[8];
     u32 scl, sda;
 
-    // Initialize Pmod
-    pmod_init(0,1);
-    config_pmod_switch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
-    //auto_calibrate_hapt();
+    device = i2c_open(3, 7);
 
-    // Run application
     while(1){
         // wait and store valid command
         while((MAILBOX_CMD_ADDR)==0);
@@ -198,20 +196,7 @@ int main(void)
                 // read new pin configuration
                 scl = MAILBOX_DATA(0);
                 sda = MAILBOX_DATA(1);
-                iop_pins[0] = GPIO_0;
-                iop_pins[1] = GPIO_1;
-                iop_pins[2] = GPIO_2;
-                iop_pins[3] = GPIO_3;
-                iop_pins[4] = GPIO_4;
-                iop_pins[5] = GPIO_5;
-                iop_pins[6] = GPIO_6;
-                iop_pins[7] = GPIO_7;
-                // set new pin configuration
-                iop_pins[scl] = SCL;
-                iop_pins[sda] = SDA;
-                config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                                   iop_pins[3], iop_pins[4], iop_pins[5], 
-                                   iop_pins[6], iop_pins[7]);
+                device = i2c_open(sda, scl);
 
                 // perform driver calibration
                 auto_calibrate_hapt();

@@ -63,8 +63,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "ST7735.h"
-#include "arduino.h"
 #include "xgpio.h"
+#include "xspi.h"
+#include "gpio.h"
+#include "spi.h"
+#include "timer.h"
 
 // 16 rows (0 to 15) and 21 characters (0 to 20)
 // Requires (11 + size*size*6*8) bytes of transmission for each character
@@ -437,7 +440,8 @@ static int16_t _width = ST7735_TFTWIDTH;
 static int16_t _height = ST7735_TFTHEIGHT;
 
 uint8_t writeBuffer[2], readBuffer[2];
-extern XGpio d13_d0_gpio;
+extern gpio gpio_device;
+extern spi spi_device;
 // reset(d9) and data/command (d8), d7_to_d2 are output
 extern u16 reset_dc_d7_to_d0;
 
@@ -452,9 +456,9 @@ extern u16 reset_dc_d7_to_d0;
 // Outputs: 8-bit reply
 uint8_t static writecommand(uint8_t c) {
   reset_dc_d7_to_d0 = reset_dc_d7_to_d0 & 0x2FF;    // make dc=0
-  XGpio_DiscreteWrite(&d13_d0_gpio,1,reset_dc_d7_to_d0);
+  gpio_write(gpio_device, reset_dc_d7_to_d0);
   writeBuffer[0]=c;
-  spi_transfer(XPAR_SPI_1_BASEADDR, 1, readBuffer, writeBuffer);
+  spi_transfer(spi_device, (const char*)writeBuffer, (char*)readBuffer, 1);
   return readBuffer[0];
 }
 
@@ -464,9 +468,9 @@ uint8_t static writecommand(uint8_t c) {
 // Outputs: 8-bit reply
 uint8_t static writedata(uint8_t c) {
   reset_dc_d7_to_d0 = reset_dc_d7_to_d0 | 0x100;    // make dc=1
-  XGpio_DiscreteWrite(&d13_d0_gpio,1,reset_dc_d7_to_d0);
+  gpio_write(gpio_device, reset_dc_d7_to_d0);
   writeBuffer[0]=c;
-  spi_transfer(XPAR_SPI_1_BASEADDR, 1, readBuffer, writeBuffer);
+  spi_transfer(spi_device, (const char*)writeBuffer, (char*)readBuffer, 1);
   return readBuffer[0];
 }
 
@@ -641,10 +645,10 @@ void static commonInit(const uint8_t *cmdList) {
 
   XSpi_WriteReg(XPAR_SPI_1_BASEADDR,XSP_SSR_OFFSET, 0xfe);  // 0xfe  SS low
   reset_dc_d7_to_d0 = reset_dc_d7_to_d0 & 0xFF;             // dc=0, reset=0
-  XGpio_DiscreteWrite(&d13_d0_gpio,1,reset_dc_d7_to_d0);
+  gpio_write(gpio_device, reset_dc_d7_to_d0);
   delay_ms(500);
   reset_dc_d7_to_d0 = reset_dc_d7_to_d0 | 0x200;            // dc=0, reset=1
-  XGpio_DiscreteWrite(&d13_d0_gpio,1,reset_dc_d7_to_d0);
+  gpio_write(gpio_device, reset_dc_d7_to_d0);
   delay_ms(500);
   XSpi_WriteReg(XPAR_SPI_1_BASEADDR,XSP_SSR_OFFSET, 0xff);  // 0xff SS high
 

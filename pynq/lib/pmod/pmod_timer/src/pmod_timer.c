@@ -53,8 +53,10 @@
  *****************************************************************************/
 
 #include "xparameters.h"
-#include "pmod.h"
-#include "xgpio.h"
+#include "xtmrctr.h"
+#include "xio_switch.h"
+#include "circular_buffer.h"
+#include "timer.h"
 
 // TCSR0 Timer 0 Control and Status Register
 #define TCSR0 0x00
@@ -98,7 +100,8 @@
  */
 
 // The Timer Counter instance
-extern XTmrCtr TimerInst_0;
+extern XTmrCtr* xtimer_ptr;
+static timer device;
 
 int main(void) {
     u32 cmd;
@@ -107,18 +110,10 @@ int main(void) {
     u8 NumberOfTimes;
     u32 count1, count2;
     u32 status;
-    u8 iop_pins[8];
     u32 timer_pin;
 
-    // Initialize Pmod
-    pmod_init(0,1);
-    /*
-     * Configuring Pmod IO switch
-     * Timer is connected to bit[0] of the Channel 1 of AXI GPIO instance
-     * This configuration is changed later
-     */
-    config_pmod_switch(TIMER, GPIO_1, GPIO_2, GPIO_3,
-                       GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+    device = timer_open_device(0);
+    set_pin(0, TIMER_G0);
     // by default tristate timer output
     Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
 
@@ -130,53 +125,44 @@ int main(void) {
             case CONFIG_IOP_SWITCH:
                 // read new pin configuration
                 timer_pin = MAILBOX_DATA(0);
-                iop_pins[0] = GPIO_0;
-                iop_pins[1] = GPIO_1;
-                iop_pins[2] = GPIO_2;
-                iop_pins[3] = GPIO_3;
-                iop_pins[4] = GPIO_4;
-                iop_pins[5] = GPIO_5;
-                iop_pins[6] = GPIO_6;
-                iop_pins[7] = GPIO_7;
-                // set new pin configuration
-                iop_pins[timer_pin] = TIMER;
-                config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                                   iop_pins[3], iop_pins[4], iop_pins[5], 
-                                   iop_pins[6], iop_pins[7]);
+                device = timer_open_device(0);
+                set_pin(timer_pin, TIMER_G0);
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
                 
             case STOP_TIMER:
-                XTmrCtr_Stop(&TimerInst_0, 0);
-                XTmrCtr_Stop(&TimerInst_0, 1);
+                XTmrCtr_Stop(&xtimer_ptr[device], 0);
+                XTmrCtr_Stop(&xtimer_ptr[device], 1);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
 
             case GENERATE_FOREVER:
+                set_pin(timer_pin, TIMER_G0);
                 // tri-state control negated so output can be driven
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,0);
                 // get period value in multiple of 10 ns clock period
                 GenerateValue=MAILBOX_DATA(0);
-                XTmrCtr_SetResetValue(&TimerInst_0, 0, GenerateValue);
-                XTmrCtr_SetOptions(&TimerInst_0, 0,
+                XTmrCtr_SetResetValue(&xtimer_ptr[device], 0, GenerateValue);
+                XTmrCtr_SetOptions(&xtimer_ptr[device], 0,
                         XTC_AUTO_RELOAD_OPTION | XTC_CSR_LOAD_MASK |
                         XTC_CSR_EXT_GENERATE_MASK | XTC_CSR_DOWN_COUNT_MASK);
-                XTmrCtr_Start(&TimerInst_0, 0);
+                XTmrCtr_Start(&xtimer_ptr[device], 0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
 
             case GENERATE_N_TIMES:
+                set_pin(timer_pin, TIMER_G0);
                 // tri-state control negated so output can be driven
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,0);
                 // bits 7:0 number of times, rest is period
                 GenerateValue=MAILBOX_DATA(0)>>8;
                 NumberOfTimes=MAILBOX_DATA(0) & 0xff;
-                XTmrCtr_SetResetValue(&TimerInst_0, 0, GenerateValue);
-                XTmrCtr_SetOptions(&TimerInst_0, 0,
+                XTmrCtr_SetResetValue(&xtimer_ptr[device], 0, GenerateValue);
+                XTmrCtr_SetOptions(&xtimer_ptr[device], 0,
                         XTC_AUTO_RELOAD_OPTION | XTC_CSR_LOAD_MASK |
                         XTC_CSR_EXT_GENERATE_MASK | XTC_CSR_DOWN_COUNT_MASK);
-                XTmrCtr_Start(&TimerInst_0, 0);
+                XTmrCtr_Start(&xtimer_ptr[device], 0);
                 while(NumberOfTimes){
                     // wait for NumberOfTimes to count down to 0
                     status=XTmrCtr_ReadReg(XPAR_TMRCTR_0_BASEADDR, 0, TCSR0);
@@ -187,11 +173,12 @@ int main(void) {
                         NumberOfTimes--;
                     }
                 }
-                XTmrCtr_Stop(&TimerInst_0, 0);
+                XTmrCtr_Stop(&xtimer_ptr[device], 0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
 
             case EVENT_OCCURED:
+                set_pin(timer_pin, TIMER_IC0);
                 // tri-state control asserted to enable input to capture
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
                 // get period value in multiple of 10 ns clock period
@@ -248,6 +235,7 @@ int main(void) {
                 break;
 
             case COUNT_EVENTS:
+                set_pin(timer_pin, TIMER_IC0);
                 // tri-state control asserted to enable input to capture
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
                 // get period value in multiple of 10 ns clock period
@@ -303,6 +291,7 @@ int main(void) {
                 break;
 
             case MEASURE_PERIOD:
+                set_pin(timer_pin, TIMER_IC0);
                 // tri-state control asserted to enable input to capture
                 Xil_Out32(XPAR_GPIO_0_BASEADDR+0x08,1);
                 /*
