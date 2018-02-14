@@ -32,7 +32,7 @@
 /******************************************************************************
  *
  *
- * @file arduino_grove_ear_hr.c
+ * @file pmod_grove_th02.c
  * IOP code (MicroBlaze) for grove Temperature & Humidity Sensor.
  * The sensor has to be connected to a PMOD interface 
  * via a shield socket.
@@ -53,20 +53,20 @@
 
 #include <stdio.h>
 #include "pmod_grove_th02.h"
-#include "pmod.h"
+#include "circular_buffer.h"
+#include "timer.h"
+#include "i2c.h"
+
+static i2c device;
 
 int main(void){
     u32 cmd;
     u32 delay;
-    u8 iop_pins[8];
     u32 scl, sda;
     u32 tmp, humidity;
 
-    // Initialize Pmod
-    pmod_init(0,1);
-    config_pmod_switch(GPIO_0, GPIO_1, SDA, SDA, GPIO_4, GPIO_5, SCL, SCL);
+    device = i2c_open(3, 7);
 
-    // Run application
     while(1){
         // wait and store valid command
         while((MAILBOX_CMD_ADDR)==0);
@@ -78,21 +78,7 @@ int main(void){
                 // read new pin configuration
                 scl = MAILBOX_DATA(0);
                 sda = MAILBOX_DATA(1);
-                iop_pins[0] = GPIO_0;
-                iop_pins[1] = GPIO_1;
-                iop_pins[2] = GPIO_2;
-                iop_pins[3] = GPIO_3;
-                iop_pins[4] = GPIO_4;
-                iop_pins[5] = GPIO_5;
-                iop_pins[6] = GPIO_6;
-                iop_pins[7] = GPIO_7;
-                // set new pin configuration
-                iop_pins[scl] = SCL;
-                iop_pins[sda] = SDA;
-                config_pmod_switch(iop_pins[0], iop_pins[1], iop_pins[2], 
-                       iop_pins[3], iop_pins[4], iop_pins[5], 
-                       iop_pins[6], iop_pins[7]);
-
+                device = i2c_open(sda, scl);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
             case READ_DATA:
@@ -106,7 +92,7 @@ int main(void){
                 break;
             case READ_AND_LOG_DATA:
                 // initialize logging variables, reset cmd
-                cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, 
+                cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, 
                         LOG_ITEM_SIZE);
                 delay = MAILBOX_DATA(1);
                 MAILBOX_CMD_ADDR = 0x0;
@@ -114,8 +100,8 @@ int main(void){
                 // push sample to log and delay
                 tmp = TH02_readTemperature();
                 humidity = TH02_readHumidity();
-                cb_push_back(&pmod_log, &tmp);
-                cb_push_back(&pmod_log, &humidity);
+                cb_push_back(&circular_log, &tmp);
+                cb_push_back(&circular_log, &humidity);
                 delay_ms(delay);
                 } while(MAILBOX_CMD_ADDR == 0);
                 break;
@@ -152,13 +138,13 @@ void wait_for_data(){
 }
 
 
-int TH02_write(u8 reg, u8 data)
+void TH02_write(u8 reg, u8 data)
 {
     //first is register, second is data
     u8 data_buffer[2];
     data_buffer[0] = reg;
     data_buffer[1] = data;
-    return iic_write(IIC_BASEADDR, TH02_I2C_DEV_ID, data_buffer, 2);
+    i2c_write(device, TH02_I2C_DEV_ID, data_buffer, 2);
 }
 
 u8 TH02_read(u8 reg){
@@ -166,24 +152,22 @@ u8 TH02_read(u8 reg){
 
     data = reg; // Set the address pointer register
 
-    iic_write(IIC_BASEADDR, TH02_I2C_DEV_ID, &data, 1);
-    iic_read(IIC_BASEADDR, TH02_I2C_DEV_ID,&data, 1);
+    i2c_write(device, TH02_I2C_DEV_ID, &data, 1);
+    i2c_read(device, TH02_I2C_DEV_ID,&data, 1);
 
     return data;
 }
 
 void TH02_read_3(u8 reg, u8 * data_par){
     data_par[0] = reg; // Set the address pointer register
-    iic_write(IIC_BASEADDR, TH02_I2C_DEV_ID, data_par, 1);
-    iic_read(IIC_BASEADDR, TH02_I2C_DEV_ID, data_par, 3);
+    i2c_write(device, TH02_I2C_DEV_ID, data_par, 1);
+    i2c_read(device, TH02_I2C_DEV_ID, data_par, 3);
 }
 
 uint16_t TH02_IIC_ReadData2byte(){
     uint16_t tempData = 0;
     u8 tmpArray[3] = {};
 
-    //TH02_write(REG_DATA_H,0x1);
-    //iic_write(TH02_I2C_DEV_ID,REG_DATA_H,1);
     TH02_read_3(REG_DATA_H, tmpArray);
 
     tempData = (tmpArray[1]<<8) | (tmpArray[2]);

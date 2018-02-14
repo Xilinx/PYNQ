@@ -7,7 +7,6 @@ BIN_ARDUINO = arduino_analog.bin \
 		arduino_grove_imu.bin \
 		arduino_grove_buzzer.bin \
 		arduino_grove_ledbar.bin \
-		arduino_grove_color.bin \
 		arduino_grove_dlight.bin \
 		arduino_grove_ear_hr.bin \
 		arduino_grove_finger_hr.bin \
