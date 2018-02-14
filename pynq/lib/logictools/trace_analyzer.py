@@ -527,11 +527,20 @@ class _PSTraceAnalyzer:
 
         """
         self.dma.recvchannel.transfer(self._cma_array)
-        self.trace_control.write(TRACE_CNTRL_LENGTH, self.num_analyzer_samples)
-        self.trace_control.write(TRACE_CNTRL_DATA_COMPARE_MSW, 0)
-        self.trace_control.write(TRACE_CNTRL_DATA_COMPARE_LSW, 0)
-        self.trace_control.write(TRACE_CNTRL_ADDR_AP_CTRL, 1)
-        self.trace_control.write(TRACE_CNTRL_ADDR_AP_CTRL, 0)
+        if self.intf_spec['monitor_width'] == 32:
+            self.trace_control.write(TRACE_CNTRL_32_LENGTH, 
+                                     self.num_analyzer_samples)
+            self.trace_control.write(TRACE_CNTRL_32_DATA_COMPARE, 0)
+            self.trace_control.write(TRACE_CNTRL_32_ADDR_AP_CTRL, 1)
+            self.trace_control.write(TRACE_CNTRL_32_ADDR_AP_CTRL, 0)
+        else:
+            self.trace_control.write(TRACE_CNTRL_64_LENGTH, 
+                                     self.num_analyzer_samples)
+            self.trace_control.write(TRACE_CNTRL_64_DATA_COMPARE_MSW, 0)
+            self.trace_control.write(TRACE_CNTRL_64_DATA_COMPARE_LSW, 0)
+            self.trace_control.write(TRACE_CNTRL_64_ADDR_AP_CTRL, 1)
+            self.trace_control.write(TRACE_CNTRL_64_ADDR_AP_CTRL, 0)
+
         self._status = 'RUNNING'
 
     def stop(self):
