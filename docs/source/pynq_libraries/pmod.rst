@@ -14,6 +14,7 @@ interfaces (Ethernet, serial, WiFi, Bluetooth), and input and output interfaces
 
 .. image:: ../images/pmod.png
    :align: center
+   :scale: 75%
 	
 Each Pmod connector has 12 pins arranged in 2 rows of 6 pins. Each row has 3.3V
 (VCC), ground (GND) and 4 data pins. Using both rows gives 8 data pins in total.
@@ -24,12 +25,14 @@ partially populated: 2x4 pins.
 
 .. image:: ../images/pmod_pins.png
    :align: center
+   :scale: 75%
 
 Pmods that use both rows (e.g. 2x4 pins, 2x6 pins), should usually be aligned to
 the left of the connector (to align with VCC and GND).
 
 .. image:: ../images/pmod_tmp2_8pin.JPG
    :align: center
+   :scale: 75%
 	
 Pmod peripherals with only a single row of pins can be connected to either the
 top row or the bottom row of a Pmod port (again, aligned to VCC/GND). If you are
@@ -52,8 +55,10 @@ layout, so no special attention is required when using Pmods.
 Block Diagram
 -------------
 
-Pmod PYNQ MicroBlazes control the Pmod interfaces present on a board,
-if provided. As indicated in the diagram, each Pmod PYNQ MicroBlaze has a
+.. image:: ../images/pmod_iop.jpg
+   :align: center
+
+As indicated in the diagram, each Pmod PYNQ MicroBlaze has a
 :ref:`pynq-microblaze-subsystem` a configurable switch, and the following AXI
 controllers:
 
@@ -79,8 +84,17 @@ controllers:
   * 1 Generate Output
   * 1 PWM Output
 
-.. image:: ../images/pmod_iop.jpg
-   :align: center
+* AXI Interrupt controller
+
+  Manages the interrupts of peripherals in the MicroBlaze subsystem. 
+  
+* Interrupt GPIO
+
+  * An additional AXI GPIO is used to signal interrupt requests to the PS
+
+* Configurable Switch
+  
+  * Allows routing of signals from dedicated peripherals to the external interface. 
 
 A list of drivers provided for Pmod peripherals can be found in the
 :ref:`pynq-lib-pmod` section.

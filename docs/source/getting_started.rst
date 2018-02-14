@@ -59,7 +59,7 @@ Board Setup
       :align: center
 
   1. Set the **JP4 / Boot** jumper to the *SD* position by
-     placing the jumper over the top two pins of JP4 as shown in the image.
+     placing the jumper over the bottom two pins of JP4 as shown in the image.
      (This sets the board to boot from the Micro-SD card)
    
   2. To power the PYNQ-Z1 from the micro USB cable, set the **JP5 / Power**
@@ -206,7 +206,7 @@ Accessing Files on The Board
 ----------------------------
 
 `Samba <https://www.samba.org/>`_, a file sharing service, is running on the
-board. This allws you to access the Pynq home area as a network drive, to
+board. This allows you to access the Pynq home area as a network drive, to
 transfer files to and from the board.
 
 .. note:: In the examples below change the hostname or IP address to match your

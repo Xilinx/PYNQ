@@ -1,3 +1,5 @@
+.. _overlay-design:
+
 Overlay Design
 ==============
 
