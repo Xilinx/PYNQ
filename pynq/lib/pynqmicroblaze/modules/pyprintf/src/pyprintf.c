@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-static const char printf_command = 1;
+static const char printf_command = 2;
 
 void complete_write(int fd, const char* data, unsigned int length) {
     while (length > 0) {

@@ -37,6 +37,7 @@
 
 from .pynqmicroblaze import PynqMicroblaze
 from .pynqmicroblaze import MicroblazeRPC
+from .pynqmicroblaze import MicroblazeLibrary
 from .axigpio import AxiGPIO
 from .dma import DMA
 from .dma import LegacyDMA
