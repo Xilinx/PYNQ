@@ -56,7 +56,7 @@ def exclude_from_dirs(exclude, path):
 
 def collect_pynq_data_files():
     return [(os.path.join(
-        '{}/pynq/overlays'.format(site.getsitepackages()[0]), ol),
+        '{}/pynq/overlays'.format(os.path.dirname(site.__file__) + "/site-packages"), ol),
              [os.path.join(board_folder, ol, f)
               for f in exclude_from_files(
                  'makefile', os.path.join(board_folder, ol))])
@@ -82,7 +82,7 @@ microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
 
 for mbdir in microblaze_data_dirs:
     pynq_data_files.extend(
-        [(os.path.join(site.getsitepackages()[0], root),
+        [(os.path.join(os.path.dirname(site.__file__) + "/site-packages", root),
          [os.path.join(root, f) for f in files])
         for root, _, files in os.walk(mbdir)]
     )
