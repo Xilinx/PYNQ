@@ -56,7 +56,8 @@ def exclude_from_dirs(exclude, path):
 
 def collect_pynq_data_files():
     return [(os.path.join(
-        '{}/pynq/overlays'.format(os.path.dirname(site.__file__) + "/site-packages"), ol),
+        '{}/pynq/overlays'.format(os.path.dirname(site.__file__) \
+             + "/site-packages"), ol),
              [os.path.join(board_folder, ol, f)
               for f in exclude_from_files(
                  'makefile', os.path.join(board_folder, ol))])
