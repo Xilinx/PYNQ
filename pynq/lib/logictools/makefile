@@ -1,7 +1,7 @@
 # Makefile to build select Microblaze projects.
 
 
-BIN_LOGICTOOLS_CONTROLLER = logictools_controller.bin
+BIN_LOGICTOOLS_CONTROLLER = logictools_arduino.bin
 
 all: logictools_controller_bins
 	@echo
