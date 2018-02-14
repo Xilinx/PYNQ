@@ -54,6 +54,11 @@ RISE
 netifaces
 imutils
 scikit-image
+dash
+dash-renderer
+dash-html-components
+dash-core-components
+plotly
 EOT
 
 pip3.6 install numpy requests
