@@ -59,7 +59,7 @@ Board Setup
       :align: center
 
   1. Set the **JP4 / Boot** jumper to the *SD* position by
-     placing the jumper over the top two pins of JP4 as shown in the image.
+     placing the jumper over the bottom two pins of JP4 as shown in the image.
      (This sets the board to boot from the Micro-SD card)
    
   2. To power the PYNQ-Z1 from the micro USB cable, set the **JP5 / Power**

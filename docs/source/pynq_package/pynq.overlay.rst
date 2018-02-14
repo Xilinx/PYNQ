@@ -1,3 +1,5 @@
+.. _pynq-overlay:
+
 pynq.overlay Module
 ===================
 

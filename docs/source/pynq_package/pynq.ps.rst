@@ -1,3 +1,5 @@
+.. _pynq-ps:
+
 pynq.ps Module
 ==============
 

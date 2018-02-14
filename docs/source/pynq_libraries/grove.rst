@@ -16,16 +16,13 @@ Pmod
 ^^^^
 
 The first option for connecting Grove peripherals uses the Pmod PYNQ 
-MicroBlaze.
-
-.. image:: ../images/pmod.png
-   :align: center
-	
-Grove devices can be connected to PYNQ-Z1 through the Pmod ports using the 
-*PYNQ Grove Adapter*.
+MicroBlaze. Grove devices can be connected to PYNQ-Z1 through the Pmod ports 
+using the  *PYNQ Grove Adapter*.
 
 .. image:: ../images/pmod_grove_adapter.jpg
    :align: center
+	
+
 
 On the *PYNQ Grove Adapter* G1 and G2 map to Pmod pins [0,4] and [1,5], which
 are connected to pins with pull-down resistors. Ports G1 and G2 support the SPI
@@ -35,6 +32,7 @@ resistors and support the IIC protocol and GPIO peripherals.
 
 .. image:: ../images/adapter_mapping.JPG
    :align: center
+   :scale: 75%
 
 ==========   =========================
 Peripheral   Grove Port
@@ -51,12 +49,14 @@ MicroBlaze.
 
 .. image:: ../images/arduino_iop.jpg
    :align: center
+   :scale: 75%
 	
 Grove devices can be connected to PYNQ-Z1 through the Arduino ports using the 
 *PYNQ Shield*.
 
 .. image:: ../images/arduino_shield.jpg
    :align: center
+   :scale: 75%
 
 On the *PYNQ Shield* there are 4 IIC Grove connectors (labeled I2C), 8
 vertical Grove Connectors (labeled G1-G7 and UART), and four horizontal Grove

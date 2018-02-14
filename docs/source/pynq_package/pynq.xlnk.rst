@@ -1,3 +1,5 @@
+.. _pynq-xlnk:
+
 pynq.xlnk Module
 ================
 

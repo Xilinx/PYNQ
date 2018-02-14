@@ -7,11 +7,6 @@ talks to the audio IP subsystem in the :ref:`base-overlay` to drive the Pulse
 Width Modulation (PWM) mono output, and another block to read the Pulse Density
 Modulated (PDM) input from the microphone.
 
-Block Diagram
--------------
-
-.. image:: ../images/audio_subsystem.png
-   :align: center
 
 Examples
 --------

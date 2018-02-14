@@ -1,3 +1,5 @@
+.. _pynq-libraries-video:
+
 Video
 =====
 

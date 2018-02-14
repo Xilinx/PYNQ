@@ -1,3 +1,5 @@
+.. _pynq-pl:
+
 pynq.pl Module
 ==============
 
