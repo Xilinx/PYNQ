@@ -52,7 +52,6 @@ from .pmod_grove_ledbar import Grove_LEDbar
 from .pmod_grove_tmp import Grove_TMP
 from .pmod_grove_light import Grove_Light
 from .pmod_grove_buzzer import Grove_Buzzer
-from .pmod_grove_color import Grove_Color
 from .pmod_grove_dlight import Grove_Dlight
 from .pmod_grove_ear_hr import Grove_EarHR
 from .pmod_grove_finger_hr import Grove_FingerHR

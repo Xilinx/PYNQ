@@ -16,7 +16,6 @@ BIN_PMOD = pmod_adc.bin \
 		pmod_grove_imu.bin \
 		pmod_grove_buzzer.bin \
 		pmod_grove_ledbar.bin \
-		pmod_grove_color.bin \
 		pmod_grove_dlight.bin \
 		pmod_grove_ear_hr.bin \
 		pmod_grove_finger_hr.bin \
