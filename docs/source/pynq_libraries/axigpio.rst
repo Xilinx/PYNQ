@@ -1,7 +1,7 @@
 .. _pynq-libraries-axigpio:
 
-AxiGPIO: LEDs, Buttons & Switches
-=================================
+AxiGPIO
+=======
 
 The AxiGPIO module provides methods to read, write, and receive 
 interrupts from external general purpose peripherals such as LEDs, 
