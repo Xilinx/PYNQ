@@ -107,13 +107,13 @@ class VoidPointerWrapper:
     def pre_argument(self, name):
         commands = []
         commands.append(_generate_decl(
-            f'{name}_int',
-            c_ast.TypeDecl(f'{name}_int', [],
+            name + '_int',
+            c_ast.TypeDecl(name + '_int', [],
                            c_ast.IdentifierType(['unsigned', 'int']))))
-        commands.append(_generate_read(f'{name}_int'))
+        commands.append(_generate_read(name +'_int'))
         commands.append(c_ast.Assignment(
             '|=',
-            c_ast.ID(f'{name}_int'),
+            c_ast.ID(name + '_int'),
             c_ast.Constant('int', '0x20000000')))
         commands.append(
             c_ast.Decl(name, [], [], [],
@@ -127,7 +127,7 @@ class VoidPointerWrapper:
                                      [], c_ast.TypeDecl(
                                           None, [],
                                           c_ast.IdentifierType(['void'])))),
-                            c_ast.ID(f'{name}_int')),
+                            c_ast.ID(name + '_int')),
                        []
                        ))
         return commands
@@ -162,13 +162,13 @@ class ConstPointerWrapper:
         commands = []
         commands.append(
             _generate_decl(
-                f'{name}_len',
-                c_ast.TypeDecl(f'{name}_len', [],
+                name + '_len',
+                c_ast.TypeDecl(name + '_len', [],
                                c_ast.IdentifierType(['unsigned', 'short']))))
-        commands.append(_generate_read(f'{name}_len'))
+        commands.append(_generate_read(name + '_len'))
         commands.append(_generate_arraydecl(name,
                                             self._type,
-                                            c_ast.ID(f'{name}_len')))
+                                            c_ast.ID(name + '_len')))
         commands.append(_generate_read(name, address=False))
         return commands
 
@@ -206,19 +206,19 @@ class PointerWrapper:
         commands = []
         commands.append(
             _generate_decl(
-                f'{name}_len',
-                c_ast.TypeDecl(f'{name}_len', [],
+                name + '_len',
+                c_ast.TypeDecl(name + '_len', [],
                                c_ast.IdentifierType(['unsigned', 'short']))))
-        commands.append(_generate_read(f'{name}_len'))
+        commands.append(_generate_read(name + '_len'))
         commands.append(_generate_arraydecl(name,
                                             self._type,
-                                            c_ast.ID(f'{name}_len')))
+                                            c_ast.ID(name + '_len')))
         commands.append(_generate_read(name, address=False))
         return commands
 
     def post_argument(self, name):
         commands = []
-        commands.append(_generate_write(f'{name}_len'))
+        commands.append(_generate_write(name + '_len'))
         commands.append(_generate_write(name, address=False))
         return commands
 
@@ -284,7 +284,7 @@ def _type_to_struct_string(tdecl):
             return 'B'
     if name == 'float':
         return 'f'
-    raise RuntimeError(f'Unknown type {name}')
+    raise RuntimeError('Unknown type {}'.format(name))
 
 
 def _type_to_interface(tdecl, typedefs):
@@ -402,9 +402,10 @@ class FuncAdapter:
                 interface = _type_to_interface(arg.type, typedefs)
                 if type(interface) is VoidWrapper:
                     continue
-                block_contents.extend(interface.pre_argument(f'arg{i}'))
-                post_block_contents.extend(interface.post_argument(f'arg{i}'))
-                func_args.append(c_ast.ID(f'arg{i}'))
+                block_contents.extend(interface.pre_argument('arg' + str(i)))
+                post_block_contents.extend(interface.post_argument(
+                    'arg' + str(i)))
+                func_args.append(c_ast.ID('arg' + str(i)))
                 self.arg_interfaces.append(interface)
                 self.blocks = self.blocks | interface.blocks
 
