@@ -12,3 +12,4 @@ ipython
 pytest
 pyeda
 pygraphviz
+netifaces

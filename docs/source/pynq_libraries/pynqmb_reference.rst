@@ -167,8 +167,8 @@ Timer Devices
 
 Timer devices serve two purposes. They can either be used to output PWM
 signals or as program timers for inserting accurate delays. It is not
-possible to use these functions simultaneuosly and attempting to ``delay``
-while PWM is in operation will result in undefined behavioud. All of these
+possible to use these functions simultaneously and attempting to ``delay``
+while PWM is in operation will result in undefined behavior. All of these
 functions are in ``timer.h``.
 
 ``timer`` type
