@@ -54,7 +54,7 @@ PYNQ MicroBlaze Memory Map
 The local PYNQ MicroBlaze memory is 64KB of shared data and instruction 
 memory. Instruction memory for the PYNQ MicroBlaze starts at address 0x0.
 
-Pynq and the application running on the PYNQ MicroBlaze can write to anywhere 
+PYNQ and the application running on the PYNQ MicroBlaze can write to anywhere 
 in the shared memory space. You should be careful not to write to the 
 instruction memory unintentionally as this will corrupt the running application.
 
@@ -87,10 +87,7 @@ These MAILBOX values for a PYNQ MicroBlaze application are defined here:
 
 .. code-block:: console
 
-   <PYNQ repository>/boards/ip/pmod_io_switch_1.0/drivers/    \
-   pmod_io_switch_v1_0/src/pmod.h
-   <PYNQ repository>/boards/ip/arduino_io_switch_1.0/drivers/ \
-   arduino_io_switch_v1_0/src/arduino.h
+   <PYNQ repository>/boards/sw_repo/pynqmb/src/circular_buffer.h
    
 The corresponding Python constants are defined here:
    
@@ -134,7 +131,7 @@ MicroBlaze Base Address    MicroBlaze Address Space    ARM Equivalent Address Sp
 
 Note that each MicroBlaze has the same range for its address space. However, 
 the location of the address space in the ARM memory map is different for each
-PYNQ MicroBlaze. As the MicroBlaze address space is the same for each Pynq 
+PYNQ MicroBlaze. As the MicroBlaze address space is the same for each PYNQ 
 MicroBlaze, any binary compiled for one PYNQ MicroBlaze will work on another 
 PYNQ MicroBlaze.
 
@@ -153,15 +150,23 @@ There are a number of steps required before you can start writing your own
 software for a PYNQ MicroBlaze. This document will describe the PYNQ MicroBlaze
 architecture, and how to set up and build the required software projects to
 allow you to write your own application for the MicroBlaze inside an
-PYNQ MicroBlaze. Xilinx® SDK projects can be created manually using the SDK 
-GUI, or software can be built using a Makefile flow.
+PYNQ MicroBlaze. 
+
+Xilinx® SDK projects can be created manually using the SDK 
+GUI, or software can be built using a Makefile flow. Starting from image v2.1, 
+users can also directly use the Jupyter notebook to program the PYNQ 
+MicroBlaze; more examples can be found in
+
+.. code-block:: console
+
+   <PYNQ dashboard>/base/microblaze
 
 MicroBlaze Processors
 ---------------------
 
 As described in the previous section, a PYNQ MicroBlaze can be used as a 
 flexible controller for different types of external peripherals. The 
-ARM® Cortex®-A9 is an application processor, which runs Pynq and Jupyter 
+ARM® Cortex®-A9 is an application processor, which runs PYNQ and Jupyter 
 notebook on a Linux OS. This scenario is not well suited to real-time 
 applications, which is a common requirement for an embedded systems. 
 In the base overlay there are three PYNQ MicroBlazes. As well as acting as a 
@@ -169,7 +174,7 @@ flexible controller, a PYNQ MicroBlaze can be used as dedicated real-time
 controller.
 
 PYNQ MicroBlazes can also be used standalone to offload some processing from 
-the main processor. However, note that the MicroBlaze processor inside a Pynq 
+the main processor. However, note that the MicroBlaze processor inside a PYNQ 
 MicroBlaze in the base overlay is running at 100 MHz, compared to the Dual-Core 
 ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor 
 architectures and features should be taken into account when offloading pure 
@@ -189,17 +194,25 @@ the `Xilinx Vivado WebPack
 <https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html>`_.
 
 The full source code for all supported PYNQ MicroBlaze peripherals is available 
-from the project GitHub. Pynq ships with precompiled PYNQ MicroBlaze 
+from the project GitHub. PYNQ ships with precompiled PYNQ MicroBlaze 
 executables to support various peripherals (see :ref:`pynq-libraries`), 
 so Xilinx software is only needed if you intend to modify existing code, or 
 build your own PYNQ MicroBlaze applications/peripheral drivers.
 
-The current Pynq release is built using Vivado and SDK 2016.1. it is recommended
+PYNQ releases are built using:
+
+================  ================
+Release version    Vivado and SDK
+================  ================
+v1.4               2015.4
+v2.0               2016.1
+v2.1               2017.4
+================  ================
+
+It is recommended
 to use the same version to rebuild existing Vivado and SDK projects. If you only
 intend to build software, you will only need to install SDK. The full Vivado and
-SDK installation is only required to modify or design new overlays. `Download
-Xilinx Vivado and SDK 2016.1
-<http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2016-1.html>`_
+SDK installation is only required to modify or design new overlays.
 You can use the Vivado HLx Web Install Client and select SDK and/or Vivado
 during the installation.
 
@@ -211,8 +224,7 @@ the MicroBlaze can be written in C or C++ and compiled using Xilinx SDK .
 
 You can pull or clone the PYNQ repository, and all the driver source and
 project files can be found in 
-``<PYNQ repository>\pynq\lib\<driver_group_name>\<project_directory>``,
-(Where ``<PYNQ repository>`` is the location of the PYNQ repository).
+``<PYNQ repository>\pynq\lib\<driver_group_name>\<project_directory>``.
 
 SDK Application, Board Support Package, Hardware Platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -243,18 +255,18 @@ require the following 2 BSPs:
 
 BSP for the Arduino PYNQ MicroBlaze:
 
-    ``<PYNQ repository>/pynq/lib/arduino/bsp_arduino/``
+    ``<PYNQ repository>/pynq/lib/arduino/bsp_iop_arduino/``
     
 BSP for the Pmod PYNQ MicroBlaze:
 
-    ``<PYNQ repository>/pynq/lib/pmod/bsp_pmod``
+    ``<PYNQ repository>/pynq/lib/pmod/bsp_iop_pmod``
 
 
 A BSP is specific to a processor subsystem. There can be many BSPs associated
 with an overlay, depending on the types of processors available in the
 system.
 
-An application for the Pmod PYNQ MicroBlaze will be linked to the Pmod Pynq 
+An application for the Pmod PYNQ MicroBlaze will be linked to the Pmod PYNQ 
 MicroBlaze BSP. As the two Pmod PYNQ MicroBlazes are identical, an application 
 written for one Pmod PYNQ MicroBlaze can run on the other Pmod PYNQ MicroBlaze. 
 
@@ -270,7 +282,7 @@ you can run the corresponding makefile:
     
     ``<PYNQ repository>/pynq/lib/pmod/makefile``
 
-Application projects for peripherals that ship with Pynq (e.g. Pmod and Arduino
+Application projects for peripherals that ship with PYNQ (e.g. Pmod and Arduino
 peripherals) can also be found in the same location. Each project is contained
 in a separate folder.
    
@@ -323,8 +335,8 @@ In addition, individual projects can be built by navigating to the
 Binary Files
 ^^^^^^^^^^^^
 
-Compiling code produces an executable file (.elf) which needs to be converted 
-to binary format (.bin) to be downloaded to, and run on a PYNQ MicroBlaze.
+Compiling code produces an executable file (.elf) along with its 
+binary format (.bin) to be downloaded to a PYNQ MicroBlaze.
 
 A .bin file can be generated from a .elf by running the following command from
 the SDK shell:
@@ -386,174 +398,289 @@ Header Files and Libraries
 A library is provided for the PYNQ MicroBlaze which includes an API for local 
 peripherals (IIC, SPI, Timer, Uart, GPIO), the configurable switch, links to 
 the peripheral addresses, and mappings for the mailbox used in the existing 
-PYNQ MicroBlaze peripheral applications provided with Pynq. This library can be 
+PYNQ MicroBlaze peripheral applications provided with PYNQ. This library can be 
 used to write custom PYNQ MicroBlaze applications.
 
-The only IP that is specific to each PYNQ MicroBlaze is the configurable switch. 
-There is a ``pmod_io_switch`` and an ``arduino_io_switch``. The header files 
-for the PYNQ MicroBlazes are associated with the corresponding configurable 
-switch, and can be found:
+The PYNQ MicroBlaze can deploy a configurable IO switch.
+It allows the IO pins to be connected to various types of controllers.
+The header files associated with the corresponding configurable 
+switch can be found:
 
 :: 
    
-   <PYNQ repository>/boards/ip/pmod_io_switch_1.0/drivers/    \
-   pmod_io_switch_v1_0/src/pmod.h
-   <PYNQ repository>/boards/ip/arduino_io_switch_1.0/drivers/ \
-   arduino_io_switch_v1_0/src/arduino.h
+   <PYNQ repository>/boards/ip/io_switch_1.1/drivers/io_switch_v1_0/src
 
-The corresponding C code, ``pmod.c`` or ``arduino.c`` can also be found in this
-directory.
+
+The PYNQ MicroBlaze has a dedicated library `pynqmb`. It wraps 
+up low-level functions for ease of use. The header files can be found
+
+:: 
+   
+   <PYNQ repository>/boards/sw_repo/pynqmb/src
 
 To use these files in a PYNQ MicroBlaze application, include these header 
 file(s) in the C program.
 
 
-For a Pmod PYNQ MicroBlaze:
+For example:
 
 .. code-block:: c
 
-   #include "pmod.h"
-   #include "pmod_io_switch.h"
-
-or for an Arduino PYNQ MicroBlaze:
-
-.. code-block:: c
-
-   #include "arduino.h"
-   #include "arduino_io_switch.h"
-
-Pmod applications should call ``pmod_init()`` at the beginning of the
-application, and Arduino applications, ``arduino_init()``. This will initialize
-all the PYNQ MicroBlaze peripherals in the subsystem.
+   #include "xio_switch.h"
+   #include "circular_buffer.h"
+   #include "gpio.h"
 
    
-Controlling the Pmod PYNQ MicroBlaze Switch
--------------------------------------------
+Controlling the IO Switch
+-------------------------
 
-The PYNQ MicroBlaze switch needs to be configured by the PYNQ MicroBlaze 
+The IO switch needs to be configured by the PYNQ MicroBlaze 
 application before any peripherals can be used. This can be done statically 
 from within the application, or the application can allow Python to write a 
 switch configuration to shared memory, which can be used to configure the 
-switch. This functionality must be implemented by the user, but existing Pynq 
-MicroBlaze applications can be used as a guide. For example, the 
-``arduino_lcd18`` PYNQ MicroBlaze project shows and example of reading the 
-switch configuration from the mailbox, and using this to configure
-the switch.
+switch.
 
-There are 8 data pins on a Pmod port, that can be connected to any of 16
-internal peripheral pins (8x GPIO, 2x SPI, 4x IIC, 2x Timer). This means the
-configuration switch for the Pmod has 8 connections to make to the data pins.
+For Pmod, there are 8 data pins that can be connected to GPIO, SPI, IIC, 
+or Timer. For Arduino, there are 20 shared data pins that can be connected to 
+GPIO, UART, SPI, or Timer. 
 
-Each pin can be configured by writing a 4 bit value to the corresponding place
-in the PYNQ MicroBlaze Switch configuration register. The first nibble (4-bits) 
-configures the first pin, the second nibble the second pin and so on.
-
-The following function, part of the provided pmod_io_switch_v1_0 driver
-(``pmod.h``) can be used to configure the switch from a PYNQ MicroBlaze 
+The following function, part of the provided IO switch driver (`xio_switch.h`),
+can be used to configure the switch from a PYNQ MicroBlaze 
 application.
 
 .. code-block:: c
 
-   void config_pmod_switch(char pin0, char pin1, char pin2, char pin3, \
-        char pin4, char pin5, char pin6, char pin7);
+   void init_io_switch(void);
+   void set_pin(int pin_number, u8 pin_type);
 
-While each parameter is a "char" only the lower 4-bits are used to configure
-each pin.
 
-Switch mappings used for PYNQ MicroBlaze Switch configuration:
+The function `init_io_switch()` will just set all the pins to GPIO by default.
+Then users can call `set_pin()` to configure each individual pin.
+The valid values for the parameter `pin_type` are defined as:
 
-========  ======= 
- Pin      Value  
-========  =======
- GPIO_0   0x0  
- GPIO_1   0x1  
- GPIO_2   0x2  
- GPIO_3   0x3  
- GPIO_4   0x4  
- GPIO_5   0x5  
- GPIO_6   0x6  
- GPIO_7   0x7  
- SCL      0x8  
- SDA      0x9  
- SPICLK   0xa  
- MISO     0xb  
- MOSI     0xc  
- SS       0xd  
- PWM      0xe
- TIMER    0xf
-========  =======
+============  ======= 
+ Pin          Value  
+============  =======
+ GPIO          0x00
+ UART0_TX      0x02
+ UART0_RX      0x03   
+ SPICLK0       0x04   
+ MISO0         0x05   
+ MOSI0         0x06   
+ SS0           0x07   
+ SPICLK1       0x08   
+ MISO1         0x09   
+ MOSI1         0x0A   
+ SS1           0x0B   
+ SDA0          0x0C   
+ SCL0          0x0D   
+ SDA1          0x0E   
+ SCL1          0x0F   
+ PWM0          0x10   
+ PWM1          0x11   
+ PWM2          0x12   
+ PWM3          0x13   
+ PWM4          0x14   
+ PWM5          0x15   
+ TIMER_G0      0x18   
+ TIMER_G1      0x19   
+ TIMER_G2      0x1A   
+ TIMER_G3      0x1B   
+ TIMER_G4      0x1C   
+ TIMER_G5      0x1D   
+ TIMER_G6      0x1E   
+ TIMER_G7      0x1F   
+ UART1_TX      0x22   
+ UART1_RX      0x23   
+ TIMER_IC0     0x38   
+ TIMER_IC1     0x39   
+ TIMER_IC2     0x3A   
+ TIMER_IC3     0x3B   
+ TIMER_IC4     0x3C   
+ TIMER_IC5     0x3D   
+ TIMER_IC6     0x3E   
+ TIMER_IC7     0x3F   
+============  =======
 
 For example:
 
 .. code-block:: c
 
-   config_pmod_switch(SS,MOSI,GPIO_2,SPICLK,GPIO_4,GPIO_5,GPIO_6,GPIO_7);
+   init_io_switch();
+   set_pin(0, SS0);
+   set_pin(1, MOSI0);
+   set_pin(3, SPICLK0);
    
 This would connect a SPI interface:
 
-* Pin 0: SS
-* Pin 1: MOSI
-* Pin 2: GPIO_2
-* Pin 3: SPICLK
-* Pin 4: GPIO_4
-* Pin 5: GPIO_5
-* Pin 6: GPIO_6
-* Pin 7: GPIO_7
-
-Note that if two or more pins are connected to the same signal, the pins are
-OR'd together internally.
+* Pin 0: SS0
+* Pin 1: MOSI0
+* Pin 2: GPIO
+* Pin 3: SPICLK0
+* Pin 4: GPIO
+* Pin 5: GPIO
+* Pin 6: GPIO
+* Pin 7: GPIO
 
 
-.. code-block:: c
+IO Switch Modes and Pin Mapping
+-------------------------------
+Note that the IO switch IP is a customizable IP can be configured by users 
+inside a Vivado project (by double clicking the IP icon of the IO switch). 
+There are 4 pre-defined modes (`pmod`, `dual pmod`, `arduino`, `raspberrypi`) 
+and 1 fully-customizable mode (`custom`) for users to choose. 
+In the base overlay, we have only used `pmod` and `arduino` as the IO switch 
+modes.
 
-   config_pmod_switch(GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1,GPIO_1);
-   
-This is not recommended and should not be done unintentionally. 
+Switch mappings used for Pmod:
 
-Controlling the Arduino PYNQ MicroBlaze Switch
-----------------------------------------------
+=======  ======  ============  ======  ============  ========  ====  =============
+                                                                            
+Pin      GPIO     UART          PWM     Timer         SPI       IIC   Input-Capture  
+                                                                             
+=======  ======  ============  ======  ============  ========  ====  =============
+D0       GPIO    UART0_RX/TX   PWM0     TIMER_G0      SS0              TIMER_IC0
+D1       GPIO    UART0_RX/TX   PWM0     TIMER_G0      MOSI0            TIMER_IC0
+D2       GPIO    UART0_RX/TX   PWM0     TIMER_G0      MISO0    SCL0    TIMER_IC0   
+D3       GPIO    UART0_RX/TX   PWM0     TIMER_G0      SPICLK0  SDA0    TIMER_IC0
+D4       GPIO    UART0_RX/TX   PWM0     TIMER_G0      SS0              TIMER_IC0
+D5       GPIO    UART0_RX/TX   PWM0     TIMER_G0      MOSI0            TIMER_IC0
+D6       GPIO    UART0_RX/TX   PWM0     TIMER_G0      MISO0    SCL0    TIMER_IC0 
+D7       GPIO    UART0_RX/TX   PWM0     TIMER_G0      SPICLK0  SDA0    TIMER_IC0                
+=======  ======  ============  ======  ============  ========  ====  =============
 
-Switch mappings used for IO switch configuration:
+Note:
 
-===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+- PWM0, TIMER_G0, TIMER_IC0 can only be used once on any pin.
+- UART0_TX/RX is supported by Pmod, but not implemented in the base overlay.
+- SS0, MOSI0, MISO0, SPICLK0 can either be used on top-row (pins D0 - D3) or 
+  bottom-row (D4 - D7) but not both.
+- SCL0, SDA0 can either be used on to-row (pins D2 - D3) or 
+  bottom-row (D6 - D7) but not both.
+
+Switch mappings used for Arduino:
+
+=======  ======  ============  ======  ============  ========  ====  =============
+                                                                     
+Pin      GPIO     UART          PWM     Timer         SPI       IIC   Input-Capture  
+                                                                     
+=======  ======  ============  ======  ============  ========  ====  =============
+D0       GPIO    UART0_RX                                                         
+D1       GPIO    UART0_TX                                                         
+D2       GPIO                                                                  
+D3       GPIO                  PWM0    TIMER_G0                      TIMER_IC0
+D4       GPIO                          TIMER_G6                      TIMER_IC6
+D5       GPIO                  PWM1    TIMER_G1                      TIMER_IC1
+D6       GPIO                  PWM2    TIMER_G2                      TIMER_IC2 
+D7       GPIO                                                                   
+D8       GPIO                          TIMER_G7                      TIMER_IC7
+D9       GPIO                  PWM3    TIMER_G3                      TIMER_IC3
+D10      GPIO                  PWM4    TIMER_G4      SS0             TIMER_IC4
+D11      GPIO                  PWM5    TIMER_G5      MOSI0           TIMER_IC5
+D12      GPIO                                        MISO0                       
+D13      GPIO                                        SPICLK0                     
+D14/A0   GPIO                                                               
+D15/A1   GPIO                                                               
+D16/A2   GPIO                                                               
+D17/A3   GPIO                                                               
+D18/A4   GPIO                                                               
+D19/A5   GPIO     
+=======  ======  ============  ======  ============  ========  ====  =============
+
+Note:
+
+- On Arduino, a dedicated pair of pins are connected to IIC
+  (not going through the IO switch).
+
+  
+Switch mappings used for dual Pmod:
+
+=======  ======  ============  ======  ============  ========  ====  =============
+                                                                                           
+Pin      GPIO     UART          PWM     Timer         SPI       IIC   Input-Capture  
+                                                                            
+=======  ======  ============  ======  ============  ========  ====  =============
+D0       GPIO    UART0_RX/TX   PWM0    TIMER_G0      SS0               TIMER_IC0 
+D1       GPIO    UART0_RX/TX   PWM0    TIMER_G0      MOSI0             TIMER_IC0
+D2       GPIO    UART0_RX/TX   PWM0    TIMER_G0      MISO0     SCL0    TIMER_IC0     
+D3       GPIO    UART0_RX/TX   PWM0    TIMER_G0      SPLCLK0   SDA0    TIMER_IC0
+D4       GPIO    UART0_RX/TX   PWM0    TIMER_G0      SS0               TIMER_IC0
+D5       GPIO    UART0_RX/TX   PWM0    TIMER_G0      MOSI0             TIMER_IC0
+D6       GPIO    UART0_RX/TX   PWM0    TIMER_G0      MISO0     SCL0    TIMER_IC0
+D7       GPIO    UART0_RX/TX   PWM0    TIMER_G0      SPICLK0   SDA0    TIMER_IC0
+=======  ======  ============  ======  ============  ========  ====  =============
+
+=======  ======  ============  ======  ============  ========  ====  =============
+                                                                                           
+Pin      GPIO     UART          PWM     Timer         SPI       IIC   Input-Capture  
+                                                                            
+=======  ======  ============  ======  ============  ========  ====  =============
+D0       GPIO    UART0_RX/TX   PWM0    TIMER_G1      SS1               TIMER_IC1
+D1       GPIO    UART0_RX/TX   PWM0    TIMER_G1      MOSI1             TIMER_IC1
+D2       GPIO    UART0_RX/TX   PWM0    TIMER_G1      MISO1     SCL1    TIMER_IC1
+D3       GPIO    UART0_RX/TX   PWM0    TIMER_G1      SPICLK1   SDA1    TIMER_IC1
+D4       GPIO    UART0_RX/TX   PWM0    TIMER_G1      SS1               TIMER_IC1
+D5       GPIO    UART0_RX/TX   PWM0    TIMER_G1      MOSI1             TIMER_IC1
+D6       GPIO    UART0_RX/TX   PWM0    TIMER_G1      MISO1     SCL1    TIMER_IC1
+D7       GPIO    UART0_RX/TX   PWM0    TIMER_G1      SPICLK1   SDA1    TIMER_IC1
+=======  ======  ============  ======  ============  ========  ====  =============
+
+Note:
+
+- PWM0, TIMER_G0, TIMER_IC0 can only be used once on any pin of D0 - D7.
+- PWM0, TIMER_G1, TIMER_IC1 can only be used once on any pin of D8 - D15.
+- SS0, MOSI0, MISO0, SPICLK0 can either be used on top-row (pins D0 - D3) or 
+  bottom-row (D4 - D7) but not both.
+- SS1, MOSI1, MISO1, SPICLK1 can either be used on top-row (pins D8 - D11) or 
+  bottom-row (D12 - D15) but not both.
+- SCL0, SDA0 can either be used on to-row (pins D2 - D3) or 
+  bottom-row (D6 - D7) but not both.
+- SCL1, SDA1 can either be used on to-row (pins D10 - D11) or 
+  bottom-row (D14-D15) but not both.
+
+Switch mappings used for Raspberrypi:
+
+=======  ======  ========  ======  ============  ========  ====  =============
                                                                                                
-Pin  A/D IO  A_INT   Interrupt  UART    PWM     Timer             SPI       IIC   Input-Capture  
+Pin      GPIO     UART      PWM     Timer         SPI       IIC   Input-Capture  
                                                                                          
-===  ======  =====   =========  ======  ======  ================  ========  ====  =============
-A0   A_GPIO  A_INT                                                                             
-A1   A_GPIO  A_INT                                                                             
-A2   A_GPIO  A_INT                                                                             
-A3   A_GPIO  A_INT                                                                             
-A4   A_GPIO  A_INT                                                          IIC                
-A5   A_GPIO  A_INT                                                          IIC                
-D0   D_GPIO          D_INT      D_UART                                                         
-D1   D_GPIO          D_INT      D_UART                                                         
-D2   D_GPIO          D_INT                                                                     
-D3   D_GPIO          D_INT              D_PWM0  D_TIMER Timer0                    IC Timer0  
-D4   D_GPIO          D_INT                      D_TIMER Timer0_6                             
-D5   D_GPIO          D_INT              D_PWM1  D_TIMER Timer1                    IC Timer1  
-D6   D_GPIO          D_INT              D_PWM2  D_TIMER Timer2                    IC Timer2  
-D7   D_GPIO          D_INT                                                                     
-D8   D_GPIO          D_INT                      D_TIMER Timer1_7                  Input Capture
-D9   D_GPIO          D_INT              D_PWM3  D_TIMER Timer3                    IC Timer3  
-D10  D_GPIO          D_INT              D_PWM4  D_TIMER Timer4    D_SS            IC Timer4  
-D11  D_GPIO          D_INT              D_PWM5  D_TIMER Timer5    D_MOSI          IC Timer5  
-D12  D_GPIO          D_INT                                        D_MISO                       
-D13  D_GPIO          D_INT                                        D_SPICLK                     
-                                                                                               
-===  ======  =====   =========  ======  ======  ================  ========  ====  =============
+=======  ======  ========  ======  ============  ========  ====  =============
+GPIO0     GPIO                                             SDA0 
+GPIO1     GPIO                                             SCL0
+GPIO2     GPIO                                             SDA1
+GPIO3     GPIO                                             SCL1
+GPIO4     GPIO                                                    TIMER_ICx
+GPIO5     GPIO                                                    TIMER_ICx
+GPIO6     GPIO                                                    TIMER_ICx
+GPIO7     GPIO                                    SS0             TIMER_ICx
+GPIO8     GPIO                                    SS0             TIMER_ICx
+GPIO9     GPIO                                    MISO0           TIMER_ICx
+GPIO10    GPIO                                    MOSI0           TIMER_ICx
+GPIO11    GPIO                                    SPICLK0         TIMER_ICx
+GPIO12    GPIO              PWM0
+GPIO13    GPIO              PWM1
+GPIO14    GPIO   UART0_TX
+GPIO15    GPIO   UART0_RX
+GPIO16    GPIO                                    SS1
+GPIO17    GPIO
+GPIO18    GPIO
+GPIO19    GPIO                                    MISO1
+GPIO20    GPIO                                    MOSI1
+GPIO21    GPIO                                    SPICLK1
+GPIO22    GPIO
+GPIO23    GPIO
+GPIO24    GPIO
+GPIO25    GPIO
+=======  ======  ========  ======  ============  ========  ====  =============
 
-For example, to connect the UART to D0 and D1, write D_UART to the configuration
-register for D0 and D1.
+Note:
 
-.. code-block:: c
+- `x` can be 0, 1, or 2 for TIMER_ICx.
+- GCLK0, 1, and 2 are used which do not go through the switch, 
+  providing 50% duty cycle square wave generation.
+- SPI0 can have up to two SS's.
 
-    config_arduino_switch(A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO, A_GPIO,
-                  D_UART, D_UART, D_GPIO, D_GPIO, D_GPIO,
-                  D_GPIO, D_GPIO, D_GPIO, D_GPIO,
-                  D_GPIO, D_GPIO, D_GPIO, D_GPIO);
 
-   
 PYNQ MicroBlaze Example
 -----------------------
 
@@ -566,15 +693,17 @@ Pmod light sensor):
 ``<PYNQ repository>/pynq/lib/pmod/pmod_als/src/pmod_als.c``
 
 
-First note that the ``pmod.h`` header file is included.
+First note that the `pynqmb` header files are included.
 
 .. code-block:: c
 
-   #include "pmod.h"
+   #include "spi.h"
+   #include "timer.h"
+   #include "circular_buffer.h"
    
-Some constants for commands are defined. These values can be chosen properly. 
-The corresponding Python code will send the appropriate command values to 
-control the PYNQ MicroBlaze application.
+Next, some constants for commands are defined. These values can be chosen 
+properly. The corresponding Python code will send the appropriate command 
+values to control the PYNQ MicroBlaze application.
 
 By convention, 0x0 is reserved for no command (idle, or acknowledged); then 
 PYNQ MicroBlaze commands can be any non-zero value.
@@ -591,9 +720,16 @@ PYNQ MicroBlaze commands can be any non-zero value.
    #define LOG_CAPACITY  (4000/LOG_ITEM_SIZE)
 
 
-The ALS peripheral has as SPI interface. The user defined function get_sample()
-calls an SPI function ``spi_transfer()``, defined in ``pmod.h``, to read data 
-from the device.
+The ALS peripheral has as SPI interface. An SPI variable is defined and 
+accessible to the remaining part of the program.
+
+.. code-block:: c
+
+   spi device;
+
+
+The user defined function `get_sample()` calls `spi_transfer()`
+to read data from the device.
 
   
 .. code-block:: c
@@ -604,12 +740,13 @@ from the device.
       Two bytes need to be read, and data extracted.
       */
       u8 raw_data[2];
-      spi_transfer(SPI_BASEADDR, 2, raw_data, NULL);
+      spi_transfer(device, NULL, (char*)raw_data, 2);
       return ( ((raw_data[1] & 0xf0) >> 4) + ((raw_data[0] & 0x0f) << 4) );
    }
 
-In ``main()`` notice ``config_pmod_switch()`` is called to initialize the 
-switch with a static configuration. This application does not allow the switch
+In ``main()`` notice that no IO switch related functions are called; this is
+because those functions are performed under the hood automatically by 
+`spi_open()`. Also notice this application does not allow the switch
 configuration to be modified from Python. This means that if you want to use
 this code with a different pin configuration, the C code must be modified and
 recompiled.
@@ -622,9 +759,8 @@ recompiled.
       u16 als_data;
       u32 delay;
 
-      pmod_init(0,1);
-      config_pmod_switch(SS, GPIO_1, MISO, SPICLK, \
-                         GPIO_4, GPIO_5, GPIO_6, GPIO_7);
+      device = spi_open(3, 2, 1, 0);
+
       // to initialize the device
       get_sample();
 
@@ -654,34 +790,39 @@ Remaining code:
 
 .. code-block:: c
          
-         switch(cmd){
-            case READ_SINGLE_VALUE:
-            // write out reading, reset mailbox
-            MAILBOX_DATA(0) = get_sample();
+      switch(cmd){
+       
+        case READ_SINGLE_VALUE:
+      // write out reading, reset mailbox
+      MAILBOX_DATA(0) = get_sample();
+      MAILBOX_CMD_ADDR = 0x0;
+
+      break;
+
+         case READ_AND_LOG:
+       // initialize logging variables, reset cmd
+       cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+       delay = MAILBOX_DATA(1);
+       MAILBOX_CMD_ADDR = 0x0; 
+
+            do{
+               als_data = get_sample();
+           cb_push_back(&circular_log, &als_data);
+           delay_ms(delay);
+
+            } while((MAILBOX_CMD_ADDR & 0x1)== 0);
+
+            break;
+
+         default:
+            // reset command
             MAILBOX_CMD_ADDR = 0x0;
             break;
-            case READ_AND_LOG:
-            // initialize logging variables, reset cmd
-            cb_init(&pmod_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
-            delay = MAILBOX_DATA(1);
-            MAILBOX_CMD_ADDR = 0x0; 
-
-               do{
-                  als_data = get_sample();
-                  cb_push_back(&pmod_log, &als_data);
-                  delay_ms(delay);
-               } while((MAILBOX_CMD_ADDR & 0x1)== 0);
-
-               break;
-
-            default:
-               // reset command
-               MAILBOX_CMD_ADDR = 0x0;
-               break;
-         }
       }
-      return(0);
    }
+   return(0);
+ }
+
 
 
 Python Code
@@ -732,7 +873,7 @@ from Python:
     als = Pmod_ALS(PMODA)
 
 This will create a ``Pmod_ALS`` instance, and load the MicroBlaze executable
-(``PMOD_ALS_PROGRAM``) into the instruction memory of the specified Pynq 
+(``PMOD_ALS_PROGRAM``) into the instruction memory of the specified PYNQ 
 MicroBlaze.
 
 Since the MicroBlaze information, imported as Pmod constants, can also be 
@@ -786,4 +927,3 @@ result is read from the data area of the shared memory ``MAILBOX_OFFSET``.
     data = self.microblaze.read_mailbox(0)
     return data
 
-   
