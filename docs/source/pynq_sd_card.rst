@@ -33,8 +33,18 @@ and recent VM image is recommended. The flow provided has been tested on Ubuntu
 
 To build the image follow the steps below:
 
-  1. Install Vivado 2016.1 and Xilinx SDK 2016.1
+  1. Install the correct version of Vivado and SDK
   2. Install dependencies using the following script
+
+The correct version of the Vivado and SDK is shown below:
+
+================  ================
+Release version    Vivado and SDK
+================  ================
+v1.4               2015.4
+v2.0               2016.1
+v2.1               2017.4
+================  ================
 
 .. code-block:: console
     
@@ -131,7 +141,16 @@ into a release which live in the following folder:
 A release is a single (.config) file defining the variables:
 
   * **BOOT_CONFIG**: Path to the name of the project folder in boot_configs
-  * **ROOTFS_CONFIG**: Should be Pynq-Z1-Wily
+  * **ROOTFS_CONFIG**: Should be consistent with the OS to be installed on board 
+    (e.g. Pynq-Z1-Xenial).
+
+================  ================
+Release version    OS
+================  ================
+v1.4               Ubuntu Wily
+v2.0               Ubuntu Wily
+v2.1               Ubuntu Xenial
+================  ================
 
 While the root filesystem is designed around the Pynq-Z1 board it should work on
 any board with similar connectivity, i.e. PS attached Ethernet and USB host
