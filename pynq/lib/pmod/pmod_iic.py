@@ -30,9 +30,9 @@
 
 from time import sleep
 from . import Pmod_DevMode
-from . import PMOD_SWCFG_IIC0_SDA
-from . import PMOD_SWCFG_IIC0_SCL
-from . import PMOD_SWCFG_DIO0
+from . import PMOD_SWCFG_SDA0
+from . import PMOD_SWCFG_SCL0
+from . import PMOD_SWCFG_GPIO
 from . import PMOD_XIIC_0_BASEADDR
 from . import PMOD_XIIC_SR_REG_OFFSET
 from . import PMOD_XIIC_DTR_REG_OFFSET
@@ -107,11 +107,11 @@ class Pmod_IIC(Pmod_DevMode):
         switchconfig = []
         for i in range(PMOD_NUM_DIGITAL_PINS):
             if i == sda_pin:
-                switchconfig.append(PMOD_SWCFG_IIC0_SDA)
+                switchconfig.append(PMOD_SWCFG_SDA0)
             elif i == scl_pin:
-                switchconfig.append(PMOD_SWCFG_IIC0_SCL)
+                switchconfig.append(PMOD_SWCFG_SCL0)
             else:
-                switchconfig.append(PMOD_SWCFG_DIO0)
+                switchconfig.append(PMOD_SWCFG_GPIO)
 
         super().__init__(mb_info, switchconfig)
         self.start()
@@ -126,7 +126,7 @@ class Pmod_IIC(Pmod_DevMode):
         """This method enables the IIC drivers.
         
         The correct sequence to enable the drivers is:
-        1. Disale the IIC core.
+        1. Disable the IIC core.
         2. Set the Rx FIFO depth to maximum.
         3. Reset the IIC core and flush the Tx FIFO.
         4. Enable the IIC core.

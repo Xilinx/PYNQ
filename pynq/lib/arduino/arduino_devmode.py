@@ -95,7 +95,7 @@ class Arduino_DevMode(object):
     microblaze : Arduino
         Microblaze processor instance used by this module.
     iop_switch_config :list
-        Microblaze processor switch configuration (19 integers).
+        Microblaze processor switch configuration (20 integers).
 
     """
     def __init__(self, mb_info, switch_config):
@@ -107,7 +107,7 @@ class Arduino_DevMode(object):
             A dictionary storing Microblaze information, such as the
             IP name and the reset name.
         switch_config : list
-            Microblaze Processor switch configuration (19 integers).
+            Microblaze Processor switch configuration (20 integers).
 
         """
         self.microblaze = Arduino(mb_info, ARDUINO_MAILBOX_PROGRAM)
@@ -139,7 +139,8 @@ class Arduino_DevMode(object):
     def load_switch_config(self, config=None):
         """Load the Microblaze processor's switch configuration.
         
-        This method will update switch config.
+        This method will update switch config. Each pin requires 8 bits for
+        configuration.
         
         Parameters
         ----------
@@ -154,26 +155,26 @@ class Arduino_DevMode(object):
         """
         if config is None:
             config = ARDUINO_SWCFG_DIOALL
-        elif not len(config) == ARDUINO_SWITCHCONFIG_NUMREGS:
+        elif not len(config) == 4*ARDUINO_SWITCHCONFIG_NUMREGS:
             raise TypeError('Invalid switch config {}.'.format(config))
 
         # Build switch config word
         self.iop_switch_config = config
-        sw_config_words = [0, 0, 0, 0]
+        sw_config_words = [0]*ARDUINO_SWITCHCONFIG_NUMREGS
         for ix, cfg in enumerate(self.iop_switch_config):
-            if ix < 6:
-                sw_config_words[0] |= (cfg << ix*2)
-            elif ix == 6:
-                sw_config_words[0] |= (cfg << 31)
-            elif 7 <= ix < 11:
-                sw_config_words[1] |= (cfg << (ix-7)*4)
-            elif 11 <= ix < 15:
-                sw_config_words[2] |= (cfg << (ix-11)*4)
+            if ix < 4:
+                sw_config_words[0] |= (cfg << ix*8)
+            elif ix < 8:
+                sw_config_words[1] |= (cfg << (ix-4)*8)
+            elif ix < 12:
+                sw_config_words[2] |= (cfg << (ix-8)*4)
+            elif ix < 16:
+                sw_config_words[3] |= (cfg << (ix-12)*4)
             else:
-                sw_config_words[3] |= (cfg << (ix-15)*4)
+                sw_config_words[4] |= (cfg << (ix-16)*4)
 
             # Configure switch
-            for i in range(4):
+            for i in range(ARDUINO_SWITCHCONFIG_NUMREGS):
                 self.write_cmd(ARDUINO_SWITCHCONFIG_BASEADDR + 4*i,
                                sw_config_words[i])
 
