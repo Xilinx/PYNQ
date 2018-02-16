@@ -57,6 +57,7 @@
  *****************************************************************************/
 
 #include "circular_buffer.h"
+#include "xio_switch.h"
 #include "timer.h"
 
 
@@ -90,7 +91,8 @@ int main(void) {
      * Configuring Pmod IO switch
      * bit-0 is controlled by the pwm
      */
-    device = timer_open(0);
+    device = timer_open_device(0);
+    init_io_switch();
 
     while(1){
         while(MAILBOX_CMD_ADDR==0);
@@ -100,13 +102,13 @@ int main(void) {
             case CONFIG_IOP_SWITCH:
                 // read new pin configuration
                 pwm_pin = MAILBOX_DATA(0);
-                device = timer_open(pwm_pin);
+                set_pin(pwm_pin, PWM0);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
                   
             case GENERATE:
                 Timer1Value = (MAILBOX_DATA(0) & 0x0ffff) *100;
-                Timer2Value = (MAILBOX_DATA(1) & 0x07f)*Timer1Value;
+                Timer2Value = (MAILBOX_DATA(1) & 0x07f)*Timer1Value/100;
                 timer_pwm_generate(device, Timer1Value, Timer2Value);
                 MAILBOX_CMD_ADDR = 0x0;
                 break;
