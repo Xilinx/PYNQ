@@ -136,10 +136,11 @@ class Pmod_DevMode(object):
         """
         self.microblaze.reset()
 
-    def load_switch_config(self, config):
+    def load_switch_config(self, config=None):
         """Load the Microblaze processor's switch configuration.
         
-        This method will update switch config.
+        This method will update switch config. Each pin requires 8 bits for
+        configuration.
         
         Parameters
         ----------
@@ -152,20 +153,23 @@ class Pmod_DevMode(object):
             If the config argument is not of the correct type.
             
         """
-        if not len(config) == PMOD_SWITCHCONFIG_NUMREGS:
+        if config is None:
+            config = PMOD_SWCFG_DIOALL
+        elif not len(config) == 4*PMOD_SWITCHCONFIG_NUMREGS:
             raise ValueError('Invalid switch config {}.'.format(config))
 
         # Build switch config word
         self.iop_switch_config = config
-        sw_config_word = 0
-        for ix, cfg in enumerate(self.iop_switch_config):
-            sw_config_word |= (cfg << ix*4)
+        sw_config_word_l = sw_config_word_h = 0
+        for ix, cfg in enumerate(self.iop_switch_config[0:4]):
+            sw_config_word_l |= (cfg << ix*8)
+        for ix, cfg in enumerate(self.iop_switch_config[4:8]):
+            sw_config_word_h |= (cfg << ix*8)
 
-        # Disable, configure, enable switch
-        self.write_cmd(PMOD_SWITCHCONFIG_BASEADDR + 4, 0)
-        self.write_cmd(PMOD_SWITCHCONFIG_BASEADDR, sw_config_word)
-        self.write_cmd(PMOD_SWITCHCONFIG_BASEADDR + 7, 0x80, d_width=1)
-            
+        # Configure switch
+        self.write_cmd(PMOD_SWITCHCONFIG_BASEADDR, sw_config_word_l)
+        self.write_cmd(PMOD_SWITCHCONFIG_BASEADDR + 4, sw_config_word_h)
+
     def status(self):
         """Returns the status of the Microblaze processor.
         
