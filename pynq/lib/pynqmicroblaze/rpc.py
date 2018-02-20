@@ -377,9 +377,9 @@ class FuncAdapter:
 
     Attributes
     ----------
-    return_interface : *Wrapper
+    return_interface : TypeWrapper
         The type wrapper for the return type
-    arg_interfaces   : [*Wrapper]
+    arg_interfaces   : [TypeWrapper]
         An array of type wrappers for the arguments
     call_ast         : pycparser.c_ast
         Syntax tree for the wrapped function call
