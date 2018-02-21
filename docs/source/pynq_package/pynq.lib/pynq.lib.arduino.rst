@@ -30,15 +30,7 @@ pynq.lib.arduino.arduino_grove_buzzer Module
     :members:
     :undoc-members:
     :show-inheritance:
-       
-pynq.lib.arduino.arduino_grove_color Module
--------------------------------------------
-
-.. automodule:: pynq.lib.arduino.arduino_grove_color
-    :members:
-    :undoc-members:
-    :show-inheritance:
-   
+  
 pynq.lib.arduino.arduino_grove_ear_hr Module
 --------------------------------------------
 

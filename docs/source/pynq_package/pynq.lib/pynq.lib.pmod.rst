@@ -127,14 +127,6 @@ pynq.lib.pmod.pmod_grove_buzzer Module
     :undoc-members:
     :show-inheritance:
     
-pynq.lib.pmod.pmod_grove_color Module
--------------------------------------
-
-.. automodule:: pynq.lib.pmod.pmod_grove_color
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    
 pynq.lib.pmod.pmod_grove_dlight Module
 --------------------------------------
 

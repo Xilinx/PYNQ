@@ -42,8 +42,8 @@ Micro SD card preloaded with the PYNQ-Z1 image, you can skip this step.
 
 To make your own PYNQ Micro-SD card:
 
-  1. `Download the PYNQ-Z1 image
-     <https://files.digilent.com/Products/PYNQ/pynq_z1_v2.0.img.zip>`_
+  1. `Download the PYNQ-Z1 v2.1 image (released 21 Feb 2018)
+     <http://files.digilent.com/Products/PYNQ/pynq_z1_v2.1.img.zip>`_
   2. Unzip the image 
   3. Write the image to a blank Micro SD card (minimum 8GB recommended)
    
@@ -59,7 +59,7 @@ Board Setup
       :align: center
 
   1. Set the **JP4 / Boot** jumper to the *SD* position by
-     placing the jumper over the bottom two pins of JP4 as shown in the image.
+     placing the jumper over the top two pins of JP4 as shown in the image.
      (This sets the board to boot from the Micro-SD card)
    
   2. To power the PYNQ-Z1 from the micro USB cable, set the **JP5 / Power**
@@ -225,8 +225,6 @@ When prompted, the username is **xilinx** and the password is **xilinx**. The
 following screen should appear:
 
 .. image:: images/samba_share.JPG
-    :height: 600px
-    :scale: 75%
     :align: center
 
 To access the home area in Ubuntu, open a file broswer, click Go -> Enter

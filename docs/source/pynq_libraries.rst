@@ -61,6 +61,6 @@ driver provided, before the peripheral can be used.
     pynq_libraries/arduino.rst
     pynq_libraries/grove.rst
     pynq_libraries/logictools.rst
-    pynq_libraries/pynq_microblaze.rst
+    pynq_libraries/pynq_microblaze_subsystem.rst
     pynq_libraries/pynqmb_python.rst
     pynq_libraries/pynqmb_reference.rst       

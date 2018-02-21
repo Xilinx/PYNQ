@@ -10,6 +10,7 @@ ports, 2x AXI Slave GP ports and 1x AXI Master ACP port. There are also GPIO
 controllers in the PS that are connected to the PL.
 
 .. image:: ../images/zynq_interfaces.png
+   :height: 500px
    :align: center
 
 There are four ``pynq`` classes that are used to manage data movement between 
