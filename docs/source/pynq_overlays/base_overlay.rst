@@ -206,7 +206,7 @@ Assuming PYNQ has been cloned:
    source ./build_base_ip.tcl
    source ./base.tcl
 
-To build from the command line, open the Vivado 2016.1 Tcl Shell, and run the 
+To build from the command line, open the Vivado 2017.4 Tcl Shell, and run the 
 following:
 
 .. code-block:: console
