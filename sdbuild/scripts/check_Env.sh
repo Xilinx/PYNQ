@@ -33,7 +33,7 @@ EOT
 
 if [ "$EUID" -eq 0 ] ; then
     echo "error: Please do not run as root."
-    #exit 1
+    exit 1
 fi
 
 failed=false
