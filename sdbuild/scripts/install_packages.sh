@@ -16,6 +16,12 @@ done
 mkdir -p $target/ccache
 mount -o bind $CCACHEDIR $target/ccache
 
+#check run/resolvconf/resolv.conf 
+if [ ! -e $target/run/resolvconf/resolv.conf ]; then
+    mkdir /run/resolvconf
+    cp /etc/resolv.conf /run/resolvconf/resolv.conf
+fi
+
 function unmount_special() {
 
 # Unmount special files
