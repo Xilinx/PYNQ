@@ -15,7 +15,7 @@ See the <a href="http://www.pynq.io/" target="_blank">PYNQ webpage</a> for an ov
 
 The project currently supports the PYNQ-Z1 board. 
 
-You can <a href="https://files.digilent.com/Products/PYNQ/pynq_z1_v2.0.img.zip" target="_blank">download the precompiled image</a>, write the image to a micro SD card, and boot the board from the micro SD card. 
+You can <a href="https://files.digilent.com/Products/PYNQ/pynq_z1_v2.1.img.zip" target="_blank">download the precompiled image</a>, write the image to a micro SD card, and boot the board from the micro SD card. 
 
 ## Quick Start
 
