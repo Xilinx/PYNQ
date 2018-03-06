@@ -13,7 +13,10 @@ BIN_ARDUINO = arduino_analog.bin \
 		arduino_grove_haptic_motor.bin \
 		arduino_grove_th02.bin \
 		arduino_lcd18.bin \
-		arduino_mailbox.bin
+		arduino_mailbox.bin \
+		arduino_grove_usranger.bin \
+		arduino_joystick.bin \
+		arduino_ardumoto.bin
 
 all: arduino_bins
 	@echo
