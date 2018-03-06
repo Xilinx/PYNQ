@@ -25,38 +25,38 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 ELFSIZE += \
-pmod_grove_USranger.elf.size \
+pmod_grove_usranger.elf.size \
 
 
 # All Target
-all: pmod_grove_USranger.elf secondary-outputs
+all: pmod_grove_usranger.elf secondary-outputs
 
 # Tool invocations
-pmod_grove_USranger.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
+pmod_grove_usranger.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MicroBlaze gcc linker'
-	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../bsp_pmod/iop1_mb/lib -mlittle-endian -mcpu=v9.5 -mxl-soft-mul -Wl,--no-relax -o "pmod_grove_USranger.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../bsp_iop_pmod/iop_pmoda_mb/lib -mlittle-endian -mcpu=v10.0 -mxl-soft-mul -Wl,--no-relax -o "pmod_grove_usranger.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-pmod_grove_USranger.elf.size: pmod_grove_USranger.elf
+pmod_grove_usranger.elf.size: pmod_grove_usranger.elf
 	@echo 'Invoking: MicroBlaze Print Size'
-	mb-size pmod_grove_USranger.elf  |tee "pmod_grove_USranger.elf.size"
+	mb-size pmod_grove_usranger.elf  |tee "pmod_grove_usranger.elf.size"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-pmod_grove_USranger.bin: pmod_grove_USranger.elf
+pmod_grove_usranger.bin: pmod_grove_usranger.elf
 	@echo 'Invoking: MicroBlaze Bin Gen'
-	mb-objcopy -O binary pmod_grove_USranger.elf pmod_grove_USranger.bin
+	mb-objcopy -O binary pmod_grove_usranger.elf pmod_grove_usranger.bin
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_grove_USranger.elf pmod_grove_USranger.bin
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) pmod_grove_usranger.elf pmod_grove_usranger.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE) pmod_grove_finger_hr.bin
+secondary-outputs: $(ELFSIZE) pmod_grove_usranger.bin
 
 .PHONY: all clean dependents
 .SECONDARY:

@@ -20,7 +20,8 @@ BIN_PMOD = pmod_adc.bin \
 		pmod_grove_ear_hr.bin \
 		pmod_grove_finger_hr.bin \
 		pmod_grove_haptic_motor.bin \
-		pmod_grove_th02.bin
+		pmod_grove_th02.bin \
+		pmod_grove_usranger.bin
 
 all: iop_bins
 	@echo
