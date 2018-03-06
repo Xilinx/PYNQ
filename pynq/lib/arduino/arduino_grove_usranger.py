@@ -40,12 +40,13 @@ from . import MAILBOX_OFFSET
 from pynq import Clocks
 from math import ceil
 
+
 __author__ = "Vikhyat Goyal"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-ARDUINO_GROVE_USRANGER_PROGRAM = "arduino_grove_USranger.bin"
+ARDUINO_GROVE_USRANGER_PROGRAM = "arduino_grove_usranger.bin"
 GROVE_USRANGER_LOG_START = MAILBOX_OFFSET+16
 GROVE_USRANGER_LOG_END = GROVE_USRANGER_LOG_START+(1000*4)
 CONFIG_IOP_SWITCH = 0x1
@@ -78,8 +79,6 @@ class Grove_USranger(object):
             A group of pins on arduino-grove shield.
 
         """
-        self.clk_period_ns = int(1000 / Clocks.fclk0_mhz);
-
         if gr_pin not in [ARDUINO_GROVE_G1,
                           ARDUINO_GROVE_G2,
                           ARDUINO_GROVE_G3,
@@ -87,86 +86,92 @@ class Grove_USranger(object):
                           ARDUINO_GROVE_G5,
                           ARDUINO_GROVE_G6,
                           ARDUINO_GROVE_G7]:
-        	raise ValueError("Group number can only be G1 - G7.")
+            raise ValueError("Group number can only be G1 - G7.")
+
+        self.clk_period_ns = int(1000 / Clocks.fclk0_mhz)
+        self.log_running = 0
+        self.log_interval_ms = 100
 
         self.microblaze = Arduino(mb_info, ARDUINO_GROVE_USRANGER_PROGRAM)
-        self.USrangerpin = gr_pin;
-        print (self.USrangerpin);
+        self.ranger_pin = gr_pin[0]
+        self.microblaze.write_mailbox(0, self.ranger_pin)
         self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read_distance_cm(self):
-        """enables the US ranger to get a single measurment of distance.
+        """Enables the US ranger to get the distance in cm.
 
-        A 10usec initiate signal is send to the sensor, 
-	the sensor then outputs eight 40khz Ultrasonic signal and detects a echo back.
-	
-	The distance can be measured in terms of cm or inches.
-	once the sensor distance measurment has been started, 
-	the echo back pulse duration (in usec) can be convered into distance as below:
+        A 10 usec initiate signal is send to the sensor,
+        the sensor then outputs eight 40khz Ultrasonic signal and detects an
+        echo back.
 
-	distance(cm) = duration(usec)/58
-	distance(inch) = duration(usec)/148
+        The distance can be measured in terms of cm or inches.
+        once the sensor distance measurement has been started,
+        the echo back pulse duration (in usec) can be convered into distance
+        as below:
+
+        distance(cm) = duration(usec)/58
+
+        distance(inch) = duration(usec)/148
 
         Returns
         -------
         int
-	   the distance in cm
+            The distance in cm.
 
         """
-        self.microblaze.write_mailbox(0, self.USrangerpin)
         self.microblaze.write_blocking_command(READ)
-        value = self.microblaze.read_mailbox(0)
-        value = value * self.clk_period_ns*(0.001) #convert value to useconds
-        if((value*0.001) > 30): #If more than 30msec take as no obstacle
-          return (500)
+        raw_value = self.microblaze.read_mailbox(0)
+        num_microseconds = raw_value * self.clk_period_ns * 0.001
+        if num_microseconds * 0.001 > 30:
+            # Take as no obstacle
+            return 500
         else:
-          return (value/58)
+            return num_microseconds/58
 
     def read_distance_inch(self):
-        """The distance can be measured in terms of cm or inches.
-	once the sensor distance measurment has been started, 
-	the echo back pulse duration (in usec) can be convered into distance as below:
+        """Enables the US ranger to get the distance in inches.
 
-	distance(cm) = duration(usec)/58
-	distance(inch) = duration(usec)/148
+        A 10 usec initiate signal is send to the sensor,
+        the sensor then outputs eight 40khz Ultrasonic signal and detects an
+        echo back.
+
+        The distance can be measured in terms of cm or inches.
+        once the sensor distance measurement has been started,
+        the echo back pulse duration (in usec) can be converted into distance
+        as below:
+
+        distance(cm) = duration(usec)/58
+
+        distance(inch) = duration(usec)/148
 
         Returns
         -------
         int
-	   the distance in inch
+            The distance in inch.
 
         """
-        self.microblaze.write_mailbox(0, self.USrangerpin)
         self.microblaze.write_blocking_command(READ)
-        value = self.microblaze.read_mailbox(0)
-        value = value * self.clk_period_ns*(0.001) #convert value to useconds
-        if ((value*0.001) > 30):#If more than 30msec take as no obstacle
-         return (500)
-        else :
-         return (value/148)
+        raw_value = self.microblaze.read_mailbox(0)
+        num_microseconds = raw_value * self.clk_period_ns * 0.001
+        if num_microseconds * 0.001 > 30:
+            # Take as no obstacle
+            return 500
+        else:
+            return num_microseconds / 148
 
-    def start_log(self, log_interval_ms=100):
+    def start_log(self):
         """Start recording multiple distance readings in a log.
 
         This method will first call set the log interval before writing to
         the MMIO.
-
-        Parameters
-        ----------
-        log_interval_ms : int
-            The time between two samples in milliseconds.
 
         Returns
         -------
         None
 
         """
-        if log_interval_ms < 0:
-            raise ValueError("Time between samples cannot be less than zero.")
-
         self.log_running = 1
-        self.log_interval_ms = log_interval_ms
-        self.microblaze.write_mailbox(0x4, log_interval_ms)
+        self.set_log_interval_ms(self.log_interval_ms)
         self.microblaze.write_non_blocking_command(READ_AND_LOG_DATA)
 
     def stop_log(self):
@@ -183,7 +188,29 @@ class Grove_USranger(object):
             self.microblaze.write_non_blocking_command(STOP_LOG)
             self.log_running = 0
         else:
-            raise RuntimeError("No US distance measurment log running.")
+            raise RuntimeError("No US distance measurement log running.")
+
+    def set_log_interval_ms(self, log_interval_ms):
+        """Set the length of the log for the ranger.
+
+        This method can set the time interval between two samples, so that
+        users can read out multiple values in a single log.
+
+        Parameters
+        ----------
+        log_interval_ms : int
+            The time between two samples in milliseconds, for logging only.
+
+        Returns
+        -------
+        None
+
+        """
+        if log_interval_ms < 0:
+            raise ValueError("Time between samples should be no less than 0.")
+
+        self.log_interval_ms = log_interval_ms
+        self.microblaze.write_mailbox(4, log_interval_ms)
 
     def get_log_cm(self):
         """Return list of logged samples.
@@ -207,21 +234,13 @@ class Grove_USranger(object):
         elif head_ptr < tail_ptr:
             num_words = int(ceil((tail_ptr - head_ptr) / 4))
             data = self.microblaze.read(head_ptr, num_words)
-            for i in range(len(data)) :
-              data[i] = (data[i]*0.01)/58
             readings += data
         else:
             num_words = int(ceil((GROVE_USRANGER_LOG_END - head_ptr) / 4))
             data = self.microblaze.read(head_ptr, num_words)
-            print (data)
-            for i in range(len(data)) :
-              data[i] = (data[i]*0.01)/58
             readings += data
 
             num_words = int(ceil((tail_ptr - GROVE_USRANGER_LOG_START) / 4))
             data = self.microblaze.read(GROVE_USRANGER_LOG_START, num_words)
-            print (data)
-            for i in range(len(data)) :
-              data[i] = (data[i]*0.01)/58
             readings += data
-        return readings
+        return [i*0.01/58 for i in readings]

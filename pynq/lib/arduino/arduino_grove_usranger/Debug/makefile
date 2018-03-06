@@ -25,38 +25,38 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 ELFSIZE += \
-arduino_grove_USranger.elf.size \
+arduino_grove_usranger.elf.size \
 
 
 # All Target
-all: arduino_grove_USranger.elf secondary-outputs
+all: arduino_grove_usranger.elf secondary-outputs
 
 # Tool invocations
-arduino_grove_USranger.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
+arduino_grove_usranger.elf: $(OBJS) ../src/lscript.ld $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MicroBlaze gcc linker'
-	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../bsp_arduino/iop3_mb/lib -mlittle-endian -mcpu=v9.5 -mxl-soft-mul -Wl,--no-relax -o "arduino_grove_USranger.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../bsp_iop_arduino/iop_arduino_mb/lib -mlittle-endian -mcpu=v10.0 -mxl-soft-mul -Wl,--no-relax -o "arduino_grove_usranger.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-arduino_grove_USranger.elf.size: arduino_grove_USranger.elf
+arduino_grove_usranger.elf.size: arduino_grove_usranger.elf
 	@echo 'Invoking: MicroBlaze Print Size'
-	mb-size arduino_grove_USranger.elf  |tee "arduino_grove_USranger.elf.size"
+	mb-size arduino_grove_usranger.elf  |tee "arduino_grove_usranger.elf.size"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-arduino_grove_USranger.bin: arduino_grove_USranger.elf
+arduino_grove_usranger.bin: arduino_grove_usranger.elf
 	@echo 'Invoking: MicroBlaze Bin Gen'
-	mb-objcopy -O binary arduino_grove_USranger.elf arduino_grove_USranger.bin
+	mb-objcopy -O binary arduino_grove_usranger.elf arduino_grove_usranger.bin
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) arduino_grove_USranger.elf arduino_grove_USranger.bin
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) arduino_grove_usranger.elf arduino_grove_usranger.bin
 	-@echo ' '
 
-secondary-outputs: $(ELFSIZE) arduino_grove_USranger.bin
+secondary-outputs: $(ELFSIZE) arduino_grove_usranger.bin
 
 .PHONY: all clean dependents
 .SECONDARY:
