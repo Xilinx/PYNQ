@@ -7,20 +7,20 @@ LD_SRCS += \
 ../src/lscript.ld 
 
 C_SRCS += \
-../src/arduino_joystick_shield.c 
+../src/arduino_joystick.c 
 
 OBJS += \
-./src/arduino_joystick_shield.o 
+./src/arduino_joystick.o 
 
 C_DEPS += \
-./src/arduino_joystick_shield.d 
+./src/arduino_joystick.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
 src/%.o: ../src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MicroBlaze gcc compiler'
-	mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"$@" -I../../bsp_arduino/iop3_mb/include -mlittle-endian -mcpu=v9.6 -mxl-soft-mul -Wl,--no-relax -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"$@" -I../../bsp_iop_arduino/iop_arduino_mb/include -mlittle-endian -mcpu=v10.0 -mxl-soft-mul -Wl,--no-relax -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

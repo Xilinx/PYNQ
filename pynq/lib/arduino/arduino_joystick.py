@@ -28,8 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import struct
-from math import ceil
 from . import Arduino
 from . import MAILBOX_OFFSET
 from . import ARDUINO_NUM_ANALOG_PINS
@@ -40,31 +38,43 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-arduino_joystick_shield_PROGRAM = "arduino_joystick_shield.bin"
+ARDUINO_JOYSTICK_PROGRAM = "arduino_joystick.bin"
 CONFIG_IOP_SWITCH = 0x1
 GET_RAW_DATA_X = 0x3
 GET_RAW_DATA_Y = 0x5
-GET_DIRECTION  = 0x7
+GET_DIRECTION = 0x7
 GET_BUTTONS = 0x9
 
-class Arduino_joystick(object):
-    """This class controls the Arduino Analog. 
+DIRECTION_MAP = {
+    0: 'up',
+    1: 'up_right',
+    2: 'right',
+    3: 'down_right',
+    4: 'down',
+    5: 'down_left',
+    6: 'left',
+    7: 'up_left',
+    8: 'center'
+}
+BUTTON_INDEX_MAP = {
+    0: 'select',
+    1: 'D3',
+    2: 'D4',
+    3: 'D5',
+    4: 'D6'
+}
+
+
+class Arduino_Joystick(object):
+    """This class controls the Arduino joystick shield.
     
     XADC is an internal analog controller in the hardware. This class
     provides API to do analog reads from IOP.
-    
+
     Attributes
     ----------
     microblaze : Arduino
         Microblaze processor instance used by this module.
-    log_running : int
-        The state of the log (0: stopped, 1: started).
-    log_interval_ms : int
-        Time in milliseconds between samples on the same channel.
-    gr_pin : list
-        A group of pins on arduino-grove shield.
-    num_channels : int
-        The number of channels sampled.
 
     """
     def __init__(self, mb_info):
@@ -77,17 +87,12 @@ class Arduino_joystick(object):
             IP name and the reset name.
             
         """
-
-        self.microblaze = Arduino(mb_info, arduino_joystick_shield_PROGRAM)
-        self.log_interval_ms = 1000
-        self.log_running = 0
-        
-        # Write configuration and wait for ACK
+        self.microblaze = Arduino(mb_info, ARDUINO_JOYSTICK_PROGRAM)
         self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
     def read_raw_x(self):
         """Read the analog raw value from the analog peripheral.
-        
+
         Returns
         -------
         float
@@ -95,20 +100,18 @@ class Arduino_joystick(object):
         
         """
         self.microblaze.write_blocking_command(GET_RAW_DATA_X)
-
         return self.microblaze.read_mailbox(0)
 
     def read_raw_y(self):
         """Read the analog raw value from the analog peripheral.
-        
+
         Returns
         -------
         float
             The raw values from the analog device.
-        
+
         """
         self.microblaze.write_blocking_command(GET_RAW_DATA_Y)
-
         return self.microblaze.read_mailbox(0)
 
     def read_direction(self):
@@ -121,18 +124,20 @@ class Arduino_joystick(object):
         
         """
         self.microblaze.write_blocking_command(GET_DIRECTION)
+        return DIRECTION_MAP[self.microblaze.read_mailbox(0)]
 
-        return self.microblaze.read_mailbox(0)
-     
     def read_buttons(self):
         """Read the analog raw value from the analog peripheral.
         
         Returns
         -------
         list
-            The current value of buttons
+            The current value of buttons.
         
         """
         self.microblaze.write_blocking_command(GET_BUTTONS)
-        buttons = self.microblaze.read_mailbox(0,5)
-        return buttons
+        button_values = self.microblaze.read_mailbox(0, 5)
+        return_dict = dict()
+        for i in range(5):
+            return_dict[BUTTON_INDEX_MAP[i]] = button_values[i]
+        return return_dict
