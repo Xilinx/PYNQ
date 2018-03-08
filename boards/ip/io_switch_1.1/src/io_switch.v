@@ -7,7 +7,7 @@
 module io_switch #(
     parameter C_IO_SWITCH_WIDTH=28, 
     parameter C_NUM_PWMS = 2,
-    parameter C_NUM_TIMERS = 0,
+    parameter C_NUM_TIMERS = 3,
     parameter C_NUM_SS = 2
     )
     (
@@ -40,23 +40,23 @@ module io_switch #(
     output uart1_rx_i,
     input uart1_tx_o,
 //    input uart1_tx_t,
-    // Interrupts from all 28 GPIO pins
+    // Interrupts from all GPIO pins
     output [C_IO_SWITCH_WIDTH-1:0] interrupt_i,
-	// i2c0 on pins 27 (sda0, ID_SD) and 28 (scl0, ID_SC)
+	// i2c0 
 	output sda0_i,
 	input sda0_o,
 	input sda0_t,
 	output scl0_i,
 	input scl0_o,
 	input scl0_t,
-	// i2c on pins 3 (sda1) and 5 (scl1)
+	// i2c1 
 	output sda1_i,
 	input sda1_o,
 	input sda1_t,
 	output scl1_i,
 	input scl1_o,
 	input scl1_t,
-    // SPI0 on pins 19 (MOSI), 21 (MISO), 23 (SCK), 24 (SS0), and 26 (SS1)
+    // SPI0 
     output sck0_i,
     input sck0_o,
     input sck0_t,
@@ -66,10 +66,10 @@ module io_switch #(
     output miso0_i,
     input miso0_o,
     input miso0_t,
-//  output [1:0] ss0_i,   Not used in SPI in Mastser mode
+//  output [1:0] ss0_i,   Not used in SPI in Master mode
     input [C_NUM_SS-1:0] ss0_o,
     input ss0_t,
-    // SPI1 on pins 38 (MOSI), 35 (MISO), 40 (SCK), 36 (SS1)
+    // SPI1 
     output sck1_i,  
     input sck1_o,
     input sck1_t,
@@ -79,7 +79,7 @@ module io_switch #(
     output miso1_i,
     input miso1_o,
     input miso1_t,
-//  output ss1_i,    Not used in SPI in Mastser mode
+//  output ss1_i,    Not used in SPI in Master mode
     input ss1_o,
     input ss1_t,
     // PWM
@@ -570,8 +570,8 @@ module io_switch #(
                end
          end
      28: begin 
-        for (i=0; (i < 4) && (i < C_IO_SWITCH_WIDTH); i=i+1)
-            begin: io_switch_bit_3_0 // gpio and i2c supported on GPIO 3:0
+        for (i=0; (i < 2) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_1_0 // gpio and i2c0 supported on GPIO 1:0
             io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
              // configuration
              .gpio_sel(gpio_sel0[8*(i+1)-1:8*i]),
@@ -581,14 +581,41 @@ module io_switch #(
              .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
              .interrupt_i(interrupt_i[i]), // output interrupt
              .sda0_o(sda0_o), .sda0_t(sda0_t), .sda0_i(sda0_int[i]),  // input, input, output
-             .scl0_o(scl0_o), .scl0_t(scl0_t), .scl0_i(scl0_int[i]),  // input, input, output
+             .scl0_o(scl0_o), .scl0_t(scl0_t), .scl0_i(scl0_int[i])  // input, input, output
+             );
+            end
+        
+        for (i=2; (i < 4) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_3_2 // gpio and i2c1 supported on GPIO 3:2
+            io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
+             // configuration
+             .gpio_sel(gpio_sel0[8*(i+1)-1:8*i]),
+             // RaspberryPi connector side
+             .io_data_o(io_data_o[i]), .io_tri_o(io_tri_o[i]), .io_data_i(io_data_i[i]), // output, output, input
+             // PL side
+             .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
+             .interrupt_i(interrupt_i[i]), // output interrupt
              .sda1_o(sda1_o), .sda1_t(sda1_t), .sda1_i(sda1_int[i]),  // input, input, output
              .scl1_o(scl1_o), .scl1_t(scl1_t), .scl1_i(scl1_int[i])  // input, input, output
              );
             end
         
-        for (i=4; (i < 8) && (i < C_IO_SWITCH_WIDTH); i=i+1)
-            begin: io_switch_bit_7_4 // gpio and SS0[1] supported on GPIO 7:4; SS0[1] is on GPIO[7]
+        for (i=4; (i < 7) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_6_4 // gpio and GCLK supported on GPIO 6:4
+            io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
+             // configuration
+             .gpio_sel(gpio_sel1[8*((i-4)+1)-1:8*(i-4)]),
+             // RaspberryPi connector side
+             .io_data_o(io_data_o[i]), .io_tri_o(io_tri_o[i]), .io_data_i(io_data_i[i]), // output, output, input
+             // PL side
+             .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
+             .interrupt_i(interrupt_i[i]), // output interrupt
+			 .timer_o(timer_o)  // input, output : GCLK
+             );
+            end
+        
+        for (i=7; (i < 8) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_7_7 // gpio and SS0[1] supported on GPIO[7]
             io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
              // configuration
              .gpio_sel(gpio_sel1[8*((i-4)+1)-1:8*(i-4)]),
@@ -618,8 +645,8 @@ module io_switch #(
              );
             end
         
-        for (i=12; (i < 16) && (i < C_IO_SWITCH_WIDTH); i=i+1)
-            begin: io_switch_bit_15_12 // gpio and pwm supported on GPIO 15:12; pwm on GPIO[13:12]
+        for (i=12; (i < 14) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_13_12 // gpio and pwm supported on GPIO 13:12
             io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
              // configuration
              .gpio_sel(gpio_sel3[8*((i-12)+1)-1:8*(i-12)]),
@@ -632,8 +659,22 @@ module io_switch #(
              );
             end
         
-        for (i=16; (i < 20) && (i < C_IO_SWITCH_WIDTH); i=i+1)
-            begin: io_switch_bit_19_16 // gpio and spi1 supported on GPIO 19:16; MISO1 on GPIO[19] and SS1 on GPIO[16]
+        for (i=14; (i < 16) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_15_14 // gpio and uart supported on GPIO 15:14
+            io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
+             // configuration
+             .gpio_sel(gpio_sel3[8*((i-12)+1)-1:8*(i-12)]),
+             // RaspberryPi connector side
+             .io_data_o(io_data_o[i]), .io_tri_o(io_tri_o[i]), .io_data_i(io_data_i[i]), // output, output, input
+             // PL side
+             .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
+             .interrupt_i(interrupt_i[i]), // output interrupt
+             .uart0_tx_o(uart0_tx_o), .uart0_rx_i(uart0_rx_int[i]) // input, input, output 
+             );
+            end
+        
+        for (i=16; (i < 17) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_16_16 // gpio and SS1 supported on GPIO[16]
             io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
              // configuration
              .gpio_sel(gpio_sel4[8*((i-16)+1)-1:8*(i-16)]),
@@ -642,13 +683,39 @@ module io_switch #(
              // PL side
              .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
              .interrupt_i(interrupt_i[i]), // output interrupt
-             .miso1_o(miso1_o), .miso1_t(miso1_t), .miso1_i(miso1_int[i]), // input, input, output 
              .ss1_o(ss1_o), .ss1_t(ss1_t) // input, input, output 
              );
             end
         
-        for (i=20; (i < 24) && (i < C_IO_SWITCH_WIDTH); i=i+1)
-            begin: io_switch_bit_23_20 // gpio and spi1 supported on GPIO 23:20; MOSI1 on GPIO[20] and SCLK1 on GPIO[21]
+        for (i=17; (i < 19) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_18_17 // gpio only supported on GPIO [18:17]
+            io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
+             // configuration
+             .gpio_sel(gpio_sel4[8*((i-16)+1)-1:8*(i-16)]),
+             // RaspberryPi connector side
+             .io_data_o(io_data_o[i]), .io_tri_o(io_tri_o[i]), .io_data_i(io_data_i[i]), // output, output, input
+             // PL side
+             .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
+             .interrupt_i(interrupt_i[i]) // output interrupt
+             );
+            end
+        
+        for (i=19; (i < 20) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_19_19 // gpio and MISO1 on GPIO[19] 
+            io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
+             // configuration
+             .gpio_sel(gpio_sel4[8*((i-16)+1)-1:8*(i-16)]),
+             // RaspberryPi connector side
+             .io_data_o(io_data_o[i]), .io_tri_o(io_tri_o[i]), .io_data_i(io_data_i[i]), // output, output, input
+             // PL side
+             .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
+             .interrupt_i(interrupt_i[i]), // output interrupt
+             .miso1_o(miso1_o), .miso1_t(miso1_t), .miso1_i(miso1_int[i]) // input, input, output 
+             );
+            end
+        
+        for (i=20; (i < 22) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_21_20 // gpio and MOSI1 on GPIO[20] and SCLK1 on GPIO[21]
             io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
              // configuration
              .gpio_sel(gpio_sel5[8*((i-20)+1)-1:8*(i-20)]),
@@ -659,6 +726,19 @@ module io_switch #(
              .interrupt_i(interrupt_i[i]), // output interrupt
              .sck1_o(sck1_o), .sck1_t(sck1_t), .sck1_i(sck1_int[i]), // input, input, output 
              .mosi1_o(mosi1_o), .mosi1_t(mosi1_t), .mosi1_i(mosi1_int[i]) // input, input, output 
+             );
+            end
+            
+        for (i=22; (i < 24) && (i < C_IO_SWITCH_WIDTH); i=i+1)
+            begin: io_switch_bit_23_22 // gpio on 23:22
+            io_switch_bit #(.C_NUM_PWMS(C_NUM_PWMS),.C_NUM_TIMERS(C_NUM_TIMERS),.C_NUM_SS(C_NUM_SS)) d_i(
+             // configuration
+             .gpio_sel(gpio_sel5[8*((i-20)+1)-1:8*(i-20)]),
+             // RaspberryPi connector side
+             .io_data_o(io_data_o[i]), .io_tri_o(io_tri_o[i]), .io_data_i(io_data_i[i]), // output, output, input
+             // PL side
+             .gpio_data_i(gpio_data_i[i]), .gpio_tri_o(gpio_tri_o[i]), .gpio_data_o(gpio_data_o[i]), // input, input, output GPIO
+             .interrupt_i(interrupt_i[i]) // output interrupt
              );
             end
             
