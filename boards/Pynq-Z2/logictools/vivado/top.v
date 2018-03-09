@@ -26,8 +26,9 @@ module top(
     FIXED_IO_ps_clk,
     FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb,
-    pg_clk,
-    pmodJA,
+    ar_pg_clk,
+    rp_pg_clk,
+    rp_gpio,
     pmodJB,
     led,
     pb_input,
@@ -56,8 +57,9 @@ module top(
     inout FIXED_IO_ps_porb;
     inout FIXED_IO_ps_srstb;
     
-    output pg_clk;
-    inout [7:0]pmodJA;
+    output ar_pg_clk;
+    output rp_pg_clk;
+    inout [25:0]rp_gpio;
     inout [7:0]pmodJB;
     output [3:0] led;
     inout [19:0] ar_shield;
@@ -85,18 +87,20 @@ module top(
     wire FIXED_IO_ps_porb;
     wire FIXED_IO_ps_srstb;
       
-    wire pg_clk;
-    wire [7:0]pmodJA;
-    wire [7:0]pmodJB;
-    wire [19:0] ar_shield;
+    wire rp_pg_clk;
+    wire [25:0]rp_gpio;
+    wire [25:0]rp_data_i;
+    wire [25:0]rp_data_o;
+    wire [25:0]rp_tri_o;
 
-    wire [19:0]arduino_data_i;
-    wire [7:0]pmodJA_data_in;
-    wire [7:0]pmodJA_data_out;
-    wire [7:0]pmodJA_tri_out;
+    wire [7:0]pmodJB;
     wire [7:0]pmodJB_data_in;
     wire [7:0]pmodJB_data_out;
     wire [7:0]pmodJB_tri_out;
+
+    wire ar_pg_clk;
+    wire [19:0] ar_shield;
+    wire [19:0]arduino_data_i;
     wire [19:0]arduino_data_o;
     wire [19:0]arduino_tri_o;
 
@@ -115,15 +119,15 @@ module top(
         end
     endgenerate
 
-// pmodJA related iobufs
+// RaspberryPi related iobufs
     generate
-    for (i=0; i < 8; i=i+1)
-    begin: pmodJA_iobuf
-        IOBUF pmodJA_data_iobuf_i(
-            .I(pmodJA_data_out[i]), 
-            .IO(pmodJA[i]), 
-            .O(pmodJA_data_in[i]), 
-            .T(pmodJA_tri_out[i]) 
+    for (i=0; i < 26; i=i+1)
+    begin: rp_iobuf
+        IOBUF rp_data_iobuf_i(
+            .I(rp_data_o[i]), 
+            .IO(rp_gpio[i]), 
+            .O(rp_data_i[i]), 
+            .T(rp_tri_o[i]) 
             );
     end
     endgenerate
@@ -165,13 +169,14 @@ module top(
         .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
         .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
 
-        .pg_clk(pg_clk),
+        .ar_pg_clk(ar_pg_clk),
+        .rp_pg_clk(rp_pg_clk),
         .arduino_data_i(arduino_data_i),
         .led(led),
         .pb_in(pb_input),
-        .pmodJA_data_in(pmodJA_data_in),
-        .pmodJA_data_out(pmodJA_data_out),
-        .pmodJA_tri_out(pmodJA_tri_out),
+        .rp_data_i(rp_data_i),
+        .rp_data_o(rp_data_o),
+        .rp_tri_o(rp_tri_o),
         .pmodJB_data_in(pmodJB_data_in),
         .pmodJB_data_out(pmodJB_data_out),
         .pmodJB_tri_out(pmodJB_tri_out),

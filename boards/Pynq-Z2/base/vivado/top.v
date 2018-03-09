@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 module top(
-    BCLK,
+    bclk,
     DDR_addr,
     DDR_ba,
     DDR_cas_n,
@@ -34,9 +34,9 @@ module top(
     FIXED_IO_ps_clk,
     FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb,
-    LRCLK,
-    SDATA_I,
-    SDATA_O,
+    lrclk,
+    sdata_i,
+    sdata_o,
     Vaux13_v_n,
     Vaux13_v_p,
     Vaux15_v_n,
@@ -54,7 +54,7 @@ module top(
     audio_clk_10MHz,
     btns_4bits_tri_i,
     codec_addr,
-    gpio_shield_sw_a5_a0_d13_d0_tri_io,
+    arduino,
     hdmi_in_clk_n,
     hdmi_in_clk_p,
     hdmi_in_data_n,
@@ -69,20 +69,20 @@ module top(
     hdmi_out_hpd,
     iic_1_scl_io,
     iic_1_sda_io,
-    iic_sw_shield_scl_io,
-    iic_sw_shield_sda_io,
+    arduino_direct_scl_io,
+    arduino_direct_sda_io,
     leds_4bits_tri_o,
-    spi_sw_shield_io0_io,
-    spi_sw_shield_io1_io,
-    spi_sw_shield_sck_io,
-    spi_sw_shield_ss_io,
-    rp_gpio_io_27_8,
-    pmodJA,
-    pmodJB,
+    arduino_direct_spi_io0_io,
+    arduino_direct_spi_io1_io,
+    arduino_direct_spi_sck_io,
+    arduino_direct_spi_ss_io,
+    rp_io_27_8,
+    pmoda,
+    pmodb,
     rgbleds_6bits_tri_o,
     sws_2bits_tri_i);
     
-  output BCLK;
+  output bclk;
   inout [14:0]DDR_addr;
   inout [2:0]DDR_ba;
   inout DDR_cas_n;
@@ -104,9 +104,9 @@ module top(
   inout FIXED_IO_ps_clk;
   inout FIXED_IO_ps_porb;
   inout FIXED_IO_ps_srstb;
-  output LRCLK;
-  input SDATA_I;
-  output SDATA_O;  
+  output lrclk;
+  input sdata_i;
+  output sdata_o;  
   input Vaux13_v_n;
   input Vaux13_v_p;
   input Vaux15_v_n;
@@ -124,7 +124,7 @@ module top(
   output audio_clk_10MHz;
   input [3:0]btns_4bits_tri_i;
   output [1:0]codec_addr;
-  inout [19:0]gpio_shield_sw_a5_a0_d13_d0_tri_io;
+  inout [19:0]arduino;
   input hdmi_in_clk_n;
   input hdmi_in_clk_p;
   input [2:0]hdmi_in_data_n;
@@ -137,22 +137,22 @@ module top(
   output [2:0]hdmi_out_data_n;
   output [2:0]hdmi_out_data_p;
   output [0:0]hdmi_out_hpd;
-  inout [27:8] rp_gpio_io_27_8;
+  inout [27:8] rp_io_27_8;
   inout iic_1_scl_io;
   inout iic_1_sda_io;
-  inout iic_sw_shield_scl_io;
-  inout iic_sw_shield_sda_io;
+  inout arduino_direct_scl_io;
+  inout arduino_direct_sda_io;
   output [3:0]leds_4bits_tri_o;
   input [1:0]sws_2bits_tri_i;
-  inout spi_sw_shield_io0_io;
-  inout spi_sw_shield_io1_io;
-  inout spi_sw_shield_sck_io;
-  inout spi_sw_shield_ss_io;
-  inout [7:0]pmodJA;
-  inout [7:0]pmodJB;
+  inout arduino_direct_spi_io0_io;
+  inout arduino_direct_spi_io1_io;
+  inout arduino_direct_spi_sck_io;
+  inout arduino_direct_spi_ss_io;
+  inout [7:0]pmoda;
+  inout [7:0]pmodb;
   output [5:0]rgbleds_6bits_tri_o;
   
-  wire BCLK;
+  wire bclk;
   wire [14:0]DDR_addr;
   wire [2:0]DDR_ba;
   wire DDR_cas_n;
@@ -174,9 +174,9 @@ module top(
   wire FIXED_IO_ps_clk;
   wire FIXED_IO_ps_porb;
   wire FIXED_IO_ps_srstb;
-  wire LRCLK;
-  wire SDATA_I;
-  wire SDATA_O;  
+  wire lrclk;
+  wire sdata_i;
+  wire sdata_o;  
   wire Vaux13_v_n;
   wire Vaux13_v_p;
   wire Vaux15_v_n;
@@ -193,10 +193,10 @@ module top(
   wire Vp_Vn_v_p;
   wire audio_clk_10MHz;
   wire [3:0]btns_4bits_tri_i;
-  wire [19:0]gpio_shield_sw_a5_a0_d13_d0_tri_io;
-  wire [19:0]shield2sw_data_i;
-  wire [19:0]sw2shield_data_o;
-  wire [19:0]sw2shield_tri_o;
+  wire [19:0]arduino;
+  wire [19:0]arduino_data_i;
+  wire [19:0]arduino_data_o;
+  wire [19:0]arduino_tri_o;
   wire [1:0]codec_addr;
   wire hdmi_in_clk_n;
   wire hdmi_in_clk_p;
@@ -216,12 +216,12 @@ module top(
   wire [2:0]hdmi_out_data_n;
   wire [2:0]hdmi_out_data_p;
   wire [0:0]hdmi_out_hpd;
-  wire shield2sw_scl_i_in;
-  wire shield2sw_sda_i_in;
-  wire sw2shield_scl_o_out;
-  wire sw2shield_scl_t_out;
-  wire sw2shield_sda_o_out;
-  wire sw2shield_sda_t_out;
+  wire arduino_direct_iic_scl_i;
+  wire arduino_direct_iic_sda_i;
+  wire arduino_direct_iic_scl_o;
+  wire arduino_direct_iic_scl_t;
+  wire arduino_direct_iic_sda_o;
+  wire arduino_direct_iic_sda_t;
   wire iic_1_scl_i;
   wire iic_1_scl_io;
   wire iic_1_scl_o;
@@ -234,42 +234,42 @@ module top(
   wire iic_id_scl_t;
   wire iic_id_sda_o;
   wire iic_id_sda_t;
-  wire iic_sw_shield_scl_io;
-  wire iic_sw_shield_sda_io;
+  wire arduino_direct_scl_io;
+  wire arduino_direct_sda_io;
   wire [3:0]leds_4bits_tri_o;
-  wire [7:0]pmodJA_data_in;
-  wire [7:0]pmodJA_data_out;
-  wire [7:0]pmodJA_tri_out;
-  wire [7:0]pmodJB_data_in;
-  wire [7:0]pmodJB_data_out;
-  wire [7:0]pmodJB_tri_out;
-  wire spi_sw_shield_io0_i;
-  wire spi_sw_shield_io0_io;
-  wire spi_sw_shield_io0_o;
-  wire spi_sw_shield_io0_t;
-  wire spi_sw_shield_io1_i;
-  wire spi_sw_shield_io1_io;
-  wire spi_sw_shield_io1_o;
-  wire spi_sw_shield_io1_t;
-  wire spi_sw_shield_sck_i;
-  wire spi_sw_shield_sck_io;
-  wire spi_sw_shield_sck_o;
-  wire spi_sw_shield_sck_t;
-  wire spi_sw_shield_ss_i;
-  wire spi_sw_shield_ss_io;
-  wire spi_sw_shield_ss_o;
-  wire spi_sw_shield_ss_t;
+  wire [7:0]pmoda_data_i;
+  wire [7:0]pmoda_data_o;
+  wire [7:0]pmoda_tri_o;
+  wire [7:0]pmodb_data_i;
+  wire [7:0]pmodb_data_o;
+  wire [7:0]pmodb_tri_o;
+  wire arduino_direct_spi_io0_i;
+  wire arduino_direct_spi_io0_io;
+  wire arduino_direct_spi_io0_o;
+  wire arduino_direct_spi_io0_t;
+  wire arduino_direct_spi_io1_i;
+  wire arduino_direct_spi_io1_io;
+  wire arduino_direct_spi_io1_o;
+  wire arduino_direct_spi_io1_t;
+  wire arduino_direct_spi_sck_i;
+  wire arduino_direct_spi_sck_io;
+  wire arduino_direct_spi_sck_o;
+  wire arduino_direct_spi_sck_t;
+  wire arduino_direct_spi_ss_i;
+  wire arduino_direct_spi_ss_io;
+  wire arduino_direct_spi_ss_o;
+  wire arduino_direct_spi_ss_t;
   wire [1:0]sws_2bits_tri_i;  
-  wire [7:0]pmodJA;
-  wire [7:0]pmodJB;
+  wire [7:0]pmoda;
+  wire [7:0]pmodb;
   wire [5:0]rgbleds_6bits_tri_o;
   wire pmoda_rp_pin_sel;
-  wire [27:0]sw2rp_data_out;
-  wire [27:0]sw2rp_tri_out;
-  wire [27:0]rp2sw_data_in;
-  wire [27:8]rp_gpio_io_27_8;
-  wire [7:0] pmodJA_data_out_int;
-  wire [7:0] pmodJA_tri_out_int;
+  wire [27:0]rpi_data_o;
+  wire [27:0]rpi_tri_o;
+  wire [27:0]rpi_data_i;
+  wire [27:8]rp_io_27_8;
+  wire [7:0] pmoda_data_o_int;
+  wire [7:0] pmoda_tri_o_int;
 
   genvar i;
 // IIC for audio codec
@@ -289,10 +289,10 @@ module top(
         for (i=8; i < 28; i=i+1)
         begin: rp_iobuf
             IOBUF rp_i(
-                .I(sw2rp_data_out[i]), 
-                .IO(rp_gpio_io_27_8[i]), 
-                .O(rp2sw_data_in[i]), 
-                .T(sw2rp_tri_out[i]) 
+                .I(rpi_data_o[i]), 
+                .IO(rp_io_27_8[i]), 
+                .O(rpi_data_i[i]), 
+                .T(rpi_tri_o[i]) 
                 );
         end
     endgenerate	
@@ -309,27 +309,27 @@ module top(
         .O(hdmi_in_ddc_sda_i),
         .T(hdmi_in_ddc_sda_t));
 
-// pmodJB related iobufs
+// pmodb related iobufs
     generate
         for (i=0; i < 8; i=i+1)
-        begin: pmodJB_iobuf
-            IOBUF pmodJB_data_iobuf_i(
-                .I(pmodJB_data_out[i]), 
-                .IO(pmodJB[i]), 
-                .O(pmodJB_data_in[i]), 
-                .T(pmodJB_tri_out[i]) 
+        begin: pmodb_iobuf
+            IOBUF pmodb_data_iobuf_i(
+                .I(pmodb_data_o[i]), 
+                .IO(pmodb[i]), 
+                .O(pmodb_data_i[i]), 
+                .T(pmodb_tri_o[i]) 
                 );
         end
     endgenerate
-// pmodJA related iobufs
+// pmoda related iobufs
     generate
         for (i=0; i < 8; i=i+1)
-        begin: pmodJA_iobuf
-            IOBUF pmodJA_data_iobuf_i(
-                .I(pmodJA_data_out_int[i]), 
-                .IO(pmodJA[i]), 
-                .O(pmodJA_data_in[i]), 
-                .T(pmodJA_tri_out_int[i]) 
+        begin: pmoda_iobuf
+            IOBUF pmoda_data_iobuf_i(
+                .I(pmoda_data_o_int[i]), 
+                .IO(pmoda[i]), 
+                .O(pmoda_data_i[i]), 
+                .T(pmoda_tri_o_int[i]) 
                 );
         end
     endgenerate
@@ -339,67 +339,67 @@ module top(
         for (i=0; i < 20; i=i+1)
         begin: gpio_shield_sw_a5_a0_d13_d0_iobuf_i
             IOBUF gpio_shield_sw_a5_a0_d13_d0_iobuf_i(
-                .I(sw2shield_data_o[i]), 
-                .IO(gpio_shield_sw_a5_a0_d13_d0_tri_io[i]), 
-                .O(shield2sw_data_i[i]), 
-                .T(sw2shield_tri_o[i]) 
+                .I(arduino_data_o[i]), 
+                .IO(arduino[i]), 
+                .O(arduino_data_i[i]), 
+                .T(arduino_tri_o[i]) 
                 );
         end
     endgenerate
 	  
-	// Dedicated Arduino IIC shield2sw_scl_i_in
-	IOBUF iic_sw_shield_scl_iobuf
-		 (.I(sw2shield_scl_o_out),
-		  .IO(iic_sw_shield_scl_io),
-		  .O(shield2sw_scl_i_in),
-		  .T(sw2shield_scl_t_out));
-	IOBUF iic_sw_shield_sda_iobuf
-		 (.I(sw2shield_sda_o_out),
-		  .IO(iic_sw_shield_sda_io),
-		  .O(shield2sw_sda_i_in),
-		  .T(sw2shield_sda_t_out));
+	// Arduino IIC Direct
+	IOBUF arduino_direct_scl_iobuf
+		 (.I(arduino_direct_iic_scl_o),
+		  .IO(arduino_direct_scl_io),
+		  .O(arduino_direct_iic_scl_i),
+		  .T(arduino_direct_iic_scl_t));
+	IOBUF arduino_direct_sda_iobuf
+		 (.I(arduino_direct_iic_sda_o),
+		  .IO(arduino_direct_sda_io),
+		  .O(arduino_direct_iic_sda_i),
+		  .T(arduino_direct_iic_sda_t));
 	// Dedicated Arduino SPI
-	IOBUF spi_sw_shield_io0_iobuf
-		 (.I(spi_sw_shield_io0_o),
-		  .IO(spi_sw_shield_io0_io),
-		  .O(spi_sw_shield_io0_i),
-		  .T(spi_sw_shield_io0_t));
-	IOBUF spi_sw_shield_io1_iobuf
-		 (.I(spi_sw_shield_io1_o),
-		  .IO(spi_sw_shield_io1_io),
-		  .O(spi_sw_shield_io1_i),
-		  .T(spi_sw_shield_io1_t));
-	IOBUF spi_sw_shield_sck_iobuf
-		 (.I(spi_sw_shield_sck_o),
-		  .IO(spi_sw_shield_sck_io),
-		  .O(spi_sw_shield_sck_i),
-		  .T(spi_sw_shield_sck_t));
-	IOBUF spi_sw_shield_ss_iobuf
-		 (.I(spi_sw_shield_ss_o),
-		  .IO(spi_sw_shield_ss_io),
-		  .O(spi_sw_shield_ss_i),
-		  .T(spi_sw_shield_ss_t));                          
+	IOBUF arduino_direct_spi_io0_iobuf
+		 (.I(arduino_direct_spi_io0_o),
+		  .IO(arduino_direct_spi_io0_io),
+		  .O(arduino_direct_spi_io0_i),
+		  .T(arduino_direct_spi_io0_t));
+	IOBUF arduino_direct_spi_io1_iobuf
+		 (.I(arduino_direct_spi_io1_o),
+		  .IO(arduino_direct_spi_io1_io),
+		  .O(arduino_direct_spi_io1_i),
+		  .T(arduino_direct_spi_io1_t));
+	IOBUF arduino_direct_spi_sck_iobuf
+		 (.I(arduino_direct_spi_sck_o),
+		  .IO(arduino_direct_spi_sck_io),
+		  .O(arduino_direct_spi_sck_i),
+		  .T(arduino_direct_spi_sck_t));
+	IOBUF arduino_direct_spi_ss_iobuf
+		 (.I(arduino_direct_spi_ss_o),
+		  .IO(arduino_direct_spi_ss_io),
+		  .O(arduino_direct_spi_ss_i),
+		  .T(arduino_direct_spi_ss_t));                          
 
-    assign pmodJA_data_out_int[0] = (pmodJA_data_out[0] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[4] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[1] = (pmodJA_data_out[1] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[5] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[2] = (pmodJA_data_out[2] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[0] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[3] = (pmodJA_data_out[3] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[1] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[4] = (pmodJA_data_out[4] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[6] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[5] = (pmodJA_data_out[5] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[7] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[6] = (pmodJA_data_out[6] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[2] & pmoda_rp_pin_sel);
-    assign pmodJA_data_out_int[7] = (pmodJA_data_out[7] & ~pmoda_rp_pin_sel) | (sw2rp_data_out[3] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[0] = (pmoda_data_o[0] & ~pmoda_rp_pin_sel) | (rpi_data_o[4] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[1] = (pmoda_data_o[1] & ~pmoda_rp_pin_sel) | (rpi_data_o[5] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[2] = (pmoda_data_o[2] & ~pmoda_rp_pin_sel) | (rpi_data_o[0] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[3] = (pmoda_data_o[3] & ~pmoda_rp_pin_sel) | (rpi_data_o[1] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[4] = (pmoda_data_o[4] & ~pmoda_rp_pin_sel) | (rpi_data_o[6] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[5] = (pmoda_data_o[5] & ~pmoda_rp_pin_sel) | (rpi_data_o[7] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[6] = (pmoda_data_o[6] & ~pmoda_rp_pin_sel) | (rpi_data_o[2] & pmoda_rp_pin_sel);
+    assign pmoda_data_o_int[7] = (pmoda_data_o[7] & ~pmoda_rp_pin_sel) | (rpi_data_o[3] & pmoda_rp_pin_sel);
 
-    assign pmodJA_tri_out_int[0] = (pmodJA_tri_out[0] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[4] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[1] = (pmodJA_tri_out[1] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[5] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[2] = (pmodJA_tri_out[2] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[0] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[3] = (pmodJA_tri_out[3] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[1] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[4] = (pmodJA_tri_out[4] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[6] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[5] = (pmodJA_tri_out[5] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[7] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[6] = (pmodJA_tri_out[6] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[2] & pmoda_rp_pin_sel);
-    assign pmodJA_tri_out_int[7] = (pmodJA_tri_out[7] & ~pmoda_rp_pin_sel) | (sw2rp_tri_out[3] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[0] = (pmoda_tri_o[0] & ~pmoda_rp_pin_sel) | (rpi_tri_o[4] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[1] = (pmoda_tri_o[1] & ~pmoda_rp_pin_sel) | (rpi_tri_o[5] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[2] = (pmoda_tri_o[2] & ~pmoda_rp_pin_sel) | (rpi_tri_o[0] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[3] = (pmoda_tri_o[3] & ~pmoda_rp_pin_sel) | (rpi_tri_o[1] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[4] = (pmoda_tri_o[4] & ~pmoda_rp_pin_sel) | (rpi_tri_o[6] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[5] = (pmoda_tri_o[5] & ~pmoda_rp_pin_sel) | (rpi_tri_o[7] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[6] = (pmoda_tri_o[6] & ~pmoda_rp_pin_sel) | (rpi_tri_o[2] & pmoda_rp_pin_sel);
+    assign pmoda_tri_o_int[7] = (pmoda_tri_o[7] & ~pmoda_rp_pin_sel) | (rpi_tri_o[3] & pmoda_rp_pin_sel);
     
 system system_i
-   (.BCLK(BCLK),
+   (.bclk(bclk),
     .DDR_addr(DDR_addr),
     .DDR_ba(DDR_ba),
     .DDR_cas_n(DDR_cas_n),
@@ -427,9 +427,9 @@ system system_i
     .IIC_1_sda_i(iic_1_sda_i),  
     .IIC_1_sda_o(iic_1_sda_o),  
     .IIC_1_sda_t(iic_1_sda_t),  
-    .LRCLK(LRCLK),
-    .SDATA_I(SDATA_I),
-    .SDATA_O(SDATA_O),   
+    .lrclk(lrclk),
+    .sdata_i(sdata_i),
+    .sdata_o(sdata_o),   
     .Vaux13_v_n(Vaux13_v_n),
     .Vaux13_v_p(Vaux13_v_p),
     .Vaux15_v_n(Vaux15_v_n),
@@ -464,38 +464,38 @@ system system_i
     .hdmi_out_data_p(hdmi_out_data_p),
     .hdmi_out_hpd(hdmi_out_hpd),
     .leds_4bits_tri_o(leds_4bits_tri_o),
-    .pmodJA_data_in(pmodJA_data_in),
-    .pmodJA_data_out(pmodJA_data_out),
-    .pmodJA_tri_out(pmodJA_tri_out),
-    .pmodJB_data_in(pmodJB_data_in),
-    .pmodJB_data_out(pmodJB_data_out),
-    .pmodJB_tri_out(pmodJB_tri_out),
+    .pmoda_data_i(pmoda_data_i),
+    .pmoda_data_o(pmoda_data_o),
+    .pmoda_tri_o(pmoda_tri_o),
+    .pmodb_data_i(pmodb_data_i),
+    .pmodb_data_o(pmodb_data_o),
+    .pmodb_tri_o(pmodb_tri_o),
     .pmoda_rp_pin_sel(pmoda_rp_pin_sel),
-    .rp2sw_data_in({rp2sw_data_in[27:8],pmodJA_data_in[5:4],pmodJA_data_in[1:0],pmodJA_data_in[7:6],pmodJA_data_in[3:2]}),
+    .rpi_data_i({rpi_data_i[27:8],pmoda_data_i[5:4],pmoda_data_i[1:0],pmoda_data_i[7:6],pmoda_data_i[3:2]}),
     .rgbleds_6bits_tri_o(rgbleds_6bits_tri_o),
-    .shield2sw_data_i(shield2sw_data_i),
-    .shield2sw_scl_i_in(shield2sw_scl_i_in),
-    .shield2sw_sda_i_in(shield2sw_sda_i_in),
-    .spi_sw_shield_io0_i(spi_sw_shield_io0_i),
-    .spi_sw_shield_io0_o(spi_sw_shield_io0_o),
-    .spi_sw_shield_io0_t(spi_sw_shield_io0_t),
-    .spi_sw_shield_io1_i(spi_sw_shield_io1_i),
-    .spi_sw_shield_io1_o(spi_sw_shield_io1_o),
-    .spi_sw_shield_io1_t(spi_sw_shield_io1_t),
-    .spi_sw_shield_sck_i(spi_sw_shield_sck_i),
-    .spi_sw_shield_sck_o(spi_sw_shield_sck_o),
-    .spi_sw_shield_sck_t(spi_sw_shield_sck_t),
-    .spi_sw_shield_ss_i(spi_sw_shield_ss_i),
-    .spi_sw_shield_ss_o(spi_sw_shield_ss_o),
-    .spi_sw_shield_ss_t(spi_sw_shield_ss_t),
-    .sw2rp_data_out(sw2rp_data_out),
-    .sw2rp_tri_out(sw2rp_tri_out),
-    .sw2shield_data_o(sw2shield_data_o),
-    .sw2shield_scl_o_out(sw2shield_scl_o_out),
-    .sw2shield_scl_t_out(sw2shield_scl_t_out),
-    .sw2shield_sda_o_out(sw2shield_sda_o_out),
-    .sw2shield_sda_t_out(sw2shield_sda_t_out),
-    .sw2shield_tri_o(sw2shield_tri_o),
+    .arduino_data_i(arduino_data_i),
+    .arduino_direct_iic_scl_i(arduino_direct_iic_scl_i),
+    .arduino_direct_iic_sda_i(arduino_direct_iic_sda_i),
+    .arduino_direct_spi_io0_i(arduino_direct_spi_io0_i),
+    .arduino_direct_spi_io0_o(arduino_direct_spi_io0_o),
+    .arduino_direct_spi_io0_t(arduino_direct_spi_io0_t),
+    .arduino_direct_spi_io1_i(arduino_direct_spi_io1_i),
+    .arduino_direct_spi_io1_o(arduino_direct_spi_io1_o),
+    .arduino_direct_spi_io1_t(arduino_direct_spi_io1_t),
+    .arduino_direct_spi_sck_i(arduino_direct_spi_sck_i),
+    .arduino_direct_spi_sck_o(arduino_direct_spi_sck_o),
+    .arduino_direct_spi_sck_t(arduino_direct_spi_sck_t),
+    .arduino_direct_spi_ss_i(arduino_direct_spi_ss_i),
+    .arduino_direct_spi_ss_o(arduino_direct_spi_ss_o),
+    .arduino_direct_spi_ss_t(arduino_direct_spi_ss_t),
+    .rpi_data_o(rpi_data_o),
+    .rpi_tri_o(rpi_tri_o),
+    .arduino_data_o(arduino_data_o),
+    .arduino_direct_iic_scl_o(arduino_direct_iic_scl_o),
+    .arduino_direct_iic_scl_t(arduino_direct_iic_scl_t),
+    .arduino_direct_iic_sda_o(arduino_direct_iic_sda_o),
+    .arduino_direct_iic_sda_t(arduino_direct_iic_sda_t),
+    .arduino_tri_o(arduino_tri_o),
     .sws_2bits_tri_i(sws_2bits_tri_i));
         
 endmodule
