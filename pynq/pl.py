@@ -204,11 +204,19 @@ class _TCL:
                     "(?P<ip_name>.+?):" +
                     "(?P<version>.+?) " +
                     "(?P<instance_name>[^ ]*)")
+        ip_block_name_pat = "set block_name"
+        ip_block_name_regex = "set block_name (?P<ip_block_name>.+)"
+        ip_block_pat = "create_bd_cell -type module -reference "
+        ip_block_regex = ("set (?P<instance_name>.*) " +
+                          "\[create_bd_cell -type module -reference " +
+                          "(?P<block_name>[\S]*) " +
+                          "(?P<block_cell_name>[\S]*)\]")
         ignore_regex = "\s*(\#|catch).*"
 
         # Parsing state
         current_hier = ""
         last_concat = ""
+        ip_block_name = ""
         in_prop = False
         gpio_idx = None
         gpio_dict = dict()
@@ -223,6 +231,11 @@ class _TCL:
                 # Matching IP configurations
                 elif prop_start_pat in line:
                     in_prop = True
+
+                # Matching IP block name
+                elif ip_block_name_pat in line:
+                    m = re.search(ip_block_name_regex, line, re.IGNORECASE)
+                    ip_block_name = m.group("ip_block_name")
 
                 # Matching Property declarations
                 elif in_prop:
@@ -337,6 +350,17 @@ class _TCL:
                             self.concat_cells[ip] = 2
                         elif ip_name == "axi_intc":
                             self.intc_names.append(ip)
+
+                # Matching IP block cells in root design
+                elif ip_block_pat in line:
+                    m = re.search(ip_block_regex, line)
+                    instance_name = m.group("instance_name")
+                    if m.group('block_name') == '$block_name':
+                        name = ip_block_name
+                    else:
+                        name = m.group('block_name')
+                    ip_type = ':'.join(['user', 'ip', name, 'unknown'])
+                    hier_dict[current_hier][instance_name] = ip_type
 
                 # Matching nets
                 elif net_pat in line:
