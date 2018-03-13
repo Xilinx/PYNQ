@@ -82,18 +82,6 @@ class _GPIO:
         with open(self.path + 'direction', 'w') as f:
             f.write(self.direction)
 
-    def __del__(self):
-        """Delete a GPIO object.
-
-        Returns
-        -------
-        None
-
-        """
-        if os.path.exists(self.path):
-            with open('/sys/class/gpio/unexport', 'w') as f:
-                f.write(str(self.index))
-
     def read(self):
         """The method to read a value from the GPIO.
 
