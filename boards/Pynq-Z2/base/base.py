@@ -58,9 +58,9 @@ class BaseOverlay(pynq.Overlay):
     iop_arduino : IOP
          IO processor connected to the Arduino interface
     iop_rpi : IOP
-         IO processor connected to the RaspberryPi interface
-    trace_raspberrypi : pynq.logictools.TraceAnalyzer
-        Trace analyzer block on RaspberryPi interface, controlled by PS.
+         IO processor connected to the RPi interface
+    trace_rpi : pynq.logictools.TraceAnalyzer
+        Trace analyzer block on RPi interface, controlled by PS.
     trace_pmoda : pynq.logictools.TraceAnalyzer
         Trace analyzer block on PMODA interface, controlled by PS.
     trace_pmodb : pynq.logictools.TraceAnalyzer
@@ -78,7 +78,7 @@ class BaseOverlay(pynq.Overlay):
     audio : pynq.lib.audio.Audio
          Headphone jack and on-board microphone
     pin_select : GPIO
-        The pin selection between PMODA (0) and RASPBERRYPI header (1).
+        The pin selection between PMODA (0) and RPI header (1).
 
     """
 
@@ -93,7 +93,7 @@ class BaseOverlay(pynq.Overlay):
             self.PMODA = self.iop_pmoda.mb_info
             self.PMODB = self.iop_pmodb.mb_info
             self.ARDUINO = self.iop_arduino.mb_info
-            self.RASPBERRYPI = self.iop_rpi.mb_info
+            self.RPI = self.iop_rpi.mb_info
 
             self.pin_select = GPIO(GPIO.get_gpio_pin(
                 self.gpio_dict['pmoda_rp_pin_sel']['index']), "out")
@@ -111,9 +111,9 @@ class BaseOverlay(pynq.Overlay):
             self.rgbleds = ([None] * 4) + [pynq.lib.RGBLED(i)
                                            for i in range(4, 6)]
 
-            self.trace_raspberrypi = TraceAnalyzer(
+            self.trace_rpi = TraceAnalyzer(
                 self.trace_analyzer_pi.description['ip'],
-                PYNQZ2_RASPBERRYPI_SPECIFICATION)
+                PYNQZ2_RPI_SPECIFICATION)
             self.trace_pmoda = TraceAnalyzer(
                 self.trace_analyzer_pi.description['ip'],
                 PYNQZ2_PMODA_SPECIFICATION)
@@ -130,7 +130,7 @@ class BaseOverlay(pynq.Overlay):
         """
         self.pin_select.write(0)
 
-    def select_raspberrypi(self):
+    def select_rpi(self):
         """Select RASPBERRYPI in the shared pins.
 
         This is done by writing a `1` to the `pin_select`
