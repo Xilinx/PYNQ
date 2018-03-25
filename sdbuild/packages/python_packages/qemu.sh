@@ -16,6 +16,7 @@ cffi
 matplotlib
 chardet
 html5lib
+tornado==4.5.3
 jupyter
 jupyterlab
 jupyter_contrib_nbextensions

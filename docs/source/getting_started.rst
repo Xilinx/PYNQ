@@ -63,8 +63,7 @@ Board Setup
      (This sets the board to boot from the Micro-SD card)
    
   2. To power the PYNQ-Z1 from the micro USB cable, set the **JP5 / Power**
-     jumper to the *USB* position by placing the jumper over the top two pins as
-     shown in the image. (You can also power the board from an external 12V
+     jumper to the *USB* position. (You can also power the board from an external 12V
      power regulator by setting the jumper to *REG*.)
 
   3. Insert the Micro SD card loaded with the PYNQ-Z1 image into the **Micro
