@@ -57,6 +57,7 @@ from .pmod_grove_ear_hr import Grove_EarHR
 from .pmod_grove_finger_hr import Grove_FingerHR
 from .pmod_grove_haptic_motor import Grove_HapticMotor
 from .pmod_grove_th02 import Grove_TH02
+from .pmod_grove_usranger import Grove_USranger
 
 
 __author__ = "Graham Schelle, Yun Rock Qu"
