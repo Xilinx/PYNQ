@@ -1,0 +1,12 @@
+ROOTFS_SOURCEDIR := $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
+
+STAGE2_PACKAGES += phantomjs python3.6 python_packages gcc-mb opencv xkcd wifi_connect
+# sigrok's website is pretty unreliable so we'll allow for it to be commented out
+STAGE3_PACKAGES += libsds pynq jupyter boot_leds resizefs
+STAGE3_PACKAGES += sigrok
+MULTISTRAP_CONFIG := ${ROOTFS_SOURCEDIR}/multistrap.config
+PATCHSETS ?= xenial
+
+export IMAGE_CFLAGS := -mcpu=cortex-a9 -mfpu=neon -funsafe-math-optimizations
+
+QEMU_EXE := qemu-arm-static
