@@ -28,52 +28,10 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .pynqmicroblaze import PynqMicroblaze
-from .pynqmicroblaze import MicroblazeRPC
-from .pynqmicroblaze import MicroblazeLibrary
-from .axigpio import AxiGPIO
-from .dma import DMA
-from .dma import LegacyDMA
-from .led import LED
-from .rgbled import RGBLED
-from .switch import Switch
-from .button import Button
-
+from .constants import *
 from .rpi import Rpi
 
-from .arduino import Arduino
-from .arduino import Arduino_DevMode
-from .arduino import Arduino_IO
-from .arduino import Arduino_Analog
-from .arduino import Arduino_LCD18
 
-from .pmod import Pmod
-from .pmod import Pmod_DevMode
-from .pmod import Pmod_ADC
-from .pmod import Pmod_DAC
-from .pmod import Pmod_OLED
-from .pmod import Pmod_LED8
-from .pmod import Pmod_IO
-from .pmod import Pmod_IIC
-from .pmod import Pmod_DPOT
-from .pmod import Pmod_TC1
-from .pmod import Pmod_TMP2
-from .pmod import Pmod_ALS
-from .pmod import Pmod_Cable
-from .pmod import Pmod_Timer
-from .pmod import Pmod_PWM
-
-from .logictools import LogicToolsController
-from .logictools import Waveform
-from .logictools import BooleanGenerator
-from .logictools import PatternGenerator
-from .logictools import TraceAnalyzer
-from .logictools import FSMGenerator
-
-from . import video
-from . import audio
-from . import dma
-
-__author__ = "Graham Schelle"
+__author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
