@@ -79,7 +79,8 @@ else:
 # Extend data_files with Microblaze C BSPs and libraries
 microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
                         'pynq/lib/arduino/bsp_iop_arduino',
-                        'pynq/lib/pmod/bsp_iop_pmod']
+                        'pynq/lib/pmod/bsp_iop_pmod',
+                        'pynq/lib/rpi/bsp_iop_rpi']
 
 for mbdir in microblaze_data_dirs:
     pynq_data_files.extend(
