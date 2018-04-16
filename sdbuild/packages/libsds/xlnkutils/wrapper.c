@@ -1,10 +1,12 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include "libxlnk_cma.h"
 #include <linux/ioctl.h>
 #include <errno.h>
-
+#include <dlfcn.h>
 
 #define RESET_IOCTL _IOWR('X', 101, unsigned long)
 
@@ -15,9 +17,30 @@ void sds_free(void*);
 void *sds_mmap(void *phy_addr, size_t size, void *virtual_addr);
 void sds_munmap(void *virtal_addr);
 
+
+
 /* CF helper functions */
-void cf_xlnk_open(int last);
-void cf_xlnk_init(int arg);
+int cf_xlnk_open(int last) {
+    static void (*next_ptr)(int) = NULL;
+    if (!next_ptr) {
+        *(void**)(&next_ptr) = dlsym(RTLD_NEXT, "cf_xlnk_open");
+        next_ptr(1);
+    }
+}
+void cf_xlnk_init(int first) {
+    static void (*next_ptr)(int) = NULL;
+    if (!next_ptr) {
+        *(void**)(&next_ptr) = dlsym(RTLD_NEXT, "cf_xlnk_init");
+        next_ptr(1);
+    }
+}
+void cf_context_init(void) {
+    static void (*next_ptr)(void) = NULL;
+    if (!next_ptr) {
+        *(void**)(&next_ptr) = dlsym(RTLD_NEXT, "cf_context_init");
+        next_ptr();
+    }
+}
 
 /* Functional prototpes from xlnk */
 
@@ -96,7 +119,9 @@ void _xlnk_reset() {
 
 __attribute__((constructor))
 void open_xlnk(void) {
+    cf_context_init();
     cf_xlnk_open(1);
+    cf_xlnk_init(1);
 }
 
 void cma_flush_cache(void* buf, unsigned int phys_addr, int size) {
