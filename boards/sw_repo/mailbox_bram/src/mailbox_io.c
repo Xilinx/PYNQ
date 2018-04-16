@@ -166,7 +166,7 @@ ssize_t mailbox_write(int file, const void* ptr, size_t len) {
 		volatile_cpy(buffer, (char*)ptr + first_block, to_write - first_block);
 	}
 	write_ptr += to_write;
-	if (write_ptr > buf_size) write_ptr -= buf_size;
+	if (write_ptr >= buf_size) write_ptr -= buf_size;
 	*ctrl = write_ptr;
         if (file == STDOUT_FILENO) {
 #ifdef XPAR_INTRGPIO_NUM_INSTANCES
