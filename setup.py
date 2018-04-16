@@ -73,7 +73,12 @@ if 'BOARD' not in os.environ:
 else:
     board = os.environ['BOARD']
     board_folder = 'boards/{}/'.format(board)
-    pynq_data_files = collect_pynq_data_files()
+    if not os.path.isdir(board_folder):
+        print("Could not find folder for board {}". format(board))
+        board_folder = None
+        pynq_data_files = []
+    else:
+        pynq_data_files = collect_pynq_data_files()
 
 
 # Extend data_files with Microblaze C BSPs and libraries
@@ -191,7 +196,7 @@ def copy_common_notebooks():
 
 # Copy notebooks in boards/BOARD/notebooks/getting_started
 def copy_getting_started_notebooks():
-    if notebooks_dir is None:
+    if notebooks_dir is None or board_folder is None:
         return None
 
     src_folder = os.path.join(board_folder, 'notebooks/getting_started')
@@ -204,7 +209,7 @@ def copy_getting_started_notebooks():
 
 # Copy notebooks in boards/BOARD/OVERLAY/notebooks
 def copy_overlay_notebooks():
-    if notebooks_dir is None:
+    if notebooks_dir is None or board_folder is None:
         return None
 
     if os.path.isdir(board_folder):
