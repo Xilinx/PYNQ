@@ -89,8 +89,7 @@ microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
 
 for mbdir in microblaze_data_dirs:
     pynq_data_files.extend(
-        [(os.path.join(os.path.dirname(site.__file__) + "/site-packages", root),
-         [os.path.join(root, f) for f in files])
+        [(root, [os.path.join(root, f) for f in files])
         for root, _, files in os.walk(mbdir)]
     )
 
