@@ -2252,7 +2252,7 @@ proc create_hier_cell_iop_arduino { parentCell nameHier } {
   # Create instance: uartlite, and set properties
   set uartlite [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0 uartlite ]
   set_property -dict [ list \
-   CONFIG.C_BAUDRATE {115200} \
+   CONFIG.C_BAUDRATE {9600} \
  ] $uartlite
 
   # Create instance: xadc, and set properties
