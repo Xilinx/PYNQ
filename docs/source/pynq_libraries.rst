@@ -57,9 +57,7 @@ IP in an overlay), and low level control of the PL (downloading a bitstream).
 .. toctree::
     :maxdepth: 1
     :hidden:
-
-IP
---
+    :caption: IP
 
     pynq_libraries/audio.rst
     pynq_libraries/axigpio.rst
@@ -72,9 +70,7 @@ IP
 .. toctree::
     :maxdepth: 1
     :hidden:
-
-IOPs
-----
+    :caption: IOPs
 
     pynq_libraries/arduino.rst
     pynq_libraries/grove.rst
@@ -85,9 +81,8 @@ IOPs
 .. toctree::
     :maxdepth: 1
     :hidden:
+    :caption: PynqMicroBlaze
 
-PynqMicroBlaze
---------------
     pynq_libraries/pynq_microblaze_subsystem.rst
     pynq_libraries/pynqmb_python.rst
     pynq_libraries/pynqmb_reference.rst
@@ -96,9 +91,7 @@ PynqMicroBlaze
 .. toctree::
     :maxdepth: 1
     :hidden:
-
-Overlay
--------
+    :caption: Overlay
 
     pynq_libraries/mmio.rst
     pynq_libraries/overlay.rst
