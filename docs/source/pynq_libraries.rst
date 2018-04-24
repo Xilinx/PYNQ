@@ -44,24 +44,61 @@ with a breadboard. Note that while a peripheral can be physically connected to
 the Zynq PL pins, a controller must be built into the overlay, and a software
 driver provided, before the peripheral can be used.
 
+The PYNQ libraries provide support for the PynqMicroBlaze subsystem, allowing
+pre-compiled applications to be loaded, and new applications to be creating and
+compiled from Jupyter.
+
+PYNQ also provides support for low level control of an overlay including 
+memory-mapped IO read/write, memory allocation (for example, for use by a PL
+master), control and management of an overlay (downloading an overlay, reading
+IP in an overlay), and low level control of the PL (downloading a bitstream).
+
+
+IP
+--
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+       
+    pynq_libraries/audio.rst
+    pynq_libraries/axigpio.rst
+    pynq_libraries/dma.rst
+    pynq_libraries/logictools.rst
+    pynq_libraries/psgpio.rst
+    pynq_libraries/video.rst
+
+IOPs
+----
+
 .. toctree::
     :maxdepth: 1
     :hidden:
        
     pynq_libraries/arduino.rst
-    pynq_libraries/audio.rst
-    pynq_libraries/axigpio.rst
-    pynq_libraries/dma.rst
     pynq_libraries/grove.rst
-    pynq_libraries/logictools.rst
-    pynq_libraries/mmio.rst
-    pynq_libraries/overlay.rst
-    pynq_libraries/pl.rst
     pynq_libraries/pmod.rst
-    pynq_libraries/psgpio.rst
+    pynq_libraries/rpi.rst
+
+PynqMicroBlaze
+--------------
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+
     pynq_libraries/pynq_microblaze_subsystem.rst
     pynq_libraries/pynqmb_python.rst
     pynq_libraries/pynqmb_reference.rst
-    pynq_libraries/rpi.rst
-    pynq_libraries/video.rst
+
+Overlay
+-------
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+       
+    pynq_libraries/mmio.rst
+    pynq_libraries/overlay.rst
+    pynq_libraries/pl.rst
     pynq_libraries/xlnk.rst
