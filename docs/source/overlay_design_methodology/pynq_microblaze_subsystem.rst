@@ -95,6 +95,7 @@ The corresponding Python constants are defined here:
 
    <PYNQ repository>/pynq/lib/pmod/constants.py
    <PYNQ repository>/pynq/lib/arduino/constants.py
+   <PYNQ repository>/pynq/lib/rpi/constants.py
 
 The following example explains how Python could initiate a read from a 
 peripheral connected to a PYNQ MicroBlaze. 
@@ -442,7 +443,8 @@ switch.
 
 For Pmod, there are 8 data pins that can be connected to GPIO, SPI, IIC, 
 or Timer. For Arduino, there are 20 shared data pins that can be connected to 
-GPIO, UART, SPI, or Timer. 
+GPIO, UART, SPI, or Timer. For RPi, there are 28 shared data pins that can be
+connected to GPIO, UART, SPI, or Timer.
 
 The following function, part of the provided IO switch driver (`xio_switch.h`),
 can be used to configure the switch from a PYNQ MicroBlaze 
@@ -885,7 +887,7 @@ extracted as an attribute of the overlay, the following code also works:
 
 In the initialization method, an instance of the ``Pmod`` class is
 created. This ``Pmod`` class controls the basic functionalities of the 
-MicroBlaze processor, including reading commands/data, and writting 
+MicroBlaze processor, including reading commands/data, and writing 
 commands/data.
 
 Internally, when the ``Pmod`` class is initialized, the ``run()`` call pulls 

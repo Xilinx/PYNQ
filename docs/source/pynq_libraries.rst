@@ -48,19 +48,20 @@ driver provided, before the peripheral can be used.
     :maxdepth: 1
     :hidden:
        
-    pynq_libraries/psgpio.rst
-    pynq_libraries/axigpio.rst
-    pynq_libraries/mmio.rst
-    pynq_libraries/xlnk.rst
-    pynq_libraries/dma.rst
-    pynq_libraries/pl.rst
-    pynq_libraries/overlay.rst
-    pynq_libraries/audio.rst
-    pynq_libraries/video.rst
-    pynq_libraries/pmod.rst
     pynq_libraries/arduino.rst
+    pynq_libraries/audio.rst
+    pynq_libraries/axigpio.rst
+    pynq_libraries/dma.rst
     pynq_libraries/grove.rst
     pynq_libraries/logictools.rst
+    pynq_libraries/mmio.rst
+    pynq_libraries/overlay.rst
+    pynq_libraries/pl.rst
+    pynq_libraries/pmod.rst
+    pynq_libraries/psgpio.rst
     pynq_libraries/pynq_microblaze_subsystem.rst
     pynq_libraries/pynqmb_python.rst
-    pynq_libraries/pynqmb_reference.rst       
+    pynq_libraries/pynqmb_reference.rst
+    pynq_libraries/rpi.rst
+    pynq_libraries/video.rst
+    pynq_libraries/xlnk.rst

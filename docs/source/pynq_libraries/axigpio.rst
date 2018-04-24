@@ -3,7 +3,7 @@
 AxiGPIO
 =======
 
-The AxiGPIO module provides methods to read, write, and receive 
+The AxiGPIO class provides methods to read, write, and receive 
 interrupts from external general purpose peripherals such as LEDs, 
 buttons, switches connected to the PL using AXI GPIO controller IP.
 

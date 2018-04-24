@@ -36,4 +36,5 @@ Subpackages:
     pynq.lib/pynq.lib.video
     pynq.lib/pynq.lib.arduino
     pynq.lib/pynq.lib.pmod
+    pynq.lib/pynq.lib.rpi
     pynq.lib/pynq.lib.logictools

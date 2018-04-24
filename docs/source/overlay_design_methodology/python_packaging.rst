@@ -25,7 +25,7 @@ Delivering Non-Python Files
 One extremely useful feature that pip provides is the ability to deliver
 non-python files. In the PYNQ project this is useful for delivering FPGA
 binaries (.bit), overlay TCL source files (.tcl), PYNQ MicroBlaze binaries
-(.bin), and Jupyter Notebooks (.ipynb), along side the pynq Python libaries.
+(.bin), and Jupyter Notebooks (.ipynb), along side the pynq Python libraries.
 
 From a Terminal on the PYNQ board, installing the pynq Python libraries is
 as simple as running:
@@ -71,7 +71,7 @@ the package.
 Using ``pynq`` as a Dependency
 ------------------------------
 
-One of the most useful features of pip is the abililty to *depend* on a project,
+One of the most useful features of pip is the ability to *depend* on a project,
 instead of forking or modifying it.
 
 When designing overlays, the best practice for re-using pynq code is to

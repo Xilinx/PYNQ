@@ -10,8 +10,8 @@ Troubleshooting
 I can't connect to my board
 ---------------------------
   
-1. Check the board is powered on (Red LED LD13) and that the bitstream has been
-   loaded (Green "DONE" LED LD12)
+1. Check the board is powered on and that the bitstream has been
+   loaded (Most boards have a "DONE" LED to indicate this)
 
 2. Your board and PC/laptop must be on the same network, or have a direct
    network connection. Check that you can *ping* the board (hostname, or IP
@@ -47,8 +47,8 @@ I can't connect to my board
    * If you are using a docking station, when your laptop is docked, the
      Ethernet port on the PC may be disabled.
    
-My board is not powering on (No Red LED)
-----------------------------------------
+My Pynq-Z1/Z2 board is not powering on (No Red LED)
+---------------------------------------------------
 
 The board can be powered by USB cable, or power adapter (7 - 15V V 2.1mm
 centre-positive barrel jack). Make sure Jumper JP5 is set to USB or REG (for
@@ -63,8 +63,8 @@ The bitstream is not loading (No Green LED)
 * Check jumper JP4 is set to SD (board boots from Micro SD card).
 * Connect a terminal and verify that the Linux boot starts.
 
-If the Linux boot does not start, or fails, you may need to flash the Micro SD
-card with the PYNQ-Z1 image.
+If the Linux boot does not start, or fails, you may need to (re)flash the PYNQ
+image to the Micro SD card.
 
 The hostname of the board is not resolving/not found
 ----------------------------------------------------
@@ -93,7 +93,7 @@ I don't have an Ethernet port on my PC/Laptop
 If you don't have an Ethernet port, you can get a USB to Ethernet adapter.
 
 If you have a wireless router with Ethernet ports (LAN), you can connect your
-PYNQ-Z1 board to an Ethernet port on your router, and connect to it from your PC
+board to an Ethernet port on your router, and connect to it from your PC
 using WiFi. (You may need to change settings on your Router to enable the
 Wireless network to communicate with your LAN - check your equipment
 documentation for details.)
@@ -253,9 +253,8 @@ Does Pynq support Python 2.7?
 -----------------------------
 
 Python 2.7 is loaded on Zynq® and Python 2.7 scripts can be executed. The PYNQ
-v2.0 release, is based on Python 3.6.  No attempts have been made to ensure
-backward compatibility with Python 2.7.
-
+v2.0 release is based on Python 3.6 and is not backward compatibility with 
+Python 2.7.
 
 How do I write the Micro SD card image?
 ---------------------------------------
