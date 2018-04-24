@@ -8,6 +8,8 @@ Prerequisites for the Pynq-Z1
 =============================
 
   * PYNQ-Z1 board
+  * Computer with compatible browser (`Supported Browsers
+    <http://jupyter-notebook.readthedocs.org/en/latest/notebook.html#browser-compatibility>`_)
   * Ethernet cable
   * Micro USB cable 
   * Micro-SD card with preloaded image, or blank card (Minimum 8GB recommended)
