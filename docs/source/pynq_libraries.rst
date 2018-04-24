@@ -62,9 +62,7 @@ IP
 
     pynq_libraries/audio.rst
     pynq_libraries/axigpio.rst
-    pynq_libraries/dma.rst
     pynq_libraries/logictools.rst
-    pynq_libraries/psgpio.rst
     pynq_libraries/video.rst
 
 IOPs
@@ -88,13 +86,22 @@ PynqMicroBlaze
     pynq_libraries/pynqmb_python.rst
     pynq_libraries/pynqmb_reference.rst
 
-Overlay
--------
+PS/PL interface
+---------------
 
 .. toctree::
     :maxdepth: 1
 
+    pynq_libraries/dma.rst
     pynq_libraries/mmio.rst
+    pynq_libraries/psgpio.rst
+    pynq_libraries/xlnk.rst
+
+PL control
+----------
+
+.. toctree::
+    :maxdepth: 1
+
     pynq_libraries/overlay.rst
     pynq_libraries/pl.rst
-    pynq_libraries/xlnk.rst
