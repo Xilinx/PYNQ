@@ -1,7 +1,7 @@
 .. _pynq-microblaze-subsystem:
 
-PYNQ MicroBlaze Subsystem
-=========================
+MicroBlaze Subsystem
+====================
 
 The PYNQ MicroBlaze subsystem can be controlled by the PynqMicroblaze class. This
 allows loading of programs from Python, controlling executing by triggering the

@@ -1,5 +1,5 @@
-PYNQ Microblaze RPC
-===================
+Microblaze RPC
+==============
 
 The PYNQ Microblaze infrastructure is built on top of a remote procedure
 call (RPC) layer which is responsible for forwarding function calls from

@@ -54,10 +54,11 @@ master), control and management of an overlay (downloading an overlay, reading
 IP in an overlay), and low level control of the PL (downloading a bitstream).
 
 
+IP
+--
+
 .. toctree::
     :maxdepth: 1
-    :hidden:
-    :caption: IP
 
     pynq_libraries/audio.rst
     pynq_libraries/axigpio.rst
@@ -66,32 +67,32 @@ IP in an overlay), and low level control of the PL (downloading a bitstream).
     pynq_libraries/psgpio.rst
     pynq_libraries/video.rst
 
+IOPs
+----
 
 .. toctree::
     :maxdepth: 1
-    :hidden:
-    :caption: IOPs
 
     pynq_libraries/arduino.rst
     pynq_libraries/grove.rst
     pynq_libraries/pmod.rst
     pynq_libraries/rpi.rst
 
+PynqMicroBlaze
+--------------
 
 .. toctree::
     :maxdepth: 1
-    :hidden:
-    :caption: PynqMicroBlaze
 
     pynq_libraries/pynq_microblaze_subsystem.rst
     pynq_libraries/pynqmb_python.rst
     pynq_libraries/pynqmb_reference.rst
 
+Overlay
+-------
 
 .. toctree::
     :maxdepth: 1
-    :hidden:
-    :caption: Overlay
 
     pynq_libraries/mmio.rst
     pynq_libraries/overlay.rst

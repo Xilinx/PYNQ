@@ -1,5 +1,5 @@
-PYNQ Microblaze Library
-=======================
+Microblaze Library
+==================
 
 The PYNQ Microblaze library is the primary way of interacting with
 Microblaze subsystems. It consists of a set of wrapper drivers for I/O
