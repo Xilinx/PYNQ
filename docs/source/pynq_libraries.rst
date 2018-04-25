@@ -62,6 +62,7 @@ IP
 
     pynq_libraries/audio.rst
     pynq_libraries/axigpio.rst
+    pynq_libraries/dma.rst
     pynq_libraries/logictools.rst
     pynq_libraries/video.rst
 
@@ -92,7 +93,7 @@ PS/PL interface
 .. toctree::
     :maxdepth: 1
 
-    pynq_libraries/dma.rst
+    pynq_libraries/interrupt.rst
     pynq_libraries/mmio.rst
     pynq_libraries/psgpio.rst
     pynq_libraries/xlnk.rst
