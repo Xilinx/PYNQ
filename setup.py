@@ -81,6 +81,8 @@ else:
         pynq_data_files = collect_pynq_data_files()
 
 
+pynq_package_files = []
+
 # Extend data_files with Microblaze C BSPs and libraries
 microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
                         'pynq/lib/arduino/bsp_iop_arduino',
@@ -88,10 +90,13 @@ microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
                         'pynq/lib/rpi/bsp_iop_rpi']
 
 for mbdir in microblaze_data_dirs:
-    pynq_data_files.extend(
-        [(root, [os.path.join(root, f) for f in files])
-        for root, _, files in os.walk(mbdir)]
+    pynq_package_files.extend(
+        [os.path.join("..", root, f)
+         for root, _, files in os.walk(mbdir) for f in files]
     )
+
+
+print(pynq_package_files)
 
 # Device family constants
 ZYNQ_ARCH = "armv7l"
@@ -318,7 +323,7 @@ else:
                   .format(CPU_ARCH), ResourceWarning)
     ext_modules = []
 
-
+pynq_package_files.extend(['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'])
 setup(name='pynq',
       version='2.1',
       description='(PY)thon productivity for zy(NQ)',
@@ -328,7 +333,7 @@ setup(name='pynq',
       packages=find_packages(),
       download_url='https://github.com/Xilinx/PYNQ',
       package_data={
-          '': ['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'],
+          '': pynq_package_files,
       },
       entry_points={
           'console_scripts': [
