@@ -91,8 +91,9 @@ for mbdir in microblaze_data_dirs:
 
 # Device family constants
 ZYNQ_ARCH = "armv7l"
+ZU_ARCH = "aarch64"
 CPU_ARCH = os.uname().machine
-CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH]
+CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
 # Notebook delivery
 default_nb_dir = '/home/xilinx/jupyter_notebooks'
