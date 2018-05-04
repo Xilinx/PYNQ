@@ -41,8 +41,9 @@ __email__ = "pynq_support@xilinx.com"
 
 # Pynq Family Constants
 ZYNQ_ARCH = "armv7l"
+ZU_ARCH = "aarch64"
 CPU_ARCH = os.uname().machine
-CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH]
+CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
 # Clock constants
 SRC_CLK_MHZ = 50.0
