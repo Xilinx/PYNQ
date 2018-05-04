@@ -39,10 +39,10 @@ import warnings
 from pynq import DefaultIP
 from pynq import DefaultHierarchy
 from pynq import Xlnk
-from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH
+from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH
 from pynq.xlnk import ContiguousArray
 
-if CPU_ARCH_IS_SUPPORTED:
+if CPU_ARCH == ZYNQ_ARCH:
     import pynq.lib._video
 else:
     warnings.warn("Pynq does not support the CPU Architecture: {}"
