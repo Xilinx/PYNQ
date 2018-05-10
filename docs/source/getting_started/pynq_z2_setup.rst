@@ -47,7 +47,7 @@ Board Setup
   3. Insert the Micro SD card loaded with the PYNQ-Z2 image into the **Micro
      SD** card slot underneath the board
 
-  4. Connect the USB cable to your PC/Laptop, and to the **PROG - UART **
+  4. Connect the USB cable to your PC/Laptop, and to the **PROG - UART**
      MicroUSB port on the board
 
   5. Connect the Ethernet port by following the instructions below
