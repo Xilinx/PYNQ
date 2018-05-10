@@ -2,6 +2,21 @@
 Change Log
 ************************
 
+Version 2.2 
+============================
+
+Image release: pynq_z2_v2.2
+
+Documentation updated 10 May 2018
+
+* Board Additions
+   * PYNQ-Z2 support added
+* New Microblaze Subsystems
+   * Added RPi Microblaze subsystem, bsp and notebooks
+* New IP
+   * Added audio with codec support
+
+
 Version 2.1 
 ============================
 
