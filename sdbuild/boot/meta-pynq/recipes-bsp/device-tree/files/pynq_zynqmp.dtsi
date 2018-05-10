@@ -1,0 +1,3 @@
+/include/ "pynq_xlnk_zynqmp.dtsi"
+/include/ "pynq_uio_zynqmp.dtsi"
+/include/ "pynq_bootargs.dtsi"

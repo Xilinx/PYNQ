@@ -1,4 +1,5 @@
 #!/bin/bash
+script_dir=$(dirname ${BASH_SOURCE[0]})
 
 # This script sets up a Ubuntu host to be able to create the image by
 # installing all of the necessary files. It assumes an EC2 host with
@@ -56,6 +57,7 @@ cd ..
 wget http://wiki.qemu-project.org/download/qemu-2.8.0.tar.bz2
 tar -xf qemu-2.8.0.tar.bz2
 cd qemu-2.8.0
+patch -p 1 < $script_dir/qemu.patch
 ./configure --target-list=arm-linux-user --prefix=/opt/qemu --static
 make
 sudo make install
@@ -70,4 +72,4 @@ sudo ln -s make gmake
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 
-echo "Now install Vivado and SDK version 2016.1 and login again to ensure the enviroment is properly set up"
+echo "Now install Petalinux 2017.4 and re-login to  ensure the enviroment is properly set up"

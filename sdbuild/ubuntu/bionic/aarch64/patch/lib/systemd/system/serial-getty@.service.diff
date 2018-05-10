@@ -1,0 +1,11 @@
+--- a/serial-getty@.service	2017-12-12 08:25:32.000000000 -0500
++++ b/serial-getty@.service	2018-01-05 06:08:32.709699756 -0500
+@@ -29,7 +29,7 @@
+ # The '-o' option value tells agetty to replace 'login' arguments with an
+ # option to preserve environment (-p), followed by '--' for safety, and then
+ # the entered username.
+-ExecStart=-/sbin/agetty -o '-p -- \\u' --keep-baud 115200,38400,9600 %I $TERM
++ExecStart=-/sbin/agetty --autologin xilinx --keep-baud 115200,38400,9600 %I $TERM
+ Type=idle
+ Restart=always
+ UtmpIdentifier=%I
