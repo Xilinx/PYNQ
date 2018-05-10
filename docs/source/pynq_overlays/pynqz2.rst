@@ -10,9 +10,9 @@ used as input/output, 4 push-buttons, 2 slide switches, 4 LEDs, 2 RGB LEDs,
 2x Pmod ports, and 1x Arduino header and 1x RaspberryPi header. Note that 8 
 pins of the RaspberryPi header are shared with one of the Pmod ports.
 
-For details on the PYNQ-Z2 board including `PYNQ-z2 reference manual <>`_
-and `PYNQ-Z1 constraints file (xdc) <>`_,
-see the `PYNQ-Z2 webpage <>`_
+For details on the PYNQ-Z2 board including reference manual, schematics, 
+constraints file (xdc),
+see the `PYNQ-Z2 webpage <http://www.tul.com.tw/ProductsPYNQ-z2.html>`_
 
 The following overlays are include by default in the PYNQ image for the PYNQ-Z2 board:
 
