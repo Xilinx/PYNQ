@@ -51,4 +51,4 @@ Writing data to the buffer:
           
       # Input buffer:  [0 1 2 3 4]
 
-More information about the MMIO module can be found in the :ref:`pynq-xlnk` sections
+More information about the MMIO module can be found in the :ref:`pynq-xlnk` sections.

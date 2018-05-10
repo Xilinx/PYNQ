@@ -1,5 +1,5 @@
-PYNQ Microblaze Library
-=======================
+Microblaze Library
+==================
 
 The PYNQ Microblaze library is the primary way of interacting with
 Microblaze subsystems. It consists of a set of wrapper drivers for I/O
@@ -28,7 +28,7 @@ GPIO Devices
 GPIO devices allow for one or multiple pins to be read and written
 directly. All of these functions are in ``gpio.h``
 
-``gpio`` typedef
+``gpio`` type
 ~~~~~~~~~~~~~~~~
 
 A handle to one or more pins which can be set simultaneously.
@@ -87,7 +87,7 @@ The I2C driver is designed for master operation only and provides
 interfaces to read and write from a slave device. All of these functions
 are in ``i2c.h``.
 
-``i2c type``
+``i2c`` type
 ~~~~~~~~~~~~
 
 Represents an I2C master. It is possible for multiple handles to
@@ -150,8 +150,8 @@ Opens a SPI master by base address or device ID.
 Configures the SPI master with the specified clock phase and polarity.
 These settings are global to all handles to a SPI master.
 
-\`void spi\_transfer(spi dev\_id, const char\* write\_data, char\* read\_data, unsigned int length);
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``void spi_transfer(spi dev_id, const char* write_data, char* read_data, unsigned int length);``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Transfer bytes to and from the SPI slave. Both ``write_data`` and
 ``write_data`` should be allocated by the caller and NULL. Buffers
@@ -228,7 +228,7 @@ This device driver controls a UART master.
 
 Handle to a UART master device.
 
-``uart uart_open(unsigned int tx, unsigned int int rx)``
+``uart uart_open(unsigned int tx, unsigned int rx)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Open a UART device on the specified pins

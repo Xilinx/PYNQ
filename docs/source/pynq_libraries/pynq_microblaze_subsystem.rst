@@ -1,7 +1,7 @@
 .. _pynq-microblaze-subsystem:
 
-PYNQ MicroBlaze Subsystem
-=========================
+MicroBlaze Subsystem
+====================
 
 The PYNQ MicroBlaze subsystem can be controlled by the PynqMicroblaze class. This
 allows loading of programs from Python, controlling executing by triggering the
@@ -43,7 +43,7 @@ transfer large data segments between the PS (Python) and the Subsystem.
 Examples
 --------  
 
-In the :ref:`base-overlay`, three IOP instances with PYNQ Microblaze Subsystems
+In the :ref:`pynqz1-base-overlay`, three IOP instances with PYNQ Microblaze Subsystems
 are available: iop1 (PMODA), iop2 (PMODB), and iop3 (Arduino). After the overlay
 is loaded these can be accessed as follows:
 

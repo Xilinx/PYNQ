@@ -6,7 +6,7 @@ PS GPIO
 The Zynq device has up to 64 GPIO from PS to PL. These can be used for simple control type operations. For example, in the base overlay, the PS GPIO wires are used as the reset signals for the IOPs. 
 The PS GPIO are a very simple interface and there is no IP required in the PL to use them. 
 
-The *GPIO* class is used to control the GPIO.
+The *GPIO* class is used to control the PS GPIO. Note that *AXI* GPIO are controlled by the :ref:`pynq-libraries-axigpio` class. 
 
 Block Diagram
 -------------
@@ -27,19 +27,22 @@ to map the PS pin number to the Linux pin number. See the example below
 on how it can be used.
 
 
+Example
+-------
 
-Examples
---------
+The PS GPIO need to be connected to something in an overlay before they can be
+used. The example below is for illustration. It shows a code snippet that needs 
+an appropriate overlay with the PS GPIO connected to something.
 
 .. code-block:: Python
 
    from pynq import GPIO
 
-   ps_led = GPIO(GPIO.get_gpio_pin(0), 'out')
-   ps_switch = GPIO(GPIO.get_gpio_pin(1), 'in')
+   output = GPIO(GPIO.get_gpio_pin(0), 'out')
+   input = GPIO(GPIO.get_gpio_pin(1), 'in')
 
-   ps_led.write(0)
-   ps_switch.read(1)
+   output.write(0)
+   input.read()
 
 More information about the GPIO module and the API for reading, writing
 and waiting for interrupts can be found in the :ref:`pynq-gpio` sections

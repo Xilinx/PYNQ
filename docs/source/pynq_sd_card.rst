@@ -4,18 +4,17 @@
 PYNQ SD Card
 ************
 
-The PYNQ image for the PYNQ-Z1 is provided precompiled as a downloadable SD card
-image, so you do not need to rerun this flow for the PYNQ-Z1 unless you want to
-make changes to the image flow.
+The PYNQ image for the PYNQ-Z1 and PYNQ-Z2 boards are provided precompiled as 
+downloadable SD card images, so you do not need to rerun this flow for these 
+boards unless you want to make changes to the image flow.
 
 This flow can also be used as a starting point to build a PYNQ image for another
 Zynq board.
 
-The image flow will create the Zynq BOOT.bin, the u-boot bootloaded, the Linux
+The image flow will create the Zynq BOOT.bin, the u-boot bootloader, the Linux
 Device tree blob, and the Linux kernel.
 
 The source files for the PYNQ image flow build can be found here:
-
 
 .. code-block:: console
     
@@ -44,6 +43,7 @@ Release version    Vivado and SDK
 v1.4               2015.4
 v2.0               2016.1
 v2.1               2017.4
+v2.2               2017.4
 ================  ================
 
 .. code-block:: console
@@ -92,7 +92,7 @@ Variables in config
 The config file must define several variables:
 
   * **BOARD**: e.g. PYNQ-Z1. This is used to customize some parts of the flow,
-    and will utimately be used by Python
+    and will ultimately be used by Python
   * **BOARD_PART**: e.g. xc7z020clg400-1. This is used to create a Vivado
     project and generate a Hardware Description File (.hdf) for use in Xilinx SDK.
   * **BOARD_CONSTRAINTS**: Path to the constraints file (.xdc) containing the
@@ -121,9 +121,9 @@ The SD Card build flow starts by creating a simple Vivado Project using the
 variables. This vivado project is used to generate a Hardware Description File
 (.hdf) for Xilinx SDK.
 
-Following the cration of the Hardware Description File, the First State
+Following the creation of the Hardware Description File, the First State
 Bootloader (FSBL) and Device Tree file are created. While the FSBL is not
-customisable, the device tree can be modified by addding or reconfiguring
+customisable, the device tree can be modified by adding or reconfiguring
 entries or by **BOARD_DTSI**.
 
 Next, the **LINUX_REPO** and **UBOOT_REPO** repositories are cloned, checked out
@@ -150,6 +150,7 @@ Release version    OS
 v1.4               Ubuntu Wily
 v2.0               Ubuntu Wily
 v2.1               Ubuntu Xenial
+v2.2               Ubuntu Xenial
 ================  ================
 
 While the root filesystem is designed around the Pynq-Z1 board it should work on

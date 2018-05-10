@@ -93,7 +93,7 @@ Timer        D3 - D6 and D8 - D11
 Examples
 --------
 
-In the :ref:`base-overlay`, one Arduino PYNQ MicroBlaze instance is available. 
+In the :ref:`pynqz1-base-overlay`, one Arduino PYNQ MicroBlaze instance is available. 
 After the overlay is loaded this instance can be accessed as follows:
 
 .. code-block:: Python

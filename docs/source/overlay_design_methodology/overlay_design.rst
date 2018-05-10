@@ -111,7 +111,7 @@ Existing overlays can be used as a starting point to create a new overlay. The
 *base* overlay can be found in the *boards* directory in the PYNQ repository,
 and includes reference IP for peripherals on the board:
 
-   ``<PYNQ repository>/boards/Pynq-Z1/base``
+   ``<PYNQ repository>/boards/<board>/base``
   
 A makefile exists in each folder that can be used to rebuild the Vivado project
 and generate the bitstream and Tcl for the overlay. (On windows, instead of
@@ -120,5 +120,5 @@ using *make*, the Tcl file can be sourced from Vivado.)
 The bitstream and Tcl for the overlay are available on the board, and also in
 the GitHub project repository:
 
-   ``<PYNQ repository>/boards/Pynq-Z1/base``
+   ``<PYNQ repository>/boards/<board>/base``
 

@@ -3,7 +3,7 @@
 AxiGPIO
 =======
 
-The AxiGPIO module provides methods to read, write, and receive 
+The AxiGPIO class provides methods to read, write, and receive 
 interrupts from external general purpose peripherals such as LEDs, 
 buttons, switches connected to the PL using AXI GPIO controller IP.
 
@@ -56,7 +56,7 @@ by passing the AxiGPIO name to the class.
    ip_instance = ol.ip_dict['leds_gpio']
    buttons = AxiGPIO(ip_instance).channel1
 
-   .. code-block:: Python
+.. code-block:: Python
    
    mask = 0x3  # Mask which controls which bits are written to
 
@@ -64,7 +64,7 @@ by passing the AxiGPIO name to the class.
    buttons.setlength(2)
    buttons.write(0x2, mask) # Write 0x2 to the LEDs
 
-   .. code-block:: Python
+.. code-block:: Python
 
    ip_instance = ol.ip_dict['switches_gpio']
    switches = AxiGPIO(ip_instance).channel1

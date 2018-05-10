@@ -102,7 +102,7 @@ A list of drivers provided for Pmod peripherals can be found in the
 Examples
 --------
 
-In the :ref:`base-overlay`, two Pmod instances are available: PMODA and
+In the :ref:`pynqz1-base-overlay`, two Pmod instances are available: PMODA and
 PMODB. After the overlay is loaded theses instances can be accessed as
 follows:
 
@@ -119,8 +119,7 @@ follows:
 More information about the Pmod subpackage, its components, and its API can be
 found in the :ref:`pynq-lib-pmod` section.
 
-For more examples, see the notebooks in the following directory on the 
-PYNQ-Z1 board:
+For more examples, see the notebooks in the following directory on the  board:
 
 .. code-block:: console
 

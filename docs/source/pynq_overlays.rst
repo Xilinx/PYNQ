@@ -41,5 +41,5 @@ by many other software developers working at the application level.
     :hidden:
    
     pynq_overlays/loading_an_overlay.ipynb
-    pynq_overlays/base_overlay
-    pynq_overlays/logictools_overlay
+    pynq_overlays/pynqz1
+    pynq_overlays/pynqz2

@@ -1,5 +1,5 @@
-PYNQ Microblaze RPC
-===================
+Microblaze RPC
+==============
 
 The PYNQ Microblaze infrastructure is built on top of a remote procedure
 call (RPC) layer which is responsible for forwarding function calls from
@@ -26,10 +26,10 @@ All return values are passed back to Python through copying. The
 transfer of function arguments depends on the type used. For a given
 non-void primitive the following semantics:
 
--  Non-pointer types are copied from PYNQ to the microblaze
--  Const pointer types are copied from Python to the Microblaze
--  Non-const pointer types are copied from Python to the Microblaze and
-   then copied back after completion of the function.
+* Non-pointer types are copied from PYNQ to the microblaze
+* Const pointer types are copied from Python to the Microblaze
+* Non-const pointer types are copied from Python to the Microblaze and
+  then copied back after completion of the function.
 
 The timeline of the execution of the function can be seen below:
 

@@ -1,4 +1,4 @@
-.. _base-overlay:
+.. _pynqz2-base-overlay:
 
 Base Overlay
 ============
@@ -22,27 +22,27 @@ without requiring a change to the programmable logic design.
 
 See :ref:`pynq-libraries` for more information on PYNQ MicroBlazes.
 
-PYNQ-Z1 Block Diagram
+PYNQ-Z2 Block Diagram
 ---------------------
 
-.. image:: ../images/pynqz1_base_overlay.png
+.. image:: ../../images/pynqz2_base_overlay.png
    :align: center
 
 
-The base overlay on PYNQ-Z1 includes the following hardware:
+The base overlay on PYNQ-Z2 includes the following hardware:
 
     * HDMI (Input and Output)
-    * Microphone in 
-    * Audio out
+    * Audio codec
     * User LEDs, Switches, Pushbuttons
     * 2x Pmod PYNQ MicroBlaze
     * Arduino PYNQ MicroBlaze
-    * 3x Trace Analyzer (PMODA, PMODB, ARDUINO)
+    * RPi (Raspberry Pi) PYNQ MicroBlaze
+    * 4x Trace Analyzer (PMODA, PMODB, ARDUINO, RASPBERRYPI)
 
 HDMI 
 ----
 
-The PYNQ-Z1 has HDMI in and HDMI out ports. The HDMI interfaces are connected
+The PYNQ-Z2 has HDMI in and HDMI out ports. The HDMI interfaces are connected
 directly to PL pins. i.e. There is no external HDMI circuitry on the board. The
 HDMI interfaces are controlled by HDMI IP in the programmable logic.
 
@@ -55,9 +55,6 @@ Note that while Jupyter notebook supports embedded video, video captured from
 the HDMI will be in raw format and would not be suitable for playback in a
 notebook without appropriate encoding.
 
-For information on the physical HDMI interface ports, see the
-`Digilent HDMI reference for the PYNQ-Z1 board
-<https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#hdmi>`_
 
 HDMI In
 ^^^^^^^
@@ -78,7 +75,7 @@ The HDMI out IP supports the following resolutions:
     * 1280x1024
     * 1920x1080 (1080p)\*
 
-\*While the Pynq-Z1 cannot meet the official HDMI specification for 1080p, some
+\*While the Pynq-Z2 cannot meet the official HDMI specification for 1080p, some
 HDMI devices at this resolution may work.
 
 Data can be streamed from the PS DRAM to the HDMI output. The HDMI Out
@@ -87,37 +84,18 @@ controller contains framebuffers to allow for smooth display of video data.
 See example video notebooks in the ``<Jupyter Dashboard>/base/video`` directory 
 on the board.
 
-Microphone In 
--------------
+Audio
+-----
 
-The PYNQ-Z1 board has an integrated microphone on the board and is connected 
-directly to the Zynq PL pins, and does not have an external audio codec. The 
-microphone generates audio data in PDM format.
-
-For more information on the audio hardware, see the `Digilent MIC in reference 
-for the PYNQ-Z1 board
-<https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#microphone>`_
-
-See example audio notebooks in the ``<Jupyter Dashboard>/base/audio`` directory 
-on the board.
-
-Audio Out
----------
-
-The audio out IP is connected to a standard 3.5mm audio jack on the board. The
-audio output is PWM driven mono.
-
-For more information on the audio hardware, see the `Digilent Audio Out 
-reference for the PYNQ-Z1 board <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual#mono_audio_output>`_
-
-See example audio notebooks in the ``<Jupyter Dashboard>/base/audio`` directory 
-on the board.
+The PYNQ-Z2 base overlay supports line in, and Headphones out/Mic. The audio
+source can be selected, either line-in or Mic, and the audio in to the board
+can be either recorded to file, or played out on the headphone output. 
 
 User IO
 -------
 
-The PYNQ-Z1 board includes two tri-color LEDs, 2 switches, 4 push buttons, and 4
-individual LEDs. These IO are connected directly to Zynq PL pins. In the PYNQ-Z1
+The PYNQ-Z2 board includes two tri-color LEDs, 2 switches, 4 push buttons, and 4
+individual LEDs. These IO are connected directly to Zynq PL pins. In the PYNQ-Z2
 base overlay, these IO are routed to the PS GPIO, and can be controlled directly
 from Python.
 
@@ -131,20 +109,29 @@ peripherals with different interfaces and protocols. By using a PYNQ MicroBlaze,
 the same overlay can be used to support different peripheral without requiring a
 different overlay for each peripheral.
 
-There are two types of PYNQ MicroBlazes: Pmod, and Arduino.  The Pmod and 
-Arduino ports, which the PYNQ MicroBlazes connect to, have a different number 
-of pins and can support different sets of peripherals. Both types of PYNQ 
-MicroBlaze have a similar architecture, but have different IP configurations 
-to support the different sets of peripheral and interface pins.
+The PYNQ-Z2 has three types of PYNQ MicroBlaze: *Pmod*, *Arduino*, and *RPi*
+(Raspberry Pi), connecting to each type of corresponding interface. There is
+one instance of the Arduino, and one instance of the RPi PYNQ MicroBlaze, and
+two instances of the Pmod PYNQ MicroBlaze in the base overlay. 
+
+Each physical interface has a different number of pins and can support 
+different sets of peripherals. Each PYNQ MicroBlaze has the same core
+architecture, but can have different IP configurations to support the different
+sets of peripheral and interface pins.
+
+Note that because the 8 data pins of PmodA are shared with the lower 8 data
+pins of the RPi header, the ``base.select_pmoda()`` function must be called
+before loading an application on PmodA, and ``base.select_pmoda()`` must be
+called before loading an application on the RPi PYNQ MicroBlaze.
 
 PYNQ MicroBlaze block diagram and examples can be found in 
 :ref:`pynq-microblaze-subsystem`. 
 
 Trace Analyzer
-----------------
+--------------
 
 Trace analyzer blocks are connected to the interface pins for the two Pmod 
-PYNQ MicroBlazes, and the Arduino PYNQ MicroBlaze. The trace analyzer can 
+PYNQ MicroBlazes, the Arduino and RPi PYNQ MicroBlazes. The trace analyzer can 
 capture IO signals and stream the data to the PS DRAM for analysis in the 
 Python environment.
 
@@ -185,7 +172,7 @@ been cloned:
 
 .. code-block:: console
 
-   cd <PYNQ repository>/boards/Pynq-Z1/base
+   cd <PYNQ repository>/boards/Pynq-Z2/base
    make 
 
 Windows
@@ -202,7 +189,7 @@ Assuming PYNQ has been cloned:
  
 .. code-block:: console
 
-   cd <PYNQ repository>/boards/Pynq-Z1/base
+   cd <PYNQ repository>/boards/Pynq-Z2/base
    source ./build_base_ip.tcl
    source ./base.tcl
 
@@ -211,7 +198,7 @@ following:
 
 .. code-block:: console
 
-   cd <PYNQ repository>/boards/Pynq-Z1/base
+   cd <PYNQ repository>/boards/Pynq-Z2/base
    vivado -mode batch -source build_base_ip.tcl
    vivado -mode batch -source base.tcl
    

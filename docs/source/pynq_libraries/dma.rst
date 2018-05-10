@@ -57,13 +57,16 @@ Two memory buffers, one for input, and the other for output are allocated.
    input_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
    output_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
 
-   Write some data to the array:
+Write some data to the array:
    
 .. code-block:: Python
 
       for i in range(5):
          input_buffer[i] = i
-      # Input buffer:  [0 1 2 3 4]
+
+.. code-block:: console
+
+      Input buffer will contain:  [0 1 2 3 4]
 
 Transfer the input_buffer to the send DMA, and read back from the recv DMA to the output buffer. The wait() method ensures the DMA transactions have complete.
 
@@ -74,7 +77,9 @@ Transfer the input_buffer to the send DMA, and read back from the recv DMA to th
       dma_send.sendchannel.wait()
       dma_recv.recvchannel.wait()
 
-      # Output buffer: [0 1 2 3 4]
+.. code-block:: console
+
+      Output buffer will contain: [0 1 2 3 4]
 
 
 More information about the DMA module can be found in the :ref:`pynq-lib-dma` sections

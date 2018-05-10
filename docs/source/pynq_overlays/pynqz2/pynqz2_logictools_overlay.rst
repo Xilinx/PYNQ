@@ -1,7 +1,6 @@
 Logictools Overlay
 ==================
 
-
 The logictools overlay consists of programmable hardware blocks to connect to
 external digital logic circuits. Finite state machines, Boolean logic functions
 and digital patterns can be generated from Python. A programmable switch
@@ -10,13 +9,13 @@ pins. The logictools overlay can also has a trace analyzer to capture data from
 the IO interface for analysis and debug.
 
 
-PYNQ-Z1 Block Diagram
----------------------
+Logictools base diagram
+-----------------------
 
-.. image:: ../images/logictools_pynqz1.png
+.. image:: ../../images/logictools_bd.png
    :align: center
 
-The logictools overlay on PYNQ-Z1 includes four main hardware blocks:
+The logictools IP includes four main hardware blocks:
 
 * Pattern Generator
 * FSM Generator
@@ -27,6 +26,25 @@ Each block is configured using a textual description specified in Python.
 No compilation of the configuration is required. This means a configuration can 
 be loaded directly to the generator and run immediately.
 
+PYNQ-Z2 logic tools
+-------------------
+
+The PYNQ-Z2 logictools overlay has two instances of the logictools LCP (Logic
+Control Processor); one connected to the Arduino header, and the other 
+connected to the RPi (Raspberry Pi) header. 
+
+The Arduino header has 20 pins, and the RPi has 26 pins that can be used as
+GPIO to the LCP. 
+
+The 4 LEDs, and 4 pushbuttons can also be connected to either LCP, extending
+the number of inputs available. Note that the LEDs and pushbuttons are shared,
+and can only be used by one LCP at a time. 
+
+.. image:: ../../images/pynqz2_logictools.png
+   :align: center
+
+The overlay also includes a Pmod IOP connected to PmodB. This is the same Pmod
+IOP that is used in the base overlay.
 
 Pattern Generator
 -----------------
@@ -103,7 +121,7 @@ been cloned:
 
 .. code-block:: console
 
-   cd <PYNQ Repository>/boards/Pynq-Z1/logictools
+   cd <PYNQ Repository>/boards/Pynq-Z2/logictools
    make 
 
 Windows
@@ -117,7 +135,7 @@ Assuming PYNQ has been cloned:
  
 .. code-block:: console
 
-   cd <PYNQ Repository>/boards/Pynq-Z1/logictools
+   cd <PYNQ Repository>/boards/Pynq-Z2/logictools
    source ./build_logictools_ip.tcl
    source ./logictools.tcl
 
@@ -126,7 +144,7 @@ following:
 
 .. code-block:: console
 
-   cd <PYNQ Repository>/boards/Pynq-Z1/logictools
+   cd <PYNQ Repository>/boards/Pynq-Z2/logictools
    vivado -mode batch -source build_logictools_ip.tcl
    vivado -mode batch -source logictools.tcl
    
