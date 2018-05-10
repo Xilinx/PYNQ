@@ -5,5 +5,4 @@ set -e
 target=$1
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cp -r $WORKDIR/gcc-mb/microblazeel-xilinx-elf $target/opt
-chown root:root -R $target/opt/microblazeel-xilinx-elf
+sudo cp --no-preserve=ownership -r $BUILD_ROOT/gcc-mb/${ARCH}/microblazeel-xilinx-elf $target/opt

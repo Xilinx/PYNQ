@@ -1,0 +1,32 @@
+diff -r -u qemu-2.8.0/linux-user/elfload.c ../qemu-2.8.0/linux-user/elfload.c
+--- a/linux-user/elfload.c	2016-12-20 15:16:48.000000000 -0500
++++ b/linux-user/elfload.c	2018-02-28 05:15:57.915675953 -0500
+@@ -1870,7 +1870,10 @@
+            image is pre-linked, LOADDR will be non-zero.  Since we do
+            not supply MAP_FIXED here we'll use that address if and
+            only if it remains available.  */
+-        load_addr = target_mmap(loaddr, hiaddr - loaddr, PROT_NONE,
++        if (pinterp_name != NULL) {
++            load_addr = 0x6000000000ull;
++        }
++        load_addr = target_mmap(load_addr, hiaddr - loaddr, PROT_NONE,
+                                 MAP_PRIVATE | MAP_ANON | MAP_NORESERVE,
+                                 -1, 0);
+         if (load_addr == -1) {
+diff -r -u qemu-2.8.0/linux-user/syscall.c ../qemu-2.8.0/linux-user/syscall.c
+--- a/linux-user/syscall.c	2016-12-20 15:16:48.000000000 -0500
++++ b/linux-user/syscall.c	2018-02-28 06:51:35.715918110 -0500
+@@ -12161,7 +12161,12 @@
+         ret = get_errno(kcmp(arg1, arg2, arg3, arg4, arg5));
+         break;
+ #endif
+-
++#if defined(TARGET_NR_seccomp) && defined(__NR_kcmp)
++    case TARGET_NR_seccomp:
++        qemu_log("qemu seccomp\n");
++        ret = -EINVAL;
++        break;
++#endif
+     default:
+     unimplemented:
+         gemu_log("qemu: Unsupported syscall: %d\n", num);
