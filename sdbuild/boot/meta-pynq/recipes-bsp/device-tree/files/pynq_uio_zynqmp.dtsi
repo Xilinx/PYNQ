@@ -1,0 +1,11 @@
+/ {
+	amba {
+
+		fabric@A0000000 {
+			compatible = "generic-uio";
+			reg = <0x0 0xA0000000 0x0 0x10000>;
+			interrupt-parent = <&gic>;
+			interrupts = <0x0 0x59 0x4>;
+		};
+	};
+};
