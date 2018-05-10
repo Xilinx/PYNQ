@@ -67,7 +67,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Python productivity for Zynq (Pynq)'
-copyright = '2017, Xilinx'
+copyright = '2018, Xilinx'
 author = 'Xilinx'
 
 # The version info for the project you're documenting, acts as replacement for
