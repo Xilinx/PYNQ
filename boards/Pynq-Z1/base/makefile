@@ -1,6 +1,22 @@
-all:
-	vivado -mode batch -source build_base_ip.tcl
-	vivado -mode batch -source base.tcl
+overlay_name := base
+design_name := system
+
+all: hls_ip bitstream dsa
+	@echo
+	@tput setaf 2 ; echo "Built $(overlay_name) successfully!"; tput sgr0;
+	@echo
+
+hls_ip:
+	vivado -mode batch -source build_$(overlay_name)_ip.tcl -notrace
+
+bitstream:
+	vivado -mode batch -source $(overlay_name).tcl -notrace
+
+dsa:
+	vivado -mode batch -source build_$(overlay_name)_dsa.tcl -notrace
+	unzip -qo $(overlay_name).dsa -d .dsa
+	cp -rf .dsa/$(design_name).hwh ./$(overlay_name).hwh
 
 clean:
-	rm -rf base *.jou *.log
+	rm -rf $(overlay_name) *.jou *.log
+	rm -rf .dsa
