@@ -24,11 +24,11 @@ You can watch the getting started video guide, or follow the instructions in
 .. raw:: html
 
     <embed>
-         <iframe width="560" height="315" src="https://www.youtube.com/embed/kvNvTt1Xjd4" frameborder="0" allowfullscreen></iframe>
+         <iframe width="560" height="315" src="https://www.youtube.com/embed/gK0hxOBQy80" frameborder="0" allowfullscreen></iframe>
          </br>
          </br>
     </embed>
-   
+
 .. _pynqz2-board-setup:
 
 Board Setup
