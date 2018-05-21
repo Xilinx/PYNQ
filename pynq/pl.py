@@ -1020,7 +1020,7 @@ class _Bitstream:
 
     """
 
-    def __init__(self, bitfile_name):
+    def __init__(self, bitfile_name,  partial = False):
         """Return a new Bitstream object.
 
         Users can either specify an absolute path to the bitstream file
@@ -1036,6 +1036,8 @@ class _Bitstream:
         ----------
         bitfile_name : str
             The bitstream absolute path or name as a string.
+        partial :
+            Flag to indicate whether or not this is a partial bitstream.
         """
         super().__init__()
 
@@ -1057,6 +1059,7 @@ class _Bitstream:
                           .format(bitfile_name))
 
         self.timestamp = ''
+        self.partial = partial
 
     def download(self):
         """The method to download the bitstream onto PL.
@@ -1073,7 +1076,8 @@ class _Bitstream:
 
         """
         self._download()
-        self._update_pl()
+        if not self.partial:
+                self._update_pl()
         
     def _update_pl(self):
         t = datetime.now()
@@ -1119,9 +1123,12 @@ class _BitstreamZynq(_Bitstream):
         with open(self.bitfile_name, 'rb') as f:
             buf = f.read()
 
-        # Set is_partial_bitfile device attribute to 0
-        with open(self.BS_IS_PARTIAL, 'w') as fd:
-            fd.write('0')
+        # Set is_partial_bitfile device attribute to the appropiate value
+        with open(BS_IS_PARTIAL, 'w') as fd:
+            if self.partial:
+                fd.write('1')
+            else:
+                fd.write('0')
 
         # Write bitfile to xdevcfg device
         with open(self.BS_XDEVCFG, 'wb') as f:
