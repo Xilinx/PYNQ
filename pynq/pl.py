@@ -1124,7 +1124,7 @@ class _BitstreamZynq(_Bitstream):
             buf = f.read()
 
         # Set is_partial_bitfile device attribute to the appropiate value
-        with open(BS_IS_PARTIAL, 'w') as fd:
+        with open(self.BS_IS_PARTIAL, 'w') as fd:
             if self.partial:
                 fd.write('1')
             else:
