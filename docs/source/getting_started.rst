@@ -151,11 +151,13 @@ the new hostname.
 used to edit files.
 
 .. code-block:: console
+
     /etc/hosts
     127.0.0.1   localhost
     127.0.1.1   pynq
 
 .. code-block:: console
+
     /etc/hostname
     pynq
 
