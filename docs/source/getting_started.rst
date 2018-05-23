@@ -130,10 +130,10 @@ Change the Hostname
 ===================
 
 If you are on a network where other PYNQ boards may be connected, you should
-change your hostname immediately. This is a common requirement in a work or
-university environment. You can change the hostname from a terminal. You can use
-the USB cable to connect a terminal. A terminal is also available in the Jupyter
-environment and can be used from an internet browser.
+change the hostname of the board immediately. This is a common requirement in a
+work or university environment. You can use the USB cable to connect a 
+terminal and from here you can change the hostname. A terminal is also 
+available in the Jupyter environment and can be used from a web browser.
 
 To access the Jupyter terminal, in the Jupyter portal home area, select **New >>
 Terminal**.
@@ -144,11 +144,22 @@ Terminal**.
        
 This will open a terminal inside the browser as root.
 
-Use the preloaded pynq_hostname.sh script to change your board's hostname.
+Modify the existing *pynq* hostname in /etc/hosts and /etc/hostname files to
+the new hostname. 
+
+`vi <http://www.ks.uiuc.edu/Training/Tutorials/Reference/virefcard.pdf>`_ can be
+used to edit files.
 
 .. code-block:: console
-    
-    pynq_hostname.sh <NEW HOSTNAME>
+
+    /etc/hosts
+    127.0.0.1   localhost
+    127.0.1.1   pynq
+
+.. code-block:: console
+
+    /etc/hostname
+    pynq
 
 The board must be restarted for the changes to be applied.
 
@@ -156,7 +167,7 @@ The board must be restarted for the changes to be applied.
     
     shutdown -r now
 
-Note that as you are logged in as root, sudo is not required. If you connect a
+Note that if you are logged in as root, sudo is not required. If you connect a
 terminal from the USB connection, you will be logged in as the *xilinx* user and
 sudo must be added to these commands.
 
