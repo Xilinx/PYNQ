@@ -24,7 +24,7 @@ You can watch the getting started video guide, or follow the instructions in
 .. raw:: html
 
     <embed>
-         <iframe width="560" height="315" src="https://www.youtube.com/embed/K5okTyjKr5U" frameborder="0" allowfullscreen></iframe>
+         <iframe width="560" height="315" src="https://www.youtube.com/embed/5N7cjvC1l8M" frameborder="0" allowfullscreen></iframe>
          </br>
          </br>
     </embed>
