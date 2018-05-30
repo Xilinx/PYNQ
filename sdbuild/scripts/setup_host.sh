@@ -1,5 +1,6 @@
 #!/bin/bash
-script_dir=$(dirname ${BASH_SOURCE[0]})
+set -x
+script_dir=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
 # This script sets up a Ubuntu host to be able to create the image by
 # installing all of the necessary files. It assumes an EC2 host with
@@ -30,7 +31,6 @@ multistrap
 git
 lib32z1
 lib32ncurses5
-lib32bz2-1.0
 lib32stdc++6
 libgnutls-dev
 libssl-dev
@@ -39,10 +39,15 @@ nfs-common
 zerofree
 u-boot-tools
 EOT
+set -e
 
 sudo apt-get install -y $PACKAGES
 
 # Install up-to-date versions of crosstool and qemu
+if [ -e tools ]; then
+  rm -rf tools
+fi
+
 mkdir tools
 cd tools/
 
@@ -58,17 +63,22 @@ wget http://wiki.qemu-project.org/download/qemu-2.8.0.tar.bz2
 tar -xf qemu-2.8.0.tar.bz2
 cd qemu-2.8.0
 patch -p 1 < $script_dir/qemu.patch
-./configure --target-list=arm-linux-user --prefix=/opt/qemu --static
+./configure --target-list=arm-linux-user,aarch64-linux-user --prefix=/opt/qemu --static
 make
 sudo make install
 # Create the symlink that ubuntu expects
 cd /opt/qemu/bin
+sudo rm -rf qemu-arm-static qemu-aarch64-static
 sudo ln -s qemu-arm qemu-arm-static
+sudo ln -s qemu-aarch64 qemu-aarch64-static
 cd ~
 
 # Create gmake symlink to keep SDK happy
 cd /usr/bin
-sudo ln -s make gmake
+if ! which gmake
+then
+  sudo ln -s make gmake
+fi
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 
