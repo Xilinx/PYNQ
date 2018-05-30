@@ -150,7 +150,7 @@ void cma_flush_cache(void* buf, unsigned int phys_addr, int size) {
 
 void cma_invalidate_cache(void* buf, unsigned int phys_addr, int size) {
 #ifdef __aarch64__
-    cma_flush_cache(buf, size);
+    cma_flush_cache(buf, phys_addr, size);
 #else
     xlnkInvalidateCache(phys_addr, size);
 #endif
