@@ -36,13 +36,13 @@ __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-# Pynq Family Constants
 ZYNQ_ARCH = "armv7l"
 ZU_ARCH = "aarch64"
 CPU_ARCH = os.uname().machine
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
 DEFAULT_PL_CLK_MHZ = 100.0
+
 
 class Register:
     """Register class that allows users to access registers easily.
@@ -58,8 +58,8 @@ class Register:
     Note
     ----
     The slicing endpoints are closed, meaning both of the 2 endpoints will
-    be included in the final returned value. For example, reg[31:0] will 
-    return a 32-bit value; this is consistent with most of the hardware 
+    be included in the final returned value. For example, reg[31:0] will
+    return a 32-bit value; this is consistent with most of the hardware
     definitions.
 
     Attributes
@@ -71,7 +71,7 @@ class Register:
 
     """
 
-    def __init__(self, address, width=32, debug = False):
+    def __init__(self, address, width=32, debug=False):
         """Instantiate a register object.
 
         Parameters
@@ -84,7 +84,7 @@ class Register:
             Turn on debug mode if True; default is False.
 
         """
-        
+
         self.address = address
         self.width = width
         self.debug = debug
@@ -107,7 +107,7 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
-        
+
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         if isinstance(index, int):
             self._debug("Reading index {} at address {}"
@@ -131,11 +131,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError("Slicing endpoint {} is not in range 0".format(start),
-                                 " - {}.".format(self.width))
+                raise ValueError("Slice endpoint {0} not in range "
+                                 "0 - {1}".format(start, self.width))
             if stop not in range(self.width):
-                raise ValueError("Slicing endpoint {stop} is not in range 0".format(stop),
-                                 " - {}.".format(self.width))
+                raise ValueError("Slicing endpoint {0} not in range "
+                                 "0 - {1}".format(stop, self.width))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop
@@ -160,7 +160,7 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
-        
+
         curr_val = int.from_bytes(self._buffer, byteorder='little')
         if isinstance(index, int):
             if value != 0 and value != 1:
@@ -170,7 +170,7 @@ class Register:
             mask = 1 << index
             self._buffer[0] = (curr_val & ~mask) | (value << index)
         elif isinstance(index, slice):
-            count = self.count(index, width = self.width)
+            count = self.count(index, width=self.width)
             start, stop, step = index.start, index.stop, index.step
             if step is None or step == -1:
                 if start is None:
@@ -196,8 +196,8 @@ class Register:
 
             shift = stop if start >= stop else start
             mask = ((1 << count) - 1) << shift
-            self._debug("Setting bits {}:{} at address {} to {}"
-                         .format(count + shift, shift, hex(self.address), value))
+            self._debug("Setting bits {}:{} at address {} to {}".format(
+                count + shift, shift, hex(self.address), value))
             self._buffer[0] = (curr_val & ~mask) | (value << shift)
         else:
             raise ValueError("Index must be int or slice.")
@@ -205,7 +205,7 @@ class Register:
     def __str__(self):
         """Print the register value.
 
-        This method is overloaded to print the register value. The output 
+        This method is overloaded to print the register value. The output
         is a string in hex format.
 
         """
@@ -240,9 +240,11 @@ class Register:
         ----------
         index : int | slice
             The integer index, or slice to access the register value.
+        width : int
+            The number of bits accessed.
 
         """
-        
+
         if isinstance(index, int):
             return 1
         elif isinstance(index, slice):
@@ -272,11 +274,12 @@ class Register:
                 count = stop - start + 1
             return count
 
-class _Clocks(type):
+
+class _ClocksMeta(type):
     """Meta class for all the PS and PL clocks not exposed to users.
 
-    Since this is the abstract base class for all the clocks, no 
-    attributes or methods are exposed to users. Users should use the class 
+    Since this is the abstract base class for all the clocks, no
+    attributes or methods are exposed to users. Users should use the class
     `Clocks` instead.
 
     Note
@@ -285,7 +288,6 @@ class _Clocks(type):
     a warning and leave class variables undefined
 
     """
-
     @property
     def cpu_mhz(cls):
         """The getter method for CPU clock.
@@ -293,7 +295,7 @@ class _Clocks(type):
         The returned clock rate is measured in MHz.
 
         """
-        return cls._cpu_mhz()
+        return cls.get_cpu_mhz()
 
     @cpu_mhz.setter
     def cpu_mhz(cls, clk_mhz):
@@ -306,7 +308,7 @@ class _Clocks(type):
         raise RuntimeError("Not allowed to change CPU clock.")
 
     @property
-    def pl_clk_0_mhz(cls):
+    def fclk0_mhz(cls):
         """The getter method for PL clock 0.
 
         This method will read the register values, do the calculation,
@@ -318,10 +320,10 @@ class _Clocks(type):
             The returned clock rate measured in MHz.
 
         """
-        return cls._get_pl_clk(0)
+        return cls.get_pl_clk(0)
 
-    @pl_clk_0_mhz.setter
-    def pl_clk_0_mhz(cls, clk_mhz):
+    @fclk0_mhz.setter
+    def fclk0_mhz(cls, clk_mhz):
         """The setter method for PL clock 0.
 
         Parameters
@@ -333,7 +335,7 @@ class _Clocks(type):
         cls.set_pl_clk(0, clk_mhz=clk_mhz)
 
     @property
-    def pl_clk_1_mhz(cls):
+    def fclk1_mhz(cls):
         """The getter method for PL clock 1.
 
         This method will read the register values, do the calculation,
@@ -345,10 +347,10 @@ class _Clocks(type):
             The returned clock rate measured in MHz.
 
         """
-        return cls._get_pl_clk(1)
+        return cls.get_pl_clk(1)
 
-    @pl_clk_1_mhz.setter
-    def pl_clk_1_mhz(cls, clk_mhz):
+    @fclk1_mhz.setter
+    def fclk1_mhz(cls, clk_mhz):
         """The setter method for PL clock 1.
 
         Parameters
@@ -360,7 +362,7 @@ class _Clocks(type):
         cls.set_pl_clk(1, clk_mhz=clk_mhz)
 
     @property
-    def pl_clk_2_mhz(cls):
+    def fclk2_mhz(cls):
         """The getter method for PL clock 2.
 
         This method will read the register values, do the calculation,
@@ -372,10 +374,10 @@ class _Clocks(type):
             The returned clock rate measured in MHz.
 
         """
-        return cls._get_pl_clk(2)
+        return cls.get_pl_clk(2)
 
-    @pl_clk_2_mhz.setter
-    def pl_clk_2_mhz(cls, clk_mhz):
+    @fclk2_mhz.setter
+    def fclk2_mhz(cls, clk_mhz):
         """The setter method for PL clock 2.
 
         Parameters
@@ -387,7 +389,7 @@ class _Clocks(type):
         cls.set_pl_clk(2, clk_mhz=clk_mhz)
 
     @property
-    def pl_clk_3_mhz(cls):
+    def fclk3_mhz(cls):
         """The getter method for PL clock 3.
 
         This method will read the register values, do the calculation,
@@ -399,10 +401,10 @@ class _Clocks(type):
             The returned clock rate measured in MHz.
 
         """
-        return cls._get_pl_clk(3)
+        return cls.get_pl_clk(3)
 
-    @pl_clk_3_mhz.setter
-    def pl_clk_3_mhz(cls, clk_mhz):
+    @fclk3_mhz.setter
+    def fclk3_mhz(cls, clk_mhz):
         """The setter method for PL clock 3.
 
         Parameters
@@ -414,9 +416,9 @@ class _Clocks(type):
         cls.set_pl_clk(3, clk_mhz=clk_mhz)
 
     @classmethod
-    def _get_pl_clk(cls, clk_idx):
+    def get_pl_clk(mcs, clk_idx):
         """This method will return the clock frequency.
-        
+
         This method is not exposed to users.
 
         Parameters
@@ -425,25 +427,24 @@ class _Clocks(type):
             The index of the PL clock to be changed, from 0 to 3.
 
         """
-        try:
-            pl_clk_reg = cls.PL_CLK_CTRLS[clk_idx]
-        except:
+        if clk_idx not in range(4):
             raise ValueError("Valid PL clock index is 0 - 3.")
 
-        src_clk_idx = pl_clk_reg[cls.PL_CLK_SRC_FIELD]        
-        src_clk_mhz = cls._get_src_clk_mhz(src_clk_idx)
-        pl_clk_odiv0 = pl_clk_reg[cls.PL_CLK_ODIV0_FIELD]
-        pl_clk_odiv1 = pl_clk_reg[cls.PL_CLK_ODIV1_FIELD]
+        pl_clk_reg = mcs.PL_CLK_CTRLS[clk_idx]
+        src_clk_idx = pl_clk_reg[mcs.PL_CLK_SRC_FIELD]
+        src_clk_mhz = mcs._get_src_clk_mhz(src_clk_idx)
+        pl_clk_odiv0 = pl_clk_reg[mcs.PL_CLK_ODIV0_FIELD]
+        pl_clk_odiv1 = pl_clk_reg[mcs.PL_CLK_ODIV1_FIELD]
 
         return round(src_clk_mhz / (pl_clk_odiv0 * pl_clk_odiv1), 6)
 
     @classmethod
-    def set_pl_clk(cls, clk_idx, div0=None, div1=None, \
+    def set_pl_clk(mcs, clk_idx, div0=None, div1=None,
                    clk_mhz=DEFAULT_PL_CLK_MHZ):
         """This method sets a PL clock frequency.
 
         Users have to specify the index of the PL clock to be changed.
-        For example, for fclk1 (Zynq) or pl1_clk (ZynqUltrascale), 
+        For example, for fclk1 (Zynq) or pl_clk_1 (ZynqUltrascale),
         `clk_idx` is 1.
 
         The CPU, and other source clocks, by default, should not get changed.
@@ -470,18 +471,17 @@ class _Clocks(type):
             The clock rate in MHz.
 
         """
-        try:
-            pl_clk_reg = cls.PL_CLK_CTRLS[clk_idx]
-        except:
+        if clk_idx not in range(4):
             raise ValueError("Valid PL clock index is 0 - 3.")
 
-        div0_width = Register.count(cls.PL_CLK_ODIV0_FIELD)
-        div1_width = Register.count(cls.PL_CLK_ODIV1_FIELD)
-        src_clk_idx = pl_clk_reg[cls.PL_CLK_SRC_FIELD]
-        src_clk_mhz = cls._get_src_clk_mhz(src_clk_idx)
+        pl_clk_reg = mcs.PL_CLK_CTRLS[clk_idx]
+        div0_width = Register.count(mcs.PL_CLK_ODIV0_FIELD)
+        div1_width = Register.count(mcs.PL_CLK_ODIV1_FIELD)
+        src_clk_idx = pl_clk_reg[mcs.PL_CLK_SRC_FIELD]
+        src_clk_mhz = mcs._get_src_clk_mhz(src_clk_idx)
 
         if div0 is None and div1 is None:
-            div0, div1 = cls._get_2_divisors(src_clk_mhz, clk_mhz,
+            div0, div1 = mcs._get_2_divisors(src_clk_mhz, clk_mhz,
                                              div0_width, div1_width)
         elif div0 is not None and div1 is None:
             div1 = round(src_clk_mhz / clk_mhz / div0)
@@ -492,30 +492,28 @@ class _Clocks(type):
             raise ValueError("Frequency divider 0 value out of range.")
         if div1 <= 0 or div1 > ((1 << div1_width) - 1):
             raise ValueError("Frequency divider 1 value out of range.")
-        
-        pl_clk_reg[cls.PL_CLK_ODIV0_FIELD] = div0
-        pl_clk_reg[cls.PL_CLK_ODIV1_FIELD] = div1
+
+        pl_clk_reg[mcs.PL_CLK_ODIV0_FIELD] = div0
+        pl_clk_reg[mcs.PL_CLK_ODIV1_FIELD] = div1
 
     @classmethod
-    def _get_src_clk_mhz(cls, clk_idx):
+    def _get_src_clk_mhz(mcs, clk_idx):
         """The getter method for PL clock (pl_clk) sources.
 
         The returned clock rate is measured in MHz.
 
         """
-        
-        try:
-            src_pll_reg = cls.PL_SRC_PLL_CTRLS[clk_idx]
-        except:
-            raise ValueError("Valid source clock index is 0 - 3.")
-        
-        return round(cls._get_pll_mhz(src_pll_reg), 6)
+        if clk_idx not in range(4):
+            raise ValueError("Valid PL clock index is 0 - 3.")
+
+        src_pll_reg = mcs.PL_SRC_PLL_CTRLS[clk_idx]
+        return round(mcs.get_pll_mhz(src_pll_reg), 6)
 
     @classmethod
-    def _get_2_divisors(cls, freq_high, freq_desired, reg0_width, reg1_width):
+    def _get_2_divisors(mcs, freq_high, freq_desired, reg0_width, reg1_width):
         """Return 2 divisors of the specified width for frequency divider.
 
-        Warning will be raised if the closest clock rate achievable 
+        Warning will be raised if the closest clock rate achievable
         differs more than 1 percent of the desired value.
 
         Parameters
@@ -536,7 +534,7 @@ class _Clocks(type):
 
         """
         div_product_desired = round(freq_high / freq_desired, 6)
-        _, q0 = min(enumerate(cls.VALID_CLOCK_DIV_PRODUCTS),
+        _, q0 = min(enumerate(mcs.VALID_CLOCK_DIV_PRODUCTS),
                     key=lambda x: abs(x[1] - div_product_desired))
         if abs(freq_desired - freq_high / q0) > 0.01 * freq_desired:
             warnings.warn(
@@ -549,18 +547,19 @@ class _Clocks(type):
             for j in range(1, max_val1):
                 if i * j == q0:
                     return i, j
-            
-class _ClocksUltrascale(_Clocks):
+
+
+class _ClocksUltrascale(_ClocksMeta):
     """Implementation class for all Zynq Ultrascale PS and PL clocks
     not exposed to users.
 
-    Since this is the abstract base class for all Zynq Ultrascale clocks, no 
-    attributes or methods are exposed to users. Users should use the class 
+    Since this is the abstract base class for all Zynq Ultrascale clocks, no
+    attributes or methods are exposed to users. Users should use the class
     `Clocks` instead.
 
     """
     DEFAULT_SRC_CLK_MHZ = 33.333
-    
+
     # Registers in the CRL "Namespace"
     CRL_APB_ADDRESS = 0xFF5E0000
     IOPLL_CTRL_OFFSET = 0x20
@@ -592,7 +591,6 @@ class _ClocksUltrascale(_Clocks):
     ACPU_CTRL_CLKFULL_FIELD = 24
     ACPU_CTRL_ODIV_FIELD = slice(13, 8)
     ACPU_CTRL_SRC_FIELD = slice(2, 0)
-    
 
     # Fields shared between CRF and CRL "Namespaces"
     CRX_APB_SRC_DEFAULT = 0
@@ -606,39 +604,33 @@ class _ClocksUltrascale(_Clocks):
                             PLX_CTRL_ODIV0_FIELD.stop + 1)
     VALID_CLOCK_DIV_PRODUCTS = sorted(list(set(
         (np.multiply(
-            np.arange(1 << PLX_CTRL_ODIV1_WIDTH)
-            .reshape(1 << PLX_CTRL_ODIV1_WIDTH, 1),
+            np.arange(1 << PLX_CTRL_ODIV1_WIDTH).reshape(
+                1 << PLX_CTRL_ODIV1_WIDTH, 1),
             np.arange(1 << PLX_CTRL_ODIV0_WIDTH))).reshape(-1))))
 
-    if CPU_ARCH_IS_SUPPORTED:
-        IOPLL_CTRL = Register(CRL_APB_ADDRESS + IOPLL_CTRL_OFFSET)
-        RPLL_CTRL = Register(CRL_APB_ADDRESS + RPLL_CTRL_OFFSET)
+    IOPLL_CTRL = Register(CRL_APB_ADDRESS + IOPLL_CTRL_OFFSET)
+    RPLL_CTRL = Register(CRL_APB_ADDRESS + RPLL_CTRL_OFFSET)
 
-        PL_CLK_CTRLS = [Register(CRL_APB_ADDRESS + PL0_CTRL_OFFSET), 
-                        Register(CRL_APB_ADDRESS + PL1_CTRL_OFFSET), 
-                        Register(CRL_APB_ADDRESS + PL2_CTRL_OFFSET), 
-                        Register(CRL_APB_ADDRESS + PL3_CTRL_OFFSET) ]
+    PL_CLK_CTRLS = [Register(CRL_APB_ADDRESS + PL0_CTRL_OFFSET),
+                    Register(CRL_APB_ADDRESS + PL1_CTRL_OFFSET),
+                    Register(CRL_APB_ADDRESS + PL2_CTRL_OFFSET),
+                    Register(CRL_APB_ADDRESS + PL3_CTRL_OFFSET)]
 
-        ACPU_CTRL = Register(CRF_APB_ADDRESS + ACPU_CTRL_OFFSET)
-        
-        APLL_CTRL = Register(CRF_APB_ADDRESS + APLL_CTRL_OFFSET)
-        DPLL_CTRL = Register(CRF_APB_ADDRESS + DPLL_CTRL_OFFSET)
-        VPLL_CTRL = Register(CRF_APB_ADDRESS + VPLL_CTRL_OFFSET)
+    ACPU_CTRL = Register(CRF_APB_ADDRESS + ACPU_CTRL_OFFSET)
 
-        PL_SRC_PLL_CTRLS = [IOPLL_CTRL, IOPLL_CTRL, RPLL_CTRL, DPLL_CTRL]
-        ACPU_SRC_PLL_CTRLS = [APLL_CTRL, APLL_CTRL, DPLL_CTRL, VPLL_CTRL]
-    else:
-        warnings.warn("Pynq does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
-        
+    APLL_CTRL = Register(CRF_APB_ADDRESS + APLL_CTRL_OFFSET)
+    DPLL_CTRL = Register(CRF_APB_ADDRESS + DPLL_CTRL_OFFSET)
+    VPLL_CTRL = Register(CRF_APB_ADDRESS + VPLL_CTRL_OFFSET)
+
+    PL_SRC_PLL_CTRLS = [IOPLL_CTRL, IOPLL_CTRL, RPLL_CTRL, DPLL_CTRL]
+    ACPU_SRC_PLL_CTRLS = [APLL_CTRL, APLL_CTRL, DPLL_CTRL, VPLL_CTRL]
+
     @classmethod
-    def set_pl_clk(cls, clk_idx, div0=None, div1=None, \
-                       clk_mhz=DEFAULT_PL_CLK_MHZ):
+    def set_pl_clk(mcs, clk_idx, div0=None, div1=None,
+                   clk_mhz=DEFAULT_PL_CLK_MHZ):
         """This method sets a PL clock frequency.
 
         Users have to specify the index of the PL clock to be changed.
-        For example, for fclk1 (Zynq) or pl1_clk (ZynqUltrascale), 
-        `clk_idx` is 1.
 
         The CPU, and other source clocks, by default, should not get changed.
 
@@ -664,19 +656,13 @@ class _ClocksUltrascale(_Clocks):
             The clock rate in MHz.
 
         """
-        try:
-            pl_clk_reg = cls.PL_CLK_CTRLS[clk_idx]
-        except:
-            raise ValueError("Valid PL clock index is 0 - 3.")
-        
-        pl_clk_reg = cls.PL_CLK_CTRLS[clk_idx]
-
-        pl_clk_reg[cls.PLX_CTRL_CLKACT_FIELD] = 1
-        pl_clk_reg[cls.PLX_CTRL_SRC_FIELD] = cls.PLX_CTRL_SRC_DEFAULT
-        super(_ClocksUltrascale, cls).set_pl_clk(clk_idx, div0, div1, clk_mhz)
+        pl_clk_reg = mcs.PL_CLK_CTRLS[clk_idx]
+        pl_clk_reg[mcs.PLX_CTRL_CLKACT_FIELD] = 1
+        pl_clk_reg[mcs.PLX_CTRL_SRC_FIELD] = mcs.PLX_CTRL_SRC_DEFAULT
+        super().set_pl_clk(clk_idx, div0, div1, clk_mhz)
 
     @classmethod
-    def _get_pll_mhz(cls, pll_reg):
+    def get_pll_mhz(mcs, pll_reg):
         """The getter method for PLL output clocks.
 
         Parameters
@@ -690,35 +676,36 @@ class _ClocksUltrascale(_Clocks):
             The PLL output clock rate measured in MHz.
 
         """
-        if(pll_reg[cls.CRX_APB_SRC_FIELD] != cls.CRX_APB_SRC_DEFAULT):
+        if pll_reg[mcs.CRX_APB_SRC_FIELD] != mcs.CRX_APB_SRC_DEFAULT:
             raise ValueError("Invalid PLL Source")
 
-        pll_fbdiv = pll_reg[cls.CRX_APB_FBDIV_FIELD]
-        if(pll_reg[cls.CRX_APB_ODIVBY2_FIELD] == 1):
+        pll_fbdiv = pll_reg[mcs.CRX_APB_FBDIV_FIELD]
+        if pll_reg[mcs.CRX_APB_ODIVBY2_FIELD] == 1:
             pll_odiv2 = 2
         else:
             pll_odiv2 = 1
 
-        return cls.DEFAULT_SRC_CLK_MHZ * pll_fbdiv / pll_odiv2;
-            
+        return mcs.DEFAULT_SRC_CLK_MHZ * pll_fbdiv / pll_odiv2
+
     @classmethod
-    def _cpu_mhz(cls):
+    def get_cpu_mhz(mcs):
         """The getter method for CPU clock.
 
         The returned clock rate is measured in MHz.
 
         """
-        arm_src_pll_idx = cls.ACPU_CTRL[cls.ACPU_CTRL_SRC_FIELD]
-        arm_clk_odiv = cls.ACPU_CTRL[cls.ACPU_CTRL_ODIV_FIELD]
-        src_pll_reg = cls.ACPU_SRC_PLL_CTRLS[arm_src_pll_idx]
-        return round(cls._get_pll_mhz(src_pll_reg) / arm_clk_odiv, 6)
+        arm_src_pll_idx = mcs.ACPU_CTRL[mcs.ACPU_CTRL_SRC_FIELD]
+        arm_clk_odiv = mcs.ACPU_CTRL[mcs.ACPU_CTRL_ODIV_FIELD]
+        src_pll_reg = mcs.ACPU_SRC_PLL_CTRLS[arm_src_pll_idx]
+        return round(mcs.get_pll_mhz(src_pll_reg) / arm_clk_odiv, 6)
 
-class _ClocksZynq(_Clocks):
+
+class _ClocksZynq(_ClocksMeta):
     """Implementation class for all Zynq 7-Series PS and PL clocks
     not exposed to users.
 
-    Since this is the abstract base class for all Zynq 7-Series clocks, no 
-    attributes or methods are exposed to users. Users should use the class 
+    Since this is the abstract base class for all Zynq 7-Series clocks, no
+    attributes or methods are exposed to users. Users should use the class
     `Clocks` instead.
 
     """
@@ -752,33 +739,62 @@ class _ClocksZynq(_Clocks):
                               FCLKX_CTRL_ODIV0_FIELD.stop + 1)
     VALID_CLOCK_DIV_PRODUCTS = sorted(list(set(
         (np.multiply(
-            np.arange(1 << FCLKX_CTRL_ODIV1_WIDTH)
-            .reshape(1 << FCLKX_CTRL_ODIV1_WIDTH, 1),
+            np.arange(1 << FCLKX_CTRL_ODIV1_WIDTH).reshape(
+                1 << FCLKX_CTRL_ODIV1_WIDTH, 1),
             np.arange(1 << FCLKX_CTRL_ODIV0_WIDTH))).reshape(-1))))
 
-    if CPU_ARCH_IS_SUPPORTED:
-        ARM_PLL_CTRL = Register(SLCR_BASE_ADDRESS + ARM_PLL_CTRL_OFFSET)
-        DDR_PLL_CTRL = Register(SLCR_BASE_ADDRESS + DDR_PLL_CTRL_OFFSET)
-        IO_PLL_CTRL = Register(SLCR_BASE_ADDRESS + IO_PLL_CTRL_OFFSET)
+    ARM_PLL_CTRL = Register(SLCR_BASE_ADDRESS + ARM_PLL_CTRL_OFFSET)
+    DDR_PLL_CTRL = Register(SLCR_BASE_ADDRESS + DDR_PLL_CTRL_OFFSET)
+    IO_PLL_CTRL = Register(SLCR_BASE_ADDRESS + IO_PLL_CTRL_OFFSET)
 
-        PL_SRC_PLL_CTRLS = [IO_PLL_CTRL, IO_PLL_CTRL, 
-                            ARM_PLL_CTRL, DDR_PLL_CTRL]
+    PL_SRC_PLL_CTRLS = [IO_PLL_CTRL, IO_PLL_CTRL,
+                        ARM_PLL_CTRL, DDR_PLL_CTRL]
 
-        PL_CLK_CTRLS = [Register(SLCR_BASE_ADDRESS + FCLK0_CTRL_OFFSET), 
-                        Register(SLCR_BASE_ADDRESS + FCLK1_CTRL_OFFSET), 
-                        Register(SLCR_BASE_ADDRESS + FCLK2_CTRL_OFFSET), 
-                        Register(SLCR_BASE_ADDRESS + FCLK3_CTRL_OFFSET) ]
+    PL_CLK_CTRLS = [Register(SLCR_BASE_ADDRESS + FCLK0_CTRL_OFFSET),
+                    Register(SLCR_BASE_ADDRESS + FCLK1_CTRL_OFFSET),
+                    Register(SLCR_BASE_ADDRESS + FCLK2_CTRL_OFFSET),
+                    Register(SLCR_BASE_ADDRESS + FCLK3_CTRL_OFFSET)]
 
-        ARM_CLK_CTRL = Register(SLCR_BASE_ADDRESS + ARM_CLK_CTRL_OFFSET)
+    ARM_CLK_CTRL = Register(SLCR_BASE_ADDRESS + ARM_CLK_CTRL_OFFSET)
 
-        ARM_SRC_PLL_CTRLS = [ARM_PLL_CTRL, ARM_PLL_CTRL, 
-                             DDR_PLL_CTRL, IO_PLL_CTRL]
-    else:
-        warnings.warn("Pynq does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
-        
+    ARM_SRC_PLL_CTRLS = [ARM_PLL_CTRL, ARM_PLL_CTRL,
+                         DDR_PLL_CTRL, IO_PLL_CTRL]
+
     @classmethod
-    def _get_pll_mhz(cls, pll_reg):
+    def set_pl_clk(mcs, clk_idx, div0=None, div1=None,
+                   clk_mhz=DEFAULT_PL_CLK_MHZ):
+        """This method sets a PL clock frequency.
+
+        Users have to specify the index of the PL clock to be changed.
+
+        The CPU, and other source clocks, by default, should not get changed.
+
+        Users have two options:
+        1. specify the two frequency divider values directly (div0, div1), or
+        2. specify the clock rate, in which case the divider values will be
+        calculated.
+
+        Note
+        ----
+        In case `div0` and `div1` are both specified, the parameter `clk_mhz`
+        will be ignored.
+
+        Parameters
+        ----------
+        clk_idx : int
+            The index of the PL clock to be changed, from 0 to 3.
+        div0 : int
+            The first frequency divider value.
+        div1 : int
+            The second frequency divider value.
+        clk_mhz : float
+            The clock rate in MHz.
+
+        """
+        super().set_pl_clk(clk_idx, div0, div1, clk_mhz)
+
+    @classmethod
+    def get_pll_mhz(mcs, pll_reg):
         """The getter method for PLL output clocks.
 
         Parameters
@@ -792,13 +808,13 @@ class _ClocksZynq(_Clocks):
             The PLL output clock rate measured in MHz.
 
         """
-        pll_fbdiv = pll_reg[cls.SRC_PLL_FBDIV_FIELD]
-        clk_mhz = cls.DEFAULT_SRC_CLK_MHZ * pll_fbdiv
+        pll_fbdiv = pll_reg[mcs.SRC_PLL_FBDIV_FIELD]
+        clk_mhz = mcs.DEFAULT_SRC_CLK_MHZ * pll_fbdiv
 
         return round(clk_mhz, 6)
 
     @classmethod
-    def _cpu_mhz(cls):
+    def get_cpu_mhz(mcs):
         """The getter method for the CPU clock.
 
         Returns
@@ -807,15 +823,22 @@ class _ClocksZynq(_Clocks):
             The CPU clock rate measured in MHz.
 
         """
-        arm_src_pll_idx = cls.ARM_CLK_CTRL[cls.ARM_CLK_SRC_FIELD]
-        arm_clk_odiv = cls.ARM_CLK_CTRL[cls.ARM_CLK_ODIV_FIELD]
-        src_pll_reg = cls.ARM_SRC_PLL_CTRLS[arm_src_pll_idx]
-        
-        return round(cls._get_pll_mhz(src_pll_reg) / arm_clk_odiv, 6)
+        arm_src_pll_idx = mcs.ARM_CLK_CTRL[mcs.ARM_CLK_SRC_FIELD]
+        arm_clk_odiv = mcs.ARM_CLK_CTRL[mcs.ARM_CLK_ODIV_FIELD]
+        src_pll_reg = mcs.ARM_SRC_PLL_CTRLS[arm_src_pll_idx]
+        return round(mcs.get_pll_mhz(src_pll_reg) / arm_clk_odiv, 6)
 
-class Clocks(_ClocksUltrascale if CPU_ARCH == ZU_ARCH \
-                 else _ClocksZynq, \
-                 metaclass=_Clocks):
+
+if CPU_ARCH == ZU_ARCH:
+    _ClockParent = _ClocksUltrascale
+elif CPU_ARCH == ZYNQ_ARCH:
+    _ClockParent = _ClocksZynq
+else:
+    raise RuntimeError("PYNQ does not support the CPU Architecture: "
+                       "{}".format(CPU_ARCH))
+
+
+class Clocks(_ClockParent, metaclass=_ClocksMeta):
     """Class for all the PS and PL clocks exposed to users.
 
     With this class, users can get the CPU clock and all the PL clocks. Users
@@ -825,30 +848,14 @@ class Clocks(_ClocksUltrascale if CPU_ARCH == ZU_ARCH \
     ----------
     cpu_mhz : float
         The clock rate of the CPU, measured in MHz.
-    pl_clk_0_mhz : float
+    fclk0_mhz : float
         The clock rate of the PL clock 0, measured in MHz.
-    pl_clk_1_mhz : float
+    fclk1_mhz : float
         The clock rate of the PL clock 1, measured in MHz.
-    pl_clk_2_mhz : float
+    fclk2_mhz : float
         The clock rate of the PL clock 2, measured in MHz.
-    pl_clk_3_mhz : float
+    fclk3_mhz : float
         The clock rate of the PL clock 3, measured in MHz.
-    debug : bool
-        Print debug messages, if True
+
     """
-    def __init__(self):
-        """Return a new Clocks object.
-        Parameters
-        ----------
-        debug : bool
-            Turn on debug mode if it is True; default is False.
-
-        Note
-        ----
-
-        This class requires root permissions.
-
-        """
-        euid = os.geteuid()
-        if euid != 0:
-            raise EnvironmentError('Root permissions required.')
+    pass
