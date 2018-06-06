@@ -13,6 +13,7 @@ IMAGE_ROOT := $(CURDIR)/output
 CCACHEDIR := $(CURDIR)/ccache
 ROOTDIR := $(CURDIR)
 SDX_ROOT := $(IMAGE_ROOT)/sdx
+SYSROOT_ROOT := $(IMAGE_ROOT)/sysroot
 
 KERNEL_arm := zImage
 KERNEL_aarch64 := Image
@@ -37,6 +38,9 @@ $(CCACHEDIR):
 	mkdir -p $@
 
 $(SDX_ROOT):
+	mkdir -p $@
+
+$(SYSROOT_ROOT):
 	mkdir -p $@
 
 PYNQ_UPDATE := $(BUILD_ROOT)/PYNQ/.git/HEAD
@@ -196,6 +200,7 @@ STAGE3_DEPENDS_$1 := $$(foreach package, $$(STAGE3_PACKAGES_$1), $$(PACKAGE_BUIL
 CONFIG_$1 := $$(CURDIR)/ubuntu/$$(UBUNTU_RELEASE)/$1
 QEMU_$1 := $$(shell which qemu-$1-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARD=Unknown ARCH=$1
+SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
 
 $$(STAGE2_$1) : $$(STAGE1_$1) $$(STAGE2_DEPENDS_$1)
 	cp --sparse=always $$(STAGE1_$1) $$(STAGE2_$1)
@@ -215,6 +220,17 @@ $$(STAGE1_$1): $$(CONFIG_$1)/multistrap.config | $$(BUILD_ROOT) $$(CCACHEDIR)
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/create_rootfs.sh $$(STAGING_$1) $$(CONFIG_$1)
 	$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(STAGE1_$1)
 
+$$(SYSROOT_$1): $$(BASE_$1) | $$(SYSROOT_ROOT)
+	-rm -rf $$@
+	mkdir -p $$@
+	$$(SCRIPT_DIR)/mount_image.sh $$(BASE_$1) $$(STAGING_$1)
+	cp -rd $$(STAGING_$1)/usr/include $$@
+	cp -rd $$(STAGING_$1)/usr/lib $$@
+	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(BASE_$1)
+
+sysroot_$1 : $$(SYSROOT_$1)
+
+.PHONY: sysroot_$1
 .PRECIOUS: $$(STAGE1_$1) $$(STAGE2_$2) $$(BASE_$1)
 
 qemu_check_$1:
@@ -253,6 +269,8 @@ real_all: checkenv $(BOOT_FILES) $(IMAGE_FILES)
 
 sdx_sw: $(patsubst %, sdx_sw_%, $(BOARDS))
 
+sysroot: $(patsubst %, sysroot_%, $(USED_ARCH))
+
 # Default package clean target
 PACKAGE_CLEAN_%: ;
 
@@ -260,5 +278,5 @@ clean: $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: boot_files images all clean real_all checkenv sdx_sw
+.PHONY: boot_files images all clean real_all checkenv sdx_sw sysroot
 
