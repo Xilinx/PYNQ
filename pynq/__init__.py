@@ -41,6 +41,8 @@ from .xlnk import Xlnk
 from .overlay import Overlay
 from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
+from .pmbus import get_rails
+from .pmbus import DataRecorder
 from . import lib
 
 
