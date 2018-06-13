@@ -367,7 +367,7 @@ class Xlnk:
         None
 
         """
-        self.ffi.memmove(dest, src, nbytes)
+        Xlnk.ffi.memmove(dest, src, nbytes)
     
     @staticmethod
     def cma_cast(data, data_type="void"):
@@ -390,7 +390,7 @@ class Xlnk:
             Pointer to buffer with specified data type.
             
         """
-        return self.ffi.cast(data_type+"*", data)
+        return Xlnk.ffi.cast(data_type+"*", data)
       
     def cma_free(self, buf):
         """Free a previously allocated buffer.
