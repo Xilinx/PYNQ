@@ -2300,7 +2300,6 @@
     </spirit:choice>
     <spirit:choice>
       <spirit:name>choice_list_764d3e36</spirit:name>
-      <spirit:enumeration>0</spirit:enumeration>
       <spirit:enumeration>1</spirit:enumeration>
       <spirit:enumeration>2</spirit:enumeration>
       <spirit:enumeration>3</spirit:enumeration>

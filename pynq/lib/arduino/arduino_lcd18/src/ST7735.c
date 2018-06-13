@@ -47,7 +47,7 @@
  * @file ST7735.c
  *
  * This is a source file required by the Adafruit LCD18. Modified
- * to be used on PYNQ-Z1's Arduino connector.
+ * to be used on an Arduino connector.
  *
  * <pre>
  * MODIFICATION HISTORY:

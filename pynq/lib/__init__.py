@@ -28,13 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-# from .audio import Audio
-# from .video import HDMI
-# from .video import Frame
-# from .dma import DMA
-# from .trace_buffer import Trace_Buffer
-# from .usb_wifi import Usb_Wifi
-
 from .pynqmicroblaze import PynqMicroblaze
 from .pynqmicroblaze import MicroblazeRPC
 from .pynqmicroblaze import MicroblazeLibrary
@@ -45,6 +38,8 @@ from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
 from .button import Button
+
+from .rpi import Rpi
 
 from .arduino import Arduino
 from .arduino import Arduino_DevMode
