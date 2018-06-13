@@ -336,9 +336,9 @@ class Overlay(Bitstream):
             div0 = self.clock_dict[i]['divisor0']
             div1 = self.clock_dict[i]['divisor1']
             if enable:
-                Clocks.set_fclk(i, div0, div1)
+                Clocks.set_pl_clk(i, div0, div1)
             else:
-                Clocks.set_fclk(i)
+                Clocks.set_pl_clk(i)
 
         Bitstream.download(self)
         PL.reset()

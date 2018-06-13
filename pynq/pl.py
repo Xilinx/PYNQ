@@ -32,12 +32,15 @@ import re
 import mmap
 import math
 import warnings
+import abc
+import struct
+import numpy as np
 from copy import deepcopy
 from datetime import datetime
 from multiprocessing.connection import Listener
 from multiprocessing.connection import Client
 from .mmio import MMIO
-from .ps import Clocks, CPU_ARCH_IS_SUPPORTED, CPU_ARCH
+from .ps import Clocks, CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZU_ARCH, ZYNQ_ARCH
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -47,9 +50,6 @@ __email__ = "pynq_support@xilinx.com"
 PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
 BS_BOOT = os.path.join(PYNQ_PATH, 'overlays', 'base', 'base.bit')
 TCL_BOOT = os.path.join(PYNQ_PATH, 'overlays', 'base', 'base.tcl')
-
-BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
-BS_XDEVCFG = "/dev/xdevcfg"
 
 PL_SERVER_FILE = os.path.join(PYNQ_PATH, '.log')
 
@@ -74,7 +74,7 @@ def _get_tcl_name(bitfile_name):
     return os.path.splitext(bitfile_name)[0] + '.tcl'
 
 
-class _TCL:
+class _TCLABC(metaclass=abc.ABCMeta):
     """Helper Class to extract information from a TCL configuration file
 
     Note
@@ -127,6 +127,40 @@ class _TCL:
         {index: {'divisor0' : int, 'divisor1' : int, 'enable' : int}}
 
     """
+    # Key strings to search for in the TCL file
+    family_pat = "create_project"
+    family_regex = "(?P<family_str>xc.{2}).*"
+    hier_use_pat = "create_hier_cell"
+    hier_proc_def_pat = "proc {}".format(hier_use_pat)
+    hier_def_regex = "create_hier_cell_(?P<name>[^ ]*)"
+    hier_proc_end_pat = "}\n"
+    hier_use_regex = ("create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
+                      "(?P<instance_name>[^ ]*)\n")
+
+    config_ip_pat = "CONFIG"
+    config_ignore_pat = ".VALUE_SRC"
+    config_regex = "CONFIG.(?P<key>.+?) \{(?P<value>.+?)\}"
+    prop_start_pat = "set_property -dict ["
+    prop_end_pat = "]"
+    prop_name_regex = "\] \$(?P<instance_name>.+?)$"
+    net_pat = "connect_bd_net -net"
+    net_regex = "\[get_bd_pins (?P<name>[^]]+)\]"
+    addr_pat = "create_bd_addr_seg"
+    ip_pat = "create_bd_cell -type ip -vlnv "
+    ip_regex = ("create_bd_cell -type ip -vlnv " +
+                "(?P<author>.+?):" +
+                "(?P<type>.+?):" +
+                "(?P<ip_name>.+?):" +
+                "(?P<version>.+?) " +
+                "(?P<instance_name>[^ ]*)")
+    ip_block_name_pat = "set block_name"
+    ip_block_name_regex = "set block_name (?P<ip_block_name>.+)"
+    ip_block_pat = "create_bd_cell -type module -reference "
+    ip_block_regex = ("set (?P<instance_name>.*) " +
+                      "\[create_bd_cell -type module -reference " +
+                      "(?P<block_name>[\S]*) " +
+                      "(?P<block_cell_name>[\S]*)\]")
+    ignore_regex = "\s*(\#|catch).*"
 
     def __init__(self, tcl_name):
         """Returns a map built from the supplied tcl file
@@ -143,10 +177,18 @@ class _TCL:
         and return without initialization
 
         """
-        
         if not isinstance(tcl_name, str):
             raise TypeError("tcl_name has to be a string")
         
+        if not os.path.exists(tcl_name):
+            raise IOError("Could not find specified .tcl file")
+
+        # Regex Variable updated during processing
+        addr_regex = ("create_bd_addr_seg " +
+                      "-range (?P<range>0[xX][0-9a-fA-F]+) " +
+                      "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +
+                      "\[get_bd_addr_spaces ")
+
         # Initialize result variables
         self.intc_names = []
         self.interrupt_controllers = {}
@@ -158,60 +200,8 @@ class _TCL:
         self.ps_name = ""
         self.ip_dict = {}
         self.gpio_dict = {}
-        self.clock_dict = {}
         self.family = "xc7z"
 
-        # Key strings to search for in the TCL file
-        family_pat = "create_project"
-        family_regex = "(?P<family_str>xc.{2}).*"
-        family_ps_dict = {"xc7z": "processing_system7",
-                          "xczu": "zynq_ultra_ps_e"}
-        family_irq_dict = {"xc7z": "IRQ_F2P",
-                           "xczu": "pl_ps_irq0"}
-        family_gpio_dict = {"xc7z": "GPIO_O",
-                            "xczu": "emio_gpio_o"}
-        hier_use_pat = "create_hier_cell"
-        hier_proc_def_pat = "proc {}".format(hier_use_pat)
-        hier_def_regex = "create_hier_cell_(?P<name>[^ ]*)"
-        hier_proc_end_pat = "}\n"
-        hier_use_regex = ("create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
-                          "(?P<instance_name>[^ ]*)\n")
-
-        config_ip_pat = "CONFIG"
-        config_ignore_pat = ".VALUE_SRC"
-        config_regex = "CONFIG.(?P<key>.+?) \{(?P<value>.+?)\}"
-        clk_odiv_dict = {
-            'xc7z': 'PCW_FCLK(?P<idx>.+?)_PERIPHERAL_DIVISOR'
-                    '(?P<div>[01])$',
-            'xczu': 'PSU__CRL_APB__PL(?P<idx>.+?)_REF_CTRL__DIVISOR'
-                    '(?P<div>[01])'}
-        clk_enable_dict = {'xc7z': 'PCW_FPGA_FCLK(?P<idx>.+?)_ENABLE$',
-                           'xczu': 'PSU__FPGA_PL(?P<idx>.+?)_ENABLE$'}
-        prop_start_pat = "set_property -dict ["
-        prop_end_pat = "]"
-        prop_name_regex = "\] \$(?P<instance_name>.+?)$"
-        net_pat = "connect_bd_net -net"
-        net_regex = "\[get_bd_pins (?P<name>[^]]+)\]"
-        addr_pat = "create_bd_addr_seg"
-        addr_regex = ("create_bd_addr_seg " +
-                      "-range (?P<range>0[xX][0-9a-fA-F]+) " +
-                      "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +
-                      "\[get_bd_addr_spaces ")
-        ip_pat = "create_bd_cell -type ip -vlnv "
-        ip_regex = ("create_bd_cell -type ip -vlnv " +
-                    "(?P<author>.+?):" +
-                    "(?P<type>.+?):" +
-                    "(?P<ip_name>.+?):" +
-                    "(?P<version>.+?) " +
-                    "(?P<instance_name>[^ ]*)")
-        ip_block_name_pat = "set block_name"
-        ip_block_name_regex = "set block_name (?P<ip_block_name>.+)"
-        ip_block_pat = "create_bd_cell -type module -reference "
-        ip_block_regex = ("set (?P<instance_name>.*) " +
-                          "\[create_bd_cell -type module -reference " +
-                          "(?P<block_name>[\S]*) " +
-                          "(?P<block_cell_name>[\S]*)\]")
-        ignore_regex = "\s*(\#|catch).*"
 
         # Parsing state
         current_hier = ""
@@ -225,68 +215,81 @@ class _TCL:
 
         with open(tcl_name, 'r') as f:
             for line in f:
-                if re.match(ignore_regex, line):
+                if re.match(self.ignore_regex, line):
                     continue
 
                 # Matching IP configurations
-                elif prop_start_pat in line:
+                elif self.prop_start_pat in line:
                     in_prop = True
 
                 # Matching IP block name
-                elif ip_block_name_pat in line:
-                    m = re.search(ip_block_name_regex, line, re.IGNORECASE)
+                elif self.ip_block_name_pat in line:
+                    m = re.search(self.ip_block_name_regex, line, re.IGNORECASE)
                     ip_block_name = m.group("ip_block_name")
 
                 # Matching Property declarations
                 elif in_prop:
-                    if prop_end_pat in line:
-                        m = re.search(prop_name_regex, line, re.IGNORECASE)
+                    if (self.prop_end_pat in line and
+                        re.search(self.prop_name_regex, line, re.IGNORECASE)):
+                        m = re.search(self.prop_name_regex, line, re.IGNORECASE)
                         if m and gpio_idx is not None:
                             name = m.group("instance_name")
                             gpio_dict[name] = gpio_idx
                             gpio_idx = None
                         in_prop = False
 
-                    elif config_ip_pat in line \
-                            and config_ignore_pat not in line:
-                        m1 = re.search(config_regex, line)
+                    elif self.config_ip_pat in line \
+                            and self.config_ignore_pat not in line:
+                        m1 = re.search(self.config_regex, line)
                         key = m1.group("key")
                         value = m1.group("value")
-
                         if key == "NUM_PORTS":
                             self.concat_cells[last_concat] = int(value)
 
                         elif key == 'DIN_FROM':
                             gpio_idx = int(value)
 
-                        elif "FCLK" in line and "PERIPHERAL_DIVISOR" in line:
-                            clk_odiv_regex = clk_odiv_dict[self.family]
-                            m2 = re.search(clk_odiv_regex, key)
-                            idx = int(m2.group("idx"))
-                            if idx not in self.clock_dict:
-                                self.clock_dict[idx] = {'enable': 0,
-                                                        'divisor0': 1,
-                                                        'divisor1': 1}
-                            divisor_name = 'divisor' + m2.group("div")
-                            self.clock_dict[idx][divisor_name] = int(value)
+                        elif self._is_clk_divisor_line(line):
+                            m2 = re.search(self.clk_odiv_regex, key)
+                            pl_clk_idx = int(m2.group("pl_idx"))
+                            odiv_idx = m2.group("odiv_idx")
+                            divisor_name = 'divisor{}'.format(odiv_idx)
+                            if pl_clk_idx not in self.pl_clks:
+                                raise ValueError("Invalid PL CLK index")
+                            self.clock_dict[pl_clk_idx][divisor_name] = int(value)
+                                
+                        elif self._is_clk_enable_line(line):
+                            m3 = re.search(self.clk_enable_regex, key)
+                            pl_clk_idx = int(m3.group("idx"))
+                            if pl_clk_idx not in self.pl_clks:
+                                raise ValueError("Invalid PL CLK index")
+                            self.clock_dict[pl_clk_idx]['enable'] = int(value)
+                    #    elif self._is_clk_divisor_line(line):
+                    #        m2 = re.search(self.clk_odiv_regex, key)
+                    #        idx = int(m2.group("idx"))
+                    #        if idx not in self.clock_dict:
+                    #            self.clock_dict[idx] = {'enable': 0,
+                    #                                    'divisor0': 1,
+                    #                                    'divisor1': 1}
+                    #        divisor_name = 'divisor' + m2.group("div")
+                    #        self.clock_dict[idx][divisor_name] = int(value)
 
-                        elif "FCLK" in line and "ENABLE" in line:
-                            clk_enable_regex = clk_enable_dict[self.family]
-                            m3 = re.search(clk_enable_regex, key)
-                            idx = int(m3.group("idx"))
-                            if idx not in self.clock_dict:
-                                self.clock_dict[idx] = {'enable': 0,
-                                                        'divisor0': 1,
-                                                        'divisor1': 1}
-                            self.clock_dict[idx]['enable'] = int(value)
+                    #    elif self._is_clk_enable_line(line):
+                    #        m3 = re.search(self.clk_enable_regex, key)
+                    #        idx = int(m3.group("idx"))
+                    #        if idx not in self.clock_dict:
+                    #            self.clock_dict[idx] = {'enable': 0,
+                    #                                    'divisor0': 1,
+                    #                                    'divisor1': 1}
+                    #        self.clock_dict[idx]['enable'] = int(value)
 
                 # Match project/family declaration
-                elif family_pat in line:
-                    m = re.search(family_regex, line, re.IGNORECASE)
+                elif self.family_pat in line:
+                    m = re.search(self.family_regex, line, re.IGNORECASE)
                     self.family = m.group("family_str")
 
                 # Matching address segment
-                elif addr_pat in line:
+                elif self.addr_pat in line:
                     m = re.search(addr_regex, line, re.IGNORECASE)
                     if m:
                         for ip_dict0 in hier_dict:
@@ -306,18 +309,18 @@ class _TCL:
                                     self.ip_dict[ip]['fullpath'] = ip
 
                 # Match hierarchical cell definition
-                elif hier_proc_def_pat in line:
-                    m = re.search(hier_def_regex, line)
+                elif self.hier_proc_def_pat in line:
+                    m = re.search(self.hier_def_regex, line)
                     hier_name = m.group("name")
                     current_hier = hier_name
                     hier_dict[current_hier] = dict()
 
-                elif hier_proc_end_pat == line:
+                elif self.hier_proc_end_pat == line:
                     current_hier = ""
 
                 # Match hierarchical cell use/instantiation
-                elif hier_use_pat in line:
-                    m = re.search(hier_use_regex, line)
+                elif self.hier_use_pat in line:
+                    m = re.search(self.hier_use_regex, line)
                     hier_name = m.group("hier_name")
                     inst_name = m.group("instance_name")
                     inst_path = (current_hier + '/' + inst_name).lstrip('/')
@@ -330,11 +333,11 @@ class _TCL:
                     hier_dict.update(inst_dict)
 
                 # Matching IP cells in root design
-                elif ip_pat in line:
-                    m = re.search(ip_regex, line)
+                elif self.ip_pat in line:
+                    m = re.search(self.ip_regex, line)
                     ip_name = m.group("ip_name")
                     instance_name = m.group("instance_name")
-                    if m.group("ip_name") == family_ps_dict[self.family]:
+                    if m.group("ip_name") == self.ps_ip_name:
                         self.ps_name = instance_name
                         addr_regex += (instance_name + "/Data\] " +
                                        "\[get_bd_addr_segs (?P<hier>.+?)\] " +
@@ -352,8 +355,8 @@ class _TCL:
                             self.intc_names.append(ip)
 
                 # Matching IP block cells in root design
-                elif ip_block_pat in line:
-                    m = re.search(ip_block_regex, line)
+                elif self.ip_block_pat in line:
+                    m = re.search(self.ip_block_regex, line)
                     instance_name = m.group("instance_name")
                     if m.group('block_name') == '$block_name':
                         name = ip_block_name
@@ -363,8 +366,8 @@ class _TCL:
                     hier_dict[current_hier][instance_name] = ip_type
 
                 # Matching nets
-                elif net_pat in line:
-                    mpins = re.findall(net_regex, line, re.IGNORECASE)
+                elif self.net_pat in line:
+                    mpins = re.findall(self.net_regex, line, re.IGNORECASE)
                     new_pins = [(current_hier + "/" + v).lstrip('/') for v in
                                 mpins]
                     indexes = {self.pins[p] for p in new_pins if
@@ -383,14 +386,14 @@ class _TCL:
                     for p in self.nets[index]:
                         self.pins[p] = index
 
-        if self.ps_name + "/" + family_irq_dict[self.family] in self.pins:
+        if self.ps_name + "/" + self.irq_pin_name in self.pins:
             ps_irq_net = self.pins[
-                self.ps_name + "/" + family_irq_dict[self.family]]
+                self.ps_name + "/" + self.irq_pin_name]
             self._add_interrupt_pins(ps_irq_net, "", 0)
 
-        if self.ps_name + "/" + family_gpio_dict[self.family] in self.pins:
+        if self.ps_name + "/" + self.gpio_pin_name in self.pins:
             ps_gpio_net = self.pins[
-                self.ps_name + "/" + family_gpio_dict[self.family]]
+                self.ps_name + "/" + self.gpio_pin_name]
             self._add_gpio_pins(ps_gpio_net, gpio_dict)
 
         self._build_hierarchy_dict()
@@ -480,6 +483,134 @@ class _TCL:
                 self.hierarchy_dict[hier]['hierarchies'][subhier] = val
 
 
+class _TCLUltrascale(_TCLABC):
+    """Intermediate class to extract information from a TCL configuration
+    file for Ultrascale devices. 
+
+    """
+    ps_ip_name = "zynq_ultra_ps_e"
+    irq_pin_offset = 0
+    irq_pin_name = "pl_ps_irq{}".format(irq_pin_offset)
+    gpio_pin_name = "emio_gpio_o"
+    family_name = "xczu"
+
+    clk_odiv_regex = 'PSU__CRL_APB__PL(?P<pl_idx>.+?)' + \
+                     '_REF_CTRL__DIVISOR(?P<odiv_idx>.+?)'
+    clk_enable_regex = 'PSU__FPGA_PL(?P<idx>.+?)_ENABLE'
+
+    pl_clks = [0, 1, 2, 3]
+    def __init__(self, tcl_name):
+        """Returns an Ultrascale-specific map built from the supplied tcl file
+
+        Parameters
+        ---------
+        tcl_name : str
+            The tcl filename to parse. This is opened directly so should be
+            fully qualified
+
+        """
+        self.clock_dict = dict()
+        for pl_clk in self.pl_clks:
+            self.clock_dict[pl_clk] = dict()
+            self.clock_dict[pl_clk]['enable'] = 0
+            self.clock_dict[pl_clk]["divisor0"] = 10
+            self.clock_dict[pl_clk]["divisor1"] = 1
+        self.clock_dict[0]['enable'] = 1
+        super().__init__(tcl_name)
+        
+    def _is_clk_enable_line(self, line):
+        """Returns True if line contains a declaration to enable a PL 
+        clock otherwise False
+
+        Parameters
+        ---------
+        line : str
+            The string from a line in a tcl file
+        """        
+        return "PSU__FPGA_PL" in line \
+            and "ENABLE" in line
+
+    def _is_clk_divisor_line(self, line):
+        """Returns True if line contains a declaration to set a PL clock
+        divisor otherwise False
+
+        Parameters
+        ---------
+        line : str
+            The string from a line in a tcl file
+        """
+        return "PSU__CRL_APB__PL" in line \
+            and "REF_CTRL__DIVISOR" in line
+
+class _TCLZynq(_TCLABC):
+    """Intermediate class to extract information from a TCL configuration
+    file for  devices. 
+
+    """
+    ps_ip_name = "processing_system7"
+    irq_pin_offset = 0
+    irq_pin_name = "IRQ_F2P"
+    gpio_pin_name = "GPIO_O"
+    family_name = "xc7z"
+    
+    clk_odiv_regex = 'PCW_FCLK(?P<pl_idx>.+?)_PERIPHERAL_DIVISOR' \
+                     '(?P<odiv_idx>[01])$'
+    clk_enable_regex = 'PCW_FPGA_FCLK(?P<idx>.+?)_ENABLE'
+
+    pl_clks = [0, 1 ,2, 3]
+    def __init__(self, tcl_name):
+        """Returns an Ultrascale-specific map built from the supplied tcl file
+
+        Parameters
+        ---------
+        tcl_name : str
+            The tcl filename to parse. This is opened directly so should be
+            fully qualified
+
+        """
+        self.clock_dict = dict()
+        for pl_clk in self.pl_clks:
+            self.clock_dict[pl_clk] = dict()
+            self.clock_dict[pl_clk]['enable'] = 0
+            self.clock_dict[pl_clk]["divisor0"] = 10
+            self.clock_dict[pl_clk]["divisor1"] = 1
+        super().__init__(tcl_name)
+
+    def _is_clk_enable_line(self, line):
+        """Returns True if line contains a declaration to enable a PL 
+        clock otherwise False
+
+        Parameters
+        ---------
+        line : str
+            The string from a line in a tcl file
+        """        
+        return "FCLK" in line and \
+            "ENABLE" in line
+
+    def _is_clk_divisor_line(self, line):
+        """Returns True if line contains a declaration to set a PL clock
+        divisor otherwise False
+
+        Parameters
+        ---------
+        line : str
+            The string from a line in a tcl file
+        """
+        return "FCLK" in line and \
+            "PERIPHERAL_DIVISOR" in line
+
+class _TCL(_TCLUltrascale if CPU_ARCH == ZU_ARCH else _TCLZynq):
+    """Helper class to extract information from a TCL configuration
+    file
+
+    Note
+    ----
+    This class requires the absolute path of the '.tcl' file.
+    """
+    pass
+
+
 class PLMeta(type):
     """This method is the meta class for the PL.
 
@@ -496,12 +627,20 @@ class PLMeta(type):
     _timestamp = ""
     
     if CPU_ARCH_IS_SUPPORTED:
-        _tcl = _TCL(TCL_BOOT)
-        _ip_dict = _tcl.ip_dict
-        _gpio_dict = _tcl.gpio_dict
-        _interrupt_controllers = _tcl.interrupt_controllers
-        _interrupt_pins = _tcl.interrupt_pins
-        _hierarchy_dict = _tcl.hierarchy_dict
+        if os.path.exists(TCL_BOOT):
+            _tcl = _TCL(TCL_BOOT)
+            _ip_dict = _tcl.ip_dict
+            _gpio_dict = _tcl.gpio_dict
+            _interrupt_controllers = _tcl.interrupt_controllers
+            _interrupt_pins = _tcl.interrupt_pins
+            _hierarchy_dict = _tcl.hierarchy_dict
+        else:
+            _tcl = None
+            _ip_dict = {}
+            _gpio_dict = {}
+            _interrupt_controllers = {}
+            _interrupt_pins = {}
+            _hierarchy_dict = {}
         _status = 1
         _server = None
         _host = None
@@ -656,8 +795,7 @@ class PLMeta(type):
 
         cls._server.close()
 
-    def client_request(cls, address=PL_SERVER_FILE,
-                       key=b'xilinx'):
+    def client_request(cls, address=PL_SERVER_FILE, key=b'xilinx'):
         """Client connects to the PL server and receives the attributes.
 
         This method should not be used by the users directly. To check open
@@ -869,8 +1007,7 @@ def _start_server():
         os.remove(PL_SERVER_FILE)
     PL.setup()
 
-
-class Bitstream:
+class _Bitstream:
     """This class instantiates a programmable logic bitstream.
 
     Attributes
@@ -935,19 +1072,10 @@ class Bitstream:
         None
 
         """
-
-        # Compose bitfile name, open bitfile
-        with open(self.bitfile_name, 'rb') as f:
-            buf = f.read()
-
-        # Set is_partial_bitfile device attribute to 0
-        with open(BS_IS_PARTIAL, 'w') as fd:
-            fd.write('0')
-
-        # Write bitfile to xdevcfg device
-        with open(BS_XDEVCFG, 'wb') as f:
-            f.write(buf)
-
+        self._download()
+        self._update_pl()
+        
+    def _update_pl(self):
         t = datetime.now()
         self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
                 t.year, t.month, t.day,
@@ -959,3 +1087,207 @@ class Bitstream:
         PL._timestamp = self.timestamp
         PL.clear_dict()
         PL.server_update()
+        
+class _BitstreamZynq(_Bitstream):
+    """This class instantiates a programmable logic bitstream for Zynq Devices
+
+    Note
+    ----
+    This class inherits from the _Bitstream class
+
+    """
+
+    BS_IS_PARTIAL = "/sys/devices/soc0/amba/f8007000.devcfg/is_partial_bitstream"
+    BS_XDEVCFG = "/dev/xdevcfg"
+
+    def _download(self):
+        """The Zynq-specific method to download the bitstream onto PL.
+
+        Note
+        ----
+        The class variables held by the singleton PL will also be updated.
+
+        Returns
+        -------
+        None
+
+        """
+        if not os.path.exists(self.BS_XDEVCFG):
+            raise RuntimeError("Could not find programmable device")
+        
+        # Compose bitfile name, open bitfile
+        with open(self.bitfile_name, 'rb') as f:
+            buf = f.read()
+
+        # Set is_partial_bitfile device attribute to 0
+        with open(self.BS_IS_PARTIAL, 'w') as fd:
+            fd.write('0')
+
+        # Write bitfile to xdevcfg device
+        with open(self.BS_XDEVCFG, 'wb') as f:
+            f.write(buf)
+
+
+class _BitstreamUltrascale(_Bitstream):
+    """This class instantiates a programmable logic bitstream for Zynq
+    Ultrascale Devices
+
+    Note
+    ----
+    This class inherits from the _Bitstream class
+
+    """
+    BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
+    
+    def _download(self):
+        """The Zynq-specific method to download the bitstream onto PL.
+
+        Note
+        ----
+        The class variables held by the singleton PL will also be updated.
+
+        Returns
+        -------
+        None
+
+        """
+        if not os.path.exists(self.BS_FPGA_MAN):
+            raise RuntimeError("Could not find programmable device")         
+
+        bin_base = os.path.basename(self.bitfile_name).replace('.bit', '.bin')
+        binfile_name = '/lib/firmware/' + bin_base
+        self._convert_bit_to_bin(self.bitfile_name, binfile_name)
+        with open(self.BS_FPGA_MAN, 'w') as fd:
+            fd.write(bin_base)
+
+    def _convert_bit_to_bin(self, bit_file, bin_file):
+        """The method to convert a .bit file to .bin file.
+
+        A .bit file is generated by Vivado, but .bin files are needed
+        by the Zynq Ultrascale FPGA manager driver. Users must specify
+        the absolute path to the source .bit file, and the destination
+        .bin file and have read/write access to both paths. 
+
+        Note
+        ----
+        Imlemented based on: https://blog.aeste.my/?p=2892
+
+        Parameters
+        ----------
+        bit_file: str
+            The bitstream absolute source path
+
+        bin_file: str
+            The bitstream absolute desination path
+
+        Returns
+        -------
+        None
+
+        """
+        with open(bit_file, 'rb') as f:
+            d = self._parse_bitstream_header(f)
+        bit = np.frombuffer(d['data'], dtype=np.int32, offset = 0) 
+        bin = bit.byteswap()
+        bin.tofile(bin_file, "")
+
+    def _parse_bitstream_header(self, bitf):
+        """The method to parse the header of a bitstream
+
+        Parameters
+        ----------
+        bitf:
+            The open file object continaing a valid .bit file
+
+        Returns
+        -------
+            A dictionary containing the keys:
+                "design": str
+                    The Vivado project name that generated the bitstream
+                    
+                "version": str
+                    The Vivado tool version that generated the bitstream
+                         
+                "part": str
+                    The Xilinx part name that the bitstream targets
+                
+                "date": str
+                    The date the bitstream was compiled on
+                
+                "time": str
+                    The time the bitstream finished compilation
+
+                "length": int
+                    Total length of the bitstream (in bytes)
+                    
+                "data": binary
+                    binary data in .bit file format
+                    
+        Note
+        ----
+        Imlemented based on: https://blog.aeste.my/?p=2892
+        
+        """
+        finished = False
+        offset = 0
+        length = 0
+        contents = bitf.read()
+        bit_dict = {}
+
+        # Strip the (2+n)-byte first field (2-bit length, n-bit data)
+        length = struct.unpack('>h', contents[offset:offset+2])[0]
+        offset += 2 + length
+        
+        # Strip a two-byte unknown field (ususally 1)
+        # Theory: Describes the length of the field descriptor?
+        length = struct.unpack('>h', contents[offset:offset+2])[0]
+        offset += 2
+
+        # Strip the remaining headers. 0x65 signals the bit data field
+        while not finished:
+            desc = contents[offset]
+            offset += 1
+            
+            if(desc != 0x65):
+                length = struct.unpack('>h', contents[offset:offset+2])[0]
+                offset += 2
+                fmt = ">{}s".format(length)
+                data = struct.unpack(fmt, contents[offset:offset+length])[0]
+                data = data.decode('ascii')[:-1]
+                offset += length
+
+            if(desc == 0x61):
+                s = data.split(";")
+                bit_dict['design'] = s[0]
+                bit_dict['version'] = s[2]
+            elif(desc == 0x62):
+                bit_dict['part'] = data
+            elif(desc == 0x63):
+                bit_dict['date'] = data
+            elif(desc == 0x64):
+                bit_dict['time'] = data
+            elif(desc == 0x65):
+                finished = True
+                length = struct.unpack('>i', contents[offset:offset+4])[0]
+                offset += 4
+                # Expected length values can be verified in the chip TRM
+                bit_dict['length'] = str(length)
+                if length + offset != len(contents):
+                    raise RuntimeError("Invalid length found")
+                bit_dict['data'] = contents[offset:offset+length]
+            else:
+                raise RuntimeError("Unknown field: {}".format(hex(desc)))
+        return bit_dict
+
+class Bitstream(_BitstreamUltrascale if CPU_ARCH == ZU_ARCH \
+                else _BitstreamZynq):
+    """This wrapper class instantiates a programmable logic bitstream for Pynq
+    Devices
+
+    Note
+    ----
+    This class inherits from the _BitstreamZynq or _BitstreamUltrascale
+    classes depending on the value of CPU_ARCH from ps.py
+
+    """
+    pass

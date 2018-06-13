@@ -73,8 +73,15 @@ if 'BOARD' not in os.environ:
 else:
     board = os.environ['BOARD']
     board_folder = 'boards/{}/'.format(board)
-    pynq_data_files = collect_pynq_data_files()
+    if not os.path.isdir(board_folder):
+        print("Could not find folder for board {}". format(board))
+        board_folder = None
+        pynq_data_files = []
+    else:
+        pynq_data_files = collect_pynq_data_files()
 
+
+pynq_package_files = []
 
 # Extend data_files with Microblaze C BSPs and libraries
 microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
@@ -83,16 +90,19 @@ microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
                         'pynq/lib/rpi/bsp_iop_rpi']
 
 for mbdir in microblaze_data_dirs:
-    pynq_data_files.extend(
-        [(os.path.join(os.path.dirname(site.__file__) + "/site-packages", root),
-         [os.path.join(root, f) for f in files])
-        for root, _, files in os.walk(mbdir)]
+    pynq_package_files.extend(
+        [os.path.join("..", root, f)
+         for root, _, files in os.walk(mbdir) for f in files]
     )
+
+
+print(pynq_package_files)
 
 # Device family constants
 ZYNQ_ARCH = "armv7l"
+ZU_ARCH = "aarch64"
 CPU_ARCH = os.uname().machine
-CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH]
+CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
 # Notebook delivery
 default_nb_dir = '/home/xilinx/jupyter_notebooks'
@@ -190,7 +200,7 @@ def copy_common_notebooks():
 
 # Copy notebooks in boards/BOARD/notebooks/getting_started
 def copy_getting_started_notebooks():
-    if notebooks_dir is None:
+    if notebooks_dir is None or board_folder is None:
         return None
 
     src_folder = os.path.join(board_folder, 'notebooks/getting_started')
@@ -203,7 +213,7 @@ def copy_getting_started_notebooks():
 
 # Copy notebooks in boards/BOARD/OVERLAY/notebooks
 def copy_overlay_notebooks():
-    if notebooks_dir is None:
+    if notebooks_dir is None or board_folder is None:
         return None
 
     if os.path.isdir(board_folder):
@@ -286,7 +296,10 @@ def run_make(src_path, dst_path, output_lib):
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
     run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
-    run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    if CPU_ARCH == ZYNQ_ARCH:
+        run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    elif CPU_ARCH == ZU_ARCH:
+        run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/", "libdisplayport.so")
     backup_notebooks()
     copy_common_notebooks()
     copy_getting_started_notebooks()
@@ -296,7 +309,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
     change_ownership()
 
 
-if CPU_ARCH_IS_SUPPORTED:
+if (CPU_ARCH == ZYNQ_ARCH):
     ext_modules = [
         Extension('pynq.lib._video', video,
                   include_dirs=['pynq/lib/_pynq/inc',
@@ -306,11 +319,11 @@ if CPU_ARCH_IS_SUPPORTED:
                   ),
     ]
 else:
-    warnings.warn("PYNQ does not support the CPU Architecture: {}"
+    warnings.warn("Video Library does not support the CPU Architecture: {}"
                   .format(CPU_ARCH), ResourceWarning)
     ext_modules = []
 
-
+pynq_package_files.extend(['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'])
 setup(name='pynq',
       version='2.1',
       description='(PY)thon productivity for zy(NQ)',
@@ -320,7 +333,7 @@ setup(name='pynq',
       packages=find_packages(),
       download_url='https://github.com/Xilinx/PYNQ',
       package_data={
-          '': ['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'],
+          '': pynq_package_files,
       },
       entry_points={
           'console_scripts': [

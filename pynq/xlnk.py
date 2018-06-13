@@ -231,7 +231,6 @@ class Xlnk:
         2. This buffer is allocated inside the kernel space using
         xlnk driver. The maximum allocatable memory is defined
         at kernel build time using the CMA memory parameters.
-        For Pynq-Z1 kernel, it is specified as 128MB.
         
         The unit of `length` depends upon the `data_type` argument.
         
@@ -368,7 +367,7 @@ class Xlnk:
         None
 
         """
-        self.ffi.memmove(dest, src, nbytes)
+        Xlnk.ffi.memmove(dest, src, nbytes)
     
     @staticmethod
     def cma_cast(data, data_type="void"):
@@ -391,7 +390,7 @@ class Xlnk:
             Pointer to buffer with specified data type.
             
         """
-        return self.ffi.cast(data_type+"*", data)
+        return Xlnk.ffi.cast(data_type+"*", data)
       
     def cma_free(self, buf):
         """Free a previously allocated buffer.
