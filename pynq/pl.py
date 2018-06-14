@@ -1349,7 +1349,6 @@ class PLMeta(type):
             if details['type'] == 'xilinx.com:ip:pr_axi_shutdown_manager:1.0':
                 mmio = MMIO(details['phys_addr'])
                 # Request shutdown
-                print(f"Shutting down {name}")
                 mmio.write(0x0, 0x1)
                 while mmio.read(0x0) != 0x0F:
                     # wait for the shutdown to be acknowledged
