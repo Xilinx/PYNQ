@@ -49,6 +49,7 @@ PYNQ_CLONED_COMMIT := $(shell cd $(BUILD_ROOT)/PYNQ 2> /dev/null && git rev-pars
 
 $(BUILD_ROOT)/PYNQ: | $(BUILD_ROOT)
 	git clone ../ $@
+	cd $@ && git submodule init && git submodule update
 
 $(PYNQ_UPDATE): | $(BUILD_ROOT)/PYNQ
 	cd $(BUILD_ROOT)/PYNQ && git fetch origin && git checkout $(PYNQ_MASTER_COMMIT)
