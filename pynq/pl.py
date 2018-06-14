@@ -1339,6 +1339,22 @@ class PLMeta(type):
                           continued])
         cls._remote.close()
 
+    def shutdown(cls):
+        """Shutdown the AXI connections to the PL in preparation for
+        reconfiguration
+
+        """
+        ip = cls.ip_dict
+        for name, details in ip.items():
+            if details['type'] == 'xilinx.com:ip:pr_axi_shutdown_manager:1.0':
+                mmio = MMIO(details['phys_addr'])
+                # Request shutdown
+                print(f"Shutting down {name}")
+                mmio.write(0x0, 0x1)
+                while mmio.read(0x0) != 0x0F:
+                    # wait for the shutdown to be acknowledged
+                    pass
+
     def reset(cls, parser=None):
         """Reset all the dictionaries.
 
@@ -1640,6 +1656,8 @@ class _BitstreamZynq(_BitstreamMeta):
             else:
                 fd.write('0')
 
+        PL.shutdown()
+
         # Write bitfile to xdevcfg device
         with open(self.BS_XDEVCFG, 'wb') as f:
             f.write(buf)
@@ -1673,6 +1691,7 @@ class _BitstreamUltrascale(_BitstreamMeta):
         bin_file = os.path.basename(self.bitfile_name).replace('.bit', '.bin')
         self.bin_path = '/lib/firmware/' + bin_file
         self.convert_bit_to_bin()
+        PL.shutdown()
         with open(self.BS_FPGA_MAN, 'w') as fd:
             fd.write(bin_file)
 
