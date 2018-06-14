@@ -453,3 +453,9 @@ void pynqvideo_frame_free(void* device, void* frame) {
 	auto f = static_cast<pynqvideo::frame*>(frame);
 	dev->free_frame(f);
 }
+
+
+void _never_call() {
+	// This function exists purely to force a link
+	cma_alloc(1000, 0);
+}
