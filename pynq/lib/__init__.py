@@ -38,6 +38,7 @@ from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
 from .button import Button
+from .iic import AxiIIC
 
 from .rpi import Rpi
 
