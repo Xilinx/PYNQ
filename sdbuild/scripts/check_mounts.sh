@@ -2,7 +2,7 @@
 
 set -e
 
-if mount | grep $PWD/.build
+if mount | grep $PWD/build
 then
   echo "Staging area currently mounted - please unmount $PWD/.build/rootfs_staging"
   exit 1
