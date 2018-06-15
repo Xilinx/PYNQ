@@ -32,6 +32,8 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 from setuptools import setup, Extension, find_packages
+from distutils.dir_util import copy_tree
+import glob
 import shutil
 import subprocess
 import sys
@@ -48,20 +50,24 @@ def exclude_from_files(exclude, path):
             and file != exclude]
 
 
-def exclude_from_dirs(exclude, path):
-    return [folder for folder in os.listdir(path)
-            if os.path.isdir(os.path.join(path, folder))
-            and folder != exclude]
+def find_overlays(path):
+    return [f for f in os.listdir(path)
+            if os.path.isdir(os.path.join(path, f))
+            and len(glob.glob(os.path.join(path, f, "*.bit"))) > 0]
 
+pynq_package_files = []
 
-def collect_pynq_data_files():
-    return [(os.path.join(
-        '{}/pynq/overlays'.format(os.path.dirname(site.__file__) \
-             + "/site-packages"), ol),
-             [os.path.join(board_folder, ol, f)
-              for f in exclude_from_files(
-                 'makefile', os.path.join(board_folder, ol))])
-        for ol in exclude_from_dirs('notebooks', board_folder)]
+def collect_pynq_overlays():
+    overlay_files = []
+    overlay_dirs = find_overlays(board_folder)
+    for ol in overlay_dirs:
+        copy_tree(os.path.join(board_folder, ol),
+                        os.path.join("pynq/overlays", ol))
+        newdir = os.path.join("pynq/overlays", ol)
+        files = exclude_from_files('makefile', newdir)
+        overlay_files.extend(
+                [os.path.join("..", newdir, f) for f in files])
+    return overlay_files
 
 
 if 'BOARD' not in os.environ:
@@ -69,19 +75,16 @@ if 'BOARD' not in os.environ:
           "to get any BOARD specific overlays (e.g. Pynq-Z1).")
     board = None
     board_folder = None
-    pynq_data_files = []
 else:
     board = os.environ['BOARD']
     board_folder = 'boards/{}/'.format(board)
     if not os.path.isdir(board_folder):
         print("Could not find folder for board {}". format(board))
         board_folder = None
-        pynq_data_files = []
     else:
-        pynq_data_files = collect_pynq_data_files()
+        pynq_package_files.extend(collect_pynq_overlays())
 
 
-pynq_package_files = []
 
 # Extend data_files with Microblaze C BSPs and libraries
 microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
@@ -193,22 +196,20 @@ def copy_common_notebooks():
             os.remove(dst_folder_file)
 
         if os.path.isdir(src_folder_file):
-            shutil.copytree(src_folder_file, dst_folder_file)
+            copy_tree(src_folder_file, dst_folder_file)
         elif os.path.isfile(src_folder_file):
             shutil.copy(src_folder_file, dst_folder_file)
 
 
-# Copy notebooks in boards/BOARD/notebooks/getting_started
-def copy_getting_started_notebooks():
+# Copy notebooks in boards/BOARD/notebooks
+def copy_board_notebooks():
     if notebooks_dir is None or board_folder is None:
         return None
 
-    src_folder = os.path.join(board_folder, 'notebooks/getting_started')
-    dst_folder = notebooks_getting_started_dst_dir
-    if os.path.isdir(dst_folder):
-        shutil.rmtree(dst_folder)
+    src_folder = os.path.join(board_folder, 'notebooks')
+    dst_folder = notebooks_dir
     if os.path.isdir(src_folder):
-        shutil.copytree(src_folder, dst_folder)
+        copy_tree(src_folder, dst_folder)
 
 
 # Copy notebooks in boards/BOARD/OVERLAY/notebooks
@@ -226,7 +227,7 @@ def copy_overlay_notebooks():
         for dst_folder, src_folder in overlay_notebook_folders:
             if os.path.exists(dst_folder):
                 shutil.rmtree(dst_folder)
-            shutil.copytree(src_folder, dst_folder)
+            copy_tree(src_folder, dst_folder)
 
 
 # Copy documentation files in docs/source and docs/source/images
@@ -278,7 +279,7 @@ def backup_notebooks():
                                           datetime.now().strftime(
                                               "%Y_%m_%d_%H_%M_%S"))
     try:
-        shutil.copytree(notebooks_dir, notebooks_dir_backup)
+        copy_tree(notebooks_dir, notebooks_dir_backup)
     except Exception as e:
         print('Unable to backup notebooks.')
         raise e
@@ -302,7 +303,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
         run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/", "libdisplayport.so")
     backup_notebooks()
     copy_common_notebooks()
-    copy_getting_started_notebooks()
+    copy_board_notebooks()
     copy_overlay_notebooks()
     copy_documentation_files()
     rename_notebooks()
@@ -325,7 +326,7 @@ else:
 
 pynq_package_files.extend(['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'])
 setup(name='pynq',
-      version='2.1',
+      version='2.3',
       description='(PY)thon productivity for zy(NQ)',
       author='Xilinx PYNQ Development Team',
       author_email='pynq_support@xilinx.com',
@@ -341,8 +342,7 @@ setup(name='pynq',
               'stop_pl_server.py = pynq.pl:_stop_server'
           ]
       },
-      ext_modules=ext_modules,
-      data_files=pynq_data_files
+      ext_modules=ext_modules
       )
 
 if board:
