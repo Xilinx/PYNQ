@@ -34,6 +34,7 @@ int pynqvideo_frame_write(void* device, void* frame);
 uint64_t pynqvideo_frame_physaddr(void* frame);
 void* pynqvideo_frame_data(void* frame);
 uint64_t pynqvideo_frame_size(void* frame);
+uint32_t pynqvideo_frame_stride(void* frame);
 void pynqvideo_frame_free(void* device, void* frame);
 
 }
@@ -116,6 +117,7 @@ public:
 		}
 
 		bo_handle = creq.handle;
+		stride = creq.pitch;
 		size = creq.size;
 		bool commit = false;
 		BOOST_SCOPE_EXIT(&commit, &bo_handle, &fd) {
@@ -189,6 +191,7 @@ public:
 	void* data;
 	unsigned long physical_address;
 	uint32_t size;
+	uint32_t stride;
 private:
 
 	int m_buf_fd;
@@ -446,6 +449,11 @@ void* pynqvideo_frame_data(void* frame) {
 uint64_t pynqvideo_frame_size(void* frame) {
 	auto f = static_cast<pynqvideo::frame*>(frame);
 	return f->size;
+}
+
+uint32_t pynqvideo_frame_stride(void* frame) {
+	auto f = static_cast<pynqvideo::frame*>(frame);
+	return f->stride;
 }
 
 void pynqvideo_frame_free(void* device, void* frame) {

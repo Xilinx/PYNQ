@@ -109,6 +109,7 @@ class DrmDriver:
         uint64_t pynqvideo_frame_physaddr(void* frame);
         void* pynqvideo_frame_data(void* frame);
         uint64_t pynqvideo_frame_size(void* frame);
+        uint32_t pynqvideo_frame_stride(void* frame);
         void pynqvideo_frame_free(void* device, void* frame);
         """
                        )
@@ -180,8 +181,18 @@ class DrmDriver:
         data_pointer = self._videolib.pynqvideo_frame_data(frame_pointer)
         data_size = self._videolib.pynqvideo_frame_size(frame_pointer)
         data_physaddr = self._videolib.pynqvideo_frame_physaddr(frame_pointer)
+        data_stride = self._videolib.pynqvideo_frame_stride(frame_pointer)
+        if len(self._mode.shape) == 2:
+            expected_stride = self._mode.shape[1]
+        else:
+            expected_stride = self._mode.shape[1] * self._mode.shape[2]
         buffer = self._ffi.buffer(data_pointer, data_size)
-        array = np.frombuffer(buffer, dtype='u1').reshape(self._mode.shape)
+        if expected_stride == data_stride:
+            array = np.frombuffer(buffer, dtype='u1').reshape(self._mode.shape)
+        else:
+            raw_array = np.frombuffer(buffer, dtype='u1').reshape(
+                    [self._mode.shape[0], data_stride])
+            array = raw_array[:,0:expected_stride].reshape(self._mode.shape)
         view = array.view(ContiguousArray)
         view.pointer = frame_pointer
         view.physical_address = data_physaddr
