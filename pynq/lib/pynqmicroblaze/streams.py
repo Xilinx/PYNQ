@@ -158,7 +158,7 @@ class SimpleMBStream:
 
     def write_address(self, p, adjust=True):
         if adjust:
-            p = p | 0x20000000
+            p = p | PTR_OFFSET
         return self.write_uint32(p)
 
     def bytes_available(self):
