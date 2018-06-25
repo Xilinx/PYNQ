@@ -35,6 +35,12 @@ __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "ogden@xilinx.com"
 
 
+# On aarch64 systems we can suffer from SEGFAULTS in memcpy if
+# unaligned address are copied
+def _safe_copy(dest, src):
+    for i in range(len(src)):
+        dest[i] = src[i]
+
 class SimpleMBChannel:
     def __init__(self, buffer, offset=0, length=0):
         self.control_array = np.frombuffer(buffer, count=2,
@@ -52,11 +58,12 @@ class SimpleMBChannel:
         to_write = min(len(b), available)
         write_array = np.fromstring(b, np.uint8)
         end_block = min(to_write, self.length - written)
-        self.data_array[written:written + end_block] = write_array[0:end_block]
+        _safe_copy(self.data_array[written:written + end_block],
+                   write_array[0:end_block])
         # Automatically wrap the write if necessary
         if end_block < to_write:
-            self.data_array[0:to_write-end_block] = \
-                write_array[end_block:to_write]
+            _safe_copy(self.data_array[0:to_write-end_block],
+                       write_array[end_block:to_write])
         # Atomically increase the write pointer to make data handling easier
         self.control_array[0] = (written + to_write) % self.length
         return to_write
@@ -83,10 +90,11 @@ class SimpleMBChannel:
             available = n
         read_array = np.empty([available], dtype=np.uint8)
         end_block = min(available, self.length - read)
-        read_array[0:end_block] = self.data_array[read:read + end_block]
+        _safe_copy(read_array[0:end_block],
+                   self.data_array[read:read + end_block])
         if end_block < available:
-            read_array[end_block:available] = \
-                self.data_array[0:available - end_block]
+            _safe_copy(read_array[end_block:available],
+                       self.data_array[0:available - end_block])
         self.control_array[1] = (read + available) % self.length
         return read_array.tobytes()
 
