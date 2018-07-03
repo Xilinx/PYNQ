@@ -49,10 +49,6 @@ __email__ = "pynq_support@xilinx.com"
 
 # Overlay constants
 PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
-BS_BOOT = os.path.join(PYNQ_PATH, 'overlays', 'base', 'base.bit')
-TCL_BOOT = os.path.join(PYNQ_PATH, 'overlays', 'base', 'base.tcl')
-HWH_BOOT = os.path.join(PYNQ_PATH, 'overlays', 'base', 'base.hwh')
-
 PL_SERVER_FILE = os.path.join(PYNQ_PATH, '.log')
 
 
@@ -94,6 +90,50 @@ def get_hwh_name(bitfile_name):
 
     """
     return os.path.splitext(bitfile_name)[0] + '.hwh'
+
+
+def clear_state(dict_in):
+    """Clear the state information for a given dictionary.
+
+    Parameters
+    ----------
+    dict_in : dict
+        Input dictionary to be cleared.
+
+    """
+    if type(dict_in) is dict:
+        for i in dict_in:
+            if 'state' in dict_in[i]:
+                dict_in[i]['state'] = None
+    return dict_in
+
+
+def locate_overlay():
+    """Locate an overlay in the overlays folder.
+
+    Return the base overlay by default; if not found, return the first overlay
+    found.
+
+    Returns
+    -------
+    str
+        The name of the first overlay found.
+
+    """
+    if os.path.isdir(os.path.join(PYNQ_PATH, 'overlays', 'base')):
+        return 'base'
+    for i in os.listdir(os.path.join(PYNQ_PATH, 'overlays')):
+        if os.path.isdir(os.path.join(PYNQ_PATH, 'overlays', i)) and \
+                not i.startswith('_'):
+            return i
+    return ''
+
+
+OVERLAY_BOOT = locate_overlay()
+BS_BOOT = os.path.join(PYNQ_PATH, 'overlays',
+                       OVERLAY_BOOT, OVERLAY_BOOT + '.bit')
+TCL_BOOT = get_tcl_name(BS_BOOT)
+HWH_BOOT = get_hwh_name(BS_BOOT)
 
 
 class _TCLABC(metaclass=abc.ABCMeta):
@@ -1300,11 +1340,11 @@ class PLMeta(type):
         cls._remote.close()
 
     def reset(cls, parser=None):
-        """Reset both all the dictionaries.
+        """Reset all the dictionaries.
 
         This method must be called after a bitstream download.
-        1. In case there is a `hwh` or `tcl` file, this method will reset IP,
-        GPIO, and interrupt dictionaries based on the tcl file.
+        1. In case there is a `hwh` or `tcl` file, this method will reset
+        the states of the IP, GPIO, and interrupt dictionaries .
         2. In case there is no `hwh` or `tcl` file, this method will simply
         clear the state information stored for all dictionaries.
 
@@ -1327,18 +1367,9 @@ class PLMeta(type):
         else:
             hwh_name = get_hwh_name(cls._bitfile_name)
             tcl_name = get_tcl_name(cls._bitfile_name)
-            if os.path.isfile(hwh_name):
-                parser = HWH(hwh_name)
-                cls._ip_dict = parser.ip_dict
-                cls._gpio_dict = parser.gpio_dict
-                cls._interrupt_controllers = parser.interrupt_controllers
-                cls._interrupt_pins = parser.interrupt_pins
-            elif os.path.isfile(tcl_name):
-                parser = TCL(tcl_name)
-                cls._ip_dict = parser.ip_dict
-                cls._gpio_dict = parser.gpio_dict
-                cls._interrupt_controllers = parser.interrupt_controllers
-                cls._interrupt_pins = parser.interrupt_pins
+            if os.path.isfile(hwh_name) or os.path.isfile(tcl_name):
+                cls._ip_dict = clear_state(cls._ip_dict)
+                cls._gpio_dict = clear_state(cls._gpio_dict)
             else:
                 cls.clear_dict()
         cls.server_update()
@@ -1591,7 +1622,7 @@ class _BitstreamZynq(_BitstreamMeta):
         """
         if not os.path.exists(self.BS_XDEVCFG):
             raise RuntimeError("Could not find programmable device")
-        
+
         # Compose bitfile name, open bitfile
         with open(self.bitfile_name, 'rb') as f:
             buf = f.read()
