@@ -1,0 +1,10 @@
+--- phantomjs.orig	2018-06-30 04:18:19.669999882 +0000
++++ phantomjs	2018-06-30 04:18:47.909999840 +0000
+@@ -1,5 +1,6 @@
+ #!/bin/sh
+ LD_LIBRARY_PATH="/usr/lib/phantomjs:$LD_LIBRARY_PATH"
++export QT_QPA_PLATFORM=offscreen
+ export LD_LIBRARY_PATH
+-exec "/usr/lib/phantomjs/phantomjs" "$@"
++exec "/usr/lib/phantomjs/phantomjs" "$@" | sed -e 's/TypeError: Attempting to change the setter of an unconfigurable property.//g'
+ 
