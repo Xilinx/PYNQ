@@ -1387,7 +1387,7 @@ class PLMeta(type):
         cls._interrupt_pins.clear()
         cls._hierarchy_dict.clear()
 
-    def load_ip_data(cls, ip_name, data):
+    def load_ip_data(cls, ip_name, data, zero=False):
         """This method writes data to the addressable IP.
 
         Note
@@ -1401,6 +1401,8 @@ class PLMeta(type):
             The name of the addressable IP.
         data : str
             The absolute path of the data to be loaded.
+        zero : bool
+            Zero out the address of the IP not covered by data
 
         Returns
         -------
@@ -1409,11 +1411,15 @@ class PLMeta(type):
         """
         cls.client_request()
         with open(data, 'rb') as bin_file:
-            size = int((math.ceil(os.fstat(bin_file.fileno()).st_size /
-                                  mmap.PAGESIZE)) * mmap.PAGESIZE)
-            mmio = MMIO(cls._ip_dict[ip_name]['phys_addr'], size)
+            size = os.fstat(bin_file.fileno()).st_size
+            target_size = cls._ip_dict[ip_name]['addr_range']
+            if size > target_size:
+                raise RuntimeError("Binary file too big for IP")
+            mmio = MMIO(cls._ip_dict[ip_name]['phys_addr'], target_size)
             buf = bin_file.read(size)
             mmio.write(0, buf)
+            if zero and size < target_size:
+                mmio.write(size, b'\x00' * (target_size - size))
 
         cls._ip_dict[ip_name]['state'] = data
         cls.server_update()

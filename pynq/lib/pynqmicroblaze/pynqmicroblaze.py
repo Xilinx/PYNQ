@@ -258,7 +258,7 @@ class PynqMicroblaze:
 
         """
         self.reset()
-        PL.load_ip_data(self.ip_name, self.mb_program)
+        PL.load_ip_data(self.ip_name, self.mb_program, zero=True)
         if self.interrupt:
             self.interrupt.clear()
         self.run()
