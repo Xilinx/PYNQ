@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# fluxbox startup-script:
+#
+# Lines starting with a '#' are ignored.
+
+# Change your keymap:
+xmodmap "/root/.Xmodmap"
+
+# Prevent monitor from turning off
+xset s off -dpms
+xhost + SI:localuser:xilinx
+
+# Applications you want to run with fluxbox.
+# MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN ''&'' AT THE END.
+#
+# unclutter -idle 2 &
+# wmnd &
+# wmsmixer -w &
+# idesk &
+if [ -f "/usr/local/share/x11/Welcome to Pynq.html" ]; then
+	su xilinx -c chromium-browser \
+	"file:///usr/local/share/x11/Welcome to Pynq.html"&
+fi
+
+# Debian-local change:
+#   - fbautostart has been added with a quick hack to check to see if it
+#     exists. If it does, we'll start it up by default.
+which fbautostart > /dev/null
+if [ $? -eq 0 ]; then
+    fbautostart
+fi
+
+# And last but not least we start fluxbox.
+# Because it is the last app you have to run it with ''exec'' before it.
+
+exec fluxbox
+# or if you want to keep a log:
+# exec fluxbox -log "/root/.fluxbox/log"
