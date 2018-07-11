@@ -1,0 +1,3 @@
+[settings]
+homepage=file:///usr/local/share/x11/Welcome to Pynq.html
+load-on-startup=MIDORI_STARTUP_HOMEPAGE
