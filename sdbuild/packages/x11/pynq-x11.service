@@ -1,0 +1,13 @@
+[Unit]
+Description = PYNQ X11 Server
+After = systemd-user-sessions.service network.target sound.target
+
+[Service]
+Type = simple
+ExecStart = /bin/su -l root /usr/bin/startx
+ExecStop = /usr/bin/killchromium
+Restart = on-abort
+RestartSec = 5
+
+[Install]
+WantedBy = multi-user.target
