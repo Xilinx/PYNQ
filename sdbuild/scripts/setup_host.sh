@@ -38,6 +38,7 @@ kpartx
 nfs-common
 zerofree
 u-boot-tools
+rpm2cpio
 EOT
 set -e
 
