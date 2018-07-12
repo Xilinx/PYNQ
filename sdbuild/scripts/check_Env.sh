@@ -29,6 +29,7 @@ libssl-dev
 kpartx
 zerofree
 u-boot-tools
+rpm2cpio
 EOT
 
 if [ "$EUID" -eq 0 ] ; then
