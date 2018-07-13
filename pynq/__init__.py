@@ -29,6 +29,7 @@
 
 from .gpio import GPIO
 from .mmio import MMIO
+from .uio import UioController
 from .ps import Register
 from .ps import Clocks
 from .pl import PL
