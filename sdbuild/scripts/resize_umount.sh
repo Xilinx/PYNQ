@@ -15,14 +15,15 @@ root_offset=$(sudo kpartx -v $image_file | grep 'loop[0-9]p2' | cut -d ' ' -f 6)
 sleep 2
 
 sudo umount $image_dir/boot
+sudo umount $image_dir
 
+sudo chroot / e2fsck -f $root_dev
 used_blocks=$(sudo chroot / resize2fs $root_dev -P | tail -n 1 | cut -d : -f 2)
 used_size=$(( $used_blocks * 4 ))
 new_size=$(( $used_size + (300 * 1024) ))
 
 echo "New size will be $new_size K"
 
-sudo umount $image_dir
 
 sudo chroot / e2fsck -f $root_dev
 sudo chroot / resize2fs $root_dev ${new_size}K
