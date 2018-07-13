@@ -37,6 +37,7 @@ import wave
 import time
 from pynq import PL
 from pynq import GPIO
+from pynq.uio import get_uio_index
 from pynq import DefaultIP
 
 
@@ -359,11 +360,17 @@ class AudioADAU1761(DefaultIP):
 
     bindto = ['xilinx.com:user:audio_codec_ctrl:1.0']
 
-    def configure(self, sample_rate=48000, iic_index=1, uio_index=1):
+    def configure(self, sample_rate=48000,
+                  iic_index=1, uio_name="audio-codec-ctrl"):
         """Configure the audio codec.
 
         The sample rate of the codec is 48KHz, by default.
         This method will configure the PLL and codec registers.
+
+        The parameter `iic_index` is required as input; `uio_index` is
+        calculated automatically from `uio_name`.
+
+        Users can also explicitly call this function to reconfigure the driver.
 
         Parameters
         ----------
@@ -371,13 +378,16 @@ class AudioADAU1761(DefaultIP):
             Sample rate of the codec.
         iic_index : int
             The index of the IIC instance in /dev.
-        uio_index : int
-            The index of the UIO instance in /dev.
+        uio_name : int
+            The name of the UIO configured in the device tree.
 
         """
         self.sample_rate = sample_rate
         self.iic_index = iic_index
-        self.uio_index = uio_index
+        self.uio_index = get_uio_index(uio_name)
+        if self.uio_index is None:
+            raise ValueError("Cannot find UIO device {}".format(uio_name))
+
         self._libaudio.config_audio_pll(self.iic_index)
         self._libaudio.config_audio_codec(self.iic_index)
 
