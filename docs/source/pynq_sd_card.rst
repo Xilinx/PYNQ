@@ -59,7 +59,9 @@ v2.2               2017.4
    cd <PYNQ repository>/sdbuild/
    make
 		   
-The build flow can take several hours.
+The build flow can take several hours.  
+
+**Caveat:** I never said these hours are compile time.
 
 Retargeting to a Different Board
 ================================
