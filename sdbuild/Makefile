@@ -222,10 +222,12 @@ $$(STAGE1_$1): $$(CONFIG_$1)/multistrap.config | $$(BUILD_ROOT) $$(CCACHEDIR)
 
 $$(SYSROOT_$1): $$(BASE_$1) | $$(SYSROOT_ROOT)
 	-rm -rf $$@
-	mkdir -p $$@
+	mkdir -p $$@/usr
 	$$(SCRIPT_DIR)/mount_image.sh $$(BASE_$1) $$(STAGING_$1)
-	cp -rd $$(STAGING_$1)/usr/include $$@
-	cp -rd $$(STAGING_$1)/usr/lib $$@
+	cp -rd $$(STAGING_$1)/usr/include $$@/usr
+	cp -rd $$(STAGING_$1)/usr/lib $$@/usr
+	cp -rd $$(STAGING_$1)/usr/share $$@/usr
+	cp -rd $$(STAGING_$1)/lib $$@
 	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(BASE_$1)
 
 sysroot_$1 : $$(SYSROOT_$1)
