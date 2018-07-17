@@ -22,9 +22,10 @@ jupyter nbextension enable --py --sys-prefix widgetsnbextension
 # Install Extensions
 jupyter contrib nbextension install --user
 jupyter nbextensions_configurator enable --user
-
 jupyter nbextension install rise --py --sys-prefix
 jupyter nbextension enable rise --py --sys-prefix
+# Enable jupyterlab
+jupyter serverextension enable jupyterlab
 
 mkdir -p /home/xilinx/jupyter_notebooks
 
