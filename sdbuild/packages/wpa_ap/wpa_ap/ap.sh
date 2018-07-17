@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # User can adjust wlan0 to connect to a specific wifi network
-ifconfig wlan0 up
+while ! ifconfig wlan0 up
+do
+  sleep 1
+done
 . /etc/environment
 cd /usr/local/share/wpa_ap
 
