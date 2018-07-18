@@ -27,19 +27,19 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__      = "Luca Cerina"
-__copyright__   = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
-__email__       = "luca.cerina@mail.polimi.it"
-
 import os
 import subprocess as sproc
 import netifaces
 
+__author__ = "Luca Cerina"
+__copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
+__email__ = "luca.cerina@mail.polimi.it"
 
-class Usb_Wifi(object):
-    """This class controls the usb dongle wifi connection.
 
-    The board is compatible with RALink RT5370 devices.
+class Wifi(object):
+    """This class controls the WiFi connection.
+
+    For USB WiFi, RALink RT5370 devices are recommended.
 
     Note
     ----
@@ -59,6 +59,11 @@ class Usb_Wifi(object):
         Program will first try the default wireless interface name `wlan0`;
         if not found, it will look for interface name starting from `wl`.
 
+        Parameters
+        ----------
+        interface : str
+            The name of the network interface.
+
         """
         self.wifi_port = None
         net_device_list = netifaces.interfaces()
@@ -72,10 +77,10 @@ class Usb_Wifi(object):
                     break
 
         if not self.wifi_port:
-            raise ValueError("""Wifi device not found. Re-attach the device
-            or check device compatibility.""")
+            raise ValueError("No WiFi device found. Re-attach the device "
+                             "or check compatibility.")
 
-    def gen_network_file(self, ssid, password):
+    def gen_network_file(self, ssid, password, auto=False):
         """Generate the network authentication file.
 
         Generate the file from network SSID and WPA passphrase
@@ -84,9 +89,10 @@ class Usb_Wifi(object):
         ----------
         ssid : str
             String unique identifier of the wireless network
-
         password : str
             String WPA passphrase necessary to access the network
+        auto : bool
+            Whether to set the interface as auto connected after boot.
 
         Returns
         -------
@@ -109,12 +115,15 @@ class Usb_Wifi(object):
         os.system('ip link set {} up'.format(self.wifi_port))
 
         net_iface_fh = open("/etc/network/interfaces.d/" + self.wifi_port, 'w')
+        if auto:
+            net_iface_fh.write("auto " + self.wifi_port + "\n")
+            net_iface_fh.write("allow-hotplug " + self.wifi_port + "\n")
         net_iface_fh.write("iface " + self.wifi_port + " inet dhcp\n")
         net_iface_fh.write(" wpa-ssid " + ssid + "\n")
         net_iface_fh.write(" wpa-psk " + wifi_wpa_key + "\n\n")
         net_iface_fh.close()
 
-    def connect(self, ssid, password):
+    def connect(self, ssid, password, auto=False):
         """Make a new wireless connection.
 
         This function kills the wireless connection and connect to a new one
@@ -125,9 +134,10 @@ class Usb_Wifi(object):
         ----------
         ssid : str
             Unique identifier of the wireless network
-
         password : str
             String WPA passphrase necessary to access the network
+        auto : bool
+            Whether to set the interface as auto connected after boot.
 
         Returns
         -------
@@ -135,7 +145,7 @@ class Usb_Wifi(object):
 
         """
         os.system('ifdown {}'.format(self.wifi_port))
-        self.gen_network_file(ssid, password)
+        self.gen_network_file(ssid, password, auto)
         os.system('ifup {}'.format(self.wifi_port))
 
     def reset(self):

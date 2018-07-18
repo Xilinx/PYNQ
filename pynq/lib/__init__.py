@@ -39,6 +39,7 @@ from .rgbled import RGBLED
 from .switch import Switch
 from .button import Button
 from .iic import AxiIIC
+from .wifi import Wifi
 
 from .rpi import Rpi
 
