@@ -20,11 +20,10 @@ Getting Started Video
 You can watch the getting started video guide, or follow the instructions in
 :ref:`pynqz2-board-setup`.
 
-
 .. raw:: html
 
     <embed>
-         <iframe width="560" height="315" src="https://www.youtube.com/embed/IwiBUL1a9bU" frameborder="0" allowfullscreen></iframe>
+         <iframe width="560" height="315" src="https://www.youtube.com/embed/RiFbRf6gaK4" frameborder="0" allowfullscreen></iframe>
          </br>
          </br>
     </embed>
@@ -71,4 +70,3 @@ system is now booted and ready for use.
   
 
   .. include:: network_connection.rst
-
