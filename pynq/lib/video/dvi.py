@@ -33,6 +33,7 @@ __email__ = "pynq_support@xilinx.com"
 
 import warnings
 from .frontend import VideoInFrontend, VideoOutFrontend
+from .common import *
 from pynq import DefaultHierarchy
 from pynq.ps import CPU_ARCH, ZYNQ_ARCH
 
