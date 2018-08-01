@@ -449,7 +449,9 @@ class _TCLABC(metaclass=abc.ABCMeta):
                                      'pins': output_pins}
 
     def _add_interrupt_pins(self, net, parent, offset):
-        net_pins = self.nets[net]
+        net_pins = set()
+        if net in self.nets:
+            net_pins = self.nets[net]
         # Find the next item up the chain
         for p in net_pins:
             m = re.match('(.*)/dout', p)
