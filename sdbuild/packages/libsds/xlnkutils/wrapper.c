@@ -21,11 +21,12 @@ void sds_munmap(void *virtal_addr);
 
 /* CF helper functions */
 int cf_xlnk_open(int last) {
-    static void (*next_ptr)(int) = NULL;
+    static int (*next_ptr)(int) = NULL;
     if (!next_ptr) {
         *(void**)(&next_ptr) = dlsym(RTLD_NEXT, "cf_xlnk_open");
-        next_ptr(1);
+        return next_ptr(1);
     }
+    return 0;
 }
 void cf_xlnk_init(int first) {
     static void (*next_ptr)(int) = NULL;
