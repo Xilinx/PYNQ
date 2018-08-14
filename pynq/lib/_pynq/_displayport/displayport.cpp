@@ -19,8 +19,6 @@
 #include <boost/scope_exit.hpp>
 
 extern "C" {
-#include <libxlnk_cma.h>
-int sds_register_dmabuf(void *virtual_addr, int fd);
 
 
 void* pynqvideo_device_init(int fd);
@@ -173,11 +171,6 @@ public:
 			throw std::runtime_error("Cannot mmap dumb buffer");
 		}
 		memset(data, 0, size);
-		ret = sds_register_dmabuf(data, m_buf_fd);
-		if (ret) {
-			std::cerr << "SDSoC registration failed: " << ret << std::endl;
-			throw std::runtime_error("SDSoC registration failed");
-		}
 
 		physical_address = mreq.offset;
 
@@ -460,10 +453,4 @@ void pynqvideo_frame_free(void* device, void* frame) {
 	auto dev = static_cast<pynqvideo::device*>(device);
 	auto f = static_cast<pynqvideo::frame*>(frame);
 	dev->free_frame(f);
-}
-
-
-void _never_call() {
-	// This function exists purely to force a link
-	cma_alloc(1000, 0);
 }
