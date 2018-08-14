@@ -18,31 +18,6 @@ void *sds_mmap(void *phy_addr, size_t size, void *virtual_addr);
 void sds_munmap(void *virtal_addr);
 
 
-
-/* CF helper functions */
-int cf_xlnk_open(int last) {
-    static int (*next_ptr)(int) = NULL;
-    if (!next_ptr) {
-        *(void**)(&next_ptr) = dlsym(RTLD_NEXT, "cf_xlnk_open");
-        return next_ptr(1);
-    }
-    return 0;
-}
-void cf_xlnk_init(int first) {
-    static void (*next_ptr)(int) = NULL;
-    if (!next_ptr) {
-        *(void**)(&next_ptr) = dlsym(RTLD_NEXT, "cf_xlnk_init");
-        next_ptr(1);
-    }
-}
-void cf_context_init(void) {
-    static void (*next_ptr)(void) = NULL;
-    if (!next_ptr) {
-        *(void**)(&next_ptr) = dlsym(RTLD_NEXT, "cf_context_init");
-        next_ptr();
-    }
-}
-
 /* Functional prototpes from xlnk */
 
 unsigned long xlnkGetBufPhyAddr(void*);
@@ -116,14 +91,6 @@ void _xlnk_reset() {
     close(xlnkfd);
 }
 
-/* Constructor to Open xlnk device */
-
-__attribute__((constructor))
-void open_xlnk(void) {
-    cf_context_init();
-    cf_xlnk_open(1);
-    cf_xlnk_init(1);
-}
 
 void cma_flush_cache(void* buf, unsigned int phys_addr, int size) {
 #ifdef __aarch64__
