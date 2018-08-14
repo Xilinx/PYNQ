@@ -298,30 +298,32 @@ class _TCLABC(metaclass=abc.ABCMeta):
                     elif self.config_ip_pat in line \
                             and self.config_ignore_pat not in line:
                         m1 = re.search(self.config_regex, line)
-                        key = m1.group("key")
-                        value = m1.group("value")
-                        if key == "NUM_PORTS":
-                            self.concat_cells[last_concat] = int(value)
+                        if m1:
+                            key = m1.group("key")
+                            value = m1.group("value")
+                            if key == "NUM_PORTS":
+                                self.concat_cells[last_concat] = int(value)
 
-                        elif key == 'DIN_FROM':
-                            gpio_idx = int(value)
+                            elif key == 'DIN_FROM':
+                                gpio_idx = int(value)
 
-                        elif self.is_clk_divisor_line(line):
-                            m2 = re.search(self.clk_odiv_regex, key)
-                            pl_clk_idx = int(m2.group("pl_idx"))
-                            odiv_idx = m2.group("odiv_idx")
-                            divisor_name = 'divisor{}'.format(odiv_idx)
-                            if pl_clk_idx not in self.pl_clks:
-                                raise ValueError("Invalid PL CLK index")
-                            self.clock_dict[pl_clk_idx][divisor_name] = int(
-                                value)
+                            elif self.is_clk_divisor_line(line):
+                                m2 = re.search(self.clk_odiv_regex, key)
+                                pl_clk_idx = int(m2.group("pl_idx"))
+                                odiv_idx = m2.group("odiv_idx")
+                                divisor_name = 'divisor{}'.format(odiv_idx)
+                                if pl_clk_idx not in self.pl_clks:
+                                    raise ValueError("Invalid PL CLK index")
+                                self.clock_dict[pl_clk_idx][
+                                    divisor_name] = int(value)
 
-                        elif self.is_clk_enable_line(line):
-                            m3 = re.search(self.clk_enable_regex, key)
-                            pl_clk_idx = int(m3.group("idx"))
-                            if pl_clk_idx not in self.pl_clks:
-                                raise ValueError("Invalid PL CLK index")
-                            self.clock_dict[pl_clk_idx]['enable'] = int(value)
+                            elif self.is_clk_enable_line(line):
+                                m3 = re.search(self.clk_enable_regex, key)
+                                pl_clk_idx = int(m3.group("idx"))
+                                if pl_clk_idx not in self.pl_clks:
+                                    raise ValueError("Invalid PL CLK index")
+                                self.clock_dict[pl_clk_idx][
+                                    'enable'] = int(value)
 
                 # Matching address segment
                 elif self.addr_pat in line:
