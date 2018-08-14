@@ -152,12 +152,39 @@ class Xlnk:
     void cma_invalidate_cache(void* buf, unsigned int phys_addr, int size);
     void _xlnk_reset();
     """)
-    if CPU_ARCH_IS_SUPPORTED:
-        libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
-    else:
-        warnings.warn("Pynq does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
-    
+
+    libxlnk = None
+    libxlnk_path = "/usr/lib/libcma.so"
+
+    @classmethod
+    def set_allocator_library(cls, path):
+        """ Change the allocator used by Xlnk instances
+
+        This should only be called when there are no allocated buffers - 
+        using or freeing any pre-allocated buffers after calling this
+        function will result in undefined behaviour. This function
+        is needed for SDx based designs where it is desired that PYNQ
+        and SDx runtime share an allocator. In this case, this function
+        should be called with the SDx compiled shared library prior to
+        any buffer allocation
+
+        If loading of the library fails an exception will be raised, 
+        Xlnk.libxlnk_path will be unchanged and the old allocator will
+        still be in use.
+
+        Parameters
+        ----------
+        path : str
+            Path to the library to load
+
+        """
+        cls._open_library(path)
+        cls.libxlnk_path = path
+
+    @classmethod
+    def _open_library(cls, path):
+        cls.libxlnk = cls.ffi.dlopen(path)
+
     def __init__(self):
         """Initialize new Xlnk object.
 
@@ -168,6 +195,9 @@ class Xlnk:
         """
         if os.getuid() != 0:
             raise RuntimeError("Root permission needed by the library.")
+
+        if Xlnk.libxlnk is None:
+            Xlnk._open_library(Xlnk.libxlnk_path)
 
         self.bufmap = {}
 
