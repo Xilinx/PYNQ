@@ -34,7 +34,7 @@
  *
  * @file spi.c
  *
- * Implementing SPI related functions for PYNQ Microblaze, 
+ * Implementing SPI related functions for PYNQ Microblaze,
  * including the SPI initialization and transfer.
  *
  *
@@ -45,6 +45,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
  * 1.01  yrq 01/30/18 add protection macro
+ * 1.02  jmr 08/14/18 transfer supports read w/o write (and visa versa)
  *
  * </pre>
  *
@@ -55,19 +56,21 @@
 #ifdef XPAR_XSPI_NUM_INSTANCES
 #include "xspi_l.h"
 #include "xspi.h"
+
 static XSpi xspi[XPAR_XSPI_NUM_INSTANCES];
-XSpi* xspi_ptr = &xspi[0];
+XSpi *xspi_ptr = &xspi[0];
 extern XSpi_Config XSpi_ConfigTable[];
-/************************** Function Definitions ***************************/
-spi spi_open_device(unsigned int device){
+
+spi spi_open_device(unsigned int device) {
     int status;
     u16 dev_id;
     unsigned int base_address;
     u32 control;
-    
+
     if (device < XPAR_XSPI_NUM_INSTANCES) {
-        dev_id = (u16)device;
-    } else {
+        dev_id = (u16) device;
+    }
+    else {
         int found = 0;
         for (u16 i = 0; i < XPAR_XSPI_NUM_INSTANCES; ++i) {
             if (XSpi_ConfigTable[i].BaseAddress == device) {
@@ -76,7 +79,8 @@ spi spi_open_device(unsigned int device){
                 break;
             }
         }
-        if (!found) return -1;
+        if (!found)
+            return -1;
     }
     status = XSpi_Initialize(&xspi[dev_id], dev_id);
     if (status != XST_SUCCESS) {
@@ -98,7 +102,7 @@ spi spi_open_device(unsigned int device){
     // Write configuration word
     XSpi_WriteReg(base_address, XSP_CR_OFFSET, control);
 
-    return (spi)dev_id;
+    return (spi) dev_id;
 }
 
 
@@ -110,12 +114,16 @@ static int last_miso = -1;
 static int last_mosi = -1;
 static int last_ss = -1;
 
-spi spi_open(unsigned int spiclk, unsigned int miso, 
-             unsigned int mosi, unsigned int ss){
-    if (last_spiclk != -1) set_pin(last_spiclk, GPIO);
-    if (last_miso != -1) set_pin(last_miso, GPIO);
-    if (last_mosi != -1) set_pin(last_mosi, GPIO);
-    if (last_ss != -1) set_pin(last_ss, GPIO);
+spi spi_open(unsigned int spiclk, unsigned int miso,
+             unsigned int mosi, unsigned int ss) {
+    if (last_spiclk != -1)
+        set_pin(last_spiclk, GPIO);
+    if (last_miso != -1)
+        set_pin(last_miso, GPIO);
+    if (last_mosi != -1)
+        set_pin(last_mosi, GPIO);
+    if (last_ss != -1)
+        set_pin(last_ss, GPIO);
     last_spiclk = spiclk;
     last_miso = miso;
     last_mosi = mosi;
@@ -130,8 +138,8 @@ spi spi_open(unsigned int spiclk, unsigned int miso,
 #endif
 
 
-spi spi_configure(spi dev_id, unsigned int clk_phase, 
-                   unsigned int clk_polarity){
+spi spi_configure(spi dev_id, unsigned int clk_phase,
+                  unsigned int clk_polarity) {
     u32 control;
     unsigned int base_address = xspi[dev_id].BaseAddr;
     // Soft reset SPI
@@ -147,11 +155,11 @@ spi spi_configure(spi dev_id, unsigned int clk_phase,
     // Enable Transmitter
     control &= ~XSP_CR_TRANS_INHIBIT_MASK;
     // XSP_CR_CLK_PHASE_MASK
-    if(clk_phase){
+    if (clk_phase) {
         control |= XSP_CR_CLK_PHASE_MASK;
     }
     // XSP_CR_CLK_POLARITY_MASK
-    if(clk_polarity){
+    if (clk_polarity) {
         control |= XSP_CR_CLK_POLARITY_MASK;
     }
     // Write configuration word
@@ -160,35 +168,39 @@ spi spi_configure(spi dev_id, unsigned int clk_phase,
 }
 
 
-void spi_transfer(spi dev_id, const char* write_data, char* read_data, 
-                  unsigned int length){
+void spi_transfer(spi dev_id, const char *write_data, char *read_data,
+                  unsigned int length) {
     unsigned int i;
     unsigned volatile char j;
     unsigned int base_address = xspi[dev_id].BaseAddr;
 
     XSpi_WriteReg(base_address, XSP_SSR_OFFSET, 0xfe);
-    for (i=0; i<length; i++){
-        XSpi_WriteReg(base_address, XSP_DTR_OFFSET, write_data[i]);
+    if (write_data) {
+        for (i = 0; i < length; i++) {
+            XSpi_WriteReg(base_address, XSP_DTR_OFFSET, write_data[i]);
+        }
     }
-    while(((XSpi_ReadReg(base_address, XSP_SR_OFFSET) & 0x04)) != 0x04);
+    while (((XSpi_ReadReg(base_address, XSP_SR_OFFSET) & 0x04)) != 0x04);
 
     // delay for 10 clock cycles
     j = 10;
-    while(j--);
+    while (j--);
 
-    for(i=0; i<length; i++){
-       read_data[i] = XSpi_ReadReg(base_address, XSP_DRR_OFFSET);
+    if (read_data) {
+        for (i = 0; i < length; i++) {
+            read_data[i] = XSpi_ReadReg(base_address, XSP_DRR_OFFSET);
+        }
     }
     XSpi_WriteReg(base_address, XSP_SSR_OFFSET, 0xff);
 }
 
 
-void spi_close(spi dev_id){
+void spi_close(spi dev_id) {
     XSpi_ClearStats(&xspi[dev_id]);
 }
 
 
-unsigned int spi_get_num_devices(void){
+unsigned int spi_get_num_devices(void) {
     return XPAR_XSPI_NUM_INSTANCES;
 }
 
