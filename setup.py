@@ -293,7 +293,6 @@ def run_make(src_path, dst_path, output_lib):
 
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
-    run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
     if CPU_ARCH == ZYNQ_ARCH:
         run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
     elif CPU_ARCH == ZU_ARCH:
