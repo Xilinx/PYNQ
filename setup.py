@@ -131,9 +131,6 @@ else:
 _video_src = ['pynq/lib/_pynq/_video/_video.c',
               'pynq/lib/_pynq/_video/_capture.c',
               'pynq/lib/_pynq/_video/_display.c',
-              'pynq/lib/_pynq/_video/_frame.c',
-              'pynq/lib/_pynq/_video/_legacy_display.c',
-              'pynq/lib/_pynq/_video/_legacy_capture.c',
               'pynq/lib/_pynq/_video/axivdma_channel.c',
               'pynq/lib/_pynq/src/gpio.c',
               'pynq/lib/_pynq/src/py_xaxivdma.c',
@@ -317,8 +314,6 @@ if (CPU_ARCH == ZYNQ_ARCH):
         Extension('pynq.lib._video', video,
                   include_dirs=['pynq/lib/_pynq/inc',
                                 'pynq/lib/_pynq/bsp/ps7_cortexa9_0/include'],
-                  libraries=['sds_lib'],
-                  library_dirs=['/usr/lib'],
                   ),
     ]
 else:
