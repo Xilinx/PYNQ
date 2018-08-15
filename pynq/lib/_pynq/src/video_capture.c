@@ -122,20 +122,6 @@ int VideoStop(VideoCapture *videoPtr)
         return XST_SUCCESS;
     }
 
-    if (videoPtr->vdma) {
-        // Stop the VDMA core
-        XAxiVdma_DmaStop(videoPtr->vdma, XAXIVDMA_WRITE);
-        while(XAxiVdma_IsBusy(videoPtr->vdma, XAXIVDMA_WRITE));
-    
-        /*
-         * This might actually be the better way to test if the core is halted, 
-         * because IsBusy seems to check a bit that may no longer be supported 
-         * in the core.
-         */
-        XAxiVdma_Reset(videoPtr->vdma, XAXIVDMA_WRITE);
-        while(XAxiVdma_ResetNotDone(videoPtr->vdma, XAXIVDMA_WRITE));
-        videoPtr->state = VIDEO_PAUSED;
-    }
     return XST_SUCCESS;
 }
 /* ------------------------------------------------------------ */
@@ -169,61 +155,6 @@ int VideoStart(VideoCapture *videoPtr)
     if (videoPtr->state == VIDEO_STREAMING)
         return XST_SUCCESS;
 
-    if (videoPtr->vdma) {
-        /*
-         * TODO: Consider conditionally disabling the detector, 
-         * resetting the VDMA, and then re-enabling the detector.
-         * Configure the VDMA to access a frame with the same dimensions as the
-         * current mode.
-         */
-        videoPtr->vdmaConfig.VertSizeInput = videoPtr->timing.VActiveVideo;
-        videoPtr->vdmaConfig.HoriSizeInput = videoPtr->timing.HActiveVideo * 3;
-        videoPtr->vdmaConfig.FixedFrameStoreAddr = videoPtr->curFrame;
-        
-        /*
-         *Also reset the stride and address values, in case the user 
-         * manually changed them.
-         */
-        videoPtr->vdmaConfig.Stride = videoPtr->stride;
-        for (i = 0; i < VIDEO_NUM_FRAMES; i++)
-        {
-            videoPtr->vdmaConfig.FrameStoreStartAddr[i] =  
-                                    (u32) cma_get_phy_addr(videoPtr->framePtr[i]);
-        }
-        videoPtr->vdmaConfig.EnableFrameCounter = 0;
-    
-        /*
-         * Perform the VDMA driver calls required to start a transfer. 
-         * Note that no data is actually transferred until the disp_ctrl core 
-         * signals the VDMA core by pulsing fsync.
-         */
-        Status = XAxiVdma_DmaConfig(videoPtr->vdma, XAXIVDMA_WRITE, \
-                                    &(videoPtr->vdmaConfig));
-        if (Status != XST_SUCCESS)
-        {
-            return XST_FAILURE;
-        }
-        
-        Status = XAxiVdma_DmaSetBufferAddr(videoPtr->vdma, XAXIVDMA_WRITE, 
-                 videoPtr->vdmaConfig.FrameStoreStartAddr);
-        if (Status != XST_SUCCESS)
-        {
-            return XST_FAILURE;
-        }
-        
-        Status = XAxiVdma_DmaStart(videoPtr->vdma, XAXIVDMA_WRITE);
-        if (Status != XST_SUCCESS)
-        {
-            return XST_FAILURE;
-        }
-        
-        Status = XAxiVdma_StartParking(videoPtr->vdma, videoPtr->curFrame, \
-                                       XAXIVDMA_WRITE);
-        if (Status != XST_SUCCESS)
-        {
-            return XST_FAILURE;
-        }
-    } 
     videoPtr->state = VIDEO_STREAMING;
 
     return XST_SUCCESS;
@@ -270,29 +201,7 @@ int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict,
     // Initialize all the fields in the VideoCapture struct
     videoPtr->state = VIDEO_DISCONNECTED;
     videoPtr->vtcBaseAddress = (u32)vtcBaseAddress;
-    if (vdmaDict) {
-        videoPtr->curFrame = 0;
-        for (i = 0; i < VIDEO_NUM_FRAMES; i++)
-        {
-            videoPtr->framePtr[i] = framePtr[i];
-        }
-        videoPtr->stride = stride;
-        XAxiVdma_Config vdmaCfg = Py_XAxiVdma_LookupConfig(vdmaDict);
-        videoPtr->vdma = Py_XAxiVdma_CfgInitialize(&vdmaCfg);
-        videoPtr->vtcIsInit = 0;
-        videoPtr->startOnDetect = 1;
-        
-        // Initialize the VDMA Read configuration struct
-        videoPtr->vdmaConfig.FrameDelay = 0;
-        videoPtr->vdmaConfig.EnableCircularBuf = 1;
-        videoPtr->vdmaConfig.EnableSync = 0;
-        videoPtr->vdmaConfig.PointNum = 0;
-        videoPtr->vdmaConfig.EnableFrameCounter = 0;
-
-
-    } else {
-        videoPtr->vdma = NULL;
-    }
+    videoPtr->vdma = NULL;
     // Initialize the GPIO driver
     XGpio_Config gpioConfig = Py_XGpio_LookupConfig(gpioDict);
     videoPtr->gpio = Py_XGpio_CfgInitialize(&gpioConfig);
@@ -377,46 +286,6 @@ int VideoInitialize(VideoCapture *videoPtr, PyObject *vdmaDict,
     return XST_SUCCESS;
 }
 
-/* ------------------------------------------------------------ */
-
-/***    VideoChangeFrame(VideoCapture *dispPtr, u32 frameIndex)
-**
-**  Parameters:
-**      dispPtr - Pointer to the initialized VideoCapture struct
-**      frameIndex - Index of the framebuffer to change to (must
-**                   be between 0 and (DISPLAY_NUM_FRAMES - 1))
-**
-**  Return Value: int
-**      XST_SUCCESS if successful, XST_FAILURE otherwise
-**
-**  Errors:
-**
-**  Description:
-**      Changes the frame currently being displayed.
-**
-*/
-
-int VideoChangeFrame(VideoCapture *videoPtr, u32 frameIndex)
-{
-    int Status;
-
-    videoPtr->curFrame = frameIndex;
-    /*
-     * If currently running, then the DMA needs to be told to start reading 
-     * from the desired frame at the end of the current frame.
-     */
-    if (videoPtr->state == VIDEO_STREAMING)
-    {
-        Status = XAxiVdma_StartParking(videoPtr->vdma, videoPtr->curFrame, \
-                                       XAXIVDMA_WRITE);
-        if (Status != XST_SUCCESS)
-        {
-            return XST_FAILURE;
-        }
-    }
-
-    return XST_SUCCESS;
-}
 
 /****************************************************************************/
 /**
