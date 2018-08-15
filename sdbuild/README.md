@@ -133,3 +133,9 @@ STAGE4_PACKAGES_myboard := my_package
 Custom packages can be placed in a `packages` subfolder of the and will be
 picked up automatically if referenced. This is a convient way of installing
 custom notebooks or Python packages if desired for your board.
+
+# Custom Ubuntu Repository
+
+By default the sdbuild flow will pull from https://ports.ubuntu.com. This can
+be changed by setting the `PYNQ_UBUNTU_REPO` environment variable. The
+repository link in the final image will remain unchanged.
