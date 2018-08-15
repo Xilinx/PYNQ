@@ -9,8 +9,17 @@ SRCDIR=$2
 fss="proc dev"
 echo $QEMU_EXE
 
+multistrap_conf=${SRCDIR}/multistrap.config
+
+if [ -n "$PYNQ_UBUNTU_REPO" ]; then
+  tmpfile=$(mktemp)
+  sed -e "s;source=.*;source=${PYNQ_UBUNTU_REPO};" $multistrap_conf > $tmpfile
+  multistrap_conf=$tmpfile
+  trap "rm -f $tmpfile" EXIT
+fi
+
 # Perform the basic bootstrapping of the image
-$dry_run sudo -E multistrap -f ${SRCDIR}/multistrap.config -d $target --no-auth
+$dry_run sudo -E multistrap -f $multistrap_conf -d $target --no-auth
 
 # Make sure the that the root is still writable by us
 sudo chroot / chmod a+w $target
@@ -53,6 +62,13 @@ fake-hwclock save
 exit 0
 EOT
 
+if [ -n "$PYNQ_UBUNTU_REPO" ]; then
+  cat - >> $target/postinst2.sh <<EOT
+echo "deb http://ports.ubuntu.com/ubuntu-ports bionic main universe" > /etc/apt/sources.list.d/multistrap-bionic.list
+echo "deb-src http://ports.ubuntu.com/ubuntu-ports bionic main universe" >> /etc/apt/sources.list.d/multistrap-bionic.list
+EOT
+fi
+
 # Copy over what we need to complete the installation
 $dry_run sudo cp ${QEMU_EXE} $target/usr/bin
 
@@ -71,7 +87,9 @@ for fs in $fss
 do
   $dry_run sudo umount -l $target/$fs
 done
-
+if [ -e "$tmpfile" ]; then
+  rm -f $tmpfile
+fi
 }
 
 trap unmount_special EXIT
