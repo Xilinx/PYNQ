@@ -1,0 +1,26 @@
+--- /home/xilinx/tm_aarch64_diff/orig/usr/lib/os-release	2018-08-21 16:29:47.022460102 +0000
++++ /home/xilinx/tm_aarch64_diff/final/usr/lib/os-release	2018-08-21 16:11:46.231073400 +0000
+@@ -1,12 +1,12 @@
+-NAME="Ubuntu"
+-VERSION="18.04 LTS (Bionic Beaver)"
+-ID=ubuntu
+-ID_LIKE=debian
+-PRETTY_NAME="Ubuntu 18.04 LTS"
+-VERSION_ID="18.04"
+-HOME_URL="https://www.ubuntu.com/"
+-SUPPORT_URL="https://help.ubuntu.com/"
+-BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+-PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+-VERSION_CODENAME=bionic
++NAME="PYNQ Linux"
++VERSION="2.3 (Trinity)"
++ID=pynqlinux
++ID_LIKE=ubuntu
++PRETTY_NAME="PYNQ Linux, based on Ubuntu 18.04"
++VERSION_ID="2.3"
++HOME_URL="https://www.pynq.io/"
++SUPPORT_URL="https://forums.ubuntu.com/"
++BUG_REPORT_URL="https://www.pynq.io"
++PRIVACY_POLICY_URL="https://www.pynq.io"
++VERSION_CODENAME=trinity
+ UBUNTU_CODENAME=bionic

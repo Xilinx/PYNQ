@@ -1,0 +1,14 @@
+--- /home/xilinx/tm_aarch64_diff/orig/etc/update-motd.d/10-help-text	2018-08-21 16:29:46.990460199 +0000
++++ /home/xilinx/tm_aarch64_diff/final/etc/update-motd.d/10-help-text	2018-08-21 16:06:12.725223800 +0000
+@@ -20,7 +20,7 @@
+ #    with this program; if not, write to the Free Software Foundation, Inc.,
+ #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ 
+-printf "\n"
+-printf " * Documentation:  https://help.ubuntu.com\n"
+-printf " * Management:     https://landscape.canonical.com\n"
+-printf " * Support:        https://ubuntu.com/advantage\n"
++  printf "\n"
++# printf " * Documentation:  https://help.ubuntu.com\n"
++# printf " * Management:     https://landscape.canonical.com\n"
++# printf " * Support:        https://ubuntu.com/advantage\n"
