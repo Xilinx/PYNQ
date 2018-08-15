@@ -1,0 +1,14 @@
+--- 10-help-text.old	2018-07-26 20:05:50.599999006 +0000
++++ 10-help-text	2018-07-26 20:06:04.789998985 +0000
+@@ -20,7 +20,7 @@
+ #    with this program; if not, write to the Free Software Foundation, Inc.,
+ #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ 
+-printf "\n"
+-printf " * Documentation:  https://help.ubuntu.com\n"
+-printf " * Management:     https://landscape.canonical.com\n"
+-printf " * Support:        https://ubuntu.com/advantage\n"
++# printf "\n"
++# printf " * Documentation:  https://help.ubuntu.com\n"
++# printf " * Management:     https://landscape.canonical.com\n"
++# printf " * Support:        https://ubuntu.com/advantage\n"

@@ -1,0 +1,26 @@
+--- os-release.old	2018-07-26 19:53:00.179996418 +0000
++++ os-release	2018-07-26 19:53:35.379996366 +0000
+@@ -1,12 +1,12 @@
+-NAME="Ubuntu"
+-VERSION="18.04 LTS (Bionic Beaver)"
+-ID=ubuntu
+-ID_LIKE=debian
+-PRETTY_NAME="Ubuntu 18.04 LTS"
+-VERSION_ID="18.04"
+-HOME_URL="https://www.ubuntu.com/"
+-SUPPORT_URL="https://help.ubuntu.com/"
+-BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+-PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+-VERSION_CODENAME=bionic
++NAME="PynqLinux"
++VERSION="2.3 (Trinity)"
++ID=pynqlinux
++ID_LIKE=ubuntu
++PRETTY_NAME="PynqLinux, based on Ubuntu 18.04"
++VERSION_ID="2.3"
++HOME_URL="https://www.pynq.io/"
++SUPPORT_URL="https://forums.ubuntu.com/"
++BUG_REPORT_URL="https://www.pynq.io"
++PRIVACY_POLICY_URL="https://www.pynq.io"
++VERSION_CODENAME=trinity
+ UBUNTU_CODENAME=bionic
