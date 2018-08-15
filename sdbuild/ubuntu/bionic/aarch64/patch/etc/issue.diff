@@ -1,0 +1,6 @@
+--- /home/xilinx/tm_aarch64_diff/orig/etc/issue	2018-08-21 16:29:46.910460443 +0000
++++ /home/xilinx/tm_aarch64_diff/final/etc/issue	2018-08-21 16:07:59.888472600 +0000
+@@ -1,2 +1,2 @@
+-Ubuntu 18.04 LTS \n \l
++PYNQ Linux, based on Ubuntu 18.04 \n \l
+ 

@@ -1,0 +1,99 @@
+--- /home/xilinx/tm_aarch64_diff/orig/etc/update-motd.d/50-motd-news	2018-08-21 16:29:47.010460138 +0000
++++ /home/xilinx/tm_aarch64_diff/final/etc/update-motd.d/50-motd-news	2018-08-21 16:06:12.725223800 +0000
+@@ -28,96 +28,3 @@
+ #                                                                     - Dustin
+ ##############################################################################
+ 
+-# Source the local configuration
+-[ -r /etc/default/motd-news ] && . /etc/default/motd-news
+-
+-# Exit immediately, unless we're enabled
+-# This makes this script very easy to disable in /etc/default/motd-news configuration
+-[ "$ENABLED" = "1" ] || exit 0
+-
+-# Ensure sane defaults
+-[ -n "$URLS" ] || URLS="https://motd.ubuntu.com"
+-[ -n "$WAIT" ] || WAIT=5
+-[ -n "$CACHE" ] || CACHE="/var/cache/motd-news"
+-[ "$1" = "--force" ] && FORCED=1
+-
+-# Ensure we print safely, maximum of the first 10 lines,
+-# maximum of the first 80 chars per line, no control chars
+-safe_print() {
+-	cat "$1" | head -n 10 | tr -d '\000-\011\013\014\016-\037' | cut -c -80
+-}
+-
+-
+-# If we're not forcing an update, and we have a cached motd-news file,
+-# then just print it and exit as quickly as possible, for login performance.
+-# Note that systemd should keep this cache file up to date, asynchronously
+-if [ "$FORCED" != "1" ]; then
+-  	if [ -r $CACHE ]; then
+-		echo
+-		safe_print $CACHE
+-	else
+-		: > $CACHE
+-	fi
+-	exit 0
+-fi
+-
+-# If we've made it here, we've been given the --force argument,
+-# probably from the systemd motd-news.service.  Let's update...
+-
+-# Generate our temp files, clean up when done
+-NEWS=$(mktemp)
+-ERR="$NEWS.err"
+-trap "rm -f $NEWS $ERR" HUP INT QUIT ILL TRAP KILL BUS TERM
+-
+-# Construct a user agent, similar to Firefox/Chrome/Safari/IE to
+-# ensure a proper, tailored, accurate message of the day
+-
+-# Curl browser version, for debug purposes
+-curl_ver="$(dpkg -l curl | awk '$1 == "ii" { print($3); exit(0); }')"
+-
+-# Distribution version, for messages releated to this Ubuntu release
+-. /etc/lsb-release
+-lsb=$(echo "$DISTRIB_DESCRIPTION" | sed -e "s/ /\//g")
+-codename="$DISTRIB_CODENAME"
+-
+-# Kernel version and CPU type, for messages related to a particular revision or hardware
+-platform="$(uname -o)/$(uname -r)/$(uname -m)"
+-arch="$(uname -m)"
+-cpu="$(grep -m1 "^model name" /proc/cpuinfo | sed -e "s/.*: //" -e "s:\s\+:/:g")"
+-
+-# Some messages may only be pertinent before or after some amount of uptime
+-read up idle < /proc/uptime
+-uptime="uptime/$up/$idle"
+-
+-# Piece together the user agent
+-USER_AGENT="curl/$curl_ver $lsb $platform $cpu $uptime"
+-
+-# Loop over any configured URLs
+-for u in $URLS; do
+-	# Ensure https:// protocol, for security reasons
+-	case $u in
+-		https://*)
+-			true
+-		;;
+-		https://motd.ubuntu.com)
+-			u="$u/$codename/$arch"
+-		;;
+-		*)
+-			continue
+-		;;
+-	esac
+-	# If we're forced, set the wait to much higher (1 minute)
+-	[ "$FORCED" = "1" ] && WAIT=60
+-	# Fetch and print the news motd
+-	if curl --connect-timeout "$WAIT" --max-time "$WAIT" -A "$USER_AGENT" -o- "$u" >"$NEWS" 2>"$ERR"; then
+-		echo
+-		# At most, 10 lines of text, remove control characters, print at most 80 characters per line
+-		safe_print "$NEWS"
+-		# Try to update the cache
+-		safe_print "$NEWS" 2>/dev/null >$CACHE || true
+-	else
+-		: > "$CACHE"
+- 	fi
+-done
+-rm -f "$NEWS" "$NEWS.err"
+-exit 0

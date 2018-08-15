@@ -1,8 +1,11 @@
---- lsb-release.old	2018-07-11 20:53:16.120012132 +0000
-+++ lsb-release	2018-07-11 20:53:36.420012163 +0000
+--- /home/xilinx/tm_aarch64_diff/orig/etc/lsb-release	2018-08-21 16:29:46.970460260 +0000
++++ /home/xilinx/tm_aarch64_diff/final/etc/lsb-release	2018-08-21 16:13:03.814326800 +0000
 @@ -1,4 +1,4 @@
- DISTRIB_ID=Ubuntu
- DISTRIB_RELEASE=18.04
- DISTRIB_CODENAME=bionic
+-DISTRIB_ID=Ubuntu
+-DISTRIB_RELEASE=18.04
+-DISTRIB_CODENAME=bionic
 -DISTRIB_DESCRIPTION="Ubuntu 18.04 LTS"
-+DISTRIB_DESCRIPTION="PYNQ Linux, based on Ubuntu"
++DISTRIB_ID=pynqlinux
++DISTRIB_RELEASE=v2.3
++DISTRIB_CODENAME=trinity
++DISTRIB_DESCRIPTION="PYNQ Linux, based on Ubuntu 18.04"
