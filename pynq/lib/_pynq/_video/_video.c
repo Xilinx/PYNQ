@@ -65,13 +65,6 @@ PyMODINIT_FUNC PyInit__video(void){
         return NULL;
     if (PyType_Ready(&videocaptureType) < 0)
         return NULL;
-    if (PyType_Ready(&videolegacydisplayType) < 0)
-        return NULL;
-    if (PyType_Ready(&videolegacycaptureType) < 0)
-        return NULL;
-    if (PyType_Ready(&videoframeType) < 0)
-        return NULL;
-
     m = PyModule_Create(&_videomodule);
     if (m == NULL)
         return NULL;
@@ -80,8 +73,5 @@ PyMODINIT_FUNC PyInit__video(void){
     Py_INCREF(&videocaptureType);
     PyModule_AddObject(m, "_display", (PyObject *)&videodisplayType);
     PyModule_AddObject(m, "_capture", (PyObject *)&videocaptureType);
-    PyModule_AddObject(m, "_legacy_display", (PyObject *)&videolegacydisplayType);
-    PyModule_AddObject(m, "_legacy_capture", (PyObject *)&videolegacycaptureType);
-    PyModule_AddObject(m, "_frame", (PyObject *)&videoframeType);
     return m;
 }
