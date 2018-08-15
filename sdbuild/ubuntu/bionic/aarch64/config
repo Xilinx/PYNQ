@@ -1,3 +1,3 @@
-STAGE2_PACKAGES_aarch64 := gcc-mb python_packages_bionic xkcd libsds jupyter
+STAGE2_PACKAGES_aarch64 := gcc-mb python_packages_bionic libsds jupyter
 STAGE2_PACKAGES_aarch64 += phantomjs-fix x11 sigrok
 STAGE3_PACKAGES_aarch64 := pynq resizefs
