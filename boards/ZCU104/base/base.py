@@ -11,6 +11,8 @@ class BaseOverlay(pynq.Overlay):
             # Make sure this is set until we can do this automatically
             axi_config = MMIO(0xFF419000, 0x4)
             axi_config.write(0,0)
+            # Wait for AXI reset to de-assert
+            time.sleep(0.2)
             # Deassert HDMI clock reset
             self.reset_control.channel1[0].write(1)
             # Wait 200 ms for the clock to come out of reset
