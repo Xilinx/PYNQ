@@ -1,0 +1,75 @@
+From 0ca4cd335510e9e664dd86c0232822dba40febb4 Mon Sep 17 00:00:00 2001
+From: Jason Wu <jason.wu.misc@gmail.com>
+Date: Thu, 9 Jun 2016 11:48:36 +1000
+Subject: [PATCH 2/3] zynq: Allow to read mac address from SPI flash OTP region
+
+Probe flash and use OTP read command for reading mac address stored in
+the memory. This is the easiest way how to do it.
+
+Signed-off-by: Jason Wu <jason.wu.misc@gmail.com>
+Signed-off-by: Michal Simek <monstr@monstr.eu>
+---
+ board/xilinx/zynq/board.c    | 24 ++++++++++++++++++++++++
+ include/configs/zynq_artyz.h |  4 ++++
+ 2 files changed, 28 insertions(+)
+
+diff --git a/board/xilinx/zynq/board.c b/board/xilinx/zynq/board.c
+index 995473c..78f090e 100644
+--- a/board/xilinx/zynq/board.c
++++ b/board/xilinx/zynq/board.c
+@@ -8,6 +8,8 @@
+ #include <fdtdec.h>
+ #include <fpga.h>
+ #include <mmc.h>
++#include <spi.h>
++#include <spi_flash.h>
+ #include <zynqpl.h>
+ #include <asm/arch/hardware.h>
+ #include <asm/arch/sys_proto.h>
+@@ -132,6 +134,28 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+ 		printf("I2C EEPROM MAC address read failed\n");
+ #endif
+ 
++#if defined(CONFIG_ZYNQ_QSPI) && \
++    defined(CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET)
++#define CMD_OTPREAD_ARRAY_FAST		0x4b
++	struct spi_flash *flash;
++	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
++				CONFIG_SF_DEFAULT_CS,
++				CONFIG_SF_DEFAULT_SPEED,
++				CONFIG_SF_DEFAULT_MODE);
++	if (!flash) {
++		printf("SPI(bus:%u cs:%u) probe failed\n",
++			CONFIG_SF_DEFAULT_BUS,
++			CONFIG_SF_DEFAULT_CS);
++		return 0;
++	}
++	/* set the cmd to otp read */
++	flash->read_cmd = CMD_OTPREAD_ARRAY_FAST;
++	if (spi_flash_read(flash, CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET, 6, ethaddr))
++		printf("SPI MAC address read failed\n");
++
++	if (flash)
++		spi_flash_free(flash);
++#endif
+ 	return 0;
+ }
+ 
+diff --git a/include/configs/zynq_artyz.h b/include/configs/zynq_artyz.h
+index caff787..2a03299 100644
+--- a/include/configs/zynq_artyz.h
++++ b/include/configs/zynq_artyz.h
+@@ -22,6 +22,10 @@
+ #define CONFIG_DISPLAY
+ #define CONFIG_I2C_EDID
+ */
++
++/* GEM MAC address offset */
++#define CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET	0x20
++
+ /* Define ARTY-Z PS Clock Frequency to 50MHz */
+ #define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
+ 
+-- 
+2.7.4
+
