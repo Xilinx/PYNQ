@@ -299,11 +299,11 @@ class Overlay(Bitstream):
         else:
             raise ValueError("Cannot find HWH or TCL file.")
 
-        self.ip_dict = self.parser.ip_dict
+        self.ip_dict = deepcopy(self.parser.ip_dict)
         self.gpio_dict = self.parser.gpio_dict
         self.interrupt_controllers = self.parser.interrupt_controllers
         self.interrupt_pins = self.parser.interrupt_pins
-        self.hierarchy_dict = self.parser.hierarchy_dict
+        self.hierarchy_dict = deepcopy(self.parser.hierarchy_dict)
         self.clock_dict = self.parser.clock_dict
 
         description = _complete_description(
