@@ -3,17 +3,20 @@ BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 UBUNTU_RELEASE := bionic
 VERSION := 2.3
 
+KERNEL_VERSION = 2017.4
+LINUX_VERSION := 4.9.0-xilinx-v2017.4
 SCRIPT_DIR := $(CURDIR)/scripts
 
 all: real_all
 
 BUILD_ROOT := $(CURDIR)/build
-BOOT_ROOT := $(CURDIR)/output/boot
 IMAGE_ROOT := $(CURDIR)/output
 CCACHEDIR := $(CURDIR)/ccache
 ROOTDIR := $(CURDIR)
-SDX_ROOT := $(IMAGE_ROOT)/sdx
-SYSROOT_ROOT := $(IMAGE_ROOT)/sysroot
+BOOT_ROOT := $(CURDIR)/output/boot
+SDX_ROOT := $(CURDIR)/output/sdx
+SYSROOT_ROOT := $(CURDIR)/output/sysroot
+BSP_ROOT := $(CURDIR)/output/bsp
 
 KERNEL_arm := zImage
 KERNEL_aarch64 := Image
@@ -43,6 +46,9 @@ $(SDX_ROOT):
 $(SYSROOT_ROOT):
 	mkdir -p $@
 
+$(BSP_ROOT):
+	mkdir -p $@
+
 PYNQ_UPDATE := $(BUILD_ROOT)/PYNQ/.git/HEAD
 PYNQ_MASTER_COMMIT := $(shell git rev-parse HEAD)
 PYNQ_CLONED_COMMIT := $(shell cd $(BUILD_ROOT)/PYNQ 2> /dev/null && git rev-parse HEAD)
@@ -66,13 +72,48 @@ include $(wildcard $(BOARDDIR)/*/*.spec)
 define BOARD_SPECIFIC_RULES
 # $1 is the board name
 BOARDDIR_$1 := $$(BOARDDIR)/$1
-BSP_ABS_$1 := $$(BOARDDIR_$1)/$$(BSP_$1)
 BITSTREAM_ABS_$1 := $$(patsubst %, $$(BOARDDIR_$1)/%, $$(BITSTREAM_$1))
 BUILD_ROOT_$1 := $$(BUILD_ROOT)/$1
 BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 ARCH=$$(ARCH=$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
+
+ifeq ($$(ARCH_$1),arm)
+    YOCTO_$1 := zynq7
+    TEMPLATE_$1 := zynq
+endif
+ifeq ($$(ARCH_$1),aarch64)
+    YOCTO_$1 := zynqmp
+    TEMPLATE_$1 := zynqMP
+endif
+
+BSP_BUILD_$1 := $$(BUILD_ROOT_$1)/petalinux_bsp
+BSP_ABS_$1 := $$(patsubst %,$$(BOARDDIR_$1)/%,$$(BSP_$1))
+BSP_PROJECT_$1 := xilinx-$$(shell echo $1 | tr A-Z a-z | tr -cd '[:alnum:]')-$$(KERNEL_VERSION)
+BSP_TARGET_$1 := $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp
+BSP_ENV_$1 := BSP=$$(BSP_$1) BSP_BUILD=$$(BSP_BUILD_$1) BSP_ABS=$$(BSP_ABS_$1) BSP_PROJECT=$$(BSP_PROJECT_$1)
+
+$$(BSP_BUILD_$1): $$(BUILD_ROOT_$1)
+	-rm -rf $$(BSP_BUILD_$1)
+	mkdir -p $$(BSP_BUILD_$1)
+
+$$(BSP_TARGET_$1): $$(BSP_BUILD_$1)
+	$$(BSP_ENV_$1) $$(SCRIPT_DIR)/create_bsp.sh $$(BOARDDIR_$1) $$(TEMPLATE_$1)
+
+# BSP Specific Rules
+BSP_DIR_$1 := $$(BSP_ROOT)/$1
+BSP_FILES_$1 := $$(BSP_DIR_$1)/$$(BSP_PROJECT_$1).bsp
+
+$$(BSP_DIR_$1): | $$(BSP_ROOT)
+	mkdir -p $$@
+
+$$(BSP_DIR_$1)/$$(BSP_PROJECT_$1).bsp: $$(BSP_TARGET_$1) | $$(BSP_DIR_$1)
+	cp $$< $$@
+
+bsp_$1: $$(BSP_FILES_$1)
+
+.PHONY: bsp_$1
 
 PL_PROJ_$1 := $$(BUILD_ROOT_$1)/petalinux_project
 PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
@@ -81,9 +122,10 @@ KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/plnx_$$(ARCH_$1)/kernel-dev
 
 BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN
 BOOT_DEPENDS_$1 := $$(patsubst %, $$(PL_PROJ_$1)/images/linux/%, $$(BOOT_$$(ARCH_$1)))
-$$(PL_PROJ_$1): $$(BSP_ABS_$1) | $$(BUILD_ROOT_$1)
+$$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	-rm -rf $$(PL_PROJ_$1)
-	cd $$(BUILD_ROOT_$1) && petalinux-create -t project -s $$(BSP_ABS_$1) -n petalinux_project
+	cd $$(BUILD_ROOT_$1) && petalinux-create -t project \
+		-s $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp -n petalinux_project
 	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ROOTFS_SD=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
@@ -98,7 +140,7 @@ $$(BOOT_ROOT_$1)/image.ub : $$(BUILD_ROOT_$1)/image.its $$(BUILD_ROOT_$1)/system
 $$(BUILD_ROOT_$1)/image.its: $$(CURDIR)/boot/image_$$(ARCH_$1).its | $$(BUILD_ROOT_$1)
 	cp $$< $$@
 
-$$(PL_CONFIG_$1): $$(BSP_ABS_$1) | $$(PL_PROJ_$1); 
+$$(PL_CONFIG_$1): $$(BSP_BUILD_$1) | $$(PL_PROJ_$1); 
 
 $$(PL_PROJ_$1)/images/linux/%_fsbl.elf: $$(PL_CONFIG_$1)
 	PYNQ_BOARDNAME=$1 petalinux-build -c bootloader -p $$(PL_PROJ_$1)
@@ -147,12 +189,11 @@ $$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODUL
 	sudo cp -r --no-preserve=ownership $$(BUILD_ROOT_$1)/modules/* $$(STAGING_$1)
 	rm -rf $$(BUILD_ROOT_$1)/modules
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
-	sudo chroot $$(STAGING_$1) depmod -a 4.9.0-xilinx-v2017.4
+	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
 	$$(SCRIPT_DIR)/resize_umount.sh $$(IMAGE_$1) $$(STAGING_$1)
 
 
 # SDX Specific Rules
-
 SDX_DIR_$1 := $$(SDX_ROOT)/$1/sw
 SDX_LINUX_DIR_$1 := $$(SDX_DIR_$1)/linux
 SDX_BOOT_DIR_$1 := $$(SDX_DIR_$1)/boot
@@ -248,6 +289,7 @@ USED_ARCH := $(sort $(foreach board, $(BOARDS), $(value ARCH_$(board))))
 $(foreach board, $(BOARDS), $(eval $(call BOARD_SPECIFIC_RULES,$(board))))
 $(foreach arch, $(USED_ARCH), $(eval $(call ARCH_SPECIFIC_RULES,$(arch))))
 
+BSP_FILES := $(foreach bsp_var, $(patsubst %, BSP_FILES_%, $(BOARDS)), $(value $(bsp_var)))
 BOOT_FILES := $(foreach boot_var, $(patsubst %, BOOT_FILES_%, $(BOARDS)), $(value $(boot_var)))
 IMAGE_FILES := $(foreach image_var, $(patsubst %, IMAGE_%, $(BOARDS)), $(value $(image_var)))
 ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(board)) $(value STAGE4_PACKAGES_$(board))) \
@@ -255,7 +297,9 @@ ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(boa
 PACKAGE_CLEAN := $(patsubst %,PACKAGE_CLEAN_%, $(ALL_PACKAGES))
 
 checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
-	which petalinux-config
+	which vivado | fgrep ${KERNEL_VERSION}
+	which sdx | fgrep ${KERNEL_VERSION}
+	which petalinux-config | fgrep ${KERNEL_VERSION}
 	which arm-linux-gnueabihf-gcc
 	which microblaze-xilinx-elf-gcc
 	which ct-ng
@@ -274,6 +318,8 @@ sdx_sw: $(patsubst %, sdx_sw_%, $(BOARDS))
 
 sysroot: $(patsubst %, sysroot_%, $(USED_ARCH))
 
+bsp: $(patsubst %, bsp_%, $(BOARDS))
+
 # Default package clean target
 PACKAGE_CLEAN_%: ;
 
@@ -281,5 +327,5 @@ clean: $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: boot_files images all clean real_all checkenv sdx_sw sysroot
+.PHONY: bsp boot_files images all clean real_all checkenv sdx_sw sysroot
 
