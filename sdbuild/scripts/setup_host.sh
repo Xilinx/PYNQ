@@ -83,4 +83,5 @@ fi
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 
-echo "Now install Petalinux 2017.4 and re-login to  ensure the enviroment is properly set up"
+echo "Now install Vivado, SDx, and Petalinux."
+echo "Re-login to  ensure the enviroment is properly set up."
