@@ -8,8 +8,15 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 sudo cp -r $BUILD_ROOT/PYNQ $target/home/xilinx/pynq_git
 if [ ${PYNQ_BOARD} != "Unknown" ]; then
-	sudo cp -rf ${PYNQ_BOARDDIR} \
-	$target/home/xilinx/pynq_git/boards/
+	cd ${PYNQ_BOARDDIR}
+	for f in `find . ! -name "*.bsp"`
+	do
+		if [ -d "$f" ]; then
+			sudo mkdir -p $target/home/xilinx/pynq_git/boards/${PYNQ_BOARD}/$f
+		else
+			sudo cp -f $f $target/home/xilinx/pynq_git/boards/${PYNQ_BOARD}/$f
+		fi
+	done
 fi
 sudo cp $script_dir/pl_server.sh $target/usr/local/bin
 sudo cp $script_dir/pl_server.service $target/lib/systemd/system
