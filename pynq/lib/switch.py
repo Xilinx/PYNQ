@@ -2,19 +2,21 @@ __author__ = "Kevin Anderson"
 __copyright__ = "Copyright 2018, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-
-import asyncio
+from pynq.lib.gpio_abc import GPIO_Input
 
 class Switch(object):
 	def __init__(self, device, length=1):
-		methods = ['read', 'wait_for_value_async', 'wait_for_value']
-		if(all(m in dir(device) for m in methods)):
+		if(isinstance(device, GPIO_Input)):
 			self._impl = device
+			self._length = length
 		else:
-		 	raise TypeError("Object must contain LED methods: %s", methods)  # <<<  Should it raise an Exception????
+		 	raise TypeError("Object must contain methods: " + str(GPIO_Input.methods))
 
 	def read(self):
 		return self._impl.read()
 
 	def wait_for_value(self, value):
 		self._impl.wait_for_value(value)
+
+	def __len__(Self):
+		return self._length
