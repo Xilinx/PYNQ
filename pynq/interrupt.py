@@ -29,15 +29,46 @@
 
 
 import asyncio
-import functools
-import os
 import weakref
+import warnings
 from .pl import PL
+from .ps import CPU_ARCH, ZU_ARCH, ZYNQ_ARCH
 from .mmio import MMIO
+from .uio import get_uio_device, UioController
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+
+def get_uio_irq(irq):
+    """Returns the UIO device path for a specified interrupt.
+
+    If the IRQ either cannot be found or does not correspond to a
+    UIO device, None is returned.
+
+    Parameters
+    ----------
+    irq : int
+        The desired physical interrupt line
+
+    Returns
+    -------
+    str
+        The path of the device in /dev list.
+
+    """
+    dev_name = None
+    with open('/proc/interrupts', 'r') as f:
+        for line in f:
+            cols = line.split()
+            if len(cols) >= 7:
+                if cols[-3] == str(irq):
+                    dev_name = cols[-1]
+    if dev_name is None:
+        return None
+    else:
+        return get_uio_device(dev_name)
 
 
 class Interrupt(object):
@@ -85,65 +116,6 @@ class Interrupt(object):
         yield from self.event.wait()
         self.waiting = False
 
-# Implementation Details Follow
-
-
-def _get_uio_device(irq):
-    """Returns the UIO device path for a specified interrupt
-
-    If the IRQ either cannot be found or does not correspond to a
-    UIO device, None is returned
-
-    Parameters
-    ----------
-    irq : int
-        The desired physical interrupt line
-
-    """
-    dev_names = None
-    with open('/proc/interrupts', 'r') as f:
-        for line in f:
-            cols = line.split()
-            if len(cols) >= 7:
-                if cols[4] == str(irq):
-                    # Hack to work on multiple kernel versions
-                    dev_names = [cols[5], cols[6]]
-    if dev_names is None:
-        return None
-    for dev in os.listdir("/sys/class/uio"):
-        with open('/sys/class/uio/' + dev + '/name', 'r') as f:
-            name = f.read().strip()
-        if name in dev_names:
-            return '/dev/' + dev
-    return None
-
-
-class _UioController(object):
-    """Class that interacts directly with a UIO device"""
-
-    def __init__(self, devname):
-        self.uio = open(devname, 'r+b', buffering=0)
-        # Register callback with asyncio
-        asyncio.get_event_loop().add_reader(self.uio, functools.partial(
-            _UioController._uio_callback, self))
-        self.wait_events = []
-
-    def __del__(self):
-        asyncio.get_event_loop().remove_reader(self.uio)
-        self.uio.close()
-
-    def _uio_callback(self):
-        self.uio.read(4)
-        current_events = self.wait_events
-        self.wait_events = []
-        for e in current_events:
-            e.set()
-
-    def add_event(self, event, number):
-        if not self.wait_events:
-            self.uio.write(bytes([0, 0, 0, 1]))
-        self.wait_events.append(event)
-
 
 class _InterruptController(object):
     """Class that interacts with an AXI interrupt controller
@@ -155,6 +127,13 @@ class _InterruptController(object):
     """
     _controllers = []
     _last_timestamp = None
+    if CPU_ARCH == ZYNQ_ARCH:
+        irq_offset = 61
+    elif CPU_ARCH == ZU_ARCH:
+        irq_offset = 121
+    else:
+        warnings.warn("PYNQ does not support the CPU Architecture: {}"
+                      .format(CPU_ARCH), ResourceWarning)
 
     @staticmethod
     def get_controller(name):
@@ -209,11 +188,11 @@ class _InterruptController(object):
         parent = PL.interrupt_controllers[name]['parent']
         number = PL.interrupt_controllers[name]['index']
         if parent == "":
-            uiodev = _get_uio_device(61 + number)
+            uiodev = get_uio_irq(self.irq_offset + number)
             if uiodev is None:
                 raise ValueError('Could not find UIO device for interrupt pin '
                                  'for IRQ number {}'.format(number))
-            self.parent = _UioController(uiodev)
+            self.parent = UioController(uiodev)
             self.number = 0
         else:
             self.parent = _InterruptController.get_controller(parent)

@@ -37,8 +37,10 @@ from .mmio import MMIO
 from .ps import Clocks, CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 from .pl import PL
 from .pl import Bitstream
-from .pl import _TCL
-from .pl import _get_tcl_name
+from .pl import TCL
+from .pl import HWH
+from .pl import get_tcl_name
+from .pl import get_hwh_name
 from .interrupt import Interrupt
 from .gpio import GPIO
 
@@ -99,6 +101,7 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version):
 
     _assign_drivers(starting_dict, ignore_version)
     return starting_dict
+
 
 _class_aliases = {
     'pynq.overlay.DocumentOverlay': 'pynq.overlay.DefaultOverlay',
@@ -264,8 +267,8 @@ class Overlay(Bitstream):
         {str: {'controller' : str, 'index' : int}}.
 
     """
-        
-    def __init__(self, bitfile_name, download=True, ignore_version=False):
+    def __init__(self, bitfile_name, download=True, partial=False,
+                 ignore_version=False):
         """Return a new Overlay object.
 
         An overlay instantiates a bitstream object as a member initially.
@@ -274,28 +277,34 @@ class Overlay(Bitstream):
         ----------
         bitfile_name : str
             The bitstream name or absolute path as a string.
-        download : boolean or None
-            Whether the overlay should be downloaded. If None then the
-            overlay will be downloaded if it isn't already loaded.
+        download : bool
+            Whether the overlay should be downloaded.
+        partial :
+            Flag to indicate whether or not the bitstream is partial.
 
         Note
         ----
-        This class requires a Vivado '.tcl' file to be next to bitstream file
-        with same name (e.g. base.bit and base.tcl).
+        This class requires a Vivado TCL file to be next to bitstream file
+        with same name (e.g. `base.bit` and `base.tcl`).
 
         """
-        # We need to be explicit here due to the way dynamic class
-        # class construction interacts with super. Subclasses of
-        # Overlay work correctly however.
-        Bitstream.__init__(self, bitfile_name)
+        super().__init__(bitfile_name, partial)
 
-        tcl = _TCL(_get_tcl_name(self.bitfile_name))
-        self.ip_dict = tcl.ip_dict
-        self.gpio_dict = tcl.gpio_dict
-        self.interrupt_controllers = tcl.interrupt_controllers
-        self.interrupt_pins = tcl.interrupt_pins
-        self.hierarchy_dict = tcl.hierarchy_dict
-        self.clock_dict = tcl.clock_dict
+        hwh_path = get_hwh_name(self.bitfile_name)
+        tcl_path = get_tcl_name(self.bitfile_name)
+        if os.path.exists(hwh_path):
+            self.parser = HWH(hwh_path)
+        elif os.path.exists(tcl_path):
+            self.parser = TCL(tcl_path)
+        else:
+            raise ValueError("Cannot find HWH or TCL file.")
+
+        self.ip_dict = deepcopy(self.parser.ip_dict)
+        self.gpio_dict = self.parser.gpio_dict
+        self.interrupt_controllers = self.parser.interrupt_controllers
+        self.interrupt_pins = self.parser.interrupt_pins
+        self.hierarchy_dict = deepcopy(self.parser.hierarchy_dict)
+        self.clock_dict = self.parser.clock_dict
 
         description = _complete_description(
             self.ip_dict, self.hierarchy_dict, ignore_version)
@@ -336,12 +345,12 @@ class Overlay(Bitstream):
             div0 = self.clock_dict[i]['divisor0']
             div1 = self.clock_dict[i]['divisor1']
             if enable:
-                Clocks.set_fclk(i, div0, div1)
+                Clocks.set_pl_clk(i, div0, div1)
             else:
-                Clocks.set_fclk(i)
+                Clocks.set_pl_clk(i)
 
-        Bitstream.download(self)
-        PL.reset()
+        super().download()
+        PL.reset(self.parser)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
@@ -365,20 +374,20 @@ class Overlay(Bitstream):
     def reset(self):
         """This function resets all the dictionaries kept in the overlay.
 
-        This function should be used with caution.
+        This function should be used with caution. In most cases, only those
+        dictionaries keeping track of states need to be updated.
 
         Returns
         -------
         None
 
         """
-        tcl = _TCL(_get_tcl_name(self.bitfile_name))
-        self.ip_dict = tcl.ip_dict
-        self.gpio_dict = tcl.gpio_dict
-        self.interrupt_controllers = tcl.interrupt_controllers
-        self.interrupt_pins = tcl.interrupt_pins
+        self.ip_dict = self.parser.ip_dict
+        self.gpio_dict = self.parser.gpio_dict
+        self.interrupt_controllers = self.parser.interrupt_controllers
+        self.interrupt_pins = self.parser.interrupt_pins
         if self.is_loaded():
-            PL.reset()
+            PL.reset(self.parser)
 
     def load_ip_data(self, ip_name, data):
         """This method loads the data to the addressable IP.
@@ -410,7 +419,7 @@ class Overlay(Bitstream):
     def __dir__(self):
         return sorted(set(super().__dir__() +
                           list(self.__dict__.keys()) +
-                          self._ip_map._keys()))
+                               self._ip_map._keys()))
 
 
 _ip_drivers = dict()
@@ -429,7 +438,7 @@ class RegisterIP(type):
             for vlnv in cls.bindto:
                 _ip_drivers[vlnv] = cls
                 _ip_drivers[vlnv.rpartition(':')[0]] = cls
-        return super().__init__(name, bases, attrs)
+        super().__init__(name, bases, attrs)
 
 
 class DefaultIP(metaclass=RegisterIP):
@@ -588,7 +597,7 @@ class RegisterHierarchy(type):
     def __init__(cls, name, bases, attrs):
         if 'checkhierarchy' in attrs:
             _hierarchy_drivers.appendleft(cls)
-        return super().__init__(name, bases, attrs)
+        super().__init__(name, bases, attrs)
 
 
 class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):

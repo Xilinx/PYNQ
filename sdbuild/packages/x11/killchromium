@@ -1,0 +1,5 @@
+#!/bin/sh
+
+pkill -o chromium
+sed -i "s/\"exit_type\"\:\"Crashed\"/\"exit_type\"\:\"none\"/g" \
+	/home/xilinx/.config/chromium/Default/Preferences

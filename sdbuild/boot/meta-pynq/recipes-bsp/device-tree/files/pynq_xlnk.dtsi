@@ -1,0 +1,7 @@
+/ {
+	xlnk {
+		compatible = "xlnx,xlnk-1.0";
+		clock-names = "xclk0", "xclk1", "xclk2", "xclk3";
+		clocks = <&clkc 0xf &clkc 0x10 &clkc 0x11 &clkc 0x12>;
+	};
+};

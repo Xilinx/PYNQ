@@ -1,0 +1,3 @@
+STAGE2_PACKAGES_arm := gcc-mb python_packages_bionic libsds jupyter
+STAGE2_PACKAGES_arm += phantomjs-fix pandas sigrok
+STAGE3_PACKAGES_arm := pynq resizefs

@@ -33,11 +33,12 @@ from .pynqmicroblaze import MicroblazeRPC
 from .pynqmicroblaze import MicroblazeLibrary
 from .axigpio import AxiGPIO
 from .dma import DMA
-from .dma import LegacyDMA
 from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
 from .button import Button
+from .iic import AxiIIC
+from .wifi import Wifi
 
 from .rpi import Rpi
 

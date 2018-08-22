@@ -152,12 +152,39 @@ class Xlnk:
     void cma_invalidate_cache(void* buf, unsigned int phys_addr, int size);
     void _xlnk_reset();
     """)
-    if CPU_ARCH_IS_SUPPORTED:
-        libxlnk = ffi.dlopen("/usr/lib/libsds_lib.so")
-    else:
-        warnings.warn("Pynq does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
-    
+
+    libxlnk = None
+    libxlnk_path = "/usr/lib/libcma.so"
+
+    @classmethod
+    def set_allocator_library(cls, path):
+        """ Change the allocator used by Xlnk instances
+
+        This should only be called when there are no allocated buffers - 
+        using or freeing any pre-allocated buffers after calling this
+        function will result in undefined behaviour. This function
+        is needed for SDx based designs where it is desired that PYNQ
+        and SDx runtime share an allocator. In this case, this function
+        should be called with the SDx compiled shared library prior to
+        any buffer allocation
+
+        If loading of the library fails an exception will be raised, 
+        Xlnk.libxlnk_path will be unchanged and the old allocator will
+        still be in use.
+
+        Parameters
+        ----------
+        path : str
+            Path to the library to load
+
+        """
+        cls._open_library(path)
+        cls.libxlnk_path = path
+
+    @classmethod
+    def _open_library(cls, path):
+        cls.libxlnk = cls.ffi.dlopen(path)
+
     def __init__(self):
         """Initialize new Xlnk object.
 
@@ -168,6 +195,9 @@ class Xlnk:
         """
         if os.getuid() != 0:
             raise RuntimeError("Root permission needed by the library.")
+
+        if Xlnk.libxlnk is None:
+            Xlnk._open_library(Xlnk.libxlnk_path)
 
         self.bufmap = {}
 
@@ -231,7 +261,6 @@ class Xlnk:
         2. This buffer is allocated inside the kernel space using
         xlnk driver. The maximum allocatable memory is defined
         at kernel build time using the CMA memory parameters.
-        For Pynq-Z1 kernel, it is specified as 128MB.
         
         The unit of `length` depends upon the `data_type` argument.
         
@@ -368,7 +397,7 @@ class Xlnk:
         None
 
         """
-        self.ffi.memmove(dest, src, nbytes)
+        Xlnk.ffi.memmove(dest, src, nbytes)
     
     @staticmethod
     def cma_cast(data, data_type="void"):
@@ -391,7 +420,7 @@ class Xlnk:
             Pointer to buffer with specified data type.
             
         """
-        return self.ffi.cast(data_type+"*", data)
+        return Xlnk.ffi.cast(data_type+"*", data)
       
     def cma_free(self, buf):
         """Free a previously allocated buffer.

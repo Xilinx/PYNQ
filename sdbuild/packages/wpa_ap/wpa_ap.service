@@ -1,0 +1,11 @@
+[Unit]
+Description=Wifi Access Point
+Before=network-online.service isc-dhcp-server.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/share/wpa_ap/ap.sh
+
+[Install]
+WantedBy=basic.target

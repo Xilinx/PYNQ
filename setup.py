@@ -32,6 +32,8 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 from setuptools import setup, Extension, find_packages
+from distutils.dir_util import copy_tree
+import glob
 import shutil
 import subprocess
 import sys
@@ -48,20 +50,24 @@ def exclude_from_files(exclude, path):
             and file != exclude]
 
 
-def exclude_from_dirs(exclude, path):
-    return [folder for folder in os.listdir(path)
-            if os.path.isdir(os.path.join(path, folder))
-            and folder != exclude]
+def find_overlays(path):
+    return [f for f in os.listdir(path)
+            if os.path.isdir(os.path.join(path, f))
+            and len(glob.glob(os.path.join(path, f, "*.bit"))) > 0]
 
+pynq_package_files = []
 
-def collect_pynq_data_files():
-    return [(os.path.join(
-        '{}/pynq/overlays'.format(os.path.dirname(site.__file__) \
-             + "/site-packages"), ol),
-             [os.path.join(board_folder, ol, f)
-              for f in exclude_from_files(
-                 'makefile', os.path.join(board_folder, ol))])
-        for ol in exclude_from_dirs('notebooks', board_folder)]
+def collect_pynq_overlays():
+    overlay_files = []
+    overlay_dirs = find_overlays(board_folder)
+    for ol in overlay_dirs:
+        copy_tree(os.path.join(board_folder, ol),
+                        os.path.join("pynq/overlays", ol))
+        newdir = os.path.join("pynq/overlays", ol)
+        files = exclude_from_files('makefile', newdir)
+        overlay_files.extend(
+                [os.path.join("..", newdir, f) for f in files])
+    return overlay_files
 
 
 if 'BOARD' not in os.environ:
@@ -69,11 +75,15 @@ if 'BOARD' not in os.environ:
           "to get any BOARD specific overlays (e.g. Pynq-Z1).")
     board = None
     board_folder = None
-    pynq_data_files = []
 else:
     board = os.environ['BOARD']
     board_folder = 'boards/{}/'.format(board)
-    pynq_data_files = collect_pynq_data_files()
+    if not os.path.isdir(board_folder):
+        print("Could not find folder for board {}". format(board))
+        board_folder = None
+    else:
+        pynq_package_files.extend(collect_pynq_overlays())
+
 
 
 # Extend data_files with Microblaze C BSPs and libraries
@@ -83,16 +93,19 @@ microblaze_data_dirs = ['pynq/lib/pynqmicroblaze/modules',
                         'pynq/lib/rpi/bsp_iop_rpi']
 
 for mbdir in microblaze_data_dirs:
-    pynq_data_files.extend(
-        [(os.path.join(os.path.dirname(site.__file__) + "/site-packages", root),
-         [os.path.join(root, f) for f in files])
-        for root, _, files in os.walk(mbdir)]
+    pynq_package_files.extend(
+        [os.path.join("..", root, f)
+         for root, _, files in os.walk(mbdir) for f in files]
     )
+
+
+print(pynq_package_files)
 
 # Device family constants
 ZYNQ_ARCH = "armv7l"
+ZU_ARCH = "aarch64"
 CPU_ARCH = os.uname().machine
-CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH]
+CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
 # Notebook delivery
 default_nb_dir = '/home/xilinx/jupyter_notebooks'
@@ -118,9 +131,6 @@ else:
 _video_src = ['pynq/lib/_pynq/_video/_video.c',
               'pynq/lib/_pynq/_video/_capture.c',
               'pynq/lib/_pynq/_video/_display.c',
-              'pynq/lib/_pynq/_video/_frame.c',
-              'pynq/lib/_pynq/_video/_legacy_display.c',
-              'pynq/lib/_pynq/_video/_legacy_capture.c',
               'pynq/lib/_pynq/_video/axivdma_channel.c',
               'pynq/lib/_pynq/src/gpio.c',
               'pynq/lib/_pynq/src/py_xaxivdma.c',
@@ -183,27 +193,25 @@ def copy_common_notebooks():
             os.remove(dst_folder_file)
 
         if os.path.isdir(src_folder_file):
-            shutil.copytree(src_folder_file, dst_folder_file)
+            copy_tree(src_folder_file, dst_folder_file)
         elif os.path.isfile(src_folder_file):
             shutil.copy(src_folder_file, dst_folder_file)
 
 
-# Copy notebooks in boards/BOARD/notebooks/getting_started
-def copy_getting_started_notebooks():
-    if notebooks_dir is None:
+# Copy notebooks in boards/BOARD/notebooks
+def copy_board_notebooks():
+    if notebooks_dir is None or board_folder is None:
         return None
 
-    src_folder = os.path.join(board_folder, 'notebooks/getting_started')
-    dst_folder = notebooks_getting_started_dst_dir
-    if os.path.isdir(dst_folder):
-        shutil.rmtree(dst_folder)
+    src_folder = os.path.join(board_folder, 'notebooks')
+    dst_folder = notebooks_dir
     if os.path.isdir(src_folder):
-        shutil.copytree(src_folder, dst_folder)
+        copy_tree(src_folder, dst_folder)
 
 
 # Copy notebooks in boards/BOARD/OVERLAY/notebooks
 def copy_overlay_notebooks():
-    if notebooks_dir is None:
+    if notebooks_dir is None or board_folder is None:
         return None
 
     if os.path.isdir(board_folder):
@@ -216,7 +224,7 @@ def copy_overlay_notebooks():
         for dst_folder, src_folder in overlay_notebook_folders:
             if os.path.exists(dst_folder):
                 shutil.rmtree(dst_folder)
-            shutil.copytree(src_folder, dst_folder)
+            copy_tree(src_folder, dst_folder)
 
 
 # Copy documentation files in docs/source and docs/source/images
@@ -268,7 +276,7 @@ def backup_notebooks():
                                           datetime.now().strftime(
                                               "%Y_%m_%d_%H_%M_%S"))
     try:
-        shutil.copytree(notebooks_dir, notebooks_dir_backup)
+        copy_tree(notebooks_dir, notebooks_dir_backup)
     except Exception as e:
         print('Unable to backup notebooks.')
         raise e
@@ -285,34 +293,36 @@ def run_make(src_path, dst_path, output_lib):
 
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
-    run_make("pynq/lib/_pynq/_apf/", "pynq/lib/", "libdma.so")
-    run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    if CPU_ARCH == ZYNQ_ARCH:
+        run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+    elif CPU_ARCH == ZU_ARCH:
+        run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/video/", "libdisplayport.so")
+        run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/", "libxhdmi.so")
+        run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
     backup_notebooks()
     copy_common_notebooks()
-    copy_getting_started_notebooks()
+    copy_board_notebooks()
     copy_overlay_notebooks()
     copy_documentation_files()
     rename_notebooks()
     change_ownership()
 
 
-if CPU_ARCH_IS_SUPPORTED:
+if (CPU_ARCH == ZYNQ_ARCH):
     ext_modules = [
         Extension('pynq.lib._video', video,
                   include_dirs=['pynq/lib/_pynq/inc',
                                 'pynq/lib/_pynq/bsp/ps7_cortexa9_0/include'],
-                  libraries=['sds_lib'],
-                  library_dirs=['/usr/lib'],
                   ),
     ]
 else:
-    warnings.warn("PYNQ does not support the CPU Architecture: {}"
+    warnings.warn("Video Library does not support the CPU Architecture: {}"
                   .format(CPU_ARCH), ResourceWarning)
     ext_modules = []
 
-
+pynq_package_files.extend(['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'])
 setup(name='pynq',
-      version='2.1',
+      version='2.3',
       description='(PY)thon productivity for zy(NQ)',
       author='Xilinx PYNQ Development Team',
       author_email='pynq_support@xilinx.com',
@@ -320,7 +330,7 @@ setup(name='pynq',
       packages=find_packages(),
       download_url='https://github.com/Xilinx/PYNQ',
       package_data={
-          '': ['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'],
+          '': pynq_package_files,
       },
       entry_points={
           'console_scripts': [
@@ -328,8 +338,7 @@ setup(name='pynq',
               'stop_pl_server.py = pynq.pl:_stop_server'
           ]
       },
-      ext_modules=ext_modules,
-      data_files=pynq_data_files
+      ext_modules=ext_modules
       )
 
 if board:

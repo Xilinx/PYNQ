@@ -1,0 +1,12 @@
+[Unit]
+Description=USB Gadget for Networking
+Before=network-online.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/usbgadget
+ExecStop=/usr/local/bin/usbgadget_stop
+
+[Install]
+WantedBy=basic.target

@@ -1,0 +1,3 @@
+[submodule "pynq/lib/_pynq/embeddedsw"]
+	path = pynq/lib/_pynq/embeddedsw
+	url = https://github.com/Xilinx/embeddedsw.git

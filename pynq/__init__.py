@@ -29,6 +29,7 @@
 
 from .gpio import GPIO
 from .mmio import MMIO
+from .uio import UioController
 from .ps import Register
 from .ps import Clocks
 from .pl import PL
@@ -41,6 +42,8 @@ from .xlnk import Xlnk
 from .overlay import Overlay
 from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
+from .pmbus import get_rails
+from .pmbus import DataRecorder
 from . import lib
 
 

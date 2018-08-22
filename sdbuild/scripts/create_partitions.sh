@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# fdisk is in /sbin which isn't necessarily on the PATH
+export PATH=/sbin:$PATH
+
 # Sourced from http://superuser.com/questions/332252/creating-and-formating-a-partition-using-a-bash-script
 
 # to create the partitions programatically (rather than manually)

@@ -34,7 +34,7 @@
  *
  * @file pmod_grove_dlight.c
  * IOP code (MicroBlaze) for grove digital light sensor.
- * The grove digital light sensor has to be connected to a PMOD interface 
+ * The grove digital light sensor has to be connected to a Pmod interface 
  * via a shield socket.
  * http://wiki.seeed.cc/Grove-Digital_Light_Sensor/
  *
@@ -44,7 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- -------- -----------------------------------------------
  * 1.00a lcc 07/08/16 release
- * 1.00b gn  10/24/16 support for PYNQ-Z1
+ * 1.00b gn  10/24/16 support for Pmod interface.
  *
  * </pre>
  *

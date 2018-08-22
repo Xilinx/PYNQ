@@ -4,25 +4,28 @@
 set -e
 set -x
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ARCH=$1
 
-# Use cross tools to build the provided configuration
-case "$QEMU_EXE" in
-  qemu-aarch64-static)
-    sample=aarch64-linux-gnu,microblazeel-xilinx-elf
-    ;;
-  qemu-arm-static)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+case ${ARCH} in
+  arm)
     sample=arm-linux-gnueabihf,microblazeel-xilinx-elf
     ;;
+  aarch64)
+    sample=aarch64-linux-gnu,microblazeel-xilinx-elf
+    ;;
   *)
-    echo "Unknown architecture"
+    echo "Unknown arch ${ARCH}"
     exit 1
     ;;
+
 esac
+export -n LD_LIBRARY_PATH
+# Use cross tools to build the provided configuration
 ct-ng $sample
 ct-ng build
 
-cd microblazeel-xilinx-elf
+cd ${ARCH}/microblazeel-xilinx-elf
 chmod u+w bin
 cd bin
 
