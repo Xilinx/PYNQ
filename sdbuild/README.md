@@ -18,10 +18,9 @@ development environment.
  * Ensure that sudo is configured for passwordless use and that proxy settings
    and other environment variables are forwarded correctly.
  * Run `scripts/setup_host.sh`
- * Install Petalinux 2017.4
+ * Install Petalinux (e.g. 2017.4)
  * Ensure that Petalinux is on the PATH
- * Run `make` to recreate all board images or `make BOARDS=Pynq-Z1` to recreate
-   a specific board
+ * Run `make BOARDDIR=<boards_directory>` to recreate all board images
  * Wait for a couple of hours
 
 ## Detailed host setup
@@ -41,7 +40,7 @@ _board agnostic_ and _board specific_ sections. First a generic image is created
 for each device family consisting of the base Ubuntu root filesystem and the
 PYNQ packages such as Jupyter and the Microblaze compiler.
 
-### Initial bootstrap
+## Initial bootstrap
 
 The `unbuntu` folder contains all of the files for the initial bootstrap of the
 Ubuntu root filesystem. For this release we are targeting the 18.04 _Bionic
@@ -50,7 +49,7 @@ folder contains subfolders for the `arm` and `aarch64` architectures each
 containing a `multistrap` config file, a set of patches to apply to the
 filesystem and a `config` file listing the packages to be installed.
 
-### Packages
+## Packages
 
 Packages form the core of the image flow and each consists of up to four files,
 all of which are optional:
@@ -75,18 +74,16 @@ recommend place for the makefile to deposit files for the bash scripts to
 subsequently use. Each package script is passed `ARCH` and `PYNQ_BOARDNAME`
 as environment variables.
 
-## Board-specifc files
+## Board-specific files
 
 Each board in the `boards` subdirectory of the PYNQ repo contains a `*.spec`
-file and a Petalinux BSP file. The spec files details the BSP file to use, the
-bitstream to load on boot and any additional packages that should be installed
-in the root filesystem.
+file, (optional) some packages, and (optional) Petalinux BSP related files. 
 
-### `spec` file
-
-The spec file informs the build system which BSP and bitstream should be used
-for a board. It should be placed in the root folder for the board and all paths
-within it should be given relative to it.
+The `*.spec` file details the BSP file to use, 
+the bitstream to load on boot and any additional packages that 
+should be installed in the root filesystem.
+The `*.spec` file should be placed in the root folder for the board and 
+all paths within it should be given relative to it.
 
 There are three main variables the spec file is responsible for setting:
  1. `BSP_${BOARD}`
@@ -97,45 +94,93 @@ There are three main variables the spec file is responsible for setting:
 This will also ultimately be the value of the $BOARD environment variable in
 the final image.
 
-### Boot files
-
-All boot files are created using Petalinux based on a provided BSP
 
 ## Porting to a new board
 
-The main prerequisite for porting to a new board is the existance of a
-Petalinux BSP for the board targeting version 2017.4. Other versions may work
-but haven't been tested. Petalinux BSPs can be created from an HDF file using
-the following commands:
-
- 1. `petalinux-create -t project --template zynq|zynqmp --name <project name>`
- 2. `cd <project name>`
- 3. `petalinux-config --get-hw-description <HDF file>`
- 4. `petalinux-package --bsp -o <BSP file>`
-
-This will use the default options for all of the settings which should be
-sufficient to get the board booted. For more details about customising the
-boot files please refer to the Petalinux documentation.
-
-Next create folder to act as a board repository - `my_boards` in this example -
-and create a subfolder to hold the spec for the board you are porting to -
-`my_boards/my_board`. Copy the BSP into the folder along with a boot bitstream
-to use. The final stage is to create a spec file - by convention
-`my_board.spec`. This will set make variables for the board as follow:
+### Step 1: Prepare the folder
+First you need to create folder to act as a board repository - 
+`myboards` in this example - and create a subfolder to hold the spec for 
+the board you are porting to - `myboards/Myboard`. 
+You also need to create a spec file - by convention
+`Myboard.spec`. This will set make variables for the board as follow:
 
 ```Makefile
-BSP_myboard := myboard.bsp
-BITSTREAM_myboard := myboard.bit
+BSP_Myboard := Myboard.bsp
+BITSTREAM_Myboard := Myboard.bit
 # Optionally install some additional packages
-STAGE4_PACKAGES_myboard := my_package
+STAGE4_PACKAGES_Myboard := my_package
 ```
 
+### Step 2: Prepare the BSP
+The main prerequisite for porting to a new board is the existance of a valid
+Petalinux BSP (`Myboard.bsp`) for the board targeting the correct 
+version of the Xilinx tools. This can be done in multiple ways shown below.
+
+#### (1) Starting from a hardware project
+You may already have a Vivado project to start with. In that case, either
+(1) the make flow to build your hardware project
+(all the way to the `*.hdf` file), or (2) the pre-built `*.hdf` file has to
+be provided. The SD build flow will take that `*.hdf` file in and generate
+the BSP. `BSP_Myboard` in the `*.spec` file can be left empty.
+
+Meta-user configurations can be added to the `myboards/Myboard/petalinux_bsp` 
+folder so the patches will be applied to the new BSP.
+
+
+#### (2) Starting from a BSP
+
+You may already have a BSP downloaded somewhere, or constructed
+previously. In that case, you can just specify `BSP_Myboard` in
+the `*.spec` file, and the SD build flow will take that BSP file in and build
+the boot files.
+
+Again, meta-user configurations can be added to the
+`myboards/Myboard/petalinux_bsp` folder so the patches will be applied to the 
+new BSP. For more details about customising the
+boot files please refer to the Petalinux documentation.
+
+### Step 2: Add extra packages 
 Custom packages can be placed in a `packages` subfolder of the and will be
 picked up automatically if referenced. This is a convient way of installing
 custom notebooks or Python packages if desired for your board.
 
-# Custom Ubuntu Repository
+### Step 3: Run `make`
 
-By default the sdbuild flow will pull from https://ports.ubuntu.com. This can
+With all the files prepared, the SD card image can be built:
+
+```Makefile
+make BOARDDIR=<absolute_path>/myboards
+```
+
+### Step 4 (Optional): Useful byproducts
+
+All boot files are created using Petalinux based on a provided BSP. To generate
+the boot files only:
+
+```Makefile
+make boot_files BOARDDIR=<absolute_path>/myboards
+```
+
+To generate the software components for SDx platform:
+
+```Makefile
+make sdx_sw BOARDDIR=<absolute_path>/myboards
+```
+
+To generate sysroot:
+
+```Makefile
+make sysroot BOARDDIR=<absolute_path>/myboards
+```
+
+To generate the Petalinux BSP for future use:
+
+```Makefile
+make bsp BOARDDIR=<absolute_path>/myboards
+```
+
+## Custom Ubuntu Repository
+
+By default the SD build flow will pull from https://ports.ubuntu.com. This can
 be changed by setting the `PYNQ_UBUNTU_REPO` environment variable. The
 repository link in the final image will remain unchanged.
