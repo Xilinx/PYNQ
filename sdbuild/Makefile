@@ -3,8 +3,8 @@ BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 UBUNTU_RELEASE := bionic
 VERSION := 2.3
 
-KERNEL_VERSION = 2017.4
-LINUX_VERSION := 4.9.0-xilinx-v2017.4
+KERNEL_VERSION = 2018.2
+LINUX_VERSION := 4.14.0-xilinx-v2018.2
 SCRIPT_DIR := $(CURDIR)/scripts
 
 all: real_all
@@ -79,14 +79,21 @@ QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 ARCH=$$(ARCH=$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
 
+ifeq ($$(BSP_$1),)
+	YOCTO_MACHINE_$1 := plnx
+else
+	YOCTO_MACHINE_$1 := $$(shell echo $1 | tr A-Z a-z)
+endif
 ifeq ($$(ARCH_$1),arm)
-    YOCTO_$1 := zynq7
-    TEMPLATE_$1 := zynq
+	YOCTO_ARCH_$1 := zynq7
+	TEMPLATE_$1 := zynq
 endif
 ifeq ($$(ARCH_$1),aarch64)
-    YOCTO_$1 := zynqmp
-    TEMPLATE_$1 := zynqMP
+	YOCTO_ARCH_$1 := zynqmp
+	TEMPLATE_$1 := zynqMP
 endif
+YOCTO_DS_$1 := $$(YOCTO_MACHINE_$1)-$$(YOCTO_ARCH_$1)
+YOCTO_US_$1 := $$(YOCTO_MACHINE_$1)_$$(YOCTO_ARCH_$1)
 
 BSP_BUILD_$1 := $$(BUILD_ROOT_$1)/petalinux_bsp
 BSP_ABS_$1 := $$(patsubst %,$$(BOARDDIR_$1)/%,$$(BSP_$1))
@@ -117,8 +124,8 @@ bsp_$1: $$(BSP_FILES_$1)
 
 PL_PROJ_$1 := $$(BUILD_ROOT_$1)/petalinux_project
 PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
-MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/plnx_$$(ARCH_$1)/modules-plnx_$$(ARCH_$1).tgz
-KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/plnx_$$(ARCH_$1)/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
+MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/$$(YOCTO_DS_$1)/modules-$$(YOCTO_DS_$1).tgz
+KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/$$(YOCTO_US_$1)/kernel-devsrc-1.0-r0.$$(YOCTO_US_$1).rpm
 
 BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN
 BOOT_DEPENDS_$1 := $$(patsubst %, $$(PL_PROJ_$1)/images/linux/%, $$(BOOT_$$(ARCH_$1)))
@@ -129,10 +136,12 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ROOTFS_SD=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_YOCTO_MACHINE_NAME="$$(YOCTO_DS_$1)"'>>$$(PL_CONFIG_$1)
 	petalinux-config --oldconfig -p $$(PL_PROJ_$1)
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && petalinux-package --boot --fpga $$(BITSTREAM_ABS_$1) --u-boot -p $$(PL_PROJ_$1) --force
+	cp -f $$(PL_PROJ_$1)/images/linux/BOOT.BIN $$(BOOT_ROOT_$1)
 
 $$(BOOT_ROOT_$1)/image.ub : $$(BUILD_ROOT_$1)/image.its $$(BUILD_ROOT_$1)/system.dtb $$(BUILD_ROOT_$1)/$$(KERNEL_$$(ARCH_$1)) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && mkimage -f $$(BUILD_ROOT_$1)/image.its $$@

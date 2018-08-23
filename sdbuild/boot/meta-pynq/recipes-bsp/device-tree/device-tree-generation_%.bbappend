@@ -13,9 +13,9 @@ SRC_URI_append = "\
 
 do_compile_prepend_zynq () {
     PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
-    echo "/include/ \"pynq_zynq.dtsi\"" >> ${DEVICETREE_WORKDIR}/system-top.dts
+    echo "/include/ \"pynq_zynq.dtsi\"" >> ${DTS_FILES_PATH}/system-top.dts
     if [ -n "${PYNQ_BOARDNAME}" ]; then
-        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DEVICETREE_WORKDIR}/system-top.dts
+        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DTS_FILES_PATH}/system-top.dts
     else
         echo "No board set"
         exit 1
@@ -23,9 +23,9 @@ do_compile_prepend_zynq () {
 }
 do_compile_prepend_zynqmp () {
     PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
-    echo "/include/ \"pynq_zynqmp.dtsi\"" >> ${DEVICETREE_WORKDIR}/system-top.dts
+    echo "/include/ \"pynq_zynqmp.dtsi\"" >> ${DTS_FILES_PATH}/system-top.dts
     if [ -n "${PYNQ_BOARDNAME}" ]; then
-        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DEVICETREE_WORKDIR}/system-top.dts
+        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DTS_FILES_PATH}/system-top.dts
     else
         echo "No board set"
         exit 1
