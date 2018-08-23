@@ -14,7 +14,7 @@ if [ ${PYNQ_BOARD} != "Unknown" ]; then
 		if [ -d "$f" ]; then
 			sudo mkdir -p $target/home/xilinx/pynq_git/boards/${PYNQ_BOARD}/$f
 		else
-			sudo cp -f $f $target/home/xilinx/pynq_git/boards/${PYNQ_BOARD}/$f
+			sudo cp -rf $f $target/home/xilinx/pynq_git/boards/${PYNQ_BOARD}/$f
 		fi
 	done
 fi
