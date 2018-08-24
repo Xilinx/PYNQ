@@ -27,12 +27,7 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import asyncio
-from pynq import MMIO
-from pynq import PL
-from pynq import Interrupt
-
-__author__ = "Giuseppe Natale"
+__author__ = "Kevin Anderson"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
@@ -42,80 +37,41 @@ class Switch(object):
 
     Attributes
     ----------
-    index : int
-        Index of the onboard switches, starting from 0.
+    _impl : object
+        An object with appropriate Switch methods
 
     """
-    _mmio = None
 
-    def __init__(self, index):
+    def __init__(self, device):
         """Create a new Switch object.
 
         Parameters
         ----------
-        index : int
-            The index of the onboard switches, from 0 to 3.
+        device : object
+            An object with appropriate Switch methods:
+            read, wait_for_value
 
         """
-        if Switch._mmio is None:
-            base_addr = PL.ip_dict["switches_gpio"]["phys_addr"]
-            Switch._mmio = MMIO(base_addr, 512)
-        self.index = index
-        self.interrupt = None
-        try:
-            self.interrupt = Interrupt('switches_gpio/ip2intc_irpt')
-            # Enable interrupts
-            Switch._mmio.write(0x11C, 0x80000000)
-            Switch._mmio.write(0x128, 0x00000001)
-        except ValueError as err:
-            print(err)
+        methods = ['read', 'wait_for_value']
+        if all(m in dir(device) for m in methods):
+            self._impl = device
+        else:
+            raise TypeError("'device' must contain Switch methods: " +
+                            str(methods))
 
     def read(self):
-        """Read the current value of the switch.
-
-        Returns
-        -------
-        int
-            Either 0 if the switch is off or 1 if the switch is on
-
-        """
-        curr_val = Switch._mmio.read()
-        return (curr_val & (1 << self.index)) >> self.index
-
-    @asyncio.coroutine
-    def wait_for_value_async(self, value):
-        """Wait for the switch to be set to a particular position
-
-        Parameters
-        ----------
-        value: int
-            1 for the switch up and 0 for the switch down
-
-        This function is an asyncio coroutine
-
-        """
-        if self.interrupt is None:
-            raise RuntimeError('Interrupts not available in this Overlay')
-        while self.read() != value:
-            yield from self.interrupt.wait()
-            if Switch._mmio.read(0x120) & 0x1:
-                Switch._mmio.write(0x120, 0x00000001)
+        """Read the current value of the switch."""
+        return self._impl.read()
 
     def wait_for_value(self, value):
-        """Wait for the switch to be set to a particular position
+        """Wait for the switch to be closed or opened.
 
         Parameters
         ----------
         value: int
             1 for the switch up and 0 for the switch down
 
-        This function wraps the coroutine form so the asyncio
-        event loop will run until the function returns
-
         """
-        if self.interrupt is None:
-            raise RuntimeError('Interrupts not available in this Overlay')
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(asyncio.ensure_future(
-            self.wait_for_value_async(value)
-        ))
+        if (value != 1) or (value != 0):
+            raise ValueError("'value' must be 0 or 1.")
+        self._impl.wait_for_value(value)

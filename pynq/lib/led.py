@@ -27,130 +27,48 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from pynq import MMIO
-from pynq import PL
-
-
-__author__ = "Giuseppe Natale"
+__author__ = "Kevin Anderson"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-LEDS_OFFSET0 = 0x0
-LEDS_OFFSET1 = 0x4
-
-
 class LED(object):
-    """This class controls the onboard LEDs.
+    """This class controls the onboard leds.
 
     Attributes
     ----------
-    index : int
-        The index of the onboard LED, starting from 0.
-    """
-    _mmio = None
-    _leds_value = 0
+    _impl : object
+        An object with appropriate LED methods
 
-    def __init__(self, index):
+    """
+
+    def __init__(self, device):
         """Create a new LED object.
         
         Parameters
         ----------
-        index : int
-            Index of the LED, from 0 to 3.
-        
+        device : object
+            An object with appropriate LED methods:
+            on, off, toggle and len
+
         """
-        if index not in range(4):
-            raise ValueError("Index for onboard LEDs should be 0 - 3.")
-            
-        self.index = index
-        if LED._mmio is None:
-            base_addr = PL.ip_dict["leds_gpio"]["phys_addr"]
-            LED._mmio = MMIO(base_addr, 16)
-        LED._mmio.write(LEDS_OFFSET1, 0x0)
+        methods = ['on', 'off', 'toggle']
+        if all(m in dir(device) for m in methods):
+            self._impl = device
+        else:
+            raise TypeError("'device' must contain LED methods: " +
+                            str(methods))
 
     def toggle(self):
-        """Flip the state of a single LED.
-        
-        If the LED is on, it will be turned off. If the LED is off, it will be
-        turned on.
-        
-        Returns
-        -------
-        None
-        
-        """
-        new_val = LED._leds_value ^ (0x1 << self.index)
-        self._set_leds_value(new_val)
+        """Toggle led on/off."""
+        self._impl.toggle()
 
     def on(self):
-        """Turn on a single LED.
-        
-        Returns
-        -------
-        None
-        
-        """
-        new_val = LED._leds_value | (0x1 << self.index)
-        self._set_leds_value(new_val)
+        """Turn on led."""
+        self._impl.on()
 
     def off(self):
-        """Turn off a single LED.
-        
-        Returns
-        -------
-        None
-        
-        """
-        new_val = LED._leds_value & (0xff ^ (0x1 << self.index))
-        self._set_leds_value(new_val)
+        """Turn off led."""
+        self._impl.off()
 
-    def write(self, value):
-        """Set the LED state according to the input value.
 
-        Parameters
-        ----------
-        value : int
-            This parameter can be either 0 (off) or 1 (on).
-
-        Raises
-        ------
-        ValueError
-            If the value parameter is not 0 or 1.
-        
-        """
-        if value not in (0, 1):
-            raise ValueError("Value should be 0 or 1.")
-        if value:
-            self.on()
-        else:
-            self.off()
-
-    def read(self):
-        """Retrieve the LED state.
-
-        Returns
-        -------
-        int
-            Either 0 if the LED is off or 1 if the LED is on.
-            
-        """
-        return (LED._leds_value >> self.index) & 0x1
-
-    @staticmethod
-    def _set_leds_value(value):
-        """Set the state of all LEDs.
-        
-        Note
-        ----
-        This function should not be used directly. User should rely 
-        on `toggle()`, `on()`, `off()`, `write()`, and `read()` instead
-        
-        Parameters
-        ----------
-        value : int 
-            The value of all the LEDs encoded in a single variable
-        
-        """
-        LED._leds_value = value
-        LED._mmio.write(LEDS_OFFSET0, value)
