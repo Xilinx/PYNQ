@@ -50,6 +50,7 @@
  # 1.00f pp  02/09/2018 fixed iop_pmoda hierarchical port names
  # 1.00g pp  04/12/2018 Renamed reset block instances and added xlconcat_0
  # 2.00  yrq 05/16/2018 Remove top level HDL wrapper
+ # 2.01  yrq 08/08/2018 update to 2018.2
  #
  # </pre>
  #
@@ -76,7 +77,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2017.4
+set scripts_vivado_version 2018.2
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -108,7 +109,7 @@ update_ip_catalog
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name system
+set design_name "base"
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -187,10 +188,10 @@ xilinx.com:ip:xlslice:1.0\
 xilinx.com:ip:axi_gpio:2.0\
 xilinx.com:ip:xlconcat:2.1\
 xilinx.com:ip:xlconstant:1.1\
-xilinx.com:user:interface_slice:1.0\
 xilinx.com:ip:mdm:3.2\
 xilinx.com:ip:processing_system7:5.5\
 xilinx.com:ip:proc_sys_reset:5.0\
+xilinx.com:user:interface_slice:1.0\
 xilinx.com:ip:axi_intc:4.1\
 xilinx.com:user:dff_en_reset_vector:1.0\
 xilinx.com:user:io_switch:1.1\
@@ -300,11 +301,6 @@ proc create_hier_cell_frontend_1 { parentCell nameHier } {
 
   # Create instance: axi_dynclk, and set properties
   set axi_dynclk [ create_bd_cell -type ip -vlnv digilentinc.com:ip:axi_dynclk:1.0 axi_dynclk ]
-
-  set_property -dict [ list \
-   CONFIG.NUM_READ_OUTSTANDING {1} \
-   CONFIG.NUM_WRITE_OUTSTANDING {1} \
- ] [get_bd_intf_pins /video/hdmi_out/frontend/axi_dynclk/s00_axi]
 
   # Create instance: color_swap_0, and set properties
   set color_swap_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:color_swap:1.1 color_swap_0 ]
@@ -2275,14 +2271,6 @@ proc create_hier_cell_iop_arduino { parentCell nameHier } {
    CONFIG.XADC_STARUP_SELECTION {channel_sequencer} \
  ] $xadc
 
-  set_property -dict [ list \
-   CONFIG.HAS_WSTRB {1} \
-   CONFIG.HAS_BRESP {1} \
-   CONFIG.HAS_RRESP {1} \
-   CONFIG.NUM_READ_OUTSTANDING {1} \
-   CONFIG.NUM_WRITE_OUTSTANDING {1} \
- ] [get_bd_intf_pins /iop_arduino/xadc/s_axi_lite]
-
   # Create interface connections
   connect_bd_intf_net -intf_net BRAM_PORTB_1 [get_bd_intf_pins lmb/BRAM_PORTB] [get_bd_intf_pins mb_bram_ctrl/BRAM_PORTA]
   connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins ck_io] [get_bd_intf_pins gpio_subsystem/ck_gpio]
@@ -2495,12 +2483,6 @@ proc create_root_design { parentCell } {
    CONFIG.CONST_VAL {0} \
    CONFIG.CONST_WIDTH {8} \
  ] $constant_8bit_0
-
-  # Create instance: slice_pmoda_gpio, and set properties
-  set slice_pmoda_gpio [ create_bd_cell -type ip -vlnv xilinx.com:user:interface_slice:1.0 slice_pmoda_gpio ]
-  set_property -dict [ list \
-   CONFIG.WIDTH {8} \
- ] $slice_pmoda_gpio
 
   # Create instance: iop_arduino
   create_hier_cell_iop_arduino [current_bd_instance .] iop_arduino
@@ -3508,6 +3490,12 @@ proc create_root_design { parentCell } {
    CONFIG.WIDTH {20} \
  ] $slice_arduino_gpio
 
+  # Create instance: slice_pmoda_gpio, and set properties
+  set slice_pmoda_gpio [ create_bd_cell -type ip -vlnv xilinx.com:user:interface_slice:1.0 slice_pmoda_gpio ]
+  set_property -dict [ list \
+   CONFIG.WIDTH {8} \
+ ] $slice_pmoda_gpio
+
   # Create instance: switches_gpio, and set properties
   set switches_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 switches_gpio ]
   set_property -dict [ list \
@@ -3611,8 +3599,6 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
   connect_bd_net -net constant_10bit_0_dout [get_bd_pins concat_arduino/In3] [get_bd_pins concat_arduino/In7] [get_bd_pins constant_10bit_0/dout]
   connect_bd_net -net constant_8bit_0_dout [get_bd_pins concat_pmoda/In2] [get_bd_pins concat_pmoda/In3] [get_bd_pins constant_8bit_0/dout]
   connect_bd_net -net hdmi_out_hpd_video_gpio_io_o [get_bd_ports hdmi_out_hpd] [get_bd_pins video/hdmi_out_hpd]
-  connect_bd_net -net slice_pmoda_gpio_gpio_i [get_bd_pins concat_pmoda/In0] [get_bd_pins slice_pmoda_gpio/gpio_i]
-  connect_bd_net -net slice_pmoda_gpio_gpio_t [get_bd_pins concat_pmoda/In1] [get_bd_pins slice_pmoda_gpio/gpio_t]
   connect_bd_net -net iop_arduino_mb3_intr_req [get_bd_pins iop_arduino/intr_req] [get_bd_pins iop_interrupts/In2]
   connect_bd_net -net iop_interrupts_dout [get_bd_pins concat_interrupts/In3] [get_bd_pins iop_interrupts/dout]
   connect_bd_net -net iop_pmoda_intr_ack_Dout [get_bd_pins iop_pmoda/intr_ack] [get_bd_pins mb_iop_pmoda_intr_ack/Dout]
@@ -3644,6 +3630,8 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
   connect_bd_net -net slice_arduino_direct_iic_sda_t [get_bd_pins concat_arduino/In5] [get_bd_pins slice_arduino_direct_iic/sda_t]
   connect_bd_net -net slice_arduino_gpio_gpio_i [get_bd_pins concat_arduino/In0] [get_bd_pins slice_arduino_gpio/gpio_i]
   connect_bd_net -net slice_arduino_gpio_gpio_t [get_bd_pins concat_arduino/In4] [get_bd_pins slice_arduino_gpio/gpio_t]
+  connect_bd_net -net slice_pmoda_gpio_gpio_i [get_bd_pins concat_pmoda/In0] [get_bd_pins slice_pmoda_gpio/gpio_i]
+  connect_bd_net -net slice_pmoda_gpio_gpio_t [get_bd_pins concat_pmoda/In1] [get_bd_pins slice_pmoda_gpio/gpio_t]
   connect_bd_net -net swsleds_gpio_ip2intc_irpt [get_bd_pins concat_interrupts/In5] [get_bd_pins switches_gpio/ip2intc_irpt]
   connect_bd_net -net system_interrupts_irq [get_bd_pins system_interrupts/irq] [get_bd_pins xlconcat_0/In0]
   connect_bd_net -net trace_analyzer_arduino_s2mm_introut [get_bd_pins concat_interrupts/In2] [get_bd_pins trace_analyzer_arduino/s2mm_introut]
@@ -3734,6 +3722,10 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
 
   # Restore current instance
   current_bd_instance $oldCurInst
+
+  # Create PFM attributes
+  set_property PFM_NAME {xilinx.com:xd:base:1.0} [get_files [current_bd_design].bd]
+
 
   save_bd_design
 }
