@@ -53,6 +53,7 @@
  # 1.00j pp  03/15/2018 Removed GCLK functionality  
  # 1.00k pp  04/12/2018 Renamed reset block instances and added xlconcat_0
  # 2.00  yrq 05/16/2018 Remove top level HDL wrapper
+ # 2.01  yrq 08/08/2018 update to 2018.2
  # </pre>
  #
 ###############################################################################
@@ -78,7 +79,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2017.4
+set scripts_vivado_version 2018.2
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -110,7 +111,7 @@ update_ip_catalog
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name system
+set design_name "base"
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -186,7 +187,7 @@ if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 xilinx.com:user:audio_codec_ctrl:1.0\
 xilinx.com:ip:axi_gpio:2.0\
-xilinx.com:ip:clk_wiz:5.4\
+xilinx.com:ip:clk_wiz:6.0\
 xilinx.com:ip:xlconcat:2.1\
 xilinx.com:ip:xlconstant:1.1\
 xilinx.com:ip:xlslice:1.0\
@@ -305,11 +306,6 @@ proc create_hier_cell_frontend_1 { parentCell nameHier } {
 
   # Create instance: axi_dynclk, and set properties
   set axi_dynclk [ create_bd_cell -type ip -vlnv digilentinc.com:ip:axi_dynclk:1.0 axi_dynclk ]
-
-  set_property -dict [ list \
-   CONFIG.NUM_READ_OUTSTANDING {1} \
-   CONFIG.NUM_WRITE_OUTSTANDING {1} \
- ] [get_bd_intf_pins /video/hdmi_out/frontend/axi_dynclk/s00_axi]
 
   # Create instance: color_swap_0, and set properties
   set color_swap_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:color_swap:1.1 color_swap_0 ]
@@ -3105,14 +3101,6 @@ proc create_hier_cell_iop_arduino { parentCell nameHier } {
    CONFIG.XADC_STARUP_SELECTION {channel_sequencer} \
  ] $xadc
 
-  set_property -dict [ list \
-   CONFIG.HAS_WSTRB {1} \
-   CONFIG.HAS_BRESP {1} \
-   CONFIG.HAS_RRESP {1} \
-   CONFIG.NUM_READ_OUTSTANDING {1} \
-   CONFIG.NUM_WRITE_OUTSTANDING {1} \
- ] [get_bd_intf_pins /iop_arduino/xadc/s_axi_lite]
-
   # Create interface connections
   connect_bd_intf_net -intf_net BRAM_PORTB_1 [get_bd_intf_pins lmb/BRAM_PORTB] [get_bd_intf_pins mb_bram_ctrl/BRAM_PORTA]
   connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins arduino_direct_iic] [get_bd_intf_pins iic_direct/IIC]
@@ -3250,11 +3238,6 @@ proc create_root_design { parentCell } {
   # Create instance: audio_codec_ctrl_0, and set properties
   set audio_codec_ctrl_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:audio_codec_ctrl:1.0 audio_codec_ctrl_0 ]
 
-  set_property -dict [ list \
-   CONFIG.NUM_READ_OUTSTANDING {1} \
-   CONFIG.NUM_WRITE_OUTSTANDING {1} \
- ] [get_bd_intf_pins /audio_codec_ctrl_0/S_AXI]
-
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
@@ -3278,7 +3261,7 @@ proc create_root_design { parentCell } {
  ] $btns_gpio
 
   # Create instance: clk_wiz_10MHz, and set properties
-  set clk_wiz_10MHz [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:5.4 clk_wiz_10MHz ]
+  set clk_wiz_10MHz [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_10MHz ]
   set_property -dict [ list \
    CONFIG.CLKOUT1_JITTER {290.478} \
    CONFIG.CLKOUT1_PHASE_ERROR {133.882} \
@@ -4607,6 +4590,10 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmodb_pmodb_gpio] [get_bd_in
 
   # Restore current instance
   current_bd_instance $oldCurInst
+
+  # Create PFM attributes
+  set_property PFM_NAME {xilinx.com:xd:base:1.0} [get_files [current_bd_design].bd]
+
 
   save_bd_design
 }
