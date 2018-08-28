@@ -50,6 +50,7 @@
  # 1.00g pp  03/05/2018 released
  # 1.00h pp  04/12/2018 Renamed reset block instances and added xlconcat_0
  # 2.00  yrq 05/16/2018 Remove top level HDL wrapper
+ # 2.01  yrq 08/08/2018 update to 2018.2
  #
  # </pre>
 ###############################################################################
@@ -75,7 +76,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2017.4
+set scripts_vivado_version 2018.2
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -107,7 +108,7 @@ update_ip_catalog
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name system
+set design_name "logictools"
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -1027,28 +1028,17 @@ proc create_hier_cell_pattern_generator_1 { parentCell nameHier } {
   # Create instance: misc
   create_hier_cell_misc_4 $hier_obj misc
 
-  # Create instance: pattern_data_bram_ctrl, and set properties
-  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_data_bram_ctrl ]
-  set_property -dict [ list \
-   CONFIG.SINGLE_PORT_BRAM {1} \
- ] $pattern_data_bram_ctrl
-
   # Create instance: pattern_control, and set properties
   set pattern_control [ create_bd_cell -type ip -vlnv xilinx.com:user:pattern_controller:1.0 pattern_control ]
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {14} \
  ] $pattern_control
 
-  # Create instance: pattern_mem_data, and set properties
-  set pattern_mem_data [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 pattern_mem_data ]
+  # Create instance: pattern_data_bram_ctrl, and set properties
+  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_data_bram_ctrl ]
   set_property -dict [ list \
-   CONFIG.Enable_B {Use_ENB_Pin} \
-   CONFIG.Memory_Type {True_Dual_Port_RAM} \
-   CONFIG.Port_B_Clock {100} \
-   CONFIG.Port_B_Enable_Rate {100} \
-   CONFIG.Port_B_Write_Rate {50} \
-   CONFIG.Use_RSTB_Pin {true} \
- ] $pattern_mem_data
+   CONFIG.SINGLE_PORT_BRAM {1} \
+ ] $pattern_data_bram_ctrl
 
   # Create instance: pattern_generator_mem_tri, and set properties
   set pattern_generator_mem_tri [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 pattern_generator_mem_tri ]
@@ -1060,6 +1050,17 @@ proc create_hier_cell_pattern_generator_1 { parentCell nameHier } {
    CONFIG.Port_B_Write_Rate {50} \
    CONFIG.Use_RSTB_Pin {true} \
  ] $pattern_generator_mem_tri
+
+  # Create instance: pattern_mem_data, and set properties
+  set pattern_mem_data [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 pattern_mem_data ]
+  set_property -dict [ list \
+   CONFIG.Enable_B {Use_ENB_Pin} \
+   CONFIG.Memory_Type {True_Dual_Port_RAM} \
+   CONFIG.Port_B_Clock {100} \
+   CONFIG.Port_B_Enable_Rate {100} \
+   CONFIG.Port_B_Write_Rate {50} \
+   CONFIG.Use_RSTB_Pin {true} \
+ ] $pattern_mem_data
 
   # Create instance: pattern_nsamples, and set properties
   set pattern_nsamples [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 pattern_nsamples ]
@@ -1099,20 +1100,20 @@ proc create_hier_cell_pattern_generator_1 { parentCell nameHier } {
   connect_bd_intf_net -intf_net pattern_tri_bram_ctrl_BRAM_PORTA [get_bd_intf_pins pattern_generator_mem_tri/BRAM_PORTA] [get_bd_intf_pins pattern_tri_bram_ctrl/BRAM_PORTA]
 
   # Create port connections
-  connect_bd_net -net S00_ARESETN_1 [get_bd_pins s_axi_aresetn] [get_bd_pins pattern_data_bram_ctrl/s_axi_aresetn] [get_bd_pins pattern_control/reset_n] [get_bd_pins pattern_nsamples/s_axi_aresetn] [get_bd_pins pattern_tri_bram_ctrl/s_axi_aresetn]
+  connect_bd_net -net S00_ARESETN_1 [get_bd_pins s_axi_aresetn] [get_bd_pins pattern_control/reset_n] [get_bd_pins pattern_data_bram_ctrl/s_axi_aresetn] [get_bd_pins pattern_nsamples/s_axi_aresetn] [get_bd_pins pattern_tri_bram_ctrl/s_axi_aresetn]
   connect_bd_net -net axi_gpio_dpb_nsamples_single_gpio2_io_o [get_bd_pins pattern_control/single_b] [get_bd_pins pattern_nsamples/gpio2_io_i] [get_bd_pins pattern_nsamples/gpio2_io_o]
   connect_bd_net -net axi_gpio_dpb_nsamples_single_gpio_io_o [get_bd_pins nSamples] [get_bd_pins pattern_control/numSample] [get_bd_pins pattern_nsamples/gpio_io_i] [get_bd_pins pattern_nsamples/gpio_io_o]
   connect_bd_net -net blk_mem_gen_0_doutb [get_bd_pins pattern_mem_data/doutb] [get_bd_pins slice_pattern_data/Din]
-  connect_bd_net -net clk1_1 [get_bd_pins sample_clk] [get_bd_pins pattern_control/clk] [get_bd_pins pattern_mem_data/clkb] [get_bd_pins pattern_generator_mem_tri/clkb]
-  connect_bd_net -net concat_dpb_addrB_dout [get_bd_pins concat_addrB/dout] [get_bd_pins pattern_mem_data/addrb] [get_bd_pins pattern_generator_mem_tri/addrb]
+  connect_bd_net -net clk1_1 [get_bd_pins sample_clk] [get_bd_pins pattern_control/clk] [get_bd_pins pattern_generator_mem_tri/clkb] [get_bd_pins pattern_mem_data/clkb]
+  connect_bd_net -net concat_dpb_addrB_dout [get_bd_pins concat_addrB/dout] [get_bd_pins pattern_generator_mem_tri/addrb] [get_bd_pins pattern_mem_data/addrb]
   connect_bd_net -net constant_2bit_0_dout [get_bd_pins concat_addrB/In0] [get_bd_pins misc/dout3]
-  connect_bd_net -net constant_32bit_0_dout [get_bd_pins misc/dout2] [get_bd_pins pattern_mem_data/dinb] [get_bd_pins pattern_generator_mem_tri/dinb]
+  connect_bd_net -net constant_32bit_0_dout [get_bd_pins misc/dout2] [get_bd_pins pattern_generator_mem_tri/dinb] [get_bd_pins pattern_mem_data/dinb]
   connect_bd_net -net controls_input_1 [get_bd_pins input_controls] [get_bd_pins pattern_control/controls_input]
-  connect_bd_net -net logic_0_dout [get_bd_pins misc/dout4] [get_bd_pins pattern_mem_data/rstb] [get_bd_pins pattern_generator_mem_tri/rstb]
+  connect_bd_net -net logic_0_dout [get_bd_pins misc/dout4] [get_bd_pins pattern_generator_mem_tri/rstb] [get_bd_pins pattern_mem_data/rstb]
   connect_bd_net -net misc_dout [get_bd_pins concat_addrB/In2] [get_bd_pins misc/dout]
-  connect_bd_net -net misc_dout1 [get_bd_pins misc/dout1] [get_bd_pins pattern_mem_data/web] [get_bd_pins pattern_generator_mem_tri/web]
+  connect_bd_net -net misc_dout1 [get_bd_pins misc/dout1] [get_bd_pins pattern_generator_mem_tri/web] [get_bd_pins pattern_mem_data/web]
   connect_bd_net -net pattern_controller_0_pattern_addrB [get_bd_pins concat_addrB/In1] [get_bd_pins pattern_control/pattern_addrB]
-  connect_bd_net -net pattern_controller_0_pattern_enb [get_bd_pins pattern_control/pattern_enb] [get_bd_pins pattern_mem_data/enb] [get_bd_pins pattern_generator_mem_tri/enb]
+  connect_bd_net -net pattern_controller_0_pattern_enb [get_bd_pins pattern_control/pattern_enb] [get_bd_pins pattern_generator_mem_tri/enb] [get_bd_pins pattern_mem_data/enb]
   connect_bd_net -net pattern_generator_mem_tri_doutb [get_bd_pins pattern_generator_mem_tri/doutb] [get_bd_pins slice_pattern_tri/Din]
   connect_bd_net -net ps7_0_FCLK_CLK0 [get_bd_pins s_axi_aclk] [get_bd_pins pattern_data_bram_ctrl/s_axi_aclk] [get_bd_pins pattern_nsamples/s_axi_aclk] [get_bd_pins pattern_tri_bram_ctrl/s_axi_aclk]
   connect_bd_net -net slice_pattern_data_Dout [get_bd_pins pattern_data_o] [get_bd_pins slice_pattern_data/Dout]
@@ -1686,28 +1687,17 @@ proc create_hier_cell_pattern_generator { parentCell nameHier } {
   # Create instance: misc
   create_hier_cell_misc_1 $hier_obj misc
 
-  # Create instance: pattern_data_bram_ctrl, and set properties
-  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_data_bram_ctrl ]
-  set_property -dict [ list \
-   CONFIG.SINGLE_PORT_BRAM {1} \
- ] $pattern_data_bram_ctrl
-
   # Create instance: pattern_control, and set properties
   set pattern_control [ create_bd_cell -type ip -vlnv xilinx.com:user:pattern_controller:1.0 pattern_control ]
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {14} \
  ] $pattern_control
 
-  # Create instance: pattern_mem_data, and set properties
-  set pattern_mem_data [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 pattern_mem_data ]
+  # Create instance: pattern_data_bram_ctrl, and set properties
+  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_data_bram_ctrl ]
   set_property -dict [ list \
-   CONFIG.Enable_B {Use_ENB_Pin} \
-   CONFIG.Memory_Type {True_Dual_Port_RAM} \
-   CONFIG.Port_B_Clock {100} \
-   CONFIG.Port_B_Enable_Rate {100} \
-   CONFIG.Port_B_Write_Rate {50} \
-   CONFIG.Use_RSTB_Pin {true} \
- ] $pattern_mem_data
+   CONFIG.SINGLE_PORT_BRAM {1} \
+ ] $pattern_data_bram_ctrl
 
   # Create instance: pattern_generator_mem_tri, and set properties
   set pattern_generator_mem_tri [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 pattern_generator_mem_tri ]
@@ -1719,6 +1709,17 @@ proc create_hier_cell_pattern_generator { parentCell nameHier } {
    CONFIG.Port_B_Write_Rate {50} \
    CONFIG.Use_RSTB_Pin {true} \
  ] $pattern_generator_mem_tri
+
+  # Create instance: pattern_mem_data, and set properties
+  set pattern_mem_data [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 pattern_mem_data ]
+  set_property -dict [ list \
+   CONFIG.Enable_B {Use_ENB_Pin} \
+   CONFIG.Memory_Type {True_Dual_Port_RAM} \
+   CONFIG.Port_B_Clock {100} \
+   CONFIG.Port_B_Enable_Rate {100} \
+   CONFIG.Port_B_Write_Rate {50} \
+   CONFIG.Use_RSTB_Pin {true} \
+ ] $pattern_mem_data
 
   # Create instance: pattern_nsamples, and set properties
   set pattern_nsamples [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 pattern_nsamples ]
@@ -1758,21 +1759,21 @@ proc create_hier_cell_pattern_generator { parentCell nameHier } {
   connect_bd_intf_net -intf_net pattern_tri_bram_ctrl_BRAM_PORTA [get_bd_intf_pins pattern_generator_mem_tri/BRAM_PORTA] [get_bd_intf_pins pattern_tri_bram_ctrl/BRAM_PORTA]
 
   # Create port connections
-  connect_bd_net -net S00_ARESETN_1 [get_bd_pins s_axi_aresetn] [get_bd_pins pattern_data_bram_ctrl/s_axi_aresetn] [get_bd_pins pattern_control/reset_n] [get_bd_pins pattern_nsamples/s_axi_aresetn] [get_bd_pins pattern_tri_bram_ctrl/s_axi_aresetn]
+  connect_bd_net -net S00_ARESETN_1 [get_bd_pins s_axi_aresetn] [get_bd_pins pattern_control/reset_n] [get_bd_pins pattern_data_bram_ctrl/s_axi_aresetn] [get_bd_pins pattern_nsamples/s_axi_aresetn] [get_bd_pins pattern_tri_bram_ctrl/s_axi_aresetn]
   connect_bd_net -net axi_gpio_dpb_nsamples_single_gpio2_io_o [get_bd_pins pattern_control/single_b] [get_bd_pins pattern_nsamples/gpio2_io_i] [get_bd_pins pattern_nsamples/gpio2_io_o]
   connect_bd_net -net axi_gpio_dpb_nsamples_single_gpio_io_o [get_bd_pins nSamples] [get_bd_pins pattern_control/numSample] [get_bd_pins pattern_nsamples/gpio_io_i] [get_bd_pins pattern_nsamples/gpio_io_o]
   connect_bd_net -net blk_mem_gen_0_doutb [get_bd_pins pattern_mem_data/doutb] [get_bd_pins slice_pattern_data/Din]
   connect_bd_net -net blk_mem_gen_0_doutb1 [get_bd_pins pattern_generator_mem_tri/doutb] [get_bd_pins slice_pattern_tri/Din]
-  connect_bd_net -net clk1_1 [get_bd_pins sample_clk] [get_bd_pins pattern_control/clk] [get_bd_pins pattern_mem_data/clkb] [get_bd_pins pattern_generator_mem_tri/clkb]
-  connect_bd_net -net concat_dpb_addrB_dout [get_bd_pins concat_addrB/dout] [get_bd_pins pattern_mem_data/addrb] [get_bd_pins pattern_generator_mem_tri/addrb]
+  connect_bd_net -net clk1_1 [get_bd_pins sample_clk] [get_bd_pins pattern_control/clk] [get_bd_pins pattern_generator_mem_tri/clkb] [get_bd_pins pattern_mem_data/clkb]
+  connect_bd_net -net concat_dpb_addrB_dout [get_bd_pins concat_addrB/dout] [get_bd_pins pattern_generator_mem_tri/addrb] [get_bd_pins pattern_mem_data/addrb]
   connect_bd_net -net constant_14bit_0_dout [get_bd_pins concat_addrB/In2] [get_bd_pins misc/dout]
   connect_bd_net -net constant_2bit_0_dout [get_bd_pins concat_addrB/In0] [get_bd_pins misc/dout3]
-  connect_bd_net -net constant_32bit_0_dout [get_bd_pins misc/dout2] [get_bd_pins pattern_mem_data/dinb] [get_bd_pins pattern_generator_mem_tri/dinb]
+  connect_bd_net -net constant_32bit_0_dout [get_bd_pins misc/dout2] [get_bd_pins pattern_generator_mem_tri/dinb] [get_bd_pins pattern_mem_data/dinb]
   connect_bd_net -net controls_input_1 [get_bd_pins input_controls] [get_bd_pins pattern_control/controls_input]
-  connect_bd_net -net logic_0_dout [get_bd_pins misc/dout4] [get_bd_pins pattern_mem_data/rstb] [get_bd_pins pattern_generator_mem_tri/rstb]
-  connect_bd_net -net misc_dout1 [get_bd_pins misc/dout1] [get_bd_pins pattern_mem_data/web] [get_bd_pins pattern_generator_mem_tri/web]
+  connect_bd_net -net logic_0_dout [get_bd_pins misc/dout4] [get_bd_pins pattern_generator_mem_tri/rstb] [get_bd_pins pattern_mem_data/rstb]
+  connect_bd_net -net misc_dout1 [get_bd_pins misc/dout1] [get_bd_pins pattern_generator_mem_tri/web] [get_bd_pins pattern_mem_data/web]
   connect_bd_net -net pattern_controller_0_pattern_addrB [get_bd_pins concat_addrB/In1] [get_bd_pins pattern_control/pattern_addrB]
-  connect_bd_net -net pattern_controller_0_pattern_enb [get_bd_pins pattern_control/pattern_enb] [get_bd_pins pattern_mem_data/enb] [get_bd_pins pattern_generator_mem_tri/enb]
+  connect_bd_net -net pattern_controller_0_pattern_enb [get_bd_pins pattern_control/pattern_enb] [get_bd_pins pattern_generator_mem_tri/enb] [get_bd_pins pattern_mem_data/enb]
   connect_bd_net -net ps7_0_FCLK_CLK0 [get_bd_pins s_axi_aclk] [get_bd_pins pattern_data_bram_ctrl/s_axi_aclk] [get_bd_pins pattern_nsamples/s_axi_aclk] [get_bd_pins pattern_tri_bram_ctrl/s_axi_aclk]
   connect_bd_net -net slice_dpb_data_Dout [get_bd_pins pattern_data_o] [get_bd_pins slice_pattern_data/Dout]
   connect_bd_net -net slice_pattern_tri_Dout [get_bd_pins pattern_tri_o] [get_bd_pins slice_pattern_tri/Dout]
@@ -4139,6 +4140,10 @@ proc create_root_design { parentCell } {
 
   # Restore current instance
   current_bd_instance $oldCurInst
+
+  # Create PFM attributes
+  set_property PFM_NAME {xilinx.com:xd:logictools:1.0} [get_files [current_bd_design].bd]
+
 
   save_bd_design
 }
