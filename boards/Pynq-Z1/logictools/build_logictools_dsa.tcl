@@ -1,5 +1,5 @@
 set overlay_name "logictools"
-set design_name "system"
+set design_name "logictools"
 
 # open project and block design
 open_project -quiet ./${overlay_name}/${overlay_name}.xpr
