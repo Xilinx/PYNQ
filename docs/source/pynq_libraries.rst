@@ -64,3 +64,4 @@ driver provided, before the peripheral can be used.
     pynq_libraries/pynq_microblaze_subsystem.rst
     pynq_libraries/pynqmb_python.rst
     pynq_libraries/pynqmb_reference.rst       
+    pynq_libraries/pmbus.rst
