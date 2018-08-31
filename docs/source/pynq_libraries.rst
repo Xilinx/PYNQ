@@ -98,6 +98,14 @@ PS/PL interface
     pynq_libraries/psgpio.rst
     pynq_libraries/xlnk.rst
 
+PS control
+----------
+
+.. toctree::
+    :maxdepth: 1
+    
+    pynq_libraries/pmbus.rst
+
 PL control
 ----------
 
