@@ -25,9 +25,6 @@ else
 	if [ -e "makefile" ]; then make; fi
 	cd $BSP_BUILD
 	petalinux-create --type project --template $template --name $BSP_PROJECT
-	mkdir -p $BSP_PROJECT/project-spec/configs
-	cp -f $board/petalinux_bsp/configs/*.old \
-		$BSP_PROJECT/project-spec/configs
 	cd $BSP_PROJECT
 	petalinux-config --get-hw-description=$BSP_BUILD/hardware_project \
 		--oldconfig
