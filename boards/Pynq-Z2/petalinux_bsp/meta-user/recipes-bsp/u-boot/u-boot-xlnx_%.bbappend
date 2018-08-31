@@ -1,7 +1,8 @@
 SRC_URI_append = " file://platform-top.h"
-SRC_URI += " file://0001-ARM-zynq-Add-preliminary-support-for-Arty-Z-board.patch"
-SRC_URI += " file://0002-zynq-Allow-to-read-mac-address-from-SPI-flash-OTP-re.patch"
-SRC_URI += " file://0003-Add-PYNQ-Z2-derivative.patch"
+SRC_URI += " file://0001-add-preliminary-support-for-artyz.patch"
+SRC_URI += " file://0002-allow-to-read-mac-address-from-SPI-flash.patch"
+SRC_URI += " file://0003-add-pynqz1-derivative.patch"
+SRC_URI += " file://0004-add-pynqz2-derivative.patch"
 SRC_URI += " file://ethernet_spi.cfg"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
