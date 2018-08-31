@@ -665,6 +665,7 @@ if CPU_ARCH == ZU_ARCH:
 elif CPU_ARCH == ZYNQ_ARCH:
     TCL = _TCLZynq
 else:
+    TCL = _TCLABC
     warnings.warn("PYNQ does not support the CPU Architecture: {}"
                   .format(CPU_ARCH), ResourceWarning)
 
@@ -1098,6 +1099,7 @@ if CPU_ARCH == ZU_ARCH:
 elif CPU_ARCH == ZYNQ_ARCH:
     HWH = _HWHZynq
 else:
+    HWH = _HWHABC
     warnings.warn("PYNQ does not support the CPU Architecture: {}"
                   .format(CPU_ARCH), ResourceWarning)
 
@@ -1800,5 +1802,8 @@ if CPU_ARCH == ZU_ARCH:
 elif CPU_ARCH == ZYNQ_ARCH:
     Bitstream = _BitstreamZynq
 else:
+    # Use the _BitstreamMeta class as the Bitstream implementation
+    # so that the docs get built correctly
+    Bitstream = _BitstreamMeta
     warnings.warn("PYNQ does not support the CPU Architecture: {}"
                   .format(CPU_ARCH), ResourceWarning)
