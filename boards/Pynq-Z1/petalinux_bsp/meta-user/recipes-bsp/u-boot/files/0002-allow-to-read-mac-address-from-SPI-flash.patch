@@ -1,20 +1,15 @@
-From 0ca4cd335510e9e664dd86c0232822dba40febb4 Mon Sep 17 00:00:00 2001
-From: Jason Wu <jason.wu.misc@gmail.com>
-Date: Thu, 9 Jun 2016 11:48:36 +1000
-Subject: [PATCH 2/3] zynq: Allow to read mac address from SPI flash OTP region
+From df3705bc3600871af28a1735d98aec83c95cf38e Mon Sep 17 00:00:00 2001
+From: Rock Qu <yunq@xilinx.com>
+Date: Fri, 31 Aug 2018 12:24:21 -0700
+Subject: [PATCH 2/4] allow to read mac address from SPI flash
 
-Probe flash and use OTP read command for reading mac address stored in
-the memory. This is the easiest way how to do it.
-
-Signed-off-by: Jason Wu <jason.wu.misc@gmail.com>
-Signed-off-by: Michal Simek <monstr@monstr.eu>
 ---
  board/xilinx/zynq/board.c    | 24 ++++++++++++++++++++++++
  include/configs/zynq_artyz.h |  4 ++++
  2 files changed, 28 insertions(+)
 
 diff --git a/board/xilinx/zynq/board.c b/board/xilinx/zynq/board.c
-index 995473c..78f090e 100644
+index 28394be..4b5ccff 100644
 --- a/board/xilinx/zynq/board.c
 +++ b/board/xilinx/zynq/board.c
 @@ -8,6 +8,8 @@
@@ -26,7 +21,7 @@ index 995473c..78f090e 100644
  #include <zynqpl.h>
  #include <asm/arch/hardware.h>
  #include <asm/arch/sys_proto.h>
-@@ -132,6 +134,28 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+@@ -141,6 +143,28 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
  		printf("I2C EEPROM MAC address read failed\n");
  #endif
  
@@ -71,5 +66,5 @@ index caff787..2a03299 100644
  #define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
  
 -- 
-2.7.4
+1.9.5
 
