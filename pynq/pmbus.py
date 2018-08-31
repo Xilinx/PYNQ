@@ -279,7 +279,8 @@ class Sensor:
             return 0
 
     def __repr__(self):
-        return f"Sensor {{name={self.name}, value={self.value}{self._unit}}}"
+        return "Sensor {{name={}, value={}{}}}".format(
+            self.name, self.value, self._unit)
 
 class Rail:
     """Bundles up to three sensors monitoring the same power rail
@@ -309,14 +310,14 @@ class Rail:
         self.power = None
 
     def __repr__(self):
-        args = [f"name={self.name}"]
+        args = ["name=" + self.name]
         if self.voltage:
-            args.append(f"voltage={repr(self.voltage)}")
+            args.append("voltage=" + repr(self.voltage))
         if self.current:
-            args.append(f"current={repr(self.current)}")
+            args.append("current=" + repr(self.current))
         if self.power:
-            args.append(f"power={repr(self.power)}")
-        return f"Rail {{{', '.join(args)}}}"
+            args.append("power=" + repr(self.power))
+        return "Rail {{{}}}".format(', '.join(args))
 
 def _enumerate_sensors(config_file=None):
     if _lib is None:
@@ -358,7 +359,8 @@ def _enumerate_sensors(config_file=None):
                 if name not in rails:
                     rails[name] = Rail(name)
                 setattr(rails[name], feature_type,
-                        Sensor(cn, subfeature.number, unit, f"{name}_{feature_type}"))
+                        Sensor(cn, subfeature.number, unit, "{}_{}".format(
+                            name, feature_type)))
             feature = _lib.sensors_get_features(cn, feature_nr)
         cn = _lib.sensors_get_detected_chips(_ffi.NULL, chip_nr)
     return rails

@@ -28,6 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import warnings
 import weakref
 from .ps import CPU_ARCH, ZU_ARCH, ZYNQ_ARCH
 

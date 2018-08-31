@@ -834,7 +834,8 @@ if CPU_ARCH == ZU_ARCH:
 elif CPU_ARCH == ZYNQ_ARCH:
     _ClockParent = _ClocksZynq
 else:
-    raise RuntimeError("PYNQ does not support the CPU Architecture: "
+    _ClockParent = object
+    warnings.warn("PYNQ does not support the CPU Architecture: "
                        "{}".format(CPU_ARCH))
 
 
