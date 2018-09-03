@@ -1,0 +1,47 @@
+From 4cbb98e2289ed2f4fcde5f9a878d7f31216432fc Mon Sep 17 00:00:00 2001
+From: Peter Ogden <ogden@xilinx.com>
+Date: Sat, 1 Sep 2018 08:25:18 -0400
+Subject: [PATCH 1/2] Fix zynqmp bitstream download
+
+---
+ drivers/fpga/zynqmp-fpga.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/fpga/zynqmp-fpga.c b/drivers/fpga/zynqmp-fpga.c
+index b0c482f..ec12c0d 100644
+--- a/drivers/fpga/zynqmp-fpga.c
++++ b/drivers/fpga/zynqmp-fpga.c
+@@ -61,7 +61,7 @@ static int zynqmp_fpga_ops_write(struct fpga_manager *mgr,
+ 	if (mgr->flags & IXR_FPGA_ENCRYPTION_EN)
+ 		dma_size = size + ENCRYPTED_KEY_LEN;
+ 	else
+-		dma_size = size;
++		dma_size = size + sizeof(unsigned int);
+ 
+ 	kbuf = dma_alloc_coherent(priv->dev, dma_size, &dma_addr, GFP_KERNEL);
+ 	if (!kbuf)
+@@ -71,11 +71,20 @@ static int zynqmp_fpga_ops_write(struct fpga_manager *mgr,
+ 
+ 	if (mgr->flags & IXR_FPGA_ENCRYPTION_EN)
+ 		memcpy(kbuf + size, mgr->key, ENCRYPTED_KEY_LEN);
++	else {
++		unsigned int int_size = (unsigned int)size;
++		memcpy(kbuf + size, &int_size, sizeof(unsigned int));
++	}
+ 
+ 	__flush_cache_user_range((unsigned long)kbuf,
+ 				 (unsigned long)kbuf + dma_size);
+ 
+-	ret = eemi_ops->fpga_load(dma_addr, dma_addr + size, mgr->flags);
++	if (mgr->flags & IXR_FPGA_ENCRYPTION_EN)
++		ret = eemi_ops->fpga_load(dma_addr, dma_addr + size,
++							mgr->flags);
++	else
++		ret = eemi_ops->fpga_load(dma_addr, dma_addr + size,
++						mgr->flags);
+ 
+ 	dma_free_coherent(priv->dev, dma_size, kbuf, dma_addr);
+ 
+-- 
+2.7.4
+
