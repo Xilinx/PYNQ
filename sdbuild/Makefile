@@ -101,11 +101,11 @@ BSP_PROJECT_$1 := xilinx-$$(shell echo $1 | tr A-Z a-z | tr -cd '[:alnum:]')-$$(
 BSP_TARGET_$1 := $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp
 BSP_ENV_$1 := BSP=$$(BSP_$1) BSP_BUILD=$$(BSP_BUILD_$1) BSP_ABS=$$(BSP_ABS_$1) BSP_PROJECT=$$(BSP_PROJECT_$1)
 
-$$(BSP_BUILD_$1): $$(BUILD_ROOT_$1)
+$$(BSP_BUILD_$1): | $$(BUILD_ROOT_$1)
 	-rm -rf $$(BSP_BUILD_$1)
 	mkdir -p $$(BSP_BUILD_$1)
 
-$$(BSP_TARGET_$1): $$(BSP_BUILD_$1)
+$$(BSP_TARGET_$1): | $$(BSP_BUILD_$1)
 	$$(BSP_ENV_$1) $$(SCRIPT_DIR)/create_bsp.sh $$(BOARDDIR_$1) $$(TEMPLATE_$1)
 
 # BSP Specific Rules
@@ -149,7 +149,7 @@ $$(BOOT_ROOT_$1)/image.ub : $$(BUILD_ROOT_$1)/image.its $$(BUILD_ROOT_$1)/system
 $$(BUILD_ROOT_$1)/image.its: $$(CURDIR)/boot/image_$$(ARCH_$1).its | $$(BUILD_ROOT_$1)
 	cp $$< $$@
 
-$$(PL_CONFIG_$1): $$(BSP_BUILD_$1) | $$(PL_PROJ_$1); 
+$$(PL_CONFIG_$1): | $$(BSP_BUILD_$1) $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/%_fsbl.elf: $$(PL_CONFIG_$1)
 	PYNQ_BOARDNAME=$1 petalinux-build -c bootloader -p $$(PL_PROJ_$1)
