@@ -15,7 +15,7 @@
 };
 
 &i2c1 {
-	i2cswitch@74 {
+	i2c-mux@74 {
 		i2c@2 {
 			irps5401_44: irps5401@44 {
 				#clock-cells = <0>;
@@ -38,5 +38,9 @@
 };
 
 &irps5401_4d {
+	status = "disabled";
+};
+
+&vcu_0 {
 	status = "disabled";
 };
