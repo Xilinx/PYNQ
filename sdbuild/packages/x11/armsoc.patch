@@ -124,7 +124,7 @@ index 0000000000..f4faceb0b4
 +}
 +
 +struct drmmode_interface xilinx_interface = {
-+	"xilinx_drm"          /* name of drm driver */,
++	"xlnx"                /* name of drm driver */,
 +	1                     /* use_page_flip_events */,
 +	1                     /* use_early_display */,
 +	0                     /* cursor width */,
