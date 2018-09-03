@@ -1677,6 +1677,7 @@ class _BitstreamUltrascale(_BitstreamMeta):
 
     """
     BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
+    BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
     
     def _download(self):
         """The method to download the bitstream onto PL.
@@ -1697,6 +1698,11 @@ class _BitstreamUltrascale(_BitstreamMeta):
         self.bin_path = '/lib/firmware/' + bin_file
         self.convert_bit_to_bin()
         PL.shutdown()
+        with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
+            # The 20 flag tells the driver that we are passing in an old-style
+            # raw binary bitstream so we don't need to add the new-style header
+            # to the bin file
+            fd.write('20')
         with open(self.BS_FPGA_MAN, 'w') as fd:
             fd.write(bin_file)
 
