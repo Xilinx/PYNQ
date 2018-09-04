@@ -101,6 +101,8 @@ class Vphy(DefaultIP):
         if _hdmi_lib is None:
             raise RuntimeError("No Xilinx HDMI Library")
         super().__init__(description)
+
+    def initialize(self):
         self._virtaddr = self.mmio.array.ctypes.data
         self.handle = _hdmi_lib.HdmiPhy_new(self._virtaddr)
 
