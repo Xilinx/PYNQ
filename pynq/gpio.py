@@ -232,7 +232,10 @@ class GPIO:
         for root, dirs, files in os.walk('/sys/class/gpio'):
             for name in dirs:
                 if 'gpiochip' in name:
-                    return int(''.join(x for x in name if x.isdigit()))
+                    with open(os.path.join(root, name, "label")) as fd:
+                        label = fd.read().rstrip()
+                    if label in ['zynqmp_gpio', 'zynq_gpio']:
+                        return int(''.join(x for x in name if x.isdigit()))
 
     @staticmethod
     def get_gpio_pin(gpio_user_index):
