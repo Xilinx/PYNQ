@@ -11,7 +11,7 @@ sphinx-rtd-theme
 deltasigma
 pyeda
 nbwavedrom
-RISE
+RISE==5.2.0
 jupyter_contrib_nbextensions
 jupyter_nbextensions_configurator
 jupyterlab
