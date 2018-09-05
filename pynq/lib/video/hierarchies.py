@@ -125,7 +125,6 @@ class VideoIn(DefaultHierarchy):
 
         """
         self._vdma.readchannel.stop()
-        self.frontend.stop()
 
     @contextlib.contextmanager
     def _stopcontextmanager(self):
@@ -168,6 +167,25 @@ class VideoIn(DefaultHierarchy):
 
         """
         return self._vdma.readchannel.mode
+
+    @property
+    def cacheable_frames(self):
+        """Whether frames should be cacheable or non-cacheable
+
+        Only valid if a VDMA has been specified
+
+        """
+        if self._vdma:
+            return self._vdma.readchannel.cacheable_frames
+        else:
+            raise RuntimeError("No VDMA specified")
+
+    @cacheable_frames.setter
+    def cacheable_frames(self, value):
+        if self._vdma:
+            self._vdma.readchannel.cacheable_frames = value
+        else:
+            raise RuntimeError("No VDMA specified")
 
     def readframe(self):
         """Read a video frame
@@ -295,7 +313,6 @@ class VideoOut(DefaultHierarchy):
 
         """
         self._vdma.writechannel.stop()
-        self.frontend.stop()
 
     def close(self):
         """Close the pipeline an unintialise the drivers
@@ -338,6 +355,25 @@ class VideoOut(DefaultHierarchy):
 
         """
         return self._vdma.writechannel.mode
+
+    @property
+    def cacheable_frames(self):
+        """Whether frames should be cacheable or non-cacheable
+
+        Only valid if a VDMA has been specified
+
+        """
+        if self._vdma:
+            return self._vdma.writechannel.cacheable_frames
+        else:
+            raise RuntimeError("No VDMA specified")
+
+    @cacheable_frames.setter
+    def cacheable_frames(self, value):
+        if self._vdma:
+            self._vdma.writechannel.cacheable_frames = value
+        else:
+            raise RuntimeError("No VDMA specified")
 
     def newframe(self):
         """Return an unintialised video frame of the correct type for the
