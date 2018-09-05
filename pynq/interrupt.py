@@ -179,9 +179,6 @@ class _InterruptController(object):
         self.event_number = 0
         self.waiting = False
 
-        # Enable global interrupt
-        self.mmio.write(0x1C, 0x00000003)
-
         # Disable Interrupt lines
         self.mmio.write(0x08, 0)
 
@@ -251,3 +248,5 @@ class _InterruptController(object):
             self.parent.add_event(self, self.number)
         self.wait_handles[number].append(event)
         self.event_number += 1
+        # Enable global interrupt
+        self.mmio.write(0x1C, 0x00000003)
