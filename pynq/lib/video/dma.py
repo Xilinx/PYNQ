@@ -40,10 +40,11 @@ from pynq import DefaultIP, Xlnk
 class _FrameCache:
     _xlnk = None
 
-    def __init__(self, mode, capacity=5):
+    def __init__(self, mode, capacity=5, cacheable=0):
         self._cache = []
         self._mode = mode
         self._capacity = capacity
+        self._cacheable = cacheable
 
     def getframe(self):
         """Retrieve a frame from the cache or create a new frame if the
@@ -54,14 +55,14 @@ class _FrameCache:
         """
         if self._cache:
             frame = _FrameCache._xlnk.cma_array(
-                shape=self._mode.shape, dtype='u1', cacheable=1,
+                shape=self._mode.shape, dtype='u1', cacheable=self._cacheable,
                 pointer=self._cache.pop(), cache=self)
         else:
             if _FrameCache._xlnk is None:
                 _FrameCache._xlnk = Xlnk()
             frame = _FrameCache._xlnk.cma_array(
-                shape=self._mode.shape, dtype=np.uint8, cacheable=1,
-                cache=self)
+                shape=self._mode.shape, dtype=np.uint8,
+                cacheable=self._cacheable, cache=self)
         return frame
 
     def return_pointer(self, pointer):
@@ -153,6 +154,10 @@ class AxiVDMA(DefaultIP):
         ----------
         mode : VideoMode
             The video mode of the DMA channel
+        cacheable_frames : bool
+            Whether frames should be stored in cacheable or
+            non-cacheable memory
+
         """
 
         def __init__(self, parent, interrupt):
@@ -161,6 +166,7 @@ class AxiVDMA(DefaultIP):
             self._interrupt = interrupt
             self._sinkchannel = None
             self._mode = None
+            self.cacheable_frames = True
 
         def _readframe_internal(self):
             self.irqframecount = 1
@@ -293,7 +299,8 @@ class AxiVDMA(DefaultIP):
             if not self._mode:
                 raise RuntimeError("Video mode not set, channel not started")
             self.desiredframe = 0
-            self._cache = _FrameCache(self._mode)
+            self._cache = _FrameCache(
+                    self._mode, cacheable=self.cacheable_frames)
             for i in range(len(self._frames)):
                 self._frames[i] = self._cache.getframe()
 
@@ -374,6 +381,9 @@ class AxiVDMA(DefaultIP):
         ----------
         mode : VideoMode
             Video mode of the DMA channel
+        cacheable_frames : bool
+            Whether frames should be stored in cacheable or
+            non-cacheable memory
 
         """
 
@@ -383,6 +393,7 @@ class AxiVDMA(DefaultIP):
             self._interrupt = interrupt
             self._mode = None
             self.sourcechannel = None
+            self.cacheable_frames = True
 
         def start(self):
             """Start the DMA channel with a blank screen. The mode must
@@ -391,7 +402,8 @@ class AxiVDMA(DefaultIP):
             """
             if not self._mode:
                 raise RuntimeError("Video mode not set, channel not started")
-            self._cache = _FrameCache(self._mode)
+            self._cache = _FrameCache(
+                    self._mode, cacheable=self.cacheable_frames)
             self._frames[0] = self._cache.getframe()
             self._writemode()
             self.reload()
