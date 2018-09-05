@@ -451,9 +451,7 @@ class _TCLABC(metaclass=abc.ABCMeta):
                                      'pins': output_pins}
 
     def _add_interrupt_pins(self, net, parent, offset):
-        net_pins = set()
-        if net in self.nets:
-            net_pins = self.nets[net]
+        net_pins = self.nets[net]
         # Find the next item up the chain
         for p in net_pins:
             m = re.match('(.*)/dout', p)
@@ -479,8 +477,11 @@ class _TCLABC(metaclass=abc.ABCMeta):
     def _add_concat_pins(self, name, parent, offset):
         num_ports = self.concat_cells[name]
         for i in range(num_ports):
-            net = self.pins[name + "/In" + str(i)]
-            offset = self._add_interrupt_pins(net, parent, offset)
+            if (name + "/In" + str(i)) in self.pins:
+                net = self.pins[name + "/In" + str(i)]
+                offset = self._add_interrupt_pins(net, parent, offset)
+            else:
+                offset = 1
         return offset
 
     def _assign_interrupts_gpio(self):
