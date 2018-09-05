@@ -163,6 +163,10 @@ class AxiVDMA(DefaultIP):
             self._mode = None
 
         def _readframe_internal(self):
+            if self._mmio.read(0x34) & 0x8980:
+                # Some spurious errors can occur at the start of transfers
+                # let's ignore them for now
+                self._mmio.write(0x34, 0x8980)
             self.irqframecount = 1
             nextframe = self._cache.getframe()
             previous_frame = (self.activeframe + 2) % len(self._frames)
