@@ -1,0 +1,10 @@
+--- a/sitecustomize.py	2018-09-06 14:10:15.383777593 +0000
++++ b/sitecustomize.py	2018-09-06 14:10:00.939777851 +0000
+@@ -5,3 +5,7 @@
+     pass
+ else:
+     apport_python_hook.install()
++
++# Import libgomp to work around OpenCV load order issues
++import ctypes
++ctypes.cdll.LoadLibrary("libgomp.so.1")
