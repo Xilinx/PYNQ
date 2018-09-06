@@ -14,6 +14,15 @@ class BaseOverlay(pynq.Overlay):
             self.PMOD1 = self.iop_pmod1.mb_info
             self.PMODA = self.PMOD0
             self.PMODB = self.PMOD1
+            self.leds = self.gpio_leds.channel1
+            self.leds.setdirection('out')
+            self.leds.setlength(4)
+            self.buttons = self.gpio_btns.channel1
+            self.buttons.setdirection('in')
+            self.buttons.setlength(4)
+            self.switches = self.gpio_sws.channel1
+            self.switches.setdirection('in')
+            self.switches.setlength(4)
 
     def download(self):
         super().download()
