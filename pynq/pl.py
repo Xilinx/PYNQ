@@ -1602,7 +1602,6 @@ class _BitstreamMeta:
 
         """
         self._download()
-        self._update_pl()
         if not self.partial:
             self._update_pl()
 
