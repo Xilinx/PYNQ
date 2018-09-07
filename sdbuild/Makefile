@@ -178,7 +178,11 @@ $$(BOOT_ROOT_$1):
 	mkdir -p $$@
 
 BASE_$1 ?= $$(UBUNTU_RELEASE).$$(ARCH_$1).$$(VERSION).img
-BASE_PATH_$1 := $$(IMAGE_ROOT)/$$(BASE_$1)
+ifeq ($$(PREBUILT),)
+	BASE_PATH_$1 := $$(IMAGE_ROOT)/$$(BASE_$1)
+else
+	BASE_PATH_$1 := $$(PREBUILT)
+endif
 STAGE4_DEPENDS_$1 := $$(foreach package, $$(STAGE4_PACKAGES_$1), $$(PACKAGE_BUILD_$$(package)_$1) $$(PACKAGE_BUILD_$$(package)))
 STAGING_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1
 
@@ -315,6 +319,8 @@ boot_files: checkenv $(BOOT_FILES)
 
 images: checkenv $(IMAGE_FILES)
 
+nocheck_images: $(IMAGE_FILES)
+
 real_all: checkenv $(BOOT_FILES) $(IMAGE_FILES)
 
 sdx_sw: $(patsubst %, sdx_sw_%, $(BOARDS))
@@ -330,5 +336,5 @@ clean: $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: bsp boot_files images all clean real_all checkenv sdx_sw sysroot
+.PHONY: bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
 
