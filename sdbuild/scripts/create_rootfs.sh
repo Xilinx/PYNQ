@@ -58,8 +58,6 @@ adduser xilinx adm
 adduser xilinx sudo
 
 fake-hwclock save
-
-exit 0
 EOT
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
@@ -68,6 +66,11 @@ echo "deb http://ports.ubuntu.com/ubuntu-ports bionic main universe" > /etc/apt/
 echo "deb-src http://ports.ubuntu.com/ubuntu-ports bionic main universe" >> /etc/apt/sources.list.d/multistrap-bionic.list
 EOT
 fi
+
+cat - >> $target/postinst2.sh <<EOT
+exit 0
+EOT
+
 
 # Copy over what we need to complete the installation
 $dry_run sudo cp ${QEMU_EXE} $target/usr/bin
