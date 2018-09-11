@@ -28,7 +28,7 @@ All Python code for the `pynq` package can be found in the `/pynq` folder. This 
 To update your PYNQ SD card to the latest ``pynq`` package, you can run the following command from a terminal connected to your board:
 
 ```console
-sudo pip3.6 install --upgrade git+https://github.com/Xilinx/PYNQ.git
+sudo pip3 install --upgrade git+https://github.com/Xilinx/PYNQ.git
 ```
 
 SDK software projects and Python-C source codes are also stored along with the Python source code. After installing the `pynq` package, the compiled target files will be saved automatically into the `pynq` package.
@@ -68,3 +68,9 @@ Please ask questions on the <a href="https://groups.google.com/forum/#!forum/pyn
 **Xilinx Embedded SW** License : [Multiple License File](https://github.com/Xilinx/embeddedsw/blob/master/license.txt)
 
 **Digilent IP** License: [MIT License](https://github.com/Xilinx/PYNQ/blob/master/THIRD_PARTY_LIC)
+
+## SDBuild Open Source Components
+
+**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.3-license.tar.gz)
+
+**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.3-open_components.tar.gz)

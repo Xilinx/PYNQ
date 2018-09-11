@@ -2,6 +2,40 @@
 Change Log
 ************************
 
+Version 2.3 
+============================
+
+* Image releases:
+   * pynq_z1_v2.3
+   * pynq_z2_v2.3
+   * zcu104_v2.3  
+
+Documentation updated 7 Sep 2018
+
+* Architecture Additions
+   * Zynq UltraScale+ (ZU+) support added
+* Board Additions
+   * ZCU104 support added
+* Programmable Logic Updates
+   * All bitstreams built using Vivado 2018.2
+   * Initial support for DSA generation and PL parsing added
+   * Removed custom toplevel wrapper file requirement
+* SDBuild Updates
+   * Root filesystem based on Ubuntu 18.04
+   * Boot partition built on Petalinux 2018.2
+   * SDSoC 2018.2 support added
+   * Added fpga_manager support for Zynq and ZU+
+   * AWS Greengrass kernel configuration options added
+   * Custom board support updated
+* New PYNQ Python Modules
+   * Added ZU+ DisplayPort
+   * Added PMBus power monitoring
+   * Added uio support
+   * Added AXI IIC support
+* New Microblaze Programming Notebooks
+   * Added arduino ardumoto, arduino joystick, grove usranger notebooks
+
+   
 Version 2.2 
 ============================
 
