@@ -173,7 +173,7 @@ class HdmiTxSs(DefaultIP, VideoOutFrontend):
             raise RuntimeError("Could not set PHY clock")
         elif frequency == 0:
             raise RuntimeError("Display does not support HDMI 2.0")
-        print(f"Frequency: {frequency}")
+        print("Frequency: {}".format(frequency))
         for c in self.clocks:
             c.set_clock(frequency, _hdmi_lib.HdmiTx_line_rate(self.handle))
         _hdmi_lib.HdmiTx_start(self.handle)
