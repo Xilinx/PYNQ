@@ -37,12 +37,13 @@ Board Setup
       :align: center
 
   1. Set the **Boot** Dip Switches (SW6) to the following positions:
+    (This sets the board to boot from the Micro-SD card)
+
     * Dip switch 1 (Mode 0): On (down position in diagram)
     * Dip switch 2 (Mode 1): Off (up position in diagram)
     * Dip switch 3 (Mode 2): Off (up)
     * Dip switch 4 (Mode 3): Off (up)
-     (This sets the board to boot from the Micro-SD card)
-   
+
   2. Connect the 12V power cable. Note that the connector is keyed and can only
      be connected in one way. 
 
