@@ -33,6 +33,7 @@ __email__ = "pynq_support@xilinx.com"
 
 import cffi
 import os
+import warnings
 from pynq import DefaultIP
 from .frontend import VideoInFrontend, VideoOutFrontend
 from .constants import LIB_SEARCH_PATH
