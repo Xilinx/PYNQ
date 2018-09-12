@@ -17,9 +17,21 @@ the PL. Each AXI GPIO can have up to two channels each with up to 32 pins.
 .. image:: ../images/gpio.png
    :align: center  
 
-The direction, and width of each channel can be set with the 
-``setdirection()``, and ``setlength()`` methods.
-The ``read()`` and ``write()`` methods are used to read and write data. 
+The ``read()`` and ``write()`` methods are used to read and write data
+on a channel (all of the GPIO).
+
+``setdirection()`` and ``setlength()`` can be used to configure the IP.
+The direction can be 'in', 'out', and 'inout'. 
+
+By default the direction
+is 'inout'. Specifying 'in' or 'out' will only allow read and writes to
+the IP respectively, and trying to *read* an 'out' or *write* an 'in'
+will cause an error. 
+
+The length can be set to only write a smaller range of the GPIO.
+
+The GPIO can also be treated like an array. This allows specific bits to
+be set, and avoids the need to use a bit mask. 
 
 The interrupt signal, *ip2intc_irpt* from the AXI GPIO can be connected 
 directly
@@ -33,54 +45,55 @@ section.
 
 The LED, Switch, Button and RGBLED classes extend the AxiGPIO controller 
 and are customized for the corresponding peripherals. These classes 
-expect an AXI GPIO instance called ``[led|switche|button|rgbleds]_gpio`` 
+expect an AXI GPIO instance called ``[led|switch|button|rgbleds]_gpio`` 
 to exist in the overlay used with this class. 
 
 Examples
 --------
 
-Note that this example uses the AxiGPIO instances in the base overlay 
-directly with the AxiGPIO class. 
 This example is for illustration, to show how to use the AxiGPIO class.
-In practice, the LED, Button, Switches, and RGBLED classes which extend 
-the AxiGPIO class should be used for these peripherals. 
+In practice, the LED, Button, Switches, and RGBLED classes may be available 
+to extend the AxiGPIO class should be used for these peripherals in an overlay. 
 
 After an overlay has been loaded, an AxiGPIO instance can be instantiated 
-by passing the AxiGPIO name to the class. 
+by passing the name of the AXI GPIO controller to the class. 
 
 .. code-block:: Python
 
    from pynq import Overlay
+   from pynq.lib import AxiGPIO
    ol = Overlay("base.bit")
 
-   ip_instance = ol.ip_dict['leds_gpio']
-   buttons = AxiGPIO(ip_instance).channel1
+   led_ip = ol.ip_dict['gpio_leds']
+   switches_ip = ol.ip_dict['gpio_switches']
+   leds = AxiGPIO(led_ip).channel1
+   switches = AxiGPIO(switches_ip).channel1
 
-.. code-block:: Python
+Simple read and writes:
    
-   mask = 0x3  # Mask which controls which bits are written to
-
-   buttons.setdirection("out")
-   buttons.setlength(2)
-   buttons.write(0x2, mask) # Write 0x2 to the LEDs
-
 .. code-block:: Python
 
-   ip_instance = ol.ip_dict['switches_gpio']
-   switches = AxiGPIO(ip_instance).channel1
+   mask = 0xffffffff
+   leds.write(0xf, mask)
+   switches.read()
+
+Using AXI GPIO as an array:
+
+.. code-block:: Python
 
    switches.setdirection("in")
    switches.setlength(3)
    switches.read() 
 
-   
 More information about the AxiGPIO module and the API for reading, writing
 and waiting for interrupts can be found in the :ref:`pynq-lib-axigpio` 
 sections.
 
-For more examples see the "Buttons and LEDs demonstration" notebook on the
-PYNQ-Z1 board at:
+For more examples see the "Buttons and LEDs demonstration" notebook for the
+PYNQ-Z1/PYNQ-Z2 board at:
 
 .. code-block:: console
 
    <Jupyter Home>/base/board/board_btns_leds.ipynb
+   
+The same notebook may be found in the corresponding folder in the GitHub repository. 

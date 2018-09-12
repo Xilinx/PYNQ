@@ -23,7 +23,7 @@ Connect directly to a computer (Static IP):
 
   1. :ref:`assign-your-computer-a-static-IP`
   2. Connect the board to your computer's Ethernet port
-  3. Browse to http://192.168.2.99:9090
+  3. Browse to http://192.168.2.99
   
 Connect to a Network Router
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -36,6 +36,6 @@ Connect to a Router/Network (DHCP):
 
   1. Connect the Ethernet port on your board to a router/switch
   2. Connect your computer to Ethernet or WiFi on the router/switch
-  3. Browse to http://pynq:9090 or http://<board IP address>:9090
+  3. Browse to http://<board IP address>
   4. Optional: :ref:`change-the-hostname`
   5. Optional: :ref:`configure-proxy-settings`

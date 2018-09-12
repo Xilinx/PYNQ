@@ -9,7 +9,7 @@ libsensors API (https://github.com/lm-sensors/lm-sensors) to provide access to
 monitoring sensors.
 
 ``pynq.pmbus`` API
-----------------
+------------------
 
 All sensors can be found using the ``pynq.get_rails()`` function which returns a
 dictionary mapping the name of the voltage rail to a ``Rail`` class. Each ``Rail``
@@ -17,7 +17,7 @@ has members for the ``voltage``, ``current`` and ``power`` sensors, the current
 reading of which can be obtained from the ``value`` attribute.
 
 The ``DataRecorder``
-------------------
+--------------------
 
 The other aspect of the PMBus library is the ``DataRecorder`` class which
 provides a simple way to record the values of one or more sensors during a

@@ -41,8 +41,8 @@ In this example, data is written to an IP and read back from the same address.
    mmio = MMIO(IP_BASE_ADDRESS, ADDRESS_RANGE)
 
    data = 0xdeadbeef
-   self.mmio.write(ADDRESS_OFFSET, data)
-   result = self.mmio.read(ADDRESS_OFFSET)
+   mmio.write(ADDRESS_OFFSET, data)
+   result = mmio.read(ADDRESS_OFFSET)
 
 This example assumes the memory mapped area defined for the MMIO, 
 from ``0x40000000`` to ``0x40001000``, is accessible to the PS.

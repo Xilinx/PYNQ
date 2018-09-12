@@ -13,6 +13,7 @@ If you have one of the following boards, you can follow the quick start guide.
        
     getting_started/pynq_z1_setup.rst
     getting_started/pynq_z2_setup.rst
+    getting_started/zcu104_setup.rst
 
 If you have another Zynq board see the following guide:
 
@@ -34,9 +35,7 @@ Connecting to Jupyter Notebook
 
 Once your board is setup, to connect to Jupyter Notebooks open a web browser and navigate to:
 
-  * http://192.168.2.99:9090 If your board is connected to a computer via a static IP address
-
-  * http://pynq:9090 if your board is connected to a router or network
+  * http://192.168.2.99 If your board is connected to a computer via a static IP address
 
 
 If your board is configured correctly you will be presented with a login
@@ -50,7 +49,7 @@ After logging in, you will see the following screen:
     :align: center
 
 The default hostname is **pynq** and the default static IP address is
-**192.168.2.99**. If you changed the hostname or static IP of the board, you
+**192.168.2.99**. If you changed the static IP of the board, you
 will need to change the address you browse to.
 
 The first time you connect, it may take a few seconds for your computer to
@@ -105,7 +104,6 @@ the navigation bar.
 .. code-block:: console
     
    \\192.168.2.99\xilinx        # If connected to a Computer with a Static IP
-   \\pynq\xilinx                # If connected to a Network/Router with DHCP
 
 When prompted, the username is **xilinx** and the password is **xilinx**. The
 following screen should appear:
@@ -119,7 +117,6 @@ Location and type one of the following in the box:
 .. code-block:: console
     
   smb://192.168.2.99/xilinx        # If connected to a Computer with a Static IP
-  smb://pynq/xilinx                # If connected to a Network/Router with DHCP
 
 When prompted, the username is **xilinx** and the password is **xilinx**  
 

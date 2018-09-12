@@ -7,8 +7,8 @@
 PYNQ Introduction
 *****************
 
-Xilinx® makes Zynq® devices, a class of All Programmable Systems on Chip (APSoC)
-which integrates a multi-core processor (Dual-core ARM® Cortex®-A9) and a Field
+Xilinx® makes Zynq® and Zynq Ultrascale+™ devices, a class of programmable System on Chip (SoC)
+which integrates a multi-core processor (Dual-core ARM® Cortex®-A9 or Quad-core ARM® Cortex®-A53) and a Field
 Programmable Gate Array (FPGA) into a single integrated circuit.  FPGA, or
 programmable logic, and microprocessors are complementary technologies for
 embedded systems.  Each meets distinct requirements for embedded systems that
@@ -19,8 +19,8 @@ Project Goals
 
 The main goal of **PYNQ**, **Py**\ thon Productivity for Zy\ **nq**, is to make
 it easier for designers of embedded systems to exploit the unique benefits of
-APSoCs in their applications. Specifically, PYNQ enables architects, engineers
-and programmers who design embedded systems to use Zynq APSoCs, without having
+Xilinx devices in their applications. Specifically, PYNQ enables architects, engineers
+and programmers who design embedded systems to use Zynq devices, without having
 to use ASIC-style design tools to design programmable logic circuits.
 
 PYNQ achieves this goal in three ways:
@@ -62,7 +62,7 @@ PYNQ achieves this goal in three ways:
   operating system.  This goal is achieved by adopting a web-based architecture,
   which is also browser agnostic.  We incorporate the open-source Jupyter
   notebook infrastructure to run an Interactive Python (IPython) kernel and a
-  web server directly on the ARM Cortex A9 of the Zynq device.  The web server
+  web server directly on the ARM processor of the Zynq device.  The web server
   brokers access to the kernel via a suite of browser-based tools that provide a
   dashboard, bash terminal, code editors and Jupyter notebooks.  The browser
   tools are implemented with a combination of JavaScript, HTML and CSS and run

@@ -24,17 +24,18 @@ Subpackages:
 .. toctree::
     :hidden:
 
+    pynq.lib/pynq.lib.arduino
     pynq.lib/pynq.lib.audio
     pynq.lib/pynq.lib.axigpio
+    pynq.lib/pynq.lib.axiiic
     pynq.lib/pynq.lib.button
     pynq.lib/pynq.lib.dma
     pynq.lib/pynq.lib.led
+    pynq.lib/pynq.lib.logictools
+    pynq.lib/pynq.lib.pmod
     pynq.lib/pynq.lib.pynqmicroblaze
     pynq.lib/pynq.lib.rgbled
-    pynq.lib/pynq.lib.switch
-    pynq.lib/pynq.lib.usb_wifi
-    pynq.lib/pynq.lib.video
-    pynq.lib/pynq.lib.arduino
-    pynq.lib/pynq.lib.pmod
     pynq.lib/pynq.lib.rpi
-    pynq.lib/pynq.lib.logictools
+    pynq.lib/pynq.lib.switch
+    pynq.lib/pynq.lib.video
+    pynq.lib/pynq.lib.wifi

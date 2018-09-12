@@ -18,7 +18,7 @@ an IP.
 .. image:: ../images/dma.png
    :align: center
 
-The read channel will read from PS DRAM, and write to a stream. The Write channel 
+The read channel will read from PS DRAM, and write to a stream. The write channel 
 will read from a stream, and write back to PS DRAM. 
 
 Note that the DMA expects any streaming IP connected to the DMA (write channel) to 
@@ -31,17 +31,24 @@ in the C code.
 Examples
 --------
 
-This example assumes the overlay contains two AXI Direct Memory Access IP, one
-with a read channel from DRAM, and an AXI Master stream interface (for an output
-stream), and the other with a write channel to DRAM, and an AXI Slave stream
-interface (for an input stream). The two DMAs are connected in a loopback
-configuration through an AXI FIFO.
+This example assumes the overlay contains an AXI Direct Memory Access IP, 
+with a read channel (from DRAM), and an AXI Master stream interface (for an output
+stream), and the other with a write channel (to DRAM), and an AXI Slave stream
+interface (for an input stream). 
 
-In the Python code, two DMA instances are created, one for sending data, and the
-other for receiving.
+In the Python code, two contiguous memory buffers are created using ``Xlnk``. The
+DMA will read the input_buffer and send the data to the AXI stream master. The
+DMA will write back to the output_buffer from the AXI stream slave.
 
+The AXI streams are connected in loopback so that after sending and receiving data
+via the DMA the contents of the input buffer will have been transferred to the
+output buffer. 
 
-Two memory buffers, one for input, and the other for output are allocated. 
+Note that when instantiating a DMA, the default maximum transaction size is
+14-bits (i.e. 2^14 = 16KB). For larger DMA transactions, make sure to increase
+this value when configuring the DMA in your Vivado IPI design.
+
+The code to download the bitstream is not shown. 
 
 .. code-block:: Python
 
@@ -51,8 +58,7 @@ Two memory buffers, one for input, and the other for output are allocated.
 
    xlnk = Xlnk()
 
-   dma_send = ol.axi_dma_from_ps_to_pl
-   dma_recv = ol.axi_dma_from_pl_to_ps
+   dma = ol.axi_dma
 
    input_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
    output_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
@@ -72,10 +78,10 @@ Transfer the input_buffer to the send DMA, and read back from the recv DMA to th
 
 .. code-block:: Python
 
-      dma_send.sendchannel.transfer(input_buffer)
-      dma_recv.recvchannel.transfer(output_buffer)
-      dma_send.sendchannel.wait()
-      dma_recv.recvchannel.wait()
+      dma.sendchannel.transfer(input_buffer)
+      dma.recvchannel.transfer(output_buffer)
+      dma.sendchannel.wait()
+      dma.recvchannel.wait()
 
 .. code-block:: console
 

@@ -43,3 +43,4 @@ by many other software developers working at the application level.
     pynq_overlays/loading_an_overlay.ipynb
     pynq_overlays/pynqz1
     pynq_overlays/pynqz2
+    pynq_overlays/zcu104

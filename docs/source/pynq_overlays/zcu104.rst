@@ -1,0 +1,66 @@
+.. _ZCU104-overlays:
+
+****************
+ZCU104 Overlays
+****************
+
+The ZCU104 board has the following features:
+
+Device
+
+  * Zynq UltraScale+ XCZU7EV-2FFVC1156 MPSoC
+
+Configuration
+
+  * USB-JTAG FT4232H
+  * Dual Quad-SPI flash memory
+  * MicroSD Card
+
+Memory
+  
+  * PS DDR4 64-bit Component
+  * Quad-SPI flash
+  * Micro SD card slot
+
+Control & I/O
+
+  * 4x directional pushbuttons
+  * DIP switches
+  * PMBUS, clocks, and I2C bus switching
+  * USB2/3
+
+Expansion Connectors
+
+  * FMC LPC (1x GTH)
+  * 3 PMOD connectors
+  * PL DDR4 SODIMM Connector – 64 bit
+
+Communication & Networking
+
+  * USB-UARTs with FT4232H JTAG/3xUART Bridge
+  * RJ-45 Ethernet connector
+  * SATA (M.2) for SSD access
+
+Display
+
+  * HDMI 2.0 video input and output (3x GTH)
+  * DisplayPort (2x GTR)
+
+Power
+
+  * 12V wall adaptor or ATX
+
+For details on the ZCU104 board including reference manual, schematics, 
+constraints file (xdc),
+see the `Xilinx ZCU104 webpage <https://www.xilinx.com/products/boards-and-kits/zcu104.html>`_
+
+The following overlays are include by default in the PYNQ image for the ZCU104 board:
+
+.. toctree::
+    :maxdepth: 1
+   
+    zcu104/zcu104_base_overlay
+
+Other third party overlays may also be available for this board. See the 
+`PYNQ community webpage <http://www.pynq.io/community.html>`_ for details of 
+third party overlays and other resources. 
