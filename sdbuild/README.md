@@ -97,6 +97,17 @@ the final image.
 
 ## Porting to a new board
 
+There are two flows for porting to a new board. The simplest approach is to
+take a pre-existing PetaLinux BSP and our pre-built board-agnostic imagea
+appropriate to the architecture - arm for Zynq-7000 and aarch64 for Zynq
+UltraScale+. The `scripts/image_from_prebuilt.sh` script will take these two
+components and create an image without needing to run the whole image creation
+flow. See that script for the details of the arguments that are needed.
+
+For more substantial board support you will need to create a board repository
+based on either a PetaLinux BSP or an HDF file from Vivado. The steps to create
+a board repository are detailed below.
+
 ### Step 1: Prepare the folder
 First you need to create folder to act as a board repository - 
 `myboards` in this example - and create a subfolder to hold the spec for 
