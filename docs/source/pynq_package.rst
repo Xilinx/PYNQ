@@ -25,9 +25,12 @@ Data Movement modules:
     Sysfs API
   * pynq.xlnk - Implements Contiguous Memory Allocation for PYNQ DMA
 
-Interrupt/AsyncIO Module:
+
+Additional modules:
 
   * pynq.interrupt - Implements PYNQ asyncio
+  * pynq.pmbus - PYNQ class for reading power measurements from PMBus 
+  * pynq.uio - 
 
 Sub-packages:
 
@@ -37,15 +40,14 @@ Sub-packages:
     
 .. toctree::
     :hidden:
-       
-    pynq_package/pynq.interrupt
+
     pynq_package/pynq.gpio
+    pynq_package/pynq.interrupt
     pynq_package/pynq.lib
     pynq_package/pynq.mmio
     pynq_package/pynq.overlay
-    pynq_package/pynq.ps
     pynq_package/pynq.pl
+    pynq_package/pynq.ps
+    pynq_package/pynq.pmbus
+    pynq_package/pynq.uio
     pynq_package/pynq.xlnk
-
-
-    

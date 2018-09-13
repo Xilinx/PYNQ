@@ -34,7 +34,7 @@ off-the-shelf board, or a custom board you developed yourself.
 Board recommendations for development
 -------------------------------------
 
-   * Any Zynq device (including single-core)
+   * Any Zynq/Zynq Ultrascale+ device (including single-core)
    * >=512 MB DRAM
    * SD Card (>=8GB) or other bootable source
    * Network connection; Ethernet or WiFi

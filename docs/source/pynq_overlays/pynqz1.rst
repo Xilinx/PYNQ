@@ -4,10 +4,23 @@
 PYNQ-Z1 Overlays
 ****************
 
-The PYNQ-Z1 has a Zynq XC7Z020-1CLG400C, 512MB DDR3, 1G Ethernet, USB 2.0, 
-MicroSD, Uart, Microphone, 3.5mm mono audio output jack, 2x HDMI that can be
-used as input/output, 4 push-buttons, 2 slide switches, 4 LEDs, 2 RGB LEDs, 
-2x Pmod ports, and 1x Arduino header. 
+The PYNQ-Z1 board has the following features:
+
+  * Zynq XC7Z020-1CLG400C
+  * 512MB DDR3
+  * 1G Ethernet
+  * USB 2.0
+  * MicroSD
+  * Uart
+  * Microphone
+  * 3.5mm mono audio output jack
+  * 2x HDMI (can be used as input or output) 
+  * 4 push-buttons
+  * 2 slide switches
+  * 4 LEDs
+  * 2 RGB LEDs
+  * 2x Pmod ports
+  * 1x Arduino header 
 
 For details on the PYNQ-Z1 board including `PYNQ-Z1 reference manual 
 <https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual>`_

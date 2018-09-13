@@ -608,22 +608,27 @@ class _ClocksUltrascale(_ClocksMeta):
                 1 << PLX_CTRL_ODIV1_WIDTH, 1),
             np.arange(1 << PLX_CTRL_ODIV0_WIDTH))).reshape(-1))))
 
-    IOPLL_CTRL = Register(CRL_APB_ADDRESS + IOPLL_CTRL_OFFSET)
-    RPLL_CTRL = Register(CRL_APB_ADDRESS + RPLL_CTRL_OFFSET)
+    if CPU_ARCH_IS_SUPPORTED:
+        IOPLL_CTRL = Register(CRL_APB_ADDRESS + IOPLL_CTRL_OFFSET)
+        RPLL_CTRL = Register(CRL_APB_ADDRESS + RPLL_CTRL_OFFSET)
 
-    PL_CLK_CTRLS = [Register(CRL_APB_ADDRESS + PL0_CTRL_OFFSET),
-                    Register(CRL_APB_ADDRESS + PL1_CTRL_OFFSET),
-                    Register(CRL_APB_ADDRESS + PL2_CTRL_OFFSET),
-                    Register(CRL_APB_ADDRESS + PL3_CTRL_OFFSET)]
+        PL_CLK_CTRLS = [Register(CRL_APB_ADDRESS + PL0_CTRL_OFFSET),
+                        Register(CRL_APB_ADDRESS + PL1_CTRL_OFFSET),
+                        Register(CRL_APB_ADDRESS + PL2_CTRL_OFFSET),
+                        Register(CRL_APB_ADDRESS + PL3_CTRL_OFFSET)]
 
-    ACPU_CTRL = Register(CRF_APB_ADDRESS + ACPU_CTRL_OFFSET)
+        ACPU_CTRL = Register(CRF_APB_ADDRESS + ACPU_CTRL_OFFSET)
 
-    APLL_CTRL = Register(CRF_APB_ADDRESS + APLL_CTRL_OFFSET)
-    DPLL_CTRL = Register(CRF_APB_ADDRESS + DPLL_CTRL_OFFSET)
-    VPLL_CTRL = Register(CRF_APB_ADDRESS + VPLL_CTRL_OFFSET)
+        APLL_CTRL = Register(CRF_APB_ADDRESS + APLL_CTRL_OFFSET)
+        DPLL_CTRL = Register(CRF_APB_ADDRESS + DPLL_CTRL_OFFSET)
+        VPLL_CTRL = Register(CRF_APB_ADDRESS + VPLL_CTRL_OFFSET)
 
-    PL_SRC_PLL_CTRLS = [IOPLL_CTRL, IOPLL_CTRL, RPLL_CTRL, DPLL_CTRL]
-    ACPU_SRC_PLL_CTRLS = [APLL_CTRL, APLL_CTRL, DPLL_CTRL, VPLL_CTRL]
+        PL_SRC_PLL_CTRLS = [IOPLL_CTRL, IOPLL_CTRL, RPLL_CTRL, DPLL_CTRL]
+        ACPU_SRC_PLL_CTRLS = [APLL_CTRL, APLL_CTRL, DPLL_CTRL, VPLL_CTRL]
+    else:
+        warnings.warn("Pynq does not support the CPU Architecture: {}"
+                      .format(CPU_ARCH), ResourceWarning)
+
 
     @classmethod
     def set_pl_clk(mcs, clk_idx, div0=None, div1=None,
@@ -743,22 +748,27 @@ class _ClocksZynq(_ClocksMeta):
                 1 << FCLKX_CTRL_ODIV1_WIDTH, 1),
             np.arange(1 << FCLKX_CTRL_ODIV0_WIDTH))).reshape(-1))))
 
-    ARM_PLL_CTRL = Register(SLCR_BASE_ADDRESS + ARM_PLL_CTRL_OFFSET)
-    DDR_PLL_CTRL = Register(SLCR_BASE_ADDRESS + DDR_PLL_CTRL_OFFSET)
-    IO_PLL_CTRL = Register(SLCR_BASE_ADDRESS + IO_PLL_CTRL_OFFSET)
+    if CPU_ARCH_IS_SUPPORTED:
+        ARM_PLL_CTRL = Register(SLCR_BASE_ADDRESS + ARM_PLL_CTRL_OFFSET)
+        DDR_PLL_CTRL = Register(SLCR_BASE_ADDRESS + DDR_PLL_CTRL_OFFSET)
+        IO_PLL_CTRL = Register(SLCR_BASE_ADDRESS + IO_PLL_CTRL_OFFSET)
 
-    PL_SRC_PLL_CTRLS = [IO_PLL_CTRL, IO_PLL_CTRL,
-                        ARM_PLL_CTRL, DDR_PLL_CTRL]
+        PL_SRC_PLL_CTRLS = [IO_PLL_CTRL, IO_PLL_CTRL,
+                            ARM_PLL_CTRL, DDR_PLL_CTRL]
 
-    PL_CLK_CTRLS = [Register(SLCR_BASE_ADDRESS + FCLK0_CTRL_OFFSET),
-                    Register(SLCR_BASE_ADDRESS + FCLK1_CTRL_OFFSET),
-                    Register(SLCR_BASE_ADDRESS + FCLK2_CTRL_OFFSET),
-                    Register(SLCR_BASE_ADDRESS + FCLK3_CTRL_OFFSET)]
+        PL_CLK_CTRLS = [Register(SLCR_BASE_ADDRESS + FCLK0_CTRL_OFFSET),
+                        Register(SLCR_BASE_ADDRESS + FCLK1_CTRL_OFFSET),
+                        Register(SLCR_BASE_ADDRESS + FCLK2_CTRL_OFFSET),
+                        Register(SLCR_BASE_ADDRESS + FCLK3_CTRL_OFFSET)]
 
-    ARM_CLK_CTRL = Register(SLCR_BASE_ADDRESS + ARM_CLK_CTRL_OFFSET)
+        ARM_CLK_CTRL = Register(SLCR_BASE_ADDRESS + ARM_CLK_CTRL_OFFSET)
 
-    ARM_SRC_PLL_CTRLS = [ARM_PLL_CTRL, ARM_PLL_CTRL,
-                         DDR_PLL_CTRL, IO_PLL_CTRL]
+        ARM_SRC_PLL_CTRLS = [ARM_PLL_CTRL, ARM_PLL_CTRL,
+                             DDR_PLL_CTRL, IO_PLL_CTRL]
+    else:
+        warnings.warn("Pynq does not support the CPU Architecture: {}"
+                      .format(CPU_ARCH), ResourceWarning)
+
 
     @classmethod
     def set_pl_clk(mcs, clk_idx, div0=None, div1=None,

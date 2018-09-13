@@ -34,3 +34,11 @@ pynq.lib.logictools.trace_analyzer Module
     :members:
     :undoc-members:
     :show-inheritance:
+
+pynq.lib.logictools.waveform Module
+-----------------------------------
+
+.. automodule:: pynq.lib.logictools.waveform
+    :members:
+    :undoc-members:
+    :show-inheritance:
