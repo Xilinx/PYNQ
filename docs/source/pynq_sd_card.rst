@@ -32,13 +32,13 @@ and recent VM image is recommended. The flow provided has been tested on Ubuntu
 
 To build the image follow the steps below:
 
-  1. Install the correct version of Vivado and SDK
+  1. Install the correct version of PetaLinux and optionally Vivado and SDK
   2. Install dependencies using the following script
 
-The correct version of the Vivado and SDK is shown below:
+The correct version of Xilinx tools for each PYNQ release is shown below:
 
 ================  ================
-Release version    Vivado and SDK
+Release version    Xilinx Tool Version
 ================  ================
 v1.4               2015.4
 v2.0               2016.1
@@ -60,101 +60,91 @@ v2.3               2018.2
    cd <PYNQ repository>/sdbuild/
    make
 		   
-The build flow can take several hours.
+The build flow can take several hours. By default images for all of the
+supported boards will be built. To build for specific boards then pass a
+``BOARDS`` variable to make
+
+.. code-block:: console
+
+   make BOARDS=Pynq-Z1
 
 Retargeting to a Different Board
 ================================
 
-While the root filesystem is portable between different Zynq boards the boot
-files will have to be customised for each board. The boot files can be found in
+Additional boards are supported through external *board repositories*. A board
+repository consists of a directory for each board consisting of a spec file and
+any other files. The board repository is treated the same way as the ``<PYNQ
+repository>/boards`` directory.
+
+Elements of the specification file
+----------------------------------
+
+The specification file should be name ``<BOARD>.spec`` where BOARD is the name
+of the board directory. A minimal spec file contains the following information
+
+.. code-block:: makefile
+
+   ARCH_${BOARD} := arm
+   BSP_${BOARD} := mybsp.bsp
+   BITSTREAM_${BOARD} := mybitstream.bsp
+
+where ``${BOARD}`` is also the name of the board. The ARCH should be arm for
+Zynq-7000 or aarch64 for Zynq UltraScale+. If no bitstream is provided then the
+one included in the BSP will be used by default.  All paths should be relative
+to the board directory.
+
+To customise the BSP a ``petalinux_bsp`` folder can be included in the board
+directory the contents of which will be added to the provided BSP before the
+project is created. See the ZCU104 for an example of this in action. This is
+designed to allow for additional drivers, kernel or boot-file patches and
+device tree configuration that are helpful to support elements of PYNQ to be
+added to a pre-existing BSP.
+
+If a suitable PetaLinux BSP is unavailable for the board then this can be left
+blank and an HDF file provided in the board directory. The system.hdf file
+should be placed in the ``petalinux_bsp/hardware_project`` folder and a new
+generic BSP will be created as part of the build flow.
+
+Board-specific packages
+-----------------------
+
+A ``packages`` directory can be included in board directory with the same
+layout as the ``<PYNQ repository>/sdbuild/packages`` directory. Each
+subdirectory is a package that can optionally be installed as part of image
+creation. See ``<PYNQ repository>/sdbuild/packages/README.md`` for a
+description of the format of a PYNQ sdbuild package.
+
+To add a package to the image you must also define a
+``STAGE4_PACKAGE_${BOARD}`` variable in your spec file. These can either
+packages in the standard sdbuild library or ones contained within the board
+package. It is often useful to add the ``pynq`` package to this list which will
+ensure that a customised PYNQ installation is included in your final image.
+
+Using the PYNQ package
+----------------------
+
+The ``pynq`` package will treat your board directory the same as any of the
+officially supported boards. This means, in particular, that:
+
+ 1. A ``notebooks`` folder, if it exists, will be copied into the
+    ``jupyter_notebooks`` folder in the image. Notebooks here will overwrite any of
+    the default ones.
+ 2. Any directory containing a bitstream will be treated as an overlay and
+    copied into the overlays folder of the PYNQ installation. Any notebooks will
+    likewise by installed in an overlay-specific subdirectory.
+
+
+Building from a board repository
+================================
+
+To build from a third-party board repository pass the BOARDDIR variable to the
+sdbuild makefile.
 
 .. code-block:: console
     
-   <PYNQ repository>/sdbuild/boot_configs
+   cd <PYNQ repository>/sdbuild/
+   make BOARDDIR=${BOARD_REPO}
 
-There is a standardised flow for Zynq-7000 boards defined in 
-
-.. code-block:: console
-    
-   <PYNQ repository>/sdbuild/boot_configs/common/Zynq7000.makefile
-
-This file is customised by setting a number of variables and providing paths to
-some setup scripts. The Board-specific ``config`` file is by convention placed
-in:
-
-.. code-block:: console
-    
-   <PYNQ repository>/sdbuild/boot_configs/<Board Name>-defconfig
-
-
-Variables in config
--------------------
-
-The config file must define several variables:
-
-  * **BOARD**: e.g. PYNQ-Z1. This is used to customize some parts of the flow,
-    and will ultimately be used by Python
-  * **BOARD_PART**: e.g. xc7z020clg400-1. This is used to create a Vivado
-    project and generate a Hardware Description File (.hdf) for use in Xilinx SDK.
-  * **BOARD_CONSTRAINTS**: Path to the constraints file (.xdc) containing the
-    top level constraints file for the board.
-  * **PS_CONFIG_TCL**: The path to a tcl file that configures the instantiated
-    Processing System IP.
-  * **LINUX_REPO**: The GitHub path to the Linux repository to clone from
-  * **LINUX_COMMIT**: The GitHub hash from which to clone the linux repository
-  * **LINUX_CONFIG**: The path to the Linux configuration file (.config)
-  * **UBOOT_REPO**: The GitHub path to the UBoot repository to clone from
-  * **UBOOT_COMMIT**: The GitHub hash from which to clone the UBoot repository
-  * **UBOOT_CONFIG**: The path to the UBoot configuration file (.config)  
-  * **BOARD_DTSI**: The path to the devicetree fragment applied to the device
-    tree generated by Xilinx SDK.
-
-The config file can define several optional variables
-
-  * **BOOT_BITSTREAM**: The bitstream file (.bit) to be downloaded onto the PL
-    at boot
-
-Build Flow Description
-----------------------  
-
-The SD Card build flow starts by creating a simple Vivado Project using the
-**BOARD**, **BOARD_PART**, **BOARD_CONSTRAINTS**, and **PS_CONFIG**
-variables. This vivado project is used to generate a Hardware Description File
-(.hdf) for Xilinx SDK.
-
-Following the creation of the Hardware Description File, the First State
-Bootloader (FSBL) and Device Tree file are created. While the FSBL is not
-customisable, the device tree can be modified by adding or reconfiguring
-entries or by **BOARD_DTSI**.
-
-Next, the **LINUX_REPO** and **UBOOT_REPO** repositories are cloned, checked out
-and configured.
-
-Finally, the **BOOT_BITSTREAM** is packaged.
-
-Once a boot configuration is defined for a board it needs to be incorporated
-into a release which live in the following folder:
-
-.. code-block:: console
-    
-   <PYNQ repository>/sdbuild/releases
-
-A release is a single (.config) file defining the variables:
-
-  * **BOOT_CONFIG**: Path to the name of the project folder in boot_configs
-  * **ROOTFS_CONFIG**: Should be consistent with the OS to be installed on board 
-    (e.g. Pynq-Z1-Xenial).
-
-================  ================
-Release version    OS
-================  ================
-v1.4               Ubuntu Wily
-v2.0               Ubuntu Wily
-v2.1               Ubuntu Xenial
-v2.2               Ubuntu Xenial
-================  ================
-
-While the root filesystem is designed around the Pynq-Z1 board it should work on
-any board with similar connectivity, i.e. PS attached Ethernet and USB host
-ports.
-
+The board repo should be provided as an absolute path. The BOARDDIR variable
+can be combined with the BOARD variable if the repository contains multiple
+boards and only a subset should be built.
