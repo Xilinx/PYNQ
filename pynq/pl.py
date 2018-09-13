@@ -1357,9 +1357,15 @@ class PLMeta(type):
                 mmio = MMIO(details['phys_addr'])
                 # Request shutdown
                 mmio.write(0x0, 0x1)
-                while mmio.read(0x0) != 0x0F:
+                i = 0
+                while mmio.read(0x0) != 0x0F and i < 16000:
                     # wait for the shutdown to be acknowledged
+                    i = i + 1
                     pass
+                if i >= 16000:
+                    print("Timeout waiting for Shutdown Manager.")
+                    print("It's likely that the currently configured bitstream doesn't match the metadata.")
+                    print("Continuing on and hoping for the best...")
 
     def reset(cls, parser=None):
         """Reset all the dictionaries.
@@ -1671,7 +1677,7 @@ class Bitstream(_BitstreamMeta):
 
         Note
         ----
-        Imlemented based on: https://blog.aeste.my/?p=2892
+        Implemented based on: https://blog.aeste.my/?p=2892
 
         Returns
         -------
