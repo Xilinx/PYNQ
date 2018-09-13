@@ -291,7 +291,11 @@ class _TCLABC(metaclass=abc.ABCMeta):
                                       re.IGNORECASE)
                         if m and gpio_idx is not None:
                             name = m.group("instance_name")
-                            gpio_dict[name] = gpio_idx
+                            if(current_hier == ""):
+                                hier_name = name
+                            else:
+                                hier_name = "{}/{}".format(current_hier,name)
+                            gpio_dict[hier_name] = gpio_idx
                             gpio_idx = None
                         in_prop = False
 
@@ -501,8 +505,14 @@ class _TCLABC(metaclass=abc.ABCMeta):
                     self.hierarchy_dict[ip]['gpio'][pin] = gpio
 
     def _build_hierarchy_dict(self):
+        lasthierarchies = {}
         hierarchies = {k.rpartition('/')[0] for k in self.ip_dict.keys()
                        if k.count('/') > 0}
+        while (lasthierarchies != hierarchies):
+            parents = {k.rpartition('/')[0] for k in hierarchies if k.count('/') > 0}
+            lasthierarchies = hierarchies
+            hierarchies.update(parents)
+
         self.hierarchy_dict = dict()
         for hier in hierarchies:
             self.hierarchy_dict[hier] = {
@@ -916,8 +926,14 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """Initialize the hierachical dictionary.
 
         """
+        lasthierarchies = {}
         hierarchies = {k.rpartition('/')[0] for k in self.ip_dict.keys()
                        if k.count('/') > 0}
+        while (lasthierarchies != hierarchies):
+            parents = {k.rpartition('/')[0] for k in hierarchies if k.count('/') > 0}
+            lasthierarchies = hierarchies
+            hierarchies.update(parents)
+
         for hier in hierarchies:
             self.hierarchy_dict[hier] = {
                 'ip': dict(),
