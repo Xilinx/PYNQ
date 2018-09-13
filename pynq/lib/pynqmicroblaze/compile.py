@@ -67,7 +67,7 @@ def dependencies(source, bsp):
 
 
 def _find_bsp(cell_name):
-    target_bsp = "bsp_" + cell_name
+    target_bsp = "bsp_" + cell_name.replace('/','_')
     matches = [bsp for bsp in BSPs.keys()
                if target_bsp.startswith(bsp)]
     if matches:

@@ -320,11 +320,17 @@ class MicroblazeHierarchy(DefaultHierarchy):
     def __init__(self, description, mbtype="Unknown"):
         super().__init__(description)
         hier = description['fullpath']
+        if hier.count('/') > 0:
+            parent, _, ip = hier.rpartition('/')
+            container = "{}/".format(parent)
+        else:
+            container = ""
+            ip = hier
         self.mb_info = {'ip_name': '{}/mb_bram_ctrl'.format(hier),
-                        'rst_name': 'mb_{}_reset'.format(hier),
+                        'rst_name': '{}mb_{}_reset'.format(container,ip),
                         'intr_pin_name': '{}/dff_en_reset_vector_0/q'.format(
                             hier),
-                        'intr_ack_name': 'mb_{}_intr_ack'.format(hier),
+                        'intr_ack_name': '{}mb_{}_intr_ack'.format(container,ip),
                         'mbtype': mbtype,
                         'name' : hier}
 
