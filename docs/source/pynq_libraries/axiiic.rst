@@ -19,6 +19,7 @@ The ``send()`` and ``receive()`` methods are used to read and write data.
 * option allows an IIC *repeated start* 
 
 .. code-block:: Python
+
     receive(address, data, length, option=0)
 
 * address is the address of the IIC peripheral
