@@ -627,8 +627,11 @@ def _pyprintf(stream):
     args = []
     for i in range(len(format_string)):
         if in_special:
-            if format_string[i:i+1] in [b'd', b'x', b'X', b'o', b'u']:
+            if format_string[i:i+1] in [b'd']:
                 args.append(stream.read_int32())
+            elif format_string[i:i+1] in [b'x', b'X', b'o', b'u']:
+                # perform unsigned conversion
+                args.append(stream.read_uint32())
             elif format_string[i:i+1] in [b'f', b'F', b'g', b'G', b'e', b'E']:
                 args.append(stream.read_float())
             elif format_string[i:i+1] == b's':
