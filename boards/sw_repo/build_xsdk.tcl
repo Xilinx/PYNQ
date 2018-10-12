@@ -67,7 +67,7 @@ foreach mb $processors {
         setlib -bsp $bsp -lib pynqmb
         set ips [hsi::get_cells [hsi::get_property SLAVES $mb]]
         set interrupt [find_interrupt_gpio $ips]
-        set bram [find_ip $ips lmb_bram_if_cntlr]
+        set brams [find_ip $ips lmb_bram_if_cntlr]
         set gpios [find_ip $ips axi_gpio]
         foreach gpio $gpios {
             if {[string equal $gpio $interrupt]} {
@@ -76,9 +76,15 @@ foreach mb $processors {
                 setdriver -bsp $bsp -ip $gpio -driver "gpio"
             }
         }
-        setdriver -bsp $bsp -ip $bram -driver "mailbox_bram"
-        configbsp -bsp $bsp stdin $bram
-        configbsp -bsp $bsp stdout $bram
+        foreach bram $brams {
+          setdriver -bsp $bsp -ip $bram -driver "mailbox_bram"
+        }
+        # HACK: Assume that the first BRAM is the one we are
+        # using to communicate
+        # with the ARM.
+        set firstbram [lindex $brams 0]
+        configbsp -bsp $bsp stdin $firstbram
+        configbsp -bsp $bsp stdout $firstbram
         regenbsp -bsp $bsp
         file copy "[pwd]/lscript.ld" $bsp
     } else {
