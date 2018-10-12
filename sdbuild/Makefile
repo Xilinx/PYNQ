@@ -186,7 +186,7 @@ endif
 STAGE4_DEPENDS_$1 := $$(foreach package, $$(STAGE4_PACKAGES_$1), $$(PACKAGE_BUILD_$$(package)_$1) $$(PACKAGE_BUILD_$$(package)))
 STAGING_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1
 
-$$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODULES_$1) $$(KERNEL_RPM_$1)
+$$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODULES_$1) $$(KERNEL_RPM_$1) | $$(CCACHEDIR)
 	cp --sparse=always $$(BASE_PATH_$1) $$(IMAGE_$1)
 	$$(SCRIPT_DIR)/mount_image.sh $$(IMAGE_$1) $$(STAGING_$1)
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/install_packages.sh $$(STAGING_$1) $$(STAGE4_PACKAGES_$1)
