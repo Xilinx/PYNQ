@@ -35,6 +35,7 @@ lib32stdc++6
 libgnutls-dev
 libssl-dev
 kpartx
+dosfstools
 nfs-common
 zerofree
 u-boot-tools
