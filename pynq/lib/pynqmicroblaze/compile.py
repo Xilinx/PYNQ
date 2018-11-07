@@ -33,7 +33,7 @@ from pynq import PL
 from os import path
 import tempfile
 import shutil
-from subprocess import run, PIPE
+from subprocess import run, PIPE, Popen
 
 from .streams import InterruptMBStream
 from . import BSPs
@@ -46,7 +46,7 @@ __email__ = "ogden@xilinx.com"
 
 def dependencies(source, bsp):
     args = ['mb-cpp', '-MM', '-D__attribute__(x)=',
-            '-D__extension__=', '-D__asm__(x)=']
+            '-D__extension__=', '-D__asm__(x)=', '-DWRAP']
     for include_path in bsp.include_path:
         args.append('-I')
         args.append(include_path)
@@ -75,7 +75,7 @@ def _find_bsp(cell_name):
     raise RuntimeError("BSP not found for " + cell_name)
 
 
-def preprocess(source, bsp=None, mb_info=None):
+def preprocess(source, bsp=None, mb_info=None, defines=[]):
     if bsp is None:
         if hasattr(mb_info, 'mb_info'):
             mb_info = mb_info.mb_info
@@ -85,6 +85,8 @@ def preprocess(source, bsp=None, mb_info=None):
 
     args = ['mb-cpp', '-D__attribute__(x)=',
             '-D__extension__=', '-D__asm__(x)=']
+    for define in defines:
+        args.append("-D{}".format(define))
     for include_path in bsp.include_path:
         args.append('-I')
         args.append(include_path)
@@ -118,7 +120,7 @@ class MicroblazeProgram(PynqMicroblaze):
         lib_args = []
         with tempfile.TemporaryDirectory() as tempdir:
             files = [path.join(tempdir, 'main.c')]
-            args = ['mb-gcc', '-o', path.join(tempdir, 'a.out')]
+            args = ['mb-g++', '-o', path.join(tempdir, 'a.out'), '-Wno-multichar', '-fno-exceptions', '-ffunction-sections', '-Wl,-gc-sections']
             args.extend(bsp.cflags)
             args.extend(bsp.sources)
             for include_path in bsp.include_path:
@@ -146,9 +148,22 @@ class MicroblazeProgram(PynqMicroblaze):
             with open(path.join(tempdir, 'main.c'), 'w') as f:
                 f.write('#line 1 "cell_magic"\n')
                 f.write(program_text)
+            shutil.copy(path.join(tempdir, 'main.c'), '/tmp/last.c')
+            print(" ".join(args + files + lib_args))
             result = run(args + files + lib_args, stdout=PIPE, stderr=PIPE)
             if result.returncode:
                 raise RuntimeError(result.stderr.decode())
+            result = run(['size', path.join(tempdir, 'a.out')],
+                         stdout=PIPE, stderr=PIPE);
+            print(result.stderr.decode())
+            print(result.stdout.decode())
+            print("Largest Symbols:")
+            result = Popen(['nm', '-CSr', '--size-sort', path.join(tempdir, 'a.out')],
+                        stdout=PIPE, stderr=PIPE);
+            resulttail = Popen(['head', '-10'],
+                        stdin=result.stdout, stdout = PIPE, stderr=None);
+            print(resulttail.communicate()[0].decode())
+
             shutil.copy(path.join(tempdir, 'a.out'), '/tmp/last.elf')
             result = run(['mb-objcopy', '-O', 'binary',
                           path.join(tempdir, 'a.out'),
