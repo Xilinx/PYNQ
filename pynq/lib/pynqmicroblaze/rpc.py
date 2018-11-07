@@ -585,8 +585,10 @@ def _build_handle_function(functions):
 def _build_main(program_text, functions):
     sections = []
     sections.append(R"""
+    extern "C" {
     #include <unistd.h>
     #include <mailbox_io.h>
+    }
     static const char return_command = 0;
     static const char void_command = 2;
 
@@ -595,7 +597,7 @@ def _build_main(program_text, functions):
         while (available < size) {
             available = mailbox_available(2);
         }
-        read(2, data, size);
+        mailbox_read(2, data, size);
     }
 
     static void _rpc_write(const void* data, int size) {
@@ -603,7 +605,7 @@ def _build_main(program_text, functions):
         while (available < size) {
             available = mailbox_available(3);
         }
-        write(3, data, size);
+        mailbox_write(3, data, size);
     }
     """)
 
@@ -793,7 +795,7 @@ class MicroblazeRPC:
             Source of the program to extract functions from
 
         """
-        preprocessed = preprocess(program_text, mb_info=iop)
+        preprocessed = preprocess(program_text, mb_info=iop, defines=["WRAP"])
         try:
             ast = _parser.parse(preprocessed, filename='program_text')
         except ParseError as e:

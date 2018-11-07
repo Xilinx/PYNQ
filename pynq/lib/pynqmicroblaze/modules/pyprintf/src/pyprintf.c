@@ -15,8 +15,8 @@ void complete_write(int fd, const char* data, unsigned int length) {
 
 void pyprintf(const char* format, ...) {
     unsigned short len = strlen(format);
-    complete_write(3, &printf_command, 1);
-    complete_write(3, &len, 2);
+    complete_write(3, (const char *)&printf_command, 1);
+    complete_write(3, (const char *)&len, 2);
     complete_write(3, format, len);
     int in_special = 0;
     va_list args;
@@ -31,7 +31,7 @@ void pyprintf(const char* format, ...) {
             case 'X':
             {
                 int val = va_arg(args, int);
-                complete_write(3, &val, sizeof(val));
+                complete_write(3, (const char *)&val, sizeof(val));
             }
                 break;
             case 'f':
@@ -42,14 +42,14 @@ void pyprintf(const char* format, ...) {
             case 'E':
             {
                 float val = (double)va_arg(args, double);
-                complete_write(3, &val, sizeof(val));
+                complete_write(3, (const char *)&val, sizeof(val));
             }
                 break;
             case 's':
             {
                 char* str = (char*)va_arg(args, char*);
                 short len = strlen(str);
-                complete_write(3, &len, sizeof(len));
+                complete_write(3, (const char *)&len, sizeof(len));
                 complete_write(3, str, len);
             }
                 break;
