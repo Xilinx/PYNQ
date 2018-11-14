@@ -17,7 +17,6 @@ set_property PFM.CLOCK { \
 set_property PFM.AXI_PORT { \
     M_AXI_HPM0_FPD {memport "M_AXI_GP"} \
     M_AXI_HPM1_FPD {memport "M_AXI_GP"} \
-    S_AXI_ACP_FPD {memport "S_AXI_ACP"} \
     S_AXI_HPC0_FPD {memport "S_AXI_HPC"} \
     S_AXI_HPC1_FPD {memport "S_AXI_HPC"} \
     S_AXI_HP1_FPD {memport "S_AXI_HP"} \
