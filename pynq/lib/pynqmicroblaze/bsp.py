@@ -85,10 +85,30 @@ class BSPInstance:
         self.libraries = ['xil']
 
         self.linker_script = path.join(root, 'lscript.ld')
-        self.cflags = [
-            '-Os', '-lxil', '-mlittle-endian',
-            '-mcpu=v9.6', '-mxl-soft-mul'
-        ]
+        self.mss = path.join(root, 'system.mss')
+
+        self.cflags = ['-Os', '-lxil']
+        # Some sane default
+        extracflags = ['-mlittle-endian', '-mcpu=v9.6', '-mxl-soft-mul']
+
+        try:
+            found = False
+            with open(self.mss) as fp:
+                for line in fp:
+                    words = line.strip().split()
+                    if(len(words) > 2 and
+                       words[0] == 'PARAMETER' and
+                       words[1] == 'compiler_flags'):
+                        extracflags = words[3:]
+                        found = True
+                        break;
+            if(not found):
+                print("compiler_flags not found in ", self.mss, ": using default cflags")
+        except FileNotFoundError:
+            print(self.mss, "not found: using default cflags")
+
+        self.cflags.extend(extracflags)
+
         self.ldflags = {
             '-Wl,--no-relax'
         }
