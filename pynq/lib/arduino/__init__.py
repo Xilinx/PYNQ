@@ -47,6 +47,7 @@ from .arduino_grove_ear_hr import Grove_EarHR
 from .arduino_grove_finger_hr import Grove_FingerHR
 from .arduino_grove_haptic_motor import Grove_HapticMotor
 from .arduino_grove_th02 import Grove_TH02
+from .arduino_grove_gesture import Grove_Gesture
 
 
 __author__ = "Graham Schelle, Yun Rock Qu"
