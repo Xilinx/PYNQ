@@ -28,7 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import cffi
-import pandas as pd
 import threading
 import time
 import warnings
@@ -469,5 +468,6 @@ class DataRecorder:
         Sensors* : one column per sensor
 
         """
+        import pandas as pd
         return pd.DataFrame(self._data, columns=self._columns,
                             index=pd.to_datetime(self._times, unit="s"))

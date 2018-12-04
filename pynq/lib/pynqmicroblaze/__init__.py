@@ -39,4 +39,8 @@ from .bsp import add_bsp
 from .compile import MicroblazeProgram
 from .rpc import MicroblazeRPC
 from .rpc import MicroblazeLibrary
-from .magic import MicroblazeMagics
+try:
+    __IPYTHON__
+    from .magic import MicroblazeMagics
+except NameError:
+    pass
