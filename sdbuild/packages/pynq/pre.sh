@@ -8,6 +8,10 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 sudo cp -r $BUILD_ROOT/PYNQ $target/home/xilinx/pynq_git
 if [ ${PYNQ_BOARD} != "Unknown" ]; then
+	cd ${PYNQ_BOARDDIR}/..
+	if [ -d .git ]; then
+		sudo cp -rf .git $target/home/xilinx/pynq_git/boards
+	fi
 	cd ${PYNQ_BOARDDIR}
 	for f in `find . ! -name "*.bsp"`
 	do
