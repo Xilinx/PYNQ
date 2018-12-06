@@ -588,7 +588,7 @@ def _build_main(program_text, functions):
     #include <unistd.h>
     #include <mailbox_io.h>
     static const char return_command = 0;
-    static const char void_command = 2;
+    static const char void_command = 1;
 
     static void _rpc_read(void* data, int size) {
         int available = mailbox_available(2);
@@ -648,7 +648,7 @@ def _pyprintf(stream):
 def _handle_command(command, stream):
     if command == 1:  # Void return
         pass
-    if command == 2:  # print command
+    elif command == 2:  # print command
         _pyprintf(stream)
     else:
         raise RuntimeError('Unknown command {}'.format(command))
