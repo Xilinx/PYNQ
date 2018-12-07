@@ -311,13 +311,15 @@ if CPU_ARCH_IS_SUPPORTED:
                  "libxhdmi.so")
         run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
                  "libiic.so")
-    backup_notebooks()
-    copy_common_notebooks()
-    copy_board_notebooks()
-    copy_overlay_notebooks()
-    copy_documentation_files()
-    rename_notebooks()
-    change_ownership()
+
+    if notebooks_dir:
+        backup_notebooks()
+        copy_common_notebooks()
+        copy_board_notebooks()
+        copy_overlay_notebooks()
+        copy_documentation_files()
+        rename_notebooks()
+        change_ownership()
 
 
 if CPU_ARCH == ZYNQ_ARCH:
