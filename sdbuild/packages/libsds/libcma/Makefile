@@ -1,5 +1,5 @@
-ARCH := $(shell getconf LONG_BIT)
-INSTALL_LIB = libcma.so.$(ARCH)
+CMA_ARCH ?= $(shell getconf LONG_BIT)
+INSTALL_LIB = libcma.so.$(CMA_ARCH)
 
 CC := sdscc
 CFLAGS := -mno-bitstream -mno-boot-files -fPIC -target-os linux -shared
@@ -14,8 +14,8 @@ libcma.so.%: pynqlib.c
 	$(CC) $(CFLAGS) $(CFLAGS_$*)  $< -o $@
 
 install: $(INSTALL_LIB)
-	cp -avf $< /usr/lib/libcma.so
-	cp -avf libxlnk_cma.h /usr/include
+	install $< $(DESTDIR)/usr/lib/libcma.so
+	install libxlnk_cma.h $(DESTDIR)/usr/include
 
 clean:
 	rm -rf *.bit .Xil _sds
