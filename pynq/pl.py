@@ -364,9 +364,9 @@ class _TCLABC(metaclass=abc.ABCMeta):
                     m = re.search(self.hier_use_regex, line)
                     hier_name = m.group("hier_name")
                     inst_name = m.group("instance_name")
-                    inst_path = (current_hier + '/' + inst_name).lstrip('/')
                     inst_dict = dict()
                     for path in hier_dict:
+                        inst_path = (current_hier + '/' + inst_name).lstrip('/')
                         psplit = path.split('/')
                         if psplit[0] == hier_name:
                             inst_path += path.lstrip(hier_name)
