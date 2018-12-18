@@ -27,4 +27,5 @@ iface wlan0 inet dhcp
 	wpa-conf /etc/wpa_supplicant.conf
 EOT
 
-systemctl enable wpa_ap.service
+# Uncomment the following line to enable wireless access point by default
+# systemctl enable wpa_ap.service
