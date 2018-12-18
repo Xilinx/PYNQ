@@ -85,8 +85,6 @@ the following command in Linux command line:
 
 Check the settings for *eth0* and look for an IP address.
 
-
-
 I don't have an Ethernet port on my PC/Laptop
 ---------------------------------------------
 
@@ -101,6 +99,33 @@ documentation for details.)
 You can also connect a WiFi dongle to the board, and set up the board to connect
 to the wireless network. Your host PC can then connect to the same wireless
 network to connect to the board.
+
+How can I enable wireless access point?
+---------------------------------------
+
+If the board has a supported built-in wireless module, and the PYNQ image has the 
+*wpa_ap* package installed, you can try start the WiFi access point as follows.
+Note that *wpa_ap.service* is disabled by default.
+
+To check if the WiFi access point service is available:
+
+   .. code-block:: console
+
+      systemctl list-unit-files | grep wpa_ap.service
+
+To start the service immediately:
+
+   .. code-block:: console
+
+      sudo systemctl start wpa_ap.service
+
+To enable the service for each boot:
+
+   .. code-block:: console
+
+      sudo systemctl enable wpa_ap.service
+
+Similarly, you can use *stop* or *disable* to revert the above commands.
 
 How do I setup my computer to connect to the board?
 ---------------------------------------------------
@@ -249,12 +274,12 @@ You can then add or modify the line in the `jupyter_notebook_config.py` file
 General Questions
 =================
 
-Does Pynq support Python 2.7?
+Does PYNQ support Python 2.7?
 -----------------------------
 
-Python 2.7 is loaded on Zynq® and Python 2.7 scripts can be executed. The PYNQ
-v2.0 release is based on Python 3.6 and is not backward compatibility with 
-Python 2.7.
+The PYNQ image is based on Ubuntu which includes Python 2.7 in the root file 
+system. The Python package *pynq*, however, is based on Python 3.6; 
+this python package is not compatible with Python 2.7.
 
 How do I write the Micro SD card image?
 ---------------------------------------
@@ -268,12 +293,12 @@ We recommend you use a card at least 8GB in size and at least class 4 speed
 rating.
 
 
-How do I connect to the board using a terminal?
------------------------------------------------
+How do I connect to the board using a terminal on Windows?
+----------------------------------------------------------
 
 To do this, you need to connect to the board using a terminal:
 
-Connect a Micro USB cable to the board and your PC/Laptop, and use a terminal
+Connect a Micro USB cable to the board and your computer, and use a terminal
 emulator (puTTY, TeraTerm etc) to connect to the board.
    
    Terminal Settings: 
@@ -284,3 +309,33 @@ emulator (puTTY, TeraTerm etc) to connect to the board.
    * No Parity
    * No Flow Control
    
+How do I connect to the board using a terminal on Mac OS/Linux?
+---------------------------------------------------------------
+
+Open a Terminal window on MacOS or an XTerm (or your favorite terminal program) on Linux.
+
+Issue the following command to view current serial devices.
+
+   .. code-block:: console
+
+      ls /dev/cu.usb*
+
+Connect a Micro USB cable to the board and your computer.
+
+Issue the following command again to identify the device.
+
+   .. code-block:: console
+
+      ls /dev/cu.usb*
+
+Identify the change of items in the list, and issue the following command:
+
+   .. code-block:: console
+
+      screen /dev/<device> 115200 -L
+
+For example, if the difference was *cu.usbmodem0004*, the command would be:
+
+   .. code-block:: console
+
+      screen /dev/cu.usbmodem0004 115200 -L
