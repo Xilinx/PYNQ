@@ -1,7 +1,7 @@
 /*
  * grove_gesture.c
  *
- *  Created on: 2018Äê11ÔÂ28ÈÕ
+ *  Created on: 2018/11/28
  *      Author: cchhui
  */
 
