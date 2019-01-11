@@ -1,7 +1,6 @@
 
 from . import Arduino
 from . import ARDUINO_GROVE_I2C
-from enum import Enum
 
 __author__ ="CCHui,SWJTU"
 
