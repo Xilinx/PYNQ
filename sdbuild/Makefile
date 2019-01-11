@@ -3,8 +3,8 @@ BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 UBUNTU_RELEASE := bionic
 VERSION := 2.3
 
-KERNEL_VERSION = 2018.2
-LINUX_VERSION := 4.14.0-xilinx-v2018.2
+KERNEL_VERSION := 2018.3
+LINUX_VERSION := 4.14.0-xilinx-v2018.3
 SCRIPT_DIR := $(CURDIR)/scripts
 
 all: real_all
