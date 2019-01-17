@@ -1,4 +1,5 @@
 SRC_URI += " file://pynq.cfg"
 SRC_URI += " file://greengrass.cfg"
 SRC_URI += " file://wifi.cfg"
+SRC_URI += " file://0001-fix-zynq-pr.patch"
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
