@@ -1,6 +1,6 @@
-From 35f485fc5ef0b0662863612f6358a0fa28a512b8 Mon Sep 17 00:00:00 2001
+From c3077efb7d56c19718ceb4f6926f9444f698e101 Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Fri, 31 Aug 2018 13:41:36 -0700
+Date: Wed, 12 Dec 2018 14:11:22 -0800
 Subject: [PATCH 3/4] add pynqz1 derivative
 
 ---
@@ -8,15 +8,14 @@ Subject: [PATCH 3/4] add pynqz1 derivative
  arch/arm/dts/zynq-pynqz1.dts  | 72 +++++++++++++++++++++++++++++++++++++++++++
  configs/zynq_pynqz1_defconfig | 68 ++++++++++++++++++++++++++++++++++++++++
  drivers/net/Kconfig           |  7 +++++
- include/configs/zynq_artyz.h  |  1 -
  include/configs/zynq_pynqz1.h | 34 ++++++++++++++++++++
- 6 files changed, 182 insertions(+), 1 deletion(-)
+ 5 files changed, 182 insertions(+)
  create mode 100644 arch/arm/dts/zynq-pynqz1.dts
  create mode 100644 configs/zynq_pynqz1_defconfig
  create mode 100644 include/configs/zynq_pynqz1.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 49ae85b..d5008d8 100644
+index d2b88f2..ee7456e 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -145,6 +145,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
@@ -197,18 +196,6 @@ index d42d915..7790bf5 100644
  config PIC32_ETH
  	bool "Microchip PIC32 Ethernet Support"
  	depends on DM_ETH && MACH_PIC32
-diff --git a/include/configs/zynq_artyz.h b/include/configs/zynq_artyz.h
-index 2a03299..6987ad1 100644
---- a/include/configs/zynq_artyz.h
-+++ b/include/configs/zynq_artyz.h
-@@ -12,7 +12,6 @@
- 
- #define CONFIG_SYS_NO_FLASH
- 
--#define CONFIG_ZYNQ_USB
- #define CONFIG_ZYNQ_I2C0
- /*#define CONFIG_ZYNQ_I2C1
- #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 diff --git a/include/configs/zynq_pynqz1.h b/include/configs/zynq_pynqz1.h
 new file mode 100644
 index 0000000..699fb0f6

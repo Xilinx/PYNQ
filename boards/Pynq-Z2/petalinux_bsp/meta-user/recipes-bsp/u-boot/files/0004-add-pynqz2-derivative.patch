@@ -1,6 +1,6 @@
-From 2d5dd427ed445189b936819fafc73f725e2b171b Mon Sep 17 00:00:00 2001
+From 2a5dd10e34022de5a2d5fd8c8b306372f13d91b0 Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Fri, 31 Aug 2018 14:22:30 -0700
+Date: Wed, 12 Dec 2018 14:22:08 -0800
 Subject: [PATCH 4/4] add pynqz2 derivative
 
 ---
@@ -14,7 +14,7 @@ Subject: [PATCH 4/4] add pynqz2 derivative
  create mode 100644 include/configs/zynq_pynqz2.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index d5008d8..33a24d5 100644
+index ee7456e..fa2e581 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -146,6 +146,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
