@@ -76,10 +76,6 @@ static void videocapture_dealloc(videocaptureObject* self){
     Py_Del_XGpio(self->capture->gpio);
     free(self->capture);
     Py_TYPE(self)->tp_free((PyObject*)self);
-
-    char sysbuf[128];
-	sprintf(sysbuf, "echo '_capture del' >> /tmp/video.log");
-	system(sysbuf);
 }
 
 /*
@@ -87,10 +83,6 @@ static void videocapture_dealloc(videocaptureObject* self){
  */
 static PyObject *videocapture_new(PyTypeObject *type, PyObject *args, 
                                   PyObject *kwds){
-    char sysbuf[128];
-	sprintf(sysbuf, "echo '_capture new' >> /tmp/video.log");
-	system(sysbuf);
-
     videocaptureObject *self;
     self = (videocaptureObject *)type->tp_alloc(type, 0);
     if((self->capture = (VideoCapture *)malloc(sizeof(VideoCapture))) == NULL){

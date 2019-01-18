@@ -76,10 +76,6 @@ static void videodisplay_dealloc(videodisplayObject* self){
     Py_Del_XVtc(self->display->vtc);
     free(self->display);
     Py_TYPE(self)->tp_free((PyObject*)self);
-
-    char sysbuf[128];
-	sprintf(sysbuf, "echo '_display del' >> /tmp/video.log");
-	system(sysbuf);
 }
 
 /*
@@ -87,10 +83,6 @@ static void videodisplay_dealloc(videodisplayObject* self){
  */
 static PyObject *videodisplay_new(PyTypeObject *type, PyObject *args, 
                                   PyObject *kwds){
-    char sysbuf[128];
-	sprintf(sysbuf, "echo '_display new' >> /tmp/video.log");
-	system(sysbuf);
-
     videodisplayObject *self;
     self = (videodisplayObject *)type->tp_alloc(type, 0);
     if((self->display = (DisplayCtrl *)malloc(sizeof(DisplayCtrl))) == NULL){
