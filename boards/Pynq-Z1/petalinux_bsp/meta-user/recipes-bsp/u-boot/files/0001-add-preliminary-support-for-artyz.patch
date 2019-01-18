@@ -1,6 +1,6 @@
-From b0b040432a45cddef402d5c42b16c85bc75c12b4 Mon Sep 17 00:00:00 2001
+From c07d36e34e1a8d71018727449e86527edace7c90 Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Fri, 31 Aug 2018 11:47:26 -0700
+Date: Wed, 12 Dec 2018 13:57:33 -0800
 Subject: [PATCH 1/4] add preliminary support for artyz
 
 ---
@@ -9,8 +9,8 @@ Subject: [PATCH 1/4] add preliminary support for artyz
  board/xilinx/zynq/zynq-artyz/ps7_init_gpl.c | 12759 ++++++++++++++++++++++++++
  board/xilinx/zynq/zynq-artyz/ps7_init_gpl.h |   137 +
  configs/zynq_artyz_defconfig                |    68 +
- include/configs/zynq_artyz.h                |    30 +
- 6 files changed, 13067 insertions(+)
+ include/configs/zynq_artyz.h                |    33 +
+ 6 files changed, 13070 insertions(+)
  create mode 100644 arch/arm/dts/zynq-artyz.dts
  create mode 100644 board/xilinx/zynq/zynq-artyz/ps7_init_gpl.c
  create mode 100644 board/xilinx/zynq/zynq-artyz/ps7_init_gpl.h
@@ -18,7 +18,7 @@ Subject: [PATCH 1/4] add preliminary support for artyz
  create mode 100644 include/configs/zynq_artyz.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index a66cad3..49ae85b 100644
+index 79a72ce..d2b88f2 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -144,6 +144,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
@@ -13091,10 +13091,10 @@ index 0000000..f1cb17d
 +CONFIG_USB_GADGET_DOWNLOAD=y
 diff --git a/include/configs/zynq_artyz.h b/include/configs/zynq_artyz.h
 new file mode 100644
-index 0000000..caff787
+index 0000000..6987ad1
 --- /dev/null
 +++ b/include/configs/zynq_artyz.h
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,33 @@
 +/*
 + * (C) Copyright 2016 Digilent Inc.
 + *
@@ -13109,7 +13109,6 @@ index 0000000..caff787
 +
 +#define CONFIG_SYS_NO_FLASH
 +
-+#define CONFIG_ZYNQ_USB
 +#define CONFIG_ZYNQ_I2C0
 +/*#define CONFIG_ZYNQ_I2C1
 +#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
@@ -13119,6 +13118,10 @@ index 0000000..caff787
 +#define CONFIG_DISPLAY
 +#define CONFIG_I2C_EDID
 +*/
++
++/* GEM MAC address offset */
++#define CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET	0x20
++
 +/* Define ARTY-Z PS Clock Frequency to 50MHz */
 +#define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
 +
