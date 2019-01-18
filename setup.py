@@ -299,6 +299,8 @@ if CPU_ARCH_IS_SUPPORTED:
     if CPU_ARCH == ZYNQ_ARCH:
         run_make("pynq/lib/_pynq/_audio/", "pynq/lib/",
                  "libaudio.so")
+        run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
+                 "libiic.so")
     elif CPU_ARCH == ZU_ARCH:
         run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/video/",
                  "libdisplayport.so")
