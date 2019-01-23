@@ -832,13 +832,22 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         'size': string2int(j.find(
                             './PROPERTY/[@NAME="SIZE"]').get(
                             'VALUE')),
+                        'access': j.find('./PROPERTY/[@NAME="ACCESS"]').get(
+                                'VALUE'),
+                        'description': j.find(
+                            './PROPERTY/[@NAME="DESCRIPTION"]').get('VALUE'),
                         'fields': {k.get('NAME'): {
                             'bit_offset': string2int(k.find(
                                 './PROPERTY/[@NAME="BIT_OFFSET"]').get(
                                 'VALUE')),
                             'bit_width': string2int(k.find(
                                 './PROPERTY/[@NAME="BIT_WIDTH"]').get(
-                                'VALUE'))}
+                                'VALUE')),
+                            'description': j.find(
+                                './PROPERTY/[@NAME="DESCRIPTION"]').get(
+                                    'VALUE'),
+                            'access': k.find(
+                                './PROPERTY/[@NAME="ACCESS"]').get('VALUE')}
                             for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
                     for j in regs}
 
