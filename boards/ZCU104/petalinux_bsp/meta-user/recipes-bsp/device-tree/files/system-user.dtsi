@@ -44,3 +44,11 @@
 &vcu_0 {
 	status = "disabled";
 };
+
+&v_frmbuf_rd_0 {
+	status = "disabled";
+};
+
+&v_frmbuf_wr_0 {
+	status = "disabled";
+};
