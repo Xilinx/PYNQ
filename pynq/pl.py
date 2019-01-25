@@ -29,8 +29,6 @@
 
 import os
 import re
-import mmap
-import math
 import warnings
 import abc
 from xml.etree import ElementTree
@@ -90,6 +88,23 @@ def get_hwh_name(bitfile_name):
 
     """
     return os.path.splitext(bitfile_name)[0] + '.hwh'
+
+
+def string2int(a):
+    """Convert a hex or decimal string into an int.
+
+    Parameters
+    ----------
+    a : string
+        The input string representation of the number.
+
+    Returns
+    -------
+    int
+        The decimal number.
+
+    """
+    return int(a, 16 if a.startswith('0x') else 10)
 
 
 def clear_state(dict_in):
@@ -291,10 +306,10 @@ class _TCLABC(metaclass=abc.ABCMeta):
                                       re.IGNORECASE)
                         if m and gpio_idx is not None:
                             name = m.group("instance_name")
-                            if(current_hier == ""):
+                            if current_hier == "":
                                 hier_name = name
                             else:
-                                hier_name = "{}/{}".format(current_hier,name)
+                                hier_name = "{}/{}".format(current_hier, name)
                             gpio_dict[hier_name] = gpio_idx
                             gpio_idx = None
                         in_prop = False
@@ -508,11 +523,11 @@ class _TCLABC(metaclass=abc.ABCMeta):
         lasthierarchies = {}
         hierarchies = {k.rpartition('/')[0] for k in self.ip_dict.keys()
                        if k.count('/') > 0}
-        while (lasthierarchies != hierarchies):
-            parents = {k.rpartition('/')[0] for k in hierarchies if k.count('/') > 0}
+        while lasthierarchies != hierarchies:
+            parents = {k.rpartition('/')[0] for k in hierarchies 
+                       if k.count('/') > 0}
             lasthierarchies = hierarchies
             hierarchies.update(parents)
-
         self.hierarchy_dict = dict()
         for hier in hierarchies:
             self.hierarchy_dict[hier] = {
@@ -531,18 +546,6 @@ class _TCLABC(metaclass=abc.ABCMeta):
             hier, _, subhier = name.rpartition('/')
             if hier:
                 self.hierarchy_dict[hier]['hierarchies'][subhier] = val
-
-    def is_clk_divisor_line(self, line):
-        """Used for inheritance from child classes.
-
-        """
-        return False
-
-    def is_clk_enable_line(self, line):
-        """Used for inheritance from child classes.
-
-        """
-        return False
 
 
 class _TCLUltrascale(_TCLABC):
@@ -767,7 +770,10 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.clock_dict = {}
         self.instance2attr = {i.get('INSTANCE'): (
             i.get('FULLNAME').lstrip('/'),
-            i.get('VLNV')) for i in self.root.iter("MODULE")}
+            i.get('VLNV'),
+            i.findall("./PARAMETERS/*[@NAME][@VALUE]"),
+            i.findall(".//REGISTERS/*[@NAME]"))
+            for i in self.root.iter("MODULE")}
 
         for mod in self.root.iter("MODULE"):
             mod_type = mod.get('MODTYPE')
@@ -803,7 +809,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """
         for i in mod.iter("MEMRANGE"):
             if i.get('INSTANCE') in self.instance2attr:
-                full_name, vlnv = self.instance2attr[i.get('INSTANCE')]
+                full_name, vlnv, pars, regs = self.instance2attr[
+                    i.get('INSTANCE')]
                 self.ip_dict[full_name] = {}
                 self.ip_dict[full_name]['fullpath'] = full_name
                 self.ip_dict[full_name]['type'] = vlnv
@@ -813,9 +820,36 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 addr_range = high_addr - base_addr + 1
                 self.ip_dict[full_name]['addr_range'] = addr_range
                 self.ip_dict[full_name]['phys_addr'] = base_addr
-
                 self.ip_dict[full_name]['gpio'] = {}
                 self.ip_dict[full_name]['interrupts'] = {}
+                self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
+                                                         j.get('VALUE')
+                                                         for j in pars}
+                self.ip_dict[full_name]['registers'] = {j.get('NAME'): {
+                        'address_offset': string2int(j.find(
+                            './PROPERTY/[@NAME="ADDRESS_OFFSET"]').get(
+                            'VALUE')),
+                        'size': string2int(j.find(
+                            './PROPERTY/[@NAME="SIZE"]').get(
+                            'VALUE')),
+                        'access': j.find('./PROPERTY/[@NAME="ACCESS"]').get(
+                                'VALUE'),
+                        'description': j.find(
+                            './PROPERTY/[@NAME="DESCRIPTION"]').get('VALUE'),
+                        'fields': {k.get('NAME'): {
+                            'bit_offset': string2int(k.find(
+                                './PROPERTY/[@NAME="BIT_OFFSET"]').get(
+                                'VALUE')),
+                            'bit_width': string2int(k.find(
+                                './PROPERTY/[@NAME="BIT_WIDTH"]').get(
+                                'VALUE')),
+                            'description': j.find(
+                                './PROPERTY/[@NAME="DESCRIPTION"]').get(
+                                    'VALUE'),
+                            'access': k.find(
+                                './PROPERTY/[@NAME="ACCESS"]').get('VALUE')}
+                            for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
+                    for j in regs}
 
     def match_nets(self, mod, full_path):
         """Matching all the nets from the HWH file.
@@ -929,11 +963,11 @@ class _HWHABC(metaclass=abc.ABCMeta):
         lasthierarchies = {}
         hierarchies = {k.rpartition('/')[0] for k in self.ip_dict.keys()
                        if k.count('/') > 0}
-        while (lasthierarchies != hierarchies):
-            parents = {k.rpartition('/')[0] for k in hierarchies if k.count('/') > 0}
+        while lasthierarchies != hierarchies:
+            parents = {k.rpartition('/')[0] for k in hierarchies
+                       if k.count('/') > 0}
             lasthierarchies = hierarchies
             hierarchies.update(parents)
-
         for hier in hierarchies:
             self.hierarchy_dict[hier] = {
                 'ip': dict(),
@@ -986,22 +1020,6 @@ class _HWHABC(metaclass=abc.ABCMeta):
             for j in range(2):
                 self.clock_dict[i]['divisor{}'.format(j)] = \
                     self.find_clock_divisor(mod, i, j)
-
-    def find_clock_divisor(self, mod, clk_id, div_id):
-        """Return the clock divisor for the given clock ID.
-
-        Place holder for child class to implement.
-
-        """
-        pass
-
-    def find_clock_enable(self, mod, clk_id):
-        """Return the clock enable for the given clock ID.
-
-        Place holder for child class to implement.
-
-        """
-        pass
 
 
 class _HWHZynq(_HWHABC):
@@ -1375,13 +1393,11 @@ class PLMeta(type):
                 mmio.write(0x0, 0x1)
                 i = 0
                 while mmio.read(0x0) != 0x0F and i < 16000:
-                    # wait for the shutdown to be acknowledged
-                    i = i + 1
-                    pass
+                    i += 1
                 if i >= 16000:
-                    print("Timeout waiting for Shutdown Manager.")
-                    print("It's likely that the currently configured bitstream doesn't match the metadata.")
-                    print("Continuing on and hoping for the best...")
+                    warnings.warn("Timeout for shutdown manager. It's likely "
+                                  "the configured bitstream and metadata "
+                                  "don't match.")
 
     def reset(cls, parser=None):
         """Reset all the dictionaries.
