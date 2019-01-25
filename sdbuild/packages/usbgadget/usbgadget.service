@@ -1,6 +1,6 @@
 [Unit]
 Description=USB Gadget for Networking
-Before=network-online.service
+Before=network-online.service isc-dhcp-server.service
 
 [Service]
 Type=oneshot
