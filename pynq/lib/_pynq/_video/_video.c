@@ -53,7 +53,7 @@
 static PyModuleDef _videomodule = {
     PyModuleDef_HEAD_INIT,
     "_video",
-    "Implements C bindings for the video part of the AV overlay.",
+    "Implements C bindings for the video pipeline.",
     -1,
     NULL, NULL, NULL, NULL, NULL
 };
