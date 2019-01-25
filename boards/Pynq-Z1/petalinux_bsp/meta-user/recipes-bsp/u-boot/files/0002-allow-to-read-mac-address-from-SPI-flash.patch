@@ -1,27 +1,26 @@
-From df3705bc3600871af28a1735d98aec83c95cf38e Mon Sep 17 00:00:00 2001
+From 8083722ea498ed987aa640bac94bad701ea41dab Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Fri, 31 Aug 2018 12:24:21 -0700
+Date: Wed, 12 Dec 2018 14:02:45 -0800
 Subject: [PATCH 2/4] allow to read mac address from SPI flash
 
 ---
- board/xilinx/zynq/board.c    | 24 ++++++++++++++++++++++++
- include/configs/zynq_artyz.h |  4 ++++
- 2 files changed, 28 insertions(+)
+ board/xilinx/zynq/board.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
 diff --git a/board/xilinx/zynq/board.c b/board/xilinx/zynq/board.c
-index 28394be..4b5ccff 100644
+index 10ed464..59ed379 100644
 --- a/board/xilinx/zynq/board.c
 +++ b/board/xilinx/zynq/board.c
-@@ -8,6 +8,8 @@
+@@ -9,6 +9,8 @@
  #include <fdtdec.h>
  #include <fpga.h>
  #include <mmc.h>
 +#include <spi.h>
 +#include <spi_flash.h>
+ #include <wdt.h>
  #include <zynqpl.h>
  #include <asm/arch/hardware.h>
- #include <asm/arch/sys_proto.h>
-@@ -141,6 +143,28 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+@@ -172,6 +174,28 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
  		printf("I2C EEPROM MAC address read failed\n");
  #endif
  
@@ -49,21 +48,6 @@ index 28394be..4b5ccff 100644
 +#endif
  	return 0;
  }
- 
-diff --git a/include/configs/zynq_artyz.h b/include/configs/zynq_artyz.h
-index caff787..2a03299 100644
---- a/include/configs/zynq_artyz.h
-+++ b/include/configs/zynq_artyz.h
-@@ -22,6 +22,10 @@
- #define CONFIG_DISPLAY
- #define CONFIG_I2C_EDID
- */
-+
-+/* GEM MAC address offset */
-+#define CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET	0x20
-+
- /* Define ARTY-Z PS Clock Frequency to 50MHz */
- #define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
  
 -- 
 1.9.5
