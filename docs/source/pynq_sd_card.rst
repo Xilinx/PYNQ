@@ -23,50 +23,87 @@ The source files for the PYNQ image flow build can be found here:
 More details on configuring the root filesystem can be found in the README file
 in the folder above.
 
+Prepare the Building Environment
+================================
+
+It is recommended to use a Ubuntu OS to build the image. If you do not have a 
+Ubuntu OS, you may need to prepare a Ubuntu virtual machine (VM) on your host OS.
+We provide in our repository a *vagrant* file that can help you install the 
+Ubuntu VM on your host OS.
+
+If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
+
+  1. Download the `vagrant software <https://www.vagrantup.com/>`_ and the 
+     `Virtual Box <https://www.virtualbox.org/>`_. Install them on your host OS.
+  2. In your host OS, open a terminal program. Locate your PYNQ repository, 
+     where the vagrant file is stored.
+
+     .. code-block:: console
+    
+        cd <PYNQ repository>
+
+  3. You can then prepare the VM using the following command. This step will
+     prepare a Ubuntu VM called *pynq_vm* on your Virtual Box. The Ubuntu 
+     packages on the VM will be updated during this process; the Ubuntu desktop 
+     will also be installed so you can install Xilinx software later.
+
+     .. code-block:: console
+    
+        vagrant up
+
+     After the VM has been successfully loaded, you will see a folder
+     */pynq* on your VM; this folder is shared with your PYNQ repository on 
+     your host OS.
+  4. (optionally) To restart the VM without losing the shared folder, in your 
+     terminal, run:
+
+     .. code-block:: console
+    
+        vagrant reload
+
+  5. Now you are ready to install Xilinx tools. You will need 
+     PetaLinux, Vivado, and SDx for building PYNQ image.
+     The version of Xilinx tools for each PYNQ release is shown below:
+
+     ================  ================
+     Release version    Xilinx Tool Version
+     ================  ================
+     v1.4               2015.4
+     v2.0               2016.1
+     v2.1               2017.4
+     v2.2               2017.4
+     v2.3               2018.2
+     ================  ================
+
+If you already have a Ubuntu OS, you can do the following:
+
+  1. Install dependencies using the following script. This is necessary 
+     if you are not using our vagrant file to prepare the environment.
+
+     .. code-block:: console
+    
+        <PYNQ repository>/sdbuild/scripts/setup_host.sh
+
+  2. Install correct version of the Xilinx tools, including 
+     PetaLinux, Vivado, and SDx. See the above table for the correct version 
+     of each release.
+
 Building the Image
 ==================
 
-It is recommended to use a Virtual machine to run the image build flow. A clean
-and recent VM image is recommended. The flow provided has been tested on Ubuntu
-16.04.
+Once you have the building environment ready, you can start to build the image 
+following the steps below:
 
-To build the image follow the steps below:
+  1. Source the appropriate settings files from PetaLinux, Vivado, and SDx.
+  2. Navigate to the following directory and run make
 
-  1. Install the correct version of PetaLinux and optionally Vivado and SDK
-  2. Install dependencies using the following script
-
-The correct version of Xilinx tools for each PYNQ release is shown below:
-
-================  ================
-Release version    Xilinx Tool Version
-================  ================
-v1.4               2015.4
-v2.0               2016.1
-v2.1               2017.4
-v2.2               2017.4
-v2.3               2018.2
-================  ================
-
-.. code-block:: console
+     .. code-block:: console
     
-   <PYNQ repository>/sdbuild/scripts/setup_host.sh
+        cd <PYNQ repository>/sdbuild/
+        make
 
-\
-  3. Source the appropriate settings files from Vivado and Xilinx SDK
-  4. Navigate to the following directory and run make
-   
-.. code-block:: console
-    
-   cd <PYNQ repository>/sdbuild/
-   make
-		   
 The build flow can take several hours. By default images for all of the
-supported boards will be built. To build for specific boards then pass a
-``BOARDS`` variable to make
-
-.. code-block:: console
-
-   make BOARDS=Pynq-Z1
+supported boards will be built.
 
 Retargeting to a Different Board
 ================================
@@ -88,10 +125,10 @@ of the board directory. A minimal spec file contains the following information
    BSP_${BOARD} := mybsp.bsp
    BITSTREAM_${BOARD} := mybitstream.bsp
 
-where ``${BOARD}`` is also the name of the board. The ARCH should be arm for
-Zynq-7000 or aarch64 for Zynq UltraScale+. If no bitstream is provided then the
-one included in the BSP will be used by default.  All paths should be relative
-to the board directory.
+where ``${BOARD}`` is also the name of the board. The ARCH should be *arm* for
+Zynq-7000 or *aarch64* for Zynq UltraScale+. If no bitstream is provided then the
+one included in the BSP will be used by default.  All paths in this file
+should be relative to the board directory.
 
 To customise the BSP a ``petalinux_bsp`` folder can be included in the board
 directory the contents of which will be added to the provided BSP before the
@@ -101,9 +138,9 @@ device tree configuration that are helpful to support elements of PYNQ to be
 added to a pre-existing BSP.
 
 If a suitable PetaLinux BSP is unavailable for the board then this can be left
-blank and an HDF file provided in the board directory. The system.hdf file
-should be placed in the ``petalinux_bsp/hardware_project`` folder and a new
-generic BSP will be created as part of the build flow.
+blank; in this case, an HDF file needs to be provided in the board directory. 
+The *system.hdf* file should be placed in the ``petalinux_bsp/hardware_project`` 
+folder and a new generic BSP will be created as part of the build flow.
 
 Board-specific packages
 -----------------------
@@ -137,7 +174,7 @@ officially supported boards. This means, in particular, that:
 Building from a board repository
 ================================
 
-To build from a third-party board repository pass the BOARDDIR variable to the
+To build from a third-party board repository pass the ``${BOARDDIR}`` variable to the
 sdbuild makefile.
 
 .. code-block:: console
@@ -145,6 +182,6 @@ sdbuild makefile.
    cd <PYNQ repository>/sdbuild/
    make BOARDDIR=${BOARD_REPO}
 
-The board repo should be provided as an absolute path. The BOARDDIR variable
-can be combined with the BOARD variable if the repository contains multiple
+The board repo should be provided as an absolute path. The ``${BOARDDIR}`` variable
+can be combined with the ``${BOARD}`` variable if the repository contains multiple
 boards and only a subset should be built.
