@@ -34,13 +34,24 @@ __email__ = "pynq_support@xilinx.com"
 from setuptools import setup, Extension, find_packages
 from distutils.dir_util import copy_tree
 import glob
+import re
 import shutil
 import subprocess
 import sys
 import os
-import site
 import warnings
 from datetime import datetime
+
+
+# Parse version number
+def find_version(file_path):
+    with open(file_path, 'r') as fp:
+        version_file = fp.read()
+        version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                                  version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise NameError("Version string must be defined in {}.".format(file_path))
 
 
 # Board specific package delivery setup
@@ -55,7 +66,6 @@ def find_overlays(path):
             if os.path.isdir(os.path.join(path, f))
             and len(glob.glob(os.path.join(path, f, "*.bit"))) > 0]
 
-pynq_package_files = []
 
 def collect_pynq_overlays():
     overlay_files = []
@@ -70,20 +80,21 @@ def collect_pynq_overlays():
     return overlay_files
 
 
+pynq_package_files = []
 if 'BOARD' not in os.environ:
-    print("Please set the BOARD environment variable "
-          "to get any BOARD specific overlays (e.g. Pynq-Z1).")
+    warnings.warn("BOARD variable must be set to get board specific overlays.",
+                  UserWarning)
     board = None
     board_folder = None
 else:
     board = os.environ['BOARD']
     board_folder = 'boards/{}/'.format(board)
     if not os.path.isdir(board_folder):
-        print("Could not find folder for board {}". format(board))
+        warnings.warn("Could not find board folder {}".format(board),
+                      UserWarning)
         board_folder = None
     else:
         pynq_package_files.extend(collect_pynq_overlays())
-
 
 
 # Extend data_files with Microblaze C BSPs and libraries
@@ -98,8 +109,6 @@ for mbdir in microblaze_data_dirs:
          for root, _, files in os.walk(mbdir) for f in files]
     )
 
-
-print(pynq_package_files)
 
 # Device family constants
 ZYNQ_ARCH = "armv7l"
@@ -275,11 +284,7 @@ def backup_notebooks():
     notebooks_dir_backup = '{}_{}'.format(notebooks_dir,
                                           datetime.now().strftime(
                                               "%Y_%m_%d_%H_%M_%S"))
-    try:
-        copy_tree(notebooks_dir, notebooks_dir_backup)
-    except Exception as e:
-        print('Unable to backup notebooks.')
-        raise e
+    copy_tree(notebooks_dir, notebooks_dir_backup)
     return notebooks_dir_backup
 
 
@@ -287,18 +292,21 @@ def backup_notebooks():
 def run_make(src_path, dst_path, output_lib):
     status = subprocess.check_call(["make", "-C", src_path])
     if status != 0:
-        print("Error while running make for ", output_lib)
-        sys.exit(1)
+        raise RuntimeError("Error while running make for {}".format(output_lib))
     shutil.copyfile(src_path + output_lib, dst_path + output_lib)
 
 
-if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
+if CPU_ARCH_IS_SUPPORTED:
     if CPU_ARCH == ZYNQ_ARCH:
-        run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+        run_make("pynq/lib/_pynq/_audio/", "pynq/lib/",
+                 "libaudio.so")
     elif CPU_ARCH == ZU_ARCH:
-        run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/video/", "libdisplayport.so")
-        run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/", "libxhdmi.so")
-        run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
+        run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/video/",
+                 "libdisplayport.so")
+        run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/",
+                 "libxhdmi.so")
+        run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
+                 "libiic.so")
     backup_notebooks()
     copy_common_notebooks()
     copy_board_notebooks()
@@ -308,7 +316,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'install' and CPU_ARCH_IS_SUPPORTED:
     change_ownership()
 
 
-if (CPU_ARCH == ZYNQ_ARCH):
+if CPU_ARCH == ZYNQ_ARCH:
     ext_modules = [
         Extension('pynq.lib._video', video,
                   include_dirs=['pynq/lib/_pynq/inc',
@@ -316,13 +324,12 @@ if (CPU_ARCH == ZYNQ_ARCH):
                   ),
     ]
 else:
-    warnings.warn("Video Library does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), ResourceWarning)
     ext_modules = []
-
+pynq_version = find_version('pynq/__init__.py')
 pynq_package_files.extend(['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'])
+
 setup(name='pynq',
-      version='2.3',
+      version=pynq_version,
       description='(PY)thon productivity for zy(NQ)',
       author='Xilinx PYNQ Development Team',
       author_email='pynq_support@xilinx.com',
