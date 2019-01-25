@@ -51,6 +51,7 @@
  # 1.00h pp  04/12/2018 Renamed reset block instances and added xlconcat_0
  # 2.00  yrq 05/16/2018 Remove top level HDL wrapper
  # 2.01  yrq 08/08/2018 update to 2018.2
+ # 2.04  yrq 01/17/2019 update to 2018.3
  #
  # </pre>
 ###############################################################################
@@ -76,7 +77,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2018.2
+set scripts_vivado_version 2018.3
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -97,7 +98,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 # project, but make sure you do not have an existing project
 # <./<overlay_name>/<overlay_name>.xpr> in the current working folder.
 
-set overlay_name "logictools"
+set overlay_name logictools
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
    create_project ${overlay_name} ${overlay_name} -part xc7z020clg400-1
@@ -108,7 +109,7 @@ update_ip_catalog
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name "logictools"
+set design_name logictools
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -195,8 +196,8 @@ xilinx.com:ip:axi_gpio:2.0\
 xilinx.com:ip:axi_iic:2.0\
 xilinx.com:user:io_switch:1.1\
 xilinx.com:ip:xlconstant:1.1\
-xilinx.com:ip:microblaze:10.0\
-xilinx.com:ip:axi_bram_ctrl:4.0\
+xilinx.com:ip:microblaze:11.0\
+xilinx.com:ip:axi_bram_ctrl:4.1\
 xilinx.com:ip:axi_quad_spi:3.2\
 xilinx.com:ip:axi_timer:2.0\
 xilinx.com:ip:axi_cdma:4.1\
@@ -210,7 +211,7 @@ xilinx.com:user:fsm_io_switch:1.1\
 xilinx.com:user:boolean_generator:1.1\
 xilinx.com:user:pattern_controller:1.0\
 xilinx.com:ip:axi_dma:7.1\
-xilinx.com:ip:axis_data_fifo:1.1\
+xilinx.com:ip:axis_data_fifo:2.0\
 xilinx.com:hls:trace_cntrl_64:1.4\
 xilinx.com:user:trace_generator_controller:1.0\
 "
@@ -921,12 +922,14 @@ proc create_hier_cell_trace_analyzer_1 { parentCell nameHier } {
  ] $axi_mem_intercon_1
 
   # Create instance: axis_data_fifo_0, and set properties
-  set axis_data_fifo_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:1.1 axis_data_fifo_0 ]
+  set axis_data_fifo_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_0 ]
   set_property -dict [ list \
    CONFIG.FIFO_DEPTH {256} \
+   CONFIG.HAS_RD_DATA_COUNT {1} \
    CONFIG.HAS_TKEEP {1} \
    CONFIG.HAS_TLAST {1} \
    CONFIG.HAS_TSTRB {1} \
+   CONFIG.HAS_WR_DATA_COUNT {1} \
    CONFIG.TDATA_NUM_BYTES {8} \
    CONFIG.TDEST_WIDTH {1} \
    CONFIG.TID_WIDTH {5} \
@@ -1035,7 +1038,7 @@ proc create_hier_cell_pattern_generator_1 { parentCell nameHier } {
  ] $pattern_control
 
   # Create instance: pattern_data_bram_ctrl, and set properties
-  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_data_bram_ctrl ]
+  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 pattern_data_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $pattern_data_bram_ctrl
@@ -1073,7 +1076,7 @@ proc create_hier_cell_pattern_generator_1 { parentCell nameHier } {
  ] $pattern_nsamples
 
   # Create instance: pattern_tri_bram_ctrl, and set properties
-  set pattern_tri_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_tri_bram_ctrl ]
+  set pattern_tri_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 pattern_tri_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $pattern_tri_bram_ctrl
@@ -1175,7 +1178,12 @@ proc create_hier_cell_lmb_2 { parentCell nameHier } {
   # Create instance: lmb_bram, and set properties
   set lmb_bram [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 lmb_bram ]
   set_property -dict [ list \
+   CONFIG.Enable_B {Use_ENB_Pin} \
    CONFIG.Memory_Type {True_Dual_Port_RAM} \
+   CONFIG.Port_B_Clock {100} \
+   CONFIG.Port_B_Enable_Rate {100} \
+   CONFIG.Port_B_Write_Rate {50} \
+   CONFIG.Use_RSTB_Pin {true} \
    CONFIG.use_bram_block {BRAM_Controller} \
  ] $lmb_bram
 
@@ -1439,7 +1447,7 @@ proc create_hier_cell_FSM_generator_1 { parentCell nameHier } {
   create_bd_pin -dir I sample_clk
 
   # Create instance: fsm_bram_ctrl, and set properties
-  set fsm_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 fsm_bram_ctrl ]
+  set fsm_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 fsm_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $fsm_bram_ctrl
@@ -1580,12 +1588,14 @@ proc create_hier_cell_trace_analyzer { parentCell nameHier } {
  ] $axi_mem_intercon_1
 
   # Create instance: axis_data_fifo_0, and set properties
-  set axis_data_fifo_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:1.1 axis_data_fifo_0 ]
+  set axis_data_fifo_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_0 ]
   set_property -dict [ list \
    CONFIG.FIFO_DEPTH {256} \
+   CONFIG.HAS_RD_DATA_COUNT {1} \
    CONFIG.HAS_TKEEP {1} \
    CONFIG.HAS_TLAST {1} \
    CONFIG.HAS_TSTRB {1} \
+   CONFIG.HAS_WR_DATA_COUNT {1} \
    CONFIG.TDATA_NUM_BYTES {8} \
    CONFIG.TDEST_WIDTH {1} \
    CONFIG.TID_WIDTH {5} \
@@ -1694,7 +1704,7 @@ proc create_hier_cell_pattern_generator { parentCell nameHier } {
  ] $pattern_control
 
   # Create instance: pattern_data_bram_ctrl, and set properties
-  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_data_bram_ctrl ]
+  set pattern_data_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 pattern_data_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $pattern_data_bram_ctrl
@@ -1732,7 +1742,7 @@ proc create_hier_cell_pattern_generator { parentCell nameHier } {
  ] $pattern_nsamples
 
   # Create instance: pattern_tri_bram_ctrl, and set properties
-  set pattern_tri_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 pattern_tri_bram_ctrl ]
+  set pattern_tri_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 pattern_tri_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $pattern_tri_bram_ctrl
@@ -1834,7 +1844,12 @@ proc create_hier_cell_lmb_1 { parentCell nameHier } {
   # Create instance: lmb_bram, and set properties
   set lmb_bram [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 lmb_bram ]
   set_property -dict [ list \
+   CONFIG.Enable_B {Use_ENB_Pin} \
    CONFIG.Memory_Type {True_Dual_Port_RAM} \
+   CONFIG.Port_B_Clock {100} \
+   CONFIG.Port_B_Enable_Rate {100} \
+   CONFIG.Port_B_Write_Rate {50} \
+   CONFIG.Use_RSTB_Pin {true} \
    CONFIG.use_bram_block {BRAM_Controller} \
  ] $lmb_bram
 
@@ -2095,7 +2110,7 @@ proc create_hier_cell_FSM_generator { parentCell nameHier } {
   create_bd_pin -dir I sample_clk
 
   # Create instance: fsm_bram_ctrl, and set properties
-  set fsm_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 fsm_bram_ctrl ]
+  set fsm_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 fsm_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $fsm_bram_ctrl
@@ -2216,7 +2231,12 @@ proc create_hier_cell_lmb { parentCell nameHier } {
   # Create instance: lmb_bram, and set properties
   set lmb_bram [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 lmb_bram ]
   set_property -dict [ list \
+   CONFIG.Enable_B {Use_ENB_Pin} \
    CONFIG.Memory_Type {True_Dual_Port_RAM} \
+   CONFIG.Port_B_Clock {100} \
+   CONFIG.Port_B_Enable_Rate {100} \
+   CONFIG.Port_B_Write_Rate {50} \
+   CONFIG.Use_RSTB_Pin {true} \
    CONFIG.use_bram_block {BRAM_Controller} \
  ] $lmb_bram
 
@@ -2380,7 +2400,7 @@ proc create_hier_cell_lcp_rp { parentCell nameHier } {
   set logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 logic_1 ]
 
   # Create instance: mb, and set properties
-  set mb [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:10.0 mb ]
+  set mb [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:11.0 mb ]
   set_property -dict [ list \
    CONFIG.C_DEBUG_ENABLED {1} \
    CONFIG.C_D_AXI {1} \
@@ -2395,7 +2415,7 @@ proc create_hier_cell_lcp_rp { parentCell nameHier } {
  ] $mb_axi_periph
 
   # Create instance: mb_bram_ctrl, and set properties
-  set mb_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 mb_bram_ctrl ]
+  set mb_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 mb_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $mb_bram_ctrl
@@ -2614,7 +2634,7 @@ proc create_hier_cell_lcp_ar { parentCell nameHier } {
   set logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 logic_1 ]
 
   # Create instance: mb, and set properties
-  set mb [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:10.0 mb ]
+  set mb [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:11.0 mb ]
   set_property -dict [ list \
    CONFIG.C_DEBUG_ENABLED {1} \
    CONFIG.C_D_AXI {1} \
@@ -2629,7 +2649,7 @@ proc create_hier_cell_lcp_ar { parentCell nameHier } {
  ] $mb_axi_periph
 
   # Create instance: mb_bram_ctrl, and set properties
-  set mb_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 mb_bram_ctrl ]
+  set mb_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 mb_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $mb_bram_ctrl
@@ -2815,7 +2835,7 @@ proc create_hier_cell_iop_pmodb { parentCell nameHier } {
   set logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 logic_1 ]
 
   # Create instance: mb, and set properties
-  set mb [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:10.0 mb ]
+  set mb [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:11.0 mb ]
   set_property -dict [ list \
    CONFIG.C_DEBUG_ENABLED {1} \
    CONFIG.C_D_AXI {1} \
@@ -2824,7 +2844,7 @@ proc create_hier_cell_iop_pmodb { parentCell nameHier } {
  ] $mb
 
   # Create instance: mb_bram_ctrl, and set properties
-  set mb_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 mb_bram_ctrl ]
+  set mb_bram_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 mb_bram_ctrl ]
   set_property -dict [ list \
    CONFIG.SINGLE_PORT_BRAM {1} \
  ] $mb_bram_ctrl
@@ -4142,9 +4162,10 @@ proc create_root_design { parentCell } {
   current_bd_instance $oldCurInst
 
   # Create PFM attributes
-  set_property PFM_NAME {xilinx.com:xd:logictools:1.0} [get_files [current_bd_design].bd]
+  set_property PFM_NAME {xilinx.com:xd:${overlay_name}:1.0} [get_files [current_bd_design].bd]
 
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -4155,22 +4176,3 @@ proc create_root_design { parentCell } {
 ##################################################################
 
 create_root_design ""
-
-# Add top wrapper and xdc files
-make_wrapper -files [get_files ./${overlay_name}/${overlay_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd] -top
-add_files -norecurse ./${overlay_name}/${overlay_name}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.v
-set_property top ${design_name}_wrapper [current_fileset]
-import_files -fileset constrs_1 -norecurse ./vivado/constraints/${overlay_name}.xdc
-update_compile_order -fileset sources_1
-
-# call implement
-launch_runs impl_1 -to_step write_bitstream -jobs 4
-wait_on_run impl_1
-
-# This hardware definition file will be used for microblaze projects
-file mkdir ./${overlay_name}/${overlay_name}.sdk
-write_hwdef -force  -file ./${overlay_name}/${overlay_name}.sdk/${overlay_name}.hdf
-file copy -force ./${overlay_name}/${overlay_name}.sdk/${overlay_name}.hdf .
-
-# move and rename bitstream to final location
-file copy -force ./${overlay_name}/${overlay_name}.runs/impl_1/${design_name}_wrapper.bit ${overlay_name}.bit
