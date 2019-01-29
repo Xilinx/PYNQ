@@ -65,7 +65,11 @@ GPIO_INDEX_MAX = 31,
 typedef int gpio;
 
 gpio gpio_open_device(unsigned int device);
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_GPIO_BASEADDR
 gpio gpio_open(unsigned int pin);
+#endif
+#endif
 gpio gpio_configure(gpio device, unsigned int low, unsigned int high, 
                     unsigned int channel);
 void gpio_set_direction(gpio device, unsigned int direction);
