@@ -1,0 +1,4 @@
+THIRPARTY=false
+HW_PROJECT_REFERENCE=hw_logictools
+PROCESSOR=lcp_ar_mb
+MSS_FILE=system.mss
