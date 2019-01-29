@@ -10,6 +10,10 @@ extern "C" {
 #include <stdarg.h>
 #include "xil_types.h"
 #include "xparameters.h"
+#include "bspconfig.h"
+#if HYP_GUEST && EL1_NONSECURE && XEN_USE_PV_CONSOLE
+#include "xen_console.h"
+#endif
 
 /*----------------------------------------------------*/
 /* Use the following parameter passing structure to   */

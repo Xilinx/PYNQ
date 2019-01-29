@@ -79,7 +79,11 @@
 typedef int timer;
 
 timer timer_open_device(unsigned int device);
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_TIMER0_BASEADDR
 timer timer_open(unsigned int pin);
+#endif
+#endif
 void timer_delay(timer dev_id, unsigned int cycles);
 void timer_close(timer dev_id);
 void timer_pwm_generate(timer dev_id, unsigned int period, unsigned int pulse);

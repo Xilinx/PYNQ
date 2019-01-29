@@ -43,24 +43,24 @@ extern "C" {
 
 /**
 Performs a get function on an input FSL of the MicroBlaze processor
-@param val    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
-@param id     FSL identifier
+@param val    variable to sink data from get function
+@param id     literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
 @param flags  valid FSL macro flags
 */
 #define getfslx(val, id, flags)      asm volatile (stringify(flags) "get\t%0,rfsl" stringify(id) : "=d" (val))
 
 /**
 Performs a put function on an input FSL of the MicroBlaze processor
-@param val    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
-@param id     FSL identifier
+@param val    variable to source data to put function
+@param id     literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
 @param flags  valid FSL macro flags
 */
 #define putfslx(val, id, flags)      asm volatile (stringify(flags) "put\t%0,rfsl" stringify(id) :: "d" (val))
 
 /**
 Performs a test get function on an input FSL of the MicroBlaze processor
-@param val    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
-@param id     FSL identifier
+@param val    variable to sink data from get function
+@param id     literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
 @param flags  valid FSL macro flags
 */
 #define tgetfslx(val, id, flags)     asm volatile ("t" stringify(flags) "get\t%0,rfsl" stringify(id) : "=d" (val))
@@ -73,25 +73,25 @@ Performs a put function on an input FSL of the MicroBlaze processor
 #define tputfslx(id, flags)          asm volatile ("t" stringify(flags) "put\trfsl" stringify(id))
 
 /**
-Performs a get function on an input FSL of the MicroBlaze processor
-@param val    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
-@param var    FSL identifier
+Performs a getd function on an input FSL of the MicroBlaze processor
+@param val    variable to sink data from getd function
+@param var    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
 @param flags  valid FSL macro flags
 */
 #define getdfslx(val, var, flags)    asm volatile (stringify(flags) "getd\t%0,%1" : "=d" (val) : "d" (var))
 
 /**
-Performs a put function on an input FSL of the MicroBlaze processor
-@param val    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
-@param var    FSL identifier
+Performs a putd function on an input FSL of the MicroBlaze processor
+@param val    variable to source data to putd function
+@param var    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
 @param flags  valid FSL macro flags
 */
 #define putdfslx(val, var, flags)    asm volatile (stringify(flags) "putd\t%0,%1" :: "d" (val), "d" (var))
 
 /**
-Performs a test get function on an input FSL of the MicroBlaze processor;
-@param val    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
-@param var    FSL identifier
+Performs a test getd function on an input FSL of the MicroBlaze processor;
+@param val    variable to sink data from getd function
+@param var    literal in the range of 0 to 7 (0 to 15 for MicroBlaze v7.00.a and later)
 @param flags  valid FSL macro flags
 */
 #define tgetdfslx(val, var, flags)   asm volatile ("t" stringify(flags) "getd\t%0,%1" : "=d" (val) : "d" (var))

@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2018 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -11,10 +11,6 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,7 +29,7 @@
 /**
  *
  * @file xemacps_bd.h
-* @addtogroup emacps_v3_4
+* @addtogroup emacps_v3_8
 * @{
  *
  * This header provides operations to manage buffer descriptors in support
@@ -69,6 +65,8 @@
  *                     Disable extended mode. Perform all 64 bit changes under
  *                     check for arch64.
  * 3.2   hk   11/18/15 Change BD typedef and number of words.
+ * 3.8   hk   08/18/18 Remove duplicate definition of XEmacPs_BdSetLength
+ * 3.8   mus  11/05/18 Support 64 bit DMA addresses for Microblaze-X platform.
  *
  * </pre>
  *
@@ -175,7 +173,7 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
  *    void XEmacPs_BdSetAddressTx(XEmacPs_Bd* BdPtr, UINTPTR Addr)
  *
  *****************************************************************************/
-#ifdef __aarch64__
+#if defined(__aarch64__) || defined(__arch64__)
 #define XEmacPs_BdSetAddressTx(BdPtr, Addr)                        \
     XEmacPs_BdWrite((BdPtr), XEMACPS_BD_ADDR_OFFSET,		\
 			(u32)((Addr) & ULONG64_LO_MASK));		\
@@ -261,7 +259,7 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
  *    UINTPTR XEmacPs_BdGetBufAddr(XEmacPs_Bd* BdPtr)
  *
  *****************************************************************************/
-#ifdef __aarch64__
+#if defined(__aarch64__) || defined(__arch64__)
 #define XEmacPs_BdGetBufAddr(BdPtr)                               \
     (XEmacPs_BdRead((BdPtr), XEMACPS_BD_ADDR_OFFSET) |		  \
 	(XEmacPs_BdRead((BdPtr), XEMACPS_BD_ADDR_HI_OFFSET)) << 32U)
@@ -269,26 +267,6 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
 #define XEmacPs_BdGetBufAddr(BdPtr)                               \
     (XEmacPs_BdRead((BdPtr), XEMACPS_BD_ADDR_OFFSET))
 #endif
-
-/*****************************************************************************/
-/**
- * Set transfer length in bytes for the given BD. The length must be set each
- * time a BD is submitted to hardware.
- *
- * @param  BdPtr is the BD pointer to operate on
- * @param  LenBytes is the number of bytes to transfer.
- *
- * @note
- * C-style signature:
- *    void XEmacPs_BdSetLength(XEmacPs_Bd* BdPtr, u32 LenBytes)
- *
- *****************************************************************************/
-#define XEmacPs_BdSetLength(BdPtr, LenBytes)                       \
-    XEmacPs_BdWrite((BdPtr), XEMACPS_BD_STAT_OFFSET,              \
-    ((XEmacPs_BdRead((BdPtr), XEMACPS_BD_STAT_OFFSET) &           \
-    ~XEMACPS_TXBUF_LEN_MASK) | (LenBytes)))
-
-
 
 /*****************************************************************************/
 /**
@@ -339,6 +317,8 @@ typedef u32 XEmacPs_Bd[XEMACPS_BD_NUM_WORDS];
  *
  * The returned value is the size of the received packet.
  * This API supports jumbo frame sizes if enabled.
+ *
+ * @param  InstancePtr is the pointer to XEmacps instance
  *
  * @param  BdPtr is the BD pointer to operate on
  *
