@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2016 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2018 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -11,10 +11,6 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,7 +29,7 @@
 /**
  *
  * @file xemacps.h
-* @addtogroup emacps_v3_4
+* @addtogroup emacps_v3_8
 * @{
 * @details
  *
@@ -327,6 +323,11 @@
  *                     while generating doxygen.
  * 3.5   hk   08/14/17 Update cache coherency information of the interface in
  *                     its config structure.
+ * 3.6   rb   09/08/17 HwCnt variable (in XEmacPs_BdRing structure) is
+ *		       changed to volatile.
+ *		       Add API XEmacPs_BdRingPtrReset() to reset pointers
+ * 3.8   hk   07/19/18 Fixed CPP, GCC and doxygen warnings - CR-1006327
+ *	 hk   09/17/18 Fix PTP interrupt masks and cleanup comments.
  *
  * </pre>
  *
