@@ -92,13 +92,10 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version):
 
     """
     starting_dict = dict()
-    starting_dict['ip'] = {k: v for k, v in ip_dict.items()
-                           if k.count('/') == 0}
-    starting_dict['hierarchies'] = {k: v for k, v in hierarchy_dict.items()
-                                    if k.count('/') == 0}
+    starting_dict['ip'] = {k: v for k, v in ip_dict.items()}
+    starting_dict['hierarchies'] = {k: v for k, v in hierarchy_dict.items()}
     starting_dict['interrupts'] = dict()
     starting_dict['gpio'] = dict()
-
     _assign_drivers(starting_dict, ignore_version)
     return starting_dict
 
@@ -227,7 +224,7 @@ class Overlay(Bitstream):
     'name' -> {parent, index}, where
     name (str) is the name of the interrupt controller.
     parent (str) is the name of the parent controller or '' if attached
-    directly to the PS7.
+    directly to the PS.
     index (int) is the index of the interrupt attached to.
 
     Each entry in the interrupt pin dictionary is a mapping:
@@ -243,23 +240,24 @@ class Overlay(Bitstream):
     bitstream : Bitstream
         The corresponding bitstream object.
     ip_dict : dict
-        All the addressable IPs from PS7. Key is the name of the IP; value is
+        All the addressable IPs from PS. Key is the name of the IP; value is
         a dictionary mapping the physical address, address range, IP type,
-        configuration dictionary, and the state associated with that IP:
-        {str: {'phys_addr' : int, 'addr_range' : int,\
-               'type' : str, 'config' : dict, 'state' : str}}.
+        parameters, registers, and the state associated with that IP:
+        {str: {'phys_addr' : int, 'addr_range' : int, \
+               'type' : str, 'parameters' : dict, 'registers': dict, \
+               'state' : str}}.
     gpio_dict : dict
-        All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
+        All the GPIO pins controlled by PS. Key is the name of the GPIO pin;
         value is a dictionary mapping user index (starting from 0),
         and the state associated with that GPIO pin:
         {str: {'index' : int, 'state' : str}}.
     interrupt_controllers : dict
         All AXI interrupt controllers in the system attached to
-        a PS7 interrupt line. Key is the name of the controller;
+        a PS interrupt line. Key is the name of the controller;
         value is a dictionary mapping parent interrupt controller and the
         line index of this interrupt:
         {str: {'parent': str, 'index' : int}}.
-        The PS7 is the root of the hierarchy and is unnamed.
+        The PS is the root of the hierarchy and is unnamed.
     interrupt_pins : dict
         All pins in the design attached to an interrupt controller.
         Key is the name of the pin; value is a dictionary
@@ -267,8 +265,7 @@ class Overlay(Bitstream):
         {str: {'controller' : str, 'index' : int}}.
 
     """
-    def __init__(self, bitfile_name, download=True, partial=False,
-                 ignore_version=False):
+    def __init__(self, bitfile_name, download=True, ignore_version=False):
         """Return a new Overlay object.
 
         An overlay instantiates a bitstream object as a member initially.
@@ -279,8 +276,8 @@ class Overlay(Bitstream):
             The bitstream name or absolute path as a string.
         download : bool
             Whether the overlay should be downloaded.
-        partial :
-            Flag to indicate whether or not the bitstream is partial.
+        ignore_version : bool
+            Indicate whether or not to ignore the driver versions.
 
         Note
         ----
@@ -288,7 +285,7 @@ class Overlay(Bitstream):
         with same name (e.g. `base.bit` and `base.tcl`).
 
         """
-        super().__init__(bitfile_name, partial)
+        super().__init__(bitfile_name, partial=False)
 
         hwh_path = get_hwh_name(self.bitfile_name)
         tcl_path = get_tcl_name(self.bitfile_name)
@@ -296,20 +293,24 @@ class Overlay(Bitstream):
             self.parser = HWH(hwh_path)
         elif os.path.exists(tcl_path):
             self.parser = TCL(tcl_path)
+            message = "Users will not get PARAMETERS / REGISTERS information " \
+                      "through TCL files. HWH file is recommended."
+            warnings.warn(message, UserWarning)
         else:
-            raise ValueError("Cannot find HWH or TCL file.")
+            raise ValueError("Cannot find HWH or TCL file for {}.".format(
+                self.bitfile_name))
 
-        self.ip_dict = deepcopy(self.parser.ip_dict)
-        self.gpio_dict = self.parser.gpio_dict
-        self.interrupt_controllers = self.parser.interrupt_controllers
-        self.interrupt_pins = self.parser.interrupt_pins
-        self.hierarchy_dict = deepcopy(self.parser.hierarchy_dict)
+        self.ip_dict = self.gpio_dict = self.interrupt_controllers = \
+            self.interrupt_pins = self.hierarchy_dict = dict()
+        self._deepcopy_dict_from(self.parser)
         self.clock_dict = self.parser.clock_dict
-
+        self.pr_region = ''
+        self.ignore_version = ignore_version
         description = _complete_description(
-            self.ip_dict, self.hierarchy_dict, ignore_version)
+            self.ip_dict, self.hierarchy_dict, self.ignore_version)
         self._ip_map = _IPMap(description)
-        if download: 
+
+        if download:
             self.download()
 
         self.__doc__ = _build_docstring(self._ip_map._description,
@@ -326,31 +327,69 @@ class Overlay(Bitstream):
         else:
             raise RuntimeError("Overlay not currently loaded")
 
-    def download(self):
+    def _deepcopy_dict_from(self, source):
+        self.ip_dict = deepcopy(source.ip_dict)
+        self.gpio_dict = deepcopy(source.gpio_dict)
+        self.interrupt_controllers = deepcopy(source.interrupt_controllers)
+        self.interrupt_pins = deepcopy(source.interrupt_pins)
+        self.hierarchy_dict = deepcopy(source.hierarchy_dict)
+
+    def set_partial_region(self, pr_region):
+        """Set partial reconfiguration region for the overlay.
+
+        Parameters
+        ----------
+        pr_region : str
+            The name of the hierarchical block corresponding to the PR region.
+
+        """
+        self.pr_region = pr_region
+
+    def download(self, partial_bit=None):
         """The method to download a bitstream onto PL.
 
-        Note
-        ----
         After the bitstream has been downloaded, the "timestamp" in PL will be
         updated. In addition, all the dictionaries on PL will
         be reset automatically.
 
-        Returns
-        -------
-        None
+        If no bit file name is given, it is assuming
+        a full bitstream will be downloaded; otherwise a partial bitstream
+        needs to be specified as the input argument.
+
+        Also, for partial bitstream, the corresponding parser will only be
+        added once the `download()` method of the hierarchical block is called.
+
+        Parameters
+        ----------
+        partial_bit : str
+            The name of the partial bitstream.
 
         """
-        for i in self.clock_dict:
-            enable = self.clock_dict[i]['enable']
-            div0 = self.clock_dict[i]['divisor0']
-            div1 = self.clock_dict[i]['divisor1']
-            if enable:
-                Clocks.set_pl_clk(i, div0, div1)
-            else:
-                Clocks.set_pl_clk(i)
+        if not partial_bit:
+            for i in self.clock_dict:
+                enable = self.clock_dict[i]['enable']
+                div0 = self.clock_dict[i]['divisor0']
+                div1 = self.clock_dict[i]['divisor1']
+                if enable:
+                    Clocks.set_pl_clk(i, div0, div1)
+                else:
+                    Clocks.set_pl_clk(i)
 
-        super().download()
-        PL.reset(self.parser)
+            super().download()
+            PL.reset(self.parser)
+        else:
+            if not self.pr_region:
+                raise ValueError(
+                    "Partial region must be set before reconfiguration.")
+            PL.reset(self.parser)
+            pr_block = self.__getattr__(self.pr_region)
+            pr_block.download(partial_bit)
+            pr_parser = pr_block.parsers[partial_bit]
+            PL.update_partial_region(self.pr_region, pr_parser)
+            self._deepcopy_dict_from(PL)
+            description = _complete_description(
+                self.ip_dict, self.hierarchy_dict, self.ignore_version)
+            self._ip_map = _IPMap(description)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
@@ -611,10 +650,24 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
     Any derived class that meets these requirements will automatically be
     registered in the driver database.
 
+    Attributes
+    ----------
+    description : dict
+        Dictionary storing relevant information about the hierarchy.
+    parsers : dict
+        Parser objects for partial block design metadata.
+    bitstreams : dict
+        Bitstream objects for partial designs.
+    pr_loaded : str
+        The name of the partial bitstream loaded.
+
     """
 
     def __init__(self, description):
         self.description = description
+        self.parsers = dict()
+        self.bitstreams = dict()
+        self.pr_loaded = ''
         super().__init__(description)
 
     @staticmethod
@@ -628,3 +681,62 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
 
         """
         return False
+
+    def download(self, bitfile_name):
+        """Function to download a partial bitstream for the hierarchy block.
+
+        Since it is hard to know which hierarchy is to be reconfigured by only
+        looking at the metadata, we assume users will tell this information.
+        Thus, this function should be called only when users are sure about
+        the hierarchy name of the partial region.
+
+        Parameters
+        ----------
+        bitfile_name : str
+            The name of the partial bitstream.
+
+        """
+        self._locate_metadata(bitfile_name)
+        self._parse(bitfile_name)
+        self._load_bitstream(bitfile_name)
+        self.pr_loaded = bitfile_name
+
+    def _locate_metadata(self, bitfile_name):
+        self.bitstreams[bitfile_name] = Bitstream(bitfile_name,
+                                                  partial=True)
+        bitfile_name = self.bitstreams[bitfile_name].bitfile_name
+        hwh_path = get_hwh_name(bitfile_name)
+        tcl_path = get_tcl_name(bitfile_name)
+        if os.path.exists(hwh_path):
+            self.parsers[bitfile_name] = HWH(hwh_path)
+        elif os.path.exists(tcl_path):
+            self.parsers[bitfile_name] = TCL(tcl_path)
+            message = "Users will not get PARAMETERS / REGISTERS information " \
+                      "through TCL files. HWH file is recommended."
+            warnings.warn(message, UserWarning)
+        else:
+            raise ValueError("Cannot find HWH or TCL file for {}.".format(
+                bitfile_name))
+
+    def _parse(self, bitfile_name):
+        fullpath = self.description['fullpath']
+        ip_dict = dict()
+        for k, v in self.parsers[bitfile_name].ip_dict.items():
+            ip_dict_id = fullpath + '/' + v['mem_id']
+            ip_dict[ip_dict_id] = v
+            ip_dict[ip_dict_id]['fullpath'] = fullpath + '/' + v['fullpath']
+        self.parsers[bitfile_name].ip_dict = ip_dict
+
+        self.parsers[bitfile_name].nets = {
+            fullpath + '_' + s: {
+                fullpath + '/' + i for i in p}
+            for s, p in self.parsers[bitfile_name].nets.items()
+        }
+
+        self.parsers[bitfile_name].pins = {
+            fullpath + '/' + p: fullpath + '_' + s
+            for p, s in self.parsers[bitfile_name].pins.items()
+        }
+
+    def _load_bitstream(self, bitfile_name):
+        self.bitstreams[bitfile_name].download()
