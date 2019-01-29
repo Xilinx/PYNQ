@@ -62,8 +62,12 @@
 typedef int spi;
 
 spi spi_open_device(unsigned int device);
+#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
+#ifdef XPAR_IO_SWITCH_0_SPI0_BASEADDR
 spi spi_open(unsigned int spiclk, unsigned int miso,
              unsigned int mosi, unsigned int ss);
+#endif
+#endif
 spi spi_configure(spi dev_id, unsigned int clk_phase,
                   unsigned int clk_polarity);
 void spi_transfer(spi dev_id, const char *write_data, char *read_data,

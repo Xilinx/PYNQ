@@ -181,8 +181,7 @@ void spi_transfer(spi dev_id, const char *write_data, char *read_data,
         }
     }
     else {
-        /* Behavior for no data to write while reading is to write
-         * zeroes */
+        // Behavior for no data to write while reading is to write zeros
         for (i = 0; i < length; i++) {
             XSpi_WriteReg(base_address, XSP_DRR_OFFSET, 0);
         }
