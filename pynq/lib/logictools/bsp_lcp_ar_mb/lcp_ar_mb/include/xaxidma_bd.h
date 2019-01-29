@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2018 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -11,10 +11,6 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,7 +29,7 @@
 /**
  *
  * @file xaxidma_bd.h
-* @addtogroup axidma_v9_4
+* @addtogroup axidma_v9_8
 * @{
  *
  * Buffer descriptor (BD) management API.
@@ -101,6 +97,7 @@
  *			clear the field first and set it.
  * 8.0   srt  01/29/14 Added support for Micro DMA Mode.
  * 9.2   vak  15/04/16 Fixed compilation warnings in axidma driver
+ * 9.8   rsp  07/11/18 Fix cppcheck portability warnings. CR #1006164
  *
  * </pre>
  *****************************************************************************/
@@ -169,7 +166,7 @@ typedef u32 XAxiDma_Bd[XAXIDMA_BD_NUM_WORDS];
 *
 ******************************************************************************/
 #define XAxiDma_BdRead(BaseAddress, Offset)				\
-	(*(u32 *)(((void *)(UINTPTR)(BaseAddress)) + (u32)(Offset)))
+	(*(u32 *)((UINTPTR)(BaseAddress) + (u32)(Offset)))
 
 /*****************************************************************************/
 /**
