@@ -2,7 +2,21 @@
 HDF := ../Pynq-Z1/base/base/base.sdk/base.hdf
 HW_DEF := hw_base
 
-all: sdk_workspace
+all: help sdk_workspace
+
+help:
+	@echo "usage: make [target]"
+	@echo
+	@echo "arguments:"
+	@echo "----------"
+	@echo "HDF:    relative/absolute path to the HDF file"
+	@echo "HW_DEF: name of the hardware project"
+	@echo
+	@echo "current configuration:"
+	@echo "----------------------"
+	@echo "make HDF=$(HDF)"
+	@echo "     HW_DEF=$(HW_DEF)"
+	@echo
 
 sdk_workspace:
 	xsdk -batch -source build_xsdk.tcl $(HDF) $(HW_DEF)
