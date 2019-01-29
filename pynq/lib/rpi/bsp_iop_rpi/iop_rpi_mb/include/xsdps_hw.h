@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2013 - 2016 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2013 - 2018 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -11,10 +11,6 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,7 +29,7 @@
 /**
 *
 * @file xsdps_hw.h
-* @addtogroup sdps_v3_3
+* @addtogroup sdps_v3_6
 * @{
 *
 * This header file contains the identifiers and basic HW access driver
@@ -59,6 +55,9 @@
 * 3.2   sk     03/20/17 Add support for EL1 non-secure mode.
 * 3.3   mn     08/22/17 Updated for Word Access System support
 *       mn     09/06/17 Added support for ARMCC toolchain
+* 3.4   mn     01/22/18 Separated out SDR104 and HS200 clock defines
+* 3.6   mn     07/06/18 Fix Doxygen warnings for sdps driver
+*
 * </pre>
 *
 ******************************************************************************/
@@ -998,11 +997,13 @@ extern "C" {
 #define XSDPS_SD_DDR50_MAX_CLK	50000000U
 #define XSDPS_SD_SDR104_MAX_CLK	208000000U
 /*
- * XSDPS_MMC_HS200_MAX_CLK is set to 150000000 in order to keep it smaller
+ * XSDPS_SD_INPUT_MAX_CLK is set to 175000000 in order to keep it smaller
  * than the clock value coming from the core. This value is kept to safely
  * switch to SDR104 mode if the SD card supports it.
  */
-#define XSDPS_MMC_HS200_MAX_CLK	150000000U
+#define XSDPS_SD_INPUT_MAX_CLK	175000000U
+
+#define XSDPS_MMC_HS200_MAX_CLK	200000000U
 #define XSDPS_MMC_HSD_MAX_CLK	52000000U
 #define XSDPS_MMC_DDR_MAX_CLK	52000000U
 
@@ -1087,7 +1088,7 @@ extern "C" {
 /**
 * Read a register.
 *
-* @param	BaseAddress contains the base address of the device.
+* @param	InstancePtr is the pointer to the sdps instance.
 * @param	RegOffset contains the offset from the 1st register of the
 *		device to the target register.
 *
@@ -1104,7 +1105,7 @@ extern "C" {
 /**
 * Write to a register.
 *
-* @param	BaseAddress contains the base address of the device.
+* @param	InstancePtr is the pointer to the sdps instance.
 * @param	RegOffset contains the offset from the 1st register of the
 *		device to target register.
 * @param	RegisterValue is the value to be written to the register.
