@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2018 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -11,10 +11,6 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,7 +29,7 @@
 /**
 *
 * @file xemacps_bdring.h
-* @addtogroup emacps_v3_4
+* @addtogroup emacps_v3_8
 * @{
 *
 * The Xiline EmacPs Buffer Descriptor ring driver. This is part of EmacPs
@@ -47,6 +43,8 @@
 * 1.00a wsy  01/10/10 First release
 * 2.1   srt  07/15/14 Add support for Zynq Ultrascale Mp architecture.
 * 3.0   kvn  02/13/15 Modified code for MISRA-C:2012 compliance.
+* 3.6   rb   09/08/17 HwCnt variable (in XEmacPs_BdRing structure) is
+*		      changed to volatile.
 *
 * </pre>
 *
@@ -81,7 +79,7 @@ typedef struct {
 	XEmacPs_Bd *BdaRestart;
 			     /**< BDA to load when channel is started */
 
-	u32 HwCnt;	     /**< Number of BDs in work group */
+	volatile u32 HwCnt;    /**< Number of BDs in work group */
 	u32 PreCnt;     /**< Number of BDs in pre-work group */
 	u32 FreeCnt;    /**< Number of allocatable BDs in the free group */
 	u32 PostCnt;    /**< Number of BDs in post-work group */
@@ -228,6 +226,7 @@ u32 XEmacPs_BdRingFromHwRx(XEmacPs_BdRing * RingPtr, u32 BdLimit,
 				 XEmacPs_Bd ** BdSetPtr);
 LONG XEmacPs_BdRingCheck(XEmacPs_BdRing * RingPtr, u8 Direction);
 
+void XEmacPs_BdRingPtrReset(XEmacPs_BdRing * RingPtr, void *virtaddrloc);
 
 #ifdef __cplusplus
 }
