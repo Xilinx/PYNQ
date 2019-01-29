@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2010 - 2016 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2010 - 2018 Xilinx, Inc.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -11,10 +11,6 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,7 +29,7 @@
 /**
 *
 * @file xemacps_hw.h
-* @addtogroup emacps_v3_4
+* @addtogroup emacps_v3_8
 * @{
 *
 * This header file contains identifiers and low-level driver functions (or
@@ -61,6 +57,7 @@
 *                    Remove "used bit set" from TX error interrupt masks.
 * 3.1  hk   08/10/15 Update upper 32 bit tx and rx queue ptr register offsets.
 * 3.2   hk   02/22/16 Added SGMII support for Zynq Ultrascale+ MPSoC.
+* 3.8  hk   09/17/18 Fix PTP interrupt masks.
 * </pre>
 *
 ******************************************************************************/
@@ -475,16 +472,16 @@ typedef enum { MDC_DIV_8 = 0U, MDC_DIV_16, MDC_DIV_32, MDC_DIV_48,
  * XEMACPS_IER_OFFSET, XEMACPS_IDR_OFFSET, and XEMACPS_IMR_OFFSET
  * @{
  */
-#define XEMACPS_IXR_PTPPSTX_MASK    0x02000000U /**< PTP Psync transmitted */
-#define XEMACPS_IXR_PTPPDRTX_MASK   0x01000000U /**< PTP Pdelay_req
-						     transmitted */
-#define XEMACPS_IXR_PTPSTX_MASK     0x00800000U /**< PTP Sync transmitted */
-#define XEMACPS_IXR_PTPDRTX_MASK    0x00400000U /**< PTP Delay_req transmitted
-						*/
-#define XEMACPS_IXR_PTPPSRX_MASK    0x00200000U /**< PTP Psync received */
-#define XEMACPS_IXR_PTPPDRRX_MASK   0x00100000U /**< PTP Pdelay_req received */
-#define XEMACPS_IXR_PTPSRX_MASK     0x00080000U /**< PTP Sync received */
-#define XEMACPS_IXR_PTPDRRX_MASK    0x00040000U /**< PTP Delay_req received */
+#define XEMACPS_IXR_PTPPSTX_MASK	0x02000000U /**< PTP Pdelay_resp TXed */
+#define XEMACPS_IXR_PTPPDRTX_MASK	0x01000000U /**< PTP Pdelay_req TXed */
+#define XEMACPS_IXR_PTPPSRX_MASK	0x00800000U /**< PTP Pdelay_resp RXed */
+#define XEMACPS_IXR_PTPPDRRX_MASK	0x00400000U /**< PTP Pdelay_req RXed */
+
+#define XEMACPS_IXR_PTPSTX_MASK		0x00200000U /**< PTP Sync TXed */
+#define XEMACPS_IXR_PTPDRTX_MASK	0x00100000U /**< PTP Delay_req TXed */
+#define XEMACPS_IXR_PTPSRX_MASK		0x00080000U /**< PTP Sync RXed */
+#define XEMACPS_IXR_PTPDRRX_MASK	0x00040000U /**< PTP Delay_req RXed */
+
 #define XEMACPS_IXR_PAUSETX_MASK    0x00004000U	/**< Pause frame transmitted */
 #define XEMACPS_IXR_PAUSEZERO_MASK  0x00002000U	/**< Pause time has reached
                                                      zero */

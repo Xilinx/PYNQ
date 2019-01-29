@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2004 - 2016 Xilinx, Inc. All rights reserved.
+* Copyright (C) 2004 - 2018 Xilinx, Inc. All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -11,10 +11,6 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
-* Use of the Software is limited solely to applications:
-* (a) running on a Xilinx device, or
-* (b) that interact with a Xilinx device through a bus or interconnect.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -70,15 +66,15 @@ extern void microblaze_register_exception_handler(u32 ExceptionId, Xil_Exception
 extern void microblaze_invalidate_icache(void);         /* Invalidate the entire icache */
 extern void microblaze_invalidate_dcache(void);         /* Invalidate the entire dcache */
 extern void microblaze_flush_dcache(void);              /* Flush the whole dcache */
-extern void microblaze_invalidate_icache_range(u32 cacheaddr, u32 len);   /* Invalidate a part of the icache */
-extern void microblaze_invalidate_dcache_range(u32 cacheaddr, u32 len);   /* Invalidate a part of the dcache */
-extern void microblaze_flush_dcache_range(u32 cacheaddr, u32 len);        /* Flush a part of the dcache */
+extern void microblaze_invalidate_icache_range(UINTPTR cacheaddr, u32 len);   /* Invalidate a part of the icache */
+extern void microblaze_invalidate_dcache_range(UINTPTR cacheaddr, u32 len);   /* Invalidate a part of the dcache */
+extern void microblaze_flush_dcache_range(UINTPTR cacheaddr, u32 len);        /* Flush a part of the dcache */
 extern void microblaze_scrub(void);                     /* Scrub LMB and internal BRAM */
 extern void microblaze_invalidate_cache_ext(void);         /* Invalidate cache ext */
 extern void microblaze_flush_cache_ext(void);         /* Flush cache ext */
-extern void microblaze_flush_cache_ext_range(u32 cacheaddr,
+extern void microblaze_flush_cache_ext_range(UINTPTR cacheaddr,
 			u32 len); /* Flush cache ext range */
-extern void microblaze_invalidate_cache_ext_range(u32 cacheaddr,
+extern void microblaze_invalidate_cache_ext_range(UINTPTR cacheaddr,
 			u32 len); /* Invalidate cache ext range */
 
 /* Deprecated */
@@ -170,7 +166,7 @@ extern void microblaze_init_dcache_range (s32 , s32 )  __attribute__((deprecated
  Return value from the general purpose register (GPR) rn.
  @param rn     General purpose register to be read.
 */
-#define mfgpr(rn)       ({  u32 _rval;         \
+#define mfgpr(rn)       ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (      \
                                 "or\t%0,r0," stringify(rn) "\n" : "=d"(_rval) \
                             );                          \
@@ -181,7 +177,7 @@ extern void microblaze_init_dcache_range (s32 , s32 )  __attribute__((deprecated
  Return the current value of the MSR.
  @param  None
 */
-#define mfmsr()         ({  u32 _rval;         \
+#define mfmsr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (      \
                                 "mfs\t%0,rmsr\n" : "=d"(_rval) \
                             );                          \
@@ -192,14 +188,14 @@ extern void microblaze_init_dcache_range (s32 , s32 )  __attribute__((deprecated
  Return the current value of the Exception Address Register (EAR).
  @param  None
 */
-#define mfear()         ({  u32 _rval;         \
+#define mfear()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (      \
                                 "mfs\t%0,rear\n" : "=d"(_rval) \
                             );                          \
                             _rval;                      \
                         })
 
-#define mfeare()        ({  u32 _rval; \
+#define mfeare()        ({  UINTPTR _rval; \
                             __asm__ __volatile__ ( \
                                 "mfse\t%0,rear\n" : "=d"(_rval) \
                             ); \
@@ -209,7 +205,7 @@ extern void microblaze_init_dcache_range (s32 , s32 )  __attribute__((deprecated
  Return the current value of the Exception Status Register (ESR).
  @param  None
 */
-#define mfesr()         ({  u32 _rval;         \
+#define mfesr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (      \
                                 "mfs\t%0,resr\n" : "=d"(_rval) \
                             );                          \
@@ -220,84 +216,84 @@ extern void microblaze_init_dcache_range (s32 , s32 )  __attribute__((deprecated
  Return the current value of the Floating Point Status (FPS).
  @param  None
 */
-#define mffsr()         ({  u32 _rval;         \
+#define mffsr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (      \
                                 "mfs\t%0,rfsr\n" : "=d"(_rval) \
                             );                          \
                             _rval;                      \
                         })
 /*@}*/
-#define mfpvr(rn)       ({  u32 _rval;         \
+#define mfpvr(rn)       ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (                          \
                                 "mfs\t%0,rpvr" stringify(rn) "\n" : "=d"(_rval) \
                             );                                              \
                             _rval;                                          \
                         })
 
-#define mfpvre(rn)      ({  u32 _rval; \
+#define mfpvre(rn)      ({  UINTPTR _rval; \
                             __asm__ __volatile__ ( \
                                 "mfse\t%0,rpvr" stringify(rn) "\n" : "=d"(_rval) \
                             ); \
                             _rval; \
                           })
 
-#define mfbtr()         ({  u32 _rval;         \
+#define mfbtr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (      \
                                 "mfs\t%0,rbtr\n" : "=d"(_rval)  \
                             );                                  \
                             _rval;                              \
                         })
 
-#define mfedr()         ({  u32 _rval;         \
+#define mfedr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (      \
                                 "mfs\t%0,redr\n" : "=d"(_rval)  \
                             );                                  \
                             _rval;                              \
                         })
 
-#define mfpid()         ({  u32 _rval;         \
+#define mfpid()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (            \
                                 "mfs\t%0,rpid\n" : "=d"(_rval)\
                             );                                \
                             _rval;                            \
                         })
 
-#define mfzpr()         ({  u32 _rval;         \
+#define mfzpr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (                  \
                                 "mfs\t%0,rzpr\n" : "=d"(_rval)      \
                             );                                      \
                             _rval;                                  \
                         })
 
-#define mftlbx()        ({  u32 _rval;         \
+#define mftlbx()        ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (                  \
                                 "mfs\t%0,rtlbx\n" : "=d"(_rval)     \
                             );                                      \
                             _rval;                                  \
                         })
 
-#define mftlblo()       ({  u32 _rval;                     \
+#define mftlblo()       ({  UINTPTR _rval;                     \
                             __asm__ __volatile__ (                  \
                                 "mfs\t%0,rtlblo\n" : "=d"(_rval)    \
                             );                                      \
                             _rval;                                  \
                         })
 
-#define mftlbhi()       ({  u32 _rval;         \
+#define mftlbhi()       ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (                  \
                                 "mfs\t%0,rtlbhi\n" : "=d"(_rval)    \
                             );                                      \
                             _rval;                                  \
                         })
 
-#define mfslr()         ({  u32 _rval;         \
+#define mfslr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (                  \
                                 "mfs\t%0,rslr\n" : "=d"(_rval)    \
                             );                                      \
                             _rval;                                  \
                         })
 
-#define mfshr()         ({  u32 _rval;         \
+#define mfshr()         ({  UINTPTR _rval;         \
                             __asm__ __volatile__ (                  \
                                 "mfs\t%0,rshr\n" : "=d"(_rval)    \
                             );                                      \
