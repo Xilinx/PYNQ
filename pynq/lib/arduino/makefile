@@ -2,6 +2,7 @@
 
 
 BIN_ARDUINO = arduino_analog.bin \
+		arduino_grove_gesture.bin \
 		arduino_grove_adc.bin \
 		arduino_grove_oled.bin \
 		arduino_grove_imu.bin \
