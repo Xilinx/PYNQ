@@ -13,13 +13,13 @@ See the <a href="http://www.pynq.io/" target="_blank">PYNQ webpage</a> for an ov
 
 ## Precompiled Image
 
-The project currently supports the PYNQ-Z1 board. 
+The project currently supports <a href="http://www.pynq.io/board.html" target="_blank">multiple boards</a>. 
 
-You can <a href="https://files.digilent.com/Products/PYNQ/pynq_z1_v2.1.img.zip" target="_blank">download the precompiled image</a>, write the image to a micro SD card, and boot the board from the micro SD card. 
+You can download a precompiled image, write the image to a micro SD card, and boot the board from the micro SD card. 
 
 ## Quick Start
 
-See the <a href="http://pynq.readthedocs.io/en/latest/getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with the PYNQ-Z1 board.
+See the <a href="http://pynq.readthedocs.io/en/latest/getting_started.html" target="_blank">Quickstart guide</a> for details on writing the image to an SD card, and getting started with a PYNQ-enabled board.
 
 ## Python Source Code
 
