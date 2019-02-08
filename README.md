@@ -41,21 +41,8 @@ In Linux, you can rebuild the overlay by running *make* in the corresponding ove
 
 ## Contribute
 
-Contributions to this repository are welcomed. To submit a project for inclusion:
-
-1. Fork this repository to your own github account using the *fork* button above.
-
-2. Clone (download) the fork to a local computer using *git clone*.
-
-3. You can modify the Vivado project, bitstream, SDK project, Python source code, or notebook in the corresponding folders.
-
-4. Modify the documentation if necessary.
-
-5. Use *git add*-->*git commit*-->*git push* to add changes to your fork.
-
-6. Then submit a pull request by clicking the *pull request* button on your github repo.
-
-Check the <a href="http://git.huit.harvard.edu/guide/" target="_blank">guide to git</a> for more information.
+Contributions to this repository are welcomed. Please refer to <a href="https://github.com/Xilinx/PYNQ/blob/master/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> 
+for a list of instructions on how to improve PYNQ.
 
 ## Support
 
