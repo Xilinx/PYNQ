@@ -480,11 +480,23 @@ class DefaultIP(metaclass=RegisterIP):
             gpio_number = GPIO.get_gpio_pin(entry['index'])
             setattr(self, gpio, GPIO(gpio_number, 'out'))
         if 'registers' in description:
-            self.register_map = RegisterMap.create_subclass(
-                    description['fullpath'].rpartition('/')[2],
-                    description['registers'])(self.mmio.array)
+            self._registers = description['registers']
+            self._register_name = description['fullpath'].rpartition('/')[2]
         else:
-            self.register_map = None
+            self._registers = None
+
+    @property
+    def register_map(self):
+        if not hasattr(self, '_register_map'):
+            if self._registers:
+                self._register_map = RegisterMap.create_subclass(
+                        self._register_name,
+                        self._registers)(self.mmio.array)
+            else:
+                raise AttributeError(
+                        "register_map only available if the .hwh is provided")
+        return self._register_map
+
 
     def read(self, offset=0):
         """Read from the MMIO device
