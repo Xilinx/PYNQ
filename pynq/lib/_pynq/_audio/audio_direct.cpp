@@ -49,9 +49,16 @@
  *
  *****************************************************************************/
 
-#include "xil_io.h"
-#include "xil_types.h"
+#include <stdint.h>
 #include "audio_direct.h"
+
+inline static uint32_t Read32(intptr_t addr) {
+	return *(volatile uint32_t*)addr;
+}
+
+inline static void Write32(intptr_t addr, uint32_t value) {
+	*(volatile uint32_t*)addr = value;
+}
 
 /******************************************************************************
  * Function to support audio recording without the audio codec controller.
@@ -68,29 +75,29 @@ extern "C" void record(unsigned int BaseAddr, unsigned int * BufAddr,
     unsigned long u32Temp, i=0;
 
     //Reset pdm
-    Xil_Out32(BaseAddr + PDM_RESET_REG, 0x01);
-    Xil_Out32(BaseAddr + PDM_RESET_REG, 0x00);
+    Write32(BaseAddr + PDM_RESET_REG, 0x01);
+    Write32(BaseAddr + PDM_RESET_REG, 0x00);
     //Reset fifos
-    Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0xC0000000);
-    Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
+    Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0xC0000000);
+    Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
     //Receive
-    Xil_Out32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x00);
-    Xil_Out32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x05);
+    Write32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x00);
+    Write32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x05);
 
     //Sample
     while(i < nsamples){
-        u32Temp = ((Xil_In32(BaseAddr + PDM_STATUS_REG)) 
+        u32Temp = ((Read32(BaseAddr + PDM_STATUS_REG)) 
                    >> RX_FIFO_EMPTY) & 0x01;
         if(u32Temp == 0){
-            Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000002);
-            Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
-            BufAddr[i] = Xil_In32(BaseAddr + PDM_DATA_OUT_REG);
+            Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000002);
+            Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
+            BufAddr[i] = Read32(BaseAddr + PDM_DATA_OUT_REG);
             i++;
         }
     }
 
     //Stop
-    Xil_Out32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x02);
+    Write32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x02);
 }
 
 /******************************************************************************
@@ -107,26 +114,26 @@ extern "C" void play(unsigned int BaseAddr, unsigned int * BufAddr,
     //Auxiliary
     unsigned long u32Temp, u32DWrite, i=0;
     //Reset i2s
-    Xil_Out32(BaseAddr + PDM_RESET_REG, 0x01);
-    Xil_Out32(BaseAddr + PDM_RESET_REG, 0x00);
+    Write32(BaseAddr + PDM_RESET_REG, 0x01);
+    Write32(BaseAddr + PDM_RESET_REG, 0x00);
     //Reset fifos
-    Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0xC0000000);
-    Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
+    Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0xC0000000);
+    Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
     //Transmit
-    Xil_Out32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x00);
-    Xil_Out32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x09);
+    Write32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x00);
+    Write32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x09);
 
     //Play
     while(i < nsamples) {
-        u32Temp = ((Xil_In32(BaseAddr + PDM_STATUS_REG)) 
+        u32Temp = ((Read32(BaseAddr + PDM_STATUS_REG)) 
                    >> TX_FIFO_FULL) & 0x01;
         if(u32Temp == 0) {
-            Xil_Out32(BaseAddr + PDM_DATA_IN_REG, BufAddr[i]);
-            Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000001);
-            Xil_Out32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
+            Write32(BaseAddr + PDM_DATA_IN_REG, BufAddr[i]);
+            Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000001);
+            Write32(BaseAddr + PDM_FIFO_CONTROL_REG, 0x00000000);
             i++;
         }
     }
     //Stop/Reset
-    Xil_Out32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x00);
+    Write32(BaseAddr + PDM_TRANSFER_CONTROL_REG, 0x00);
 }

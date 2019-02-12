@@ -14,10 +14,13 @@ ESW_SRC := $(filter-out %_g.c, $(foreach lib, $(ESW_LIBS), $(wildcard $(EMBEDDED
 ESW_INC := $(patsubst %, -I$(EMBEDDEDSW_DIR)/XilinxProcessorIPLib/drivers/%/src, $(ESW_LIBS))
 OS_INC := -I$(EMBEDDEDSW_DIR)/lib/bsp/standalone/src/common -I$(EMBEDDEDSW_DIR)/lib/bsp/standalone/src/arm/common/gcc -I$(EMBEDDEDSW_DIR)/lib/bsp/standalone/src/arm/common
 OS_INC_aarch64 := -I$(EMBEDDEDSW_DIR)/lib/bsp/standalone/src/arm/cortexa53/64bit 
+OS_INC_armv7l := -I$(EMBEDDEDSW_DIR)/lib/bsp/standalone/src/arm/cortexa9/
 COMMON_SRC := $(wildcard common/*.c)
 COMMON_SRC_aarch64 := $(wildcard common/aarch64/*.c)
+COMMON_SRC_armv7l := $(wildcard common/armv7l/*.c)
 COMMON_INC := -Icommon
 COMMON_INC_aarch64 := -Icommon/aarch64
+COMMON_INC_armv7l := -Icommon/armv7l
 
 ALL_SRC := $(SRC) $(COMMON_SRC) $(COMMON_SRC_$(ARCH)) $(ESW_SRC)
 ALL_INC := $(INC) $(COMMON_INC) $(COMMON_INC_$(ARCH)) $(ESW_INC) $(OS_INC) $(OS_INC_$(ARCH))
