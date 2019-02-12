@@ -43,6 +43,7 @@ from .pl import get_tcl_name
 from .pl import get_hwh_name
 from .interrupt import Interrupt
 from .gpio import GPIO
+from .register_map import RegisterMap
 
 
 __author__ = "Yun Rock Qu"
@@ -478,6 +479,24 @@ class DefaultIP(metaclass=RegisterIP):
         for gpio, entry in self._gpio.items():
             gpio_number = GPIO.get_gpio_pin(entry['index'])
             setattr(self, gpio, GPIO(gpio_number, 'out'))
+        if 'registers' in description:
+            self._registers = description['registers']
+            self._register_name = description['fullpath'].rpartition('/')[2]
+        else:
+            self._registers = None
+
+    @property
+    def register_map(self):
+        if not hasattr(self, '_register_map'):
+            if self._registers:
+                self._register_map = RegisterMap.create_subclass(
+                        self._register_name,
+                        self._registers)(self.mmio.array)
+            else:
+                raise AttributeError(
+                        "register_map only available if the .hwh is provided")
+        return self._register_map
+
 
     def read(self, offset=0):
         """Read from the MMIO device
