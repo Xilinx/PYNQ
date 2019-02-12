@@ -50,13 +50,12 @@
 extern "C" {
 #endif
 
-#include "xil_io.h"
-#include "xil_types.h"
 #include "i2cps.h"
 #include "uio.h"
 #include "audio_adau1761.h"
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <linux/i2c-dev.h>
 #include <stdlib.h>

@@ -140,37 +140,37 @@ else:
 _video_src = ['pynq/lib/_pynq/_video/_video.c',
               'pynq/lib/_pynq/_video/_capture.c',
               'pynq/lib/_pynq/_video/_display.c',
-              'pynq/lib/_pynq/_video/axivdma_channel.c',
-              'pynq/lib/_pynq/src/gpio.c',
-              'pynq/lib/_pynq/src/py_xaxivdma.c',
-              'pynq/lib/_pynq/src/py_xvtc.c',
-              'pynq/lib/_pynq/src/utils.c',
-              'pynq/lib/_pynq/src/py_xgpio.c',
-              'pynq/lib/_pynq/src/video_capture.c',
-              'pynq/lib/_pynq/src/video_display.c']
+              'pynq/lib/_pynq/_video/py_xvtc.c',
+              'pynq/lib/_pynq/_video/utils.c',
+              'pynq/lib/_pynq/_video/py_xgpio.c',
+              'pynq/lib/_pynq/_video/video_capture.c',
+              'pynq/lib/_pynq/_video/video_display.c']
 
-# BSP source files
-bsp_axivdma = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_4/src/xaxivdma.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_4/src/xaxivdma_intr.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/axivdma_v6_4/src/xaxivdma_selftest.c']
+_video_gpio = \
+    ['pynq/lib/_pynq/_video/bsp/gpio/xgpio.c',
+     'pynq/lib/_pynq/_video/bsp/gpio/xgpio_extra.c',
+     'pynq/lib/_pynq/_video/bsp/gpio/xgpio_intr.c',
+     'pynq/lib/_pynq/_video/bsp/gpio/xgpio_selftest.c']
 
-bsp_gpio = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio_extra.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio_intr.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/gpio_v4_3/src/xgpio_selftest.c']
+_video_vtc = \
+    ['pynq/lib/_pynq/_video/bsp/vtc/xvtc.c',
+     'pynq/lib/_pynq/_video/bsp/vtc/xvtc_intr.c',
+     'pynq/lib/_pynq/_video/bsp/vtc/xvtc_selftest.c']
 
-bsp_vtc = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_2/src/xvtc.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_2/src/xvtc_intr.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/vtc_v7_2/src/xvtc_selftest.c']
+_common_src = \
+    ['pynq/lib/_pynq/common/xil_stubs.c']
 
-bsp_standalone = \
-    ['pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xplatform_info.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xil_assert.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xil_io.c',
-     'pynq/lib/_pynq/bsp/ps7_cortexa9_0/libsrc/standalone_v6_5/src/xil_exception.c']
+_bsp_includes = \
+    ['pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/common',
+     'pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/common',
+     'pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/common/gcc']
+
+if CPU_ARCH == ZYNQ_ARCH:
+    _bsp_includes.append(
+        'pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/cortexa9')
+elif CPU_ARCH == ZU_ARCH:
+    _bsp_includes.append(
+        'pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/cortexa53/64bit')
 
 getting_started_notebooks = \
     ['jupyter_notebooks.ipynb',
@@ -179,11 +179,10 @@ getting_started_notebooks = \
 
 # Merge BSP src to _video src
 video = []
-video.extend(bsp_standalone)
-video.extend(bsp_axivdma)
-video.extend(bsp_gpio)
-video.extend(bsp_vtc)
+video.extend(_video_gpio)
+video.extend(_video_vtc)
 video.extend(_video_src)
+video.extend(_common_src)
 
 
 # Copy notebooks in pynq/notebooks
@@ -300,6 +299,8 @@ if CPU_ARCH_IS_SUPPORTED:
     if CPU_ARCH == ZYNQ_ARCH:
         run_make("pynq/lib/_pynq/_audio/", "pynq/lib/",
                  "libaudio.so")
+        run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
+                 "libiic.so")
     elif CPU_ARCH == ZU_ARCH:
         run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/video/",
                  "libdisplayport.so")
@@ -319,8 +320,10 @@ if CPU_ARCH_IS_SUPPORTED:
 if CPU_ARCH == ZYNQ_ARCH:
     ext_modules = [
         Extension('pynq.lib._video', video,
-                  include_dirs=['pynq/lib/_pynq/inc',
-                                'pynq/lib/_pynq/bsp/ps7_cortexa9_0/include'],
+                  include_dirs=['pynq/lib/_pynq/_video',
+                                'pynq/lib/_pynq/_video/bsp/vtc',
+                                'pynq/lib/_pynq/_video/bsp/gpio',
+                                'pynq/lib/_pynq/common/armv7l'] + _bsp_includes
                   ),
     ]
 else:
