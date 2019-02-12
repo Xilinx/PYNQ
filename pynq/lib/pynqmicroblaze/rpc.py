@@ -40,7 +40,6 @@ from pycparser import c_generator
 from pycparser.plyparser import ParseError
 from copy import deepcopy
 from pynq.ps import ZU_ARCH, CPU_ARCH, ZYNQ_ARCH
-
 from .compile import preprocess
 from .streams import SimpleMBStream
 from .streams import InterruptMBStream
@@ -56,6 +55,7 @@ elif CPU_ARCH == ZU_ARCH:
     PTR_OFFSET = "0x80000000"
 else:
     PTR_OFFSET = "0x0"
+
 
 # First we define a series of classes to represent types
 # Each class is responsible for one particular type of C
@@ -795,7 +795,7 @@ class MicroblazeRPC:
             Source of the program to extract functions from
 
         """
-        preprocessed = preprocess(program_text, mb_info=iop, defines=["WRAP"])
+        preprocessed = preprocess(program_text, mb_info=iop)
         try:
             ast = _parser.parse(preprocessed, filename='program_text')
         except ParseError as e:
@@ -871,16 +871,15 @@ class MicroblazeLibrary(MicroblazeRPC):
     def __init__(self, iop, libraries):
         """Create a Python API for a list of C libraries
 
-        Parameters
-        ----------
-
-        iop : mb_info or MicroblazeHierarchy
-             The IOP to load the libraries on
-        libraries : [str]
-             The names of the libraries to load
-
         Libraries should be passed as the name of the header file containing
         the desired functions but without the ``.h`` extension
+
+        Parameters
+        ----------
+        iop : mb_info / MicroblazeHierarchy
+             The IOP to load the libraries on
+        libraries : list
+             List of the names of the libraries to load
 
         """
         source_text = "\n".join(['#include <{}.h>'.format(lib)

@@ -33,6 +33,7 @@ __email__ = "ogden@xilinx.com"
 
 from os import path, listdir
 import re
+import warnings
 
 
 class Module:
@@ -87,9 +88,8 @@ class BSPInstance:
         self.linker_script = path.join(root, 'lscript.ld')
         self.mss = path.join(root, 'system.mss')
 
-        self.cflags = ['-Os', '-lxil']
-        # Some sane default
-        extracflags = ['-mlittle-endian', '-mcpu=v9.6', '-mxl-soft-mul']
+        self.cflags = ['-Os']
+        extracflags = ['-mlittle-endian', '-mcpu=v11.0', '-mxl-soft-mul']
 
         try:
             found = False
@@ -101,11 +101,14 @@ class BSPInstance:
                        words[1] == 'compiler_flags'):
                         extracflags = words[3:]
                         found = True
-                        break;
-            if(not found):
-                print("compiler_flags not found in ", self.mss, ": using default cflags")
+                        break
+            if not found:
+                message = "compiler_flags not found in {}: " \
+                          "using default cflags".format(self.mss)
+                warnings.warn(message, UserWarning)
         except FileNotFoundError:
-            print(self.mss, "not found: using default cflags")
+            message = "{} not found: using default cflags".format(self.mss)
+            warnings.warn(message, UserWarning)
 
         self.cflags.extend(extracflags)
 

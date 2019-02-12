@@ -27,17 +27,17 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from . import PynqMicroblaze
-from pynq import PL
 
 from os import path
 import tempfile
 import shutil
 from subprocess import run, PIPE, Popen
-
-from .streams import InterruptMBStream
+from pynq import PL
+from . import PynqMicroblaze
 from . import BSPs
 from . import Modules
+from .streams import InterruptMBStream
+
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2017, Xilinx"
@@ -46,7 +46,7 @@ __email__ = "ogden@xilinx.com"
 
 def dependencies(source, bsp):
     args = ['mb-cpp', '-MM', '-D__attribute__(x)=',
-            '-D__extension__=', '-D__asm__(x)=', '-DWRAP']
+            '-D__extension__=', '-D__asm__(x)=']
     for include_path in bsp.include_path:
         args.append('-I')
         args.append(include_path)
@@ -67,7 +67,7 @@ def dependencies(source, bsp):
 
 
 def _find_bsp(cell_name):
-    target_bsp = "bsp_" + cell_name.replace('/','_')
+    target_bsp = "bsp_" + cell_name.replace('/', '_')
     matches = [bsp for bsp in BSPs.keys()
                if target_bsp.startswith(bsp)]
     if matches:
@@ -75,7 +75,7 @@ def _find_bsp(cell_name):
     raise RuntimeError("BSP not found for " + cell_name)
 
 
-def preprocess(source, bsp=None, mb_info=None, defines=[]):
+def preprocess(source, bsp=None, mb_info=None):
     if bsp is None:
         if hasattr(mb_info, 'mb_info'):
             mb_info = mb_info.mb_info
@@ -85,8 +85,6 @@ def preprocess(source, bsp=None, mb_info=None, defines=[]):
 
     args = ['mb-cpp', '-D__attribute__(x)=',
             '-D__extension__=', '-D__asm__(x)=']
-    for define in defines:
-        args.append("-D{}".format(define))
     for include_path in bsp.include_path:
         args.append('-I')
         args.append(include_path)
@@ -120,15 +118,17 @@ class MicroblazeProgram(PynqMicroblaze):
         lib_args = []
         with tempfile.TemporaryDirectory() as tempdir:
             files = [path.join(tempdir, 'main.c')]
-            args = ['mb-g++', '-o', path.join(tempdir, 'a.out'), '-Wno-multichar', '-fno-exceptions', '-ffunction-sections', '-Wl,-gc-sections']
+            args = ['mb-g++', '-o', path.join(tempdir, 'a.out'),
+                    '-Wno-multichar',
+                    '-fno-exceptions',
+                    '-ffunction-sections',
+                    '-Wl,-gc-sections']
             args.extend(bsp.cflags)
             args.extend(bsp.sources)
             for include_path in bsp.include_path:
-                args.append('-I')
-                args.append(include_path)
+                args.append('-I{}'.format(include_path))
             for lib_path in bsp.library_path:
-                lib_args.append('-L')
-                lib_args.append(lib_path)
+                lib_args.append('-L{}'.format(lib_path))
             for lib in bsp.libraries:
                 lib_args.append('-l{}'.format(lib))
             args.append('-Wl,{}'.format(bsp.linker_script))
@@ -137,11 +137,9 @@ class MicroblazeProgram(PynqMicroblaze):
             for module in modules:
                 files.extend(module.sources)
                 for include_path in module.include_path:
-                    args.append('-I')
-                    args.append(include_path)
+                    args.append('-I{}'.format(include_path))
                 for lib_path in module.library_path:
-                    lib_args.append('-L')
-                    lib_args.append(lib_path)
+                    lib_args.append('-L{}'.format(lib_path))
                 for lib in module.libraries:
                     lib_args.append('-l{}'.format(lib))
 
@@ -149,20 +147,17 @@ class MicroblazeProgram(PynqMicroblaze):
                 f.write('#line 1 "cell_magic"\n')
                 f.write(program_text)
             shutil.copy(path.join(tempdir, 'main.c'), '/tmp/last.c')
-            print(" ".join(args + files + lib_args))
             result = run(args + files + lib_args, stdout=PIPE, stderr=PIPE)
             if result.returncode:
                 raise RuntimeError(result.stderr.decode())
-            result = run(['size', path.join(tempdir, 'a.out')],
-                         stdout=PIPE, stderr=PIPE);
-            print(result.stderr.decode())
-            print(result.stdout.decode())
-            print("Largest Symbols:")
-            result = Popen(['nm', '-CSr', '--size-sort', path.join(tempdir, 'a.out')],
-                        stdout=PIPE, stderr=PIPE);
-            resulttail = Popen(['head', '-10'],
-                        stdin=result.stdout, stdout = PIPE, stderr=None);
-            print(resulttail.communicate()[0].decode())
+            _ = run(['size', path.join(tempdir, 'a.out')],
+                    stdout=PIPE, stderr=PIPE)
+
+            result = Popen(['nm', '-CSr', '--size-sort',
+                            path.join(tempdir, 'a.out')],
+                           stdout=PIPE, stderr=PIPE)
+            _ = Popen(['head', '-10'],
+                      stdin=result.stdout, stdout=PIPE, stderr=None)
 
             shutil.copy(path.join(tempdir, 'a.out'), '/tmp/last.elf')
             result = run(['mb-objcopy', '-O', 'binary',
@@ -170,8 +165,8 @@ class MicroblazeProgram(PynqMicroblaze):
                           path.join(tempdir, 'a.bin')],
                          stderr=PIPE)
             if result.returncode:
-                print("Objcopy Failed!")
-                print(result.stderr.decode())
+                raise RuntimeError(
+                    "Objcopy Failed: {}".format(result.stderr.decode()))
 
             super().__init__(mb_info, path.join(tempdir, 'a.bin'), force)
             self.stream = InterruptMBStream(self)
