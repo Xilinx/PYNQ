@@ -31,7 +31,6 @@
 from math import ceil
 import asyncio
 import os
-from PIL import Image
 from numpy import array
 from pynq import Xlnk
 from . import Arduino
@@ -201,6 +200,8 @@ class Arduino_LCD18(object):
         None
 
         """
+        from PIL import Image
+
         if x_pos not in range(160):
             raise ValueError("Valid x_pos is 0 - 159.")
         if y_pos not in range(128):

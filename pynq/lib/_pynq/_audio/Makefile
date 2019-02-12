@@ -1,6 +1,3 @@
-CC = gcc
-CPP = g++
-
 ifeq ($(BOARD), Pynq-Z1)
 C_SRC += audio_direct.cpp
 OBJSC += audio_direct.o
@@ -14,6 +11,6 @@ OBJSC += audio_adau1761.o \
 endif
 
 all:	
-	$(CC) -fPIC -c -g3 -ggdb $(C_SRC)
-	$(CPP) -g3 -ggdb -shared -fPIC -rdynamic $(OBJSC) -Wl,--start-group $(LIBS) -Wl,--end-group -o libaudio.so
+	$(CC) -fPIC -c -g3 -ggdb $(C_SRC) $(CFLAGS)
+	$(CXX) -g3 -ggdb -shared -fPIC -rdynamic $(OBJSC) -Wl,--start-group $(LIBS) -Wl,--end-group -o libaudio.so $(CFLAGS) $(LDFLAGS)
 	rm *.o

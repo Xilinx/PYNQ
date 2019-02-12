@@ -28,7 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import cffi
-import pandas as pd
 import threading
 import time
 import warnings
@@ -225,7 +224,7 @@ _ffi = cffi.FFI()
 
 try:
     _ffi.cdef(_c_header)
-    _lib = _ffi.dlopen("libsensors.so")
+    _lib = _ffi.dlopen("libsensors.so.4")
 except Exception as e:
     warnings.warn("Could not initialise libsensors library")
     _lib = None
@@ -469,5 +468,6 @@ class DataRecorder:
         Sensors* : one column per sensor
 
         """
+        import pandas as pd
         return pd.DataFrame(self._data, columns=self._columns,
                             index=pd.to_datetime(self._times, unit="s"))
