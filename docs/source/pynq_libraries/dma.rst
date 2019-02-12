@@ -6,7 +6,7 @@ DMA
 PYNQ supports the AXI central DMA IP with the PYNQ *DMA* class. DMA can be used for 
 high performance burst transfers between PS DRAM and the PL. 
 
-The *DMA* class supports simple mode only 
+The *DMA* class supports simple mode only.
 
 Block Diagram
 -------------
@@ -48,18 +48,19 @@ Note that when instantiating a DMA, the default maximum transaction size is
 14-bits (i.e. 2^14 = 16KB). For larger DMA transactions, make sure to increase
 this value when configuring the DMA in your Vivado IPI design.
 
-The code to download the bitstream is not shown. 
+In the following example, let's assume the *example.bit* contains a DMA 
+IP block with both send and receive channels enabled.
 
 .. code-block:: Python
 
-   import pynq.lib.dma
-   from pynq import Xlnk
    import numpy as np
+   from pynq import Xlnk
+   from pynq import Overlay
+
+   overlay = Overlay('example.bit')
+   dma = overlay.axi_dma
 
    xlnk = Xlnk()
-
-   dma = ol.axi_dma
-
    input_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
    output_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
 
@@ -74,7 +75,9 @@ Write some data to the array:
 
       Input buffer will contain:  [0 1 2 3 4]
 
-Transfer the input_buffer to the send DMA, and read back from the recv DMA to the output buffer. The wait() method ensures the DMA transactions have complete.
+Transfer the input_buffer to the send DMA, and read back from the receive 
+DMA to the output buffer. The wait() method ensures the DMA transactions 
+have completed.
 
 .. code-block:: Python
 
