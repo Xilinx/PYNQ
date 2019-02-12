@@ -36,8 +36,6 @@ import subprocess
 import base64
 from xml.dom import minidom
 import numpy as np
-import IPython.core.display
-import IPython.display
 from .constants import *
 
 
@@ -224,6 +222,8 @@ def _draw_javascript(data):
         A dump of a Json formatted data.
 
     """
+    import IPython.core.display
+    import IPython.display
     wavedrom_js = 'wavedrom.js'
     wavedromskin_js = 'wavedromskin.js'
 
@@ -277,6 +277,8 @@ def _copy_javascripts():
 
 
 def _draw_phantomjs(data, phantomjs, wavedrom_cli):
+    import IPython.core.display
+    import IPython.display
     """Draw the wavedrom using PhantomJS.
 
     This method requires the PhantomJS to be properly installed on the board.

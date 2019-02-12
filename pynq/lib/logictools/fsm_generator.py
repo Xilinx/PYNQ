@@ -32,8 +32,6 @@ import os
 from copy import deepcopy
 from math import ceil, log
 import numpy as np
-import pygraphviz as pgv
-from IPython.display import Image, display
 from .constants import *
 from .logictools_controller import LogicToolsController
 from .trace_analyzer import TraceAnalyzer
@@ -1009,6 +1007,9 @@ class FSMGenerator:
             Whether to save the PNG showing the state diagram.
 
         """
+        import pygraphviz as pgv
+        from IPython.display import Image, display
+
         if self.logictools_controller.status[
                 self.__class__.__name__] == 'RESET':
             raise ValueError(

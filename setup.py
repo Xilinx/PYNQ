@@ -113,7 +113,10 @@ for mbdir in microblaze_data_dirs:
 # Device family constants
 ZYNQ_ARCH = "armv7l"
 ZU_ARCH = "aarch64"
-CPU_ARCH = os.uname().machine
+if 'PYNQ_BUILD_ARCH' in os.environ:
+    CPU_ARCH = os.environ['PYNQ_BUILD_ARCH']
+else:
+    CPU_ARCH = os.uname().machine
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
 # Notebook delivery
@@ -308,13 +311,15 @@ if CPU_ARCH_IS_SUPPORTED:
                  "libxhdmi.so")
         run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
                  "libiic.so")
-    backup_notebooks()
-    copy_common_notebooks()
-    copy_board_notebooks()
-    copy_overlay_notebooks()
-    copy_documentation_files()
-    rename_notebooks()
-    change_ownership()
+
+    if notebooks_dir:
+        backup_notebooks()
+        copy_common_notebooks()
+        copy_board_notebooks()
+        copy_overlay_notebooks()
+        copy_documentation_files()
+        rename_notebooks()
+        change_ownership()
 
 
 if CPU_ARCH == ZYNQ_ARCH:

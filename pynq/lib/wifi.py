@@ -29,7 +29,6 @@
 
 import os
 import subprocess as sproc
-import netifaces
 
 __author__ = "Luca Cerina"
 __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
@@ -65,6 +64,11 @@ class Wifi(object):
             The name of the network interface.
 
         """
+        try:
+            import netifaces
+        except ImportError:
+            raise ImportError("netifaces must be installed to configure WiFi")
+
         self.wifi_port = None
         net_device_list = netifaces.interfaces()
 

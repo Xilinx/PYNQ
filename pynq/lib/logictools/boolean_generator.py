@@ -31,8 +31,6 @@
 import re
 from copy import deepcopy
 from collections import OrderedDict
-from pyeda.inter import exprvar
-from pyeda.inter import expr2truthtable
 from pynq import Register
 from .constants import *
 from .logictools_controller import LogicToolsController
@@ -195,6 +193,12 @@ class BooleanGenerator:
             The frequency of the captured samples, in MHz.
 
         """
+        try:
+            from pyeda.inter import exprvar
+            from pyeda.inter import expr2truthtable
+        except ImportError:
+            raise ImportError("Using Logictools requires pyeda")
+
         if not MIN_CLOCK_FREQUENCY_MHZ <= frequency_mhz <= \
                 MAX_CLOCK_FREQUENCY_MHZ:
             raise ValueError("Clock frequency out of range "
