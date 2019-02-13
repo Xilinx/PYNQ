@@ -2,6 +2,30 @@
 Change Log
 ************************
 
+Version 2.4 
+============================
+
+* Image releases:
+   * pynq_z1_v2.4
+   * pynq_z2_v2.4
+   * zcu104_v2.4
+   * zcu111_v2.4 
+
+Documentation updated 22 Feb 2019
+
+* Board Additions
+   * RFSoC support added in the new ZCU111-PYNQ repository
+* Programmable Logic Updates
+   * All bitstreams built using Vivado 2018.3
+   * Partial reconfiguration support added (beta)
+   * Expanded metadata parsing using the Vivado hwh files
+* SDBuild Updates
+   * Boot partition built on Petalinux 2018.3
+   * SDSoC 2018.3 support added
+   * Vagrant configuration file for users building their own SDCard images
+   * Yocto recipes added for including PYNQ in Petalinux root filesystems
+
+
 Version 2.3 
 ============================
 
