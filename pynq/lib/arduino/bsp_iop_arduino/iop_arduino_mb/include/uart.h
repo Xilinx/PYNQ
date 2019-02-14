@@ -50,7 +50,9 @@
  *****************************************************************************/
 #ifndef _UART_H_
 #define _UART_H_
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #include <xparameters.h>
 
 #ifdef XPAR_XUARTLITE_NUM_INSTANCES
@@ -71,5 +73,8 @@ void uart_write(uart dev_id, unsigned char* write_data, unsigned int length);
 void uart_close(uart dev_id);
 unsigned int uart_get_num_devices(void);
 
+#endif
+#ifdef __cplusplus 
+}
 #endif
 #endif  // _UART_H_

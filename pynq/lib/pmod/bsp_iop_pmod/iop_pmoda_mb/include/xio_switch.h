@@ -41,6 +41,9 @@
  *****************************************************************************/
 #ifndef _XIO_SWITCH_H_
 #define _XIO_SWITCH_H_
+#ifdef __cplusplus 
+extern "C" {
+#endif
 /****************** Include Files ********************/
 #include "xil_types.h"
 #include "xstatus.h"
@@ -107,5 +110,8 @@ void config_io_switch(int num_of_pins);
 void set_pin(int pin_number, u8 pin_type);
 void init_io_switch(void);
 
+#ifdef __cplusplus 
+}
+#endif
 #endif // _XIO_SWITCH_H_
 
