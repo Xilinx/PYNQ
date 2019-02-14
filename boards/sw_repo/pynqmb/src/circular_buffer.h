@@ -50,7 +50,9 @@
  *****************************************************************************/
 #ifndef _CIRCULAR_BUFFER_H_
 #define _CIRCULAR_BUFFER_H_
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #include <xparameters.h>
 #include "xil_types.h"
 
@@ -84,4 +86,7 @@ void cb_push_back(circular_buffer *cb, const void *item);
 void cb_push_back_float(circular_buffer *cb, const float *item);
 void cb_push_incr_ptrs(circular_buffer *cb);
 
+#ifdef __cplusplus 
+}
+#endif
 #endif  // _CIRCULAR_BUFFER_H_
