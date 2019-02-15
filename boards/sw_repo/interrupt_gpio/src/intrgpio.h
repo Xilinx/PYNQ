@@ -1,3 +1,8 @@
+#ifndef INTRGPIO_H_
+#define INTRGPIO_H_
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #pragma once
 
 typedef struct {
@@ -6,3 +11,8 @@ typedef struct {
 } IntrGpio_Config;
 
 void IntrGpio_RaiseInterrupt(int ID);
+
+#ifdef __cplusplus
+}
+#endif
+#endif

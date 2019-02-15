@@ -31,12 +31,12 @@ __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2018, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-from .rpc import MicroblazeRPC
 
 from IPython.core.magic import cell_magic, Magics, magics_class
 from IPython import get_ipython
 from IPython.display import display, HTML
 from IPython.display import display_javascript
+from .rpc import MicroblazeRPC
 
 
 class _DataHolder:
@@ -77,7 +77,6 @@ class MicroblazeMagics(Magics):
             program = MicroblazeRPC(mb_info, '#line 1 "cell_magic"\n\n' + cell)
         except RuntimeError as r:
             return HTML("<pre>Compile FAILED\n" + r.args[0] + "</pre>")
-            return None
         for name, adapter in program.visitor.functions.items():
             if adapter.filename == "cell_magic":
                 self.shell.user_ns.update(

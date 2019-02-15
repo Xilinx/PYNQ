@@ -49,7 +49,9 @@
  *****************************************************************************/
 #ifndef MAILBOX_IO_H_
 #define MAILBOX_IO_H_
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #include <unistd.h>
 #include <stdint.h>
 
@@ -62,4 +64,7 @@ ssize_t mailbox_write(int file, const void* ptr, size_t len);
 long mailbox_lseek(int fd, long offset, int whence);
 int mailbox_available(int fd);
 
+#ifdef __cplusplus 
+}
+#endif
 #endif

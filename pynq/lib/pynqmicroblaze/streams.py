@@ -41,6 +41,7 @@ def _safe_copy(dest, src):
     for i in range(len(src)):
         dest[i] = src[i]
 
+
 class SimpleMBChannel:
     def __init__(self, buffer, offset=0, length=0):
         self.control_array = np.frombuffer(buffer, count=2,

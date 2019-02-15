@@ -51,7 +51,9 @@
  *****************************************************************************/
 #ifndef _I2C_H_
 #define _I2C_H_
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #include <xparameters.h>
 
 #ifdef XPAR_XIIC_NUM_INSTANCES
@@ -74,5 +76,8 @@ void i2c_write(i2c dev_id, unsigned int slave_address,
 void i2c_close(i2c dev_id);
 unsigned int i2c_get_num_devices(void);
 
+#endif
+#ifdef __cplusplus 
+}
 #endif
 #endif  // _I2C_H_

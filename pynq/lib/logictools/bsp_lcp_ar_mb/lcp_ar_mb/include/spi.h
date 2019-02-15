@@ -51,7 +51,9 @@
  *****************************************************************************/
 #ifndef _SPI_H_
 #define _SPI_H_
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #include <xparameters.h>
 
 #ifdef XPAR_XSPI_NUM_INSTANCES
@@ -75,5 +77,8 @@ void spi_transfer(spi dev_id, const char *write_data, char *read_data,
 void spi_close(spi dev_id);
 unsigned int spi_get_num_devices(void);
 
+#endif
+#ifdef __cplusplus 
+}
 #endif
 #endif                          // _SPI_H_
