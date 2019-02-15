@@ -2,7 +2,7 @@ import pynq
 import pynq.lib
 import time
 from pynq.lib.video.clocks import *
-from pynq import MMIO
+
 
 class BaseOverlay(pynq.Overlay):
     def __init__(self, *args, **kwargs):
