@@ -4,14 +4,14 @@
 PYNQ SD Card
 ************
 
-The PYNQ image for the PYNQ-Z1 and PYNQ-Z2 boards are provided precompiled as 
+The PYNQ image for supported boards are provided precompiled as 
 downloadable SD card images, so you do not need to rerun this flow for these 
 boards unless you want to make changes to the image flow.
 
 This flow can also be used as a starting point to build a PYNQ image for another
-Zynq board.
+Zynq / Zynq Ultrascale board.
 
-The image flow will create the Zynq BOOT.bin, the u-boot bootloader, the Linux
+The image flow will create the BOOT.bin, the u-boot bootloader, the Linux
 Device tree blob, and the Linux kernel.
 
 The source files for the PYNQ image flow build can be found here:
@@ -73,6 +73,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.1               2017.4
      v2.2               2017.4
      v2.3               2018.2
+     v2.4               2018.3
      ================  ================
 
 If you already have a Ubuntu OS, you can do the following:
