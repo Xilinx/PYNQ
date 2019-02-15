@@ -163,11 +163,11 @@ class _TCLABC(metaclass=abc.ABCMeta):
     ip_dict : dict
         All the addressable IPs from PS7. Key is the name of the IP; value is
         a dictionary mapping the physical address, address range, IP type,
-        configuration dictionary, the state associated with that IP, any
+        memory segment ID, the state associated with that IP, any
         interrupts and GPIO pins attached to the IP and the full path to the
         IP in the block design:
         {str: {'phys_addr' : int, 'addr_range' : int,\
-               'type' : str, 'config' : dict, 'state' : str,\
+               'type' : str, 'mem_id' : str, 'state' : str,\
                'interrupts' : dict, 'gpio' : dict, 'fullpath' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
@@ -248,18 +248,22 @@ class _TCLABC(metaclass=abc.ABCMeta):
         tcl_name : str
             The tcl filename to parse. This is opened directly so should be
             fully qualified
+
         Note
         ----
         If this method is called on an unsupported architecture it will warn
         and return without initialization
         """
         # Regex Variable updated during processing
-        addr_regex = ("create_bd_addr_seg " +
-                      "-range (?P<range>0[xX][0-9a-fA-F]+) " +
-                      "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +
-                      "\[get_bd_addr_spaces ")
+        addr_regex = "create_bd_addr_seg " +\
+                     "-range (?P<range>0[xX][0-9a-fA-F]+) " +\
+                     "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +\
+                     "\[get_bd_addr_spaces ([^ ].*) " +\
+                     "\[get_bd_addr_segs (?P<hier>.+?)\] " +\
+                     "(?P<name>[A-Za-z0-9_]+)"
 
         # Initialize result variables
+        self.partial = True
         self.intc_names = []
         self.interrupt_controllers = {}
         self.concat_cells = {}
@@ -363,6 +367,7 @@ class _TCLABC(metaclass=abc.ABCMeta):
                                     self.ip_dict[ip]['interrupts'] = dict()
                                     self.ip_dict[ip]['gpio'] = dict()
                                     self.ip_dict[ip]['fullpath'] = ip
+                                    self.ip_dict[ip]['mem_id'] = m.group('name')
 
                 # Match hierarchical cell definition
                 elif self.hier_proc_def_pat in line:
@@ -379,9 +384,9 @@ class _TCLABC(metaclass=abc.ABCMeta):
                     m = re.search(self.hier_use_regex, line)
                     hier_name = m.group("hier_name")
                     inst_name = m.group("instance_name")
+                    inst_path = (current_hier + '/' + inst_name).lstrip('/')
                     inst_dict = dict()
                     for path in hier_dict:
-                        inst_path = (current_hier + '/' + inst_name).lstrip('/')
                         psplit = path.split('/')
                         if psplit[0] == hier_name:
                             inst_path += path.lstrip(hier_name)
@@ -394,10 +399,15 @@ class _TCLABC(metaclass=abc.ABCMeta):
                     ip_name = m.group("ip_name")
                     instance_name = m.group("instance_name")
                     if m.group("ip_name") == self.ps_ip_name:
+                        self.partial = False
                         self.ps_name = instance_name
-                        addr_regex += (instance_name + "/Data\] " +
-                                       "\[get_bd_addr_segs (?P<hier>.+?)\] " +
-                                       "(?P<name>[A-Za-z0-9_]+)")
+                        addr_regex = "create_bd_addr_seg " +\
+                                     "-range (?P<range>0[xX][0-9a-fA-F]+) " +\
+                                     "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +\
+                                     "\[get_bd_addr_spaces " +\
+                                     instance_name + "/Data\] " +\
+                                     "\[get_bd_addr_segs (?P<hier>.+?)\] " +\
+                                     "(?P<name>[A-Za-z0-9_]+)"
                     else:
                         ip_type = ':'.join([m.group(1), m.group(2),
                                             m.group(3), m.group(4)])
@@ -580,6 +590,7 @@ class _TCLUltrascale(_TCLABC):
         tcl_name : str
             The tcl filename to parse. This is opened directly so should be
             fully qualified
+
         """
         self.clock_dict = dict()
         for pl_clk in self.pl_clks:
@@ -643,6 +654,7 @@ class _TCLZynq(_TCLABC):
         tcl_name : str
             The tcl filename to parse. This is opened directly so should be
             fully qualified
+
         """
         self.clock_dict = dict()
         for pl_clk in self.pl_clks:
@@ -681,7 +693,7 @@ elif CPU_ARCH == ZYNQ_ARCH:
 else:
     TCL = _TCLABC
     warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), ResourceWarning)
+                  .format(CPU_ARCH), UserWarning)
 
 
 class _HWHABC(metaclass=abc.ABCMeta):
@@ -696,11 +708,11 @@ class _HWHABC(metaclass=abc.ABCMeta):
     ip_dict : dict
         All the addressable IPs from PS7. Key is the name of the IP; value is
         a dictionary mapping the physical address, address range, IP type,
-        configuration dictionary, the state associated with that IP, any
+        memory segment ID, the state associated with that IP, any
         interrupts and GPIO pins attached to the IP and the full path to the
         IP in the block design:
         {str: {'phys_addr' : int, 'addr_range' : int,\
-               'type' : str, 'config' : dict, 'state' : str,\
+               'type' : str, 'mem_id' : str, 'state' : str,\
                'interrupts' : dict, 'gpio' : dict, 'fullpath' : str}}.
     gpio_dict : dict
         All the GPIO pins controlled by PS7. Key is the name of the GPIO pin;
@@ -757,6 +769,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """
         tree = ElementTree.parse(hwh_name)
         self.root = tree.getroot()
+        self.partial = True
         self.intc_names = []
         self.interrupt_controllers = {}
         self.concat_cells = {}
@@ -775,13 +788,14 @@ class _HWHABC(metaclass=abc.ABCMeta):
             i.findall(".//REGISTERS/*[@NAME]"))
             for i in self.root.iter("MODULE")}
 
+        self.init_partial_ip_dict()
         for mod in self.root.iter("MODULE"):
             mod_type = mod.get('MODTYPE')
             full_path = mod.get('FULLNAME').lstrip('/')
             if mod_type == self.family_ps:
                 self.ps_name = mod.get('INSTANCE')
                 self.init_clk_dict(mod)
-                self.init_ip_dict(mod)
+                self.init_full_ip_dict(mod)
             elif mod_type == 'xlconcat':
                 self.concat_cells[full_path] = mod.find(
                     ".//*[@NAME='NUM_PORTS']").get('VALUE')
@@ -790,27 +804,64 @@ class _HWHABC(metaclass=abc.ABCMeta):
 
             self.match_nets(mod, full_path)
 
+        self.match_ports()
         self.match_pins()
         self.add_gpio()
         self.init_interrupts()
         self.init_hierachy_dict()
         self.assign_interrupts_gpio()
 
-    def init_ip_dict(self, mod):
+    def init_partial_ip_dict(self):
+        """Get the IP address blocks exposed for a certain block design.
+
+        This method will only work for partial block designs.
+
+        """
+        self._parse_ip_dict(self.root, 'MASTERBUSINTERFACE')
+
+    def init_full_ip_dict(self, mod):
         """Get the IP address blocks exposed at the top level block design.
 
-        This method will only work on those addressable IPs.
+        This method will only work on those addressable IPs for full block
+        designs. Since we know this is a full block design, we can stop
+        any on-going parsing and discard any partial IP dict.
+
+        Note that if the hwh file has been generated from a partial
+        reconfiguration project, the main hwh file may not contain
+        the complete information about the block design. In that case, we may
+        have duplicated instance names for multiple physical addresses. We
+        assume the corresponding partial region is a black box and use the
+        memory interface IDs to differentiate them in the IP dict, because we
+        don't know what instances are connected to those interfaces yet.
+        For full bitstream designs, this is not likely to happen.
 
         Parameters
         ----------
         mod : Element
-            The current XML element under parsing.
+            The current PS instance under parsing.
 
         """
+        self.partial = False
+        self.ip_dict = {}
+        self._parse_ip_dict(mod, 'SLAVEBUSINTERFACE')
+
+    def _parse_ip_dict(self, mod, mem_intf_id):
+        to_pop = set()
         for i in mod.iter("MEMRANGE"):
             if i.get('INSTANCE') in self.instance2attr:
                 full_name, vlnv, pars, regs = self.instance2attr[
                     i.get('INSTANCE')]
+                intf_id = i.get(mem_intf_id)
+                if full_name in self.ip_dict and \
+                        self.ip_dict[full_name]['mem_id'] and intf_id:
+                    rename = full_name + '/' + self.ip_dict[full_name]['mem_id']
+                    self.ip_dict[rename] = deepcopy(self.ip_dict[full_name])
+                    self.ip_dict[rename]['fullpath'] = rename
+                    to_pop.add(full_name)
+                    full_name += '/' + intf_id
+                elif vlnv.split(':')[:2] == ['xilinx.com', 'module_ref']:
+                    full_name += '/' + intf_id
+
                 self.ip_dict[full_name] = {}
                 self.ip_dict[full_name]['fullpath'] = full_name
                 self.ip_dict[full_name]['type'] = vlnv
@@ -820,6 +871,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 addr_range = high_addr - base_addr + 1
                 self.ip_dict[full_name]['addr_range'] = addr_range
                 self.ip_dict[full_name]['phys_addr'] = base_addr
+                self.ip_dict[full_name]['mem_id'] = intf_id
                 self.ip_dict[full_name]['gpio'] = {}
                 self.ip_dict[full_name]['interrupts'] = {}
                 self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
@@ -850,9 +902,11 @@ class _HWHABC(metaclass=abc.ABCMeta):
                                 './PROPERTY/[@NAME="ACCESS"]').get('VALUE')}
                             for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
                     for j in regs}
+        for i in to_pop:
+            self.ip_dict.pop(i)
 
     def match_nets(self, mod, full_path):
-        """Matching all the nets from the HWH file.
+        """Matching all the nets in the modules from the HWH file.
 
         This method will arrange all the nets. Note that since we
         have a signal name for each net, we will use that as the key to index
@@ -873,6 +927,22 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 self.nets[signame] |= set(ports)
             else:
                 self.nets[signame] = set(ports)
+
+    def match_ports(self):
+        """Connecting all the ports to the internal signals.
+
+        This method will hook up internal and external pins by checking the
+        net names.
+
+        """
+        external_ports = self.root.find('./EXTERNALPORTS')
+        for port in external_ports.iter("PORT"):
+            name_list = [port.get('NAME')]
+            signame = port.get('SIGNAME')
+            if signame in self.nets:
+                self.nets[signame] |= set(name_list)
+            else:
+                self.nets[signame] = set(name_list)
 
     def match_pins(self):
         """Matching all the pins from the HWH file.
@@ -899,7 +969,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
             self._add_interrupt_pins(ps_irq_net, "", 0)
 
     def _add_interrupt_pins(self, net, parent, offset):
-        net_pins = self.nets[net]
+        net_pins = self.nets[net] if net else set()
         for p in net_pins:
             m = re.match('(.*)/dout', p)
             if m is not None:
@@ -1136,7 +1206,7 @@ elif CPU_ARCH == ZYNQ_ARCH:
 else:
     HWH = _HWHABC
     warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), ResourceWarning)
+                  .format(CPU_ARCH), UserWarning)
 
 
 class PLMeta(type):
@@ -1424,6 +1494,7 @@ class PLMeta(type):
             cls._gpio_dict = parser.gpio_dict
             cls._interrupt_controllers = parser.interrupt_controllers
             cls._interrupt_pins = parser.interrupt_pins
+            cls._hierarchy_dict = parser.hierarchy_dict
         else:
             hwh_name = get_hwh_name(cls._bitfile_name)
             tcl_name = get_tcl_name(cls._bitfile_name)
@@ -1483,6 +1554,114 @@ class PLMeta(type):
 
         cls._ip_dict[ip_name]['state'] = data
         cls.server_update()
+
+    def update_partial_region(cls, hier, parser):
+        """Merge the parser information from partial region.
+
+        Combine the currently PL information and the partial HWH/TCL file
+        parsing results.
+
+        Parameters
+        ----------
+        hier : str
+            The name of the hierarchical block as the partial region.
+        parser : TCL/HWH
+            A parser object for the partial region.
+
+        """
+        cls.client_request()
+        cls._update_pr_ip(parser)
+        cls._update_pr_gpio(parser)
+        cls._update_pr_intr_pins(parser)
+        cls._update_pr_hier(hier)
+        cls.server_update()
+
+    def _update_pr_ip(cls, parser):
+        merged_ip_dict = deepcopy(cls._ip_dict)
+        if type(parser) is HWH:
+            for k, v in parser.ip_dict.items():
+                if k in cls._ip_dict:
+                    merged_ip_dict.pop(k)
+                    ip_name = v['fullpath']
+                    merged_ip_dict[ip_name] = cls._ip_dict[k]
+                    merged_ip_dict[ip_name]['fullpath'] = v['fullpath']
+                    merged_ip_dict[ip_name]['parameters'] = v['parameters']
+                    merged_ip_dict[ip_name]['phys_addr'] = \
+                        cls._ip_dict[k]['phys_addr'] + v['phys_addr']
+                    merged_ip_dict[ip_name]['registers'] = v['registers']
+                    merged_ip_dict[ip_name]['state'] = None
+                    merged_ip_dict[ip_name]['type'] = v['type']
+        elif type(parser) is TCL:
+            for k_partial, v_partial in parser.ip_dict.items():
+                for k_full, v_full in cls._ip_dict.items():
+                    if v_partial['mem_id'] == v_full['mem_id']:
+                        merged_ip_dict.pop(k_full)
+                        ip_name = v_partial['fullpath']
+                        merged_ip_dict[ip_name] = v_full
+                        merged_ip_dict[ip_name]['fullpath'] = \
+                            v_partial['fullpath']
+                        merged_ip_dict[ip_name]['phys_addr'] = \
+                            v_full['phys_addr'] + v_partial['phys_addr']
+                        merged_ip_dict[ip_name]['state'] = None
+                        merged_ip_dict[ip_name]['type'] = v_partial['type']
+                        break
+        else:
+            raise ValueError("Cannot find HWH or TCL PR region parser.")
+        cls._ip_dict = merged_ip_dict
+
+    def _update_pr_gpio(cls, parser):
+        new_gpio_dict = dict()
+        for k, v in cls._gpio_dict.items():
+            for pin in v['pins']:
+                if pin in parser.pins:
+                    v |= parser.nets[parser.pins[pin]]
+                new_gpio_dict[k] = v
+        cls._gpio_dict = new_gpio_dict
+
+    def _update_pr_intr_pins(cls, parser):
+        new_interrupt_pins = dict()
+        for k, v in cls._interrupt_pins.items():
+            if k in parser.pins:
+                net_set = parser.nets[parser.pins[k]]
+                hier_map = {i.count('/'): i for i in net_set}
+                hier_map = sorted(hier_map.items(), reverse=True)
+                fullpath = hier_map[0][-1]
+                new_interrupt_pins[fullpath] = deepcopy(v)
+                new_interrupt_pins[fullpath]['fullpath'] = fullpath
+            else:
+                new_interrupt_pins[k] = v
+        cls._interrupt_pins = new_interrupt_pins
+
+    def _update_pr_hier(cls, hier):
+        cls._hierarchy_dict[hier] = {
+            'ip': dict(),
+            'hierarchies': dict(),
+            'interrupts': dict(),
+            'gpio': dict(),
+            'fullpath': hier,
+        }
+        for name, val in cls._ip_dict.items():
+            hier, _, ip = name.rpartition('/')
+            if hier:
+                cls._hierarchy_dict[hier]['ip'][ip] = val
+                cls._hierarchy_dict[hier]['ip'][ip] = val
+        for name, val in cls._hierarchy_dict.items():
+            hier, _, subhier = name.rpartition('/')
+            if hier:
+                cls._hierarchy_dict[hier]['hierarchies'][subhier] = val
+        for interrupt, val in cls._interrupt_pins.items():
+            block, _, pin = interrupt.rpartition('/')
+            if block in cls._ip_dict:
+                cls._ip_dict[block]['interrupts'][pin] = val
+            if block in cls._hierarchy_dict:
+                cls._hierarchy_dict[block]['interrupts'][pin] = val
+        for gpio in cls._gpio_dict.values():
+            for connection in gpio['pins']:
+                ip, _, pin = connection.rpartition('/')
+                if ip in cls._ip_dict:
+                    cls._ip_dict[ip]['gpio'][pin] = gpio
+                elif ip in cls._hierarchy_dict:
+                    cls._hierarchy_dict[ip]['gpio'][pin] = gpio
 
 
 class PL(metaclass=PLMeta):
@@ -1574,23 +1753,34 @@ def _start_server():
     PL.setup()
 
 
-class _BitstreamMeta:
-    """This class instantiates the meta class for programmable logic bitstream.
+class Bitstream:
+    """This class instantiates the meta class for PL bitstream (full/partial).
 
     Attributes
     ----------
     bitfile_name : str
-        The absolute path of the bitstream.
+            The absolute path or name of the bit file as a string.
+    partial : bool
+        Flag to indicate whether or not the bitstream is partial.
+    bit_data : dict
+        Dictionary storing information about the bitstream.
+    binfile_name : str
+        The absolute path or name of the bin file as a string.
+    firmware_path : str
+        The absolute path of the bin file in the firmware folder.
     timestamp : str
         Timestamp when loading the bitstream. Format:
         year, month, day, hour, minute, second, microsecond
 
     """
+    BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
+    BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
+
     def __init__(self, bitfile_name, partial=False):
         """Return a new Bitstream object.
 
         Users can either specify an absolute path to the bitstream file
-        (e.g. '/home/xilinx/src/pynq/bitstream/base.bit'),
+        (e.g. '/home/xilinx/pynq/overlays/base/base.bit'),
         or a relative path within an overlay folder.
         (e.g. 'base.bit' for base/base.bit).
 
@@ -1601,13 +1791,11 @@ class _BitstreamMeta:
         Parameters
         ----------
         bitfile_name : str
-            The bitstream absolute path or name as a string.
-        partial :
+            The absolute path or name of the bit file as a string.
+        partial : bool
             Flag to indicate whether or not the bitstream is partial.
 
         """
-        super().__init__()
-
         if not isinstance(bitfile_name, str):
             raise TypeError("Bitstream name has to be a string.")
 
@@ -1625,101 +1813,34 @@ class _BitstreamMeta:
             raise IOError('Bitstream file {} does not exist.'
                           .format(bitfile_name))
 
+        self.bit_data = dict()
+        self.binfile_name = ''
+        self.firmware_path = ''
         self.timestamp = ''
         self.partial = partial
-
-    def download(self):
-        """The method to download the bitstream onto PL.
-
-        Note
-        ----
-        The class variables held by the singleton PL will also be updated.
-
-        Returns
-        -------
-        None
-
-        """
-        self._download()
-        if not self.partial:
-            self._update_pl()
-
-    def _download(self):
-        pass
-
-    def _update_pl(self):
-        t = datetime.now()
-        self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
-                t.year, t.month, t.day,
-                t.hour, t.minute, t.second, t.microsecond)
-
-        # Update PL information
-        PL.client_request()
-        PL._bitfile_name = self.bitfile_name
-        PL._timestamp = self.timestamp
-        PL.clear_dict()
-        PL.server_update()
-
-
-class Bitstream(_BitstreamMeta):
-    """This class instantiates a PL bitstream using FPGA manager to download
-
-    Note
-    ----
-    This class inherits from the _BitstreamMeta class
-
-    """
-    BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
-    BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
-    
-    def _download(self):
-        """The method to download the bitstream onto PL.
-
-        Note
-        ----
-        The class variables held by the singleton PL will also be updated.
-
-        Returns
-        -------
-        None
-
-        """
-        if not os.path.exists(self.BS_FPGA_MAN):
-            raise RuntimeError("Could not find programmable device")
-
-        bin_file = os.path.basename(self.bitfile_name).replace('.bit', '.bin')
-        self.bin_path = '/lib/firmware/' + bin_file
-        self.convert_bit_to_bin()
-        PL.shutdown()
-        with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
-            # The 20 flag tells the driver that we are passing in an old-style
-            # raw binary bitstream so we don't need to add the new-style header
-            # to the bin file
-            fd.write('20')
-        with open(self.BS_FPGA_MAN, 'w') as fd:
-            fd.write(bin_file)
 
     def convert_bit_to_bin(self):
         """The method to convert a .bit file to .bin file.
 
         A .bit file is generated by Vivado, but .bin files are needed
-        by the Zynq Ultrascale FPGA manager driver. Users must specify
+        by the FPGA manager driver. Users must specify
         the absolute path to the source .bit file, and the destination
-        .bin file and have read/write access to both paths. 
+        .bin file and have read/write access to both paths.
+        This function is only converting the bit file when the bit file is
+        updated.
 
         Note
         ----
         Implemented based on: https://blog.aeste.my/?p=2892
 
-        Returns
-        -------
-        None
-
         """
-        bit_data = self.parse_bit_header()
-        bit_buffer = np.frombuffer(bit_data['data'], dtype=np.int32, offset=0)
-        bin_buffer = bit_buffer.byteswap()
-        bin_buffer.tofile(self.bin_path, "")
+        if self.bit_data != self.parse_bit_header() or \
+                not os.path.isfile(self.firmware_path):
+            self.bit_data = self.parse_bit_header()
+            bit_buffer = np.frombuffer(self.bit_data['data'],
+                                       dtype=np.int32, offset=0)
+            bin_buffer = bit_buffer.byteswap()
+            bin_buffer.tofile(self.firmware_path, "")
 
     def parse_bit_header(self):
         """The method to parse the header of a bitstream.
@@ -1774,7 +1895,7 @@ class Bitstream(_BitstreamMeta):
                 if desc == 0x61:
                     s = data.split(";")
                     bit_dict['design'] = s[0]
-                    bit_dict['version'] = s[2]
+                    bit_dict['version'] = s[-1]
                 elif desc == 0x62:
                     bit_dict['part'] = data
                 elif desc == 0x63:
@@ -1794,3 +1915,57 @@ class Bitstream(_BitstreamMeta):
                 else:
                     raise RuntimeError("Unknown field: {}".format(hex(desc)))
             return bit_dict
+
+    def download(self):
+        """Download the bitstream onto PL and update PL information.
+
+        Note
+        ----
+        For partial bitstream, this method does not guarantee isolation between
+        static and dynamic regions.
+
+        Returns
+        -------
+        None
+
+        """
+        # preload bin into firmware
+        if not self.binfile_name:
+            self.preload()
+
+        # use fpga manager to download bin
+        if not self.partial:
+            PL.shutdown()
+            flag = '0'
+        else:
+            flag = '1'
+        with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
+            fd.write(flag)
+        with open(self.BS_FPGA_MAN, 'w') as fd:
+            fd.write(self.binfile_name)
+
+        # update PL information
+        if not self.partial:
+            self.update_pl()
+
+    def preload(self):
+        if not os.path.exists(self.BS_FPGA_MAN):
+            raise RuntimeError("Could not find programmable device")
+
+        self.binfile_name = os.path.basename(
+            self.bitfile_name).replace('.bit', '.bin')
+        self.firmware_path = '/lib/firmware/' + self.binfile_name
+        self.convert_bit_to_bin()
+
+    def update_pl(self):
+        t = datetime.now()
+        self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
+                t.year, t.month, t.day,
+                t.hour, t.minute, t.second, t.microsecond)
+
+        # Update PL information
+        PL.client_request()
+        PL._bitfile_name = self.bitfile_name
+        PL._timestamp = self.timestamp
+        PL.clear_dict()
+        PL.server_update()
