@@ -51,7 +51,9 @@
  *****************************************************************************/
 #ifndef _TIMER_H_
 #define _TIMER_H_
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #include <xparameters.h>
 
 #ifdef XPAR_XTMRCTR_NUM_INSTANCES
@@ -96,5 +98,8 @@ unsigned int timer_get_num_devices(void);
 void delay_us(unsigned int us);
 void delay_ms(unsigned int ms);
 
+#endif
+#ifdef __cplusplus 
+}
 #endif
 #endif  // _TIMER_H_

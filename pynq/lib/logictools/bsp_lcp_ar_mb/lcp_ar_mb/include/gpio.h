@@ -50,7 +50,9 @@
  *****************************************************************************/
 #ifndef _GPIO_H_
 #define _GPIO_H_
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 #include <xparameters.h>
 
 #ifdef XPAR_XGPIO_NUM_INSTANCES
@@ -78,5 +80,8 @@ void gpio_write(gpio device, unsigned int data);
 void gpio_close(gpio device);
 unsigned int gpio_get_num_devices(void);
 
+#endif
+#ifdef __cplusplus 
+}
 #endif
 #endif  // _GPIO_H_

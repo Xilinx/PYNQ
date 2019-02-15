@@ -1,7 +1,9 @@
 
 #ifndef IO_SWITCH_H
 #define IO_SWITCH_H
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 
 /****************** Include Files ********************/
 #include "xil_types.h"
@@ -81,4 +83,7 @@
  */
 XStatus IO_SWITCH_Reg_SelfTest(void * baseaddr_p);
 
+#ifdef __cplusplus 
+}
+#endif
 #endif // IO_SWITCH_H
