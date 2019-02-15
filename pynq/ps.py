@@ -31,7 +31,7 @@ import numpy as np
 import os
 import warnings
 from .mmio import MMIO
-from .register_map import Register
+from .registers import Register
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2017, Xilinx"
