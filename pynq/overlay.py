@@ -43,7 +43,7 @@ from .pl import get_tcl_name
 from .pl import get_hwh_name
 from .interrupt import Interrupt
 from .gpio import GPIO
-from .register_map import RegisterMap
+from .registers import RegisterMap
 
 
 __author__ = "Yun Rock Qu"
