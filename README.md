@@ -42,7 +42,7 @@ In Linux, you can rebuild the overlay by running *make* in the corresponding ove
 ## Contribute
 
 Contributions to this repository are welcomed. Please refer to <a href="https://github.com/Xilinx/PYNQ/blob/master/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> 
-for a list of instructions on how to improve PYNQ.
+for how to improve PYNQ.
 
 ## Support
 
