@@ -6,12 +6,28 @@ If you have an idea how to improve PYNQ:
 
    A general set of rules on what to submit:
 
-	1. We only host boards and overlays that we support officially in this repository. 
-	   For other board folders or overlays, users should host their own repositories.
-    2. To submit a new Microblaze driver for a peripheral module, users are encouraged
-       to use the <a href="https://github.com/Xilinx/PYNQ/tree/master/boards/Pynq-Z1/base/notebooks/microblaze" target="_blank">Microblaze notebook</a>; i.e., a single Jupyter notebook example is sufficient.
+	 1. We welcome submissions to the pynq Python package, sdbuild flows and documentation.
+   
+	 2. For development boards, we only host boards that we officially support. To 
+	 build new SDCard images for custom PYNQ enabled boards, we encourage users 
+	 to build a new board-only repository.  For reference, please see the 
+	 <a href="https://github.com/Avnet/Ultra96-PYNQ" target="_blank">Avnet Ultra96</a>
+	 or <a href="https://github.com/Xilinx/ZCU111-PYNQ" target="_blank">Xilinx ZCU111</a> 
+	 repositories. 
+     
+   3. For custom overlays, we only host overlays that we officially support. To 
+   create new custom overlays, we encourage users to build a new overlay 
+   repository. For reference, please see the 
+   <a href="https://github.com/Xilinx/PYNQ-HelloWorld" target="_blank">PYNQ-HelloWorld</a> 
+   and <a href="https://github.com/Xilinx/BNN-PYNQ" target="_blank">BNN-PYNQ</a> repositories.
+   
+   4. For Microblaze peripheral drivers, we encourage users to submit their C/C++ within 
+   a Jupyter notebook using the microblaze IPython magic.  Please see 
+   the <a href="https://github.com/Xilinx/PYNQ/tree/master/boards/Pynq-Z1/base/notebooks/microblaze" target="_blank">Microblaze example notebooks</a> 
+   for how to write custom device drivers.
+       
 
-2. Submit your pull request:
+2. Submitting your pull request:
 
 	1. Fork this repository to your own github account using the *fork* button above.
 
@@ -38,4 +54,6 @@ If you have an idea how to improve PYNQ:
 
 	Check the <a href="http://git.huit.harvard.edu/guide/" target="_blank">guide to git</a> for more information.
     
-3. We will review your contribution and, if any additional fixes or modifications are necessary, may provide feedback to guide you. When accepted, your pull request will be merged to the repository.
+3. We will review your contribution and, if any additional fixes or modifications are 
+necessary, may provide feedback to guide you. When accepted, your pull request will 
+be merged to the repository.
