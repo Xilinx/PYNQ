@@ -28,18 +28,15 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from pynq import DefaultIP
-import os
-import cffi
-import functools
-import signal
-import numpy as np
 import warnings
-from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 
 
 __author__ = 'Peter Ogden, Anurag Dubey'
 __copyright__ = 'Copyright 2017, Xilinx'
 __email__ = 'pynq_support@xilinx.com'
+
+
+MAX_C_SG_LENGTH_WIDTH = 26
 
 
 class _DMAChannel:
@@ -55,11 +52,14 @@ class _DMAChannel:
     through the AxiDMA class.
 
     """
-    def __init__(self, mmio, offset, flush_before, interrupt=None):
+    def __init__(self, mmio, offset, size, flush_before, interrupt=None):
         self._mmio = mmio
         self._offset = offset
         self._interrupt = interrupt
         self._flush_before = flush_before
+        self._size = size
+        self._active_buffer = None
+        self._first_transfer = True
         self.start()
 
     @property
@@ -112,6 +112,10 @@ class _DMAChannel:
             An xlnk allocated array to be transferred
 
         """
+        if array.nbytes > self._size:
+            raise ValueError('Transferred array is {} bytes, which exceeds '
+                             'the maximum DMA buffer size {}.'.format(
+                              array.nbytes, self._size))
         if not self.running:
             raise RuntimeError('DMA channel not started')
         if not self.idle and not self._first_transfer:
@@ -184,16 +188,33 @@ class DMA(DefaultIP):
                                'has been deprecated and moved to '
                                'pynq.lib.deprecated')
         super().__init__(description=description)
+
+        if 'parameters' in description and \
+                'c_sg_length_width' in description['parameters']:
+            self.buffer_max_size = \
+                1 << int(description['parameters']['c_sg_length_width'])
+        else:
+            self.buffer_max_size = 1 << MAX_C_SG_LENGTH_WIDTH
+            message = 'Failed to find parameter c_sg_length_width; ' \
+                      'users should really use *.hwh files for overlays.'
+            warnings.warn(message, UserWarning)
+
         if 'mm2s_introut' in description['interrupts']:
             self.sendchannel = _DMAChannel(self.mmio, 0x0,
-                                           True,self.mm2s_introut)
+                                           self.buffer_max_size,
+                                           True, self.mm2s_introut)
         else:
-            self.sendchannel = _DMAChannel(self.mmio, 0x0, True)
+            self.sendchannel = _DMAChannel(self.mmio, 0x0,
+                                           self.buffer_max_size,
+                                           True)
 
         if 's2mm_introut' in description['interrupts']:
             self.recvchannel = _DMAChannel(self.mmio, 0x30,
+                                           self.buffer_max_size,
                                            False, self.s2mm_introut)
         else:
-            self.recvchannel = _DMAChannel(self.mmio, 0x30, False)
+            self.recvchannel = _DMAChannel(self.mmio, 0x30,
+                                           self.buffer_max_size,
+                                           False)
 
     bindto = ['xilinx.com:ip:axi_dma:7.1']
