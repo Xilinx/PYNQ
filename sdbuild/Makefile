@@ -296,14 +296,21 @@ qemu_check_$1:
 
 endef
 
+ifeq ($(ARCH_ONLY),)
 USED_ARCH := $(sort $(foreach board, $(BOARDS), $(value ARCH_$(board))))
-
 $(foreach board, $(BOARDS), $(eval $(call BOARD_SPECIFIC_RULES,$(board))))
 $(foreach arch, $(USED_ARCH), $(eval $(call ARCH_SPECIFIC_RULES,$(arch))))
+IMAGE_FILES := $(foreach image_var, $(patsubst %, IMAGE_%, $(BOARDS)), $(value $(image_var)))
+else
+USED_ARCH := $(ARCH_ONLY)
+$(foreach arch, $(USED_ARCH), $(eval $(call ARCH_SPECIFIC_RULES,$(arch))))
+IMAGE_FILES := $(foreach image_var, $(patsubst %, BASE_%, $(ARCH_ONLY)), $(value $(image_var)))
+endif
+
+
 
 BSP_FILES := $(foreach bsp_var, $(patsubst %, BSP_FILES_%, $(BOARDS)), $(value $(bsp_var)))
 BOOT_FILES := $(foreach boot_var, $(patsubst %, BOOT_FILES_%, $(BOARDS)), $(value $(boot_var)))
-IMAGE_FILES := $(foreach image_var, $(patsubst %, IMAGE_%, $(BOARDS)), $(value $(image_var)))
 ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(board)) $(value STAGE4_PACKAGES_$(board))) \
 		$(foreach arch, $(USED_ARCH), $(value STAGE2_PACKAGES_$(arch)) $(value STAGE3_PACKAGES_$(arch))))
 PACKAGE_CLEAN := $(patsubst %,PACKAGE_CLEAN_%, $(ALL_PACKAGES))
