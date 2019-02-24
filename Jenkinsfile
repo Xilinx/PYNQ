@@ -1,14 +1,15 @@
 pipeline {
     agent none
     environment {
-        SDBUILD_DIR = "./sdbuild"
-        BOARDS_DIR = "./boards"
-        DOCS_DIR = "./docs"
+        SDBUILD_DIR = "sdbuild"
+        BOARDS_DIR = "boards"
+        DOCS_DIR = "docs"
         UBUNTU_RELEASE = "bionic"
-        VERSION = "2.4"
+        VERSION = "2.5"
+        OLD_BUILD_COUNT = 3
     }
     stages {
-        stage("Build documentation and board-agnostic images") {
+        stage("Build board-agnostic images and documentation") {
             parallel {
                 stage("Documentation") {
                     when {
@@ -68,7 +69,7 @@ pipeline {
                 }
                 stage("Board-agnostic image for arm") {
                     agent {
-                        label "image-build-2018.3"
+                        label "image-build"
                     }
                     environment {
                         ARCH = "arm"
@@ -79,15 +80,18 @@ pipeline {
                                 dir("${SDBUILD_DIR}") {
                                     // setup and invoke compilation
                                     sh '''
-                                        source /xilinx-2018.3/Vivado/2018.3/settings64.sh
-                                        source /xilinx-2018.3/SDx/2018.3/settings64.sh
-                                        source /petalinux-2018.3/settings.sh 
+                                        source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                        source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                        source /opt/petalinux/2019.1/settings.sh 
                                         petalinux-util --webtalk off
                                         make images ARCH_ONLY=${ARCH}
                                     '''
                                 }
                             }
                             post {
+                                always {
+                                    archiveArtifacts artifacts: "${SDBUILD_DIR}/output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img", onlyIfSuccessful: true
+                                }
                                 failure {
                                     // Print all log files produced during build process
                                     sh '''
@@ -110,9 +114,9 @@ pipeline {
                         }
                     }
                 }
-                stage("Board-agnostic image for aarch64") {
+                stage("Board-agnostic image for aarch64 ") {
                     agent {
-                        label 'image-build-2018.3'
+                        label 'image-build'
                     }
                     environment {
                         ARCH = "aarch64"
@@ -123,15 +127,18 @@ pipeline {
                                 dir("${SDBUILD_DIR}") {
                                     // setup and invoke compilation
                                     sh '''
-                                        source /xilinx-2018.3/Vivado/2018.3/settings64.sh
-                                        source /xilinx-2018.3/SDx/2018.3/settings64.sh
-                                        source /petalinux-2018.3/settings.sh 
+                                        source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                        source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                        source /opt/petalinux/2019.1/settings.sh 
                                         petalinux-util --webtalk off
                                         make images ARCH_ONLY=${ARCH}
                                     '''
                                 }
                             }
                             post {
+                                always {
+                                    archiveArtifacts artifacts: "${SDBUILD_DIR}/output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img", onlyIfSuccessful: true
+                                }
                                 failure {
                                     // Print all log files produced during build process
                                     sh '''
@@ -156,11 +163,11 @@ pipeline {
                 }
             }
         }
-        stage("Build board-specific images and software components for SDx platform") {
+        stage("Build board-specific images") {
             parallel {
                 stage("PYNQ-Z1") {
                     agent {
-                        label 'image-build-2018.3'
+                        label 'image-build'
                     }
                     environment {
                         ARCH = "arm"
@@ -179,11 +186,11 @@ pipeline {
                                 dir("${SDBUILD_DIR}") {
                                     // setup and invoke compilation
                                     sh '''
-                                        source /xilinx-2018.3/Vivado/2018.3/settings64.sh
-                                        source /xilinx-2018.3/SDx/2018.3/settings64.sh
-                                        source /petalinux-2018.3/settings.sh 
+                                        source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                        source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                        source /opt/petalinux/2019.1/settings.sh 
                                         petalinux-util --webtalk off
-                                        make sdx_sw all PREBUILT=${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
+                                        make sdx_sw all PREBUILT=output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
                                     '''
                                 }
                             }
@@ -199,13 +206,34 @@ pipeline {
                                         done
                                     '''
                                 }
+                                success {
+                                    // Copy build result into build folder, move previous version in /builds/old, and
+                                    // remove older builds if more than OLD_BUILD_COUNT are kept in /builds/old
+                                    sh'''
+                                        boardname=$(echo ${BOARD} | tr '[:upper:]' '[:lower:]' | tr - _)
+                                        timestamp=$(date +'%Y_%m_%d')
+                                        imagefile=${boardname}_${timestamp}.img
+                                        zipfile=${boardname}_${timestamp}.zip
+                                        mv ${SDBUILD_DIR}/output/${BOARD}-${VERSION}.img $imagefile
+                                        zip -j $zipfile $imagefile
+                                        if [ -f /builds/${boardname}_*.zip ] ; then
+                                           mv /builds/${boardname}_*.zip /builds/old
+                                        fi
+                                        mv $zipfile /builds
+                                        old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        while [ ${#old_zipfiles[@]} -gt ${OLD_BUILD_COUNT} ] ; do
+                                           rm ${old_zipfiles[0]}
+                                           old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        done
+                                    '''
+                                }
                             }
                         }
                     }
                 }
                 stage("PYNQ-Z2") {
                     agent {
-                        label 'image-build-2018.3'
+                        label 'image-build'
                     }
                     environment {
                         ARCH = "arm"
@@ -224,11 +252,11 @@ pipeline {
                                 dir("${SDBUILD_DIR}") {
                                     // setup and invoke compilation
                                     sh '''
-                                        source /xilinx-2018.3/Vivado/2018.3/settings64.sh
-                                        source /xilinx-2018.3/SDx/2018.3/settings64.sh
-                                        source /petalinux-2018.3/settings.sh 
+                                        source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                        source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                        source /opt/petalinux/2019.1/settings.sh 
                                         petalinux-util --webtalk off
-                                        make sdx_sw all PREBUILT=${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
+                                        make sdx_sw all PREBUILT=output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
                                     '''
                                 }
                             }
@@ -244,13 +272,34 @@ pipeline {
                                         done
                                     '''
                                 }
+                                success {
+                                    // Copy build result into build folder, move previous version in /builds/old, and
+                                    // remove older builds if more than OLD_BUILD_COUNT are kept in /builds/old
+                                    sh'''
+                                        boardname=$(echo ${BOARD} | tr '[:upper:]' '[:lower:]' | tr - _)
+                                        timestamp=$(date +'%Y_%m_%d')
+                                        imagefile=${boardname}_${timestamp}.img
+                                        zipfile=${boardname}_${timestamp}.zip
+                                        mv ${SDBUILD_DIR}/output/${BOARD}-${VERSION}.img $imagefile
+                                        zip -j $zipfile $imagefile
+                                        if [ -f /builds/${boardname}_*.zip ] ; then
+                                           mv /builds/${boardname}_*.zip /builds/old
+                                        fi
+                                        mv $zipfile /builds
+                                        old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        while [ ${#old_zipfiles[@]} -gt ${OLD_BUILD_COUNT} ] ; do
+                                           rm ${old_zipfiles[0]}
+                                           old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        done
+                                    '''
+                                }
                             }
                         }
                     }
                 }
                 stage("ZCU104") {
                     agent {
-                        label 'image-build-2018.3'
+                        label 'image-build'
                     }
                     environment {
                         ARCH = "aarch64"
@@ -259,7 +308,7 @@ pipeline {
                     stages {
                         stage("Fetch ZCU104 Petalinux BSP") {
                             steps {
-                                sh 'cp /petalinux-bsp/xilinx-zcu104-v2018.3-final-v2.bsp ${BOARDS_DIR}/${BOARD}/'
+                                sh 'cp /opt/petalinux-bsp/xilinx-zcu104-v2019.1-final.bsp ${BOARDS_DIR}/${BOARD}/'
                             }
                         }
                         stage("Retrieve generated board-agnostic image") {
@@ -274,11 +323,11 @@ pipeline {
                                 dir("${SDBUILD_DIR}") {
                                     // setup and invoke compilation
                                     sh '''
-                                        source /xilinx-2018.3/Vivado/2018.3/settings64.sh
-                                        source /xilinx-2018.3/SDx/2018.3/settings64.sh
-                                        source /petalinux-2018.3/settings.sh 
+                                        source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                        source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                        source /opt/petalinux/2019.1/settings.sh 
                                         petalinux-util --webtalk off
-                                        make sdx_sw all PREBUILT=${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
+                                        make sdx_sw all PREBUILT=output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
                                     '''
                                 }
                             }
@@ -291,6 +340,27 @@ pipeline {
                                             echo "=============================="
                                             sudo cat $logfile
                                             echo -e "==============================\n"
+                                        done
+                                    '''
+                                }
+                                success {
+                                    // Copy build result into build folder, move previous version in /builds/old, and
+                                    // remove older builds if more than OLD_BUILD_COUNT are kept in /builds/old
+                                    sh'''
+                                        boardname=$(echo ${BOARD} | tr '[:upper:]' '[:lower:]' | tr - _)
+                                        timestamp=$(date +'%Y_%m_%d')
+                                        imagefile=${boardname}_${timestamp}.img
+                                        zipfile=${boardname}_${timestamp}.zip
+                                        mv ${SDBUILD_DIR}/output/${BOARD}-${VERSION}.img $imagefile
+                                        zip -j $zipfile $imagefile
+                                        if [ -f /builds/${boardname}_*.zip ] ; then
+                                           mv /builds/${boardname}_*.zip /builds/old
+                                        fi
+                                        mv $zipfile /builds
+                                        old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        while [ ${#old_zipfiles[@]} -gt ${OLD_BUILD_COUNT} ] ; do
+                                           rm ${old_zipfiles[0]}
+                                           old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
                                         done
                                     '''
                                 }
