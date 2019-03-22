@@ -48,6 +48,10 @@ Vagrant.configure("2") do |config|
 	chmod 777 -R /sdbuild
   SHELL
 
+  # Initialize the apt database in the brand new Ubuntu VM
+  config.vm.provision "shell",
+    inline: "apt-get update"
+
   # Install prerequisites
   config.vm.provision "shell", 
 	inline: "/bin/bash /pynq/sdbuild/scripts/setup_host.sh"
