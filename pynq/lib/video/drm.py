@@ -139,7 +139,7 @@ class DrmDriver:
         if not pixelformat.fourcc:
             raise ValueError("pixelformat does not define a FourCC")
         ret = self._videolib.pynqvideo_device_set_mode(
-            self._device, mode.width, mode.height, 60,
+            self._device, mode.width, mode.height, mode.fps,
             _fourcc_int(pixelformat.fourcc))
         if ret:
             raise OSError(ret)
