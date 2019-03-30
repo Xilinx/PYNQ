@@ -15,7 +15,7 @@ echo ${mount_points[1]}
 root_part=/dev/mapper/${mount_points[1]}
 boot_part=/dev/mapper/${mount_points[0]}
 
-sleep 1
+sleep 5
 
 # mkfs wasn't on the list of passwordless sudo commands so work around for now
 sudo chroot / mkfs -t fat $boot_part
@@ -23,7 +23,7 @@ sudo chroot / mkfs -t ext4 $root_part
 
 mkdir -p $image_dir
 sudo mount $root_part $image_dir
-sleep 2
+sleep 5
 # Neither was mkdir
 sudo chroot / mkdir $image_dir/boot
 sudo mount $boot_part $image_dir/boot
