@@ -7,5 +7,5 @@ image_file=$2
 
 sudo umount $target/boot
 sudo umount $target
-sleep 1
+sleep 5
 sudo kpartx -d $image_file

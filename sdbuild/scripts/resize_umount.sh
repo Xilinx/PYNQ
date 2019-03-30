@@ -12,7 +12,7 @@ image_file=$1
 boot_dev=/dev/mapper/$(sudo kpartx -v $image_file | grep -o 'loop[0-9]p1')
 root_dev=/dev/mapper/$(sudo kpartx -v $image_file | grep -o 'loop[0-9]p2')
 root_offset=$(sudo kpartx -v $image_file | grep 'loop[0-9]p2' | cut -d ' ' -f 6)
-sleep 2
+sleep 5
 
 sudo umount $image_dir/boot
 sudo umount $image_dir
