@@ -95,14 +95,19 @@ class Arduino_IO(Arduino_DevMode):
         self.direction = direction
 
         self.start()
+        current_tri_val = self.read_cmd(ARDUINO_DIO_BASEADDR +
+                                        ARDUINO_DIO_TRI_OFFSET)
+        tri_mask = 1 << self.index
         if self.direction == 'in':
+            current_tri_val |= tri_mask
             self.write_cmd(ARDUINO_DIO_BASEADDR +
                            ARDUINO_DIO_TRI_OFFSET,
-                           ARDUINO_CFG_DIO_ALLINPUT)
+                           current_tri_val)
         else:
+            current_tri_val &= ~tri_mask
             self.write_cmd(ARDUINO_DIO_BASEADDR +
                            ARDUINO_DIO_TRI_OFFSET,
-                           ARDUINO_CFG_DIO_ALLOUTPUT)
+                           current_tri_val)
 
     def write(self, value): 
         """Send the value to the offboard Arduino IO device.
