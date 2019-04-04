@@ -44,7 +44,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-class Arduino_IO(Arduino_DevMode):
+class Arduino_IO():
     """This class controls the Arduino IO pins as inputs or outputs.
     
     Note
@@ -69,7 +69,15 @@ class Arduino_IO(Arduino_DevMode):
         Input 'in' or output 'out'.
     
     """
-    def __init__(self, mb_info, index, direction): 
+
+    class __Arduino_IO(Arduino_DevMode):
+        def __init__(self, mb_info):
+            super().__init__(mb_info, ARDUINO_SWCFG_DIOALL)
+            self.start()
+
+    singleton_instance = None
+
+    def __init__(self, mb_info, index, direction):
         """Return a new instance of a Arduino IO object.
         
         Parameters
@@ -90,21 +98,29 @@ class Arduino_IO(Arduino_DevMode):
         if direction not in ['in', 'out']:
             raise ValueError("Direction can only be 'in', or 'out'.")
 
-        super().__init__(mb_info, ARDUINO_SWCFG_DIOALL)
+        if not Arduino_IO.singleton_instance:
+            Arduino_IO.singleton_instance = Arduino_IO.__Arduino_IO(mb_info)
+
+        self.microblaze = Arduino_IO.singleton_instance
+
         self.index = index
         self.direction = direction
 
-        self.start()
+        current_tri_val = self.microblaze.read_cmd(ARDUINO_DIO_BASEADDR +
+                                                   ARDUINO_DIO_TRI_OFFSET)
+        tri_mask = 1 << self.index
         if self.direction == 'in':
-            self.write_cmd(ARDUINO_DIO_BASEADDR +
-                           ARDUINO_DIO_TRI_OFFSET,
-                           ARDUINO_CFG_DIO_ALLINPUT)
+            current_tri_val |= tri_mask
+            self.microblaze.write_cmd(ARDUINO_DIO_BASEADDR +
+                                      ARDUINO_DIO_TRI_OFFSET,
+                                      current_tri_val)
         else:
-            self.write_cmd(ARDUINO_DIO_BASEADDR +
-                           ARDUINO_DIO_TRI_OFFSET,
-                           ARDUINO_CFG_DIO_ALLOUTPUT)
+            current_tri_val &= ~tri_mask
+            self.microblaze.write_cmd(ARDUINO_DIO_BASEADDR +
+                                      ARDUINO_DIO_TRI_OFFSET,
+                                      current_tri_val)
 
-    def write(self, value): 
+    def write(self, value):
         """Send the value to the offboard Arduino IO device.
 
         Note
@@ -129,17 +145,17 @@ class Arduino_IO(Arduino_DevMode):
         if self.index in range(ARDUINO_NUM_ANALOG_PINS +
                                ARDUINO_NUM_DIGITAL_PINS):
             if value:
-                cur_val = self.read_cmd(ARDUINO_DIO_BASEADDR +
-                                        ARDUINO_DIO_DATA_OFFSET)
+                cur_val = self.microblaze.read_cmd(ARDUINO_DIO_BASEADDR +
+                                                   ARDUINO_DIO_DATA_OFFSET)
                 new_val = cur_val | (0x1 << self.index)
-                self.write_cmd(ARDUINO_DIO_BASEADDR +
-                               ARDUINO_DIO_DATA_OFFSET, new_val)
+                self.microblaze.write_cmd(ARDUINO_DIO_BASEADDR +
+                                          ARDUINO_DIO_DATA_OFFSET, new_val)
             else:
-                cur_val = self.read_cmd(ARDUINO_DIO_BASEADDR +
-                                        ARDUINO_DIO_DATA_OFFSET)
+                cur_val = self.microblaze.read_cmd(ARDUINO_DIO_BASEADDR +
+                                                   ARDUINO_DIO_DATA_OFFSET)
                 new_val = cur_val & (0xffffffff ^ (0x1 << self.index))
-                self.write_cmd(ARDUINO_DIO_BASEADDR +
-                               ARDUINO_DIO_DATA_OFFSET, new_val)
+                self.microblaze.write_cmd(ARDUINO_DIO_BASEADDR +
+                                          ARDUINO_DIO_DATA_OFFSET, new_val)
 
     def read(self):
         """Receive the value from the offboard Arduino IO device.
@@ -159,8 +175,8 @@ class Arduino_IO(Arduino_DevMode):
         
         if self.index in range(ARDUINO_NUM_ANALOG_PINS +
                                ARDUINO_NUM_DIGITAL_PINS):
-            raw_value = self.read_cmd(ARDUINO_DIO_BASEADDR +
-                                      ARDUINO_DIO_DATA_OFFSET)
+            raw_value = self.microblaze.read_cmd(ARDUINO_DIO_BASEADDR +
+                                                 ARDUINO_DIO_DATA_OFFSET)
             return (raw_value >> self.index) & 0x1
 
     def _state(self):
@@ -177,6 +193,6 @@ class Arduino_IO(Arduino_DevMode):
         """
         if self.index in range(ARDUINO_NUM_ANALOG_PINS +
                                ARDUINO_NUM_DIGITAL_PINS):
-            raw_value = self.read_cmd(ARDUINO_DIO_BASEADDR +
-                                      ARDUINO_DIO_DATA_OFFSET)
+            raw_value = self.microblaze.read_cmd(ARDUINO_DIO_BASEADDR +
+                                                 ARDUINO_DIO_DATA_OFFSET)
             return (raw_value >> self.index) & 0x1
