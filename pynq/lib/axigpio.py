@@ -122,7 +122,7 @@ class AxiGPIO(DefaultIP):
             wire with the lowest index.
 
             """
-            return (self._parent._val >> self._start) & self._mask
+            return (self._parent.val >> self._start) & self._mask
 
         def write(self, val):
             """Set the value of the slice
@@ -179,8 +179,10 @@ class AxiGPIO(DefaultIP):
             wire with the lowest index.
 
             """
-            self._parent.trimask |= self._trimask
-            return super().read()
+            if (self._parent.trimask >> self._start) & 1:
+                return self._parent._parent.Input.read(self)
+            else:
+                return self._parent._parent.Output.read(self)
 
         def write(self, val):
             """Set the value of the slice
