@@ -28,13 +28,11 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import collections
-import importlib.util
 import os
-import re
 import warnings
 from copy import deepcopy
 from .mmio import MMIO
-from .ps import Clocks, CPU_ARCH_IS_SUPPORTED, CPU_ARCH
+from .ps import Clocks
 from .pl import PL
 from .pl import Bitstream
 from .pl import TCL
@@ -238,8 +236,8 @@ class Overlay(Bitstream):
     ----------
     bitfile_name : str
         The absolute path of the bitstream.
-    bitstream : Bitstream
-        The corresponding bitstream object.
+    dtbo : str
+        The absolute path of the dtbo file for the full bitstream.
     ip_dict : dict
         All the addressable IPs from PS. Key is the name of the IP; value is
         a dictionary mapping the physical address, address range, IP type,
@@ -264,9 +262,14 @@ class Overlay(Bitstream):
         Key is the name of the pin; value is a dictionary
         mapping the interrupt controller and the line index used:
         {str: {'controller' : str, 'index' : int}}.
+    pr_dict : dict
+        Dictionary mapping from the name of the partial-reconfigurable
+        hierarchical blocks to the loaded partial bitstreams:
+        {str: {'loaded': str, 'dtbo': str}}.
 
     """
-    def __init__(self, bitfile_name, download=True, ignore_version=False):
+    def __init__(self, bitfile_name,
+                 dtbo=None, download=True, ignore_version=False):
         """Return a new Overlay object.
 
         An overlay instantiates a bitstream object as a member initially.
@@ -275,6 +278,8 @@ class Overlay(Bitstream):
         ----------
         bitfile_name : str
             The bitstream name or absolute path as a string.
+        dtbo : str
+            The dtbo file name or absolute path as a string.
         download : bool
             Whether the overlay should be downloaded.
         ignore_version : bool
@@ -286,7 +291,7 @@ class Overlay(Bitstream):
         with same name (e.g. `base.bit` and `base.tcl`).
 
         """
-        super().__init__(bitfile_name, partial=False)
+        super().__init__(bitfile_name, dtbo, partial=False)
 
         hwh_path = get_hwh_name(self.bitfile_name)
         tcl_path = get_tcl_name(self.bitfile_name)
@@ -305,7 +310,7 @@ class Overlay(Bitstream):
             self.interrupt_pins = self.hierarchy_dict = dict()
         self._deepcopy_dict_from(self.parser)
         self.clock_dict = self.parser.clock_dict
-        self.pr_region = ''
+        self.pr_dict = dict()
         self.ignore_version = ignore_version
         description = _complete_description(
             self.ip_dict, self.hierarchy_dict, self.ignore_version)
@@ -335,62 +340,75 @@ class Overlay(Bitstream):
         self.interrupt_pins = deepcopy(source.interrupt_pins)
         self.hierarchy_dict = deepcopy(source.hierarchy_dict)
 
-    def set_partial_region(self, pr_region):
-        """Set partial reconfiguration region for the overlay.
-
-        Parameters
-        ----------
-        pr_region : str
-            The name of the hierarchical block corresponding to the PR region.
-
-        """
-        self.pr_region = pr_region
-
-    def download(self, partial_bit=None):
-        """The method to download a bitstream onto PL.
+    def download(self, dtbo=None):
+        """The method to download a full bitstream onto PL.
 
         After the bitstream has been downloaded, the "timestamp" in PL will be
         updated. In addition, all the dictionaries on PL will
         be reset automatically.
 
-        If no bit file name is given, it is assuming
-        a full bitstream will be downloaded; otherwise a partial bitstream
-        needs to be specified as the input argument.
-
-        Also, for partial bitstream, the corresponding parser will only be
-        added once the `download()` method of the hierarchical block is called.
+        This method will use parameter `dtbo` or `self.dtbo` to configure the
+        device tree.
 
         Parameters
         ----------
-        partial_bit : str
-            The name of the partial bitstream.
+        dtbo : str
+            The path of the dtbo file.
 
         """
-        if not partial_bit:
-            for i in self.clock_dict:
-                enable = self.clock_dict[i]['enable']
-                div0 = self.clock_dict[i]['divisor0']
-                div1 = self.clock_dict[i]['divisor1']
-                if enable:
-                    Clocks.set_pl_clk(i, div0, div1)
-                else:
-                    Clocks.set_pl_clk(i)
+        for i in self.clock_dict:
+            enable = self.clock_dict[i]['enable']
+            div0 = self.clock_dict[i]['divisor0']
+            div1 = self.clock_dict[i]['divisor1']
+            if enable:
+                Clocks.set_pl_clk(i, div0, div1)
+            else:
+                Clocks.set_pl_clk(i)
 
-            super().download()
-            PL.reset(self.parser)
-        else:
-            if not self.pr_region:
-                raise ValueError(
-                    "Partial region must be set before reconfiguration.")
-            PL.reset(self.parser)
-            pr_block = self.__getattr__(self.pr_region)
-            pr_block.download(partial_bit)
-            pr_parser = pr_block.parsers[partial_bit]
-            PL.update_partial_region(self.pr_region, pr_parser)
-            self._deepcopy_dict_from(PL)
-            description = _complete_description(
-                self.ip_dict, self.hierarchy_dict, self.ignore_version)
-            self._ip_map = _IPMap(description)
+        super().download()
+        PL.reset(self.parser)
+        if dtbo:
+            super().insert_dtbo(dtbo)
+        elif self.dtbo:
+            super().insert_dtbo()
+
+    def pr_download(self, partial_region, partial_bit, dtbo=None):
+        """The method to download a partial bitstream onto PL.
+
+        In this method, the corresponding parser will only be
+        added once the `download()` method of the hierarchical block is called.
+
+        This method always uses the parameter `dtbo` to configure the device
+        tree.
+
+        Note
+        ----
+        There is no check on whether the partial region specified by users
+        is really partial-reconfigurable. So users have to make sure the
+        `partial_region` provided is correct.
+
+        Parameters
+        ----------
+        partial_region : str
+            The name of the hierarchical block corresponding to the PR region.
+        partial_bit : str
+            The name of the partial bitstream.
+        dtbo : str
+            The path of the dtbo file.
+
+        """
+        PL.reset(self.parser)
+        pr_block = self.__getattr__(partial_region)
+        pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
+        pr_parser = pr_block.parsers[pr_block.pr_loaded]
+        pr_dtbo = pr_block.bitstreams[partial_bit].dtbo
+        PL.update_partial_region(partial_region, pr_parser)
+        self._deepcopy_dict_from(PL)
+        self.pr_dict[partial_region] = {'loaded': pr_block.pr_loaded,
+                                        'dtbo': pr_dtbo}
+        description = _complete_description(
+            self.ip_dict, self.hierarchy_dict, self.ignore_version)
+        self._ip_map = _IPMap(description)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
@@ -536,7 +554,6 @@ class DefaultIP(metaclass=RegisterIP):
                         "register_map only available if the .hwh is provided")
         return self._register_map
 
-
     def read(self, offset=0):
         """Read from the MMIO device
 
@@ -622,7 +639,7 @@ def DocumentOverlay(bitfile, download):
     """
     class DocumentedOverlay(DefaultOverlay):
         def __init__(self):
-            super().__init__(bitfile, download)
+            super().__init__(bitfile, download=download)
     overlay = DocumentedOverlay()
     DocumentedOverlay.__doc__ = _build_docstring(overlay._ip_map._description,
                                                  bitfile,
@@ -678,7 +695,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
     bitstreams : dict
         Bitstream objects for partial designs.
     pr_loaded : str
-        The name of the partial bitstream loaded.
+        The absolute path of the partial bitstream loaded.
 
     """
 
@@ -701,7 +718,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         """
         return False
 
-    def download(self, bitfile_name):
+    def download(self, bitfile_name, dtbo):
         """Function to download a partial bitstream for the hierarchy block.
 
         Since it is hard to know which hierarchy is to be reconfigured by only
@@ -713,15 +730,26 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         ----------
         bitfile_name : str
             The name of the partial bitstream.
+        dtbo : str
+            The relative or absolute path of the partial dtbo file.
 
         """
-        self._locate_metadata(bitfile_name)
+        if self.pr_loaded:
+            self._find_bitstream_by_abs(self.pr_loaded).remove_dtbo()
+        self._locate_metadata(bitfile_name, dtbo)
         self._parse(bitfile_name)
         self._load_bitstream(bitfile_name)
-        self.pr_loaded = bitfile_name
+        if dtbo:
+            self.bitstreams[bitfile_name].insert_dtbo()
 
-    def _locate_metadata(self, bitfile_name):
-        self.bitstreams[bitfile_name] = Bitstream(bitfile_name,
+    def _find_bitstream_by_abs(self, absolute_path):
+        for i in self.bitstreams.keys():
+            if self.bitstreams[i].bitfile_name == absolute_path:
+                return self.bitstreams[i]
+        return None
+
+    def _locate_metadata(self, bitfile_name, dtbo):
+        self.bitstreams[bitfile_name] = Bitstream(bitfile_name, dtbo,
                                                   partial=True)
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name
         hwh_path = get_hwh_name(bitfile_name)
@@ -738,6 +766,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
                 bitfile_name))
 
     def _parse(self, bitfile_name):
+        bitfile_name = self.bitstreams[bitfile_name].bitfile_name
         fullpath = self.description['fullpath']
         ip_dict = dict()
         for k, v in self.parsers[bitfile_name].ip_dict.items():
@@ -759,3 +788,4 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
 
     def _load_bitstream(self, bitfile_name):
         self.bitstreams[bitfile_name].download()
+        self.pr_loaded = self.bitstreams[bitfile_name].bitfile_name

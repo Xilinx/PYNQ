@@ -37,6 +37,7 @@ from .pl import PL_SERVER_FILE
 from .pl import Bitstream
 from .ps import Register
 from .ps import Clocks
+from .devicetree import DeviceTreeSegment
 from .interrupt import Interrupt
 from .xlnk import Xlnk
 from .overlay import Overlay
