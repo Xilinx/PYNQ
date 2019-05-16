@@ -39,7 +39,8 @@ __email__ = "pynq_support@xilinx.com"
 class _GPIO:
     """Internal Helper class to wrap Linux's GPIO Sysfs API.
 
-    This GPIO class does not handle PL I/O.
+    This GPIO class does not handle PL I/O without the use of
+    device tree overlays.
 
     Attributes
     ----------
@@ -118,6 +119,29 @@ class _GPIO:
             f.write(str(value))
         return
 
+    def unexport(self):
+        """The method to unexport the GPIO using Linux's GPIO Sysfs API.
+
+        Returns
+        -------
+        None
+
+        """
+        if os.path.exists(self.path):
+            with open('/sys/class/gpio/unexport', 'w') as f:
+                f.write(str(self.index))
+
+    def is_exported(self):
+        """The method to check if a GPIO is still exported using
+        Linux's GPIO Sysfs API.
+
+        Returns
+        -------
+        bool
+            True if the GPIO is still loaded.
+
+        """
+        return os.path.exists(self.path)
 
 _gpio_map = weakref.WeakValueDictionary()
 
@@ -125,7 +149,8 @@ _gpio_map = weakref.WeakValueDictionary()
 class GPIO:
     """Class to wrap Linux's GPIO Sysfs API.
 
-    This GPIO class does not handle PL I/O.
+    This GPIO class does not handle PL I/O without the use of device tree
+    overlays.
 
     Attributes
     ----------
@@ -161,26 +186,24 @@ class GPIO:
         self._impl = None
         if gpio_index in _gpio_map:
             self._impl = _gpio_map[gpio_index]
-            if self._impl and self._impl.direction != direction:
+            if self._impl and self._impl.is_exported() and \
+               self._impl.direction != direction:
                 raise AttributeError("GPIO already in use in other direction")
 
-        if not self._impl:
+        if not self._impl or not self._impl.is_exported():
             self._impl = _GPIO(gpio_index, direction)
             _gpio_map[gpio_index] = self._impl
 
     @property
     def index(self):
-        """Index of the GPIO pin : int"""
         return self._impl.index
 
     @property
     def direction(self):
-        """Direction of the GPIO pin - either 'in' or 'out' : str"""
         return self._impl.direction
 
     @property
     def path(self):
-        """Path to the GPIO pin in the filesystem : str"""
         return self._impl.path
 
     def read(self):
@@ -209,8 +232,58 @@ class GPIO:
         """
         self._impl.write(value)
 
+    def release(self):
+        """The method to release the GPIO.
+
+        Returns
+        -------
+        None
+
+        """
+        self._impl.unexport()
+        del self._impl
+
+
     @staticmethod
-    def get_gpio_base():
+    def get_gpio_base_path(target_label=None):
+        """This method returns the path to the GPIO base using Linux's
+        GPIO Sysfs API.
+
+        This is a static method. To use:
+
+        >>> from pynq import GPIO
+
+        >>> gpio = GPIO.get_gpio_base_path()
+
+        Parameters
+        ----------
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
+
+        Returns
+        -------
+        str
+            The path to the GPIO base.
+
+        """
+        valid_labels = []
+        if target_label is not None:
+            valid_labels.append(target_label)
+        else:
+            valid_labels.append('zynqmp_gpio')
+            valid_labels.append('zynq_gpio')
+
+        for root, dirs, files in os.walk('/sys/class/gpio'):
+            for name in dirs:
+                if 'gpiochip' in name:
+                    with open(os.path.join(root, name, "label")) as fd:
+                        label = fd.read().rstrip()
+                    if label in valid_labels:
+                        return os.path.join(root, name)
+
+    @staticmethod
+    def get_gpio_base(target_label=None):
         """This method returns the GPIO base using Linux's GPIO Sysfs API.
 
         This is a static method. To use:
@@ -223,22 +296,24 @@ class GPIO:
         ----
         For path '/sys/class/gpio/gpiochip138/', this method returns 138.
 
+        Parameters
+        ----------
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
+
         Returns
         -------
         int
             The GPIO index of the base.
 
         """
-        for root, dirs, files in os.walk('/sys/class/gpio'):
-            for name in dirs:
-                if 'gpiochip' in name:
-                    with open(os.path.join(root, name, "label")) as fd:
-                        label = fd.read().rstrip()
-                    if label in ['zynqmp_gpio', 'zynq_gpio']:
-                        return int(''.join(x for x in name if x.isdigit()))
+        base_path = GPIO.get_gpio_base_path(target_label)
+        if base_path is not None:
+            return int(''.join(x for x in base_path if x.isdigit()))
 
     @staticmethod
-    def get_gpio_pin(gpio_user_index):
+    def get_gpio_pin(gpio_user_index, target_label=None):
         """This method returns a GPIO instance for PS GPIO pins.
 
         Users only need to specify an index starting from 0; this static
@@ -255,6 +330,9 @@ class GPIO:
         ----------
         gpio_user_index : int
             The index specified by users, starting from 0.
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
 
         Returns
         -------
@@ -262,5 +340,39 @@ class GPIO:
             The Linux Sysfs GPIO pin number.
 
         """
-        return (GPIO.get_gpio_base() + GPIO._GPIO_MIN_USER_PIN +
+        if target_label is not None:
+            GPIO_OFFSET = 0
+        else:
+            GPIO_OFFSET = GPIO._GPIO_MIN_USER_PIN
+
+        return (GPIO.get_gpio_base(target_label) + GPIO_OFFSET +
                 gpio_user_index)
+
+    @staticmethod
+    def get_gpio_npins(target_label=None):
+        """This method returns the number of GPIO pins for the GPIO base
+        using Linux's GPIO Sysfs API.
+
+        This is a static method. To use:
+
+        >>> from pynq import GPIO
+
+        >>> gpio = GPIO.get_gpio_npins()
+
+        Parameters
+        ----------
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
+
+        Returns
+        -------
+        int
+            The number of GPIO pins for the GPIO base.
+
+        """
+        base_path = GPIO.get_gpio_base_path(target_label)
+        if base_path is not None:
+            with open(os.path.join(base_path, "ngpio")) as fd:
+                ngpio = fd.read().rstrip()
+            return int(''.join(x for x in ngpio if x.isdigit()))
