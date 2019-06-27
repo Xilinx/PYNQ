@@ -46,7 +46,7 @@ for how to improve PYNQ.
 
 ## Support
 
-Please ask questions on the <a href="https://groups.google.com/forum/#!forum/pynq_project" target="_blank">PYNQ support forum</a>.
+Please ask questions on the <a href="https://discuss.pynq.io/" target="_blank">PYNQ support forum</a>.
 
 ## Licenses
 
