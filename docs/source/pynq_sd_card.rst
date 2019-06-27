@@ -43,7 +43,8 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
         cd <PYNQ repository>
 
   3. You can then prepare the VM using the following command. This step will
-     prepare a Ubuntu VM called *pynq_vm* on your Virtual Box. The Ubuntu 
+     prepare a Ubuntu VM called *pynq_vm* on your Virtual Box. For this VM,
+     username and password are both defaulted to *vagrant*. The Ubuntu 
      packages on the VM will be updated during this process; the Ubuntu desktop 
      will also be installed so you can install Xilinx software later.
 

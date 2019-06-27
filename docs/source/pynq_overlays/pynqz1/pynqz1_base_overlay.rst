@@ -131,7 +131,7 @@ peripherals with different interfaces and protocols. By using a PYNQ MicroBlaze,
 the same overlay can be used to support different peripheral without requiring a
 different overlay for each peripheral.
 
-The PYNQ-Z1 has two types of PYNQ MicroBlaze: *Pmod* and *Arduio*, connecting
+The PYNQ-Z1 has two types of PYNQ MicroBlaze: *Pmod* and *Arduino*, connecting
 to each type of corresponding interface. As the board has one Arduino header,
 and two Pmod ports, there is one instance of the Arduino, and two instances of
 the PMod PYNQ MicroBlaze in the base overlay. 
