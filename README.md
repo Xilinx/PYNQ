@@ -58,6 +58,6 @@ Please ask questions on the <a href="https://groups.google.com/forum/#!forum/pyn
 
 ## SDBuild Open Source Components
 
-**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.4-license.tar.gz)
+**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.4.1-license.tar.gz)
 
-**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.4-open_components.tar.gz)
+**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.4.1-open_components.tar.gz)
