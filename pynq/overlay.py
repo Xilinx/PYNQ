@@ -779,11 +779,13 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
             fullpath + '_' + s: {
                 fullpath + '/' + i for i in p}
             for s, p in self.parsers[bitfile_name].nets.items()
+            if s is not None and p is not None
         }
 
         self.parsers[bitfile_name].pins = {
             fullpath + '/' + p: fullpath + '_' + s
             for p, s in self.parsers[bitfile_name].pins.items()
+            if s is not None and p is not None
         }
 
     def _load_bitstream(self, bitfile_name):
