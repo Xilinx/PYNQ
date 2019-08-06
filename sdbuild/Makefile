@@ -5,6 +5,7 @@ VERSION := 2.4
 
 KERNEL_VERSION := 2018.3
 LINUX_VERSION := 4.14.0-xilinx-v2018.3
+QEMU_VERSION := 4.0.0
 SCRIPT_DIR := $(CURDIR)/scripts
 
 all: real_all
@@ -127,6 +128,8 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ROOTFS_SD=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1)
 	petalinux-config --oldconfig -p $$(PL_PROJ_$1)
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
@@ -197,7 +200,7 @@ $$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODUL
 	rm -rf $$(BUILD_ROOT_$1)/modules
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
 	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
-	sudo chroot $$(STAGING_$1) tar cvzf kernel.tgz /usr/src/kernel
+	sudo chroot $$(STAGING_$1) tar czf kernel.tgz /usr/src/kernel
 	sudo chroot $$(STAGING_$1) rm -rf /usr/src/kernel
 	$$(SCRIPT_DIR)/resize_umount.sh $$(IMAGE_$1) $$(STAGING_$1)
 
@@ -287,7 +290,7 @@ sysroot_$1 : $$(SYSROOT_$1)
 .PRECIOUS: $$(STAGE1_$1) $$(STAGE2_$2) $$(BASE_$1)
 
 qemu_check_$1:
-	$$(QEMU_$1) -version | fgrep 2.8.0
+	$$(QEMU_$1) -version | fgrep ${QEMU_VERSION}
 
 .PHONY: qemu_check_$1
 
@@ -314,7 +317,7 @@ checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
 	which ct-ng
 	which python | fgrep /usr/bin/python
 	sudo -n mount > /dev/null
-	bash $(SCRIPT_DIR)/check_Env.sh
+	bash $(SCRIPT_DIR)/check_env.sh
 	bash $(SCRIPT_DIR)/check_mounts.sh
 
 boot_files: checkenv $(BOOT_FILES)

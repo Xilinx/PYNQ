@@ -1,9 +1,4 @@
 GCC_MB_SOURCEDIR := $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
-
-
-MB_BINUTILS_REPO := https://github.com/Xilinx/binutils.git
-MB_BINUTILS_COMMIT := xlnx/binutils-2_23-branch
-
 GCC_MB_WORKDIR := ${BUILD_ROOT}/gcc-mb
 export CT_COMPILE_ROOT = ${GCC_MB_WORKDIR}
 export CT_SOURCE_ROOT = ${GCC_MB_SOURCEDIR}
@@ -15,10 +10,7 @@ PACKAGE_CLEAN_gcc-mb:
 	-if [ -e ${GCC_MB_WORKDIR} ]; then chmod u+w -fR ${GCC_MB_WORKDIR}; fi
 	-rm -rf ${GCC_MB_WORKDIR}
 
-${GCC_MB_WORKDIR}/binutils: | ${GCC_MB_WORKDIR}
-	${SCRIPT_DIR}/git_clone_checkout ${MB_BINUTILS_REPO} ${MB_BINUTILS_COMMIT} ${GCC_MB_WORKDIR}/binutils
-
-${GCC_MB_WORKDIR}/%/microblazeel-xilinx-elf/bin/mb-gcc: | ${GCC_MB_WORKDIR}/samples ${GCC_MB_WORKDIR}/binutils ${GCC_MB_WORKDIR}/patches
+${GCC_MB_WORKDIR}/%/microblazeel-xilinx-elf/bin/mb-gcc: | ${GCC_MB_WORKDIR}/samples ${GCC_MB_WORKDIR}/patches
 	cd ${GCC_MB_WORKDIR} && ${GCC_MB_SOURCEDIR}/build.sh $*
 
 ${GCC_MB_WORKDIR}/samples: | ${GCC_MB_SOURCEDIR}/samples ${GCC_MB_WORKDIR}
