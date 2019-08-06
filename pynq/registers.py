@@ -31,6 +31,7 @@ import functools
 import textwrap
 import numpy as np
 import re
+import warnings
 
 __author__ = "Peter Ogden, Yun Rock Qu"
 __copyright__ = "Copyright 2019, Xilinx"
