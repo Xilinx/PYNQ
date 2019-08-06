@@ -11,6 +11,7 @@ texinfo
 help2man
 gawk
 libtool
+libtool-bin
 build-essential
 automake
 libncurses5-dev
@@ -24,12 +25,13 @@ lib32z1
 lib32ncurses5
 libbz2-1.0
 lib32stdc++6
-libgnutls-dev
 libssl-dev
 kpartx
 zerofree
 u-boot-tools
 rpm2cpio
+libsdl1.2-dev
+gcc-multilib
 EOT
 
 if [ "$EUID" -eq 0 ] ; then
@@ -48,5 +50,5 @@ done
 if [ "$failed" = true ] ; then
     echo "Run setup_host.sh"
     exit 1
-fi 
+fi
 
