@@ -40,6 +40,9 @@ from multiprocessing.connection import Listener
 from multiprocessing.connection import Client
 from .mmio import MMIO
 from .ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
+from .devicetree import DeviceTreeSegment
+from .devicetree import get_dtbo_path
+from .devicetree import get_dtbo_base_name
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -121,34 +124,6 @@ def clear_state(dict_in):
             if 'state' in dict_in[i]:
                 dict_in[i]['state'] = None
     return dict_in
-
-
-def locate_overlay():
-    """Locate an overlay in the overlays folder.
-
-    Return the base overlay by default; if not found, return the first overlay
-    found.
-
-    Returns
-    -------
-    str
-        The name of the first overlay found.
-
-    """
-    if os.path.isdir(os.path.join(PYNQ_PATH, 'overlays', 'base')):
-        return 'base'
-    for i in os.listdir(os.path.join(PYNQ_PATH, 'overlays')):
-        if os.path.isdir(os.path.join(PYNQ_PATH, 'overlays', i)) and \
-                not i.startswith('_'):
-            return i
-    return ''
-
-
-OVERLAY_BOOT = locate_overlay()
-BS_BOOT = os.path.join(PYNQ_PATH, 'overlays',
-                       OVERLAY_BOOT, OVERLAY_BOOT + '.bit')
-TCL_BOOT = get_tcl_name(BS_BOOT)
-HWH_BOOT = get_hwh_name(BS_BOOT)
 
 
 class _TCLABC(metaclass=abc.ABCMeta):
@@ -534,7 +509,7 @@ class _TCLABC(metaclass=abc.ABCMeta):
         hierarchies = {k.rpartition('/')[0] for k in self.ip_dict.keys()
                        if k.count('/') > 0}
         while lasthierarchies != hierarchies:
-            parents = {k.rpartition('/')[0] for k in hierarchies 
+            parents = {k.rpartition('/')[0] for k in hierarchies
                        if k.count('/') > 0}
             lasthierarchies = hierarchies
             hierarchies.update(parents)
@@ -1215,46 +1190,29 @@ class PLMeta(type):
     This is not a class for users. Hence there is no attribute or method
     exposed to users.
 
+    We make no assumption of the overlay during boot, so most of the
+    dictionaries are empty. Those dictionaries will get populated when
+    users download an overlay onto the PL.
+
     Note
     ----
     If this metaclass is parsed on an unsupported architecture it will issue
     a warning and leave class variables undefined
 
     """
-    _bitfile_name = BS_BOOT
+    _bitfile_name = ""
     _timestamp = ""
-
+    _ip_dict = {}
+    _gpio_dict = {}
+    _interrupt_controllers = {}
+    _interrupt_pins = {}
+    _hierarchy_dict = {}
+    _devicetree_dict = {}
     if CPU_ARCH_IS_SUPPORTED:
-        if os.path.exists(HWH_BOOT):
-            parser = HWH(HWH_BOOT)
-            _ip_dict = parser.ip_dict
-            _gpio_dict = parser.gpio_dict
-            _interrupt_controllers = parser.interrupt_controllers
-            _interrupt_pins = parser.interrupt_pins
-            _hierarchy_dict = parser.hierarchy_dict
-        elif os.path.exists(TCL_BOOT):
-            parser = TCL(TCL_BOOT)
-            _ip_dict = parser.ip_dict
-            _gpio_dict = parser.gpio_dict
-            _interrupt_controllers = parser.interrupt_controllers
-            _interrupt_pins = parser.interrupt_pins
-            _hierarchy_dict = parser.hierarchy_dict
-        else:
-            _ip_dict = {}
-            _gpio_dict = {}
-            _interrupt_controllers = {}
-            _interrupt_pins = {}
-            _hierarchy_dict = {}
         _status = 1
         _server = None
         _host = None
         _remote = None
-    else:
-            _ip_dict = {}
-            _gpio_dict = {}
-            _interrupt_controllers = {}
-            _interrupt_pins = {}
-            _hierarchy_dict = {}
 
     @property
     def bitfile_name(cls):
@@ -1354,6 +1312,20 @@ class PLMeta(type):
         cls.server_update()
         return cls._hierarchy_dict
 
+    @property
+    def devicetree_dict(cls):
+        """The getter for the attribute `devicetree_dict`
+
+        Returns
+        -------
+        dict
+            The dictionary containing the device tree blobs.
+
+        """
+        cls.client_request()
+        cls.server_update()
+        return cls._devicetree_dict
+
     def setup(cls, address=PL_SERVER_FILE, key=b'xilinx'):
         """Start the PL server and accept client connections.
 
@@ -1383,11 +1355,13 @@ class PLMeta(type):
                             cls._gpio_dict,
                             cls._interrupt_controllers,
                             cls._interrupt_pins,
-                            cls._hierarchy_dict])
+                            cls._hierarchy_dict,
+                            cls._devicetree_dict])
             cls._bitfile_name, cls._timestamp, \
                 cls._ip_dict, cls._gpio_dict, \
                 cls._interrupt_controllers, cls._interrupt_pins, \
-                cls._hierarchy_dict, cls._status = cls._host.recv()
+                cls._hierarchy_dict, cls._devicetree_dict, \
+                cls._status = cls._host.recv()
             cls._host.close()
 
         cls._server.close()
@@ -1421,7 +1395,8 @@ class PLMeta(type):
             cls._ip_dict, cls._gpio_dict, \
             cls._interrupt_controllers, \
             cls._interrupt_pins, \
-            cls._hierarchy_dict = cls._remote.recv()
+            cls._hierarchy_dict, \
+            cls._devicetree_dict = cls._remote.recv()
 
     def server_update(cls, continued=1):
         """Client sends the attributes to the server.
@@ -1447,6 +1422,7 @@ class PLMeta(type):
                           cls._interrupt_controllers,
                           cls._interrupt_pins,
                           cls._hierarchy_dict,
+                          cls._devicetree_dict,
                           continued])
         cls._remote.close()
 
@@ -1517,6 +1493,50 @@ class PLMeta(type):
         cls._interrupt_controllers.clear()
         cls._interrupt_pins.clear()
         cls._hierarchy_dict.clear()
+
+    def clear_devicetree(cls):
+        """Clear the device tree dictionary.
+
+        This should be used when downloading the full bitstream, where all the
+        dtbo are cleared from the system.
+
+        """
+        for i in cls._devicetree_dict:
+            cls._devicetree_dict[i].remove()
+
+    def insert_device_tree(cls, abs_dtbo):
+        """Insert device tree segment.
+
+        For device tree segments associated with full / partial bitstreams,
+        users can provide the relative or absolute paths of the dtbo files.
+
+        Parameters
+        ----------
+        abs_dtbo : str
+            The absolute path to the device tree segment.
+
+        """
+        cls.client_request()
+        dtbo_base_name = get_dtbo_base_name(abs_dtbo)
+        cls._devicetree_dict[dtbo_base_name] = DeviceTreeSegment(abs_dtbo)
+        cls._devicetree_dict[dtbo_base_name].remove()
+        cls._devicetree_dict[dtbo_base_name].insert()
+        cls.server_update()
+
+    def remove_device_tree(cls, abs_dtbo):
+        """Remove device tree segment for the overlay.
+
+        Parameters
+        ----------
+        abs_dtbo : str
+            The absolute path to the device tree segment.
+
+        """
+        cls.client_request()
+        dtbo_base_name = get_dtbo_base_name(abs_dtbo)
+        cls._devicetree_dict[dtbo_base_name].remove()
+        del cls._devicetree_dict[dtbo_base_name]
+        cls.server_update()
 
     def load_ip_data(cls, ip_name, data, zero=False):
         """This method writes data to the addressable IP.
@@ -1759,7 +1779,9 @@ class Bitstream:
     Attributes
     ----------
     bitfile_name : str
-            The absolute path or name of the bit file as a string.
+        The absolute path or name of the bit file as a string.
+    dtbo : str
+        The absolute path of the dtbo file as a string.
     partial : bool
         Flag to indicate whether or not the bitstream is partial.
     bit_data : dict
@@ -1776,7 +1798,7 @@ class Bitstream:
     BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
     BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
 
-    def __init__(self, bitfile_name, partial=False):
+    def __init__(self, bitfile_name, dtbo=None, partial=False):
         """Return a new Bitstream object.
 
         Users can either specify an absolute path to the bitstream file
@@ -1786,12 +1808,15 @@ class Bitstream:
 
         Note
         ----
-        self.bitstream always stores the absolute path of the bitstream.
+        `self.bitfile_name` always stores the absolute path of the bitstream.
+        `self.dtbo` always stores the absolute path of the dtbo file.
 
         Parameters
         ----------
         bitfile_name : str
             The absolute path or name of the bit file as a string.
+        dtbo : str
+            The relative or absolute path to the device tree segment.
         partial : bool
             Flag to indicate whether or not the bitstream is partial.
 
@@ -1810,8 +1835,19 @@ class Bitstream:
         elif os.path.isfile(bitfile_overlay_abs):
             self.bitfile_name = bitfile_overlay_abs
         else:
-            raise IOError('Bitstream file {} does not exist.'
-                          .format(bitfile_name))
+            raise IOError('Bitstream file {} does not exist.'.format(
+                bitfile_name))
+
+        self.dtbo = dtbo
+        if dtbo:
+            default_dtbo = get_dtbo_path(self.bitfile_name)
+            if os.path.exists(dtbo):
+                self.dtbo = dtbo
+            elif os.path.exists(default_dtbo):
+                self.dtbo = default_dtbo
+            else:
+                raise IOError("DTBO file {} does not exist.".format(
+                    dtbo))
 
         self.bit_data = dict()
         self.binfile_name = ''
@@ -1919,6 +1955,10 @@ class Bitstream:
     def download(self):
         """Download the bitstream onto PL and update PL information.
 
+        If device tree blob has been specified during initialization, this
+        method will also insert the corresponding device tree blob into the
+        system. This is same for both full bitstream and partial bitstream.
+
         Note
         ----
         For partial bitstream, this method does not guarantee isolation between
@@ -1944,11 +1984,57 @@ class Bitstream:
         with open(self.BS_FPGA_MAN, 'w') as fd:
             fd.write(self.binfile_name)
 
-        # update PL information
+        # update the entire PL information
         if not self.partial:
             self.update_pl()
 
+    def remove_dtbo(self):
+        """Remove dtbo file from the system.
+
+        A simple wrapper of the corresponding method in the PL class. This is
+        very useful for partial bitstream downloading, where loading the
+        new device tree blob will overwrites the existing device tree blob
+        in the same partial region.
+
+        """
+        PL.remove_device_tree(self.dtbo)
+
+    def insert_dtbo(self, dtbo=None):
+        """Insert dtbo file into the system.
+
+        A simple wrapper of the corresponding method in the PL class. If
+        `dtbo` is None, `self.dtbo` will be used to insert the dtbo
+        file. In most cases, users should just ignore the parameter
+        `dtbo`.
+
+        Parameters
+        ----------
+        dtbo : str
+            The relative or absolute path to the device tree segment.
+
+        """
+        if dtbo:
+            default_dtbo = get_dtbo_path(self.bitfile_name)
+            default_dtbo_folder = '/'.join(default_dtbo.split('/')[:-1])
+            absolute_dtbo = os.path.join(default_dtbo_folder, dtbo)
+            if os.path.exists(dtbo):
+                self.dtbo = dtbo
+            elif os.path.exists(absolute_dtbo):
+                self.dtbo = absolute_dtbo
+            else:
+                raise IOError("DTBO file {} does not exist.".format(
+                    dtbo))
+        if not self.dtbo:
+            raise ValueError("DTBO path has to be specified.")
+        PL.insert_device_tree(self.dtbo)
+
     def preload(self):
+        """Pre-processing of the bit file.
+
+        This method will pre-process the bit file into a FPGA-manager friendly
+        format.
+
+        """
         if not os.path.exists(self.BS_FPGA_MAN):
             raise RuntimeError("Could not find programmable device")
 
@@ -1958,6 +2044,12 @@ class Bitstream:
         self.convert_bit_to_bin()
 
     def update_pl(self):
+        """Update the PL information.
+
+        This method will update all the PL dictionaries, including the device
+        tree dictionaries.
+
+        """
         t = datetime.now()
         self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
                 t.year, t.month, t.day,
@@ -1968,4 +2060,5 @@ class Bitstream:
         PL._bitfile_name = self.bitfile_name
         PL._timestamp = self.timestamp
         PL.clear_dict()
+        PL.clear_devicetree()
         PL.server_update()
