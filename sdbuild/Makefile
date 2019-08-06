@@ -1,7 +1,7 @@
 BOARDDIR ?= $(CURDIR)/../boards
 BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
 UBUNTU_RELEASE := bionic
-VERSION := 2.4
+VERSION := 2.5
 
 KERNEL_VERSION := 2018.3
 LINUX_VERSION := 4.14.0-xilinx-v2018.3
