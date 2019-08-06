@@ -8,7 +8,6 @@ EMBEDDEDSW_DIR ?= embeddedsw
 # SRC - source files to include in the library
 # INC - include directory with the -I prefix
 
-# ARCH := $(shell uname -p)
 PYNQ_BUILD_ARCH ?= $(shell uname -p)
 ESW_SRC := $(filter-out %_g.c, $(foreach lib, $(ESW_LIBS), $(wildcard $(EMBEDDEDSW_DIR)/XilinxProcessorIPLib/drivers/$(lib)/src/*.c)))
 ESW_INC := $(patsubst %, -I$(EMBEDDEDSW_DIR)/XilinxProcessorIPLib/drivers/%/src, $(ESW_LIBS))
