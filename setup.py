@@ -31,16 +31,32 @@ __author__ = "Giuseppe Natale, Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension, find_packages, Distribution
+from setuptools.command.build_ext import build_ext
+from setuptools.command.install import install
+from setuptools.command.develop import develop
 from distutils.dir_util import copy_tree
 import glob
 import re
 import shutil
 import subprocess
-import sys
 import os
 import warnings
 from datetime import datetime
+
+
+# Requirement
+required = [
+    'setuptools>=24.2.0',
+    'cffi',
+    'numpy',
+    'pandas',
+    'Pillow>=5.0.0',
+    'pytest',
+    'pyeda',
+    'pygraphviz',
+    'matplotlib'
+]
 
 
 # Parse version number
@@ -80,9 +96,16 @@ def collect_pynq_overlays():
     return overlay_files
 
 
+# Enforce platform-dependent distribution
+class BinaryDistribution(Distribution):
+    def has_ext_modules(self):
+        return True
+
+
 pynq_package_files = []
 if 'BOARD' not in os.environ:
-    warnings.warn("BOARD variable must be set to get board specific overlays.",
+    warnings.warn("Use `export BOARD=<board-name>` "
+                  "to get board specific overlays (e.g. Pynq-Z1, ZCU104).",
                   UserWarning)
     board = None
     board_folder = None
@@ -119,25 +142,32 @@ else:
     CPU_ARCH = os.uname().machine
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
+
 # Notebook delivery
 default_nb_dir = '/home/xilinx/jupyter_notebooks'
+notebooks_dir = None
 if 'PYNQ_JUPYTER_NOTEBOOKS' in os.environ:
     notebooks_dir = os.environ['PYNQ_JUPYTER_NOTEBOOKS']
 elif os.path.exists(default_nb_dir):
     notebooks_dir = default_nb_dir
-else:
-    notebooks_dir = None
 
-if notebooks_dir is not None:
-    notebooks_getting_started_dst_dir = os.path.join(notebooks_dir, 'getting_started')
-    notebooks_getting_started_dst_img_dir = os.path.join(notebooks_getting_started_dst_dir, 'images')
-    notebooks_getting_started_src_dir = os.path.join('docs', 'source')
-    notebooks_getting_started_src_img_dir = os.path.join(notebooks_getting_started_src_dir, 'images')
-else:
+if notebooks_dir is None:
     notebooks_getting_started_dst_dir = None
     notebooks_getting_started_dst_img_dir = None
     notebooks_getting_started_src_dir = None
     notebooks_getting_started_src_img_dir = None
+    warnings.warn("Use `export PYNQ_JUPYTER_NOTEBOOKS=<path-to-jupyter-home>` "
+                  "to get the notebooks.", UserWarning)
+else:
+    notebooks_getting_started_dst_dir = os.path.join(
+        notebooks_dir, 'getting_started')
+    notebooks_getting_started_dst_img_dir = os.path.join(
+        notebooks_getting_started_dst_dir, 'images')
+    notebooks_getting_started_src_dir = os.path.join(
+        'docs', 'source')
+    notebooks_getting_started_src_img_dir = os.path.join(
+        notebooks_getting_started_src_dir, 'images')
+
 
 # Video source files
 _video_src = ['pynq/lib/_pynq/_video/_video.c',
@@ -290,36 +320,56 @@ def backup_notebooks():
     return notebooks_dir_backup
 
 
-# Run Makefiles here
-def run_make(src_path, dst_path, output_lib):
-    status = subprocess.check_call(["make", "-C", src_path])
-    if status != 0:
-        raise RuntimeError("Error while running make for {}".format(output_lib))
-    shutil.copyfile(src_path + output_lib, dst_path + output_lib)
+# Restart PL server if service available
+def restart_pl_server():
+    if board:
+        subprocess.run(['systemctl', 'restart', 'pl_server'])
 
 
-if CPU_ARCH_IS_SUPPORTED:
-    if CPU_ARCH == ZYNQ_ARCH:
-        run_make("pynq/lib/_pynq/_audio/", "pynq/lib/",
-                 "libaudio.so")
-        run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
-                 "libiic.so")
-    elif CPU_ARCH == ZU_ARCH:
-        run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/video/",
-                 "libdisplayport.so")
-        run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/",
-                 "libxhdmi.so")
-        run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
-                 "libiic.so")
+# Build extension includes Jupyter notebooks, in addition to C bindings
+class BuildExtension(build_ext):
+    def run_make(self, src_path, dst_path, output_lib):
+        self.spawn(['make', 'PYNQ_BUILD_ARCH={}'.format(CPU_ARCH),
+                    '-C', src_path])
+        shutil.copyfile(src_path + output_lib, dst_path + output_lib)
 
-    if notebooks_dir:
-        backup_notebooks()
-        copy_common_notebooks()
-        copy_board_notebooks()
-        copy_overlay_notebooks()
-        copy_documentation_files()
-        rename_notebooks()
-        change_ownership()
+    def run(self):
+        if CPU_ARCH == ZYNQ_ARCH:
+            self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/",
+                          "libaudio.so")
+            self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
+                          "libiic.so")
+        elif CPU_ARCH == ZU_ARCH:
+            self.run_make("pynq/lib/_pynq/_displayport/", "pynq/lib/video/",
+                          "libdisplayport.so")
+            self.run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/",
+                          "libxhdmi.so")
+            self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
+                          "libiic.so")
+
+        if notebooks_dir:
+            backup_notebooks()
+            copy_common_notebooks()
+            copy_board_notebooks()
+            copy_overlay_notebooks()
+            copy_documentation_files()
+            rename_notebooks()
+            change_ownership()
+        build_ext.run(self)
+
+
+# Post development command
+class PostDevelop(develop):
+    def run(self):
+        develop.run(self)
+        restart_pl_server()
+
+
+# Post installation command
+class PostInstall(install):
+    def run(self):
+        install.run(self)
+        restart_pl_server()
 
 
 if CPU_ARCH == ZYNQ_ARCH:
@@ -336,6 +386,7 @@ else:
 pynq_version = find_version('pynq/__init__.py')
 pynq_package_files.extend(['tests/*', 'js/*', '*.bin', '*.so', '*.pdm'])
 
+
 setup(name='pynq',
       version=pynq_version,
       description='(PY)thon productivity for zy(NQ)',
@@ -343,6 +394,14 @@ setup(name='pynq',
       author_email='pynq_support@xilinx.com',
       url='https://github.com/Xilinx/PYNQ',
       packages=find_packages(),
+      cmdclass={
+          "build_ext": BuildExtension,
+          "develop": PostDevelop,
+          "install": PostInstall
+          },
+      distclass=BinaryDistribution,
+      python_requires='>3.5.0',
+      install_requires=required,
       download_url='https://github.com/Xilinx/PYNQ',
       package_data={
           '': pynq_package_files,
@@ -353,9 +412,8 @@ setup(name='pynq',
               'stop_pl_server.py = pynq.pl:_stop_server'
           ]
       },
-      ext_modules=ext_modules
+      ext_modules=ext_modules,
+      zip_safe=False,
+      license="BSD 3-Clause"
       )
 
-if board:
-    print('Restarting PL server')
-    subprocess.run(['systemctl', 'restart', 'pl_server'])
