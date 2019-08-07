@@ -21,10 +21,4 @@ if [ -f "$mount"/"$config_name" ]; then
         insmod "$mount"/"$driver_name"
     fi
 
-    #find name of wifi interface (assuming first one listed is the one we want)
-    wint="$(iw dev | grep 'Interface' | cut -d ' ' -f2 | head -n1)"
-
-    #connect to wifi
-    wpa_supplicant -i "$wint" -B -c "$mount"/"$config_name"
-    dhclient "$wint"
 fi
