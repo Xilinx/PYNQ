@@ -1,0 +1,10 @@
+[Unit]
+Description=Show IP on Grove OLED when BTN0 is pressed
+After=boot_leds.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3.6 /usr/local/bin/show_ip.py
+
+[Install]
+WantedBy=boot_leds.service
