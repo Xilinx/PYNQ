@@ -15,6 +15,9 @@ c.NotebookApp.notebook_dir = '$PYNQ_JUPYTER_NOTEBOOKS'
 c.NotebookApp.password = 'sha1:46c5ef4fa52f:ee46dad5008c6270a52f6272828a51b16336b492'
 c.NotebookApp.port = 9090
 c.NotebookApp.iopub_data_rate_limit = 100000000
+import datetime
+expire_time = datetime.datetime.now() + datetime.timedelta(days=3650)
+c.NotebookApp.cookie_options = {"expires": expire_time}
 EOT
 
 # Enable widgets
