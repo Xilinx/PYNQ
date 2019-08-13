@@ -1,6 +1,6 @@
-From 2a5dd10e34022de5a2d5fd8c8b306372f13d91b0 Mon Sep 17 00:00:00 2001
+From 4385ae6334d3b44f346cfb7c1e8acd85b6a59da7 Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Wed, 12 Dec 2018 14:22:08 -0800
+Date: Mon, 12 Aug 2019 10:49:44 -0700
 Subject: [PATCH 4/4] add pynqz2 derivative
 
 ---
@@ -9,15 +9,15 @@ Subject: [PATCH 4/4] add pynqz2 derivative
  configs/zynq_pynqz2_defconfig | 68 +++++++++++++++++++++++++++++++++++++++++++
  include/configs/zynq_pynqz2.h | 35 ++++++++++++++++++++++
  4 files changed, 172 insertions(+)
- create mode 100644 arch/arm/dts/zynq-pynqz2.dts
- create mode 100644 configs/zynq_pynqz2_defconfig
- create mode 100644 include/configs/zynq_pynqz2.h
+ create mode 100755 arch/arm/dts/zynq-pynqz2.dts
+ create mode 100755 configs/zynq_pynqz2_defconfig
+ create mode 100755 include/configs/zynq_pynqz2.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index ee7456e..fa2e581 100644
+index 2c816d6..badf759 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -146,6 +146,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+@@ -156,6 +156,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-topic-miamiplus.dtb \
  	zynq-artyz.dtb \
  	zynq-pynqz1.dtb \
@@ -26,7 +26,7 @@ index ee7456e..fa2e581 100644
  	zynq-zc706.dtb \
  	zynq-zc770-xm010.dtb \
 diff --git a/arch/arm/dts/zynq-pynqz2.dts b/arch/arm/dts/zynq-pynqz2.dts
-new file mode 100644
+new file mode 100755
 index 0000000..795dc93
 --- /dev/null
 +++ b/arch/arm/dts/zynq-pynqz2.dts
@@ -100,7 +100,7 @@ index 0000000..795dc93
 +	usb-phy = <&usb_phy0>;
 +};
 diff --git a/configs/zynq_pynqz2_defconfig b/configs/zynq_pynqz2_defconfig
-new file mode 100644
+new file mode 100755
 index 0000000..8f2f032
 --- /dev/null
 +++ b/configs/zynq_pynqz2_defconfig
@@ -174,7 +174,7 @@ index 0000000..8f2f032
 +CONFIG_CI_UDC=y
 +CONFIG_USB_GADGET_DOWNLOAD=y
 diff --git a/include/configs/zynq_pynqz2.h b/include/configs/zynq_pynqz2.h
-new file mode 100644
+new file mode 100755
 index 0000000..c55a008
 --- /dev/null
 +++ b/include/configs/zynq_pynqz2.h
