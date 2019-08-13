@@ -3,8 +3,8 @@ BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 UBUNTU_RELEASE := bionic
 VERSION := 2.5
 
-KERNEL_VERSION := 2018.3
-LINUX_VERSION := 4.14.0-xilinx-v2018.3
+KERNEL_VERSION := 2019.1
+LINUX_VERSION := 4.19.0-xilinx-v2019.1
 QEMU_VERSION := 4.0.0
 SCRIPT_DIR := $(CURDIR)/scripts
 
@@ -79,6 +79,7 @@ BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 ARCH=$$(ARCH=$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
+SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
 
 ifeq ($$(ARCH_$1),arm)
 	TEMPLATE_$1 := zynq
@@ -116,6 +117,7 @@ bsp_$1: $$(BSP_FILES_$1)
 
 PL_PROJ_$1 := $$(BUILD_ROOT_$1)/petalinux_project
 PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
+PL_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/rootfs_config
 MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/modules-plnx_$$(ARCH_$1).tgz
 KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
 
@@ -130,7 +132,16 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1)
-	petalinux-config --oldconfig -p $$(PL_PROJ_$1)
+	echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1)
+	# xrt only supports aarch64 in 2019.1; to remove in next release
+	if [ $$(ARCH_$1) = aarch64 ]; then \
+		echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+	fi
+	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && petalinux-package --boot --fpga $$(BITSTREAM_ABS_$1) --u-boot -p $$(PL_PROJ_$1) --force
@@ -205,7 +216,6 @@ $$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODUL
 	$$(SCRIPT_DIR)/resize_umount.sh $$(IMAGE_$1) $$(STAGING_$1)
 
 
-# SDX Specific Rules
 SDX_DIR_$1 := $$(SDX_ROOT)/$1/sw
 SDX_LINUX_DIR_$1 := $$(SDX_DIR_$1)/linux
 SDX_BOOT_DIR_$1 := $$(SDX_DIR_$1)/boot
@@ -238,7 +248,20 @@ $$(SDX_IMAGE_DIR_$1)/image.ub: $$(BOOT_ROOT_$1)/image.ub | $$(SDX_IMAGE_DIR_$1)
 
 sdx_sw_$1: $$(SDX_FILES_$1)
 
-.PHONY: sdx_sw_$1
+$$(SYSROOT_$1): $$(IMAGE_$1) | $$(SYSROOT_ROOT)
+	-rm -rf $$@
+	mkdir -p $$@/usr
+	$$(SCRIPT_DIR)/mount_image.sh $$(IMAGE_$1) $$(STAGING_$1)
+	cp -rd $$(STAGING_$1)/usr/include $$@/usr
+	cp -rd $$(STAGING_$1)/usr/lib $$@/usr
+	cp -rd $$(STAGING_$1)/usr/share $$@/usr
+	cp -rd $$(STAGING_$1)/usr/local $$@/usr
+	cp -rd $$(STAGING_$1)/lib $$@
+	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(IMAGE_$1)
+
+sysroot_$1 : $$(SYSROOT_$1)
+
+.PHONY: sysroot_$1 sdx_sw_$1
 
 endef
 
@@ -254,7 +277,6 @@ STAGE3_DEPENDS_$1 := $$(foreach package, $$(STAGE3_PACKAGES_$1), $$(PACKAGE_BUIL
 CONFIG_$1 := $$(CURDIR)/ubuntu/$$(UBUNTU_RELEASE)/$1
 QEMU_$1 := $$(shell which qemu-$1-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARD=Unknown ARCH=$1
-SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
 
 $$(STAGE2_$1) : $$(STAGE1_$1) $$(STAGE2_DEPENDS_$1)
 	cp --sparse=always $$(STAGE1_$1) $$(STAGE2_$1)
@@ -274,19 +296,6 @@ $$(STAGE1_$1): $$(CONFIG_$1)/multistrap.config | $$(BUILD_ROOT) $$(CCACHEDIR)
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/create_rootfs.sh $$(STAGING_$1) $$(CONFIG_$1)
 	$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(STAGE1_$1)
 
-$$(SYSROOT_$1): $$(BASE_$1) | $$(SYSROOT_ROOT)
-	-rm -rf $$@
-	mkdir -p $$@/usr
-	$$(SCRIPT_DIR)/mount_image.sh $$(BASE_$1) $$(STAGING_$1)
-	cp -rd $$(STAGING_$1)/usr/include $$@/usr
-	cp -rd $$(STAGING_$1)/usr/lib $$@/usr
-	cp -rd $$(STAGING_$1)/usr/share $$@/usr
-	cp -rd $$(STAGING_$1)/lib $$@
-	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(BASE_$1)
-
-sysroot_$1 : $$(SYSROOT_$1)
-
-.PHONY: sysroot_$1
 .PRECIOUS: $$(STAGE1_$1) $$(STAGE2_$2) $$(BASE_$1)
 
 qemu_check_$1:
@@ -330,7 +339,7 @@ real_all: checkenv $(BOOT_FILES) $(IMAGE_FILES)
 
 sdx_sw: $(patsubst %, sdx_sw_%, $(BOARDS))
 
-sysroot: $(patsubst %, sysroot_%, $(USED_ARCH))
+sysroot: $(patsubst %, sysroot_%, $(BOARDS))
 
 bsp: $(patsubst %, bsp_%, $(BOARDS))
 

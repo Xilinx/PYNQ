@@ -27,7 +27,7 @@ else
 	petalinux-create --type project --template $template --name $BSP_PROJECT
 	cd $BSP_PROJECT
 	petalinux-config --get-hw-description=$BSP_BUILD/hardware_project \
-		--oldconfig
+		--silentconfig
 	if [ -d "$board/petalinux_bsp/meta-user" ]; then
 		cp -rf $board/petalinux_bsp/meta-user/* \
 			$BSP_BUILD/$BSP_PROJECT/project-spec/meta-user
