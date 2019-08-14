@@ -43,7 +43,7 @@ __email__ = "pynq_support@xilinx.com"
 
 # Overlay constants
 PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
-PL_SERVER_FILE = os.path.join(PYNQ_PATH, '.log')
+PL_SERVER_TEMPLATE = '/tmp/pynq.{}.socket'
 
 
 def clear_state(dict_in):
@@ -70,14 +70,14 @@ class DeviceClient:
     PL server is performed by methods.
 
     """
-    def __init__(self, address=PL_SERVER_FILE, key=b'xilinx'):
+    def __init__(self, tag, key=b'xilinx'):
         """Create a new instance of the PL server
 
         Parameters
         ----------
 
-        address : string or path
-            The address of the PL server
+        tag : string or path
+            The unique identifier of the device
         key : bytes
             The authentication key for the server
 
@@ -88,7 +88,7 @@ class DeviceClient:
         self._interrupt_pins = {}
         self._hierarchy_dict = {}
         self._devicetree_dict = {}
-        self._address = address
+        self._address = PL_SERVER_TEMPLATE.format(tag)
         self._key = key
         self._timestamp = None
         self._bitfile_name = None
@@ -489,9 +489,9 @@ class DeviceClient:
         pass
 
 class DeviceServer:
-    def __init__(self, address=PL_SERVER_FILE, key=b'xilinx'):
+    def __init__(self, tag, key=b'xilinx'):
         self.tag = tag
-        self.socket_name = address
+        self.socket_name = PL_SERVER_TEMPLATE.format(tag)
         self.key = key
         self.thread = threading.Thread(target=self.server_proc)
         self._data = [
@@ -523,14 +523,17 @@ class DeviceServer:
         server.close()
 
     def stop(self):
-        client = DeviceClient(self.address, self.key)
+        client = DeviceClient(self.tag, self.key)
         client.client_request()
         client.server_update(0)
         self.thread.join()
 
 class PLServer:
      def __init__(self):
-         self.servers = [DeviceServer()]
+         from .device import Device
+         self.servers = [
+             DeviceServer(d.tag) for d in Device.devices
+         ]
 
      def start(self):
          for s in self.servers:

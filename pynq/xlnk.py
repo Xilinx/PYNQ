@@ -246,6 +246,12 @@ class Xlnk:
         self.__check_buftype(buf)
         return self.ffi.buffer(buf, length)
     
+    def allocate(self, *args, **kwargs):
+        """Wrapper for cma_array to match Xlnk to new Memory API
+
+        """
+        return self.cma_array(*args, **kwargs)
+
     def cma_array(self, shape, dtype=np.uint32, cacheable=0,
                   pointer=None, cache=None):
         """Get a contiguously allocated numpy array

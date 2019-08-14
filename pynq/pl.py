@@ -43,7 +43,7 @@ from .devicetree import get_dtbo_base_name
 
 from .pl_server import HWH, TCL
 from .pl_server import get_hwh_name, get_tcl_name
-from .pl_server import DeviceClient
+from .pl_server import Device
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -66,7 +66,6 @@ class PLMeta(type):
     a warning and leave class variables undefined
 
     """
-    _client = DeviceClient()
 
     @property
     def bitfile_name(cls):
@@ -78,7 +77,7 @@ class PLMeta(type):
             The absolute path of the bitstream currently on PL.
 
         """
-        return cls._client.bitfile_name 
+        return Device.active_device.bitfile_name
 
     @property
     def timestamp(cls):
@@ -90,7 +89,7 @@ class PLMeta(type):
             Bitstream download timestamp.
 
         """
-        return cls._client.timestamp
+        return Device.active_device.timestamp
 
     @property
     def ip_dict(cls):
@@ -102,7 +101,7 @@ class PLMeta(type):
             The dictionary storing addressable IP instances; can be empty.
 
         """
-        return cls._client.ip_dict
+        return Device.active_device.ip_dict
 
     @property
     def gpio_dict(cls):
@@ -114,7 +113,7 @@ class PLMeta(type):
             The dictionary storing the PS GPIO pins.
 
         """
-        return cls._client.gpio_dict
+        return Device.active_device.gpio_dict
 
     @property
     def interrupt_controllers(cls):
@@ -126,7 +125,7 @@ class PLMeta(type):
             The dictionary storing interrupt controller information.
 
         """
-        return cls._client.interrupt_controllers
+        return Device.active_device.interrupt_controllers
 
     @property
     def interrupt_pins(cls):
@@ -138,7 +137,7 @@ class PLMeta(type):
             The dictionary storing the interrupt endpoint information.
 
         """
-        return cls._client.interrupt_pins
+        return Device.active_device.interrupt_pins
 
     @property
     def hierarchy_dict(cls):
@@ -150,7 +149,7 @@ class PLMeta(type):
             The dictionary containing the hierarchies in the design
 
         """
-        return cls._client.hierarchy_dict
+        return Device.active_device.hierarchy_dict
 
     @property
     def devicetree_dict(cls):
@@ -162,27 +161,14 @@ class PLMeta(type):
             The dictionary containing the device tree blobs.
 
         """
-        return cls._client.devicetree_dict
+        return Device.active_device.devicetree_dict
 
     def shutdown(cls):
         """Shutdown the AXI connections to the PL in preparation for
         reconfiguration
 
         """
-        ip = cls.ip_dict
-        for name, details in ip.items():
-            if details['type'] == 'xilinx.com:ip:pr_axi_shutdown_manager:1.0':
-                from pynq.mmio import MMIO
-                mmio = MMIO(details['phys_addr'])
-                # Request shutdown
-                mmio.write(0x0, 0x1)
-                i = 0
-                while mmio.read(0x0) != 0x0F and i < 16000:
-                    i += 1
-                if i >= 16000:
-                    warnings.warn("Timeout for shutdown manager. It's likely "
-                                  "the configured bitstream and metadata "
-                                  "don't match.")
+        Device.active_device.shutdown()
 
     def reset(cls, parser=None):
         """Reset all the dictionaries.
@@ -203,7 +189,7 @@ class PLMeta(type):
             A parser object to speed up the reset process.
 
         """
-        cls._client.reset(parser)
+        Device.active_device.reset(parser)
 
     def clear_dict(cls):
         """Clear all the dictionaries stored in PL.
@@ -212,7 +198,7 @@ class PLMeta(type):
         dictionary, GPIO dictionary, etc.
 
         """
-        cls._client.clear_dict()
+        Device.active_device.clear_dict()
 
     def clear_devicetree(cls):
         """Clear the device tree dictionary.
@@ -221,7 +207,7 @@ class PLMeta(type):
         dtbo are cleared from the system.
 
         """
-        cls._client.clear_devicetree()
+        Device.active_device.clear_devicetree()
 
     def insert_device_tree(cls, abs_dtbo):
         """Insert device tree segment.
@@ -235,7 +221,7 @@ class PLMeta(type):
             The absolute path to the device tree segment.
 
         """
-        cls._client.insert_device_tree(abs_dtbo)
+        Device.active_device.insert_device_tree(abs_dtbo)
 
     def remove_device_tree(cls, abs_dtbo):
         """Remove device tree segment for the overlay.
@@ -246,7 +232,7 @@ class PLMeta(type):
             The absolute path to the device tree segment.
 
         """
-        cls._client.remove_device_tree(abs_dtbo)
+        Device.active_device.remove_device_tree(abs_dtbo)
 
     def load_ip_data(cls, ip_name, data, zero=False):
         """This method writes data to the addressable IP.
@@ -270,18 +256,7 @@ class PLMeta(type):
         None
 
         """
-        with open(data, 'rb') as bin_file:
-            size = os.fstat(bin_file.fileno()).st_size
-            target_size = cls._ip_dict[ip_name]['addr_range']
-            if size > target_size:
-                raise RuntimeError("Binary file too big for IP")
-            mmio = MMIO(cls._ip_dict[ip_name]['phys_addr'], target_size)
-            buf = bin_file.read(size)
-            mmio.write(0, buf)
-            if zero and size < target_size:
-                mmio.write(size, b'\x00' * (target_size - size))
-
-        cls._client.load_ip_data(ip_name, data)
+        Device.active_device.load_ip_data(ip_name, data, zero)
 
     def update_partial_region(cls, hier, parser):
         """Merge the parser information from partial region.
@@ -297,7 +272,7 @@ class PLMeta(type):
             A parser object for the partial region.
 
         """
-        cls._client.update_partial_region(hier, parser)
+        Device.active_device.update_partial_region(hier, parser)
 
 
 class PL(metaclass=PLMeta):
