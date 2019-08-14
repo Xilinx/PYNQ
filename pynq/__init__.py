@@ -44,6 +44,7 @@ from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
 from .pmbus import get_rails
 from .pmbus import DataRecorder
+from .buffer import allocate
 from . import lib
 
 

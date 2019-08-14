@@ -32,6 +32,7 @@ __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import numpy as np
+from .pl_server import Device
 
 
 class PynqBuffer(np.ndarray):
@@ -128,3 +129,17 @@ class PynqBuffer(np.ndarray):
     def __exit__(self, exc_type, exc_value, traceback):
         self.free_buffer()
         return 0
+
+
+def allocate(shape, dtype, target=None, **kwargs):
+    """Allocate a PYNQ buffer
+
+    The target determines where the buffer gets allocated
+
+     * If None then the currently active device is used
+     * If a Device is specified then the main memory
+
+    """
+    if target is None:
+        target = Device.active_device
+    return target.allocate(shape, dtype, **kwargs)
