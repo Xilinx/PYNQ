@@ -708,16 +708,16 @@ class TraceAnalyzer:
 
     def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
               frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
-	      fclk_index=None):
+              fclk_index=None):
         """Configure the trace analyzer.
 
         The wrapper method for configuring the PS or Microblaze controlled
         trace analyzer.
 
-	Users need to provide the `fclk_index` explicitly, otherwise the driver
-	will just use the default clock. For MB-controlled trace analyzer, 
-	the default `fclk_index` is 1; for PS-controlled trace analyzer,
-	the default `fclk_index` is 3.
+        Users need to provide the `fclk_index` explicitly, otherwise the driver
+        will just use the default clock. For MB-controlled trace analyzer,
+        the default `fclk_index` is 1; for PS-controlled trace analyzer,
+        the default `fclk_index` is 3.
 
         Parameters
         ----------
@@ -725,15 +725,15 @@ class TraceAnalyzer:
             The number of samples to be analyzed.
         frequency_mhz: float
             The frequency of the captured samples, in MHz.
-	fclk_index : int
+        fclk_index : int
             The index of the fclk controlled by clock management object.
 
         """
-	if fclk_index is None:
-		self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz)
+        if fclk_index is None:
+                self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz)
         else:
-		self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz, 
-					   fclk_index)
+                self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz,
+                                           fclk_index)
         self.frequency_mhz = self._trace_analyzer.frequency_mhz
         self.samples = self._trace_analyzer.samples
         self.num_analyzer_samples = self._trace_analyzer.num_analyzer_samples
