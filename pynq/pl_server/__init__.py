@@ -33,4 +33,4 @@ __email__ = "pynq_support@xilinx.com"
 
 from .tcl_parser import TCL, get_tcl_name
 from .hwh_parser import HWH, get_hwh_name
-
+from .server import DeviceClient

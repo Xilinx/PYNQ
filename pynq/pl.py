@@ -43,33 +43,17 @@ from .devicetree import get_dtbo_base_name
 
 from .pl_server import HWH, TCL
 from .pl_server import get_hwh_name, get_tcl_name
+from .pl_server import DeviceClient
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-# Overlay constants
-PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
-PL_SERVER_FILE = os.path.join(PYNQ_PATH, '.log')
 
 
 
 
 
-def clear_state(dict_in):
-    """Clear the state information for a given dictionary.
-
-    Parameters
-    ----------
-    dict_in : dict
-        Input dictionary to be cleared.
-
-    """
-    if type(dict_in) is dict:
-        for i in dict_in:
-            if 'state' in dict_in[i]:
-                dict_in[i]['state'] = None
-    return dict_in
 
 
 
@@ -90,19 +74,7 @@ class PLMeta(type):
     a warning and leave class variables undefined
 
     """
-    _bitfile_name = ""
-    _timestamp = ""
-    _ip_dict = {}
-    _gpio_dict = {}
-    _interrupt_controllers = {}
-    _interrupt_pins = {}
-    _hierarchy_dict = {}
-    _devicetree_dict = {}
-    if CPU_ARCH_IS_SUPPORTED:
-        _status = 1
-        _server = None
-        _host = None
-        _remote = None
+    _client = DeviceClient()
 
     @property
     def bitfile_name(cls):
@@ -114,9 +86,7 @@ class PLMeta(type):
             The absolute path of the bitstream currently on PL.
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._bitfile_name
+        return cls._client.bitfile_name 
 
     @property
     def timestamp(cls):
@@ -128,9 +98,7 @@ class PLMeta(type):
             Bitstream download timestamp.
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._timestamp
+        return cls._client.timestamp
 
     @property
     def ip_dict(cls):
@@ -142,9 +110,7 @@ class PLMeta(type):
             The dictionary storing addressable IP instances; can be empty.
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._ip_dict
+        return cls._client.ip_dict
 
     @property
     def gpio_dict(cls):
@@ -156,9 +122,7 @@ class PLMeta(type):
             The dictionary storing the PS GPIO pins.
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._gpio_dict
+        return cls._client.gpio_dict
 
     @property
     def interrupt_controllers(cls):
@@ -170,9 +134,7 @@ class PLMeta(type):
             The dictionary storing interrupt controller information.
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._interrupt_controllers
+        return cls._client.interrupt_controllers
 
     @property
     def interrupt_pins(cls):
@@ -184,9 +146,7 @@ class PLMeta(type):
             The dictionary storing the interrupt endpoint information.
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._interrupt_pins
+        return cls._client.interrupt_pins
 
     @property
     def hierarchy_dict(cls):
@@ -198,9 +158,7 @@ class PLMeta(type):
             The dictionary containing the hierarchies in the design
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._hierarchy_dict
+        return cls._client.hierarchy_dict
 
     @property
     def devicetree_dict(cls):
@@ -212,109 +170,7 @@ class PLMeta(type):
             The dictionary containing the device tree blobs.
 
         """
-        cls.client_request()
-        cls.server_update()
-        return cls._devicetree_dict
-
-    def setup(cls, address=PL_SERVER_FILE, key=b'xilinx'):
-        """Start the PL server and accept client connections.
-
-        This method should not be used by the users directly. To check open
-        pipes in the system, use `lsof | grep <address>` and
-        `kill -9 <pid>` to manually delete them.
-
-        Parameters
-        ----------
-        address : str
-            The filename on the file system.
-        key : bytes
-            The authentication key of connection.
-
-        Returns
-        -------
-        None
-
-        """
-        cls._server = Listener(address, family='AF_UNIX', authkey=key)
-
-        while cls._status:
-            cls._host = cls._server.accept()
-            cls._host.send([cls._bitfile_name,
-                            cls._timestamp,
-                            cls._ip_dict,
-                            cls._gpio_dict,
-                            cls._interrupt_controllers,
-                            cls._interrupt_pins,
-                            cls._hierarchy_dict,
-                            cls._devicetree_dict])
-            cls._bitfile_name, cls._timestamp, \
-                cls._ip_dict, cls._gpio_dict, \
-                cls._interrupt_controllers, cls._interrupt_pins, \
-                cls._hierarchy_dict, cls._devicetree_dict, \
-                cls._status = cls._host.recv()
-            cls._host.close()
-
-        cls._server.close()
-
-    def client_request(cls, address=PL_SERVER_FILE,
-                       key=b'xilinx'):
-        """Client connects to the PL server and receives the attributes.
-
-        This method should not be used by the users directly. To check open
-        pipes in the system, use `lsof | grep <address>` and
-        `kill -9 <pid>` to manually delete them.
-
-        Parameters
-        ----------
-        address : str
-            The filename on the file system.
-        key : bytes
-            The authentication key of connection.
-
-        Returns
-        -------
-        None
-
-        """
-        try:
-            cls._remote = Client(address, family='AF_UNIX', authkey=key)
-        except FileNotFoundError:
-            raise ConnectionError(
-                "Could not connect to PL server") from None
-        cls._bitfile_name, cls._timestamp, \
-            cls._ip_dict, cls._gpio_dict, \
-            cls._interrupt_controllers, \
-            cls._interrupt_pins, \
-            cls._hierarchy_dict, \
-            cls._devicetree_dict = cls._remote.recv()
-
-    def server_update(cls, continued=1):
-        """Client sends the attributes to the server.
-
-        This method should not be used by the users directly. To check open
-        pipes in the system, use `lsof | grep <address>` and `kill -9 <pid>`
-        to manually delete them.
-
-        Parameters
-        ----------
-        continued : int
-            Continue (1) or stop (0) the PL server.
-
-        Returns
-        -------
-        None
-
-        """
-        cls._remote.send([cls._bitfile_name,
-                          cls._timestamp,
-                          cls._ip_dict,
-                          cls._gpio_dict,
-                          cls._interrupt_controllers,
-                          cls._interrupt_pins,
-                          cls._hierarchy_dict,
-                          cls._devicetree_dict,
-                          continued])
-        cls._remote.close()
+        return cls._client.devicetree_dict
 
     def shutdown(cls):
         """Shutdown the AXI connections to the PL in preparation for
@@ -324,6 +180,7 @@ class PLMeta(type):
         ip = cls.ip_dict
         for name, details in ip.items():
             if details['type'] == 'xilinx.com:ip:pr_axi_shutdown_manager:1.0':
+                from pynq.mmio import MMIO
                 mmio = MMIO(details['phys_addr'])
                 # Request shutdown
                 mmio.write(0x0, 0x1)
@@ -354,22 +211,7 @@ class PLMeta(type):
             A parser object to speed up the reset process.
 
         """
-        cls.client_request()
-        if parser is not None:
-            cls._ip_dict = parser.ip_dict
-            cls._gpio_dict = parser.gpio_dict
-            cls._interrupt_controllers = parser.interrupt_controllers
-            cls._interrupt_pins = parser.interrupt_pins
-            cls._hierarchy_dict = parser.hierarchy_dict
-        else:
-            hwh_name = get_hwh_name(cls._bitfile_name)
-            tcl_name = get_tcl_name(cls._bitfile_name)
-            if os.path.isfile(hwh_name) or os.path.isfile(tcl_name):
-                cls._ip_dict = clear_state(cls._ip_dict)
-                cls._gpio_dict = clear_state(cls._gpio_dict)
-            else:
-                cls.clear_dict()
-        cls.server_update()
+        cls._client.reset(parser)
 
     def clear_dict(cls):
         """Clear all the dictionaries stored in PL.
@@ -378,11 +220,7 @@ class PLMeta(type):
         dictionary, GPIO dictionary, etc.
 
         """
-        cls._ip_dict.clear()
-        cls._gpio_dict.clear()
-        cls._interrupt_controllers.clear()
-        cls._interrupt_pins.clear()
-        cls._hierarchy_dict.clear()
+        cls._client.clear_dict()
 
     def clear_devicetree(cls):
         """Clear the device tree dictionary.
@@ -391,8 +229,7 @@ class PLMeta(type):
         dtbo are cleared from the system.
 
         """
-        for i in cls._devicetree_dict:
-            cls._devicetree_dict[i].remove()
+        cls._client.clear_devicetree()
 
     def insert_device_tree(cls, abs_dtbo):
         """Insert device tree segment.
@@ -406,12 +243,7 @@ class PLMeta(type):
             The absolute path to the device tree segment.
 
         """
-        cls.client_request()
-        dtbo_base_name = get_dtbo_base_name(abs_dtbo)
-        cls._devicetree_dict[dtbo_base_name] = DeviceTreeSegment(abs_dtbo)
-        cls._devicetree_dict[dtbo_base_name].remove()
-        cls._devicetree_dict[dtbo_base_name].insert()
-        cls.server_update()
+        cls._client.insert_device_tree(abs_dtbo)
 
     def remove_device_tree(cls, abs_dtbo):
         """Remove device tree segment for the overlay.
@@ -422,11 +254,7 @@ class PLMeta(type):
             The absolute path to the device tree segment.
 
         """
-        cls.client_request()
-        dtbo_base_name = get_dtbo_base_name(abs_dtbo)
-        cls._devicetree_dict[dtbo_base_name].remove()
-        del cls._devicetree_dict[dtbo_base_name]
-        cls.server_update()
+        cls._client.remove_device_tree(abs_dtbo)
 
     def load_ip_data(cls, ip_name, data, zero=False):
         """This method writes data to the addressable IP.
@@ -450,7 +278,6 @@ class PLMeta(type):
         None
 
         """
-        cls.client_request()
         with open(data, 'rb') as bin_file:
             size = os.fstat(bin_file.fileno()).st_size
             target_size = cls._ip_dict[ip_name]['addr_range']
@@ -462,8 +289,7 @@ class PLMeta(type):
             if zero and size < target_size:
                 mmio.write(size, b'\x00' * (target_size - size))
 
-        cls._ip_dict[ip_name]['state'] = data
-        cls.server_update()
+        cls._client.load_ip_data(ip_name, data)
 
     def update_partial_region(cls, hier, parser):
         """Merge the parser information from partial region.
@@ -479,99 +305,7 @@ class PLMeta(type):
             A parser object for the partial region.
 
         """
-        cls.client_request()
-        cls._update_pr_ip(parser)
-        cls._update_pr_gpio(parser)
-        cls._update_pr_intr_pins(parser)
-        cls._update_pr_hier(hier)
-        cls.server_update()
-
-    def _update_pr_ip(cls, parser):
-        merged_ip_dict = deepcopy(cls._ip_dict)
-        if type(parser) is HWH:
-            for k, v in parser.ip_dict.items():
-                if k in cls._ip_dict:
-                    merged_ip_dict.pop(k)
-                    ip_name = v['fullpath']
-                    merged_ip_dict[ip_name] = cls._ip_dict[k]
-                    merged_ip_dict[ip_name]['fullpath'] = v['fullpath']
-                    merged_ip_dict[ip_name]['parameters'] = v['parameters']
-                    merged_ip_dict[ip_name]['phys_addr'] = \
-                        cls._ip_dict[k]['phys_addr'] + v['phys_addr']
-                    merged_ip_dict[ip_name]['registers'] = v['registers']
-                    merged_ip_dict[ip_name]['state'] = None
-                    merged_ip_dict[ip_name]['type'] = v['type']
-        elif type(parser) is TCL:
-            for k_partial, v_partial in parser.ip_dict.items():
-                for k_full, v_full in cls._ip_dict.items():
-                    if v_partial['mem_id'] == v_full['mem_id']:
-                        merged_ip_dict.pop(k_full)
-                        ip_name = v_partial['fullpath']
-                        merged_ip_dict[ip_name] = v_full
-                        merged_ip_dict[ip_name]['fullpath'] = \
-                            v_partial['fullpath']
-                        merged_ip_dict[ip_name]['phys_addr'] = \
-                            v_full['phys_addr'] + v_partial['phys_addr']
-                        merged_ip_dict[ip_name]['state'] = None
-                        merged_ip_dict[ip_name]['type'] = v_partial['type']
-                        break
-        else:
-            raise ValueError("Cannot find HWH or TCL PR region parser.")
-        cls._ip_dict = merged_ip_dict
-
-    def _update_pr_gpio(cls, parser):
-        new_gpio_dict = dict()
-        for k, v in cls._gpio_dict.items():
-            for pin in v['pins']:
-                if pin in parser.pins:
-                    v |= parser.nets[parser.pins[pin]]
-                new_gpio_dict[k] = v
-        cls._gpio_dict = new_gpio_dict
-
-    def _update_pr_intr_pins(cls, parser):
-        new_interrupt_pins = dict()
-        for k, v in cls._interrupt_pins.items():
-            if k in parser.pins:
-                net_set = parser.nets[parser.pins[k]]
-                hier_map = {i.count('/'): i for i in net_set}
-                hier_map = sorted(hier_map.items(), reverse=True)
-                fullpath = hier_map[0][-1]
-                new_interrupt_pins[fullpath] = deepcopy(v)
-                new_interrupt_pins[fullpath]['fullpath'] = fullpath
-            else:
-                new_interrupt_pins[k] = v
-        cls._interrupt_pins = new_interrupt_pins
-
-    def _update_pr_hier(cls, hier):
-        cls._hierarchy_dict[hier] = {
-            'ip': dict(),
-            'hierarchies': dict(),
-            'interrupts': dict(),
-            'gpio': dict(),
-            'fullpath': hier,
-        }
-        for name, val in cls._ip_dict.items():
-            hier, _, ip = name.rpartition('/')
-            if hier:
-                cls._hierarchy_dict[hier]['ip'][ip] = val
-                cls._hierarchy_dict[hier]['ip'][ip] = val
-        for name, val in cls._hierarchy_dict.items():
-            hier, _, subhier = name.rpartition('/')
-            if hier:
-                cls._hierarchy_dict[hier]['hierarchies'][subhier] = val
-        for interrupt, val in cls._interrupt_pins.items():
-            block, _, pin = interrupt.rpartition('/')
-            if block in cls._ip_dict:
-                cls._ip_dict[block]['interrupts'][pin] = val
-            if block in cls._hierarchy_dict:
-                cls._hierarchy_dict[block]['interrupts'][pin] = val
-        for gpio in cls._gpio_dict.values():
-            for connection in gpio['pins']:
-                ip, _, pin = connection.rpartition('/')
-                if ip in cls._ip_dict:
-                    cls._ip_dict[ip]['gpio'][pin] = gpio
-                elif ip in cls._hierarchy_dict:
-                    cls._hierarchy_dict[ip]['gpio'][pin] = gpio
+        cls._client.update_partial_region(hier, parser)
 
 
 class PL(metaclass=PLMeta):
@@ -634,33 +368,6 @@ class PL(metaclass=PLMeta):
         euid = os.geteuid()
         if euid != 0:
             raise EnvironmentError('Root permissions required.')
-
-
-def _stop_server():
-    """Entry point for the stop_pl_server.py script
-
-    This function will attempt to stop the PL server in
-    a controlled manner. It should not be called by user code
-
-    """
-    try:
-        PL.client_request()
-        PL.server_update(0)
-    except:
-        pass
-
-
-def _start_server():
-    """Entry point for the start_pl_server.py script
-
-    Starts the PL server using the default server file.  Should
-    not be called by user code - use PL.setup() instead to
-    customise the server.
-
-    """
-    if os.path.exists(PL_SERVER_FILE):
-        os.remove(PL_SERVER_FILE)
-    PL.setup()
 
 
 class Bitstream:
