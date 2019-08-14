@@ -268,8 +268,8 @@ class Overlay(Bitstream):
         {str: {'loaded': str, 'dtbo': str}}.
 
     """
-    def __init__(self, bitfile_name,
-                 dtbo=None, download=True, ignore_version=False):
+    def __init__(self, bitfile_name, dtbo=None,
+                 download=True, ignore_version=False, device=None):
         """Return a new Overlay object.
 
         An overlay instantiates a bitstream object as a member initially.
@@ -291,7 +291,7 @@ class Overlay(Bitstream):
         with same name (e.g. `base.bit` and `base.tcl`).
 
         """
-        super().__init__(bitfile_name, dtbo, partial=False)
+        super().__init__(bitfile_name, dtbo, partial=False, device=device)
 
         hwh_path = get_hwh_name(self.bitfile_name)
         tcl_path = get_tcl_name(self.bitfile_name)
@@ -365,8 +365,7 @@ class Overlay(Bitstream):
             else:
                 Clocks.set_pl_clk(i)
 
-        super().download()
-        PL.reset(self.parser)
+        super().download(self.parser)
         if dtbo:
             super().insert_dtbo(dtbo)
         elif self.dtbo:
@@ -397,12 +396,12 @@ class Overlay(Bitstream):
             The path of the dtbo file.
 
         """
-        PL.reset(self.parser)
+        self.device.reset(self.parser)
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
         pr_parser = pr_block.parsers[pr_block.pr_loaded]
         pr_dtbo = pr_block.bitstreams[partial_bit].dtbo
-        PL.update_partial_region(partial_region, pr_parser)
+        self.device.update_partial_region(partial_region, pr_parser)
         self._deepcopy_dict_from(PL)
         self.pr_dict[partial_region] = {'loaded': pr_block.pr_loaded,
                                         'dtbo': pr_dtbo}
@@ -422,12 +421,10 @@ class Overlay(Bitstream):
             True if bitstream is loaded.
 
         """
-        PL.client_request()
-        PL.server_update()
         if not self.timestamp == '':
-            return self.timestamp == PL._timestamp
+            return self.timestamp == self.device.timestamp
         else:
-            return self.bitfile_name == PL._bitfile_name
+            return self.bitfile_name == self.device.bitfile_name
 
     def reset(self):
         """This function resets all the dictionaries kept in the overlay.
@@ -445,7 +442,7 @@ class Overlay(Bitstream):
         self.interrupt_controllers = self.parser.interrupt_controllers
         self.interrupt_pins = self.parser.interrupt_pins
         if self.is_loaded():
-            PL.reset(self.parser)
+            self.device.reset(self.parser, self.timestamp, self.bitfile_name)
 
     def load_ip_data(self, ip_name, data):
         """This method loads the data to the addressable IP.
@@ -471,7 +468,7 @@ class Overlay(Bitstream):
         None
 
         """
-        PL.load_ip_data(ip_name, data)
+        self.device.load_ip_data(ip_name, data)
         self.ip_dict[ip_name]['state'] = data
 
     def __dir__(self):

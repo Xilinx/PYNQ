@@ -36,7 +36,6 @@ from datetime import datetime
 import struct
 import numpy as np
 from .devicetree import get_dtbo_path
-from .pl import PL
 
 PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -65,7 +64,7 @@ class Bitstream:
     BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
     BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
 
-    def __init__(self, bitfile_name, dtbo=None, partial=False):
+    def __init__(self, bitfile_name, dtbo=None, partial=False, device=None):
         """Return a new Bitstream object.
 
         Users can either specify an absolute path to the bitstream file
@@ -90,6 +89,10 @@ class Bitstream:
         """
         if not isinstance(bitfile_name, str):
             raise TypeError("Bitstream name has to be a string.")
+        if device is None:
+            from .pl_server.device import Device
+            device = Device.active_device
+        self.device = device
 
         bitfile_abs = os.path.abspath(bitfile_name)
         bitfile_overlay_abs = os.path.join(PYNQ_PATH,
@@ -219,7 +222,7 @@ class Bitstream:
                     raise RuntimeError("Unknown field: {}".format(hex(desc)))
             return bit_dict
 
-    def download(self):
+    def download(self, parser=None):
         """Download the bitstream onto PL and update PL information.
 
         If device tree blob has been specified during initialization, this
@@ -242,7 +245,7 @@ class Bitstream:
 
         # use fpga manager to download bin
         if not self.partial:
-            PL.shutdown()
+            self.device.shutdown()
             flag = '0'
         else:
             flag = '1'
@@ -253,7 +256,7 @@ class Bitstream:
 
         # update the entire PL information
         if not self.partial:
-            self.update_pl()
+            self.update_pl(parser)
 
     def remove_dtbo(self):
         """Remove dtbo file from the system.
@@ -264,7 +267,7 @@ class Bitstream:
         in the same partial region.
 
         """
-        PL.remove_device_tree(self.dtbo)
+        self.device.remove_device_tree(self.dtbo)
 
     def insert_dtbo(self, dtbo=None):
         """Insert dtbo file into the system.
@@ -293,7 +296,7 @@ class Bitstream:
                     dtbo))
         if not self.dtbo:
             raise ValueError("DTBO path has to be specified.")
-        PL.insert_device_tree(self.dtbo)
+        self.device.insert_device_tree(self.dtbo)
 
     def preload(self):
         """Pre-processing of the bit file.
@@ -310,7 +313,7 @@ class Bitstream:
         self.firmware_path = '/lib/firmware/' + self.binfile_name
         self.convert_bit_to_bin()
 
-    def update_pl(self):
+    def update_pl(self, parser=None):
         """Update the PL information.
 
         This method will update all the PL dictionaries, including the device
@@ -321,12 +324,4 @@ class Bitstream:
         self.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
                 t.year, t.month, t.day,
                 t.hour, t.minute, t.second, t.microsecond)
-
-        # Update PL information
-        PL.client_request()
-        PL._bitfile_name = self.bitfile_name
-        PL._timestamp = self.timestamp
-        PL.clear_dict()
-        PL.clear_devicetree()
-        PL.server_update()
-
+        self.device.reset(parser, self.timestamp, self.bitfile_name)
