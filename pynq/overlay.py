@@ -34,11 +34,11 @@ from copy import deepcopy
 from .mmio import MMIO
 from .ps import Clocks
 from .pl import PL
-from .pl import Bitstream
 from .pl import TCL
 from .pl import HWH
 from .pl import get_tcl_name
 from .pl import get_hwh_name
+from .bitstream import Bitstream
 from .interrupt import Interrupt
 from .gpio import GPIO
 from .registers import RegisterMap
