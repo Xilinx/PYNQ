@@ -36,6 +36,7 @@ from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 from setuptools.command.develop import develop
 from distutils.dir_util import copy_tree
+import distutils.file_util
 import glob
 import re
 import shutil
@@ -331,7 +332,8 @@ class BuildExtension(build_ext):
     def run_make(self, src_path, dst_path, output_lib):
         self.spawn(['make', 'PYNQ_BUILD_ARCH={}'.format(CPU_ARCH),
                     '-C', src_path])
-        shutil.copyfile(src_path + output_lib, dst_path + output_lib)
+        distutils.file_util.copy_file(src_path + output_lib,
+                os.path.join(self.build_lib, dst_path, output_lib))
 
     def run(self):
         if CPU_ARCH == ZYNQ_ARCH:
