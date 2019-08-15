@@ -24,7 +24,7 @@ creating a new project in Vivado.
 * `Download the PYNQ-Z1 board files
   <https://github.com/cathalmccabe/pynq-z1_board_files/raw/master/pynq-z1.zip>`_
 * `Download the PYNQ-Z2 board files
-  <http://www.tul.com.tw/download/PYNQ-Z2_board_file_v1.0.zip>`_
+  <https://d2m32eurp10079.cloudfront.net/Download/pynq-z2.zip>`_
   
 Installing these files in Vivado, allows the board to be selected when creating
 a new project. This will configure the Zynq PS settings.
