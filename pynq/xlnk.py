@@ -31,6 +31,7 @@ __author__ = "Anurag Dubey"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
+import re
 import os
 import signal
 import sys
@@ -408,6 +409,22 @@ class Xlnk:
         stats['CMA Memory Usage'] = memused
         stats['Buffer Count'] = len(self.bufmap)
         return stats
+
+    def cma_mem_size(self):
+        """Get the total size of CMA memory in the system
+
+        Returns
+        -------
+        int
+            The number of bytes of CMA memory
+
+        """
+        with open('/proc/meminfo', 'r') as f:
+            for l in f.readlines():
+                m = re.match('CmaTotal:[\\s]+([0-9]+) kB', l)
+                if m:
+                    return int(m[1]) * 1024
+        return 0
 
     def flush(self, bo, offset, vaddr, nbytes):
         self.libxlnk.cma_flush_cache(vaddr, bo + offset, nbytes)
