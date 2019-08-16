@@ -163,6 +163,18 @@ class PLMeta(type):
         """
         return Device.active_device.devicetree_dict
 
+    @property
+    def devicetree_dict(self):
+        """The getter for the attribute `devicetree_dict`
+
+        Returns
+        -------
+        dict
+            The dictionary containing the device tree blobs.
+
+        """
+        return Device.active_device.devicetree_dict
+
     def shutdown(cls):
         """Shutdown the AXI connections to the PL in preparation for
         reconfiguration

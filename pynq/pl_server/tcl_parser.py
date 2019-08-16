@@ -183,6 +183,7 @@ class _TCLABC(metaclass=abc.ABCMeta):
         self.ps_name = ""
         self.ip_dict = {}
         self.gpio_dict = {}
+        self.mem_dict = {}
 
         # Parsing state
         current_hier = ""
@@ -373,6 +374,23 @@ class _TCLABC(metaclass=abc.ABCMeta):
 
         self._build_hierarchy_dict()
         self._assign_interrupts_gpio()
+        self.init_mem_dict()
+
+    def init_mem_dict(self):
+        """Prepare the memory dictionary
+
+        For now we will add a single entry for the PS
+
+        """
+        from pynq.xlnk import Xlnk
+        self.mem_dict[self.ps_name] = {
+            'raw_type': None,
+            'used': 1,
+            'base_address':0,
+            'size': Xlnk().cma_mem_size(),
+            'type': 'PSDDR',
+            'streaming': False
+        }
 
     def _add_gpio_pins(self, net, gpio_dict):
         net_pins = self.nets[net]
@@ -454,6 +472,7 @@ class _TCLABC(metaclass=abc.ABCMeta):
                 'hierarchies': dict(),
                 'interrupts': dict(),
                 'gpio': dict(),
+                'memories': dict(),
                 'fullpath': hier,
             }
         for name, val in self.ip_dict.items():

@@ -211,6 +211,19 @@ class DeviceClient:
         self.server_update()
         return self._devicetree_dict
 
+    @property
+    def mem_dict(self):
+        """The getter for the attribute `mem_dict`
+
+        Returns
+        -------
+        dict
+            The dictionary containing the memory spaces in the design
+
+        """
+        self.client_request()
+        self.server_update()
+        return self._mem_dict
 
     def reset(self, parser=None, timestamp=None, bitfile_name=None):
         """Reset all the dictionaries.
@@ -238,6 +251,7 @@ class DeviceClient:
             self._interrupt_controllers = parser.interrupt_controllers
             self._interrupt_pins = parser.interrupt_pins
             self._hierarchy_dict = parser.hierarchy_dict
+            self._mem_dict = parser.mem_dict
         else:
             hwh_name = get_hwh_name(self._bitfile_name)
             tcl_name = get_tcl_name(self._bitfile_name)
@@ -264,6 +278,7 @@ class DeviceClient:
         self._interrupt_controllers.clear()
         self._interrupt_pins.clear()
         self._hierarchy_dict.clear()
+        self._mem_dict.clear()
 
     def load_ip_data(self, ip_name, data):
         """This method writes data to the addressable IP.
@@ -473,7 +488,8 @@ class DeviceClient:
             self._interrupt_controllers, \
             self._interrupt_pins, \
             self._hierarchy_dict, \
-            self._devicetree_dict = self._remote.recv()
+            self._devicetree_dict, \
+            self._mem_dict = self._remote.recv()
 
     def server_update(self, continued=1):
         self._remote.send([self._bitfile_name,
@@ -484,6 +500,7 @@ class DeviceClient:
                           self._interrupt_pins,
                           self._hierarchy_dict,
                           self._devicetree_dict,
+                          self._mem_dict,
                           continued])
         self._remote.close()
         pass
@@ -502,7 +519,8 @@ class DeviceServer:
             dict(), # Interrupt Dict
             dict(), # Interrupt Pin Dict
             dict(), # Hierarchy Dict
-            dict()  # Devicetree dict
+            dict(), # Devicetree dict
+            dict()  # Memory Dict
         ]
 
     def start(self):

@@ -85,7 +85,8 @@ def _assign_drivers(description, ignore_version):
                 details['driver'] = DefaultIP
 
 
-def _complete_description(ip_dict, hierarchy_dict, ignore_version):
+def _complete_description(ip_dict, hierarchy_dict, ignore_version,
+                          mem_dict, device):
     """Returns a complete hierarchical description of an overlay based
     on the three dictionaries parsed from the TCL.
 
@@ -95,6 +96,8 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version):
     starting_dict['hierarchies'] = {k: v for k, v in hierarchy_dict.items()}
     starting_dict['interrupts'] = dict()
     starting_dict['gpio'] = dict()
+    starting_dict['memories'] = mem_dict
+    starting_dict['device'] = device
     _assign_drivers(starting_dict, ignore_version)
     return starting_dict
 
@@ -180,6 +183,16 @@ def _build_docstring(description, name, type_):
             lines.append("{0: <20} : pynq.gpio.GPIO".format(gpio))
     else:
         lines.append("None")
+    lines.append("")
+
+    lines.append("Memories")
+    lines.append("------------")
+    if description['memories']:
+        for mem in description['memories'].keys():
+            lines.append("{0: <20} : Memory".format(mem))
+    else:
+        lines.append("None")
+    lines.append("")
     lines.append("")
     return '\n    '.join(lines)
 
@@ -313,7 +326,8 @@ class Overlay(Bitstream):
         self.pr_dict = dict()
         self.ignore_version = ignore_version
         description = _complete_description(
-            self.ip_dict, self.hierarchy_dict, self.ignore_version)
+            self.ip_dict, self.hierarchy_dict, self.ignore_version,
+            self.mem_dict, self.device)
         self._ip_map = _IPMap(description)
 
         if download:
@@ -339,6 +353,7 @@ class Overlay(Bitstream):
         self.interrupt_controllers = deepcopy(source.interrupt_controllers)
         self.interrupt_pins = deepcopy(source.interrupt_pins)
         self.hierarchy_dict = deepcopy(source.hierarchy_dict)
+        self.mem_dict = deepcopy(source.mem_dict)
 
     def download(self, dtbo=None):
         """The method to download a full bitstream onto PL.
@@ -406,7 +421,8 @@ class Overlay(Bitstream):
         self.pr_dict[partial_region] = {'loaded': pr_block.pr_loaded,
                                         'dtbo': pr_dtbo}
         description = _complete_description(
-            self.ip_dict, self.hierarchy_dict, self.ignore_version)
+            self.ip_dict, self.hierarchy_dict, self.ignore_version,
+            self.mem_dict, self.device)
         self._ip_map = _IPMap(description)
 
     def is_loaded(self):
@@ -610,6 +626,11 @@ class _IPMap:
             gpio = GPIO(gpio_number, 'out')
             setattr(self, key, gpio)
             return gpio
+        elif key in self._description['memories']:
+            mem = self._description['device'].get_memory(
+                    self._description['memories'][key])
+            setattr(self, key, mem)
+            return mem
         else:
             raise AttributeError(
                 "Could not find IP or hierarchy {} in overlay".format(key))
@@ -621,7 +642,8 @@ class _IPMap:
         return (list(self._description['hierarchies'].keys()) +
                 list(i for i in self._description['ip'].keys()) +
                 list(i for i in self._description['interrupts'].keys()) +
-                list(g for g in self._description['gpio'].keys()))
+                list(i for i in self._description['gpio'].keys()) +
+                list(g for g in self._description['memories'].keys()))
 
     def __dir__(self):
         return sorted(set(super().__dir__() +

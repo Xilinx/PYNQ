@@ -206,6 +206,20 @@ class Device(metaclass=DeviceMeta):
         """
         return self._client.devicetree_dict
 
+    @property
+    def mem_dict(self):
+        """The getter for the attribute `mem_dict`
+
+        Returns
+        -------
+        dict
+            The dictionary containing the memory spaces in the design
+
+        """
+        self.client_request()
+        self.server_update()
+        return self._client.mem_dict
+
     def allocate(self, shape, dtype, **kwargs):
         """Allocate an array on the device
 
@@ -385,3 +399,9 @@ class XlnkDevice(Device):
         super().__init__("xlnk")
         from pynq import Xlnk
         self.default_memory = Xlnk()
+
+    def get_memory(self, description):
+        if description['type'] == 'PSDDR':
+            return self.default_memory
+
+        raise RuntimeError('Only PS memory supported for ZYNQ devices')
