@@ -161,6 +161,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.ip_dict = {}
         self.gpio_dict = {}
         self.clock_dict = {}
+        self.mem_dict = {}
+
         self.instance2attr = {i.get('INSTANCE'): (
             i.get('FULLNAME').lstrip('/'),
             i.get('VLNV'),
@@ -188,6 +190,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.match_pins()
         self.add_gpio()
         self.init_interrupts()
+        self.init_mem_dict()
         self.init_hierachy_dict()
         self.assign_interrupts_gpio()
 
@@ -348,6 +351,22 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 self.ps_name + "/" + self.family_irq]
             self._add_interrupt_pins(ps_irq_net, "", 0)
 
+    def init_mem_dict(self):
+        """Prepare the memory dictionary
+
+        For now we will add a single entry for the PS
+
+        """
+        from pynq.xlnk import Xlnk
+        self.mem_dict[self.ps_name] = {
+            'raw_type': None,
+            'used': 1,
+            'base_address':0,
+            'size': Xlnk().cma_mem_size(),
+            'type': 'PSDDR',
+            'streaming': False
+        }
+
     def _add_interrupt_pins(self, net, parent, offset):
         net_pins = self.nets[net] if net else set()
         for p in net_pins:
@@ -424,6 +443,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 'hierarchies': dict(),
                 'interrupts': dict(),
                 'gpio': dict(),
+                'memories': dict(),
                 'fullpath': hier,
             }
         for name, val in self.ip_dict.items():
