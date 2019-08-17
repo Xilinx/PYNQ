@@ -4,11 +4,6 @@
 set -e
 set -x
 
-# to be added into the main flow
-apt-get update
-apt-get -y install libgtest-dev libboost-all-dev uuid-dev libyaml-dev 
-apt-get -y install opencl-headers ocl-icd-dev  ocl-icd-opencl-dev
-
 # make symlink for gtest
 cd /usr/src/gtest
 cmake CMakeLists.txt
