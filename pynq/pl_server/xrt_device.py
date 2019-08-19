@@ -86,7 +86,8 @@ class XrtDevice(Device):
     def __init__(self, index):
         super().__init__('xrt{}'.format(index))
         self.capabilities = {
-            'REGISTER_RW' : True
+            'REGISTER_RW' : True,
+            'CALLABLE' : True
         }
         self.handle = xrt.xclOpen(index, None, 0)
         self._info = xrt.xclDeviceInfo2()
