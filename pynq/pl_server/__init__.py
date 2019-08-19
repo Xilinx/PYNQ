@@ -35,3 +35,7 @@ from .tcl_parser import TCL, get_tcl_name
 from .hwh_parser import HWH, get_hwh_name
 from .server import DeviceClient
 from .device import Device
+
+import os
+if 'XILINX_XRT' in os.environ:
+    from .xclbin_parser import XclBin

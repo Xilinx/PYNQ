@@ -308,6 +308,14 @@ class Overlay(Bitstream):
 
         hwh_path = get_hwh_name(self.bitfile_name)
         tcl_path = get_tcl_name(self.bitfile_name)
+        if self.bitfile_name[-6:] == 'xclbin':
+            try:
+                from pl_server import XclBin
+            except ImportError:
+                raise RuntimeError(
+                    "Ensure that XILINX_XRT is in the environment " +
+                    "for xclbin support")
+            self.parser = XclBin(self.bitfile_name)
         if os.path.exists(hwh_path):
             self.parser = HWH(hwh_path)
         elif os.path.exists(tcl_path):
