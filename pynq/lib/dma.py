@@ -43,7 +43,7 @@ class _DMAChannel:
     """Drives a single channel of the Xilinx AXI DMA
 
     This driver is designed to be used in conjunction with the
-    `Xlnk.cma_array` method of memory allocation. The channel has
+    `pynq.allocate()` method of memory allocation. The channel has
     main functions `transfer` and `wait` which start and wait for
     the transfer to finish respectively. If interrupts are enabled
     there is also a `wait_async` coroutine.
@@ -161,8 +161,8 @@ class DMA(DefaultIP):
     `wait` functions. If interrupts have been enabled and connected
     for the DMA engine then `wait_async` is also present.
 
-    Buffers to be transferred must be allocated through the Xlnk driver
-    using the cma_array function either directly or indirectly. This
+    Buffers to be transferred must be a `PynqBuffer` objectedallocated
+    through `pynq.allocate()` function either directly or indirectly. This
     means that Frames from the video subsystem can be transferred using
     this class.
 
