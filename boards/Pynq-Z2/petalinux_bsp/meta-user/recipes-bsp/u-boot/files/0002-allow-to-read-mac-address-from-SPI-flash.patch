@@ -1,31 +1,30 @@
-From 8083722ea498ed987aa640bac94bad701ea41dab Mon Sep 17 00:00:00 2001
+From ca115d9c87516f5eb689b517bb92d0476583b282 Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Wed, 12 Dec 2018 14:02:45 -0800
+Date: Mon, 12 Aug 2019 10:38:41 -0700
 Subject: [PATCH 2/4] allow to read mac address from SPI flash
 
 ---
- board/xilinx/zynq/board.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ board/xilinx/common/board.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/board/xilinx/zynq/board.c b/board/xilinx/zynq/board.c
-index 10ed464..59ed379 100644
---- a/board/xilinx/zynq/board.c
-+++ b/board/xilinx/zynq/board.c
-@@ -9,6 +9,8 @@
- #include <fdtdec.h>
- #include <fpga.h>
- #include <mmc.h>
+diff --git a/board/xilinx/common/board.c b/board/xilinx/common/board.c
+index 7e6340b..2414735 100644
+--- a/board/xilinx/common/board.c
++++ b/board/xilinx/common/board.c
+@@ -7,6 +7,8 @@
+ #include <common.h>
+ #include <dm/uclass.h>
+ #include <i2c.h>
 +#include <spi.h>
 +#include <spi_flash.h>
- #include <wdt.h>
- #include <zynqpl.h>
- #include <asm/arch/hardware.h>
-@@ -172,6 +174,28 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
- 		printf("I2C EEPROM MAC address read failed\n");
+ 
+ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+ {
+@@ -34,5 +36,30 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+ 		debug("%s: I2C EEPROM MAC %pM\n", __func__, ethaddr);
  #endif
  
-+#if defined(CONFIG_ZYNQ_QSPI) && \
-+    defined(CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET)
++#if defined(CONFIG_ZYNQ_QSPI) && defined(CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET)
 +#define CMD_OTPREAD_ARRAY_FAST		0x4b
 +	struct spi_flash *flash;
 +	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
@@ -36,19 +35,22 @@ index 10ed464..59ed379 100644
 +		printf("SPI(bus:%u cs:%u) probe failed\n",
 +			CONFIG_SF_DEFAULT_BUS,
 +			CONFIG_SF_DEFAULT_CS);
-+		return 0;
++		return -ENODEV;
 +	}
 +	/* set the cmd to otp read */
 +	flash->read_cmd = CMD_OTPREAD_ARRAY_FAST;
-+	if (spi_flash_read(flash, CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET, 6, ethaddr))
-+		printf("SPI MAC address read failed\n");
++	ret = spi_flash_read(flash, CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET, 6, ethaddr);
++	if (ret)
++		debug("%s: SPI EEPROM MAC address read failed\n", __func__);
++	else
++		debug("%s: SPI EEPROM MAC %pM\n", __func__, ethaddr);
 +
 +	if (flash)
 +		spi_flash_free(flash);
 +#endif
- 	return 0;
++
+ 	return ret;
  }
- 
 -- 
 1.9.5
 
