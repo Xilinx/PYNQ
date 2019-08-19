@@ -9,7 +9,7 @@ pipeline {
         OLD_BUILD_COUNT = 3
     }
     stages {
-        stage("Build board-agnostic images and documentation") {
+        stage("Build images and documentation") {
             parallel {
                 stage("Documentation") {
                     when {
@@ -62,6 +62,203 @@ pipeline {
                                                  reportFiles: 'index.html', 
                                                  reportName: 'Generated Documentation Preview', 
                                                  reportTitles: ''])
+                                }
+                            }
+                        }
+                    }
+                }
+                stage("PYNQ-Z1") {
+                    agent {
+                        label 'image-build'
+                    }
+                    environment {
+                        ARCH = "arm"
+                        BOARD = "Pynq-Z1"
+                    }
+                    stages {                
+                        stage("Retrieve rootfs and Build") {
+                            steps {
+                                catchError(buildResult: 'SUCCESS') {
+                                    copyArtifacts filter: '${SDBUILD_DIR}/output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img', fingerprintArtifacts: true, projectName: 'PYNQ_v2.5', selector: upstream(fallbackToLastSuccessful: true)
+                                    dir("${SDBUILD_DIR}") {
+                                        // setup and invoke compilation
+                                        sh '''
+                                            source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                            source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                            source /opt/petalinux/2019.1/settings.sh 
+                                            petalinux-util --webtalk off
+                                            make sdx_sw all PREBUILT=output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
+                                        '''
+                                    }
+
+                                }
+                                
+                            }
+                            post {
+                                failure {
+                                    // Print all log files produced during build process
+                                    sh '''
+                                        for logfile in $(find ${SDBUILD_DIR} -type f -name "*.log"); do
+                                            echo "== $logfile =="
+                                            echo "=============================="
+                                            sudo cat $logfile
+                                            echo -e "==============================\n"
+                                        done
+                                    '''
+                                }
+                                success {
+                                    // Copy build result into build folder, move previous version in /builds/old, and
+                                    // remove older builds if more than OLD_BUILD_COUNT are kept in /builds/old
+                                    sh'''
+                                        boardname=$(echo ${BOARD} | tr '[:upper:]' '[:lower:]' | tr - _)
+                                        timestamp=$(date +'%Y_%m_%d')
+                                        imagefile=${boardname}_${timestamp}.img
+                                        zipfile=${boardname}_${timestamp}.zip
+                                        mv ${SDBUILD_DIR}/output/${BOARD}-${VERSION}.img $imagefile
+                                        zip -j $zipfile $imagefile
+                                        if [ -f /builds/${boardname}_*.zip ] ; then
+                                           mv /builds/${boardname}_*.zip /builds/old
+                                        fi
+                                        mv $zipfile /builds
+                                        old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        while [ ${#old_zipfiles[@]} -gt ${OLD_BUILD_COUNT} ] ; do
+                                           rm ${old_zipfiles[0]}
+                                           old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        done
+                                    '''
+                                }
+                            }
+                        }
+                    }
+                }
+                stage("PYNQ-Z2") {
+                    agent {
+                        label 'image-build'
+                    }
+                    environment {
+                        ARCH = "arm"
+                        BOARD = "Pynq-Z2"
+                    }
+                    stages {
+                        stage("Retrieve rootfs and Build") {
+                            steps {
+                                catchError(buildResult: 'SUCCESS') {
+                                    copyArtifacts filter: '${SDBUILD_DIR}/output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img', fingerprintArtifacts: true, projectName: 'PYNQ_v2.5', selector: upstream(fallbackToLastSuccessful: true)
+                                    dir("${SDBUILD_DIR}") {
+                                        // setup and invoke compilation
+                                        sh '''
+                                            source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                            source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                            source /opt/petalinux/2019.1/settings.sh 
+                                            petalinux-util --webtalk off
+                                            make sdx_sw all PREBUILT=output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
+                                        '''
+                                    }
+
+                                }
+                                
+                            }
+                            post {
+                                failure {
+                                    // Print all log files produced during build process
+                                    sh '''
+                                        for logfile in $(find ${SDBUILD_DIR} -type f -name "*.log"); do
+                                            echo "== $logfile =="
+                                            echo "=============================="
+                                            sudo cat $logfile
+                                            echo -e "==============================\n"
+                                        done
+                                    '''
+                                }
+                                success {
+                                    // Copy build result into build folder, move previous version in /builds/old, and
+                                    // remove older builds if more than OLD_BUILD_COUNT are kept in /builds/old
+                                    sh'''
+                                        boardname=$(echo ${BOARD} | tr '[:upper:]' '[:lower:]' | tr - _)
+                                        timestamp=$(date +'%Y_%m_%d')
+                                        imagefile=${boardname}_${timestamp}.img
+                                        zipfile=${boardname}_${timestamp}.zip
+                                        mv ${SDBUILD_DIR}/output/${BOARD}-${VERSION}.img $imagefile
+                                        zip -j $zipfile $imagefile
+                                        if [ -f /builds/${boardname}_*.zip ] ; then
+                                           mv /builds/${boardname}_*.zip /builds/old
+                                        fi
+                                        mv $zipfile /builds
+                                        old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        while [ ${#old_zipfiles[@]} -gt ${OLD_BUILD_COUNT} ] ; do
+                                           rm ${old_zipfiles[0]}
+                                           old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        done
+                                    '''
+                                }
+                            }
+                        }
+                    }
+                }
+                stage("ZCU104") {
+                    agent {
+                        label 'image-build'
+                    }
+                    environment {
+                        ARCH = "aarch64"
+                        BOARD = "ZCU104"
+                    }
+                    stages {
+                        stage("Fetch ZCU104 Petalinux BSP") {
+                            steps {
+                                sh 'cp /opt/petalinux-bsp/xilinx-zcu104-v2019.1-final.bsp ${BOARDS_DIR}/${BOARD}/'
+                            }
+                        }
+                        stage("Retrieve rootfs and Build") {
+                            steps {
+                                catchError(buildResult: 'SUCCESS') {
+                                    copyArtifacts filter: '${SDBUILD_DIR}/output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img', fingerprintArtifacts: true, projectName: 'PYNQ_v2.5', selector: upstream(fallbackToLastSuccessful: true)
+                                    dir("${SDBUILD_DIR}") {
+                                        // setup and invoke compilation
+                                        sh '''
+                                            source /opt/xilinx/2019.1/Vivado/2019.1/settings64.sh
+                                            source /opt/xilinx/2019.1/SDx/2019.1/settings64.sh
+                                            source /opt/petalinux/2019.1/settings.sh 
+                                            petalinux-util --webtalk off
+                                            make sdx_sw all PREBUILT=output/${UBUNTU_RELEASE}.${ARCH}.${VERSION}.img BOARDS=${BOARD}
+                                        '''
+                                    }
+
+                                }
+                                
+                            }
+                            post {
+                                failure {
+                                    // Print all log files produced during build process
+                                    sh '''
+                                        for logfile in $(find ${SDBUILD_DIR} -type f -name "*.log"); do
+                                            echo "== $logfile =="
+                                            echo "=============================="
+                                            sudo cat $logfile
+                                            echo -e "==============================\n"
+                                        done
+                                    '''
+                                }
+                                success {
+                                    // Copy build result into build folder, move previous version in /builds/old, and
+                                    // remove older builds if more than OLD_BUILD_COUNT are kept in /builds/old
+                                    sh'''
+                                        boardname=$(echo ${BOARD} | tr '[:upper:]' '[:lower:]' | tr - _)
+                                        timestamp=$(date +'%Y_%m_%d')
+                                        imagefile=${boardname}_${timestamp}.img
+                                        zipfile=${boardname}_${timestamp}.zip
+                                        mv ${SDBUILD_DIR}/output/${BOARD}-${VERSION}.img $imagefile
+                                        zip -j $zipfile $imagefile
+                                        if [ -f /builds/${boardname}_*.zip ] ; then
+                                           mv /builds/${boardname}_*.zip /builds/old
+                                        fi
+                                        mv $zipfile /builds
+                                        old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        while [ ${#old_zipfiles[@]} -gt ${OLD_BUILD_COUNT} ] ; do
+                                           rm ${old_zipfiles[0]}
+                                           old_zipfiles=($(find /builds/old -type f -name "${boardname}_*.zip" | sort | cut -d' ' -f2))
+                                        done
+                                    '''
                                 }
                             }
                         }
@@ -163,7 +360,7 @@ pipeline {
                 }
             }
         }
-        stage("Build board-specific images") {
+        stage("Full-build for board-specific images") {
             parallel {
                 stage("PYNQ-Z1") {
                     agent {
