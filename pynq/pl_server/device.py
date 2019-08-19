@@ -380,6 +380,20 @@ class Device(metaclass=DeviceMeta):
                     warnings.warn("Timeout for shutdown manager. It's likely "
                                   "the configured bitstream and metadata "
                                   "don't match.")
+    def post_download(self):
+        """Hook called after a new bitstream is loaded
+
+        """
+        pass
+
+    def pre_download(self):
+        """Hook called before a new bitstream is loaded
+
+        """
+        self.shutdown()
+
+    def has_capability(self, cap):
+        """Test if the device as a desired capability
 
         Parameters
         ----------
