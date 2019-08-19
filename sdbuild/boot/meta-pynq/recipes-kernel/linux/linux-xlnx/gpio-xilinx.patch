@@ -20,3 +20,4 @@ index 865b0672adc6d..47dd2c5e5d2df 100644
  				(PTR_ERR(chip->clk) != -EPROBE_DEFER)) {
  			dev_err(&pdev->dev, "Input clock not found\n");
  			return PTR_ERR(chip->clk);
+
