@@ -1,6 +1,6 @@
-From c07d36e34e1a8d71018727449e86527edace7c90 Mon Sep 17 00:00:00 2001
+From deeaf22655584d1e8f15071d295264c888065940 Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Wed, 12 Dec 2018 13:57:33 -0800
+Date: Mon, 12 Aug 2019 10:14:43 -0700
 Subject: [PATCH 1/4] add preliminary support for artyz
 
 ---
@@ -14,14 +14,14 @@ Subject: [PATCH 1/4] add preliminary support for artyz
  create mode 100644 arch/arm/dts/zynq-artyz.dts
  create mode 100644 board/xilinx/zynq/zynq-artyz/ps7_init_gpl.c
  create mode 100644 board/xilinx/zynq/zynq-artyz/ps7_init_gpl.h
- create mode 100644 configs/zynq_artyz_defconfig
- create mode 100644 include/configs/zynq_artyz.h
+ create mode 100755 configs/zynq_artyz_defconfig
+ create mode 100755 include/configs/zynq_artyz.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 79a72ce..d2b88f2 100644
+index 445ab15..a817248 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -144,6 +144,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+@@ -154,6 +154,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-topic-miami.dtb \
  	zynq-topic-miamilite.dtb \
  	zynq-topic-miamiplus.dtb \
@@ -13016,7 +13016,7 @@ index 0000000..d217869
 +#endif
 +
 diff --git a/configs/zynq_artyz_defconfig b/configs/zynq_artyz_defconfig
-new file mode 100644
+new file mode 100755
 index 0000000..f1cb17d
 --- /dev/null
 +++ b/configs/zynq_artyz_defconfig
@@ -13090,7 +13090,7 @@ index 0000000..f1cb17d
 +CONFIG_CI_UDC=y
 +CONFIG_USB_GADGET_DOWNLOAD=y
 diff --git a/include/configs/zynq_artyz.h b/include/configs/zynq_artyz.h
-new file mode 100644
+new file mode 100755
 index 0000000..6987ad1
 --- /dev/null
 +++ b/include/configs/zynq_artyz.h
