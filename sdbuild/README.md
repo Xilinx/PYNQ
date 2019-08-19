@@ -190,6 +190,21 @@ To generate the Petalinux BSP for future use:
 make bsp BOARDDIR=<absolute_path>/myboards
 ```
 
+To build the board-agnostic images and sysroot you can pass the `ARCH_ONLY`
+variable to make. This will cause the `images` target to build the architecture
+image.
+
+```Makefile
+make images ARCH_ONLY=arm
+```
+
+To use a board-agnostic image to build a board-specific image you can pass the
+`PREBUILT` variable
+
+```Makefile
+make PREBUILT=<image path> BOARDS=<board>
+```
+
 ## Custom Ubuntu Repository
 
 By default the SD build flow will pull from https://ports.ubuntu.com. This can
