@@ -42,7 +42,15 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
     
         cd <PYNQ repository>
 
-  3. You can then prepare the VM using the following command. This step will
+  3. (optionally) Depending on your Virtual Box configurations, you may 
+     need to run the following command first; it may help you get better 
+     screen resolution for your Ubuntu VM.
+
+     .. code-block:: console
+
+	vagrant plugin install vagrant-vbguest
+
+  4. You can then prepare the VM using the following command. This step will
      prepare a Ubuntu VM called *pynq_vm* on your Virtual Box. For this VM,
      username and password are both defaulted to *vagrant*. The Ubuntu 
      packages on the VM will be updated during this process; the Ubuntu desktop 
@@ -55,14 +63,14 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      After the VM has been successfully loaded, you will see a folder
      */pynq* on your VM; this folder is shared with your PYNQ repository on 
      your host OS.
-  4. (optionally) To restart the VM without losing the shared folder, in your 
+  5. (optionally) To restart the VM without losing the shared folder, in your 
      terminal, run:
 
      .. code-block:: console
     
         vagrant reload
 
-  5. Now you are ready to install Xilinx tools. You will need 
+  6. Now you are ready to install Xilinx tools. You will need 
      PetaLinux, Vivado, and SDx for building PYNQ image.
      The version of Xilinx tools for each PYNQ release is shown below:
 
@@ -75,6 +83,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.2               2017.4
      v2.3               2018.2
      v2.4               2018.3
+     v2.5               2019.1
      ================  ================
 
 If you already have a Ubuntu OS, you can do the following:
@@ -94,9 +103,25 @@ Building the Image
 ==================
 
 Once you have the building environment ready, you can start to build the image 
-following the steps below:
+following the steps below. You don't have to rerun the `setup_host.sh`.
 
-  1. Source the appropriate settings files from PetaLinux, Vivado, and SDx.
+  1. Export PATH and source the appropriate settings for PetaLinux, Vivado, 
+     and (optionally) SDx. For example:
+
+     .. code-block:: console
+         
+	export PATH="/opt/crosstool-ng/bin:/opt/qemu/bin:$PATH"
+	source <path-to-vivado>/Vivado/2018.3/settings64.sh
+	source <path-to-sdx>/SDx/2018.3/settings64.sh
+	source <path-to-petalinux>/petalinux-v2018.3-final/settings.sh
+	petalinux-util --webtalk off
+
+     Currently the SD build flow is checking the Xilinx tool path for the 
+     version number, so please make sure the version number appears 
+     in your installation path.
+     In the above commands, the SD build flow will recognize the Xilinx tool
+     version number as 2018.3.
+
   2. Navigate to the following directory and run make
 
      .. code-block:: console
