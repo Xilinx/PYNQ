@@ -593,9 +593,6 @@ class ndarray(object):
             self._strides = _strides_for_shape(self._shape, self.itemsize)
         
         else:
-            # Existing array
-            if isinstance(buffer, ndarray) and buffer.base is not None:
-                buffer = buffer.base
             # Keep a reference to avoid memory cleanup
             self._base = buffer
             # for ndarray we use the data property

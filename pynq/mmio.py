@@ -30,7 +30,7 @@
 import os
 import mmap
 import numpy as np
-import tinynumpy as tnp
+import pynq.tinynumpy as tnp
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -87,6 +87,7 @@ class MMIO:
 
         self.base_addr = base_addr
         self.length = length
+        self.debug = debug
 
         if self.device.has_capability('MEMORY_MAPPED'):
             self.read = self.read_mm
@@ -96,7 +97,7 @@ class MMIO:
             self.read = self.read_reg
             self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
-            self.array = np.ndarray(shape=(length // 4,), dtype='u4',
+            self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
                                     hook=self._hook)
         else:
             raise ValueError("Device does not have capabilities for MMIO")

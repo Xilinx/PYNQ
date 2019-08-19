@@ -49,7 +49,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-def _assign_drivers(description, ignore_version):
+def _assign_drivers(description, ignore_version, device):
     """Assigns a driver for each IP and hierarchy in the description.
 
     """
@@ -62,6 +62,7 @@ def _assign_drivers(description, ignore_version):
                 break
 
     for name, details in description['ip'].items():
+        details['device'] = device
         ip_type = details['type']
         if ip_type in _ip_drivers:
             details['driver'] = _ip_drivers[ip_type]
@@ -98,7 +99,7 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version,
     starting_dict['gpio'] = dict()
     starting_dict['memories'] = mem_dict
     starting_dict['device'] = device
-    _assign_drivers(starting_dict, ignore_version)
+    _assign_drivers(starting_dict, ignore_version, device)
     return starting_dict
 
 
@@ -543,7 +544,13 @@ class DefaultIP(metaclass=RegisterIP):
     """
 
     def __init__(self, description):
-        self.mmio = MMIO(description['phys_addr'], description['addr_range'])
+        if 'device' in description:
+            self.device = description['device']
+        else:
+            from .pl_server.device import Device
+            self.device = Device.active_device
+        self.mmio = MMIO(description['phys_addr'], description['addr_range'],
+                         device=self.device)
         if 'interrupts' in description:
             self._interrupts = description['interrupts']
         else:
