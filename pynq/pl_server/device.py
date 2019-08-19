@@ -381,6 +381,21 @@ class Device(metaclass=DeviceMeta):
                                   "the configured bitstream and metadata "
                                   "don't match.")
 
+        Parameters
+        ----------
+        cap : str
+            The desired capability
+
+        Returns
+        -------
+        bool
+            True if the devices support cap
+
+        """
+        if not hasattr(self, 'capabilities'):
+            return False
+        return cap in self.capabilities and self.capabilities[cap]
+
 
 class XlnkDevice(Device):
     """Device sub-class for Xlnk based devices
@@ -399,9 +414,34 @@ class XlnkDevice(Device):
         super().__init__("xlnk")
         from pynq import Xlnk
         self.default_memory = Xlnk()
+        self.capabilities = {
+            'MEMORY_MAPPED': True
+        }
 
     def get_memory(self, description):
         if description['type'] == 'PSDDR':
             return self.default_memory
 
         raise RuntimeError('Only PS memory supported for ZYNQ devices')
+
+    def mmap(self, base_addr, length):
+        import mmap
+        euid = os.geteuid()
+        if euid != 0:
+            raise EnvironmentError('Root permissions required.')
+
+        # Align the base address with the pages
+        virt_base = base_addr & ~(mmap.PAGESIZE - 1)
+
+        # Calculate base address offset w.r.t the base address
+        virt_offset = base_addr - virt_base
+
+        # Open file and mmap
+        mmap_file = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
+        mem = mmap.mmap(mmap_file, length + virt_offset,
+                        mmap.MAP_SHARED,
+                        mmap.PROT_READ | mmap.PROT_WRITE,
+                        offset=virt_base)
+        os.close(mmap_file)
+        array = np.frombuffer(mem, np.uint32, length >> 2, virt_offset)
+        return array
