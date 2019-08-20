@@ -29,7 +29,6 @@
 
 import os
 import re
-import warnings
 import abc
 from xml.etree import ElementTree
 from copy import deepcopy
@@ -605,6 +604,4 @@ elif CPU_ARCH == ZYNQ_ARCH:
     HWH = _HWHZynq
 else:
     HWH = _HWHABC
-    warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), UserWarning)
 

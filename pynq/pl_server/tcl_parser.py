@@ -31,7 +31,6 @@
 import abc
 import os
 import re
-import warnings
 from copy import deepcopy
 from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
 
@@ -620,6 +619,4 @@ elif CPU_ARCH == ZYNQ_ARCH:
     TCL = _TCLZynq
 else:
     TCL = _TCLABC
-    warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), UserWarning)
 
