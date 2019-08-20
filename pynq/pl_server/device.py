@@ -32,6 +32,9 @@ __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import os
+import struct
+import warnings
+import numpy as np
 from .server import DeviceClient
 
 
@@ -408,7 +411,10 @@ class Device(metaclass=DeviceMeta):
             return False
         return cap in self.capabilities and self.capabilities[cap]
 
-def parse_bit_header(self, bitstream):
+    def get_bitfile_metadata(self, bitfile_name):
+        return None
+
+def parse_bit_header(bitfile):
     """The method to parse the header of a bitstream.
 
     The returned dictionary has the following keys:
@@ -482,7 +488,7 @@ def parse_bit_header(self, bitstream):
                 raise RuntimeError("Unknown field: {}".format(hex(desc)))
         return bit_dict
 
-def _preload_binfile(self, bitstream):
+def _preload_binfile(bitstream):
     bitstream.binfile_name = os.path.basename(
         bitstream.bitfile_name).replace('.bit', '.bin')
     bitstream.firmware_path = os.path.join('/lib/firmware',
@@ -561,3 +567,19 @@ class XlnkDevice(Device):
             fd.write(bitstream.binfile_name)
 
         super().post_download(bitstream, parser)
+
+    def get_bitfile_metadata(self, bitfile_name):
+        from .tcl_parser import TCL, get_tcl_name
+        from .hwh_parser import HWH, get_hwh_name
+        hwh_path = get_hwh_name(bitfile_name)
+        tcl_path = get_tcl_name(bitfile_name)
+        if os.path.exists(hwh_path):
+            return HWH(hwh_path)
+        elif os.path.exists(tcl_path):
+            message = "Users will not get PARAMETERS / REGISTERS information " \
+                      "through TCL files. HWH file is recommended."
+            warnings.warn(message, UserWarning)
+            return TCL(tcl_path)
+        else:
+            raise ValueError("Cannot find HWH or TCL file for {}.".format(
+                bitfile_name))

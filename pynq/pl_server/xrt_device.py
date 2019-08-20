@@ -201,3 +201,6 @@ class XrtDevice(Device):
                 raise RuntimeError('Could not open CU context - ' + str(err))
             self.contexts.append((uuid_ctypes, cu_used))
 
+    def get_bitfile_metadata(self, bitfile_name):
+        from .xclbin_parser import XclBin
+        return XclBin(bitfile_name)

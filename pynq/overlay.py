@@ -37,10 +37,6 @@ from copy import deepcopy
 from .mmio import MMIO
 from .ps import Clocks
 from .pl import PL
-from .pl import TCL
-from .pl import HWH
-from .pl import get_tcl_name
-from .pl import get_hwh_name
 from .bitstream import Bitstream
 from .interrupt import Interrupt
 from .gpio import GPIO
@@ -312,26 +308,7 @@ class Overlay(Bitstream):
         """
         super().__init__(bitfile_name, dtbo, partial=False, device=device)
 
-        hwh_path = get_hwh_name(self.bitfile_name)
-        tcl_path = get_tcl_name(self.bitfile_name)
-        if self.bitfile_name[-6:] == 'xclbin':
-            try:
-                from .pl_server import XclBin
-            except ImportError:
-                raise RuntimeError(
-                    "Ensure that XILINX_XRT is in the environment " +
-                    "for xclbin support")
-            self.parser = XclBin(self.bitfile_name)
-        elif os.path.exists(hwh_path):
-            self.parser = HWH(hwh_path)
-        elif os.path.exists(tcl_path):
-            self.parser = TCL(tcl_path)
-            message = "Users will not get PARAMETERS / REGISTERS information " \
-                      "through TCL files. HWH file is recommended."
-            warnings.warn(message, UserWarning)
-        else:
-            raise ValueError("Cannot find HWH or TCL file for {}.".format(
-                self.bitfile_name))
+        self.parser = self.device.get_bitfile_metadata(self.bitfile_name)
 
         self.ip_dict = self.gpio_dict = self.interrupt_controllers = \
             self.interrupt_pins = self.hierarchy_dict = dict()
@@ -868,6 +845,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         self.parsers = dict()
         self.bitstreams = dict()
         self.pr_loaded = ''
+        self.device = description['device']
         super().__init__(description)
 
     @staticmethod
@@ -916,18 +894,8 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         self.bitstreams[bitfile_name] = Bitstream(bitfile_name, dtbo,
                                                   partial=True)
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name
-        hwh_path = get_hwh_name(bitfile_name)
-        tcl_path = get_tcl_name(bitfile_name)
-        if os.path.exists(hwh_path):
-            self.parsers[bitfile_name] = HWH(hwh_path)
-        elif os.path.exists(tcl_path):
-            self.parsers[bitfile_name] = TCL(tcl_path)
-            message = "Users will not get PARAMETERS / REGISTERS information " \
-                      "through TCL files. HWH file is recommended."
-            warnings.warn(message, UserWarning)
-        else:
-            raise ValueError("Cannot find HWH or TCL file for {}.".format(
-                bitfile_name))
+        self.parsers[bitfile_name] = self.device.get_bitfile_metadata(
+                bitfile_name)
 
     def _parse(self, bitfile_name):
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name
