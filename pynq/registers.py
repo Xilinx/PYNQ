@@ -104,19 +104,21 @@ class Register:
         self.debug = debug
 
         if width == 32:
-            register_type = np.uint32
+            register_type = 'u4'
         elif width == 64:
-            register_type = np.uint64
+            register_type = 'u8'
         else:
             raise ValueError("Supported register width is 32 or 64.")
 
         if buffer is None:
             from .mmio import MMIO
-            array = MMIO(address, register_type().itemsize).array
+            array = MMIO(address, np.dtype(register_type).itemsize).array
+        elif hasattr(buffer, 'view'):
+            array = buffer
         else:
             array = np.frombuffer(buffer, register_type, count=1)
 
-        self._buffer = array.astype(register_type, copy=False)
+        self._buffer = array.view(dtype=register_type)
 
     def __getitem__(self, index):
         """Get the register value.
@@ -130,7 +132,7 @@ class Register:
 
         """
 
-        curr_val = int.from_bytes(self._buffer, byteorder='little')
+        curr_val = self._buffer[0]
         if isinstance(index, int):
             self._debug("Reading index {} at address {}"
                         .format(index, hex(self.address)))
@@ -183,7 +185,7 @@ class Register:
 
         """
 
-        curr_val = int.from_bytes(self._buffer, byteorder='little')
+        curr_val = self._buffer[0]
         if isinstance(index, int):
             if value != 0 and value != 1:
                 raise ValueError("Value to be set should be either 0 or 1.")
@@ -239,8 +241,7 @@ class Register:
 
         """
 
-        curr_val = int.from_bytes(self._buffer, byteorder='little')
-        return hex(curr_val)
+        return hex(self[:])
 
     def _debug(self, s, *args):
         """The method provides debug capabilities for this class.
@@ -399,10 +400,14 @@ class RegisterMap:
         if not hasattr(self, '_map_size'):
             raise RuntimeError("Only subclasses of RegisterMap from" +
                                "create_subclass can be instantiated")
-        array32 = np.frombuffer(buffer=buffer, dtype=np.uint32,
-                                count=self._map_size // 4)
-        array64 = np.frombuffer(buffer=buffer, dtype=np.uint64,
-                                count=self._map_size // 8)
+        if hasattr(buffer, 'view'):
+            array32 = buffer.view(dtype='u4')
+            array64 = buffer.view(dtype='u8')
+        else:
+            array32 = np.frombuffer(buffer=buffer, dtype=np.uint32,
+                                    count=self._map_size // 4)
+            array64 = np.frombuffer(buffer=buffer, dtype=np.uint64,
+                                    count=self._map_size // 8)
         self._instances = {}
         for k, v in self._register_classes.items():
             if v[2] <= 32:
@@ -410,8 +415,8 @@ class RegisterMap:
                 array = array32[index:index+1]
                 align_width = 32
             elif v[2] <= 64:
-                index = v[1] // 8
-                array = array64[index:index+1]
+                index = v[1] // 4
+                array = array32[index:index+2]
                 align_width = 64
             else:
                 warnings.warn(
