@@ -395,9 +395,6 @@ class _ClocksUltrascale(_ClocksMeta):
 
         PL_SRC_PLL_CTRLS = [IOPLL_CTRL, IOPLL_CTRL, RPLL_CTRL, DPLL_CTRL]
         ACPU_SRC_PLL_CTRLS = [APLL_CTRL, APLL_CTRL, DPLL_CTRL, VPLL_CTRL]
-    else:
-        warnings.warn("Pynq does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
 
 
     @classmethod
@@ -535,9 +532,6 @@ class _ClocksZynq(_ClocksMeta):
 
         ARM_SRC_PLL_CTRLS = [ARM_PLL_CTRL, ARM_PLL_CTRL,
                              DDR_PLL_CTRL, IO_PLL_CTRL]
-    else:
-        warnings.warn("Pynq does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
 
 
     @classmethod
@@ -615,8 +609,6 @@ elif CPU_ARCH == ZYNQ_ARCH:
     _ClockParent = _ClocksZynq
 else:
     _ClockParent = object
-    warnings.warn("PYNQ does not support the CPU Architecture: "
-                       "{}".format(CPU_ARCH))
 
 
 class Clocks(_ClockParent, metaclass=_ClocksMeta):
