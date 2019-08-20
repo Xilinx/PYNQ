@@ -31,10 +31,14 @@ import atexit
 import ctypes
 import glob
 import os
-import xrt_binding as xrt
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
+
+try:
+    import xrt_binding as xrt
+except ImportError:
+    from pynq import xrt
 
 
 __author__ = "Peter Ogden"
