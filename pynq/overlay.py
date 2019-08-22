@@ -97,7 +97,7 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version,
     starting_dict['hierarchies'] = {k: v for k, v in hierarchy_dict.items()}
     starting_dict['interrupts'] = dict()
     starting_dict['gpio'] = dict()
-    starting_dict['memories'] = {re.sub('[^A-Za-z0-9]', '', k): v
+    starting_dict['memories'] = {re.sub('[^A-Za-z0-9_]', '', k): v
                                  for k, v in mem_dict.items() if v['used']}
     starting_dict['device'] = device
     _assign_drivers(starting_dict, ignore_version, device)
