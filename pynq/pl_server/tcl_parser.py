@@ -386,7 +386,7 @@ class _TCLABC(metaclass=abc.ABCMeta):
             'raw_type': None,
             'used': 1,
             'base_address':0,
-            'size': Xlnk().cma_mem_size(),
+            'size': Xlnk.cma_mem_size(None),
             'type': 'PSDDR',
             'streaming': False
         }
