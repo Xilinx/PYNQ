@@ -427,10 +427,12 @@ class Xlnk:
         return 0
 
     def flush(self, bo, offset, vaddr, nbytes):
-        self.libxlnk.cma_flush_cache(vaddr, bo + offset, nbytes)
+        self.libxlnk.cma_flush_cache(
+                Xlnk.ffi.cast("void*", vaddr), bo + offset, nbytes)
 
     def invalidate(self, bo, offset, vaddr, nbytes):
-        self.libxlnk.cma_invalidate_cache(vaddr, bo + offset, nbytes)
+        self.libxlnk.cma_invalidate_cache(
+                Xlnk.ffi.cast("void*", vaddr), bo + offset, nbytes)
 
     def xlnk_reset(self):
         """Systemwide Xlnk Reset.
