@@ -29,6 +29,7 @@
 
 from multiprocessing.connection import Listener
 from multiprocessing.connection import Client
+from copy import deepcopy
 import os
 import threading
 from pynq.devicetree import DeviceTreeSegment
@@ -390,6 +391,7 @@ class DeviceClient:
             'interrupts': dict(),
             'gpio': dict(),
             'fullpath': hier,
+            'memories': dict()
         }
         for name, val in self._ip_dict.items():
             hier, _, ip = name.rpartition('/')
