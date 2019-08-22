@@ -18,6 +18,7 @@ BOOT_ROOT := $(CURDIR)/output/boot
 SDX_ROOT := $(CURDIR)/output/sdx
 SYSROOT_ROOT := $(CURDIR)/output/sysroot
 BSP_ROOT := $(CURDIR)/output/bsp
+DIST_ROOT := $(CURDIR)/output/dist
 
 KERNEL_arm := zImage
 KERNEL_aarch64 := Image
@@ -50,6 +51,9 @@ $(SYSROOT_ROOT):
 $(BSP_ROOT):
 	mkdir -p $@
 
+$(DIST_ROOT):
+	mkdir -p $@
+
 PYNQ_UPDATE := $(BUILD_ROOT)/PYNQ/.git/HEAD
 PYNQ_MASTER_COMMIT := $(shell git rev-parse HEAD)
 PYNQ_CLONED_COMMIT := $(shell cd $(BUILD_ROOT)/PYNQ 2> /dev/null && git rev-parse HEAD)
@@ -80,6 +84,7 @@ QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
+DIST_$1 := $$(DIST_ROOT)/$1
 
 ifeq ($$(ARCH_$1),arm)
 	TEMPLATE_$1 := zynq
@@ -261,7 +266,14 @@ $$(SYSROOT_$1): $$(IMAGE_$1) | $$(SYSROOT_ROOT)
 
 sysroot_$1 : $$(SYSROOT_$1)
 
-.PHONY: sysroot_$1 sdx_sw_$1
+$$(DIST_$1): $$(IMAGE_$1) | $$(DIST_ROOT)
+	@if [[ $1 == "Pynq-Z1" || $1 == "Pynq-Z2" || $1 == "ZCU104" ]]; then \
+		cp -rf $$(BUILD_ROOT)/PYNQ/dist/$1/*.tar.gz $$(DIST_ROOT) ;\
+	fi
+
+dist_$1: $$(DIST_$1)
+
+.PHONY: sysroot_$1 sdx_sw_$1 dist_$1
 
 endef
 
@@ -317,7 +329,7 @@ IMAGE_FILES := $(foreach image_var, $(patsubst %, BASE_%, $(ARCH_ONLY)), $(value
 endif
 
 
-
+DIST_FILES := $(foreach dist_var, $(patsubst %, DIST_%, $(BOARDS)), $(value $(dist_var)))
 BSP_FILES := $(foreach bsp_var, $(patsubst %, BSP_FILES_%, $(BOARDS)), $(value $(bsp_var)))
 BOOT_FILES := $(foreach boot_var, $(patsubst %, BOOT_FILES_%, $(BOARDS)), $(value $(boot_var)))
 ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(board)) $(value STAGE4_PACKAGES_$(board))) \
@@ -342,13 +354,15 @@ images: checkenv $(IMAGE_FILES)
 
 nocheck_images: $(IMAGE_FILES)
 
-real_all: checkenv $(BOOT_FILES) $(IMAGE_FILES)
+real_all: checkenv $(BOOT_FILES) $(IMAGE_FILES) $(DIST_FILES)
 
 sdx_sw: $(patsubst %, sdx_sw_%, $(BOARDS))
 
 sysroot: $(patsubst %, sysroot_%, $(BOARDS))
 
 bsp: $(patsubst %, bsp_%, $(BOARDS))
+
+dist: $(patsubst %, dist_%, $(BOARDS))
 
 # Default package clean target
 PACKAGE_CLEAN_%: ;
@@ -357,5 +371,5 @@ clean: $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
+.PHONY: dist bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
 
