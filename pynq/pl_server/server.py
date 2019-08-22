@@ -524,7 +524,7 @@ class DeviceServer:
         ]
 
     def start(self):
-        self.thread.run()
+        self.thread.start()
 
     def server_proc(self):
         if os.path.exists(self.socket_name):
