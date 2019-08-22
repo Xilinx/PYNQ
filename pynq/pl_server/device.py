@@ -31,11 +31,12 @@ __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
+import atexit
 import os
 import struct
 import warnings
 import numpy as np
-from .server import DeviceClient
+from .server import DeviceClient, DeviceServer
 
 
 class DeviceMeta(type):
@@ -106,12 +107,26 @@ class Device(metaclass=DeviceMeta):
         Parameters
         ----------
 
-        tag : str
-            The unique identifier associated with the device
+        tag : str or None
+            The unique identifier associated with the device, if None then
+            an anonymous instance of the server will be created
 
         """
+        if tag is None:
+            import uuid
+            tag = uuid.uuid4().hex
+            self._server = DeviceServer(tag)
+            self._server.start()
+        else:
+            self._server = None
         self.tag = tag
         self._client = DeviceClient(tag)
+        atexit.register(self.close)
+
+    def close(self):
+        if self._server:
+            self._server.stop()
+            self._server = None
 
     @property
     def ip_dict(self):

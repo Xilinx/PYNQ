@@ -27,7 +27,6 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import atexit
 import ctypes
 import glob
 import os
@@ -97,7 +96,6 @@ class XrtDevice(Device):
         self._info = xrt.xclDeviceInfo2()
         xrt.xclGetDeviceInfo2(self.handle, self._info)
         self.contexts = []
-        atexit.register(self.close)
         self._find_sysfs()
 
     def _find_sysfs(self):
@@ -146,6 +144,7 @@ class XrtDevice(Device):
         if self.handle:
             xrt.xclClose(self.handle)
         self.handle = None
+        super().close()
 
     def get_memory(self, desc):
         return XrtMemory(self, desc)
