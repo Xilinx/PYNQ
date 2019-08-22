@@ -304,8 +304,7 @@ class Device(metaclass=DeviceMeta):
             target_size = ip_dict[ip_name]['addr_range']
             if size > target_size:
                 raise RuntimeError("Binary file too big for IP")
-            mmio = MMIO(ip_dict[ip_name]['phys_addr'], target_size,
-                        device=self)
+            mmio = MMIO(ip_dict[ip_name]['phys_addr'], target_size)
             buf = bin_file.read(size)
             mmio.write(0, buf)
             if zero and size < target_size:
