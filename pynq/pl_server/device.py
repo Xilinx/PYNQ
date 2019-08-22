@@ -370,7 +370,7 @@ class Device(metaclass=DeviceMeta):
         ip = self.ip_dict
         for name, details in ip.items():
             if details['type'] == 'xilinx.com:ip:pr_axi_shutdown_manager:1.0':
-                mmio = MMIO(details['phys_addr'], device=self)
+                mmio = MMIO(details['phys_addr'])
                 # Request shutdown
                 mmio.write(0x0, 0x1)
                 i = 0
