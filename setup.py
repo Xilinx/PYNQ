@@ -343,7 +343,7 @@ class BuildExtension(build_ext):
 
 pynq_version = find_version('pynq/__init__.py')
 with open("README.md", encoding='utf-8') as fh:
-    readme_lines = fh.readlines()[2:]
+    readme_lines = fh.readlines()[2:13]
 long_description = (''.join(readme_lines))
 extend_pynq_package(
     ["pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/v_hdmi_common/src",
