@@ -337,8 +337,8 @@ ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(boa
 PACKAGE_CLEAN := $(patsubst %,PACKAGE_CLEAN_%, $(ALL_PACKAGES))
 
 checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
-	which vivado | fgrep ${KERNEL_VERSION}
-	which sdx | fgrep ${KERNEL_VERSION}
+	vivado -version | fgrep ${KERNEL_VERSION}
+	xsdk -version | fgrep ${KERNEL_VERSION}
 	which petalinux-config | fgrep ${KERNEL_VERSION}
 	which arm-linux-gnueabihf-gcc
 	which microblaze-xilinx-elf-gcc
