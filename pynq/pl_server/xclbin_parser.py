@@ -34,6 +34,7 @@ __email__ = "pynq_support@xilinx.com"
 
 import ctypes
 from copy import deepcopy
+import itertools
 from xml.etree import ElementTree
 try:
     import xclbin_binding as xclbin
@@ -139,10 +140,9 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
 
 def _add_argument_memory(ip_dict, ip_data, connections, memories):
     import ctypes
-    connection_dict = {
-        (c.m_ip_layout_index, c.arg_index): c.mem_data_index
-        for c in connections
-    }
+    connection_dict = {k: [x.mem_data_index for x in v]
+        for k, v in itertools.groupby(
+            connections, lambda c: (c.m_ip_layout_index, c.arg_index))}
     for ip_index, ip in enumerate(ip_data):
         if ip.m_type != 1:
             continue
@@ -155,8 +155,8 @@ def _add_argument_memory(ip_dict, ip_data, connections, memories):
         for r in dict_entry['registers'].values():
             # Subtract 1 from the register index to account for AP_CTRL
             if (ip_index, r['id']) in connection_dict:
-                r['memory'] = \
-                    memories[connection_dict[(ip_index, r['id'])]].decode()
+                r['memory'] = [memories[m].decode() for m in
+                               connection_dict[(ip_index, r['id'])]]
         for r in dict_entry['streams'].values():
             if (ip_index, r['id']) in connection_dict:
                 r['stream_id'] = connection_dict[(ip_index, r['id'])]
