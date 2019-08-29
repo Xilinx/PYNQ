@@ -84,7 +84,6 @@ QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
-DIST_$1 := $$(DIST_ROOT)/$1
 
 ifeq ($$(ARCH_$1),arm)
 	TEMPLATE_$1 := zynq
@@ -266,14 +265,7 @@ $$(SYSROOT_$1): $$(IMAGE_$1) | $$(SYSROOT_ROOT)
 
 sysroot_$1 : $$(SYSROOT_$1)
 
-$$(DIST_$1): $$(IMAGE_$1) | $$(DIST_ROOT)
-	@if [[ $1 == "Pynq-Z1" || $1 == "Pynq-Z2" || $1 == "ZCU104" ]]; then \
-		cp -rf $$(BUILD_ROOT)/PYNQ/dist/$1/*.tar.gz $$(DIST_ROOT) ;\
-	fi
-
-dist_$1: $$(DIST_$1)
-
-.PHONY: sysroot_$1 sdx_sw_$1 dist_$1
+.PHONY: sysroot_$1 sdx_sw_$1
 
 endef
 
@@ -289,6 +281,7 @@ STAGE3_DEPENDS_$1 := $$(foreach package, $$(STAGE3_PACKAGES_$1), $$(PACKAGE_BUIL
 CONFIG_$1 := $$(CURDIR)/ubuntu/$$(UBUNTU_RELEASE)/$1
 QEMU_$1 := $$(shell which qemu-$1-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARD=Unknown ARCH=$1
+DIST_$1 := $$(DIST_ROOT)/$1
 
 $$(STAGE2_$1) : $$(STAGE1_$1) $$(STAGE2_DEPENDS_$1)
 	cp --sparse=always $$(STAGE1_$1) $$(STAGE2_$1)
@@ -313,7 +306,13 @@ $$(STAGE1_$1): $$(CONFIG_$1)/multistrap.config | $$(BUILD_ROOT) $$(CCACHEDIR)
 qemu_check_$1:
 	$$(QEMU_$1) -version | fgrep ${QEMU_VERSION}
 
-.PHONY: qemu_check_$1
+$$(DIST_$1): $$(BASE_$1) | $$(DIST_ROOT)
+	mkdir -p $$@
+	cp -rf $$(BUILD_ROOT)/PYNQ/dist/*.tar.gz $$@
+
+dist_$1: $$(DIST_$1)
+
+.PHONY: qemu_check_$1 dist_$1
 
 endef
 
@@ -329,7 +328,7 @@ IMAGE_FILES := $(foreach image_var, $(patsubst %, BASE_%, $(ARCH_ONLY)), $(value
 endif
 
 
-DIST_FILES := $(foreach dist_var, $(patsubst %, DIST_%, $(BOARDS)), $(value $(dist_var)))
+DIST_FILES := $(foreach dist_var, $(patsubst %, DIST_%, $(USED_ARCH)), $(value $(dist_var)))
 BSP_FILES := $(foreach bsp_var, $(patsubst %, BSP_FILES_%, $(BOARDS)), $(value $(bsp_var)))
 BOOT_FILES := $(foreach boot_var, $(patsubst %, BOOT_FILES_%, $(BOARDS)), $(value $(boot_var)))
 ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(board)) $(value STAGE4_PACKAGES_$(board))) \
@@ -362,7 +361,7 @@ sysroot: $(patsubst %, sysroot_%, $(BOARDS))
 
 bsp: $(patsubst %, bsp_%, $(BOARDS))
 
-dist: $(patsubst %, dist_%, $(BOARDS))
+dist: $(patsubst %, dist_%, $(USED_ARCH))
 
 # Default package clean target
 PACKAGE_CLEAN_%: ;
