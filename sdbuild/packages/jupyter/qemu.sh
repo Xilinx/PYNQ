@@ -30,6 +30,12 @@ jupyter nbextension enable rise --py --sys-prefix
 # Enable jupyterlab
 jupyter serverextension enable jupyterlab
 
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.0.2 --no-build
+jupyter labextension install plotlywidget@1.1.0 --no-build
+jupyter labextension install jupyterlab-plotly@1.1.0 --no-build
+jupyter lab build
+rm -rf /usr/local/share/jupyter/lab/staging
+
 mkdir -p $PYNQ_JUPYTER_NOTEBOOKS
 
 systemctl enable jupyter
