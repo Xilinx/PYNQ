@@ -50,38 +50,39 @@ for b in $boards ; do
 done
 
 # build all the microblaze bsp's and binaries using Pynq-Z2's hdf
-cd $script_dir/boards/sw_repo
-make HDF=../Pynq-Z2/base/base.hdf HW_DEF=hw_base
+if [ ! -d $script_dir/pynq/lib/arduino/bsp_iop_arduino ] || \
+	[ ! -d $script_dir/pynq/lib/pmod/bsp_iop_pmod ] || \
+	[ ! -d $script_dir/pynq/lib/rpi/bsp_iop_rpi ]; then
+	cd $script_dir/boards/sw_repo
+	make HDF=../Pynq-Z2/base/base.hdf HW_DEF=hw_base
 
-if [ ! -d $script_dir/pynq/lib/arduino/bsp_iop_arduino ]; then
 	cd $script_dir/boards/sw_repo
 	cd bsp_iop_arduino_mb/iop_arduino_mb && rm -rf code libsrc && cd -
 	cp -rf bsp_iop_arduino_mb $script_dir/pynq/lib/arduino/bsp_iop_arduino
 	cd $script_dir/pynq/lib/arduino && make && make clean
-fi
 
-if [ ! -d $script_dir/pynq/lib/pmod/bsp_iop_pmod ]; then
 	cd $script_dir/boards/sw_repo
 	cd bsp_iop_pmoda_mb/iop_pmoda_mb && rm -rf code libsrc && cd -
 	cp -rf bsp_iop_pmoda_mb $script_dir/pynq/lib/pmod/bsp_iop_pmod
 	cd $script_dir/pynq/lib/pmod && make && make clean
-fi
 
-if [ ! -d $script_dir/pynq/lib/rpi/bsp_iop_rpi ]; then
 	cd $script_dir/boards/sw_repo
 	cd bsp_iop_rpi_mb/iop_rpi_mb && rm -rf code libsrc && cd -
 	cp -rf bsp_iop_rpi_mb $script_dir/pynq/lib/rpi/bsp_iop_rpi
+
+	cd $script_dir/boards/sw_repo
+	make clean
 fi
 
-cd $script_dir/boards/sw_repo
-make clean && make HDF=../Pynq-Z2/logictools/logictools.hdf HW_DEF=hw_logictools
-
 if [ ! -d $script_dir/pynq/lib/logictools/bsp_lcp_ar_mb ]; then
+	cd $script_dir/boards/sw_repo
+	make HDF=../Pynq-Z2/logictools/logictools.hdf HW_DEF=hw_logictools
+
 	cd $script_dir/boards/sw_repo
 	cd bsp_lcp_ar_mb/lcp_ar_mb && rm -rf code libsrc && cd -
 	cp -rf bsp_lcp_ar_mb $script_dir/pynq/lib/logictools/bsp_lcp_ar_mb
 	cd $script_dir/pynq/lib/logictools && make && make clean
-fi
 
-cd $script_dir/boards/sw_repo
-make clean
+	cd $script_dir/boards/sw_repo
+	make clean
+fi
