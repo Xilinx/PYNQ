@@ -33,6 +33,11 @@ jupyter serverextension enable jupyterlab
 jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.0.2 --no-build
 jupyter labextension install plotlywidget@1.1.0 --no-build
 jupyter labextension install jupyterlab-plotly@1.1.0 --no-build
+
+if [ ${ARCH} == 'arm' ]; then
+  sed -i /usr/local/share/jupyter/lab/staging/package.json 's:4096:2048:g'
+fi
+
 jupyter lab build
 rm -rf /usr/local/share/jupyter/lab/staging
 
