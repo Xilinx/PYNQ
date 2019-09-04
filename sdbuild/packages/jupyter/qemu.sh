@@ -35,7 +35,7 @@ jupyter labextension install plotlywidget@1.1.0 --no-build
 jupyter labextension install jupyterlab-plotly@1.1.0 --no-build
 
 if [ ${ARCH} == 'arm' ]; then
-  sed -i /usr/local/share/jupyter/lab/staging/package.json 's:4096:2048:g'
+  sed 's:4096:2048:g' -i /usr/local/share/jupyter/lab/staging/package.json
 fi
 
 jupyter lab build
