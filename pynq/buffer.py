@@ -93,7 +93,7 @@ class PynqBuffer(np.ndarray):
 
     @property
     def cacheable(self):
-        return self.coherent
+        return not self.coherent
 
     @property
     def physical_address(self):
@@ -111,7 +111,7 @@ class PynqBuffer(np.ndarray):
         """Flush the underlying memory if necessary
 
         """
-        if not self.coherent:
+        if self.coherent:
             self.device.flush(self.bo, self.offset,
                               self.ctypes.data, self.nbytes)
 
@@ -119,7 +119,7 @@ class PynqBuffer(np.ndarray):
         """Invalidate the underlying memory if necessary
 
         """
-        if not self.coherent:
+        if self.coherent:
             self.device.invalidate(self.bo, self.offset,
                                    self.ctypes.data, self.nbytes)
 
