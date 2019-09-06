@@ -175,6 +175,18 @@ class PLMeta(type):
         """
         return Device.active_device.devicetree_dict
 
+    @property
+    def mem_dict(self):
+        """The getter for the attribute `mem_dict`
+
+        Returns
+        -------
+        dict
+            The dictionary containing the memories in the design.
+
+        """
+        return Device.active_device.mem_dict
+
     def shutdown(cls):
         """Shutdown the AXI connections to the PL in preparation for
         reconfiguration

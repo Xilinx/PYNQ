@@ -417,7 +417,7 @@ class Overlay(Bitstream):
         pr_parser = pr_block.parsers[pr_block.pr_loaded]
         pr_dtbo = pr_block.bitstreams[partial_bit].dtbo
         self.device.update_partial_region(partial_region, pr_parser)
-        self._deepcopy_dict_from(PL)
+        self._deepcopy_dict_from(self.device)
         self.pr_dict[partial_region] = {'loaded': pr_block.pr_loaded,
                                         'dtbo': pr_dtbo}
         description = _complete_description(
