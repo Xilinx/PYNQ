@@ -18,6 +18,7 @@ BOOT_ROOT := $(CURDIR)/output/boot
 SDX_ROOT := $(CURDIR)/output/sdx
 SYSROOT_ROOT := $(CURDIR)/output/sysroot
 BSP_ROOT := $(CURDIR)/output/bsp
+DIST_ROOT := $(CURDIR)/output/dist
 
 KERNEL_arm := zImage
 KERNEL_aarch64 := Image
@@ -48,6 +49,9 @@ $(SYSROOT_ROOT):
 	mkdir -p $@
 
 $(BSP_ROOT):
+	mkdir -p $@
+
+$(DIST_ROOT):
 	mkdir -p $@
 
 PYNQ_UPDATE := $(BUILD_ROOT)/PYNQ/.git/HEAD
@@ -277,6 +281,7 @@ STAGE3_DEPENDS_$1 := $$(foreach package, $$(STAGE3_PACKAGES_$1), $$(PACKAGE_BUIL
 CONFIG_$1 := $$(CURDIR)/ubuntu/$$(UBUNTU_RELEASE)/$1
 QEMU_$1 := $$(shell which qemu-$1-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARD=Unknown ARCH=$1
+DIST_$1 := $$(DIST_ROOT)/$1
 
 $$(STAGE2_$1) : $$(STAGE1_$1) $$(STAGE2_DEPENDS_$1)
 	cp --sparse=always $$(STAGE1_$1) $$(STAGE2_$1)
@@ -301,7 +306,13 @@ $$(STAGE1_$1): $$(CONFIG_$1)/multistrap.config | $$(BUILD_ROOT) $$(CCACHEDIR)
 qemu_check_$1:
 	$$(QEMU_$1) -version | fgrep ${QEMU_VERSION}
 
-.PHONY: qemu_check_$1
+$$(DIST_$1): $$(BASE_$1) | $$(DIST_ROOT)
+	mkdir -p $$@
+	cp -rf $$(BUILD_ROOT)/PYNQ/dist/*.tar.gz $$@
+
+dist_$1: $$(DIST_$1)
+
+.PHONY: qemu_check_$1 dist_$1
 
 endef
 
@@ -317,7 +328,7 @@ IMAGE_FILES := $(foreach image_var, $(patsubst %, BASE_%, $(ARCH_ONLY)), $(value
 endif
 
 
-
+DIST_FILES := $(foreach dist_var, $(patsubst %, DIST_%, $(USED_ARCH)), $(value $(dist_var)))
 BSP_FILES := $(foreach bsp_var, $(patsubst %, BSP_FILES_%, $(BOARDS)), $(value $(bsp_var)))
 BOOT_FILES := $(foreach boot_var, $(patsubst %, BOOT_FILES_%, $(BOARDS)), $(value $(boot_var)))
 ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(board)) $(value STAGE4_PACKAGES_$(board))) \
@@ -325,8 +336,8 @@ ALL_PACKAGES := $(sort $(foreach board, $(BOARDS), $(value STAGE3_PACKAGES_$(boa
 PACKAGE_CLEAN := $(patsubst %,PACKAGE_CLEAN_%, $(ALL_PACKAGES))
 
 checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
-	which vivado | fgrep ${KERNEL_VERSION}
-	which sdx | fgrep ${KERNEL_VERSION}
+	vivado -version | fgrep ${KERNEL_VERSION}
+	xsdk -version | fgrep ${KERNEL_VERSION}
 	which petalinux-config | fgrep ${KERNEL_VERSION}
 	which arm-linux-gnueabihf-gcc
 	which microblaze-xilinx-elf-gcc
@@ -342,13 +353,15 @@ images: checkenv $(IMAGE_FILES)
 
 nocheck_images: $(IMAGE_FILES)
 
-real_all: checkenv $(BOOT_FILES) $(IMAGE_FILES)
+real_all: checkenv $(BOOT_FILES) $(IMAGE_FILES) $(DIST_FILES)
 
 sdx_sw: $(patsubst %, sdx_sw_%, $(BOARDS))
 
 sysroot: $(patsubst %, sysroot_%, $(BOARDS))
 
 bsp: $(patsubst %, bsp_%, $(BOARDS))
+
+dist: $(patsubst %, dist_%, $(USED_ARCH))
 
 # Default package clean target
 PACKAGE_CLEAN_%: ;
@@ -357,5 +370,5 @@ clean: $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
+.PHONY: dist bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
 

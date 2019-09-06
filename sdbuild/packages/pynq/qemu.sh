@@ -12,14 +12,15 @@ cd /home/xilinx
 mkdir -p jupyter_notebooks
 
 cd pynq_git
-python3.6 -m pip install . --upgrade
-sdbuild/packages/pynq/get_revision.sh > /home/xilinx/REVISION
+python3 setup.py sdist
+BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \
+python3 -m pip install dist/*.tar.gz --upgrade --no-deps
+../get_revision.sh > /home/xilinx/REVISION
 cd ..
 
 old_hostname=$(hostname)
 pynq_hostname.sh
 hostname $old_hostname
-rm -rf pynq_git
 rm -rf jupyter_notebooks_*
 
 cd /root
