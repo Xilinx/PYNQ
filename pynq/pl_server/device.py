@@ -216,8 +216,6 @@ class Device(metaclass=DeviceMeta):
             The dictionary containing the memory spaces in the design
 
         """
-        self.client_request()
-        self.server_update()
         return self._client.mem_dict
 
     def allocate(self, shape, dtype, **kwargs):
@@ -348,7 +346,7 @@ class Device(metaclass=DeviceMeta):
             The absolute path to the device tree segment.
 
         """
-        self._client.insert_device_tree(abs_dbto, dts)
+        self._client.insert_device_tree(abs_dtbo)
 
     def remove_device_tree(self, abs_dtbo):
         """Remove device tree segment for the overlay.
