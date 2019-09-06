@@ -38,8 +38,6 @@ from pynq import DefaultIP, allocate
 
 
 class _FrameCache:
-    _xlnk = None
-
     def __init__(self, mode, capacity=5, cacheable=0):
         self._cache = []
         self._mode = mode
@@ -54,7 +52,7 @@ class _FrameCache:
 
         """
         if self._cache:
-            frame = _FrameCache._xlnk.cma_array(
+            frame = allocate(
                 shape=self._mode.shape, dtype='u1', cacheable=self._cacheable,
                 pointer=self._cache.pop(), cache=self)
         else:
