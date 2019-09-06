@@ -297,7 +297,7 @@ class Device(metaclass=DeviceMeta):
 
         """
         from pynq import MMIO
-        self._client.load_ip_data(ip_name, data, zero)
+        self._client.load_ip_data(ip_name, data)
         ip_dict = self.ip_dict
         with open(data, 'rb') as bin_file:
             size = os.fstat(bin_file.fileno()).st_size
