@@ -28,4 +28,4 @@ The ``send()`` and ``receive()`` methods are used to read and write data.
 * option allows an IIC *repeated start* 
 
 More information about the AxiIIC module and the API for reading, writing
-and waiting can be found in the :ref:`pynq-lib-axiiic` sections.
+and waiting can be found in the :ref:`pynq-lib-iic` sections.
