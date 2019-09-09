@@ -23,21 +23,41 @@ See the <a href="http://pynq.readthedocs.io/en/latest/getting_started.html" targ
 
 ## Python Source Code
 
-All Python code for the `pynq` package can be found in the `/pynq` folder. This folder can be found on the board after the board boots with the precompiled image.
+All Python code for the `pynq` package can be found in the `pynq` folder. 
+This folder can be found on the board after the board boots with the 
+precompiled image.
 
-To update your PYNQ SD card to the latest ``pynq`` package, you can run the following command from a terminal connected to your board:
+To update your PYNQ SD card to the latest ``pynq`` package, you can run the following command from a terminal connected to your board. The following command
+installs ``pynq`` from <a href="https://pypi.org" target="_blank">PyPI</a>;
+therefore your board must have Internet connection.
 
 ```console
-sudo pip3 install --upgrade git+https://github.com/Xilinx/PYNQ.git
+sudo pip3 install --upgrade pynq
 ```
 
-SDK software projects and Python-C source codes are also stored along with the Python source code. After installing the `pynq` package, the compiled target files will be saved automatically into the `pynq` package.
+Note that starting from image v2.5, we no longer support users to install 
+the ``pynq`` package from our Github repository.
 
 ## Board Files and Overlays
 
-All board related files including Vivado projects, bitstreams, and example notebooks, can be found in the `/boards` folder.
+All board related files including Vivado projects, QEMU packages, 
+and example notebooks, can be found in the `boards` folder.
 
-In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
+In Linux, you can rebuild a specific overlay by running *make* in the 
+corresponding overlay folder (e.g. `boards/Pynq-Z1/base`). 
+In Windows, you need to source the appropriate tcl files in the 
+corresponding overlay folder.
+
+To build all the default overlays (as well as Microblaze bin files) at once
+in this repository, make sure you have Vivado and SDK installed, and run
+
+```console
+./build.sh
+```
+
+This step takes a long time, but it is totally optional; 
+it is only needed when users want to check the Vivado projects.
+You can ignore this step if you install ``pynq`` from PyPI.
 
 ## Contribute
 
