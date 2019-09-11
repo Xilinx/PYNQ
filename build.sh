@@ -29,7 +29,7 @@ build_bitstreams () {
 	local overlays=`find . -maxdepth 2 -name 'makefile' -printf '%h\n' | cut -f2 -d"/"`
 	for ol in $overlays ; do
 		cd $root/$board/$ol
-		if [[ -e $ol.bit && -e $ol.hwh && -e $ol.hdf ]]; then
+		if [[ -e $ol.bit && -e $ol.hwh ]]; then
 			echo "skipping bitstream $ol.bit for $board"
 		else
 			echo "building bitstream $ol.bit for $board"
