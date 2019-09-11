@@ -47,7 +47,7 @@ for bd_name in $boards ; do
 	sudo mkdir -p $target/home/xilinx/pynq_git/boards/${bd_name}
 	sudo cp -rfL notebooks \
 		$target/home/xilinx/pynq_git/boards/${bd_name} 2>/dev/null||:
-	overlays=`find . -maxdepth 2 -name 'makefile' -printf '%h\n' | cut -f2 -d"/"`
+	overlays=`find . -maxdepth 2 -iname 'makefile' -printf '%h\n' | cut -f2 -d"/"`
 	for ol in $overlays ; do
 		sudo mkdir -p $target/home/xilinx/pynq_git/boards/${bd_name}/$ol
 		sudo cp -fL $ol/*.py $ol/*.bit $ol/*.hwh $ol/*.tcl \
