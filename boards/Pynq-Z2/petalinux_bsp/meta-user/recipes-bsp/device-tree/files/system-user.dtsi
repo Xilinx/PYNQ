@@ -23,6 +23,14 @@
         };
 };
 
+&i2c0 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
 &audio0 {
 		compatible = "generic-uio";
 };
