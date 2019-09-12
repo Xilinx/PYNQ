@@ -290,7 +290,8 @@ class Xlnk:
         buffer = self.cma_get_buffer(pointer, length)
         physical_address = self.cma_get_phy_addr(pointer)
         view = PynqBuffer(shape=shape, dtype=dtype, buffer=buffer,
-                          device_address=physical_address, coherent=cacheable,
+                          device_address=physical_address,
+                          coherent=not cacheable,
                           bo=physical_address, device=self)
         view.pointer = pointer
         view.return_to = cache
