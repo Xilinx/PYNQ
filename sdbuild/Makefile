@@ -306,7 +306,7 @@ $$(STAGE1_$1): $$(CONFIG_$1)/multistrap.config | $$(BUILD_ROOT) $$(CCACHEDIR)
 qemu_check_$1:
 	$$(QEMU_$1) -version | fgrep ${QEMU_VERSION}
 
-$$(DIST_$1): $$(BASE_$1) | $$(DIST_ROOT)
+$$(DIST_$1): $$(BASE_PATH_$1) | $$(DIST_ROOT)
 	mkdir -p $$@
 	cp -rf $$(BUILD_ROOT)/PYNQ/dist/*.tar.gz $$@
 
