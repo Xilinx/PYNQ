@@ -25,6 +25,9 @@ cd build
 chmod 755 build.sh
 ./build.sh
 
+# put platform name for xrt app
+echo ${PYNQ_BOARD} > /etc/xocl.txt
+
 # cleanup
 cd /root
 rm -rf xrt-git
