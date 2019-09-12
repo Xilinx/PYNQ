@@ -52,13 +52,14 @@
  # 2.00  yrq 05/16/2018 Remove top level HDL wrapper
  # 2.01  yrq 08/08/2018 update to 2018.2
  # 2.04  yrq 01/17/2019 update to 2018.3
+ # 2.5   yrq 08/22/2019 update to 2019.1
  #
  # </pre>
  #
 ###############################################################################
 
 ################################################################
-# This is a generated script based on design: system
+# This is a generated script based on design: base
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -78,7 +79,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2018.3
+set scripts_vivado_version 2019.1
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -93,7 +94,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source system_script.tcl
+# source base_script.tcl
 
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
