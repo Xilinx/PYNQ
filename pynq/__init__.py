@@ -27,17 +27,15 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .gpio import GPIO
 from .mmio import MMIO
 from .uio import UioController
-from .ps import Register
-from .ps import Clocks
+from .xlnk import Xlnk
 from .pl import PL
 from .ps import Register
 from .ps import Clocks
+from .gpio import GPIO
 from .devicetree import DeviceTreeSegment
 from .interrupt import Interrupt
-from .xlnk import Xlnk
 from .bitstream import Bitstream
 from .overlay import Overlay
 from .overlay import DefaultHierarchy

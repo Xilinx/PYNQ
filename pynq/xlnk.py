@@ -41,7 +41,6 @@ import functools
 import numbers
 import warnings
 import numpy as np
-from .ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH
 from .buffer import PynqBuffer
 
 ContiguousArray = PynqBuffer

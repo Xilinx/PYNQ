@@ -31,7 +31,6 @@
 import abc
 import os
 import re
-import warnings
 from copy import deepcopy
 from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
 
@@ -387,7 +386,7 @@ class _TCLABC(metaclass=abc.ABCMeta):
             'raw_type': None,
             'used': 1,
             'base_address':0,
-            'size': Xlnk().cma_mem_size(),
+            'size': Xlnk.cma_mem_size(None),
             'type': 'PSDDR',
             'streaming': False
         }
@@ -620,6 +619,4 @@ elif CPU_ARCH == ZYNQ_ARCH:
     TCL = _TCLZynq
 else:
     TCL = _TCLABC
-    warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), UserWarning)
 

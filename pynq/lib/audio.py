@@ -110,7 +110,7 @@ class AudioDirect(DefaultIP):
                                     unsigned int * BufAddr, 
                                     unsigned int Num_Samles_32Bit);""")
         
-        char_adrp = self._ffi.from_buffer(self.mmio.mem)
+        char_adrp = self._ffi.from_buffer(self.mmio.array)
         self._uint_adrpv = self._ffi.cast('unsigned int', char_adrp)
         
         self.buffer = numpy.zeros(0).astype(numpy.int)

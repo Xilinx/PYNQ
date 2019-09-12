@@ -29,7 +29,6 @@
 
 import os
 import re
-import warnings
 import abc
 from xml.etree import ElementTree
 from copy import deepcopy
@@ -362,7 +361,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
             'raw_type': None,
             'used': 1,
             'base_address':0,
-            'size': Xlnk().cma_mem_size(),
+            'size': Xlnk.cma_mem_size(None),
             'type': 'PSDDR',
             'streaming': False
         }
@@ -605,6 +604,4 @@ elif CPU_ARCH == ZYNQ_ARCH:
     HWH = _HWHZynq
 else:
     HWH = _HWHABC
-    warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                  .format(CPU_ARCH), UserWarning)
 
