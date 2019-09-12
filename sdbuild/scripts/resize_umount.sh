@@ -29,6 +29,8 @@ sudo chroot / e2fsck -y -f $root_dev
 sudo chroot / resize2fs $root_dev ${new_size}K
 sudo chroot / zerofree $root_dev
 
+sleep 5
+
 sudo kpartx -d $image_file
 
 sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk $1
