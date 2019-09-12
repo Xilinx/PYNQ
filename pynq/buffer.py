@@ -32,7 +32,6 @@ __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import numpy as np
-from .pl_server import Device
 
 
 class PynqBuffer(np.ndarray):
@@ -140,6 +139,7 @@ def allocate(shape, dtype, target=None, **kwargs):
      * If a Device is specified then the main memory
 
     """
+    from .pl_server import Device
     if target is None:
         target = Device.active_device
     return target.allocate(shape, dtype, **kwargs)

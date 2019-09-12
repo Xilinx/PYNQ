@@ -30,37 +30,41 @@
 import os
 import mmap
 import numpy as np
+import pynq.tinynumpy as tnp
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
+class _AccessHook:
+    def __init__(self, baseaddress, device):
+        self.baseaddress = baseaddress
+        self.device = device
+
+    def read(self, offset, length):
+        return self.device.read_registers(self.baseaddress + offset, length)
+
+    def write(self, offset, data):
+        self.device.write_registers(self.baseaddress + offset, data)
+
 class MMIO:
     """ This class exposes API for MMIO read and write.
 
     Attributes
     ----------
-    virt_base : int
-        The address of the page for the MMIO base address.
-    virt_offset : int
-        The offset of the MMIO base address from the virt_base.
     base_addr : int
         The base address, not necessarily page aligned.
     length : int
         The length in bytes of the address range.
     debug : bool
         Turn on debug mode if it is True.
-    mmap_file : file
-        Underlying file object for MMIO mapping
-    mem : mmap
-        An mmap object created when mapping files to memory.
     array : numpy.ndarray
         A numpy view of the mapped range for efficient assignment
 
     """
 
-    def __init__(self, base_addr, length=4, debug=False):
+    def __init__(self, base_addr, length=4, debug=False, device=None):
         """Return a new MMIO object.
 
         Parameters
@@ -73,45 +77,37 @@ class MMIO:
             Turn on debug mode if it is True; default is False.
 
         """
+        if device is None:
+            from .pl_server.device import Device
+            device = Device.active_device
+        self.device = device
+
         if base_addr < 0 or length < 0:
             raise ValueError("Base address or length cannot be negative.")
 
-        euid = os.geteuid()
-        if euid != 0:
-            raise EnvironmentError('Root permissions required.')
-
-        # Align the base address with the pages
-        self.virt_base = base_addr & ~(mmap.PAGESIZE - 1)
-
-        # Calculate base address offset w.r.t the base address
-        self.virt_offset = base_addr - self.virt_base
-
-        # Storing the base address and length
         self.base_addr = base_addr
         self.length = length
-
         self.debug = debug
+
+        if self.device.has_capability('MEMORY_MAPPED'):
+            self.read = self.read_mm
+            self.write = self.write_mm
+            self.array = self.device.mmap(base_addr, length)
+        elif self.device.has_capability('REGISTER_RW'):
+            self.read = self.read_reg
+            self.write = self.write_reg
+            self._hook = _AccessHook(self.base_addr, self.device)
+            self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
+                                    hook=self._hook)
+        else:
+            raise ValueError("Device does not have capabilities for MMIO")
+
         self._debug('MMIO(address, size) = ({0:x}, {1:x} bytes).',
                     self.base_addr, self.length)
 
-        # Open file and mmap
-        self.mmap_file = os.open('/dev/mem',
-                                 os.O_RDWR | os.O_SYNC)
 
-        self.mem = mmap.mmap(self.mmap_file, self.length + self.virt_offset,
-                             mmap.MAP_SHARED,
-                             mmap.PROT_READ | mmap.PROT_WRITE,
-                             offset=self.virt_base)
 
-        self.array = np.frombuffer(self.mem, np.uint32,
-                                   length >> 2, self.virt_offset)
-
-    def __del__(self):
-        """Destructor to ensure mmap file is closed
-        """
-        os.close(self.mmap_file)
-
-    def read(self, offset=0, length=4):
+    def read_mm(self, offset=0, length=4):
         """The method to read data from MMIO.
 
         Parameters
@@ -141,7 +137,7 @@ class MMIO:
         # Read data out
         return int(self.array[idx])
 
-    def write(self, offset, data):
+    def write_mm(self, offset, data):
         """The method to write data to MMIO.
 
         Parameters
@@ -179,6 +175,66 @@ class MMIO:
         else:
             raise ValueError("Data type must be int or bytes.")
 
+    def read_reg(self, offset=0, length=4):
+        """The method to read data from MMIO.
+
+        Parameters
+        ----------
+        offset : int
+            The read offset from the MMIO base address.
+        length : int
+            The length of the data in bytes.
+
+        Returns
+        -------
+        list
+            A list of data read out from MMIO
+
+        """
+        if length != 4:
+            raise ValueError("MMIO currently only supports 4-byte reads.")
+        if offset < 0:
+            raise ValueError("Offset cannot be negative.")
+        idx = offset >> 2
+        if offset % 4:
+            raise MemoryError('Unaligned read: offset must be multiple of 4.')
+
+        self._debug('Reading {0} bytes from offset {1:x}',
+                    length, offset)
+
+        # Read data out
+        return int(self.array[idx])
+
+    def write_reg(self, offset, data):
+        """The method to write data to MMIO.
+
+        Parameters
+        ----------
+        offset : int
+            The write offset from the MMIO base address.
+        data : int / bytes
+            The integer(s) to be written into MMIO.
+
+        Returns
+        -------
+        None
+
+        """
+        if offset < 0:
+            raise ValueError("Offset cannot be negative.")
+
+        idx = offset >> 2
+        if offset % 4:
+            raise MemoryError('Unaligned write: offset must be multiple of 4.')
+
+        if type(data) is int:
+            self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
+                        offset, data)
+            self.array[idx] = data
+        elif type(data) is bytes:
+            self._hook.write(offset, data)
+        else:
+            raise ValueError("Data type must be int or bytes.")
     def _debug(self, s, *args):
         """The method provides debug capabilities for this class.
 

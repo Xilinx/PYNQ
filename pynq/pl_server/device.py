@@ -31,8 +31,12 @@ __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
+import atexit
 import os
-from .server import DeviceClient
+import struct
+import warnings
+import numpy as np
+from .server import DeviceClient, DeviceServer
 
 
 class DeviceMeta(type):
@@ -103,12 +107,26 @@ class Device(metaclass=DeviceMeta):
         Parameters
         ----------
 
-        tag : str
-            The unique identifier associated with the device
+        tag : str or None
+            The unique identifier associated with the device, if None then
+            an anonymous instance of the server will be created
 
         """
+        if tag is None:
+            import uuid
+            tag = uuid.uuid4().hex
+            self._server = DeviceServer(tag)
+            self._server.start()
+        else:
+            self._server = None
         self.tag = tag
         self._client = DeviceClient(tag)
+        atexit.register(self.close)
+
+    def close(self):
+        if self._server:
+            self._server.stop()
+            self._server = None
 
     @property
     def ip_dict(self):
@@ -379,11 +397,129 @@ class Device(metaclass=DeviceMeta):
                                   "the configured bitstream and metadata "
                                   "don't match.")
 
+    def post_download(self, bitstream, parser):
+        if not bitstream.partial:
+            import datetime
+            t = datetime.datetime.now()
+            bitstream.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
+                    t.year, t.month, t.day,
+                    t.hour, t.minute, t.second, t.microsecond)
+            self.reset(parser, bitstream.timestamp, bitstream.bitfile_name)
+
+    def has_capability(self, cap):
+        """Test if the device as a desired capability
+
+        Parameters
+        ----------
+        cap : str
+            The desired capability
+
+        Returns
+        -------
+        bool
+            True if the devices support cap
+
+        """
+        if not hasattr(self, 'capabilities'):
+            return False
+        return cap in self.capabilities and self.capabilities[cap]
+
+    def get_bitfile_metadata(self, bitfile_name):
+        return None
+
+def parse_bit_header(bitfile):
+    """The method to parse the header of a bitstream.
+
+    The returned dictionary has the following keys:
+    "design": str, the Vivado project name that generated the bitstream;
+    "version": str, the Vivado tool version that generated the bitstream;
+    "part": str, the Xilinx part name that the bitstream targets;
+    "date": str, the date the bitstream was compiled on;
+    "time": str, the time the bitstream finished compilation;
+    "length": int, total length of the bitstream (in bytes);
+    "data": binary, binary data in .bit file format
+
+    Returns
+    -------
+    Dict
+        A dictionary containing the header information.
+
+    Note
+    ----
+    Implemented based on: https://blog.aeste.my/?p=2892
+
+    """
+    with open(bitfile, 'rb') as bitf:
+        finished = False
+        offset = 0
+        contents = bitf.read()
+        bit_dict = {}
+
+        # Strip the (2+n)-byte first field (2-bit length, n-bit data)
+        length = struct.unpack('>h', contents[offset:offset + 2])[0]
+        offset += 2 + length
+
+        # Strip a two-byte unknown field (usually 1)
+        offset += 2
+
+        # Strip the remaining headers. 0x65 signals the bit data field
+        while not finished:
+            desc = contents[offset]
+            offset += 1
+
+            if desc != 0x65:
+                length = struct.unpack('>h',
+                                       contents[offset:offset + 2])[0]
+                offset += 2
+                fmt = ">{}s".format(length)
+                data = struct.unpack(fmt,
+                                     contents[offset:offset + length])[0]
+                data = data.decode('ascii')[:-1]
+                offset += length
+
+            if desc == 0x61:
+                s = data.split(";")
+                bit_dict['design'] = s[0]
+                bit_dict['version'] = s[-1]
+            elif desc == 0x62:
+                bit_dict['part'] = data
+            elif desc == 0x63:
+                bit_dict['date'] = data
+            elif desc == 0x64:
+                bit_dict['time'] = data
+            elif desc == 0x65:
+                finished = True
+                length = struct.unpack('>i',
+                                       contents[offset:offset + 4])[0]
+                offset += 4
+                # Expected length values can be verified in the chip TRM
+                bit_dict['length'] = str(length)
+                if length + offset != len(contents):
+                    raise RuntimeError("Invalid length found")
+                bit_dict['data'] = contents[offset:offset + length]
+            else:
+                raise RuntimeError("Unknown field: {}".format(hex(desc)))
+        return bit_dict
+
+def _preload_binfile(bitstream):
+    bitstream.binfile_name = os.path.basename(
+        bitstream.bitfile_name).replace('.bit', '.bin')
+    bitstream.firmware_path = os.path.join('/lib/firmware',
+                                           bitstream.binfile_name)
+    bit_dict = parse_bit_header(bitstream.bitfile_name)
+    if bit_dict != bitstream.bit_data:
+        bitstream.bit_data = bit_dict
+        bit_buffer = np.frombuffer(bit_dict['data'], 'i4')
+        bin_buffer = bit_buffer.byteswap()
+        bin_buffer.tofile(bitstream.firmware_path, "")
 
 class XlnkDevice(Device):
     """Device sub-class for Xlnk based devices
 
     """
+    BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
+    BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
+
     @classmethod
     def _probe_(cls):
         if os.path.exists('/dev/xlnk'):
@@ -397,9 +533,66 @@ class XlnkDevice(Device):
         super().__init__("xlnk")
         from pynq import Xlnk
         self.default_memory = Xlnk()
+        self.capabilities = {
+            'MEMORY_MAPPED': True
+        }
 
     def get_memory(self, description):
         if description['type'] == 'PSDDR':
             return self.default_memory
 
         raise RuntimeError('Only PS memory supported for ZYNQ devices')
+
+    def mmap(self, base_addr, length):
+        import mmap
+        euid = os.geteuid()
+        if euid != 0:
+            raise EnvironmentError('Root permissions required.')
+
+        # Align the base address with the pages
+        virt_base = base_addr & ~(mmap.PAGESIZE - 1)
+
+        # Calculate base address offset w.r.t the base address
+        virt_offset = base_addr - virt_base
+
+        # Open file and mmap
+        mmap_file = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
+        mem = mmap.mmap(mmap_file, length + virt_offset,
+                        mmap.MAP_SHARED,
+                        mmap.PROT_READ | mmap.PROT_WRITE,
+                        offset=virt_base)
+        os.close(mmap_file)
+        array = np.frombuffer(mem, np.uint32, length >> 2, virt_offset)
+        return array
+
+    def download(self, bitstream, parser=None):
+        if not bitstream.binfile_name:
+            _preload_binfile(bitstream)
+
+        if not bitstream.partial:
+            self.shutdown()
+            flag = '0'
+        else:
+            flag = '1'
+        with open(self.BS_FPGA_MAN_FLAGS, 'w') as fd:
+            fd.write(flag)
+        with open(self.BS_FPGA_MAN, 'w') as fd:
+            fd.write(bitstream.binfile_name)
+
+        super().post_download(bitstream, parser)
+
+    def get_bitfile_metadata(self, bitfile_name):
+        from .tcl_parser import TCL, get_tcl_name
+        from .hwh_parser import HWH, get_hwh_name
+        hwh_path = get_hwh_name(bitfile_name)
+        tcl_path = get_tcl_name(bitfile_name)
+        if os.path.exists(hwh_path):
+            return HWH(hwh_path)
+        elif os.path.exists(tcl_path):
+            message = "Users will not get PARAMETERS / REGISTERS information " \
+                      "through TCL files. HWH file is recommended."
+            warnings.warn(message, UserWarning)
+            return TCL(tcl_path)
+        else:
+            raise ValueError("Cannot find HWH or TCL file for {}.".format(
+                bitfile_name))

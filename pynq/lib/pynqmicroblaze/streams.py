@@ -124,10 +124,10 @@ _float_struct = struct.Struct('f')
 
 class SimpleMBStream:
     def __init__(self, iop, read_offset=0xF400, write_offset=0xF000):
-        self.read_channel = SimpleMBChannel(iop.mmio.mem, offset=read_offset,
+        self.read_channel = SimpleMBChannel(iop.mmio.array, offset=read_offset,
                                             length=0x400)
-        self.write_channel = SimpleMBChannel(iop.mmio.mem, offset=write_offset,
-                                             length=0x400)
+        self.write_channel = SimpleMBChannel(iop.mmio.array,
+                                             offset=write_offset, length=0x400)
 
     def read(self, n=-1):
         return self.read_channel.read(n)
