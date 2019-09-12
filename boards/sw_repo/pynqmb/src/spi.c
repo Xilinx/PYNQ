@@ -175,16 +175,8 @@ void spi_transfer(spi dev_id, const char *write_data, char *read_data,
     unsigned int base_address = xspi[dev_id].BaseAddr;
 
     XSpi_WriteReg(base_address, XSP_SSR_OFFSET, 0xfe);
-    if (write_data) {
-        for (i = 0; i < length; i++) {
-            XSpi_WriteReg(base_address, XSP_DTR_OFFSET, write_data[i]);
-        }
-    }
-    else {
-        // Behavior for no data to write while reading is to write zeros
-        for (i = 0; i < length; i++) {
-            XSpi_WriteReg(base_address, XSP_DRR_OFFSET, 0);
-        }
+    for (i = 0; i < length; i++) {
+        XSpi_WriteReg(base_address, XSP_DTR_OFFSET, write_data[i]);
     }
     while (((XSpi_ReadReg(base_address, XSP_SR_OFFSET) & 0x04)) != 0x04);
 
@@ -192,10 +184,8 @@ void spi_transfer(spi dev_id, const char *write_data, char *read_data,
     j = 10;
     while (j--);
 
-    if (read_data) {
-        for (i = 0; i < length; i++) {
-            read_data[i] = XSpi_ReadReg(base_address, XSP_DRR_OFFSET);
-        }
+    for (i = 0; i < length; i++) {
+        read_data[i] = XSpi_ReadReg(base_address, XSP_DRR_OFFSET);
     }
     XSpi_WriteReg(base_address, XSP_SSR_OFFSET, 0xff);
 }
