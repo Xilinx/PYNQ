@@ -98,8 +98,6 @@ class PynqBuffer(np.ndarray):
     def physical_address(self):
         return self.device_address
 
-        pass
-
     def close(self):
         """Unused - for backwards compatibility only
 
@@ -110,7 +108,7 @@ class PynqBuffer(np.ndarray):
         """Flush the underlying memory if necessary
 
         """
-        if self.coherent:
+        if not self.coherent:
             self.device.flush(self.bo, self.offset,
                               self.ctypes.data, self.nbytes)
 
@@ -118,7 +116,7 @@ class PynqBuffer(np.ndarray):
         """Invalidate the underlying memory if necessary
 
         """
-        if self.coherent:
+        if not self.coherent:
             self.device.invalidate(self.bo, self.offset,
                                    self.ctypes.data, self.nbytes)
 
