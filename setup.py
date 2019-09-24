@@ -334,6 +334,8 @@ class BuildExtension(build_ext):
                           "libdisplayport.so")
             self.run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/",
                           "libxhdmi.so")
+            self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/",
+                          "libaudio.so")
             self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
                           "libiic.so")
         build_ext.run(self)
