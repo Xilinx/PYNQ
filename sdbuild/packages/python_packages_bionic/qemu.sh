@@ -1,40 +1,46 @@
 export HOME=/root
 
 set -x
+set -e
 
-iter_count=0
-max_iterations=3
 
-read -d '' PACKAGES <<EOT
-sphinx-rtd-theme
-deltasigma
-pyeda
-nbwavedrom
-RISE==5.2.0
-jupyter_contrib_nbextensions
-jupyter_nbextensions_configurator
-jupyterlab
-ipywidgets==7.5.1
-plotly==4.1.0
-imutils
+cat > requirements.txt <<EOT
+Click==7.0
 dash==0.21.1
-dash-renderer==0.13.0
-dash-html-components==0.11.0
 dash-core-components==0.23.0
+dash-html-components==0.11.0
+dash-renderer==0.13.0
+deltasigma==0.2.2
+Flask==1.1.1
+Flask-Compress==1.4.0
+imutils==0.5.3
+ipywidgets==7.5.1
+itsdangerous==1.1.0
+Jinja2==2.10.1
+json5==0.8.5
+jsonschema==3.0.2
+jupyter-contrib-core==0.3.3
+jupyter-contrib-nbextensions==0.5.1
+jupyter-highlight-selected-word==0.2.0
+jupyter-latex-envs==1.4.6
+jupyter-nbextensions-configurator==0.4.1
+jupyterlab==1.1.3
+jupyterlab-server==1.0.6
+nbwavedrom==0.2.0
+parsec==3.4
+patsy==0.5.1
+plotly==4.1.0
+plotly-express==0.3.1
+pyeda==0.28.0
+pyrsistent==0.15.4
+rise==5.2.0
+sphinx-rtd-theme==0.4.3
 statsmodels==0.9.0
+tqdm==4.32.2
+Werkzeug==0.15.6
+widgetsnbextension==3.5.1
+wurlitzer==1.0.3
 EOT
 
-while [ -n "$PACKAGES" -a "$max_iterations" != "$iter_count" ];
-do 
-  printf '%s\n' "$PACKAGES" | while IFS= read -r p
-  do 
-    python3.6 -m pip install -v $p
-    result=$?
-    if [ $result != "0" ]; then
-      echo "Package $p installed failed" >> pip.failed
-      failed_packages="$failed_packages $p"
-    fi
-  done
-  iter_count=$(( $iter_count + 1 ))
-  PACKAGES="$failed_packages"
-done
+python3.6 -m pip install -r requirements.txt
+rm requirements.txt
