@@ -379,7 +379,7 @@ extern "C" void bypass(unsigned int audio_mmap_size,
  * @return  none.
  *****************************************************************************/
 extern "C" void record(unsigned int audio_mmap_size,
-                       unsigned int BufAddr, unsigned int nsamples, 
+                       unsigned int* BufAddr, unsigned int nsamples, 
                        int uio_index, int iic_index){
     unsigned int  i, status;
     void *uio_ptr;
@@ -405,8 +405,8 @@ extern "C" void record(unsigned int audio_mmap_size,
         DataR = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_DATA_RX_R_REG));
 
         // Write the sample into memory
-        *((int *)BufAddr+2*i) = DataL;
-        *((int *)BufAddr+2*i+1) = DataR;
+        *(BufAddr+2*i) = DataL;
+        *(BufAddr+2*i+1) = DataR;
     }
 
     if (unsetUIO(uio_ptr, audio_mmap_size) < 0){
@@ -431,7 +431,7 @@ extern "C" void record(unsigned int audio_mmap_size,
  * @return  none.
  *****************************************************************************/
 extern "C" void play(unsigned int audio_mmap_size,
-                     unsigned int BufAddr, unsigned int nsamples, 
+                     unsigned int* BufAddr, unsigned int nsamples, 
                      int uio_index, int iic_index){
     unsigned int  i, status;
     void *uio_ptr;
@@ -460,8 +460,8 @@ extern "C" void play(unsigned int audio_mmap_size,
             0x00000001;
 
         // Read the sample from memory
-        DataL = *((int *)BufAddr+2*i);
-        DataR = *((int *)BufAddr+2*i+1);
+        DataL = *(BufAddr+2*i);
+        DataR = *(BufAddr+2*i+1);
 
         // Write the sample to output
         *((volatile int *)(((uint8_t *)uio_ptr) + I2S_DATA_TX_L_REG)) = DataL;
