@@ -14,7 +14,7 @@ RISE==5.2.0
 jupyter_contrib_nbextensions
 jupyter_nbextensions_configurator
 jupyterlab
-ipywidgets
+ipywidgets==7.5.1
 plotly==4.1.0
 imutils
 dash==0.21.1
