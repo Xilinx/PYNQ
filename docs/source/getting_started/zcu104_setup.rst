@@ -37,12 +37,13 @@ Board Setup
       :align: center
 
   1. Set the **Boot** Dip Switches (SW6) to the following positions:
-    (This sets the board to boot from the Micro-SD card)
 
-    * Dip switch 1 (Mode 0): On (down position in diagram)
-    * Dip switch 2 (Mode 1): Off (up position in diagram)
-    * Dip switch 3 (Mode 2): Off (up)
-    * Dip switch 4 (Mode 3): Off (up)
+     (This sets the board to boot from the Micro-SD card)
+
+     * Dip switch 1 (Mode 0): On (down position in diagram)
+     * Dip switch 2 (Mode 1): Off (up position in diagram)
+     * Dip switch 3 (Mode 2): Off (up)
+     * Dip switch 4 (Mode 3): Off (up)
 
   2. Connect the 12V power cable. Note that the connector is keyed and can only
      be connected in one way. 
@@ -69,4 +70,4 @@ confirm that the board has power.  After a few seconds, the red LED will
 change to **Yellow**. This indicates that the bitstream has been downloaded
 and the system is booting. 
 
-  .. include:: network_connection.rst
+.. include:: network_connection.rst

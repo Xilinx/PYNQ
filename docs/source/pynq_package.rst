@@ -34,9 +34,6 @@ Additional modules:
   * pynq.pmbus - PYNQ class for reading power measurements from PMBus 
   * pynq.uio - Interacts directly with a UIO device
   * pynq.registers - Allows users to access registers easily
-  * pynq.tinynumpy - Implements a lightweight numpy compliant ndarray class
-  * pynq.xclbin - Implements a simple parser for xclbin files
-  * pynq.xrt - Implements the Python API for Xilinx Run Time (XRT)
 
 Sub-packages:
 
@@ -63,9 +60,6 @@ Sub-packages:
     pynq_package/pynq.pmbus
     pynq_package/pynq.ps
     pynq_package/pynq.registers
-    pynq_package/pynq.tinynumpy
-    pynq_package/pynq.xclbin
     pynq_package/pynq.uio
     pynq_package/pynq.xlnk
-    pynq_package/pynq.xrt
 
