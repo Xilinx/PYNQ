@@ -293,9 +293,10 @@ class Register:
         """Create a subclass of Register that has properties for the
         specified fields
 
-        The fields should be in the form used by `ip_dict`, namely
-        {name: {'access': "read-only" | "read-write" | "write-only",\
-        'bit_offset': int, 'bit_width': int, 'description': str}}.
+        The fields should be in the form used by `ip_dict`, namely::
+
+            {name: {'access': "read-only" | "read-write" | "write-only",
+                    'bit_offset': int, 'bit_width': int, 'description': str}}
 
         Parameters
         ----------
@@ -442,12 +443,13 @@ class RegisterMap:
         """Create a new RegisterMap subclass with the specified registers
 
         The dictionary should have the same form as the "registers" entry in
-        the ip_dict. For example,
-        {name : {"address_offset" : int,\
-        "access" : "read-only" | "write-only" | "read-write",\
-        "size" : int,\
-        "description" : str,\
-        "fields" : dict}}
+        the ip_dict. For example::
+
+             {name : {"address_offset" : int,
+                      "access" : "read-only" | "write-only" | "read-write",
+                      "size" : int,
+                      "description" : str,
+                      "fields" : dict}}
 
         For details on the contents of the "fields" entry see the `Register`
         class documentation.

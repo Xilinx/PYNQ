@@ -865,9 +865,10 @@ class Waveform:
         Usually this is used in combination with the trace analyzer.
 
         The annotation usually has the following format:
-        [{name: '', 
-          wave: 'x.444x4.x', 
-          data: ['read', 'write', 'read', 'data']}]
+
+            [{name: '',
+              wave: 'x.444x4.x',
+              data: ['read', 'write', 'read', 'data']}]
 
         Parameters
         ----------

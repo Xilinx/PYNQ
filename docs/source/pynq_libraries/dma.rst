@@ -36,7 +36,7 @@ with a read channel (from DRAM), and an AXI Master stream interface (for an outp
 stream), and the other with a write channel (to DRAM), and an AXI Slave stream
 interface (for an input stream). 
 
-In the Python code, two contiguous memory buffers are created using ``Xlnk``. The
+In the Python code, two contiguous memory buffers are created using ``allocate``. The
 DMA will read the input_buffer and send the data to the AXI stream master. The
 DMA will write back to the output_buffer from the AXI stream slave.
 
@@ -54,15 +54,14 @@ IP block with both send and receive channels enabled.
 .. code-block:: Python
 
    import numpy as np
-   from pynq import Xlnk
+   from pynq import allocate
    from pynq import Overlay
 
    overlay = Overlay('example.bit')
    dma = overlay.axi_dma
 
-   xlnk = Xlnk()
-   input_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
-   output_buffer = xlnk.cma_array(shape=(5,), dtype=np.uint32)
+   input_buffer = allocate(shape=(5,), dtype=np.uint32)
+   output_buffer = allocate(shape=(5,), dtype=np.uint32)
 
 Write some data to the array:
    

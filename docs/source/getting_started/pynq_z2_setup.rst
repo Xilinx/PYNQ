@@ -69,4 +69,4 @@ will then turn on and off while the **Yellow/Green** LEDs remain on. The
 system is now booted and ready for use.
   
 
-  .. include:: network_connection.rst
+.. include:: network_connection.rst
