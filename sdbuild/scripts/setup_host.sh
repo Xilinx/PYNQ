@@ -53,6 +53,8 @@ gcc-multilib
 EOT
 set -e
 
+sudo apt-get update
+sudo apt purge libgnutls-dev
 sudo dpkg --add-architecture i386
 sudo apt-get update
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/ppa
