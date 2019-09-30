@@ -226,8 +226,8 @@ What is the user account and password?
 --------------------------------------
 
 The username for all Linux, Jupyter and Samba logins is ``xilinx``. 
-The password is ``xilinx``.
-
+The password is ``xilinx``. For vagrant Ubuntu VM, both the username and 
+password are ``vagrant``.
 
 How do I enable/disable the Jupyter notebook password?
 ------------------------------------------------------
@@ -280,6 +280,38 @@ Does PYNQ support Python 2.7?
 The PYNQ image is based on Ubuntu which includes Python 2.7 in the root file 
 system. The Python package *pynq*, however, is based on Python 3.6; 
 this python package is not compatible with Python 2.7.
+
+Where can I find the overlay bitstreams?
+----------------------------------------
+In order to keep a reasonable Github repository size, starting from image v2.5,
+we no longer store bitstreams in our Github repository. 
+Instead, we provide a simple script allowing users to build the bitstreams 
+by themselves. This script
+(`build.sh`) is located at the root of the PYNQ repository. To run this
+script, make sure you have Vivado and SDK installed on your Ubuntu machine, 
+and run:
+
+   .. code-block:: console
+
+      ./build.sh
+
+If you are using our SD build flow, this step will be run automatically.
+
+Where can I find the MicroBlaze bin files?
+------------------------------------------
+In order to keep a reasonable Github repository size, starting from image v2.5,
+we no longer store compiled MicroBlaze binaries in our Github repository. 
+Instead, we provide a simple script allowing users to build the binaries 
+by themselves. This script
+(`build.sh`) is located at the root of the PYNQ repository. To run this
+script, make sure you have Vivado and SDK installed on your Ubuntu machine,
+and run:
+
+   .. code-block:: console
+
+      ./build.sh
+
+If you are using our SD build flow, this step will be run automatically.
 
 How do I write the Micro SD card image?
 ---------------------------------------

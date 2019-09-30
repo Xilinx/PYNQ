@@ -293,18 +293,17 @@ class Register:
         """Create a subclass of Register that has properties for the
         specified fields
 
+        The fields should be in the form used by `ip_dict`, namely::
+
+            {name: {'access': "read-only" | "read-write" | "write-only",
+                    'bit_offset': int, 'bit_width': int, 'description': str}}
+
         Parameters
         ----------
         name : str
             A suffix for the name of the subclass
         fields : dict
             A Dictionary containing the fields to add to the subclass
-
-        The fields should be in the form used by the ip_dict, namely
-        name -> {
-            access = "read-only" | "read-write" | "write-only",
-            bit_offset: int, bit_width: int, description: str
-        }
 
         """
         attr_dict = {}
@@ -392,13 +391,12 @@ class RegisterMap:
 
         Parameters
         ----------
-
         buffer : buffer-like
             A Python buffer object to bind the register map to
 
         """
         if not hasattr(self, '_map_size'):
-            raise RuntimeError("Only subclasses of RegisterMap from" +
+            raise RuntimeError("Only subclasses of RegisterMap from " +
                                "create_subclass can be instantiated")
         if hasattr(buffer, 'view'):
             array32 = buffer.view(dtype='u4')
@@ -444,27 +442,24 @@ class RegisterMap:
     def create_subclass(cls, name, registers):
         """Create a new RegisterMap subclass with the specified registers
 
+        The dictionary should have the same form as the "registers" entry in
+        the ip_dict. For example::
+
+             {name : {"address_offset" : int,
+                      "access" : "read-only" | "write-only" | "read-write",
+                      "size" : int,
+                      "description" : str,
+                      "fields" : dict}}
+
+        For details on the contents of the "fields" entry see the `Register`
+        class documentation.
+
         Parameters
         ----------
         name : str
             Suffix to append to "RegisterMap" to make the name of the new class
         registers : dict
             Dictionary of the registers to create in the subclass
-
-        The dictionary should have the same form as the "registers" entry in
-        the ip_dict.
-        {
-            name : {
-                "address_offset" : int,
-                "access" : "read-only" | "write-only" | "read-write",
-                "size" : int,
-                "description" : str,
-                "fields" : dict
-            }
-        }
-
-        For details on the contents of the "fields" entry see the `Register`
-        class documentation
 
         """
         attr_dict = {}

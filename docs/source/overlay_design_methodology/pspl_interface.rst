@@ -18,7 +18,7 @@ the Zynq PS (including the PS DRAM) and PL interfaces.
 
 * GPIO - General Purpose Input/Output
 * MMIO - Memory Mapped IO
-* Xlnk - Memory allocation
+* allocate - Memory allocation
 * DMA  - Direct Memory Access
 
 The class used depends on the Zynq PS interface the IP is connected to, and the
@@ -29,8 +29,8 @@ to a GP port. *MMIO* can be used to do this.
 
 IP connected to an AXI Master port is not under direct control of the PS. The 
 AXI Master port allows the IP to access DRAM directly. Before doing this, 
-memory should be allocated for the IP to use. The *Xlnk* class can be used to 
-do this. 
+memory should be allocated for the IP to use. The *allocate* function can be
+used to do this. 
 For higher performance data transfer between PS DRAM and an IP, DMAs can be 
 used. PYNQ provides a DMA class. 
 
@@ -64,22 +64,22 @@ GP ports.
 
 More information about using MMIO can be found in the :ref:`pynq-libraries-mmio` section.
 
-Xlnk
-----
+allocate
+--------
 
-Memory must be allocated before it can be accessed by the IP. ``Xlnk`` allows
-memory buffers to be allocated. Xlnk allocates a contiguous memory buffer which
+Memory must be allocated before it can be accessed by the IP. ``allocate`` allows
+memory buffers to be allocated. The ``allocate`` function allocates a contiguous memory buffer which
 allows efficient transfers of data between PS and PL. Python or other code
 running in Linux on the PS can access the memory buffer directly.
 
 As PYNQ is running Linux, the buffer will exist in the Linux virtual memory. The
 Zynq AXI Slave ports allow an AXI-master IP in an overlay to access physical
-memory. Xlnk can also provide the physical memory pointer to the buffer which
+memory. The numpy array returned can also provide the physical memory pointer to the buffer which
 can be sent to an IP in the overlay. The physical address is stored in the
-``physical_address`` property of the allocated memory buffer instance. An IP in
+``device_address`` property of the allocated memory buffer instance. An IP in
 an overlay can then access the same buffer using the physical address.
 
-More information about using Xlnk can be found in the :ref:`pynq-libraries-xlnk` section.
+More information about using allocate can be found in the :ref:`pynq-libraries-allocate` section.
 
 DMA
 ---

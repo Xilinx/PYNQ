@@ -174,4 +174,5 @@ class Arduino(PynqMicroblaze):
         self.write(MAILBOX_OFFSET + MAILBOX_PY2IOP_CMD_OFFSET, command)
 
 
-add_bsp(BSP_LOCATION)
+if os.path.exists(BSP_LOCATION):
+    add_bsp(BSP_LOCATION)
