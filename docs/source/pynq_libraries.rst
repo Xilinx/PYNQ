@@ -94,10 +94,10 @@ PS/PL interface
 .. toctree::
     :maxdepth: 1
 
+    pynq_libraries/allocate.rst
     pynq_libraries/interrupt.rst
     pynq_libraries/mmio.rst
     pynq_libraries/psgpio.rst
-    pynq_libraries/xlnk.rst
 
 PS control
 ----------

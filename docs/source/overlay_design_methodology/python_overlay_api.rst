@@ -111,27 +111,18 @@ A template for a custom overlay class is as follows:
 Working with Physically Contiguous Memory
 -----------------------------------------
 
-In many applications there is a need for large buffers to be transferred between
-the PS and PL either using DMA engines or HLS IP with AXI master interfaces. In
-PYNQ the ``Xlnk`` class provides a mechanism to acquire numpy arrays allocated
-as to be physically contiguous. First an instance of the xlnk class must be
-instantiated:
+In many applications there is a need for large buffers to be transferred
+between the PS and PL either using DMA engines or HLS IP with AXI master
+interfaces. In PYNQ the ``allocate`` functions provides a mechanism to acquire
+numpy arrays allocated as to be physically contiguous. The allocate function
+takes ``shape`` and ``dtype`` parameters in a similar way to other numpy
+construction functions.
 
 .. code-block:: Python
 
-    from pynq import Xlnk
+    from pynq import allocate
 
-    xlnk = Xlnk()
-
-Then the ``cma_array`` function can be used to allocate a physically contiguous
-numpy array. The function takes a ``shape`` parameter and a ``dtype`` parameter
-in a similar way to other numpy construction functions.
-
-.. code-block:: Python
-
-    import numpy as np
-
-    matrix1 = xlnk.cma_array(shape=(32,32), dtype=np.float32)
+    matrix1 = allocate(shape=(32,32), dtype='f4')
 
 These arrays can either be passed directly to the DMA driver's ``transfer``
 function or they contain a ``physical_address`` attribute which can be used by
@@ -143,7 +134,7 @@ to ensure that the buffer is freed at the end of a scope.
 
 .. code-block:: Python
 
-    with xlnk.cma_array(shape=(32,32), dtype=np.float32) as matrix2:
+    with allocate(shape=(32,32), dtype=np.float32) as matrix2:
         dma.sendchannel.transfer(matrix2)
         dma.recvchannel.transfer(matrix1)
         dma.sendchannel.wait()

@@ -34,7 +34,7 @@ ARM processor and the PYNQ MicroBlaze.
 
 DDR memory is managed by the Linux kernel running on the Cortex-A9s.  Therefore,
 the PYNQ MicroBlaze must first be allocated memory regions to access DRAM. The 
-PYNQ  ``Xlnk()`` class is used to allocate memory in Linux. It also provides 
+PYNQ  ``allocate`` function is used to allocate memory in Linux. It also provides
 the  physical address of the memory. A PYNQ applications can send the physical 
 address to a PYNQ MicroBlaze, and the PYNQ MicroBlaze can then access the 
 buffer.

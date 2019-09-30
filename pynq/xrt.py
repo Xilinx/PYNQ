@@ -22,16 +22,19 @@ import os
 import ctypes
 from .xclbin import *
 
-if "XCL_EMULATION_MODE" in os.environ:
-    emu_mode = os.environ['XCL_EMULATION_MODE']
-    if emu_mode == "hw_emu":
-        libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_hwemu.so")
-        XRT_EMULATION = True
+if 'XILINX_XRT' in os.environ:
+    if "XCL_EMULATION_MODE" in os.environ:
+        emu_mode = os.environ['XCL_EMULATION_MODE']
+        if emu_mode == "hw_emu":
+            libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_hwemu.so")
+            XRT_EMULATION = True
+        else:
+            raise RuntimeError("Unknown Emulation Mode: " + emu_mode)
     else:
-        raise RuntimeError("Unknown Emulation Mode: " + emu_mode)
+        libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_core.so")
+        XRT_EMULATION = False
 else:
-    libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_core.so")
-    XRT_EMULATION = False
+    libc = None
 
 xclDeviceHandle = ctypes.c_void_p
 
