@@ -122,6 +122,7 @@ bsp_$1: $$(BSP_FILES_$1)
 PL_PROJ_$1 := $$(BUILD_ROOT_$1)/petalinux_project
 PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
 PL_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/rootfs_config
+PL_KERNEL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/meta-user/recipes-kernel/linux/linux-xlnx
 MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/modules-plnx_$$(ARCH_$1).tgz
 KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
 
@@ -145,6 +146,9 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 		echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 	fi
+	# disable strict devmem by forcing the kernel config
+	echo 'CONFIG_STRICT_DEVMEM=n' >> $$(PL_KERNEL_CONFIG_$1)/config_strict_devmem.cfg
+	echo 'SRC_URI +="file://config_strict_devmem.cfg"' >> $$(PL_KERNEL_CONFIG_$1)_%.bbappend
 	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
