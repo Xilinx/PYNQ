@@ -54,7 +54,7 @@ EOT
 set -e
 
 sudo apt-get update
-sudo apt purge libgnutls-dev
+sudo apt purge -y libgnutls-dev
 sudo dpkg --add-architecture i386
 sudo apt-get update
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/ppa
@@ -107,5 +107,5 @@ fi
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 
-echo "Now install Vivado, SDx, and Petalinux."
+echo "Now install Vivado, SDK, and Petalinux."
 echo "Re-login to  ensure the enviroment is properly set up."
