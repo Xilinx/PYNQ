@@ -35,12 +35,17 @@ pyeda==0.28.0
 pyrsistent==0.15.4
 rise==5.2.0
 sphinx-rtd-theme==0.4.3
-statsmodels==0.9.0
 tqdm==4.32.2
 Werkzeug==0.15.6
 widgetsnbextension==3.5.1
 wurlitzer==1.0.3
 EOT
 
+# install statsmodels from source, fall back numpy and scipy
+python3.6 -m pip install --upgrade \
+	https://github.com/statsmodels/statsmodels/archive/v0.9.0.tar.gz
+python3.6 -m pip uninstall -y numpy scipy
+
+# install all regular packages
 python3.6 -m pip install -r requirements.txt
 rm requirements.txt
