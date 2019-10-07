@@ -50,14 +50,14 @@ Please ask questions on the <a href="https://discuss.pynq.io" target="_blank">PY
 
 ## Licenses
 
-**PYNQ** License : [BSD 3-Clause License](https://github.com/Xilinx/PYNQ/blob/master/LICENSE)
+**PYNQ** License: [BSD 3-Clause License](https://github.com/Xilinx/PYNQ/blob/master/LICENSE)
 
-**Xilinx Embedded SW** License : [Multiple License File](https://github.com/Xilinx/embeddedsw/blob/master/license.txt)
+**Xilinx Embedded SW** License: [Multiple License File](https://github.com/Xilinx/embeddedsw/blob/master/license.txt)
 
 **Digilent IP** License: [MIT License](https://github.com/Xilinx/PYNQ/blob/master/THIRD_PARTY_LIC)
 
 ## SDBuild Open Source Components
 
-**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.4.1-license.tar.gz)
+**License and Copyrights Info** [TAR/GZIP](http://bit.ly/2Os4h03)
 
-**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/member/forms/download/xef.html?filename=pynq-v2.4.1-open_components.tar.gz)
+**Open Components Source Code** [TAR/GZIP](http://bit.ly/2AUmcUY)
