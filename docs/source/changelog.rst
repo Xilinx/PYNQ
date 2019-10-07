@@ -2,6 +2,33 @@
 Change Log
 ************************
 
+Version 2.5 
+============================
+
+* Image releases:
+   * pynq_z1_v2.5
+   * pynq_z2_v2.5
+   * zcu104_v2.5
+   * zcu111_v2.5
+
+Within those image files, PYNQ v2.5 is already installed. Updates to PYNQ since the last release include:
+
+* Productivity Additions
+   * Updated to JupyterLab 1.1.3
+   * JupyterLab extensions support added
+   * Support for multiple memories using mem_dict entries
+   * Support for Device Tree Overlays delivered with PL overlays
+   * Support for custom PL device communication using the Device metaclass 
+* Programmable Logic Updates
+   * All bitstreams built using Vivado 2019.1
+   * XRT Support added (beta)
+* Repository Updates
+   * Jenkins CI added
+   * Sdist support added (removing all binaries from the repository)
+* SDBuild Updates
+   * Boot partition built on Petalinux 2019.1
+
+
 Version 2.4 
 ============================
 
