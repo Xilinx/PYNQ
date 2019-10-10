@@ -7,6 +7,7 @@ KERNEL_VERSION := 2019.1
 LINUX_VERSION := 4.19.0-xilinx-v2019.1
 QEMU_VERSION := 4.0.0
 SCRIPT_DIR := $(CURDIR)/scripts
+SHELL := /bin/bash
 
 all: real_all
 
@@ -29,6 +30,7 @@ export CCACHEDIR
 export ROOTDIR
 export BUILD_ROOT
 export BB_ENV_EXTRAWHITE := PYNQ_BOARDNAME
+export SHELL
 
 $(IMAGE_ROOT):
 	mkdir -p $@
