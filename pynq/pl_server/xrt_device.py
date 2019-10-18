@@ -30,6 +30,7 @@
 import ctypes
 import glob
 import os
+import warnings
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
@@ -197,8 +198,10 @@ class XrtDevice(Device):
             uuid_ctypes = XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
             err = xrt.xclOpenContext(self.handle, uuid_ctypes, cu_used, True)
             if err:
-                raise RuntimeError('Could not open CU context - ' + str(err))
-            self.contexts.append((uuid_ctypes, cu_used))
+                # raise RuntimeError('Could not open CU context - ' + str(err))
+                warnings.warn('Unable to open CU context - ' + str(err))
+            else:
+                self.contexts.append((uuid_ctypes, cu_used))
 
     def get_bitfile_metadata(self, bitfile_name):
         from .xclbin_parser import XclBin
