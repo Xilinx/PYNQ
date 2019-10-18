@@ -58,7 +58,6 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
     xml = ElementTree.fromstring(raw_xml)
     ip_dict = {}
     for kernel in xml.findall('platform/device/core/kernel'):
-        name = kernel.find('module').attrib['name']
         slaves = {n.attrib['name']: n for n in kernel.findall('port[@mode="slave"]')}
         masters = {n.attrib['name']: n for n in kernel.findall('port[@mode="master"]')}
         addr_size = max([int(n.attrib['range'], 0) for n in slaves.values()])

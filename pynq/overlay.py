@@ -505,6 +505,7 @@ class RegisterIP(type):
 _struct_dict = {
     'int': 'i',
     'unsigned int': 'I',
+    'uint': 'I',
     'float': 'f',
     'double': 'd',
     'long': 'l'
