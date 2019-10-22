@@ -28,10 +28,12 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import cffi
+import glob
+import os
 import threading
 import time
 import warnings
-
+import pandas as pd
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2018, Xilinx"
@@ -229,6 +231,38 @@ except Exception as e:
     warnings.warn("Could not initialise libsensors library")
     _lib = None
 
+
+class SysFSSensor:
+    def __init__(self, path, unit, name, scale):
+        self._path = path
+        self._unit = unit
+        self.name = name
+        self._scale = scale
+
+    @property
+    def value(self):
+        with open(self._path, "r") as f:
+            raw_value = float(f.read())
+        return raw_value * self._scale
+
+    def __repr__(self):
+        return "Sensor {{name={}, value={}{}}}".format(
+            self.name, self.value, self._unit)
+
+class DerivedPowerSensor:
+    def __init__(self, name, voltage, current):
+        self.voltage_sensor = voltage
+        self.current_sensor = current
+        self.name = name
+
+    @property
+    def value(self):
+        return self.voltage_sensor.value * self.current_sensor.value
+
+    def __repr__(self):
+        return "Sensor {{name={}, value={}W}}".format(
+            self.name, self.value)
+
 class Sensor:
     """Interacts with a sensor exposed by libsensors
 
@@ -318,6 +352,58 @@ class Rail:
             args.append("power=" + repr(self.power))
         return "Rail {{{}}}".format(', '.join(args))
 
+class XrtRail:
+    def __init__(self, name, base_file):
+       self.power = None
+       self.name = name
+       if os.path.isfile(base_file):
+          self.voltage = SysFSSensor(base_file, "V", name, 0.001)
+          self.current = None
+       else:
+          if os.path.isfile(base_file + "_vol"):
+             self.voltage = SysFSSensor(base_file + "_vol", "V", name + "_vol", 0.001)
+          else:
+             self.voltage = None
+          if os.path.isfile(base_file + "_curr"):
+             self.current = SysFSSensor(base_file + "_curr", "A", name + "_curr", 0.001)
+          else:
+             self.current = None
+
+          if self.voltage and self.current:
+             self.power = DerivedPowerSensor(name + "_power",
+                 self.voltage, self.current)
+
+    def __repr__(self):
+        args = ["name=" + self.name]
+        if self.voltage:
+            args.append("voltage=" + repr(self.voltage))
+        if self.current:
+            args.append("current=" + repr(self.current))
+        if self.power:
+            args.append("power=" + repr(self.power))
+        return "XrtRail {{{}}}".format(', '.join(args))
+
+
+def get_xrt_sysfs_rails(device=None):
+    if device is None:
+        from pynq.pl_server import Device
+        device = Device.active_device
+    if hasattr(device, "sysfs_path") and device.sysfs_path:
+        base_dir = device.sysfs_path
+    else:
+        return {}
+
+    rail_names = ["0v85", "12v_aux", "12v_pex", "12v_sw", "1v8", "3v3_aux",
+                  "3v3_pex", "mgt0v9avcc", "mgtavtt", "sys_5v5", "vccint" ]
+
+    rails = {}
+    mgmt_dir = glob.glob(base_dir + "/xmc*")[0]
+    for n in rail_names:
+        rails[n] = XrtRail(n, mgmt_dir + "/xmc_" + n)
+
+    return rails
+
+
 def _enumerate_sensors(config_file=None):
     if _lib is None:
         return {}
@@ -385,39 +471,37 @@ def get_rails(config_file=None):
 
 class DataRecorder:
     """Class to record sensors during an execution
-
     The DataRecorder provides a way of recording sensor data using a
     `with` block.
-
     """
     def __init__(self, *sensors):
         """Create a new DataRecorder attached to the specified sensors
-
         """
         self._record_index = -1
         self._sensors = sensors
         self._columns = ['Mark']
         self._times = []
         self._columns.extend([s.name for s in sensors])
+        self._frame = pd.DataFrame(columns=self._columns,
+                                   index = pd.DatetimeIndex([]),
+                                   dtype='f4')
+        self._callbacks = []
         self._data = []
         self._thread = None
-    
+
     def __del__(self):
         if self._thread:
             self.stop()
-    
+
     def reset(self):
         """Clear the internal state of the data recorder without
         forgetting which sensors to record
-
         """
-        self._data = []
-        self._times = []
+        self._frame.drop(self._frame.index, inplace=True)
         self._record_index = -1
 
     def record(self, interval):
         """Start recording
-
         """
         if self._thread:
             raise RuntimeError("DataRecorder is already recording")
@@ -428,17 +512,16 @@ class DataRecorder:
         self._record_index += 1
         self._thread.start()
         return self
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, type, value, traceback):
         self.stop()
         return
-    
+
     def stop(self):
         """Stops recording
-
         """
         self._done = True
         self._thread.join()
@@ -446,28 +529,23 @@ class DataRecorder:
 
     def mark(self):
         """Increment the Invocation count
-
         """
         self._record_index += 1
+        return self._record_index
 
     def _thread_func(self):
         while not self._done:
             row = [self._record_index]
-            self._times.append(time.time())
             row.extend([s.value for s in self._sensors])
-            self._data.append(row)
+            self._frame.loc[pd.Timestamp.now()] = row
             time.sleep(self._interval)
-            
+
     @property
     def frame(self):
         """Return a pandas DataFrame of the recorded data
-
         The frame consists of the following fields
         Index : The timestamp of the measurement
         Mark : counts the number of times that record or mark was called
         Sensors* : one column per sensor
-
         """
-        import pandas as pd
-        return pd.DataFrame(self._data, columns=self._columns,
-                            index=pd.to_datetime(self._times, unit="s"))
+        return self._frame
