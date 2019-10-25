@@ -50,11 +50,25 @@ socat
 zlib1g-dev
 zlib1g:i386
 gcc-multilib
+unzip
 EOT
 set -e
 
 sudo apt-get update
 sudo apt purge -y libgnutls-dev
+
+# Setup docker and containerd using repository before installing them
+sudo apt-get install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg-agent \
+        software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository \
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+sudo apt-get update
+
 sudo dpkg --add-architecture i386
 sudo apt-get update
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/ppa
