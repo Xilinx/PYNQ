@@ -2,7 +2,7 @@
 set current_dir [pwd]
 cd ../../ip/hls/
 # get list of IP from folder names
-set ip {color_convert pixel_pack pixel_unpack trace_cntrl_32 trace_cntrl_64}
+set ip {trace_cntrl_32 trace_cntrl_64}
 # Check and build each IP
 foreach item $ip {
    if {[catch { glob -directory ${item}/solution1/impl/ip/ *.zip} zip_file]} {
@@ -21,7 +21,7 @@ foreach item $ip {
    set latency_flag 0
    while { [gets $fd line] >= 0 } {
 # Check whether the timing has been met
-    if [string match {+ Timing (ns): } $line]  { 
+    if [string match {+ Timing: } $line]  { 
       set timing_flag 1
       set latency_flag 0
       continue
@@ -38,17 +38,17 @@ foreach item $ip {
       }
     }
 # Check whether the II has been met
-    if [string match {+ Latency (clock cycles): } $line]  { 
+    if [string match {+ Latency: } $line]  { 
       set timing_flag 0
       set latency_flag 1
       continue
     }
     if {$latency_flag == 1} {
       if [regexp {[0-9]+} $line]  {
-        set interval [regexp -all -inline {[0-9]+} $line]
-        lassign $interval l iteration achieved target
+        set interval [regexp -all -inline {[0-9]*\.*[0-9]*} $line]
+        lassign $interval lc_min lc_max la_min la_max achieved target
         if {$achieved != $target} {
-            puts "ERROR: Achieved II $achieved != target $target for loop $l."
+            puts "ERROR: Achieved II $achieved != target $target."
             puts "ERROR: Revise $item to be compatible with Vivado_HLS."
             exit 1
         }
