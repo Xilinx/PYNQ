@@ -16,5 +16,8 @@ mkdir -p $image_dir
 
 sudo mount $root_part $image_dir
 sudo mount $boot_part $image_dir/boot
+sudo mkdir $image_dir/proc
+sudo mkdir $image_dir/run
+sudo mkdir $image_dir/dev
 
 sudo chroot / chmod a+w $image_dir

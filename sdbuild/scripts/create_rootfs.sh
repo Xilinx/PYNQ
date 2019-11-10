@@ -19,7 +19,7 @@ if [ -n "$PYNQ_UBUNTU_REPO" ]; then
 fi
 
 # Perform the basic bootstrapping of the image
-$dry_run sudo -E multistrap -f $multistrap_conf -d $target --no-auth
+$dry_run sudo -E multistrap -f $multistrap_conf -d $target
 
 # Make sure the that the root is still writable by us
 sudo chroot / chmod a+w $target
