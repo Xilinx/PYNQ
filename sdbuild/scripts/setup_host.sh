@@ -49,7 +49,9 @@ chrpath
 socat
 zlib1g-dev
 zlib1g:i386
-gcc-multilib
+gcc-multilib-arm-linux-gnueabihf
+gcc-arm-linux-gnueabihf
+g++-arm-linux-gnueabihf
 unzip
 EOT
 set -e
