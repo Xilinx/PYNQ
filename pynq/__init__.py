@@ -43,6 +43,7 @@ from .overlay import DefaultIP
 from .pmbus import get_rails
 from .pmbus import DataRecorder
 from .buffer import allocate
+from .pl_server import Device
 from . import lib
 
 
