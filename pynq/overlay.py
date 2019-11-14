@@ -42,6 +42,11 @@ from .interrupt import Interrupt
 from .gpio import GPIO
 from .registers import RegisterMap
 
+try:
+    import ert_binding as ert
+except ImportError:
+    from pynq import ert
+
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -616,6 +621,17 @@ class DefaultIP(metaclass=RegisterIP):
             self._registers = None
         if 'index' in description:
             self.cu_mask = 1 << description['index']
+            self._setup_packet_prototype()
+
+    def _setup_packet_prototype(self):
+        self._packet = ert.ert_start_kernel_cmd()
+        self._packet.m_uert.m_start_cmd_struct.state = ert.ert_cmd_state.ERT_CMD_STATE_NEW
+        self._packet.m_uert.m_start_cmd_struct.unused = 0
+        self._packet.m_uert.m_start_cmd_struct.extra_cu_masks = 0
+        self._packet.m_uert.m_start_cmd_struct.count = (self._call_struct.size // 4) + 1
+        self._packet.m_uert.m_start_cmd_struct.opcode = ert.ert_cmd_opcode.ERT_START_CU
+        self._packet.m_uert.m_start_cmd_struct.type = ert.ert_cmd_type.ERT_DEFAULT
+        self._packet.cu_mask = self.cu_mask
 
     @property
     def register_map(self):
@@ -689,6 +705,20 @@ class DefaultIP(metaclass=RegisterIP):
         # For now direct people to the sw version until the ERT initialisation
         # is fixed
         return self.start_sw(*args, **kwargs)
+
+    def start_ert(self, *args, waitlist=(), **kwargs):
+        args = [a.device_address if p else a for a, p in zip(args, self._ptr_list)]
+        arg_data = self._call_struct.pack(0, *args)
+        bo = self.device.get_exec_bo()
+        exec_packet = bo.as_packet(ert.ert_start_kernel_cmd)
+        exec_packet.m_uert.header = self._packet.m_uert.header
+        exec_packet.cu_mask = self.cu_mask
+        ctypes.memmove(exec_packet.data, arg_data, len(arg_data))
+        wait_bos = tuple(w._bo for w in waitlist if w is not None and w.has_bo)
+        if wait_bos:
+            return self.device.execute_bo_with_waitlist(bo, wait_bos)
+        else:
+            return self.device.execute_bo(bo)
 
     def read(self, offset=0):
         """Read from the MMIO device
