@@ -77,7 +77,13 @@ class XrtMemory:
     def allocate(self, shape, dtype):
         return _xrt_allocate(shape, dtype, self.device, self.idx)
 
+    def __hash__(self):
+        return hash((self.device, self.idx))
 
+    def __eq__(self, other):
+        return (type(other) is XrtMemory and
+                self.device == other.device and
+                self.idx == other.idx)
 class XrtUUID:
     def __init__(self, val):
        self.bytes = val
