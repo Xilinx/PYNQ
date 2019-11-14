@@ -164,6 +164,11 @@ class XrtDevice(Device):
     def name(self):
         return self._info.mName.decode()
 
+    @property
+    def sensors(self):
+        from pynq.pmbus import get_xrt_sysfs_rails
+        return get_xrt_sysfs_rails(self)
+
     def flush(self, bo, offset, ptr, size):
         ret = xrt.xclSyncBO(
             self.handle, bo, xrt.xclBOSyncDirection.XCL_BO_SYNC_BO_TO_DEVICE,
