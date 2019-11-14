@@ -84,6 +84,7 @@ class MicroblazeMagics(Magics):
 
 
 js = """
+try {
 require(['notebook/js/codecell'], function(codecell) {
   codecell.CodeCell.options_default.highlight_modes[
       'magic_text/x-csrc'] = {'reg':[/^%%microblaze/]};
@@ -92,6 +93,7 @@ require(['notebook/js/codecell'], function(codecell) {
           if (cell.cell_type == 'code'){ cell.auto_highlight(); } }) ;
   });
 });
+} catch (e) {};
 """
 
 instance = get_ipython()
