@@ -37,13 +37,18 @@ from .device import Device
 
 try:
     import xrt_binding as xrt
+    import ert_binding as ert
 except ImportError:
     from pynq import xrt
+    from pynq import ert
 
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+
+DRM_XOCL_BO_EXECBUF = 1 << 31
 
 
 def _xrt_allocate(shape, dtype, device, memidx):
@@ -78,6 +83,43 @@ class XrtUUID:
        self.bytes = val
 
 
+class ExecBo:
+    def __init__(self, bo, ptr):
+        self.bo = bo
+        self.ptr = ptr
+
+    def __del__(self):
+        # TODO: Unmap and remove buffer
+        pass
+
+    def as_packet(self, ptype):
+        return ctypes.cast(self.ptr, ctypes.POINTER(ptype))[0]
+
+
+class ErtWaitHandle:
+    def __init__(self, bo, future):
+        self._future = future
+        self._bo = bo
+        
+    def complete(self, state):
+        if state != ert.ert_cmd_state.ERT_CMD_STATE_COMPLETED:
+            self._future.set_exception(RuntimeError("Execution failed: " + str(state)))
+        else:
+            self._future.set_result(None)
+        self._bo = None
+        
+    @property
+    def has_bo(self):
+        return self._bo is not None
+
+    @property
+    def done(self):
+        return self._future.done()
+    
+    async def wait_async(self):
+        await self._future
+
+
 class XrtDevice(Device):
     @classmethod
     def _probe_(cls):
@@ -91,13 +133,17 @@ class XrtDevice(Device):
         super().__init__('xrt{}'.format(index))
         self.capabilities = {
             'REGISTER_RW' : True,
-            'CALLABLE' : True
+            'CALLABLE' : True,
+            'ERT': True
         }
         self.handle = xrt.xclOpen(index, None, 0)
         self._info = xrt.xclDeviceInfo2()
         xrt.xclGetDeviceInfo2(self.handle, self._info)
         self.contexts = []
         self._find_sysfs()
+        self.active_bos = []
+        self._bo_cache = []
+        self._loop = None
 
     def _find_sysfs(self):
         devices = glob.glob('/sys/bus/pci/drivers/xclmgmt/*:*')
@@ -187,22 +233,71 @@ class XrtDevice(Device):
         if parser is not None:
             ip_dict = parser.ip_dict
             cu_used = 0
-            addresses = {}
             uuid = None
             for k, v in ip_dict.items():
                 if 'index' in v:
                     index = v['index']
-                    cu_used |= 1 << index
-                    addresses[index] = v['phys_addr']
                     uuid = bytes.fromhex(v['xclbin_uuid'])
-            uuid_ctypes = XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
-            err = xrt.xclOpenContext(self.handle, uuid_ctypes, cu_used, True)
-            if err:
-                # raise RuntimeError('Could not open CU context - ' + str(err))
-                warnings.warn('Unable to open CU context - ' + str(err))
-            else:
-                self.contexts.append((uuid_ctypes, cu_used))
+                    uuid_ctypes = XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
+                    err = xrt.xclOpenContext(self.handle, uuid_ctypes, index, True)
+                    if err:
+                        raise RuntimeError('Could not open CU context - {}, {}'.format(err, index))
+                    self.contexts.append((uuid_ctypes, index))
 
     def get_bitfile_metadata(self, bitfile_name):
         from .xclbin_parser import XclBin
         return XclBin(bitfile_name)
+
+    def get_exec_bo(self, size=1024):
+        if len(self._bo_cache):
+            return self._bo_cache.pop()
+        new_bo = xrt.xclAllocBO(self.handle, size, 0, DRM_XOCL_BO_EXECBUF)
+        new_ptr = xrt.xclMapBO(self.handle, new_bo, 1)
+        return ExecBo(new_bo, new_ptr)
+        
+    def return_exec_bo(self, bo):
+        self._bo_cache.append(bo)
+
+    def execute_bo(self, bo):
+        status = xrt.xclExecBuf(self.handle, bo.bo)
+        if status:
+            raise RuntimeError('Buffer submit failed: ' + str(status))
+        wh = ErtWaitHandle(bo, self._loop.create_future())
+        self.active_bos.append((bo, wh))
+        return wh
+
+    def execute_bo_with_waitlist(self, bo, waitlist):
+        wait_array = (ctypes.c_uint * len(waitlist))()
+        for i in range(len(waitlist)):
+            wait_array[i] = waitlist[i].bo
+        status = xrt.xclExecBufWithWaitList(
+                self.handle, bo.bo, len(waitlist), wait_array)
+        if status:
+            raise RuntimeError('Buffer submit failed: ' + str(status) )
+        wh = ErtWaitHandle(bo, self._loop.create_future())
+        self.active_bos.append((bo, wh))
+        return wh
+
+    def set_event_loop(self, loop):
+        self._loop = loop
+        for fd in glob.glob('/proc/self/fd/*'):
+            try:
+                link_target = os.readlink(fd)
+            except:
+                continue
+            if link_target.startswith('/dev/dri/renderD'):
+                base_fd = int(os.path.basename(fd))
+                loop.add_reader(open(base_fd, closefd=False), self._handle_events)
+
+    def _handle_events(self):
+        xrt.xclExecWait(self.handle, 0)
+        next_bos = []
+        for bo, completion in self.active_bos:
+             state = bo.as_packet(ert.ert_cmd_struct).state & 0xF
+             if state >= ert.ert_cmd_state.ERT_CMD_STATE_COMPLETED:
+                 if completion:
+                     completion.complete(state)
+                 self.return_exec_bo(bo)
+             else:
+                 next_bos.append((bo, completion))
+        self.active_bos = next_bos
