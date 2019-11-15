@@ -21,7 +21,10 @@
 import ctypes
 import os
 
-libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_core.so")
+if 'XILINX_XRT' in os.environ:
+    libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_core.so")
+else:
+    libc = None
 
 ##  START OF ENUMS  ##
 
