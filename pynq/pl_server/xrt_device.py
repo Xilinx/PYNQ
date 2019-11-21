@@ -169,6 +169,18 @@ class XrtDevice(Device):
         from pynq.pmbus import get_xrt_sysfs_rails
         return get_xrt_sysfs_rails(self)
 
+    @property
+    def default_memory(self):
+        mem_dict = self.mem_dict
+        active_mems = [m for m in mem_dict.values()
+                      if m['used'] and not m['streaming']]
+        if len(active_mems) == 0:
+            raise RuntimeError("No active memories in design")
+        elif len(active_mems) > 1:
+            raise RuntimeError("Multiple memories active in design: specify" +
+                               " the memory using the `target` parameters")
+        return self.get_memory(active_mems[0])
+
     def flush(self, bo, offset, ptr, size):
         ret = xrt.xclSyncBO(
             self.handle, bo, xrt.xclBOSyncDirection.XCL_BO_SYNC_BO_TO_DEVICE,
