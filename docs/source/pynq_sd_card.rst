@@ -4,9 +4,9 @@
 PYNQ SD Card
 ************
 
-The PYNQ image for supported boards are provided precompiled as 
+The PYNQ images for supported boards are provided precompiled as 
 downloadable SD card images, so you do not need to rerun this flow for these 
-boards unless you want to make changes to the image flow.
+boards unless you want to make changes to the image.
 
 This flow can also be used as a starting point to build a PYNQ image for another
 Zynq / Zynq Ultrascale board.
@@ -33,7 +33,7 @@ Ubuntu VM on your host OS.
 
 If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
 
-  1. Download the `vagrant software <https://www.vagrantup.com/>`_ and the 
+  1. Download the `vagrant software <https://www.vagrantup.com/>`_ and 
      `Virtual Box <https://www.virtualbox.org/>`_. Install them on your host OS.
   2. In your host OS, open a terminal program. Locate your PYNQ repository, 
      where the vagrant file is stored.
@@ -107,21 +107,21 @@ Once you have the building environment ready, you can start to build the image
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
   1. Export PATH and source the appropriate settings for PetaLinux, Vivado, 
-     and SDK. Suppose you are using Xilinx 2018.3 tools:
+     and SDK. Suppose you are using Xilinx 2019.1 tools:
 
      .. code-block:: console
          
 	export PATH="/opt/crosstool-ng/bin:/opt/qemu/bin:$PATH"
-	source <path-to-vivado>/Vivado/2018.3/settings64.sh
-	source <path-to-sdk>/SDK/2018.3/settings64.sh
-	source <path-to-petalinux>/petalinux-v2018.3-final/settings.sh
+	source <path-to-vivado>/Vivado/2019.1/settings64.sh
+	source <path-to-sdk>/SDK/2019.1/settings64.sh
+	source <path-to-petalinux>/petalinux-v2019.1-final/settings.sh
 	petalinux-util --webtalk off
 
      Currently the SD build flow is checking the PetaLinux path for the 
      version number, so please make sure the version number appears 
      in your installation path of Petalinux.
      In the above commands, the SD build flow will recognize the Petalinux
-     version number as 2018.3.
+     version number as 2019.1.
 
   2. Navigate to the following directory and run make
 
@@ -132,6 +132,41 @@ following the steps below. You don't have to rerun the `setup_host.sh`.
 
 The build flow can take several hours. By default images for all of the
 supported boards will be built.
+
+Using the prebuilt board-agnostic image
+---------------------------------------
+In order to simplify and speed-up the image building process, you can re-use the 
+prebuilt board-agnostic image appropriate to the architecture - arm for Zynq-7000 
+and aarch64 for Zynq UltraScale+, downloadable at the 
+`boards page <http://www.pynq.io/board.html/>`_ of our website. This will allow 
+you to completely skip the board-agnostic stage. It is important to notice however
+that this will restrict the build process to only boards that share the same
+architecture. You can do so by passing the ``PREBUILT`` variable when invoking make:
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make PREBUILT=<image path> BOARDS=<board>
+
+Re-use the PYNQ source distribution tarball
+-------------------------------------------
+To avoid rebuilding the PYNQ source distribution package, and consequently bypass
+the need to build bitstreams (except for external boards) and MicroBlazes' bsps 
+and binaries, a prebuilt PYNQ sdist tarball can be reused by specifying the 
+``PYNQ_SDIST`` variable when invoking make. The tarball specific to the target
+PYNQ version will be distributed when a new version is released on 
+`GitHub <https://github.com/Xilinx/PYNQ/releases>`_.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make PYNQ_SDIST=<sdist tarball path>
+
+
+Please also refer to the 
+`sdbuild readme <https://github.com/Xilinx/PYNQ/blob/master/sdbuild/README.md>`_
+on our GitHub repository for more info regarding the image-build flow.
+
 
 Retargeting to a Different Board
 ================================

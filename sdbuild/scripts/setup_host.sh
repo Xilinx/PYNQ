@@ -119,6 +119,9 @@ then
   sudo ln -s make gmake
 fi
 
+# update setuptools
+sudo pip3 install --upgrade "setuptools>=24.2.0"
+
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 
 echo "Now install Vivado, SDK, and Petalinux."

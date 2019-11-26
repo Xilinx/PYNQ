@@ -1,4 +1,5 @@
-BOARDDIR ?= $(CURDIR)/../boards
+DEFAULT_BOARDDIR := $(CURDIR)/../boards
+BOARDDIR ?= $(DEFAULT_BOARDDIR)
 BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
 UBUNTU_RELEASE := bionic
 VERSION := 2.5

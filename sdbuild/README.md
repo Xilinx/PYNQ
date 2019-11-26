@@ -199,10 +199,18 @@ make images ARCH_ONLY=arm
 ```
 
 To use a board-agnostic image to build a board-specific image you can pass the
-`PREBUILT` variable
+`PREBUILT` variable:
 
 ```Makefile
 make PREBUILT=<image path> BOARDS=<board>
+```
+
+To use a previously built PYNQ source distribution tarball you can pass the 
+`PYNQ_SDIST` variable. This will also avoid having to rebuild bitstreams 
+(except for external boards) and MicroBlazes' bsps and binaries.
+
+```Makefile
+make PYNQ_SDIST=<sdist tarball path>
 ```
 
 ## Custom Ubuntu Repository
