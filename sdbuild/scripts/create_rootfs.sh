@@ -6,7 +6,7 @@ set -e
 target=$1
 SRCDIR=$2
 
-fss="proc dev"
+fss="proc dev sys"
 echo $QEMU_EXE
 
 multistrap_conf=${SRCDIR}/multistrap.config
@@ -19,7 +19,7 @@ if [ -n "$PYNQ_UBUNTU_REPO" ]; then
 fi
 
 # Perform the basic bootstrapping of the image
-$dry_run sudo -E multistrap -f $multistrap_conf -d $target --no-auth
+$dry_run sudo -E multistrap -f $multistrap_conf -d $target
 
 # Make sure the that the root is still writable by us
 sudo chroot / chmod a+w $target
@@ -37,12 +37,6 @@ cat - > $target/postinst2.sh <<EOT
 export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
 export LC_ALL=C LANGUAGE=C LANG=C
 dpkg --configure -a
-rm -rf /var/run/*
-dpkg --configure -a
-# Horrible hack to work around some resolvconf weirdness
-apt-get -y --force-yes purge resolvconf
-apt-get -y --force-yes install resolvconf
-
 apt-get clean
 
 rm -f /boot/*
@@ -82,6 +76,9 @@ for fs in $fss
 do
   $dry_run sudo mount -o bind /$fs $target/$fs
 done
+
+sudo mkdir -p $target/run/systemd/
+sudo cp -r /run/systemd/resolve $target/run/systemd
 
 function unmount_special() {
 
