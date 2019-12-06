@@ -14,7 +14,7 @@ performance is usually limited.
 Zynq platforms usually have many more IO pins available than a typical embedded
 system. Dedicated hardware controllers and additional soft processors can be
 implemented in the PL and connected to external interfaces. This means
-performance on these interfaces can be much higher than other embedded system.
+performance on these interfaces can be much higher than other embedded systems.
 
 PYNQ runs on Linux which uses the following Zynq PS peripherals by default: SD
 Card to boot the system and host the Linux file system, Ethernet to connect to
