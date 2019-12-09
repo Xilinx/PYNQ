@@ -542,11 +542,12 @@ class DeviceServer:
             client.close()
         server.close()
 
-    def stop(self):
+    def stop(self, wait_for_thread=True):
         client = DeviceClient(self.tag, self.key)
         client.client_request()
         client.server_update(0)
-        self.thread.join()
+        if wait_for_thread:
+            self.thread.join()
 
 class PLServer:
      def __init__(self):
@@ -559,9 +560,9 @@ class PLServer:
          for s in self.servers:
               s.start()
 
-     def stop(self):
+     def stop(self, wait_for_thread=True):
          for s in self.servers:
-              s.stop()
+              s.stop(wait_for_thread)
 
 
 def _start_server():
@@ -570,4 +571,5 @@ def _start_server():
 
 def _stop_server():
     server = PLServer()
-    server.stop()
+    # This is called from a separate process so the threads aren't started
+    server.stop(False)
