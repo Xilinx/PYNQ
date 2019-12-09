@@ -34,7 +34,6 @@ __email__ = "pynq_support@xilinx.com"
 
 import ctypes
 from copy import deepcopy
-import itertools
 from xml.etree import ElementTree
 try:
     import xclbin_binding as xclbin
@@ -58,8 +57,14 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
     xml = ElementTree.fromstring(raw_xml)
     ip_dict = {}
     for kernel in xml.findall('platform/device/core/kernel'):
+        if 'hwControlProtocl' in kernel.attrib:
+            control_protocol = kernel.attrib['hwControlProtocl']
+        else:
+            control_protocol = 's_axilite'
         slaves = {n.attrib['name']: n for n in kernel.findall('port[@mode="slave"]')}
         masters = {n.attrib['name']: n for n in kernel.findall('port[@mode="master"]')}
+        readonly = {n.attrib['name']: n for n in kernel.findall('port[@mode="read_only"]')}
+        writeonly = {n.attrib['name']: n for n in kernel.findall('port[@mode="write_only"]')}
         addr_size = max([int(n.attrib['range'], 0) for n in slaves.values()])
         registers = {
             'CTRL': {
@@ -103,6 +108,13 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                 }
             }
         }
+        if control_protocol == 'ap_ctrl_chain':
+            registers['fields']['AP_CONTINUE'] = {
+                'access': 'read-write',
+                'bit_offset': 4,
+                'bit_width': 1,
+                'description': 'Invoke next iteration of kernel'
+            }
         streams = {}
         for arg in kernel.findall('arg'):
             attrib = arg.attrib
@@ -116,9 +128,17 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                     'id': int(attrib['id'])
                 }
             else:
+                portname = attrib['port']
+                if portname in readonly:
+                    direction = 'input'
+                elif portname in writeonly:
+                    direction = 'output'
+                else:
+                    raise RuntimeError('Could not determine port direction')
                 streams[attrib['name']] = {
                     'id': int(attrib['id']),
-                    'type': attrib['type']
+                    'type': attrib['type'],
+                    'direction': direction
                 }
         for instance in kernel.findall('instance'):
             ip_dict[instance.attrib['name']] = {
@@ -127,21 +147,24 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                 'type': kernel.attrib['vlnv'],
                 'fullpath': instance.attrib['name'],
                 'registers': deepcopy(registers),
-                'streams': streams,
+                'streams': deepcopy(streams),
                 'mem_id': None,
                 'state': None,
                 'interrupts': {},
                 'gpio': {},
                 'xclbin_uuid': xclbin_uuid
             }
+    for i, d in enumerate(sorted(ip_dict.values(), key=lambda x: x['phys_addr'])):
+        d['adjusted_index'] = i
     return ip_dict
 
 
 def _add_argument_memory(ip_dict, ip_data, connections, memories):
     import ctypes
-    connection_dict = {k: [x.mem_data_index for x in v]
-        for k, v in itertools.groupby(
-            connections, lambda c: (c.m_ip_layout_index, c.arg_index))}
+    connection_dict = {
+        (c.m_ip_layout_index, c.arg_index): c.mem_data_index
+        for c in connections
+    }
     for ip_index, ip in enumerate(ip_data):
         if ip.m_type != 1:
             continue
@@ -154,8 +177,8 @@ def _add_argument_memory(ip_dict, ip_data, connections, memories):
         for r in dict_entry['registers'].values():
             # Subtract 1 from the register index to account for AP_CTRL
             if (ip_index, r['id']) in connection_dict:
-                r['memory'] = [memories[m].decode() for m in
-                               connection_dict[(ip_index, r['id'])]]
+                r['memory'] = \
+                    memories[connection_dict[(ip_index, r['id'])]].decode()
         for r in dict_entry['streams'].values():
             if (ip_index, r['id']) in connection_dict:
                 r['stream_id'] = connection_dict[(ip_index, r['id'])]
