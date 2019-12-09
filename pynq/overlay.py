@@ -54,6 +54,12 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
+# Monkey patch typo in some versions on XRT Python binding
+
+if not hasattr(ert, 'ert_cmd_type'):
+    ert.ert_cmd_type = ert.ert_cmdype
+
+
 def _assign_drivers(description, ignore_version, device):
     """Assigns a driver for each IP and hierarchy in the description.
 
