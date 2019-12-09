@@ -27,10 +27,10 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import asyncio
 import ctypes
 import glob
 import os
-import warnings
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
@@ -68,6 +68,13 @@ def _xrt_allocate(shape, dtype, device, memidx):
     
 
 class XrtMemory:
+    """Class representing a memory bank in a card
+
+    Memory banks can be both external DDR banks and internal buffers.
+    XrtMemory instances for the same bank are interchangeable and can
+    be compared and used as dictionary keys.
+
+    """
     def __init__(self, device, desc):
         self.idx = desc['idx']
         self.size = desc['size']
@@ -75,7 +82,19 @@ class XrtMemory:
         self.device = device
 
     def allocate(self, shape, dtype):
-        return _xrt_allocate(shape, dtype, self.device, self.idx)
+        """Create a new  buffer in the memory bank
+
+        Parameters
+        ----------
+        shape : tuple(int)
+            Shape of the array
+        dtype : np.dtype
+            Data type of the array
+
+        """
+        buf = _xrt_allocate(shape, dtype, self.device, self.idx)
+        buf.memory = self
+        return buf
 
     def __hash__(self):
         return hash((self.device, self.idx))
@@ -90,6 +109,13 @@ class XrtUUID:
 
 
 class ExecBo:
+    """Execution Buffer Object
+
+    Wraps an execution buffer used by XRT to schedule the execution of
+    accelerators. Usually used in conjunction with the ERT packet format
+    exposed in the XRT ``ert_binding`` python module.
+
+    """
     def __init__(self, bo, ptr):
         self.bo = bo
         self.ptr = ptr
@@ -99,15 +125,27 @@ class ExecBo:
         pass
 
     def as_packet(self, ptype):
+        """Get a packet representation of the buffer object
+
+        Parameters
+        ----------
+        ptype : ctypes struct
+            The type to cast the buffer to
+
+        """
         return ctypes.cast(self.ptr, ctypes.POINTER(ptype))[0]
 
 
 class ErtWaitHandle:
-    def __init__(self, bo, future):
+    """WaitHandle specific to ERT-scheduled accelerators
+
+    """
+    def __init__(self, bo, future, device):
         self._future = future
         self._bo = bo
+        self.device = device
         
-    def complete(self, state):
+    def _complete(self, state):
         if state != ert.ert_cmd_state.ERT_CMD_STATE_COMPLETED:
             self._future.set_exception(RuntimeError("Execution failed: " + str(state)))
         else:
@@ -115,16 +153,72 @@ class ErtWaitHandle:
         self._bo = None
         
     @property
-    def has_bo(self):
+    def _has_bo(self):
         return self._bo is not None
 
     @property
     def done(self):
+        """True is the accelerator has finished
+
+        """
         return self._future.done()
     
     async def wait_async(self):
+        """Coroutine to wait for the execution to be completed
+
+        This function requires that ``XrtDevice.set_event_loop`` is called
+        before the accelerator execution is started
+
+        """
         await self._future
 
+    def wait(self):
+        """Wait for the Execution to be completed
+
+        """
+        while not self.done:
+            self.device._handle_events(1000)
+
+class XrtStream:
+    """XRT Streming Connection
+
+    Encapsulates the IP connected to a stream. Note that the ``_ip``
+    attributes will only be populated if the corresponding device
+    driver has been instantiated.
+
+    Attributes
+    ----------
+    source : str
+        Source of the streaming connection as ip_name.port
+    sink : str
+        Sink of the streaming connection as ip_name.port
+    monitors : [str]
+        Monitor connections of the stream as a list of ip_name.port
+    source_ip : pynq.overlay.DefaultIP
+        Source IP driver instance for the stream
+    sink_ip : pynq.overlay.DefaultIP
+        Sink IP driver instance for the stream
+    monitor_ips : [pynq.overlay.DefaultIP]
+        list of driver instances for IP monitoring the stream
+
+    """
+    def __init__(self, device, desc):
+        ip_dict = device.ip_dict
+        idx = desc['idx']
+        for ip_name, ip in ip_dict.items():
+            for stream_name, stream in ip['streams'].items():
+                if stream['stream_id'] == idx:
+                   if stream['direction'] == 'output':
+                       self.source = ip_name + "." + stream_name
+                   elif stream['direction'] == 'input':
+                       self.sink = ip_name + "." + stream_name
+        self.source_ip = None
+        self.monitors = []
+        self.monitor_ips = []
+        self.sink_ip = None
+
+    def __repr__(self):
+        return f'XrtStream(source={self.source}, sink={self.sink})'
 
 class XrtDevice(Device):
     @classmethod
@@ -149,7 +243,8 @@ class XrtDevice(Device):
         self._find_sysfs()
         self.active_bos = []
         self._bo_cache = []
-        self._loop = None
+        self._loop = asyncio.get_event_loop()
+        self._streams = {}
 
     def _find_sysfs(self):
         devices = glob.glob('/sys/bus/pci/drivers/xclmgmt/*:*')
@@ -202,6 +297,30 @@ class XrtDevice(Device):
              raise RuntimeError("Allocate failed: " + str(bo))
         return bo
 
+    def buffer_write(self, bo, bo_offset, buf, buf_offset=0, count=-1):
+        view = memoryview(buf).cast('B')
+        if count == -1:
+            view = view[buf_offset:]
+        else:
+            view = view[buf_offset:buf_offset+count]
+        ptr = (ctypes.c_char * len(view)).from_buffer(view)
+        status = xrt.xclWriteBO(self.handle, bo, ptr, len(view), bo_offset)
+        if status != 0:
+            raise RuntimeError("Buffer Write Failed: " + str(status))
+
+    def buffer_read(self, bo, bo_offset, buf, buf_offset=0, count=-1):
+        view = memoryview(buf).cast('B')
+        if view.readonly:
+            raise RuntimeError("Buffer not writeable")
+        if count == -1:
+            view = view[buf_offset:]
+        else:
+            view = view[buf_offset:buf_offset+count]
+        ptr = (ctypes.c_char * len(view)).from_buffer(view)
+        status = xrt.xclReadBO(self.handle, bo, ptr, len(view), bo_offset)
+        if status != 0:
+            raise RuntimeError("Buffer Write Failed: " + str(status))
+
     def map_bo(self, bo):
         return xrt.xclMapBO(self.handle, bo, True)[0]
 
@@ -217,7 +336,18 @@ class XrtDevice(Device):
         super().close()
 
     def get_memory(self, desc):
-        return XrtMemory(self, desc)
+        if desc['streaming']:
+             if desc['idx'] not in self._streams:
+                 self._streams[desc['idx']] = XrtStream(self, desc)
+             return self._streams[desc['idx']]
+        else:
+             return XrtMemory(self, desc)
+
+    def get_memory_by_idx(self, idx):
+        for m in self.mem_dict.values():
+            if m['idx'] == idx:
+                return self.get_memory(m)
+        raise RuntimeError("Could not find memory")
 
     def read_registers(self, address, length):
         data = (ctypes.c_char * length)()
@@ -285,7 +415,7 @@ class XrtDevice(Device):
         status = xrt.xclExecBuf(self.handle, bo.bo)
         if status:
             raise RuntimeError('Buffer submit failed: ' + str(status))
-        wh = ErtWaitHandle(bo, self._loop.create_future())
+        wh = ErtWaitHandle(bo, self._loop.create_future(), self)
         self.active_bos.append((bo, wh))
         return wh
 
@@ -297,7 +427,7 @@ class XrtDevice(Device):
                 self.handle, bo.bo, len(waitlist), wait_array)
         if status:
             raise RuntimeError('Buffer submit failed: ' + str(status) )
-        wh = ErtWaitHandle(bo, self._loop.create_future())
+        wh = ErtWaitHandle(bo, self._loop.create_future(), self)
         self.active_bos.append((bo, wh))
         return wh
 
@@ -312,14 +442,14 @@ class XrtDevice(Device):
                 base_fd = int(os.path.basename(fd))
                 loop.add_reader(open(base_fd, closefd=False), self._handle_events)
 
-    def _handle_events(self):
-        xrt.xclExecWait(self.handle, 0)
+    def _handle_events(self, timeout=0):
+        xrt.xclExecWait(self.handle, timeout)
         next_bos = []
         for bo, completion in self.active_bos:
              state = bo.as_packet(ert.ert_cmd_struct).state & 0xF
              if state >= ert.ert_cmd_state.ERT_CMD_STATE_COMPLETED:
                  if completion:
-                     completion.complete(state)
+                     completion._complete(state)
                  self.return_exec_bo(bo)
              else:
                  next_bos.append((bo, completion))

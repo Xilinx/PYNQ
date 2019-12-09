@@ -621,8 +621,17 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             self._registers = None
         if 'index' in description:
-            self.cu_mask = 1 << description['index']
+            self.cu_mask = 1 << description['adjusted_index']
             self._setup_packet_prototype()
+        if 'streams' in description:
+            self.streams = {}
+            for k, v in description['streams'].items():
+                stream = self.device.get_memory_by_idx(v['stream_id'])
+                self.streams[k] = stream
+                if v['direction'] == 'output':
+                    stream.source_device = self
+                elif v['direction'] == 'input':
+                    stream.sink_device = self
 
     def _setup_packet_prototype(self):
         self._packet = ert.ert_start_kernel_cmd()
@@ -708,6 +717,26 @@ class DefaultIP(metaclass=RegisterIP):
         return self.start_sw(*args, **kwargs)
 
     def start_ert(self, *args, waitlist=(), **kwargs):
+        """Start the accelerator using the ERT scheduler
+
+        This function will use the embedded scheduler to call the accelerator
+        with the provided arguments - see the documentation for ``start`` for
+        more details. An optional ``waitlist`` parameter can be used to
+        schedule dependent executions without using the CPU.
+
+        Parameters
+        ----------
+        waitlist : [WaitHandle]
+            A list of wait handles returned by other calls to ``start_ert``
+            which must complete before this exection starts
+
+        Returns
+        -------
+        WaitHandle : 
+            Object with a ``wait`` call that will return when the execution
+            completes
+
+        """
         args = [a.device_address if p else a for a, p in zip(args, self._ptr_list)]
         arg_data = self._call_struct.pack(0, *args)
         bo = self.device.get_exec_bo()
@@ -715,7 +744,7 @@ class DefaultIP(metaclass=RegisterIP):
         exec_packet.m_uert.header = self._packet.m_uert.header
         exec_packet.cu_mask = self.cu_mask
         ctypes.memmove(exec_packet.data, arg_data, len(arg_data))
-        wait_bos = tuple(w._bo for w in waitlist if w is not None and w.has_bo)
+        wait_bos = tuple(w._bo for w in waitlist if w is not None and w._has_bo)
         if wait_bos:
             return self.device.execute_bo_with_waitlist(bo, wait_bos)
         else:
