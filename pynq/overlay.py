@@ -28,6 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import collections
+import ctypes
 import itertools
 import os
 import re
