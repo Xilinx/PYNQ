@@ -8,9 +8,10 @@ recursive-include boards *
 prune boards/ip
 prune boards/sw_repo
 prune boards/*/petalinux_bsp
+prune boards/*/packages
 prune boards/*/*/vivado
 recursive-exclude boards/*/* makefile
-recursive-exclude boards/* *.spec *.bsp
+recursive-exclude boards/* *.spec *.bsp *.hdf
 
 # include notebooks and images in docs folder
 include docs/source/*.ipynb

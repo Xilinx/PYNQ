@@ -6,11 +6,21 @@ set -e
 target=$1
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# copy files from staging area to the qemu environment
+sudo mkdir -p $target/home/xilinx/pynq_git/boards
+sudo mkdir -p $target/home/xilinx/pynq_git/dist
+sudo cp -rfL $BUILD_ROOT/PYNQ/.git $target/home/xilinx/pynq_git
+
+sudo cp $script_dir/get_revision.sh $target/home/xilinx
+sudo cp $script_dir/pl_server.sh $target/usr/local/bin
+sudo cp $script_dir/pl_server.service $target/lib/systemd/system
+sudo cp $script_dir/pynq_hostname.sh $target/usr/local/bin
+sudo cp $script_dir/boardname.sh $target/etc/profile.d
+
 # copy external board files into the staging area
 if [ ${PYNQ_BOARD} != "Unknown" ]; then
 	cd ${PYNQ_BOARDDIR}/..
 	if [ -d .git ]; then
-		sudo mkdir -p $target/home/xilinx/pynq_git/boards
 		sudo cp -rf .git $target/home/xilinx/pynq_git/boards
 	fi
 	if [ ! -d "$BUILD_ROOT/PYNQ/boards/${PYNQ_BOARD}" ]; then
@@ -18,47 +28,45 @@ if [ ${PYNQ_BOARD} != "Unknown" ]; then
 	fi
 fi
 
-# collect all the boards
-cd $BUILD_ROOT/PYNQ/boards
-if [ ${PYNQ_BOARD} == "Unknown" ]; then
-	boards="Pynq-Z1 Pynq-Z2 ZCU104"
+if [ -n "$PYNQ_SDIST" ] && [ "$BOARDDIR" = "$DEFAULT_BOARDDIR" ]; then
+	# using prebuilt sdist with non-external board, nothing to do except copy
+	# sdist to target folder
+	sudo cp ${PYNQ_SDIST} $target/home/xilinx/pynq_git/dist
 else
-	boards="${PYNQ_BOARD}"
-fi
-
-# build bitstream, microblaze bsp's and binaries
-cd $BUILD_ROOT/PYNQ
-./build.sh
-
-# copy files from staging area to the qemu environment
-sudo mkdir -p $target/home/xilinx/pynq_git
-sudo cp -rfL $BUILD_ROOT/PYNQ/.git $target/home/xilinx/pynq_git
-sudo cp -rfL $BUILD_ROOT/PYNQ/docs $target/home/xilinx/pynq_git
-sudo cp -rfL $BUILD_ROOT/PYNQ/pynq $target/home/xilinx/pynq_git
-sudo cp -fL $BUILD_ROOT/PYNQ/*.md $target/home/xilinx/pynq_git
-sudo cp -fL $BUILD_ROOT/PYNQ/LICENSE $target/home/xilinx/pynq_git
-sudo cp -fL $BUILD_ROOT/PYNQ/THIRD_PARTY_LIC $target/home/xilinx/pynq_git
-sudo cp -fL $BUILD_ROOT/PYNQ/*.png $target/home/xilinx/pynq_git
-sudo cp -fL $BUILD_ROOT/PYNQ/*.py $target/home/xilinx/pynq_git
-sudo cp -fL $BUILD_ROOT/PYNQ/MANIFEST.in $target/home/xilinx/pynq_git
-
-for bd_name in $boards ; do
-	cd $BUILD_ROOT/PYNQ/boards/${bd_name}
-	sudo mkdir -p $target/home/xilinx/pynq_git/boards/${bd_name}
-	sudo cp -rfL notebooks \
-		$target/home/xilinx/pynq_git/boards/${bd_name} 2>/dev/null||:
-	overlays=`find . -maxdepth 2 -iname 'makefile' -printf '%h\n' | cut -f2 -d"/"`
-	for ol in $overlays ; do
-		sudo mkdir -p $target/home/xilinx/pynq_git/boards/${bd_name}/$ol
-		sudo cp -fL $ol/*.py $ol/*.bit $ol/*.hwh $ol/*.tcl \
-			$target/home/xilinx/pynq_git/boards/${bd_name}/$ol 2>/dev/null||:
-		sudo cp -rfL $ol/notebooks \
-			$target/home/xilinx/pynq_git/boards/${bd_name}/$ol 2>/dev/null||:
+	if [ -n "$PYNQ_SDIST" ] && [ "$BOARDDIR" != "$DEFAULT_BOARDDIR" ]; then
+		# using prebuilt sdist with external board, copy bitstreams, microlbazes'
+		# bsps and binaries from sdist
+		sdist_untar=$BUILD_ROOT/PYNQ/sdist_untar
+		mkdir -p ${sdist_untar}
+		tar -xzvf ${PYNQ_SDIST} -C ${sdist_untar}
+		cd $BUILD_ROOT/PYNQ
+		rsync -rptL --ignore-existing ${sdist_untar}/*/pynq/lib/* pynq/lib/
+		boards=`ls ${sdist_untar}/*/boards`
+		for bd_name in $boards ; do
+			cd ${sdist_untar}/*/boards/${bd_name}
+			overlays=`find . -maxdepth 2 -iname 'makefile' -printf '%h\n' | cut -f2 -d"/"`
+			for ol in $overlays ; do
+				sudo cp -fL $ol/*.bit $ol/*.hwh \
+					$BUILD_ROOT/PYNQ/boards/${bd_name}/$ol 2>/dev/null||:
+			done
+		done
+		rm -rf ${sdist_untar}
+	fi
+	# build bitstream, microblazes' bsps and binaries
+	cd $BUILD_ROOT/PYNQ
+	./build.sh
+	# get rid of Vivado temp files in case there are any
+	boards=`ls boards`
+	for bd_name in $boards ; do
+		cd $BUILD_ROOT/PYNQ/boards/${bd_name}
+		overlays=`find . -maxdepth 2 -iname 'makefile' -printf '%h\n' | cut -f2 -d"/"`
+		for ol in $overlays ; do
+			cd $BUILD_ROOT/PYNQ/boards/${bd_name}/$ol
+			make clean
+		done
 	done
-done
-
-sudo cp $script_dir/get_revision.sh $target/home/xilinx
-sudo cp $script_dir/pl_server.sh $target/usr/local/bin
-sudo cp $script_dir/pl_server.service $target/lib/systemd/system
-sudo cp $script_dir/pynq_hostname.sh $target/usr/local/bin
-sudo cp $script_dir/boardname.sh $target/etc/profile.d
+	# create sdist
+	cd $BUILD_ROOT/PYNQ
+	python3 setup.py sdist
+	sudo cp dist/*.tar.gz $target/home/xilinx/pynq_git/dist
+fi
