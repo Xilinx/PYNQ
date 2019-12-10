@@ -31,6 +31,7 @@ import asyncio
 import ctypes
 import glob
 import os
+import weakref
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
@@ -49,7 +50,9 @@ __email__ = "pynq_support@xilinx.com"
 
 
 DRM_XOCL_BO_EXECBUF = 1 << 31
-
+libc = ctypes.CDLL('libc.so.6')
+libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
+libc.munmap.restype = ctypes.c_int
 
 def _xrt_allocate(shape, dtype, device, memidx):
     elements = 1
@@ -63,9 +66,15 @@ def _xrt_allocate(shape, dtype, device, memidx):
     bo = device.allocate_bo(size, memidx)
     buf = device.map_bo(bo)
     device_address = device.get_device_address(bo)
-    return PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
-                     device_address=device_address, coherent=False)
+    ar = PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
+                    device_address=device_address, coherent=False)
+    weakref.finalize(buf, _free_bo, device, bo, ar.virtual_address, ar.nbytes)
+    return ar
     
+
+def _free_bo(device, bo, ptr, length):
+    libc.munmap(ctypes.cast(ptr, ctypes.c_void_p), length)
+    xrt.xclFreeBO(device.handle, bo)
 
 class XrtMemory:
     """Class representing a memory bank in a card
@@ -116,13 +125,14 @@ class ExecBo:
     exposed in the XRT ``ert_binding`` python module.
 
     """
-    def __init__(self, bo, ptr):
+    def __init__(self, bo, ptr, device, length):
         self.bo = bo
         self.ptr = ptr
+        self.device = device
+        self.length = length
 
     def __del__(self):
-        # TODO: Unmap and remove buffer
-        pass
+        _free_bo(self.device, self.bo, self.ptr, self.length)
 
     def as_packet(self, ptype):
         """Get a packet representation of the buffer object
@@ -411,7 +421,7 @@ class XrtDevice(Device):
             return self._bo_cache.pop()
         new_bo = xrt.xclAllocBO(self.handle, size, 0, DRM_XOCL_BO_EXECBUF)
         new_ptr = xrt.xclMapBO(self.handle, new_bo, 1)
-        return ExecBo(new_bo, new_ptr)
+        return ExecBo(new_bo, new_ptr, self, size)
         
     def return_exec_bo(self, bo):
         self._bo_cache.append(bo)
