@@ -360,6 +360,11 @@ class XrtDevice(Device):
         xrt.xclWrite(self.handle, xrt.xclAddressSpace.XCL_ADDR_KERNEL_CTRL,
                      address, cdata, len(data)) 
 
+    def free_bitstream(self):
+        for c in self.contexts:
+            xrt.xclCloseContext(self.handle, c[0], c[1])
+        self.contexts = []
+
     def download(self, bitstream, parser=None):
         # Close existing contexts
         for c in self.contexts:
