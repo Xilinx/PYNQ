@@ -53,6 +53,7 @@ _mem_types = [
     "AXI Stream"
 ]
 
+
 def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
     xml = ElementTree.fromstring(raw_xml)
     ip_dict = {}
@@ -142,7 +143,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                 }
         for instance in kernel.findall('instance'):
             ip_dict[instance.attrib['name']] = {
-                'phys_addr' : int(instance.find('addrRemap').attrib['base'], 0),
+                'phys_addr': int(instance.find('addrRemap').attrib['base'], 0),
                 'addr_range': addr_size,
                 'type': kernel.attrib['vlnv'],
                 'fullpath': instance.attrib['name'],
@@ -183,12 +184,15 @@ def _add_argument_memory(ip_dict, ip_data, connections, memories):
             if (ip_index, r['id']) in connection_dict:
                 r['stream_id'] = connection_dict[(ip_index, r['id'])]
 
+
 def _get_buffer_slice(b, offset, length):
     return b[offset:offset+length]
+
 
 def _get_object_as_array(obj, number):
     ctype = type(obj) * number
     return ctype.from_address(ctypes.addressof(obj))
+
 
 def _mem_data_to_dict(idx, mem):
     if mem.m_type == 9:
@@ -213,6 +217,7 @@ def _mem_data_to_dict(idx, mem):
             "idx": idx
         }
 
+
 def _xclbin_to_dicts(filename):
     with open(filename, 'rb') as f:
         binfile = bytearray(f.read())
@@ -221,12 +226,12 @@ def _xclbin_to_dicts(filename):
         header.m_sections, header.m_header.m_numSections)
     sections = {
         s.m_sectionKind: _get_buffer_slice(
-             binfile, s.m_sectionOffset, s.m_sectionSize)
+            binfile, s.m_sectionOffset, s.m_sectionSize)
         for s in section_headers}
 
     xclbin_uuid = bytes(header.m_header.u2.uuid).hex()
 
-    ip_dict =  _xclxml_to_ip_dict(
+    ip_dict = _xclxml_to_ip_dict(
         sections[xclbin.AXLF_SECTION_KIND.EMBEDDED_METADATA].decode(),
         xclbin_uuid)
     ip_layout = xclbin.ip_layout.from_buffer(
@@ -242,7 +247,7 @@ def _xclbin_to_dicts(filename):
     mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
                                     mem_topology.m_count)
     memories = {i: ctypes.string_at(m.m_tag) for i, m in enumerate(mem_data)}
-    mem_dict = {memories[i].decode() : _mem_data_to_dict(i, mem)
+    mem_dict = {memories[i].decode(): _mem_data_to_dict(i, mem)
                 for i, mem in enumerate(mem_data)}
     _add_argument_memory(ip_dict, ip_data, connections, memories)
 
@@ -283,5 +288,3 @@ class XclBin:
         self.interrupt_pins = {}
         self.hierarchy_dict = {}
         self.clock_dict = {}
-
-

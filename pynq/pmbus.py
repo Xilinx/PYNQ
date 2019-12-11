@@ -33,7 +33,6 @@ import os
 import threading
 import time
 import warnings
-import pandas as pd
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2018, Xilinx"
@@ -477,6 +476,8 @@ class DataRecorder:
     def __init__(self, *sensors):
         """Create a new DataRecorder attached to the specified sensors
         """
+        import pandas as pd
+
         self._record_index = -1
         self._sensors = sensors
         self._columns = ['Mark']
@@ -534,6 +535,8 @@ class DataRecorder:
         return self._record_index
 
     def _thread_func(self):
+        import pandas as pd
+
         while not self._done:
             row = [self._record_index]
             row.extend([s.value for s in self._sensors])

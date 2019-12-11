@@ -62,12 +62,14 @@ _xrt_errors = {
     -1: "Possibly buffers still allocated"
 }
 
+
 def _format_xrt_error(err):
     errstring = "{} ({}) {}".format(errno.errorcode[-err],
-                                   -err, os.strerror(-err))
+                                    -err, os.strerror(-err))
     if err in _xrt_errors:
         errstring += "/" + _xrt_errors[err]
     return errstring
+
 
 def _xrt_allocate(shape, dtype, device, memidx):
     elements = 1
@@ -85,11 +87,12 @@ def _xrt_allocate(shape, dtype, device, memidx):
                     device_address=device_address, coherent=False)
     weakref.finalize(buf, _free_bo, device, bo, ar.virtual_address, ar.nbytes)
     return ar
-    
+
 
 def _free_bo(device, bo, ptr, length):
     libc.munmap(ctypes.cast(ptr, ctypes.c_void_p), length)
     xrt.xclFreeBO(device.handle, bo)
+
 
 class XrtMemory:
     """Class representing a memory bank in a card
@@ -102,7 +105,7 @@ class XrtMemory:
     def __init__(self, device, desc):
         self.idx = desc['idx']
         self.size = desc['size']
-        self.desc = desc 
+        self.desc = desc
         self.device = device
 
     def allocate(self, shape, dtype):
@@ -127,9 +130,11 @@ class XrtMemory:
         return (type(other) is XrtMemory and
                 self.device == other.device and
                 self.idx == other.idx)
+
+
 class XrtUUID:
     def __init__(self, val):
-       self.bytes = val
+        self.bytes = val
 
 
 class ExecBo:
@@ -169,14 +174,15 @@ class ErtWaitHandle:
         self._future = future
         self._bo = bo
         self.device = device
-        
+
     def _complete(self, state):
         if state != ert.ert_cmd_state.ERT_CMD_STATE_COMPLETED:
-            self._future.set_exception(RuntimeError("Execution failed: " + str(state)))
+            self._future.set_exception(RuntimeError("Execution failed: " +
+                                                    str(state)))
         else:
             self._future.set_result(None)
         self._bo = None
-        
+
     @property
     def _has_bo(self):
         return self._bo is not None
@@ -187,7 +193,7 @@ class ErtWaitHandle:
 
         """
         return self._future.done()
-    
+
     async def wait_async(self):
         """Coroutine to wait for the execution to be completed
 
@@ -203,6 +209,7 @@ class ErtWaitHandle:
         """
         while not self.done:
             self.device._handle_events(1000)
+
 
 class XrtStream:
     """XRT Streming Connection
@@ -233,17 +240,19 @@ class XrtStream:
         for ip_name, ip in ip_dict.items():
             for stream_name, stream in ip['streams'].items():
                 if stream['stream_id'] == idx:
-                   if stream['direction'] == 'output':
-                       self.source = ip_name + "." + stream_name
-                   elif stream['direction'] == 'input':
-                       self.sink = ip_name + "." + stream_name
+                    if stream['direction'] == 'output':
+                        self.source = ip_name + "." + stream_name
+                    elif stream['direction'] == 'input':
+                        self.sink = ip_name + "." + stream_name
         self.source_ip = None
         self.monitors = []
         self.monitor_ips = []
         self.sink_ip = None
 
     def __repr__(self):
-        return f'XrtStream(source={self.source}, sink={self.sink})'
+        return 'XrtStream(source={}, sink={})'.format(self.source,
+                                                      self.sink)
+
 
 class XrtDevice(Device):
     @classmethod
@@ -253,12 +262,12 @@ class XrtDevice(Device):
         return devices
 
     _probe_priority_ = 200
-    
+
     def __init__(self, index):
         super().__init__('xrt{}'.format(index))
         self.capabilities = {
-            'REGISTER_RW' : True,
-            'CALLABLE' : True,
+            'REGISTER_RW': True,
+            'CALLABLE': True,
             'ERT': True
         }
         self.handle = xrt.xclOpen(index, None, 0)
@@ -293,7 +302,7 @@ class XrtDevice(Device):
     def default_memory(self):
         mem_dict = self.mem_dict
         active_mems = [m for m in mem_dict.values()
-                      if m['used'] and not m['streaming']]
+                       if m['used'] and not m['streaming']]
         if len(active_mems) == 0:
             raise RuntimeError("No active memories in design")
         elif len(active_mems) > 1:
@@ -316,10 +325,10 @@ class XrtDevice(Device):
             raise RuntimeError("Invalidate Failed: " + str(ret))
 
     def allocate_bo(self, size, idx):
-        bo = xrt.xclAllocBO(self.handle, size, 
+        bo = xrt.xclAllocBO(self.handle, size,
                             xrt.xclBOKind.XCL_BO_DEVICE_RAM, idx)
         if bo >= 0x80000000:
-             raise RuntimeError("Allocate failed: " + str(bo))
+            raise RuntimeError("Allocate failed: " + str(bo))
         return bo
 
     def buffer_write(self, bo, bo_offset, buf, buf_offset=0, count=-1):
@@ -362,11 +371,11 @@ class XrtDevice(Device):
 
     def get_memory(self, desc):
         if desc['streaming']:
-             if desc['idx'] not in self._streams:
-                 self._streams[desc['idx']] = XrtStream(self, desc)
-             return self._streams[desc['idx']]
+            if desc['idx'] not in self._streams:
+                self._streams[desc['idx']] = XrtStream(self, desc)
+            return self._streams[desc['idx']]
         else:
-             return XrtMemory(self, desc)
+            return XrtMemory(self, desc)
 
     def get_memory_by_idx(self, idx):
         for m in self.mem_dict.values():
@@ -376,14 +385,15 @@ class XrtDevice(Device):
 
     def read_registers(self, address, length):
         data = (ctypes.c_char * length)()
-        ret = xrt.xclRead(self.handle, xrt.xclAddressSpace.XCL_ADDR_KERNEL_CTRL,
-                    address, data, length)
+        ret = xrt.xclRead(self.handle,
+                          xrt.xclAddressSpace.XCL_ADDR_KERNEL_CTRL,
+                          address, data, length)
         return bytes(data)
 
     def write_registers(self, address, data):
         cdata = (ctypes.c_char * len(data)).from_buffer_copy(data)
         xrt.xclWrite(self.handle, xrt.xclAddressSpace.XCL_ADDR_KERNEL_CTRL,
-                     address, cdata, len(data)) 
+                     address, cdata, len(data))
 
     def free_bitstream(self):
         for c in self.contexts:
@@ -391,7 +401,8 @@ class XrtDevice(Device):
         self.contexts = []
 
     def download(self, bitstream, parser=None):
-        # Kepp copy of old contexts so we can reacquire them if downloading fails
+        # Kepp copy of old contexts so we can reacquire them if
+        # ownloading fails
         old_contexts = copy.deepcopy(self.contexts)
         # Close existing contexts
         for c in self.contexts:
@@ -402,7 +413,7 @@ class XrtDevice(Device):
         err = xrt.xclLockDevice(self.handle)
         if err:
             raise RuntimeError(
-                   "Could not lock device for programming - " + str(err))
+                "Could not lock device for programming - " + str(err))
         try:
             with open(bitstream.bitfile_name, 'rb') as f:
                 data = f.read()
@@ -427,10 +438,13 @@ class XrtDevice(Device):
                 if 'index' in v:
                     index = v['index']
                     uuid = bytes.fromhex(v['xclbin_uuid'])
-                    uuid_ctypes = XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
-                    err = xrt.xclOpenContext(self.handle, uuid_ctypes, index, True)
+                    uuid_ctypes = \
+                        XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
+                    err = xrt.xclOpenContext(self.handle, uuid_ctypes, index,
+                                             True)
                     if err:
-                        raise RuntimeError('Could not open CU context - {}, {}'.format(err, index))
+                        raise RuntimeError('Could not open CU context - {}, '
+                                           '{}'.format(err, index))
                     self.contexts.append((uuid_ctypes, index))
 
     def get_bitfile_metadata(self, bitfile_name):
@@ -443,7 +457,7 @@ class XrtDevice(Device):
         new_bo = xrt.xclAllocBO(self.handle, size, 0, DRM_XOCL_BO_EXECBUF)
         new_ptr = xrt.xclMapBO(self.handle, new_bo, 1)
         return ExecBo(new_bo, new_ptr, self, size)
-        
+
     def return_exec_bo(self, bo):
         self._bo_cache.append(bo)
 
@@ -460,9 +474,9 @@ class XrtDevice(Device):
         for i in range(len(waitlist)):
             wait_array[i] = waitlist[i].bo
         status = xrt.xclExecBufWithWaitList(
-                self.handle, bo.bo, len(waitlist), wait_array)
+            self.handle, bo.bo, len(waitlist), wait_array)
         if status:
-            raise RuntimeError('Buffer submit failed: ' + str(status) )
+            raise RuntimeError('Buffer submit failed: ' + str(status))
         wh = ErtWaitHandle(bo, self._loop.create_future(), self)
         self.active_bos.append((bo, wh))
         return wh
@@ -476,17 +490,18 @@ class XrtDevice(Device):
                 continue
             if link_target.startswith('/dev/dri/renderD'):
                 base_fd = int(os.path.basename(fd))
-                loop.add_reader(open(base_fd, closefd=False), self._handle_events)
+                loop.add_reader(open(base_fd, closefd=False),
+                                self._handle_events)
 
     def _handle_events(self, timeout=0):
         xrt.xclExecWait(self.handle, timeout)
         next_bos = []
         for bo, completion in self.active_bos:
-             state = bo.as_packet(ert.ert_cmd_struct).state & 0xF
-             if state >= ert.ert_cmd_state.ERT_CMD_STATE_COMPLETED:
-                 if completion:
-                     completion._complete(state)
-                 self.return_exec_bo(bo)
-             else:
-                 next_bos.append((bo, completion))
+            state = bo.as_packet(ert.ert_cmd_struct).state & 0xF
+            if state >= ert.ert_cmd_state.ERT_CMD_STATE_COMPLETED:
+                if completion:
+                    completion._complete(state)
+                self.return_exec_bo(bo)
+            else:
+                next_bos.append((bo, completion))
         self.active_bos = next_bos
