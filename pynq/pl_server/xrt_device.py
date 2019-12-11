@@ -28,7 +28,9 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import asyncio
+import copy
 import ctypes
+import errno
 import glob
 import os
 import weakref
@@ -53,6 +55,19 @@ DRM_XOCL_BO_EXECBUF = 1 << 31
 libc = ctypes.CDLL('libc.so.6')
 libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
 libc.munmap.restype = ctypes.c_int
+
+_xrt_errors = {
+    -95: "Shell does not match",
+    -16: "Bitstream in use by another program",
+    -1: "Possibly buffers still allocated"
+}
+
+def _format_xrt_error(err):
+    errstring = "{} ({}) {}".format(errno.errorcode[-err],
+                                   -err, os.strerror(-err))
+    if err in _xrt_errors:
+        errstring += "/" + _xrt_errors[err]
+    return errstring
 
 def _xrt_allocate(shape, dtype, device, memidx):
     elements = 1
@@ -376,6 +391,8 @@ class XrtDevice(Device):
         self.contexts = []
 
     def download(self, bitstream, parser=None):
+        # Kepp copy of old contexts so we can reacquire them if downloading fails
+        old_contexts = copy.deepcopy(self.contexts)
         # Close existing contexts
         for c in self.contexts:
             xrt.xclCloseContext(self.handle, c[0], c[1])
@@ -391,7 +408,11 @@ class XrtDevice(Device):
                 data = f.read()
             err = xrt.xclLoadXclBin(self.handle, data)
             if err:
-                raise RuntimeError("Programming Device failed - " + str(err))
+                for c in old_contexts:
+                    xrt.xclOpenContext(self.handle, c[0], c[1], True)
+                self.contexts = old_contexts
+                raise RuntimeError("Programming Device failed: " +
+                                   _format_xrt_error(err))
         finally:
             xrt.xclUnlockDevice(self.handle)
 
