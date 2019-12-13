@@ -8,7 +8,7 @@ script_dir=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
 # Install a bunch of packages we need
 
-read -d '' PACKAGES <<EOT
+read -d '' PACKAGES_COMMON <<EOT
 bc
 libtool-bin
 gperf
@@ -49,13 +49,33 @@ chrpath
 socat
 zlib1g-dev
 zlib1g:i386
-gcc-multilib
 unzip
 EOT
+
+#Account for package name differences
+read -d '' PACKAGES_16_04 <<EOT16
+gcc-multilib
+EOT16
+
+read -d '' PACKAGES_18_04 <<EOT18
+gcc-multilib-arm-linux-gnueabihf
+gcc-arm-linux-gnueabihf
+g++-arm-linux-gnueabihf
+gcc-aarch64-linux-gnu
+g++-aarch64-linux-gnu
+EOT18
+
 set -e
 
 sudo apt-get update
-sudo apt purge -y libgnutls-dev
+
+if [[ $(lsb_release -rs) == "16.04" ]]; then
+    PACKAGES="$PACKAGES_COMMON $PACKAGES_16_04"
+    sudo apt purge -y libgnutls-dev
+else
+    # 18.04 and later releases
+    PACKAGES="$PACKAGES_COMMON $PACKAGES_18_04"
+fi
 
 # Setup docker and containerd using repository before installing them
 sudo apt-get install -y \

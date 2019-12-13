@@ -10,16 +10,18 @@ fss="proc dev sys"
 echo $QEMU_EXE
 
 multistrap_conf=${SRCDIR}/multistrap.config
+multistrap_opt=
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
   tmpfile=$(mktemp)
   sed -e "s;source=.*;source=${PYNQ_UBUNTU_REPO};" $multistrap_conf > $tmpfile
   multistrap_conf=$tmpfile
+  multistrap_opt=--no-auth
   trap "rm -f $tmpfile" EXIT
 fi
 
 # Perform the basic bootstrapping of the image
-$dry_run sudo -E multistrap -f $multistrap_conf -d $target
+$dry_run sudo -E multistrap -f $multistrap_conf -d $target $multistrap_opt
 
 # Make sure the that the root is still writable by us
 sudo chroot / chmod a+w $target
