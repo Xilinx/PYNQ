@@ -44,7 +44,7 @@ else
 		boards=`ls ${sdist_untar}/*/boards`
 		for bd_name in $boards ; do
 			cd ${sdist_untar}/*/boards/${bd_name}
-			overlays=`find . -maxdepth 2 -iname 'makefile' -printf '%h\n' | cut -f2 -d"/"`
+			overlays=`find . -maxdepth 2 -iname '*.bit' -printf '%h\n' | cut -f2 -d"/"`
 			for ol in $overlays ; do
 				sudo cp -fL $ol/*.bit $ol/*.hwh \
 					$BUILD_ROOT/PYNQ/boards/${bd_name}/$ol 2>/dev/null||:
