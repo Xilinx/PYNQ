@@ -67,7 +67,7 @@ class PynqBuffer(np.ndarray):
     def __array_finalize__(self, obj):
         if isinstance(obj, PynqBuffer) and obj.coherent is not None:
             self.coherent = obj.coherent
-            offset = self.ctypes.data - obj.ctypes.data
+            offset = self.virtual_address - obj.virtual_address
             self.device_address = obj.device_address + offset
             self.offset = obj.offset + offset
         else:
@@ -98,6 +98,10 @@ class PynqBuffer(np.ndarray):
     def physical_address(self):
         return self.device_address
 
+    @property
+    def virtual_address(self):
+        return self.__array_interface__['data'][0]
+
     def close(self):
         """Unused - for backwards compatibility only
 
@@ -110,7 +114,7 @@ class PynqBuffer(np.ndarray):
         """
         if not self.coherent:
             self.device.flush(self.bo, self.offset,
-                              self.ctypes.data, self.nbytes)
+                              self.virtual_address, self.nbytes)
 
     def invalidate(self):
         """Invalidate the underlying memory if necessary
@@ -118,7 +122,7 @@ class PynqBuffer(np.ndarray):
         """
         if not self.coherent:
             self.device.invalidate(self.bo, self.offset,
-                                   self.ctypes.data, self.nbytes)
+                                   self.virtual_address, self.nbytes)
 
     def __enter__(self):
         return self
