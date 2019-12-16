@@ -50,6 +50,8 @@ socat
 zlib1g-dev
 zlib1g:i386
 unzip
+rsync
+python3-pip
 EOT
 
 #Account for package name differences
@@ -137,6 +139,12 @@ cd /usr/bin
 if ! which gmake
 then
   sudo ln -s make gmake
+fi
+
+# make sure resolv.conf is where it's going to be expected in chroot
+if [ ! -f /run/systemd/resolve/stub-resolv.conf ]; then
+    sudo mkdir -p /run/systemd/resolve
+    sudo cp -L /etc/resolv.conf /run/systemd/resolve/stub-resolv.conf
 fi
 
 # update setuptools

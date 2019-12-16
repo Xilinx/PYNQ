@@ -15,6 +15,8 @@ multistrap_opt=
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
   tmpfile=$(mktemp)
   sed -e "s;source=.*;source=${PYNQ_UBUNTU_REPO};" $multistrap_conf > $tmpfile
+  mkdir -p $target/etc/apt/apt.conf.d/
+  echo 'Acquire::AllowInsecureRepositories "1";' > $target/etc/apt/apt.conf.d/allowinsecure
   multistrap_conf=$tmpfile
   multistrap_opt=--no-auth
   trap "rm -f $tmpfile" EXIT
@@ -78,9 +80,6 @@ for fs in $fss
 do
   $dry_run sudo mount -o bind /$fs $target/$fs
 done
-
-sudo mkdir -p $target/run/systemd/
-sudo cp -r /run/systemd/resolve $target/run/systemd
 
 function unmount_special() {
 

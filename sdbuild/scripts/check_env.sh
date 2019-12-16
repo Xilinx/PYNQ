@@ -31,6 +31,8 @@ zerofree
 u-boot-tools
 rpm2cpio
 libsdl1.2-dev
+rsync
+python3-pip
 EOT
 
 #Account for package name differences
