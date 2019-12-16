@@ -28,9 +28,12 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import asyncio
+import copy
 import ctypes
+import errno
 import glob
 import os
+import weakref
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
@@ -49,7 +52,22 @@ __email__ = "pynq_support@xilinx.com"
 
 
 DRM_XOCL_BO_EXECBUF = 1 << 31
+libc = ctypes.CDLL('libc.so.6')
+libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
+libc.munmap.restype = ctypes.c_int
 
+_xrt_errors = {
+    -95: "Shell does not match",
+    -16: "Bitstream in use by another program",
+    -1: "Possibly buffers still allocated"
+}
+
+def _format_xrt_error(err):
+    errstring = "{} ({}) {}".format(errno.errorcode[-err],
+                                   -err, os.strerror(-err))
+    if err in _xrt_errors:
+        errstring += "/" + _xrt_errors[err]
+    return errstring
 
 def _xrt_allocate(shape, dtype, device, memidx):
     elements = 1
@@ -63,9 +81,15 @@ def _xrt_allocate(shape, dtype, device, memidx):
     bo = device.allocate_bo(size, memidx)
     buf = device.map_bo(bo)
     device_address = device.get_device_address(bo)
-    return PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
-                     device_address=device_address, coherent=False)
+    ar = PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
+                    device_address=device_address, coherent=False)
+    weakref.finalize(buf, _free_bo, device, bo, ar.virtual_address, ar.nbytes)
+    return ar
     
+
+def _free_bo(device, bo, ptr, length):
+    libc.munmap(ctypes.cast(ptr, ctypes.c_void_p), length)
+    xrt.xclFreeBO(device.handle, bo)
 
 class XrtMemory:
     """Class representing a memory bank in a card
@@ -116,13 +140,14 @@ class ExecBo:
     exposed in the XRT ``ert_binding`` python module.
 
     """
-    def __init__(self, bo, ptr):
+    def __init__(self, bo, ptr, device, length):
         self.bo = bo
         self.ptr = ptr
+        self.device = device
+        self.length = length
 
     def __del__(self):
-        # TODO: Unmap and remove buffer
-        pass
+        _free_bo(self.device, self.bo, self.ptr, self.length)
 
     def as_packet(self, ptype):
         """Get a packet representation of the buffer object
@@ -360,7 +385,14 @@ class XrtDevice(Device):
         xrt.xclWrite(self.handle, xrt.xclAddressSpace.XCL_ADDR_KERNEL_CTRL,
                      address, cdata, len(data)) 
 
+    def free_bitstream(self):
+        for c in self.contexts:
+            xrt.xclCloseContext(self.handle, c[0], c[1])
+        self.contexts = []
+
     def download(self, bitstream, parser=None):
+        # Kepp copy of old contexts so we can reacquire them if downloading fails
+        old_contexts = copy.deepcopy(self.contexts)
         # Close existing contexts
         for c in self.contexts:
             xrt.xclCloseContext(self.handle, c[0], c[1])
@@ -376,7 +408,11 @@ class XrtDevice(Device):
                 data = f.read()
             err = xrt.xclLoadXclBin(self.handle, data)
             if err:
-                raise RuntimeError("Programming Device failed - " + str(err))
+                for c in old_contexts:
+                    xrt.xclOpenContext(self.handle, c[0], c[1], True)
+                self.contexts = old_contexts
+                raise RuntimeError("Programming Device failed: " +
+                                   _format_xrt_error(err))
         finally:
             xrt.xclUnlockDevice(self.handle)
 
@@ -406,7 +442,7 @@ class XrtDevice(Device):
             return self._bo_cache.pop()
         new_bo = xrt.xclAllocBO(self.handle, size, 0, DRM_XOCL_BO_EXECBUF)
         new_ptr = xrt.xclMapBO(self.handle, new_bo, 1)
-        return ExecBo(new_bo, new_ptr)
+        return ExecBo(new_bo, new_ptr, self, size)
         
     def return_exec_bo(self, bo):
         self._bo_cache.append(bo)

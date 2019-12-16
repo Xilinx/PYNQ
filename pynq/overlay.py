@@ -358,6 +358,10 @@ class Overlay(Bitstream):
         self.hierarchy_dict = deepcopy(source.hierarchy_dict)
         self.mem_dict = deepcopy(source.mem_dict)
 
+    def free(self):
+        if hasattr(self.device, 'free_bitstream'):
+            self.device.free_bitstream()
+
     def download(self, dtbo=None):
         """The method to download a full bitstream onto PL.
 
