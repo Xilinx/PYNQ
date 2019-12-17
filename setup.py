@@ -49,14 +49,17 @@ from datetime import datetime
 required = [
     'setuptools>=24.2.0',
     'cffi',
-    'numpy',
-    'pandas',
-    'Pillow>=5.0.0',
-    'pytest',
-    'pyeda',
-    'pygraphviz',
-    'matplotlib'
+    'numpy'
 ]
+
+extras_required = {
+    ':python_version<="3.5.2"': [
+        'pandas==0.24.2'
+    ],
+    ':python_version>="3.5.3"': [
+        'pandas'
+    ]
+}
 
 
 # Device family constants
@@ -400,8 +403,9 @@ setup(name='pynq',
           "build_ext": BuildExtension,
           },
       distclass=BinaryDistribution,
-      python_requires='>=3.6.0',
+      python_requires='>=3.5.2',
       install_requires=required,
+      extras_require=extras_required,
       download_url='https://github.com/Xilinx/PYNQ',
       package_data={
           'pynq': pynq_package_files,
