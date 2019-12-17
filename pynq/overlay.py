@@ -43,10 +43,11 @@ from .interrupt import Interrupt
 from .gpio import GPIO
 from .registers import RegisterMap
 
-try:
-    import ert_binding as ert
-except ImportError:
-    from pynq import ert
+if "XILINX_XRT" in os.environ:
+    try:
+        import ert_binding as ert
+    except ImportError:
+        from pynq import ert
 
 
 __author__ = "Yun Rock Qu"

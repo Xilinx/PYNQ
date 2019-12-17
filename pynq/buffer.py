@@ -70,6 +70,8 @@ class PynqBuffer(np.ndarray):
             offset = self.virtual_address - obj.virtual_address
             self.device_address = obj.device_address + offset
             self.offset = obj.offset + offset
+            self.device = obj.device
+            self.bo = obj.bo
         else:
             self.device_address = None
             self.coherent = None
