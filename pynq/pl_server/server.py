@@ -71,6 +71,16 @@ class DeviceClient:
     PL server is performed by methods.
 
     """
+    @staticmethod
+    def accessible(tag):
+        try:
+            client = DeviceClient(tag)
+            client.client_request()
+            client.server_update()
+            return True
+        except (ConnectionError, PermissionError):
+            return False
+
     def __init__(self, tag, key=b'xilinx'):
         """Create a new instance of the PL server
 
@@ -205,12 +215,6 @@ class DeviceClient:
         self.client_request()
         self.server_update()
         return self._timestamp
-
-    @property
-    def devicetree_dict(self):
-        self.client_request()
-        self.server_update()
-        return self._devicetree_dict
 
     @property
     def mem_dict(self):
@@ -507,6 +511,7 @@ class DeviceClient:
         self._remote.close()
         pass
 
+
 class DeviceServer:
     def __init__(self, tag, key=b'xilinx'):
         self.tag = tag
@@ -514,18 +519,19 @@ class DeviceServer:
         self.key = key
         self.thread = threading.Thread(target=self.server_proc)
         self._data = [
-            "",     # Bitfile name
-            None,   # Timestamp
-            dict(), # IP Dict
-            dict(), # GPIO Dict
-            dict(), # Interrupt Dict
-            dict(), # Interrupt Pin Dict
-            dict(), # Hierarchy Dict
-            dict(), # Devicetree dict
-            dict()  # Memory Dict
+            "",      # Bitfile name
+            None,    # Timestamp
+            dict(),  # IP Dict
+            dict(),  # GPIO Dict
+            dict(),  # Interrupt Dict
+            dict(),  # Interrupt Pin Dict
+            dict(),  # Hierarchy Dict
+            dict(),  # Devicetree dict
+            dict()   # Memory Dict
         ]
 
-    def start(self):
+    def start(self, daemonize=True):
+        self.thread.daemon = daemonize
         self.thread.start()
 
     def server_proc(self):
@@ -541,6 +547,8 @@ class DeviceServer:
             status = new_data[-1]
             client.close()
         server.close()
+        if os.path.exists(self.socket_name):
+            os.remove(self.socket_name)
 
     def stop(self, wait_for_thread=True):
         client = DeviceClient(self.tag, self.key)
@@ -549,27 +557,25 @@ class DeviceServer:
         if wait_for_thread:
             self.thread.join()
 
-class PLServer:
-     def __init__(self):
-         from .device import Device
-         self.servers = [
-             DeviceServer(d.tag) for d in Device.devices
-         ]
-
-     def start(self):
-         for s in self.servers:
-              s.start()
-
-     def stop(self, wait_for_thread=True):
-         for s in self.servers:
-              s.stop(wait_for_thread)
-
 
 def _start_server():
-    server = PLServer()
-    server.start()
+    from .device import Device
+    Device.start_global = True
+    servers = [
+        DeviceServer(d.tag) for d in Device.devices
+    ]
+    for s in servers:
+        s.start(False)
+    for s in servers:
+        s.thread.join()
+
 
 def _stop_server():
-    server = PLServer()
-    # This is called from a separate process so the threads aren't started
-    server.stop(False)
+    from .device import Device
+    Device.start_global = True
+    servers = [
+        DeviceServer(d.tag) for d in Device.devices
+    ]
+    for s in servers:
+        # This is called from a separate process so the threads aren't started
+        s.stop(False)

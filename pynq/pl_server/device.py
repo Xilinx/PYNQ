@@ -98,7 +98,11 @@ class DeviceMeta(type):
 
 
 class Device(metaclass=DeviceMeta):
-    def __init__(self, tag):
+    # Class attribute that can override 'server_type' if set to True
+    # when 'global' or 'fallback' are used
+    start_global = False
+
+    def __init__(self, tag, server_type="fallback", warn=False):
         """Construct a new Device Instance
 
         This should be called by subclasses providing a globally unique
@@ -106,19 +110,44 @@ class Device(metaclass=DeviceMeta):
 
         Parameters
         ----------
-
-        tag : str or None
-            The unique identifier associated with the device, if None then
-            an anonymous instance of the server will be created
-
+        tag: str
+            The unique identifier associated with the device
+        server_type: str
+            Indicates the type of PL server to use. Its value can only be one
+            of the following ["global"|"local"|"fallback"], where "global" will
+            use a global PL server, "local" will spawn a local PL server,
+            and "fallback" will attempt to use a global PL server and fallback
+            to local in case it fails, warning the user. Default is "fallback".
+        warn: bool
+            Warn the user when falling back to local PL server.
+            Default is False
         """
-        if tag is None:
-            import uuid
-            tag = uuid.uuid4().hex
-            self._server = DeviceServer(tag)
-            self._server.start()
-        else:
+        # Args validation
+        if type(tag) is not str:
+            raise ValueError("Argument 'tag' must be a string")
+        if server_type not in ["global", "local", "fallback"]:
+            raise ValueError("Argument 'server_type' can only be set to "
+                             "'global', 'local' or 'fallback'")
+
+        if server_type in ["global", "fallback"]:
             self._server = None
+            if not DeviceClient.accessible(tag):
+                if self.start_global:
+                    # global PL server will be started later
+                    server_type = None
+                elif server_type == "global":
+                    raise ConnectionError("Could not connect to global PL "
+                                          "server")
+                elif warn:
+                    warnings.warn("Could not connect to global PL server, "
+                                  "falling back to local PL server", Warning)
+            else:
+                server_type = None  # avoid fallback to local when successful
+        if server_type in ["local", "fallback"]:
+            tag = "{}.{}".format(tag, os.getpid())
+            if not DeviceClient.accessible(tag):
+                self._server = DeviceServer(tag)
+                self._server.start()
         self.tag = tag
         self._client = DeviceClient(tag)
         atexit.register(self.close)
@@ -343,7 +372,7 @@ class Device(metaclass=DeviceMeta):
         """
         self._client.update_partial_region(hier, parser)
 
-    def clear_devicetree(cls):
+    def clear_devicetree(self):
         """Clear the device tree dictionary.
 
         This should be used when downloading the full bitstream, where all the
@@ -402,8 +431,8 @@ class Device(metaclass=DeviceMeta):
             import datetime
             t = datetime.datetime.now()
             bitstream.timestamp = "{}/{}/{} {}:{}:{} +{}".format(
-                    t.year, t.month, t.day,
-                    t.hour, t.minute, t.second, t.microsecond)
+                t.year, t.month, t.day,
+                t.hour, t.minute, t.second, t.microsecond)
             self.reset(parser, bitstream.timestamp, bitstream.bitfile_name)
 
     def has_capability(self, cap):
@@ -426,6 +455,7 @@ class Device(metaclass=DeviceMeta):
 
     def get_bitfile_metadata(self, bitfile_name):
         return None
+
 
 def parse_bit_header(bitfile):
     """The method to parse the header of a bitstream.
@@ -501,6 +531,7 @@ def parse_bit_header(bitfile):
                 raise RuntimeError("Unknown field: {}".format(hex(desc)))
         return bit_dict
 
+
 def _preload_binfile(bitstream):
     bitstream.binfile_name = os.path.basename(
         bitstream.bitfile_name).replace('.bit', '.bin')
@@ -512,6 +543,7 @@ def _preload_binfile(bitstream):
         bit_buffer = np.frombuffer(bit_dict['data'], 'i4')
         bin_buffer = bit_buffer.byteswap()
         bin_buffer.tofile(bitstream.firmware_path, "")
+
 
 class XlnkDevice(Device):
     """Device sub-class for Xlnk based devices
@@ -530,7 +562,7 @@ class XlnkDevice(Device):
     _probe_priority_ = 100
 
     def __init__(self):
-        super().__init__("xlnk")
+        super().__init__("xlnk", server_type="global")
         from pynq import Xlnk
         self.default_memory = Xlnk()
         self.capabilities = {
@@ -589,8 +621,8 @@ class XlnkDevice(Device):
         if os.path.exists(hwh_path):
             return HWH(hwh_path)
         elif os.path.exists(tcl_path):
-            message = "Users will not get PARAMETERS / REGISTERS information " \
-                      "through TCL files. HWH file is recommended."
+            message = "Users will not get PARAMETERS / REGISTERS " \
+                      "information through TCL files. HWH file is recommended."
             warnings.warn(message, UserWarning)
             return TCL(tcl_path)
         else:
