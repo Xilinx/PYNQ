@@ -26,10 +26,20 @@ in the folder above.
 Prepare the Building Environment
 ================================
 
-It is recommended to use a Ubuntu OS to build the image. If you do not have a 
-Ubuntu OS, you may need to prepare a Ubuntu virtual machine (VM) on your host OS.
-We provide in our repository a *vagrant* file that can help you install the 
-Ubuntu VM on your host OS.
+It is recommended to use a Ubuntu OS to build the image. The currently supported Ubuntu OS are listed below:
+
+================  ==================
+Supported OS      Code name
+================  ==================   
+Ubuntu 16.04       xenial
+Ubuntu 18.04       bionic
+================  ==================
+
+Use Vagrant to prepare Ubuntu OS
+--------------------------------
+If you do not have a Ubuntu OS, you may need to prepare a Ubuntu virtual 
+machine (VM) on your host OS. We provide in our repository a *vagrant* file 
+that can help you install the Ubuntu VM on your host OS.
 
 If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
 
@@ -48,30 +58,62 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
 
      .. code-block:: console
 
-	vagrant plugin install vagrant-vbguest
+        vagrant plugin install vagrant-vbguest
 
   4. You can then prepare the VM using the following command. This step will
-     prepare a Ubuntu VM called *pynq_vm* on your Virtual Box. For this VM,
-     username and password are both defaulted to *vagrant*. The Ubuntu 
-     packages on the VM will be updated during this process; the Ubuntu desktop 
-     will also be installed so you can install Xilinx software later.
+     prepare a Ubuntu VM called *pynq_ubuntu_<version>* on your Virtual Box.
+     The Ubuntu packages on the VM will be updated during this process; 
+     the Ubuntu desktop will also be installed so you can install Xilinx 
+     software later.
 
      .. code-block:: console
     
         vagrant up
 
-     After the VM has been successfully loaded, you will see a folder
-     */pynq* on your VM; this folder is shared with your PYNQ repository on 
-     your host OS.
-  5. (optional) To restart the VM without losing the shared folder, in your 
-     terminal, run:
-
+     The above command will take about 20 minutes to finish.
+     By default, our vagrant file will prepare a Ubuntu 16.04 OS. If you would
+     like to use another OS, do:
+     
      .. code-block:: console
     
-        vagrant reload
+        vagrant up <ubuntu_code_name>
 
-  6. Now you are ready to install Xilinx tools. You will need 
+     For example, you can do the following to prepare a Ubuntu 18.04 OS:
+     
+     .. code-block:: console
+    
+        vagrant up bionic
+
+     The supported OS and their corresponding code names are listed in the 
+     beginning of this section.
+
+  5. In the end, you will see a Virtual Box window popped up with only shell 
+     terminal, asking for your Ubuntu login information. 
+     Ignore this window and close it. Run the following command on your host:
+     
+     .. code-block:: console
+    
+        vagrant reload <ubuntu_code_name>
+     
+     After running the above command, you will be asked to log onto your 
+     Ubuntu desktop. The username and password are both defaulted to *vagrant*.
+     The current working directory on your host machine will be shared with 
+     */pynq* on your VM. Always use *vagrant reload* command to reboot the VM;
+     otherwise vagrant has no clue whether the VM has been rebooted, and users
+     will not be able to see shared folder.
+
+  6. (optional) You can enable bidirectional clipboard between your host and 
+     your VM in your Virtual Box settings:
+
+     .. image:: ./images/bidirectional-clipboard.png
+     :width: 400
+
+  7. Now you are ready to install Xilinx tools. You will need 
      PetaLinux, Vivado, and SDK for building PYNQ image.
+     Do not install Xilinx tools into */pynq* since it is only a small shared
+     folder. Instead, a 100GB disk space will be allocated at */sdbuild*
+     folder in VM. Install Xilinx tools there.
+     
      Starting from image v2.5, SDx is no longer needed.
      The version of Xilinx tools for each PYNQ release is shown below:
 
@@ -87,7 +129,10 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.5               2019.1
      ================  ================
 
-If you already have a Ubuntu OS, you can do the following:
+Use existing Ubuntu OS
+----------------------
+If you already have a Ubuntu OS, and it is listed in the beginning of
+this section, you can simply do the following:
 
   1. Install dependencies using the following script. This is necessary 
      if you are not using our vagrant file to prepare the environment.
@@ -111,11 +156,11 @@ following the steps below. You don't have to rerun the `setup_host.sh`.
 
      .. code-block:: console
          
-	export PATH="/opt/crosstool-ng/bin:/opt/qemu/bin:$PATH"
-	source <path-to-vivado>/Vivado/2019.1/settings64.sh
-	source <path-to-sdk>/SDK/2019.1/settings64.sh
-	source <path-to-petalinux>/petalinux-v2019.1-final/settings.sh
-	petalinux-util --webtalk off
+        export PATH="/opt/crosstool-ng/bin:/opt/qemu/bin:$PATH"
+        source <path-to-vivado>/Vivado/2019.1/settings64.sh
+        source <path-to-sdk>/SDK/2019.1/settings64.sh
+        source <path-to-petalinux>/petalinux-v2019.1-final/settings.sh
+        petalinux-util --webtalk off
 
      Currently the SD build flow is checking the PetaLinux path for the 
      version number, so please make sure the version number appears 

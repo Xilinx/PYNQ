@@ -52,6 +52,7 @@ zlib1g:i386
 unzip
 rsync
 python3-pip
+python-minimal
 EOT
 
 #Account for package name differences
