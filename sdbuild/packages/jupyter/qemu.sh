@@ -38,7 +38,7 @@ if [ ${ARCH} == 'arm' ]; then
   sed 's:4096:2048:g' -i /usr/local/lib/python3.6/dist-packages/jupyterlab/staging/package.json
 fi
 
-jupyter lab build
+jupyter lab build --minimize=False
 rm -rf /usr/local/share/jupyter/lab/staging
 
 mkdir -p $PYNQ_JUPYTER_NOTEBOOKS
