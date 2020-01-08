@@ -53,3 +53,4 @@ __email__ = "pynq_support@xilinx.com"
 
 __all__ = ['lib', 'tests']
 __version__ = '2.5.1'
+__git_commit__ = "$Id$"
