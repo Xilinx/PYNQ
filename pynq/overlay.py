@@ -202,8 +202,11 @@ def _build_docstring(description, name, type_):
     lines.append("Memories")
     lines.append("------------")
     if description['memories']:
-        for mem in description['memories'].keys():
-            lines.append("{0: <20} : Memory".format(mem))
+        for mem, mem_desc in description['memories'].items():
+            if 'streaming' in mem_desc and mem_desc['streaming']:
+                lines.append("{0: <20} : Stream".format(mem))
+            else:
+                lines.append("{0: <20} : Memory".format(mem))
     else:
         lines.append("None")
     lines.append("")
