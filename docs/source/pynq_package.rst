@@ -56,7 +56,6 @@ Sub-packages:
     pynq_package/pynq.interrupt
     pynq_package/pynq.mmio
     pynq_package/pynq.overlay
-    pynq_package/pynq.pl
     pynq_package/pynq.pmbus
     pynq_package/pynq.ps
     pynq_package/pynq.registers

@@ -1,3 +1,5 @@
+.. _pynq-pl_server:
+
 pynq.pl_server Package
 ======================
 
