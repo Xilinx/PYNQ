@@ -401,8 +401,8 @@ class XrtDevice(Device):
         self.contexts = []
 
     def download(self, bitstream, parser=None):
-        # Kepp copy of old contexts so we can reacquire them if
-        # ownloading fails
+        # Keep copy of old contexts so we can reacquire them if
+        # downloading fails
         old_contexts = copy.deepcopy(self.contexts)
         # Close existing contexts
         for c in self.contexts:

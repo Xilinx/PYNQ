@@ -413,7 +413,9 @@ setup(name='pynq',
       entry_points={
           'console_scripts': [
               'start_pl_server.py = pynq.pl_server.server:_start_server',
-              'stop_pl_server.py = pynq.pl_server.server:_stop_server'
+              'stop_pl_server.py = pynq.pl_server.server:_stop_server',
+              'pynq = pynq.cli.cmd:main',
+              'pynq-server = pynq.cli.pl_server:main'
           ]
       },
       ext_modules=ext_modules,
