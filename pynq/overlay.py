@@ -49,16 +49,15 @@ if "XILINX_XRT" in os.environ:
     except ImportError:
         from pynq import ert
 
+    # Monkey patch typo in some versions on XRT Python binding
+    if not hasattr(ert, 'ert_cmd_type'):
+        ert.ert_cmd_type = ert.ert_cmdype
+
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-
-# Monkey patch typo in some versions on XRT Python binding
-
-if not hasattr(ert, 'ert_cmd_type'):
-    ert.ert_cmd_type = ert.ert_cmdype
 
 
 def _assign_drivers(description, ignore_version, device):
@@ -294,6 +293,8 @@ class Overlay(Bitstream):
         Dictionary mapping from the name of the partial-reconfigurable
         hierarchical blocks to the loaded partial bitstreams:
         {str: {'loaded': str, 'dtbo': str}}.
+    device : pynq.Device
+        The device that the overlay is loaded on
 
     """
     def __init__(self, bitfile_name, dtbo=None,
@@ -312,6 +313,9 @@ class Overlay(Bitstream):
             Whether the overlay should be downloaded.
         ignore_version : bool
             Indicate whether or not to ignore the driver versions.
+        device : pynq.Device
+            Device on which to load the Overlay. Defaults to
+            pynq.Device.active_device
 
         Note
         ----

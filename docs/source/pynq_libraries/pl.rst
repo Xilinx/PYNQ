@@ -1,18 +1,19 @@
 .. _pynq-libraries-pl:
 
-PL and Bitstream classes
-========================
+Device and Bitstream classes
+============================
 
-The *PL* is mainly an internal class used by the Overlay class. The PL class
-launches a *PL server* which manages the loaded overlay. The PL server can stop
+The *Device* is a class representing some programmable logic that is mainly
+used by the Overlay class. Each instance of the Device class has a
+corresponding *server* which manages the loaded overlay. The server can stop
 multiple overlays from different applications from overwriting the currently
 loaded overlay. 
 
-The overlay Tcl file is parsed by the PL class to generate the IP, clock,
+The overlay Tcl file is parsed by the Device class to generate the IP, clock,
 interrupts, and gpio dictionaries (lists of information about IP, clocks and
 signals in the overlay).
 
-The *Bitstream* class can be found in the pl.py source file, and can be used
+The *Bitstream* class can be found in the bitstream.py source file, and can be used
 instead of the overlay class to download a bitstream file to the PL without
 requiring an overlay Tcl file. This can be used for testing, but these
 attributes can also be accessed through the Overlay class (which inherits from
@@ -22,22 +23,26 @@ attributes.
 Examples
 --------
 
-PL
-^^
+Device
+^^^^^^
 
 .. code-block:: Python
 
-   PL.timestamp # Get the timestamp when the current overlay was loaded
+   from pynq import Device
 
-   PL.ip_dict # List IP in the overlay
+   dev = Device.active_device # Retrieve the currently used device
 
-   PL.gpio_dict # List GPIO in the overlay
+   dev.timestamp # Get the timestamp when the current overlay was loaded
 
-   PL.interrupt_controllers # List interrupt controllers in the overlay
+   dev.ip_dict # List IP in the overlay
 
-   PL.interrupt_pins # List interrupt pins in the overlay
+   dev.gpio_dict # List GPIO in the overlay
 
-   PL.hierarchy_dict # List the hierarchies in the overlay
+   dev.interrupt_controllers # List interrupt controllers in the overlay
+
+   dev.interrupt_pins # List interrupt pins in the overlay
+
+   dev.hierarchy_dict # List the hierarchies in the overlay
 
 
 Bitstream
@@ -56,5 +61,5 @@ Bitstream
 '/opt/python3.6/lib/python3.6/site-packages/pynq/overlays/base/base.bit'
 
 
-More information about the PL module can be found in the :ref:`pynq-pl`
-sections.
+More information about devices and bitstreams can be found in the
+:ref:`pynq-bitstream` and :ref:`pynq-pl_server` sections.
