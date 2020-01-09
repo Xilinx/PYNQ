@@ -52,6 +52,7 @@ __email__ = "pynq_support@xilinx.com"
 
 
 DRM_XOCL_BO_EXECBUF = 1 << 31
+REQUIRED_VERSION_ERT = (2,3,0)
 libc = ctypes.CDLL('libc.so.6')
 libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
 libc.munmap.restype = ctypes.c_int
@@ -61,6 +62,20 @@ _xrt_errors = {
     -16: "Bitstream in use by another program",
     -1: "Possibly buffers still allocated"
 }
+
+def _get_xrt_version():
+    import subprocess
+    import json
+    try:
+        output = subprocess.run(['xbutil', 'dump'], stdout=subprocess.PIPE)
+        details = json.loads(output.stdout)
+        return tuple(
+            int(s) for s in details['runtime']['build']['version'].split('.'))
+    except Exception:
+        return (0, 0, 0)
+
+
+_xrt_version = _get_xrt_version()
 
 
 def _format_xrt_error(err):
@@ -268,8 +283,9 @@ class XrtDevice(Device):
         self.capabilities = {
             'REGISTER_RW': True,
             'CALLABLE': True,
-            'ERT': True
         }
+        if _xrt_version >= REQUIRED_VERSION_ERT:
+            self.capabilities['ERT'] = True
         self.handle = xrt.xclOpen(index, None, 0)
         self._info = xrt.xclDeviceInfo2()
         xrt.xclGetDeviceInfo2(self.handle, self._info)
@@ -454,6 +470,8 @@ class XrtDevice(Device):
     def get_exec_bo(self, size=1024):
         if len(self._bo_cache):
             return self._bo_cache.pop()
+        if _xrt_version < REQUIRED_VERSION_ERT:
+            raise RuntimeError("XRT Version too old for PYNQ ERT support")
         new_bo = xrt.xclAllocBO(self.handle, size, 0, DRM_XOCL_BO_EXECBUF)
         new_ptr = xrt.xclMapBO(self.handle, new_bo, 1)
         return ExecBo(new_bo, new_ptr, self, size)
