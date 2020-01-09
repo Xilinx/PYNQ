@@ -32,3 +32,6 @@
 *.bit binary -crlf
 *.a binary -crlf
 *.bsp binary
+
+# Populate git commit ID into __init__.py
+pynq/__init__.py ident
