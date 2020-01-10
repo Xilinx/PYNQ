@@ -98,30 +98,33 @@ class DeviceMeta(type):
 
 
 class Device(metaclass=DeviceMeta):
-    # Class attribute that can override 'server_type' if set to True
-    # when 'global' or 'fallback' are used
+    """Construct a new Device Instance
+
+    This should be called by subclasses providing a globally unique
+    identifier for the device.
+
+    Parameters
+    ----------
+    tag: str
+        The unique identifier associated with the device
+    server_type: str
+        Indicates the type of PL server to use. Its value can only be one
+        of the following ["global"|"local"|"fallback"], where "global" will
+        use a global PL server, "local" will spawn a local PL server (i.e.
+        only associated to the current Python process), and "fallback" will
+        attempt to use a global PL server and fallback to local in case it
+        fails, warning the user. Default is "fallback".
+    warn: bool
+        Warn the user when falling back to local PL server.
+        Default is False
+    """
+
     start_global = False
-
+    """
+        Class attribute that can override 'server_type' if set to True
+        when 'global' or 'fallback' are used
+    """
     def __init__(self, tag, server_type="fallback", warn=False):
-        """Construct a new Device Instance
-
-        This should be called by subclasses providing a globally unique
-        identifier for the device
-
-        Parameters
-        ----------
-        tag: str
-            The unique identifier associated with the device
-        server_type: str
-            Indicates the type of PL server to use. Its value can only be one
-            of the following ["global"|"local"|"fallback"], where "global" will
-            use a global PL server, "local" will spawn a local PL server,
-            and "fallback" will attempt to use a global PL server and fallback
-            to local in case it fails, warning the user. Default is "fallback".
-        warn: bool
-            Warn the user when falling back to local PL server.
-            Default is False
-        """
         # Args validation
         if type(tag) is not str:
             raise ValueError("Argument 'tag' must be a string")
