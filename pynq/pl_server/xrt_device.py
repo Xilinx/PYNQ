@@ -33,14 +33,17 @@ import ctypes
 import errno
 import glob
 import os
+import warnings
 import weakref
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
 
 try:
-    import xrt_binding as xrt
-    import ert_binding as ert
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=SyntaxWarning)
+        import xrt_binding as xrt
+        import ert_binding as ert
 except ImportError:
     from pynq import xrt
     from pynq import ert
