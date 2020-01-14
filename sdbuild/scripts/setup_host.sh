@@ -8,7 +8,7 @@ script_dir=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
 # Install a bunch of packages we need
 
-read -d '' PACKAGES_COMMON <<EOT
+read -d '' PACKAGES <<EOT
 bc
 libtool-bin
 gperf
@@ -53,31 +53,20 @@ unzip
 rsync
 python3-pip
 python-minimal
-EOT
-
-#Account for package name differences
-read -d '' PACKAGES_16_04 <<EOT16
 gcc-multilib
-EOT16
-
-read -d '' PACKAGES_18_04 <<EOT18
-gcc-multilib-arm-linux-gnueabihf
-gcc-arm-linux-gnueabihf
-g++-arm-linux-gnueabihf
-gcc-aarch64-linux-gnu
-g++-aarch64-linux-gnu
-EOT18
-
+EOT
 set -e
 
 sudo apt-get update
 
 if [[ $(lsb_release -rs) == "16.04" ]]; then
-    PACKAGES="$PACKAGES_COMMON $PACKAGES_16_04"
+    echo "Install packages on Ubuntu 16.04..."
     sudo apt purge -y libgnutls-dev
+elif [[ $(lsb_release -rs) == "18.04" ]]; then
+    echo "Install packages on Ubuntu 18.04..."
 else
-    # 18.04 and later releases
-    PACKAGES="$PACKAGES_COMMON $PACKAGES_18_04"
+    echo "Error: current OS not supported."
+    exit 1
 fi
 
 # Setup docker and containerd using repository before installing them
