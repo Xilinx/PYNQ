@@ -341,7 +341,7 @@ PACKAGE_CLEAN := $(patsubst %,PACKAGE_CLEAN_%, $(ALL_PACKAGES))
 checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
 	vivado -version | fgrep ${KERNEL_VERSION}
 	xsdk -version | fgrep ${KERNEL_VERSION}
-	which petalinux-config | fgrep ${KERNEL_VERSION}
+	which petalinux-config
 	which arm-linux-gnueabihf-gcc
 	which microblaze-xilinx-elf-gcc
 	which ct-ng

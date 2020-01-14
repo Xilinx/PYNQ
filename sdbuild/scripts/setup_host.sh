@@ -49,13 +49,25 @@ chrpath
 socat
 zlib1g-dev
 zlib1g:i386
-gcc-multilib
 unzip
+rsync
+python3-pip
+python-minimal
+gcc-multilib
 EOT
 set -e
 
 sudo apt-get update
-sudo apt purge -y libgnutls-dev
+
+if [[ $(lsb_release -rs) == "16.04" ]]; then
+    echo "Install packages on Ubuntu 16.04..."
+    sudo apt purge -y libgnutls-dev
+elif [[ $(lsb_release -rs) == "18.04" ]]; then
+    echo "Install packages on Ubuntu 18.04..."
+else
+    echo "Error: current OS not supported."
+    exit 1
+fi
 
 # Setup docker and containerd using repository before installing them
 sudo apt-get install -y \
@@ -117,6 +129,12 @@ cd /usr/bin
 if ! which gmake
 then
   sudo ln -s make gmake
+fi
+
+# make sure resolv.conf is where it's going to be expected in chroot
+if [ ! -f /run/systemd/resolve/stub-resolv.conf ]; then
+    sudo mkdir -p /run/systemd/resolve
+    sudo cp -L /etc/resolv.conf /run/systemd/resolve/stub-resolv.conf
 fi
 
 # update setuptools

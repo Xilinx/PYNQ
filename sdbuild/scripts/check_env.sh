@@ -31,19 +31,30 @@ zerofree
 u-boot-tools
 rpm2cpio
 libsdl1.2-dev
+rsync
+python3-pip
 gcc-multilib
 EOT
 
-if [ "$EUID" -eq 0 ] ; then
-    echo "error: Please do not run as root."
+if [ $(lsb_release -rs) == "16.04" ]||[ $(lsb_release -rs) == "18.04" ]; then
+    echo "Pass: Current OS is supported."
+else
+    echo "Error: Please use Ubuntu 16.04 or Ubuntu 18.04."
     exit 1
 fi
+
+if [ "$EUID" -eq 0 ] ; then
+    echo "Error: Please do not run as root."
+    exit 1
+fi
+
+echo "Checking system for installed $DEPS"
 
 failed=false
 for i in $DEPS ; do
     dpkg-query -W -f='${Package}\n' | grep ^$i$ > /dev/null
     if [ $? != 0 ] ; then
-        echo "error: Package not found -" $i
+        echo "Error: Package not found -" $i
 	failed=true
     fi
 done 
