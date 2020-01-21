@@ -562,7 +562,7 @@ class XlnkDevice(Device):
     _probe_priority_ = 100
 
     def __init__(self):
-        super().__init__("xlnk", server_type="global")
+        super().__init__("xlnk")
         from pynq import Xlnk
         self.default_memory = Xlnk()
         self.capabilities = {
