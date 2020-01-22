@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check for dependencies 
-read -d '' DEPS <<EOT
+read -d '' DEPS_COMMON <<EOT
 bc
 gperf
 bison
@@ -33,8 +33,26 @@ rpm2cpio
 libsdl1.2-dev
 rsync
 python3-pip
-gcc-multilib
 EOT
+
+#Account for package name differences
+read -d '' DEPS_16_04 <<EOT16
+gcc-multilib
+EOT16
+
+read -d '' DEPS_18_04 <<EOT18
+gcc-multilib-arm-linux-gnueabihf
+EOT18
+
+if [[ $(lsb_release -rs) == "16.04" ]]; then
+    echo "Adding 16.04 DEPS"
+    DEPS="$DEPS_COMMON $DEPS_16_04"
+else
+    # 18.04 and later releases
+    echo "Adding 18.04+ DEPS"
+    DEPS="$DEPS_COMMON $DEPS_18_04"
+fi
+
 
 if [ $(lsb_release -rs) == "16.04" ]||[ $(lsb_release -rs) == "18.04" ]; then
     echo "Pass: Current OS is supported."
