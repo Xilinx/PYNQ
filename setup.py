@@ -36,7 +36,6 @@ from setuptools.command.build_ext import build_ext
 from distutils.dir_util import copy_tree
 from distutils.file_util import copy_file, move_file
 from shutil import rmtree
-import sysconfig
 import glob
 import re
 import subprocess
@@ -400,7 +399,7 @@ setup(name='pynq',
       url='https://github.com/Xilinx/PYNQ',
       packages=find_packages(),
       cmdclass={
-          "build_ext": BuildExtension,
+          'build_ext': BuildExtension,
           },
       distclass=BinaryDistribution,
       python_requires='>=3.5.2',
@@ -415,7 +414,11 @@ setup(name='pynq',
               'start_pl_server.py = pynq.pl_server.server:_start_server',
               'stop_pl_server.py = pynq.pl_server.server:_stop_server',
               'pynq = pynq.cli.cmd:main',
-              'pynq-server = pynq.cli.pl_server:main'
+              'pynq-server = pynq.cli.pl_server:main',
+              "pynq-get-notebooks = pynq.cli.get_notebooks:main"
+          ],
+          'distutils.commands': [
+              'download_overlays = pynq.utils:_download_overlays'
           ]
       },
       ext_modules=ext_modules,

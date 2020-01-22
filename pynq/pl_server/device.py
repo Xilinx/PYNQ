@@ -569,6 +569,14 @@ class XlnkDevice(Device):
             'MEMORY_MAPPED': True
         }
 
+    @property
+    def name(self):
+        if "BOARD" in os.environ:
+            return os.environ["BOARD"]
+        else:
+            raise RuntimeError("Could not retrieve ZYNQ device name. BOARD "
+                               "env not set")
+
     def get_memory(self, description):
         if description['type'] == 'PSDDR':
             return self.default_memory

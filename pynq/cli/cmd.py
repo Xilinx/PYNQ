@@ -1,4 +1,4 @@
-#   Copyright (c) 2019, Xilinx, Inc.
+#   Copyright (c) 2020, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,10 @@ import argparse
 import os
 import shutil
 import sys
-import sysconfig
 
 
 __author__ = "Giuseppe Natale"
-__copyright__ = "Copyright 2019, Xilinx"
+__copyright__ = "Copyright 2020, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
