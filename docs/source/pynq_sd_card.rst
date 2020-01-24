@@ -111,7 +111,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
   7. Now you are ready to install Xilinx tools. You will need 
      PetaLinux, Vivado, and SDK for building PYNQ image.
      Do not install Xilinx tools into */pynq* since it is only a small shared
-     folder. Instead, a 100GB disk space will be allocated at */sdbuild*
+     folder. Instead, a 160GB disk space will be allocated at */workspace*
      folder in VM. Install Xilinx tools there.
      
      Starting from image v2.5, SDx is no longer needed.
@@ -151,22 +151,15 @@ Building the Image
 Once you have the building environment ready, you can start to build the image 
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
-  1. Export PATH and source the appropriate settings for PetaLinux, Vivado, 
+  1. Source the appropriate settings for PetaLinux, Vivado, 
      and SDK. Suppose you are using Xilinx 2019.1 tools:
 
      .. code-block:: console
-         
-        export PATH="/opt/crosstool-ng/bin:/opt/qemu/bin:$PATH"
+
         source <path-to-vivado>/Vivado/2019.1/settings64.sh
         source <path-to-sdk>/SDK/2019.1/settings64.sh
         source <path-to-petalinux>/petalinux-v2019.1-final/settings.sh
         petalinux-util --webtalk off
-
-     Currently the SD build flow is checking the PetaLinux path for the 
-     version number, so please make sure the version number appears 
-     in your installation path of Petalinux.
-     In the above commands, the SD build flow will recognize the Petalinux
-     version number as 2019.1.
 
   2. Navigate to the following directory and run make
 
