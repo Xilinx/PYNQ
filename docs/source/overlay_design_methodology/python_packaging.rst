@@ -30,16 +30,51 @@ One extremely useful feature that pip provides is the ability to deliver
 non-python files. In the PYNQ project this is useful for delivering FPGA
 binaries (.bit), overlay metadata files (.hwh), PYNQ MicroBlaze binaries
 (.bin), and Jupyter Notebooks (.ipynb), along side the pynq Python libraries.
+The most straightforward way of including non-python files is to add a
+`MANIFEST.in`_ to the project.
 
-An example of using pip's **setup.py** file to provide non-python content is
-shown below:
+In addition PYNQ provides two mechanisms that can be used aid deployments of
+notebooks and large bitstreams - in particular xclbin files which can exceed
+100 MBs each.
+
+Registering PYNQ Notebooks
+--------------------------
+
+If you have notebooks in your package you can register your notebooks with the
+``pynq get-notebooks`` command line tool by creating a ``pynq.notebooks`` entry
+point linking to the part of your package. The key part of the entry point
+determines the name of the folder that will be created in the notebooks folder
+and all of the files in the corresponding package will be copied into it. Any
+``.link`` files described below will also be resolved for the currently active
+device.
+
+Link File Processing
+--------------------
+
+In place of xclbin files for Alveo cards your repository can instead contain
+xclbin.link files which provide locations where xclbin files can be downloaded
+for particular shells. For more details on the link format see the pynq.util
+documentation. xclbin.link files alongside notebooks will be resolved when the
+``pynq get-notebooks`` command is run. If you would prefer to have the xclbin
+files downloaded at package install time we provide a ``download_overlays``
+setuptools command that you can call as part of your installation or the
+``pynq.utils.build_py`` command which can be used in-place of the regular
+``build_py`` command to perform the downloading automatically.
+
+By default the ``download_overlays`` command will only download xclbin files
+for the boards installed installed in the machine. This can be overridden with
+the ``--download-all`` option.
+
+Example Setup Script
+--------------------
+
+An example of using pip's **setup.py** file which delivers xclbin files and
+notebooks using the PYNQ mechanisms is show below.
 
 .. code-block :: python
 
    from setuptools import setup, find_packages
-   import subprocess
-   import sys
-   import shutil
+   from pynq.utils import build_py
    import new_overlay
 
    setup(
@@ -49,19 +84,34 @@ shown below:
       license = 'All rights reserved.',
       author = "Your Name",
       author_email = "your@email.com",
-      packages = ['new_overlay'],
-      package_data = {
-      '' : ['*.bit','*.tcl','*.py','*.so'],
-      },
+      packages = find_packages(),
+      inlcude_package_data=True,
       install_requires=[
-          'pynq',
+          'pynq'
       ],
-      dependency_links=['http://github.com/xilinx/PYNQ'],
-      description = "New custom overlay for PYNQ-Z1"
+      setup_requires=[
+          'pynq'
+      ],
+      entry_points={
+          'pynq.notebooks': [
+              'new-overlay = new_overlay.notebooks'
+          ]
+      },
+      cmdclass={'build_py': build_py},
+      description = "New custom overlay"
    )
 
-The ``package_data`` argument specifies which files will be installed as part of
-the package.
+A corresponding **MANIFEST.in** to add the notebooks and bitstreams files would
+look like
+
+.. code-block :: python
+
+   recursive-include new_overlay/notebooks *
+   recursive-include new_overlay *.bit *.hwh *.tcl
+
+
+Rebuilding PYNQ
+---------------
 
 Starting from image v2.5, the official PYNQ Github repository will not 
 version-control the following files anymore:
@@ -139,4 +189,4 @@ Needless to say, we highly recommend *depending* on pynq instead of *forking
 and modifying* pynq. An example of depending on pynq is shown in the code
 segment from the previous section.
 
-
+.. _Manifest.in: https://packaging.python.org/guides/using-manifest-in/
