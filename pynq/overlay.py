@@ -647,9 +647,16 @@ class DefaultIP(metaclass=RegisterIP):
                 stream = self.device.get_memory_by_idx(v['stream_id'])
                 self.streams[k] = stream
                 if v['direction'] == 'output':
-                    stream.source_device = self
+                    stream.source_ip = self
                 elif v['direction'] == 'input':
-                    stream.sink_device = self
+                    stream.sink_ip = self
+
+        if self.signature is None:
+            self._start = self.start_none
+        elif self.device.has_capability('ERT'):
+            self._start = self.start_ert
+        else:
+            self._start = self.start_sw
 
     def _setup_packet_prototype(self):
         self._packet = ert.ert_start_kernel_cmd()
@@ -684,9 +691,9 @@ class DefaultIP(metaclass=RegisterIP):
             return None
 
     def call(self, *args, **kwargs):
-        self.start_sw(*args, **kwargs).wait()
+        self.start(*args, **kwargs).wait()
 
-    def start_sw(self, *args, ap_ctrl=1, **kwargs):
+    def start_sw(self, *args, ap_ctrl=1, waitlist=None, **kwargs):
         """Start the accelerator
 
         This function will configure the accelerator with the provided
@@ -704,6 +711,9 @@ class DefaultIP(metaclass=RegisterIP):
         """
         if not self._signature:
             raise RuntimeError("Only HLS IP can be called with the wrapper")
+        if waitlist is not None:
+            raise RuntimeError(
+                "Waitlists only supported on newer versions of XRT")
         if kwargs:
             # Resolve any kwargs to make a signle args tuple
             args = self._signature.bind(*args, **kwargs).args
@@ -713,6 +723,9 @@ class DefaultIP(metaclass=RegisterIP):
         self.mmio.write(0, self._call_struct.pack(0, *args))
         self.mmio.write(0, ap_ctrl)
         return WaitHandle(self)
+
+    def start_none(self, *args, **kwargs):
+        raise RuntimeError("Start only supported for XCLBIN-based designs")
 
     def start(self, *args, **kwargs):
         """Start the accelerator
@@ -732,7 +745,7 @@ class DefaultIP(metaclass=RegisterIP):
         """
         # For now direct people to the sw version until the ERT initialisation
         # is fixed
-        return self.start_sw(*args, **kwargs)
+        return self._start(*args, **kwargs)
 
     def start_ert(self, *args, waitlist=(), **kwargs):
         """Start the accelerator using the ERT scheduler
