@@ -174,7 +174,8 @@ class OverlayNotFoundError(Exception):
     pass
 
 
-def deliver_notebooks(device_name, src_path, dst_path, name, folder=None):
+def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
+                      overlays_lookup=True):
     """Deliver notebooks (and possibly overlays) to target destination path.
 
     If overlays are delivered alongside notebooks, the following resolution
@@ -212,6 +213,8 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None):
             Indicates whether to use `name` as target folder to copy notebooks,
             inside `dst_path`. Notebooks will be copied directly in `dst_path`
             if `None`.
+        overlays_lookup: bool
+            Dictates whether automatic overlays lookup must be performed.
     """
     logger = get_logger()
     dst_fullpath = os.path.join(dst_path, name) if folder else dst_path
@@ -229,42 +232,44 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None):
                 files_to_download_tmp = {}
                 for d in dirs:
                     if d.endswith(".d"):
-                        overlay_name = os.path.splitext(d)[0]
-                        if not os.path.isfile(os.path.join(
-                                root, overlay_name + ".link")):
-                            overlay_src_path = _find_local_overlay(
-                                device_name, overlay_name, root)
-                            if overlay_src_path:
-                                overlay_dst_path = os.path.join(dst_fullpath,
-                                                                relpath,
-                                                                overlay_name)
-                                files_to_copy_tmp[overlay_src_path] = \
-                                    overlay_dst_path
-                            else:
-                                raise OverlayNotFoundError
+                        if overlays_lookup:
+                            overlay_name = os.path.splitext(d)[0]
+                            if not os.path.isfile(os.path.join(
+                                    root, overlay_name + ".link")):
+                                overlay_src_path = _find_local_overlay(
+                                    device_name, overlay_name, root)
+                                if overlay_src_path:
+                                    overlay_dst_path = os.path.join(
+                                        dst_fullpath, relpath, overlay_name)
+                                    files_to_copy_tmp[overlay_src_path] = \
+                                        overlay_dst_path
+                                else:
+                                    raise OverlayNotFoundError
                     elif d != "__pycache__":  # exclude __pycache__ folder
                         dir_dst_path = os.path.join(dst_fullpath, relpath, d)
                         files_to_copy_tmp[os.path.join(root, d)] = \
                             dir_dst_path
                 for f in files:
                     if f.endswith(".link"):
-                        overlay_name = os.path.splitext(f)[0]
-                        overlay_dst_path = os.path.join(dst_fullpath, relpath,
-                                                        overlay_name)
-                        overlay_src_path = _find_local_overlay(
-                            device_name, overlay_name, root)
-                        if overlay_src_path:
-                            files_to_copy_tmp[overlay_src_path] = \
-                                overlay_dst_path
-                        else:
-                            overlay_download_link = _find_remote_overlay(
-                                device_name, os.path.join(root, f))
-                            if overlay_download_link:
-                                files_to_download_tmp[
-                                    overlay_download_link] = \
+                        if overlays_lookup:
+                            overlay_name = os.path.splitext(f)[0]
+                            overlay_dst_path = os.path.join(dst_fullpath,
+                                                            relpath,
+                                                            overlay_name)
+                            overlay_src_path = _find_local_overlay(
+                                device_name, overlay_name, root)
+                            if overlay_src_path:
+                                files_to_copy_tmp[overlay_src_path] = \
                                     overlay_dst_path
                             else:
-                                raise OverlayNotFoundError
+                                overlay_download_link = _find_remote_overlay(
+                                    device_name, os.path.join(root, f))
+                                if overlay_download_link:
+                                    files_to_download_tmp[
+                                        overlay_download_link] = \
+                                        overlay_dst_path
+                                else:
+                                    raise OverlayNotFoundError
                     else:
                         file_dst_path = os.path.join(dst_fullpath, relpath, f)
                         files_to_copy_tmp[os.path.join(root, f)] = \
@@ -321,7 +326,7 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None):
         raise e
 
 
-def download_overlays(path, download_all=False):
+def download_overlays(path, download_all=False, fail=False):
     """Download overlays for detected devices in destination path.
 
     Downloads overlays for all detected devices using 'overlay_filename.link'
@@ -336,9 +341,18 @@ def download_overlays(path, download_all=False):
         download_all: bool
             Causes all overlays to be downloaded from .link files, regardless
             of the detected devices.
+        fail: bool
+            Determines whether the function should raise an exception in case
+            no device is detected or overlay lookup fails. When `False`, the
+            function will complete without raising any exception.
     """
     logger = get_logger()
-    devices = _detect_devices()
+    try:
+        devices = _detect_devices()
+    except RuntimeError as e:
+        if fail:
+            raise e
+        devices = []
     for root, dirs, files in os.walk(path):
         if not download_all:
             for d in dirs:
@@ -350,9 +364,12 @@ def download_overlays(path, download_all=False):
                             overlay_src_path = _find_local_overlay(
                                 device, overlay_name, root)
                             if not overlay_src_path:
-                                logger.info("Could not find overlay '{}' for "
-                                            "device '{}'".format(overlay_name,
-                                                                 device))
+                                msg = "Could not find overlay '{}' for " \
+                                      "device '{}'".format(overlay_name,
+                                                           device)
+                                if fail:
+                                    raise FileNotFoundError(msg)
+                                logger.info(msg)
         for f in files:
             if f.endswith(".link"):
                 overlay_name = os.path.splitext(f)[0]
@@ -373,14 +390,24 @@ def download_overlays(path, download_all=False):
                                     overlay_filename_split[0], device,
                                     overlay_filename_split[1])
                                 mkpath(overlay_download_path)
-                                _download_file(overlay_download_link,
-                                               os.path.join(
-                                                   overlay_download_path,
-                                                   overlay_filename_ext))
+                                try:
+                                    _download_file(overlay_download_link,
+                                                   os.path.join(
+                                                       overlay_download_path,
+                                                       overlay_filename_ext))
+                                except Exception as e:
+                                    if fail:
+                                        raise e
+                                    if len(os.listdir(
+                                            overlay_download_path)) == 0:
+                                        os.rmdir(overlay_download_path)
                             else:
-                                logger.log("Could not find overlay '{}' for "
-                                           "device '{}'".format(overlay_name,
-                                                                device))
+                                msg = "Could not find overlay '{}' for " \
+                                      "device '{}'".format(overlay_name,
+                                                           device)
+                                if fail:
+                                    raise FileNotFoundError(msg)
+                                logger.log(msg)
                 else:  # download all overlays regardless of detected devices
                     import json
                     with open(os.path.join(root, f)) as f:
@@ -396,10 +423,17 @@ def download_overlays(path, download_all=False):
                                     overlay_filename_split[0], device,
                                     overlay_filename_split[1])
                                 mkpath(overlay_download_path)
-                                _download_file(download_link,
-                                               os.path.join(
-                                                   overlay_download_path,
-                                                   overlay_filename_ext))
+                                try:
+                                    _download_file(download_link,
+                                                   os.path.join(
+                                                       overlay_download_path,
+                                                       overlay_filename_ext))
+                                except Exception as e:
+                                    if fail:
+                                        raise e
+                                    if len(os.listdir(
+                                            overlay_download_path)) == 0:
+                                        os.rmdir(overlay_download_path)
 
 
 class _download_overlays(dist_build):
@@ -407,11 +441,14 @@ class _download_overlays(dist_build):
     description = "Download overlays using .link files"
     user_options = [("download-all", "a",
                      "forcibly download every overlay from .link files, "
-                     "overriding download based on detected devices")]
-    boolean_options = ["download-all"]
+                     "overriding download based on detected devices"),
+                    ("force-fail", "f",
+                     "Do not complete setup if overlays lookup fails.")]
+    boolean_options = ["download-all", "force-fail"]
 
     def initialize_options(self):
         self.download_all = False
+        self.force_fail = False
 
     def finalize_options(self):
         pass
@@ -421,7 +458,8 @@ class _download_overlays(dist_build):
         for package, _, build_dir, _ in cmd.data_files:
             if "." not in package:  # sub-packages are skipped
                 download_overlays(build_dir,
-                                  download_all=self.download_all)
+                                  download_all=self.download_all,
+                                  fail=self.force_fail)
 
 
 class build_py(_build_py):

@@ -74,6 +74,9 @@ def _get_notebooks_parser():
                        help="Detect available shells and ask which one to use."
                             "Ignored if 'device' is provided or XILINX_XRT "
                             "env is not set")
+    group.add_argument("-o", "--ignore-overlays", action="store_true",
+                       help="Ignore automatic overlays lookup. Notebooks will "
+                            "be forcibly delivered even if lookup might fail")
     parser.add_argument("-f", "--force", action="store_true",
                         help="Force delivery even if target notebooks "
                              "directory already exists. The existing "
@@ -219,13 +222,14 @@ def main():
             raise FileExistsError("Target notebooks directory already "
                                   "exists. Specify another path or use "
                                   "the 'force' option to proceed")
+    overlays_lookup = not args.ignore_overlays
     try:
         ## Ignoring notebooks from main `pynq.notebooks` namespace as of now
         # src_path = pkg_resources.resource_filename(NOTEBOOKS_GROUP, "")
         # logger.info("Delivering notebooks from main '{}'...".format(
         #     NOTEBOOKS_GROUP))
         # deliver_notebooks(device, src_path, delivery_fullpath,
-        #                   NOTEBOOKS_GROUP)
+        #                   NOTEBOOKS_GROUP, overlays_lookup=overlays_lookup)
         # pkg_resources.cleanup_resources(force=True)
         ##
         for ext in discovered_notebooks:
@@ -258,10 +262,12 @@ def main():
                 # `pynq.utils:deliver_notebooks` inside, or an entirely custom
                 # delivery procedure
                 ext_mod.deliver_notebooks(device, src_path, delivery_fullpath,
-                                          ext.name, folder=folder)
+                                          ext.name, folder=folder,
+                                          overlays_lookup=overlays_lookup)
             else:
                 deliver_notebooks(device, src_path, delivery_fullpath,
-                                  ext.name, folder=folder)
+                                  ext.name, folder=folder,
+                                  overlays_lookup=overlays_lookup)
             pkg_resources.cleanup_resources(force=True)
     except (Exception, KeyboardInterrupt) as e:
         raise e
