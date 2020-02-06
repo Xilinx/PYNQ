@@ -27,7 +27,10 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import json
 import os
+import shutil
+import tempfile
 import logging
 from distutils.dir_util import copy_tree, remove_tree, mkpath
 from distutils.file_util import copy_file
@@ -38,6 +41,19 @@ from setuptools.command.build_py import build_py as _build_py
 __author__ = "Giuseppe Natale"
 __copyright__ = "Copyright 2020, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+
+_function_text = """
+import json
+
+def _default_repr(obj):
+    return repr(obj)
+
+def _resolve_global(name):
+    g = globals()
+    return g[name] if name in g else None
+
+"""
 
 
 class _PynqLoggingFormatter(logging.Formatter):
@@ -469,3 +485,71 @@ class build_py(_build_py):
     def run(self):
         super().run()
         self.run_command("download_overlays")
+
+
+class NotebookResult:
+    """Class representing the result of executing a notebook
+
+    Contains members with the form ``_[0-9]*`` with the output object for
+    each cell or ``None`` if the cell did not return an object.
+
+    The raw outputs are available in the ``outputs`` attribute. See the
+    Jupyter documentation for details on the format of the dictionary
+
+    """
+    def __init__(self, nb):
+        self.outputs = [
+            c['outputs'] for c in nb['cells'] if c['cell_type'] == 'code'
+        ]
+        objects = json.loads(self.outputs[-1][0]['text'])
+        for i, o in enumerate(objects):
+            setattr(self, "_" + str(i+1), o)
+
+
+def _create_code(num):
+    call_line = "print(json.dumps([{}], default=_default_repr))".format(
+        ", ".join(("_resolve_global('_{}')".format(i+1) for i in range(num))))
+    return _function_text + call_line
+
+
+def run_notebook(notebook, root_path=".", timeout=30):
+    """Run a notebook in Jupyter
+
+    This function will copy all of the files in ``root_path`` to a
+    temporary directory, run the notebook and then return a
+    ``NotebookResult`` object containing the outputs for each cell.
+
+    The notebook is run in a separate process and only objects that
+    are serializable will be returned in their entirety, otherwise
+    the string representation will be returned instead.
+
+    Parameters
+    ----------
+    notebook : str
+        The notebook to run relative to ``root_path``
+    root_path : str
+        The root notebook folder (default ".")
+    timeout : int
+        Length of time to run the notebook in seconds (default 30)
+
+    """
+    import nbformat
+    from nbconvert.preprocessors import ExecutePreprocessor
+    with tempfile.TemporaryDirectory() as td:
+        workdir = os.path.join(td, 'work')
+        notebook_dir = os.path.join(workdir, os.path.dirname(notebook))
+        shutil.copytree(root_path, workdir)
+        fullpath = os.path.join(workdir, notebook)
+        with open(fullpath, "r") as f:
+            nb = nbformat.read(f, as_version=4)
+        ep = ExecutePreprocessor(kernel_name='python3', timeout=timeout)
+        code_cells = [c for c in nb['cells'] if c['cell_type'] == 'code']
+        nb['cells'].append(
+            nbformat.from_dict({'cell_type': 'code',
+                                'metadata': {},
+                                'source': _create_code(len(code_cells))}
+        ))
+        ep.preprocess(nb, {'metadata': {'path': notebook_dir}})
+        return NotebookResult(nb)
+
+
