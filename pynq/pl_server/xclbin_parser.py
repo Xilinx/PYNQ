@@ -124,6 +124,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                     'address_offset': int(attrib['offset'], 0),
                     'access': 'read-write;',
                     'size': int(attrib['size'], 0) * 8,
+                    'host_size': int(attrib['hostSize'], 0),
                     'description': 'OpenCL Argument Register',
                     'type': attrib['type'],
                     'id': int(attrib['id'])
