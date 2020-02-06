@@ -693,7 +693,7 @@ class DefaultIP(metaclass=RegisterIP):
     def call(self, *args, **kwargs):
         self.start(*args, **kwargs).wait()
 
-    def start_sw(self, *args, ap_ctrl=1, waitlist=None, **kwargs):
+    def start_sw(self, *args, ap_ctrl=1, waitfor=None, **kwargs):
         """Start the accelerator
 
         This function will configure the accelerator with the provided
@@ -711,9 +711,9 @@ class DefaultIP(metaclass=RegisterIP):
         """
         if not self._signature:
             raise RuntimeError("Only HLS IP can be called with the wrapper")
-        if waitlist is not None:
+        if waitfor is not None:
             raise RuntimeError(
-                "Waitlists only supported on newer versions of XRT")
+                "waitfor only supported on newer versions of XRT")
         if kwargs:
             # Resolve any kwargs to make a signle args tuple
             args = self._signature.bind(*args, **kwargs).args
@@ -747,17 +747,17 @@ class DefaultIP(metaclass=RegisterIP):
         # is fixed
         return self._start(*args, **kwargs)
 
-    def start_ert(self, *args, waitlist=(), **kwargs):
+    def start_ert(self, *args, waitfor=(), **kwargs):
         """Start the accelerator using the ERT scheduler
 
         This function will use the embedded scheduler to call the accelerator
         with the provided arguments - see the documentation for ``start`` for
-        more details. An optional ``waitlist`` parameter can be used to
+        more details. An optional ``waitfor`` parameter can be used to
         schedule dependent executions without using the CPU.
 
         Parameters
         ----------
-        waitlist : [WaitHandle]
+        waitfor : [WaitHandle]
             A list of wait handles returned by other calls to ``start_ert``
             which must complete before this exection starts
 
@@ -775,7 +775,7 @@ class DefaultIP(metaclass=RegisterIP):
         exec_packet.m_uert.header = self._packet.m_uert.header
         exec_packet.cu_mask = self.cu_mask
         ctypes.memmove(exec_packet.data, arg_data, len(arg_data))
-        wait_bos = tuple(w._bo for w in waitlist if w is not None and w._has_bo)
+        wait_bos = tuple(w._bo for w in waitfor if w is not None and w._has_bo)
         if wait_bos:
             return self.device.execute_bo_with_waitlist(bo, wait_bos)
         else:

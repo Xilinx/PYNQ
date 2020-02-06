@@ -98,10 +98,10 @@ Efficient Scheduling of Multiple Kernels
 ----------------------------------------
 
 If PYNQ is running on XRT version 2.3 or later then ``start`` and ``call`` have
-an optional keyword parameter ``waitlist`` that can be used to create a
+an optional keyword parameter ``waitfor`` that can be used to create a
 dependency graph which is executed in the hardware. This frees the CPU from
 scheduling the execution of the accelerators and drastically decreases the time
-between accelerator invokations. The ``waitlist`` is a list of wait handles
+between accelerator invokations. The ``waitfor`` is a list of wait handles
 returned by previous executions that must have completed prior to this task
 being scheduled.  As an example consider the following snippet that chains two
 calls to a vector addition accelerator to compute the sum of three arrays.
@@ -109,7 +109,7 @@ calls to a vector addition accelerator to compute the sum of three arrays.
 .. code:: python
 
     handle = ol.vadd_1.start(input1, input2, output)
-    ol.vadd_1.call(input3, output, output, waitlist=(handle,))
+    ol.vadd_1.call(input3, output, output, waitfor=(handle,))
 
 Kernel Streams
 --------------
