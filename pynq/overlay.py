@@ -42,6 +42,7 @@ from .bitstream import Bitstream
 from .interrupt import Interrupt
 from .gpio import GPIO
 from .registers import RegisterMap
+from .utils import ReprDict
 
 if "XILINX_XRT" in os.environ:
     try:
@@ -359,12 +360,18 @@ class Overlay(Bitstream):
             raise RuntimeError("Overlay not currently loaded")
 
     def _deepcopy_dict_from(self, source):
-        self.ip_dict = deepcopy(source.ip_dict)
-        self.gpio_dict = deepcopy(source.gpio_dict)
-        self.interrupt_controllers = deepcopy(source.interrupt_controllers)
-        self.interrupt_pins = deepcopy(source.interrupt_pins)
-        self.hierarchy_dict = deepcopy(source.hierarchy_dict)
-        self.mem_dict = deepcopy(source.mem_dict)
+        self.ip_dict = ReprDict(deepcopy(source.ip_dict), rootname='ip_dict')
+        self.gpio_dict = ReprDict(deepcopy(source.gpio_dict),
+                                  rootname='gpio_dict')
+        self.interrupt_controllers = ReprDict(
+            deepcopy(source.interrupt_controllers),
+            rootname='interrupt_controllers')
+        self.interrupt_pins = ReprDict(
+            deepcopy(source.interrupt_pins), rootname='interrupt_pins')
+        self.hierarchy_dict = ReprDict(deepcopy(source.hierarchy_dict),
+                                       rootname='hierarchy_dict')
+        self.mem_dict = ReprDict(deepcopy(source.mem_dict),
+                                 rootname='mem_dict')
 
     def free(self):
         if hasattr(self.device, 'free_bitstream'):

@@ -601,3 +601,25 @@ def run_notebook(notebook, root_path=".", timeout=30):
         ))
         ep.preprocess(nb, {'metadata': {'path': notebook_dir}})
         return NotebookResult(nb)
+
+
+def _default_repr(obj):
+    return repr(obj)
+
+class ReprDict(dict):
+    def __init__(self, *args, rootname="root", expanded=False, **kwargs):
+        self._rootname = rootname
+        self._expanded = expanded
+
+        super().__init__(*args, **kwargs)
+
+    def _repr_json_(self):
+        return json.loads(json.dumps(self, default=_default_repr)), \
+               {'expanded': self._expanded, 'root': self._rootname}
+
+    def __getitem__(self, key):
+        obj = super().__getitem__(key)
+        if type(obj) is dict:
+            return ReprDict(obj, expanded=self._expanded, rootname=key)
+        else:
+            return obj
