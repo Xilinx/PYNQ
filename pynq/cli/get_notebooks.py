@@ -29,9 +29,9 @@
 
 import os
 import argparse
-import pkg_resources
 from shutil import move
-from pynq.utils import deliver_notebooks, _detect_devices, get_logger
+from pynq.utils import (deliver_notebooks, _detect_devices, get_logger,
+                        _ExtensionsManager)
 
 
 __author__ = "Giuseppe Natale"
@@ -48,7 +48,7 @@ class _GetNotebooksParser(argparse.ArgumentParser):
     def epilog(self):
         """Add list of entry points to epilog when help output is requested."""
         return "Available notebooks packages: {}".format(
-            ", ".join(_list_entry_points(True)))
+            ", ".join(_ExtensionsManager(NOTEBOOKS_GROUP).printable))
 
     @epilog.setter
     def epilog(self, x):
@@ -63,20 +63,18 @@ def _get_notebooks_parser():
     group = parser.add_mutually_exclusive_group()
     parser.add_argument("notebooks", type=str, nargs="*",
                         help="Provide one or more target notebooks packages "
-                             "to deliver. Use the 'list' command to get "
-                             "available notebooks. The special keyword 'all' "
+                             "to deliver. The special keyword 'all' "
                              "will deliver all notebooks without prompt")
     parser.add_argument("-l", "--list", action="store_true",
                         help="List available notebooks packages and exit")
     group.add_argument("-d", "--device", type=str,
                        help="Provide a specific device name (XRT shell)")
     group.add_argument("-i", "--interactive", action="store_true",
-                       help="Detect available shells and ask which one to use."
-                            "Ignored if 'device' is provided or XILINX_XRT "
-                            "env is not set")
+                       help="Detect available shells and ask which one to "
+                            "use.")
     group.add_argument("-o", "--ignore-overlays", action="store_true",
                        help="Ignore automatic overlays lookup. Notebooks will "
-                            "be forcibly delivered even if lookup might fail")
+                            "be forcibly delivered")
     parser.add_argument("-f", "--force", action="store_true",
                         help="Force delivery even if target notebooks "
                              "directory already exists. The existing "
@@ -89,47 +87,21 @@ def _get_notebooks_parser():
                                  TARGET_NB_DIR))
     parser.add_argument("-n", "--no-root", action="store_true",
                         help="Do not create '{}' directory, copy "
-                             "directly to the delivery path".format(
+                             "directly to the target path".format(
                                  TARGET_NB_DIR))
+    parser.add_argument("--from-package", type=str,
+                        help="Get notebooks only from target package name")
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="Do not produce logging output")
     return parser
 
 
-def _list_entry_points(print_format=False):
-    """Returns a list of available entry points registered for discovery.
-
-    Parameters
-    ----------
-        print_format: bool
-            If `True`, return a list of just entry points names and related
-            parent packages for printing, instead of a list of `EntryPoint`
-            objects
-    """
-    discovered = [entry_point for entry_point in
-                  pkg_resources.iter_entry_points(NOTEBOOKS_GROUP)]
-    if print_format:
-        return ["{} (source: {})".format(e.name, e.module_name.split(".")[0])
-                for e in discovered]
-    return discovered
-
-
-# Define monkey patch for `pkg_resources.NullProvider.__init__` to use
-# `module.__path__` instead of `module.__file__`, as the latter does not exist
-# for namespace packages. It is a little bit hacky, but for the context of
-# notebooks discovery and delivery should work just fine
-# This is a workaround to: https://github.com/pypa/setuptools/issues/1407
-def _NullProvider_init(self, module):
-    self.loader = getattr(module, "__loader__", None)
-    module_path = [p for p in getattr(module, "__path__", "")][0]
-    self.module_path = module_path
-
-
 def main():
     parser = _get_notebooks_parser()
     args = parser.parse_args()
+    notebooks_ext_man = _ExtensionsManager(NOTEBOOKS_GROUP)
     if args.list:
-        notebooks_list = _list_entry_points(True)
+        notebooks_list = notebooks_ext_man.printable
         if notebooks_list:
             print("Available notebooks packages:\n- {}".format(
                   "\n- ".join(notebooks_list)))
@@ -163,8 +135,7 @@ def main():
         device = shells[idx]
     else:  # default case, detect devices and use default device
         device = _detect_devices(active_only=True)
-    discovered_notebooks = _list_entry_points()
-    if not discovered_notebooks:
+    if not notebooks_ext_man.list:
         logger.warn("No notebooks package available, nothing can be "
                     "delivered")
         return
@@ -174,7 +145,7 @@ def main():
                 raise ValueError("The special keyword 'all' cannot be used "
                                  "with other notebooks packages")
         else:
-            names = [ext.name for ext in discovered_notebooks]
+            names = [ext.name for ext in notebooks_ext_man.list]
             not_found = []
             for p in args.notebooks:
                 if p not in names:
@@ -183,15 +154,11 @@ def main():
                 raise ValueError("Notebooks packages '{}' not found. Make "
                                  "sure they exist and the source packages are "
                                  "installed".format(", ".join(not_found)))
-    # Temporarily apply monkey patch to
-    # `pkg_resources.NullProvider.__init__`
-    _NullProvider_init_backup = pkg_resources.NullProvider.__init__
-    pkg_resources.NullProvider.__init__ = _NullProvider_init
     if not args.notebooks:
         yes = ["yes", "ye", "y"]
         no = ["no", "n"]
         print("The following notebooks packages will be delivered:\n- "
-              "{}".format("\n- ".join(_list_entry_points(True))))
+              "{}".format("\n- ".join(notebooks_ext_man.printable)))
         coiche = input("Do you want to proceed? [Y/n] ").lower()
         while True:
             if coiche == "" or coiche in yes:
@@ -225,17 +192,20 @@ def main():
     overlays_lookup = not args.ignore_overlays
     try:
         ## Ignoring notebooks from main `pynq.notebooks` namespace as of now
-        # src_path = pkg_resources.resource_filename(NOTEBOOKS_GROUP, "")
+        # src_path = notebooks_ext_man.extension_path(NOTEBOOKS_GROUP)
         # logger.info("Delivering notebooks from main '{}'...".format(
         #     NOTEBOOKS_GROUP))
         # deliver_notebooks(device, src_path, delivery_fullpath,
         #                   NOTEBOOKS_GROUP, overlays_lookup=overlays_lookup)
         # pkg_resources.cleanup_resources(force=True)
         ##
-        for ext in discovered_notebooks:
+        for ext in notebooks_ext_man.list:
             if args.notebooks and "all" not in args.notebooks and \
                     ext.name not in args.notebooks:
                 continue
+            if args.from_package and \
+                    args.from_package != ext.module_name.split(".")[0]:
+                    continue
             logger.info("Delivering '{}' notebooks package...".format(
                 ext.name))
             ext_mod = ext.load()
@@ -251,7 +221,7 @@ def main():
                             "directory.".format(ext.name))
             else:
                 folder = True
-            src_path = pkg_resources.resource_filename(ext.module_name, "")
+            src_path = notebooks_ext_man.extension_path(ext.module_name)
             if hasattr(ext_mod, "deliver_notebooks"):
                 # If it exists, call overloaded 'deliver_notebooks' method
                 # from plugin module.
@@ -268,7 +238,6 @@ def main():
                 deliver_notebooks(device, src_path, delivery_fullpath,
                                   ext.name, folder=folder,
                                   overlays_lookup=overlays_lookup)
-            pkg_resources.cleanup_resources(force=True)
     except (Exception, KeyboardInterrupt) as e:
         raise e
     finally:
@@ -278,5 +247,3 @@ def main():
         if not os.path.isdir(delivery_fullpath):
             logger.warn("No notebooks available for target device, nothing "
                         "will be delivered")
-        # Restore original `pkg_resources.NullProvider.__init__`
-        pkg_resources.NullProvider.__init__ = _NullProvider_init_backup

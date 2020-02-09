@@ -32,6 +32,8 @@ import os
 import shutil
 import tempfile
 import logging
+import pkg_resources
+import atexit
 from distutils.dir_util import copy_tree, remove_tree, mkpath
 from distutils.file_util import copy_file
 from distutils.command.build import build as dist_build
@@ -54,6 +56,55 @@ def _resolve_global(name):
     return g[name] if name in g else None
 
 """
+
+
+class _ExtensionsManager:
+    """Utility class to manage a list of available extensions registered for
+    discovery.
+
+    Parameters
+    ----------
+        package_name: str
+            Name of the package to inspect for extensions
+    """
+    def __init__(self, package_name):
+        self.package_name = package_name
+        self.list = [ext for ext in
+                     pkg_resources.iter_entry_points(self.package_name)]
+        atexit.register(pkg_resources.cleanup_resources, force=True)
+
+    def extension_path(self, extension_name):
+        """Return the source path of the given extension name."""
+        # Define monkey patch for `pkg_resources.NullProvider.__init__` to use
+        # `module.__path__` instead of `module.__file__`, as the latter does
+        # not exist for namespace packages.
+        # Workaround for https://github.com/pypa/setuptools/issues/1407
+        def init(self, module):
+            self.loader = getattr(module, "__loader__", None)
+            module_path = [p for p in getattr(module, "__path__", "")][0]
+            self.module_path = module_path
+        # Temporarily apply monkey patch to
+        # `pkg_resources.NullProvider.__init__`
+        init_backup = pkg_resources.NullProvider.__init__
+        pkg_resources.NullProvider.__init__ = init
+        src_path = pkg_resources.resource_filename(extension_name, "")
+        # Restore original `pkg_resources.NullProvider.__init__`
+        pkg_resources.NullProvider.__init__ = init_backup
+        return src_path
+
+    @property
+    def printable(self):
+        """Return a list of extension names and related parent packages
+        for printing.
+        """
+        return ["{} (source: {})".format(e.name, e.module_name.split(".")[0])
+                for e in self.list]
+
+    @property
+    def paths(self):
+        """Return a list of paths from the discovered extensions.
+        """
+        return [self.ext_src_path(e) for e in self.list]
 
 
 class _PynqLoggingFormatter(logging.Formatter):
@@ -178,7 +229,6 @@ def _find_remote_overlay(device_name, links_json_path):
         links_json_path: str
             The full path to the links json file
     """
-    import json
     with open(links_json_path) as f:
         links = json.load(f)
         if device_name in links:
@@ -196,6 +246,7 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
 
     If overlays are delivered alongside notebooks, the following resolution
     strategy is applied when inspecting the `src_path`:
+
         1. If an overlay file is found, prioritize that file and do not perform
            any overlay resolution
         2. In case step 1 fails, if a overlay_name.d folder is found, try to
@@ -425,7 +476,6 @@ def download_overlays(path, download_all=False, fail=False):
                                     raise FileNotFoundError(msg)
                                 logger.log(msg)
                 else:  # download all overlays regardless of detected devices
-                    import json
                     with open(os.path.join(root, f)) as f:
                         links = json.load(f)
                         for device, download_link in links.items():
@@ -551,5 +601,3 @@ def run_notebook(notebook, root_path=".", timeout=30):
         ))
         ep.preprocess(nb, {'metadata': {'path': notebook_dir}})
         return NotebookResult(nb)
-
-
