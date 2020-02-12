@@ -134,8 +134,15 @@ class PynqBuffer(np.ndarray):
         return 0
 
 
-def allocate(shape, dtype, target=None, **kwargs):
+def allocate(shape, dtype='u4', target=None, **kwargs):
     """Allocate a PYNQ buffer
+
+    This API mimics the numpy ndarray constructor with the following
+    differences:
+
+     * The default dtype is 32-bit unsigned int rather than float
+     * A new ``target`` keyword parameter to determine where the
+       buffer should be allocated
 
     The target determines where the buffer gets allocated
 

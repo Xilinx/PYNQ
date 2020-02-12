@@ -33,34 +33,79 @@ import ctypes
 import errno
 import glob
 import os
+import warnings
 import weakref
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
 
 try:
-    import xrt_binding as xrt
-    import ert_binding as ert
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=SyntaxWarning)
+        import xrt_binding as xrt
+        import ert_binding as ert
 except ImportError:
     from pynq import xrt
     from pynq import ert
-
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
+if "XCL_EMULATION_MODE" in os.environ:
+    emulation_mode = os.environ["XCL_EMULATION_MODE"]
+    if emulation_mode == "hw_emu":
+        xrt_lib = os.path.join(
+            os.environ['XILINX_XRT'], 'lib', 'libxrt_hwemu.so')
+    elif emulation_mode == "sw_emu":
+        raise RuntimeError("PYNQ doesn't support software emulation: either "
+                           "unset XCL_EMULATION_MODE or set it hw_emu")
+    else:
+        warnings.warn("Unknown emulation mode: " + emulation_mode)
+        xrt_lib = os.path.join(
+            os.environ['XILINX_XRT'], 'lib', 'libxrt_core.so')
+    xrt.libc = ctypes.CDLL(xrt_lib)
+
 DRM_XOCL_BO_EXECBUF = 1 << 31
+REQUIRED_VERSION_ERT = (2,3,0)
 libc = ctypes.CDLL('libc.so.6')
 libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
 libc.munmap.restype = ctypes.c_int
+
+# Create our own struct that fixes the typos of the real one
+class xclDeviceUsage (ctypes.Structure):
+    _fields_ = [
+     ("h2c", ctypes.c_size_t*8),
+     ("c2h", ctypes.c_size_t*8),
+     ("ddrMemUsed", ctypes.c_size_t*8),
+     ("ddrBOAllocated", ctypes.c_uint *8),
+     ("totalContents", ctypes.c_uint),
+     ("xclbinId", ctypes.c_ulonglong * 4),
+     ("dma_channel_cnt", ctypes.c_uint),
+     ("mm_channel_cnt", ctypes.c_uint),
+     ("memSize", ctypes.c_ulonglong*8)
+    ]
 
 _xrt_errors = {
     -95: "Shell does not match",
     -16: "Bitstream in use by another program",
     -1: "Possibly buffers still allocated"
 }
+
+def _get_xrt_version():
+    import subprocess
+    import json
+    try:
+        output = subprocess.run(['xbutil', 'dump'], stdout=subprocess.PIPE)
+        details = json.loads(output.stdout)
+        return tuple(
+            int(s) for s in details['runtime']['build']['version'].split('.'))
+    except Exception:
+        return (0, 0, 0)
+
+
+_xrt_version = _get_xrt_version()
 
 
 def _format_xrt_error(err):
@@ -130,6 +175,16 @@ class XrtMemory:
         return (type(other) is XrtMemory and
                 self.device == other.device and
                 self.idx == other.idx)
+
+    @property
+    def mem_used(self):
+        usage = self.device.get_usage()
+        return usage.ddrMemUsed[self.idx]
+
+    @property
+    def num_buffers(self):
+        usage = self.device.get_usage()
+        return usage.ddrBOAllocated[self.idx]
 
 
 class XrtUUID:
@@ -268,8 +323,9 @@ class XrtDevice(Device):
         self.capabilities = {
             'REGISTER_RW': True,
             'CALLABLE': True,
-            'ERT': True
         }
+        if _xrt_version >= REQUIRED_VERSION_ERT:
+            self.capabilities['ERT'] = True
         self.handle = xrt.xclOpen(index, None, 0)
         self._info = xrt.xclDeviceInfo2()
         xrt.xclGetDeviceInfo2(self.handle, self._info)
@@ -363,6 +419,15 @@ class XrtDevice(Device):
         xrt.xclGetBOProperties(self.handle, bo, prop)
         return prop.paddr
 
+    def get_usage(self):
+        usage = xclDeviceUsage()
+        status = xrt.xclGetUsageInfo(self.handle, ctypes.cast(
+            ctypes.pointer(usage),
+            ctypes.POINTER(xrt.xclDeviceInfo2)))
+        if status != 0:
+            raise RuntimeError("Get Usage Failed: " + str(status))
+        return usage
+
     def close(self):
         if self.handle:
             xrt.xclClose(self.handle)
@@ -454,6 +519,8 @@ class XrtDevice(Device):
     def get_exec_bo(self, size=1024):
         if len(self._bo_cache):
             return self._bo_cache.pop()
+        if _xrt_version < REQUIRED_VERSION_ERT:
+            raise RuntimeError("XRT Version too old for PYNQ ERT support")
         new_bo = xrt.xclAllocBO(self.handle, size, 0, DRM_XOCL_BO_EXECBUF)
         new_ptr = xrt.xclMapBO(self.handle, new_bo, 1)
         return ExecBo(new_bo, new_ptr, self, size)

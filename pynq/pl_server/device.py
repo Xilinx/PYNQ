@@ -76,6 +76,10 @@ class DeviceMeta(type):
             cls._devices = []
             for key in sorted(DeviceMeta._subclasses.keys()):
                 cls._devices.extend(DeviceMeta._subclasses[key]._probe_())
+            if len(cls._devices) == 0 and 'XILINX_XRT' not in os.environ:
+                warnings.warn(
+                    'No devices found, is the XRT environment sourced?',
+                    UserWarning)
         return cls._devices
 
     @property

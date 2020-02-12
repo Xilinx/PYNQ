@@ -90,7 +90,7 @@ class _GPIO:
             An integer read from the GPIO
 
         """
-        if self.direction is not 'in':
+        if self.direction != 'in':
             raise AttributeError("Cannot read GPIO output.")
 
         with open(self.path + 'value', 'r') as f:
@@ -109,7 +109,7 @@ class _GPIO:
         None
 
         """
-        if self.direction is not 'out':
+        if self.direction != 'out':
             raise AttributeError("Cannot write GPIO input.")
 
         if value not in (0, 1):

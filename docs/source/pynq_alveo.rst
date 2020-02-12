@@ -57,6 +57,60 @@ prior to calling flush or invalidate.
 
     input_buffer[0:64].flush()
 
+Running Accelerators
+--------------------
+
+PYNQ Alveo Edition provides the same access to the registers of the kernels
+on the card as IP in a ZYNQ design however one of the advantages of the XRT
+environment is that we have more information on the types and argument names
+for the kernels. For this reason we have added the ability to call kernels
+directly without needing to explicitly read and write registers
+
+.. code:: python
+
+    ol.my_kernel.call(input_buf, output_buf)
+
+For HLS C++ or OpenCL kernels the  signature of the ``call`` function will
+mirror the function in the original source. You can see how that has been
+intepreted in Python by looking at the ``.signature`` property of the kernel.
+``.call`` with call the kernel synchronously, returning only when the
+execution has finished. For more complex sequences of kernel calls it may
+be desirable to start accelerators without waiting for them to complete
+before continuing. To support this there is also a ``.start`` function
+which takes the same arguments as ``.call`` but returns a handle that has a
+``.wait()`` function that will block until the kernel has finished. Due to
+limitations in how PYNQ run accelerators, when running on XRT version 2.2
+or earlier it is undefined behaviour to ``start`` and accelerator for a
+second time before waiting for the first execution to complete. There
+are no such limitations with newer versions of XRT.
+
+Freeing Designs
+---------------
+
+XRT requires that device memory and accelerators be freed before the card can
+be reprogrammed. Memory will be freed when the buffers are deleted however the
+accelerators need to be explicitly freed by calling the ``Overlay.free()``
+method. The overlay will be freed automatically when a new ``Overlay`` object
+is created in the same process as the currently-loaded overlay. All resources
+will be freed automatically when the process exits.
+
+Efficient Scheduling of Multiple Kernels
+----------------------------------------
+
+If PYNQ is running on XRT version 2.3 or later then ``start`` and ``call`` have
+an optional keyword parameter ``waitfor`` that can be used to create a
+dependency graph which is executed in the hardware. This frees the CPU from
+scheduling the execution of the accelerators and drastically decreases the time
+between accelerator invokations. The ``waitfor`` is a list of wait handles
+returned by previous executions that must have completed prior to this task
+being scheduled.  As an example consider the following snippet that chains two
+calls to a vector addition accelerator to compute the sum of three arrays.
+
+.. code:: python
+
+    handle = ol.vadd_1.start(input1, input2, output)
+    ol.vadd_1.call(input3, output, output, waitfor=(handle,))
+
 Kernel Streams
 --------------
 
@@ -101,65 +155,6 @@ an IP driver. This will return the same object as dervied from the overlay.
     > ol.vadd_1.stream
     {'out_c': XrtStream(source=vadd_1.out_c, sink=vmult_1.in_a)}
 
-Running Accelerators
---------------------
-
-PYNQ Alveo Edition provides the same access to the registers of the kernels
-on the card as IP in a ZYNQ design however one of the advantages of the XRT
-environment is that we have more information on the types and argument names
-for the kernels. For this reason we have added the ability to call kernels
-directly without needing to explicitly read and write registers
-
-.. code:: python
-
-    ol.my_kernel.call(input_buf, output_buf)
-
-For HLS C++ or OpenCL kernels the  signature of the ``call`` function will
-mirror the function in the original source. You can see how that has been
-intepreted in Python by looking at the ``.signature`` property of the kernel.
-``.call`` with call the kernel synchronously, returning only when the
-execution has finished. For more complex sequences of kernel calls it may
-be desirable to start accelerators without waiting for them to complete
-before continuing. To support this there is also a ``.start`` function
-which takes the same arguments as ``.call`` but returns a handle that has a
-``.wait()`` function that will block until the kernel has finished. Note that
-it currently results in undefined behaviour to call ``.start()`` before
-calling ``.wait()`` on the previously returned handle.
-
-Efficient Scheduling of Multiple Kernels
-----------------------------------------
-
-In addition to ``.start`` each IP also has a ``.start_ert`` method which uses
-the low-level scheduler or *embedded runtime* (ERT). The ERT can handle a queue
-of tasks with much lower latency than the user-space based PYNQ library.
-``start_ert`` has the same function signature as ``start`` and can in most
-cases be used as a drop-in replacement - except that multiple calls to
-``start_ert`` can be made without waiting for the previous kernel execution to
-finish.
-
-``start_ert`` can also handle tasks with dependencies using the ``waitlist``
-keyword parameter. The ``waitlist`` is a list of handles to tasks that must
-complete before ``start`` should be resolved. As an example consider the
-following snippet that chains two calls to a vector addition accelerator to
-compute the sum of three arrays.
-
-.. code:: python
-
-    handle1 = ol.vadd_1.start_ert(input1, input2, output)
-    handle2 = ol.vadd_1.start_ert(input3, output, output, waitlist=(handle1,))
-    handle2.wait()
-
-Note that calls to ``start`` and ``start_ert`` should not be mixed for the same
-accelerator - even across multiple PYNQ processes.
-
-Freeing Designs
----------------
-
-XRT requires that device memory and accelerators be freed before the card can
-be reprogrammed. Memory will be freed when the buffers are deleted however the
-accelerators need to be explicitly freed by calling the ``Overlay.free()``
-method. The overlay will be freed automatically when a new ``Overlay`` object
-is created in the same process as the currently-loaded overlay.
 
 Multiple Cards
 --------------
@@ -179,7 +174,7 @@ updated.
 
 .. code:: python
 
-    pynq.Device.active_device = python.Device.devices[2]
+    pynq.Device.active_device = pynq.Device.devices[2]
 
 To use multiple devices in the same PYNQ instance the ``Overlay`` class has
 a ``device`` keyword parameter that can be used to override the active device
