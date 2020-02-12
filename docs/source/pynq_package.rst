@@ -34,6 +34,7 @@ Additional modules:
   * pynq.pmbus - PYNQ class for reading power measurements from PMBus 
   * pynq.uio - Interacts directly with a UIO device
   * pynq.registers - Allows users to access registers easily
+  * pynq.utils - Functions for assisting with installation and testing
 
 Sub-packages:
 
@@ -60,5 +61,6 @@ Sub-packages:
     pynq_package/pynq.ps
     pynq_package/pynq.registers
     pynq_package/pynq.uio
+    pynq_package/pynq.utils
     pynq_package/pynq.xlnk
 
