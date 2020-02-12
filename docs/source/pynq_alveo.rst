@@ -2,7 +2,7 @@ PYNQ on XRT Platforms
 =====================
 
 PYNQ now supports XRT-based platforms including Amazon's AWS F1 and Alveo for
-cloud and on-premesis deployment. PYNQ Alveo Edition contains the updated
+cloud and on-premise deployment. PYNQ Alveo Edition contains the updated
 PYNQ libraries for PCIe support and new examples to help get started quickly.
 If you are new to PYNQ we recommend browsing the rest of the documentation to
 fully understand the core PYNQ concepts as these form the foundation of PYNQ
@@ -41,7 +41,7 @@ used to select which bank the buffer should be allocated in.
 Memory banks are named based on the Alveo shell that is in use and can be
 found through the overlay class and in the shell's documentation.
 
-Buffers also need to be explicitly synchronised between the host and
+Buffers also need to be explicitly synchronized between the host and
 accelerator card memories. We have reloaded the terminology from our
 embedded devices with memory being ``flush`` ed and ``invalidate`` d.
 
@@ -140,7 +140,7 @@ the endpoints of the stream. Following from the above example:
     XrtStream(source=vadd_1.out_c, sink=vmult_1.in_a)
 
 The ``source`` and ``sink`` attributes are strings in the form ``{ip}.{port}``.
-If the driver for an endpoint has been initialised then there will also be
+If the driver for an endpoint has been initialized then there will also be
 ``source_ip`` and ``sink_ip`` attributes pointing to the respective driver
 interfaces.
 
@@ -148,7 +148,7 @@ Note that despite being described by the memory dictionary it is not possible
 pass a stream object as a ``target`` to ``pynq.allocate``.
 
 The other way of accessing stream objects is via the ``streams`` dictionary of
-an IP driver. This will return the same object as dervied from the overlay.
+an IP driver. This will return the same object as derived from the overlay.
 
 .. code:: python
 
@@ -159,7 +159,7 @@ an IP driver. This will return the same object as dervied from the overlay.
 Multiple Cards
 --------------
 
-In datacentre applications it is possible to have multiple accelerator cards
+In datacenter applications it is possible to have multiple accelerator cards
 in one server. PYNQ provides a ``Device`` class to designate which card should
 be used for given operations. The first operation is to query the cards in the
 system:

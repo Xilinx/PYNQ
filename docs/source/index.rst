@@ -92,6 +92,7 @@ improve APSoC design:
    pynq_libraries
    overlay_design_methodology
    pynq_sd_card
+   pynq_cli
    pynq_package
    verification
    faqs

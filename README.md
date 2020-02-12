@@ -25,11 +25,13 @@ See the <a href="http://pynq.readthedocs.io/en/latest/getting_started.html" targ
 
 All Python code for the `pynq` package can be found in the `/pynq` folder. This folder can be found on the board after the board boots with the precompiled image.
 
-To update your PYNQ SD card to the latest ``pynq`` package, you can run the following command from a terminal connected to your board:
+To update your PYNQ SD card to the latest `pynq` package, you can run the following command from a terminal connected to your board:
 
 ```console
-sudo pip3 install --upgrade git+https://github.com/Xilinx/PYNQ.git
+sudo pip3 install --upgrade --upgrade-strategy only-if-needed pynq
 ```
+
+The `--upgrade-strategy only-if-needed` option will upgrade dependencies only in case they do not satisfy the requirements, which will speed-up the installation process and also avoid possible upgrade errors.
 
 SDK software projects and Python-C source codes are also stored along with the Python source code. After installing the `pynq` package, the compiled target files will be saved automatically into the `pynq` package.
 
@@ -38,6 +40,20 @@ SDK software projects and Python-C source codes are also stored along with the P
 All board related files including Vivado projects, bitstreams, and example notebooks, can be found in the `/boards` folder.
 
 In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
+
+## Alveo support
+
+Starting from PYNQ version `2.5.1`, Alveo support has also been introduced. It is now possible to use PYNQ to tap into the potential of hardware acceleration in the data center space.
+
+To get PYNQ on an Alveo-enabled system, simply install it through PIP:
+
+```console
+pip install pynq
+```
+
+For Alveo cards, PYNQ currently requires a <a href="https://github.com/Xilinx/XRT" target="_blank">Xilinx Runtime (XRT)</a> version above or equal to `2.3` to be installed in the system. In terms of Operating System, any XRT-supported version of either RedHat/CentOS or Ubuntu can be used.
+
+For more information, please see the Alveo <a href="https://pynq.readthedocs.io/en/latest/getting_started/alveo.html" target="_blank">getting started guide</a>.
 
 ## Contribute
 
