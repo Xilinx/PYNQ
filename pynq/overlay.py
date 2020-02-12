@@ -202,8 +202,11 @@ def _build_docstring(description, name, type_):
     lines.append("Memories")
     lines.append("------------")
     if description['memories']:
-        for mem in description['memories'].keys():
-            lines.append("{0: <20} : Memory".format(mem))
+        for mem, mem_desc in description['memories'].items():
+            if 'streaming' in mem_desc and mem_desc['streaming']:
+                lines.append("{0: <20} : Stream".format(mem))
+            else:
+                lines.append("{0: <20} : Memory".format(mem))
     else:
         lines.append("None")
     lines.append("")
@@ -644,9 +647,16 @@ class DefaultIP(metaclass=RegisterIP):
                 stream = self.device.get_memory_by_idx(v['stream_id'])
                 self.streams[k] = stream
                 if v['direction'] == 'output':
-                    stream.source_device = self
+                    stream.source_ip = self
                 elif v['direction'] == 'input':
-                    stream.sink_device = self
+                    stream.sink_ip = self
+
+        if self.signature is None:
+            self._start = self.start_none
+        elif self.device.has_capability('ERT'):
+            self._start = self.start_ert
+        else:
+            self._start = self.start_sw
 
     def _setup_packet_prototype(self):
         self._packet = ert.ert_start_kernel_cmd()
@@ -681,9 +691,9 @@ class DefaultIP(metaclass=RegisterIP):
             return None
 
     def call(self, *args, **kwargs):
-        self.start_sw(*args, **kwargs).wait()
+        self.start(*args, **kwargs).wait()
 
-    def start_sw(self, *args, ap_ctrl=1, **kwargs):
+    def start_sw(self, *args, ap_ctrl=1, waitfor=None, **kwargs):
         """Start the accelerator
 
         This function will configure the accelerator with the provided
@@ -701,6 +711,9 @@ class DefaultIP(metaclass=RegisterIP):
         """
         if not self._signature:
             raise RuntimeError("Only HLS IP can be called with the wrapper")
+        if waitfor is not None:
+            raise RuntimeError(
+                "waitfor only supported on newer versions of XRT")
         if kwargs:
             # Resolve any kwargs to make a signle args tuple
             args = self._signature.bind(*args, **kwargs).args
@@ -710,6 +723,9 @@ class DefaultIP(metaclass=RegisterIP):
         self.mmio.write(0, self._call_struct.pack(0, *args))
         self.mmio.write(0, ap_ctrl)
         return WaitHandle(self)
+
+    def start_none(self, *args, **kwargs):
+        raise RuntimeError("Start only supported for XCLBIN-based designs")
 
     def start(self, *args, **kwargs):
         """Start the accelerator
@@ -729,19 +745,19 @@ class DefaultIP(metaclass=RegisterIP):
         """
         # For now direct people to the sw version until the ERT initialisation
         # is fixed
-        return self.start_sw(*args, **kwargs)
+        return self._start(*args, **kwargs)
 
-    def start_ert(self, *args, waitlist=(), **kwargs):
+    def start_ert(self, *args, waitfor=(), **kwargs):
         """Start the accelerator using the ERT scheduler
 
         This function will use the embedded scheduler to call the accelerator
         with the provided arguments - see the documentation for ``start`` for
-        more details. An optional ``waitlist`` parameter can be used to
+        more details. An optional ``waitfor`` parameter can be used to
         schedule dependent executions without using the CPU.
 
         Parameters
         ----------
-        waitlist : [WaitHandle]
+        waitfor : [WaitHandle]
             A list of wait handles returned by other calls to ``start_ert``
             which must complete before this exection starts
 
@@ -759,7 +775,7 @@ class DefaultIP(metaclass=RegisterIP):
         exec_packet.m_uert.header = self._packet.m_uert.header
         exec_packet.cu_mask = self.cu_mask
         ctypes.memmove(exec_packet.data, arg_data, len(arg_data))
-        wait_bos = tuple(w._bo for w in waitlist if w is not None and w._has_bo)
+        wait_bos = tuple(w._bo for w in waitfor if w is not None and w._has_bo)
         if wait_bos:
             return self.device.execute_bo_with_waitlist(bo, wait_bos)
         else:
