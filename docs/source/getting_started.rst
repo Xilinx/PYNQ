@@ -14,6 +14,7 @@ If you have one of the following boards, you can follow the quick start guide.
     getting_started/pynq_z1_setup.rst
     getting_started/pynq_z2_setup.rst
     getting_started/zcu104_setup.rst
+    getting_started/alveo_getting_started.rst
 
 If you have another Zynq board see the following guide:
 

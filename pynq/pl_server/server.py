@@ -513,6 +513,8 @@ class DeviceClient:
 
 
 class DeviceServer:
+    """Class to provide an instance of the PL server
+    """
     def __init__(self, tag, key=b'xilinx'):
         self.tag = tag
         self.socket_name = PL_SERVER_TEMPLATE.format(tag)
