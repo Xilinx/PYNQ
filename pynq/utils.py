@@ -237,6 +237,8 @@ def _find_remote_overlay(device_name, links_json_path):
 
 
 class OverlayNotFoundError(Exception):
+    """This exception is raised when an overlay for the target device could not
+    be located."""
     pass
 
 
@@ -435,7 +437,7 @@ def download_overlays(path, download_all=False, fail=False):
                                       "device '{}'".format(overlay_name,
                                                            device)
                                 if fail:
-                                    raise FileNotFoundError(msg)
+                                    raise OverlayNotFoundError(msg)
                                 logger.info(msg)
         for f in files:
             if f.endswith(".link"):
@@ -473,7 +475,7 @@ def download_overlays(path, download_all=False, fail=False):
                                       "device '{}'".format(overlay_name,
                                                            device)
                                 if fail:
-                                    raise FileNotFoundError(msg)
+                                    raise OverlayNotFoundError(msg)
                                 logger.log(msg)
                 else:  # download all overlays regardless of detected devices
                     with open(os.path.join(root, f)) as f:

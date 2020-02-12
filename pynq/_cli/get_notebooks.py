@@ -157,8 +157,11 @@ def main():
     if not args.notebooks:
         yes = ["yes", "ye", "y"]
         no = ["no", "n"]
+        nbs = notebooks_ext_man.printable
+        if args.from_package:
+            nbs = [nb for nb in nbs if args.from_package in nb]
         print("The following notebooks packages will be delivered:\n- "
-              "{}".format("\n- ".join(notebooks_ext_man.printable)))
+              "{}".format("\n- ".join(nbs)))
         coiche = input("Do you want to proceed? [Y/n] ").lower()
         while True:
             if coiche == "" or coiche in yes:
