@@ -1,4 +1,4 @@
-#   Copyright (c) 2019, Xilinx, Inc.
+#   Copyright (c) 2020, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -29,17 +29,17 @@
 
 import argparse
 from os import fork
-from ..pl_server.server import _start_server, _stop_server
+from pynq.pl_server.server import _start_server, _stop_server
 
 __author__ = "Giuseppe Natale"
-__copyright__ = "Copyright 2019, Xilinx"
+__copyright__ = "Copyright 2020, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
 def _pl_server_parser():
     """Initialize and return the argument parser."""
     parser = argparse.ArgumentParser(description="Manage PYNQ PL Server")
-    parser.add_argument('action', choices=['start', 'stop'],
+    parser.add_argument("action", choices=["start", "stop"],
                         help="Start or stop the PL server")
     return parser
 

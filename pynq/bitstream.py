@@ -36,8 +36,22 @@ from datetime import datetime
 import struct
 import numpy as np
 from .devicetree import get_dtbo_path
+from .utils import _find_local_overlay
 
 PYNQ_PATH = os.path.dirname(os.path.realpath(__file__))
+
+
+def _resolve_bitstream(bitfile_path, device):
+    if os.path.isfile(bitfile_path):
+        return bitfile_path
+    if os.path.isdir(bitfile_path + ".d") and hasattr(device, 'name'):
+        device_name = device.name
+        split_bitfile = os.path.split(bitfile_path)
+        local_bitfile = _find_local_overlay(device.name, split_bitfile[1],
+                                            split_bitfile[0])
+        if local_bitfile is not None:
+            return local_bitfile
+    return None
 
 class Bitstream:
     """This class instantiates the meta class for PL bitstream (full/partial).
@@ -92,15 +106,15 @@ class Bitstream:
             device = Device.active_device
         self.device = device
 
-        bitfile_abs = os.path.abspath(bitfile_name)
-        bitfile_overlay_abs = os.path.join(PYNQ_PATH,
-                                           'overlays',
-                                           bitfile_name.replace('.bit', ''),
-                                           bitfile_name)
+        bitfile_abs = _resolve_bitstream(os.path.abspath(bitfile_name), device)
+        bitfile_overlay_abs = _resolve_bitstream(
+                os.path.join(PYNQ_PATH, 'overlays',
+                             bitfile_name.replace('.bit', ''), bitfile_name),
+                device)
 
-        if os.path.isfile(bitfile_name):
+        if bitfile_abs is not None:
             self.bitfile_name = bitfile_abs
-        elif os.path.isfile(bitfile_overlay_abs):
+        elif bitfile_overlay_abs is not None:
             self.bitfile_name = bitfile_overlay_abs
         else:
             raise IOError('Bitstream file {} does not exist.'.format(
