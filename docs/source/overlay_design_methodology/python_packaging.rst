@@ -111,6 +111,17 @@ look like
    recursive-include new_overlay/notebooks *
    recursive-include new_overlay *.bit *.hwh *.tcl
 
+If you want to have users be able to install your package without first
+installing PYNQ you will also need to create a *pyproject.toml* file as
+specified in `PEP 518`_. This is used to specify that PYNQ needs to be
+installed prior to the setup script running so that ``pynq.utils.build_py`` is
+available for importing. The ``setuptools`` and ``wheel`` are required by
+the build system so we'll add those to the list as well.
+
+.. code-block :: toml
+
+    [build-system]
+    requires = ["setuptools", "wheel", "pynq>=2.5.1"]
 
 Rebuilding PYNQ
 ---------------
@@ -192,3 +203,4 @@ and modifying* pynq. An example of depending on pynq is shown in the code
 segment from the previous section.
 
 .. _Manifest.in: https://packaging.python.org/guides/using-manifest-in/
+.. _PEP 518: https://www.python.org/dev/peps/pep-0518/
