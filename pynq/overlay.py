@@ -527,13 +527,30 @@ class RegisterIP(type):
         super().__init__(name, bases, attrs)
 
 _struct_dict = {
+    # Base Vitis int types
+    'char': 'c',
+    'signed char': 'b',
+    'unsigned char': 'B',
+    'short': 'h',
+    'unsigned short': 'H',
     'int': 'i',
     'unsigned int': 'I',
-    'uint': 'I',
+    'long int': 'l',
+    'long unsigned int': 'L',
+    'long long int': 'q',
+    'long long unsigned int': 'Q',
+    # Base Vitis floating point types
     'float': 'f',
     'double': 'd',
-    'long': 'l'
+    # Other types seen in the wild
+    'long': 'l',
+    'uint': 'I',
+    'ushort': 'H'
 }
+
+def _ctype_to_struct(ctype):
+    ctype = ctype.replace('const', '').strip()
+    return _struct_dict[ctype]
 
 XrtArgument = collections.namedtuple('XrtArgument',
                                      ['name', 'index', 'type', 'mem'])
