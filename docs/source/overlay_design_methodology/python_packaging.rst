@@ -1,3 +1,5 @@
+.. _pynq-python-packaging:
+
 Python Packaging
 ================
 
