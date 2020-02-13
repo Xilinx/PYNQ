@@ -42,20 +42,25 @@ Memory banks are named based on the Alveo shell that is in use and can be
 found through the overlay class and in the shell's documentation.
 
 Buffers also need to be explicitly synchronized between the host and
-accelerator card memories. We have reloaded the terminology from our
-embedded devices with memory being ``flush`` ed and ``invalidate`` d.
+accelerator card memories. The buffer has ``sync_to_device`` and
+``sync_from_device`` functions to manage this transfer of data. Note that the
+``flush`` and ``invalidate`` functions are still present for Alveo and
+correspond to the ``sync_to_device`` and ``sync_from_device`` respectively to
+make it easier to write code that works on both ZYNQ and Alveo platforms.
+Likewise, starting from version 2.5.1, ``sync_to_device`` and
+``sync_from_device`` will be present on ZYNQ.
 
 .. code:: python
 
-    input_buf.flush()
-    output_buffer.invalidate()
+    input_buf.sync_to_device()
+    output_buffer.sync_from_device()
 
 It is also possible to transfer only part of a buffer by slicing the array
-prior to calling flush or invalidate.
+prior to calling a sync function.
 
 .. code:: python
 
-    input_buffer[0:64].flush()
+    input_buffer[0:64].sync_to_device()
 
 Running Accelerators
 --------------------
