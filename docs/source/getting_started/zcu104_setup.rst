@@ -71,3 +71,5 @@ change to **Yellow**. This indicates that the bitstream has been downloaded
 and the system is booting. 
 
 .. include:: network_connection.rst
+
+.. include:: pynq_sdcard_getting_started.rst

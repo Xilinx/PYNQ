@@ -70,3 +70,5 @@ will then turn on and off while the **Yellow/Green LD0-LD3** LEDs remain on. The
 system is now booted and ready for use.
 
 .. include:: network_connection.rst
+
+.. include:: pynq_sdcard_getting_started.rst
