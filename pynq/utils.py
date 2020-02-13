@@ -166,7 +166,13 @@ def _detect_devices(active_only=False):
     return [d.name for d in devices]
 
 
-def _download_file(download_link, path):
+class DownloadedFileChecksumError(Exception):
+    """This exception is raised when a downloaded file has an incorrect
+    checksum."""
+    pass
+
+
+def _download_file(download_link, path, md5sum=None):
     """Download a file from the web.
 
     Parameters
@@ -174,9 +180,15 @@ def _download_file(download_link, path):
         download_link: str
             The download link to use
         path: str
-            The path where to save the file.
+            The path where to save the file. The path must include the target
+            file
+        md5sum: str or None
+            If specified, it is used after download to check for correctness.
+            Raises a `DownloadedFileChecksumError` exception when the checksum
+            is incorrect, and deletes the downloaded file.
     """
     import urllib.request
+    import hashlib
     logger = get_logger()
     name = os.path.split(path)[1]
     logger.info("Downloading file '{}'. This may take a while...".format(name))
@@ -184,10 +196,21 @@ def _download_file(download_link, path):
             open(path, "wb") as out_file:
         data = response.read()
         out_file.write(data)
+    if md5sum:
+        file_md5sum = hashlib.md5()
+        with open(path, "rb") as out_file:
+            for chunk in iter(lambda: out_file.read(4096), b""):
+                file_md5sum.update(chunk)
+        if md5sum != file_md5sum.hexdigest():
+            os.remove(path)
+            raise DownloadedFileChecksumError("Incorrect checksum for file "
+                                              "'{}'. The file has been "
+                                              "deleted as a result".format(
+                                                  path))
 
 
 def _find_local_overlay(device_name, overlay_filename, src_path):
-    """Get overlay path to overlay to use.
+    """Get path of overlay to use.
 
     Inspects `overlay_name.d` directory for an available overlay for
     `device_name`. If a `overlay_name` file is also found, always return
@@ -218,7 +241,17 @@ def _find_local_overlay(device_name, overlay_filename, src_path):
 
 
 def _find_remote_overlay(device_name, links_json_path):
-    """Get overlay download link from links json file.
+    """Get overlay download link and checksum from links json file.
+
+    Expected return content from the links json file is a dict with two
+    entries:
+
+    .. code-block:: python3
+
+        {
+            "url": "https://link.to/overlay.xclbin",
+            "md5sum": "da1e100gh8e7becb810976e37875de38"
+        }
 
     Returns `None` if device_name is not found
 
@@ -288,7 +321,7 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
     logger = get_logger()
     dst_fullpath = os.path.join(dst_path, name) if folder else dst_path
     files_to_copy = {}
-    files_to_download = {}
+    files_to_move = {}
     for root, dirs, files in os.walk(src_path):
         # If there is at least one notebook, inspect the folder
         if [f for f in files if f.endswith(".ipynb")]:
@@ -298,7 +331,7 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
             relpath = "" if relpath == "." else relpath
             try:
                 files_to_copy_tmp = {}
-                files_to_download_tmp = {}
+                files_to_move_tmp = {}
                 for d in dirs:
                     if d.endswith(".d"):
                         if overlays_lookup:
@@ -331,12 +364,20 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
                                 files_to_copy_tmp[overlay_src_path] = \
                                     overlay_dst_path
                             else:
-                                overlay_download_link = _find_remote_overlay(
+                                overlay_download_dict = _find_remote_overlay(
                                     device_name, os.path.join(root, f))
-                                if overlay_download_link:
-                                    files_to_download_tmp[
-                                        overlay_download_link] = \
-                                        overlay_dst_path
+                                if overlay_download_dict:
+                                    # attempt overlay download
+                                    try:
+                                        tmp_file = tempfile.mkstemp()[1]
+                                        _download_file(
+                                            overlay_download_dict["url"],
+                                            tmp_file,
+                                            overlay_download_dict["md5sum"])
+                                        files_to_move_tmp[tmp_file] = \
+                                            overlay_dst_path
+                                    except DownloadedFileChecksumError:
+                                        raise OverlayNotFoundError
                                 else:
                                     raise OverlayNotFoundError
                     else:
@@ -346,8 +387,8 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
                 # No OverlayNotFoundError exception raised, can add
                 # files_to_copy_tmp to files_to_copy
                 files_to_copy.update(files_to_copy_tmp)
-                # and files_to_download_tmp to files_to_download
-                files_to_download.update(files_to_download_tmp)
+                # and files_to_move_tmp to files_to_move
+                files_to_move.update(files_to_move_tmp)
             except OverlayNotFoundError:
                 # files_to_copy not updated, notebooks here skipped
                 nb_str = "{}/{}".format(name, relpath)
@@ -371,9 +412,9 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
                     copy_file(src, dst)
                 else:
                     copy_tree(src, dst)
-            # download files from web
-            for link, dst in files_to_download.items():
-                _download_file(link, dst)
+            # and move files previously downloaded
+            for src, dst in files_to_move.items():
+                shutil.move(src, dst)
     except (Exception, KeyboardInterrupt) as e:
         # roll-back copy
         logger.info("Exception detected. Cleaning up as the delivery process "
@@ -386,7 +427,7 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
                     dst = os.path.dirname(dst)
             elif os.path.isdir(dst):
                 remove_tree(dst)
-        for _, dst in files_to_download.items():
+        for _, dst in files_to_move.items():
             if os.path.isfile(dst):
                 os.remove(dst)
                 while(len(os.listdir(os.path.dirname(dst))) == 0):
@@ -433,12 +474,12 @@ def download_overlays(path, download_all=False, fail=False):
                             overlay_src_path = _find_local_overlay(
                                 device, overlay_name, root)
                             if not overlay_src_path:
-                                msg = "Could not find overlay '{}' for " \
-                                      "device '{}'".format(overlay_name,
-                                                           device)
+                                err_msg = "Could not find overlay '{}' for " \
+                                          "device '{}'".format(overlay_name,
+                                                               device)
                                 if fail:
-                                    raise OverlayNotFoundError(msg)
-                                logger.info(msg)
+                                    raise OverlayNotFoundError(err_msg)
+                                logger.info(err_msg)
         for f in files:
             if f.endswith(".link"):
                 overlay_name = os.path.splitext(f)[0]
@@ -447,10 +488,12 @@ def download_overlays(path, download_all=False, fail=False):
                         overlay_src_path = _find_local_overlay(device,
                                                                overlay_name,
                                                                root)
+                        err_msg = "Could not find overlay '{}' for " \
+                                  "device '{}'".format(overlay_name, device)
                         if not overlay_src_path:
-                            overlay_download_link = _find_remote_overlay(
+                            overlay_download_dict = _find_remote_overlay(
                                 device, os.path.join(root, f))
-                            if overlay_download_link:
+                            if overlay_download_dict:
                                 overlay_download_path = os.path.join(
                                     root, overlay_name + ".d")
                                 overlay_filename_split = \
@@ -459,30 +502,35 @@ def download_overlays(path, download_all=False, fail=False):
                                     overlay_filename_split[0], device,
                                     overlay_filename_split[1])
                                 mkpath(overlay_download_path)
+                                overlay_fullpath = os.path.join(
+                                    overlay_download_path,
+                                    overlay_filename_ext)
                                 try:
-                                    _download_file(overlay_download_link,
-                                                   os.path.join(
-                                                       overlay_download_path,
-                                                       overlay_filename_ext))
+                                    _download_file(
+                                        overlay_download_dict["url"],
+                                        overlay_fullpath,
+                                        overlay_download_dict["md5sum"])
                                 except Exception as e:
                                     if fail:
                                         raise e
+                                finally:
+                                    if not os.path.isfile(overlay_fullpath):
+                                        logger.log(err_msg)
                                     if len(os.listdir(
                                             overlay_download_path)) == 0:
                                         os.rmdir(overlay_download_path)
                             else:
-                                msg = "Could not find overlay '{}' for " \
-                                      "device '{}'".format(overlay_name,
-                                                           device)
                                 if fail:
-                                    raise OverlayNotFoundError(msg)
-                                logger.log(msg)
+                                    raise OverlayNotFoundError(err_msg)
+                                logger.log(err_msg)
                 else:  # download all overlays regardless of detected devices
                     with open(os.path.join(root, f)) as f:
                         links = json.load(f)
-                        for device, download_link in links.items():
+                        for device, download_link_dict in links.items():
                             if not _find_local_overlay(device, overlay_name,
                                                        root):
+                                err_msg = "Could not find overlay '{}' for " \
+                                    "device '{}'".format(overlay_name, device)
                                 overlay_download_path = os.path.join(
                                     root, overlay_name + ".d")
                                 overlay_filename_split = \
@@ -491,14 +539,20 @@ def download_overlays(path, download_all=False, fail=False):
                                     overlay_filename_split[0], device,
                                     overlay_filename_split[1])
                                 mkpath(overlay_download_path)
+                                overlay_fullpath = os.path.join(
+                                    overlay_download_path,
+                                    overlay_filename_ext)
                                 try:
-                                    _download_file(download_link,
-                                                   os.path.join(
-                                                       overlay_download_path,
-                                                       overlay_filename_ext))
+                                    _download_file(
+                                        download_link_dict["url"],
+                                        overlay_fullpath,
+                                        download_link_dict["md5sum"])
                                 except Exception as e:
                                     if fail:
                                         raise e
+                                finally:
+                                    if not os.path.isfile(overlay_fullpath):
+                                        logger.log(err_msg)
                                     if len(os.listdir(
                                             overlay_download_path)) == 0:
                                         os.rmdir(overlay_download_path)
@@ -600,6 +654,6 @@ def run_notebook(notebook, root_path=".", timeout=30):
             nbformat.from_dict({'cell_type': 'code',
                                 'metadata': {},
                                 'source': _create_code(len(code_cells))}
-        ))
+                               ))
         ep.preprocess(nb, {'metadata': {'path': notebook_dir}})
         return NotebookResult(nb)
