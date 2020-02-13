@@ -275,7 +275,7 @@ class OverlayNotFoundError(Exception):
     pass
 
 
-def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
+def deliver_notebooks(device_name, src_path, dst_path, name, folder=False,
                       overlays_lookup=True):
     """Deliver notebooks (and possibly overlays) to target destination path.
 
@@ -310,7 +310,7 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
         dst_path: str
             The destination path to copy to
         name: str
-            The name of the notebooks package
+            The name of the notebooks module
         folder: bool
             Indicates whether to use `name` as target folder to copy notebooks,
             inside `dst_path`. Notebooks will be copied directly in `dst_path`
@@ -402,7 +402,7 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=None,
         pass
     try:
         if not files_to_copy:
-            logger.info("The notebooks package '{}' could not be delivered. "
+            logger.info("The notebooks module '{}' could not be delivered. "
                         "No valid overlays were found".format(name))
         else:
             # now copy files and folders
