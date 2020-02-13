@@ -28,12 +28,12 @@ if [ ${PYNQ_BOARD} != "Unknown" ]; then
 	fi
 fi
 
-if [ -n "$PYNQ_SDIST" ] && [ "$BOARDDIR" = "$DEFAULT_BOARDDIR" ]; then
+if [ -n "$PYNQ_SDIST" ] && [ "$BOARDDIR" -ef "$DEFAULT_BOARDDIR" ]; then
 	# using prebuilt sdist with non-external board, nothing to do except copy
 	# sdist to target folder
 	sudo cp ${PYNQ_SDIST} $target/home/xilinx/pynq_git/dist
 else
-	if [ -n "$PYNQ_SDIST" ] && [ "$BOARDDIR" != "$DEFAULT_BOARDDIR" ]; then
+	if [ -n "$PYNQ_SDIST" ] && [ ! "$BOARDDIR" -ef "$DEFAULT_BOARDDIR" ]; then
 		# using prebuilt sdist with external board, copy bitstreams, microlbazes'
 		# bsps and binaries from sdist
 		sdist_untar=$BUILD_ROOT/PYNQ/sdist_untar

@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 		xenial.vm.provider "virtualbox" do |vb|
 			vb.gui = true
 			vb.name = "pynq_ubuntu_16_04"
-			vb.memory = "4096"
+			vb.memory = "8192"
 			vb.customize ["modifyvm", :id, "--vram", "128"]
 			vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
 			disk_image = File.join(File.dirname(File.expand_path(__FILE__)), 
@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
 			unless File.exist?(disk_image)
 			vb.customize ['createhd', 
 						'--filename', disk_image, 
-						'--size', 100 * 1024]
+						'--size', 160 * 1024]
 		end
 			vb.customize ['storageattach', :id, 
 						'--storagectl', 'SCSI', 
@@ -39,12 +39,12 @@ Vagrant.configure("2") do |config|
 			parted /dev/sdc mkpart primary 100 100%
 			partprobe
 			mkfs.xfs /dev/sdc1
-			mkdir /sdbuild
+			mkdir /workspace
 			echo `blkid /dev/sdc1 | awk '{print$2}' | sed -e 's/"//g'` \
-				/sdbuild   xfs   noatime,nobarrier   0   0 >> /etc/fstab
-			mount /sdbuild
-			chown -R vagrant:vagrant /sdbuild
-			chmod 777 -R /sdbuild
+				/workspace   xfs   noatime,nobarrier   0   0 >> /etc/fstab
+			mount /workspace
+			chown -R vagrant:vagrant /workspace
+			chmod 777 -R /workspace
 		SHELL
 
 		xenial.vm.provision "shell",
@@ -71,7 +71,7 @@ Vagrant.configure("2") do |config|
 		bionic.vm.provider "virtualbox" do |vb|
 			vb.gui = true
 			vb.name = "pynq_ubuntu_18_04"
-			vb.memory = "4096"
+			vb.memory = "8192"
 			vb.customize ["modifyvm", :id, "--vram", "128"]
 			vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
 			disk_image = File.join(File.dirname(File.expand_path(__FILE__)), 
@@ -79,7 +79,7 @@ Vagrant.configure("2") do |config|
 			unless File.exist?(disk_image)
 			vb.customize ['createhd', 
 						'--filename', disk_image, 
-						'--size', 100 * 1024]
+						'--size', 160 * 1024]
 			end
 			vb.customize ['storageattach', :id, 
 						  '--storagectl', 'SCSI', 
@@ -98,12 +98,12 @@ Vagrant.configure("2") do |config|
 			parted /dev/sdc mkpart primary 100 100%
 			partprobe
 			mkfs.xfs /dev/sdc1
-			mkdir /sdbuild
+			mkdir /workspace
 			echo `blkid /dev/sdc1 | awk '{print$2}' | sed -e 's/"//g'` \
-				/sdbuild   xfs   noatime,nobarrier   0   0 >> /etc/fstab
-			mount /sdbuild
-			chown -R vagrant:vagrant /sdbuild
-			chmod 777 -R /sdbuild
+				/workspace   xfs   noatime,nobarrier   0   0 >> /etc/fstab
+			mount /workspace
+			chown -R vagrant:vagrant /workspace
+			chmod 777 -R /workspace
 		SHELL
 
 		bionic.vm.provision "shell",

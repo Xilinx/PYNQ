@@ -54,6 +54,7 @@ rsync
 python3-pip
 python-minimal
 gcc-multilib
+xterm
 EOT
 set -e
 
