@@ -158,7 +158,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
             }
     for i, d in enumerate(sorted(ip_dict.values(), key=lambda x: x['phys_addr'])):
         d['adjusted_index'] = i
-    return ip_dict
+    return {k: v for k, v in sorted(ip_dict.items())}
 
 
 def _add_argument_memory(ip_dict, ip_data, connections, memories):
