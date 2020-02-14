@@ -70,3 +70,5 @@ system is now booted and ready for use.
   
 
 .. include:: network_connection.rst
+
+.. include:: pynq_sdcard_getting_started.rst

@@ -49,5 +49,3 @@ You can also check the IP address of the board using *ifconfig*:
 .. code-block:: console
     
     ifconfig
-
-.. _microsd-card-setup:
