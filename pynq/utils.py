@@ -189,9 +189,6 @@ def _download_file(download_link, path, md5sum=None):
     """
     import urllib.request
     import hashlib
-    logger = get_logger()
-    name = os.path.split(path)[1]
-    logger.info("Downloading file '{}'. This may take a while...".format(name))
     with urllib.request.urlopen(download_link) as response, \
             open(path, "wb") as out_file:
         data = response.read()
@@ -370,6 +367,9 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=False,
                                     # attempt overlay download
                                     try:
                                         tmp_file = tempfile.mkstemp()[1]
+                                        logger.info("Downloading file '{}'. "
+                                                    "This may take a while"
+                                                    "...".format(overlay_name))
                                         _download_file(
                                             overlay_download_dict["url"],
                                             tmp_file,
@@ -391,10 +391,11 @@ def deliver_notebooks(device_name, src_path, dst_path, name, folder=False,
                 files_to_move.update(files_to_move_tmp)
             except OverlayNotFoundError:
                 # files_to_copy not updated, notebooks here skipped
-                nb_str = "{}/{}".format(name, relpath)
-                logger.info("Could not find valid overlay for notebooks '{}', "
-                            "these notebooks will not be delivered".format(
-                                nb_str))
+                if relpath:
+                    nb_str = os.path.join(name, relpath)
+                    logger.info("Could not find valid overlay for notebooks "
+                                "'{}', these notebooks will not be "
+                                "delivered".format(nb_str))
     try:
         # exclude root __init__.py from copy, if it exists
         files_to_copy.pop(os.path.join(src_path, "__init__.py"))
@@ -506,6 +507,9 @@ def download_overlays(path, download_all=False, fail=False):
                                     overlay_download_path,
                                     overlay_filename_ext)
                                 try:
+                                    logger.info("Downloading file '{}'. "
+                                                "This may take a while"
+                                                "...".format(overlay_name))
                                     _download_file(
                                         overlay_download_dict["url"],
                                         overlay_fullpath,
@@ -543,6 +547,9 @@ def download_overlays(path, download_all=False, fail=False):
                                     overlay_download_path,
                                     overlay_filename_ext)
                                 try:
+                                    logger.info("Downloading file '{}'. "
+                                                "This may take a while"
+                                                "...".format(overlay_name))
                                     _download_file(
                                         download_link_dict["url"],
                                         overlay_fullpath,
@@ -662,6 +669,7 @@ def run_notebook(notebook, root_path=".", timeout=30):
 def _default_repr(obj):
     return repr(obj)
 
+
 class ReprDict(dict):
     """Subclass of the built-in dict that will display using the Jupyterlab
     JSON repr.
@@ -688,7 +696,7 @@ class ReprDict(dict):
 
     def _repr_json_(self):
         return json.loads(json.dumps(self, default=_default_repr)), \
-               {'expanded': self._expanded, 'root': self._rootname}
+            {'expanded': self._expanded, 'root': self._rootname}
 
     def __getitem__(self, key):
         obj = super().__getitem__(key)
