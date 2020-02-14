@@ -40,14 +40,14 @@ __email__ = "pynq_support@xilinx.com"
 
 
 NOTEBOOKS_GROUP = "pynq.notebooks"
-TARGET_NB_DIR = "pynq-notebooks"
+TARGET_NB_DIR = os.path.join(".", "pynq-notebooks")
 
 
 class _GetNotebooksParser(argparse.ArgumentParser):
     @property
     def epilog(self):
         """Add list of entry points to epilog when help output is requested."""
-        return "Available notebooks packages: {}".format(
+        return "Available notebooks modules: {}".format(
             ", ".join(_ExtensionsManager(NOTEBOOKS_GROUP).printable))
 
     @epilog.setter
@@ -62,16 +62,16 @@ def _get_notebooks_parser():
                                              "notebooks")
     group = parser.add_mutually_exclusive_group()
     parser.add_argument("notebooks", type=str, nargs="*",
-                        help="Provide one or more target notebooks packages "
+                        help="Provide one or more target notebooks modules "
                              "to deliver. The special keyword 'all' "
                              "will deliver all notebooks without prompt")
     parser.add_argument("-l", "--list", action="store_true",
-                        help="List available notebooks packages and exit")
+                        help="List available notebooks modules and exit")
     group.add_argument("-d", "--device", type=str,
                        help="Provide a specific device name (XRT shell)")
     group.add_argument("-i", "--interactive", action="store_true",
                        help="Detect available shells and ask which one to "
-                            "use.")
+                            "use")
     group.add_argument("-o", "--ignore-overlays", action="store_true",
                        help="Ignore automatic overlays lookup. Notebooks will "
                             "be forcibly delivered")
@@ -81,14 +81,7 @@ def _get_notebooks_parser():
                              "directory will be renamed adding a timestamp")
     parser.add_argument("-p", "--path", type=str,
                         help="Specify a custom path to deliver notebooks to. "
-                             "Default is the current working directory. A "
-                             "'{}' directory will be created in the specified "
-                             "path with all the notebooks.".format(
-                                 TARGET_NB_DIR))
-    parser.add_argument("-n", "--no-root", action="store_true",
-                        help="Do not create '{}' directory, copy "
-                             "directly to the target path".format(
-                                 TARGET_NB_DIR))
+                             "Default is '{}'".format(TARGET_NB_DIR))
     parser.add_argument("--from-package", type=str,
                         help="Get notebooks only from target package name")
     parser.add_argument("-q", "--quiet", action="store_true",
@@ -103,10 +96,10 @@ def main():
     if args.list:
         notebooks_list = notebooks_ext_man.printable
         if notebooks_list:
-            print("Available notebooks packages:\n- {}".format(
+            print("Available notebooks modules:\n- {}".format(
                   "\n- ".join(notebooks_list)))
         else:
-            print("No notebooks package available")
+            print("No notebooks available")
         return
     logger = get_logger()
     if args.quiet:
@@ -136,14 +129,14 @@ def main():
     else:  # default case, detect devices and use default device
         device = _detect_devices(active_only=True)
     if not notebooks_ext_man.list:
-        logger.warn("No notebooks package available, nothing can be "
+        logger.warn("No notebooks available, nothing can be "
                     "delivered")
         return
     if args.notebooks:
         if "all" in args.notebooks:
             if len(args.notebooks) > 1:
                 raise ValueError("The special keyword 'all' cannot be used "
-                                 "with other notebooks packages")
+                                 "with other notebooks modules")
         else:
             names = [ext.name for ext in notebooks_ext_man.list]
             not_found = []
@@ -151,14 +144,17 @@ def main():
                 if p not in names:
                     not_found.append(p)
             if not_found:
-                raise ValueError("Notebooks packages '{}' not found. Make "
+                raise ValueError("Notebooks modules '{}' not found. Make "
                                  "sure they exist and the source packages are "
                                  "installed".format(", ".join(not_found)))
     if not args.notebooks:
         yes = ["yes", "ye", "y"]
         no = ["no", "n"]
-        print("The following notebooks packages will be delivered:\n- "
-              "{}".format("\n- ".join(notebooks_ext_man.printable)))
+        nbs = notebooks_ext_man.printable
+        if args.from_package:
+            nbs = [nb for nb in nbs if args.from_package in nb]
+        print("The following notebooks modules will be delivered:\n- "
+              "{}".format("\n- ".join(nbs)))
         coiche = input("Do you want to proceed? [Y/n] ").lower()
         while True:
             if coiche == "" or coiche in yes:
@@ -170,21 +166,17 @@ def main():
     if args.path:
         delivery_path = args.path
     else:
-        delivery_path = os.getcwd()
-    if args.no_root:
-        delivery_fullpath = delivery_path
-    else:
-        delivery_fullpath = os.path.join(delivery_path, TARGET_NB_DIR)
-    if os.path.exists(delivery_fullpath) and \
+        delivery_path = TARGET_NB_DIR
+    if os.path.exists(delivery_path) and \
             (not args.notebooks or "all" in args.notebooks):
         if args.force:
             import datetime
             timestamp = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
-            backup_dir = os.path.split(delivery_fullpath)[1] + "_" + \
+            backup_dir = os.path.split(delivery_path)[1] + "_" + \
                 timestamp
-            backup_fullpath = os.path.join(os.path.dirname(delivery_fullpath),
+            backup_fullpath = os.path.join(os.path.dirname(delivery_path),
                                            backup_dir)
-            move(delivery_fullpath, backup_fullpath)
+            move(delivery_path, backup_fullpath)
         else:
             raise FileExistsError("Target notebooks directory already "
                                   "exists. Specify another path or use "
@@ -193,11 +185,10 @@ def main():
     try:
         ## Ignoring notebooks from main `pynq.notebooks` namespace as of now
         # src_path = notebooks_ext_man.extension_path(NOTEBOOKS_GROUP)
-        # logger.info("Delivering notebooks from main '{}'...".format(
+        # logger.info("Delivering notebooks from '{}'...".format(
         #     NOTEBOOKS_GROUP))
-        # deliver_notebooks(device, src_path, delivery_fullpath,
+        # deliver_notebooks(device, src_path, delivery_path,
         #                   NOTEBOOKS_GROUP, overlays_lookup=overlays_lookup)
-        # pkg_resources.cleanup_resources(force=True)
         ##
         for ext in notebooks_ext_man.list:
             if args.notebooks and "all" not in args.notebooks and \
@@ -206,8 +197,8 @@ def main():
             if args.from_package and \
                     args.from_package != ext.module_name.split(".")[0]:
                     continue
-            logger.info("Delivering '{}' notebooks package...".format(
-                ext.name))
+            logger.info("Delivering notebooks '{}'...".format(
+                os.path.join(delivery_path, ext.name)))
             ext_mod = ext.load()
             if hasattr(ext_mod, "__no_root__") and \
                     type(ext_mod.__no_root__) is bool \
@@ -231,19 +222,19 @@ def main():
                 # pre- or post-processing calling
                 # `pynq.utils:deliver_notebooks` inside, or an entirely custom
                 # delivery procedure
-                ext_mod.deliver_notebooks(device, src_path, delivery_fullpath,
+                ext_mod.deliver_notebooks(device, src_path, delivery_path,
                                           ext.name, folder=folder,
                                           overlays_lookup=overlays_lookup)
             else:
-                deliver_notebooks(device, src_path, delivery_fullpath,
+                deliver_notebooks(device, src_path, delivery_path,
                                   ext.name, folder=folder,
                                   overlays_lookup=overlays_lookup)
     except (Exception, KeyboardInterrupt) as e:
         raise e
     finally:
-        if os.path.isdir(delivery_fullpath) and \
-                len(os.listdir(delivery_fullpath)) == 0:
-            os.rmdir(delivery_fullpath)
-        if not os.path.isdir(delivery_fullpath):
+        if os.path.isdir(delivery_path) and \
+                len(os.listdir(delivery_path)) == 0:
+            os.rmdir(delivery_path)
+        if not os.path.isdir(delivery_path):
             logger.warn("No notebooks available for target device, nothing "
                         "will be delivered")
