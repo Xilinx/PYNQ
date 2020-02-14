@@ -89,20 +89,12 @@ The command will scan the environment for available notebooks coming from
 packages that have registered for discovery. You can read more about this 
 mechanism in the :ref:`pynq-python-packaging` section.
 
-You may want to provide a specific path where to deliver the notebooks instead
-of the current working directory. You can achieve this by passing the ``--path`` 
-option
+You may want to provide a specific path where to deliver the notebooks instead. 
+You can achieve this by passing the ``--path`` option
 
 .. code:: bash
     
     pynq get-notebooks --path <your-path>
-
-You can also avoid the creation of the 'pynq-notebooks' directory, deploying the 
-notebooks directly to the target path, by passing the ``--no-root`` option
-
-.. code:: bash
-    
-    pynq get-notebooks --no-root
 
 By default, typing ``get-notebooks`` without any option will deliver all the 
 available notebooks and prompt the user for confirmation, listing what notebooks 

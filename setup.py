@@ -413,9 +413,9 @@ setup(name='pynq',
           'console_scripts': [
               'start_pl_server.py = pynq.pl_server.server:_start_server',
               'stop_pl_server.py = pynq.pl_server.server:_stop_server',
-              'pynq = pynq.cli.cmd:main',
-              'pynq-server = pynq.cli.pl_server:main',
-              "pynq-get-notebooks = pynq.cli.get_notebooks:main"
+              'pynq = pynq._cli.cmd:main',
+              'pynq-server = pynq._cli.manage_global_server:main',
+              "pynq-get-notebooks = pynq._cli.get_notebooks:main"
           ],
           'distutils.commands': [
               'download_overlays = pynq.utils:_download_overlays'
