@@ -126,6 +126,20 @@ class PynqBuffer(np.ndarray):
             self.device.invalidate(self.bo, self.offset,
                                    self.virtual_address, self.nbytes)
 
+    def sync_to_device(self):
+        """Copy the contents of the host buffer into the mirrored
+        device buffer
+
+        """
+        self.flush()
+
+    def sync_from_device(self):
+        """Copy the contents of the device buffer into the mirrored
+        host buffer
+
+        """
+        self.invalidate()
+
     def __enter__(self):
         return self
 
