@@ -37,5 +37,5 @@ Connect to a Router/Network (DHCP):
   1. Connect the Ethernet port on your board to a router/switch
   2. Connect your computer to Ethernet or WiFi on the router/switch
   3. Browse to http://<board IP address>
-  4. Optional: :ref:`change-the-hostname`
-  5. Optional: :ref:`configure-proxy-settings`
+  4. Optional: see *Change the Hostname* below
+  5. Optional: see *Configure Proxy Settings* below

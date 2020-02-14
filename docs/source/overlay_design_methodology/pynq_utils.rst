@@ -9,38 +9,46 @@ Downloading Overlays with Setuptools
 
 To avoid needing to put large bitstreams in source code repositories or on PyPI
 PYNQ supports the use of *link files*. A link file is a file with the extension
-``.link`` and contains a JSON dictionary of shell or board name to URL where
-the overlay can be downloaded.
+``.link`` and contains a JSON dictionary of shell or board name matched against
+the URL where the overlay can be downloaded, and the MD5 checksum of the file
 
 .. code-block :: javascript
 
     {
-        "xilinx_u200_xdma_201830_2": "https://link.to/u200.xclbin",
-        "xilinx_u250_xdma_201830_2": "https://link.to/u250.xclbin"
+        "xilinx_u200_xdma_201830_2": { 
+            "url": "https://link.to/u200.xclbin",
+            "md5sum": "da1e100gh8e7becb810976e37875de38"
+        }
+        "xilinx_u250_xdma_201830_2": {
+            "url": "https://link.to/u250.xclbin",
+            "md5sum": "1df38cf582c4c5d0c8e3ca38be8f1eb3"
+        }
     }
 
 PYNQ provides a ``download_overlays`` setuptools command which will process any
 link files in your repository and download the overlays for your board and
 place them alongside the link files. To run the the download command
-automatically at build time you can replace the utils module provides a
-``build_py`` command class that can be used in place of the normal ``build_py``
-phase. For more details on how to include this command in your setup.py see the
-:ref:`pynq-python-packaging` section for an example.
+automatically at build time the utils module provides a ``build_py`` command 
+class that can be used in place of the normal ``build_py`` phase. For more 
+details on how to include this command in your setup.py see the
+:ref:`pynq-python-packaging` section for an example. Refer also to the 
+`official Python documentation <https://docs.python.org/3.6/distutils/extending.html>`_
+and the `setuptools documentation <https://setuptools.readthedocs.io/en/latest/setuptools.html#extending-and-reusing-setuptools>`_ for more info on extending
+and reusing setuptools.
 
 To download the overlays from your own setuptools pass the same functionality
 is exposed through the ``download_overlays`` function. For more information see
 the module documentation available at :ref:`pynq-utils`.
 
-Installing Notebooks Programatically
-------------------------------------
+Installing Notebooks Programmatically
+--------------------------------------
 
-The utils packages contains the implementation behind the ``pynq
-get-notebooks`` CLI command. Most commonly this should be called from the
-command line but the functionality is also available through the
-``deliver_notebooks`` function. In delivering the notebooks any link files in
-the source directory will be evaluated if necessary. For the full details on
-the function and its arguments again refer to the :ref:`pynq-utils`
-documentation.
+The utils module contains the implementation behind the ``pynq get-notebooks`` 
+CLI command. Most commonly this should be called from the command line but the 
+functionality is also available through the ``deliver_notebooks`` function. In 
+delivering the notebooks any link files in the source directory will be 
+evaluated if necessary. For the full details on the function and its arguments 
+again refer to the :ref:`pynq-utils` documentation.
 
 Testing Notebooks
 -----------------

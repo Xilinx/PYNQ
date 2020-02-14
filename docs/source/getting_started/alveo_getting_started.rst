@@ -104,8 +104,12 @@ you can do
     bash Anaconda3-5.2.0-Linux-x86_64.sh
 
 After you have installed it make sure conda is in your ``PATH``, and in case 
-is not just source the activation script in 
-``<your-conda-install-path>/bin/activate``
+is not just source the conda activation script
+
+.. code-block:: bash
+    
+    source <your-conda-install-path>/bin/activate
+
 
 Using a Conda Environment
 -------------------------
