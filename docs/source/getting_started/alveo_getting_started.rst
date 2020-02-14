@@ -92,16 +92,17 @@ To get PYNQ, we recommend to install and use
 install `Anaconda <https://www.anaconda.com/>`_ as it already includes most of 
 the required packages.
 
-To install conda, you can follow the 
-`official installation guide <https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html>`_.
+To install conda, you can follow either the official 
+`conda installation guide <https://docs.conda.io/projects/conda/en/latest/user-guide/install>`_, 
+or look at the 
+`anaconda instructions <https://docs.anaconda.com/anaconda/install/>`_.
 
-For instance, to install the ``Anaconda`` distribution that includes Python 3.6 
-you can do
+For instance, to install the latest ``Anaconda`` distribution you can do
 
 .. code-block:: bash
     
-    wget https://repo.anaconda.com/archive/Anaconda3-5.2.0-Linux-x86_64.sh
-    bash Anaconda3-5.2.0-Linux-x86_64.sh
+    wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
+    bash Anaconda3-2019.10-Linux-x86_64.sh
 
 After you have installed it make sure conda is in your ``PATH``, and in case 
 is not just source the conda activation script
