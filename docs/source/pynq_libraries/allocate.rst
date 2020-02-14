@@ -31,10 +31,12 @@ additional properties and methods suited for use with the programmable logic.
  * ``device_address`` is the address that should be passed to the programmable
    logic to access the buffer
  * ``coherent`` is True if the buffer is cache-coherent between the PS and PL
- * ``flush`` flushes a non-coherent buffer ensuring that any changes by the
-   PS are visible to the PL
- * ``invalidate`` invalidates a non-coherent buffer ensuring any changes by
-   the PL are visible to the PS
+ * ``flush`` flushes a non-coherent or mirrored buffer ensuring that any
+   changes by the PS are visible to the PL
+ * ``invalidate`` invalidates a non-coherent or mirrored buffer ensuring any
+   changes by the PL are visible to the PS
+ * ``sync_to_device`` is an alias to ``flush``
+ * ``sync_from_device`` is an alias to ``invalidate``
 
 Example
 -------
