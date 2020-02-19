@@ -87,8 +87,8 @@ improve APSoC design:
    getting_started
    jupyter_notebooks
    python_environment
-   pynq_alveo
    pynq_overlays
+   pynq_alveo
    pynq_libraries
    overlay_design_methodology
    pynq_sd_card
