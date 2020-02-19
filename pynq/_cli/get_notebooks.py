@@ -126,6 +126,8 @@ def main():
                 print("Invalid choice.")
                 idx = -1
         device = shells[idx]
+    elif args.ignore_overlays:  # overlays are ignored, set device to `None`
+        device = None
     else:  # default case, detect devices and use default device
         device = _detect_devices(active_only=True)
     if not notebooks_ext_man.list:
@@ -153,6 +155,10 @@ def main():
         nbs = notebooks_ext_man.printable
         if args.from_package:
             nbs = [nb for nb in nbs if args.from_package in nb]
+            if not nbs:
+                logger.warn("No notebooks available for package '{}', nothing "
+                            "can be delivered".format(args.from_package))
+                return
         print("The following notebooks modules will be delivered:\n- "
               "{}".format("\n- ".join(nbs)))
         coiche = input("Do you want to proceed? [Y/n] ").lower()
