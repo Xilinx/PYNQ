@@ -181,14 +181,15 @@ def main():
             raise FileExistsError("Target notebooks directory already "
                                   "exists. Specify another path or use "
                                   "the 'force' option to proceed")
-    overlays_lookup = not args.ignore_overlays
+    overlays_res_lookup = not args.ignore_overlays
     try:
         ## Ignoring notebooks from main `pynq.notebooks` namespace as of now
         # src_path = notebooks_ext_man.extension_path(NOTEBOOKS_GROUP)
         # logger.info("Delivering notebooks from '{}'...".format(
         #     NOTEBOOKS_GROUP))
         # deliver_notebooks(device, src_path, delivery_path,
-        #                   NOTEBOOKS_GROUP, overlays_lookup=overlays_lookup)
+        #                   NOTEBOOKS_GROUP,
+        #                   overlays_res_lookup=overlays_res_lookup)
         ##
         for ext in notebooks_ext_man.list:
             if args.notebooks and "all" not in args.notebooks and \
@@ -222,13 +223,13 @@ def main():
                 # pre- or post-processing calling
                 # `pynq.utils:deliver_notebooks` inside, or an entirely custom
                 # delivery procedure
-                ext_mod.deliver_notebooks(device, src_path, delivery_path,
-                                          ext.name, folder=folder,
-                                          overlays_lookup=overlays_lookup)
+                ext_mod.deliver_notebooks(
+                    device, src_path, delivery_path, ext.name, folder=folder,
+                    overlays_res_lookup=overlays_res_lookup)
             else:
                 deliver_notebooks(device, src_path, delivery_path,
                                   ext.name, folder=folder,
-                                  overlays_lookup=overlays_lookup)
+                                  overlays_res_lookup=overlays_res_lookup)
     except (Exception, KeyboardInterrupt) as e:
         raise e
     finally:
