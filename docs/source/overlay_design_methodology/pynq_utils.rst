@@ -25,9 +25,20 @@ the URL where the overlay can be downloaded, and the MD5 checksum of the file
         }
     }
 
+In case the resource to be downloaded is *global* the *url* and *md5sum*
+entries should be at the top-level of the JSON dictionary. In this case, no 
+device-based resolution will be performed.
+
+.. code-block :: javascript
+
+    {
+        "url": "https://link.to/resource.extension",
+        "md5sum": "1df38cf582c4c5d0c8e3ca38be8f1eb3"
+    }
+
 PYNQ provides a ``download_overlays`` setuptools command which will process any
-link files in your repository and download the overlays for your board and
-place them alongside the link files. To run the the download command
+link files in your repository and download overlays and resources for your
+board and place them alongside the link files. To run the the download command
 automatically at build time the utils module provides a ``build_py`` command 
 class that can be used in place of the normal ``build_py`` phase. For more 
 details on how to include this command in your setup.py see the
