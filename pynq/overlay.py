@@ -37,7 +37,6 @@ import warnings
 from copy import deepcopy
 from .mmio import MMIO
 from .ps import Clocks
-from .pl import PL
 from .bitstream import Bitstream
 from .interrupt import Interrupt
 from .gpio import GPIO
@@ -58,7 +57,6 @@ if "XILINX_XRT" in os.environ:
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
-
 
 
 def _assign_drivers(description, ignore_version, device):
@@ -88,11 +86,11 @@ def _assign_drivers(description, ignore_version, device):
                     other_versions = [v for v in _ip_drivers.keys()
                                       if v.startswith(no_version_ip + ":")]
                     message = (
-                       "IP {0} is of type {1} and driver found for [{2}]. " +
-                       "Use ignore_version=True to use this driver."
-                       ).format(details['fullpath'],
-                                details['type'],
-                                ", ".join(other_versions))
+                        "IP {0} is of type {1} and driver found for [{2}]. " +
+                        "Use ignore_version=True to use this driver."
+                        ).format(details['fullpath'],
+                                 details['type'],
+                                 ", ".join(other_versions))
                     warnings.warn(message, UserWarning)
                     details['driver'] = DefaultIP
             else:
@@ -219,7 +217,7 @@ class Overlay(Bitstream):
     """This class keeps track of a single bitstream's state and contents.
 
     The overlay class holds the state of the bitstream and enables run-time
-    protection of bindlings.
+    protection of bindings.
 
     Our definition of overlay is: "post-bitstream configurable design".
     Hence, this class must expose configurability through content discovery
@@ -511,8 +509,7 @@ class Overlay(Bitstream):
 
     def __dir__(self):
         return sorted(set(super().__dir__() +
-                          list(self.__dict__.keys()) +
-                               self._ip_map._keys()))
+                          list(self.__dict__.keys()) + self._ip_map._keys()))
 
 
 _ip_drivers = dict()
@@ -555,6 +552,7 @@ _struct_dict = {
     'ushort': 'H'
 }
 
+
 def _ctype_to_struct(ctype):
     ctype = ctype.replace('const', '').strip()
     return _struct_dict[ctype]
@@ -567,7 +565,7 @@ def _create_call(regmap):
     from inspect import Parameter, Signature
 
     sorted_regmap = list(regmap.items())
-    sorted_regmap.sort(key=lambda x:x[1]['address_offset'])
+    sorted_regmap.sort(key=lambda x: x[1]['address_offset'])
 
     parameters = []
     ptr_list = []
@@ -658,7 +656,7 @@ class DefaultIP(metaclass=RegisterIP):
             if ('CTRL' in self._registers and
                     self.device.has_capability('CALLABLE')):
                 self._signature, struct_string, self._ptr_list, self.args = \
-                     _create_call(self._registers)
+                    _create_call(self._registers)
                 self._call_struct = struct.Struct(struct_string)
         else:
             self._registers = None
@@ -684,12 +682,16 @@ class DefaultIP(metaclass=RegisterIP):
 
     def _setup_packet_prototype(self):
         self._packet = ert.ert_start_kernel_cmd()
-        self._packet.m_uert.m_start_cmd_struct.state = ert.ert_cmd_state.ERT_CMD_STATE_NEW
+        self._packet.m_uert.m_start_cmd_struct.state = \
+            ert.ert_cmd_state.ERT_CMD_STATE_NEW
         self._packet.m_uert.m_start_cmd_struct.unused = 0
         self._packet.m_uert.m_start_cmd_struct.extra_cu_masks = 0
-        self._packet.m_uert.m_start_cmd_struct.count = (self._call_struct.size // 4) + 1
-        self._packet.m_uert.m_start_cmd_struct.opcode = ert.ert_cmd_opcode.ERT_START_CU
-        self._packet.m_uert.m_start_cmd_struct.type = ert.ert_cmd_type.ERT_DEFAULT
+        self._packet.m_uert.m_start_cmd_struct.count = \
+            (self._call_struct.size // 4) + 1
+        self._packet.m_uert.m_start_cmd_struct.opcode = \
+            ert.ert_cmd_opcode.ERT_START_CU
+        self._packet.m_uert.m_start_cmd_struct.type = \
+            ert.ert_cmd_type.ERT_DEFAULT
         self._packet.cu_mask = self.cu_mask
 
     @property
@@ -697,11 +699,11 @@ class DefaultIP(metaclass=RegisterIP):
         if not hasattr(self, '_register_map'):
             if self._registers:
                 self._register_map = RegisterMap.create_subclass(
-                        self._register_name,
-                        self._registers)(self.mmio.array)
+                    self._register_name,
+                    self._registers)(self.mmio.array)
             else:
                 raise AttributeError(
-                        "register_map only available if the .hwh is provided")
+                    "register_map only available if the .hwh is provided")
         return self._register_map
 
     @property
@@ -739,11 +741,11 @@ class DefaultIP(metaclass=RegisterIP):
             raise RuntimeError(
                 "waitfor only supported on newer versions of XRT")
         if kwargs:
-            # Resolve any kwargs to make a signle args tuple
+            # Resolve any kwargs to make a single args tuple
             args = self._signature.bind(*args, **kwargs).args
         # Resolve and pointers that need .device_address taken
         args = [a.device_address if p else a
-                for a,p in itertools.zip_longest(args, self._ptr_list)]
+                for a, p in itertools.zip_longest(args, self._ptr_list)]
         self.mmio.write(0, self._call_struct.pack(0, *args))
         self.mmio.write(0, ap_ctrl)
         return WaitHandle(self)
@@ -767,7 +769,7 @@ class DefaultIP(metaclass=RegisterIP):
         as a compatible python type as used by the `struct` library.
 
         """
-        # For now direct people to the sw version until the ERT initialisation
+        # For now direct people to the sw version until the ERT initialization
         # is fixed
         return self._start(*args, **kwargs)
 
@@ -783,16 +785,22 @@ class DefaultIP(metaclass=RegisterIP):
         ----------
         waitfor : [WaitHandle]
             A list of wait handles returned by other calls to ``start_ert``
-            which must complete before this exection starts
+            which must complete before this execution starts
 
         Returns
         -------
-        WaitHandle : 
+        WaitHandle :
             Object with a ``wait`` call that will return when the execution
             completes
 
         """
-        args = [a.device_address if p else a for a, p in zip(args, self._ptr_list)]
+        if not self._signature:
+            raise RuntimeError("Only HLS IP can be called with the wrapper")
+        if kwargs:
+            # Resolve any kwargs to make a single args tuple
+            args = self._signature.bind(*args, **kwargs).args
+        args = [a.device_address if p else a for a, p in zip(args, 
+                                                             self._ptr_list)]
         arg_data = self._call_struct.pack(0, *args)
         bo = self.device.get_exec_bo()
         exec_packet = bo.as_packet(ert.ert_start_kernel_cmd)
@@ -866,7 +874,7 @@ class _IPMap:
             return gpio
         elif key in self._description['memories']:
             mem = self._description['device'].get_memory(
-                    self._description['memories'][key])
+                self._description['memories'][key])
             setattr(self, key, mem)
             return mem
         else:
@@ -894,7 +902,7 @@ def DocumentOverlay(bitfile, download):
     based on the supplied bitstream. Mimics a class constructor.
 
     """
-    class DocumentedOverlay(DefaultOverlay):
+    class DocumentedOverlay(Overlay):
         def __init__(self):
             super().__init__(bitfile, download=download)
     overlay = DocumentedOverlay()
@@ -1011,7 +1019,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
                                                   partial=True)
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name
         self.parsers[bitfile_name] = self.device.get_bitfile_metadata(
-                bitfile_name)
+            bitfile_name)
 
     def _parse(self, bitfile_name):
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name

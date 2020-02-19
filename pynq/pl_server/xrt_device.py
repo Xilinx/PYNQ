@@ -68,23 +68,24 @@ if "XCL_EMULATION_MODE" in os.environ:
     xrt.libc = ctypes.CDLL(xrt_lib)
 
 DRM_XOCL_BO_EXECBUF = 1 << 31
-REQUIRED_VERSION_ERT = (2,3,0)
+REQUIRED_VERSION_ERT = (2, 3, 0)
 libc = ctypes.CDLL('libc.so.6')
 libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
 libc.munmap.restype = ctypes.c_int
 
+
 # Create our own struct that fixes the typos of the real one
 class xclDeviceUsage (ctypes.Structure):
     _fields_ = [
-     ("h2c", ctypes.c_size_t*8),
-     ("c2h", ctypes.c_size_t*8),
-     ("ddrMemUsed", ctypes.c_size_t*8),
-     ("ddrBOAllocated", ctypes.c_uint *8),
-     ("totalContents", ctypes.c_uint),
-     ("xclbinId", ctypes.c_ulonglong * 4),
-     ("dma_channel_cnt", ctypes.c_uint),
-     ("mm_channel_cnt", ctypes.c_uint),
-     ("memSize", ctypes.c_ulonglong*8)
+        ("h2c", ctypes.c_size_t*8),
+        ("c2h", ctypes.c_size_t*8),
+        ("ddrMemUsed", ctypes.c_size_t*8),
+        ("ddrBOAllocated", ctypes.c_uint*8),
+        ("totalContents", ctypes.c_uint),
+        ("xclbinId", ctypes.c_ulonglong*4),
+        ("dma_channel_cnt", ctypes.c_uint),
+        ("mm_channel_cnt", ctypes.c_uint),
+        ("memSize", ctypes.c_ulonglong*8)
     ]
 
 _xrt_errors = {
@@ -93,11 +94,13 @@ _xrt_errors = {
     -1: "Possibly buffers still allocated"
 }
 
+
 def _get_xrt_version():
     import subprocess
     import json
     try:
-        output = subprocess.run(['xbutil', 'dump'], stdout=subprocess.PIPE)
+        output = subprocess.run(['xbutil', 'dump'], stdout=subprocess.PIPE,
+                                universal_newlines=True)
         details = json.loads(output.stdout)
         return tuple(
             int(s) for s in details['runtime']['build']['version'].split('.'))
@@ -401,7 +404,7 @@ class XrtDevice(Device):
     def buffer_read(self, bo, bo_offset, buf, buf_offset=0, count=-1):
         view = memoryview(buf).cast('B')
         if view.readonly:
-            raise RuntimeError("Buffer not writeable")
+            raise RuntimeError("Buffer not writable")
         if count == -1:
             view = view[buf_offset:]
         else:
