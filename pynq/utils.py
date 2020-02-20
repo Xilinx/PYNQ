@@ -189,8 +189,10 @@ def _download_file(download_link, path, md5sum=None):
     """
     import urllib.request
     import hashlib
-    with urllib.request.urlopen(download_link) as response, \
-            open(path, "wb") as out_file:
+    import ssl
+    with urllib.request.urlopen(
+            download_link, context=ssl._create_unverified_context()) \
+            as response, open(path, "wb") as out_file:
         data = response.read()
         out_file.write(data)
     if md5sum:
