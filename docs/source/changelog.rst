@@ -2,6 +2,31 @@
 Change Log
 ************************
 
+Version 2.5.1 
+============================
+
+Updates to PYNQ since the last release include:
+
+* Alveo and AWS F1 Support
+   * Alveo platforms and AWS F1 instances are now supported
+   * IP dictionary and Overlay classes support xclbin metadata parsing
+   * Live Alveo power monitoring added
+   * Vitis kernel signatures delivered with loaded xlcbin files
+   * AWS F1 awsxclbin files are supported
+
+* Productivity Additions
+   * PYNQ is now on PYPI and can be installed using ``pip install pynq``
+   * PYNQ can be installed on x86 machines to support attached Alveo platforms or AWS F1 instances
+   * pynq.utils added for dependent packages to install notebooks and bitstreams
+   * pynq._cli added for new commandline calls to collect and deliver notebooks
+   * JupyterLab views of bitstream metadata dictionaries added
+
+* SD Build Updates
+   * Support added for building sdcard images from Ubuntu 18.04 host machines
+
+* No new SD Card images were created for this release
+
+
 Version 2.5 
 ============================
 
