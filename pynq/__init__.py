@@ -53,4 +53,6 @@ __email__ = "pynq_support@xilinx.com"
 
 __all__ = ['lib', 'tests']
 __version__ = '2.5.1'
-__git_commit__ = "$Id$"
+# This ID will always be tied to a specific release tag
+# since the file will be modified to edit the version
+__git_id__ = "$Id$"
