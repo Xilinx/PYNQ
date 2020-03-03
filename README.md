@@ -53,7 +53,7 @@ pip install pynq
 
 For Alveo cards, PYNQ currently requires a <a href="https://github.com/Xilinx/XRT" target="_blank">Xilinx Runtime (XRT)</a> version above or equal to `2.3` to be installed in the system. In terms of Operating System, any XRT-supported version of either RedHat/CentOS or Ubuntu can be used.
 
-For more information, please see the Alveo <a href="https://pynq.readthedocs.io/en/latest/getting_started/alveo.html" target="_blank">getting started guide</a>.
+For more information, please see the Alveo <a href="https://pynq.readthedocs.io/en/latest/getting_started/alveo_getting_started.html" target="_blank">getting started guide</a>.
 
 ## Contribute
 
