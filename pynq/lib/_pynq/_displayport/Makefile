@@ -2,7 +2,7 @@ CC ?= gcc
 CXX ?= g++
 
 OBJSC = displayport.o 
-INC = -I${PYNQ_BUILD_ROOT}/usr/include/libdrm
+INC = -I=${PYNQ_BUILD_ROOT}/usr/include/libdrm
 
 all:	
 	$(CXX) -fPIC $(INC) -c -g -std=c++11 displayport.cpp $(CFLAGS)
