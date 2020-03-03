@@ -4,7 +4,7 @@ Getting Started
 
 This guide will show you how to setup your development board and computer to get
 started using PYNQ.  Any questions can be posted to `the PYNQ support forum
-<https://groups.google.com/forum/#!forum/pynq_project>`_.
+<https://discuss.pynq.io/>`_.
 
 If you have one of the following boards, you can follow the quick start guide.
 
