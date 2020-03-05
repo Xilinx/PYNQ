@@ -15,7 +15,7 @@ do_configure_append_zynq () {
     PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
     echo '/include/ "pynq_zynq.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
     if [ -n "${PYNQ_BOARDNAME}" ]; then
-        echo '/ { chosen { pynq_board = "${PYNQ_BOARDNAME}"; }; };' >> ${DT_FILES_PATH}/system-top.dts
+        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DT_FILES_PATH}/system-top.dts
     else
         echo "No board set"
         exit 1
@@ -25,7 +25,7 @@ do_configure_append_zynqmp () {
     PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
     echo '/include/ "pynq_zynqmp.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
     if [ -n "${PYNQ_BOARDNAME}" ]; then
-        echo '/ { chosen { pynq_board = "${PYNQ_BOARDNAME}"; }; };' >> ${DT_FILES_PATH}/system-top.dts
+        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DT_FILES_PATH}/system-top.dts
     else
         echo "No board set"
         exit 1
