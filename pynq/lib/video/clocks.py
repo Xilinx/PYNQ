@@ -402,31 +402,31 @@ class IDT_8T49N24:
         self._write(address + 3, value & 0xFF)
 
 
-vals=np.zeros(6,dtype=np.uint64)
+vals = np.zeros(6, dtype=np.uint64)
+n1_min = np.uint32(1)
+n1_max = np.uint32(1)
+n1_hs = np.uint32(1)
+nc_ls_min = np.uint32(1)
+nc_ls_max = np.uint32(1)
+nc_ls = np.uint32(1)
+n2_hs = np.uint32(1)
+n2_ls_min = np.uint32(1)
+n2_ls_max = np.uint32(1)
+n2_ls = np.uint32(1)
+n3_min = np.uint32(1)
+n3_max = np.uint32(1)
+n3 = np.uint32(1)
+best_n1_hs = np.uint32(1)
+best_nc_ls = np.uint32(1)
+best_n2_hs = np.uint32(1)
+best_n2_ls = np.uint32(1)
+best_n3 = np.uint32(1)
+fin = np.uint64(1)
+fout = np.uint64(1)
+fosc = np.uint64(1)
+best_fout_delta = np.uint64(1)
+best_fout = np.uint64(1)
 
-n1_min=np.uint32(1)
-n1_max=np.uint32(1)
-n1_hs=np.uint32(1)
-nc_ls_min=np.uint32(1)
-nc_ls_max=np.uint32(1)
-nc_ls=np.uint32(1)
-n2_hs=np.uint32(1)
-n2_ls_min=np.uint32(1)
-n2_ls_max=np.uint32(1)
-n2_ls=np.uint32(1)
-n3_min=np.uint32(1)
-n3_max=np.uint32(1)
-n3=np.uint32(1)
-best_n1_hs=np.uint32(1)
-best_nc_ls=np.uint32(1)
-best_n2_hs=np.uint32(1)
-best_n2_ls=np.uint32(1)
-best_n3=np.uint32(1)
-fin=np.uint64(1)
-fout=np.uint64(1)
-fosc=np.uint64(1)
-best_fout_delta=np.uint64(1)
-best_fout=np.uint64(1)
 
 class SI_5324C:
     """Driver for the SI 5324C series of clock generators
@@ -454,19 +454,20 @@ class SI_5324C:
         self.enable(True)
 
     def _configure(self):
-        self._write(3,0x15)
-        self._write(4,0x92)
-        self._write(6,0x2f)
-        self._write(10,0x08)
-        self._write(11,0x42)
-        self._write(19,0x23)    # if VID_PHY_CONTROLLER_HDMI_FAST_SWITCH  else 0x2f
-        self._write(137,0x01)
-    
+        self._write(3, 0x15)
+        self._write(4, 0x92)
+        self._write(6, 0x2f)
+        self._write(10, 0x08)
+        self._write(11, 0x42)
+        # if VID_PHY_CONTROLLER_HDMI_FAST_SWITCH  else 0x2f
+        self._write(19, 0x23)
+        self._write(137, 0x01)
+
     def _read(self, reg_addr):
         attempts = 0
         while True:
             try:
-                self._buffer[0] = reg_addr 
+                self._buffer[0] = reg_addr
                 self._master.send(self._address, self._buffer, 1, 1)
                 self._master.receive(self._address, self._buffer, 1, 0)
             except:
@@ -500,10 +501,8 @@ class SI_5324C:
 
     def check_device_id(self):
         device_id = self._read(0x86) << 8
-        print(hex(device_id))
-        device_id |= self._read(0x87)  
-        print(hex(device_id))
-        return device_id == 0x0182 
+        device_id |= self._read(0x87)
+        return device_id == 0x0182
 
     def enable(self, active):
         if active:
@@ -514,169 +513,188 @@ class SI_5324C:
 
     def set_clock(self, freq, line_rate):
         if SI5324_DEBUG:
-            print("freq:",freq,"line_rate:",line_rate)
+            print("freq:", freq, "line_rate:", line_rate)
         self.enable(False)
-        self._SetClock(SI5324_CLKSRC_XTAL,SI5324_XTAL_FREQ, freq)
+        self._SetClock(SI5324_CLKSRC_XTAL, SI5324_XTAL_FREQ, freq)
         self.enable(True)
-        
-    def _print_settings(self):
-        print("n1_min=%d, n1_max=%d, n1_hs=%d, nc_ls_min=%d, nc_ls_max=%d, nc_ls=%d" %(n1_min,n1_max,n1_hs, nc_ls_min, nc_ls_max, nc_ls))
-        print("n2_hs=%d, n2_ls_min=%d, n2_ls_max=%d, n2_ls=%d, n3_min=%d, n3_max=%d, n3=%d" %(n2_hs,n2_ls_min,n2_ls_max,n2_ls,n3_min,n3_max,n3))
-        print("fin=%d, fout=%d, fosc=%d" %(fin,fout,fosc))
-        print("best_fout_delta=%d, best_fout=%d" %(best_fout_delta,best_fout))
-        print("best_n1_hs=%d, best_nc_ls=%d, best_n2_hs=%d, best_n2_ls=%d, best_n3=%d" %(best_n1_hs,best_nc_ls, best_n2_hs, best_n2_ls, best_n3))
 
-    def _Si5324_RatApprox(self,f):
-        global n1_max,n1_min,n1_hs,nc_ls_min,nc_ls_max,nc_ls,n2_hs,n2_ls_min,n2_ls_max,n2_ls,n3,n3_min,n3_max,best_n1_hs,best_nc_ls,best_n2_ls,best_n2_hs,best_n3,fin,fout,fosc,best_fout_delta,best_fout
+    def _print_settings(self):
+        print("n1_min={}, n1_max={}, n1_hs={}, nc_ls_min={}, nc_ls_max={}, "
+              "nc_ls={}".format(n1_min, n1_max, n1_hs, nc_ls_min,
+                                nc_ls_max, nc_ls))
+        print("n2_hs={}, n2_ls_min={}, n2_ls_max={}, n2_ls={}, n3_min={}, "
+              "n3_max={}, n3={}".format(n2_hs, n2_ls_min, n2_ls_max, n2_ls,
+                                        n3_min, n3_max, n3))
+        print("fin={}, fout={}, fosc={}".format(fin, fout, fosc))
+        print("best_fout_delta={}, best_fout={}".format(best_fout_delta,
+                                                        best_fout))
+        print("best_n1_hs={}, best_nc_ls={}, best_n2_hs={}, best_n2_ls={}, "
+              "best_n3={}".format(best_n1_hs, best_nc_ls, best_n2_hs, 
+                                  best_n2_ls, best_n3))
+
+    def _Si5324_RatApprox(self, f):
+        global n1_max, n1_min, n1_hs, nc_ls_min, nc_ls_max, nc_ls, n2_hs, \
+            n2_ls_min, n2_ls_max, n2_ls, n3, n3_min, n3_max, best_n1_hs, \
+            best_nc_ls, best_n2_ls, best_n2_hs, best_n3, fin, fout, fosc, \
+            best_fout_delta, best_fout
 
         if SI5324_LOW_LEVEL_DEBUG:
-            print("\nEntering _Si5324_RatApprox with f=",f,"md=",n3_max)
+            print("\nEntering _Si5324_RatApprox with f=", f, "md=", n3_max)
             self._print_settings()
-        h=np.array([0,1,0])
-        k=np.array([1,0,0])
-        i=0
-        n=1
-        if n3_max<=1:
-            n3=1
-            n2_ls=np.uint64(f)>>np.uint64(28)
+        h = np.array([0, 1, 0])
+        k = np.array([1, 0, 0])
+        i = 0
+        n = 1
+        if n3_max <= 1:
+            n3 = 1
+            n2_ls = np.uint64(f) >> np.uint64(28)
             return
-        n=np.uint64(n<<28)
-        for i in range(0,28):
-            if (f%2)==0:        #f&0x1==0:
-                n=n//2          #n=n>>1
-                f=f//2          #f=f>>1
+        n = np.uint64(n << 28)
+        for i in range(0, 28):
+            if (f % 2) == 0:  # f&0x1==0:
+                n = n//2  # n=n>>1
+                f = f//2  # f=f>>1
             else:
                 break
-        d=f
+        d = f
         for i in range(64):
             if n:
-                a=d//n          #a=d/n
+                a = d//n  # a=d/n
             else:
-                a=0
-            if i and not(a):    #i and ~a:
+                a = 0
+            if i and not(a):  # i and ~a:
                 break
-            x=d
-            d=n
-            n=x%n
-            x=a
-            if k[1]*a+k[0]>=n3_max:
-                x=(n3_max-k[0])/k[1]
-                if x*2>=a or k[1]>=n3_max:
-                    i=65
+            x = d
+            d = n
+            n = x % n
+            x = a
+            if k[1]*a+k[0] >= n3_max:
+                x = (n3_max-k[0])/k[1]
+                if x*2 >= a or k[1] >= n3_max:
+                    i = 65
                 else:
                     break
-            h[2]=x*h[1]+h[0]
-            h[0]=h[1]
-            h[1]=h[2]
-            k[2]=x*k[1]+k[0]
-            k[0]=k[1]
-            k[1]=k[2]
-        n3=np.uint32(k[1])
-        n2_ls=np.uint32(h[1])
+            h[2] = x*h[1]+h[0]
+            h[0] = h[1]
+            h[1] = h[2]
+            k[2] = x*k[1]+k[0]
+            k[0] = k[1]
+            k[1] = k[2]
+        n3 = np.uint32(k[1])
+        n2_ls = np.uint32(h[1])
         if SI5324_LOW_LEVEL_DEBUG:
-            print("\nExiting _Si5324_RatApprox with n3(denom) and n2_ls(num)",n3, n2_ls)
+            print("\nExiting _Si5324_RatApprox with n3(denom) and n2_ls(num)", n3, n2_ls)
             self._print_settings()
 
     def _Si5324_FindN2ls(self):
-        global n1_max,n1_min,n1_hs,nc_ls_min,nc_ls_max,nc_ls,n2_hs,n2_ls_min,n2_ls_max,n2_ls,n3,n3_min,n3_max,best_n1_hs,best_nc_ls,best_n2_ls,best_n2_hs,best_n3,fin,fout,fosc,best_fout_delta,best_fout
+        global n1_max, n1_min, n1_hs, nc_ls_min, nc_ls_max, nc_ls, n2_hs, \
+            n2_ls_min, n2_ls_max, n2_ls, n3, n3_min, n3_max, best_n1_hs, \
+            best_nc_ls, best_n2_ls, best_n2_hs, best_n3, fin, fout, fosc, \
+            best_fout_delta, best_fout
 
         if SI5324_LOW_LEVEL_DEBUG:
             print("\nEntering _Si5324_FindN2ls")
             self._print_settings()
 
-        result=0
-        delta_fout=np.uint64(1)     #PP
+        result = 0
+        delta_fout = np.uint64(1)  # PP
         np.seterr(divide='ignore', invalid='ignore')
-        n2_ls_div_n3=np.uint64(fosc//(fin>>np.uint64(28))//n2_hs//2)
+        n2_ls_div_n3 = np.uint64(fosc//(fin >> np.uint64(28))//n2_hs//2)
         self._Si5324_RatApprox(n2_ls_div_n3)
-        n2_ls=np.uint32(n2_ls*2)
-        if n2_ls<n2_ls_min:
-            mult=n2_ls_min//n2_ls
-            mult=n2_ls_min%n2_ls
-            if mult==1:
-                mult=mult+1
+        n2_ls = np.uint32(n2_ls*2)
+        if n2_ls < n2_ls_min:
+            mult = n2_ls_min//n2_ls
+            mult = n2_ls_min % n2_ls
+            if mult == 1:
+                mult = mult+1
             else:
-                mult=mult
-            n2_ls=np.uint32(n2_ls*mult)
-            n3=np.uint32(n3*mult)
-            
-        if n3<n3_min:
-            mult=n3_min//n3
-            mult=n3_min%n3
-            if mult==1:
-                mult=mult+1
+                mult = mult
+            n2_ls = np.uint32(n2_ls*mult)
+            n3 = np.uint32(n3*mult)
+
+        if n3 < n3_min:
+            mult = n3_min//n3
+            mult = n3_min % n3
+            if mult == 1:
+                mult = mult+1
             else:
-                mult=mult
-            n2_ls=np.uint32(n2_ls*mult)
-            n3=np.uint32(n3*mult)
-       
+                mult = mult
+            n2_ls = np.uint32(n2_ls*mult)
+            n3 = np.uint32(n3*mult)
+
         if SI5324_DEBUG:
-            print("Trying N2_LS",n2_ls,"N3 = ",n3,"\n")
-        if n2_ls<n2_ls_min or n2_ls>n2_ls_max:
-            print("N2_LS out of range\n")
-        elif n3<n3_min or n3>n3_max:
-            print("N3 out of range\n")
+            print("Trying N2_LS", n2_ls, "N3 = ", n3, "\n")
+            if n2_ls < n2_ls_min or n2_ls > n2_ls_max:
+                print("N2_LS out of range\n")
+            elif n3 < n3_min or n3 > n3_max:
+                print("N3 out of range\n")
 
         else:
-            f3_actual=np.uint64(fin//n3)
-            fosc_actual=np.uint64(f3_actual*n2_hs*n2_ls)
-            fout_actual=np.uint64(fosc_actual//(n1_hs*nc_ls))
-            delta_fout=np.uint64(fout_actual-fout)
+            f3_actual = np.uint64(fin//n3)
+            fosc_actual = np.uint64(f3_actual*n2_hs*n2_ls)
+            fout_actual = np.uint64(fosc_actual//(n1_hs*nc_ls))
+            delta_fout = np.uint64(fout_actual-fout)
 
-            if f3_actual<(SI5324_F3_MIN<<28) or f3_actual>(SI5324_F3_MAX<<28):
+            if f3_actual < (SI5324_F3_MIN << 28) or f3_actual > (SI5324_F3_MAX << 28):
                 if SI5324_DEBUG:
                     print("F3 frequency out of range\n")
-            elif fosc_actual<(SI5324_FOSC_MIN<<28) or fosc_actual>(SI5324_FOSC_MAX<<28):
+            elif fosc_actual < (SI5324_FOSC_MIN << 28) or fosc_actual > (SI5324_FOSC_MAX << 28):
                 if SI5324_DEBUG:
                     print("Fosc frequency out of range\n")
-            elif fout_actual<(SI5324_FOUT_MIN<<28) or fout_actual>(SI5324_FOUT_MAX<<28):
+            elif fout_actual < (SI5324_FOUT_MIN << 28) or fout_actual > (SI5324_FOUT_MAX << 28):
                 if SI5324_DEBUG:
                     print("Fout frequency out of range\n")
             else:
                 if SI5324_DEBUG:
-#                    print("Found solution : fout=",fout_actual>>28,"Hz delta = ",delta_fout>>28,"Hz\n")
-#                    print(" fosc=",(fosc_actual>>28)/1000,"kHz f3 = ",f3_actual>>28,"Hz\n")
-                    print("\tFound solution : fout=",np.uint64(fout_actual)>>np.uint64(28),"Hz delta = ",np.uint64(delta_fout)>>np.uint64(28),"Hz\n")
-                    print("\tfosc=",(np.uint64(fosc_actual)>>np.uint64(28))/1000,"kHz f3 = ",np.uint64(f3_actual)>>np.uint64(28),"Hz\n")
-#                if llabs(delta_fout)<best_fout_delta:
-                if abs(delta_fout)<best_fout_delta:
+                    # print("Found solution : fout=",fout_actual>>28,"Hz delta = ",delta_fout>>28,"Hz\n")
+                    # print(" fosc=",(fosc_actual>>28)/1000,"kHz f3 = ",f3_actual>>28,"Hz\n")
+                    print("\tFound solution : fout=", np.uint64(fout_actual) >> np.uint64(
+                        28), "Hz delta = ", np.uint64(delta_fout) >> np.uint64(28), "Hz\n")
+                    print("\tfosc=", (np.uint64(fosc_actual) >> np.uint64(
+                        28))/1000, "kHz f3 = ", np.uint64(f3_actual) >> np.uint64(28), "Hz\n")
+                # if llabs(delta_fout)<best_fout_delta:
+                if abs(delta_fout) < best_fout_delta:
                     if SI5324_DEBUG:
                         print("This solution is the best yet!\n")
-                    best_n1_hs=np.uint32(n1_hs)
-                    best_nc_ls=np.uint32(nc_ls)
-                    best_n2_hs=np.uint32(n2_hs)
-                    best_n2_ls=np.uint32(n2_ls)
-                    best_n3=np.uint32(n3)
-                    best_fout=np.uint64(fout_actual)
-#                    best_fout_delta=llabs(delta_fout)
-                    best_fout_delta=abs(delta_fout)
-                    if delta_fout==0:
-                        result=1
+                    best_n1_hs = np.uint32(n1_hs)
+                    best_nc_ls = np.uint32(nc_ls)
+                    best_n2_hs = np.uint32(n2_hs)
+                    best_n2_ls = np.uint32(n2_ls)
+                    best_n3 = np.uint32(n3)
+                    best_fout = np.uint64(fout_actual)
+                    # best_fout_delta=llabs(delta_fout)
+                    best_fout_delta = abs(delta_fout)
+                    if delta_fout == 0:
+                        result = 1
         if SI5324_LOW_LEVEL_DEBUG:
-            print("\nExiting _Si5324_FindN2ls with result=",result)
+            print("\nExiting _Si5324_FindN2ls with result=", result)
             self._print_settings()
 
         return result
 
-
     def _Si5324_FindN2(self):
-        global n1_max,n1_min,n1_hs,nc_ls_min,nc_ls_max,nc_ls,n2_hs,n2_ls_min,n2_ls_max,n2_ls,n3,n3_min,n3_max,best_n1_hs,best_nc_ls,best_n2_ls,best_n2_hs,best_n3,fin,fout,fosc,best_fout_delta,best_fout
+        global n1_max, n1_min, n1_hs, nc_ls_min, nc_ls_max, nc_ls, n2_hs, \
+            n2_ls_min, n2_ls_max, n2_ls, n3, n3_min, n3_max, best_n1_hs, \
+            best_nc_ls, best_n2_ls, best_n2_hs, best_n3, fin, fout, fosc, \
+            best_fout_delta, best_fout
 
         if SI5324_LOW_LEVEL_DEBUG:
             print("Entering _Si5324_FindN2")
             self._print_settings()
 
-        for i in range(SI5324_N2_HS_MAX,SI5324_N2_HS_MIN-1,-1):
-            n2_hs=i
+        for i in range(SI5324_N2_HS_MAX, SI5324_N2_HS_MIN-1, -1):
+            n2_hs = i
             if SI5324_DEBUG:
-                print("Trying N2_HS=",i,"\n")
-            n2_ls_min=np.uint32(fosc/((np.uint64(SI5324_F3_MAX)*np.uint64(i))<<np.uint64(28)))
-            if n2_ls_min<SI5324_N2_LS_MIN:
-                n2_ls_min=np.uint32(SI5324_N2_LS_MIN)
-            n2_ls_max=np.uint32(fosc/(np.uint64(SI5324_F3_MIN*i)<<np.uint64(28)))
-            if n2_ls_max>SI5324_N2_LS_MAX:
-                n2_ls_max=np.uint32(SI5324_N2_LS_MAX)
-            result=self._Si5324_FindN2ls()
+                print("Trying N2_HS=", i, "\n")
+            n2_ls_min = np.uint32(
+                fosc/((np.uint64(SI5324_F3_MAX)*np.uint64(i)) << np.uint64(28)))
+            if n2_ls_min < SI5324_N2_LS_MIN:
+                n2_ls_min = np.uint32(SI5324_N2_LS_MIN)
+            n2_ls_max = np.uint32(
+                fosc/(np.uint64(SI5324_F3_MIN*i) << np.uint64(28)))
+            if n2_ls_max > SI5324_N2_LS_MAX:
+                n2_ls_max = np.uint32(SI5324_N2_LS_MAX)
+            result = self._Si5324_FindN2ls()
             if result:
                 break
 
@@ -687,27 +705,31 @@ class SI_5324C:
         return result
 
     def _Si5324_CalcNclsLimits(self):
-        global n1_max,n1_min,n1_hs,nc_ls_min,nc_ls_max,nc_ls,n2_hs,n2_ls_min,n2_ls_max,n2_ls,n3,n3_min,n3_max,best_n1_hs,best_nc_ls,best_n2_ls,best_n2_hs,best_n3,fin,fout,fosc,best_fout_delta,best_fout
-        nc_ls_min=np.uint32(n1_min/n1_hs)
+        global n1_max, n1_min, n1_hs, nc_ls_min, nc_ls_max, nc_ls, n2_hs, \
+            n2_ls_min, n2_ls_max, n2_ls, n3, n3_min, n3_max, best_n1_hs, \
+            best_nc_ls, best_n2_ls, best_n2_hs, best_n3, fin, fout, fosc, \
+            best_fout_delta, best_fout
+
+        nc_ls_min = np.uint32(n1_min/n1_hs)
 
         if SI5324_LOW_LEVEL_DEBUG:
             print("Entering _Si5324_CalcNclsLimits")
             self._print_settings()
 
-        if nc_ls_min<SI5324_NC_LS_MIN:
-            nc_ls_min=np.uint32(SI5324_NC_LS_MIN)
+        if nc_ls_min < SI5324_NC_LS_MIN:
+            nc_ls_min = np.uint32(SI5324_NC_LS_MIN)
 
-        if nc_ls_min>1 and nc_ls_min&0x1 == 1:
-            nc_ls_min=np.uint32(nc_ls_min+1)
+        if nc_ls_min > 1 and nc_ls_min & 0x1 == 1:
+            nc_ls_min = np.uint32(nc_ls_min+1)
 
-        nc_ls_max=np.uint32(n1_max/n1_hs)
-        if nc_ls_max>SI5324_NC_LS_MAX:
-            nc_ls_max=np.uint32(SI5324_NC_LS_MAX)
+        nc_ls_max = np.uint32(n1_max/n1_hs)
+        if nc_ls_max > SI5324_NC_LS_MAX:
+            nc_ls_max = np.uint32(SI5324_NC_LS_MAX)
 
-        if np.uint32(nc_ls_max)&np.uint32(0x1)==1:
-            nc_ls_max=np.uint32(nc_ls_max-1)
+        if np.uint32(nc_ls_max) & np.uint32(0x1) == 1:
+            nc_ls_max = np.uint32(nc_ls_max-1)
 
-        if nc_ls_max*n1_hs<[n1_min] or nc_ls_min*n1_hs>n1_max:
+        if nc_ls_max*n1_hs < [n1_min] or nc_ls_min*n1_hs > n1_max:
             if SI5324_LOW_LEVEL_DEBUG:
                 print("\nExiting abnormal: _Si5324_CalcNclsLimits")
                 self._print_settings()
@@ -720,74 +742,82 @@ class SI_5324C:
         return 0
 
     def _Si5324_FindNcls(self):
-        global n1_max,n1_min,n1_hs,nc_ls_min,nc_ls_max,nc_ls,n2_hs,n2_ls_min,n2_ls_max,n2_ls,n3,n3_min,n3_max,best_n1_hs,best_nc_ls,best_n2_ls,best_n2_hs,best_n3,fin,fout,fosc,best_fout_delta,best_fout
+        global n1_max, n1_min, n1_hs, nc_ls_min, nc_ls_max, nc_ls, n2_hs, \
+            n2_ls_min, n2_ls_max, n2_ls, n3, n3_min, n3_max, best_n1_hs, \
+            best_nc_ls, best_n2_ls, best_n2_hs, best_n3, fin, fout, fosc, \
+            best_fout_delta, best_fout
 
         if SI5324_LOW_LEVEL_DEBUG:
             print("\nEntering _Si5324_FindNcls")
             self._print_settings()
-        fosc_1=fout*n1_hs
+        fosc_1 = fout*n1_hs
 
-        for i in range(nc_ls_max,nc_ls_max+1):
-            fosc=np.uint64(fosc_1*i)
+        for i in range(nc_ls_max, nc_ls_max+1):
+            fosc = np.uint64(fosc_1*i)
             if SI5324_DEBUG:
-                print("Trying NCn_LS",i,": fosc=",(fosc>>np.uint64(28))/1000,"kHz\n")
-            nc_ls=i     #PP
-            result=self._Si5324_FindN2()
+                print("Trying NCn_LS", i, ": fosc=",
+                      (fosc >> np.uint64(28))/1000, "kHz\n")
+            nc_ls = i  # PP
+            result = self._Si5324_FindN2()
             if result:
                 break
-            if i==1:
-                nc_ls=np.uint32(i+1)
+            if i == 1:
+                nc_ls = np.uint32(i+1)
 
             else:
-                nc_ls=np.uint32(i+2)
+                nc_ls = np.uint32(i+2)
         if SI5324_LOW_LEVEL_DEBUG:
-            print("\nIn _Si5324_FindNcls");
+            print("\nIn _Si5324_FindNcls")
             self._print_settings()
-        
+
         return result
 
-    def _Si5324_CalcFreqSettings(self,ClkInFreq,ClkOutFreq):
-        global n1_max,n1_min,n1_hs,nc_ls_min,nc_ls_max,nc_ls,n2_hs,n2_ls_min,n2_ls_max,n2_ls,n3,n3_min,n3_max,best_n1_hs,best_nc_ls,best_n2_ls,best_n2_hs,best_n3,fin,fout,fosc,best_fout_delta,best_fout
+    def _Si5324_CalcFreqSettings(self, ClkInFreq, ClkOutFreq):
+        global n1_max, n1_min, n1_hs, nc_ls_min, nc_ls_max, nc_ls, n2_hs, \
+            n2_ls_min, n2_ls_max, n2_ls, n3, n3_min, n3_max, best_n1_hs, \
+            best_nc_ls, best_n2_ls, best_n2_hs, best_n3, fin, fout, fosc, \
+            best_fout_delta, best_fout
 
         if SI5324_LOW_LEVEL_DEBUG:
-            print("\nIn _Si5324_CalcFreqSettings, ClkInFreq: ",ClkInFreq, "ClkOutFreq: ",ClkOutFreq)
+            print("\nIn _Si5324_CalcFreqSettings, ClkInFreq: ",
+                  ClkInFreq, "ClkOutFreq: ", ClkOutFreq)
             self._print_settings()
-        
-        fin=np.uint64(ClkInFreq<<28)
-        fout=np.uint64(ClkOutFreq<<28)    
-        best_delta_fout=np.uint64(fout)
 
-        n1_min=np.uint32(SI5324_FOSC_MIN/ClkOutFreq)
-        if n1_min<SI5324_N1_HS_MIN * SI5324_NC_LS_MIN:
-           n1_min=np.uint32(SI5324_N1_HS_MIN * SI5324_NC_LS_MIN)
+        fin = np.uint64(ClkInFreq << 28)
+        fout = np.uint64(ClkOutFreq << 28)
+        best_delta_fout = np.uint64(fout)
 
-        n1_max=np.uint32(SI5324_FOSC_MAX/ClkOutFreq)
-        if n1_max>SI5324_N1_HS_MAX * SI5324_NC_LS_MAX:
-            n1_max=np.uint32(SI5324_N1_HS_MAX* SI5324_NC_LS_MAX)
+        n1_min = np.uint32(SI5324_FOSC_MIN/ClkOutFreq)
+        if n1_min < SI5324_N1_HS_MIN * SI5324_NC_LS_MIN:
+            n1_min = np.uint32(SI5324_N1_HS_MIN * SI5324_NC_LS_MIN)
 
-        n3_min=np.uint32(ClkInFreq/SI5324_F3_MAX)
-        if n3_min<SI5324_N3_MIN:
-            n3_min=np.uint32(SI5324_N3_MIN)
+        n1_max = np.uint32(SI5324_FOSC_MAX/ClkOutFreq)
+        if n1_max > SI5324_N1_HS_MAX * SI5324_NC_LS_MAX:
+            n1_max = np.uint32(SI5324_N1_HS_MAX * SI5324_NC_LS_MAX)
 
-        n3_max=np.uint32(ClkInFreq/SI5324_F3_MIN)
-        if n3_max>SI5324_N3_MAX:
-           n3_max=np.uint32(SI5324_N3_MAX)
+        n3_min = np.uint32(ClkInFreq/SI5324_F3_MAX)
+        if n3_min < SI5324_N3_MIN:
+            n3_min = np.uint32(SI5324_N3_MIN)
 
-        for i in range(SI5324_N1_HS_MAX,SI5324_N1_HS_MIN-1,-1):
-            n1_hs=i    #PP
+        n3_max = np.uint32(ClkInFreq/SI5324_F3_MIN)
+        if n3_max > SI5324_N3_MAX:
+            n3_max = np.uint32(SI5324_N3_MAX)
+
+        for i in range(SI5324_N1_HS_MAX, SI5324_N1_HS_MIN-1, -1):
+            n1_hs = i  # PP
             if SI5324_DEBUG:
-                print("Trying N1_HS =",i,"\n")
-            result=self._Si5324_CalcNclsLimits()
+                print("Trying N1_HS =", i, "\n")
+            result = self._Si5324_CalcNclsLimits()
 
             if result:
                 if SI5324_DEBUG:
                     print("No valid settings for NCn_LS\n")
                 continue
-            result=self._Si5324_FindNcls()
+            result = self._Si5324_FindNcls()
             if result:
                 break
 
-        if best_delta_fout==best_delta_fout/fout:
+        if best_delta_fout == best_delta_fout/fout:
             if SI5324_DEBUG:
                 print('Si5324:Error:No valid settings found')
                 print("Exiting abnormal: _Si5324_CalcFreqSettings\n")
@@ -797,135 +827,141 @@ class SI_5324C:
             return SI5234_ERR_FREQ
 
         if SI5324_DEBUG:
-            print("Si5324:Found solution:fout",np.uint64(best_fout>>np.uint64(28)),"Hz\n")
+            print("Si5324:Found solution:fout", np.uint64(
+                best_fout >> np.uint64(28)), "Hz\n")
 
-        vals[0]=best_n1_hs-4
-        vals[1]=best_nc_ls-1
-        vals[2]=best_n2_hs-4
-        vals[3]=best_n2_ls-1
-        vals[4]=best_n3-1
-        vals[5]=6
+        vals[0] = best_n1_hs-4
+        vals[1] = best_nc_ls-1
+        vals[2] = best_n2_hs-4
+        vals[3] = best_n2_ls-1
+        vals[4] = best_n3-1
+        vals[5] = 6
 
         if SI5324_LOW_LEVEL_DEBUG:
             print("Exiting normal:  _Si5324_CalcFreqSettings\n")
             self._print_settings()
         return SI5324_SUCCESS
-        
-    def _SetClock(self,ClkSrc,ClkInFreq,ClkOutFreq):
+
+    def _SetClock(self, ClkSrc, ClkInFreq, ClkOutFreq):
 
         if SI5324_LOW_LEVEL_DEBUG:
-            print("In _SetClock, ClkInFreq: ",ClkInFreq, "ClkOutFreq: ",ClkOutFreq)
+            print("In _SetClock, ClkInFreq: ",
+                  ClkInFreq, "ClkOutFreq: ", ClkOutFreq)
             self._print_settings()
 
-        buf=np.zeros(30,dtype=np.uint8)
-        
-        if ClkSrc<SI5324_CLKSRC_CLK1 or ClkSrc>SI5324_CLKSRC_XTAL:
+        buf = np.zeros(30, dtype=np.uint8)
+
+        if ClkSrc < SI5324_CLKSRC_CLK1 or ClkSrc > SI5324_CLKSRC_XTAL:
             if SI5324_DEBUG:
                 print("Si5324:Error : Incorrect input clock selected\n")
             return SI5324_ERR_PARM
 
-        if ClkSrc==SI5324_CLKSRC_CLK2:
+        if ClkSrc == SI5324_CLKSRC_CLK2:
             if SI5324_DEBUG:
                 print("Si5324:Error : clock input 2 not supported")
             return SI5324_ERR_PARM
-        
-        if ClkInFreq<SI5324_FIN_MIN or ClkInFreq>SI5324_FIN_MAX:
+
+        if ClkInFreq < SI5324_FIN_MIN or ClkInFreq > SI5324_FIN_MAX:
             if SI5324_DEBUG:
                 print("Si5324:Error :Input Frequency out of range\n")
             return SI5324_ERR_PARM
 
-        if ClkOutFreq<SI5324_FOUT_MIN or ClkOutFreq>SI5324_FOUT_MAX:
+        if ClkOutFreq < SI5324_FOUT_MIN or ClkOutFreq > SI5324_FOUT_MAX:
             if SI5324_DEBUG:
                 print("Si5324: ERROR: Output frequency out of range\n")
             return SI5324_ERR_PARM
-        
-        result=self._Si5324_CalcFreqSettings(ClkInFreq,ClkOutFreq)
 
-        if result!=SI5324_SUCCESS:
+        result = self._Si5324_CalcFreqSettings(ClkInFreq, ClkOutFreq)
+
+        if result != SI5324_SUCCESS:
             if SI5324_DEBUG:
-                print("Si5324: ERROR: Could not determine settings for requested frequency!\n")
+                print(
+                    "Si5324: ERROR: Could not determine settings for requested frequency!\n")
             return result
 
         if SI5324_DEBUG:
             print("Si5324:Programming frequency settings\n")
 
-        i=0
-        buf[i]=0
+        i = 0
+        buf[i] = 0
 
-        if ClkSrc==SI5324_CLKSRC_XTAL:
-            buf[i+1]=0x54
+        if ClkSrc == SI5324_CLKSRC_XTAL:
+            buf[i+1] = 0x54
         else:
-            buf[i+1]=0x14
+            buf[i+1] = 0x14
 
-        i=i+2
+        i = i+2
 
-        buf[i]=2
-        buf[i+1]=np.uint8((vals[5]<<np.uint64(4)))|np.uint64(0x02)
-        i+=2
+        buf[i] = 2
+        buf[i+1] = np.uint8((vals[5] << np.uint64(4))) | np.uint64(0x02)
+        i += 2
 
-        buf[i]=11
-        if ClkSrc==SI5324_CLKSRC_CLK1:
-            buf[i+1]=0x42
+        buf[i] = 11
+        if ClkSrc == SI5324_CLKSRC_CLK1:
+            buf[i+1] = 0x42
         else:
-            buf[i+1]=0x41
-        i+=2
+            buf[i+1] = 0x41
+        i += 2
 
-        buf[i]=13
-        buf[i+1]=0x2f   #2d=>LVPECL and 2F=>LVDS
-        i+=2
+        buf[i] = 13
+        buf[i+1] = 0x2f  # 2d=>LVPECL and 2F=>LVDS
+        i += 2
 
-        buf[i]=25
-        buf[i+1]=np.uint8(vals[0]<<np.uint64(5))
-        i+=2
+        buf[i] = 25
+        buf[i+1] = np.uint8(vals[0] << np.uint64(5))
+        i += 2
 
-        buf[i]=31
-        buf[i+1]=np.uint8((vals[1]&np.uint64(0x000F0000))>>np.uint64(16))
-        buf[i+2]=32
-        buf[i+3]=np.uint8((vals[1]&np.uint64(0x000FF0000))>>np.uint64(8))
-        buf[i+4]=33
-        buf[i+5]=np.uint8(vals[1]&np.uint64(0x000000FF))
-        i+=6
+        buf[i] = 31
+        buf[i+1] = np.uint8((vals[1] & np.uint64(0x000F0000)) >> np.uint64(16))
+        buf[i+2] = 32
+        buf[i+3] = np.uint8((vals[1] & np.uint64(0x000FF0000)) >> np.uint64(8))
+        buf[i+4] = 33
+        buf[i+5] = np.uint8(vals[1] & np.uint64(0x000000FF))
+        i += 6
 
-        buf[i]=40
-        buf[i+1]=np.uint8(vals[2]<<np.uint64(5))
-        temp=(np.uint8(vals[3])&np.uint64(0x000F0000))>>np.uint64(16)
-        buf[i+1]=np.uint8(np.uint64(buf[i+1])|np.uint64(temp))
-        buf[i+2]=41
-        buf[i+3]=np.uint8((vals[3]&np.uint64(0x0000FF00))>>np.uint64(8))
-        buf[i+4]=42
-        buf[i+5]=np.uint8(vals[3]&np.uint64(0x000000FF))
-        i+=6
+        buf[i] = 40
+        buf[i+1] = np.uint8(vals[2] << np.uint64(5))
+        temp = (np.uint8(vals[3]) & np.uint64(0x000F0000)) >> np.uint64(16)
+        buf[i+1] = np.uint8(np.uint64(buf[i+1]) | np.uint64(temp))
+        buf[i+2] = 41
+        buf[i+3] = np.uint8((vals[3] & np.uint64(0x0000FF00)) >> np.uint64(8))
+        buf[i+4] = 42
+        buf[i+5] = np.uint8(vals[3] & np.uint64(0x000000FF))
+        i += 6
 
-        if ClkSrc==SI5324_CLKSRC_CLK1:
-            buf[i]=43
-            buf[i+2]=44
-            buf[i+4]=45
+        if ClkSrc == SI5324_CLKSRC_CLK1:
+            buf[i] = 43
+            buf[i+2] = 44
+            buf[i+4] = 45
         else:
-            buf[i]=46
-            buf[i+2]=47
-            buf[i+4]=48
+            buf[i] = 46
+            buf[i+2] = 47
+            buf[i+4] = 48
 
-        buf[i+1]=np.uint8((vals[4]&np.uint64(0x00070000))>>np.uint64(16))
-        buf[i+3]=np.uint8((vals[4]&np.uint64(0x0000FF00))>>np.uint64(8))
-        buf[i+5]=np.uint8(vals[4]&np.uint64(0x000000FF))
-        i+=6
+        buf[i+1] = np.uint8((vals[4] & np.uint64(0x00070000)) >> np.uint64(16))
+        buf[i+3] = np.uint8((vals[4] & np.uint64(0x0000FF00)) >> np.uint64(8))
+        buf[i+5] = np.uint8(vals[4] & np.uint64(0x000000FF))
+        i += 6
 
-        buf[i]=136
-        buf[i+1]=0x40
-        i+=2
+        buf[i] = 136
+        buf[i+1] = 0x40
+        i += 2
 
-        if i!=buf.shape[0]:
+        if i != buf.shape[0]:
             if SI5324_DEBUG:
-                print("Si5324 : FATAL ERROR: Incorrect buffer size while programming frequnency settings!")
+                print(
+                    "Si5324 : FATAL ERROR: Incorrect buffer size while programming frequnency settings!")
             return
 
-        print("Programming Si5324 chip with the following address and data")
-        for index in range (0,i,2):
-            print("reg:",np.uint8(buf[index]),"value:",hex(np.uint8(buf[index+1])))
+        if SI5324_DEBUG:
+            print("Programming Si5324 chip with the following address and data")
+            for index in range(0, i, 2):
+                print("reg:", np.uint8(buf[index]),
+                      "value:", hex(np.uint8(buf[index+1])))
 
-        for index in range (0,i,2):
-            reg_addr= np.uint8(buf[index])
-            data=np.uint8(buf[index+1])
+        for index in range(0, i, 2):
+            reg_addr = np.uint8(buf[index])
+            data = np.uint8(buf[index+1])
             self._write(reg_addr, data)
 
         return result
