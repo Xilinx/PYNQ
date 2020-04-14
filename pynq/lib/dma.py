@@ -210,7 +210,6 @@ class _SGDMAChannel:
         self._interrupt = interrupt
         self._max_size = max_size
         self._active_buffer = None
-        self._first_transfer = True
         self._align = 1 << int(width)
         self._tx_rx = tx_rx
         self._dre = dre
@@ -265,13 +264,13 @@ class _SGDMAChannel:
         """Start the DMA engine if stopped
 
         """
-        self._first_transfer = False
         if self._interrupt:
             self._mmio.write(self._offset, 0x1001) # XXX What about ERRORs?
         else:
             self._mmio.write(self._offset, 0x0001)
         while not self.running:
             pass
+        self._transfer_started = True
 
     def stop(self):
         """Stops the DMA channel and aborts the current transfer
@@ -280,7 +279,7 @@ class _SGDMAChannel:
         self._mmio.write(self._offset, 0x0000)
         while self.running:
             pass
-        self._first_transfer = True
+        self._transfer_started = False
 
     def _clear_interrupt(self):
         self._mmio.write(self._offset + 4, 0x1000) # XXX ERRORs!
@@ -301,7 +300,7 @@ class _SGDMAChannel:
 
         """
 
-        if not self.halted and not self._first_transfer:
+        if not self.halted:
             raise RuntimeError('DMA channel not halted')
         if nbytes == 0:
             nbytes = array.nbytes - start
@@ -379,8 +378,8 @@ class _SGDMAChannel:
         """Wait for the transfer to complete
 
         """
-        if not self.running and self._first_transfer:
-            raise RuntimeError('DMA channel not started')
+        if not self._transfer_started:
+            raise RuntimeError('DMA transfer not started')
         while True:
             if self.error:
                 error = self._mmio.read(self._offset + 4)
@@ -421,8 +420,8 @@ class _SGDMAChannel:
         """Wait for the transfer to complete
 
         """
-        if not self.running and self._first_transfer:
-            raise RuntimeError('DMA channel not started')
+        if not self._transfer_started:
+            raise RuntimeError('DMA transfer not started')
         while not (self.idle or self.halted):
             await self._interrupt.wait()
         self._clear_interrupt()
