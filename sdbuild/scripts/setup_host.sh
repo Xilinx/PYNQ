@@ -39,6 +39,7 @@ nfs-common
 zerofree
 u-boot-tools
 rpm2cpio
+curl
 docker-ce
 docker-ce-cli
 containerd.io
