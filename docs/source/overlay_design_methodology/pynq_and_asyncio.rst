@@ -110,19 +110,15 @@ Finally the event loop is closed.
         sleep_time = end_time - start_time
         print(f"'wake-up' was suspended for precisely: {sleep_time} seconds")
      
-    # Event loop 
+
     if __name__ == '__main__':
         delay = random.randint(1,5)
-        my_event_loop = asyncio.get_event_loop()
+        print("Creating task for coroutine 'wake_up'\n")
         try:
-            print("Creating task for coroutine 'wake_up'\n")
-            wake_up_task = my_event_loop.create_task(wake_up(delay))
-            my_event_loop.run_until_complete(wake_up_task)
+            asyncio.run(wake_up(delay))
         except RuntimeError as err:
             print (f'{err}' +
                    ' - restart the Jupyter kernel to re-run the event loop')
-        finally:
-            my_event_loop.close()
 
 
 A sample run of the code produces the following output:
@@ -183,11 +179,12 @@ is defined:
             await button.wait_for_level_async(0)
             led.off()
 
-Next add instances of the coroutine to the default event loop
+Next create an async function to start multiple instances of the coroutine
 
 .. code-block:: Python
 
-    tasks = [asyncio.ensure_future(button_to_led(i) for i in range(4)]
+    async def amain():
+        await asyncio.gather(*(button_to_led(i) for i in range(4))
 
 Finally, running the event loop will cause the coroutines to be active. This
 code runs the event loop until an exception is thrown or the user interrupts the
@@ -195,7 +192,7 @@ process.
 
 .. code-block:: Python
 
-    asyncio.get_event_loop().run_forever()
+    asyncio.run(amain())
 
 
 PynqMicroblaze
