@@ -76,6 +76,7 @@ from . import audio
 from . import dma
 
 from . import swig
+from . import pybind11
 
 
 __author__ = "Graham Schelle"
