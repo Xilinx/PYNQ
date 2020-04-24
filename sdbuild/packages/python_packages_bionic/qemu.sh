@@ -6,6 +6,7 @@ set -e
 
 cat > requirements.txt <<EOT
 Click==7.0
+CppHeaderParser==2.7.4
 dash==0.21.1
 dash-core-components==0.23.0
 dash-html-components==0.11.0
@@ -31,6 +32,7 @@ parsec==3.4
 patsy==0.5.1
 plotly==4.1.0
 plotly-express==0.3.1
+pybind11==2.5.0
 pyeda==0.28.0
 pyrsistent==0.15.4
 rise==5.2.0

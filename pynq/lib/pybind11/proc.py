@@ -29,7 +29,6 @@
 
 
 import os
-from CppHeaderParser import CppHeader
 from .compile import Pybind11Compile
 
 
@@ -56,6 +55,11 @@ class CppProgram:
 
     """
     def __init__(self, module_name, original_text):
+        try:
+            from CppHeaderParser import CppHeader
+        except ImportError:
+            raise ImportError("Requires CppHeaderParser to be installed.")
+
         self.module_name = module_name
         self.original_text = original_text
         self.use_generated_header = True

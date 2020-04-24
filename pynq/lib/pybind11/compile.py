@@ -62,6 +62,11 @@ class Pybind11Compile:
             Name of the program to compile.
 
         """
+        try:
+            import pybind11
+        except ImportError:
+            raise ImportError("Requires pybind11 to be installed.")
+
         self.module_name = module_name
         self.cflags = flags['cflags']
         self.ldflags = flags['ldflags']
