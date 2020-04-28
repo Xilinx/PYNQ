@@ -349,7 +349,8 @@ class AudioADAU1761(DefaultIP):
                           int uio_index, int iic_index);""")
         self._ffi.cdef("""void play(unsigned int audio_mmap_size,
                           unsigned int * BufAddr, unsigned int nsamples,
-                          unsigned int volume, int uio_index, int iic_index);""")
+                          unsigned int volume,
+                          int uio_index, int iic_index);""")
 
         self.buffer = numpy.zeros(0).astype(numpy.int32)
         self.sample_rate = None
@@ -448,7 +449,7 @@ class AudioADAU1761(DefaultIP):
         self._libaudio.record(self.mmio.length, uint_buffer,
                               self.sample_len, self.uio_index, self.iic_index)
 
-    def play(self,volume=57):
+    def play(self, volume=57):
         """Play audio buffer via audio jack.
 
         Since both channels are sampled, the buffer size has to be twice
@@ -471,8 +472,8 @@ class AudioADAU1761(DefaultIP):
         char_buffer = self._ffi.from_buffer(self.buffer)
         uint_buffer = self._ffi.cast('unsigned int*', char_buffer)
 
-        self._libaudio.play(self.mmio.length, uint_buffer,
-                            self.sample_len, volume, self.uio_index, self.iic_index)
+        self._libaudio.play(self.mmio.length, uint_buffer, self.sample_len,
+                            volume, self.uio_index, self.iic_index)
 
     def bypass(self, seconds, volume=57):
         """Stream audio controller input directly to output.
@@ -498,8 +499,8 @@ class AudioADAU1761(DefaultIP):
             raise ValueError("Bypassing time has to be in (0,60].")
 
         self.sample_len = math.ceil(seconds * self.sample_rate)
-        self._libaudio.bypass(self.mmio.length,
-                              self.sample_len, volume, self.uio_index, self.iic_index)
+        self._libaudio.bypass(self.mmio.length, self.sample_len, volume,
+                              self.uio_index, self.iic_index)
 
     def save(self, file):
         """Save audio buffer content to a file.

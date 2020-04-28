@@ -315,11 +315,6 @@ extern "C" void bypass(unsigned int audio_mmap_size,
     void *uio_ptr;
     int DataL, DataR;
     int iic_fd;
-    
-    if(volume > 63) {
-        printf("Volume cannot be more than 63!");
-        return;
-    }
 
     uio_ptr = setUIO(uio_index, audio_mmap_size);
     iic_fd = setI2C(iic_index, IIC_SLAVE_ADDR);
@@ -336,8 +331,12 @@ extern "C" void bypass(unsigned int audio_mmap_size,
     
     unsigned char vol_register = (unsigned char)volume << 2 | 0x3;
     // Enable Left/Right Headphone out
-    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, vol_register, iic_fd);
-    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, vol_register, iic_fd);
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL,
+                    vol_register,
+                    iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL,
+                    vol_register,
+                    iic_fd);
 
     for(i=0; i<nsamples; i++){
         //wait for RX data to become available
@@ -445,11 +444,6 @@ extern "C" void play(unsigned int audio_mmap_size,
     int DataL, DataR;
     int iic_fd;
 
-    if(volume > 63) {
-        printf("Volume cannot be more than 63!");
-        return;
-    }
-
     uio_ptr = setUIO(uio_index, audio_mmap_size);
     iic_fd = setI2C(iic_index, IIC_SLAVE_ADDR);
     if (iic_fd < 0) {
@@ -462,8 +456,12 @@ extern "C" void play(unsigned int audio_mmap_size,
 
     unsigned char vol_register = (unsigned char)volume << 2 | 0x3;
     // Enable Left/Right Headphone out
-    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, vol_register, iic_fd);
-    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, vol_register, iic_fd);
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL,
+                    vol_register, 
+                    iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL,
+                    vol_register,
+                    iic_fd);
 
     for(i=0; i<nsamples; i++){
         do {
