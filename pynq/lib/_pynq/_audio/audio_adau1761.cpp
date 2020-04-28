@@ -309,12 +309,17 @@ extern "C" void deselect(int iic_index) {
  * @return  none.
  *****************************************************************************/
 extern "C" void bypass(unsigned int audio_mmap_size,
-                       unsigned int nsamples, 
+                       unsigned int nsamples, unsigned int volume,
                        int uio_index, int iic_index) {
     int i, status;
     void *uio_ptr;
     int DataL, DataR;
     int iic_fd;
+    
+    if(volume > 63) {
+        printf("Volume cannot be more than 63!");
+        return;
+    }
 
     uio_ptr = setUIO(uio_index, audio_mmap_size);
     iic_fd = setI2C(iic_index, IIC_SLAVE_ADDR);
@@ -328,9 +333,11 @@ extern "C" void bypass(unsigned int audio_mmap_size,
     // Enable Mixer3 and Mixer4
     write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x21, iic_fd);
     write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x41, iic_fd);
+    
+    unsigned char vol_register = (unsigned char)volume << 2 | 0x3;
     // Enable Left/Right Headphone out
-    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7, iic_fd);
-    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7, iic_fd);
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, vol_register, iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, vol_register, iic_fd);
 
     for(i=0; i<nsamples; i++){
         //wait for RX data to become available

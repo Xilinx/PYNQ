@@ -342,7 +342,7 @@ class AudioADAU1761(DefaultIP):
         self._ffi.cdef("""void select_mic(int iic_index);""")
         self._ffi.cdef("""void deselect(int iic_index);""")
         self._ffi.cdef("""void bypass(unsigned int audio_mmap_size,
-                          unsigned int nsamples, 
+                          unsigned int nsamples, unsigned int volume,
                           int uio_index, int iic_index) ;""")
         self._ffi.cdef("""void record(unsigned int audio_mmap_size,
                           unsigned int * BufAddr, unsigned int nsamples,
@@ -474,7 +474,7 @@ class AudioADAU1761(DefaultIP):
         self._libaudio.play(self.mmio.length, uint_buffer,
                             self.sample_len, volume, self.uio_index, self.iic_index)
 
-    def bypass(self, seconds):
+    def bypass(self, seconds, volume=57):
         """Stream audio controller input directly to output.
 
         It will run for a certain number of seconds, then stop automatically.
@@ -483,18 +483,23 @@ class AudioADAU1761(DefaultIP):
         ----------
         seconds : float
             The number of seconds to be recorded.
+        volume : unsigned
+            The playback volume. Minimum : 0=-57dB, Maximum : 63=+6dB.
 
         Returns
         -------
         None
 
         """
+        
+        if not 0 <= volume < 63 :
+            raise ValueError("Volume has to be in [0,63]!")
         if not 0 < seconds <= 60:
             raise ValueError("Bypassing time has to be in (0,60].")
 
         self.sample_len = math.ceil(seconds * self.sample_rate)
         self._libaudio.bypass(self.mmio.length,
-                              self.sample_len, self.uio_index, self.iic_index)
+                              self.sample_len, volume, self.uio_index, self.iic_index)
 
     def save(self, file):
         """Save audio buffer content to a file.
