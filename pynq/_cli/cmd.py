@@ -134,10 +134,9 @@ def main():
         if args.version:
             mod = __import__("pynq")
             version = mod.__version__
-            git_commit = mod.__git_commit__.replace("$", "").replace("Id: ",
-                                                                     "")
+            git_id = mod.__git_id__.replace("$", "")
             print("PYNQ version {}".format(version))
-            print("Git commit: {}".format(git_commit))
+            print("Git {}".format(git_id))
             return
     if not subcommand:
         parser.print_usage(file=sys.stderr)
