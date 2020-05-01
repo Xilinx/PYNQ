@@ -348,6 +348,13 @@ class XrtDevice(Device):
             if slot == self._info.mPciSlot:
                 self.sysfs_path = os.path.realpath(d)
 
+
+    @property
+    def device_info(self):
+        info = xrt.xclDeviceInfo2()
+        xrt.xclGetDeviceInfo2(self.handle, info)
+        return info
+
     @property
     def name(self):
         return self._info.mName.decode()
