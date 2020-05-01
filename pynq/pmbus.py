@@ -227,7 +227,6 @@ try:
     _ffi.cdef(_c_header)
     _lib = _ffi.dlopen("libsensors.so.4")
 except Exception as e:
-    warnings.warn("Could not initialise libsensors library")
     _lib = None
 
 
@@ -449,6 +448,7 @@ def get_xrt_sysfs_rails(device=None):
 
 def _enumerate_sensors(config_file=None):
     if _lib is None:
+        warnings.warn("Could not initialise libsensors library")
         return {}
 
     if config_file:
