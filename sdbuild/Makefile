@@ -218,8 +218,6 @@ $$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODUL
 	rm -rf $$(BUILD_ROOT_$1)/modules
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
 	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
-	sudo chroot $$(STAGING_$1) tar czf kernel.tgz /usr/src/kernel
-	sudo chroot $$(STAGING_$1) rm -rf /usr/src/kernel
 	$$(SCRIPT_DIR)/resize_umount.sh $$(IMAGE_$1) $$(STAGING_$1)
 
 
@@ -257,13 +255,12 @@ sdx_sw_$1: $$(SDX_FILES_$1)
 
 $$(SYSROOT_$1): $$(IMAGE_$1) | $$(SYSROOT_ROOT)
 	-rm -rf $$@
-	mkdir -p $$@/usr
+	mkdir -p $$@/usr $$@/lib $$@/opt
 	$$(SCRIPT_DIR)/mount_image.sh $$(IMAGE_$1) $$(STAGING_$1)
-	cp -rd $$(STAGING_$1)/usr/include $$@/usr
-	cp -rd $$(STAGING_$1)/usr/lib $$@/usr
-	cp -rd $$(STAGING_$1)/usr/share $$@/usr
-	cp -rd $$(STAGING_$1)/usr/local $$@/usr
+	cp -rd $$(STAGING_$1)/usr $$@
 	cp -rd $$(STAGING_$1)/lib $$@
+	cp -rd $$(STAGING_$1)/opt $$@
+	sudo chmod a+w -R $$@
 	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(IMAGE_$1)
 
 sysroot_$1 : $$(SYSROOT_$1)
