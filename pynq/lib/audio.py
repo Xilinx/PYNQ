@@ -321,7 +321,7 @@ class AudioADAU1761(DefaultIP):
         The index of the IIC instance in /dev.
     uio_index : int
         The index of the UIO instance in /dev.
-    volume : unsigned
+    volume : int
         The output volume of the ADAU1761 IC.
 
     """
@@ -400,7 +400,7 @@ class AudioADAU1761(DefaultIP):
 
         Parameters
         ----------
-        volume : unsigned
+        volume : int
             The volume level. Minimum : 0=-57dB, Maximum : 63=+6dB.
 
         Returns
