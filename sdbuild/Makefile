@@ -2,10 +2,10 @@ DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
 BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
 UBUNTU_RELEASE := bionic
-VERSION := 2.5
+VERSION := 2.6
 
-KERNEL_VERSION := 2019.1
-LINUX_VERSION := 4.19.0-xilinx-v2019.1
+KERNEL_VERSION := 2020.1
+LINUX_VERSION := 5.4.0-xilinx-v2020.1
 QEMU_VERSION := 4.0.0
 SCRIPT_DIR := $(CURDIR)/scripts
 SHELL := /bin/bash
@@ -135,19 +135,16 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	cd $$(BUILD_ROOT_$1) && petalinux-create -t project \
 		-s $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp -n petalinux_project
 	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_ROOTFS_SD=y' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_ROOTFS_EXT=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1)
-	# xrt only supports aarch64 in 2019.1; to remove in next release
-	if [ $$(ARCH_$1) = aarch64 ]; then \
-		echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-	fi
+	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
@@ -337,7 +334,7 @@ PACKAGE_CLEAN := $(patsubst %,PACKAGE_CLEAN_%, $(ALL_PACKAGES))
 
 checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
 	vivado -version | fgrep ${KERNEL_VERSION}
-	xsdk -version | fgrep ${KERNEL_VERSION}
+	vitis -version | fgrep ${KERNEL_VERSION}
 	which petalinux-config
 	which arm-linux-gnueabihf-gcc
 	which microblaze-xilinx-elf-gcc
