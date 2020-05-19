@@ -5,6 +5,7 @@ set -e
 
 
 cat > requirements.txt <<EOT
+numpy==1.16.0
 Click==7.0
 dash==0.21.1
 dash-core-components==0.23.0
@@ -40,7 +41,11 @@ tqdm==4.32.2
 Werkzeug==0.15.6
 widgetsnbextension==3.5.1
 wurlitzer==1.0.3
+cython==0.29.0
+setproctitle==1.1.10
+psutil==5.7.0
 EOT
 
+python3.6 -m pip install -U pip
 python3.6 -m pip install -r requirements.txt
 rm requirements.txt
