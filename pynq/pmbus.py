@@ -236,6 +236,7 @@ class SysFSSensor:
         self._unit = unit
         self.name = name
         self._scale = scale
+        self.parents = tuple()
 
     @property
     def value(self):
@@ -243,19 +244,30 @@ class SysFSSensor:
             raw_value = float(f.read())
         return raw_value * self._scale
 
+    def get_value(self, parents=None):
+        return self.value
+
     def __repr__(self):
         return "Sensor {{name={}, value={}{}}}".format(
             self.name, self.value, self._unit)
 
 class DerivedPowerSensor:
     def __init__(self, name, voltage, current):
+        parents = (voltage, current)
         self.voltage_sensor = voltage
         self.current_sensor = current
         self.name = name
+        self.parents = (voltage, current)
+
+    def get_value(self, parents=None):
+        if parents is None:
+            return self.voltage_sensor.value * self.current_sensor.value
+        else:
+            return parents[0] * parents[1]
 
     @property
     def value(self):
-        return self.voltage_sensor.value * self.current_sensor.value
+        return self.get_value()
 
     def __repr__(self):
         return "Sensor {{name={}, value={}W}}".format(
@@ -297,6 +309,7 @@ class Sensor:
         self._value = _ffi.new("double [1]")
         self._unit = unit
         self.name = name
+        self.parents = tuple()
 
     @property
     def value(self):
@@ -308,6 +321,9 @@ class Sensor:
             return self._value[0]
         else:
             return 0
+
+    def get_value(self, parents=None):
+        return self.value
 
     def __repr__(self):
         return "Sensor {{name={}, value={}{}}}".format(
