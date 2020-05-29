@@ -3,11 +3,3 @@
 		compatible = "xlnx,xlnk-1.0";
 	};
 };
-
-&amba {
-	zyxclmm_drm {
-		compatible = "xlnx,zocl";
-		status = "okay";
-	};
-};
-
