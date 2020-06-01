@@ -2,9 +2,6 @@
 Glossary
 ********
 
-.. glossary::
-
-
 A-G
 ===
 
