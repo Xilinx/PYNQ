@@ -32,7 +32,6 @@ parsec==3.4
 patsy==0.5.1
 plotly==4.1.0
 plotly-express==0.3.1
-pybind11==2.5.0
 pyeda==0.28.0
 pyrsistent==0.15.4
 rise==5.2.0
