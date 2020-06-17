@@ -511,7 +511,7 @@ class XrtDevice(Device):
             uuid = None
             for k, v in ip_dict.items():
                 if 'index' in v:
-                    index = v['index']
+                    index = v['adjusted_index']
                     uuid = bytes.fromhex(v['xclbin_uuid'])
                     uuid_ctypes = \
                         XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
