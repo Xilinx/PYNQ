@@ -14,8 +14,8 @@ git checkout -b temp tags/202010.2.6.655
 
 cd build
 chmod 755 build.sh
-XRT_NATIVE_BUILD=no ./build.sh -opt
-cd Release
+XRT_NATIVE_BUILD=no ./build.sh -dbg
+cd Debug
 make install
 
 # put platform name for xrt app
