@@ -530,6 +530,19 @@ class RegisterIP(type):
                 _ip_drivers[vlnv.rpartition(':')[0]] = cls
         super().__init__(name, bases, attrs)
 
+
+    def unregister(cls):
+        """Unregister a subclass from the driver registry
+
+        """
+        if hasattr(cls, 'bindto'):
+            for vlnv in cls.bindto:
+                 vln = vlnv.rpartition(':')[0]
+                 if _ip_drivers.get(vlnv, None) == cls:
+                     del _ip_drivers[vlnv]
+                 if _ip_drivers.get(vln, None) == cls:
+                     del _ip_drivers[vln]
+
 _struct_dict = {
     # Base Vitis int types
     'char': 'c',
@@ -938,6 +951,10 @@ class RegisterHierarchy(type):
         if 'checkhierarchy' in attrs:
             _hierarchy_drivers.appendleft(cls)
         super().__init__(name, bases, attrs)
+
+    def unregister(cls):
+         if cls in _hierarchy_drivers:
+             _hierarchy_drivers.remove(cls)
 
 
 class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
