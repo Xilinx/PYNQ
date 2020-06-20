@@ -6,7 +6,8 @@ python:
  - "3.8"
 
 install:
-  - pip install pytest pytest-cov codecov
+  - pip install -U pytest>=4.6.0
+  - pip install pytest-cov codecov
   - pip install .
 script:
   - pytest
