@@ -132,7 +132,7 @@ class Register:
 
         """
 
-        curr_val = self._buffer[0]
+        curr_val = int(self._buffer[0])
         if isinstance(index, int):
             self._debug("Reading index {} at address {}"
                         .format(index, hex(self.address)))
@@ -155,11 +155,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
-                raise ValueError("Slice endpoint {0} not in range "
-                                 "0 - {1}".format(start, self.width))
+                raise ValueError("Slicing endpoint {0} not in range "
+                                 "0 - {1}".format(start, self.width - 1))
             if stop not in range(self.width):
                 raise ValueError("Slicing endpoint {0} not in range "
-                                 "0 - {1}".format(stop, self.width))
+                                 "0 - {1}".format(stop, self.width - 1))
 
             if start >= stop:
                 mask = ((1 << (start - stop + 1)) - 1) << stop
@@ -185,13 +185,13 @@ class Register:
 
         """
 
-        curr_val = self._buffer[0]
         if isinstance(index, int):
             if value != 0 and value != 1:
                 raise ValueError("Value to be set should be either 0 or 1.")
             self._debug("Setting bit {} at address {} to {}"
                         .format(index, hex(self.address), value))
             mask = 1 << index
+            curr_val = int(self._buffer[0])
             self._buffer[0] = (curr_val & ~mask) | (value << index)
         elif isinstance(index, slice):
             count = self.count(index, width=self.width)
@@ -210,19 +210,28 @@ class Register:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(self.width):
                 raise ValueError("Slicing endpoint {} is not in range 0 - {}."
-                                 .format(start, self.width))
+                                 .format(start, self.width - 1))
             if stop not in range(self.width):
                 raise ValueError("Slicing endpoint {} is not in range 0 - {}."
-                                 .format(stop, self.width))
+                                 .format(stop, self.width - 1))
             if value not in range(1 << count):
                 raise ValueError("Slicing range cannot represent value {}"
                                  .format(value))
 
             shift = stop if start >= stop else start
+            if start < stop:
+                width = stop - start + 1
+                value = int('{:0{width}b}'.format(value,
+                                                  width=width)[::-1], 2)
+ 
             mask = ((1 << count) - 1) << shift
             self._debug("Setting bits {}:{} at address {} to {}".format(
                 count + shift, shift, hex(self.address), value))
-            self._buffer[0] = (curr_val & ~mask) | (value << shift)
+            if count == self.width:
+                self._buffer[0] = value
+            else:
+                curr_val = int(self._buffer[0])
+                self._buffer[0] = (curr_val & ~mask) | (value << shift)
         else:
             raise ValueError("Index must be int or slice.")
 
@@ -362,11 +371,11 @@ class Register:
             else:
                 raise ValueError("Slicing step is not valid.")
             if start not in range(width):
-                raise ValueError("Slicing endpoint {} is not in range(0,{})."
-                                 .format(start, self.width))
+                raise ValueError("Slicing endpoint {} not in range 0 - {}"
+                                 .format(start, width - 1))
             if stop not in range(width):
-                raise ValueError("Slicing endpoint {} is not in range(, {})."
-                                 .format(stop, self.width))
+                raise ValueError("Slicing endpoint {} not in range 0 - {}"
+                                 .format(stop, width - 1))
 
             if start >= stop:
                 count = start - stop + 1
