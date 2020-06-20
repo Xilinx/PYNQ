@@ -1,0 +1,14 @@
+language: python
+python:
+ - "3.5"
+ - "3.6"
+ - "3.7"
+ - "3.8"
+
+install:
+  - pip install pytest pytest-cov codecov
+  - pip install .
+script:
+  - pytest
+after_success:
+  - codecov
