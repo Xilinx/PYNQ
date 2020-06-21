@@ -6,7 +6,7 @@ python:
 
 install:
   - pip install -U pytest>=4.6.0
-  - pip install pytest-cov codecov
+  - pip install pytest-cov codecov pyfakefs pytest-asyncio
   - pip install .
 script:
   - pytest
