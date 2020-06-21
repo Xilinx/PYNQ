@@ -111,17 +111,17 @@ class _TCLABC(metaclass=abc.ABCMeta):
     hier_proc_def_pat = "proc {}".format(hier_use_pat)
     hier_def_regex = "create_hier_cell_(?P<name>[^ ]*)"
     hier_proc_end_pat = "}\n"
-    hier_use_regex = ("create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
-                      "(?P<instance_name>[^ ]*)\n")
+    hier_use_regex = (r"create_hier_cell_(?P<hier_name>[^ ]*) ([^ ].*) " +
+                      r"(?P<instance_name>[^ ]*)\n")
 
     config_ip_pat = "CONFIG"
     config_ignore_pat = ".VALUE_SRC"
-    config_regex = "CONFIG.(?P<key>.+?) \{(?P<value>.+?)\}"
+    config_regex = r"CONFIG.(?P<key>.+?) \{(?P<value>.+?)\}"
     prop_start_pat = "set_property -dict ["
-    prop_end_inst_regex = "\] \$(?P<instance_name>.+?)$"
-    prop_end_nets_regex = "\] \[.*\]"
+    prop_end_inst_regex = r"\] \$(?P<instance_name>.+?)$"
+    prop_end_nets_regex = r"\] \[.*\]"
     net_pat = "connect_bd_net -net"
-    net_regex = "\[get_bd_pins (?P<name>[^]]+)\]"
+    net_regex = r"\[get_bd_pins (?P<name>[^]]+)\]"
     addr_pat = "create_bd_addr_seg"
     ip_pat = "create_bd_cell -type ip -vlnv "
     ip_regex = ("create_bd_cell -type ip -vlnv " +
@@ -134,10 +134,10 @@ class _TCLABC(metaclass=abc.ABCMeta):
     ip_block_name_regex = "set block_name (?P<ip_block_name>.+)"
     ip_block_pat = "create_bd_cell -type module -reference "
     ip_block_regex = ("set (?P<instance_name>.*) " +
-                      "\[create_bd_cell -type module -reference " +
-                      "(?P<block_name>[\S]*) " +
-                      "(?P<block_cell_name>[\S]*)\]")
-    ignore_regex = "\s*(\#|catch).*"
+                      r"\[create_bd_cell -type module -reference " +
+                      r"(?P<block_name>[\S]*) " +
+                      r"(?P<block_cell_name>[\S]*)\]")
+    ignore_regex = r"\s*(\#|catch).*"
 
     # following members will be overridden in the child classes
     ps_ip_name = ""
@@ -166,8 +166,8 @@ class _TCLABC(metaclass=abc.ABCMeta):
         addr_regex = "create_bd_addr_seg " +\
                      "-range (?P<range>0[xX][0-9a-fA-F]+) " +\
                      "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +\
-                     "\[get_bd_addr_spaces ([^ ].*) " +\
-                     "\[get_bd_addr_segs (?P<hier>.+?)\] " +\
+                     r"\[get_bd_addr_spaces ([^ ].*) " +\
+                     r"\[get_bd_addr_segs (?P<hier>.+?)\] " +\
                      "(?P<name>[A-Za-z0-9_]+)"
 
         # Initialize result variables
@@ -313,9 +313,9 @@ class _TCLABC(metaclass=abc.ABCMeta):
                         addr_regex = "create_bd_addr_seg " +\
                                      "-range (?P<range>0[xX][0-9a-fA-F]+) " +\
                                      "-offset (?P<addr>0[xX][0-9a-fA-F]+) " +\
-                                     "\[get_bd_addr_spaces " +\
-                                     instance_name + "/Data\] " +\
-                                     "\[get_bd_addr_segs (?P<hier>.+?)\] " +\
+                                     r"\[get_bd_addr_spaces " +\
+                                     instance_name + r"/Data\] " +\
+                                     r"\[get_bd_addr_segs (?P<hier>.+?)\] " +\
                                      "(?P<name>[A-Za-z0-9_]+)"
                     else:
                         ip_type = ':'.join([m.group(1), m.group(2),
