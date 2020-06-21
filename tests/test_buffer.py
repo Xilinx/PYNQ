@@ -125,6 +125,13 @@ def test_withfree(device):
         assert cache.returns == [1234]
 
 
+def test_free_nocache(device):
+    with device.check_memops(allocates=[(10, False, BUFFER_ADDRESS)]):
+        with pynq.allocate((1024,1024), 'u4', target=device) as buf:
+            buf.return_to = None
+            buf.pointer = 1234
+
+
 def test_close_deprecation(device):
     with device.check_memops(allocates=[(10, False, BUFFER_ADDRESS)]):
         buf = device.allocate((1024,), 'u4')
