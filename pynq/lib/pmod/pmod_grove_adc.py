@@ -253,12 +253,12 @@ class Grove_ADC(object):
             data = self.microblaze.read(head_ptr, num_words)
             readings += data
         else:
-            num_words = int(ceil((PMOD_ALS_LOG_END - head_ptr) / 4))
+            num_words = int(ceil((GROVE_ADC_LOG_END - head_ptr) / 4))
             data = self.microblaze.read(head_ptr, num_words)
             readings += data
 
-            num_words = int(ceil((tail_ptr - PMOD_ALS_LOG_START) / 4))
-            data = self.microblaze.read(PMOD_ALS_LOG_START, num_words)
+            num_words = int(ceil((tail_ptr - GROVE_ADC_LOG_START) / 4))
+            data = self.microblaze.read(GROVE_ADC_LOG_START, num_words)
             readings += data
         return readings
         
