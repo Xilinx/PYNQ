@@ -13,36 +13,36 @@ import numpy as np
 #  5. Expected get_item pre-update
 #  6. Expected register value post-update
 TEST_VECTORS = {
-    "single-bit-set-32": ( 32, 0x0000_0000, 4, 1, 0, 0x0000_0010 ),
-    "single-bit-clear-32": ( 32, 0x0000_0010, 4, 0, 1, 0x0000_0000 ),
-    "multi-bit-set-32": (32, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0 ),
-    "multi-bit-clear-32": (32, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000 ),
-    "multi-bit-normal-32": (32, 0x0000_0010, slice(7,4), 0x1, 0x1, 0x0000_0010 ),
-    "multi-bit-reverse-32": (32, 0x0000_0010, slice(4,7), 0x1, 0x8, 0x0000_0080 ),
-    "whole-reg-32": (32, 0x1234_5678, slice(None, None, None), 0x8765_4321, 0x1234_5678, 0x8765_4321),
-    "whole-reg-forward-32": (32, 0x1234_5678, slice(None, None, -1), 0x8765_4321, 0x1234_5678, 0x8765_4321),
-    "whole-reg-reverse-32": (32, 0x1234_5678, slice(None, None, 1), 0x1234_5678, 0x1E6A_2C48, 0x1E6A_2C48),
-    "lower-reg-32": (32, 0x1234_5678, slice(15, None, None), 0x1234, 0x5678, 0x1234_1234),
-    "lower-reg-forward-32": (32, 0x1234_5678, slice(15, None, -1), 0x1234, 0x5678, 0x1234_1234),
-    "lower-reg-reverse-32": (32, 0x1234_5678, slice(None, 15, 1), 0x1234, 0x1E6A, 0x1234_2C48),
-    "upper-reg-32": (32, 0x1234_5678, slice(None, 16, None), 0x5678, 0x1234, 0x56785678),
-    "upper-reg-forward-32": (32, 0x1234_5678, slice(None, 16, -1), 0x5678, 0x1234, 0x5678_5678),
-    "upper-reg-reverse-32": (32, 0x1234_5678, slice(16, None, 1), 0x5678, 0x2C48, 0x1E6A_5678),
-    "single-bit-set-64": ( 64, 0x0000_0000, 4, 1, 0, 0x0000_0010 ),
-    "single-bit-clear-64": ( 64, 0x0000_0010, 4, 0, 1, 0x0000_0000 ),
-    "multi-bit-set-64": (64, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0 ),
-    "multi-bit-clear-64": (64, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000 ),
-    "multi-bit-normal-64": (64, 0x0000_0010, slice(7,4), 0x1, 0x1, 0x0000_0010 ),
-    "multi-bit-reverse-64": (64, 0x0000_0010, slice(4,7), 0x1, 0x8, 0x0000_0080 ),
-    "whole-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, None), 0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0, 0x0FED_CBA9_8765_4321),
-    "whole-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, -1), 0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0, 0x0FED_CBA9_8765_4321),
-    "whole-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, 1), 0x1234_5678_9ABC_DEF0, 0x0F7B_3D59_1E6A_2C48, 0x0F7B_3D59_1E6A_2C48),
-    "lower-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(31, None, None), 0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678),
-    "lower-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(31, None, -1), 0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678),
-    "lower-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 31, 1), 0x1234_5678, 0x0F7B_3D59, 0x1234_5678_1e6a_2C48),
-    "upper-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, None), 0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0),
-    "upper-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, -1), 0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0),
-    "upper-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(32, None, 1), 0x9ABC_DEF0, 0x1E6A_2C48, 0x0F7B_3D59_9ABC_DEF0),
+    "single-bit-set-32": ( 32, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
+    "single-bit-clear-32": ( 32, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1 ),
+    "multi-bit-set-32": (32, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
+    "multi-bit-clear-32": (32, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000, 4),
+    "multi-bit-normal-32": (32, 0x0000_0010, slice(7,4), 0x1, 0x1, 0x0000_0010, 4),
+    "multi-bit-reverse-32": (32, 0x0000_0010, slice(4,7), 0x1, 0x8, 0x0000_0080, 4),
+    "whole-reg-32": (32, 0x1234_5678, slice(None, None, None), 0x8765_4321, 0x1234_5678, 0x8765_4321, 32),
+    "whole-reg-forward-32": (32, 0x1234_5678, slice(None, None, -1), 0x8765_4321, 0x1234_5678, 0x8765_4321, 32),
+    "whole-reg-reverse-32": (32, 0x1234_5678, slice(None, None, 1), 0x1234_5678, 0x1E6A_2C48, 0x1E6A_2C48, 32),
+    "lower-reg-32": (32, 0x1234_5678, slice(15, None, None), 0x1234, 0x5678, 0x1234_1234, 16),
+    "lower-reg-forward-32": (32, 0x1234_5678, slice(15, None, -1), 0x1234, 0x5678, 0x1234_1234, 16),
+    "lower-reg-reverse-32": (32, 0x1234_5678, slice(None, 15, 1), 0x1234, 0x1E6A, 0x1234_2C48, 16),
+    "upper-reg-32": (32, 0x1234_5678, slice(None, 16, None), 0x5678, 0x1234, 0x56785678, 16),
+    "upper-reg-forward-32": (32, 0x1234_5678, slice(None, 16, -1), 0x5678, 0x1234, 0x5678_5678, 16),
+    "upper-reg-reverse-32": (32, 0x1234_5678, slice(16, None, 1), 0x5678, 0x2C48, 0x1E6A_5678, 16),
+    "single-bit-set-64": ( 64, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
+    "single-bit-clear-64": ( 64, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1),
+    "multi-bit-set-64": (64, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
+    "multi-bit-clear-64": (64, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000, 4),
+    "multi-bit-normal-64": (64, 0x0000_0010, slice(7,4), 0x1, 0x1, 0x0000_0010, 4),
+    "multi-bit-reverse-64": (64, 0x0000_0010, slice(4,7), 0x1, 0x8, 0x0000_0080, 4),
+    "whole-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, None), 0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0, 0x0FED_CBA9_8765_4321, 64),
+    "whole-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, -1), 0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0, 0x0FED_CBA9_8765_4321, 64),
+    "whole-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, 1), 0x1234_5678_9ABC_DEF0, 0x0F7B_3D59_1E6A_2C48, 0x0F7B_3D59_1E6A_2C48, 64),
+    "lower-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(31, None, None), 0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678, 32),
+    "lower-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(31, None, -1), 0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678, 32),
+    "lower-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 31, 1), 0x1234_5678, 0x0F7B_3D59, 0x1234_5678_1e6a_2C48, 32),
+    "upper-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, None), 0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0, 32),
+    "upper-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, -1), 0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0, 32),
+    "upper-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(32, None, 1), 0x9ABC_DEF0, 0x1E6A_2C48, 0x0F7B_3D59_9ABC_DEF0, 32),
 }
 
 ADDRESS = 0x10000
@@ -57,7 +57,7 @@ def _create_register(length, debug=False):
 
 @pytest.mark.parametrize('testname', TEST_VECTORS.keys())
 def test_register_set_get(testname):
-    length, start, idx, update, expected_get, expected_set = TEST_VECTORS[testname]
+    length, start, idx, update, expected_get, expected_set, count = TEST_VECTORS[testname]
     reg, buf = _create_register(length)
     buf[:] = start
     val = reg[idx]
@@ -67,6 +67,7 @@ def test_register_set_get(testname):
     assert str(reg) == hex(expected_set)
     assert int(reg) == expected_set
     assert operator.index(reg) == expected_set
+    assert pynq.Register.count(idx, length) == count
 
 
 test_register_desc = {
@@ -129,6 +130,10 @@ def mock_register(request):
     buf[0] = 0x87654321
     return MockRegister(ADDRESS, request.param, buffer=buf)
 
+
+def test_nodoc():
+    R = pynq.Register.create_subclass("NoDoc", test_register_desc['fields'])
+    assert R.__doc__ == None
 
 @pytest.fixture(params=[32,64])
 def width(request):
@@ -196,6 +201,13 @@ def test_reg_invalid_write(test_name):
         reg[idx] = 0
     assert str(excinfo.value) == message
     
+
+def test_reg_large_write():
+    reg, buf = _create_register(32)
+    with pytest.raises(ValueError) as excinfo:
+        reg[1:0] = 4
+    assert str(excinfo.value) == "Slicing range cannot represent value 4"
+
 def test_invalid_width():
     buf = np.ndarray((1,), 'u2')
     with pytest.raises(ValueError) as excinfo:
@@ -258,11 +270,13 @@ def test_reg_debug_slice(width, capsys):
     reg, buf = _create_register(width, debug=True)
     reg[4:6] = 0
     out, err = capsys.readouterr()
+    assert out == "Register Debug: Setting bits 6:4 at address 0x10000 to 0\n"
     # assert out == "Register Debug: Setting bits 4:6 at address 0x10000 to 0\n"
-    assert out == "Register Debug: Setting bits 7:4 at address 0x10000 to 0\n"
+    # assert out == "Register Debug: Setting bits 7:4 at address 0x10000 to 0\n"
     _ = reg[1:3]
     out, err = capsys.readouterr()
-    assert out == "Register Debug: Reading bits 1:3 at address 0x10000\n"
+    # assert out == "Register Debug: Reading bits 1:3 at address 0x10000\n"
+    assert out == "Register Debug: Reading bits 3:1 at address 0x10000\n"
 
 
 def test_blank_regmap():
@@ -274,6 +288,12 @@ def test_blank_regmap():
 
 test_registermap_desc = {
     'test_register': test_register_desc,
+    'out-of-order': {
+        'address_offset': 80,
+        'access': 'read-write',
+        'size': 32,
+        'description': 'Out of order register'
+    },
     'aligned_4': {
         'address_offset': 32,
         'access': 'read-write',
@@ -320,6 +340,7 @@ test_registermap_desc = {
 
 MockRegisterMap = pynq.registers.RegisterMap.create_subclass("Mock", test_registermap_desc)
 
+
 @pytest.fixture(params=['bytearray', 'ndarray'])
 def mock_registermap(request):
     if request.param == 'bytearray':
@@ -348,6 +369,7 @@ REGMAP_TESTS = {
     'write_only': (68, 'I', 0x12345678, 0x87654321),
     'space_special__': (72, 'I', 0x12345678, 0x87654321),
     'r001_numbered': (76, 'I', 0x12345678, 0x87654321),
+    'out_of_order': (80, 'I', 0x123456, 0x876543),
 }
 
 @pytest.mark.parametrize('register_name', REGMAP_TESTS.keys())
@@ -395,7 +417,8 @@ expected_regmap_repr = """RegisterMap {
   read_only = Register(value=1128415552),
   write_only = Register(value=1195787588),
   space_special__ = Register(value=1263159624),
-  r001_numbered = Register(value=1330531660)
+  r001_numbered = Register(value=1330531660),
+  out_of_order = Register(value=1397903696)
 }"""
 
 def test_regmap_repr(mock_registermap):
