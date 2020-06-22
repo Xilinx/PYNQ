@@ -45,5 +45,7 @@ detail. Hardware design will be familiar to Zynq, and FPGA hardware developers.
    overlay_design_methodology/pynq_utils
    overlay_design_methodology/python_packaging
    overlay_design_methodology/overlay_tutorial.ipynb
+   overlay_design_methodology/verilog_overlay_tutorial.ipynb
+
 
    
