@@ -30,7 +30,7 @@ BOOT_aarch64 := u-boot.elf zynqmp_fsbl.elf pmufw.elf bl31.elf
 export CCACHEDIR
 export ROOTDIR
 export BUILD_ROOT
-export BB_ENV_EXTRAWHITE := PYNQ_BOARDNAME
+export BB_ENV_EXTRAWHITE := PYNQ_BOARDNAME FPGA_MANAGER
 export SHELL
 
 $(IMAGE_ROOT):
@@ -84,7 +84,7 @@ BITSTREAM_ABS_$1 := $$(patsubst %, $$(BOARDDIR_$1)/%, $$(BITSTREAM_$1))
 BUILD_ROOT_$1 := $$(BUILD_ROOT)/$1
 BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
-PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
+PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1) ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
 
@@ -127,6 +127,7 @@ PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
 PL_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/rootfs_config
 MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/modules-plnx_$$(ARCH_$1).tgz
 KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
+PL_ENV_$1 := PYNQ_BOARDNAME=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1)
 
 BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN
 BOOT_DEPENDS_$1 := $$(patsubst %, $$(PL_PROJ_$1)/images/linux/%, $$(BOOT_$$(ARCH_$1)))
@@ -139,7 +140,9 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1)
+	if [ $$(FPGA_MANAGER_$1) = 1 ]; then \
+		echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1) ;\
+	fi
 	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1)
@@ -160,29 +163,29 @@ $$(BUILD_ROOT_$1)/image.its: $$(CURDIR)/boot/image_$$(ARCH_$1).its | $$(BUILD_RO
 $$(PL_CONFIG_$1): | $$(BSP_BUILD_$1) $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/%_fsbl.elf: $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c bootloader -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c bootloader -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/u-boot.elf: $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c u-boot -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c u-boot -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/$$(KERNEL_$$(ARCH_$1)): $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c kernel -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c kernel -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/system.dtb:  $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c device-tree -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c device-tree -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/pmufw.elf:  $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c pmufw -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c pmufw -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/bl31.elf:  $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c arm-trusted-firmware -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c arm-trusted-firmware -p $$(PL_PROJ_$1)
 
 $$(MODULES_$1): $$(PL_PROJ_$1)/images/linux/$$(KERNEL_$$(ARCH_$1))
 	cp -f $$(PL_PROJ_$1)/build/tmp/deploy/images/*/modules--*.tgz \
 	$$(MODULES_$1)
 
 $$(KERNEL_RPM_$1): $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c kernel-devsrc -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c kernel-devsrc -p $$(PL_PROJ_$1)
 	cp -f $$(PL_PROJ_$1)/build/tmp/deploy/rpm/*/kernel-devsrc-1.0-r0.*.rpm \
 	$$(KERNEL_RPM_$1)
 
