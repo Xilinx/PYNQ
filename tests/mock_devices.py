@@ -104,7 +104,14 @@ class MockAllocateDevice(MockDeviceBase):
 class MockDownloadableDevice(MockDeviceBase):
     def __init__(self, tag):
         super().__init__(tag)
+        self.operations = []
 
+    def download(self, bitstream, parser=None):
+        self.operations.append(('download', bitstream, parser))
 
+    def remove_device_tree(self, dtbo):
+        self.operations.append(('remove_device_tree', dtbo))
 
+    def insert_device_tree(self, dtbo):
+        self.operations.append(('insert_device_tree', dtbo))
 
