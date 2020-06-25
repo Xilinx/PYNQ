@@ -129,7 +129,8 @@ def _xrt_allocate(shape, dtype, device, memidx):
     dtype = np.dtype(dtype)
     size = elements * dtype.itemsize
     bo = device.allocate_bo(size, memidx)
-    buf = device.map_bo(bo)
+    raw_buf = device.map_bo(bo)
+    buf = ctypes.cast(raw_buf, ctypes.POINTER(ctypes.c_char * size))[0] 
     device_address = device.get_device_address(bo)
     ar = PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
                     device_address=device_address, coherent=False)
