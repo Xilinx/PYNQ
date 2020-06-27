@@ -115,3 +115,24 @@ class MockDownloadableDevice(MockDeviceBase):
     def insert_device_tree(self, dtbo):
         self.operations.append(('insert_device_tree', dtbo))
 
+
+class MockIPDevice(MockDeviceBase):
+    def __init__(self, ip, tag):
+        super().__init__(tag)
+        self.capabilities = {'REGISTER_RW': True }
+        self.ip = ip
+
+    def _find_ip(self, address, length):
+        for ip in self.ip:
+            if address >= ip.lo_address and address < ip.hi_address:
+                assert address + length <= ip.hi_address
+                return ip
+
+    def read_registers(self, address, length):
+        ip = self._find_ip(address, length)
+        return ip.read(address - ip.lo_address, length)
+
+    def write_registers(self, address, data):
+        ip = self._find_ip(address, len(data))
+        return ip.write(address - ip.lo_address, data)
+
