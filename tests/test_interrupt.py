@@ -425,4 +425,4 @@ def test_missing_uio(interrupt, ipdevice):
     endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)
     interrupt.get_uio_irq = failing_uio
     with pytest.raises(ValueError):
-        pin = interrupt.Interrupt('interrupt1')
+        pin = interrupt.Interrupt('standard_interrupt')
