@@ -10,6 +10,6 @@ fi
 
 if sudo losetup -a | grep rootfs
 then
-  echo "Loopback device still mounted please use losetup and kpartx to unmount"
+  echo "Loopback device still mounted please use losetup to unmount"
   exit 1
 fi
