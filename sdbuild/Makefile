@@ -2,7 +2,7 @@ DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
 BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
 UBUNTU_RELEASE := bionic
-VERSION := 2.6
+VERSION := 2.6.0
 
 KERNEL_VERSION := 2020.1
 LINUX_VERSION := 5.4.0-xilinx-v2020.1
