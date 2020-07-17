@@ -23,7 +23,7 @@ launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
 
 # generate xsa
-write_hw_platform -force ./${overlay_name}.xsa
+write_hw_platform -include_bit -force ./${overlay_name}.xsa
 validate_hw_platform ./${overlay_name}.xsa
 
 # move and rename bitstream to final location
