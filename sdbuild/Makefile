@@ -129,18 +129,19 @@ MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/modules-plnx_$$(ARCH_$1).tg
 KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
 PL_ENV_$1 := PYNQ_BOARDNAME=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1)
 
-BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN
+BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN $$(BOOT_ROOT_$1)/boot.scr
 BOOT_DEPENDS_$1 := $$(patsubst %, $$(PL_PROJ_$1)/images/linux/%, $$(BOOT_$$(ARCH_$1)))
 $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	-rm -rf $$(PL_PROJ_$1)
 	cd $$(BUILD_ROOT_$1) && petalinux-create -t project \
 		-s $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp -n petalinux_project
 	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_ROOTFS_EXT=y' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_ROOTFS_EXT4=y' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_SDROOT_DEV="/dev/mmcblk0p2"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1)
-	if [ $$(FPGA_MANAGER_$1) = 1 ]; then \
+	if [ $$(FPGA_MANAGER_$1) = 1 ] || [ ! -n $$(FPGA_MANAGER_$1) ]; then \
 		echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1) ;\
 	fi
 	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
@@ -156,6 +157,12 @@ $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_
 
 $$(BOOT_ROOT_$1)/image.ub : $$(BUILD_ROOT_$1)/image.its $$(BUILD_ROOT_$1)/system.dtb $$(BUILD_ROOT_$1)/$$(KERNEL_$$(ARCH_$1)) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && mkimage -f $$(BUILD_ROOT_$1)/image.its $$@
+
+$$(BOOT_ROOT_$1)/boot.scr : $$(BOOT_DEPENDS_$1) | $$(BOOT_ROOT_$1)
+	mkimage -c none -A arm -T script -d \
+		$$(PL_PROJ_$1)/project-spec/meta-user/recipes-bsp/u-boot/u-boot-zynq-scr/boot.cmd.default \
+		$$(PL_PROJ_$1)/images/linux/boot.scr && \
+	cp -f $$(PL_PROJ_$1)/images/linux/boot.scr $$@
 
 $$(BUILD_ROOT_$1)/image.its: $$(CURDIR)/boot/image_$$(ARCH_$1).its | $$(BUILD_ROOT_$1)
 	cp $$< $$@
