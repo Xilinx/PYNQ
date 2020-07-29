@@ -104,19 +104,24 @@ class Bitstream:
             device = Device.active_device
         self.device = device
 
-        bitfile_abs = _resolve_bitstream(os.path.abspath(bitfile_name), device)
         bitfile_overlay_abs_lst = []
-        overlays_ext_man = _ExtensionsManager(OVERLAYS_GROUP)
-        paths = [overlays_ext_man.extension_path(OVERLAYS_GROUP)]
-        paths += overlays_ext_man.paths
-        for path in paths:
-            for p in [os.path.join(path, os.path.splitext(bitfile_name)[0]),
-                      path]:
-                bitfile_overlay_abs = _resolve_bitstream(
-                    os.path.join(p, bitfile_name),
-                    device)
-                if bitfile_overlay_abs:
-                    bitfile_overlay_abs_lst.append(bitfile_overlay_abs)
+        if os.path.isabs(bitfile_name):
+            bitfile_abs = _resolve_bitstream(bitfile_name, device)
+        else:
+            bitfile_abs = _resolve_bitstream(os.path.abspath(bitfile_name),
+                                             device)
+            overlays_ext_man = _ExtensionsManager(OVERLAYS_GROUP)
+            paths = [overlays_ext_man.extension_path(OVERLAYS_GROUP)]
+            paths += overlays_ext_man.paths
+            for path in paths:
+                for p in [os.path.join(path,
+                                       os.path.splitext(bitfile_name)[0]),
+                          path]:
+                    bitfile_overlay_abs = _resolve_bitstream(
+                        os.path.join(p, bitfile_name),
+                        device)
+                    if bitfile_overlay_abs:
+                        bitfile_overlay_abs_lst.append(bitfile_overlay_abs)
         if bitfile_abs:
             self.bitfile_name = bitfile_abs
         elif bitfile_overlay_abs_lst:
