@@ -5,7 +5,7 @@ import pytest
 
 from .mock_devices import MockDownloadableDevice
 from .helpers import create_file, working_directory, create_d_structure
-from .helpers import file_contents
+from .helpers import file_contents, MockExtension
 
 
 BITSTREAM_FILE = "testbitstream.bit"
@@ -19,12 +19,9 @@ DEVICE_NAMES = [
     "device_name_2"
 ]
 
-@contextlib.contextmanager
-def pynq_path(path):
-    oldpath = pynq.bitstream.PYNQ_PATH
-    pynq.bitstream.PYNQ_PATH = path
-    yield
-    pynq.bitstream.PYNQ_PATH = oldpath
+def set_pynq_path(path, monkeypatch, extra_paths=[]):
+    monkeypatch.setattr(pynq.bitstream, '_ExtensionsManager', 
+        MockExtension({'pynq.overlays': (path, extra_paths)}))
 
 
 @pytest.fixture
@@ -101,7 +98,7 @@ def test_missing_bitstream(tmpdir, device):
         pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE), device=device)
 
 
-def test_pynq_overlay(tmpdir, device):
+def test_pynq_overlay(tmpdir, device, monkeypatch):
     pynqdir = os.path.join(tmpdir, 'pynq')
     os.mkdir(pynqdir)
     os.mkdir(os.path.join(pynqdir, 'overlays'))
@@ -109,8 +106,8 @@ def test_pynq_overlay(tmpdir, device):
                                 os.path.splitext(BITSTREAM_FILE)[0])
     os.mkdir(overlay_path)
     create_file(os.path.join(overlay_path, BITSTREAM_FILE), BITSTREAM_DATA)
-    with pynq_path(pynqdir):
-        bs = pynq.Bitstream(BITSTREAM_FILE, device=device)
+    set_pynq_path(os.path.join(pynqdir, 'overlays'), monkeypatch)
+    bs = pynq.Bitstream(BITSTREAM_FILE, device=device)
     assert bs.bitfile_name == os.path.join(overlay_path, BITSTREAM_FILE)
 
 def test_missing_dtbo(tmpdir, device):

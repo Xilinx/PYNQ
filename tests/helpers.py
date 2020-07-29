@@ -42,4 +42,11 @@ def create_file(filename, data):
     with open(filename, 'w') as f:
         f.write(data)
 
+def MockExtension(extensions):
+    class ExtensionManager:
+        def __init__(self, package_name):
+            self.paths = extensions[package_name][1]
 
+        def extension_path(self, extension_name):
+            return extensions[extension_name][0]
+    return ExtensionManager

@@ -151,63 +151,6 @@ def test_oob_read(DeviceClass):
     device.close()
 
 
-def test_mmap_debug_read(capsys):
-    device = MockMemoryMappedDevice('test_mmap_debug_read')
-    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device, debug=True)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: MMIO(address, size) = ({BASE_ADDRESS:x}, {ADDR_RANGE:x} bytes).\n"
-    assert (BASE_ADDRESS, ADDR_RANGE) in device.regions
-    region = device.regions[(BASE_ADDRESS, ADDR_RANGE)]
-    testdata = struct.pack('I', 1234)
-    region[4:8] = testdata
-    readvalue = mmio.read(4)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: Reading 4 bytes from offset 4\n"
-    assert readvalue == 1234
-    device.close()
-
-def test_mmap_debug_write(capsys):
-    offset, pyobj, bytesobj = TEST_DATA[0]
-    device = MockMemoryMappedDevice('test_mmap_debug_write')
-    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device, debug=True)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: MMIO(address, size) = ({BASE_ADDRESS:x}, {ADDR_RANGE:x} bytes).\n"
-    assert (BASE_ADDRESS, ADDR_RANGE) in device.regions
-    region = device.regions[(BASE_ADDRESS, ADDR_RANGE)]
-    mmio.write(offset, pyobj)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: Writing 4 bytes to offset {offset:x}: {pyobj:x}\n"
-    memoryval = region[offset:offset+len(bytesobj)]
-    assert memoryval == bytesobj
-    device.close()
-
-
-def test_reg_debug_read(capsys):
-    device = MockRegisterDevice('test_reg_debug_read')
-    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device, debug=True)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: MMIO(address, size) = ({BASE_ADDRESS:x}, {ADDR_RANGE:x} bytes).\n"
-    testdata = struct.pack('I', 1234)
-    with device.check_transactions([(BASE_ADDRESS + 4, testdata)], []):
-        read = mmio.read(4)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: Reading 4 bytes from offset 4\n"
-    assert read == 1234
-    device.close()
-
-
-def test_reg_debug_write(capsys):
-    offset, pyobj, bytesobj = TEST_DATA[0]
-    device = MockRegisterDevice('test_reg_debug_write')
-    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device, debug=True)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: MMIO(address, size) = ({BASE_ADDRESS:x}, {ADDR_RANGE:x} bytes).\n"
-    with device.check_transactions([], [(BASE_ADDRESS+offset, bytesobj)]):
-        mmio.write(offset, pyobj)
-    out, err = capsys.readouterr()
-    assert out == f"MMIO Debug: Writing 4 bytes to offset {offset:x}: {pyobj:x}\n"
-    device.close()
-
 
 def test_active_device():
     device = MockRegisterDevice('test_active_device')
