@@ -262,7 +262,7 @@ class XclBin:
     ----
     This class requires the absolute path of the '.xclbin' file.
     Most of the dictionaries are empty to ensure compatibility
-    with the HWH and TCL files.
+    with the HWH files.
 
     Attributes
     ----------

@@ -100,7 +100,7 @@ def _assign_drivers(description, ignore_version, device):
 def _complete_description(ip_dict, hierarchy_dict, ignore_version,
                           mem_dict, device):
     """Returns a complete hierarchical description of an overlay based
-    on the three dictionaries parsed from the TCL.
+    on the three dictionaries parsed from HWH file.
 
     """
     starting_dict = dict()
@@ -321,8 +321,8 @@ class Overlay(Bitstream):
 
         Note
         ----
-        This class requires a Vivado TCL file to be next to bitstream file
-        with same name (e.g. `base.bit` and `base.tcl`).
+        This class requires a HWH file to be next to bitstream file
+        with same name (e.g. `base.bit` and `base.hwh`).
 
         """
         super().__init__(bitfile_name, dtbo, partial=False, device=device)

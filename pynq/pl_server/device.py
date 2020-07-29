@@ -296,9 +296,9 @@ class Device(metaclass=DeviceMeta):
         """Reset all the dictionaries.
 
         This method must be called after a bitstream download.
-        1. In case there is a `hwh` or `tcl` file, this method will reset
+        1. In case there is a `hwh` file, this method will reset
         the states of the IP, GPIO, and interrupt dictionaries .
-        2. In case there is no `hwh` or `tcl` file, this method will simply
+        2. In case there is no `hwh` file, this method will simply
         clear the state information stored for all dictionaries.
 
         An existing parser given as the input can significantly reduce
@@ -307,7 +307,7 @@ class Device(metaclass=DeviceMeta):
 
         Parameters
         ----------
-        parser : TCL/HWH
+        parser : HWH
             A parser object to speed up the reset process.
         timestamp : str
             The timestamp to embed in the reset
@@ -366,14 +366,14 @@ class Device(metaclass=DeviceMeta):
     def update_partial_region(self, hier, parser):
         """Merge the parser information from partial region.
 
-        Combine the currently PL information and the partial HWH/TCL file
+        Combine the currently PL information and the partial HWH file
         parsing results.
 
         Parameters
         ----------
         hier : str
             The name of the hierarchical block as the partial region.
-        parser : TCL/HWH
+        parser : HWH
             A parser object for the partial region.
 
         """
@@ -629,17 +629,10 @@ class XlnkDevice(Device):
         super().post_download(bitstream, parser)
 
     def get_bitfile_metadata(self, bitfile_name):
-        from .tcl_parser import TCL, get_tcl_name
         from .hwh_parser import HWH, get_hwh_name
         hwh_path = get_hwh_name(bitfile_name)
-        tcl_path = get_tcl_name(bitfile_name)
         if os.path.exists(hwh_path):
             return HWH(hwh_path)
-        elif os.path.exists(tcl_path):
-            message = "Users will not get PARAMETERS / REGISTERS " \
-                      "information through TCL files. HWH file is recommended."
-            warnings.warn(message, UserWarning)
-            return TCL(tcl_path)
         else:
-            raise ValueError("Cannot find HWH or TCL file for {}.".format(
+            raise ValueError("Cannot find HWH file for {}.".format(
                 bitfile_name))
