@@ -27,6 +27,11 @@ thumbs.db
 build/
 sdcard/
 
+# Raw overlay files
+*.bit
+*.hwh
+*.xsa
+
 # Test failure outputs
 ######################
 tests/*.exp
