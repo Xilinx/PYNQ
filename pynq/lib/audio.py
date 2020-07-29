@@ -356,7 +356,6 @@ class AudioADAU1761(DefaultIP):
         self.sample_len = len(self.buffer)
         self.iic_index = None
         self.uio_index = None
-        self.configure()
 
     bindto = ['xilinx.com:user:audio_codec_ctrl:1.0']
 
