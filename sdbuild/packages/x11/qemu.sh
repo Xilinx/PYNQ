@@ -13,6 +13,7 @@ systemctl enable pynq-x11.service
 
 chown -R xilinx:xilinx /home/xilinx/.config/chromium
 chmod a+x /usr/bin/killchromium
+rm -rf /home/xilinx/.config/chromium/Singleton*
 
 mkdir /root/armsoc_build
 cd /root/armsoc_build
