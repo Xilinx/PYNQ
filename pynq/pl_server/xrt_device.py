@@ -129,8 +129,7 @@ def _xrt_allocate(shape, dtype, device, memidx):
     dtype = np.dtype(dtype)
     size = elements * dtype.itemsize
     bo = device.allocate_bo(size, memidx)
-    raw_buf = device.map_bo(bo)
-    buf = ctypes.cast(raw_buf, ctypes.POINTER(ctypes.c_char * size))[0] 
+    buf = device.map_bo(bo)
     device_address = device.get_device_address(bo)
     ar = PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
                     device_address=device_address, coherent=False)
@@ -423,7 +422,13 @@ class XrtDevice(Device):
             raise RuntimeError("Buffer Write Failed: " + str(status))
 
     def map_bo(self, bo):
-        return xrt.xclMapBO(self.handle, bo, True)[0]
+        ptr = xrt.xclMapBO(self.handle, bo, True)
+        prop = xrt.xclBOProperties()
+        if xrt.xclGetBOProperties(self.handle, bo, prop):
+            raise RuntimeError('Failed to get buffer properties')
+        size = prop.size
+        casted = ctypes.cast(ptr, ctypes.POINTER(ctypes.c_char * size))
+        return casted[0]
 
     def get_device_address(self, bo):
         prop = xrt.xclBOProperties()
