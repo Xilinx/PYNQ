@@ -8,11 +8,10 @@ sources of the other constituent parts.
 It's highly recommended to run these scripts inside of a virtual machine. The
 image building requires doing a lot of things as root and while every effort
 has been made to ensure it doesn't break the world this is far from guaranteed.
-This flow must be run in a Debian or Ubuntu based Linux distribution and has
-been tested on Ubuntu 16.04. Other versions should work but may required
-different or additional packages. The build process is optimised for 4-cores
-and will take up to 20 GB of space. A default Amazon EC2 instance is the main
-development environment.
+This flow must be run in a Ubuntu based Linux distribution and has been tested
+on Ubuntu 16.04 and Ubuntu 18.04. Other Linux versions might work but may
+require different or additional packages. The build process is optimised for
+4-cores and can take up to 50 GB of space.
 
 ## Quick start
  * Ensure that sudo is configured for passwordless use and that proxy settings
