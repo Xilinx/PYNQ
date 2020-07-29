@@ -29,6 +29,7 @@
 
 import os
 import mmap
+import warnings
 import numpy as np
 import pynq.tinynumpy as tnp
 
@@ -48,6 +49,7 @@ class _AccessHook:
     def write(self, offset, data):
         self.device.write_registers(self.baseaddress + offset, data)
 
+
 class MMIO:
     """ This class exposes API for MMIO read and write.
 
@@ -62,7 +64,7 @@ class MMIO:
 
     """
 
-    def __init__(self, base_addr, length=4, device=None):
+    def __init__(self, base_addr, length=4, debug=False, device=None):
         """Return a new MMIO object.
 
         Parameters
@@ -73,6 +75,11 @@ class MMIO:
             The length in bytes; default is 4.
 
         """
+        if debug:
+            message = "Debug mode for MMIO is deprecated. " \
+                      "Set debug=False to avoid this warning."
+            warnings.warn(message, UserWarning)
+
         if device is None:
             from .pl_server.device import Device
             device = Device.active_device
