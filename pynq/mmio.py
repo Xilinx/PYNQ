@@ -57,14 +57,12 @@ class MMIO:
         The base address, not necessarily page aligned.
     length : int
         The length in bytes of the address range.
-    debug : bool
-        Turn on debug mode if it is True.
     array : numpy.ndarray
         A numpy view of the mapped range for efficient assignment
 
     """
 
-    def __init__(self, base_addr, length=4, debug=False, device=None):
+    def __init__(self, base_addr, length=4, device=None):
         """Return a new MMIO object.
 
         Parameters
@@ -73,8 +71,6 @@ class MMIO:
             The base address of the MMIO.
         length : int
             The length in bytes; default is 4.
-        debug : bool
-            Turn on debug mode if it is True; default is False.
 
         """
         if device is None:
@@ -87,7 +83,6 @@ class MMIO:
 
         self.base_addr = base_addr
         self.length = length
-        self.debug = debug
 
         if self.device.has_capability('MEMORY_MAPPED'):
             self.read = self.read_mm
@@ -101,11 +96,6 @@ class MMIO:
                                     hook=self._hook)
         else:
             raise ValueError("Device does not have capabilities for MMIO")
-
-        self._debug('MMIO(address, size) = ({0:x}, {1:x} bytes).',
-                    self.base_addr, self.length)
-
-
 
     def read_mm(self, offset=0, length=4):
         """The method to read data from MMIO.
@@ -131,10 +121,6 @@ class MMIO:
         if offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
 
-        self._debug('Reading {0} bytes from offset {1:x}',
-                    length, offset)
-
-        # Read data out
         return int(self.array[idx])
 
     def write_mm(self, offset, data):
@@ -160,8 +146,6 @@ class MMIO:
             raise MemoryError('Unaligned write: offset must be multiple of 4.')
 
         if type(data) is int:
-            self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
-                        offset, data)
             self.array[idx] = np.uint32(data)
         elif type(data) is bytes:
             length = len(data)
@@ -199,10 +183,6 @@ class MMIO:
         if offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
 
-        self._debug('Reading {0} bytes from offset {1:x}',
-                    length, offset)
-
-        # Read data out
         return int(self.array[idx])
 
     def write_reg(self, offset, data):
@@ -228,27 +208,9 @@ class MMIO:
             raise MemoryError('Unaligned write: offset must be multiple of 4.')
 
         if type(data) is int:
-            self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
-                        offset, data)
             self.array[idx] = data
         elif type(data) is bytes:
             self._hook.write(offset, data)
         else:
             raise ValueError("Data type must be int or bytes.")
-    def _debug(self, s, *args):
-        """The method provides debug capabilities for this class.
 
-        Parameters
-        ----------
-        s : str
-            The debug information format string
-        *args : any
-            The arguments to be formatted
-
-        Returns
-        -------
-        None
-
-        """
-        if self.debug:
-            print('MMIO Debug: {}'.format(s.format(*args)))
