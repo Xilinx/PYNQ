@@ -1,7 +1,7 @@
-From 4385ae6334d3b44f346cfb7c1e8acd85b6a59da7 Mon Sep 17 00:00:00 2001
+From 7939818a1eef7657ce1047474e108ed6fe7a110b Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Mon, 12 Aug 2019 10:49:44 -0700
-Subject: [PATCH 4/4] add pynqz2 derivative
+Date: Mon, 22 Jun 2020 18:36:51 -0700
+Subject: [PATCH 4/4] add pynqz2 support
 
 ---
  arch/arm/dts/Makefile         |  1 +
@@ -9,15 +9,15 @@ Subject: [PATCH 4/4] add pynqz2 derivative
  configs/zynq_pynqz2_defconfig | 68 +++++++++++++++++++++++++++++++++++++++++++
  include/configs/zynq_pynqz2.h | 35 ++++++++++++++++++++++
  4 files changed, 172 insertions(+)
- create mode 100755 arch/arm/dts/zynq-pynqz2.dts
- create mode 100755 configs/zynq_pynqz2_defconfig
- create mode 100755 include/configs/zynq_pynqz2.h
+ create mode 100644 arch/arm/dts/zynq-pynqz2.dts
+ create mode 100644 configs/zynq_pynqz2_defconfig
+ create mode 100644 include/configs/zynq_pynqz2.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 2c816d6..badf759 100644
+index ff0275c..8151172 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -156,6 +156,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+@@ -253,6 +253,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-topic-miamiplus.dtb \
  	zynq-artyz.dtb \
  	zynq-pynqz1.dtb \
@@ -26,7 +26,7 @@ index 2c816d6..badf759 100644
  	zynq-zc706.dtb \
  	zynq-zc770-xm010.dtb \
 diff --git a/arch/arm/dts/zynq-pynqz2.dts b/arch/arm/dts/zynq-pynqz2.dts
-new file mode 100755
+new file mode 100644
 index 0000000..795dc93
 --- /dev/null
 +++ b/arch/arm/dts/zynq-pynqz2.dts
@@ -100,7 +100,7 @@ index 0000000..795dc93
 +	usb-phy = <&usb_phy0>;
 +};
 diff --git a/configs/zynq_pynqz2_defconfig b/configs/zynq_pynqz2_defconfig
-new file mode 100755
+new file mode 100644
 index 0000000..8f2f032
 --- /dev/null
 +++ b/configs/zynq_pynqz2_defconfig
@@ -174,7 +174,7 @@ index 0000000..8f2f032
 +CONFIG_CI_UDC=y
 +CONFIG_USB_GADGET_DOWNLOAD=y
 diff --git a/include/configs/zynq_pynqz2.h b/include/configs/zynq_pynqz2.h
-new file mode 100755
+new file mode 100644
 index 0000000..c55a008
 --- /dev/null
 +++ b/include/configs/zynq_pynqz2.h
@@ -215,5 +215,5 @@ index 0000000..c55a008
 +
 +#endif /* __CONFIG_ZYNQ_PYNQZ2_H */
 -- 
-1.9.5
+1.8.3.1
 
