@@ -190,7 +190,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.add_gpio()
         self.init_interrupts()
         self.init_mem_dict()
-        self.init_hierachy_dict()
+        self.init_hierarchy_dict()
         self.assign_interrupts_gpio()
 
     def init_partial_ip_dict(self):
@@ -424,7 +424,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         self.gpio_dict[gpio_name]['pins'] = net_set
                         self.gpio_dict[gpio_name]['index'] = din
 
-    def init_hierachy_dict(self):
+    def init_hierarchy_dict(self):
         """Initialize the hierachical dictionary.
 
         """
