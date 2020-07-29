@@ -8,10 +8,11 @@ export PATH=/sbin:$PATH
 
 image_dir=$2
 image_file=$1
+used_loop=$(sudo losetup -j $image_file | grep -o 'loop[0-9]*')
 
-boot_dev=/dev/mapper/$(sudo kpartx -v $image_file | grep -o 'loop[0-9]*p1')
-root_dev=/dev/mapper/$(sudo kpartx -v $image_file | grep -o 'loop[0-9]*p2')
-root_offset=$(sudo kpartx -v $image_file | grep 'loop[0-9]*p2' | cut -d ' ' -f 6)
+boot_dev=/dev/mapper/${used_loop}p1
+root_dev=/dev/mapper/${used_loop}p2
+root_offset=$(sudo kpartx -v /dev/${used_loop} | grep 'loop[0-9]*p2' | cut -d ' ' -f 6)
 sleep 5
 
 sudo umount $image_dir/boot
@@ -31,7 +32,9 @@ sudo chroot / zerofree $root_dev
 
 sleep 5
 
-sudo kpartx -d $image_file
+sudo dmsetup remove /dev/mapper/${used_loop}p1
+sudo dmsetup remove /dev/mapper/${used_loop}p2
+sudo losetup -d /dev/${used_loop}
 
 sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk $1
   d # delete partition
