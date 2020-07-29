@@ -1,9 +1,10 @@
 import struct
 
+
 class MockIPBase:
     def __init__(self, base_address, address_range):
-       self.lo_address = base_address
-       self.hi_address = base_address + address_range
+        self.lo_address = base_address
+        self.hi_address = base_address + address_range
 
 
 class MockRegisterIP(MockIPBase):

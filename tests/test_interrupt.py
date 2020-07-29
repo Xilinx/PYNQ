@@ -94,7 +94,8 @@ IPI4:       817        390        682        826       Timer broadcast interrupt
 IPI5:         0          0          0          0       IRQ work interrupts
 IPI6:         0          0          0          0       CPU wake-up interrupts
 Err: 
-"""
+"""  # NOQA
+
 
 class MockInterruptController(MockRegisterIP):
     def __init__(self, address, callback=None):
@@ -106,21 +107,21 @@ class MockInterruptController(MockRegisterIP):
         super().__init__(address, 0x20)
 
     def read_register(self, address):
-        if address == 0x00: # ISR
+        if address == 0x00:  # ISR
             return self.ISR | self.lines
-        elif address == 0x04: # IPR
+        elif address == 0x04:  # IPR
             return (self.lines | self.ISR) & self.IER
-        elif address == 0x08: # IER
+        elif address == 0x08:  # IER
             return self.IER
-        elif address == 0x0C: # IAR
+        elif address == 0x0C:  # IAR
             return 0
-        elif address == 0x10: # SIE
+        elif address == 0x10:  # SIE
             return 0
-        elif address == 0x14: # CIE 
+        elif address == 0x14:  # CIE
             return 0
-        elif address == 0x18: # IVR
+        elif address == 0x18:  # IVR
             return 0
-        elif address == 0x1C: # MER
+        elif address == 0x1C:  # MER
             return self.MER
         else:
             assert 0, 'Uknown register read'
@@ -131,21 +132,21 @@ class MockInterruptController(MockRegisterIP):
 
     def write_register(self, address, value):
         pre_active = self.active
-        if address == 0x00: # ISR
+        if address == 0x00:  # ISR
             assert 0, 'ISR is not writable'
-        elif address == 0x04: # IPR
+        elif address == 0x04:  # IPR
             assert 0, 'IPR is not writable'
-        elif address == 0x08: # IER
+        elif address == 0x08:  # IER
             self.IER = value
-        elif address == 0x0C: # IAR
+        elif address == 0x0C:  # IAR
             self.ISR &= ~value
-        elif address == 0x10: # SIE
+        elif address == 0x10:  # SIE
             self.IER |= value
-        elif address == 0x14: # CIE 
+        elif address == 0x14:  # CIE
             self.IER &= ~value
-        elif address == 0x18: # IVR
+        elif address == 0x18:  # IVR
             assert 0, 'IVR is not writable'
-        elif address == 0x1C: # MER
+        elif address == 0x1C:  # MER
             self.MER = value & 0x3
         else:
             assert 0, 'Unknown register written'
@@ -176,7 +177,6 @@ class MockUioController:
         if self.value:
             loop = asyncio.get_event_loop()
             loop.call_soon(event.set)
-            #event.set()
         else:
             self._events.append(event)
 
@@ -189,19 +189,18 @@ class MockUioController:
             loop = asyncio.get_event_loop()
             for e in old_events:
                 loop.call_soon(e.set)
-                #e.set()
 
 
 @pytest.fixture(params=[pynq.ps.ZYNQ_ARCH, pynq.ps.ZU_ARCH])
 def interrupt(request):
-     old_arch = pynq.ps.CPU_ARCH
-     pynq.ps.CPU_ARCH = request.param
-     print(sys.modules.get('pynq.interrupt'))
-     new_interrupt = importlib.reload(pynq.interrupt)
-     print(sys.modules.get('pynq.interrupt'))
-     yield new_interrupt
-     pynq.ps.CPU_ARCH = old_arch
-     print(sys.modules.get('pynq.interrupt'))
+    old_arch = pynq.ps.CPU_ARCH
+    pynq.ps.CPU_ARCH = request.param
+    print(sys.modules.get('pynq.interrupt'))
+    new_interrupt = importlib.reload(pynq.interrupt)
+    print(sys.modules.get('pynq.interrupt'))
+    yield new_interrupt
+    pynq.ps.CPU_ARCH = old_arch
+    print(sys.modules.get('pynq.interrupt'))
 
 
 def _dummy_get_uio_device(dev_name):
@@ -213,12 +212,13 @@ GET_UIO_TESTS = {
     pynq.ps.ZU_ARCH: (ZU_PROC_INTERRUPTS, 121)
 }
 
+
 def test_get_uio(interrupt, fs):
     interrupt.get_uio_device = _dummy_get_uio_device
     proc_contents, index = GET_UIO_TESTS[pynq.ps.CPU_ARCH]
     fs.create_file('/proc/interrupts', contents=proc_contents)
     assert interrupt.get_uio_irq(index) == 'UIO Device: fabric'
-    assert interrupt.get_uio_irq(1234) == None
+    assert interrupt.get_uio_irq(1234) is None
 
 
 DIRECT_SETUP = {
@@ -229,11 +229,12 @@ DIRECT_SETUP = {
     'ip_dict': {}
 }
 
+
 STANDARD_SETUP = {
     'interrupt_pins': {
         'standard_interrupt': {'controller': 'pynq_intc', 'index': 0}
     },
-    'interrupt_controllers' : {
+    'interrupt_controllers': {
         'pynq_intc': {'parent': '', 'index': 0}
     },
     'ip_dict': {
@@ -243,13 +244,14 @@ STANDARD_SETUP = {
         }
     }
 }
+
 
 DOUBLE_SETUP = {
     'interrupt_pins': {
         'interrupt1': {'controller': 'pynq_intc', 'index': 0},
         'interrupt2': {'controller': 'pynq_intc', 'index': 1}
     },
-    'interrupt_controllers' : {
+    'interrupt_controllers': {
         'pynq_intc': {'parent': '', 'index': 0}
     },
     'ip_dict': {
@@ -260,12 +262,13 @@ DOUBLE_SETUP = {
     }
 }
 
+
 NESTED_SETUP = {
     'interrupt_pins': {
         'interrupt1': {'controller': 'pynq_intc', 'index': 0},
         'interrupt2': {'controller': 'pynq_intc', 'index': 1}
     },
-    'interrupt_controllers' : {
+    'interrupt_controllers': {
         'pynq_intc': {'parent': 'parent_intc', 'index': 0},
         'parent_intc': {'parent': '', 'index': 0}
     },
@@ -280,6 +283,7 @@ NESTED_SETUP = {
         }
     }
 }
+
 
 class MockParser:
     def __init__(self, setup):
@@ -324,6 +328,7 @@ def _setup_device(device, setup, interrupt):
 
     def UioController(dev_name):
         return uio_devices[dev_name]
+
     def get_uio_irq(index):
         if pynq.ps.CPU_ARCH == pynq.ps.ZU_ARCH:
             return index - 121
@@ -332,6 +337,7 @@ def _setup_device(device, setup, interrupt):
     interrupt.UioController = UioController
     interrupt.get_uio_irq = get_uio_irq
     return endpoints
+
 
 @pytest.fixture
 def ipdevice():
@@ -348,16 +354,18 @@ async def test_simple_interrupt(interrupt, ipdevice):
     endpoints['standard_interrupt'](True)
     await pin.wait()
 
+
 @pytest.mark.asyncio
 async def test_invalidate(interrupt, ipdevice):
     endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)
     pin = interrupt.Interrupt('standard_interrupt')
     endpoints['standard_interrupt'](True)
     ipdevice.reset(MockParser(STANDARD_SETUP), timestamp='not now')
-    pin2 = interrupt.Interrupt('standard_interrupt')
+    pin2 = interrupt.Interrupt('standard_interrupt')  # NOQA
     with pytest.raises(RuntimeError):
         await pin.wait()
-    
+
+
 @pytest.mark.asyncio
 async def test_duplicate_interrupt(interrupt, ipdevice):
     endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)
@@ -370,6 +378,7 @@ async def test_duplicate_interrupt(interrupt, ipdevice):
     await wait1
     await wait2
 
+
 @pytest.mark.asyncio
 async def test_double_wait(interrupt, ipdevice):
     endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)
@@ -380,6 +389,7 @@ async def test_double_wait(interrupt, ipdevice):
     endpoints['standard_interrupt'](True)
     await wait1
     await wait2
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('setup', [DOUBLE_SETUP, NESTED_SETUP])
@@ -393,6 +403,7 @@ async def test_two_interrupts(interrupt, ipdevice, setup):
     endpoints['interrupt2'](True)
     await pin2.wait()
     endpoints['interrupt2'](False)
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('setup', [DOUBLE_SETUP, NESTED_SETUP])
@@ -413,16 +424,17 @@ async def test_simul_wait(interrupt, ipdevice, setup):
 
 
 def test_invalid_interrupt(interrupt, ipdevice):
-    endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)
+    endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)  # NOQA
     with pytest.raises(ValueError):
-        pin = interrupt.Interrupt('invalid')
+        pin = interrupt.Interrupt('invalid')  # NOQA
 
 
 def failing_uio(number):
     return None
 
+
 def test_missing_uio(interrupt, ipdevice):
-    endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)
+    endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)  # NOQA
     interrupt.get_uio_irq = failing_uio
     with pytest.raises(ValueError):
-        pin = interrupt.Interrupt('standard_interrupt')
+        pin = interrupt.Interrupt('standard_interrupt')  # NOQA

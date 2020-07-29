@@ -1,4 +1,3 @@
-import contextlib
 import os
 import pynq
 import pytest
@@ -19,9 +18,10 @@ DEVICE_NAMES = [
     "device_name_2"
 ]
 
+
 def set_pynq_path(path, monkeypatch, extra_paths=[]):
-    monkeypatch.setattr(pynq.bitstream, '_ExtensionsManager', 
-        MockExtension({'pynq.overlays': (path, extra_paths)}))
+    monkeypatch.setattr(pynq.bitstream, '_ExtensionsManager',
+                        MockExtension({'pynq.overlays': (path, extra_paths)}))
 
 
 @pytest.fixture
@@ -54,6 +54,7 @@ def test_absolute(tmpdir, device):
 
 D_DATA = {n: "Data: " + n for n in DEVICE_NAMES}
 
+
 def test_relative_d(tmpdir, named_device):
     create_d_structure(tmpdir, BITSTREAM_FILE, D_DATA)
     with working_directory(tmpdir):
@@ -64,7 +65,8 @@ def test_relative_d(tmpdir, named_device):
 
 def test_absolute_d(tmpdir, named_device):
     create_d_structure(tmpdir, BITSTREAM_FILE, D_DATA)
-    bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE), device=named_device)
+    bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE),
+                        device=named_device)
     contents = file_contents(bs.bitfile_name)
     assert contents == "Data: " + named_device.name
 
@@ -73,15 +75,13 @@ def test_missing_d(tmpdir, device):
     create_d_structure(tmpdir, BITSTREAM_FILE, D_DATA)
     device.name = "wrong-device"
     with pytest.raises(IOError):
-        bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE),
-                            device=device)
-
-
+        pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE),
+                       device=device)
 
 
 def test_nonstring_name(device):
     with pytest.raises(TypeError) as excinfo:
-        bs = pynq.Bitstream(12, device=device)
+        pynq.Bitstream(12, device=device)
     assert str(excinfo.value) == "Bitstream name has to be a string."
 
 
@@ -110,17 +110,20 @@ def test_pynq_overlay(tmpdir, device, monkeypatch):
     bs = pynq.Bitstream(BITSTREAM_FILE, device=device)
     assert bs.bitfile_name == os.path.join(overlay_path, BITSTREAM_FILE)
 
+
 def test_missing_dtbo(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
     with pytest.raises(IOError):
-        pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE), 
+        pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE),
                        dtbo=DTBO_FILE, device=device)
+
 
 def test_default_dtbo(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
     create_file(os.path.join(tmpdir, DTBO_FILE), DTBO_DATA)
     bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE), device=device)
     assert bs.dtbo == os.path.join(tmpdir, DTBO_FILE)
+
 
 def test_dtbo_cwd_relative(tmpdir, device):
     dtbo_dir = os.path.join(tmpdir, 'dtbo')
@@ -132,19 +135,21 @@ def test_dtbo_cwd_relative(tmpdir, device):
                             dtbo='other.dtbo', device=device)
     assert bs.dtbo == os.path.join(dtbo_dir, 'other.dtbo')
 
+
 def test_dtbo_bs_relative(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
     create_file(os.path.join(tmpdir, 'other.dtbo'), DTBO_DATA)
     bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE),
                         dtbo='other.dtbo', device=device)
     assert bs.dtbo == os.path.join(tmpdir, 'other.dtbo')
-    
+
 
 def test_download(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
     bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE), device=device)
     bs.download()
     assert device.operations == [('download', bs, None)]
+
 
 def test_dtbo_remove(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
@@ -154,11 +159,13 @@ def test_dtbo_remove(tmpdir, device):
     bs.remove_dtbo()
     assert device.operations == [('remove_device_tree', dtbo_file)]
 
+
 def test_dtbo_insert_none(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
     bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE), device=device)
     with pytest.raises(ValueError):
         bs.insert_dtbo()
+
 
 def test_dtbo_insert_existing(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
@@ -168,11 +175,13 @@ def test_dtbo_insert_existing(tmpdir, device):
     bs.insert_dtbo()
     assert device.operations == [('insert_device_tree', dtbo_file)]
 
+
 def test_dtbo_insert_missing(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
     bs = pynq.Bitstream(os.path.join(tmpdir, BITSTREAM_FILE), device=device)
     with pytest.raises(IOError):
         bs.insert_dtbo('missing.dtbo')
+
 
 def test_dtbo_insert_new(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)

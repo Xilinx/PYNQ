@@ -7,7 +7,9 @@ import pynq
 THIS_DIR = os.path.dirname(__file__)
 HWH_PATH = os.path.join(THIS_DIR, 'data', '2016.4')
 
-HWH_FILES = [os.path.basename(f) for f in glob.glob(os.path.join(HWH_PATH, "*.hwh"))]
+HWH_FILES = [os.path.basename(f)
+             for f in glob.glob(os.path.join(HWH_PATH, "*.hwh"))]
+
 
 @pytest.mark.parametrize('hwh_file', HWH_FILES)
 def test_complete_description(hwh_file):
@@ -24,15 +26,15 @@ def test_complete_description(hwh_file):
         assert desc.items() >= parser.ip_dict[ipname].items()
     for hiername, desc in description['hierarchies'].items():
         assert desc['device'] == 'device'
-        #assert desc['driver'] == pynq.overlay.DefaultHierarchy
+        # assert desc['driver'] == pynq.overlay.DefaultHierarchy
         assert desc['driver'] == pynq.overlay.DocumentHierarchy
-        
+
+
 simple_description = {
     'ip': {
-         'test_ip': {'phys_addr': 0x80000000, 'addr_range': 65536, 
+         'test_ip': {'phys_addr': 0x80000000, 'addr_range': 65536,
                      'type': 'xilinx.com:test:test_ip:1.0', 'registers': {},
-                     'parameters': {}, 'fullpath': 'test_ip'
-         },
+                     'parameters': {}, 'fullpath': 'test_ip'},
     },
     'hierarchies': {},
     'gpio': {},
@@ -41,17 +43,17 @@ simple_description = {
 
 hier_description = {
     'ip': {
-         'hier/test_ip': {'phys_addr': 0x80000000, 'addr_range': 65536, 
-                     'type': 'xilinx.com:test:test_ip:1.0', 'registers': {},
-                     'parameters': {}, 'fullpath': 'hier/test_ip'
-         },
+         'hier/test_ip': {
+             'phys_addr': 0x80000000, 'addr_range': 65536,
+             'type': 'xilinx.com:test:test_ip:1.0', 'registers': {},
+             'parameters': {}, 'fullpath': 'hier/test_ip'},
     },
-    'hierarchies': { 'hier': { 
+    'hierarchies': {'hier': {
         'ip': {
-             'test_ip': {'phys_addr': 0x80000000, 'addr_range': 65536, 
-                         'type': 'xilinx.com:test:test_ip:1.0', 'registers': {},
-                         'parameters': {}, 'fullpath': 'hier/test_ip'
-             },
+             'test_ip': {
+                 'phys_addr': 0x80000000, 'addr_range': 65536,
+                 'type': 'xilinx.com:test:test_ip:1.0', 'registers': {},
+                 'parameters': {}, 'fullpath': 'hier/test_ip'},
         },
         'hierarchies': {},
         'gpio': {},
@@ -60,6 +62,7 @@ hier_description = {
     'gpio': {},
     'interrupts': {},
 }
+
 
 def _copy_assign(description, ignore_version=False, device='device'):
     completed = copy.deepcopy(description)
@@ -80,10 +83,13 @@ def test_ip_unregister():
 def test_ip_driver_replace():
     class TestDriver(pynq.DefaultIP):
         bindto = ['xilinx.com:test:test_ip:1.0']
+
     desc = _copy_assign(simple_description)
     assert desc['ip']['test_ip']['driver'] == TestDriver
+
     class TestDriver2(pynq.DefaultIP):
         bindto = ['xilinx.com:test:test_ip:1.0']
+
     desc = _copy_assign(simple_description)
     assert desc['ip']['test_ip']['driver'] == TestDriver2
     TestDriver2.unregister()
@@ -95,8 +101,10 @@ def test_ip_driver_replace():
 def test_ip_version_mismatch():
     class TestDriver(pynq.DefaultIP):
         bindto = ['xilinx.com:test:test_ip:1.1']
+
     with pytest.warns(UserWarning):
         desc = _copy_assign(simple_description)
+
     assert desc['ip']['test_ip']['driver'] == pynq.DefaultIP
     TestDriver.unregister()
 
@@ -104,6 +112,7 @@ def test_ip_version_mismatch():
 def test_ip_version_ignore():
     class TestDriver(pynq.DefaultIP):
         bindto = ['xilinx.com:test:test_ip:1.1']
+
     desc = _copy_assign(simple_description, ignore_version=True)
     assert desc['ip']['test_ip']['driver'] == TestDriver
     TestDriver.unregister()
@@ -118,7 +127,8 @@ def test_hierarchy_bind():
     assert desc['hierarchies']['hier']['driver'] == HierarchyDriver
     HierarchyDriver.unregister()
     desc = _copy_assign(hier_description)
-    assert desc['hierarchies']['hier']['driver'] == pynq.overlay.DocumentHierarchy
+    assert desc['hierarchies']['hier']['driver'] == \
+           pynq.overlay.DocumentHierarchy
     # assert desc['hierarchies']['hier']['driver'] == pynq.DefaultHierarchy
 
 
@@ -127,6 +137,7 @@ def test_hierarchy_replace():
         @staticmethod
         def checkhierarchy(description):
             return 'test_ip' in description['ip']
+
     class HierarchyDriver2(pynq.DefaultHierarchy):
         @staticmethod
         def checkhierarchy(description):
@@ -138,5 +149,6 @@ def test_hierarchy_replace():
     assert desc['hierarchies']['hier']['driver'] == HierarchyDriver1
     HierarchyDriver1.unregister()
     desc = _copy_assign(hier_description)
-    assert desc['hierarchies']['hier']['driver'] == pynq.overlay.DocumentHierarchy
+    assert desc['hierarchies']['hier']['driver'] == \
+           pynq.overlay.DocumentHierarchy
     # assert desc['hierarchies']['hier']['driver'] == pynq.DefaultHierarchy

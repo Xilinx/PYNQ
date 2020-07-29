@@ -13,39 +13,91 @@ import numpy as np
 #  5. Expected get_item pre-update
 #  6. Expected register value post-update
 TEST_VECTORS = {
-    "single-bit-set-32": ( 32, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
-    "single-bit-clear-32": ( 32, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1 ),
-    "multi-bit-set-32": (32, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
-    "multi-bit-clear-32": (32, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000, 4),
-    "multi-bit-normal-32": (32, 0x0000_0010, slice(7,4), 0x1, 0x1, 0x0000_0010, 4),
-    "multi-bit-reverse-32": (32, 0x0000_0010, slice(4,7), 0x1, 0x8, 0x0000_0080, 4),
-    "whole-reg-32": (32, 0x1234_5678, slice(None, None, None), 0x8765_4321, 0x1234_5678, 0x8765_4321, 32),
-    "whole-reg-forward-32": (32, 0x1234_5678, slice(None, None, -1), 0x8765_4321, 0x1234_5678, 0x8765_4321, 32),
-    "whole-reg-reverse-32": (32, 0x1234_5678, slice(None, None, 1), 0x1234_5678, 0x1E6A_2C48, 0x1E6A_2C48, 32),
-    "lower-reg-32": (32, 0x1234_5678, slice(15, None, None), 0x1234, 0x5678, 0x1234_1234, 16),
-    "lower-reg-forward-32": (32, 0x1234_5678, slice(15, None, -1), 0x1234, 0x5678, 0x1234_1234, 16),
-    "lower-reg-reverse-32": (32, 0x1234_5678, slice(None, 15, 1), 0x1234, 0x1E6A, 0x1234_2C48, 16),
-    "upper-reg-32": (32, 0x1234_5678, slice(None, 16, None), 0x5678, 0x1234, 0x56785678, 16),
-    "upper-reg-forward-32": (32, 0x1234_5678, slice(None, 16, -1), 0x5678, 0x1234, 0x5678_5678, 16),
-    "upper-reg-reverse-32": (32, 0x1234_5678, slice(16, None, 1), 0x5678, 0x2C48, 0x1E6A_5678, 16),
-    "single-bit-set-64": ( 64, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
-    "single-bit-clear-64": ( 64, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1),
-    "multi-bit-set-64": (64, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
-    "multi-bit-clear-64": (64, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000, 4),
-    "multi-bit-normal-64": (64, 0x0000_0010, slice(7,4), 0x1, 0x1, 0x0000_0010, 4),
-    "multi-bit-reverse-64": (64, 0x0000_0010, slice(4,7), 0x1, 0x8, 0x0000_0080, 4),
-    "whole-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, None), 0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0, 0x0FED_CBA9_8765_4321, 64),
-    "whole-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, -1), 0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0, 0x0FED_CBA9_8765_4321, 64),
-    "whole-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, None, 1), 0x1234_5678_9ABC_DEF0, 0x0F7B_3D59_1E6A_2C48, 0x0F7B_3D59_1E6A_2C48, 64),
-    "lower-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(31, None, None), 0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678, 32),
-    "lower-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(31, None, -1), 0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678, 32),
-    "lower-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 31, 1), 0x1234_5678, 0x0F7B_3D59, 0x1234_5678_1e6a_2C48, 32),
-    "upper-reg-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, None), 0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0, 32),
-    "upper-reg-forward-64": (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, -1), 0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0, 32),
-    "upper-reg-reverse-64": (64, 0x1234_5678_9ABC_DEF0, slice(32, None, 1), 0x9ABC_DEF0, 0x1E6A_2C48, 0x0F7B_3D59_9ABC_DEF0, 32),
+    "single-bit-set-32":
+        (32, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
+    "single-bit-clear-32":
+        (32, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1),
+    "multi-bit-set-32":
+        (32, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
+    "multi-bit-clear-32":
+        (32, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000, 4),
+    "multi-bit-normal-32":
+        (32, 0x0000_0010, slice(7, 4), 0x1, 0x1, 0x0000_0010, 4),
+    "multi-bit-reverse-32":
+        (32, 0x0000_0010, slice(4, 7), 0x1, 0x8, 0x0000_0080, 4),
+    "whole-reg-32":
+        (32, 0x1234_5678, slice(None, None, None),
+         0x8765_4321, 0x1234_5678, 0x8765_4321, 32),
+    "whole-reg-forward-32":
+        (32, 0x1234_5678, slice(None, None, -1),
+         0x8765_4321, 0x1234_5678, 0x8765_4321, 32),
+    "whole-reg-reverse-32":
+        (32, 0x1234_5678, slice(None, None, 1),
+         0x1234_5678, 0x1E6A_2C48, 0x1E6A_2C48, 32),
+    "lower-reg-32":
+        (32, 0x1234_5678, slice(15, None, None),
+         0x1234, 0x5678, 0x1234_1234, 16),
+    "lower-reg-forward-32":
+        (32, 0x1234_5678, slice(15, None, -1),
+         0x1234, 0x5678, 0x1234_1234, 16),
+    "lower-reg-reverse-32":
+        (32, 0x1234_5678, slice(None, 15, 1),
+         0x1234, 0x1E6A, 0x1234_2C48, 16),
+    "upper-reg-32":
+        (32, 0x1234_5678, slice(None, 16, None),
+         0x5678, 0x1234, 0x56785678, 16),
+    "upper-reg-forward-32":
+        (32, 0x1234_5678, slice(None, 16, -1),
+         0x5678, 0x1234, 0x5678_5678, 16),
+    "upper-reg-reverse-32":
+        (32, 0x1234_5678, slice(16, None, 1),
+         0x5678, 0x2C48, 0x1E6A_5678, 16),
+    "single-bit-set-64":
+        (64, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
+    "single-bit-clear-64":
+        (64, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1),
+    "multi-bit-set-64":
+        (64, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
+    "multi-bit-clear-64":
+        (64, 0x0000_00F0, slice(7, 4), 0x0, 0xF, 0x0000_0000, 4),
+    "multi-bit-normal-64":
+        (64, 0x0000_0010, slice(7, 4), 0x1, 0x1, 0x0000_0010, 4),
+    "multi-bit-reverse-64":
+        (64, 0x0000_0010, slice(4, 7), 0x1, 0x8, 0x0000_0080, 4),
+    "whole-reg-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(None, None, None),
+         0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0,
+         0x0FED_CBA9_8765_4321, 64),
+    "whole-reg-forward-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(None, None, -1),
+         0x0FED_CBA9_8765_4321, 0x1234_5678_9ABC_DEF0,
+         0x0FED_CBA9_8765_4321, 64),
+    "whole-reg-reverse-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(None, None, 1),
+         0x1234_5678_9ABC_DEF0, 0x0F7B_3D59_1E6A_2C48,
+         0x0F7B_3D59_1E6A_2C48, 64),
+    "lower-reg-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(31, None, None),
+         0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678, 32),
+    "lower-reg-forward-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(31, None, -1),
+         0x1234_5678, 0x9ABC_DEF0, 0x1234_5678_1234_5678, 32),
+    "lower-reg-reverse-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(None, 31, 1),
+         0x1234_5678, 0x0F7B_3D59, 0x1234_5678_1e6a_2C48, 32),
+    "upper-reg-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, None),
+         0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0, 32),
+    "upper-reg-forward-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(None, 32, -1),
+         0x9ABC_DEF0, 0x1234_5678, 0x9ABC_DEF0_9ABC_DEF0, 32),
+    "upper-reg-reverse-64":
+        (64, 0x1234_5678_9ABC_DEF0, slice(32, None, 1),
+         0x9ABC_DEF0, 0x1E6A_2C48, 0x0F7B_3D59_9ABC_DEF0, 32),
 }
 
 ADDRESS = 0x10000
+
 
 def _create_register(length, debug=False):
     if length == 32:
@@ -55,9 +107,11 @@ def _create_register(length, debug=False):
     reg = pynq.Register(ADDRESS, length, buffer=buf, debug=debug)
     return reg, buf
 
+
 @pytest.mark.parametrize('testname', TEST_VECTORS.keys())
 def test_register_set_get(testname):
-    length, start, idx, update, expected_get, expected_set, count = TEST_VECTORS[testname]
+    length, start, idx, update, expected_get, expected_set, count = \
+        TEST_VECTORS[testname]
     reg, buf = _create_register(length)
     buf[:] = start
     val = reg[idx]
@@ -71,7 +125,7 @@ def test_register_set_get(testname):
 
 
 test_register_desc = {
-    'address_offset' : 16,
+    'address_offset': 16,
     'access': 'read-write',
     'size': 32,
     'description': 'Test Register',
@@ -83,25 +137,25 @@ test_register_desc = {
              'bit_offset': 0,
              'bit_width': 4,
              'description': 'Read only field'
-         }, 
+         },
          'write-field': {
              'access': 'write-only',
              'bit_offset': 4,
              'bit_width': 4,
              'description': 'Read only field 2'
-         }, 
+         },
          'rw-field-1': {
              'access': 'read-write',
              'bit_offset': 8,
              'bit_width': 4,
              'description': 'Read write field 1'
-         }, 
+         },
          'rw-field-2': {
              'access': 'read-write',
              'bit_offset': 12,
              'bit_width': 4,
              'description': 'Read write field 1'
-         }, 
+         },
          '0-number-field': {
              'access': 'read-write',
              'bit_offset': 16,
@@ -117,7 +171,9 @@ test_register_desc = {
     }
 }
 
-MockRegister = pynq.Register.create_subclass("Test", test_register_desc['fields'], "Test Register Documentation")
+MockRegister = pynq.Register.create_subclass(
+    "Test", test_register_desc['fields'], "Test Register Documentation")
+
 
 @pytest.fixture(params=[32, 64])
 def mock_register(request):
@@ -133,16 +189,19 @@ def mock_register(request):
 
 def test_nodoc():
     R = pynq.Register.create_subclass("NoDoc", test_register_desc['fields'])
-    assert R.__doc__ == None
+    assert R.__doc__ is None
 
-@pytest.fixture(params=[32,64])
+
+@pytest.fixture(params=[32, 64])
 def width(request):
     return request.param
+
 
 def test_reg_readonly(mock_register):
     assert mock_register.read_field == 1
     with pytest.raises(AttributeError):
         mock_register.read_field = 9
+
 
 def test_reg_writeonly(mock_register):
     assert mock_register.write_field == 2
@@ -157,10 +216,6 @@ NAMED_TESTS = {
     'space_special__': (6, 0x87954321),
 }
 
-def test_reg_readwrite(mock_register):
-    assert mock_register.rw_field_1 == 3
-    mock_register.write_field = 9
-    assert int(mock_register) == 0x87654921
 
 @pytest.mark.parametrize('register_name', NAMED_TESTS.keys())
 def test_reg_readwrite(mock_register, register_name):
@@ -171,19 +226,32 @@ def test_reg_readwrite(mock_register, register_name):
 
 
 INVALID_TESTS = {
-    "slice-32": (32, slice(0,31,2), "Slicing step is not valid."),
-    "slice-64": (64, slice(0,31,2), "Slicing step is not valid."),
-    "small-start-32": (32, slice(-1, 31), "Slicing endpoint -1 not in range 0 - 31"),
-    "small-end-32": (32, slice(31, -1), "Slicing endpoint -1 not in range 0 - 31"),
-    "large-start-32": (32, slice(32, 0), "Slicing endpoint 32 not in range 0 - 31"),
-    "large-end-32": (32, slice(0, 32), "Slicing endpoint 32 not in range 0 - 31"),
-    "invalid-32": (32, 1.0, "Index must be int or slice."),
-    "small-start-64": (64, slice(-1, 63), "Slicing endpoint -1 not in range 0 - 63"),
-    "small-end-64": (64, slice(63, -1), "Slicing endpoint -1 not in range 0 - 63"),
-    "large-start-64": (64, slice(64, 0), "Slicing endpoint 64 not in range 0 - 63"),
-    "large-end-64": (64, slice(0, 64), "Slicing endpoint 64 not in range 0 - 63"),
-    "invalid-64": (64, 1.0, "Index must be int or slice."),
+    "slice-32":
+        (32, slice(0, 31, 2), "Slicing step is not valid."),
+    "slice-64":
+        (64, slice(0, 31, 2), "Slicing step is not valid."),
+    "small-start-32":
+        (32, slice(-1, 31), "Slicing endpoint -1 not in range 0 - 31"),
+    "small-end-32":
+        (32, slice(31, -1), "Slicing endpoint -1 not in range 0 - 31"),
+    "large-start-32":
+        (32, slice(32, 0), "Slicing endpoint 32 not in range 0 - 31"),
+    "large-end-32":
+        (32, slice(0, 32), "Slicing endpoint 32 not in range 0 - 31"),
+    "invalid-32":
+        (32, 1.0, "Index must be int or slice."),
+    "small-start-64":
+        (64, slice(-1, 63), "Slicing endpoint -1 not in range 0 - 63"),
+    "small-end-64":
+        (64, slice(63, -1), "Slicing endpoint -1 not in range 0 - 63"),
+    "large-start-64":
+        (64, slice(64, 0), "Slicing endpoint 64 not in range 0 - 63"),
+    "large-end-64":
+        (64, slice(0, 64), "Slicing endpoint 64 not in range 0 - 63"),
+    "invalid-64":
+        (64, 1.0, "Index must be int or slice."),
 }
+
 
 @pytest.mark.parametrize('test_name', INVALID_TESTS.keys())
 def test_reg_invalid_read(test_name):
@@ -192,7 +260,8 @@ def test_reg_invalid_read(test_name):
     with pytest.raises(ValueError) as excinfo:
         _ = reg[idx]
     assert str(excinfo.value) == message
-    
+
+
 @pytest.mark.parametrize('test_name', INVALID_TESTS.keys())
 def test_reg_invalid_write(test_name):
     width, idx, message = INVALID_TESTS[test_name]
@@ -200,7 +269,7 @@ def test_reg_invalid_write(test_name):
     with pytest.raises(ValueError) as excinfo:
         reg[idx] = 0
     assert str(excinfo.value) == message
-    
+
 
 def test_reg_large_write():
     reg, buf = _create_register(32)
@@ -208,10 +277,11 @@ def test_reg_large_write():
         reg[1:0] = 4
     assert str(excinfo.value) == "Slicing range cannot represent value 4"
 
+
 def test_invalid_width():
     buf = np.ndarray((1,), 'u2')
     with pytest.raises(ValueError) as excinfo:
-        reg = pynq.Register(ADDRESS, 16, buf)
+        reg = pynq.Register(ADDRESS, 16, buf)  # NOQA
     assert str(excinfo.value) == "Supported register width is 32 or 64."
 
 
@@ -237,13 +307,13 @@ def test_init_buffer(width):
     assert reg[7:0] == 0x12
     reg[7:0] = 0x34
     assert buf[0] == 0x34
-    
+
 
 def test_big_bit(width):
     reg, buf = _create_register(width)
     with pytest.raises(ValueError) as excinfo:
         reg[1] = 2
-    assert str(excinfo.value) =="Value to be set should be either 0 or 1."
+    assert str(excinfo.value) == "Value to be set should be either 0 or 1."
 
 
 def test_repr_plain(width):
@@ -253,8 +323,8 @@ def test_repr_plain(width):
 
 
 def test_repr_fields(mock_register):
-    assert "Register(read_field=1, write_field=2, rw_field_1=3, rw_field_2=4, r0_number_field=5, space_special__=6)" == repr(mock_register)
-    
+    assert "Register(read_field=1, write_field=2, rw_field_1=3, rw_field_2=4, r0_number_field=5, space_special__=6)" == repr(mock_register)  # NOQA
+
 
 def test_reg_debug_bit(width, capsys):
     reg, buf = _create_register(width, debug=True)
@@ -271,8 +341,8 @@ def test_reg_debug_slice(width, capsys):
     reg[4:6] = 0
     out, err = capsys.readouterr()
     assert out == "Register Debug: Setting bits 6:4 at address 0x10000 to 0\n"
-    # assert out == "Register Debug: Setting bits 4:6 at address 0x10000 to 0\n"
-    # assert out == "Register Debug: Setting bits 7:4 at address 0x10000 to 0\n"
+    # assert out == "Register Debug: Setting bits 4:6 at address 0x10000 to 0\n"  # NOQA
+    # assert out == "Register Debug: Setting bits 7:4 at address 0x10000 to 0\n"  # NOQA
     _ = reg[1:3]
     out, err = capsys.readouterr()
     # assert out == "Register Debug: Reading bits 1:3 at address 0x10000\n"
@@ -282,8 +352,9 @@ def test_reg_debug_slice(width, capsys):
 def test_blank_regmap():
     buf = bytearray(16)
     with pytest.raises(RuntimeError) as excinfo:
-        rm = pynq.registers.RegisterMap(buf)
-    assert str(excinfo.value) == "Only subclasses of RegisterMap from create_subclass can be instantiated" 
+        rm = pynq.registers.RegisterMap(buf)  # NOQA
+    assert str(excinfo.value) == \
+           "Only subclasses of RegisterMap from create_subclass can be instantiated"  # NOQA
 
 
 test_registermap_desc = {
@@ -338,7 +409,8 @@ test_registermap_desc = {
     },
 }
 
-MockRegisterMap = pynq.registers.RegisterMap.create_subclass("Mock", test_registermap_desc)
+MockRegisterMap = pynq.registers.RegisterMap.create_subclass(
+    "Mock", test_registermap_desc)
 
 
 @pytest.fixture(params=['bytearray', 'ndarray'])
@@ -371,6 +443,7 @@ REGMAP_TESTS = {
     'r001_numbered': (76, 'I', 0x12345678, 0x87654321),
     'out_of_order': (80, 'I', 0x123456, 0x876543),
 }
+
 
 @pytest.mark.parametrize('register_name', REGMAP_TESTS.keys())
 def test_regmap_rw(mock_registermap, register_name):
@@ -419,7 +492,8 @@ expected_regmap_repr = """RegisterMap {
   space_special__ = Register(value=1263159624),
   r001_numbered = Register(value=1330531660),
   out_of_order = Register(value=1397903696)
-}"""
+}"""  # NOQA
+
 
 def test_regmap_repr(mock_registermap):
     rm, buf = mock_registermap

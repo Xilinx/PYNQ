@@ -3,8 +3,6 @@ import functools
 import os
 import pynq
 import pytest
-import time
-import threading
 
 UIO0_files = [
     ('/sys/class/uio/uio0/name', b'fabric'),
@@ -25,14 +23,14 @@ FS_TESTS = {
    'none': (no_UIO_files, None, None),
 }
 
+
 @pytest.mark.parametrize('testname', FS_TESTS.keys())
 def test_find_uio(fs, testname):
-    files, expected, index= FS_TESTS[testname]
+    files, expected, index = FS_TESTS[testname]
     for name, contents in files:
         fs.create_file(name, contents=contents)
     assert pynq.uio.get_uio_device('fabric') == expected
     assert pynq.uio.get_uio_index('fabric') == index
-
 
 
 class MockEvent:
@@ -53,11 +51,13 @@ class MockEvent:
 def _uio_subtest_empty(uio, host_fd, client_fd, callback):
     pass
 
+
 def _uio_subtest_add_event(uio, host_fd, client_fd, callback):
     ev = MockEvent()
     uio.add_event(ev, 0)
     buf = host_fd.read()
     assert buf == bytes([0, 0, 0, 1])
+
 
 def _uio_subtest_add_events(uio, host_fd, client_fd, callback):
     ev1 = MockEvent()
@@ -69,6 +69,7 @@ def _uio_subtest_add_events(uio, host_fd, client_fd, callback):
     buf = host_fd.read()
     assert buf == b''
 
+
 def _uio_subtest_callback(uio, host_fd, client_fd, callback):
     ev = MockEvent()
     uio.add_event(ev, 0)
@@ -78,7 +79,8 @@ def _uio_subtest_callback(uio, host_fd, client_fd, callback):
     assert not ev.isset
     callback()
     assert ev.isset
-  
+
+
 def _uio_subtest_callbacks(uio, host_fd, client_fd, callback):
     ev = MockEvent()
     uio.add_event(ev, 0)
@@ -97,9 +99,11 @@ def _uio_subtest_callbacks(uio, host_fd, client_fd, callback):
     callback()
     assert ev.isset
 
+
 def schedule_new(uio):
     ev = MockEvent()
     uio.add_event(ev, 0)
+
 
 def _uio_subtest_callback_add(uio, host_fd, client_fd, callback):
     ev = MockEvent(functools.partial(schedule_new, uio))
@@ -115,6 +119,7 @@ def _uio_subtest_callback_add(uio, host_fd, client_fd, callback):
     host_fd.write(bytes([0, 0, 0, 1]))
     callback()
 
+
 UIO_CONTROLLER_TESTS = {
     'empty': _uio_subtest_empty,
     'one-event': _uio_subtest_add_event,
@@ -123,6 +128,7 @@ UIO_CONTROLLER_TESTS = {
     'two-callbacks': _uio_subtest_callbacks,
     'callback-add': _uio_subtest_callback_add,
 }
+
 
 @pytest.mark.parametrize('testname', UIO_CONTROLLER_TESTS.keys())
 def test_uio_controller(monkeypatch, tmpdir, testname):
@@ -135,6 +141,7 @@ def test_uio_controller(monkeypatch, tmpdir, testname):
         nonlocal client_fd
         callback = cb
         client_fd = fd
+
     def remove_reader(fd):
         nonlocal client_fd
         assert client_fd == fd
@@ -142,7 +149,7 @@ def test_uio_controller(monkeypatch, tmpdir, testname):
 
     dev = os.path.join(tmpdir, 'uio0')
     host_fd = open(dev, 'w+b', buffering=0)
-    
+
     monkeypatch.setattr(event_loop, 'add_reader', add_reader)
     monkeypatch.setattr(event_loop, 'remove_reader', remove_reader)
 

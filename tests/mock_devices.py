@@ -3,14 +3,16 @@ import numpy as np
 import pynq
 import weakref
 
+
 class MockDeviceBase(pynq.Device):
     def __init__(self, tag):
         super().__init__(tag)
 
+
 class MockRegisterDevice(MockDeviceBase):
     def __init__(self, tag):
         super().__init__(tag)
-        self.capabilities = {'REGISTER_RW': True }
+        self.capabilities = {'REGISTER_RW': True}
         self.reads = collections.deque()
         self.writes = collections.deque()
 
@@ -41,7 +43,7 @@ class MockRegisterDevice(MockDeviceBase):
 class MockMemoryMappedDevice(MockDeviceBase):
     def __init__(self, tag):
         super().__init__(tag)
-        self.capabilities = {'MEMORY_MAPPED': True }
+        self.capabilities = {'MEMORY_MAPPED': True}
         self.regions = {}
 
     def mmap(self, base_addr, length):
@@ -59,7 +61,6 @@ class MockAllocateDevice(MockDeviceBase):
         self.flushes = collections.deque()
         self.invalidates = collections.deque()
         self._allocated = []
-        
 
     def allocate(self, shape, dtype):
         bo, coherent, address = self.allocates.popleft()
@@ -74,7 +75,7 @@ class MockAllocateDevice(MockDeviceBase):
         assert expected_bo == bo
         assert expected_offset == offset
         assert expected_length == length
-        
+
     def invalidate(self, bo, offset, vaddr, length):
         expected_bo, expected_offset, expected_length = \
             self.invalidates.popleft()
@@ -119,7 +120,7 @@ class MockDownloadableDevice(MockDeviceBase):
 class MockIPDevice(MockDeviceBase):
     def __init__(self, ip, tag):
         super().__init__(tag)
-        self.capabilities = {'REGISTER_RW': True }
+        self.capabilities = {'REGISTER_RW': True}
         self.ip = ip
 
     def _find_ip(self, address, length):
@@ -135,4 +136,3 @@ class MockIPDevice(MockDeviceBase):
     def write_registers(self, address, data):
         ip = self._find_ip(address, len(data))
         return ip.write(address - ip.lo_address, data)
-

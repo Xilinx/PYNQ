@@ -28,6 +28,7 @@ def file_contents(filename):
     with open(filename, 'r') as f:
         return f.read()
 
+
 @contextlib.contextmanager
 def working_directory(path):
     cwd = os.getcwd()
@@ -41,6 +42,7 @@ def working_directory(path):
 def create_file(filename, data):
     with open(filename, 'w') as f:
         f.write(data)
+
 
 def MockExtension(extensions):
     class ExtensionManager:

@@ -28,7 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import subprocess
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2019, Xilinx"
