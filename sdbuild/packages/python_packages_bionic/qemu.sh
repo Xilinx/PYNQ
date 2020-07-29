@@ -6,6 +6,7 @@ set -e
 
 cat > requirements.txt <<EOT
 Click==7.0
+CppHeaderParser==2.7.4
 dash==0.21.1
 dash-core-components==0.23.0
 dash-html-components==0.11.0
