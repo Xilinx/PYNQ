@@ -29,6 +29,7 @@
 
 import os
 import subprocess as sproc
+import warnings
 
 __author__ = "Luca Cerina"
 __copyright__ = "Copyright 2016, NECST Laboratory, Politecnico di Milano"
@@ -125,14 +126,14 @@ class Wifi(object):
         net_iface_fh.write("iface " + self.wifi_port + " inet dhcp\n")
         net_iface_fh.write(" wpa-ssid " + ssid + "\n")
         net_iface_fh.write(" wpa-psk " + wifi_wpa_key + "\n\n")
+        net_iface_fh.write(" wpa-scan-ssid 1")
         net_iface_fh.close()
 
-    def connect(self, ssid, password, auto=False):
+    def connect(self, ssid, password, auto=False, force=False):
         """Make a new wireless connection.
 
-        This function kills the wireless connection and connect to a new one
-        using network ssid and WPA passphrase. Wrong ssid or passphrase will
-        reject the connection.
+        This function creates a wireless connection using network ssid and WPA
+        passphrase. Wrong ssid or passphrase will reject the connection.
 
         Parameters
         ----------
@@ -142,15 +143,27 @@ class Wifi(object):
             String WPA passphrase necessary to access the network
         auto : bool
             Whether to set the interface as auto connected after boot.
+        force : bool
+            By default the function will only show a warning if a connection
+            already exists. Set this parameter to `True` to forcefully kill
+            the existing connection and create a new one
 
         Returns
         -------
         None
 
         """
-        os.system('ifdown {}'.format(self.wifi_port))
-        self.gen_network_file(ssid, password, auto)
-        os.system('ifup {}'.format(self.wifi_port))
+        if not os.path.exists("/etc/network/interfaces.d/" + self.wifi_port) \
+                or not sproc.getoutput("ifconfig {} | grep "
+                                   "inet".format(self.wifi_port)) \
+                or force:
+            os.system('ifdown {}'.format(self.wifi_port))
+            self.gen_network_file(ssid, password, auto)
+            os.system('ifup {}'.format(self.wifi_port))
+        else:
+            warnings.warn("A connection is already established. You can force "
+                          "a new connection by setting the 'force' option to "
+                          "'True'.", UserWarning)
 
     def reset(self):
         """Shutdown the network connection.
