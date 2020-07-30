@@ -221,19 +221,34 @@ def _mem_data_to_dict(idx, mem):
 
 
 _clock_types = [
-    "CT_UNUSED",
-    "CT_DATA",
-    "CT_KERNEL",
-    "CT_SYSTEM"
+    "UNUSED",
+    "DATA",
+    "KERNEL",
+    "SYSTEM"
 ]
     
-def _clk_data_to_dict(clk):
-        
-    return {
-        "name"      : clk.m_name,
-        "frequency" : clk.m_freq_Mhz,
-        "type"      : _clock_types[clk.m_type]
-    }
+def _clk_data_to_dict(clk_data):
+    """ Create a dictionary of dictionaries 
+    for the clock data. The clocks will be 
+    sorted depending on the clock type.
+    """
+    # Create an empty dictionary and initialise index
+    clk_dict = {}
+    idx = 0
+    # Iterate over the different clock types
+    for i in _clock_types:
+        # Iterate over clock data
+        for j, clk in enumerate(clk_data):
+            clk_i = {
+                "name"      : clk.m_name.decode("utf-8"),
+                "frequency" : clk.m_freq_Mhz,
+                "type"      : _clock_types[clk.m_type]}
+            # Add entry to dictionary only if clock type matches and increment index
+            if _clock_types[clk.m_type] is i:
+                clk_dict['clock'+str(idx)] = clk_i
+                idx += 1
+
+    return clk_dict
 
 
 def _xclbin_to_dicts(filename):
@@ -275,8 +290,7 @@ def _xclbin_to_dicts(filename):
     clk_data = _get_object_as_array(clock_topology.m_clock_freq[0],
                            clock_topology.m_count)
                    
-    clock_dict = {i: _clk_data_to_dict(clks) 
-		for i, clks in enumerate(clk_data)}
+    clock_dict = _clk_data_to_dict(clk_data)
 
     return ip_dict, mem_dict, clock_dict
 
