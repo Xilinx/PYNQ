@@ -47,19 +47,19 @@ class Module:
         if path.isdir(library_path):
             self.library_path.append(library_path)
             for f in listdir(self.library_path[0]):
-                match = re.match('lib(.*)\.(?:a|so)', f)
+                match = re.match(r'lib(.*)\.(?:a|so)', f)
                 if match:
                     self.libraries.append(match.group(1))
 
         self.sources = []
         if path.isdir(path.join(root, 'src')):
             for f in listdir(path.join(root, 'src')):
-                match = re.match('.*\.(c|cpp)$', f)
+                match = re.match(r'.*\.(c|cpp)$', f)
                 if match:
                     self.sources.append(path.join(root, 'src', f))
         self.header = ""
         for f in listdir(path.join(root, 'include')):
-            if re.match(".*\.h$", f):
+            if re.match(r".*\.h$", f):
                 with open(path.join(root, 'include', f), 'r') as data:
                     self.header += data.read()
 
@@ -118,7 +118,7 @@ class BSPInstance:
         self.sources = []
         if path.isdir(path.join(bsp_root, 'src')):
             for f in listdir(path.join(bsp_root, 'src')):
-                match = re.match('.*\.(c|cpp)$', f)
+                match = re.match(r'.*\.(c|cpp)$', f)
                 if match:
                     self.sources.append(path.join(bsp_root, 'src', f))
 

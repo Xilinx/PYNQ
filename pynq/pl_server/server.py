@@ -531,15 +531,18 @@ class DeviceServer:
             dict(),  # Devicetree dict
             dict()   # Memory Dict
         ]
+        self._started = threading.Event()
 
     def start(self, daemonize=True):
         self.thread.daemon = daemonize
         self.thread.start()
+        self._started.wait()
 
     def server_proc(self):
         if os.path.exists(self.socket_name):
             os.remove(self.socket_name)
         server = Listener(self.socket_name, family='AF_UNIX', authkey=self.key)
+        self._started.set()
         status = True
         while status:
             client = server.accept()

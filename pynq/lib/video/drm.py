@@ -217,8 +217,8 @@ class DrmDriver:
         ret = self._videolib.pynqvideo_frame_write(
             self._device, frame.pointer)
         if ret == -1:
-            loop.run_until_complete(
-                asyncio.ensure_future(display.writeframe_async(frame)))
+            self._loop.run_until_complete(
+                asyncio.ensure_future(self.writeframe_async(frame)))
         elif ret > 0:
             raise OSError(ret)
         else:
