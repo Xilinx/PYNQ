@@ -107,7 +107,7 @@ class MMIO:
 
 
 
-    def read_mm(self, offset=0, length=4):
+    def read_mm(self, offset=0, length=4, endianness = 'little'):
         """The method to read data from MMIO.
 
         Parameters
@@ -116,15 +116,16 @@ class MMIO:
             The read offset from the MMIO base address.
         length : int
             The length of the data in bytes.
-
+	endiannes : str
+            The endianness of host architecture.
         Returns
         -------
         list
             A list of data read out from MMIO
 
         """
-        if length != 4:
-            raise ValueError("MMIO currently only supports 4-byte reads.")
+        if not ((length > 0 and length <= 4) or length == 8 ):
+            raise ValueError("MMIO currently only supports 1, 2, 3, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
         idx = offset >> 2
@@ -135,7 +136,16 @@ class MMIO:
                     length, offset)
 
         # Read data out
-        return int(self.array[idx])
+        lsb = int(self.array[idx])
+        if length ==8 :
+            # compose output word depending on the endianness
+            if endianness == 'little':
+                return ((int(self.array[idx+1])) << 32) + lsb
+            else:
+                return (lsb << 32) + int(self.array[idx+1])
+        else:
+            # Mask result depending on length
+            return (lsb & ((2**(8*length)) - 1))
 
     def write_mm(self, offset, data):
         """The method to write data to MMIO.
@@ -175,7 +185,7 @@ class MMIO:
         else:
             raise ValueError("Data type must be int or bytes.")
 
-    def read_reg(self, offset=0, length=4):
+    def read_reg(self, offset=0, length=4, endianness = 'little'):
         """The method to read data from MMIO.
 
         Parameters
@@ -184,15 +194,16 @@ class MMIO:
             The read offset from the MMIO base address.
         length : int
             The length of the data in bytes.
-
+	endiannes : str
+            The endianness of host architecture.
         Returns
         -------
         list
             A list of data read out from MMIO
 
         """
-        if length != 4:
-            raise ValueError("MMIO currently only supports 4-byte reads.")
+        if not ((length > 0 and length <= 4) or length == 8 ):
+            raise ValueError("MMIO currently only supports 1, 2, 3, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
         idx = offset >> 2
@@ -203,7 +214,16 @@ class MMIO:
                     length, offset)
 
         # Read data out
-        return int(self.array[idx])
+        lsb = int(self.array[idx])
+        if length ==8 :
+            # compose output word depending on the endianness
+            if endianness == 'little':
+                return ((int(self.array[idx+1])) << 32) + lsb
+            else:
+                return (lsb << 32) + int(self.array[idx+1])
+        else:
+            # Mask result depending on length
+            return (lsb & ((2**(8*length)) - 1))
 
     def write_reg(self, offset, data):
         """The method to write data to MMIO.
