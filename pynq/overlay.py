@@ -59,6 +59,17 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
+class UnsupportedConfiguration(Exception):
+    """Thrown by a driver that does not support the requested configuration
+    of an IP.
+
+    If a driver's __init__ throws this exception the binding system will
+    issue a warning and instead create a DefaultIP instance.
+
+    """
+    pass
+
+
 def _assign_drivers(description, ignore_version, device):
     """Assigns a driver for each IP and hierarchy in the description.
 
@@ -530,6 +541,19 @@ class RegisterIP(type):
                 _ip_drivers[vlnv.rpartition(':')[0]] = cls
         super().__init__(name, bases, attrs)
 
+
+    def unregister(cls):
+        """Unregister a subclass from the driver registry
+
+        """
+        if hasattr(cls, 'bindto'):
+            for vlnv in cls.bindto:
+                 vln = vlnv.rpartition(':')[0]
+                 if _ip_drivers.get(vlnv, None) == cls:
+                     del _ip_drivers[vlnv]
+                 if _ip_drivers.get(vln, None) == cls:
+                     del _ip_drivers[vln]
+
 _struct_dict = {
     # Base Vitis int types
     'char': 'c',
@@ -858,7 +882,14 @@ class _IPMap:
             return hierarchy
         elif key in self._description['ip']:
             ipdescription = self._description['ip'][key]
-            driver = ipdescription['driver'](ipdescription)
+            try:
+                driver = ipdescription['driver'](ipdescription)
+            except UnsupportedConfiguration as e:
+                warnings.warn(
+                    "Configuration if IP {} not supported: {}".format(
+                        key, str(e.args)),
+                    UserWarning)
+                driver = DefaultIP(ipdescription)
             setattr(self, key, driver)
             return driver
         elif key in self._description['interrupts']:
@@ -938,6 +969,10 @@ class RegisterHierarchy(type):
         if 'checkhierarchy' in attrs:
             _hierarchy_drivers.appendleft(cls)
         super().__init__(name, bases, attrs)
+
+    def unregister(cls):
+         if cls in _hierarchy_drivers:
+             _hierarchy_drivers.remove(cls)
 
 
 class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):

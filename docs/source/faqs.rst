@@ -203,9 +203,13 @@ the WiFi dongle.
 How do I set/change the static IP address on the board?
 -------------------------------------------------------
 
-The Static IP address is set in ``/etc/dhcp/dhclient.conf`` - you can modify the
-board's static IP here.
-   
+You can usually modify ``/etc/network/interfaces.d/eth0``.
+For example, on Pynq-Z1/Z2, the default address shown there is
+
+   .. code-block:: console
+
+      address 192.168.2.99
+
 How do I find my hostname?
 --------------------------
 
@@ -219,9 +223,12 @@ How do I change the hostname?
 -----------------------------
 
 If you have multiple boards on the same network, you should give them different
-host names.  You can change the hostname by editing the Linux hostname files:
-``/etc/hostname`` and ``/etc/hosts``.
-   
+host names.  You can change the hostname by using a script on PYNQ image:
+
+   .. code-block:: console
+
+      sudo pynq_hostname.sh <your_new_board_name>
+
 What is the user account and password?
 --------------------------------------
 

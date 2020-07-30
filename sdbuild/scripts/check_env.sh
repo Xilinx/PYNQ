@@ -48,6 +48,11 @@ if [ "$EUID" -eq 0 ] ; then
     exit 1
 fi
 
+if [ ! -f /run/systemd/resolve/stub-resolv.conf ]; then
+    sudo mkdir -p /run/systemd/resolve
+    sudo cp -L /etc/resolv.conf /run/systemd/resolve/stub-resolv.conf
+fi
+
 echo "Checking system for installed $DEPS"
 
 failed=false

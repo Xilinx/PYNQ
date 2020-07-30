@@ -1,0 +1,26 @@
+From c549d10bf50a15802ddd079b1e060baea01c18c1 Mon Sep 17 00:00:00 2001
+From: Rock Qu <yunq@xilinx.com>
+Date: Mon, 30 Mar 2020 08:24:45 +0000
+Subject: [PATCH] use mirror site for boost
+
+---
+ cpp/thirdparty/versions.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/cpp/thirdparty/versions.txt b/cpp/thirdparty/versions.txt
+index 3bf8baadf..69ba559e7 100644
+--- a/cpp/thirdparty/versions.txt
++++ b/cpp/thirdparty/versions.txt
+@@ -58,7 +58,8 @@ ARROW_ZSTD_BUILD_VERSION=v1.4.3
+ # given version.
+ DEPENDENCIES=(
+   "ARROW_AWSSDK_URL aws-sdk-cpp-${ARROW_AWSSDK_BUILD_VERSION}.tar.gz https://github.com/aws/aws-sdk-cpp/archive/${ARROW_AWSSDK_BUILD_VERSION}.tar.gz"
+-  "ARROW_BOOST_URL boost-${ARROW_BOOST_BUILD_VERSION}.tar.gz https://dl.bintray.com/boostorg/release/${ARROW_BOOST_BUILD_VERSION}/source/boost_${ARROW_BOOST_BUILD_VERSION//./_}.tar.gz"
++  #"ARROW_BOOST_URL boost-${ARROW_BOOST_BUILD_VERSION}.tar.gz https://dl.bintray.com/boostorg/release/${ARROW_BOOST_BUILD_VERSION}/source/boost_${ARROW_BOOST_BUILD_VERSION//./_}.tar.gz"
++  ARROW_BOOST_URL boost-${ARROW_BOOST_BUILD_VERSION}.tar.gz https://dl.bintray.com/ursalabs/arrow-boost/boost_${ARROW_BOOST_BUILD_VERSION//./_}.tar.gz"
+   "ARROW_BROTLI_URL brotli-${ARROW_BROTLI_BUILD_VERSION}.tar.gz https://github.com/google/brotli/archive/${ARROW_BROTLI_BUILD_VERSION}.tar.gz"
+   "ARROW_BZIP2_URL bzip2-${ARROW_BZIP2_BUILD_VERSION}.tar.gz https://sourceware.org/pub/bzip2/bzip2-${ARROW_BZIP2_BUILD_VERSION}.tar.gz"
+   "ARROW_CARES_URL cares-${ARROW_CARES_BUILD_VERSION}.tar.gz https://c-ares.haxx.se/download/c-ares-${ARROW_CARES_BUILD_VERSION}.tar.gz"
+-- 
+2.17.0
+

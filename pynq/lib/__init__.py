@@ -75,6 +75,10 @@ from . import video
 from . import audio
 from . import dma
 
+from . import swig
+from . import pybind11
+
+
 __author__ = "Graham Schelle"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"

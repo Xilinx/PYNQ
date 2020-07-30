@@ -250,7 +250,7 @@ class BooleanGenerator:
                 raise ValueError("Invalid output pin {}.".format(expr_out))
 
             # Parse the used pins preserving the order
-            non_unique_inputs = re.sub("\W+", " ", expr_in).strip().split(' ')
+            non_unique_inputs = re.sub(r"\W+", " ", expr_in).strip().split(' ')
             unique_input_pins = list(OrderedDict.fromkeys(non_unique_inputs))
             if not 1 <= len(unique_input_pins) <= 5:
                 raise ValueError("Expect 1 - 5 inputs for each LUT.")

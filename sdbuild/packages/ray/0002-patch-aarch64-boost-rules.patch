@@ -1,0 +1,90 @@
+From 40de0a035d3349d57b82c2acf5aa600b942b1c0c Mon Sep 17 00:00:00 2001
+From: Rock Qu <yunq@xilinx.com>
+Date: Fri, 3 Apr 2020 16:52:30 +0000
+Subject: [PATCH 2/2] patch aarch64 boost rules
+
+---
+ bazel/ray_deps_setup.bzl                      |  1 +
+ .../rules_boost-context-thread-arm64.patch    | 58 +++++++++++++++++++
+ 2 files changed, 59 insertions(+)
+ create mode 100644 thirdparty/patches/rules_boost-context-thread-arm64.patch
+
+diff --git a/bazel/ray_deps_setup.bzl b/bazel/ray_deps_setup.bzl
+index ab359718..91593b4a 100644
+--- a/bazel/ray_deps_setup.bzl
++++ b/bazel/ray_deps_setup.bzl
+@@ -133,6 +133,7 @@ def ray_deps_setup():
+         patches = [
+             "//thirdparty/patches:rules_boost-undefine-boost_fallthrough.patch",
+             "//thirdparty/patches:rules_boost-windows-linkopts.patch",
++	    "//thirdparty/patches:rules_boost-context-thread-arm64.patch",
+         ],
+     )
+ 
+diff --git a/thirdparty/patches/rules_boost-context-thread-arm64.patch b/thirdparty/patches/rules_boost-context-thread-arm64.patch
+new file mode 100644
+index 00000000..3f64af86
+--- /dev/null
++++ b/thirdparty/patches/rules_boost-context-thread-arm64.patch
+@@ -0,0 +1,58 @@
++This patch fixes ARM (aarch64) bazel build rules for boost libraries when
++building ray as discussed in this issue - https://github.com/ray-project/ray/issues/7184.
++Patch v2 by Abishek Muthian (@heavyinfo).
++--- BUILD.boost	2020-02-23 09:03:02.937872389 +0530
+++++ BUILD.boost	2020-02-26 07:18:26.287128627 +0530
++@@ -49,6 +49,15 @@
++ )
++ 
++ config_setting(
+++    name = "linux_aarch64",
+++    constraint_values = [
+++        "@bazel_tools//platforms:linux",
+++        "@bazel_tools//platforms:aarch64",
+++    ],
+++    visibility = ["//visibility:public"],
+++)
+++
+++config_setting(
++     name = "linux_x86_64",
++     constraint_values = [
++         "@bazel_tools//platforms:linux",
++@@ -91,6 +100,11 @@
++ ) for name in ["make", "jump", "ontop"]]
++ 
++ BOOST_CTX_ASM_SOURCES = select({
+++    ":linux_aarch64": [
+++        "libs/context/src/asm/jump_arm64_aapcs_elf_gas.S",
+++        "libs/context/src/asm/make_arm64_aapcs_elf_gas.S",
+++        "libs/context/src/asm/ontop_arm64_aapcs_elf_gas.S",
+++    ],
++     ":linux_arm": [
++         "libs/context/src/asm/jump_arm_aapcs_elf_gas.S",
++         "libs/context/src/asm/make_arm_aapcs_elf_gas.S",
++@@ -111,6 +125,7 @@
++         "libs/context/src/asm/jump_x86_64_ms_pe_masm.S",
++         "libs/context/src/asm/ontop_x86_64_ms_pe_masm.S",
++     ],
+++    "//conditions:default": [],
++ })
++ 
++ boost_library(
++@@ -125,6 +140,7 @@
++         ":windows_x86_64": [
++             "libs/context/src/windows/stack_traits.cpp",
++         ],
+++        "//conditions:default": [],
++     }),
++     exclude_src = [
++         "libs/context/src/fiber.cpp",
++@@ -1616,6 +1632,7 @@
++             "BOOST_THREAD_USE_LIB",
++             "BOOST_WIN32_THREAD",
++         ],
+++        "//conditions:default": [],
++     }),
++     linkopts = select({
++         ":linux": [
++
+-- 
+2.17.0
+

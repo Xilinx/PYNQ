@@ -541,7 +541,7 @@ def parse_bit_header(bitfile):
 
 def _preload_binfile(bitstream):
     bitstream.binfile_name = os.path.basename(
-        bitstream.bitfile_name).replace('.bit', '.bin')
+        bitstream.bitfile_name) + '.bin'
     bitstream.firmware_path = os.path.join('/lib/firmware',
                                            bitstream.binfile_name)
     bit_dict = parse_bit_header(bitstream.bitfile_name)

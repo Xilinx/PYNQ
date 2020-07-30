@@ -139,7 +139,7 @@ if [ ! -f /run/systemd/resolve/stub-resolv.conf ]; then
 fi
 
 # update setuptools
-sudo pip3 install --upgrade "setuptools>=24.2.0"
+sudo -H pip3 install --upgrade "setuptools>=24.2.0"
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 

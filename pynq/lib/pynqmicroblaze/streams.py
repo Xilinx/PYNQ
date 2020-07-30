@@ -35,6 +35,8 @@ __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "ogden@xilinx.com"
 
 
+PTR_OFFSET = 0x80000000
+
 # On aarch64 systems we can suffer from SEGFAULTS in memcpy if
 # unaligned address are copied
 def _safe_copy(dest, src):

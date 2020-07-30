@@ -32,7 +32,7 @@ __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import numpy as np
-
+import warnings
 
 class PynqBuffer(np.ndarray):
     """A subclass of numpy.ndarray which is allocated using
@@ -108,7 +108,9 @@ class PynqBuffer(np.ndarray):
         """Unused - for backwards compatibility only
 
         """
-        pass
+        warnings.warn(
+            ".close no longer functional - use scopes to manage buffers",
+            DeprecationWarning)
 
     def flush(self):
         """Flush the underlying memory if necessary
@@ -144,7 +146,7 @@ class PynqBuffer(np.ndarray):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.free_buffer()
+        self.freebuffer()
         return 0
 
 
