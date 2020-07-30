@@ -48,6 +48,7 @@ jobs:
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
     - name: Upload coverage
-      run: |
-        codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
