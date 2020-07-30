@@ -116,7 +116,7 @@ class MMIO:
             The read offset from the MMIO base address.
         length : int
             The length of the data in bytes.
-	endiannes : str
+        endiannes : str
             The endianness of host architecture.
         Returns
         -------
@@ -194,7 +194,7 @@ class MMIO:
             The read offset from the MMIO base address.
         length : int
             The length of the data in bytes.
-	endiannes : str
+        endiannes : str
             The endianness of host architecture.
         Returns
         -------
