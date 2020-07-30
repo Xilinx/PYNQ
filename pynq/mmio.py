@@ -115,7 +115,8 @@ class MMIO:
 
         """
         if not ((length > 0 and length <= 4) or length == 8 ):
-            raise ValueError("MMIO currently only supports 1, 2, 3, 4 and 8-byte reads.")
+            raise ValueError("MMIO currently only supports " \
+                "1, 2, 3, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
         idx = offset >> 2
@@ -125,13 +126,11 @@ class MMIO:
         # Read data out
         lsb = int(self.array[idx])
         if length ==8 :
-            # compose output word depending on the endianness
             if endianness == 'little':
                 return ((int(self.array[idx+1])) << 32) + lsb
             else:
                 return (lsb << 32) + int(self.array[idx+1])
         else:
-            # Mask result depending on length
             return (lsb & ((2**(8*length)) - 1))
 
     def write_mm(self, offset, data):
@@ -188,7 +187,8 @@ class MMIO:
 
         """
         if not ((length > 0 and length <= 4) or length == 8 ):
-            raise ValueError("MMIO currently only supports 1, 2, 3, 4 and 8-byte reads.")
+            raise ValueError("MMIO currently only supports " \
+                "1, 2, 3, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
         idx = offset >> 2
@@ -198,13 +198,11 @@ class MMIO:
         # Read data out
         lsb = int(self.array[idx])
         if length ==8 :
-            # compose output word depending on the endianness
             if endianness == 'little':
                 return ((int(self.array[idx+1])) << 32) + lsb
             else:
                 return (lsb << 32) + int(self.array[idx+1])
         else:
-            # Mask result depending on length
             return (lsb & ((2**(8*length)) - 1))
 
     def write_reg(self, offset, data):
