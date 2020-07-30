@@ -40,6 +40,7 @@ from .bitstream import Bitstream
 from .overlay import Overlay
 from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
+from .overlay import UnsupportedConfiguration
 from .pmbus import get_rails
 from .pmbus import DataRecorder
 from .buffer import allocate
