@@ -28,6 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from pynq import DefaultIP
+from pynq import UnsupportedConfiguration
 from pynq import Xlnk
 import numpy
 import warnings

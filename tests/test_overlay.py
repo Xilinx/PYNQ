@@ -4,11 +4,21 @@ import os
 import pytest
 import pynq
 
+from .mock_devices import MockMemoryMappedDevice
+
+
 THIS_DIR = os.path.dirname(__file__)
 HWH_PATH = os.path.join(THIS_DIR, 'data', '2016.4')
 
 HWH_FILES = [os.path.basename(f)
              for f in glob.glob(os.path.join(HWH_PATH, "*.hwh"))]
+
+
+@pytest.fixture
+def device():
+    device = MockMemoryMappedDevice('mmap_device')
+    yield device
+    device.close()
 
 
 @pytest.mark.parametrize('hwh_file', HWH_FILES)
@@ -118,6 +128,41 @@ def test_ip_version_ignore():
     TestDriver.unregister()
 
 
+def test_ip_unsupported_configuration(device):
+    class TestDriver(pynq.DefaultIP):
+        bindto = ['xilinx.com:test:test_ip:1.0']
+
+        def __init__(self, description):
+            raise pynq.UnsupportedConfiguration('Test Error')
+
+    desc = _copy_assign(simple_description, device=device)
+    assert desc['ip']['test_ip']['driver'] == TestDriver
+
+    ip_map = pynq.overlay._IPMap(desc)
+
+    with pytest.warns(UserWarning):
+        driver = ip_map.test_ip
+
+    assert type(driver) is pynq.DefaultIP
+
+    TestDriver.unregister()
+
+
+def test_ip_supported_configuration(device):
+    class TestDriver(pynq.DefaultIP):
+        bindto = ['xilinx.com:test:test_ip:1.0']
+
+    desc = _copy_assign(simple_description, device=device)
+    assert desc['ip']['test_ip']['driver'] == TestDriver
+
+    ip_map = pynq.overlay._IPMap(desc)
+    driver = ip_map.test_ip
+
+    assert type(driver) is TestDriver 
+
+    TestDriver.unregister()
+
+    
 def test_hierarchy_bind():
     class HierarchyDriver(pynq.DefaultHierarchy):
         @staticmethod

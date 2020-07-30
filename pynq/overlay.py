@@ -59,6 +59,17 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
+class UnsupportedConfiguration(Exception):
+    """Thrown by a driver that does not support the requested configuration
+    of an IP.
+
+    If a driver's __init__ throws this exception the binding system will
+    issue a warning and instead create a DefaultIP instance.
+
+    """
+    pass
+
+
 def _assign_drivers(description, ignore_version, device):
     """Assigns a driver for each IP and hierarchy in the description.
 
@@ -871,7 +882,14 @@ class _IPMap:
             return hierarchy
         elif key in self._description['ip']:
             ipdescription = self._description['ip'][key]
-            driver = ipdescription['driver'](ipdescription)
+            try:
+                driver = ipdescription['driver'](ipdescription)
+            except UnsupportedConfiguration as e:
+                warnings.warn(
+                    "Configuration if IP {} not supported: {}".format(
+                        key, str(e.args)),
+                    UserWarning)
+                driver = DefaultIP(ipdescription)
             setattr(self, key, driver)
             return driver
         elif key in self._description['interrupts']:
