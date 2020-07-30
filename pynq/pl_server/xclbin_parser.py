@@ -238,7 +238,7 @@ def _clk_data_to_dict(clk_data):
     # Iterate over the different clock types
     for i in _clock_types:
         # Iterate over clock data
-        for j, clk in enumerate(clk_data):
+        for clk in clk_data:
             clk_i = {
                 "name"      : clk.m_name.decode("utf-8"),
                 "frequency" : clk.m_freq_Mhz,
