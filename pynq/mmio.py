@@ -97,7 +97,7 @@ class MMIO:
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 
-    def read_mm(self, offset=0, length=4, endianness = 'little'):
+    def read_mm(self, offset=0, length=4, endianness='little'):
         """The method to read data from MMIO.
 
         Parameters
@@ -107,18 +107,21 @@ class MMIO:
         length : int
             The length of the data in bytes.
         endiannes : str
-            The endianness of host architecture.
+            The endianness of host architecture, only relevant
+            when length == 8.
         Returns
         -------
         list
             A list of data read out from MMIO
 
         """
-        if not ((length > 0 and length <= 4) or length == 8 ):
+        if length not in [1, 2, 3, 4, 8]:
             raise ValueError("MMIO currently only supports " \
                 "1, 2, 3, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
+        if length == 8 and endianness not in ['big', 'little']:
+            raise ValueError("MMIO only supports big and little endian")
         idx = offset >> 2
         if offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
@@ -169,7 +172,7 @@ class MMIO:
         else:
             raise ValueError("Data type must be int or bytes.")
 
-    def read_reg(self, offset=0, length=4, endianness = 'little'):
+    def read_reg(self, offset=0, length=4, endianness='little'):
         """The method to read data from MMIO.
 
         Parameters
@@ -179,18 +182,21 @@ class MMIO:
         length : int
             The length of the data in bytes.
         endiannes : str
-            The endianness of host architecture.
+            The endianness of host architecture, only relevant
+            when length == 8.
         Returns
         -------
         list
             A list of data read out from MMIO
 
         """
-        if not ((length > 0 and length <= 4) or length == 8 ):
+        if length not in [1, 2, 3, 4, 8]:
             raise ValueError("MMIO currently only supports " \
                 "1, 2, 3, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
+        if length == 8 and endianness not in ['big', 'little']:
+            raise ValueError("MMIO only supports big and little endian")
         idx = offset >> 2
         if offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
