@@ -25,6 +25,10 @@ def be_zu():
     return FakeUname(pynq.ps.ZU_ARCH)
 
 
+def be_other():
+    return FakeUname('Invalid Arch')
+
+
 # Entries of the form PLL_OFFSET, CLK_REG
 ZYNQ_READ_PLLS = {
     'arm_pll': [0x100, 0x0030_0520],
@@ -297,3 +301,27 @@ def test_zynq_cpu(setup_zynq, pll_name):
     slcr_array[0x120 >> 2] = clk_val
 
     assert Clocks.cpu_mhz == 750
+
+
+def test_invalid_arch(monkeypatch):
+    old_arch = pynq.ps.CPU_ARCH
+    monkeypatch.setattr(os, 'uname', be_other)
+    new_ps = importlib.reload(pynq.ps)
+    Clocks = new_ps.Clocks
+    with pytest.raises(RuntimeError):
+        Clocks.fclk0_mhz
+
+
+def test_delayed_mmio(monkeypatch):
+    old_arch = pynq.ps.CPU_ARCH
+    try:
+        monkeypatch.setattr(os, 'uname', be_zynq)
+        device = MockMemoryMappedDevice('zynq_clocks')
+        pynq.Device.active_device = device
+        new_ps = importlib.reload(pynq.ps)
+        Clocks = new_ps.Clocks
+
+        assert len(device.regions) == 0
+    finally:
+        pynq.Device.active_device = None
+        pynq.ps.CPU_ARCH = old_arch

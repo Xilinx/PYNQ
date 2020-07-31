@@ -27,11 +27,11 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from .registers import Register
 from .mmio import MMIO
 from .uio import UioController
 from .xlnk import Xlnk
 from .pl import PL
-from .ps import Register
 from .ps import Clocks
 from .gpio import GPIO
 from .devicetree import DeviceTreeSegment
