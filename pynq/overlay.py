@@ -403,13 +403,14 @@ class Overlay(Bitstream):
 
         """
         for i in self.clock_dict:
-            enable = self.clock_dict[i]['enable']
-            div0 = self.clock_dict[i]['divisor0']
-            div1 = self.clock_dict[i]['divisor1']
-            if enable:
-                Clocks.set_pl_clk(i, div0, div1)
-            else:
-                Clocks.set_pl_clk(i)
+            if 'enable' in self.clock_dict[i]:
+                enable = self.clock_dict[i]['enable']
+                div0 = self.clock_dict[i]['divisor0']
+                div1 = self.clock_dict[i]['divisor1']
+                if enable:
+                    Clocks.set_pl_clk(i, div0, div1)
+                else:
+                    Clocks.set_pl_clk(i)
 
         super().download(self.parser)
         if dtbo:

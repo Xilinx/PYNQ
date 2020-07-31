@@ -219,6 +219,38 @@ def _mem_data_to_dict(idx, mem):
         }
 
 
+
+_clock_types = [
+    "UNUSED",
+    "DATA",
+    "KERNEL",
+    "SYSTEM"
+]
+    
+def _clk_data_to_dict(clk_data):
+    """ Create a dictionary of dictionaries 
+    for the clock data. The clocks will be 
+    sorted depending on the clock type.
+    """
+    # Create empty dictionary and initialise index
+    clk_dict = {}
+    idx = 0
+    # Iterate over the different clock types
+    for i in _clock_types:
+        # Iterate over clock data
+        for j, clk in enumerate(clk_data):
+            clk_i = {
+                "name"      : clk.m_name.decode("utf-8"),
+                "frequency" : clk.m_freq_Mhz,
+                "type"      : _clock_types[clk.m_type]}
+            # Add entry to dictionary only if clock type matches and increment index
+            if _clock_types[clk.m_type] is i:
+                clk_dict['clock'+str(idx)] = clk_i
+                idx += 1
+
+    return clk_dict
+
+
 def _xclbin_to_dicts(filename):
     with open(filename, 'rb') as f:
         binfile = bytearray(f.read())
@@ -251,8 +283,16 @@ def _xclbin_to_dicts(filename):
     mem_dict = {memories[i].decode(): _mem_data_to_dict(i, mem)
                 for i, mem in enumerate(mem_data)}
     _add_argument_memory(ip_dict, ip_data, connections, memories)
+    
+    clock_topology = xclbin.clock_freq_topology.from_buffer(
+          sections[xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY])
+           
+    clk_data = _get_object_as_array(clock_topology.m_clock_freq[0],
+                           clock_topology.m_count)
+                   
+    clock_dict = _clk_data_to_dict(clk_data)
 
-    return ip_dict, mem_dict
+    return ip_dict, mem_dict, clock_dict
 
 
 class XclBin:
@@ -279,13 +319,16 @@ class XclBin:
     mem_dict : dict
         All of the memory regions and streaming connections in the design:
         {str: {'used' : bool, 'base_address' : int, 'size' : int, 'idx' : int,\
-               'raw_type' : int, 'tyoe' : str, 'streaming' : bool}}.
+               'raw_type' : int, 'type' : str, 'streaming' : bool}}.
+
+    clock_dict : dict
+        All of the clocks in the design:
+        {str: {'name' : str, 'frequency' : int, 'type' : str}}.
 
     """
     def __init__(self, filename):
-        self.ip_dict, self.mem_dict = _xclbin_to_dicts(filename)
+        self.ip_dict, self.mem_dict, self.clock_dict = _xclbin_to_dicts(filename)
         self.gpio_dict = {}
         self.interrupt_controllers = {}
         self.interrupt_pins = {}
         self.hierarchy_dict = {}
-        self.clock_dict = {}
