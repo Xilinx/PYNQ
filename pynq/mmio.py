@@ -134,7 +134,7 @@ class MMIO:
 
         """
         if length not in [1, 2, 4, 8]:
-            raise ValueError("MMIO currently only supports"
+            raise ValueError("MMIO currently only supports "
                              "1, 2, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
