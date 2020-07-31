@@ -85,11 +85,11 @@ class MMIO:
         self.length = length
 
         if self.device.has_capability('MEMORY_MAPPED'):
-            self.read = self.read_mm
+            self.read = self.read
             self.write = self.write_mm
             self.array = self.device.mmap(base_addr, length)
         elif self.device.has_capability('REGISTER_RW'):
-            self.read = self.read_reg
+            self.read = self.read
             self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
             self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
@@ -97,7 +97,7 @@ class MMIO:
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 
-    def read_mm(self, offset=0, length=4, endianness='little'):
+    def read(self, offset=0, length=4, wordorder='little'):
         """The method to read data from MMIO.
 
         Parameters
@@ -107,21 +107,22 @@ class MMIO:
         length : int
             The length of the data in bytes.
         endiannes : str
-            The endianness of host architecture, only relevant
-            when length == 8.
+            The wordorder of the 8-byte reads:
+            'little' offset + 4 word is msb
+            'big'    offset     word is msb
         Returns
         -------
         list
             A list of data read out from MMIO
 
         """
-        if length not in [1, 2, 3, 4, 8]:
+        if length not in [1, 2, 4, 8]:
             raise ValueError("MMIO currently only supports " \
-                "1, 2, 3, 4 and 8-byte reads.")
+                "1, 2, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
-        if length == 8 and endianness not in ['big', 'little']:
-            raise ValueError("MMIO only supports big and little endian")
+        if length == 8 and wordorder not in ['big', 'little']:
+            raise ValueError("MMIO only supports big and little endian.")
         idx = offset >> 2
         if offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
@@ -129,7 +130,7 @@ class MMIO:
         # Read data out
         lsb = int(self.array[idx])
         if length ==8 :
-            if endianness == 'little':
+            if wordorder == 'little':
                 return ((int(self.array[idx+1])) << 32) + lsb
             else:
                 return (lsb << 32) + int(self.array[idx+1])
@@ -171,45 +172,6 @@ class MMIO:
                 self.array[idx + i] = buf[i]
         else:
             raise ValueError("Data type must be int or bytes.")
-
-    def read_reg(self, offset=0, length=4, endianness='little'):
-        """The method to read data from MMIO.
-
-        Parameters
-        ----------
-        offset : int
-            The read offset from the MMIO base address.
-        length : int
-            The length of the data in bytes.
-        endiannes : str
-            The endianness of host architecture, only relevant
-            when length == 8.
-        Returns
-        -------
-        list
-            A list of data read out from MMIO
-
-        """
-        if length not in [1, 2, 3, 4, 8]:
-            raise ValueError("MMIO currently only supports " \
-                "1, 2, 3, 4 and 8-byte reads.")
-        if offset < 0:
-            raise ValueError("Offset cannot be negative.")
-        if length == 8 and endianness not in ['big', 'little']:
-            raise ValueError("MMIO only supports big and little endian")
-        idx = offset >> 2
-        if offset % 4:
-            raise MemoryError('Unaligned read: offset must be multiple of 4.')
-
-        # Read data out
-        lsb = int(self.array[idx])
-        if length ==8 :
-            if endianness == 'little':
-                return ((int(self.array[idx+1])) << 32) + lsb
-            else:
-                return (lsb << 32) + int(self.array[idx+1])
-        else:
-            return (lsb & ((2**(8*length)) - 1))
 
     def write_reg(self, offset, data):
         """The method to write data to MMIO.
