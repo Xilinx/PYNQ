@@ -15,6 +15,10 @@ TEST_DATA = [
     (16, bytes(range(16)), bytes(range(16)))
 ]
 
+TEST_READ_DATA = [
+    (BASE_ADDRESS + 4, struct.pack('I', 0x12345678)),
+    (BASE_ADDRESS + 8, struct.pack('I', 0xbeefcafe))
+]
 
 @pytest.fixture
 def register_device():
@@ -122,13 +126,19 @@ def test_unaligned_offset_read(device):
            'Unaligned read: offset must be multiple of 4.'
 
 
-def test_long_read(device):
+def test_unsupported_length_read(device):
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
     with pytest.raises(ValueError) as excinfo:
-        mmio.read(4, 8)
+        mmio.read(4, 6)
     assert str(excinfo.value) == \
-           "MMIO currently only supports 4-byte reads."
+           "MMIO currently only supports 1, 2, 4 and 8-byte reads."
 
+def test_bad_endianness_read(device):
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    with pytest.raises(ValueError) as excinfo:
+        mmio.read(4, 8, 'middle')
+    assert str(excinfo.value) == \
+           "MMIO only supports big and little endian."
 
 def test_float_write(device):
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
@@ -149,17 +159,58 @@ def test_oob_read(device):
         mmio.read(ADDR_RANGE)
 
 
-def test_active_device(register_device):
+def test_active_device_4byte_read(register_device):
     device = register_device
     pynq.Device.active_device = device
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
-    testdata = struct.pack('I', 1234)
-    with device.check_transactions([(BASE_ADDRESS + 4, testdata)], []):
+    testdata = struct.pack('I', 0x12345678)
+    with device.check_transactions([TEST_READ_DATA[0]], []):
         read = mmio.read(4)
-    assert read == 1234
+    assert read == 0x12345678
     assert mmio.device == device
     pynq.Device.active_device = None
 
+def test_active_device_2byte_read(register_device):
+    device = register_device
+    pynq.Device.active_device = device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
+    testdata = struct.pack('I', 0x12345678)
+    with device.check_transactions([TEST_READ_DATA[0]], []):
+        read = mmio.read(4,2)
+    assert read == 0x5678
+    assert mmio.device == device
+    pynq.Device.active_device = None
+
+def test_active_device_1byte_read(register_device):
+    device = register_device
+    pynq.Device.active_device = device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
+    testdata = struct.pack('I', 0x12345678)
+    with device.check_transactions([TEST_READ_DATA[0]], []):
+        read = mmio.read(4,1)
+    assert read == 0x78
+    assert mmio.device == device
+    pynq.Device.active_device = None
+
+def test_8byte_littleendian_read(register_device):
+    device = register_device
+    pynq.Device.active_device = device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
+    with device.check_transactions(TEST_READ_DATA, []):
+        read = mmio.read(4,8,'little')
+    assert read == 0xbeefcafe12345678
+    assert mmio.device == device
+    pynq.Device.active_device = None
+
+def test_8byte_bigendian_read(register_device):
+    device = register_device
+    pynq.Device.active_device = device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
+    with device.check_transactions(TEST_READ_DATA, []):
+        read = mmio.read(4,8,'big')
+    assert read == 0x12345678beefcafe
+    assert mmio.device == device
+    pynq.Device.active_device = None
 
 def test_mmap_bad_length_write(mmap_device):
     device = mmap_device
