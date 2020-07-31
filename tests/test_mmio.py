@@ -180,7 +180,6 @@ def test_active_device_2byte_read(register_device):
     device = register_device
     pynq.Device.active_device = device
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
-    testdata = struct.pack('I', 0x12345678)
     with device.check_transactions([TEST_READ_DATA[0]], []):
         read = mmio.read(4, 2)
     assert read == 0x5678
@@ -192,7 +191,6 @@ def test_active_device_1byte_read(register_device):
     device = register_device
     pynq.Device.active_device = device
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
-    testdata = struct.pack('I', 0x12345678)
     with device.check_transactions([TEST_READ_DATA[0]], []):
         read = mmio.read(4, 1)
     assert read == 0x78
