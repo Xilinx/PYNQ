@@ -58,8 +58,8 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
     xml = ElementTree.fromstring(raw_xml)
     ip_dict = {}
     for kernel in xml.findall('platform/device/core/kernel'):
-        if 'hwControlProtocl' in kernel.attrib:
-            control_protocol = kernel.attrib['hwControlProtocl']
+        if 'hwControlProtocol' in kernel.attrib:
+            control_protocol = kernel.attrib['hwControlProtocol']
         else:
             control_protocol = 's_axilite'
         slaves = {n.attrib['name']: n for n in kernel.findall('port[@mode="slave"]')}
@@ -110,12 +110,14 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
             }
         }
         if control_protocol == 'ap_ctrl_chain':
-            registers['fields']['AP_CONTINUE'] = {
+            registers['CTRL']['fields']['AP_CONTINUE'] = {
                 'access': 'read-write',
                 'bit_offset': 4,
                 'bit_width': 1,
                 'description': 'Invoke next iteration of kernel'
             }
+        elif control_protocol == 'ap_ctrl_none':
+            registers = {}
         streams = {}
         for arg in kernel.findall('arg'):
             attrib = arg.attrib
@@ -147,6 +149,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                 'phys_addr': int(instance.find('addrRemap').attrib['base'], 0),
                 'addr_range': addr_size,
                 'type': kernel.attrib['vlnv'],
+                'hw_control_protocol' : kernel.attrib['hwControlProtocol'],
                 'fullpath': instance.attrib['name'],
                 'registers': deepcopy(registers),
                 'streams': deepcopy(streams),
