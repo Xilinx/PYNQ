@@ -353,6 +353,20 @@ class XrtDevice(Device):
         return self._info.mName.decode()
 
     @property
+    def clocks(self):
+        """Runtime clocks. This dictionary provides the actual
+        clock frequencies that the hardware is running at.
+        Frequencies are expressed in Mega Hertz.
+        """
+        clks = {}
+        idx = 0
+        for clk in self._info.mOCLFrequency:
+            if clk is not 0:
+                clks['clock'+str(idx)] = {'frequency': clk}
+                idx +=1
+        return clks
+
+    @property
     def sensors(self):
         from pynq.pmbus import get_xrt_sysfs_rails
         return get_xrt_sysfs_rails(self)
