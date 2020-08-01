@@ -361,7 +361,7 @@ class XrtDevice(Device):
         clks = {}
         idx = 0
         for clk in self._info.mOCLFrequency:
-            if clk is not 0:
+            if clk != 0:
                 clks['clock'+str(idx)] = {'frequency': clk}
                 idx +=1
         return clks
