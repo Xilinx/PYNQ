@@ -183,7 +183,7 @@ void gpio_write(gpio device, unsigned int data){
 
 
 void gpio_close(gpio device){
-    unsigned int mask, low, high, channel, dev_id;
+    unsigned int mask, low, high, channel, dev_id, direction_mask;
     _gpio mod_id;
     mod_id.device = device;
     low = mod_id._gpio.low;
@@ -191,7 +191,9 @@ void gpio_close(gpio device){
     channel = mod_id._gpio.channel;
     dev_id = mod_id._gpio.device;
     mask = (0x1 << (high + 1)) - (0x1 << low);
-    XGpio_DiscreteClear(&xgpio[dev_id], channel, mask);
+    direction_mask = XGpio_GetDataDirection(&xgpio[dev_id], channel);
+    direction_mask |= mask;
+    XGpio_SetDataDirection(&xgpio[dev_id], channel, direction_mask);
 }
 
 
