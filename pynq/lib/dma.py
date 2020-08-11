@@ -29,7 +29,7 @@
 
 from pynq import DefaultIP
 from pynq import UnsupportedConfiguration
-from pynq import Xlnk
+from pynq import allocate
 import numpy
 import warnings
 
@@ -130,7 +130,7 @@ class _SDMAChannel:
         Parameters
         ----------
         array : ContiguousArray
-            An xlnk allocated array to be transferred
+            An contiguously allocated array to be transferred
         start : int
              Offset into array to start. Default is 0.
         nbytes : int
@@ -216,7 +216,7 @@ class _SGDMAChannel:
     through the AxiDMA class.
 
     """
-    def __init__(self, mmio, max_size, width, tx_rx, dre, xlnk, interrupt=None):
+    def __init__(self, mmio, max_size, width, tx_rx, dre, interrupt=None):
         self._mmio = mmio
         self._interrupt = interrupt
         self._max_size = max_size
@@ -236,7 +236,6 @@ class _SGDMAChannel:
         self._transfer_started = False
         self._descr = None
         self._num_descr = 0
-        self._xlnk = xlnk
 
         self.stop()
 
@@ -304,7 +303,7 @@ class _SGDMAChannel:
         Parameters
         ----------
         array : ContiguousArray
-            An xlnk allocated array to be transferred
+            An contiguously allocated array to be transferred
         start : int
              Offset into array to start. Default is 0.
         nbytes : int
@@ -334,7 +333,7 @@ class _SGDMAChannel:
 
         # Zero-Allocate buffer for descriptors: uint32[_num_descr][16]
         # Descriptor is only 52 bytes but each one has to be 64-byte aligned!
-        self._descr = self._xlnk.cma_array(
+        self._descr = allocate(
             shape=(self._num_descr, 16), dtype=numpy.uint32)
 
         # Idle DMA engine
@@ -502,8 +501,6 @@ class DMA(DefaultIP):
         The stream to memory channel  (if enabled in hardware)
     sendchannel : _SDMAChannel / _SGDMAChannel
         The memory to stream channel  (if enabled in hardware)
-    xlnk : Xlnk
-        The Xlnk object used by the DMA object.
     buffer_max_size : int
         The maximum DMA transfer length.
 
@@ -538,10 +535,8 @@ class DMA(DefaultIP):
 
         if 'c_include_sg' in description['parameters']:
             self._sg = bool(int(description['parameters']['c_include_sg']))
-            self.xlnk = Xlnk()
         else:
             self._sg = False
-            self.xlnk = None
 
         if self._micro and self._sg:
             raise UnsupportedConfiguration(
@@ -593,7 +588,6 @@ class DMA(DefaultIP):
                         6,
                         DMA_TYPE_TX,
                         dre,
-                        self.xlnk,
                         self.mm2s_introut)
                 else:
                     self.sendchannel = _SDMAChannel(
@@ -610,8 +604,7 @@ class DMA(DefaultIP):
                         max_size,
                         6,
                         DMA_TYPE_TX,
-                        dre,
-                        self.xlnk)
+                        dre)
                 else:
                     self.sendchannel = _SDMAChannel(
                         self.mmio,
@@ -653,7 +646,6 @@ class DMA(DefaultIP):
                         6,
                         DMA_TYPE_RX,
                         dre,
-                        self.xlnk,
                         self.s2mm_introut)
                 else:
                     self.recvchannel = _SDMAChannel(
@@ -670,8 +662,7 @@ class DMA(DefaultIP):
                         max_size,
                         6,
                         DMA_TYPE_RX,
-                        dre,
-                        self.xlnk)
+                        dre)
                 else:
                     self.recvchannel = _SDMAChannel(
                         self.mmio,
