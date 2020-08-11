@@ -177,6 +177,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 self.ps_name = mod.get('INSTANCE')
                 self.init_clk_dict(mod)
                 self.init_full_ip_dict(mod)
+                self.add_ps_to_ip_dict(mod)
             elif mod_type == 'xlconcat':
                 self.concat_cells[full_path] = mod.find(
                     ".//*[@NAME='NUM_PORTS']").get('VALUE')
@@ -226,6 +227,27 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.partial = False
         self.ip_dict = {}
         self._parse_ip_dict(mod, 'SLAVEBUSINTERFACE')
+
+    def add_ps_to_ip_dict(self, mod):
+        """Add the PS block to the IP dict.
+
+        The processing system (PS) block is a special case where we want to
+        include it as well in the IP dict. We only care about the parameters
+        specified in the PS block, and hopefully we can adjust some of the
+        parameters by changing register values.
+
+        Parameters
+        ----------
+        mod : Element
+            The current PS instance under parsing.
+
+        """
+        full_name, vlnv, pars, _ = self.instance2attr[mod.get('INSTANCE')]
+        self.ip_dict[full_name] = {}
+        self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
+                                                 j.get('VALUE')
+                                                 for j in pars}
+        self.ip_dict[full_name]['type'] = vlnv
 
     def _parse_ip_dict(self, mod, mem_intf_id):
         to_pop = set()
@@ -360,7 +382,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.mem_dict[self.ps_name] = {
             'raw_type': None,
             'used': 1,
-            'base_address':0,
+            'base_address': 0,
             'size': Xlnk.cma_mem_size(None),
             'type': 'PSDDR',
             'streaming': False
