@@ -31,7 +31,7 @@ from pynq import DefaultIP
 from pynq import UnsupportedConfiguration
 from pynq import allocate
 import numpy
-import warnings
+
 
 __author__ = 'Peter Ogden, Anurag Dubey'
 __copyright__ = 'Copyright 2017, Xilinx'
@@ -57,12 +57,30 @@ class _SDMAChannel:
 
     """
     def __init__(self, mmio, max_size, width, tx_rx, dre, interrupt=None):
+        """Initialize the simple DMA object.
+
+        Parameters
+        ----------
+        mmio : MMIO
+            The MMIO controller used for DMA IP.
+        max_size : int
+            Max size of the DMA buffer. Exceeding this will hang the system.
+        width : int
+            Number of bytes for each data.
+        tx_rx : int
+            Set to DMA_TYPE_TX(1) for sending or DMA_TYPE_RX(0) for receiving.
+        dre : bool
+            Data alignment enable.
+        interrupt: Interrupt
+            Interrupt used by the DMA channel.
+
+        """
         self._mmio = mmio
         self._interrupt = interrupt
         self._max_size = max_size
         self._active_buffer = None
         self._first_transfer = True
-        self._align = 1 << int(width)
+        self._align = width
         self._tx_rx = tx_rx
         self._dre = dre
 
@@ -127,6 +145,19 @@ class _SDMAChannel:
         Transfer must only be called when the channel is idle.
         For `nbytes`, 0 means everything after the starting point.
 
+        If the AXI DMA is not configured for data re-alignment then a
+        valid address must be aligned or undefined results occur.
+
+        For MM2S (send), if Data Realignment Engine (DRE) is not included,
+        the source address must be MM2S memory map data width aligned.
+
+        For S2MM (recv), if Data Realignment Engine is not included,
+        the destination address must be S2MM Memory Map data width aligned.
+
+        For example, if memory map data width = 32, data is aligned if it is
+        located at word offsets (32-bit offset), that is, 0x0, 0x4, 0x8, 0xC,
+        and so forth.
+
         Parameters
         ----------
         array : ContiguousArray
@@ -147,11 +178,12 @@ class _SDMAChannel:
             raise ValueError('Transfer size is {} bytes, which exceeds '
                              'the maximum DMA buffer size {}.'.format(
                               nbytes, self._max_size))
-        # In simple mode, start address must be data bus width aligned.
+
         if not self._dre and \
                 ((array.physical_address + start) % self._align) != 0:
             raise RuntimeError('DMA does not support unaligned transfers; '
-                               'Starting address must be 64-byte aligned!')
+                               'Starting address must be aligned to '
+                               '{} bytes.'.format(self._align))
         if self._flush_before:
             array.flush()
         self.transferred = 0
@@ -217,11 +249,29 @@ class _SGDMAChannel:
 
     """
     def __init__(self, mmio, max_size, width, tx_rx, dre, interrupt=None):
+        """Initialize the simple DMA object.
+
+        Parameters
+        ----------
+        mmio : MMIO
+            The MMIO controller used for DMA IP.
+        max_size : int
+            Max size of the DMA buffer. Exceeding this will hang the system.
+        width : int
+            Number of bytes for each data.
+        tx_rx : int
+            Set to DMA_TYPE_TX(1) for sending or DMA_TYPE_RX(0) for receiving.
+        dre : bool
+            Data alignment enable.
+        interrupt: Interrupt
+            Interrupt used by the DMA channel.
+
+        """
         self._mmio = mmio
         self._interrupt = interrupt
         self._max_size = max_size
         self._active_buffer = None
-        self._align = 1 << int(width)
+        self._align = width
         self._tx_rx = tx_rx
         self._dre = dre
 
@@ -300,6 +350,19 @@ class _SGDMAChannel:
         Transfer must only be called when the channel is halted
         For `nbytes`, 0 means everything after the starting point.
 
+        If the AXI DMA is not configured for data re-alignment then a
+        valid address must be aligned or undefined results occur.
+
+        For MM2S (send), if Data Realignment Engine (DRE) is not included,
+        the source address must be MM2S memory map data width aligned.
+
+        For S2MM (recv), if Data Realignment Engine is not included,
+        the destination address must be S2MM Memory Map data width aligned.
+
+        For example, if memory map data width = 32, data is aligned if it is
+        located at word offsets (32-bit offset), that is, 0x0, 0x4, 0x8, 0xC,
+        and so forth.
+
         Parameters
         ----------
         array : ContiguousArray
@@ -318,7 +381,8 @@ class _SGDMAChannel:
         if not self._dre and \
                 ((array.physical_address + start) % self._align) != 0:
             raise RuntimeError('DMA does not support unaligned transfers; '
-                               'Starting address must be 64-byte aligned!')
+                               'Starting address must be aligned to '
+                               '{} bytes.'.format(self._align))
 
         # Figure out largest possible block size, and no. of descriptors needed
         remain = nbytes
@@ -572,7 +636,7 @@ class DMA(DefaultIP):
                 dre = False
 
             data_width = int(
-                self.description['parameters']['c_m_axi_mm2s_data_width']) / 8
+                self.description['parameters']['c_m_axi_mm2s_data_width']) >> 3
 
             if self._micro:
                 max_size = data_width * int(
@@ -630,7 +694,7 @@ class DMA(DefaultIP):
                 dre = False
 
             data_width = int(
-                self.description['parameters']['c_m_axi_s2mm_data_width']) / 8
+                self.description['parameters']['c_m_axi_s2mm_data_width']) >> 3
 
             if self._micro:
                 max_size = data_width * int(
