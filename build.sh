@@ -34,6 +34,7 @@ build_bitstreams () {
 			echo "skipping bitstream $ol.bit for $board"
 		else
 			echo "building bitstream $ol.bit for $board"
+			make clean
 			make
 		fi
 	done
