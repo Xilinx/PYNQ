@@ -29,9 +29,9 @@
 
 from pynq import DefaultIP
 from pynq import UnsupportedConfiguration
-from pynq import Xlnk
+from pynq import allocate
 import numpy
-import warnings
+
 
 __author__ = 'Peter Ogden, Anurag Dubey'
 __copyright__ = 'Copyright 2017, Xilinx'
@@ -41,6 +41,7 @@ __email__ = 'pynq_support@xilinx.com'
 MAX_C_SG_LENGTH_WIDTH = 26
 DMA_TYPE_TX = 1
 DMA_TYPE_RX = 0
+
 
 class _SDMAChannel:
     """Drives a single channel of the Xilinx AXI Simple DMA
@@ -56,16 +57,34 @@ class _SDMAChannel:
 
     """
     def __init__(self, mmio, max_size, width, tx_rx, dre, interrupt=None):
+        """Initialize the simple DMA object.
+
+        Parameters
+        ----------
+        mmio : MMIO
+            The MMIO controller used for DMA IP.
+        max_size : int
+            Max size of the DMA buffer. Exceeding this will hang the system.
+        width : int
+            Number of bytes for each data.
+        tx_rx : int
+            Set to DMA_TYPE_TX(1) for sending or DMA_TYPE_RX(0) for receiving.
+        dre : bool
+            Data alignment enable.
+        interrupt: Interrupt
+            Interrupt used by the DMA channel.
+
+        """
         self._mmio = mmio
         self._interrupt = interrupt
         self._max_size = max_size
         self._active_buffer = None
         self._first_transfer = True
-        self._align = 1 << int(width)
+        self._align = width
         self._tx_rx = tx_rx
         self._dre = dre
 
-        if (tx_rx == DMA_TYPE_RX):
+        if tx_rx == DMA_TYPE_RX:
             self._offset = 0x30
             self._flush_before = False
         else:
@@ -102,7 +121,7 @@ class _SDMAChannel:
 
         """
         if self._interrupt:
-            self._mmio.write(self._offset, 0x1001) # XXX what about errors?
+            self._mmio.write(self._offset, 0x1001)
         else:
             self._mmio.write(self._offset, 0x0001)
         while not self.running:
@@ -118,21 +137,35 @@ class _SDMAChannel:
             pass
 
     def _clear_interrupt(self):
-        self._mmio.write(self._offset + 4, 0x1000) # XXX what about errors?
+        self._mmio.write(self._offset + 4, 0x1000)
 
     def transfer(self, array, start=0, nbytes=0):
         """Transfer memory with the DMA
 
         Transfer must only be called when the channel is idle.
+        For `nbytes`, 0 means everything after the starting point.
+
+        If the AXI DMA is not configured for data re-alignment then a
+        valid address must be aligned or undefined results occur.
+
+        For MM2S (send), if Data Realignment Engine (DRE) is not included,
+        the source address must be MM2S memory map data width aligned.
+
+        For S2MM (recv), if Data Realignment Engine is not included,
+        the destination address must be S2MM Memory Map data width aligned.
+
+        For example, if memory map data width = 32, data is aligned if it is
+        located at word offsets (32-bit offset), that is, 0x0, 0x4, 0x8, 0xC,
+        and so forth.
 
         Parameters
         ----------
         array : ContiguousArray
-            An xlnk allocated array to be transferred
-        start : integer (optional, default 0)
-             Offset into array to start
-        nbytes : integer (optional, default 0)
-             Number of bytes to transfer.  0 means everything after the starting point.
+            An contiguously allocated array to be transferred
+        start : int
+             Offset into array to start. Default is 0.
+        nbytes : int
+             Number of bytes to transfer. Default is 0.
 
         """
         if not self.running:
@@ -141,19 +174,25 @@ class _SDMAChannel:
             raise RuntimeError('DMA channel not idle')
         if nbytes == 0:
             nbytes = array.nbytes - start
-        if (nbytes > self._max_size):
+        if nbytes > self._max_size:
             raise ValueError('Transfer size is {} bytes, which exceeds '
                              'the maximum DMA buffer size {}.'.format(
                               nbytes, self._max_size))
-        # In simple mode, start address must be data bus width aligned.
-        if not self._dre and ((array.physical_address + start) % self._align) != 0:
+
+        if not self._dre and \
+                ((array.physical_address + start) % self._align) != 0:
             raise RuntimeError('DMA does not support unaligned transfers; '
-                               'Starting address must be 64-byte aligned!')
+                               'Starting address must be aligned to '
+                               '{} bytes.'.format(self._align))
         if self._flush_before:
             array.flush()
         self.transferred = 0
-        self._mmio.write(self._offset + 0x18, (array.physical_address + start) & 0xffffffff)
-        self._mmio.write(self._offset + 0x1C, ((array.physical_address + start) >> 32) & 0xffffffff)
+        self._mmio.write(
+            self._offset + 0x18,
+            (array.physical_address + start) & 0xffffffff)
+        self._mmio.write(
+            self._offset + 0x1C,
+            ((array.physical_address + start) >> 32) & 0xffffffff)
         self._mmio.write(self._offset + 0x28, nbytes)
         self._active_buffer = array
         self._first_transfer = False
@@ -168,11 +207,14 @@ class _SDMAChannel:
             error = self._mmio.read(self._offset + 4)
             if self.error:
                 if error & 0x10:
-                    raise RuntimeError('DMA Internal Error (transfer length 0?)')
+                    raise RuntimeError(
+                        'DMA Internal Error (transfer length 0?)')
                 if error & 0x20:
-                    raise RuntimeError('DMA Slave Error (cannot access memory map interface)')
+                    raise RuntimeError(
+                        'DMA Slave Error (cannot access memory map interface)')
                 if error & 0x40:
-                    raise RuntimeError('DMA Decode Error (invalid address)')
+                    raise RuntimeError(
+                        'DMA Decode Error (invalid address)')
             if self.idle:
                 break
         if not self._flush_before:
@@ -187,11 +229,11 @@ class _SDMAChannel:
             raise RuntimeError('DMA channel not started')
         while not self.idle:
             await self._interrupt.wait()
-            # XXX error handling
         self._clear_interrupt()
         if not self._flush_before:
             self._active_buffer.invalidate()
         self.transferred = self._mmio.read(self._offset + 0x28)
+
 
 class _SGDMAChannel:
     """Drives a single channel of the Xilinx AXI Scatter-Gather DMA
@@ -206,16 +248,34 @@ class _SGDMAChannel:
     through the AxiDMA class.
 
     """
-    def __init__(self, mmio, max_size, width, tx_rx, dre, xlnk, interrupt=None):
+    def __init__(self, mmio, max_size, width, tx_rx, dre, interrupt=None):
+        """Initialize the simple DMA object.
+
+        Parameters
+        ----------
+        mmio : MMIO
+            The MMIO controller used for DMA IP.
+        max_size : int
+            Max size of the DMA buffer. Exceeding this will hang the system.
+        width : int
+            Number of bytes for each data.
+        tx_rx : int
+            Set to DMA_TYPE_TX(1) for sending or DMA_TYPE_RX(0) for receiving.
+        dre : bool
+            Data alignment enable.
+        interrupt: Interrupt
+            Interrupt used by the DMA channel.
+
+        """
         self._mmio = mmio
         self._interrupt = interrupt
         self._max_size = max_size
         self._active_buffer = None
-        self._align = 1 << int(width)
+        self._align = width
         self._tx_rx = tx_rx
         self._dre = dre
 
-        if (tx_rx == DMA_TYPE_RX):
+        if tx_rx == DMA_TYPE_RX:
             self._offset = 0x30
             self._flush_before = False
         else:
@@ -223,11 +283,10 @@ class _SGDMAChannel:
             self._flush_before = True
 
         self.transferred = 0
+        self._transfer_started = False
         self._descr = None
-        self._xlnk = xlnk
+        self._num_descr = 0
 
-        # Ensure engine is stopped
-        # XXX bail if busy?
         self.stop()
 
     @property
@@ -266,7 +325,7 @@ class _SGDMAChannel:
 
         """
         if self._interrupt:
-            self._mmio.write(self._offset, 0x1001) # XXX What about ERRORs?
+            self._mmio.write(self._offset, 0x1001)
         else:
             self._mmio.write(self._offset, 0x0001)
         while not self.running:
@@ -283,21 +342,35 @@ class _SGDMAChannel:
         self._transfer_started = False
 
     def _clear_interrupt(self):
-        self._mmio.write(self._offset + 4, 0x1000) # XXX ERRORs!
+        self._mmio.write(self._offset + 4, 0x1000)
 
     def transfer(self, array, start=0, nbytes=0):
         """Transfer memory with the DMA
 
         Transfer must only be called when the channel is halted
+        For `nbytes`, 0 means everything after the starting point.
+
+        If the AXI DMA is not configured for data re-alignment then a
+        valid address must be aligned or undefined results occur.
+
+        For MM2S (send), if Data Realignment Engine (DRE) is not included,
+        the source address must be MM2S memory map data width aligned.
+
+        For S2MM (recv), if Data Realignment Engine is not included,
+        the destination address must be S2MM Memory Map data width aligned.
+
+        For example, if memory map data width = 32, data is aligned if it is
+        located at word offsets (32-bit offset), that is, 0x0, 0x4, 0x8, 0xC,
+        and so forth.
 
         Parameters
         ----------
         array : ContiguousArray
-            An xlnk allocated array to be transferred
-        start : integer (optional, default 0)
-             Offset into array to start
-        nbytes : integer (optional, default 0)
-             Number of bytes to transfer.  0 means everything after the starting point.
+            An contiguously allocated array to be transferred
+        start : int
+             Offset into array to start. Default is 0.
+        nbytes : int
+             Number of bytes to transfer. Default is 0.
 
         """
 
@@ -305,55 +378,63 @@ class _SGDMAChannel:
             raise RuntimeError('DMA channel not halted')
         if nbytes == 0:
             nbytes = array.nbytes - start
-        if not self._dre and ((array.physical_address + start) % self._align) != 0:
+        if not self._dre and \
+                ((array.physical_address + start) % self._align) != 0:
             raise RuntimeError('DMA does not support unaligned transfers; '
-                               'Starting address must be 64-byte aligned!')
+                               'Starting address must be aligned to '
+                               '{} bytes.'.format(self._align))
 
-        # Figure out largest possible block size, and the number of descriptors needed
+        # Figure out largest possible block size, and no. of descriptors needed
         remain = nbytes
-        blkSize = self._max_size - (self._max_size % self._align)
+        blk_size = self._max_size - (self._max_size % self._align)
 
         # We need to always have at least two descriptors!
-        if blkSize > remain:
-            blkSize = int(remain / 2)
-            blkSize -= (blkSize % self._align)
+        if blk_size > remain:
+            blk_size = int(remain / 2)
+            blk_size -= (blk_size % self._align)
 
-        self._nDesc = int((remain + (blkSize - 1)) / blkSize)
+        self._num_descr = int((remain + (blk_size - 1)) / blk_size)
 
-        # Zero-Allocate buffer for descriptors: uint32[nDesc][16]
+        # Zero-Allocate buffer for descriptors: uint32[_num_descr][16]
         # Descriptor is only 52 bytes but each one has to be 64-byte aligned!
-        self._descr = self._xlnk.cma_array(shape=(self._nDesc,16),dtype=numpy.uint32)
+        self._descr = allocate(
+            shape=(self._num_descr, 16), dtype=numpy.uint32)
 
         # Idle DMA engine
         self.stop()
 
         # Fill out descriptors
-        for i in range(0,self._nDesc):
+        for i in range(0, self._num_descr):
             # Next descriptor (64-bit)
-            self._descr[i, 0] = (self._descr.physical_address + (((i + 1) % self._nDesc) * 16 * 4)) & 0xffffffff
-            self._descr[i, 1] = (self._descr.physical_address + (((i + 1) % self._nDesc) * 16 * 4) >> 32) & 0xffffffff
-
+            self._descr[i, 0] = \
+                (self._descr.physical_address +
+                 (((i + 1) % self._num_descr) * 16 * 4)) & 0xffffffff
+            self._descr[i, 1] = \
+                (self._descr.physical_address +
+                 (((i + 1) % self._num_descr) * 16 * 4) >> 32) & 0xffffffff
 
             # Buffer length
-            if (remain > blkSize):
-                dLen = blkSize
+            if remain > blk_size:
+                d_len = blk_size
             else:
-                dLen = remain
-            self._descr[i, 6] = dLen
+                d_len = remain
+            self._descr[i, 6] = d_len
 
-            remain -= dLen
+            remain -= d_len
 
             # Buffer address (64-bit)
-            self._descr[i, 2] = (array.physical_address + (i * blkSize)) & 0xffffffff
-            self._descr[i, 3] = ((array.physical_address + (i * blkSize)) >> 32) & 0xffffffff
+            self._descr[i, 2] = \
+                (array.physical_address + (i * blk_size)) & 0xffffffff
+            self._descr[i, 3] = \
+                ((array.physical_address + (i * blk_size)) >> 32) & 0xffffffff
 
             # First block
             if i == 0:
-                self._descr[i, 6] |= (1 << 27) # SoF (Micro mode only?)
+                self._descr[i, 6] |= (1 << 27)
 
             # Last Block
             if remain == 0:
-                self._descr[i, 6] |= (1 << 26) # EoF (Micro mode only?)
+                self._descr[i, 6] |= (1 << 26)
 
         if self._flush_before:
             array.flush()
@@ -361,9 +442,11 @@ class _SGDMAChannel:
         # Flush DMA descriptors
         self._descr.flush()
 
-        # Write firstdesc
-        self._mmio.write(self._offset + 0x08, self._descr.physical_address & 0xffffffff)
-        self._mmio.write(self._offset + 0x0c, (self._descr.physical_address >> 32) & 0xffffffff)
+        # Write first desc
+        self._mmio.write(self._offset + 0x08,
+                         self._descr.physical_address & 0xffffffff)
+        self._mmio.write(self._offset + 0x0c,
+                         (self._descr.physical_address >> 32) & 0xffffffff)
 
         self._active_buffer = array
 
@@ -372,8 +455,14 @@ class _SGDMAChannel:
         self.start()
 
         # Writing last desc triggers the descriptor fetches
-        self._mmio.write(self._offset + 0x10, (self._descr.physical_address + ((self._nDesc -1) * 16 * 4)) & 0xffffffff)
-        self._mmio.write(self._offset + 0x14, ((self._descr.physical_address + ((self._nDesc -1) * 16 * 4)) >> 32) & 0xffffffff)
+        self._mmio.write(
+            self._offset + 0x10,
+            (self._descr.physical_address +
+             ((self._num_descr - 1) * 16 * 4)) & 0xffffffff)
+        self._mmio.write(
+            self._offset + 0x14,
+            ((self._descr.physical_address +
+              ((self._num_descr - 1) * 16 * 4)) >> 32) & 0xffffffff)
 
     def wait(self):
         """Wait for the transfer to complete
@@ -385,17 +474,26 @@ class _SGDMAChannel:
             if self.error:
                 error = self._mmio.read(self._offset + 4)
                 if error & 0x10:
-                    raise RuntimeError('DMA Internal Error (transfer length 0?)')
+                    raise RuntimeError(
+                        'DMA Internal Error (transfer length 0?)')
                 if error & 0x20:
-                    raise RuntimeError('DMA Slave Error (cannot access memory map interface)')
+                    raise RuntimeError(
+                        'DMA Slave Error (cannot access memory map interface)')
                 if error & 0x40:
-                    raise RuntimeError('DMA Decode Error (invalid address)')
+                    raise RuntimeError(
+                        'DMA Decode Error (invalid address)')
                 if error & 0x100:
-                    raise RuntimeError('Scatter-Gather Internal Error (re-used completed descriptor)')
+                    raise RuntimeError(
+                        'Scatter-Gather Internal Error '
+                        '(re-used completed descriptor)')
                 if error & 0x200:
-                    raise RuntimeError('Scatter-Gather Slave Error (cannot access memory map interface)')
+                    raise RuntimeError(
+                        'Scatter-Gather Slave Error '
+                        '(cannot access memory map interface)')
                 if error & 0x400:
-                    raise RuntimeError('Scatter-Gather Decode Error (invalid descriptor address)')
+                    raise RuntimeError(
+                        'Scatter-Gather Decode Error '
+                        '(invalid descriptor address)')
             if self.idle or self.halted:
                 break
         if not self._flush_before:
@@ -404,10 +502,10 @@ class _SGDMAChannel:
         # Work out transferred length
         self._descr.flush()
         self.transferred = 0
-        for i in range(0,self._nDesc):
-            # XXX if micro mode, this doesn't apply.  Count descriptors instead.
-            if self._descr[i,7] & 0x30000000:
-                raise RuntimeError('DMA Error in descriptor') # XXX Fill in details
+        for i in range(0, self._num_descr):
+            # XXX if micro mode, this doesn't apply. Count descriptors instead.
+            if self._descr[i, 7] & 0x30000000:
+                raise RuntimeError('DMA Error in descriptor')
             self.transferred += self._descr[i, 7] & 0x03ffffff
 
         # Ensure engine is idled
@@ -432,10 +530,10 @@ class _SGDMAChannel:
         # Work out transferred length
         self._descr.flush()
         self.transferred = 0
-        for i in range(0,self._nDesc):
+        for i in range(0, self._num_descr):
             # XXX if micro mode, this doesn't apply.  Count descriptors instead.
-            if self._descr[i,7] & 0x30000000:
-                raise RuntimeError('DMA Error in descriptor')  # XXX fill in details
+            if self._descr[i, 7] & 0x30000000:
+                raise RuntimeError('DMA Error in descriptor')
             self.transferred += self._descr[i, 7] & 0x03ffffff
 
         # Ensure engine is idled
@@ -444,6 +542,7 @@ class _SGDMAChannel:
         # Clean up descriptor buffer
         self._descr.close()
         self._descr = None
+
 
 class DMA(DefaultIP):
     """Class for Interacting with the AXI Simple DMA Engine
@@ -462,14 +561,19 @@ class DMA(DefaultIP):
 
     Attributes
     ----------
-    recvchannel : _SDMAChannel or _SGDMAChannel
+    recvchannel : _SDMAChannel / _SGDMAChannel
         The stream to memory channel  (if enabled in hardware)
-    sendchannel : _SDMAChannel or _SGDMAChannel
+    sendchannel : _SDMAChannel / _SGDMAChannel
         The memory to stream channel  (if enabled in hardware)
+    buffer_max_size : int
+        The maximum DMA transfer length.
 
     """
     def __init__(self, description, *args, **kwargs):
         """Create an instance of the DMA Driver
+
+        For DMA, max transfer length is (2^sg_length_width -1).
+        See PG021 tables 2-15, 2-25, 2-31 and 2-38.
 
         Parameters
         ----------
@@ -482,107 +586,153 @@ class DMA(DefaultIP):
                                'has been deprecated and moved to '
                                'pynq.lib.deprecated')
         super().__init__(description=description)
+        self.description = description
 
-        # If we can't look this stuff up, then simply bail.
         if 'parameters' not in description:
-            message = 'unable to get parameters in description; ' \
-                'users should really use *.hwh files for overlays.'
-            raise RuntimeError('Unable to get paramters from description; '
-                               'Users must use *.hwh files for overlays.');
+            raise RuntimeError('Unable to get parameters from description; '
+                               'Users must use *.hwh files for overlays.')
 
         if 'c_micro_dma' in description['parameters']:
-            self._micro = bool(int(description['parameters']['c_micro_dma']));
+            self._micro = bool(int(description['parameters']['c_micro_dma']))
         else:
             self._micro = False
 
         if 'c_include_sg' in description['parameters']:
-            self._sg = bool(int(description['parameters']['c_include_sg']));
-            xlnk = Xlnk()
+            self._sg = bool(int(description['parameters']['c_include_sg']))
         else:
             self._sg = False
 
         if self._micro and self._sg:
-            raise UnsupportedConfiguration('Micro and Scatter-gather modes not supported simultaneously.')
+            raise UnsupportedConfiguration(
+                'Micro and Scatter-gather modes not supported simultaneously.')
 
         if 'c_sg_length_width' in description['parameters']:
-            self.buffer_max_size = 1 << int(description['parameters']['c_sg_length_width'])
+            self.buffer_max_size = 1 << int(
+                description['parameters']['c_sg_length_width'])
         else:
             self.buffer_max_size = 1 << MAX_C_SG_LENGTH_WIDTH
 
-        # Max transfer length is actually 2^sg_length_width -1  (See PG021 tables 2-15, 2-25, 2-31 and 2-38)
         self.buffer_max_size -= 1
 
-        # Set up Transmit DMA channel, if enabled
-        if 'c_include_mm2s' in description['parameters'] and bool(int(description['parameters']['c_include_mm2s'])):
-            if 'c_include_mm2s_dre' in description['parameters']:
-                dre = bool(int(description['parameters']['c_include_mm2s_dre']))
+        self.sendchannel = None
+        self.recvchannel = None
+        self.set_up_tx_channel()
+        self.set_up_rx_channel()
+
+    def set_up_tx_channel(self):
+        """Set up the transmit channel.
+
+        If transmit channel is enabled, we will work out the max transfer
+        size first. Then depending on (1) whether interrupt is enabled,
+        and (2) whether SG mode is used, we will create the transmit channel.
+
+        """
+        if 'c_include_mm2s' in self.description['parameters'] and \
+                bool(int(self.description['parameters']['c_include_mm2s'])):
+            if 'c_include_mm2s_dre' in self.description['parameters']:
+                dre = bool(int(
+                    self.description['parameters']['c_include_mm2s_dre']))
             else:
-                dre = False;
+                dre = False
 
-            data_width = int(description['parameters']['c_m_axi_mm2s_data_width']) / 8
+            data_width = int(
+                self.description['parameters']['c_m_axi_mm2s_data_width']) >> 3
 
-            # Work out max transfer size:
             if self._micro:
-                max_size = data_width * int(description['parameters']['c_mm2s_burst_size'])
+                max_size = data_width * int(
+                    self.description['parameters']['c_mm2s_burst_size'])
             else:
                 max_size = self.buffer_max_size
 
-            # Create the channel
-            if 'mm2s_introut' in description['interrupts']:
+            if 'mm2s_introut' in self.description['interrupts']:
                 if self._sg:
-                    self.sendchannel = _SGDMAChannel(self.mmio,
-                                                     max_size, 6,
-                                                     DMA_TYPE_TX, dre, xlnk,
-                                                     self.mm2s_introut)
+                    self.sendchannel = _SGDMAChannel(
+                        self.mmio,
+                        max_size,
+                        6,
+                        DMA_TYPE_TX,
+                        dre,
+                        self.mm2s_introut)
                 else:
-                    self.sendchannel = _SDMAChannel(self.mmio,
-                                                    max_size, data_width,
-                                                    DMA_TYPE_TX, dre,
-                                                    self.mm2s_introut)
+                    self.sendchannel = _SDMAChannel(
+                        self.mmio,
+                        max_size,
+                        data_width,
+                        DMA_TYPE_TX,
+                        dre,
+                        self.mm2s_introut)
             else:
                 if self._sg:
-                    self.sendchannel = _SGDMAChannel(self.mmio,
-                                                     max_size, 6,
-                                                     DMA_TYPE_TX, dre, xlnk)
+                    self.sendchannel = _SGDMAChannel(
+                        self.mmio,
+                        max_size,
+                        6,
+                        DMA_TYPE_TX,
+                        dre)
                 else:
-                    self.sendchannel = _SDMAChannel(self.mmio,
-                                                    max_size, data_width,
-                                                    DMA_TYPE_TX, dre)
+                    self.sendchannel = _SDMAChannel(
+                        self.mmio,
+                        max_size,
+                        data_width,
+                        DMA_TYPE_TX,
+                        dre)
 
-        # Set up Receive DMA channel, if enabled
-        if 'c_include_s2mm' in description['parameters'] and bool(int(description['parameters']['c_include_s2mm'])):
-            if 'c_include_s2mm_dre' in description['parameters']:
-                dre = bool(int(description['parameters']['c_include_s2mm_dre']))
+    def set_up_rx_channel(self):
+        """Set up the receive channel.
+
+        If receive channel is enabled, we will work out the max transfer
+        size first. Then depending on (1) whether interrupt is enabled,
+        and (2) whether SG mode is used, we will create the receive channel.
+
+        """
+        if 'c_include_s2mm' in self.description['parameters'] and \
+                bool(int(self.description['parameters']['c_include_s2mm'])):
+            if 'c_include_s2mm_dre' in self.description['parameters']:
+                dre = bool(int(
+                    self.description['parameters']['c_include_s2mm_dre']))
             else:
-                dre = False;
+                dre = False
 
-            data_width = int(description['parameters']['c_m_axi_s2mm_data_width']) / 8
+            data_width = int(
+                self.description['parameters']['c_m_axi_s2mm_data_width']) >> 3
 
-            # Work out max transfer size:
             if self._micro:
-                max_size = data_width * int(description['parameters']['c_s2mm_burst_size'])
+                max_size = data_width * int(
+                    self.description['parameters']['c_s2mm_burst_size'])
             else:
                 max_size = self.buffer_max_size
 
-            if 's2mm_introut' in description['interrupts']:
+            if 's2mm_introut' in self.description['interrupts']:
                 if self._sg:
-                    self.recvchannel = _SGDMAChannel(self.mmio,
-                                                     max_size, 6,
-                                                     DMA_TYPE_RX, dre, xlnk,
-                                                     self.s2mm_introut)
+                    self.recvchannel = _SGDMAChannel(
+                        self.mmio,
+                        max_size,
+                        6,
+                        DMA_TYPE_RX,
+                        dre,
+                        self.s2mm_introut)
                 else:
-                    self.recvchannel = _SDMAChannel(self.mmio,
-                                                    max_size, data_width,
-                                                    DMA_TYPE_RX, dre,
-                                                    self.s2mm_introut)
+                    self.recvchannel = _SDMAChannel(
+                        self.mmio,
+                        max_size,
+                        data_width,
+                        DMA_TYPE_RX,
+                        dre,
+                        self.s2mm_introut)
             else:
                 if self._sg:
-                    self.recvchannel = _SGDMAChannel(self.mmio,
-                                                     max_size, 6,
-                                                     DMA_TYPE_RX, dre, xlnk)
+                    self.recvchannel = _SGDMAChannel(
+                        self.mmio,
+                        max_size,
+                        6,
+                        DMA_TYPE_RX,
+                        dre)
                 else:
-                    self.recvchannel = _SDMAChannel(self.mmio,
-                                                    max_size, data_width,
-                                                    DMA_TYPE_RX, dre)
+                    self.recvchannel = _SDMAChannel(
+                        self.mmio,
+                        max_size,
+                        data_width,
+                        DMA_TYPE_RX,
+                        dre)
 
     bindto = ['xilinx.com:ip:axi_dma:7.1']
