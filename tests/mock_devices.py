@@ -47,8 +47,14 @@ class MockMemoryMappedDevice(MockDeviceBase):
         self.regions = {}
 
     def mmap(self, base_addr, length):
-        if (base_addr, length) in self.regions:
-            return self.regions[(base_addr, length)]
+        for (region_base, region_length), region in self.regions.items():
+            if (base_addr >= region_base and
+                base_addr < region_base + region_length):
+                if base_addr + length <= region_base + region_length:
+                    offset = base_addr - region_base
+                    return np.frombuffer(region,dtype='u1', offset=offset, count=length)
+                else:
+                    raise RuntimeError("Map failed - allocate largest region first")
         buf = bytearray(length)
         self.regions[(base_addr, length)] = buf
         return np.frombuffer(buf, dtype='u4')
