@@ -83,6 +83,7 @@ foreach mb $processors {
         set firstbram [lindex $brams 0]
         bsp config stdin $firstbram
         bsp config stdout $firstbram
+        bsp config compiler_flags "-mcpu=v11.0 -mlittle-endian -mxl-soft-mul"
         bsp regenerate
         file copy "[pwd]/lscript.ld" $bsp/${mb}/standalone_domain/bsp
     } else {
