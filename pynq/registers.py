@@ -204,7 +204,7 @@ class Register:
                 raise ValueError("Value to be set should be either 0 or 1.")
             self._debug("Setting bit {} at address {} to {}"
                         .format(lower, hex(self.address), value))
-            mask = 1 << index
+            mask = 1 << lower
             curr_val = int(self._buffer[0])
             self._buffer[0] = (curr_val & ~mask) | (value << lower)
         else:

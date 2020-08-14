@@ -17,6 +17,10 @@ TEST_VECTORS = {
         (32, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
     "single-bit-clear-32":
         (32, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1),
+    "single-bit-range-set-32":
+        (32, 0x0000_0000, slice(4, 4), 1, 0, 0x0000_0010, 1),
+    "single-bit-range-clear-32":
+        (32, 0x0000_0010, slice(4, 4), 0, 1, 0x0000_0000, 1),
     "multi-bit-set-32":
         (32, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
     "multi-bit-clear-32":
@@ -56,6 +60,10 @@ TEST_VECTORS = {
         (64, 0x0000_0000, 4, 1, 0, 0x0000_0010, 1),
     "single-bit-clear-64":
         (64, 0x0000_0010, 4, 0, 1, 0x0000_0000, 1),
+    "single-bit-range-set-64":
+        (64, 0x0000_0000, slice(4, 4), 1, 0, 0x0000_0010, 1),
+    "single-bit-range-clear-64":
+        (64, 0x0000_0010, slice(4, 4), 0, 1, 0x0000_0000, 1),
     "multi-bit-set-64":
         (64, 0x0000_0000, slice(7, 4), 0xF, 0, 0x0000_00F0, 4),
     "multi-bit-clear-64":

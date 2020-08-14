@@ -36,7 +36,7 @@ rm $SYSROOT_IMAGE
 trap unmount_delete EXIT
 
 # Fixup symlinks in the sysroot
-(cd $HOST_SYSROOT && for link in `find -lname '/*'`; do target=$(readlink "$link"); sudo rm "$link"; sudo ln -s "$PWD$target" "$link"; done)
+# (cd $HOST_SYSROOT && for link in `find -lname '/*'`; do target=$(readlink "$link"); sudo rm "$link"; sudo ln -s "$PWD$target" "$link"; done)
 
 export -n LD_LIBRARY_PATH
 # Use cross tools to build the provided configuration
