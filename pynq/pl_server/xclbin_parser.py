@@ -35,10 +35,7 @@ __email__ = "pynq_support@xilinx.com"
 import ctypes
 from copy import deepcopy
 from xml.etree import ElementTree
-try:
-    import xclbin_binding as xclbin
-except ImportError:
-    from pynq import xclbin
+from pynq import xclbin
 
 _mem_types = [
     "DDR3",

@@ -20,21 +20,30 @@
 
 import os
 import ctypes
+import warnings
 from .xclbin import *
+
+libc = None
+XRT_SUPPORTED = False
 
 if 'XILINX_XRT' in os.environ:
     if "XCL_EMULATION_MODE" in os.environ:
-        emu_mode = os.environ['XCL_EMULATION_MODE']
-        if emu_mode == "hw_emu":
-            libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_hwemu.so")
+        emulation_mode = os.environ["XCL_EMULATION_MODE"]
+        if emulation_mode == "hw_emu":
+            xrt_lib = os.path.join(
+                os.environ['XILINX_XRT'], 'lib', 'libxrt_hwemu.so')
+            libc = ctypes.CDLL(xrt_lib)
             XRT_EMULATION = True
+            XRT_SUPPORTED=True
+        elif emulation_mode == "sw_emu":
+            warnings.warn("PYNQ doesn't support software emulation: either "
+                          "unset XCL_EMULATION_MODE or set it hw_emu")
         else:
-            raise RuntimeError("Unknown Emulation Mode: " + emu_mode)
+            warnings.warn("Unknown emulation mode: " + emulation_mode)
     else:
         libc = ctypes.CDLL(os.environ['XILINX_XRT'] + "/lib/libxrt_core.so")
         XRT_EMULATION = False
-else:
-    libc = None
+        XRT_SUPPORTED=True
 
 xclDeviceHandle = ctypes.c_void_p
 
