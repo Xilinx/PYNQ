@@ -4155,7 +4155,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net rst_ps7_0_fclk0_interconnect_aresetn [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins rst_ps7_0_fclk0/interconnect_aresetn]
   connect_bd_net -net rst_ps7_0_fclk0_peripheral_aresetn [get_bd_pins debounced_pb/reset_n] [get_bd_pins iop_pmodb/s_axi_aresetn] [get_bd_pins lcp_ar/s_axi_aresetn] [get_bd_pins lcp_rp/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_fclk0/peripheral_aresetn] [get_bd_pins system_interrupts/s_axi_aresetn]
   connect_bd_net -net rst_ps7_0_fclk2_peripheral_aresetn [get_bd_pins lcp_rp/periph_resetn_sample_clk] [get_bd_pins rst_ps7_0_fclk2/peripheral_aresetn]
-  connect_bd_net -net system_interrupts_irq [get_bd_pins system_interrupts/irq] [get_bd_pins xlconcat_0/In15]
+  connect_bd_net -net system_interrupts_irq [get_bd_pins system_interrupts/irq] [get_bd_pins xlconcat_0/In0]
   connect_bd_net -net xlconcat_0_dout [get_bd_pins ps7_0/IRQ_F2P] [get_bd_pins xlconcat_0/dout]
 
   # Create address segments
@@ -4228,7 +4228,7 @@ proc create_root_design { parentCell } {
     S_AXI_ACP {memport "S_AXI_ACP"} \
     } [get_bd_cells /ps7_0]
   set intVar []
-  for {set i 0} {$i < 15} {incr i} {
+  for {set i 1} {$i < 16} {incr i} {
     lappend intVar In$i {}
   }
   set_property PFM.IRQ $intVar [get_bd_cells /xlconcat_0]
