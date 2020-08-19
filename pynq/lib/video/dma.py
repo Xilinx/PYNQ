@@ -591,8 +591,8 @@ class AxiVDMA(DefaultIP):
             has_s2mm = parameters['C_INCLUDE_S2MM'] == '1'
             has_mm2s = parameters['C_INCLUDE_MM2S'] == '1'
             framecount = int(parameters['C_NUM_FSTORES'])
-            s2mm_addr_width = int(parameters['C_MAXI_S2MM_ADDR_WIDTH'])
-            mm2s_addr_width = int(parameters['C_MAXI_MM2S_ADDR_WIDTH'])
+            s2mm_addr_width = int(parameters['C_M_AXI_S2MM_ADDR_WIDTH'])
+            mm2s_addr_width = int(parameters['C_M_AXI_MM2S_ADDR_WIDTH'])
             if ((has_s2mm and s2mm_addr_width > 32) or
                     (has_mm2s and mm2s_addr_width > 32)):
                 raise UnsupportedConfiguration(
