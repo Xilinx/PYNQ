@@ -77,6 +77,10 @@ include $(PACKAGE_MAKES)
 include $(wildcard $(CURDIR)/ubuntu/$(UBUNTU_RELEASE)/*/config)
 include $(wildcard $(BOARDDIR)/*/*.spec)
 
+MOUNTED_TARGET_BOOT := $(wildcard $(BUILD_ROOT)/$(UBUNTU_RELEASE).*/boot)
+MOUNTED_TARGET := $(dir $(MOUNTED_TARGET_BOOT))
+LOOP_IMAGE_FILE := $(shell sudo losetup -a | cut -d "(" -f2 | cut -d ")" -f1)
+
 define BOARD_SPECIFIC_RULES
 # $1 is the board name
 ifeq ($$(FPGA_MANAGER_$1),)
@@ -379,9 +383,17 @@ dist: $(patsubst %, dist_%, $(USED_ARCH))
 # Default package clean target
 PACKAGE_CLEAN_%: ;
 
-clean: $(PACKAGE_CLEAN)
+unmount:
+	if [ ! -z $(LOOP_IMAGE_FILE) ]; then \
+		$(SCRIPT_DIR)/unmount_image.sh $(MOUNTED_TARGET) $(LOOP_IMAGE_FILE) ;\
+	fi
+
+delete: unmount
+	rm -rf $(LOOP_IMAGE_FILE)
+
+clean: delete $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: dist bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
-
+.PHONY: dist bsp boot_files images all unmount delete clean \
+	real_all checkenv sdx_sw sysroot nocheck_images
