@@ -127,13 +127,6 @@ class _InterruptController(object):
     """
     _controllers = []
     _last_timestamp = None
-    if CPU_ARCH == ZYNQ_ARCH:
-        irq_offset = 61
-    elif CPU_ARCH == ZU_ARCH:
-        irq_offset = 121
-    else:
-        warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
 
     @staticmethod
     def get_controller(name):
@@ -185,10 +178,11 @@ class _InterruptController(object):
         parent = PL.interrupt_controllers[name]['parent']
         number = PL.interrupt_controllers[name]['index']
         if parent == "":
-            uiodev = get_uio_irq(self.irq_offset + number)
+            raw_irq = PL.interrupt_controllers[name]['raw_irq']
+            uiodev = get_uio_irq(raw_irq)
             if uiodev is None:
                 raise ValueError('Could not find UIO device for interrupt pin '
-                                 'for IRQ number {}'.format(number))
+                                 'for IRQ number {}'.format(raw_irq))
             self.parent = UioController(uiodev)
             self.number = 0
         else:

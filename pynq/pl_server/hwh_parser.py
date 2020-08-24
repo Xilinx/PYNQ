@@ -75,6 +75,14 @@ def string2int(a):
     return int(a, 16 if a.startswith('0x') else 10)
 
 
+def _create_irq_map(details):
+    raw_map = []
+    for base, num in details:
+        for i in range(num):
+            raw_map.append(i + base)
+    return raw_map
+
+
 class _HWHABC(metaclass=abc.ABCMeta):
     """Helper Class to extract information from a HWH configuration file
 
@@ -367,10 +375,12 @@ class _HWHABC(metaclass=abc.ABCMeta):
         and the interrupt pins dictionary.
 
         """
-        if self.ps_name + "/" + self.family_irq in self.pins:
-            ps_irq_net = self.pins[
-                self.ps_name + "/" + self.family_irq]
-            self._add_interrupt_pins(ps_irq_net, "", 0)
+        for irq_name in self.family_irq.keys():
+            if self.ps_name + "/" + irq_name in self.pins:
+                raw_map = _create_irq_map(self.family_irq[irq_name])
+                ps_irq_net = self.pins[
+                    self.ps_name + "/" + irq_name]
+                self._add_interrupt_pins(ps_irq_net, "", 0, raw_map)
 
     def init_mem_dict(self):
         """Prepare the memory dictionary
@@ -388,14 +398,14 @@ class _HWHABC(metaclass=abc.ABCMeta):
             'streaming': False
         }
 
-    def _add_interrupt_pins(self, net, parent, offset):
+    def _add_interrupt_pins(self, net, parent, offset, raw_map=None):
         net_pins = self.nets[net] if net else set()
         for p in net_pins:
             m = re.match('(.*)/dout', p)
             if m is not None:
                 name = m.group(1)
                 if name in self.concat_cells:
-                    return self._add_concat_pins(name, parent, offset)
+                    return self._add_concat_pins(name, parent, offset, raw_map)
             m = re.match('(.*)/irq', p)
             if m is not None:
                 name = m.group(1)
@@ -404,18 +414,23 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         self.pins[name + "/intr"], name, 0)
                     self.interrupt_controllers[name] = {'parent': parent,
                                                         'index': offset}
+                    if raw_map is not None:
+                        self.interrupt_controllers[name]['raw_irq'] = \
+                                raw_map[offset]
                     return offset + 1
         for p in net_pins:
             self.interrupt_pins[p] = {'controller': parent,
                                       'index': offset,
                                       'fullpath': p}
+            if raw_map is not None:
+                self.interrupt_pins[p]['raw_irq'] = raw_map[offset]
         return offset + 1
 
-    def _add_concat_pins(self, name, parent, offset):
+    def _add_concat_pins(self, name, parent, offset, raw_map=None):
         num_ports = int(self.concat_cells[name])
         for i in range(num_ports):
             net = self.pins[name + "/In" + str(i)]
-            offset = self._add_interrupt_pins(net, parent, offset)
+            offset = self._add_interrupt_pins(net, parent, offset, raw_map)
         return offset
 
     def add_gpio(self):
@@ -520,7 +535,7 @@ class _HWHZynq(_HWHABC):
 
     """
     family_ps = "processing_system7"
-    family_irq = "IRQ_F2P"
+    family_irq = {"IRQ_F2P": ((61, 8), (84, 8))}
     family_gpio = "GPIO_O"
 
     def find_clock_divisor(self, mod, clk_id, div_id):
@@ -573,7 +588,7 @@ class _HWHUltrascale(_HWHABC):
 
     """
     family_ps = "zynq_ultra_ps_e"
-    family_irq = "pl_ps_irq0"
+    family_irq = {"pl_ps_irq0": ((121, 8),), "pl_ps_irq1": ((136, 8),)}
     family_gpio = "emio_gpio_o"
 
     def find_clock_divisor(self, mod, clk_id, div_id):
