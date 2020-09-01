@@ -73,7 +73,8 @@ class _ExtensionsManager:
                      pkg_resources.iter_entry_points(self.package_name)]
         atexit.register(pkg_resources.cleanup_resources, force=True)
 
-    def extension_path(self, extension_name):
+    @staticmethod
+    def extension_path(extension_name):
         """Return the source path of the given extension name."""
         # Define monkey patch for `pkg_resources.NullProvider.__init__` to use
         # `module.__path__` instead of `module.__file__`, as the latter does
@@ -104,7 +105,7 @@ class _ExtensionsManager:
     def paths(self):
         """Return a list of paths from the discovered extensions.
         """
-        return [self.ext_src_path(e) for e in self.list]
+        return [self.extension_path(e.module_name) for e in self.list]
 
 
 class _PynqLoggingFormatter(logging.Formatter):

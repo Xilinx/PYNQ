@@ -43,6 +43,7 @@ from .gpio import GPIO
 from .registers import RegisterMap
 from .registers import Register
 from .utils import ReprDict
+from .utils import _ExtensionsManager
 
 if "XILINX_XRT" in os.environ:
     try:
@@ -165,6 +166,8 @@ ZU_AXIFM_VALUE = {
     '64': 1,
     '128': 0
 }
+
+DRIVERS_GROUP = "pynq.lib"
 
 
 class UnsupportedConfiguration(Exception):
@@ -446,6 +449,8 @@ class Overlay(Bitstream):
         """
         super().__init__(bitfile_name, dtbo, partial=False, device=device)
 
+        self._register_drivers()
+
         self.parser = self.device.get_bitfile_metadata(self.bitfile_name)
 
         self.ip_dict = self.gpio_dict = self.interrupt_controllers = \
@@ -667,6 +672,14 @@ class Overlay(Bitstream):
         return sorted(set(super().__dir__() +
                           list(self.__dict__.keys()) + self._ip_map._keys()))
 
+    def _register_drivers(self):
+        """Imports plugin modules registered against `pynq.lib`, so that IP
+        drivers contained in these modules can be registered automatically.
+        """
+        import importlib
+        drivers_ext_man = _ExtensionsManager(DRIVERS_GROUP)
+        for ext in drivers_ext_man.list:
+            importlib.import_module(ext.module_name)
 
 _ip_drivers = dict()
 _hierarchy_drivers = collections.deque()
