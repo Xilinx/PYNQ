@@ -45,15 +45,7 @@ from .registers import Register
 from .utils import ReprDict
 from .utils import _ExtensionsManager
 
-if "XILINX_XRT" in os.environ:
-    try:
-        import ert_binding as ert
-    except ImportError:
-        from pynq import ert
-
-    # Monkey patch typo in some versions on XRT Python binding
-    if not hasattr(ert, 'ert_cmd_type'):
-        ert.ert_cmd_type = ert.ert_cmdype
+from pynq import ert
 
 
 __author__ = "Yun Rock Qu"

@@ -58,7 +58,8 @@ class DeviceMeta(type):
     def __init__(cls, name, bases, attrs):
         if '_probe_' in attrs:
             priority = attrs['_probe_priority_']
-            if priority in DeviceMeta._subclasses:
+            if (priority in DeviceMeta._subclasses and
+                DeviceMeta._subclasses[priority].__name__ != name):
                 raise RuntimeError(
                     "Multiple Device subclasses with same priority")
             DeviceMeta._subclasses[priority] = cls
