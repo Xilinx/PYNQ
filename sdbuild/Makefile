@@ -77,8 +77,16 @@ include $(PACKAGE_MAKES)
 include $(wildcard $(CURDIR)/ubuntu/$(UBUNTU_RELEASE)/*/config)
 include $(wildcard $(BOARDDIR)/*/*.spec)
 
+MOUNTED_TARGET_BOOT := $(wildcard $(BUILD_ROOT)/$(UBUNTU_RELEASE).*/boot)
+MOUNTED_TARGET := $(dir $(MOUNTED_TARGET_BOOT))
+LOOP_IMAGE_FILE := $(shell sudo losetup -a | cut -d "(" -f2 | cut -d ")" -f1)
+
 define BOARD_SPECIFIC_RULES
 # $1 is the board name
+ifeq ($$(FPGA_MANAGER_$1),)
+	FPGA_MANAGER_$1 := 1
+endif
+
 BOARDDIR_$1 := $$(BOARDDIR)/$1
 BITSTREAM_ABS_$1 := $$(patsubst %, $$(BOARDDIR_$1)/%, $$(BITSTREAM_$1))
 BUILD_ROOT_$1 := $$(BUILD_ROOT)/$1
@@ -139,10 +147,12 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	echo 'CONFIG_SUBSYSTEM_ROOTFS_EXT4=y' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_SDROOT_DEV="/dev/mmcblk0p2"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1)
-	if [ $$(FPGA_MANAGER_$1) = 1 ] || [ ! -n $$(FPGA_MANAGER_$1) ]; then \
+	if [ $$(FPGA_MANAGER_$1) = 1 ]; then \
+		echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1) ;\
+		echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1) ;\
 		echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1) ;\
+	else \
+		echo 'CONFIG_SUBSYSTEM_REMOVE_PL_DTB=y' >> $$(PL_CONFIG_$1) ;\
 	fi
 	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
@@ -373,9 +383,17 @@ dist: $(patsubst %, dist_%, $(USED_ARCH))
 # Default package clean target
 PACKAGE_CLEAN_%: ;
 
-clean: $(PACKAGE_CLEAN)
+unmount:
+	if [ ! -z $(LOOP_IMAGE_FILE) ]; then \
+		$(SCRIPT_DIR)/unmount_image.sh $(MOUNTED_TARGET) $(LOOP_IMAGE_FILE) ;\
+	fi
+
+delete: unmount
+	rm -rf $(LOOP_IMAGE_FILE)
+
+clean: delete $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: dist bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
-
+.PHONY: dist bsp boot_files images all unmount delete clean \
+	real_all checkenv sdx_sw sysroot nocheck_images
