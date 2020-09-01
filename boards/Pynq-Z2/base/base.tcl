@@ -4632,7 +4632,7 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmodb_pmodb_gpio] [get_bd_in
   connect_bd_net -net rst_ps7_0_fclk3_interconnect_aresetn [get_bd_pins axi_mem_intercon/ARESETN] [get_bd_pins ps7_0_axi_periph_1/ARESETN] [get_bd_pins rst_ps7_0_fclk3/interconnect_aresetn]
   connect_bd_net -net rst_ps7_0_fclk3_peripheral_aresetn [get_bd_pins axi_mem_intercon/M00_ARESETN] [get_bd_pins axi_mem_intercon/S00_ARESETN] [get_bd_pins axi_mem_intercon/S01_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M00_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M01_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M02_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M03_ARESETN] [get_bd_pins ps7_0_axi_periph_1/S00_ARESETN] [get_bd_pins rst_ps7_0_fclk3/peripheral_aresetn] [get_bd_pins trace_analyzer_pi/s_axi_aresetn] [get_bd_pins trace_analyzer_pmodb/s_axi_aresetn]
   connect_bd_net -net switches_gpio_ip2intc_irpt [get_bd_pins concat_interrupts/In6] [get_bd_pins switches_gpio/ip2intc_irpt]
-  connect_bd_net -net system_interrupts_irq [get_bd_pins system_interrupts/irq] [get_bd_pins xlconcat_0/In15]
+  connect_bd_net -net system_interrupts_irq [get_bd_pins system_interrupts/irq] [get_bd_pins xlconcat_0/In0]
   connect_bd_net -net trace_analyzer_pi_s2mm_introut [get_bd_pins concat_interrupts/In2] [get_bd_pins trace_analyzer_pi/s2mm_introut]
   connect_bd_net -net trace_analyzer_pmodb_s2mm_introut [get_bd_pins concat_interrupts/In1] [get_bd_pins trace_analyzer_pmodb/s2mm_introut]
   connect_bd_net -net video_dout [get_bd_pins concat_interrupts/In0] [get_bd_pins video/video_irq]
@@ -4758,7 +4758,7 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmodb_pmodb_gpio] [get_bd_in
     S_AXI_HP3 {memport "S_AXI_HP"} \
     } [get_bd_cells /ps7_0]
   set intVar []
-  for {set i 0} {$i < 15} {incr i} {
+  for {set i 1} {$i < 16} {incr i} {
     lappend intVar In$i {}
   }
   set_property PFM.IRQ $intVar [get_bd_cells /xlconcat_0]

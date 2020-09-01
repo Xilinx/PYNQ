@@ -3249,6 +3249,12 @@ proc create_root_design { parentCell } {
    CONFIG.NUM_PORTS {8} \
  ] $xlconcat_0
 
+  # Create instance: xlconcat_1, and set properties
+  set xlconcat_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_1 ]
+  set_property -dict [ list \
+   CONFIG.NUM_PORTS {8} \
+ ] $xlconcat_1
+
   # Create instance: xlslice_0, and set properties
   set xlslice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_0 ]
 
@@ -3307,7 +3313,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net Net [get_bd_ports pmod0] [get_bd_pins pmod0_buf/IOBUF_IO_IO]
   connect_bd_net -net Net1 [get_bd_ports pmod1] [get_bd_pins pmod1_buf/IOBUF_IO_IO]
   connect_bd_net -net axi_gpio_0_gpio_io_o [get_bd_pins reset_control/gpio_io_o] [get_bd_pins xlslice_0/Din] [get_bd_pins xlslice_1/Din]
-  connect_bd_net -net axi_intc_0_irq [get_bd_pins axi_intc_0/irq] [get_bd_pins xlconcat_0/In7]
+  connect_bd_net -net axi_intc_0_irq [get_bd_pins axi_intc_0/irq] [get_bd_pins xlconcat_0/In0]
   connect_bd_net -net axi_vdma_0_mm2s_introut [get_bd_pins video/mm2s_introut] [get_bd_pins xlconcat0/In4]
   connect_bd_net -net axi_vdma_0_s2mm_introut [get_bd_pins video/s2mm_introut] [get_bd_pins xlconcat0/In3]
   connect_bd_net -net data_i_1 [get_bd_pins iop_pmod0/data_i] [get_bd_pins pmod0_buf/IOBUF_IO_O]
@@ -3355,7 +3361,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net pmod1_peripheral_aresetn [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins axi_register_slice_0/aresetn] [get_bd_pins iop_pmod1/peripheral_aresetn] [get_bd_pins shutdown_LPD/resetn]
   connect_bd_net -net pmod1_tri_o [get_bd_pins iop_pmod1/tri_o] [get_bd_pins pmod1_buf/IOBUF_IO_T]
   connect_bd_net -net xlconcat0_dout [get_bd_pins axi_intc_0/intr] [get_bd_pins xlconcat0/dout]
-  connect_bd_net -net xlconcat_0_dout [get_bd_pins ps_e_0/pl_ps_irq1] [get_bd_pins xlconcat_0/dout]
+  connect_bd_net -net xlconcat_0_dout [get_bd_pins ps_e_0/pl_ps_irq0] [get_bd_pins xlconcat_0/dout]
+  connect_bd_net -net xlconcat_1_dout [get_bd_pins ps_e_0/pl_ps_irq1] [get_bd_pins xlconcat_1/dout]
   connect_bd_net -net xlslice_0_Dout [get_bd_ports IDT_8T49N241_RST_OUT] [get_bd_pins xlslice_0/Dout]
   connect_bd_net -net xlslice_1_Dout [get_bd_ports HDMI_RX_LS_OE] [get_bd_pins xlslice_1/Dout]
   connect_bd_net -net zynq_us_emio_gpio_o [get_bd_pins mb_iop_pmod0_intr_ack/Din] [get_bd_pins mb_iop_pmod0_reset/Din] [get_bd_pins mb_iop_pmod1_intr_ack/Din] [get_bd_pins mb_iop_pmod1_reset/Din] [get_bd_pins ps_e_0/emio_gpio_o]
@@ -3438,11 +3445,16 @@ proc create_root_design { parentCell } {
     S_AXI_HP3_FPD {memport "S_AXI_HP"} \
     S_AXI_LPD {memport "S_AXI_HP"} \
     } [get_bd_cells /ps_e_0]
-  set intVar []
-  for {set i 0} {$i < 7} {incr i} {
-    lappend intVar In$i {}
+  set intVar0 []
+  for {set i 1} {$i < 8} {incr i} {
+    lappend intVar0 In$i {}
   }
-  set_property PFM.IRQ $intVar [get_bd_cells /xlconcat_0]
+  set_property PFM.IRQ $intVar0 [get_bd_cells /xlconcat_0]
+  set intVar1 []
+  for {set i 0} {$i < 8} {incr i} {
+    lappend intVar1 In$i {}
+  }
+  set_property PFM.IRQ $intVar1 [get_bd_cells /xlconcat_1]
 
   validate_bd_design
   save_bd_design

@@ -21,6 +21,7 @@ do_configure_append_zynq () {
     FPGA_MANAGER="${@d.getVar('BB_ORIGENV', False).getVar('FPGA_MANAGER', True)}"
     echo '/include/ "pynq_zynq.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
     if [ "${FPGA_MANAGER}" = 1 ]; then
+        echo "/include/ \"pynq_uio_zynq.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
         echo "/include/ \"pynq_zocl_poll_zynq.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
     else
         echo "/include/ \"pynq_zocl_intc_zynq.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
@@ -37,6 +38,7 @@ do_configure_append_zynqmp () {
 	FPGA_MANAGER="${@d.getVar('BB_ORIGENV', False).getVar('FPGA_MANAGER', True)}"
     echo '/include/ "pynq_zynqmp.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
     if [ "${FPGA_MANAGER}" = 1 ]; then
+        echo "/include/ \"pynq_uio_zynqmp.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
         echo "/include/ \"pynq_zocl_poll_zynqmp.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
     else
         echo "/include/ \"pynq_zocl_intc_zynqmp.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
