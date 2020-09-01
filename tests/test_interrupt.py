@@ -4,7 +4,6 @@ import importlib
 import pynq
 import pynq.interrupt
 import pytest
-import sys
 
 from .mock_devices import MockIPDevice
 from .mock_ip import MockRegisterIP
@@ -191,16 +190,10 @@ class MockUioController:
                 loop.call_soon(e.set)
 
 
-@pytest.fixture(params=[pynq.ps.ZYNQ_ARCH, pynq.ps.ZU_ARCH])
-def interrupt(request):
-    old_arch = pynq.ps.CPU_ARCH
-    pynq.ps.CPU_ARCH = request.param
-    print(sys.modules.get('pynq.interrupt'))
+@pytest.fixture
+def interrupt():
     new_interrupt = importlib.reload(pynq.interrupt)
-    print(sys.modules.get('pynq.interrupt'))
     yield new_interrupt
-    pynq.ps.CPU_ARCH = old_arch
-    print(sys.modules.get('pynq.interrupt'))
 
 
 def _dummy_get_uio_device(dev_name):
@@ -213,9 +206,10 @@ GET_UIO_TESTS = {
 }
 
 
-def test_get_uio(interrupt, fs):
+@pytest.mark.parametrize('arch', [pynq.ps.ZYNQ_ARCH, pynq.ps.ZU_ARCH])
+def test_get_uio(interrupt, fs, arch):
     interrupt.get_uio_device = _dummy_get_uio_device
-    proc_contents, index = GET_UIO_TESTS[pynq.ps.CPU_ARCH]
+    proc_contents, index = GET_UIO_TESTS[arch]
     fs.create_file('/proc/interrupts', contents=proc_contents)
     assert interrupt.get_uio_irq(index) == 'UIO Device: fabric'
     assert interrupt.get_uio_irq(1234) is None
@@ -223,7 +217,7 @@ def test_get_uio(interrupt, fs):
 
 DIRECT_SETUP = {
     'interrupt_pins': {
-        'direct_interrupt': {'controller': '', 'index': 0}
+        'direct_interrupt': {'controller': '', 'index': 0, 'raw_irq': 61}
     },
     'interrupt_controllers': {},
     'ip_dict': {}
@@ -235,7 +229,7 @@ STANDARD_SETUP = {
         'standard_interrupt': {'controller': 'pynq_intc', 'index': 0}
     },
     'interrupt_controllers': {
-        'pynq_intc': {'parent': '', 'index': 0}
+        'pynq_intc': {'parent': '', 'index': 0, 'raw_irq': 61}
     },
     'ip_dict': {
         'pynq_intc': {
@@ -252,7 +246,7 @@ DOUBLE_SETUP = {
         'interrupt2': {'controller': 'pynq_intc', 'index': 1}
     },
     'interrupt_controllers': {
-        'pynq_intc': {'parent': '', 'index': 0}
+        'pynq_intc': {'parent': '', 'index': 0, 'raw_irq': 61}
     },
     'ip_dict': {
         'pynq_intc': {
@@ -270,7 +264,7 @@ NESTED_SETUP = {
     },
     'interrupt_controllers': {
         'pynq_intc': {'parent': 'parent_intc', 'index': 0},
-        'parent_intc': {'parent': '', 'index': 0}
+        'parent_intc': {'parent': '', 'index': 0, 'raw_irq': 61}
     },
     'ip_dict': {
         'pynq_intc': {
@@ -330,10 +324,8 @@ def _setup_device(device, setup, interrupt):
         return uio_devices[dev_name]
 
     def get_uio_irq(index):
-        if pynq.ps.CPU_ARCH == pynq.ps.ZU_ARCH:
-            return index - 121
-        elif pynq.ps.CPU_ARCH == pynq.ps.ZYNQ_ARCH:
-            return index - 61
+        return index - 61
+
     interrupt.UioController = UioController
     interrupt.get_uio_irq = get_uio_irq
     return endpoints
