@@ -56,7 +56,9 @@
  # 2.01  yrq 08/08/2018 update to 2018.2
  # 2.04  yrq 01/17/2019 update to 2018.3
  # 2.5   yrq 08/22/2019 update to 2019.1
- # 2.6   yrq 11/06/2019 update to 2020.1
+ # 2.60  yrq 11/06/2019 update to 2020.1
+ # 2.61  yrq 08/19/2020 change gpio base of iop_rpi to 0x40000000
+ #
  # </pre>
  #
 ###############################################################################
@@ -4727,7 +4729,7 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmodb_pmodb_gpio] [get_bd_in
   assign_bd_address -offset 0x60000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP0] -force
   assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP1] -force
   assign_bd_address -offset 0xFC000000 -range 0x01000000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_QSPI_LINEAR] -force
-  assign_bd_address -offset 0x40020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs iop_rpi/rpi_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs iop_rpi/rpi_gpio/S_AXI/Reg] -force
   assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs iop_rpi/spi_subsystem/spi_0/AXI_LITE/Reg] -force
   assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs iop_rpi/spi_subsystem/spi_1/AXI_LITE/Reg] -force
   assign_bd_address -offset 0x41C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_rpi/mb/Data] [get_bd_addr_segs iop_rpi/timers_subsystem/timer_0/S_AXI/Reg] -force
