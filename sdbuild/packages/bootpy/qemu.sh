@@ -1,0 +1,2 @@
+systemctl enable bootpy
+
