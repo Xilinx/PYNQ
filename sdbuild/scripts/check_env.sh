@@ -36,6 +36,11 @@ python3-pip
 gcc-multilib
 EOT
 
+read -d '' PYTHON_DEPS <<EOT
+numpy
+cffi
+EOT
+
 if [ $(lsb_release -rs) == "16.04" ]||[ $(lsb_release -rs) == "18.04" ]; then
     echo "Pass: Current OS is supported."
 else
@@ -60,11 +65,17 @@ for i in $DEPS ; do
     dpkg-query -W -f='${Package}\n' | grep ^$i$ > /dev/null
     if [ $? != 0 ] ; then
         echo "Error: Package not found -" $i
-	failed=true
+        failed=true
     fi
-done 
+done
+for i in $PYTHON_DEPS ; do
+    found=$(sudo -H pip3 freeze | grep $i)
+    if [ -z $found ]; then
+        echo "Error: Package not found -" $i
+        failed=true
+    fi
+done
 if [ "$failed" = true ] ; then
     echo "Run setup_host.sh"
     exit 1
 fi
-

@@ -140,6 +140,8 @@ fi
 
 # update setuptools
 sudo -H pip3 install --upgrade "setuptools>=24.2.0"
+# install dependencies required to build pynq sdist
+sudo -H pip3 install numpy cffi
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 
