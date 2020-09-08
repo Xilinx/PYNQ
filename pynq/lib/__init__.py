@@ -74,8 +74,6 @@ from .logictools import FSMGenerator
 from . import video
 from . import audio
 from . import dma
-
-from . import swig
 from . import pybind11
 
 
