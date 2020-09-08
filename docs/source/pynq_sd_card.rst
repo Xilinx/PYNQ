@@ -127,6 +127,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.3               2018.2
      v2.4               2018.3
      v2.5               2019.1
+     v2.6               2020.1
      ================  ================
 
 Use existing Ubuntu OS
@@ -205,6 +206,39 @@ Please also refer to the
 `sdbuild readme <https://github.com/Xilinx/PYNQ/blob/master/sdbuild/README.md>`_
 on our GitHub repository for more info regarding the image-build flow.
 
+Unmount images before building again
+------------------------------------
+Sometimes the SD image building process can error out, leaving mounted images
+in your host OS. You need to unmount these images before trying the make
+process again. Starting from image v2.6, users can do the following to
+unmount the images.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make delete
+
+The above command not only unmounts all the images, but also deletes the
+failed images. This makes sure the users do not use the failed images when
+continuing the SD build process.
+
+To unmount images but not delete them, use the following command instead.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make unmount
+
+If you want to ignore all the previous staged or cached SD build
+artifacts and start from scratch again, you can use the following command.
+This will unmount and delete the failed images, and remove all the previously
+built images at different stages.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make clean
+
 
 Retargeting to a Different Board
 ================================
@@ -225,10 +259,11 @@ of the board directory. A minimal spec file contains the following information
    ARCH_${BOARD} := arm
    BSP_${BOARD} := mybsp.bsp
    BITSTREAM_${BOARD} := mybitstream.bsp
+   FPGA_MANAGER_${BOARD} := 1
 
 where ``${BOARD}`` is also the name of the board. The ARCH should be *arm* for
 Zynq-7000 or *aarch64* for Zynq UltraScale+. If no bitstream is provided then the
-one included in the BSP will be used by default.  All paths in this file
+one included in the BSP will be used by default. All paths in this file
 should be relative to the board directory.
 
 To customise the BSP a ``petalinux_bsp`` folder can be included in the board
@@ -238,10 +273,29 @@ designed to allow for additional drivers, kernel or boot-file patches and
 device tree configuration that are helpful to support elements of PYNQ to be
 added to a pre-existing BSP.
 
-If a suitable PetaLinux BSP is unavailable for the board then this can be left
-blank; in this case, an HDF file needs to be provided in the board directory. 
-The *system.hdf* file should be placed in the ``petalinux_bsp/hardware_project`` 
-folder and a new generic BSP will be created as part of the build flow.
+If a suitable PetaLinux BSP is unavailable for the board then ``BSP_${BOARD}``
+can be left blank; in this case, users have two options:
+
+ 1. Place a *<design_name>.xsa* file in the ``petalinux_bsp/hardware_project``
+    folder. As part of the build flow, a new BSP will be created from
+    this XSA file.
+ 2. Place a makefile along with tcl files which can generate the hardware
+    design in the ``petalinux_bsp/hardware_project`` folder.
+    As part of the build flow, the hardware design along with the XSA file
+    will be generated, then a new BSP will be created from this XSA file.
+
+Starting from image v2.6, we allow users to disable FPGA manager by setting
+``FPGA_MANAGER_${BOARD}`` to 0. This may have many use cases. For example,
+users may want the bitstream to be downloaded at boot to enable some
+board components as early as possible. Another use case is that users want
+to enable interrupt for XRT. The side effect of this, is that users
+may not be able to reload a bitstream after boot.
+
+If ``FPGA_MANAGER_${BOARD}`` is set to 1 or ``FPGA_MANAGER_${BOARD}`` is
+not defined at all, FPGA manager will be enabled. In this case, the bitstream
+will be downloaded later in user applications; and users can only use XRT
+in polling mode. This is the default behavior of PYNQ since we want users
+to be able to download any bitstream after boot.
 
 Board-specific packages
 -----------------------
