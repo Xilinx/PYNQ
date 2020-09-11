@@ -397,7 +397,7 @@ Header Files and Libraries
 --------------------------
 
 A library is provided for the PYNQ MicroBlaze which includes an API for local 
-peripherals (IIC, SPI, Timer, Uart, GPIO), the configurable switch, links to 
+peripherals (IIC, SPI, Timer, UART, GPIO), the configurable switch, links to 
 the peripheral addresses, and mappings for the mailbox used in the existing 
 PYNQ MicroBlaze peripheral applications provided with PYNQ. This library can be 
 used to write custom PYNQ MicroBlaze applications.
@@ -913,7 +913,7 @@ expects for the same function.
     self.microblaze.write_blocking_command(READ_SINGLE_VALUE)
 
 The command is blocking so that Python code will not proceed unless an 
-acknowledgement has been received from the  MicroBlaze. Internally, after the 
+acknowledgment has been received from the  MicroBlaze. Internally, after the 
 PYNQ MicroBlaze has finished its task, it will write ``0x0`` to clear the 
 command area. The Python code checks this command area (in this case, the Python code 
 constantly checks whether the ``0x3`` value is still present at the 

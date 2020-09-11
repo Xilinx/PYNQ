@@ -97,7 +97,7 @@ the final image.
 ## Porting to a new board
 
 There are two flows for porting to a new board. The simplest approach is to
-take a pre-existing PetaLinux BSP and our pre-built board-agnostic imagea
+take a pre-existing PetaLinux BSP and our pre-built board-agnostic image
 appropriate to the architecture - arm for Zynq-7000 and aarch64 for Zynq
 UltraScale+. The `scripts/image_from_prebuilt.sh` script will take these two
 components and create an image without needing to run the whole image creation
@@ -122,7 +122,7 @@ STAGE4_PACKAGES_Myboard := my_package
 ```
 
 ### Step 2: Prepare the BSP
-The main prerequisite for porting to a new board is the existance of a valid
+The main prerequisite for porting to a new board is the existence of a valid
 Petalinux BSP (`Myboard.bsp`) for the board targeting the correct 
 version of the Xilinx tools. This can be done in multiple ways shown below.
 
@@ -151,7 +151,7 @@ boot files please refer to the Petalinux documentation.
 
 ### Step 2: Add extra packages 
 Custom packages can be placed in a `packages` subfolder of the and will be
-picked up automatically if referenced. This is a convient way of installing
+picked up automatically if referenced. This is a convenient way of installing
 custom notebooks or Python packages if desired for your board.
 
 ### Step 3: Run `make`

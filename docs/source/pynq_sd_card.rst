@@ -9,7 +9,7 @@ downloadable SD card images, so you do not need to rerun this flow for these
 boards unless you want to make changes to the image.
 
 This flow can also be used as a starting point to build a PYNQ image for another
-Zynq / Zynq Ultrascale board.
+Zynq / Zynq Ultrascale+ board.
 
 The image flow will create the BOOT.bin, the u-boot bootloader, the Linux
 Device tree blob, and the Linux kernel.
@@ -109,7 +109,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      :width: 400
 
   7. Now you are ready to install Xilinx tools. You will need 
-     PetaLinux, Vivado, and SDK for building PYNQ image.
+     PetaLinux, Vivado, and Vitis for building PYNQ image.
      Do not install Xilinx tools into */pynq* since it is only a small shared
      folder. Instead, a 160GB disk space will be allocated at */workspace*
      folder in VM. Install Xilinx tools there.
@@ -143,7 +143,7 @@ this section, you can simply do the following:
         <PYNQ repository>/sdbuild/scripts/setup_host.sh
 
   2. Install correct version of the Xilinx tools, including 
-     PetaLinux, Vivado, and SDK. See the above table for the correct version 
+     PetaLinux, Vivado, and Vitis. See the above table for the correct version 
      of each release.
 
 Building the Image
@@ -152,14 +152,13 @@ Building the Image
 Once you have the building environment ready, you can start to build the image 
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
-  1. Source the appropriate settings for PetaLinux, Vivado, 
-     and SDK. Suppose you are using Xilinx 2019.1 tools:
+  1. Source the appropriate settings for PetaLinux and Vitis. 
+     Suppose you are using Xilinx 2020.1 tools:
 
      .. code-block:: console
 
-        source <path-to-vivado>/Vivado/2019.1/settings64.sh
-        source <path-to-sdk>/SDK/2019.1/settings64.sh
-        source <path-to-petalinux>/petalinux-v2019.1-final/settings.sh
+        source <path-to-vitis>/Vitis/2020.1/settings64.sh
+        source <path-to-petalinux>/petalinux-2020.1-final/settings.sh
         petalinux-util --webtalk off
 
   2. Navigate to the following directory and run make
