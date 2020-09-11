@@ -1,7 +1,7 @@
 set -x
 set -e
 
-VERSION=2.5.0
+VERSION=2.6.0
 cd /root
 wget "https://github.com/pybind/pybind11/archive/v${VERSION}.zip"
 unzip v${VERSION}.zip
