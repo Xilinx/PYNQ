@@ -161,7 +161,11 @@ following the steps below. You don't have to rerun the `setup_host.sh`.
         source <path-to-petalinux>/petalinux-2020.1-final/settings.sh
         petalinux-util --webtalk off
 
-  2. Navigate to the following directory and run make
+  2. Make sure you have the appropriate Vivado licenses to build for your
+     target board, especially 
+     `HDMI IP <https://www.xilinx.com/products/intellectual-property/hdmi.html>`_. 
+
+  3. Navigate to the following directory and run make
 
      .. code-block:: console
     

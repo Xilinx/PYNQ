@@ -29,7 +29,9 @@ or the other build tools. It installs crosstool-ng which is not included in the
 ubuntu repository and an up-to-date and slightly patched version of QEMU which
 fixes some race conditions in the ubuntu-shipped version. See the source of the
 script for more details in what exactly needs to be done to configure your own
-environment if the script proves insufficient.
+environment if the script proves insufficient. Also, make sure you have the 
+appropriate Vivado licenses to build for your target board, in particular 
+[HDMI IP](https://www.xilinx.com/products/intellectual-property/hdmi.html).
 
 ## Stages of an image build
 
