@@ -79,3 +79,8 @@ if [ "$failed" = true ] ; then
     echo "Run setup_host.sh"
     exit 1
 fi
+
+if [ $(cat /proc/sys/fs/inotify/max_user_watches) -lt 524288 ]; then
+    sudo sysctl -n -w fs.inotify.max_user_watches=524288
+    echo "Set inotify max_user_watches to 524288"
+fi
