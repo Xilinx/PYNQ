@@ -1,4 +1,4 @@
-![alt tag](./logo.png)
+![pynq_logo](https://github.com/Xilinx/PYNQ/raw/master/logo.png)
 
 ![python](https://github.com/Xilinx/PYNQ/workflows/Python/badge.svg)
 
