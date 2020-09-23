@@ -34,6 +34,7 @@ libsdl1.2-dev
 rsync
 python3-pip
 gcc-multilib
+libidn11
 EOT
 
 read -d '' PYTHON_DEPS <<EOT
