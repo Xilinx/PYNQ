@@ -197,3 +197,43 @@ def test_hierarchy_replace():
     assert desc['hierarchies']['hier']['driver'] == \
            pynq.overlay.DocumentHierarchy
     # assert desc['hierarchies']['hier']['driver'] == pynq.DefaultHierarchy
+
+
+INTERRUPT_IP_DESCRIPTION = {
+    'test_ip': {'phys_addr': 0x80000000, 'addr_range': 65536,
+                'type': 'xilinx.com:test:test_ip:1.0', 'registers': {},
+                'fullpath': 'test_ip',
+                'interrupts': {'test_interrupt': {
+                    'parent': '', 'index': 0,
+                    'fullpath': 'test_ip/test_interrupt'}}
+    }
+}
+
+
+class MockInterrupt:
+    pass
+
+
+def working_interrupt(*args, **kwargs):
+    return MockInterrupt()
+
+
+def broken_interrupt(*args, **kwargs):
+    raise ValueError("IRQ not connected")
+
+
+def test_interrupt_attribute(device, monkeypatch):
+    monkeypatch.setattr(pynq.overlay, 'Interrupt', working_interrupt)
+    desc = copy.deepcopy(INTERRUPT_IP_DESCRIPTION['test_ip'])
+    desc['device'] = device
+    ip = pynq.overlay.DefaultIP(desc)
+    assert type(ip.test_interrupt) == MockInterrupt
+
+
+def test_broken_interrupt_attribute(device, monkeypatch):
+    monkeypatch.setattr(pynq.overlay, 'Interrupt', broken_interrupt)
+    desc = copy.deepcopy(INTERRUPT_IP_DESCRIPTION['test_ip'])
+    desc['device'] = device
+    with pytest.warns(UserWarning):
+        ip = pynq.overlay.DefaultIP(desc)
+    assert ip.test_interrupt is None

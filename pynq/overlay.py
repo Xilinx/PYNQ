@@ -821,7 +821,12 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             self._gpio = {}
         for interrupt, details in self._interrupts.items():
-            setattr(self, interrupt, Interrupt(details['fullpath']))
+            try:
+                setattr(self, interrupt, Interrupt(details['fullpath']))
+            except ValueError as e:
+                warnings.warn('Interrupt {} not created: {}'.format(
+                    interrupt, str(e)))
+                setattr(self, interrupt, None)
         for gpio, entry in self._gpio.items():
             gpio_number = GPIO.get_gpio_pin(entry['index'])
             setattr(self, gpio, GPIO(gpio_number, 'out'))
