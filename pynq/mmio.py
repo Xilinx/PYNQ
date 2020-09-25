@@ -31,7 +31,7 @@ import os
 import mmap
 import warnings
 import numpy as np
-import pynq.tinynumpy as tnp
+import pynq._3rdparty.tinynumpy as tnp
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"

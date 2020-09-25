@@ -45,7 +45,7 @@ from .registers import Register
 from .utils import ReprDict
 from .utils import _ExtensionsManager
 
-from pynq import ert
+from pynq._3rdparty import ert
 
 
 __author__ = "Yun Rock Qu"
