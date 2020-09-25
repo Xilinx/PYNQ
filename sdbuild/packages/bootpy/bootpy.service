@@ -1,7 +1,7 @@
 [Unit]
 Description=Executing boot.py from the boot partition
-Requires=pl_server.service networking.service
-After=pl_server.service 
+Requires=pl_server.service jupyter.service
+After=pl_server.service jupyter.service
 
 [Service]
 Type=oneshot
