@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright (c) 2018, Xilinx, Inc.
+ *  Copyright (c) 2018-2020, Xilinx, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.00  mrn 28/09/20 Bug fix, the head af the circular buffer did not overflow
  *
  * </pre>
  *
@@ -105,6 +106,8 @@ void cb_push_incr_ptrs(circular_buffer *cb){
 
     if (cb->tail == cb->head) {
         cb->head  = (char*)cb->head + cb->sz;
+        if (cb->head >= cb->buffer_end)
+            cb->head = cb->buffer;
     }
 
     // update mailbox head and tail
