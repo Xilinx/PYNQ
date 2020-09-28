@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2020, Xilinx, Inc.
 #   All rights reserved.
 # 
 #   Redistribution and use in source and binary forms, with or without 
@@ -177,6 +177,9 @@ class Arduino_Analog(object):
         if log_interval_ms < 0:
             raise ValueError("Time between samples should be no less than 0.")
         
+        if isinstance(log_interval_ms, int):
+            raise ValueError("Time between samples should be integer.")
+
         self.log_interval_ms = log_interval_ms
         self.microblaze.write_mailbox(4, log_interval_ms)
 
