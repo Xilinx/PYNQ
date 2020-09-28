@@ -44,7 +44,8 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
- * 1.00  mrn 28/09/20 Bug fix, the head af the circular buffer did not overflow
+ * 1.01  mrn 09/28/20 Bug fix, the head of the circular 
+ *                    buffer did not overflow
  *
  * </pre>
  *
