@@ -56,6 +56,7 @@ python-minimal
 gcc-multilib
 xterm
 net-tools
+libidn11
 EOT
 set -e
 
