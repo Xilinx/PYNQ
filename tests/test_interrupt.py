@@ -415,6 +415,30 @@ async def test_simul_wait(interrupt, ipdevice, setup):
     endpoints['interrupt2'](False)
 
 
+@pytest.mark.asyncio
+async def test_direct_interrupt(interrupt, ipdevice):
+    endpoints = _setup_device(ipdevice, DIRECT_SETUP, interrupt)
+    pin = interrupt.Interrupt('direct_interrupt')
+    wait = asyncio.ensure_future(pin.wait())    
+    endpoints['direct_interrupt'](True)
+    await wait
+    endpoints['direct_interrupt'](False)
+
+
+@pytest.mark.asyncio
+async def test_direct_duplicate_interrupt(interrupt, ipdevice):
+    endpoints = _setup_device(ipdevice, DIRECT_SETUP, interrupt)
+    pin = interrupt.Interrupt('direct_interrupt')
+    pin2 = interrupt.Interrupt('direct_interrupt')
+    assert pin.parent == pin2.parent
+    wait1 = asyncio.ensure_future(pin.wait())
+    wait2 = asyncio.ensure_future(pin2.wait())
+    await(asyncio.sleep(0))
+    endpoints['direct_interrupt'](True)
+    await wait1
+    await wait2
+
+
 def test_invalid_interrupt(interrupt, ipdevice):
     endpoints = _setup_device(ipdevice, STANDARD_SETUP, interrupt)  # NOQA
     with pytest.raises(ValueError):
