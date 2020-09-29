@@ -45,6 +45,7 @@ wurlitzer==1.0.3
 cython==0.29.0
 setproctitle==1.1.10
 psutil==5.7.0
+pybind11==2.5.0
 EOT
 
 python3.6 -m pip install -U pip
