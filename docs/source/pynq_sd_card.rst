@@ -106,7 +106,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      your VM in your Virtual Box settings:
 
      .. image:: ./images/bidirectional-clipboard.png
-     :width: 400
+        :width: 400
 
   7. Now you are ready to install Xilinx tools. You will need 
      PetaLinux, Vivado, and Vitis for building PYNQ image.

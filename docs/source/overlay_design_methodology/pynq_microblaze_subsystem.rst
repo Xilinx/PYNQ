@@ -228,7 +228,7 @@ project files can be found in
 ``<PYNQ repository>\pynq\lib\<driver_group_name>\<project_directory>``.
 
 Vitis Application, Board Support Package, Hardware Platform
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Each Vitis application project requires a BSP project (Board Support Package), 
 and a hardware platform project. The application project will include the user 
