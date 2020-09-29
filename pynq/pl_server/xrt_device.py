@@ -39,8 +39,8 @@ import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
 
-from pynq import xrt
-from pynq import ert
+from pynq._3rdparty import xrt
+from pynq._3rdparty import ert
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2019, Xilinx"
