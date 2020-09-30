@@ -1,15 +1,16 @@
 overlay_name := pynqz1
 design_name := pynqz1
 
-all: bit
+all: block_design bitstream
 	@echo
 	@tput setaf 2 ; echo "Built $(overlay_name) successfully!"; tput sgr0;
 	@echo
 
-bit:
-	vivado -mode batch -source \
-	$(overlay_name).tcl build_bitstream.tcl -notrace
+block_design:
+	vivado -mode batch -source $(overlay_name).tcl -notrace
+
+bitstream:
+	vivado -mode batch -source build_bitstream.tcl -notrace
 
 clean:
-	rm -rf $(overlay_name) *.jou *.log
-	rm -rf NA .Xil
+	rm -rf $(overlay_name) *.jou *.log NA .Xil

@@ -1,0 +1,6 @@
+&amba {
+	zyxclmm_drm {
+		compatible = "xlnx,zocl";
+		status = "okay";
+	};
+};

@@ -129,6 +129,10 @@ class Xlnk:
         None
 
         """
+        warnings.warn("pynq.Xlnk is deprecated and will be removed in 2.7 - " +
+                      "use pynq.allocate instead", DeprecationWarning,
+                      stacklevel=2)
+
         if os.getuid() != 0:
             raise RuntimeError("Root permission needed by the library.")
 

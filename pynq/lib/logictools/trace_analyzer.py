@@ -34,7 +34,7 @@ import re
 import subprocess
 import numpy as np
 from pynq import Clocks
-from pynq import Xlnk
+from pynq import allocate
 from pynq import MMIO
 from pynq.lib import DMA
 from .constants import *
@@ -323,8 +323,7 @@ class _MBTraceAnalyzer:
         trace_byte_width = round(trace_bit_width / 8)
 
         samples = self.logictools_controller.ndarray_from_buffer(
-            'trace_buf', (1 + self.num_analyzer_samples) * trace_byte_width,
-            dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
+            'trace_buf', dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
 
         # Exclude the first dummy sample when not in step()
         data_type = '>i{}'.format(trace_byte_width)
@@ -377,8 +376,6 @@ class _PSTraceAnalyzer:
         The frequency of the trace analyzer, in MHz.
     clk : Clocks
         The clock management unit for the trace analyzer.
-    xlnk : Xlnk
-        The Xlnk object to control contiguous memory.
 
     """
     def __init__(self, ip_info, intf_spec_name):
@@ -421,7 +418,6 @@ class _PSTraceAnalyzer:
         self._cma_array = None
         self.frequency_mhz = 0
         self.clk = Clocks
-        self.xlnk = Xlnk()
         self._status = 'RESET'
 
     def __repr__(self):
@@ -496,7 +492,7 @@ class _PSTraceAnalyzer:
         self.frequency_mhz = frequency_mhz
 
         trace_byte_width = round(self.intf_spec['monitor_width'] / 8)
-        self._cma_array = self.xlnk.cma_array(
+        self._cma_array = allocate(
             [1, self.num_analyzer_samples],
             dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
         self._status = 'READY'
@@ -515,7 +511,7 @@ class _PSTraceAnalyzer:
         self.num_analyzer_samples = 0
         self.frequency_mhz = 0
         if self._cma_array is not None:
-            self._cma_array.close()
+            self._cma_array.freebuffer()
         self._status = 'RESET'
 
     def run(self):
@@ -563,7 +559,7 @@ class _PSTraceAnalyzer:
 
         """
         if self._cma_array is not None:
-            self._cma_array.close()
+            self._cma_array.freebuffer()
 
     def analyze(self, steps):
         """Analyze the captured pattern.

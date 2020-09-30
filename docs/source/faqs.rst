@@ -136,7 +136,7 @@ router), then you should not need to setup anything on your computer. Usually,
 both your computer, and board will be assigned an IP address automatically, and
 they will be able to communicate with each other.
 
-If you connect your board directly to your computer with an ethernet cable, then
+If you connect your board directly to your computer with an Ethernet cable, then
 you need to make sure that they have IP addresses in the same range. The board
 will assign itself a static IP address (by default 192.168.2.99), and you will
 need to assign a static IP address in the same range to the computer.  This
@@ -150,7 +150,7 @@ I can't connect to the Jupyter portal!
 
 If your board is powered on, and you see the Red and Green LEDs, but still 
 can't connect to the Jupyter Portal, or see the Samba shared drive, 
-then you need to verify your IP adddresses.
+then you need to verify your IP addresses.
 
 By default, the board has DHCP enabled. If you plug the board into a home
 router, or network switch connected to your network, it should be allocated an
@@ -203,9 +203,13 @@ the WiFi dongle.
 How do I set/change the static IP address on the board?
 -------------------------------------------------------
 
-The Static IP address is set in ``/etc/dhcp/dhclient.conf`` - you can modify the
-board's static IP here.
-   
+You can usually modify ``/etc/network/interfaces.d/eth0``.
+For example, on Pynq-Z1/Z2, the default address shown there is
+
+   .. code-block:: console
+
+      address 192.168.2.99
+
 How do I find my hostname?
 --------------------------
 
@@ -219,9 +223,12 @@ How do I change the hostname?
 -----------------------------
 
 If you have multiple boards on the same network, you should give them different
-host names.  You can change the hostname by editing the Linux hostname files:
-``/etc/hostname`` and ``/etc/hosts``.
-   
+host names.  You can change the hostname by using a script on PYNQ image:
+
+   .. code-block:: console
+
+      sudo pynq_hostname.sh <your_new_board_name>
+
 What is the user account and password?
 --------------------------------------
 
@@ -288,7 +295,7 @@ we no longer store bitstreams in our Github repository.
 Instead, we provide a simple script allowing users to build the bitstreams 
 by themselves. This script
 (`build.sh`) is located at the root of the PYNQ repository. To run this
-script, make sure you have Vivado and SDK installed on your Ubuntu machine, 
+script, make sure you have Vivado and Vitis installed on your Ubuntu machine, 
 and run:
 
    .. code-block:: console
@@ -304,7 +311,7 @@ we no longer store compiled MicroBlaze binaries in our Github repository.
 Instead, we provide a simple script allowing users to build the binaries 
 by themselves. This script
 (`build.sh`) is located at the root of the PYNQ repository. To run this
-script, make sure you have Vivado and SDK installed on your Ubuntu machine,
+script, make sure you have Vivado and Vitis installed on your Ubuntu machine,
 and run:
 
    .. code-block:: console

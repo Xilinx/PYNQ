@@ -74,6 +74,8 @@ from .logictools import FSMGenerator
 from . import video
 from . import audio
 from . import dma
+from . import pybind11
+
 
 __author__ = "Graham Schelle"
 __copyright__ = "Copyright 2016, Xilinx"

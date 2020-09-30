@@ -13,7 +13,6 @@ Modules:
   * pynq.pl_server.device - Implements the (programmable) device class.
   * pynq.pl_server.xrt_device - Implements Xilinx Run Time (XRT) enabled device.
   * pynq.pl_server.hwh_parser - Parses useful information from hwh files.
-  * pynq.pl_server.tcl_parser - Parses useful information from tcl files.
   * pynq.pl_server.xclbin_parser - Parses useful information from xclbin files.
 
 .. toctree::
@@ -23,5 +22,4 @@ Modules:
     pynq.pl_server/pynq.pl_server.device
     pynq.pl_server/pynq.pl_server.xrt_device
     pynq.pl_server/pynq.pl_server.hwh_parser
-    pynq.pl_server/pynq.pl_server.tcl_parser
     pynq.pl_server/pynq.pl_server.xclbin_parser

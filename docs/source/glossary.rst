@@ -4,12 +4,15 @@ Glossary
 
 A-G
 ===
+  
+  Alveo
+   `Xilinx Alveo™ Data Center accelerator cards <https://www.xilinx.com/products/boards-and-kits/alveo.html>`_ with their ready to go applications deliver a much-needed increase in compute capability, at lowest Total Cost of Ownership (TCO), for the broadest range of workloads.
 
   APSOC
    All Programmable System on Chip
 
   BSP 
-   A board support package (BSP) is a collection of low-level libraries and drivers. The Xilinx® software development Kit (SDK) uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in SDK, you must create a board support package
+   A board support package (BSP) is a collection of low-level libraries and drivers. The Xilinx® Vitis Unified Software Platform uses a BSP to form the lowest layer of your application software stack. Software applications must link against or run on top of a given software platform using the APIs that it provides. Therefore, before you can create and use software applications in Vitis, you must create a board support package
 
   FPGA
    Field Programmable Gate Arrays (FPGAs) are semiconductor devices that are based around a matrix of configurable logic blocks (CLBs) connected via programmable interconnects. FPGAs can be reprogrammed to desired application or functionality requirements after manufacturing. This feature distinguishes FPGAs from Application Specific Integrated Circuits (ASICs), which are custom manufactured for specific design tasks.
@@ -30,7 +33,7 @@ H-R
    Input/Output Processor.
 
   Jupyter (Notebooks)
-   `Jupyter <https://www.jupyter.org>`_ is an open source project consisting of an interactive, web application that allows users to create and share notebook documents that contain live code and the full range of rich media supported by modern browsers. These include text, images, videos, LaTeX-styled equations, and interactive widgets. The Jupyter framework is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities. Its uses include: data cleaning and transformation, numerical simulation, statistical modelling, machine learning and much more.
+   `Jupyter <https://www.jupyter.org>`_ is an open source project consisting of an interactive, web application that allows users to create and share notebook documents that contain live code and the full range of rich media supported by modern browsers. These include text, images, videos, LaTeX-styled equations, and interactive widgets. The Jupyter framework is used as a front-end to over 40 different programming languages.  It originated from the interactive data science and scientific computing communities. Its uses include: data cleaning and transformation, numerical simulation, statistical modeling, machine learning and much more.
    
 
   MicroBlaze
@@ -54,9 +57,6 @@ H-R
 
 S-Z
 ===
-  SDK
-   Xilinx SDK - Software Development Kit. Software development environment including cross-compiles for ARM®, and MicroBlaze processors. Also includes debug, and profiling tools. 
-   Required to build software for a MicroBlaze processor inside an IOP. 
    
   SOC
    System On Chip
@@ -70,6 +70,11 @@ S-Z
   UART
    Universal asynchronous receiver/transmitter; Serial communication protocol
 
+  Vitis
+   `Xilinx Vitis Unified Software Platform <https://www.xilinx.com/products/design-tools/vitis.html>`_ enables the development of embedded software and accelerated applications on heterogeneous Xilinx platforms including FPGAs, SoCs, and Versal ACAPs. Also includes debug, and profiling tools. 
+   Required to build software for a MicroBlaze processor inside an IOP. 
+
+
   Vivado
    `Vivado Design Suite <http://www.xilinx.com/products/design-tools/vivado.html>`_ is a suite of computer-aided design tools provided by Xilinx for creating FPGA designs.  It is used to design and implement the overlays used in Pynq.
    
@@ -79,6 +84,9 @@ S-Z
   Zynq®
    `Zynq-7000 All Programmable SoC (APSoC) devices <http://www.xilinx.com/products/silicon-devices/soc/zynq-7000.html>`_ integrate the software programmability of an ARM®-based processor with the hardware programmability of an FPGA, enabling key analytics and hardware acceleration while integrating CPU, DSP, ASSP, and mixed signal functionality on a single device. Zynq-7000 AP SoCs infuse customizable intelligence into today’s embedded systems to suit your unique application requirements
 
+  Zynq® UltraScale+™ MPSoC
+   `Zynq® UltraScale+™ MPSoC devices <https://www.xilinx.com/products/silicon-devices/soc/zynq-ultrascale-mpsoc.html>`_ provide 64-bit processor scalability while combining real-time control with soft and hard engines for graphics, video, waveform, and packet processing. Built on a common real-time processor and programmable logic equipped platform, three distinct variants include dual application processor (CG) devices, quad application processor and GPU (EG) devices, and video codec (EV) devices, creating unlimited possibilities for applications such as 5G Wireless, next generation ADAS, and Industrial Internet-of-Things.
+   
   Zynq PL
    Programmable Logic - FPGA fabric
 

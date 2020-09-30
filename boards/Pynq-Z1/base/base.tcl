@@ -53,6 +53,7 @@
  # 2.01  yrq 08/08/2018 update to 2018.2
  # 2.04  yrq 01/17/2019 update to 2018.3
  # 2.5   yrq 08/22/2019 update to 2019.1
+ # 2.6   yrq 11/06/2019 update to 2020.1
  #
  # </pre>
  #
@@ -79,12 +80,12 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2019.1
+set scripts_vivado_version 2020.1
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
    puts ""
-   catch {common::send_msg_id "BD_TCL-109" "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
+   catch {common::send_gid_msg -ssname BD::TCL -id 2041 -severity "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
 
    return 1
 }
@@ -94,7 +95,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source base_script.tcl
+# source base.tcl
 
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
@@ -138,10 +139,10 @@ if { ${design_name} eq "" } {
    #    4): Current design opened AND is empty AND names diff; design_name exists in project.
 
    if { $cur_design ne $design_name } {
-      common::send_msg_id "BD_TCL-001" "INFO" "Changing value of <design_name> from <$design_name> to <$cur_design> since current design is empty."
+      common::send_gid_msg -ssname BD::TCL -id 2001 -severity "INFO" "Changing value of <design_name> from <$design_name> to <$cur_design> since current design is empty."
       set design_name [get_property NAME $cur_design]
    }
-   common::send_msg_id "BD_TCL-002" "INFO" "Constructing design in IPI design <$cur_design>..."
+   common::send_gid_msg -ssname BD::TCL -id 2002 -severity "INFO" "Constructing design in IPI design <$cur_design>..."
 
 } elseif { ${cur_design} ne "" && $list_cells ne "" && $cur_design eq $design_name } {
    # USE CASES:
@@ -162,19 +163,19 @@ if { ${design_name} eq "" } {
    #    8) No opened design, design_name not in project.
    #    9) Current opened design, has components, but diff names, design_name not in project.
 
-   common::send_msg_id "BD_TCL-003" "INFO" "Currently there is no design <$design_name> in project, so creating one..."
+   common::send_gid_msg -ssname BD::TCL -id 2003 -severity "INFO" "Currently there is no design <$design_name> in project, so creating one..."
 
    create_bd_design $design_name
 
-   common::send_msg_id "BD_TCL-004" "INFO" "Making design <$design_name> as current_bd_design."
+   common::send_gid_msg -ssname BD::TCL -id 2004 -severity "INFO" "Making design <$design_name> as current_bd_design."
    current_bd_design $design_name
 
 }
 
-common::send_msg_id "BD_TCL-005" "INFO" "Currently the variable <design_name> is equal to \"$design_name\"."
+common::send_gid_msg -ssname BD::TCL -id 2005 -severity "INFO" "Currently the variable <design_name> is equal to \"$design_name\"."
 
 if { $nRet != 0 } {
-   catch {common::send_msg_id "BD_TCL-114" "ERROR" $errMsg}
+   catch {common::send_gid_msg -ssname BD::TCL -id 2006 -severity "ERROR" $errMsg}
    return $nRet
 }
 
@@ -185,8 +186,10 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
+user.org:user:address_remap:1.0\
 xilinx.com:user:audio_direct:1.1\
 xilinx.com:ip:xlslice:1.0\
+xilinx.com:ip:axi_protocol_converter:2.1\
 xilinx.com:ip:axi_gpio:2.0\
 xilinx.com:ip:xlconcat:2.1\
 xilinx.com:ip:xlconstant:1.1\
@@ -219,14 +222,14 @@ xilinx.com:hls:pixel_unpack:1.0\
 xilinx.com:user:color_swap:1.1\
 digilentinc.com:ip:dvi2rgb:1.7\
 xilinx.com:ip:v_vid_in_axi4s:4.0\
-xilinx.com:ip:v_tc:6.1\
+xilinx.com:ip:v_tc:6.2\
 digilentinc.com:ip:axi_dynclk:1.0\
 digilentinc.com:ip:rgb2dvi:1.2\
 xilinx.com:ip:v_axi4s_vid_out:4.0\
 "
 
    set list_ips_missing ""
-   common::send_msg_id "BD_TCL-006" "INFO" "Checking if the following IPs exist in the project's IP catalog: $list_check_ips ."
+   common::send_gid_msg -ssname BD::TCL -id 2011 -severity "INFO" "Checking if the following IPs exist in the project's IP catalog: $list_check_ips ."
 
    foreach ip_vlnv $list_check_ips {
       set ip_obj [get_ipdefs -all $ip_vlnv]
@@ -236,14 +239,14 @@ xilinx.com:ip:v_axi4s_vid_out:4.0\
    }
 
    if { $list_ips_missing ne "" } {
-      catch {common::send_msg_id "BD_TCL-115" "ERROR" "The following IPs are not found in the IP Catalog:\n  $list_ips_missing\n\nResolution: Please add the repository containing the IP(s) to the project." }
+      catch {common::send_gid_msg -ssname BD::TCL -id 2012 -severity "ERROR" "The following IPs are not found in the IP Catalog:\n  $list_ips_missing\n\nResolution: Please add the repository containing the IP(s) to the project." }
       set bCheckIPsPassed 0
    }
 
 }
 
 if { $bCheckIPsPassed != 1 } {
-  common::send_msg_id "BD_TCL-1003" "WARNING" "Will not continue with creation of design due to the error(s) above."
+  common::send_gid_msg -ssname BD::TCL -id 2023 -severity "WARNING" "Will not continue with creation of design due to the error(s) above."
   return 3
 }
 
@@ -258,21 +261,21 @@ proc create_hier_cell_frontend_1 { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_frontend_1() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_frontend_1() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -288,10 +291,15 @@ proc create_hier_cell_frontend_1 { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S02_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S04_AXILite
+
   create_bd_intf_pin -mode Master -vlnv digilentinc.com:interface:tmds_rtl:1.0 TMDS_out
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 video_in
+
 
   # Create pins
   create_bd_pin -dir I -type clk clk_100M
@@ -333,7 +341,7 @@ proc create_hier_cell_frontend_1 { parentCell nameHier } {
  ] $v_axi4s_vid_out_0
 
   # Create instance: vtc_out, and set properties
-  set vtc_out [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_tc:6.1 vtc_out ]
+  set vtc_out [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_tc:6.2 vtc_out ]
   set_property -dict [ list \
    CONFIG.enable_detection {false} \
  ] $vtc_out
@@ -369,21 +377,21 @@ proc create_hier_cell_frontend { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_frontend() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_frontend() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -399,10 +407,15 @@ proc create_hier_cell_frontend { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 DDC
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S02_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv digilentinc.com:interface:tmds_rtl:1.0 TMDS_in
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 video_out
+
 
   # Create pins
   create_bd_pin -dir O -type clk PixelClk
@@ -452,7 +465,7 @@ proc create_hier_cell_frontend { parentCell nameHier } {
  ] $v_vid_in_axi4s_0
 
   # Create instance: vtc_in, and set properties
-  set vtc_in [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_tc:6.1 vtc_in ]
+  set vtc_in [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_tc:6.2 vtc_in ]
   set_property -dict [ list \
    CONFIG.HAS_INTC_IF {true} \
    CONFIG.enable_generation {false} \
@@ -494,21 +507,21 @@ proc create_hier_cell_hdmi_out { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_hdmi_out() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_hdmi_out() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -524,12 +537,19 @@ proc create_hier_cell_hdmi_out { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S01_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S02_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S03_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S04_AXILite
+
   create_bd_intf_pin -mode Master -vlnv digilentinc.com:interface:tmds_rtl:1.0 TMDS_out
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 in_stream
+
 
   # Create pins
   create_bd_pin -dir I -type clk clk_100M
@@ -583,21 +603,21 @@ proc create_hier_cell_hdmi_in { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_hdmi_in() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_hdmi_in() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -613,12 +633,19 @@ proc create_hier_cell_hdmi_in { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 DDC
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S01_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S02_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S03_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv digilentinc.com:interface:tmds_rtl:1.0 TMDS_in
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 out_stream
+
 
   # Create pins
   create_bd_pin -dir O -type clk PixelClk
@@ -682,21 +709,21 @@ proc create_hier_cell_lmb_2 { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_lmb_2() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_lmb_2() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -712,8 +739,11 @@ proc create_hier_cell_lmb_2 { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:bram_rtl:1.0 BRAM_PORTB
+
   create_bd_intf_pin -mode MirroredMaster -vlnv xilinx.com:interface:lmb_rtl:1.0 DLMB
+
   create_bd_intf_pin -mode MirroredMaster -vlnv xilinx.com:interface:lmb_rtl:1.0 ILMB
+
 
   # Create pins
   create_bd_pin -dir I -type clk LMB_Clk
@@ -766,21 +796,21 @@ proc create_hier_cell_lmb_1 { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_lmb_1() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_lmb_1() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -796,8 +826,11 @@ proc create_hier_cell_lmb_1 { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:bram_rtl:1.0 BRAM_PORTB
+
   create_bd_intf_pin -mode MirroredMaster -vlnv xilinx.com:interface:lmb_rtl:1.0 DLMB
+
   create_bd_intf_pin -mode MirroredMaster -vlnv xilinx.com:interface:lmb_rtl:1.0 ILMB
+
 
   # Create pins
   create_bd_pin -dir I -type clk LMB_Clk
@@ -850,21 +883,21 @@ proc create_hier_cell_timers_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_timers_subsystem() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_timers_subsystem() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -880,11 +913,17 @@ proc create_hier_cell_timers_subsystem { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S01_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S02_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S03_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S04_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S05_AXILite
+
 
   # Create pins
   create_bd_pin -dir I -from 7 -to 0 capture_i
@@ -1055,21 +1094,21 @@ proc create_hier_cell_spi_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_spi_subsystem() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_spi_subsystem() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1085,9 +1124,13 @@ proc create_hier_cell_spi_subsystem { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S01_AXILite
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:spi_rtl:1.0 SPI_0
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:spi_rtl:1.0 arduino_direct_spi
+
 
   # Create pins
   create_bd_pin -dir O -type intr ip2intc_irpt
@@ -1132,21 +1175,21 @@ proc create_hier_cell_lmb { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_lmb() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_lmb() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1162,8 +1205,11 @@ proc create_hier_cell_lmb { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:bram_rtl:1.0 BRAM_PORTB
+
   create_bd_intf_pin -mode MirroredMaster -vlnv xilinx.com:interface:lmb_rtl:1.0 DLMB
+
   create_bd_intf_pin -mode MirroredMaster -vlnv xilinx.com:interface:lmb_rtl:1.0 ILMB
+
 
   # Create pins
   create_bd_pin -dir I -type clk LMB_Clk
@@ -1216,21 +1262,21 @@ proc create_hier_cell_iic_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_iic_subsystem() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_iic_subsystem() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1246,7 +1292,9 @@ proc create_hier_cell_iic_subsystem { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI1
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 arduino_direct_iic
+
 
   # Create pins
   create_bd_pin -dir O -type intr iic2intc_irpt
@@ -1275,21 +1323,21 @@ proc create_hier_cell_gpio_subsystem { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_gpio_subsystem() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_gpio_subsystem() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1305,9 +1353,13 @@ proc create_hier_cell_gpio_subsystem { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXILite
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S01_AXILite
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 arduino_gpio
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 ck_gpio
+
 
   # Create pins
   create_bd_pin -dir O -type intr ip2intc_irpt
@@ -1353,21 +1405,21 @@ proc create_hier_cell_video { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_video() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_video() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1383,10 +1435,15 @@ proc create_hier_cell_video { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 DDC
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
+
   create_bd_intf_pin -mode Slave -vlnv digilentinc.com:interface:tmds_rtl:1.0 TMDS_in
+
   create_bd_intf_pin -mode Master -vlnv digilentinc.com:interface:tmds_rtl:1.0 TMDS_out
+
 
   # Create pins
   create_bd_pin -dir I -type clk clk_100M
@@ -1511,21 +1568,21 @@ proc create_hier_cell_trace_analyzer_pmoda { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_trace_analyzer_pmoda() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_trace_analyzer_pmoda() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1541,8 +1598,11 @@ proc create_hier_cell_trace_analyzer_pmoda { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_LITE
+
 
   # Create pins
   create_bd_pin -dir I -from 31 -to 0 data
@@ -1605,21 +1665,21 @@ proc create_hier_cell_trace_analyzer_arduino { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_trace_analyzer_arduino() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_trace_analyzer_arduino() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1635,8 +1695,11 @@ proc create_hier_cell_trace_analyzer_arduino { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_LITE
+
 
   # Create pins
   create_bd_pin -dir I -from 63 -to 0 data
@@ -1699,21 +1762,21 @@ proc create_hier_cell_iop_pmodb { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_iop_pmodb() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_iop_pmodb() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1729,9 +1792,13 @@ proc create_hier_cell_iop_pmodb { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:mbdebug_rtl:3.0 DEBUG
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 pmodb_gpio
+
 
   # Create pins
   create_bd_pin -dir I -from 0 -to 0 -type rst aux_reset_in
@@ -1892,21 +1959,21 @@ proc create_hier_cell_iop_pmoda { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_iop_pmoda() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_iop_pmoda() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -1922,9 +1989,13 @@ proc create_hier_cell_iop_pmoda { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:mbdebug_rtl:3.0 DEBUG
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 pmoda_gpio
+
 
   # Create pins
   create_bd_pin -dir I -from 0 -to 0 -type rst aux_reset_in
@@ -2085,21 +2156,21 @@ proc create_hier_cell_iop_arduino { parentCell nameHier } {
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_iop_arduino() - Empty argument(s)!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_iop_arduino() - Empty argument(s)!"}
      return
   }
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -2115,22 +2186,39 @@ proc create_hier_cell_iop_arduino { parentCell nameHier } {
 
   # Create interface pins
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:mbdebug_rtl:3.0 DEBUG
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux0
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux1
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux5
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux6
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux8
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux9
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux12
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux13
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux15
+
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vp_Vn
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 arduino_direct_iic
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:spi_rtl:1.0 arduino_direct_spi
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 arduino_gpio
+
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 ck_io
+
 
   # Create pins
   create_bd_pin -dir I -from 0 -to 0 -type rst aux_reset_in
@@ -2380,14 +2468,14 @@ proc create_root_design { parentCell } {
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]
   if { $parentObj == "" } {
-     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
      return
   }
 
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -2400,31 +2488,57 @@ proc create_root_design { parentCell } {
 
   # Create interface ports
   set DDR [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 DDR ]
+
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
+
   set Vaux0 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux0 ]
+
   set Vaux1 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux1 ]
+
   set Vaux5 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux5 ]
+
   set Vaux6 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux6 ]
+
   set Vaux8 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux8 ]
+
   set Vaux9 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux9 ]
+
   set Vaux12 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux12 ]
+
   set Vaux13 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux13 ]
+
   set Vaux15 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vaux15 ]
+
   set Vp_Vn [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 Vp_Vn ]
+
   set arduino_direct_iic [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 arduino_direct_iic ]
+
   set arduino_direct_spi [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:spi_rtl:1.0 arduino_direct_spi ]
+
   set arduino_gpio [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 arduino_gpio ]
+
   set btns_4bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 btns_4bits ]
+
   set ck_gpio [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 ck_gpio ]
+
   set hdmi_in [ create_bd_intf_port -mode Slave -vlnv digilentinc.com:interface:tmds_rtl:1.0 hdmi_in ]
+
   set hdmi_in_ddc [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 hdmi_in_ddc ]
+
   set hdmi_out [ create_bd_intf_port -mode Master -vlnv digilentinc.com:interface:tmds_rtl:1.0 hdmi_out ]
+
   set hdmi_out_ddc [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 hdmi_out_ddc ]
+
   set leds_4bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 leds_4bits ]
+
   set pmoda_gpio [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 pmoda_gpio ]
+
   set pmodb_gpio [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 pmodb_gpio ]
+
   set rgbleds_6bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 rgbleds_6bits ]
+
   set sws_2bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 sws_2bits ]
+
 
   # Create ports
   set hdmi_in_hpd [ create_bd_port -dir O -from 0 -to 0 hdmi_in_hpd ]
@@ -2433,6 +2547,13 @@ proc create_root_design { parentCell } {
   set pdm_m_clk [ create_bd_port -dir O -from 0 -to 0 pdm_m_clk ]
   set pdm_m_data_i [ create_bd_port -dir I pdm_m_data_i ]
   set pwm_audio_o [ create_bd_port -dir O -from 0 -to 0 pwm_audio_o ]
+
+  # Create instance: address_remap_0, and set properties
+  set address_remap_0 [ create_bd_cell -type ip -vlnv user.org:user:address_remap:1.0 address_remap_0 ]
+  set_property -dict [ list \
+   CONFIG.C_M_AXI_out_ADDR_WIDTH {29} \
+   CONFIG.C_S_AXI_in_ADDR_WIDTH {29} \
+ ] $address_remap_0
 
   # Create instance: audio_direct_0, and set properties
   set audio_direct_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:audio_direct:1.1 audio_direct_0 ]
@@ -2466,6 +2587,9 @@ proc create_root_design { parentCell } {
    CONFIG.S00_HAS_REGSLICE {1} \
    CONFIG.S01_HAS_REGSLICE {1} \
  ] $axi_mem_intercon
+
+  # Create instance: axi_protocol_convert_0, and set properties
+  set axi_protocol_convert_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_protocol_converter:2.1 axi_protocol_convert_0 ]
 
   # Create instance: btns_gpio, and set properties
   set btns_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 btns_gpio ]
@@ -3368,8 +3492,8 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_UIPARAM_DDR_DQS_3_PROPOGATION_DELAY {160} \
    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0.040} \
    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0.058} \
-   CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {-0.009} \
-   CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {-0.033} \
+   CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {0.000} \
+   CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {0.000} \
    CONFIG.PCW_UIPARAM_DDR_DQ_0_LENGTH_MM {16.5} \
    CONFIG.PCW_UIPARAM_DDR_DQ_0_PACKAGE_LENGTH {98.503} \
    CONFIG.PCW_UIPARAM_DDR_DQ_0_PROPOGATION_DELAY {160} \
@@ -3545,7 +3669,7 @@ proc create_root_design { parentCell } {
   # Create instance: xlconcat_0, and set properties
   set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
   set_property -dict [ list \
-   CONFIG.NUM_PORTS {1} \
+   CONFIG.NUM_PORTS {16} \
  ] $xlconcat_0
 
   # Create interface connections
@@ -3563,10 +3687,12 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net Vaux8_1 [get_bd_intf_ports Vaux8] [get_bd_intf_pins iop_arduino/Vaux8]
   connect_bd_intf_net -intf_net Vaux9_1 [get_bd_intf_ports Vaux9] [get_bd_intf_pins iop_arduino/Vaux9]
   connect_bd_intf_net -intf_net Vp_Vn_1 [get_bd_intf_ports Vp_Vn] [get_bd_intf_pins iop_arduino/Vp_Vn]
+  connect_bd_intf_net -intf_net address_remap_0_M_AXI_out [get_bd_intf_pins address_remap_0/M_AXI_out] [get_bd_intf_pins axi_protocol_convert_0/S_AXI]
   connect_bd_intf_net -intf_net axi_dma_0_M_AXI_S2MM [get_bd_intf_pins axi_mem_intercon/S00_AXI] [get_bd_intf_pins trace_analyzer_pmoda/M_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins ps7_0/S_AXI_GP0]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins address_remap_0/S_AXI_in] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_mem_intercon_M00_AXI [get_bd_intf_pins ps7_0/S_AXI_HP0] [get_bd_intf_pins video/M_AXI]
   connect_bd_intf_net -intf_net axi_mem_intercon_M00_AXI1 [get_bd_intf_pins axi_mem_intercon/M00_AXI] [get_bd_intf_pins ps7_0/S_AXI_HP2]
+  connect_bd_intf_net -intf_net axi_protocol_convert_0_M_AXI [get_bd_intf_pins axi_protocol_convert_0/M_AXI] [get_bd_intf_pins ps7_0/S_AXI_GP0]
   connect_bd_intf_net -intf_net btns_gpio_GPIO [get_bd_intf_ports btns_4bits] [get_bd_intf_pins btns_gpio/GPIO]
   connect_bd_intf_net -intf_net dvi2rgb_0_DDC [get_bd_intf_ports hdmi_in_ddc] [get_bd_intf_pins video/DDC]
   connect_bd_intf_net -intf_net gpio_leds_GPIO [get_bd_intf_ports leds_4bits] [get_bd_intf_pins leds_gpio/GPIO]
@@ -3609,7 +3735,7 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
   # Create port connections
   connect_bd_net -net S00_ARESETN_1 [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins iop_pmoda/peripheral_aresetn]
   connect_bd_net -net S01_ARESETN_1 [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins iop_pmodb/peripheral_aresetn]
-  connect_bd_net -net S02_ARESETN_1 [get_bd_pins axi_interconnect_0/S02_ARESETN] [get_bd_pins iop_arduino/peripheral_aresetn]
+  connect_bd_net -net S02_ARESETN_1 [get_bd_pins address_remap_0/m_axi_out_aresetn] [get_bd_pins address_remap_0/s_axi_in_aresetn] [get_bd_pins axi_interconnect_0/S02_ARESETN] [get_bd_pins axi_protocol_convert_0/aresetn] [get_bd_pins iop_arduino/peripheral_aresetn]
   connect_bd_net -net audio_direct_0_audio_out [get_bd_ports pwm_audio_o] [get_bd_pins audio_direct_0/audio_out]
   connect_bd_net -net audio_direct_0_audio_shutdown [get_bd_ports pdm_audio_shutdown] [get_bd_pins audio_direct_0/audio_shutdown]
   connect_bd_net -net audio_direct_0_pdm_clk [get_bd_ports pdm_m_clk] [get_bd_pins audio_direct_0/pdm_clk]
@@ -3635,7 +3761,7 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
   connect_bd_net -net mb_3_reset_Dout [get_bd_pins iop_arduino/aux_reset_in] [get_bd_pins mb_iop_arduino_reset/Dout]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins iop_arduino/mb_debug_sys_rst] [get_bd_pins iop_pmoda/mb_debug_sys_rst] [get_bd_pins iop_pmodb/mb_debug_sys_rst] [get_bd_pins mdm_1/Debug_SYS_Rst]
   connect_bd_net -net pdm_m_data_i_1 [get_bd_ports pdm_m_data_i] [get_bd_pins audio_direct_0/audio_in]
-  connect_bd_net -net ps7_0_FCLK_CLK0 [get_bd_pins audio_direct_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins axi_interconnect_0/S02_ACLK] [get_bd_pins btns_gpio/s_axi_aclk] [get_bd_pins iop_arduino/clk_100M] [get_bd_pins iop_pmoda/clk_100M] [get_bd_pins iop_pmodb/clk_100M] [get_bd_pins leds_gpio/s_axi_aclk] [get_bd_pins ps7_0/FCLK_CLK0] [get_bd_pins ps7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0/S_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/M06_ACLK] [get_bd_pins ps7_0_axi_periph/M07_ACLK] [get_bd_pins ps7_0_axi_periph/M08_ACLK] [get_bd_pins ps7_0_axi_periph/M09_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rgbleds_gpio/s_axi_aclk] [get_bd_pins rst_ps7_0_fclk0/slowest_sync_clk] [get_bd_pins switches_gpio/s_axi_aclk] [get_bd_pins system_interrupts/s_axi_aclk] [get_bd_pins video/clk_100M]
+  connect_bd_net -net ps7_0_FCLK_CLK0 [get_bd_pins address_remap_0/m_axi_out_aclk] [get_bd_pins address_remap_0/s_axi_in_aclk] [get_bd_pins audio_direct_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins axi_interconnect_0/S02_ACLK] [get_bd_pins axi_protocol_convert_0/aclk] [get_bd_pins btns_gpio/s_axi_aclk] [get_bd_pins iop_arduino/clk_100M] [get_bd_pins iop_pmoda/clk_100M] [get_bd_pins iop_pmodb/clk_100M] [get_bd_pins leds_gpio/s_axi_aclk] [get_bd_pins ps7_0/FCLK_CLK0] [get_bd_pins ps7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0/S_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/M06_ACLK] [get_bd_pins ps7_0_axi_periph/M07_ACLK] [get_bd_pins ps7_0_axi_periph/M08_ACLK] [get_bd_pins ps7_0_axi_periph/M09_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rgbleds_gpio/s_axi_aclk] [get_bd_pins rst_ps7_0_fclk0/slowest_sync_clk] [get_bd_pins switches_gpio/s_axi_aclk] [get_bd_pins system_interrupts/s_axi_aclk] [get_bd_pins video/clk_100M]
   connect_bd_net -net ps7_0_FCLK_CLK1 [get_bd_pins ps7_0/FCLK_CLK1] [get_bd_pins ps7_0/S_AXI_HP0_ACLK] [get_bd_pins rst_ps7_0_fclk1/slowest_sync_clk] [get_bd_pins video/clk_142M]
   connect_bd_net -net ps7_0_FCLK_CLK2 [get_bd_pins ps7_0/FCLK_CLK2] [get_bd_pins video/clk_200M]
   connect_bd_net -net ps7_0_FCLK_CLK3 [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins axi_mem_intercon/S01_ACLK] [get_bd_pins ps7_0/FCLK_CLK3] [get_bd_pins ps7_0/M_AXI_GP1_ACLK] [get_bd_pins ps7_0/S_AXI_HP2_ACLK] [get_bd_pins ps7_0_axi_periph_1/ACLK] [get_bd_pins ps7_0_axi_periph_1/M00_ACLK] [get_bd_pins ps7_0_axi_periph_1/M01_ACLK] [get_bd_pins ps7_0_axi_periph_1/M02_ACLK] [get_bd_pins ps7_0_axi_periph_1/M03_ACLK] [get_bd_pins ps7_0_axi_periph_1/S00_ACLK] [get_bd_pins rst_ps7_0_fclk3/slowest_sync_clk] [get_bd_pins trace_analyzer_arduino/s_axi_aclk] [get_bd_pins trace_analyzer_pmoda/s_axi_aclk]
@@ -3663,84 +3789,73 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
   connect_bd_net -net xlconcat_0_dout [get_bd_pins ps7_0/IRQ_F2P] [get_bd_pins xlconcat_0/dout]
 
   # Create address segments
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C00000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs audio_direct_0/S_AXI/S_AXI_reg] SEG_audio_direct_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x80400000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_pmoda/axi_dma_0/S_AXI_LITE/Reg] SEG_axi_dma_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x80410000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_arduino/axi_dma_0/S_AXI_LITE/Reg] SEG_axi_dma_0_Reg3
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C10000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/frontend/axi_dynclk/s00_axi/reg0] SEG_axi_dynclk_reg0
-  create_bd_addr_seg -range 0x00010000 -offset 0x41220000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/frontend/axi_gpio_hdmiin/S_AXI/Reg] SEG_axi_gpio_hdmiin_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43000000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/axi_vdma/S_AXI_LITE/Reg] SEG_axi_vdma_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41210000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs btns_gpio/S_AXI/Reg] SEG_btns_gpio_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C50000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/color_convert/s_axi_AXILiteS/Reg] SEG_color_convert_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C60000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/color_convert/s_axi_AXILiteS/Reg] SEG_color_convert_out_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41250000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs leds_gpio/S_AXI/Reg] SEG_gpio_leds_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41230000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/frontend/hdmi_out_hpd_video/S_AXI/Reg] SEG_hdmi_out_hpd_video_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40000000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_pmoda/mb_bram_ctrl/S_AXI/Mem0] SEG_mb_bram_ctrl_1_Mem0
-  create_bd_addr_seg -range 0x00010000 -offset 0x42000000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_pmodb/mb_bram_ctrl/S_AXI/Mem0] SEG_mb_bram_ctrl_2_Mem0
-  create_bd_addr_seg -range 0x00010000 -offset 0x44000000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_arduino/mb_bram_ctrl/S_AXI/Mem0] SEG_mb_bram_ctrl_3_Mem0
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C40000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/pixel_pack/s_axi_AXILiteS/Reg] SEG_pixel_pack_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C70000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/pixel_unpack/s_axi_AXILiteS/Reg] SEG_pixel_unpack_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41240000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs rgbleds_gpio/S_AXI/Reg] SEG_rgbleds_gpio_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41200000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs switches_gpio/S_AXI/Reg] SEG_swsleds_gpio_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41800000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs system_interrupts/S_AXI/Reg] SEG_system_interrupts_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x83C10000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_pmoda/trace_cntrl_32_0/s_axi_trace_cntrl/Reg] SEG_trace_cntrl_32_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x83C00000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_arduino/trace_cntrl_64_0/s_axi_trace_cntrl/Reg] SEG_trace_cntrl_64_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C30000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/frontend/vtc_in/ctrl/Reg] SEG_vtc_in_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C20000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/frontend/vtc_out/ctrl/Reg] SEG_vtc_out_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A20000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/io_switch_0/S_AXI/S_AXI_reg] SEG_io_switch_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/lmb/lmb_bram_if_cntlr/SLMB1/Mem] SEG_lmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces iop_arduino/mb/Instruction] [get_bd_addr_segs iop_arduino/lmb/lmb_bram_if_cntlr/SLMB/Mem] SEG_lmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x00010000 -offset 0x40000000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/gpio_subsystem/ck_gpio/S_AXI/Reg] SEG_mb2_gpio_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40800000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/iic_subsystem/iic_direct/S_AXI/Reg] SEG_mb2_iic_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/spi_subsystem/spi_direct/AXI_LITE/Reg] SEG_mb2_spi_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40020000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/gpio_subsystem/arduino_gpio/S_AXI/Reg] SEG_mb3_gpio_pl_sw_d13_d2_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41200000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/intc/S_AXI/Reg] SEG_mb3_intc_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/intr/S_AXI/Reg] SEG_mb3_intr_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/spi_subsystem/spi_shared/AXI_LITE/Reg] SEG_mb3_spi_pl_sw_d13_d10_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C00000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_0/S_AXI/Reg] SEG_mb3_timer_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C10000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_1/S_AXI/Reg] SEG_mb3_timer_1_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C20000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_2/S_AXI/Reg] SEG_mb3_timer_2_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C30000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_3/S_AXI/Reg] SEG_mb3_timer_3_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C40000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_4/S_AXI/Reg] SEG_mb3_timer_4_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C50000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_5/S_AXI/Reg] SEG_mb3_timer_5_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40600000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/uartlite/S_AXI/Reg] SEG_mb3_uartlite_d1_d0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A30000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/xadc/s_axi_lite/Reg] SEG_mb3_xadc_Reg
-  create_bd_addr_seg -range 0x20000000 -offset 0x20000000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_DDR_LOWOCM] SEG_ps7_0_GP0_DDR_LOWOCM
-  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_IOP] SEG_ps7_0_GP0_IOP
-  create_bd_addr_seg -range 0x20000000 -offset 0x60000000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP0] SEG_ps7_0_GP0_M_AXI_GP0
-  create_bd_addr_seg -range 0x40000000 -offset 0x80000000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP1] SEG_ps7_0_GP0_M_AXI_GP1
-  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_QSPI_LINEAR] SEG_ps7_0_GP0_QSPI_LINEAR
-  create_bd_addr_seg -range 0x00010000 -offset 0x40000000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/gpio/S_AXI/Reg] SEG_axi_gpio_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40800000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/iic/S_AXI/Reg] SEG_axi_iic_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/spi/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces iop_pmoda/mb/Instruction] [get_bd_addr_segs iop_pmoda/lmb/lmb_bram_if_cntlr/SLMB/Mem] SEG_ilmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A20000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/io_switch/S_AXI/S_AXI_reg] SEG_io_switch_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/intr/S_AXI/Reg] SEG_iop_pmoda_intr_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/lmb/lmb_bram_if_cntlr/SLMB1/Mem] SEG_lmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x00010000 -offset 0x41200000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/intc/S_AXI/Reg] SEG_mb1_intc_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C00000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/timer/S_AXI/Reg] SEG_mb1_timer_Reg
-  create_bd_addr_seg -range 0x20000000 -offset 0x20000000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_DDR_LOWOCM] SEG_ps7_0_GP0_DDR_LOWOCM
-  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_IOP] SEG_ps7_0_GP0_IOP
-  create_bd_addr_seg -range 0x20000000 -offset 0x60000000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP0] SEG_ps7_0_GP0_M_AXI_GP0
-  create_bd_addr_seg -range 0x40000000 -offset 0x80000000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP1] SEG_ps7_0_GP0_M_AXI_GP1
-  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_QSPI_LINEAR] SEG_ps7_0_GP0_QSPI_LINEAR
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A20000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/io_switch/S_AXI/S_AXI_reg] SEG_io_switch_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/intr/S_AXI/Reg] SEG_iop_pmodb_intr_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB1/Mem] SEG_lmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces iop_pmodb/mb/Instruction] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB/Mem] SEG_lmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x00010000 -offset 0x40000000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/gpio/S_AXI/Reg] SEG_mb2_gpio_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40800000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/iic/S_AXI/Reg] SEG_mb2_iic_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41200000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/intc/S_AXI/Reg] SEG_mb2_intc_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/spi/AXI_LITE/Reg] SEG_mb2_spi_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41C00000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/timer/S_AXI/Reg] SEG_mb2_timer_Reg
-  create_bd_addr_seg -range 0x20000000 -offset 0x20000000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_DDR_LOWOCM] SEG_ps7_0_GP0_DDR_LOWOCM
-  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_IOP] SEG_ps7_0_GP0_IOP
-  create_bd_addr_seg -range 0x20000000 -offset 0x60000000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP0] SEG_ps7_0_GP0_M_AXI_GP0
-  create_bd_addr_seg -range 0x40000000 -offset 0x80000000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP1] SEG_ps7_0_GP0_M_AXI_GP1
-  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_QSPI_LINEAR] SEG_ps7_0_GP0_QSPI_LINEAR
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces trace_analyzer_arduino/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP2/HP2_DDR_LOWOCM] SEG_ps7_0_HP2_DDR_LOWOCM
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces trace_analyzer_pmoda/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP2/HP2_DDR_LOWOCM] SEG_ps7_0_HP2_DDR_LOWOCM
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces video/axi_vdma/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_ps7_0_HP0_DDR_LOWOCM
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces video/axi_vdma/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_ps7_0_HP0_DDR_LOWOCM
+  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces address_remap_0/M_AXI_out] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_DDR_LOWOCM] -force
+  assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs audio_direct_0/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x80400000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_pmoda/axi_dma_0/S_AXI_LITE/Reg] -force
+  assign_bd_address -offset 0x80410000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_arduino/axi_dma_0/S_AXI_LITE/Reg] -force
+  assign_bd_address -offset 0x43C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/frontend/axi_dynclk/s00_axi/reg0] -force
+  assign_bd_address -offset 0x41220000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/frontend/axi_gpio_hdmiin/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/axi_vdma/S_AXI_LITE/Reg] -force
+  assign_bd_address -offset 0x41210000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs btns_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C50000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/color_convert/s_axi_AXILiteS/Reg] -force
+  assign_bd_address -offset 0x43C60000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/color_convert/s_axi_AXILiteS/Reg] -force
+  assign_bd_address -offset 0x41230000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/frontend/hdmi_out_hpd_video/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41250000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs leds_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_pmoda/mb_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x42000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_pmodb/mb_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x44000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_arduino/mb_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x43C40000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/pixel_pack/s_axi_AXILiteS/Reg] -force
+  assign_bd_address -offset 0x43C70000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/pixel_unpack/s_axi_AXILiteS/Reg] -force
+  assign_bd_address -offset 0x41240000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs rgbleds_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs switches_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41800000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs system_interrupts/S_AXI/Reg] -force
+  assign_bd_address -offset 0x83C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_pmoda/trace_cntrl_32_0/s_axi_trace_cntrl/Reg] -force
+  assign_bd_address -offset 0x83C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs trace_analyzer_arduino/trace_cntrl_64_0/s_axi_trace_cntrl/Reg] -force
+  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_in/frontend/vtc_in/ctrl/Reg] -force
+  assign_bd_address -offset 0x40020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs video/hdmi_out/frontend/vtc_out/ctrl/Reg] -force
+  assign_bd_address -offset 0x20000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs address_remap_0/S_AXI_in/memory] -force
+  assign_bd_address -offset 0x40020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/gpio_subsystem/arduino_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/gpio_subsystem/ck_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40800000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/iic_subsystem/iic_direct/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/intc/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/intr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/io_switch_0/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Instruction] [get_bd_addr_segs iop_arduino/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
+  assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/spi_subsystem/spi_direct/AXI_LITE/Reg] -force
+  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/spi_subsystem/spi_shared/AXI_LITE/Reg] -force
+  assign_bd_address -offset 0x41C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_1/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41C20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_2/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41C30000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_3/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41C40000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_4/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41C50000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/timers_subsystem/timer_5/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40600000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/uartlite/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A30000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_arduino/mb/Data] [get_bd_addr_segs iop_arduino/xadc/s_axi_lite/Reg] -force
+  assign_bd_address -offset 0x20000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs address_remap_0/S_AXI_in/memory] -force
+  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40800000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/iic/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/intc/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/intr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/io_switch/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Instruction] [get_bd_addr_segs iop_pmoda/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
+  assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/spi/AXI_LITE/Reg] -force
+  assign_bd_address -offset 0x41C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmoda/mb/Data] [get_bd_addr_segs iop_pmoda/timer/S_AXI/Reg] -force
+  assign_bd_address -offset 0x20000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs address_remap_0/S_AXI_in/memory] -force
+  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40800000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/iic/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/intc/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/intr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/io_switch/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Instruction] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
+  assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/spi/AXI_LITE/Reg] -force
+  assign_bd_address -offset 0x41C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/timer/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces trace_analyzer_arduino/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP2/HP2_DDR_LOWOCM] -force
+  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces trace_analyzer_pmoda/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP2/HP2_DDR_LOWOCM] -force
+  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces video/axi_vdma/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
+  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces video/axi_vdma/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
 
 
   # Restore current instance
@@ -3748,7 +3863,24 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
 
   # Create PFM attributes
   set_property PFM_NAME {xilinx.com:xd:${overlay_name}:1.0} [get_files [current_bd_design].bd]
-
+  set_property PFM.CLOCK { \
+    FCLK_CLK0 {id "0" is_default "true" \
+    	proc_sys_reset "rst_ps7_0_fclk0" status "fixed"} \
+    FCLK_CLK1 {id "1" is_default "false" \
+    	proc_sys_reset "rst_ps7_0_fclk1" status "fixed"} \
+    FCLK_CLK3 {id "3" is_default "false" \
+    	proc_sys_reset "rst_ps7_0_fclk3" status "fixed"} \
+    } [get_bd_cells /ps7_0]
+  set_property PFM.AXI_PORT { \
+    S_AXI_ACP {memport "S_AXI_ACP"} \
+    S_AXI_HP1 {memport "S_AXI_HP"} \
+    S_AXI_HP3 {memport "S_AXI_HP"} \
+    } [get_bd_cells /ps7_0]
+  set intVar []
+  for {set i 1} {$i < 16} {incr i} {
+      lappend intVar In$i {}
+  }
+  set_property PFM.IRQ $intVar [get_bd_cells /xlconcat_0]
 
   validate_bd_design
   save_bd_design

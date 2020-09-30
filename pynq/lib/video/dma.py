@@ -34,7 +34,7 @@ __email__ = "pynq_support@xilinx.com"
 import asyncio
 import numpy as np
 from pynq.xlnk import ContiguousArray
-from pynq import DefaultIP, allocate
+from pynq import DefaultIP, allocate, UnsupportedConfiguration
 
 
 class _FrameCache:
@@ -576,7 +576,7 @@ class AxiVDMA(DefaultIP):
             register |= value << 24
             self._mmio.write(0x58, register)
 
-    def __init__(self, description, framecount=4):
+    def __init__(self, description, framecount=None):
         """Create a new instance of the AXI Video DMA driver
 
         Parameters
@@ -586,9 +586,28 @@ class AxiVDMA(DefaultIP):
 
         """
         super().__init__(description)
+        if 'parameters' in description:
+            parameters = description['parameters']
+            has_s2mm = parameters['C_INCLUDE_S2MM'] == '1'
+            has_mm2s = parameters['C_INCLUDE_MM2S'] == '1'
+            framecount = int(parameters['C_NUM_FSTORES'])
+            s2mm_addr_width = int(parameters['C_M_AXI_S2MM_ADDR_WIDTH'])
+            mm2s_addr_width = int(parameters['C_M_AXI_MM2S_ADDR_WIDTH'])
+            if ((has_s2mm and s2mm_addr_width > 32) or
+                    (has_mm2s and mm2s_addr_width > 32)):
+                raise UnsupportedConfiguration(
+                    'VDMA driver only supports 32-bit addresses')
+
+        else:
+            has_s2mm = True
+            has_mm2s = True
+            framecount = 4 if framecount is None else framecount
+
         self.framecount = framecount
-        self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut)
-        self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut)
+        if has_s2mm:
+            self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut)
+        if has_mm2s:
+            self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut)
 
     bindto = ['xilinx.com:ip:axi_vdma:6.2',
               'xilinx.com:ip:axi_vdma:6.3']

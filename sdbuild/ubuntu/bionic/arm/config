@@ -1,3 +1,5 @@
 STAGE2_PACKAGES_arm := gcc-mb pandas python_packages_bionic libsds
 STAGE2_PACKAGES_arm += jupyter phantomjs-fix sigrok
+STAGE2_PACKAGES_arm += glog pybind11 json-c googletest protobuf opencv
+STAGE2_PACKAGES_arm += bootpy
 STAGE3_PACKAGES_arm := pynq resizefs
