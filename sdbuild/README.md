@@ -219,3 +219,29 @@ make PYNQ_SDIST=<sdist tarball path>
 By default the SD build flow will pull from https://ports.ubuntu.com. This can
 be changed by setting the `PYNQ_UBUNTU_REPO` environment variable. The
 repository link in the final image will remain unchanged.
+
+
+## Patch MicroBlaze compiler
+
+The MicroBlaze compiler shipped with Vitis 2020.1 has some bugs that prevent
+many programs to be compiled properly. There is a patch available, but part
+of the process is manual. 
+
+If the md5sum of your `mb-gcc` is `510eae368f7576e9274140f9f29dc492` the 
+compiler is patched.
+
+```sh
+md5sum $XILINX_VITIS/gnu/microblaze/lin/bin/mb-gcc
+```
+
+If the `md5sum` is different, you need to patch the compiler. Navigate to 
+https://www.xilinx.com/products/design-tools/guest-resources.html and 
+download the `MB-baremetal-host-linux.tar.gz` file from the section GNU - 2020.
+Source the Vitis tools and open a terminal where the file was downloaded.
+You may need to run some of the following commands as root.
+
+```sh
+tar xvzf MB-baremetal-host-linux.tar.gz
+mv $XILINX_VITIS/gnu/microblaze/lin $XILINX_VITIS/gnu/microblaze/lin.bk
+mv lin/ $XILINX_VITIS/gnu/microblaze/
+```

@@ -85,3 +85,16 @@ if [ $(cat /proc/sys/fs/inotify/max_user_watches) -lt 524288 ]; then
     sudo sysctl -n -w fs.inotify.max_user_watches=524288
     echo "Set inotify max_user_watches to 524288"
 fi
+
+# Only for Vitis 2020.1, check if the microblaze compiler is patched
+# Create md5 file to check against to
+echo "510eae368f7576e9274140f9f29dc492  $XILINX_VITIS/gnu/microblaze/lin/bin/mb-gcc" > /tmp/mbgcc.md5
+md5sum --status -c /tmp/mbgcc.md5
+
+if [ $? -eq 1 ]; then    
+    echo "Error: Please patch MicroBlaze compiler version"
+    echo "Instructions on how to patch it are included in sdbuild/README.md"
+    exit 1
+else
+    echo "Pass: microblaze compiler is patched."
+fi
