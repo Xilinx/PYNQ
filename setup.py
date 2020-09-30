@@ -36,6 +36,7 @@ from setuptools.command.build_ext import build_ext
 from distutils.dir_util import copy_tree
 from distutils.file_util import copy_file, move_file
 from shutil import rmtree
+import shutil
 import glob
 import re
 import subprocess
@@ -324,8 +325,8 @@ class BuildExtension(build_ext):
             for ol in overlay_dirs:
                 src = os.path.join(board_folder, ol)
                 dst = os.path.join(self.build_lib, "pynq/overlays", ol)
-                exclude_file_or_folder('notebooks', src)
-                copy_tree(src, dst)
+                if not os.path.isdir(dst):
+                    shutil.copytree(src, dst, ignore=shutil.ignore_patterns('notebooks'))
 
     def run(self):
         if CPU_ARCH == ZYNQ_ARCH:

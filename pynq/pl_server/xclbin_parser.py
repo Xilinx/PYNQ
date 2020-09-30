@@ -60,6 +60,8 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
         else:
             control_protocol = 's_axilite'
         slaves = {n.attrib['name']: n for n in kernel.findall('port[@mode="slave"]')}
+        if not slaves:
+            continue
         masters = {n.attrib['name']: n for n in kernel.findall('port[@mode="master"]')}
         readonly = {n.attrib['name']: n for n in kernel.findall('port[@mode="read_only"]')}
         writeonly = {n.attrib['name']: n for n in kernel.findall('port[@mode="write_only"]')}

@@ -427,7 +427,7 @@ class Xlnk:
             for l in f.readlines():
                 m = re.match('CmaTotal:[\\s]+([0-9]+) kB', l)
                 if m:
-                    return int(m[1]) * 1024
+                    return int(m.group(1)) * 1024
         return 0
 
     def flush(self, bo, offset, vaddr, nbytes):

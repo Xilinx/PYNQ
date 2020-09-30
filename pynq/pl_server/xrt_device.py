@@ -334,6 +334,13 @@ class XrtDevice(Device):
             if slot == self._info.mPciSlot:
                 self.sysfs_path = os.path.realpath(d)
 
+
+    @property
+    def device_info(self):
+        info = xrt.xclDeviceInfo2()
+        xrt.xclGetDeviceInfo2(self.handle, info)
+        return info
+
     @property
     def name(self):
         return self._info.mName.decode()
@@ -415,7 +422,13 @@ class XrtDevice(Device):
             raise RuntimeError("Buffer Write Failed: " + str(status))
 
     def map_bo(self, bo):
-        return xrt.xclMapBO(self.handle, bo, True)[0]
+        ptr = xrt.xclMapBO(self.handle, bo, True)
+        prop = xrt.xclBOProperties()
+        if xrt.xclGetBOProperties(self.handle, bo, prop):
+            raise RuntimeError('Failed to get buffer properties')
+        size = prop.size
+        casted = ctypes.cast(ptr, ctypes.POINTER(ctypes.c_char * size))
+        return casted[0]
 
     def get_device_address(self, bo):
         prop = xrt.xclBOProperties()
@@ -504,7 +517,7 @@ class XrtDevice(Device):
             uuid = None
             for k, v in ip_dict.items():
                 if 'index' in v:
-                    index = v['index']
+                    index = v['adjusted_index']
                     uuid = bytes.fromhex(v['xclbin_uuid'])
                     uuid_ctypes = \
                         XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
