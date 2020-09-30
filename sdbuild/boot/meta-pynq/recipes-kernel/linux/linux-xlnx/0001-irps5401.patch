@@ -1,0 +1,35 @@
+From a51d9da0fd7a26c7ff8cf4def61dd43ea7d017a8 Mon Sep 17 00:00:00 2001
+From: Peter Ogden <ogden@xilinx.com>
+Date: Thu, 6 Aug 2020 05:46:33 -0400
+Subject: [PATCH] irps5401
+
+---
+ drivers/hwmon/pmbus/pmbus.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/hwmon/pmbus/pmbus.c b/drivers/hwmon/pmbus/pmbus.c
+index c0bc43d..6379f11 100644
+--- a/drivers/hwmon/pmbus/pmbus.c
++++ b/drivers/hwmon/pmbus/pmbus.c
+@@ -187,6 +187,10 @@ static int pmbus_probe(struct i2c_client *client,
+ 	return pmbus_do_probe(client, id, info);
+ }
+ 
++static const struct pmbus_device_info pmbus_info_five = {
++	.pages = 5,
++	.flags = 0
++};
+ static const struct pmbus_device_info pmbus_info_one = {
+ 	.pages = 1,
+ 	.flags = 0
+@@ -224,6 +228,7 @@ static const struct i2c_device_id pmbus_id[] = {
+ 	{"tps544c20", (kernel_ulong_t)&pmbus_info_one},
+ 	{"tps544c25", (kernel_ulong_t)&pmbus_info_one},
+ 	{"udt020", (kernel_ulong_t)&pmbus_info_one},
++	{"irps5401", (kernel_ulong_t)&pmbus_info_five},
+ 	{}
+ };
+ 
+-- 
+2.7.4
+

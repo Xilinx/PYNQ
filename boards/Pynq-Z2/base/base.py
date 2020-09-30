@@ -98,6 +98,7 @@ class BaseOverlay(pynq.Overlay):
             self.pin_select = GPIO(GPIO.get_gpio_pin(
                 self.gpio_dict['pmoda_rp_pin_sel']['index']), "out")
             self.audio = self.audio_codec_ctrl_0
+            self.audio.configure()
 
             self.leds = self.leds_gpio.channel1
             self.switches = self.switches_gpio.channel1

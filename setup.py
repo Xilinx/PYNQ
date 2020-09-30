@@ -43,6 +43,7 @@ import subprocess
 import os
 import warnings
 from datetime import datetime
+from pynq.utils import download_overlays
 
 
 # Requirement
@@ -204,6 +205,7 @@ def copy_board_notebooks(staging_notebooks_dir, board):
 # Copy notebooks in boards/BOARD/OVERLAY/notebooks
 def copy_overlay_notebooks(staging_notebooks_dir, board):
     board_folder = 'boards/{}'.format(board)
+    download_overlays(board_folder, fail_at_lookup=True, cleanup=True)
     overlay_dirs = find_overlays(board_folder)
     for overlay in overlay_dirs:
         src_folder = os.path.join(board_folder, overlay, 'notebooks')
@@ -348,7 +350,7 @@ class BuildExtension(build_ext):
 
 pynq_version = find_version('pynq/__init__.py')
 with open("README.md", encoding='utf-8') as fh:
-    readme_lines = fh.readlines()[2:13]
+    readme_lines = fh.readlines()[:]
 long_description = (''.join(readme_lines))
 extend_pynq_package(
     ["pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/v_hdmi_common/src",

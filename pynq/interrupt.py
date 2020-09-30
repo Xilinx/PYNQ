@@ -91,11 +91,10 @@ class Interrupt(object):
         """
         if pinname not in PL.interrupt_pins:
             raise ValueError("No Pin of name {} found".format(pinname))
+        parent, self.number = _InterruptController.get_parent(
+            PL.interrupt_pins[pinname])
 
-        parentname = PL.interrupt_pins[pinname]['controller']
-        self.number = PL.interrupt_pins[pinname]['index']
-        self.parent = weakref.ref(
-            _InterruptController.get_controller(parentname))
+        self.parent = weakref.ref(parent)
         self.event = asyncio.Event()
         self.waiting = False
 
@@ -126,14 +125,8 @@ class _InterruptController(object):
 
     """
     _controllers = []
+    _uio_devices = {}
     _last_timestamp = None
-    if CPU_ARCH == ZYNQ_ARCH:
-        irq_offset = 61
-    elif CPU_ARCH == ZU_ARCH:
-        irq_offset = 121
-    else:
-        warnings.warn("PYNQ does not support the CPU Architecture: {}"
-                      .format(CPU_ARCH), ResourceWarning)
 
     @staticmethod
     def get_controller(name):
@@ -160,6 +153,34 @@ class _InterruptController(object):
         _InterruptController._controllers.append(ret)
         return ret
 
+    @staticmethod
+    def get_parent(entry):
+        """Return the parent and index of an interrupt.
+
+        This can either be an interrupt controller or a UIO interface
+
+        Parameters
+        ----------
+        entry : dict
+            The entry in the interrupt_pins dict for the pin
+
+        """
+        parent = entry['parent'] if 'parent' in entry else entry['controller']
+        number = entry['index']
+        if parent == "":
+            raw_irq = entry['raw_irq']
+            if raw_irq in _InterruptController._uio_devices:
+                return _InterruptController._uio_devices[raw_irq], 0
+            uiodev = get_uio_irq(raw_irq)
+            if uiodev is None:
+                raise ValueError('Could not find UIO device for interrupt pin '
+                                 'for IRQ number {}'.format(raw_irq))
+            dev = UioController(uiodev)
+            _InterruptController._uio_devices[raw_irq] = dev
+            return dev, 0
+        else:
+            return _InterruptController.get_controller(parent), number
+
     def __init__(self, name):
         """Return a new _InterruptController
 
@@ -182,18 +203,8 @@ class _InterruptController(object):
         # Disable Interrupt lines
         self.mmio.write(0x08, 0)
 
-        parent = PL.interrupt_controllers[name]['parent']
-        number = PL.interrupt_controllers[name]['index']
-        if parent == "":
-            uiodev = get_uio_irq(self.irq_offset + number)
-            if uiodev is None:
-                raise ValueError('Could not find UIO device for interrupt pin '
-                                 'for IRQ number {}'.format(number))
-            self.parent = UioController(uiodev)
-            self.number = 0
-        else:
-            self.parent = _InterruptController.get_controller(parent)
-            self.number = number
+        self.parent, self.number = _InterruptController.get_parent(
+            PL.interrupt_controllers[name])
 
     def set(self):
         """Mimics the set function of an event. Should not be called by

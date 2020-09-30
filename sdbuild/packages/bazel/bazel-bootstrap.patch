@@ -1,0 +1,50 @@
+diff -ruN bazel-release/scripts/bootstrap/compile.sh bazel-update/scripts/bootstrap/compile.sh
+--- bazel-release/scripts/bootstrap/compile.sh	1980-01-01 00:00:00.000000000 -0800
++++ bazel-update/scripts/bootstrap/compile.sh	2020-02-25 10:43:35.121103465 -0800
+@@ -151,7 +151,7 @@
+   # additional arguments to be passed to javac.
+   run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
+       -d "${output}/classes" -source "$JAVA_VERSION" -target "$JAVA_VERSION" \
+-      -encoding UTF-8 ${BAZEL_JAVAC_OPTS} "@${paramfile}"
++      -encoding UTF-8 ${BAZEL_JAVAC_OPTS} "@${paramfile}" -J-Xmx2048M
+ 
+   log "Extracting helper classes for $name..."
+   for f in ${library_jars} ; do
+diff -ruN bazel-release/src/main/cpp/blaze_util_linux.cc bazel-update/src/main/cpp/blaze_util_linux.cc
+--- bazel-release/src/main/cpp/blaze_util_linux.cc	1980-01-01 00:00:00.000000000 -0800
++++ bazel-update/src/main/cpp/blaze_util_linux.cc	2020-02-25 10:45:08.357099119 -0800
+@@ -85,7 +85,8 @@
+   // The file to which this symlink points could change contents or go missing
+   // concurrent with execution of the Bazel client, so we don't eagerly resolve
+   // it.
+-  return "/proc/self/exe";
++  static char path[PATH_MAX];
++  return realpath("/proc/self/exe", path);
+ }
+ 
+ uint64_t GetMillisecondsMonotonic() {
+diff -ruN bazel-release/src/tools/singlejar/mapped_file_posix.inc bazel-update/src/tools/singlejar/mapped_file_posix.inc
+--- bazel-release/src/tools/singlejar/mapped_file_posix.inc	1980-01-01 00:00:00.000000000 -0800
++++ bazel-update/src/tools/singlejar/mapped_file_posix.inc	2020-02-25 10:43:47.217102901 -0800
+@@ -27,7 +27,7 @@
+ // The implementation is 64-bit Linux or OSX specific.
+ #if !((defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)) && \
+       __SIZEOF_POINTER__ == 8)
+-#error This code for 64 bit Unix.
++//#error This code for 64 bit Unix.
+ #endif
+ 
+ MappedFile::MappedFile()
+diff -ruN bazel-release/third_party/ijar/mapped_file_unix.cc bazel-update/third_party/ijar/mapped_file_unix.cc
+--- bazel-release/third_party/ijar/mapped_file_unix.cc	1980-01-01 00:00:00.000000000 -0800
++++ bazel-update/third_party/ijar/mapped_file_unix.cc	2020-02-25 10:44:39.937100443 -0800
+@@ -113,7 +113,8 @@
+   size_t mmap_length =
+       std::min(static_cast<size_t>(estimated_size + sysconf(_SC_PAGESIZE)),
+                std::numeric_limits<size_t>::max());
+-  void* mapped = mmap(NULL, mmap_length, PROT_WRITE, MAP_SHARED, fd, 0);
++  void* mapped = mmap(
++  	NULL, mmap_length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+   if (mapped == MAP_FAILED) {
+     snprintf(errmsg, MAX_ERROR, "mmap(): %s", strerror(errno));
+     errmsg_ = errmsg;

@@ -1,0 +1,27 @@
+&amba {
+	axi_intc_0: axi-interrupt-ctrl {
+		#interrupt-cells = <2>;
+		compatible = "xlnx,xps-intc-1.00.a";
+		interrupt-controller;
+		reg = <0x0 0x80020000 0x0 0x1000>;
+		xlnx,kind-of-intr = <0x0>;
+		xlnx,num-intr-inputs = <0x20>;
+		interrupt-parent = <&gic>;
+		interrupts = <0x0 0x59 0x4>;
+	};
+
+	zyxclmm_drm {
+		compatible = "xlnx,zocl";
+		status = "okay";
+		xlnx,pr-isolation-addr = <0x0 0x80070000>;
+		interrupt-parent = <&axi_intc_0>;
+		interrupts = <0  4>, <1  4>, <2  4>, <3  4>,
+			     <4  4>, <5  4>, <6  4>, <7  4>,
+			     <8  4>, <9  4>, <10 4>, <11 4>,
+			     <12 4>, <13 4>, <14 4>, <15 4>,
+			     <16 4>, <17 4>, <18 4>, <19 4>,
+			     <20 4>, <21 4>, <22 4>, <23 4>,
+			     <24 4>, <25 4>, <26 4>, <27 4>,
+			     <28 4>, <29 4>, <30 4>, <31 4>;
+	};
+};

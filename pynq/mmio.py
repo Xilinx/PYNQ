@@ -29,8 +29,9 @@
 
 import os
 import mmap
+import warnings
 import numpy as np
-import pynq.tinynumpy as tnp
+import pynq._3rdparty.tinynumpy as tnp
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -48,6 +49,7 @@ class _AccessHook:
     def write(self, offset, data):
         self.device.write_registers(self.baseaddress + offset, data)
 
+
 class MMIO:
     """ This class exposes API for MMIO read and write.
 
@@ -57,14 +59,14 @@ class MMIO:
         The base address, not necessarily page aligned.
     length : int
         The length in bytes of the address range.
-    debug : bool
-        Turn on debug mode if it is True.
     array : numpy.ndarray
         A numpy view of the mapped range for efficient assignment
+    device : Device
+        A device that can interact with the PL server.
 
     """
 
-    def __init__(self, base_addr, length=4, debug=False, device=None):
+    def __init__(self, base_addr, length=4, device=None, **kwargs):
         """Return a new MMIO object.
 
         Parameters
@@ -73,10 +75,14 @@ class MMIO:
             The base address of the MMIO.
         length : int
             The length in bytes; default is 4.
-        debug : bool
-            Turn on debug mode if it is True; default is False.
+        device: Device
+            The device that MMIO object is created for.
 
         """
+        if 'debug' in kwargs:
+            warnings.warn("Keyword debug has been deprecated.",
+                          DeprecationWarning)
+
         if device is None:
             from .pl_server.device import Device
             device = Device.active_device
@@ -87,28 +93,30 @@ class MMIO:
 
         self.base_addr = base_addr
         self.length = length
-        self.debug = debug
 
         if self.device.has_capability('MEMORY_MAPPED'):
-            self.read = self.read_mm
+            self.read = self.read
             self.write = self.write_mm
             self.array = self.device.mmap(base_addr, length)
         elif self.device.has_capability('REGISTER_RW'):
-            self.read = self.read_reg
+            self.read = self.read
             self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
             self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
-                                    hook=self._hook)
+                                     hook=self._hook)
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 
-        self._debug('MMIO(address, size) = ({0:x}, {1:x} bytes).',
-                    self.base_addr, self.length)
-
-
-
-    def read_mm(self, offset=0, length=4):
+    def read(self, offset=0, length=4, word_order='little'):
         """The method to read data from MMIO.
+
+        For the `word_order` parameter, it is only effective when
+        operating 8 bytes. If it is `little`, from MSB to LSB, the
+        bytes will be offset+4, offset+5, offset+6, offset+7, offset+0,
+        offset+1, offset+2, offset+3. If it is `big`, from MSB to LSB,
+        the bytes will be offset+0, offset+1, ..., offset+7.
+        This is different than the byte order (endianness); notice
+        the endianness has not changed.
 
         Parameters
         ----------
@@ -116,6 +124,8 @@ class MMIO:
             The read offset from the MMIO base address.
         length : int
             The length of the data in bytes.
+        word_order : str
+            The word order of the 8-byte reads.
 
         Returns
         -------
@@ -123,19 +133,26 @@ class MMIO:
             A list of data read out from MMIO
 
         """
-        if length != 4:
-            raise ValueError("MMIO currently only supports 4-byte reads.")
+        if length not in [1, 2, 4, 8]:
+            raise ValueError("MMIO currently only supports "
+                             "1, 2, 4 and 8-byte reads.")
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
+        if length == 8 and word_order not in ['big', 'little']:
+            raise ValueError("MMIO only supports big and little endian.")
         idx = offset >> 2
         if offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
 
-        self._debug('Reading {0} bytes from offset {1:x}',
-                    length, offset)
-
         # Read data out
-        return int(self.array[idx])
+        lsb = int(self.array[idx])
+        if length == 8:
+            if word_order == 'little':
+                return ((int(self.array[idx+1])) << 32) + lsb
+            else:
+                return (lsb << 32) + int(self.array[idx+1])
+        else:
+            return lsb & ((2**(8*length)) - 1)
 
     def write_mm(self, offset, data):
         """The method to write data to MMIO.
@@ -160,8 +177,6 @@ class MMIO:
             raise MemoryError('Unaligned write: offset must be multiple of 4.')
 
         if type(data) is int:
-            self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
-                        offset, data)
             self.array[idx] = np.uint32(data)
         elif type(data) is bytes:
             length = len(data)
@@ -174,36 +189,6 @@ class MMIO:
                 self.array[idx + i] = buf[i]
         else:
             raise ValueError("Data type must be int or bytes.")
-
-    def read_reg(self, offset=0, length=4):
-        """The method to read data from MMIO.
-
-        Parameters
-        ----------
-        offset : int
-            The read offset from the MMIO base address.
-        length : int
-            The length of the data in bytes.
-
-        Returns
-        -------
-        list
-            A list of data read out from MMIO
-
-        """
-        if length != 4:
-            raise ValueError("MMIO currently only supports 4-byte reads.")
-        if offset < 0:
-            raise ValueError("Offset cannot be negative.")
-        idx = offset >> 2
-        if offset % 4:
-            raise MemoryError('Unaligned read: offset must be multiple of 4.')
-
-        self._debug('Reading {0} bytes from offset {1:x}',
-                    length, offset)
-
-        # Read data out
-        return int(self.array[idx])
 
     def write_reg(self, offset, data):
         """The method to write data to MMIO.
@@ -228,27 +213,8 @@ class MMIO:
             raise MemoryError('Unaligned write: offset must be multiple of 4.')
 
         if type(data) is int:
-            self._debug('Writing 4 bytes to offset {0:x}: {1:x}',
-                        offset, data)
             self.array[idx] = data
         elif type(data) is bytes:
             self._hook.write(offset, data)
         else:
             raise ValueError("Data type must be int or bytes.")
-    def _debug(self, s, *args):
-        """The method provides debug capabilities for this class.
-
-        Parameters
-        ----------
-        s : str
-            The debug information format string
-        *args : any
-            The arguments to be formatted
-
-        Returns
-        -------
-        None
-
-        """
-        if self.debug:
-            print('MMIO Debug: {}'.format(s.format(*args)))

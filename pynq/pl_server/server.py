@@ -34,7 +34,6 @@ import os
 import threading
 from pynq.devicetree import DeviceTreeSegment
 from pynq.devicetree import get_dtbo_base_name
-from .tcl_parser import TCL, get_tcl_name
 from .hwh_parser import HWH, get_hwh_name
 
 __author__ = "Yun Rock Qu, Peter Ogden"
@@ -234,9 +233,9 @@ class DeviceClient:
         """Reset all the dictionaries.
 
         This method must be called after a bitstream download.
-        1. In case there is a `hwh` or `tcl` file, this method will reset
+        1. In case there is a `hwh` file, this method will reset
         the states of the IP, GPIO, and interrupt dictionaries .
-        2. In case there is no `hwh` or `tcl` file, this method will simply
+        2. In case there is no `hwh` file, this method will simply
         clear the state information stored for all dictionaries.
 
         An existing parser given as the input can significantly reduce
@@ -245,7 +244,7 @@ class DeviceClient:
 
         Parameters
         ----------
-        parser : TCL/HWH
+        parser : HWH
             A parser object to speed up the reset process.
 
         """
@@ -259,8 +258,7 @@ class DeviceClient:
             self._mem_dict = parser.mem_dict
         else:
             hwh_name = get_hwh_name(self._bitfile_name)
-            tcl_name = get_tcl_name(self._bitfile_name)
-            if os.path.isfile(hwh_name) or os.path.isfile(tcl_name):
+            if os.path.isfile(hwh_name):
                 self._ip_dict = clear_state(self._ip_dict)
                 self._gpio_dict = clear_state(self._gpio_dict)
             else:
@@ -314,14 +312,14 @@ class DeviceClient:
     def update_partial_region(self, hier, parser):
         """Merge the parser information from partial region.
 
-        Combine the currently PL information and the partial HWH/TCL file
+        Combine the currently PL information and the partial HWH file
         parsing results.
 
         Parameters
         ----------
         hier : str
             The name of the hierarchical block as the partial region.
-        parser : TCL/HWH
+        parser : HWH
             A parser object for the partial region.
 
         """
@@ -347,22 +345,8 @@ class DeviceClient:
                     merged_ip_dict[ip_name]['registers'] = v['registers']
                     merged_ip_dict[ip_name]['state'] = None
                     merged_ip_dict[ip_name]['type'] = v['type']
-        elif type(parser) is TCL:
-            for k_partial, v_partial in parser.ip_dict.items():
-                for k_full, v_full in self._ip_dict.items():
-                    if v_partial['mem_id'] == v_full['mem_id']:
-                        merged_ip_dict.pop(k_full)
-                        ip_name = v_partial['fullpath']
-                        merged_ip_dict[ip_name] = v_full
-                        merged_ip_dict[ip_name]['fullpath'] = \
-                            v_partial['fullpath']
-                        merged_ip_dict[ip_name]['phys_addr'] = \
-                            v_full['phys_addr'] + v_partial['phys_addr']
-                        merged_ip_dict[ip_name]['state'] = None
-                        merged_ip_dict[ip_name]['type'] = v_partial['type']
-                        break
         else:
-            raise ValueError("Cannot find HWH or TCL PR region parser.")
+            raise ValueError("Cannot find HWH PR region parser.")
         self._ip_dict = merged_ip_dict
 
     def _update_pr_gpio(self, parser):
@@ -531,15 +515,18 @@ class DeviceServer:
             dict(),  # Devicetree dict
             dict()   # Memory Dict
         ]
+        self._started = threading.Event()
 
     def start(self, daemonize=True):
         self.thread.daemon = daemonize
         self.thread.start()
+        self._started.wait()
 
     def server_proc(self):
         if os.path.exists(self.socket_name):
             os.remove(self.socket_name)
         server = Listener(self.socket_name, family='AF_UNIX', authkey=self.key)
+        self._started.set()
         status = True
         while status:
             client = server.accept()

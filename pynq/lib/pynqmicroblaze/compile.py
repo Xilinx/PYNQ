@@ -65,6 +65,18 @@ def dependencies(source, bsp):
                          if dependent_paths.find(k) != -1}
     return [Modules[k] for k in dependent_modules]
 
+def recursive_dependencies(source, bsp, current_set=None):
+    if current_set is None:
+        current_set = set()
+    modules = dependencies(source, bsp)
+    for m in modules:
+        if m not in current_set:
+            current_set.add(m)
+            for s in m.sources:
+                with open(s, 'r') as f:
+                    recursive_dependencies(f.read(), bsp, current_set)
+    return list(current_set)
+
 
 def _find_bsp(cell_name):
     target_bsp = "bsp_" + cell_name.replace('/', '_')
@@ -114,7 +126,7 @@ class MicroblazeProgram(PynqMicroblaze):
         if ip_state and ip_state.startswith('/tmp/'):
             force = True
 
-        modules = dependencies(program_text, bsp)
+        modules = recursive_dependencies(program_text, bsp)
         lib_args = []
         with tempfile.TemporaryDirectory() as tempdir:
             files = [path.join(tempdir, 'main.c')]

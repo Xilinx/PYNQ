@@ -1,0 +1,35 @@
+&amba {
+	axi_intc_0: interrupt-controller@70000000 {
+		#interrupt-cells = <2>;
+		clock-names = "s_axi_aclk";
+		clocks = <&misc_clk_0>;
+		compatible = "xlnx,axi-intc-4.1", "xlnx,xps-intc-1.00.a";
+		interrupt-controller ;
+		interrupt-names = "irq";
+		interrupt-parent = <&intc>;
+		interrupts = <0x0 0x1d 0x1>;
+		reg = <0x70000000 0x10000>;
+		xlnx,kind-of-intr = <0x1>;
+		xlnx,num-intr-inputs = <0x1>;
+	};
+
+	misc_clk_0: misc_clk_0 {
+		#clock-cells = <0>;
+		clock-frequency = <165972222>;
+		compatible = "fixed-clock";
+	};
+
+	zyxclmm_drm {
+		compatible = "xlnx,zocl";
+		status = "okay";
+		interrupt-parent = <&axi_intc_0>;
+		interrupts = <0  4>, <1  4>, <2  4>, <3  4>,
+			     <4  4>, <5  4>, <6  4>, <7  4>,
+			     <8  4>, <9  4>, <10 4>, <11 4>,
+			     <12 4>, <13 4>, <14 4>, <15 4>,
+			     <16 4>, <17 4>, <18 4>, <19 4>,
+			     <20 4>, <21 4>, <22 4>, <23 4>,
+			     <24 4>, <25 4>, <26 4>, <27 4>,
+			     <28 4>, <29 4>, <30 4>, <31 4>;
+	};
+};

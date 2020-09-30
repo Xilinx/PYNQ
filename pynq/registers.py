@@ -54,6 +54,45 @@ def _safe_attrname(name):
     return re.sub(r'[^a-zA-Z0-9_]', '_', name)
 
 
+def _calc_index(index, width):
+    """Returns a tuple of (lower, upper, reversed)
+
+    """
+    if isinstance(index, int):
+        return index, index, False
+    elif isinstance(index, slice):
+        start, stop, step = index.start, index.stop, index.step
+        if step is None or step == -1:
+            if start is None:
+                start = width - 1
+            if stop is None:
+                stop = 0
+        elif step == 1:
+            if start is None:
+                start = 0
+            if stop is None:
+                stop = width - 1
+        else:
+            raise ValueError("Slicing step is not valid.")
+        if start not in range(width):
+            raise ValueError("Slicing endpoint {0} not in range "
+                             "0 - {1}".format(start, width - 1))
+        if stop not in range(width):
+            raise ValueError("Slicing endpoint {0} not in range "
+                             "0 - {1}".format(stop, width - 1))
+
+        if start >= stop:
+            return stop, start, False
+        else:
+            return start, stop, True
+    else:
+        raise ValueError("Index must be int or slice.")
+
+
+def _reverse_bits(val, width):
+    return int('{:0{width}b}'.format(val, width=width)[::-1], 2)
+
+
 class Register:
     """Register class that allows users to access registers easily.
 
@@ -131,47 +170,22 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
-
-        curr_val = self._buffer[0]
-        if isinstance(index, int):
+        lower, upper, reverse = _calc_index(index, self.width)
+        curr_val = int(self._buffer[0])
+        if lower == upper:
             self._debug("Reading index {} at address {}"
                         .format(index, hex(self.address)))
-            mask = 1 << index
-            return (curr_val & mask) >> index
-        elif isinstance(index, slice):
-            start, stop, step = index.start, index.stop, index.step
-            self._debug("Reading bits {}:{} at address {}"
-                        .format(start, stop, hex(self.address)))
-            if step is None or step == -1:
-                if start is None:
-                    start = self.width - 1
-                if stop is None:
-                    stop = 0
-            elif step == 1:
-                if start is None:
-                    start = 0
-                if stop is None:
-                    stop = self.width - 1
-            else:
-                raise ValueError("Slicing step is not valid.")
-            if start not in range(self.width):
-                raise ValueError("Slice endpoint {0} not in range "
-                                 "0 - {1}".format(start, self.width))
-            if stop not in range(self.width):
-                raise ValueError("Slicing endpoint {0} not in range "
-                                 "0 - {1}".format(stop, self.width))
-
-            if start >= stop:
-                mask = ((1 << (start - stop + 1)) - 1) << stop
-                return int((curr_val & mask) >> stop)
-            else:
-                width = stop - start + 1
-                mask = ((1 << width) - 1) << start
-                reg_val = (curr_val & mask) >> start
-                return int('{:0{width}b}'.format(reg_val,
-                                                 width=width)[::-1], 2)
+            mask = 1 << lower
+            return (curr_val & mask) >> lower
         else:
-            raise ValueError("Index must be int or slice.")
+            self._debug("Reading bits {}:{} at address {}"
+                        .format(upper, lower, hex(self.address)))
+            width = upper - lower + 1
+            mask = (1 << width) - 1
+            raw = (curr_val >> lower) & mask
+            if reverse:
+                raw = _reverse_bits(raw, width)
+            return raw
 
     def __setitem__(self, index, value):
         """Set the register value.
@@ -184,47 +198,31 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
-
-        curr_val = self._buffer[0]
-        if isinstance(index, int):
+        lower, upper, reverse = _calc_index(index, self.width)
+        if upper == lower:
             if value != 0 and value != 1:
                 raise ValueError("Value to be set should be either 0 or 1.")
             self._debug("Setting bit {} at address {} to {}"
-                        .format(index, hex(self.address), value))
-            mask = 1 << index
-            self._buffer[0] = (curr_val & ~mask) | (value << index)
-        elif isinstance(index, slice):
-            count = self.count(index, width=self.width)
-            start, stop, step = index.start, index.stop, index.step
-            if step is None or step == -1:
-                if start is None:
-                    start = self.width - 1
-                if stop is None:
-                    stop = 0
-            elif step == 1:
-                if start is None:
-                    start = 0
-                if stop is None:
-                    stop = self.width - 1
-            else:
-                raise ValueError("Slicing step is not valid.")
-            if start not in range(self.width):
-                raise ValueError("Slicing endpoint {} is not in range 0 - {}."
-                                 .format(start, self.width))
-            if stop not in range(self.width):
-                raise ValueError("Slicing endpoint {} is not in range 0 - {}."
-                                 .format(stop, self.width))
-            if value not in range(1 << count):
+                        .format(lower, hex(self.address), value))
+            mask = 1 << lower
+            curr_val = int(self._buffer[0])
+            self._buffer[0] = (curr_val & ~mask) | (value << lower)
+        else:
+            width = upper - lower + 1
+            mask = (1 << width) - 1
+            if value > mask:
                 raise ValueError("Slicing range cannot represent value {}"
                                  .format(value))
-
-            shift = stop if start >= stop else start
-            mask = ((1 << count) - 1) << shift
+            if reverse:
+                value = _reverse_bits(value, width)
             self._debug("Setting bits {}:{} at address {} to {}".format(
-                count + shift, shift, hex(self.address), value))
-            self._buffer[0] = (curr_val & ~mask) | (value << shift)
-        else:
-            raise ValueError("Index must be int or slice.")
+                upper, lower, hex(self.address), value))
+            if width == self.width:
+                self._buffer[0] = value
+            else:
+                curr_val = int(self._buffer[0])
+                self._buffer[0] = ((curr_val & ~(mask << lower)) |
+                                   (value << lower))
 
     def _reordered_setitem(self, value, index):
         """Wrapped version of __setitem__ for better use with
@@ -344,35 +342,8 @@ class Register:
             The number of bits accessed.
 
         """
-
-        if isinstance(index, int):
-            return 1
-        elif isinstance(index, slice):
-            start, stop, step = index.start, index.stop, index.step
-            if step is None or step == -1:
-                if start is None:
-                    start = width - 1
-                if stop is None:
-                    stop = 0
-            elif step == 1:
-                if start is None:
-                    start = 0
-                if stop is None:
-                    stop = width - 1
-            else:
-                raise ValueError("Slicing step is not valid.")
-            if start not in range(width):
-                raise ValueError("Slicing endpoint {} is not in range(0,{})."
-                                 .format(start, self.width))
-            if stop not in range(width):
-                raise ValueError("Slicing endpoint {} is not in range(, {})."
-                                 .format(stop, self.width))
-
-            if start >= stop:
-                count = start - stop + 1
-            else:
-                count = stop - start + 1
-            return count
+        lower, upper, reverse = _calc_index(index, width)
+        return upper - lower + 1
 
 
 class RegisterMap:
@@ -433,7 +404,7 @@ class RegisterMap:
 
     def __repr__(self):
         register_info = []
-        for k, v in self._instances.items():
+        for k, v in sorted(self._instances.items(), key=lambda x: x[1].address):
             register_info.append(
                 "  {} = {}".format(k, repr(v)))
         return "RegisterMap {\n" + ",\n".join(register_info) + "\n}"

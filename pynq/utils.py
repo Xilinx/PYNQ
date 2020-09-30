@@ -73,7 +73,8 @@ class _ExtensionsManager:
                      pkg_resources.iter_entry_points(self.package_name)]
         atexit.register(pkg_resources.cleanup_resources, force=True)
 
-    def extension_path(self, extension_name):
+    @staticmethod
+    def extension_path(extension_name):
         """Return the source path of the given extension name."""
         # Define monkey patch for `pkg_resources.NullProvider.__init__` to use
         # `module.__path__` instead of `module.__file__`, as the latter does
@@ -104,7 +105,7 @@ class _ExtensionsManager:
     def paths(self):
         """Return a list of paths from the discovered extensions.
         """
-        return [self.ext_src_path(e) for e in self.list]
+        return [self.extension_path(e.module_name) for e in self.list]
 
 
 class _PynqLoggingFormatter(logging.Formatter):
@@ -546,59 +547,81 @@ def _resolve_global_overlay_res(overlay_res_link, src_path, logger,
                 err_msg = "Could not resolve file '{}'".format(
                     overlay_res_filename)
                 logger.info(err_msg)
-            return True  # overlay_res_download_dict was not empty
+            else:
+                return True  # overlay_res_download_dict was not empty
     return False
+
+
+def _resolve_devices_overlay_res_helper(device, src_path, overlay_res_filename,
+                                        overlay_res_link, overlay_res_fullpath,
+                                        logger, fail=False,
+                                        overlay_res_download_path=None):
+    """Helper function for `_resolve_devices_overlay_res`."""
+    overlay_res_src_path = _find_local_overlay_res(device,
+                                                   overlay_res_filename,
+                                                   src_path)
+    err_msg = "Could not resolve file '{}' for " \
+              "device '{}'".format(overlay_res_filename, device)
+    if not overlay_res_src_path:
+        overlay_res_download_dict = _find_remote_overlay_res(
+            device, os.path.join(src_path, overlay_res_link))
+        if overlay_res_download_dict:
+            if overlay_res_download_path:
+                mkpath(overlay_res_download_path)
+            try:
+                logger.info("Downloading file '{}'. This may take a while"
+                            "...".format(overlay_res_filename))
+                _download_file(
+                    overlay_res_download_dict["url"],
+                    overlay_res_fullpath,
+                    overlay_res_download_dict["md5sum"])
+            except Exception as e:
+                if fail:
+                    raise e
+            finally:
+                if not os.path.isfile(
+                        overlay_res_fullpath):
+                    logger.info(err_msg)
+                if overlay_res_download_path and \
+                        len(os.listdir(overlay_res_download_path)) == 0:
+                    os.rmdir(overlay_res_download_path)
+        else:
+            if fail:
+                raise OverlayNotFoundError(err_msg)
+            logger.info(err_msg)
 
 
 def _resolve_devices_overlay_res(overlay_res_link, src_path, devices, logger,
                                  fail=False):
     """Resolve ``overlay_res.ext`` file for every device in ``devices``.
     Files are downloaded in a ``overlay_res.ext.d`` folder in ``src_path``.
+    If the device is only one and is an edge device, file is resolved directly
+    to ``overlay_res.ext``.
     """
+    from pynq.pl_server.device import Device, XlnkDevice
     overlay_res_filename = os.path.splitext(overlay_res_link)[0]
+    if len(devices) == 1 and type(Device.devices[0]) == XlnkDevice:
+        overlay_res_fullpath = os.path.join(src_path, overlay_res_filename)
+        _resolve_devices_overlay_res_helper(devices[0], src_path,
+                                            overlay_res_filename,
+                                            overlay_res_link,
+                                            overlay_res_fullpath, logger, fail)
+        return
     for device in devices:
-        overlay_res_src_path = _find_local_overlay_res(device,
-                                                       overlay_res_filename,
-                                                       src_path)
-        err_msg = "Could not resolve file '{}' for " \
-                  "device '{}'".format(overlay_res_filename,
-                                       device)
-        if not overlay_res_src_path:
-            overlay_res_download_dict = _find_remote_overlay_res(
-                device, os.path.join(src_path, overlay_res_link))
-            if overlay_res_download_dict:
-                overlay_res_download_path = os.path.join(
-                    src_path, overlay_res_filename + ".d")
-                overlay_res_filename_split = \
-                    os.path.splitext(overlay_res_filename)
-                overlay_res_filename_ext = "{}.{}{}".format(
-                    overlay_res_filename_split[0], device,
-                    overlay_res_filename_split[1])
-                mkpath(overlay_res_download_path)
-                overlay_res_fullpath = os.path.join(overlay_res_download_path,
-                                                    overlay_res_filename_ext)
-                try:
-                    logger.info("Downloading file '{}'. "
-                                "This may take a while"
-                                "...".format(
-                                    overlay_res_filename))
-                    _download_file(
-                        overlay_res_download_dict["url"],
-                        overlay_res_fullpath,
-                        overlay_res_download_dict["md5sum"])
-                except Exception as e:
-                    if fail:
-                        raise e
-                finally:
-                    if not os.path.isfile(
-                            overlay_res_fullpath):
-                        logger.info(err_msg)
-                    if len(os.listdir(overlay_res_download_path)) == 0:
-                        os.rmdir(overlay_res_download_path)
-            else:
-                if fail:
-                    raise OverlayNotFoundError(err_msg)
-                logger.info(err_msg)
+        overlay_res_download_path = os.path.join(
+            src_path, overlay_res_filename + ".d")
+        overlay_res_filename_split = \
+            os.path.splitext(overlay_res_filename)
+        overlay_res_filename_ext = "{}.{}{}".format(
+            overlay_res_filename_split[0], device,
+            overlay_res_filename_split[1])
+        overlay_res_fullpath = os.path.join(overlay_res_download_path,
+                                            overlay_res_filename_ext)
+        _resolve_devices_overlay_res_helper(device, src_path,
+                                            overlay_res_filename,
+                                            overlay_res_link,
+                                            overlay_res_fullpath, logger, fail,
+                                            overlay_res_download_path)
 
 
 def _resolve_all_overlay_res_from_link(overlay_res_link, src_path, logger,
@@ -614,8 +637,7 @@ def _resolve_all_overlay_res_from_link(overlay_res_link, src_path, logger,
             if not _find_local_overlay_res(
                     device, overlay_res_filename, src_path):
                 err_msg = "Could not resolve file '{}' for " \
-                    "device '{}'".format(overlay_res_filename,
-                                         device)
+                    "device '{}'".format(overlay_res_filename, device)
                 overlay_res_download_path = os.path.join(
                     src_path, overlay_res_filename + ".d")
                 overlay_res_filename_split = \
@@ -648,13 +670,16 @@ def _resolve_all_overlay_res_from_link(overlay_res_link, src_path, logger,
                         os.rmdir(overlay_res_download_path)
 
 
-def download_overlays(path, download_all=False, fail=False):
+def download_overlays(path, download_all=False, fail_at_lookup=False,
+                      fail_at_device_detection=False, cleanup=False):
     """Download overlays for detected devices in destination path.
 
     Resolve ``overlay_res.ext`` files from  ``overlay_res.ext.link``
     json files. Downloaded ``overlay_res.ext`` files are put in a
     ``overlay_res.ext.d`` directory, with the device name added to their
     filename, as ``overlay_res.device_name.ext``.
+    If the detected device is only one and is an edge device, target file is
+    resolved directly to ``overlay_res.ext``.
     If target ``overlay_res.ext`` already exists, resolution is skipped.
 
     Parameters
@@ -664,27 +689,39 @@ def download_overlays(path, download_all=False, fail=False):
         download_all: bool
             Causes all overlays to be downloaded from .link files, regardless
             of the detected devices.
-        fail: bool
+        fail_at_lookup: bool
             Determines whether the function should raise an exception in case
-            no device is detected or overlay lookup fails. When `False`, the
-            function will complete without raising any exception.
+            overlay lookup fails.
+        fail_at_device_detection: bool
+            Determines whether the function should raise an exception in case
+            no device is detected.
+        cleanup: bool
+            Dictates whether .link files need to be deleted after resolution.
+            If `True`, all .link files are removed as last step.
     """
     logger = get_logger()
     try:
         devices = _detect_devices()
     except RuntimeError as e:
-        if fail:
+        if fail_at_device_detection:
             raise e
         devices = []
+    cleanup_list = []
     for root, dirs, files in os.walk(path):
         for f in files:
             if f.endswith(".link"):
                 if not download_all:
-                    if not _resolve_global_overlay_res(f, root, logger, fail):
+                    if not _resolve_global_overlay_res(f, root, logger,
+                                                       fail_at_lookup):
                         _resolve_devices_overlay_res(f, root, devices, logger,
-                                                     fail)
+                                                     fail_at_lookup)
                 else:  # download all overlays regardless of detected devices
-                    _resolve_all_overlay_res_from_link(f, root, logger, fail)
+                    _resolve_all_overlay_res_from_link(f, root, logger,
+                                                       fail_at_lookup)
+                if cleanup:
+                    cleanup_list.append(os.path.join(root, f))
+    for f in cleanup_list:
+        os.remove(f)
 
 
 class _download_overlays(dist_build):
@@ -710,7 +747,7 @@ class _download_overlays(dist_build):
             if "." not in package:  # sub-packages are skipped
                 download_overlays(build_dir,
                                   download_all=self.download_all,
-                                  fail=self.force_fail)
+                                  fail_at_lookup=self.force_fail)
 
 
 class build_py(_build_py):

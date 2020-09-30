@@ -37,12 +37,6 @@ from .common import *
 from pynq import DefaultHierarchy
 from pynq.ps import CPU_ARCH, ZYNQ_ARCH
 
-if CPU_ARCH == ZYNQ_ARCH:
-    import pynq.lib._video
-else:
-    warnings.warn("DVI/HDMI subsystem only supported on Zynq-7000",
-                  ResourceWarning)
-
 
 class HDMIInFrontend(VideoInFrontend, DefaultHierarchy):
     """Class for interacting the with HDMI input frontend
@@ -65,6 +59,8 @@ class HDMIInFrontend(VideoInFrontend, DefaultHierarchy):
         successfully detected
 
         """
+        import pynq.lib._video
+
         ip_dict = self.description
         gpio_description = ip_dict['ip']['axi_gpio_hdmiin']
         gpio_dict = {
@@ -135,6 +131,8 @@ class HDMIOutFrontend(VideoOutFrontend, DefaultHierarchy):
             The IP dictionary entry for the clock generator to use
 
         """
+        import pynq.lib._video
+
         super().__init__(description)
         ip_dict = self.description['ip']
         vtc_description = ip_dict['vtc_out']
