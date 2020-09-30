@@ -6,7 +6,13 @@ set -e
 board=$1
 template=$2
 
-if [ ! -z "$BSP" ]; then
+if [ -n "$BSP" ]; then
+	# If $BSP is a URL, fetch it!
+	if [[ "$BSP" == *"://"* ]] ; then
+		BSP_ABS="${BSP_BUILD}/../downloaded-${BSP_PROJECT}.bsp"
+		curl -o "${BSP_ABS}" "${BSP}"
+		BSP=$(basename "${BSP_ABS}")
+	fi
 	cp -f $BSP_ABS $BSP_BUILD
 	cd $BSP_BUILD
 	old_project=$(echo $(tar -xvf $BSP) | cut -f1 -d" ")
@@ -36,4 +42,3 @@ else
 	petalinux-package --force --bsp -p $BSP_PROJECT \
 		--output $BSP_PROJECT.bsp
 fi
-
