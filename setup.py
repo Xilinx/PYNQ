@@ -184,13 +184,25 @@ video.extend(_common_src)
 def copy_common_notebooks(staging_notebooks_dir):
     common_folders_files = [f for f in os.listdir('pynq/notebooks/')]
     for basename in common_folders_files:
-        dst_folder_file = os.path.join(staging_notebooks_dir, basename)
-        src_folder_file = os.path.join('pynq/notebooks/', basename)
+        if basename != 'arch':
+            dst_folder_file = os.path.join(staging_notebooks_dir, basename)
+            src_folder_file = os.path.join('pynq/notebooks/', basename)
 
-        if os.path.isdir(src_folder_file):
-            copy_tree(src_folder_file, dst_folder_file)
-        elif os.path.isfile(src_folder_file):
-            copy_file(src_folder_file, dst_folder_file)
+            if os.path.isdir(src_folder_file):
+                copy_tree(src_folder_file, dst_folder_file)
+            elif os.path.isfile(src_folder_file):
+                copy_file(src_folder_file, dst_folder_file)
+    if os.path.exists(os.path.join('pynq/notebooks/arch', CPU_ARCH)):
+        dir_fd = os.open(os.path.join('pynq/notebooks/arch', CPU_ARCH),
+                         os.O_RDONLY)
+        dirs = os.fwalk(dir_fd=dir_fd)
+        for dir, _, files, _ in dirs:
+            if not os.path.exists(os.path.join(staging_notebooks_dir, dir)):
+                os.mkdir(os.path.join(staging_notebooks_dir, dir))
+            for f in files:
+                copy_file(os.path.join('pynq/notebooks/arch', CPU_ARCH, dir, f),
+                         os.path.join(staging_notebooks_dir, dir, f))
+        os.close(dir_fd)
 
 
 # Copy notebooks in boards/BOARD/notebooks
