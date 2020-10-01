@@ -88,7 +88,8 @@ fi
 
 # Only for Vitis 2020.1, check if the microblaze compiler is patched
 # Create md5 file to check against to
-echo "510eae368f7576e9274140f9f29dc492  $XILINX_VITIS/gnu/microblaze/lin/bin/mb-gcc" > /tmp/mbgcc.md5
+echo "510eae368f7576e9274140f9f29dc492 \
+ $XILINX_VITIS/gnu/microblaze/lin/bin/mb-gcc" > /tmp/mbgcc.md5
 md5sum --status -c /tmp/mbgcc.md5
 
 if [ $? -eq 1 ]; then    
