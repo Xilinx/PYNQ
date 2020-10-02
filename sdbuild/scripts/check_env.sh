@@ -35,6 +35,7 @@ rsync
 python3-pip
 gcc-multilib
 libidn11
+curl
 EOT
 
 read -d '' PYTHON_DEPS <<EOT
