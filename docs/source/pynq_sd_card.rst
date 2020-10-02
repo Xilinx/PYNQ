@@ -315,6 +315,80 @@ packages in the standard sdbuild library or ones contained within the board
 package. It is often useful to add the ``pynq`` package to this list which will
 ensure that a customised PYNQ installation is included in your final image.
 
+Leveraging ``boot.py`` to add boot service
+------------------------------------------
+
+Starting from image v2.6.0, a PYNQ image allows users to add a Python
+program that can be run automatically after the board has been booted. 
+Users can leverage this mechanism to perform some useful actions (such as
+flashing LEDs, connecting the board to WiFi, etc.) as an 
+alternative to the Ubuntu system service (``systemctl``). 
+
+To do that, after the board boots up, you can go to ``/boot`` and locate the
+file ``boot.py``. Make changes there so the the changes will be applied
+next time when the board boots up. Note that the ``/boot`` is the boot
+partition mounted to your root file system, so do not change other files
+(e.g. ``BOOT.bin``, ``image.ub``, etc.) in
+that partition unless you know what you are doing.
+
+You can also add a SD build package into your board folder, and include
+that package in your ``<BOARD>.spec`` file. In this way, the SD card image
+your built will have your desired ``boot.py`` in the boot partition
+automatically.
+
+For example, by adding the package
+``boot_leds``, we can make the LEDs on Pynq-Z1 to flash once the board is 
+booted.
+
+.. code-block:: makefile
+
+   ARCH_Pynq-Z1 := arm
+   BSP_Pynq-Z1 :=
+   BITSTREAM_Pynq-Z1 := base/base.bit
+   FPGA_MANAGER_Pynq-Z1 := 1
+   STAGE4_PACKAGES_Pynq-Z1 := xrt pynq boot_leds ethernet
+
+The SD build package ``boot_leds`` has only 2 files:
+
+  1. ``boot.py``, which contains the Python program to flash LEDs.
+
+     .. code-block:: python
+
+        #!/bin/env python3.6
+
+        from time import sleep
+        from pynq.overlays.base import BaseOverlay
+
+        base = BaseOverlay("base.bit")
+        rgbleds = [base.rgbleds[i] for i in range(4, 6)]
+        leds = [base.leds[i] for i in range(4)]
+
+        for i in range(8):
+            [l.off() for l in leds]
+            [rgbled.off() for rgbled in rgbleds]
+            sleep(.2)
+            [l.on() for l in leds]
+            [rgbled.on(1) for rgbled in rgbleds]
+            sleep(.2)
+        [rgbled.off() for rgbled in rgbleds]
+
+  2. ``pre.sh``, which appends the above ``boot.py`` to the original ``boot.py``
+     on the boot partition.
+
+     .. code-block:: bash
+
+        #! /bin/bash
+
+        target=$1
+        script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+        cat $script_dir/boot.py | sudo tee -a $target/boot/boot.py 
+
+Note that we only append the new ``boot.py`` to the original ``boot.py``.
+This is because you may have multiple packages touching ``boot.py`` in your
+SD build process; we want to make sure ``boot.py`` from different packages
+don't overwrite each other.
+
 Using the PYNQ package
 ----------------------
 
