@@ -360,6 +360,10 @@ class Device(metaclass=DeviceMeta):
             mmio = MMIO(ip_dict[ip_name]['phys_addr'], target_size,
                         device=self)
             buf = bin_file.read(size)
+            if len(buf) % 4 != 0:
+                padding = 4 - len(buf) % 4
+                buf += b"\x00" * padding
+                size += padding
             mmio.write(0, buf)
             if zero and size < target_size:
                 mmio.write(size, b'\x00' * (target_size - size))
