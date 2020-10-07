@@ -413,7 +413,12 @@ class LogicToolsController(PynqMicroblaze):
             The address of the source or destination buffer.
 
         """
-        buf = allocate(num_samples, dtype=data_type)
+        dtype = data_type
+        for k, v in BYTE_WIDTH_TO_CTYPE.items():
+            if v == data_type:
+                dtype = BYTE_WIDTH_TO_NPTYPE[k]
+                break
+        buf = allocate(num_samples, dtype=dtype)
         self.buffers[name] = buf
         return buf.physical_address
 
