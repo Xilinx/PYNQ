@@ -88,9 +88,9 @@
 
 #define XPAR_FSM_BRAM_RST_ADDR_BASEADDR \
     XPAR_LCP_AR_FSM_GENERATOR_FSM_BRAM_RST_ADDR_BASEADDR
-#define PATTERN_CDMA_BRAM_MEMORY 0x10000000 // CDMA access to PATTERN BRAM
+#define PATTERN_CDMA_BRAM_MEMORY 0x30000000 // CDMA access to PATTERN BRAM
 // BRAM Port B mapped through 2nd BRAM Controller accessed by CDMA
-#define PATTERN_TRI_CDMA_BRAM_MEMORY 0x10040000 // CDMA access to PATTERN TRI
+#define PATTERN_TRI_CDMA_BRAM_MEMORY 0x30040000 // CDMA access to PATTERN TRI
 // BRAM Port B mapped through 2nd BRAM Controller accessed by CDMA
 #define FSM_CDMA_BRAM_MEMORY 0xC0000000
 #define FSM_CDMA_BRAM_MEMORY_SIZE 0x8000    // size in bytes
@@ -208,7 +208,7 @@ u32 boolean_status = RESET_STATE;
 int pattern_generator_config(void) {
     pattern_multiple = 0;
     pattern_data_source = (u8 *)MAILBOX_DATA(0); // DDR address for the pattern
-    pattern_data_source = (u8 *) ((u32) pattern_data_source | 0x20000000);
+    pattern_data_source = (u8 *) ((u32) pattern_data_source);
     pattern_numofsamples = MAILBOX_DATA(1); // number of words in the pattern
 
     // move pattern data from DDR memory to BlockRAM
@@ -235,7 +235,7 @@ int pattern_generator_config(void) {
         pattern_multiple = 1;
     }
 	pattern_tri_source = (u8 *)MAILBOX_DATA(3);	// Tri control BRAM address
-	pattern_tri_source = (u8 *) ((u32) pattern_tri_source | 0x20000000);
+	pattern_tri_source = (u8 *) ((u32) pattern_tri_source);
 	// move pattern data from DDR memory to BlockRAM
 	destination = (u8 *)PATTERN_TRI_CDMA_BRAM_MEMORY;
 	XAxiCdma_IntrDisable(&xcdma, XAXICDMA_XR_IRQ_ALL_MASK);
@@ -416,7 +416,7 @@ int main (void) {
             reg6 = MAILBOX_DATA(6);     // output select for pins 16,17,18,19
             fsm_direction = MAILBOX_DATA(7);    // I/O direction
             fsm_source = (u8 *)MAILBOX_DATA(8); // DDR address for pattern
-            fsm_source = (u8 *) ((u32) fsm_source | 0x20000000);
+            fsm_source = (u8 *) ((u32) fsm_source);
             // move pattern data from DDR memory to BlockRAM
             destination = (u8 *)FSM_CDMA_BRAM_MEMORY;
             XAxiCdma_IntrDisable(&xcdma, XAXICDMA_XR_IRQ_ALL_MASK);
@@ -470,7 +470,7 @@ int main (void) {
         case CONFIG_TRACE:
             traceptr = (u8 *)MAILBOX_DATA(0);   // DDR address of the trace
             if(traceptr) {
-                traceptr = (u8 *) ((u32) traceptr | 0x20000000);
+                traceptr = (u8 *) ((u32) traceptr);
                 tracing = 1;
             }
             trace_numofsamples = MAILBOX_DATA(1);
