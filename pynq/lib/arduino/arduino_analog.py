@@ -174,12 +174,11 @@ class Arduino_Analog(object):
         None
         
         """
-        if log_interval_ms < 0:
+        if not isinstance(log_interval_ms, int):
+            raise ValueError("Time between samples should be integer.")
+        elif log_interval_ms < 0:
             raise ValueError("Time between samples should be no less than 0.")
         
-        if isinstance(log_interval_ms, int):
-            raise ValueError("Time between samples should be integer.")
-
         self.log_interval_ms = log_interval_ms
         self.microblaze.write_mailbox(4, log_interval_ms)
 
