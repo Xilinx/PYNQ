@@ -3200,7 +3200,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0xC0000000 -range 0x00008000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/FSM_generator/fsm_bram_ctrl/S_AXI/Mem0] -force
   assign_bd_address -offset 0x30000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_data_bram_ctrl/S_AXI/Mem0] -force
   assign_bd_address -offset 0x30040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_tri_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0x10000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
+  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
   assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/axi_cdma_0/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0x41E00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/trace_analyzer/axi_dma_0/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/boolean_generator/boolean_generator/S_AXI/S_AXI_reg] -force
@@ -3214,7 +3214,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Instruction] [get_bd_addr_segs lcp_ar/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
   assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_nsamples/S_AXI/Reg] -force
   assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/trace_analyzer/trace_cntrl_64_0/s_axi_trace_cntrl/Reg] -force
-  assign_bd_address -offset 0x10000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces lcp_ar/trace_analyzer/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP2/HP2_DDR_LOWOCM] -force
+  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces lcp_ar/trace_analyzer/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP2/HP2_DDR_LOWOCM] -force
 
 
   # Restore current instance
