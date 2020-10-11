@@ -803,7 +803,8 @@ Remaining code:
 
          case READ_AND_LOG:
        // initialize logging variables, reset cmd
-       cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+       cb_init(&circular_log, 
+         LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE, 1);
        delay = MAILBOX_DATA(1);
        MAILBOX_CMD_ADDR = 0x0; 
 
