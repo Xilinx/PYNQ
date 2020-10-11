@@ -65,6 +65,7 @@ int cb_init(circular_buffer *cb, volatile u32* log_start_addr,
     cb->capacity = capacity;
     cb->sz = sz;
     cb->channels = channels;
+    cb->head_ovf = 0x0;
     cb->head = cb->buffer;
     cb->tail = cb->buffer;
 
@@ -104,8 +105,6 @@ void cb_push_back_float(circular_buffer *cb, const float *item){
 
 
 void cb_push_incr_ptrs(circular_buffer *cb){
-    // Keep track if the head has overflowed
-    static u32 head_ovf = 0x0;
     // update pointers
     cb->tail = (char*)cb->tail + cb->sz;
     if (cb->tail >= cb->buffer_end)
@@ -116,10 +115,10 @@ void cb_push_incr_ptrs(circular_buffer *cb){
         // Move the head pointer to buffer start and flag it
         if (cb->head >= cb->buffer_end){
             cb->head = cb->buffer;
-            head_ovf = 0x10000;
+            cb->head_ovf = 0x10000;
         }
     }
     // update mailbox head and tail
-    MAILBOX_DATA(2) = (u32) cb->head + head_ovf;
+    MAILBOX_DATA(2) = (u32) cb->head + cb->head_ovf;
     MAILBOX_DATA(3) = (u32) cb->tail;
 }

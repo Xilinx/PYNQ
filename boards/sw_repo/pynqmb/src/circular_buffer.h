@@ -44,7 +44,8 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
- * 1.01  mrn 10/11/18 Include channels in the init function
+ * 1.01  mrn 10/11/18 Include channels in the init function, 
+ *                    add head overflow flag
  *
  * </pre>
  *
@@ -75,6 +76,7 @@ typedef struct circular_buffer
   size_t capacity;           // maximum number of items in the buffer
   size_t channels;           // number of channels in the buffer
   size_t sz;                 // size of each item in the buffer
+  size_t head_ovf;           // Flag for head overflow
   volatile void *head;       // pointer to head
   volatile void *tail;       // pointer to tail
 } circular_buffer;
