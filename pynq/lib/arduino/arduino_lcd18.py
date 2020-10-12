@@ -226,7 +226,7 @@ class Arduino_LCD18(object):
         image_file.close()
 
         file_size = width * height * 2
-        self.buffer = allocate(file_size, data_type="uint8_t")
+        self.buffer = allocate(file_size, dtype="u1")
         phy_addr = self.buffer.physical_address
         try:
             for j in range(width):
