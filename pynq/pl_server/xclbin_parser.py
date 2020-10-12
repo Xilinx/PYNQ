@@ -286,13 +286,16 @@ def _xclbin_to_dicts(filename):
                 for i, mem in enumerate(mem_data)}
     _add_argument_memory(ip_dict, ip_data, connections, memories)
     
-    clock_topology = xclbin.clock_freq_topology.from_buffer(
-          sections[xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY])
+    if xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY in sections:
+        clock_topology = xclbin.clock_freq_topology.from_buffer(
+              sections[xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY])
            
-    clk_data = _get_object_as_array(clock_topology.m_clock_freq[0],
+        clk_data = _get_object_as_array(clock_topology.m_clock_freq[0],
                            clock_topology.m_count)
                    
-    clock_dict = _clk_data_to_dict(clk_data)
+        clock_dict = _clk_data_to_dict(clk_data)
+    else:
+        clock_dict = {}
 
     return ip_dict, mem_dict, clock_dict
 
