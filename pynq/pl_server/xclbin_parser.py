@@ -148,7 +148,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                 'phys_addr': int(instance.find('addrRemap').attrib['base'], 0),
                 'addr_range': addr_size,
                 'type': kernel.attrib['vlnv'],
-                'hw_control_protocol' : kernel.attrib['hwControlProtocol'],
+                'hw_control_protocol' : control_protocol,
                 'fullpath': instance.attrib['name'],
                 'registers': deepcopy(registers),
                 'streams': deepcopy(streams),
