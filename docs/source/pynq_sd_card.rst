@@ -315,8 +315,8 @@ packages in the standard sdbuild library or ones contained within the board
 package. It is often useful to add the ``pynq`` package to this list which will
 ensure that a customised PYNQ installation is included in your final image.
 
-Leveraging ``boot.py`` to modify SD Card boot behavior
-------------------------------------------
+Leveraging ``boot.py`` to modify SD card boot behavior
+------------------------------------------------------
 
 Starting from the v2.6.0 release, PYNQ SD card images include a ``boot.py`` 
 file in the boot partition that runs automatically after the board has been 
@@ -329,8 +329,8 @@ from a running PYNQ board - if you are live on the board inside Linux, the
 file is located in the ``/boot`` folder.  Note that  ``/boot`` is the 
 boot partition of the board and no other files should be modified.
 
-If you see some existing code running inside the boot.py file, it probably came from 
-a PYNQ sdbuild package that modified that file.  To see an example of an 
+If you see some existing code running inside the boot.py file, it probably came
+from a PYNQ sdbuild package that modified that file.  To see an example of an
 sdbuild package writing the boot.py file see the ZCU104's `boot_leds package 
 <https://github.com/Xilinx/PYNQ/tree/image_v2.6.0/boards/ZCU104/packages/boot_leds>`_
 which simply flashes the boards LEDs to signify Linux has booted on the board.
