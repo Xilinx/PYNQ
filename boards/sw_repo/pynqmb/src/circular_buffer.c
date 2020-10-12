@@ -48,7 +48,6 @@
  *                    buffer did not overflow
  * 1.02  mrn 10/11/20 Update cb_init function. Bug fix: move the head 
  *                    according to the number of channels.
- *                    Flag when the head has overflowed using bit 16
  *
  * </pre>
  *
@@ -65,7 +64,6 @@ int cb_init(circular_buffer *cb, volatile u32* log_start_addr,
     cb->capacity = capacity;
     cb->sz = sz;
     cb->channels = channels;
-    cb->head_ovf = 0x0;
     cb->head = cb->buffer;
     cb->tail = cb->buffer;
 
@@ -113,12 +111,10 @@ void cb_push_incr_ptrs(circular_buffer *cb){
     if (cb->tail == cb->head) {
         cb->head  = (char*)cb->head + cb->sz * cb->channels;
         // Move the head pointer to buffer start and flag it
-        if (cb->head >= cb->buffer_end){
+        if (cb->head >= cb->buffer_end)
             cb->head = cb->buffer;
-            cb->head_ovf = 0x10000;
-        }
     }
     // update mailbox head and tail
-    MAILBOX_DATA(2) = (u32) cb->head + cb->head_ovf;
+    MAILBOX_DATA(2) = (u32) cb->head;
     MAILBOX_DATA(3) = (u32) cb->tail;
 }
