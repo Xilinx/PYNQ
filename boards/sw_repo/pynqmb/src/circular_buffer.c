@@ -46,7 +46,7 @@
  * 1.00  yrq 01/09/18 release
  * 1.01  mrn 09/28/20 Bug fix, the head of the circular 
  *                    buffer did not overflow
- * 1.02  mrn 10/11/20 Update cb_init function. Bug fix: move the head 
+ * 1.02  mrn 10/11/20 Update initialize function. Bug fix: move the head 
  *                    according to the number of channels.
  *
  * </pre>

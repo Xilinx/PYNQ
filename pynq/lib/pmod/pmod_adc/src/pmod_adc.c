@@ -48,7 +48,7 @@
  * 1.00a pp  04/13/16 release
  * 1.00b pp  05/27/16 fix pmod_init()
  * 1.10  mrn 10/12/20 Comppute log_capacity computation depending on the number
- *                    of channels. update cb_init function
+ *                    of channels. update initialize function
  * </pre>
  *
  *****************************************************************************/

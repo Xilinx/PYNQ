@@ -50,7 +50,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00a cmc  03/29/16 release
  * 1.00b pp  05/27/16 fix pmod_init()
- * 1.01  mrn 10/11/20 update cb_init function
+ * 1.01  mrn 10/11/20 update initialize function
  *
  * </pre>
  *

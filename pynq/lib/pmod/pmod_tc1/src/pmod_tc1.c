@@ -50,7 +50,7 @@
  * Ver   Who   Date     Changes
  * ----- ---   ------- -----------------------------------------------
  * 1.00  tfors 10/15/16 release
- * 1.01  mrn 10/11/20 update cb_init function
+ * 1.01  mrn 10/11/20 update initialize function
  *
  * </pre>
  *

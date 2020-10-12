@@ -52,7 +52,7 @@
  * 1.00a cmc 04/06/16 release
  * 1.00b yrq 05/02/16 support 2 stickit sockets
  * 1.00d yrq 07/26/16 separate pmod and arduino
- * 1.01  mrn 10/11/20 update cb_init function
+ * 1.01  mrn 10/11/20 update initialize function
  * </pre>
  *
  *****************************************************************************/

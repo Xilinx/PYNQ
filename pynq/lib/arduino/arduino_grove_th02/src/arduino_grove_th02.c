@@ -46,7 +46,7 @@
  * ----- --- -------- -----------------------------------------------
  * 1.00a ldt 07/05/16 release
  * 1.00b gn  10/25/16 support arduino shield
- * 1.01  mrn 10/11/20 update cb_init function
+ * 1.01  mrn 10/11/20 update initialize function
  *
  * </pre>
  *
