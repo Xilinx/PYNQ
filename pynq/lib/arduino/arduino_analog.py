@@ -46,6 +46,7 @@ CONFIG_IOP_SWITCH = 0x1
 GET_RAW_DATA = 0x3
 READ_AND_LOG_RAW = 0x7
 RESET_ANALOG = 0xB
+V_Conv = 3.33 / 65536
 
 
 class Arduino_Analog(object):
@@ -107,23 +108,23 @@ class Arduino_Analog(object):
         # Write configuration and wait for ACK
         self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
 
-    def read(self,  rep = 'voltage'):
+    def read(self,  out_format = 'voltage'):
         """Read the shared mailbox memory with the adc raw value
          from the analog peripheral.
 
         Parameters
         ----------
-        rep : str
+        out_format : str
             Selects the return type, either 'raw' or 'voltage'
         
         Returns
         -------
         list
-            Either the raw values or the voltage depending on rep
+            Either the 'raw' values or 'voltage' depending on out_format
         
         """
-        if rep not in ['raw', 'voltage']:
-            raise ValueError("rep can only be 'raw' or 'voltage'")
+        if out_format not in ['raw', 'voltage']:
+            raise ValueError("out_format can only be 'raw' or 'voltage'")
             
         data_channels = 0
         for channel in self.gr_pin:
@@ -131,9 +132,10 @@ class Arduino_Analog(object):
         cmd = (data_channels << 8) + GET_RAW_DATA
         self.microblaze.write_blocking_command(cmd)
 
-        reading = np.asarray(self.microblaze.read_mailbox(0, self.num_channels))
+        reading = np.asarray(\
+            self.microblaze.read_mailbox(0, self.num_channels))
         
-        if rep == 'raw':
+        if out_format == 'raw':
             return reading
         else:
             return reading * V_Conv
@@ -198,12 +200,12 @@ class Arduino_Analog(object):
         else:
             raise RuntimeError("No analog log running.")
             
-    def get_log(self, rep = 'voltage'):
+    def get_log(self, out_format = 'voltage'):
         """Return list of logged raw samples.
 
         Parameters
         ----------
-        rep : str
+        out_format : str
             Selects the return type, either 'raw' or 'voltage'
 
         Returns
@@ -216,8 +218,8 @@ class Arduino_Analog(object):
         # Stop logging
         self.stop_log()
 
-        if rep not in ['raw', 'voltage']:
-            raise ValueError("rep can only be 'raw' or 'voltage'")
+        if out_format not in ['raw', 'voltage']:
+            raise ValueError("out_format can only be 'raw' or 'voltage'")
 
         # Prep iterators and results list
         [head_ptr, tail_ptr] = self.microblaze.read_mailbox(0x8, 2)
@@ -230,24 +232,24 @@ class Arduino_Analog(object):
             return None
         elif head_ptr < tail_ptr:
             for i in range(head_ptr, tail_ptr, 4*self.num_channels):
-                raw = self.microblaze.read(i, self.num_channels)
+                raw = np.atleast_1d(self.microblaze.read(i, self.num_channels))
                 for j in range(self.num_channels):
                     readings[j].append(raw[j])
         else:
             for i in range(head_ptr, self._log_end, 4*self.num_channels):
-                raw = self.microblaze.read(i, self.num_channels)
+                raw = np.atleast_1d(self.microblaze.read(i, self.num_channels))
                 for j in range(self.num_channels):
                     readings[j].append(raw[j])
 
             for i in range(ARDUINO_ANALOG_LOG_START, tail_ptr,
                            4*self.num_channels):
-                raw = self.microblaze.read(i, self.num_channels)
+                raw = np.atleast_1d(self.microblaze.read(i, self.num_channels))
                 for j in range(self.num_channels):
                     readings[j].append(raw[j])
         
         readings_arr = np.asarray(readings)
         
-        if rep == 'raw':
+        if out_format == 'raw':
             return readings_arr
         else:
             return readings_arr * V_Conv
