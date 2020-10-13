@@ -96,9 +96,9 @@ i2c i2c_open_device(unsigned int device){
 #define SWITCH_FLAG 0x10000
 
 struct i2c_switch_info {
-    int sda;
-    int scl;
-    int devid;
+    unsigned int sda;
+    unsigned int scl;
+    int dev_id;
 };
 
 static struct i2c_switch_info i2c_info[MAX_I2C_DEVICES];
@@ -109,20 +109,20 @@ static int last_scl = -1;
 
 i2c i2c_open(unsigned int sda, unsigned int scl){
     for (int i = 0; i < num_i2c_devices; ++i) {
-        if (sda == i2c_info[i].sda && scl == i2c_info[i].scl) {
+        if ((sda == i2c_info[i].sda) && (scl == i2c_info[i].scl)) {
             return i;
         }
     }
-    i2c dev = num_i2c_devices++;
-    i2c_info[dev].devid = i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
-    i2c_info[dev].sda = sda;
-    i2c_info[dev].scl = scl;
-    return dev | SWITCH_FLAG;
+    i2c dev_id = num_i2c_devices++;
+    i2c_info[dev_id].dev_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+    i2c_info[dev_id].sda = sda;
+    i2c_info[dev_id].scl = scl;
+    return dev_id | SWITCH_FLAG;
 }
 
-static i2c i2c_set_switch(i2c dev) {
-    if (dev & SWITCH_FLAG == 0) return dev;
-    dev ^= SWITCH_FLAG;
+static i2c i2c_set_switch(i2c dev_id) {
+    if ((dev_id & SWITCH_FLAG) == 0) return dev_id;
+    i2c dev = dev_id ^ SWITCH_FLAG;
     int sda = i2c_info[dev].sda;
     int scl = i2c_info[dev].scl;
     if (last_sda != -1) set_pin(last_sda, GPIO);
@@ -131,26 +131,26 @@ static i2c i2c_set_switch(i2c dev) {
     last_scl = scl;
     set_pin(scl, SCL0);
     set_pin(sda, SDA0);
-    return i2c_info[dev].devid;
+    return i2c_info[dev].dev_id;
 }
 
 #else
-static i2c i2c_set_switch(i2c dev) { return dev; }
+static i2c i2c_set_switch(i2c dev_id) { return dev_id; }
 #endif
 
 
 void i2c_read(i2c dev_id, unsigned int slave_address,
               unsigned char* buffer, unsigned int length){
-    dev_id = i2c_set_switch(dev_id);
-    XIic_Recv(xi2c[dev_id].BaseAddress,
+    i2c dev = i2c_set_switch(dev_id);
+    XIic_Recv(xi2c[dev].BaseAddress,
               slave_address, buffer, length, XIIC_STOP);
 }
 
 
 void i2c_write(i2c dev_id, unsigned int slave_address,
                unsigned char* buffer, unsigned int length){
-    dev_id = i2c_set_switch(dev_id);
-    XIic_Send(xi2c[dev_id].BaseAddress,
+    i2c dev = i2c_set_switch(dev_id);
+    XIic_Send(xi2c[dev].BaseAddress,
               slave_address, buffer, length, XIIC_STOP);
 }
 
