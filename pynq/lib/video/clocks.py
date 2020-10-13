@@ -607,7 +607,7 @@ class SI_5324C:
         if self.nc_ls_max & 0x1 == 1:
             self.nc_ls_max = self.nc_ls_max-1
 
-        if self.nc_ls_max * self.n1_hs < [self.n1_min] or \
+        if self.nc_ls_max * self.n1_hs < self.n1_min or \
                 self.nc_ls_min * self.n1_hs > self.n1_max:
             return -1
 
