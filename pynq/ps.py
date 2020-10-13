@@ -460,7 +460,7 @@ class _ClocksBase:
                     key=lambda x: abs(x[1] - div_product_desired))
         if abs(freq_desired - freq_high / q0) > 0.01 * freq_desired:
             warnings.warn(
-                "Setting frequency to the closet possible value {}MHz.".format(
+                "Setting frequency to the closest possible value {}MHz.".format(
                     round(freq_high / q0, 5)))
         return self.VALID_CLOCK_DIV_PRODUCTS[q0]
 
