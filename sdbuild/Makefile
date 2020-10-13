@@ -79,7 +79,7 @@ include $(wildcard $(BOARDDIR)/*/*.spec)
 
 MOUNTED_TARGET_BOOT := $(wildcard $(BUILD_ROOT)/$(UBUNTU_RELEASE).*/boot)
 MOUNTED_TARGET := $(dir $(MOUNTED_TARGET_BOOT))
-LOOP_IMAGE_FILE := $(shell sudo losetup -a | cut -d "(" -f2 | cut -d ")" -f1)
+LOOP_IMAGE_FILE := $(shell sudo losetup -a | grep "/sdbuild/" | cut -d "(" -f2 | cut -d ")" -f1)
 
 define BOARD_SPECIFIC_RULES
 # $1 is the board name
