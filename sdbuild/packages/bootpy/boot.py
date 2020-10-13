@@ -6,11 +6,11 @@
 #port = Wifi()
 #port.connect('your_ssid', 'your_password', auto=True)
 
-## example #2 - Change hostname
-# import subprocess
-# subprocess.call('pynq_hostname.sh aNewHostName'.split())
+# example #2 - Change hostname
+#import subprocess
+#subprocess.call('pynq_hostname.sh aNewHostName'.split())
 
-## example #3 - blink LEDs (PYNQ-Z1, PYNQ-Z2, ZCU104)
+# example #3 - blink LEDs (PYNQ-Z1, PYNQ-Z2, ZCU104)
 #from pynq import Overlay
 #from time import sleep
 #
