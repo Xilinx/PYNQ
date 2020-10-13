@@ -110,7 +110,7 @@ void cb_push_incr_ptrs(circular_buffer *cb){
 
     if (cb->tail == cb->head) {
         cb->head  = (char*)cb->head + cb->sz * cb->channels;
-        // Move the head pointer to buffer start and flag it
+        // Move the head pointer to buffer start
         if (cb->head >= cb->buffer_end)
             cb->head = cb->buffer;
     }

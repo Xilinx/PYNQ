@@ -210,8 +210,8 @@ class Arduino_Analog(object):
 
         Returns
         -------
-        list
-            List of valid samples from the analog device, 
+        Numpy Array
+            Numpy array of valid samples from the analog device, 
             either 'raw' or 'voltage'
         
         """
