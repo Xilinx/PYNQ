@@ -76,7 +76,7 @@
 // Log constants
 #define LOG_BASE_ADDRESS (MAILBOX_DATA_PTR(4))
 #define LOG_ITEM_SIZE sizeof(float)
-#define MAX_SAMPLES (4000 / LOG_ITEM_SIZE)
+#define MAX_SAMPLES (4032 / LOG_ITEM_SIZE)
 
 u8 WriteBuffer[10];
 u8 ReadBuffer[10];

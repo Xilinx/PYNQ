@@ -34,7 +34,7 @@ from . import MAILBOX_OFFSET
 from . import ARDUINO_NUM_ANALOG_PINS
 
 
-__author__ = "Yun Rock Qu"
+__author__ = "Yun Rock Qu, Mario Ruiz"
 __copyright__ = "Copyright 2016-2020, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
