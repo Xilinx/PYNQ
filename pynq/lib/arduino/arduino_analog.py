@@ -264,3 +264,50 @@ class Arduino_Analog(object):
         
         """
         self.microblaze.write_blocking_command(RESET_ANALOG)
+
+    def read_raw(self):
+        """Read the analog raw value from the analog peripheral.
+        
+        Returns
+        -------
+        list
+            The raw values from the analog device.
+        
+        """        
+        return self.read('raw')
+
+    def get_log_raw(self):
+        """Return list of logged raw samples.
+            
+        Returns
+        -------
+        list
+            List of valid raw samples from the analog device.
+        
+        """        
+        return self.get_log('raw')
+
+    def stop_log_raw(self):
+        """Stop recording the raw values in the log.
+        
+        Simply write 0xC to the MMIO to stop the log.
+            
+        Returns
+        -------
+        None
+        
+        """        
+        self.stop_log()
+
+    def start_log_raw(self):
+        """Start recording raw data in a log.
+        
+        This method will first call set_log_interval_ms() before writing to
+        the MMIO.
+            
+        Returns
+        -------
+        None
+        
+        """        
+        self.start_log()
