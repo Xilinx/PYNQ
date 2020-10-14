@@ -739,7 +739,7 @@ class XlnkDevice(Device):
         """
         from pynq.registers import Register
         parameter_dict = parser.ip_dict[parser.ps_name]['parameters']
-        if self.parser.family_ps == 'zynq_ultra_ps_e':
+        if parser.family_ps == 'zynq_ultra_ps_e':
             for para in ZU_FPD_SLCR_REG:
                 if para in parameter_dict:
                     width = parameter_dict[para]
@@ -769,7 +769,7 @@ class XlnkDevice(Device):
         with open(self.BS_FPGA_MAN, 'w') as fd:
             fd.write(bitstream.binfile_name)
         if parser is not None:
-            self.set_axi_widths(parser)
+            self.set_axi_port_width(parser)
         super().post_download(bitstream, parser)
 
     def get_bitfile_metadata(self, bitfile_name):
