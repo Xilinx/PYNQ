@@ -13,14 +13,14 @@
 -PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
 -VERSION_CODENAME=bionic
 +NAME="PYNQ Linux"
-+VERSION="2.5 (Glasgow)"
++VERSION="2.6 (WFH)"
 +ID=pynqlinux
 +ID_LIKE=ubuntu
 +PRETTY_NAME="PYNQ Linux, based on Ubuntu 18.04"
-+VERSION_ID="2.5"
++VERSION_ID="2.6"
 +HOME_URL="https://www.pynq.io/"
 +SUPPORT_URL="https://forums.ubuntu.com/"
 +BUG_REPORT_URL="https://www.pynq.io"
 +PRIVACY_POLICY_URL="https://www.pynq.io"
-+VERSION_CODENAME=glasgow
++VERSION_CODENAME=WFH
  UBUNTU_CODENAME=bionic
