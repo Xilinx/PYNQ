@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2020, Xilinx, Inc.
 #   All rights reserved.
 # 
 #   Redistribution and use in source and binary forms, with or without 
@@ -35,13 +35,13 @@ from . import MAILBOX_OFFSET
 
 
 __author__ = "Graham Schelle, Giuseppe Natale, Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
+__copyright__ = "Copyright 2016-2020, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
 PMOD_ADC_PROGRAM = "pmod_adc.bin"
 PMOD_ADC_LOG_START = MAILBOX_OFFSET+16
-PMOD_ADC_LOG_END = PMOD_ADC_LOG_START+(1000*4)
+PMOD_ADC_LOG_END = PMOD_ADC_LOG_START+(1008*4)
 RESET_ADC = 0x1
 READ_RAW_DATA = 0x3
 READ_VOLTAGE = 0x5

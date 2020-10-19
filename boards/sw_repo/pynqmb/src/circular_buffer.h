@@ -44,6 +44,7 @@
  * Ver   Who  Date     Changes
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
+ * 1.01  mrn 10/11/18 Include channels in the init function.
  *
  * </pre>
  *
@@ -72,7 +73,7 @@ typedef struct circular_buffer
   volatile void *buffer;     // data buffer
   void *buffer_end;          // end of data buffer
   size_t capacity;           // maximum number of items in the buffer
-  size_t count;              // number of items in the buffer
+  size_t channels;           // number of channels in the buffer
   size_t sz;                 // size of each item in the buffer
   volatile void *head;       // pointer to head
   volatile void *tail;       // pointer to tail
@@ -81,7 +82,7 @@ typedef struct circular_buffer
 circular_buffer circular_log;
 
 int cb_init(circular_buffer *cb, volatile u32* log_start_addr,
-            size_t capacity, size_t sz);
+            size_t capacity, size_t sz, size_t channels);
 void cb_push_back(circular_buffer *cb, const void *item);
 void cb_push_back_float(circular_buffer *cb, const float *item);
 void cb_push_incr_ptrs(circular_buffer *cb);

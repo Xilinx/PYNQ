@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright (c) 2016, Xilinx, Inc.
+ *  Copyright (c) 2016-2020, Xilinx, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@
  * Ver   Who   Date     Changes
  * ----- ---   ------- -----------------------------------------------
  * 1.00  tfors 10/15/16 release
+ * 1.01  mrn 10/11/20 update initialize function
  *
  * </pre>
  *
@@ -111,7 +112,8 @@ int main(void)
 
          case READ_AND_LOG:
        // initialize logging variables, reset cmd
-       cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+       cb_init(&circular_log, 
+        LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE, 1);
        delay = MAILBOX_DATA(1);
        MAILBOX_CMD_ADDR = 0x0;
 
