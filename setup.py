@@ -244,7 +244,7 @@ def copy_documentation_files(staging_notebooks_dir):
     doc_files.extend([(notebooks_getting_started_dst_img_dir,
                        [os.path.join(root, f) for f in files])
                       for root, dirs, files in os.walk(
-            notebooks_getting_started_src_img_dir)])
+                          notebooks_getting_started_src_img_dir)])
 
     if not os.path.exists(notebooks_getting_started_dst_img_dir):
         os.makedirs(notebooks_getting_started_dst_img_dir)

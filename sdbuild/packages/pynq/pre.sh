@@ -64,13 +64,19 @@ else
 	cd $BUILD_ROOT/PYNQ
 	./build.sh
 	# get rid of Vivado temp files in case there are any
-	boards=`ls boards`
+	boards=`find boards -maxdepth 2 -name '*.spec' -printf '%h\n' | cut -f2 -d"/"`
 	for bd_name in $boards ; do
 		cd $BUILD_ROOT/PYNQ/boards/${bd_name}
 		overlays=`find . -maxdepth 2 -iname 'makefile' -printf '%h\n' | cut -f2 -d"/"`
 		for ol in $overlays ; do
 			cd $BUILD_ROOT/PYNQ/boards/${bd_name}/$ol
 			make clean
+			if [[ -e $ol.bit.link ]]; then
+				rm -f $ol.bit
+			fi
+			if [[ -e $ol.hwh.link ]]; then
+				rm -f $ol.hwh
+			fi
 		done
 	done
 	# create sdist
