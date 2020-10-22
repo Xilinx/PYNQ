@@ -27,12 +27,14 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Peter Ogden"
+__author__ = "Peter Ogden, Parimal Patel"
 __copyright__ = "Copyright 2018, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import cffi
 import math
+import numpy as np
+from .constants import *
 
 
 _ffi = cffi.FFI()
@@ -94,25 +96,6 @@ class DP159:
             self._write(0x0A, 0x35)
 
 
-# The following algorithm is transcribed from the ZCU104 HDMI reference design
-
-IDT_8T49N24X_XTAL_FREQ = 40000000  # The freq of the crystal in Hz
-IDT_8T49N24X_FVCO_MAX = 4000000000  # Max VCO Operating Freq in Hz
-IDT_8T49N24X_FVCO_MIN = 3000000000  # Min VCO Operating Freq in Hz
-
-IDT_8T49N24X_FOUT_MAX = 400000000  # Max Output Freq in Hz
-IDT_8T49N24X_FOUT_MIN = 8000       # Min Output Freq in Hz
-
-IDT_8T49N24X_FIN_MAX = 875000000   # Max Input Freq in Hz
-IDT_8T49N24X_FIN_MIN = 8000        # Min Input Freq in Hz
-
-IDT_8T49N24X_FPD_MAX = 128000      # Max Phase Detector Freq in Hz
-IDT_8T49N24X_FPD_MIN = 8000        # Min Phase Detector Freq in Hz
-
-IDT_8T49N24X_P_MAX = 4194304       # pow(2,22) - Max P div value
-IDT_8T49N24X_M_MAX = 16777216      # pow(2,24) - Max M mult value
-
-
 def _get_int_div_table(fout, bypass):
     if bypass:
         NS1_Options = [1, 4, 5, 6]
@@ -138,7 +121,7 @@ def _get_int_div_table(fout, bypass):
             else:
                 OutDivTemp = ns1 * NS2Temp * 2
             VCOTemp = fout * OutDivTemp
-            if VCOTemp <= IDT_8T49N24X_FVCO_MAX and VCOTemp >= IDT_8T49N24X_FVCO_MIN:
+            if IDT_8T49N24X_FVCO_MIN <= VCOTemp <= IDT_8T49N24X_FVCO_MAX:
                 table.append((OutDivTemp, ns1))
         NS2Temp += 1
     return table
@@ -166,6 +149,8 @@ def _calculate_settings(fin, fout):
     fin_ratio = fvco / fin
     PMin = fin // IDT_8T49N24X_FPD_MAX
     min_error = 99999999
+    M1_best = 0
+    P_best = 0
     for i in range(PMin, IDT_8T49N24X_P_MAX):
         M1 = round(i * fin_ratio)
         if M1 < IDT_8T49N24X_M_MAX:
@@ -185,24 +170,6 @@ def _calculate_settings(fin, fout):
         LOS = 6
     settings['LOS'] = LOS
     return settings
-
-# Initial configuration that sets up a free-running clock
-
-
-IDT_Synth = [
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xEF, 0x00, 0x03, 0x00, 0x31, 0x00,
-    0x04, 0x89, 0x00, 0x00, 0x01, 0x00, 0x63, 0xC6, 0x07, 0x00, 0x00, 0x77,
-    0x6D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x01,
-    0x3F, 0x00, 0x28, 0x00, 0x1A, 0xCC, 0xCD, 0x00, 0x01, 0x00, 0x00, 0xD0,
-    0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x0C, 0x00, 0x00,
-    0x00, 0x44, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0B,
-    0x00, 0x00, 0x0B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x89, 0x0A, 0x2B, 0x20,
-    0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-
-]
 
 
 class IDT_8T49N24:
@@ -287,6 +254,12 @@ class IDT_8T49N24:
         self._update(0x0070, value, 0x05)
 
     def set_clock(self, freq, line_rate):
+        """Configure the device based on the line rate
+
+        The parameter `line_rate` is left to keep consistent API with
+        other clock drivers.
+
+        """
         self._set_clock(IDT_8T49N24X_XTAL_FREQ, freq, True)
 
     def _set_clock(self, fin, fout, free_run):
@@ -398,3 +371,396 @@ class IDT_8T49N24:
         self._write(address + 1, (value >> 16) & 0xFF)
         self._write(address + 2, (value >> 8) & 0xFF)
         self._write(address + 3, value & 0xFF)
+
+
+class SI_5324C:
+    """Driver for the SI 5324C series of clock generators
+
+    """
+
+    def __init__(self, master, address):
+        """Create a new instance of the SI_5324C driver
+
+        Parameters
+        ----------
+        master : IIC master
+            IIC master the device is connected to
+        address : int
+            IIC address of the device
+
+        """
+        self._master = master
+        self._address = address
+        self._buffer = _ffi.new("unsigned char [32]")
+        if not self.check_device_id():
+            raise RuntimeError("Could not find SI5324")
+
+        self.vals = [0 for _ in range(6)]
+        self.n1_min = 1
+        self.n1_max = 1
+        self.n1_hs = 1
+        self.nc_ls_min = 1
+        self.nc_ls_max = 1
+        self.nc_ls = 1
+        self.n2_hs = 1
+        self.n2_ls_min = 1
+        self.n2_ls_max = 1
+        self.n2_ls = 1
+        self.n3_min = 1
+        self.n3_max = 1
+        self.n3 = 1
+        self.best_n1_hs = 1
+        self.best_nc_ls = 1
+        self.best_n2_hs = 1
+        self.best_n2_ls = 1
+        self.best_n3 = 1
+        self.fin = 1
+        self.fout = 1
+        self.fosc = 1
+        self.best_fout_delta = 1
+        self.best_fout = 1
+
+        self.enable(False)
+        self._configure()
+        self.enable(True)
+
+    def _configure(self):
+        self._write(3, 0x15)
+        self._write(4, 0x92)
+        self._write(6, 0x2f)
+        self._write(10, 0x08)
+        self._write(11, 0x42)
+        self._write(19, 0x23)
+        self._write(137, 0x01)
+
+    def _read(self, reg_addr):
+        attempts = 0
+        while True:
+            try:
+                self._buffer[0] = reg_addr
+                self._master.send(self._address, self._buffer, 1, 1)
+                self._master.receive(self._address, self._buffer, 1, 0)
+            except Exception:
+                attempts += 1
+                if attempts > 100:
+                    raise RuntimeError(
+                        "Timeout when reading from address {}".format(reg_addr))
+                continue
+            break
+
+        return self._buffer[0]
+
+    def _write(self, reg_addr, value):
+        attempts = 0
+        while True:
+            try:
+                self._buffer[0] = reg_addr
+                self._buffer[1] = value
+                self._master.send(self._address, self._buffer, 2, 0)
+            except Exception:
+                attempts += 1
+                if attempts > 100:
+                    raise RuntimeError(
+                        "Timeout when writing to address {}".format(reg_addr))
+                continue
+            break
+
+    def _update(self, reg_addr, value, mask):
+        data = self._read(reg_addr)
+        data &= ~mask
+        data |= (value & mask)
+        self._write(reg_addr, data)
+
+    def check_device_id(self):
+        device_id = self._read(0x86) << 8
+        device_id |= self._read(0x87)
+        return device_id == 0x0182
+
+    def enable(self, active):
+        if active:
+            value = 0x00
+        else:
+            value = 0x01
+        self._update(0x0B, value, 0x01)
+
+    def set_clock(self, freq, line_rate):
+        self.enable(False)
+        self._set_clock(SI5324_CLKSRC_XTAL, SI5324_XTAL_FREQ, freq)
+        self.enable(True)
+
+    def _rate_approx(self, f):
+        h = np.array([0, 1, 0])
+        k = np.array([1, 0, 0])
+        n = 1
+        if self.n3_max <= 1:
+            self.n3 = 1
+            self.n2_ls = f >> 28
+            return
+        n = n << 28
+        for i in range(0, 28):
+            if (f % 2) == 0:
+                n = n//2
+                f = f//2
+            else:
+                break
+        d = f
+        for i in range(64):
+            if n:
+                a = d//n
+            else:
+                a = 0
+            if i and not a:
+                break
+            x = d
+            d = n
+            n = x % n
+            x = a
+            if k[1]*a+k[0] >= self.n3_max:
+                x = (self.n3_max-k[0])//k[1]
+                if not (x*2 >= a or k[1] >= self.n3_max):
+                    break
+            h[2] = x*h[1]+h[0]
+            h[0] = h[1]
+            h[1] = h[2]
+            k[2] = x*k[1]+k[0]
+            k[0] = k[1]
+            k[1] = k[2]
+        self.n3 = k[1]
+        self.n2_ls = h[1]
+
+    def _find_n2ls(self):
+        result = 0
+        np.seterr(divide='ignore', invalid='ignore')
+        n2_ls_div_n3 = self.fosc//(self.fin >> 28)//self.n2_hs//2
+        self._rate_approx(n2_ls_div_n3)
+        self.n2_ls = self.n2_ls*2
+        if self.n2_ls < self.n2_ls_min:
+            mult = self.n2_ls_min % self.n2_ls
+            if mult == 1:
+                mult = mult+1
+            self.n2_ls = self.n2_ls*mult
+            self.n3 = self.n3*mult
+
+        if self.n3 < self.n3_min:
+            mult = self.n3_min % self.n3
+            if mult == 1:
+                mult = mult+1
+            self.n2_ls = self.n2_ls*mult
+            self.n3 = self.n3*mult
+        else:
+            f3_actual = self.fin//self.n3
+            fosc_actual = f3_actual * self.n2_hs * self.n2_ls
+            fout_actual = fosc_actual//(self.n1_hs * self.nc_ls)
+            delta_fout = fout_actual - self.fout
+
+            if f3_actual < (SI5324_F3_MIN << 28) or \
+                    f3_actual > (SI5324_F3_MAX << 28):
+                pass
+            elif fosc_actual < (SI5324_FOSC_MIN << 28) or \
+                    fosc_actual > (SI5324_FOSC_MAX << 28):
+                pass
+            elif fout_actual < (SI5324_FOUT_MIN << 28) or \
+                    fout_actual > (SI5324_FOUT_MAX << 28):
+                pass
+            else:
+                if abs(delta_fout) < self.best_fout_delta:
+                    self.best_n1_hs = self.n1_hs
+                    self.best_nc_ls = self.nc_ls
+                    self.best_n2_hs = self.n2_hs
+                    self.best_n2_ls = self.n2_ls
+                    self.best_n3 = self.n3
+                    self.best_fout = fout_actual
+                    self.best_fout_delta = abs(delta_fout)
+                    if delta_fout == 0:
+                        result = 1
+
+        return result
+
+    def _find_n2(self):
+        result = 0
+        for i in range(SI5324_N2_HS_MAX, SI5324_N2_HS_MIN-1, -1):
+            self.n2_hs = i
+            self.n2_ls_min = self.fosc//((SI5324_F3_MAX * i) << 28)
+            if self.n2_ls_min < SI5324_N2_LS_MIN:
+                self.n2_ls_min = SI5324_N2_LS_MIN
+            self.n2_ls_max = self.fosc//((SI5324_F3_MIN * i) << 28)
+            if self.n2_ls_max > SI5324_N2_LS_MAX:
+                self.n2_ls_max = SI5324_N2_LS_MAX
+            result = self._find_n2ls()
+            if result:
+                break
+
+        return result
+
+    def _calc_ncls_limits(self):
+        self.nc_ls_min = self.n1_min//self.n1_hs
+        if self.nc_ls_min < SI5324_NC_LS_MIN:
+            self.nc_ls_min = SI5324_NC_LS_MIN
+
+        if self.nc_ls_min > 1 and self.nc_ls_min & 0x1 == 1:
+            self.nc_ls_min = self.nc_ls_min+1
+
+        self.nc_ls_max = self.n1_max//self.n1_hs
+        if self.nc_ls_max > SI5324_NC_LS_MAX:
+            self.nc_ls_max = SI5324_NC_LS_MAX
+
+        if self.nc_ls_max & 0x1 == 1:
+            self.nc_ls_max = self.nc_ls_max-1
+
+        if self.nc_ls_max * self.n1_hs < self.n1_min or \
+                self.nc_ls_min * self.n1_hs > self.n1_max:
+            return -1
+
+        return 0
+
+    def _find_ncls(self):
+        fosc_1 = self.fout * self.n1_hs
+
+        result = 0
+        for i in range(self.nc_ls_max, self.nc_ls_max+1):
+            self.fosc = fosc_1 * i
+            self.nc_ls = i
+            result = self._find_n2()
+            if result:
+                break
+            if i == 1:
+                self.nc_ls = i+1
+
+            else:
+                self.nc_ls = i+2
+
+        return result
+
+    def _calc_freq_settings(self, clk_in_freq, clk_out_freq):
+        self.fin = clk_in_freq << 28
+        self.fout = clk_out_freq << 28
+        best_delta_fout = self.fout
+
+        self.n1_min = SI5324_FOSC_MIN//clk_out_freq
+        if self.n1_min < SI5324_N1_HS_MIN * SI5324_NC_LS_MIN:
+            self.n1_min = SI5324_N1_HS_MIN * SI5324_NC_LS_MIN
+
+        self.n1_max = SI5324_FOSC_MAX//clk_out_freq
+        if self.n1_max > SI5324_N1_HS_MAX * SI5324_NC_LS_MAX:
+            self.n1_max = SI5324_N1_HS_MAX * SI5324_NC_LS_MAX
+
+        self.n3_min = clk_in_freq//SI5324_F3_MAX
+        if self.n3_min < SI5324_N3_MIN:
+            self.n3_min = SI5324_N3_MIN
+
+        self.n3_max = clk_in_freq//SI5324_F3_MIN
+        if self.n3_max > SI5324_N3_MAX:
+            self.n3_max = SI5324_N3_MAX
+
+        for i in range(SI5324_N1_HS_MAX, SI5324_N1_HS_MIN-1, -1):
+            self.n1_hs = i
+            result = self._calc_ncls_limits()
+            if result:
+                continue
+            result = self._find_ncls()
+            if result:
+                break
+
+        if best_delta_fout == best_delta_fout//self.fout:
+            return SI5234_ERR_FREQ
+
+        self.vals[0] = self.best_n1_hs-4
+        self.vals[1] = self.best_nc_ls-1
+        self.vals[2] = self.best_n2_hs-4
+        self.vals[3] = self.best_n2_ls-1
+        self.vals[4] = self.best_n3-1
+        self.vals[5] = 6
+
+        return SI5324_SUCCESS
+
+    def _set_clock(self, clk_src, clk_in_freq, clk_out_freq):
+        buf = np.zeros(30, dtype=np.uint8)
+
+        if clk_src < SI5324_CLKSRC_CLK1 or clk_src > SI5324_CLKSRC_XTAL:
+            raise RuntimeError("Si5324 Error : Incorrect input clock selected")
+
+        if clk_src == SI5324_CLKSRC_CLK2:
+            raise RuntimeError("Si5324 Error : clock input 2 not supported")
+
+        if clk_in_freq < SI5324_FIN_MIN or clk_in_freq > SI5324_FIN_MAX:
+            raise RuntimeError("Si5324 Error :Input Frequency out of range")
+
+        if clk_out_freq < SI5324_FOUT_MIN or clk_out_freq > SI5324_FOUT_MAX:
+            raise RuntimeError("Si5324 ERROR: Output frequency out of range")
+
+        result = self._calc_freq_settings(clk_in_freq, clk_out_freq)
+        if result != SI5324_SUCCESS:
+            raise RuntimeError("Si5324 ERROR: Could not determine settings "
+                               "for requested frequency")
+
+        i = 0
+        buf[i] = 0
+        if clk_src == SI5324_CLKSRC_XTAL:
+            buf[i+1] = 0x54
+        else:
+            buf[i+1] = 0x14
+
+        i = i+2
+        buf[i] = 2
+        buf[i+1] = (self.vals[5] << 4) | 0x02
+
+        i += 2
+        buf[i] = 11
+        if clk_src == SI5324_CLKSRC_CLK1:
+            buf[i+1] = 0x42
+        else:
+            buf[i+1] = 0x41
+
+        i += 2
+        buf[i] = 13
+        buf[i+1] = 0x2f
+
+        i += 2
+        buf[i] = 25
+        buf[i+1] = self.vals[0] << 5
+
+        i += 2
+        buf[i] = 31
+        buf[i+1] = (self.vals[1] & 0x000F0000) >> 16
+        buf[i+2] = 32
+        buf[i+3] = (self.vals[1] & 0x0000FF00) >> 8
+        buf[i+4] = 33
+        buf[i+5] = self.vals[1] & 0x000000FF
+
+        i += 6
+        buf[i] = 40
+        buf[i+1] = self.vals[2] << 5
+        temp = (self.vals[3] & 0x000F0000) >> 16
+        buf[i+1] = buf[i+1] | temp
+        buf[i+2] = 41
+        buf[i+3] = (self.vals[3] & 0x0000FF00) >> 8
+        buf[i+4] = 42
+        buf[i+5] = self.vals[3] & 0x000000FF
+
+        i += 6
+        if clk_src == SI5324_CLKSRC_CLK1:
+            buf[i] = 43
+            buf[i+2] = 44
+            buf[i+4] = 45
+        else:
+            buf[i] = 46
+            buf[i+2] = 47
+            buf[i+4] = 48
+        buf[i+1] = (self.vals[4] & 0x00070000) >> 16
+        buf[i+3] = (self.vals[4] & 0x0000FF00) >> 8
+        buf[i+5] = self.vals[4] & 0x000000FF
+
+        i += 6
+        buf[i] = 136
+        buf[i+1] = 0x40
+
+        i += 2
+        if i != buf.shape[0]:
+            return
+
+        for index in range(0, i, 2):
+            reg_addr = buf[index]
+            data = buf[index+1]
+            self._write(reg_addr, data)
+
+        return result

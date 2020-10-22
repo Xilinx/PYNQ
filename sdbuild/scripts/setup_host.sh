@@ -56,6 +56,8 @@ python3-pip
 python-minimal
 gcc-multilib
 xterm
+net-tools
+libidn11
 EOT
 set -e
 
@@ -126,7 +128,7 @@ sudo ln -s qemu-arm qemu-arm-static
 sudo ln -s qemu-aarch64 qemu-aarch64-static
 cd ~
 
-# Create gmake symlink to keep SDK happy
+# Create gmake symlink to keep Vitis happy
 cd /usr/bin
 if ! which gmake
 then
@@ -140,9 +142,11 @@ if [ ! -f /run/systemd/resolve/stub-resolv.conf ]; then
 fi
 
 # update setuptools
-sudo pip3 install --upgrade "setuptools>=24.2.0"
+sudo -H pip3 install --upgrade "setuptools>=24.2.0"
+# install dependencies required to build pynq sdist
+sudo -H pip3 install numpy cffi
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 
-echo "Now install Vivado, SDK, and Petalinux."
-echo "Re-login to  ensure the enviroment is properly set up."
+echo "Now install Vitis and Petalinux."
+echo "Re-login to  ensure the environment is properly set up."

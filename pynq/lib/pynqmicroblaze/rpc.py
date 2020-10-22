@@ -183,6 +183,20 @@ class ConstPointerWrapper:
         return []
 
 
+class ConstCharPointerWrapper(ConstPointerWrapper):
+    """ Wrapper for const char*s which accepts Python strings and
+    makes sure they are NULL-terminated
+
+    """
+    def __init__(self, type_):
+        super().__init__(type_, 'b')
+
+    def param_encode(self, old_val):
+        val = [ord(c) for c in old_val]
+        val.append(0)
+        return super().param_encode(val)
+
+
 class PointerWrapper:
     """ Wrapper for non-const T pointers that retrieves any
     data modified by the called function.
@@ -306,7 +320,10 @@ def _type_to_interface(tdecl, typedefs):
         struct_string = _type_to_struct_string(nested_type)
         if struct_string:
             if 'const' in nested_type.quals:
-                return ConstPointerWrapper(tdecl, struct_string)
+                if struct_string == 'b':
+                    return ConstCharPointerWrapper(tdecl)
+                else:
+                    return ConstPointerWrapper(tdecl, struct_string)
             else:
                 return PointerWrapper(tdecl, struct_string)
         else:

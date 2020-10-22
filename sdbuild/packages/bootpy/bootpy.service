@@ -1,0 +1,11 @@
+[Unit]
+Description=Executing boot.py from the boot partition
+Requires=pl_server.service jupyter.service
+After=pl_server.service jupyter.service boot.mount
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/bootpy.sh
+
+[Install]
+WantedBy=basic.target

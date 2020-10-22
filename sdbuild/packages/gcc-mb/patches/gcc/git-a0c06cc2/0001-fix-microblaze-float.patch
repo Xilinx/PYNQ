@@ -1,0 +1,24 @@
+--- a/gcc/config/microblaze/microblaze.c	2019-04-15 14:19:21.000000000 -0700
++++ b/gcc/config/microblaze/microblaze.c	2020-06-23 17:28:55.286224000 -0700
+@@ -2474,9 +2474,11 @@
+       if (letter == 'F')
+ 	{
+ 	  unsigned long value_long;
++	  HOST_WIDE_INT value_ll;
+ 	  REAL_VALUE_TO_TARGET_SINGLE (*CONST_DOUBLE_REAL_VALUE (op),
+ 				       value_long);
+-	  fprintf (file, HOST_WIDE_INT_PRINT_HEX, value_long);
++	  value_ll = value_long;
++	  fprintf (file, HOST_WIDE_INT_PRINT_HEX, value_ll);
+ 	}
+       else
+ 	{
+@@ -2535,7 +2537,7 @@
+       print_operand_address (file, XEXP (op, 0));
+     }
+   else if (letter == 'm')
+-    fprintf (file, HOST_WIDE_INT_PRINT_DEC, (1L << INTVAL (op)));
++    fprintf (file, HOST_WIDE_INT_PRINT_DEC, (((HOST_WIDE_INT)1) << INTVAL (op)));
+   else
+     output_addr_const (file, op);
+ }

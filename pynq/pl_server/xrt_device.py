@@ -39,33 +39,13 @@ import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
 
-try:
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=SyntaxWarning)
-        import xrt_binding as xrt
-        import ert_binding as ert
-except ImportError:
-    from pynq import xrt
-    from pynq import ert
+from pynq._3rdparty import xrt
+from pynq._3rdparty import ert
 
 __author__ = "Peter Ogden"
 __copyright__ = "Copyright 2019, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-
-if "XCL_EMULATION_MODE" in os.environ:
-    emulation_mode = os.environ["XCL_EMULATION_MODE"]
-    if emulation_mode == "hw_emu":
-        xrt_lib = os.path.join(
-            os.environ['XILINX_XRT'], 'lib', 'libxrt_hwemu.so')
-    elif emulation_mode == "sw_emu":
-        raise RuntimeError("PYNQ doesn't support software emulation: either "
-                           "unset XCL_EMULATION_MODE or set it hw_emu")
-    else:
-        warnings.warn("Unknown emulation mode: " + emulation_mode)
-        xrt_lib = os.path.join(
-            os.environ['XILINX_XRT'], 'lib', 'libxrt_core.so')
-    xrt.libc = ctypes.CDLL(xrt_lib)
 
 DRM_XOCL_BO_EXECBUF = 1 << 31
 REQUIRED_VERSION_ERT = (2, 3, 0)
@@ -88,6 +68,7 @@ class xclDeviceUsage (ctypes.Structure):
         ("memSize", ctypes.c_ulonglong*8)
     ]
 
+
 _xrt_errors = {
     -95: "Shell does not match",
     -16: "Bitstream in use by another program",
@@ -108,7 +89,10 @@ def _get_xrt_version():
         return (0, 0, 0)
 
 
-_xrt_version = _get_xrt_version()
+if xrt.XRT_SUPPORTED:
+    _xrt_version = _get_xrt_version()
+else:
+    _xrt_version = (0, 0, 0)
 
 
 def _format_xrt_error(err):
@@ -315,6 +299,8 @@ class XrtStream:
 class XrtDevice(Device):
     @classmethod
     def _probe_(cls):
+        if not xrt.XRT_SUPPORTED:
+            return []
         num = xrt.xclProbe()
         devices = [XrtDevice(i) for i in range(num)]
         return devices
@@ -348,9 +334,30 @@ class XrtDevice(Device):
             if slot == self._info.mPciSlot:
                 self.sysfs_path = os.path.realpath(d)
 
+
+    @property
+    def device_info(self):
+        info = xrt.xclDeviceInfo2()
+        xrt.xclGetDeviceInfo2(self.handle, info)
+        return info
+
     @property
     def name(self):
         return self._info.mName.decode()
+
+    @property
+    def clocks(self):
+        """Runtime clocks. This dictionary provides the actual
+        clock frequencies that the hardware is running at.
+        Frequencies are expressed in Mega Hertz.
+        """
+        clks = {}
+        idx = 0
+        for clk in self._info.mOCLFrequency:
+            if clk != 0:
+                clks['clock'+str(idx)] = {'frequency': clk}
+                idx +=1
+        return clks
 
     @property
     def sensors(self):
@@ -415,7 +422,13 @@ class XrtDevice(Device):
             raise RuntimeError("Buffer Write Failed: " + str(status))
 
     def map_bo(self, bo):
-        return xrt.xclMapBO(self.handle, bo, True)[0]
+        ptr = xrt.xclMapBO(self.handle, bo, True)
+        prop = xrt.xclBOProperties()
+        if xrt.xclGetBOProperties(self.handle, bo, prop):
+            raise RuntimeError('Failed to get buffer properties')
+        size = prop.size
+        casted = ctypes.cast(ptr, ctypes.POINTER(ctypes.c_char * size))
+        return casted[0]
 
     def get_device_address(self, bo):
         prop = xrt.xclBOProperties()
@@ -504,7 +517,7 @@ class XrtDevice(Device):
             uuid = None
             for k, v in ip_dict.items():
                 if 'index' in v:
-                    index = v['index']
+                    index = v['adjusted_index']
                     uuid = bytes.fromhex(v['xclbin_uuid'])
                     uuid_ctypes = \
                         XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))

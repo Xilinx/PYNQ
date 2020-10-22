@@ -27,11 +27,11 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from .registers import Register
 from .mmio import MMIO
 from .uio import UioController
 from .xlnk import Xlnk
 from .pl import PL
-from .ps import Register
 from .ps import Clocks
 from .gpio import GPIO
 from .devicetree import DeviceTreeSegment
@@ -40,6 +40,7 @@ from .bitstream import Bitstream
 from .overlay import Overlay
 from .overlay import DefaultHierarchy
 from .overlay import DefaultIP
+from .overlay import UnsupportedConfiguration
 from .pmbus import get_rails
 from .pmbus import DataRecorder
 from .buffer import allocate
@@ -52,5 +53,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 __all__ = ['lib', 'tests']
-__version__ = '2.5.1'
-__git_commit__ = "$Id$"
+__version__ = '2.6.0'
+# This ID will always be tied to a specific release tag
+# since the file will be modified to edit the version
+__git_id__ = "$Id$"

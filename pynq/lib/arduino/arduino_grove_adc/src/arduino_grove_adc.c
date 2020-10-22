@@ -52,7 +52,7 @@
  * 1.00a cmc 04/06/16 release
  * 1.00b yrq 05/02/16 support 2 stickit sockets
  * 1.00d yrq 07/26/16 separate pmod and arduino
- *
+ * 1.01  mrn 10/11/20 update initialize function
  * </pre>
  *
  *****************************************************************************/
@@ -167,7 +167,7 @@ int main(void)
          case READ_AND_LOG_RAW_DATA:   
             // initialize logging variables, reset cmd
             cb_init(&circular_log, 
-                    LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+                    LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE, 1);
             delay = MAILBOX_DATA(1);
             while(MAILBOX_CMD_ADDR != RESET_ADC){   
                // push sample to log and delay
@@ -181,7 +181,7 @@ int main(void)
          case READ_AND_LOG_VOLTAGE:
             // initialize logging variables, reset cmd
             cb_init(&circular_log, 
-                    LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE);
+                    LOG_BASE_ADDRESS, LOG_CAPACITY, LOG_ITEM_SIZE, 1);
             delay = MAILBOX_DATA(1);
             while(MAILBOX_CMD_ADDR != RESET_ADC){
                // push sample to log and delay

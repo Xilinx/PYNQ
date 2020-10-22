@@ -77,17 +77,17 @@ def test_led8():
 
     led = leds[0]
     led.on()
-    assert led.read() is 1
+    assert led.read() == 1
     assert user_answer_yes("\nPmod LED 0 on?")
     led.off()
-    assert led.read() is 0
+    assert led.read() == 0
     assert user_answer_yes("Pmod LED 0 off?")
     led.toggle()
-    assert led.read() is 1
+    assert led.read() == 1
     led.write(0)
-    assert led.read() is 0
+    assert led.read() == 0
     led.write(1)
-    assert led.read() is 1
+    assert led.read() == 1
     led.off()
     for led in leds:
         led.off()

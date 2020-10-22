@@ -28,7 +28,6 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import subprocess
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2019, Xilinx"
@@ -102,6 +101,7 @@ class DeviceTreeSegment:
             raise IOError('The dtbo file {} does not exist.'.format(dtbo_path))
         self.dtbo_path = dtbo_path
         self.dtbo_name = get_dtbo_base_name(dtbo_path)
+        self.sysfs_dir = os.path.join(SYSTEM_DEVICE_TREE_PATH, self.dtbo_name)
 
     def is_dtbo_applied(self):
         """Show if the device tree segment has been applied.
@@ -112,10 +112,10 @@ class DeviceTreeSegment:
             True if the device tree status shows `applied`.
 
         """
-        command = 'cat ' + os.path.join(
-            SYSTEM_DEVICE_TREE_PATH, self.dtbo_name, 'status')
-        status = subprocess.check_output(command.split())
-        return status.decode('utf-8') == 'applied\n'
+        if not os.path.exists(self.sysfs_dir):
+            return False
+        with open(os.path.join(self.sysfs_dir, 'status'), 'r') as f:
+            return f.read() == 'applied\n'
 
     def insert(self):
         """Insert the dtbo file into the device tree.
@@ -123,13 +123,13 @@ class DeviceTreeSegment:
         The method will raise an exception if the insertion has failed.
 
         """
-        command = 'mkdir -p ' + os.path.join(
-            SYSTEM_DEVICE_TREE_PATH, self.dtbo_name)
-        _ = subprocess.check_output(command.split())
+        os.makedirs(self.sysfs_dir, exist_ok=True)
+        with open(self.dtbo_path, 'rb') as f:
+            dtbo_data = f.read()
 
-        command = 'cat ' + self.dtbo_path + ' > ' + os.path.join(
-            SYSTEM_DEVICE_TREE_PATH, self.dtbo_name, 'dtbo')
-        _ = os.system(command)
+        with open(os.path.join(self.sysfs_dir, 'dtbo'),
+                  'wb', buffering=0) as f:
+            f.write(dtbo_data)
 
         if not self.is_dtbo_applied():
             raise RuntimeError('Device tree {} cannot be applied.'.format(
@@ -139,7 +139,5 @@ class DeviceTreeSegment:
         """Remove the dtbo file from the device tree.
 
         """
-        dtbo_folder = os.path.join(SYSTEM_DEVICE_TREE_PATH, self.dtbo_name)
-        if os.path.exists(dtbo_folder):
-            command = 'rmdir ' + dtbo_folder
-            _ = subprocess.check_output(command.split())
+        if os.path.exists(self.sysfs_dir):
+            os.rmdir(self.sysfs_dir)

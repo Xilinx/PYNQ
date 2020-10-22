@@ -227,7 +227,6 @@ try:
     _ffi.cdef(_c_header)
     _lib = _ffi.dlopen("libsensors.so.4")
 except Exception as e:
-    warnings.warn("Could not initialise libsensors library")
     _lib = None
 
 
@@ -237,6 +236,7 @@ class SysFSSensor:
         self._unit = unit
         self.name = name
         self._scale = scale
+        self.parents = tuple()
 
     @property
     def value(self):
@@ -244,19 +244,30 @@ class SysFSSensor:
             raw_value = float(f.read())
         return raw_value * self._scale
 
+    def get_value(self, parents=None):
+        return self.value
+
     def __repr__(self):
         return "Sensor {{name={}, value={}{}}}".format(
             self.name, self.value, self._unit)
 
 class DerivedPowerSensor:
     def __init__(self, name, voltage, current):
+        parents = (voltage, current)
         self.voltage_sensor = voltage
         self.current_sensor = current
         self.name = name
+        self.parents = (voltage, current)
+
+    def get_value(self, parents=None):
+        if parents is None:
+            return self.voltage_sensor.value * self.current_sensor.value
+        else:
+            return parents[0] * parents[1]
 
     @property
     def value(self):
-        return self.voltage_sensor.value * self.current_sensor.value
+        return self.get_value()
 
     def __repr__(self):
         return "Sensor {{name={}, value={}W}}".format(
@@ -298,6 +309,7 @@ class Sensor:
         self._value = _ffi.new("double [1]")
         self._unit = unit
         self.name = name
+        self.parents = tuple()
 
     @property
     def value(self):
@@ -309,6 +321,9 @@ class Sensor:
             return self._value[0]
         else:
             return 0
+
+    def get_value(self, parents=None):
+        return self.value
 
     def __repr__(self):
         return "Sensor {{name={}, value={}{}}}".format(
@@ -351,26 +366,72 @@ class Rail:
             args.append("power=" + repr(self.power))
         return "Rail {{{}}}".format(', '.join(args))
 
-class XrtRail:
-    def __init__(self, name, base_file):
-       self.power = None
-       self.name = name
-       if os.path.isfile(base_file):
-          self.voltage = SysFSSensor(base_file, "V", name, 0.001)
-          self.current = None
-       else:
-          if os.path.isfile(base_file + "_vol"):
-             self.voltage = SysFSSensor(base_file + "_vol", "V", name + "_vol", 0.001)
-          else:
-             self.voltage = None
-          if os.path.isfile(base_file + "_curr"):
-             self.current = SysFSSensor(base_file + "_curr", "A", name + "_curr", 0.001)
-          else:
-             self.current = None
 
-          if self.voltage and self.current:
-             self.power = DerivedPowerSensor(name + "_power",
-                 self.voltage, self.current)
+class XrtInfoDump:
+    def __init__(self, device):
+        self._device = device
+        self.parents = tuple()
+
+    def get_value(self, parents=None):
+        info = self._device.device_info
+        return {
+            "0v85_v": info.m0v85,
+            "12v_aux_v": info.m12VAux,
+            "12v_aux_i": info.mAuxCurr,
+            "12v_pex_v": info.m12VPex,
+            "12v_pex_i": info.mPexCurr,
+            "12v_sw_v": info.m12vSW,
+            "1v8_v": info.m1v8Top,
+            "3v3_aux_v": info.m3v3Aux,
+            "3v3_pex_v": info.m3v3Pex,
+            "mgt0v9avcc_v": info.mMgt0v9,
+            "mgtavtt_v": info.mMgtVtt,
+            "sys_5v5_v": info.mSys5v5,
+            "vccint_v": info.mVccIntVol,
+            "vccint_i": info.mCurrent
+        }
+
+class XrtSensor:
+    def __init__(self, unit, name, scale, parent, field):
+        self.parents = (parent,)
+        self._unit = unit
+        self.name = name
+        self._scale = scale
+        self._field = field
+
+    def get_value(self, parents=None):
+        if parents is None:
+            parents = (self.parents[0].get_value(),)
+        return parents[0][self._field] * self._scale
+
+    @property
+    def value(self):
+        return self.get_value()
+
+    def __repr__(self):
+        return "Sensor {{name={}, value={}{}}}".format(
+            self.name, self.value, self._unit)
+
+
+class XrtRail:
+    def __init__(self, name, sample_dict, parent):
+       self.name = name
+       if name + "_v" in sample_dict:
+           self.voltage = XrtSensor("V", name + "_vol", 0.001, parent, name + "_v")
+       else:
+           self.voltage = None
+
+       if name + "_i" in sample_dict:
+           self.current = XrtSensor("A", name + "_curr", 0.001, parent, name + "_i")
+       else:
+           self.current = None
+
+       if self.voltage and self.current:
+           self.power = DerivedPowerSensor(name + "_power",
+               self.voltage, self.current)
+       else:
+           self.power = None
+
 
     def __repr__(self):
         args = ["name=" + self.name]
@@ -387,24 +448,23 @@ def get_xrt_sysfs_rails(device=None):
     if device is None:
         from pynq.pl_server import Device
         device = Device.active_device
-    if hasattr(device, "sysfs_path") and device.sysfs_path:
-        base_dir = device.sysfs_path
-    else:
-        return {}
 
     rail_names = ["0v85", "12v_aux", "12v_pex", "12v_sw", "1v8", "3v3_aux",
                   "3v3_pex", "mgt0v9avcc", "mgtavtt", "sys_5v5", "vccint" ]
 
+    infodump = XrtInfoDump(device)
+    sample_dict = infodump.get_value()
+
     rails = {}
-    mgmt_dir = glob.glob(base_dir + "/xmc*")[0]
     for n in rail_names:
-        rails[n] = XrtRail(n, mgmt_dir + "/xmc_" + n)
+        rails[n] = XrtRail(n, sample_dict, infodump)
 
     return rails
 
 
 def _enumerate_sensors(config_file=None):
     if _lib is None:
+        warnings.warn("Could not initialise libsensors library")
         return {}
 
     if config_file:
@@ -468,6 +528,25 @@ def get_rails(config_file=None):
     """
     return _enumerate_sensors(config_file)
 
+
+class MultiSensor:
+    """Class for efficiently collecting the readings from multiple sensors
+
+    """
+    def __init__(self, sensors):
+        self._sensors = sensors
+
+    def get_values(self):
+        stored = {}
+        return tuple((self._get_value(s, stored) for s in self._sensors))
+
+    def _get_value(self, sensor, stored):
+        if sensor in stored:
+            return stored[sensor]
+        value = sensor.get_value([self._get_value(p, stored) for p in sensor.parents])
+        stored[sensor] = value
+        return value
+
 class DataRecorder:
     """Class to record sensors during an execution
     The DataRecorder provides a way of recording sensor data using a
@@ -480,6 +559,7 @@ class DataRecorder:
 
         self._record_index = -1
         self._sensors = sensors
+        self._getter = MultiSensor(sensors)
         self._columns = ['Mark']
         self._times = []
         self._columns.extend([s.name for s in sensors])
@@ -539,7 +619,7 @@ class DataRecorder:
 
         while not self._done:
             row = [self._record_index]
-            row.extend([s.value for s in self._sensors])
+            row.extend(self._getter.get_values())
             self._frame.loc[pd.Timestamp.now()] = row
             time.sleep(self._interval)
 

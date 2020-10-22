@@ -41,22 +41,31 @@ from .bitstream import Bitstream
 from .interrupt import Interrupt
 from .gpio import GPIO
 from .registers import RegisterMap
+from .registers import Register
 from .utils import ReprDict
+from .utils import _ExtensionsManager
 
-if "XILINX_XRT" in os.environ:
-    try:
-        import ert_binding as ert
-    except ImportError:
-        from pynq import ert
-
-    # Monkey patch typo in some versions on XRT Python binding
-    if not hasattr(ert, 'ert_cmd_type'):
-        ert.ert_cmd_type = ert.ert_cmdype
+from pynq._3rdparty import ert
 
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+
+
+DRIVERS_GROUP = "pynq.lib"
+
+
+class UnsupportedConfiguration(Exception):
+    """Thrown by a driver that does not support the requested configuration
+    of an IP.
+
+    If a driver's __init__ throws this exception the binding system will
+    issue a warning and instead create a DefaultIP instance.
+
+    """
+    pass
 
 
 def _assign_drivers(description, ignore_version, device):
@@ -100,7 +109,7 @@ def _assign_drivers(description, ignore_version, device):
 def _complete_description(ip_dict, hierarchy_dict, ignore_version,
                           mem_dict, device):
     """Returns a complete hierarchical description of an overlay based
-    on the three dictionaries parsed from the TCL.
+    on the three dictionaries parsed from HWH file.
 
     """
     starting_dict = dict()
@@ -321,11 +330,13 @@ class Overlay(Bitstream):
 
         Note
         ----
-        This class requires a Vivado TCL file to be next to bitstream file
-        with same name (e.g. `base.bit` and `base.tcl`).
+        This class requires a HWH file to be next to bitstream file
+        with same name (e.g. `base.bit` and `base.hwh`).
 
         """
         super().__init__(bitfile_name, dtbo, partial=False, device=device)
+
+        self._register_drivers()
 
         self.parser = self.device.get_bitfile_metadata(self.bitfile_name)
 
@@ -385,6 +396,10 @@ class Overlay(Bitstream):
         This method will use parameter `dtbo` or `self.dtbo` to configure the
         device tree.
 
+        The download method will also configure some of the PS registers
+        based on the metadata file provided, e.g. PL clocks,
+        AXI master port width.
+
         Parameters
         ----------
         dtbo : str
@@ -392,13 +407,14 @@ class Overlay(Bitstream):
 
         """
         for i in self.clock_dict:
-            enable = self.clock_dict[i]['enable']
-            div0 = self.clock_dict[i]['divisor0']
-            div1 = self.clock_dict[i]['divisor1']
-            if enable:
-                Clocks.set_pl_clk(i, div0, div1)
-            else:
-                Clocks.set_pl_clk(i)
+            if 'enable' in self.clock_dict[i]:
+                enable = self.clock_dict[i]['enable']
+                div0 = self.clock_dict[i]['divisor0']
+                div1 = self.clock_dict[i]['divisor1']
+                if enable:
+                    Clocks.set_pl_clk(i, div0, div1)
+                else:
+                    Clocks.set_pl_clk(i)
 
         super().download(self.parser)
         if dtbo:
@@ -511,6 +527,14 @@ class Overlay(Bitstream):
         return sorted(set(super().__dir__() +
                           list(self.__dict__.keys()) + self._ip_map._keys()))
 
+    def _register_drivers(self):
+        """Imports plugin modules registered against `pynq.lib`, so that IP
+        drivers contained in these modules can be registered automatically.
+        """
+        import importlib
+        drivers_ext_man = _ExtensionsManager(DRIVERS_GROUP)
+        for ext in drivers_ext_man.list:
+            importlib.import_module(ext.module_name)
 
 _ip_drivers = dict()
 _hierarchy_drivers = collections.deque()
@@ -529,6 +553,19 @@ class RegisterIP(type):
                 _ip_drivers[vlnv] = cls
                 _ip_drivers[vlnv.rpartition(':')[0]] = cls
         super().__init__(name, bases, attrs)
+
+    def unregister(cls):
+        """Unregister a subclass from the driver registry
+
+        """
+        if hasattr(cls, 'bindto'):
+            for vlnv in cls.bindto:
+                vln = vlnv.rpartition(':')[0]
+                if _ip_drivers.get(vlnv, None) == cls:
+                    del _ip_drivers[vlnv]
+                if _ip_drivers.get(vln, None) == cls:
+                    del _ip_drivers[vln]
+
 
 _struct_dict = {
     # Base Vitis int types
@@ -556,6 +593,7 @@ _struct_dict = {
 def _ctype_to_struct(ctype):
     ctype = ctype.replace('const', '').strip()
     return _struct_dict[ctype]
+
 
 XrtArgument = collections.namedtuple('XrtArgument',
                                      ['name', 'index', 'type', 'mem'])
@@ -646,7 +684,12 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             self._gpio = {}
         for interrupt, details in self._interrupts.items():
-            setattr(self, interrupt, Interrupt(details['fullpath']))
+            try:
+                setattr(self, interrupt, Interrupt(details['fullpath']))
+            except ValueError as e:
+                warnings.warn('Interrupt {} not created: {}'.format(
+                    interrupt, str(e)))
+                setattr(self, interrupt, None)
         for gpio, entry in self._gpio.items():
             gpio_number = GPIO.get_gpio_pin(entry['index'])
             setattr(self, gpio, GPIO(gpio_number, 'out'))
@@ -858,7 +901,14 @@ class _IPMap:
             return hierarchy
         elif key in self._description['ip']:
             ipdescription = self._description['ip'][key]
-            driver = ipdescription['driver'](ipdescription)
+            try:
+                driver = ipdescription['driver'](ipdescription)
+            except UnsupportedConfiguration as e:
+                warnings.warn(
+                    "Configuration if IP {} not supported: {}".format(
+                        key, str(e.args)),
+                    UserWarning)
+                driver = DefaultIP(ipdescription)
             setattr(self, key, driver)
             return driver
         elif key in self._description['interrupts']:
@@ -938,6 +988,10 @@ class RegisterHierarchy(type):
         if 'checkhierarchy' in attrs:
             _hierarchy_drivers.appendleft(cls)
         super().__init__(name, bases, attrs)
+
+    def unregister(cls):
+        if cls in _hierarchy_drivers:
+            _hierarchy_drivers.remove(cls)
 
 
 class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):

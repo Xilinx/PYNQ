@@ -75,6 +75,14 @@ def string2int(a):
     return int(a, 16 if a.startswith('0x') else 10)
 
 
+def _create_irq_map(details):
+    raw_map = []
+    for base, num in details:
+        for i in range(num):
+            raw_map.append(i + base)
+    return raw_map
+
+
 class _HWHABC(metaclass=abc.ABCMeta):
     """Helper Class to extract information from a HWH configuration file
 
@@ -177,6 +185,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 self.ps_name = mod.get('INSTANCE')
                 self.init_clk_dict(mod)
                 self.init_full_ip_dict(mod)
+                self.add_ps_to_ip_dict(mod)
             elif mod_type == 'xlconcat':
                 self.concat_cells[full_path] = mod.find(
                     ".//*[@NAME='NUM_PORTS']").get('VALUE')
@@ -190,7 +199,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.add_gpio()
         self.init_interrupts()
         self.init_mem_dict()
-        self.init_hierachy_dict()
+        self.init_hierarchy_dict()
         self.assign_interrupts_gpio()
 
     def init_partial_ip_dict(self):
@@ -226,6 +235,27 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.partial = False
         self.ip_dict = {}
         self._parse_ip_dict(mod, 'SLAVEBUSINTERFACE')
+
+    def add_ps_to_ip_dict(self, mod):
+        """Add the PS block to the IP dict.
+
+        The processing system (PS) block is a special case where we want to
+        include it as well in the IP dict. We only care about the parameters
+        specified in the PS block, and hopefully we can adjust some of the
+        parameters by changing register values.
+
+        Parameters
+        ----------
+        mod : Element
+            The current PS instance under parsing.
+
+        """
+        full_name, vlnv, pars, _ = self.instance2attr[mod.get('INSTANCE')]
+        self.ip_dict[full_name] = {}
+        self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
+                                                 j.get('VALUE')
+                                                 for j in pars}
+        self.ip_dict[full_name]['type'] = vlnv
 
     def _parse_ip_dict(self, mod, mem_intf_id):
         to_pop = set()
@@ -345,10 +375,12 @@ class _HWHABC(metaclass=abc.ABCMeta):
         and the interrupt pins dictionary.
 
         """
-        if self.ps_name + "/" + self.family_irq in self.pins:
-            ps_irq_net = self.pins[
-                self.ps_name + "/" + self.family_irq]
-            self._add_interrupt_pins(ps_irq_net, "", 0)
+        for irq_name in self.family_irq.keys():
+            if self.ps_name + "/" + irq_name in self.pins:
+                raw_map = _create_irq_map(self.family_irq[irq_name])
+                ps_irq_net = self.pins[
+                    self.ps_name + "/" + irq_name]
+                self._add_interrupt_pins(ps_irq_net, "", 0, raw_map)
 
     def init_mem_dict(self):
         """Prepare the memory dictionary
@@ -360,20 +392,20 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.mem_dict[self.ps_name] = {
             'raw_type': None,
             'used': 1,
-            'base_address':0,
+            'base_address': 0,
             'size': Xlnk.cma_mem_size(None),
             'type': 'PSDDR',
             'streaming': False
         }
 
-    def _add_interrupt_pins(self, net, parent, offset):
+    def _add_interrupt_pins(self, net, parent, offset, raw_map=None):
         net_pins = self.nets[net] if net else set()
         for p in net_pins:
             m = re.match('(.*)/dout', p)
             if m is not None:
                 name = m.group(1)
                 if name in self.concat_cells:
-                    return self._add_concat_pins(name, parent, offset)
+                    return self._add_concat_pins(name, parent, offset, raw_map)
             m = re.match('(.*)/irq', p)
             if m is not None:
                 name = m.group(1)
@@ -382,18 +414,23 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         self.pins[name + "/intr"], name, 0)
                     self.interrupt_controllers[name] = {'parent': parent,
                                                         'index': offset}
+                    if raw_map is not None:
+                        self.interrupt_controllers[name]['raw_irq'] = \
+                                raw_map[offset]
                     return offset + 1
         for p in net_pins:
             self.interrupt_pins[p] = {'controller': parent,
                                       'index': offset,
                                       'fullpath': p}
+            if raw_map is not None:
+                self.interrupt_pins[p]['raw_irq'] = raw_map[offset]
         return offset + 1
 
-    def _add_concat_pins(self, name, parent, offset):
+    def _add_concat_pins(self, name, parent, offset, raw_map=None):
         num_ports = int(self.concat_cells[name])
         for i in range(num_ports):
             net = self.pins[name + "/In" + str(i)]
-            offset = self._add_interrupt_pins(net, parent, offset)
+            offset = self._add_interrupt_pins(net, parent, offset, raw_map)
         return offset
 
     def add_gpio(self):
@@ -424,7 +461,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         self.gpio_dict[gpio_name]['pins'] = net_set
                         self.gpio_dict[gpio_name]['index'] = din
 
-    def init_hierachy_dict(self):
+    def init_hierarchy_dict(self):
         """Initialize the hierachical dictionary.
 
         """
@@ -498,7 +535,7 @@ class _HWHZynq(_HWHABC):
 
     """
     family_ps = "processing_system7"
-    family_irq = "IRQ_F2P"
+    family_irq = {"IRQ_F2P": ((61, 8), (84, 8))}
     family_gpio = "GPIO_O"
 
     def find_clock_divisor(self, mod, clk_id, div_id):
@@ -551,7 +588,7 @@ class _HWHUltrascale(_HWHABC):
 
     """
     family_ps = "zynq_ultra_ps_e"
-    family_irq = "pl_ps_irq0"
+    family_irq = {"pl_ps_irq0": ((121, 8),), "pl_ps_irq1": ((136, 8),)}
     family_gpio = "emio_gpio_o"
 
     def find_clock_divisor(self, mod, clk_id, div_id):

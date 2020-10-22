@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-pynq/tinynumpy.py derived from tinynumpy under the following license
+pynq/_3rdparty/tinynumpy.py derived from tinynumpy under the following license
 MIT License
 
 Copyright (c) 2014 by Wade Brainerd <wadeb@wadeb.com>
@@ -41,7 +41,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FO
 DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pynq/ert.py, pynq/xrt.py and pynq/xclbin.py used under the following license
+pynq/_3rdpart/ert.py, pynq/_3rdparty/xrt.py and pynq/_3rdparty/xclbin.py used under the following license
 
 Copyright (C) 2016-2018 Xilinx, Inc
 

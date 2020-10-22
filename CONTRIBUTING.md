@@ -1,59 +1,91 @@
-We welcome contributions to PYNQ.  Please first sign our <a href="https://www.clahub.com/agreements/Xilinx/PYNQ"> Contributor License Agreement</a>.
+## Contributing to PYNQ
 
-If you have an idea how to improve PYNQ:
+We welcome contributions to PYNQ - please see our guidelines below for preparing your pull request.  
 
-1. Share your proposal via <a href="https://github.com/Xilinx/PYNQ/issues" target="_blank">Github issues</a>.
-
-   A general set of rules on what to submit:
-
-	 1. We welcome submissions to the pynq Python package, sdbuild flows and documentation.
+### 1. A general set of rules on what to submit
    
-	 2. For development boards, we only host boards that we officially support. To 
-	 build new SDCard images for custom PYNQ enabled boards, we encourage users 
-	 to build a new board-only repository.  For reference, please see the 
-	 <a href="https://github.com/Avnet/Ultra96-PYNQ" target="_blank">Avnet Ultra96</a>
-	 or <a href="https://github.com/Xilinx/ZCU111-PYNQ" target="_blank">Xilinx ZCU111</a> 
-	 repositories. 
+- We welcome submissions to the pynq Python package, sdbuild flows and documentation.
+   
+- For development boards, we only host boards that we officially support. To 
+build new SDCard images for custom PYNQ enabled boards, we encourage users 
+to build a new board-only repository.  For reference, please see the 
+<a href="https://github.com/Avnet/Ultra96-PYNQ" target="_blank">Avnet Ultra96</a>
+or <a href="https://github.com/Xilinx/ZCU111-PYNQ" target="_blank">Xilinx ZCU111</a> 
+repositories. 
      
-   3. For custom overlays, we only host overlays that we officially support. To 
-   create new custom overlays, we encourage users to build a new overlay 
-   repository. For reference, please see the 
-   <a href="https://github.com/Xilinx/PYNQ-HelloWorld" target="_blank">PYNQ-HelloWorld</a> 
-   and <a href="https://github.com/Xilinx/BNN-PYNQ" target="_blank">BNN-PYNQ</a> repositories.
+- For custom overlays, we only host overlays that we officially support. To 
+create new custom overlays, we encourage users to build a new overlay 
+repository. For reference, please see the 
+<a href="https://github.com/Xilinx/PYNQ-HelloWorld" target="_blank">PYNQ-HelloWorld</a> 
+and <a href="https://github.com/Xilinx/BNN-PYNQ" target="_blank">BNN-PYNQ</a> repositories.
    
-   4. For Microblaze peripheral drivers, we encourage users to submit their C/C++ within 
-   a Jupyter notebook using the microblaze IPython magic.  Please see 
-   the <a href="https://github.com/Xilinx/PYNQ/tree/master/boards/Pynq-Z1/base/notebooks/microblaze" target="_blank">Microblaze example notebooks</a> 
-   for how to write custom device drivers.
+- For Microblaze peripheral device drivers, we encourage users to submit their C/C++ within 
+a Jupyter notebook using the microblaze IPython magic.  Please see 
+the <a href="https://github.com/Xilinx/PYNQ/tree/master/boards/Pynq-Z1/base/notebooks/microblaze" target="_blank">Microblaze example notebooks</a> 
+for how to write custom device drivers.
        
 
-2. Submitting your pull request:
+### 2. Submit your patch using a pull request
 
-	1. Fork this repository to your own github account using the *fork* button above.
+Please use GitHub Pull Requests for sending code contributions. When sending code sign your 
+work as described below. Be sure to use the same license for your contributions as the current 
+license of the PYNQ.
 
-	2. Clone the fork to a local computer using *git clone*. Checkout the branch you want to work on.
 
-	3. You can modify the Vivado projects, Python source code, or notebooks.
+### 3. Sign Your Work
 
-	4. Modify the documentation if necessary.
+Please use the *Signed-off-by* line at the end of your patch which indicates that you accept the Developer Certificate of Origin (DCO) defined by https://developercertificate.org/ reproduced below::
 
-	5. Make sure your patch follows code standards:
-		1. <a href="https://www.doc.ic.ac.uk/lab/cplus/cstyle.html" target="_blank">C/C++ code</a>
-		2. <a href="https://www.python.org/dev/peps/pep-0008/" target="_blank">Python / Jupyter notebook</a>
+```
+  Developer Certificate of Origin
+  Version 1.1
 
-	6. Use *git add*, *git commit*, *git push* to add changes to your fork.
+  Copyright (C) 2004, 2006 The Linux Foundation and its contributors.
+  1 Letterman Drive
+  Suite D4700
+  San Francisco, CA, 94129
 
-	7. Submit a pull request by clicking the *pull request* button on your github repo:
-		1. The <a href="https://github.com/Xilinx/PYNQ" target="_blank">master branch</a> should always be
-		   treated as stable and clean. Only hot fixes are allowed to be pull-requested. The hot fix is supposed
-           to be very important such that without this fix, a lot of things break.
-        2. For new features, small bug fixes, doc updates, and many other fixes, users should pull request against
-           the development branch, which has the newest image version. For example, if we have released 
-           image v2.3 but you see a new branch `image_v2.4`, then you should pull request against 
-           `image_v2.4` branch.
+  Everyone is permitted to copy and distribute verbatim copies of this
+  license document, but changing it is not allowed.
 
-	Check the <a href="http://git.huit.harvard.edu/guide/" target="_blank">guide to git</a> for more information.
-    
-3. We will review your contribution and, if any additional fixes or modifications are 
-necessary, may provide feedback to guide you. When accepted, your pull request will 
-be merged to the repository.
+
+  Developer's Certificate of Origin 1.1
+
+  By making a contribution to this project, I certify that:
+
+  (a) The contribution was created in whole or in part by me and I
+      have the right to submit it under the open source license
+      indicated in the file; or
+
+  (b) The contribution is based upon previous work that, to the best
+      of my knowledge, is covered under an appropriate open source
+      license and I have the right under that license to submit that
+      work with modifications, whether created in whole or in part
+      by me, under the same open source license (unless I am
+      permitted to submit under a different license), as indicated
+      in the file; or
+
+  (c) The contribution was provided directly to me by some other
+      person who certified (a), (b) or (c) and I have not modified
+      it.
+
+  (d) I understand and agree that this project and the contribution
+      are public and that a record of the contribution (including all
+      personal information I submit with it, including my sign-off) is
+      maintained indefinitely and may be redistributed consistent with
+      this project or the open source license(s) involved.
+```
+
+Here is an example Signed-off-by line which indicates that the contributor accepts DCO::
+
+```
+  This is my commit message
+
+  Signed-off-by: Jane Doe <jane.doe@example.com>
+```
+
+
+### 4. We will review your contribution 
+
+If any additional fixes or modifications are necessary, we may provide feedback to guide 
+you. When accepted, your pull request will be merged to the repository.

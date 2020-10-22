@@ -2,10 +2,10 @@ DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
 BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
 UBUNTU_RELEASE := bionic
-VERSION := 2.5
+VERSION := 2.6.0
 
-KERNEL_VERSION := 2019.1
-LINUX_VERSION := 4.19.0-xilinx-v2019.1
+KERNEL_VERSION := 2020.1
+LINUX_VERSION := 5.4.0-xilinx-v2020.1
 QEMU_VERSION := 4.0.0
 SCRIPT_DIR := $(CURDIR)/scripts
 SHELL := /bin/bash
@@ -30,7 +30,7 @@ BOOT_aarch64 := u-boot.elf zynqmp_fsbl.elf pmufw.elf bl31.elf
 export CCACHEDIR
 export ROOTDIR
 export BUILD_ROOT
-export BB_ENV_EXTRAWHITE := PYNQ_BOARDNAME
+export BB_ENV_EXTRAWHITE := PYNQ_BOARDNAME FPGA_MANAGER
 export SHELL
 
 $(IMAGE_ROOT):
@@ -77,14 +77,22 @@ include $(PACKAGE_MAKES)
 include $(wildcard $(CURDIR)/ubuntu/$(UBUNTU_RELEASE)/*/config)
 include $(wildcard $(BOARDDIR)/*/*.spec)
 
+MOUNTED_TARGET_BOOT := $(wildcard $(BUILD_ROOT)/$(UBUNTU_RELEASE).*/boot)
+MOUNTED_TARGET := $(dir $(MOUNTED_TARGET_BOOT))
+LOOP_IMAGE_FILE := $(shell sudo losetup -a | grep "/sdbuild/" | cut -d "(" -f2 | cut -d ")" -f1)
+
 define BOARD_SPECIFIC_RULES
 # $1 is the board name
+ifeq ($$(FPGA_MANAGER_$1),)
+	FPGA_MANAGER_$1 := 1
+endif
+
 BOARDDIR_$1 := $$(BOARDDIR)/$1
 BITSTREAM_ABS_$1 := $$(patsubst %, $$(BOARDDIR_$1)/%, $$(BITSTREAM_$1))
 BUILD_ROOT_$1 := $$(BUILD_ROOT)/$1
 BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
-PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
+PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1) ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
 
@@ -127,27 +135,30 @@ PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
 PL_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/rootfs_config
 MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/modules-plnx_$$(ARCH_$1).tgz
 KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
+PL_ENV_$1 := PYNQ_BOARDNAME=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1)
 
-BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN
+BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN $$(BOOT_ROOT_$1)/boot.scr
 BOOT_DEPENDS_$1 := $$(patsubst %, $$(PL_PROJ_$1)/images/linux/%, $$(BOOT_$$(ARCH_$1)))
 $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 	-rm -rf $$(PL_PROJ_$1)
 	cd $$(BUILD_ROOT_$1) && petalinux-create -t project \
 		-s $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp -n petalinux_project
 	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_ROOTFS_SD=y' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_ROOTFS_EXT4=y' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_SDROOT_DEV="/dev/mmcblk0p2"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1)
-	# xrt only supports aarch64 in 2019.1; to remove in next release
-	if [ $$(ARCH_$1) = aarch64 ]; then \
-		echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+	if [ $$(FPGA_MANAGER_$1) = 1 ]; then \
+		echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1) ;\
+		echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1) ;\
+		echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1) ;\
+	else \
+		echo 'CONFIG_SUBSYSTEM_REMOVE_PL_DTB=y' >> $$(PL_CONFIG_$1) ;\
 	fi
+	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
@@ -157,35 +168,41 @@ $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_
 $$(BOOT_ROOT_$1)/image.ub : $$(BUILD_ROOT_$1)/image.its $$(BUILD_ROOT_$1)/system.dtb $$(BUILD_ROOT_$1)/$$(KERNEL_$$(ARCH_$1)) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && mkimage -f $$(BUILD_ROOT_$1)/image.its $$@
 
+$$(BOOT_ROOT_$1)/boot.scr : $$(BOOT_DEPENDS_$1) | $$(BOOT_ROOT_$1)
+	mkimage -c none -A arm -T script -d \
+		$$(PL_PROJ_$1)/project-spec/meta-user/recipes-bsp/u-boot/u-boot-zynq-scr/boot.cmd.default \
+		$$(PL_PROJ_$1)/images/linux/boot.scr && \
+	cp -f $$(PL_PROJ_$1)/images/linux/boot.scr $$@
+
 $$(BUILD_ROOT_$1)/image.its: $$(CURDIR)/boot/image_$$(ARCH_$1).its | $$(BUILD_ROOT_$1)
 	cp $$< $$@
 
 $$(PL_CONFIG_$1): | $$(BSP_BUILD_$1) $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/%_fsbl.elf: $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c bootloader -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c bootloader -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/u-boot.elf: $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c u-boot -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c u-boot -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/$$(KERNEL_$$(ARCH_$1)): $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c kernel -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c kernel -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/system.dtb:  $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c device-tree -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c device-tree -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/pmufw.elf:  $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c pmufw -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c pmufw -p $$(PL_PROJ_$1)
 
 $$(PL_PROJ_$1)/images/linux/bl31.elf:  $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c arm-trusted-firmware -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c arm-trusted-firmware -p $$(PL_PROJ_$1)
 
 $$(MODULES_$1): $$(PL_PROJ_$1)/images/linux/$$(KERNEL_$$(ARCH_$1))
 	cp -f $$(PL_PROJ_$1)/build/tmp/deploy/images/*/modules--*.tgz \
 	$$(MODULES_$1)
 
 $$(KERNEL_RPM_$1): $$(PL_CONFIG_$1)
-	PYNQ_BOARDNAME=$1 petalinux-build -c kernel-devsrc -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c kernel-devsrc -p $$(PL_PROJ_$1)
 	cp -f $$(PL_PROJ_$1)/build/tmp/deploy/rpm/*/kernel-devsrc-1.0-r0.*.rpm \
 	$$(KERNEL_RPM_$1)
 
@@ -218,8 +235,6 @@ $$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODUL
 	rm -rf $$(BUILD_ROOT_$1)/modules
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
 	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
-	sudo chroot $$(STAGING_$1) tar czf kernel.tgz /usr/src/kernel
-	sudo chroot $$(STAGING_$1) rm -rf /usr/src/kernel
 	$$(SCRIPT_DIR)/resize_umount.sh $$(IMAGE_$1) $$(STAGING_$1)
 
 
@@ -257,13 +272,12 @@ sdx_sw_$1: $$(SDX_FILES_$1)
 
 $$(SYSROOT_$1): $$(IMAGE_$1) | $$(SYSROOT_ROOT)
 	-rm -rf $$@
-	mkdir -p $$@/usr
+	mkdir -p $$@/usr $$@/lib $$@/opt
 	$$(SCRIPT_DIR)/mount_image.sh $$(IMAGE_$1) $$(STAGING_$1)
-	cp -rd $$(STAGING_$1)/usr/include $$@/usr
-	cp -rd $$(STAGING_$1)/usr/lib $$@/usr
-	cp -rd $$(STAGING_$1)/usr/share $$@/usr
-	cp -rd $$(STAGING_$1)/usr/local $$@/usr
+	cp -rd $$(STAGING_$1)/usr $$@
 	cp -rd $$(STAGING_$1)/lib $$@
+	cp -rd $$(STAGING_$1)/opt $$@
+	sudo chmod a+w -R $$@
 	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(IMAGE_$1)
 
 sysroot_$1 : $$(SYSROOT_$1)
@@ -340,7 +354,7 @@ PACKAGE_CLEAN := $(patsubst %,PACKAGE_CLEAN_%, $(ALL_PACKAGES))
 
 checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
 	vivado -version | fgrep ${KERNEL_VERSION}
-	xsdk -version | fgrep ${KERNEL_VERSION}
+	vitis -version | fgrep ${KERNEL_VERSION}
 	which petalinux-config
 	which arm-linux-gnueabihf-gcc
 	which microblaze-xilinx-elf-gcc
@@ -369,9 +383,17 @@ dist: $(patsubst %, dist_%, $(USED_ARCH))
 # Default package clean target
 PACKAGE_CLEAN_%: ;
 
-clean: $(PACKAGE_CLEAN)
+unmount:
+	if [ ! -z $(LOOP_IMAGE_FILE) ]; then \
+		$(SCRIPT_DIR)/unmount_image.sh $(MOUNTED_TARGET) $(LOOP_IMAGE_FILE) ;\
+	fi
+
+delete: unmount
+	rm -rf $(LOOP_IMAGE_FILE)
+
+clean: delete $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: dist bsp boot_files images all clean real_all checkenv sdx_sw sysroot nocheck_images
-
+.PHONY: dist bsp boot_files images all unmount delete clean \
+	real_all checkenv sdx_sw sysroot nocheck_images

@@ -1,3 +1,5 @@
 STAGE2_PACKAGES_aarch64 := gcc-mb libsds python_packages_bionic jupyter
 STAGE2_PACKAGES_aarch64 += phantomjs-fix sigrok
+STAGE2_PACKAGES_aarch64 += glog pybind11 json-c googletest protobuf opencv
+STAGE2_PACKAGES_aarch64 += bootpy
 STAGE3_PACKAGES_aarch64 := pynq x11 resizefs

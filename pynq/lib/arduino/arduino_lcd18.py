@@ -32,7 +32,7 @@ from math import ceil
 import asyncio
 import os
 from numpy import array
-from pynq import Xlnk
+from pynq import allocate
 from . import Arduino
 from . import MAILBOX_OFFSET
 from . import MAILBOX_PY2IOP_CMD_OFFSET
@@ -84,9 +84,9 @@ class Arduino_LCD18(object):
     ----------
     microblaze : Arduino
         Microblaze processor instance used by this module.
-    buf_manager : Xlnk
-        DDR management unit that provides the physical address of the image.
-        
+    buffer : PynqBuffer
+        Contiguous buffer used to store the image.
+
     """
     def __init__(self, mb_info):
         """Return a new instance of an Arduino_LCD18 object.
@@ -99,7 +99,7 @@ class Arduino_LCD18(object):
 
         """
         self.microblaze = Arduino(mb_info, ARDUINO_LCD18_PROGRAM)
-        self.buf_manager = Xlnk()
+        self.buffer = None
 
     def clear(self):
         """Clear the screen.
@@ -226,9 +226,8 @@ class Arduino_LCD18(object):
         image_file.close()
 
         file_size = width * height * 2
-        buf0 = self.buf_manager.cma_alloc(file_size, data_type="uint8_t")
-        buf1 = self.buf_manager.cma_get_buffer(buf0, file_size)
-        phy_addr = self.buf_manager.cma_get_phy_addr(buf0)
+        self.buffer = allocate(file_size, dtype="u1")
+        phy_addr = self.buffer.physical_address
         try:
             for j in range(width):
                 for i in range(height):
@@ -236,8 +235,8 @@ class Arduino_LCD18(object):
                     temp = ((blue & 0xF8) << 8) | ((green & 0xFC) << 3) | \
                            ((red & 0xF8) >> 3)
                     index = 2 * ((height - i - 1) * width + j)
-                    buf1[index] = bytes([temp & 0xFF])
-                    buf1[index + 1] = bytes([(temp & 0xFF00) >> 8])
+                    self.buffer[index] = temp & 0xFF
+                    self.buffer[index + 1] = (temp & 0xFF00) >> 8
 
             data = [x_pos, y_pos, width, height,
                     phy_addr, background16, orientation, frames]
@@ -254,7 +253,7 @@ class Arduino_LCD18(object):
         finally:
             if self.microblaze.interrupt:
                 self.microblaze.interrupt.clear()
-            self.buf_manager.cma_free(buf0)
+            self.buffer.freebuffer()
 
     def draw_line(self, x_start_pos, y_start_pos, x_end_pos, y_end_pos,
                   color=None, background=None, orientation=3):

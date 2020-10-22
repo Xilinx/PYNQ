@@ -46,6 +46,7 @@
  * ----- --- -------- -----------------------------------------------
  * 1.00a ldt 07/05/16 release
  * 1.00b gn  10/25/16 support arduino shield
+ * 1.01  mrn 10/11/20 update initialize function
  *
  * </pre>
  *
@@ -90,7 +91,7 @@ int main(void){
         case READ_AND_LOG_DATA:
             // initialize logging variables, reset cmd
             cb_init(&circular_log, LOG_BASE_ADDRESS, LOG_CAPACITY, 
-                    LOG_ITEM_SIZE);
+                    LOG_ITEM_SIZE, 2);
             delay = MAILBOX_DATA(1);
             MAILBOX_CMD_ADDR = 0x0;
             do{

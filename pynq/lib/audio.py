@@ -321,6 +321,8 @@ class AudioADAU1761(DefaultIP):
         The index of the IIC instance in /dev.
     uio_index : int
         The index of the UIO instance in /dev.
+    volume : int
+        The output volume of the ADAU1761 IC.
 
     """
     def __init__(self, description):
@@ -342,13 +344,14 @@ class AudioADAU1761(DefaultIP):
         self._ffi.cdef("""void select_mic(int iic_index);""")
         self._ffi.cdef("""void deselect(int iic_index);""")
         self._ffi.cdef("""void bypass(unsigned int audio_mmap_size,
-                          unsigned int nsamples, 
+                          unsigned int nsamples, unsigned int volume,
                           int uio_index, int iic_index) ;""")
         self._ffi.cdef("""void record(unsigned int audio_mmap_size,
                           unsigned int * BufAddr, unsigned int nsamples,
                           int uio_index, int iic_index);""")
         self._ffi.cdef("""void play(unsigned int audio_mmap_size,
                           unsigned int * BufAddr, unsigned int nsamples,
+                          unsigned int volume,
                           int uio_index, int iic_index);""")
 
         self.buffer = numpy.zeros(0).astype(numpy.int32)
@@ -356,7 +359,7 @@ class AudioADAU1761(DefaultIP):
         self.sample_len = len(self.buffer)
         self.iic_index = None
         self.uio_index = None
-        self.configure()
+        self.volume = 57
 
     bindto = ['xilinx.com:user:audio_codec_ctrl:1.0']
 
@@ -390,6 +393,23 @@ class AudioADAU1761(DefaultIP):
 
         self._libaudio.config_audio_pll(self.iic_index)
         self._libaudio.config_audio_codec(self.iic_index)
+
+    def set_volume(self, volume):
+        """Set output volume of ADAU1761.
+
+        Parameters
+        ----------
+        volume : int
+            The volume level. Minimum : 0=-57dB, Maximum : 63=+6dB.
+
+        Returns
+        -------
+        None
+
+        """
+        if not 0 <= volume < 63 :
+            raise ValueError("Volume has to be in [0,63]!")
+        self.volume = volume
 
     def select_line_in(self):
         """Select LINE_IN on the board.
@@ -462,8 +482,8 @@ class AudioADAU1761(DefaultIP):
         char_buffer = self._ffi.from_buffer(self.buffer)
         uint_buffer = self._ffi.cast('unsigned int*', char_buffer)
 
-        self._libaudio.play(self.mmio.length, uint_buffer,
-                            self.sample_len, self.uio_index, self.iic_index)
+        self._libaudio.play(self.mmio.length, uint_buffer, self.sample_len,
+                            self.volume, self.uio_index, self.iic_index)
 
     def bypass(self, seconds):
         """Stream audio controller input directly to output.
@@ -484,8 +504,8 @@ class AudioADAU1761(DefaultIP):
             raise ValueError("Bypassing time has to be in (0,60].")
 
         self.sample_len = math.ceil(seconds * self.sample_rate)
-        self._libaudio.bypass(self.mmio.length,
-                              self.sample_len, self.uio_index, self.iic_index)
+        self._libaudio.bypass(self.mmio.length, self.sample_len, self.volume,
+                              self.uio_index, self.iic_index)
 
     def save(self, file):
         """Save audio buffer content to a file.

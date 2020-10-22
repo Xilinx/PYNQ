@@ -33,5 +33,7 @@
 *.a binary -crlf
 *.bsp binary
 
-# Populate git commit ID into __init__.py
+# Populate git blob ID into __init__.py
+# This ID will always be tied to a specific release tag
+# since the file will be modified to edit the version
 pynq/__init__.py ident

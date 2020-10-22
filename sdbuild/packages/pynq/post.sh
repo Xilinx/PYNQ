@@ -12,4 +12,4 @@ if [ ${PYNQ_BOARD} == "Unknown" ]; then
 	mkdir -p $dist_out
 	cp -rf $target/home/xilinx/pynq_git/dist/* $dist_out
 fi
-sudo rm -rf $target/home/xilinx/pynq_git $target/home/xilinx/get_revision.sh
+sudo rm -rf $target/home/xilinx/pynq_git

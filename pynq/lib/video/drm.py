@@ -39,6 +39,7 @@ import numpy as np
 from pynq.buffer import PynqBuffer
 from pynq.ps import CPU_ARCH, ZU_ARCH
 from .constants import LIB_SEARCH_PATH
+from .common import VideoMode
 
 
 def _fourcc_int(fourcc):
@@ -94,10 +95,20 @@ class DrmDriver:
                               functools.partial(DisplayPort._callback, self))
         self._pageflip_event = asyncio.Event()
         self._mode = None
+        mode_count = self._videolib.pynqvideo_num_modes(self._device)
+        raw_modes = self._ffi.new('struct video_mode[{}]'.format(mode_count))
+        self._videolib.pynqvideo_get_modes(self._device, raw_modes, mode_count)
+        self.modes = [VideoMode(m.width, m.height, 24, m.refresh)
+                      for m in raw_modes]
 
     def _openlib(self):
         self._ffi = cffi.FFI()
         self._ffi.cdef("""
+        struct video_mode {
+            int width;
+            int height;
+            int refresh;
+        };
         void* pynqvideo_device_init(int fd);
         int pynqvideo_device_set_mode(void* device, int width, int height,
                         int refreh, int colorspace);
@@ -111,6 +122,8 @@ class DrmDriver:
         uint64_t pynqvideo_frame_size(void* frame);
         uint32_t pynqvideo_frame_stride(void* frame);
         void pynqvideo_frame_free(void* device, void* frame);
+        int pynqvideo_num_modes(void* device);
+        int pynqvideo_get_modes(void* device, struct video_mode* modes, int length);
         """
                        )
         self._videolib = self._ffi.dlopen(os.path.join(LIB_SEARCH_PATH,
@@ -217,8 +230,8 @@ class DrmDriver:
         ret = self._videolib.pynqvideo_frame_write(
             self._device, frame.pointer)
         if ret == -1:
-            loop.run_until_complete(
-                asyncio.ensure_future(display.writeframe_async(frame)))
+            self._loop.run_until_complete(
+                asyncio.ensure_future(self.writeframe_async(frame)))
         elif ret > 0:
             raise OSError(ret)
         else:

@@ -129,6 +129,10 @@ class Xlnk:
         None
 
         """
+        warnings.warn("pynq.Xlnk is deprecated and will be removed in 2.7 - " +
+                      "use pynq.allocate instead", DeprecationWarning,
+                      stacklevel=2)
+
         if os.getuid() != 0:
             raise RuntimeError("Root permission needed by the library.")
 
@@ -423,7 +427,7 @@ class Xlnk:
             for l in f.readlines():
                 m = re.match('CmaTotal:[\\s]+([0-9]+) kB', l)
                 if m:
-                    return int(m[1]) * 1024
+                    return int(m.group(1)) * 1024
         return 0
 
     def flush(self, bo, offset, vaddr, nbytes):

@@ -1,0 +1,44 @@
+From 5d7a78f6ff5ef22f602ea22eb463a43c08cd8d1d Mon Sep 17 00:00:00 2001
+From: Rock Qu <yunq@xilinx.com>
+Date: Fri, 3 Apr 2020 16:51:25 +0000
+Subject: [PATCH 1/2] install ray in qemu
+
+---
+ build.sh        | 7 ++++++-
+ python/setup.py | 2 +-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/build.sh b/build.sh
+index 592e472f..6ef96d13 100755
+--- a/build.sh
++++ b/build.sh
+@@ -141,7 +141,12 @@ if [ "$RAY_BUILD_JAVA" == "YES" ]; then
+ fi
+ 
+ if [ "$RAY_BUILD_PYTHON" == "YES" ]; then
+-  "$BAZEL_EXECUTABLE" build //:ray_pkg --verbose_failures
++  "$BAZEL_EXECUTABLE" \
++	--host_jvm_args=-Xmx2g \
++	--batch \
++	--host_jvm_args=-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts \
++	--host_jvm_args=-Djavax.net.ssl.trustStorePassword=changeit \
++	build //:ray_pkg --verbose_failures
+ fi
+ 
+ popd
+diff --git a/python/setup.py b/python/setup.py
+index a1f209b7..86f4291c 100644
+--- a/python/setup.py
++++ b/python/setup.py
+@@ -186,7 +186,7 @@ requires = [
+     "faulthandler;python_version<'3.3'",
+     "protobuf >= 3.8.0",
+     "cloudpickle",
+-    "py-spy >= 0.2.0",
++    # "py-spy >= 0.2.0", disable `ray stack` since py-spy is not available
+     "aiohttp",
+     "google",
+     "grpcio"
+-- 
+2.17.0
+

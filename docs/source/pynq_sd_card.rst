@@ -9,7 +9,7 @@ downloadable SD card images, so you do not need to rerun this flow for these
 boards unless you want to make changes to the image.
 
 This flow can also be used as a starting point to build a PYNQ image for another
-Zynq / Zynq Ultrascale board.
+Zynq / Zynq Ultrascale+ board.
 
 The image flow will create the BOOT.bin, the u-boot bootloader, the Linux
 Device tree blob, and the Linux kernel.
@@ -106,10 +106,10 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      your VM in your Virtual Box settings:
 
      .. image:: ./images/bidirectional-clipboard.png
-     :width: 400
+        :width: 400
 
   7. Now you are ready to install Xilinx tools. You will need 
-     PetaLinux, Vivado, and SDK for building PYNQ image.
+     PetaLinux, Vivado, and Vitis for building PYNQ image.
      Do not install Xilinx tools into */pynq* since it is only a small shared
      folder. Instead, a 160GB disk space will be allocated at */workspace*
      folder in VM. Install Xilinx tools there.
@@ -127,6 +127,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.3               2018.2
      v2.4               2018.3
      v2.5               2019.1
+     v2.6               2020.1
      ================  ================
 
 Use existing Ubuntu OS
@@ -142,7 +143,7 @@ this section, you can simply do the following:
         <PYNQ repository>/sdbuild/scripts/setup_host.sh
 
   2. Install correct version of the Xilinx tools, including 
-     PetaLinux, Vivado, and SDK. See the above table for the correct version 
+     PetaLinux, Vivado, and Vitis. See the above table for the correct version 
      of each release.
 
 Building the Image
@@ -151,17 +152,20 @@ Building the Image
 Once you have the building environment ready, you can start to build the image 
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
-  1. Source the appropriate settings for PetaLinux, Vivado, 
-     and SDK. Suppose you are using Xilinx 2019.1 tools:
+  1. Source the appropriate settings for PetaLinux and Vitis. 
+     Suppose you are using Xilinx 2020.1 tools:
 
      .. code-block:: console
 
-        source <path-to-vivado>/Vivado/2019.1/settings64.sh
-        source <path-to-sdk>/SDK/2019.1/settings64.sh
-        source <path-to-petalinux>/petalinux-v2019.1-final/settings.sh
+        source <path-to-vitis>/Vitis/2020.1/settings64.sh
+        source <path-to-petalinux>/petalinux-2020.1-final/settings.sh
         petalinux-util --webtalk off
 
-  2. Navigate to the following directory and run make
+  2. Make sure you have the appropriate Vivado licenses to build for your
+     target board, especially 
+     `HDMI IP <https://www.xilinx.com/products/intellectual-property/hdmi.html>`_. 
+
+  3. Navigate to the following directory and run make
 
      .. code-block:: console
     
@@ -205,6 +209,39 @@ Please also refer to the
 `sdbuild readme <https://github.com/Xilinx/PYNQ/blob/master/sdbuild/README.md>`_
 on our GitHub repository for more info regarding the image-build flow.
 
+Unmount images before building again
+------------------------------------
+Sometimes the SD image building process can error out, leaving mounted images
+in your host OS. You need to unmount these images before trying the make
+process again. Starting from image v2.6, users can do the following to
+unmount the images.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make delete
+
+The above command not only unmounts all the images, but also deletes the
+failed images. This makes sure the users do not use the failed images when
+continuing the SD build process.
+
+To unmount images but not delete them, use the following command instead.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make unmount
+
+If you want to ignore all the previous staged or cached SD build
+artifacts and start from scratch again, you can use the following command.
+This will unmount and delete the failed images, and remove all the previously
+built images at different stages.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make clean
+
 
 Retargeting to a Different Board
 ================================
@@ -225,10 +262,11 @@ of the board directory. A minimal spec file contains the following information
    ARCH_${BOARD} := arm
    BSP_${BOARD} := mybsp.bsp
    BITSTREAM_${BOARD} := mybitstream.bsp
+   FPGA_MANAGER_${BOARD} := 1
 
 where ``${BOARD}`` is also the name of the board. The ARCH should be *arm* for
 Zynq-7000 or *aarch64* for Zynq UltraScale+. If no bitstream is provided then the
-one included in the BSP will be used by default.  All paths in this file
+one included in the BSP will be used by default. All paths in this file
 should be relative to the board directory.
 
 To customise the BSP a ``petalinux_bsp`` folder can be included in the board
@@ -238,10 +276,29 @@ designed to allow for additional drivers, kernel or boot-file patches and
 device tree configuration that are helpful to support elements of PYNQ to be
 added to a pre-existing BSP.
 
-If a suitable PetaLinux BSP is unavailable for the board then this can be left
-blank; in this case, an HDF file needs to be provided in the board directory. 
-The *system.hdf* file should be placed in the ``petalinux_bsp/hardware_project`` 
-folder and a new generic BSP will be created as part of the build flow.
+If a suitable PetaLinux BSP is unavailable for the board then ``BSP_${BOARD}``
+can be left blank; in this case, users have two options:
+
+ 1. Place a *<design_name>.xsa* file in the ``petalinux_bsp/hardware_project``
+    folder. As part of the build flow, a new BSP will be created from
+    this XSA file.
+ 2. Place a makefile along with tcl files which can generate the hardware
+    design in the ``petalinux_bsp/hardware_project`` folder.
+    As part of the build flow, the hardware design along with the XSA file
+    will be generated, then a new BSP will be created from this XSA file.
+
+Starting from image v2.6, we allow users to disable FPGA manager by setting
+``FPGA_MANAGER_${BOARD}`` to 0. This may have many use cases. For example,
+users may want the bitstream to be downloaded at boot to enable some
+board components as early as possible. Another use case is that users want
+to enable interrupt for XRT. The side effect of this, is that users
+may not be able to reload a bitstream after boot.
+
+If ``FPGA_MANAGER_${BOARD}`` is set to 1 or ``FPGA_MANAGER_${BOARD}`` is
+not defined at all, FPGA manager will be enabled. In this case, the bitstream
+will be downloaded later in user applications; and users can only use XRT
+in polling mode. This is the default behavior of PYNQ since we want users
+to be able to download any bitstream after boot.
 
 Board-specific packages
 -----------------------
@@ -257,6 +314,26 @@ To add a package to the image you must also define a
 packages in the standard sdbuild library or ones contained within the board
 package. It is often useful to add the ``pynq`` package to this list which will
 ensure that a customised PYNQ installation is included in your final image.
+
+Leveraging ``boot.py`` to modify SD card boot behavior
+------------------------------------------------------
+
+Starting from the v2.6.0 release, PYNQ SD card images include a ``boot.py`` 
+file in the boot partition that runs automatically after the board has been 
+booted.  Whatever is inside this file runs during boot and can be modified 
+any time for a custom next-boot behavior (e.g. changing the host name, 
+connecting the board to WiFi, etc.). 
+
+This file can be accessed using a SD Card reader on your host machine or 
+from a running PYNQ board - if you are live on the board inside Linux, the 
+file is located in the ``/boot`` folder.  Note that  ``/boot`` is the 
+boot partition of the board and no other files should be modified.
+
+If you see some existing code running inside the boot.py file, it probably came
+from a PYNQ sdbuild package that modified that file.  To see an example of an
+sdbuild package writing the boot.py file see the ZCU104's `boot_leds package 
+<https://github.com/Xilinx/PYNQ/tree/image_v2.6.0/boards/ZCU104/packages/boot_leds>`_
+which simply flashes the boards LEDs to signify Linux has booted on the board.
 
 Using the PYNQ package
 ----------------------

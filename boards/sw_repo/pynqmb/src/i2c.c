@@ -45,6 +45,7 @@
  * ----- --- ------- -----------------------------------------------
  * 1.00  yrq 01/09/18 release
  * 1.01  yrq 01/30/18 add protection macro
+ * 1.02  pko 10/01/20 Add switching support
  *
  * </pre>
  *
@@ -58,6 +59,7 @@
 static XIic xi2c[XPAR_XIIC_NUM_INSTANCES];
 XIic* xi2c_ptr = &xi2c[0];
 extern XIic_Config XIic_ConfigTable[];
+
 /************************** Function Definitions ***************************/
 i2c i2c_open_device(unsigned int device){
     int status;
@@ -84,35 +86,71 @@ i2c i2c_open_device(unsigned int device){
 }
 
 
-void i2c_read(i2c dev_id, unsigned int slave_address,
-              unsigned char* buffer, unsigned int length){
-    XIic_Recv(xi2c[dev_id].BaseAddress, 
-              slave_address, buffer, length, XIIC_STOP);
-}
+#if defined XPAR_IO_SWITCH_NUM_INSTANCES && defined XPAR_IO_SWITCH_0_I2C0_BASEADDR
 
-
-#ifdef XPAR_IO_SWITCH_NUM_INSTANCES
-#ifdef XPAR_IO_SWITCH_0_I2C0_BASEADDR
 #include "xio_switch.h"
+#ifndef MAX_I2C_DEVICES
+#define MAX_I2C_DEVICES 4
+#endif
+
+#define SWITCH_FLAG 0x10000
+
+struct i2c_switch_info {
+    unsigned int sda;
+    unsigned int scl;
+    int dev_id;
+};
+
+static struct i2c_switch_info i2c_info[MAX_I2C_DEVICES];
+static int num_i2c_devices;
+
 static int last_sda = -1;
 static int last_scl = -1;
 
 i2c i2c_open(unsigned int sda, unsigned int scl){
+    for (int i = 0; i < num_i2c_devices; ++i) {
+        if ((sda == i2c_info[i].sda) && (scl == i2c_info[i].scl)) {
+            return i;
+        }
+    }
+    i2c dev_id = num_i2c_devices++;
+    i2c_info[dev_id].dev_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+    i2c_info[dev_id].sda = sda;
+    i2c_info[dev_id].scl = scl;
+    return dev_id | SWITCH_FLAG;
+}
+
+static i2c i2c_set_switch(i2c dev_id) {
+    if ((dev_id & SWITCH_FLAG) == 0) return dev_id;
+    i2c dev = dev_id ^ SWITCH_FLAG;
+    int sda = i2c_info[dev].sda;
+    int scl = i2c_info[dev].scl;
     if (last_sda != -1) set_pin(last_sda, GPIO);
     if (last_scl != -1) set_pin(last_scl, GPIO);
     last_sda = sda;
     last_scl = scl;
     set_pin(scl, SCL0);
     set_pin(sda, SDA0);
-    return i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+    return i2c_info[dev].dev_id;
 }
+
+#else
+static i2c i2c_set_switch(i2c dev_id) { return dev_id; }
 #endif
-#endif
+
+
+void i2c_read(i2c dev_id, unsigned int slave_address,
+              unsigned char* buffer, unsigned int length){
+    i2c dev = i2c_set_switch(dev_id);
+    XIic_Recv(xi2c[dev].BaseAddress,
+              slave_address, buffer, length, XIIC_STOP);
+}
 
 
 void i2c_write(i2c dev_id, unsigned int slave_address,
                unsigned char* buffer, unsigned int length){
-    XIic_Send(xi2c[dev_id].BaseAddress, 
+    i2c dev = i2c_set_switch(dev_id);
+    XIic_Send(xi2c[dev].BaseAddress,
               slave_address, buffer, length, XIIC_STOP);
 }
 

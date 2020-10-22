@@ -32,7 +32,7 @@ import os
 import numpy as np
 from pynq import PL
 from pynq import Clocks
-from pynq import Xlnk
+from pynq import allocate
 from pynq import Register
 from pynq.lib import PynqMicroblaze
 from .constants import *
@@ -68,8 +68,6 @@ class LogicToolsController(PynqMicroblaze):
         An asyncio.Event-like class for waiting on and clearing interrupts.
     clk : Clocks
         The instance to control PL clocks.
-    buf_manager : Xlnk
-        The Xlnk memory manager used for contiguous memory allocation.
     buffers : dict
         A dictionary of cffi.FFI.CData buffer, each can be accessed similarly
         as arrays.
@@ -157,7 +155,6 @@ class LogicToolsController(PynqMicroblaze):
             super().__init__(mb_info, mb_program)
 
             self.clk = Clocks
-            self.buf_manager = Xlnk()
             self.buffers = dict()
             self.status = {k: 'RESET'
                            for k in GENERATOR_ENGINE_DICT.keys()}
@@ -416,12 +413,16 @@ class LogicToolsController(PynqMicroblaze):
             The address of the source or destination buffer.
 
         """
-        buf = self.buf_manager.cma_alloc(num_samples,
-                                         data_type=data_type)
+        dtype = data_type
+        for k, v in BYTE_WIDTH_TO_CTYPE.items():
+            if v == data_type:
+                dtype = BYTE_WIDTH_TO_NPTYPE[k]
+                break
+        buf = allocate(num_samples, dtype=dtype)
         self.buffers[name] = buf
-        return self.buf_manager.cma_get_phy_addr(buf)
+        return buf.physical_address
 
-    def ndarray_from_buffer(self, name, num_bytes, dtype=np.uint32):
+    def ndarray_from_buffer(self, name, dtype=np.uint32):
         """This method returns a numpy array from the buffer.
 
         If not data type is specified, the returned numpy array will have
@@ -434,8 +435,6 @@ class LogicToolsController(PynqMicroblaze):
         ----------
         name : str
             The name of the buffer where the numpy array can be constructed.
-        num_bytes : int
-            The length of the buffer, in bytes.
         dtype : str
             Data type of the numpy array.
 
@@ -449,9 +448,7 @@ class LogicToolsController(PynqMicroblaze):
             raise ValueError("No such buffer {} allocated previously.".format(
                 name))
         buffer = self.buffers[name]
-        buf_temp = self.buf_manager.cma_get_buffer(buffer,
-                                                   num_bytes)
-        return np.frombuffer(buf_temp, dtype=dtype).copy()
+        return np.frombuffer(buffer, dtype=dtype).copy()
 
     def free_buffer(self, name):
         """This method frees the buffer.
@@ -466,7 +463,7 @@ class LogicToolsController(PynqMicroblaze):
 
         """
         if name in self.buffers:
-            self.buf_manager.cma_free(self.buffers[name])
+            self.buffers[name].freebuffer()
             del (self.buffers[name])
 
     def phy_addr_from_buffer(self, name):
@@ -489,7 +486,7 @@ class LogicToolsController(PynqMicroblaze):
         if name not in self.buffers:
             raise ValueError(
                 "No such buffer {} allocated previously.".format(name))
-        return self.buf_manager.cma_get_phy_addr(self.buffers[name])
+        return self.buffers[name].physical_address
 
     def reset_buffers(self):
         """This method resets all the buffers.
@@ -500,7 +497,7 @@ class LogicToolsController(PynqMicroblaze):
         """
         if self.buffers:
             for name in self.buffers:
-                self.buf_manager.cma_free(self.buffers[name])
+                self.buffers[name].freebuffer()
         self.buffers = dict()
 
     def config_ioswitch(self, ioswitch_pins, ioswitch_select_value):

@@ -29,6 +29,7 @@
 
 import os
 import argparse
+import json
 from shutil import move
 from pynq.utils import (deliver_notebooks, _detect_devices, get_logger,
                         _ExtensionsManager)
@@ -41,6 +42,7 @@ __email__ = "pynq_support@xilinx.com"
 
 NOTEBOOKS_GROUP = "pynq.notebooks"
 TARGET_NB_DIR = os.path.join(".", "pynq-notebooks")
+INSTALLED_LIST_FILENAME = ".pynq-notebooks"
 
 
 class _GetNotebooksParser(argparse.ArgumentParser):
@@ -77,8 +79,8 @@ def _get_notebooks_parser():
                             "be forcibly delivered")
     parser.add_argument("-f", "--force", action="store_true",
                         help="Force delivery even if target notebooks "
-                             "directory already exists. The existing "
-                             "directory will be renamed adding a timestamp")
+                             "are already delivered. Files will be "
+                             "overwritten")
     parser.add_argument("-p", "--path", type=str,
                         help="Specify a custom path to deliver notebooks to. "
                              "Default is '{}'".format(TARGET_NB_DIR))
@@ -87,6 +89,26 @@ def _get_notebooks_parser():
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="Do not produce logging output")
     return parser
+
+
+def _get_installed(path):
+    """Get list of installed notebooks from json metafile."""
+    if not os.path.isfile(os.path.join(path, INSTALLED_LIST_FILENAME)):
+        return []
+    with open(os.path.join(path, INSTALLED_LIST_FILENAME)) as f:
+        installed = json.load(f)
+    return installed
+
+
+def _update_installed(path, ext):
+    """Update list of installed notebooks adding ext to json metafile.
+
+    If file already exist, it is overwritten."""
+    nbs_installed = _get_installed(path)
+    if ext.module_name not in nbs_installed:
+        nbs_installed.append(ext.module_name)
+    with open(os.path.join(path, INSTALLED_LIST_FILENAME), "w") as f:
+        json.dump(nbs_installed, f)
 
 
 def main():
@@ -134,33 +156,57 @@ def main():
         logger.warn("No notebooks available, nothing can be "
                     "delivered")
         return
+    if args.path:
+        delivery_path = args.path
+    else:
+        delivery_path = TARGET_NB_DIR
+    overlays_res_lookup = not args.ignore_overlays
+    from_package = args.from_package
+    if from_package:
+        from_package = from_package.replace("-", "_").lower()
     if args.notebooks:
         if "all" in args.notebooks:
             if len(args.notebooks) > 1:
                 raise ValueError("The special keyword 'all' cannot be used "
                                  "with other notebooks modules")
         else:
-            names = [ext.name for ext in notebooks_ext_man.list]
+            names = [ext.name.lower() for ext in notebooks_ext_man.list]
             not_found = []
             for p in args.notebooks:
-                if p not in names:
+                if p.lower() not in names:
                     not_found.append(p)
             if not_found:
                 raise ValueError("Notebooks modules '{}' not found. Make "
                                  "sure they exist and the source packages are "
                                  "installed".format(", ".join(not_found)))
-    if not args.notebooks:
+    else:
         yes = ["yes", "ye", "y"]
         no = ["no", "n"]
-        nbs = notebooks_ext_man.printable
-        if args.from_package:
-            nbs = [nb for nb in nbs if args.from_package in nb]
-            if not nbs:
+        nbs_printable = notebooks_ext_man.printable
+        if from_package:
+            nbs_printable = [nb for nb in nbs_printable if from_package in nb]
+            if not nbs_printable:
                 logger.warn("No notebooks available for package '{}', nothing "
                             "can be delivered".format(args.from_package))
                 return
+        if not args.force:
+            nbs_installed_all = \
+                ["{} (source: {})".format(e.name, e.module_name.split(".")[0])
+                    for e in notebooks_ext_man.list
+                    if e.module_name in _get_installed(delivery_path)]
+            nbs_installed_printable = [nb for nb in nbs_printable
+                                       if nb in nbs_installed_all]
+            nbs_printable = [nb for nb in nbs_printable
+                             if nb not in nbs_installed_all]
+            if nbs_installed_printable:
+                print("Already delivered notebooks (use --force to force "
+                      "delivery):\n- {}".format("\n- ".join(
+                          nbs_installed_printable)))
+        if not nbs_printable:
+            logger.warn("No new notebooks to deliver.")
+            return
         print("The following notebooks modules will be delivered:\n- "
-              "{}".format("\n- ".join(nbs)))
+              "{}".format("\n- ".join(nbs_printable)))
         coiche = input("Do you want to proceed? [Y/n] ").lower()
         while True:
             if coiche == "" or coiche in yes:
@@ -168,26 +214,8 @@ def main():
             if coiche in no:
                 return
             coiche = input("Please respond with 'yes' or 'no' (or 'y' or "
-                           "'n') ")
-    if args.path:
-        delivery_path = args.path
-    else:
-        delivery_path = TARGET_NB_DIR
-    if os.path.exists(delivery_path) and \
-            (not args.notebooks or "all" in args.notebooks):
-        if args.force:
-            import datetime
-            timestamp = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
-            backup_dir = os.path.split(delivery_path)[1] + "_" + \
-                timestamp
-            backup_fullpath = os.path.join(os.path.dirname(delivery_path),
-                                           backup_dir)
-            move(delivery_path, backup_fullpath)
-        else:
-            raise FileExistsError("Target notebooks directory already "
-                                  "exists. Specify another path or use "
-                                  "the 'force' option to proceed")
-    overlays_res_lookup = not args.ignore_overlays
+                           "'n') [you replied: '{}']\nDo you want to proceed? "
+                           "[Y/n] ".format(coiche))
     try:
         ## Ignoring notebooks from main `pynq.notebooks` namespace as of now
         # src_path = notebooks_ext_man.extension_path(NOTEBOOKS_GROUP)
@@ -198,12 +226,21 @@ def main():
         #                   overlays_res_lookup=overlays_res_lookup)
         ##
         for ext in notebooks_ext_man.list:
-            if args.notebooks and "all" not in args.notebooks and \
-                    ext.name not in args.notebooks:
+            if args.notebooks and \
+                    "all" not in [n.lower() for n in args.notebooks] and \
+                    ext.name.lower() not in \
+                    [n.lower() for n in args.notebooks]:
                 continue
-            if args.from_package and \
-                    args.from_package != ext.module_name.split(".")[0]:
-                    continue
+            if from_package and from_package != \
+                    ext.module_name.split(".")[0].lower():
+                continue
+            if ext.module_name in _get_installed(delivery_path) and \
+                    not args.force:
+                if args.notebooks:
+                    logger.info("Notebooks '{}' are already delivered and "
+                                "will be ignored, use --force to "
+                                "override.".format(ext.module_name))
+                continue
             logger.info("Delivering notebooks '{}'...".format(
                 os.path.join(delivery_path, ext.name)))
             ext_mod = ext.load()
@@ -236,6 +273,7 @@ def main():
                 deliver_notebooks(device, src_path, delivery_path,
                                   ext.name, folder=folder,
                                   overlays_res_lookup=overlays_res_lookup)
+            _update_installed(delivery_path, ext)
     except (Exception, KeyboardInterrupt) as e:
         raise e
     finally:

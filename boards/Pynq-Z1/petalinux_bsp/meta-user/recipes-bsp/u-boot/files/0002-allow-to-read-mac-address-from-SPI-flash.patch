@@ -1,26 +1,34 @@
-From ca115d9c87516f5eb689b517bb92d0476583b282 Mon Sep 17 00:00:00 2001
+From 752d054484a52b548e8ef46c759fe13a62d5f3d5 Mon Sep 17 00:00:00 2001
 From: Rock Qu <yunq@xilinx.com>
-Date: Mon, 12 Aug 2019 10:38:41 -0700
+Date: Mon, 22 Jun 2020 18:29:59 -0700
 Subject: [PATCH 2/4] allow to read mac address from SPI flash
 
 ---
- board/xilinx/common/board.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ board/xilinx/common/board.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
 diff --git a/board/xilinx/common/board.c b/board/xilinx/common/board.c
-index 7e6340b..2414735 100644
+index 5fdd994..d43c338 100644
 --- a/board/xilinx/common/board.c
 +++ b/board/xilinx/common/board.c
-@@ -7,6 +7,8 @@
- #include <common.h>
+@@ -8,13 +8,15 @@
+ #include <asm/sections.h>
  #include <dm/uclass.h>
  #include <i2c.h>
 +#include <spi.h>
 +#include <spi_flash.h>
+ #include "board.h"
  
  int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
  {
-@@ -34,5 +36,30 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+ 	int ret = -EINVAL;
+ 
+-#if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
++#if 0
+ 	struct udevice *dev;
+ 	ofnode eeprom;
+ 
+@@ -36,6 +38,30 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
  		debug("%s: I2C EEPROM MAC %pM\n", __func__, ethaddr);
  #endif
  
@@ -37,8 +45,7 @@ index 7e6340b..2414735 100644
 +			CONFIG_SF_DEFAULT_CS);
 +		return -ENODEV;
 +	}
-+	/* set the cmd to otp read */
-+	flash->read_cmd = CMD_OTPREAD_ARRAY_FAST;
++	flash->read_opcode = CMD_OTPREAD_ARRAY_FAST;
 +	ret = spi_flash_read(flash, CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET, 6, ethaddr);
 +	if (ret)
 +		debug("%s: SPI EEPROM MAC address read failed\n", __func__);
@@ -51,6 +58,7 @@ index 7e6340b..2414735 100644
 +
  	return ret;
  }
+ 
 -- 
-1.9.5
+2.7.4
 

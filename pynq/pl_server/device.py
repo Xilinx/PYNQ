@@ -58,7 +58,8 @@ class DeviceMeta(type):
     def __init__(cls, name, bases, attrs):
         if '_probe_' in attrs:
             priority = attrs['_probe_priority_']
-            if priority in DeviceMeta._subclasses:
+            if (priority in DeviceMeta._subclasses and
+                DeviceMeta._subclasses[priority].__name__ != name):
                 raise RuntimeError(
                     "Multiple Device subclasses with same priority")
             DeviceMeta._subclasses[priority] = cls
@@ -296,9 +297,9 @@ class Device(metaclass=DeviceMeta):
         """Reset all the dictionaries.
 
         This method must be called after a bitstream download.
-        1. In case there is a `hwh` or `tcl` file, this method will reset
+        1. In case there is a `hwh` file, this method will reset
         the states of the IP, GPIO, and interrupt dictionaries .
-        2. In case there is no `hwh` or `tcl` file, this method will simply
+        2. In case there is no `hwh` file, this method will simply
         clear the state information stored for all dictionaries.
 
         An existing parser given as the input can significantly reduce
@@ -307,7 +308,7 @@ class Device(metaclass=DeviceMeta):
 
         Parameters
         ----------
-        parser : TCL/HWH
+        parser : HWH
             A parser object to speed up the reset process.
         timestamp : str
             The timestamp to embed in the reset
@@ -359,6 +360,10 @@ class Device(metaclass=DeviceMeta):
             mmio = MMIO(ip_dict[ip_name]['phys_addr'], target_size,
                         device=self)
             buf = bin_file.read(size)
+            if len(buf) % 4 != 0:
+                padding = 4 - len(buf) % 4
+                buf += b"\x00" * padding
+                size += padding
             mmio.write(0, buf)
             if zero and size < target_size:
                 mmio.write(size, b'\x00' * (target_size - size))
@@ -366,14 +371,14 @@ class Device(metaclass=DeviceMeta):
     def update_partial_region(self, hier, parser):
         """Merge the parser information from partial region.
 
-        Combine the currently PL information and the partial HWH/TCL file
+        Combine the currently PL information and the partial HWH file
         parsing results.
 
         Parameters
         ----------
         hier : str
             The name of the hierarchical block as the partial region.
-        parser : TCL/HWH
+        parser : HWH
             A parser object for the partial region.
 
         """
@@ -541,7 +546,7 @@ def parse_bit_header(bitfile):
 
 def _preload_binfile(bitstream):
     bitstream.binfile_name = os.path.basename(
-        bitstream.bitfile_name).replace('.bit', '.bin')
+        bitstream.bitfile_name) + '.bin'
     bitstream.firmware_path = os.path.join('/lib/firmware',
                                            bitstream.binfile_name)
     bit_dict = parse_bit_header(bitstream.bitfile_name)
@@ -550,6 +555,113 @@ def _preload_binfile(bitstream):
         bit_buffer = np.frombuffer(bit_dict['data'], 'i4')
         bin_buffer = bit_buffer.byteswap()
         bin_buffer.tofile(bitstream.firmware_path, "")
+
+
+ZU_FPD_SLCR_REG = {
+    'C_MAXIGP0_DATA_WIDTH': {
+        'FPD_SLCR.AXI_FS.DW_SS0_SEL': {
+            'addr': 0xFD615000,
+            'field': [9, 8]
+        }
+    },
+    'C_MAXIGP1_DATA_WIDTH': {
+        'FPD_SLCR.AXI_FS.DW_SS1_SEL': {
+            'addr': 0xFD615000,
+            'field': [11, 10]
+        }
+    },
+    'C_MAXIGP2_DATA_WIDTH': {
+        'LPD_SLCR.AXI_FS.DW_SS2_SEL': {
+            'addr': 0xFF419000,
+            'field': [9, 8]
+        }
+    }
+}
+
+ZU_FPD_SLCR_VALUE = {
+    '32': 0,
+    '64': 1,
+    '128': 2
+}
+
+ZU_AXIFM_REG = {
+    'C_SAXIGP0_DATA_WIDTH': {
+        'AFIFM0.AFIFM_RDCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD360000,
+            'field': [1, 0]
+        },
+        'AFIFM0.AFIFM_WRCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD360014,
+            'field': [1, 0]
+        }
+    },
+    'C_SAXIGP1_DATA_WIDTH': {
+        'AFIFM1.AFIFM_RDCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD370000,
+            'field': [1, 0]
+        },
+        'AFIFM1.AFIFM_WRCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD370014,
+            'field': [1, 0]
+        }
+    },
+    'C_SAXIGP2_DATA_WIDTH': {
+        'AFIFM2.AFIFM_RDCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD380000,
+            'field': [1, 0]
+        },
+        'AFIFM2.AFIFM_WRCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD380014,
+            'field': [1, 0]
+        }
+    },
+    'C_SAXIGP3_DATA_WIDTH': {
+        'AFIFM3.AFIFM_RDCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD390000,
+            'field': [1, 0]
+        },
+        'AFIFM3.AFIFM_WRCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD390014,
+            'field': [1, 0]
+        }
+    },
+    'C_SAXIGP4_DATA_WIDTH': {
+        'AFIFM4.AFIFM_RDCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD3A0000,
+            'field': [1, 0]
+        },
+        'AFIFM4.AFIFM_WRCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD3A0014,
+            'field': [1, 0]
+        }
+    },
+    'C_SAXIGP5_DATA_WIDTH': {
+        'AFIFM5.AFIFM_RDCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD3B0000,
+            'field': [1, 0]
+        },
+        'AFIFM5.AFIFM_WRCTRL.FABRIC_WIDTH': {
+            'addr': 0xFD3B0014,
+            'field': [1, 0]
+        }
+    },
+    'C_SAXIGP6_DATA_WIDTH': {
+        'AFIFM6.AFIFM_RDCTRL.FABRIC_WIDTH': {
+            'addr': 0xFF9B0000,
+            'field': [1, 0]
+        },
+        'AFIFM6.AFIFM_WRCTRL.FABRIC_WIDTH': {
+            'addr': 0xFF9B0014,
+            'field': [1, 0]
+        }
+    }
+}
+
+ZU_AXIFM_VALUE = {
+    '32': 2,
+    '64': 1,
+    '128': 0
+}
 
 
 class XlnkDevice(Device):
@@ -612,6 +724,37 @@ class XlnkDevice(Device):
         array = np.frombuffer(mem, np.uint32, length >> 2, virt_offset)
         return array
 
+    def set_axi_port_width(self, parser):
+        """This method will set the AXI port width.
+
+        This is useful to resolve discrepancy between the PS configurations
+        during boot and the PS configurations required by the bitstream. It
+        is usually to be resolved for full bitstream reconfiguration.
+
+        Check https://www.xilinx.com/support/answers/66295.html for more
+        information on the meaning of register values.
+
+        Currently only zynq ultrascale devices support data width changes.
+
+        """
+        from pynq.registers import Register
+        parameter_dict = parser.ip_dict[parser.ps_name]['parameters']
+        if parser.family_ps == 'zynq_ultra_ps_e':
+            for para in ZU_FPD_SLCR_REG:
+                if para in parameter_dict:
+                    width = parameter_dict[para]
+                    for reg_name in ZU_FPD_SLCR_REG[para]:
+                        addr = ZU_FPD_SLCR_REG[para][reg_name]['addr']
+                        f = ZU_FPD_SLCR_REG[para][reg_name]['field']
+                        Register(addr)[f[0]:f[1]] = ZU_FPD_SLCR_VALUE[width]
+            for para in ZU_AXIFM_REG:
+                if para in parameter_dict:
+                    width = parameter_dict[para]
+                    for reg_name in ZU_AXIFM_REG[para]:
+                        addr = ZU_AXIFM_REG[para][reg_name]['addr']
+                        f = ZU_AXIFM_REG[para][reg_name]['field']
+                        Register(addr)[f[0]:f[1]] = ZU_AXIFM_VALUE[width]
+
     def download(self, bitstream, parser=None):
         if not bitstream.binfile_name:
             _preload_binfile(bitstream)
@@ -625,21 +768,15 @@ class XlnkDevice(Device):
             fd.write(flag)
         with open(self.BS_FPGA_MAN, 'w') as fd:
             fd.write(bitstream.binfile_name)
-
+        if parser is not None:
+            self.set_axi_port_width(parser)
         super().post_download(bitstream, parser)
 
     def get_bitfile_metadata(self, bitfile_name):
-        from .tcl_parser import TCL, get_tcl_name
         from .hwh_parser import HWH, get_hwh_name
         hwh_path = get_hwh_name(bitfile_name)
-        tcl_path = get_tcl_name(bitfile_name)
         if os.path.exists(hwh_path):
             return HWH(hwh_path)
-        elif os.path.exists(tcl_path):
-            message = "Users will not get PARAMETERS / REGISTERS " \
-                      "information through TCL files. HWH file is recommended."
-            warnings.warn(message, UserWarning)
-            return TCL(tcl_path)
         else:
-            raise ValueError("Cannot find HWH or TCL file for {}.".format(
+            raise ValueError("Cannot find HWH file for {}.".format(
                 bitfile_name))
