@@ -2,6 +2,32 @@
 Change Log
 ************************
 
+Version 2.6.0 
+============================
+
+Updates to PYNQ since the last release include:
+
+* Image releases:
+   * pynq_z1_v2.6.0
+   * pynq_z2_v2.6.0
+   * zcu104_v2.6.0
+   * zcu111_v2.6.0
+   
+* Upgraded Software
+   * All overlays built with Vivado 2020.1
+   * Linux kernel and build updated to Petalinux 2020.1
+
+* Productivity Additions
+   * Docker support enabled in the kernel config
+   * Pybind11 support and notebook added for C++ integration
+   * Support for BOOT.BIN bitstream inclusion for custom sdcard builds
+   * Boot.py added to boot partition to enable modifications to the PYNQ boot flow.
+
+* Deprecations
+   * Removed Xlnk allocator from all notebooks - please now use pynq.allocate
+   * Tcl parsing removed - please generate and use an HWH file for Overlays
+
+
 Version 2.5.1 
 ============================
 
