@@ -5,9 +5,8 @@
 numpy
 matplotlib
 nbsphinx
-pynq
-jupyter_client
 cffi
+jupyter_client
 ipython
 pytest
 netifaces
