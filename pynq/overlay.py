@@ -777,8 +777,8 @@ class DefaultIP(metaclass=RegisterIP):
         For details on the function's signature use the `signature` property.
         The type annotations provide the C types that the accelerator
         operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.Xlnk` class. Scalars should be passed
-        as a compatible python type as used by the `struct` library.
+        objects created from the `pynq.allocate` class. Scalars should be 
+        passed as a compatible python type as used by the `struct` library.
 
         """
         if not self._signature:
@@ -811,8 +811,8 @@ class DefaultIP(metaclass=RegisterIP):
         For details on the function's signature use the `signature` property.
         The type annotations provide the C types that the accelerator
         operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.Xlnk` class. Scalars should be passed
-        as a compatible python type as used by the `struct` library.
+        objects created from the `pynq.allocate` class. Scalars should be 
+        passed as a compatible python type as used by the `struct` library.
 
         """
         # For now direct people to the sw version until the ERT initialization
