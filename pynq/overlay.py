@@ -703,6 +703,13 @@ class DefaultIP(metaclass=RegisterIP):
                 self._signature, struct_string, self._ptr_list, self.args = \
                     _create_call(self._registers)
                 self._call_struct = struct.Struct(struct_string)
+                self.start_ert = self._start_ert
+                self.start_sw  = self._start_sw
+                self.call = self._call
+                if self.device.has_capability('ERT'):
+                    self.start = self._start_ert
+                else:
+                    self.start = self._start_sw
         else:
             self._registers = None
         if 'index' in description:
@@ -717,13 +724,6 @@ class DefaultIP(metaclass=RegisterIP):
                     stream.source_ip = self
                 elif v['direction'] == 'input':
                     stream.sink_ip = self
-
-        if self.signature is None:
-            self._start = self.start_none
-        elif self.device.has_capability('ERT'):
-            self._start = self.start_ert
-        else:
-            self._start = self.start_sw
 
     def _setup_packet_prototype(self):
         self._packet = ert.ert_start_kernel_cmd()
@@ -762,10 +762,10 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             return None
 
-    def call(self, *args, **kwargs):
+    def _call(self, *args, **kwargs):
         self.start(*args, **kwargs).wait()
 
-    def start_sw(self, *args, ap_ctrl=1, waitfor=None, **kwargs):
+    def _start_sw(self, *args, ap_ctrl=1, waitfor=None, **kwargs):
         """Start the accelerator
 
         This function will configure the accelerator with the provided
@@ -796,30 +796,7 @@ class DefaultIP(metaclass=RegisterIP):
         self.mmio.write(0, ap_ctrl)
         return WaitHandle(self)
 
-    def start_none(self, *args, **kwargs):
-        raise RuntimeError("Start only supported for XCLBIN-based designs")
-
-    def start(self, *args, **kwargs):
-        """Start the accelerator
-
-        This function will configure the accelerator with the provided
-        arguments and start the accelerator. Use the `wait` function to
-        determine when execution has finished. Note that buffers should be
-        flushed prior to starting the accelerator and any result buffers
-        will need to be invalidated afterwards.
-
-        For details on the function's signature use the `signature` property.
-        The type annotations provide the C types that the accelerator
-        operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.allocate` class. Scalars should be 
-        passed as a compatible python type as used by the `struct` library.
-
-        """
-        # For now direct people to the sw version until the ERT initialization
-        # is fixed
-        return self._start(*args, **kwargs)
-
-    def start_ert(self, *args, waitfor=(), **kwargs):
+    def _start_ert(self, *args, waitfor=(), **kwargs):
         """Start the accelerator using the ERT scheduler
 
         This function will use the embedded scheduler to call the accelerator
