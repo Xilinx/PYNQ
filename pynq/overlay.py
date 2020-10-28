@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2020, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -696,13 +696,12 @@ class DefaultIP(metaclass=RegisterIP):
         if 'registers' in description:
             self._registers = description['registers']
             self._register_name = description['fullpath'].rpartition('/')[2]
-            if 'CTRL' in self._registers:
-                self._ctrl_reg = True
-            if (hasattr(self, '_ctrl_reg') and
+            if ('CTRL' in self._registers and
                     self.device.has_capability('CALLABLE')):
                 self._signature, struct_string, self._ptr_list, self.args = \
                     _create_call(self._registers)
                 self._call_struct = struct.Struct(struct_string)
+                self._ctrl_reg = True
                 self.start_ert = self._start_ert
                 self.start_sw  = self._start_sw
                 self.call = self._call
