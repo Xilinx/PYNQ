@@ -696,7 +696,9 @@ class DefaultIP(metaclass=RegisterIP):
         if 'registers' in description:
             self._registers = description['registers']
             self._register_name = description['fullpath'].rpartition('/')[2]
-            if ('CTRL' in self._registers and
+            if 'CTRL' in self._registers:
+                self._ctrl_reg = True
+            if (hasattr(self, '_ctrl_reg') and
                     self.device.has_capability('CALLABLE')):
                 self._signature, struct_string, self._ptr_list, self.args = \
                     _create_call(self._registers)
@@ -729,8 +731,9 @@ class DefaultIP(metaclass=RegisterIP):
             ert.ert_cmd_state.ERT_CMD_STATE_NEW
         self._packet.m_uert.m_start_cmd_struct.unused = 0
         self._packet.m_uert.m_start_cmd_struct.extra_cu_masks = 0
-        self._packet.m_uert.m_start_cmd_struct.count = \
-            (self._call_struct.size // 4) + 1
+        if hasattr(self, '_ctrl_reg'):
+            self._packet.m_uert.m_start_cmd_struct.count = \
+                (self._call_struct.size // 4) + 1
         self._packet.m_uert.m_start_cmd_struct.opcode = \
             ert.ert_cmd_opcode.ERT_START_CU
         self._packet.m_uert.m_start_cmd_struct.type = \
