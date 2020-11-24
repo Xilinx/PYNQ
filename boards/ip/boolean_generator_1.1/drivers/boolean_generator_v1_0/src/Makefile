@@ -13,10 +13,12 @@ INCLUDEFILES=*.h
 LIBSOURCES=*.c
 OUTS = *.o
 
+OBJECTS =	$(addsuffix .o, $(basename $(wildcard *.c)))
+
 libs:
 	echo "Compiling boolean_generator..."
 	$(COMPILER) $(COMPILER_FLAGS) $(EXTRA_COMPILER_FLAGS) $(INCLUDES) $(LIBSOURCES)
-	$(ARCHIVER) -r ${RELEASEDIR}/${LIB} ${OUTS}
+	$(ARCHIVER) -r ${RELEASEDIR}/${LIB} ${OBJECTS}
 	make clean
 
 include:
