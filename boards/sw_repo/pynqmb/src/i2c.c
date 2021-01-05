@@ -95,43 +95,87 @@ i2c i2c_open_device(unsigned int device){
 
 #define SWITCH_FLAG 0x10000
 
+/* In this mode the i2c object is either the index of the physical device or,
+ * if the SWITCH_FLAG bit is set, the index in the info table.
+ *
+ * The i2c_set_switch() function converts an i2c object to the physical device
+ * index */
+
 struct i2c_switch_info {
     unsigned int sda;
     unsigned int scl;
-    int dev_id;
+    int phys_id;
+    int channel; // Either 0 or 1
+    int count;
 };
 
 static struct i2c_switch_info i2c_info[MAX_I2C_DEVICES];
-static int num_i2c_devices;
 
 static int last_sda = -1;
 static int last_scl = -1;
 
 i2c i2c_open(unsigned int sda, unsigned int scl){
-    for (int i = 0; i < num_i2c_devices; ++i) {
-        if ((sda == i2c_info[i].sda) && (scl == i2c_info[i].scl)) {
-            return i;
+#if XPAR_IO_SWITCH_0_INTERFACE_TYPE == 3 // Arduino is special as it doesn't use the IO switch
+    return i2c_open_device(XPAR_IIC_0_BASEADDR);
+#else
+    for (int i = 0; i < MAX_I2C_DEVICES; ++i) {
+        if (i2c_info[i].count && (sda == i2c_info[i].sda) && (scl == i2c_info[i].scl)) {
+            i2c_info[i].count++;
+            return i | SWITCH_FLAG;
         }
     }
-    i2c dev_id = num_i2c_devices++;
-    i2c_info[dev_id].dev_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
-    i2c_info[dev_id].sda = sda;
-    i2c_info[dev_id].scl = scl;
-    return dev_id | SWITCH_FLAG;
+    int info_id = -1;
+    for (int i = 0; i < MAX_I2C_DEVICES; ++i) {
+        if (i2c_info[i].count == 0) {
+            info_id = i;
+            break;
+        }
+    }
+    if (info_id == -1) { return -1; }
+#if XPAR_IO_SWITCH_0_INTERFACE_TYPE == 2 // Dual Pmod
+    if (sda == 3 || sda == 7) {
+        i2c_info[info_id].channel = 0;
+        i2c_info[info_id].phys_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+    } else {
+        i2c_info[info_id].channel = 1;
+        i2c_info[info_id].phys_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C1_BASEADDR);
+    }
+#elif XPAR_IO_SWITCH_0_INTERFACE_TYPE == 4 // Raspberry Pi
+    if (sda == 0) {
+        i2c_info[info_id].channel = 0;
+        i2c_info[info_id].phys_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+    } else {
+        i2c_info[info_id].channel = 1;
+        i2c_info[info_id].phys_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C1_BASEADDR);
+    }
+#else // Pmod and other
+    i2c_info[info_id].channel = 0;
+    i2c_info[info_id].phys_id = i2c_open_device(XPAR_IO_SWITCH_0_I2C0_BASEADDR);
+#endif // Interface types
+    i2c_info[info_id].sda = sda;
+    i2c_info[info_id].scl = scl;
+    i2c_info[info_id].count = 1;
+    return info_id | SWITCH_FLAG;
+#endif // Arduino interface type
 }
 
 static i2c i2c_set_switch(i2c dev_id) {
     if ((dev_id & SWITCH_FLAG) == 0) return dev_id;
-    i2c dev = dev_id ^ SWITCH_FLAG;
-    int sda = i2c_info[dev].sda;
-    int scl = i2c_info[dev].scl;
+    int info_id = dev_id ^ SWITCH_FLAG;
+    int sda = i2c_info[info_id].sda;
+    int scl = i2c_info[info_id].scl;
     if (last_sda != -1) set_pin(last_sda, GPIO);
     if (last_scl != -1) set_pin(last_scl, GPIO);
     last_sda = sda;
     last_scl = scl;
-    set_pin(scl, SCL0);
-    set_pin(sda, SDA0);
-    return i2c_info[dev].dev_id;
+    if (i2c_info[info_id].channel == 0) {
+        set_pin(scl, SCL0);
+        set_pin(sda, SDA0);
+    } else {
+        set_pin(scl, SCL1);
+        set_pin(sda, SDA1);
+    }
+    return i2c_info[info_id].phys_id;
 }
 
 #else
@@ -155,8 +199,15 @@ void i2c_write(i2c dev_id, unsigned int slave_address,
 }
 
 
-void i2c_close(i2c dev_id){
+void i2c_close(i2c dev_id) {
+#if defined XPAR_IO_SWITCH_NUM_INSTANCES && defined XPAR_IO_SWITCH_0_I2C0_BASEADDR
+    if ((dev_id & SWITCH_FLAG) == SWITCH_FLAG) {
+        int info_id = dev_id ^ SWITCH_FLAG;
+        i2c_info[info_id].count--;
+    }
+#else
     XIic_ClearStats(&xi2c[dev_id]);
+#endif
 }
 
 
