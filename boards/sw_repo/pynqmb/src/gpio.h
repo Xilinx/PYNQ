@@ -56,6 +56,7 @@ extern "C" {
 #include <xparameters.h>
 
 #ifdef XPAR_XGPIO_NUM_INSTANCES
+#define PYNQ_HAS_GPIO
 
 enum {
 GPIO_OUT = 0,

@@ -57,6 +57,7 @@ extern "C" {
 #include <xparameters.h>
 
 #ifdef XPAR_XIIC_NUM_INSTANCES
+#define PYNQ_HAS_I2C
 
 /* 
  * IIC API
