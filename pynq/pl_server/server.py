@@ -342,6 +342,7 @@ class DeviceClient:
                     merged_ip_dict[ip_name]['parameters'] = v['parameters']
                     merged_ip_dict[ip_name]['phys_addr'] = \
                         self._ip_dict[k]['phys_addr'] + v['phys_addr']
+                    merged_ip_dict[ip_name]['addr_range'] = v['addr_range']
                     merged_ip_dict[ip_name]['registers'] = v['registers']
                     merged_ip_dict[ip_name]['state'] = None
                     merged_ip_dict[ip_name]['type'] = v['type']
