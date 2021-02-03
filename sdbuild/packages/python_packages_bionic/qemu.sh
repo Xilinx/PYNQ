@@ -32,7 +32,7 @@ nbwavedrom==0.2.0
 parsec==3.4
 patsy==0.5.1
 plotly==4.5.2
-plotly-express==0.3.1
+plotly-express==0.4.1
 pyeda==0.28.0
 pyrsistent==0.15.4
 rise==5.2.0
