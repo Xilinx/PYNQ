@@ -341,7 +341,7 @@ class PL(metaclass=PLMeta):
         {str: {'controller' : str, 'index' : int}}.
     hierarchy_dict : dict
         All of the hierarchies in the block design containing addressable IP.
-        The keys are the hiearachies and the values are dictionaries
+        The keys are the hierarchies and the values are dictionaries
         containing the IP and sub-hierarchies contained in the hierarchy and
         and GPIO and interrupts attached to the hierarchy. The keys in
         dictionaries are relative to the hierarchy and the ip dict only
