@@ -53,7 +53,7 @@ __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 __all__ = ['lib', 'tests']
-__version__ = '2.6.0'
+__version__ = '2.6.2'
 # This ID will always be tied to a specific release tag
 # since the file will be modified to edit the version
 __git_id__ = "$Id$"
