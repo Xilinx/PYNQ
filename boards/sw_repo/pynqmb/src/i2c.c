@@ -183,19 +183,19 @@ static i2c i2c_set_switch(i2c dev_id) { return dev_id; }
 #endif
 
 
-void i2c_read(i2c dev_id, unsigned int slave_address,
-              unsigned char* buffer, unsigned int length){
+int i2c_read(i2c dev_id, unsigned int slave_address,
+             unsigned char* buffer, unsigned int length){
     i2c dev = i2c_set_switch(dev_id);
-    XIic_Recv(xi2c[dev].BaseAddress,
-              slave_address, buffer, length, XIIC_STOP);
+    return XIic_Recv(xi2c[dev].BaseAddress,
+                     slave_address, buffer, length, XIIC_STOP);
 }
 
 
-void i2c_write(i2c dev_id, unsigned int slave_address,
-               unsigned char* buffer, unsigned int length){
+int i2c_write(i2c dev_id, unsigned int slave_address,
+              unsigned char* buffer, unsigned int length){
     i2c dev = i2c_set_switch(dev_id);
-    XIic_Send(xi2c[dev].BaseAddress,
-              slave_address, buffer, length, XIIC_STOP);
+    return XIic_Send(xi2c[dev].BaseAddress,
+                     slave_address, buffer, length, XIIC_STOP);
 }
 
 

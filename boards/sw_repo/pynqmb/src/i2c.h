@@ -70,9 +70,9 @@ i2c i2c_open_device(unsigned int device);
 i2c i2c_open(unsigned int sda, unsigned int scl);
 #endif
 #endif
-void i2c_read(i2c dev_id, unsigned int slave_address,
+int i2c_read(i2c dev_id, unsigned int slave_address,
               unsigned char* buffer, unsigned int length);
-void i2c_write(i2c dev_id, unsigned int slave_address,
+int i2c_write(i2c dev_id, unsigned int slave_address,
                unsigned char* buffer, unsigned int length);
 void i2c_close(i2c dev_id);
 unsigned int i2c_get_num_devices(void);
