@@ -484,7 +484,7 @@ class _ClocksUltrascale(_ClocksBase):
                                 for i in range(1 << 6)
                                 for j in range(1 << 6)}
 
-    def __init__(self, src_clk_mhz=33.333):
+    def __init__(self, src_clk_mhz=DEFAULT_SRC_CLK_MHZ):
         self._ref_clk_mhz = src_clk_mhz
 
         from .mmio import MMIO
@@ -602,7 +602,7 @@ class _ClocksZynq(_ClocksBase):
                                 for i in range(1 << 6)
                                 for j in range(1 << 6)}
 
-    def __init__(self, ref_clk_mhz=50.0):
+    def __init__(self, ref_clk_mhz=DEFAULT_SRC_CLK_MHZ):
         self._ref_clk_mhz = ref_clk_mhz
 
         from .mmio import MMIO
