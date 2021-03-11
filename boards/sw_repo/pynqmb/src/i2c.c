@@ -183,7 +183,7 @@ static i2c i2c_set_switch(i2c dev_id) { return dev_id; }
 #endif
 
 
-int i2c_read(i2c dev_id, unsigned int slave_address,
+py_int i2c_read(i2c dev_id, unsigned int slave_address,
              unsigned char* buffer, unsigned int length){
     i2c dev = i2c_set_switch(dev_id);
     int status  = XIic_Recv(xi2c[dev].BaseAddress,
@@ -193,7 +193,7 @@ int i2c_read(i2c dev_id, unsigned int slave_address,
 }
 
 
-int i2c_write(i2c dev_id, unsigned int slave_address,
+py_int i2c_write(i2c dev_id, unsigned int slave_address,
               unsigned char* buffer, unsigned int length){
     i2c dev = i2c_set_switch(dev_id);
     int status =  XIic_Send(xi2c[dev].BaseAddress,

@@ -502,6 +502,7 @@ class FuncAdapter:
             )
             block_contents.append(ret_assign)
             block_contents.append(_generate_write('return_command'))
+            block_contents.extend(post_block_contents)
             block_contents.append(_generate_write('ret'))
             self.blocks = True
         else:
@@ -510,8 +511,8 @@ class FuncAdapter:
                 block_contents.append(_generate_write('return_command'))
             else:
                 block_contents.append(_generate_write('void_command'))
+            block_contents.extend(post_block_contents)
 
-        block_contents.extend(post_block_contents)
         self.call_ast = c_ast.Compound(block_contents)
         self.filename = decl.coord.file
 
@@ -535,7 +536,6 @@ class FuncAdapter:
         returns the value of the function call if applicable
 
         """
-        return_value = self.return_interface.return_decode(stream)
         if len(args) != len(self.arg_interfaces):
             raise RuntimeError(
                 "Wrong number of arguments: expected{0} got {1}".format(
@@ -544,6 +544,7 @@ class FuncAdapter:
         [f.param_decode(a, stream) for f, a in itertools.zip_longest(
              self.arg_interfaces, args
         )]
+        return_value = self.return_interface.return_decode(stream)
         return return_value
 
 
@@ -912,7 +913,7 @@ def _create_instance_function(function):
     args = function.function.args
     func_string = f"""def wrapped({', '.join(['self'] + args[1:])}):
         {repr(function.__doc__)}
-        self._call_func(function, {', '.join(args[1:])})
+        return self._call_func(function, {', '.join(args[1:])})
     """
     scope = {'function': function}
     exec(func_string, scope)

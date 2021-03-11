@@ -128,7 +128,7 @@ i2c i2c_open(unsigned int sda, unsigned int scl);
  *     int : The number of bytes read - can be 0 on an error
  *
  */
-int i2c_read(i2c dev_id, unsigned int slave_address,
+py_int i2c_read(i2c dev_id, unsigned int slave_address,
               unsigned char* buffer, unsigned int length);
 
 /** Write to the I2C Bus
@@ -149,7 +149,7 @@ int i2c_read(i2c dev_id, unsigned int slave_address,
  *     int : The number of bytes read - can be 0 on an error
  *
  */
-int i2c_write(i2c dev_id, unsigned int slave_address,
+py_int i2c_write(i2c dev_id, unsigned int slave_address,
                unsigned char* buffer, unsigned int length);
 
 /** Close an I2C Device
