@@ -71,7 +71,7 @@ extern "C" {
  * To create an I2C instace use `i2c_open` or `i2c_open_device`
  *
  */
-typedef py_uint i2c;
+typedef py_int i2c;
 
 /** Open an I2C hardware instance
  *

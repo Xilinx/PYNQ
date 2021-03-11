@@ -353,7 +353,7 @@ class PyFloatWrapper(PrimitiveWrapper):
 
 
 _interface_overrides = {
-        'py_uint': PyIntWrapper,
+        'py_int': PyIntWrapper,
         'py_bool': PyBoolWrapper,
         'py_float': PyFloatWrapper
 }

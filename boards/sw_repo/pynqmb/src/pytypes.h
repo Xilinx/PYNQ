@@ -2,7 +2,7 @@
 
 /** An integer type that raises a Python exception when returned with a negative value
  */
-typedef int py_uint;
+typedef int py_int;
 
 /** A floating point type that raises a Python exception when returned with NaN
  */
