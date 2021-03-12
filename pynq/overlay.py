@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -1080,7 +1080,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         fullpath = self.description['fullpath']
         ip_dict = dict()
         for k, v in self.parsers[bitfile_name].ip_dict.items():
-            ip_dict_id = fullpath + '/' + v['mem_id']
+            ip_dict_id = fullpath + '/' + v['fullpath']
             ip_dict[ip_dict_id] = v
             ip_dict[ip_dict_id]['fullpath'] = fullpath + '/' + v['fullpath']
         self.parsers[bitfile_name].ip_dict = ip_dict
