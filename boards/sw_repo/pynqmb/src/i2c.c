@@ -51,6 +51,7 @@
  *
  *****************************************************************************/
 #include <xparameters.h>
+#include <sys/errno.h>
 #include "i2c.h"
 
 #ifdef XPAR_XIIC_NUM_INSTANCES
@@ -131,7 +132,7 @@ i2c i2c_open(unsigned int sda, unsigned int scl){
             break;
         }
     }
-    if (info_id == -1) { return -12; } // ENOMEM
+    if (info_id == -1) { return -ENOMEM; }
 #if XPAR_IO_SWITCH_0_INTERFACE_TYPE == 2 // Dual Pmod
     if (sda == 3 || sda == 7) {
         i2c_info[info_id].channel = 0;
@@ -188,7 +189,7 @@ py_int i2c_read(i2c dev_id, unsigned int slave_address,
     i2c dev = i2c_set_switch(dev_id);
     int status  = XIic_Recv(xi2c[dev].BaseAddress,
                             slave_address, buffer, length, XIIC_STOP);
-    if (status == 0) return -5; // EIO
+    if (status == 0) return -EIO;
     return status;
 }
 
@@ -198,7 +199,7 @@ py_int i2c_write(i2c dev_id, unsigned int slave_address,
     i2c dev = i2c_set_switch(dev_id);
     int status =  XIic_Send(xi2c[dev].BaseAddress,
                             slave_address, buffer, length, XIIC_STOP);
-    if (status == 0) return -5; // EIO
+    if (status == 0) return -EIO;
     return status;
 }
 

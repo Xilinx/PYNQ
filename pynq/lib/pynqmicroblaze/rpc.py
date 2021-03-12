@@ -328,6 +328,18 @@ class PyIntWrapper(PrimitiveWrapper):
         return val
 
 
+class PyVoidWrapper(PrimitiveWrapper):
+    def __init__(self, type_):
+        super().__init__('i', type_)
+
+    def return_decode(self, stream):
+        data = stream.read(self._struct.size)
+        val = self._struct.unpack(data)[0]
+        if val < 0:
+            raise MicroblazeError(os.strerror(-val))
+        # Swallow the return value
+
+
 class PyBoolWrapper(PrimitiveWrapper):
     def __init__(self, type_):
         super().__init__('i', type_)
@@ -355,7 +367,8 @@ class PyFloatWrapper(PrimitiveWrapper):
 _interface_overrides = {
         'py_int': PyIntWrapper,
         'py_bool': PyBoolWrapper,
-        'py_float': PyFloatWrapper
+        'py_float': PyFloatWrapper,
+        'py_void': PyVoidWrapper
 }
 
 
