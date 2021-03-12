@@ -695,6 +695,7 @@ class DefaultIP(metaclass=RegisterIP):
             setattr(self, gpio, GPIO(gpio_number, 'out'))
         if 'registers' in description:
             self._registers = description['registers']
+            self._fullpath = description['fullpath']
             self._register_name = description['fullpath'].rpartition('/')[2]
             if ('CTRL' in self._registers and
                     self.device.has_capability('CALLABLE')):
