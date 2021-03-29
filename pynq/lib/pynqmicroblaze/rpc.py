@@ -501,7 +501,10 @@ class FuncAdapter:
                 func_args.append(c_ast.ID('arg' + str(i)))
                 self.arg_interfaces.append(interface)
                 self.blocks = self.blocks | interface.blocks
-                self.args.append(arg.name)
+                if arg.name:
+                    self.args.append(arg.name)
+                else:
+                    self.args.append(f'arg{len(self.args)}')
 
         function_call = c_ast.FuncCall(c_ast.ID(self.name),
                                        c_ast.ExprList(func_args))
