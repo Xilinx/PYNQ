@@ -1008,6 +1008,12 @@ class MicroblazeRPC:
                             func.arg_interfaces[0].typedefname == name):
                         setattr(cls, subname,
                                 _create_instance_function(getattr(self, fname)))
+            getters = [s for s in dir(cls) if s.startswith('get_')]
+            for g in getters:
+                p = g[4:] # Strip the get_ off the front for the name
+                setattr(cls, p,
+                        property(getattr(cls, "get_" + p),
+                                 getattr(cls, "set_" + p, None)))
 
     def reset(self):
         """Reset and free the microblaze for use by other programs
