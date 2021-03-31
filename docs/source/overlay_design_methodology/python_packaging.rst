@@ -15,9 +15,6 @@ requires carful thought and project architecture. There are many useful
 references that provide up-to-date information. For more information about how
 the pynq library is packaged see the following links:
 
-* `Open Sourcing a Python Project The Right
-  way <https://jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way>`_
-
 * `How to Package Your Python Code
   <https://python-packaging.readthedocs.io/en/latest/index.html>`_
 
