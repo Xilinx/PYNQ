@@ -11,7 +11,7 @@ Packaging ``pynq`` for Distribution
 -----------------------------------
 
 Packaging the pynq Python project that pip can use is hugely beneficial, but
-requires carful thought and project architecture. There are many useful
+requires careful thought and project architecture. There are many useful
 references that provide up-to-date information. For more information about how
 the pynq library is packaged see the following links:
 
@@ -32,14 +32,14 @@ binaries (.bit), overlay metadata files (.hwh), PYNQ MicroBlaze binaries
 The most straightforward way of including non-python files is to add a
 `MANIFEST.in`_ to the project.
 
-In addition PYNQ provides two mechanisms that can be used aid deployments of
+In addition PYNQ provides two mechanisms that can be used to aid deployments of
 notebooks and large bitstreams - in particular xclbin files which can exceed
 100 MBs each.
 
 Registering PYNQ Notebooks
 --------------------------
 
-If you have notebooks in your package you can register your notebooks with the
+If you have notebooks in your package, you can register your notebooks with the
 ``pynq get-notebooks`` command line tool by creating a ``pynq.notebooks`` entry
 point linking to the part of your package. The key part of the entry point
 determines the name of the folder that will be created in the notebooks folder
@@ -55,13 +55,13 @@ xclbin.link files which provide locations where xclbin files can be downloaded
 for particular shells. For more details on the link format see the pynq.util
 documentation. xclbin.link files alongside notebooks will be resolved when the
 ``pynq get-notebooks`` command is run. If you would prefer to have the xclbin
-files downloaded at package install time we provide a ``download_overlays``
+files downloaded at package install time, we provide a ``download_overlays``
 setuptools command that you can call as part of your installation or the
 ``pynq.utils.build_py`` command which can be used in-place of the regular
 ``build_py`` command to perform the downloading automatically.
 
 By default the ``download_overlays`` command will only download xclbin files
-for the boards installed installed in the machine. This can be overridden with
+for the boards installed in the machine. This can be overridden with
 the ``--download-all`` option.
 
 Example Setup Script
@@ -109,7 +109,7 @@ look like
    recursive-include new_overlay *.bit *.hwh *.tcl
 
 If you want to have users be able to install your package without first
-installing PYNQ you will also need to create a *pyproject.toml* file as
+installing PYNQ, you will also need to create a *pyproject.toml* file as
 specified in `PEP 518`_. This is used to specify that PYNQ needs to be
 installed prior to the setup script running so that ``pynq.utils.build_py`` is
 available for importing. The ``setuptools`` and ``wheel`` are required by
@@ -123,7 +123,7 @@ the build system so we'll add those to the list as well.
 Rebuilding PYNQ
 ---------------
 
-Starting from image v2.5, the official PYNQ Github repository will not 
+Starting from image v2.5, the official PYNQ GitHub repository will not 
 version-control the following files anymore:
 
 * overlay files (e.g., `base.bit`, `base.hwh`), 
@@ -140,14 +140,14 @@ are shown below:
   building the image for the first time. Subsequent builds are much faster. 
 
 * Users will no longer be able to pip install directly from the official 
-  PYNQ Github repository.
+  PYNQ GitHub repository.
 
 To get those files manually, users can simply run the `build.sh` located 
 at the root of the PYNQ repository (make sure you have the correct version of
 Xilinx tools beforehand).
 
 Once you have all the files, including the files mentioned above, you can
-package the entire Github repository into a source distribution package.
+package the entire GitHub repository into a source distribution package.
 To do that, run
 
 .. code-block :: console
