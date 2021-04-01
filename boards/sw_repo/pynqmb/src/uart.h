@@ -56,6 +56,7 @@ extern "C" {
 #include <xparameters.h>
 
 #ifdef XPAR_XUARTLITE_NUM_INSTANCES
+#define PYNQ_HAS_UART
 
 /* 
  * UART API
