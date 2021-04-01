@@ -335,7 +335,7 @@ class DeviceClient:
         if type(parser) is HWH:
             for k in merged_ip_dict.copy():
                 if k.startswith(hier) and 's_axi_control' not in k:
-                        merged_ip_dict.pop(k)
+                    merged_ip_dict.pop(k)
 
             for k, v in parser.ip_dict.items():
                 parent = k.split('/')[0] + '/' + v['mem_id']
