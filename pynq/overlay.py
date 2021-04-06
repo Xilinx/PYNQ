@@ -447,7 +447,6 @@ class Overlay(Bitstream):
             The path of the dtbo file.
 
         """
-        self.device.reset(self.parser)
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
         pr_parser = pr_block.parsers[pr_block.pr_loaded]
