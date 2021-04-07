@@ -570,6 +570,7 @@ class ParsedEnum:
     """
     def __init__(self):
         self.name = None
+        self.file = None
         self.items = {}
 
 
@@ -616,6 +617,7 @@ class FuncDefVisitor(pycparser.c_ast.NodeVisitor):
         enum = ParsedEnum()
         if node.name:
             enum.name = node.name
+        enum.file = node.coord.file
         cur_index = 0
         for entry in node.values.enumerators:
             if entry.value:
@@ -802,6 +804,7 @@ def _create_typedef_classes(typedefs, typedef_coords):
             def __repr__(self):
                 return "typedef {0} containing {1}".format(type(self).__name__,
                                                            repr(self._val))
+            _file = typedef_coords[k].file
 
         Wrapper.__name__ = k
         if k in typedef_coords:
@@ -975,15 +978,21 @@ class MicroblazeRPC:
         self._rpc_stream = InterruptMBStream(
             self._mb, read_offset=0xFC00, write_offset=0xF800)
         self._build_functions(visitor.functions, typedef_classes)
-        self._build_constants(visitor.enums)
+        self._build_constants(visitor.enums, typedef_classes)
         self._populate_typedefs(typedef_classes, visitor.functions)
         self.visitor = visitor
         self.active_functions = 0
 
-    def _build_constants(self, enums):
+    def _build_constants(self, enums, classes):
+        byfile = collections.defaultdict(list)
         for enum in enums:
             for name, value in enum.items.items():
                 setattr(self, name, value)
+                byfile[enum.file].append((name, value))
+        for c in classes.values():
+            if c._file in byfile:
+                for k, v in byfile[c._file]:
+                    setattr(c, k, v)
 
     def _build_functions(self, functions, typedef_classes):
         index = 0
