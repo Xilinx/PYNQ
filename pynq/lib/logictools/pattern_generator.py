@@ -218,7 +218,7 @@ class PatternGenerator:
     def setup(self, waveform_dict,
               stimulus_group_name=None, analysis_group_name=None,
               mode='single',
-              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ):
+              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ, initial_value=0xFFFF):
         """Configure the pattern generator with a single bit pattern.
 
         Generates a bit pattern for a single shot operation at specified IO 
@@ -248,7 +248,10 @@ class PatternGenerator:
             Mode of the pattern generator, can be `single` or `multiple`.
         frequency_mhz: float
             The frequency of the captured samples, in MHz.
-
+        initial_value : int
+            The initial value of the outputs after setup().
+            Each bit corresponds to an output pin. The LSB is the lowest 
+            numbered pin on the pattern generator output
         """
         if not MIN_CLOCK_FREQUENCY_MHZ <= frequency_mhz <= \
                 MAX_CLOCK_FREQUENCY_MHZ:
@@ -294,7 +297,38 @@ class PatternGenerator:
             self.logictools_controller.pin_map[i] = 'OUTPUT'
         for i in self.analysis_pins:
             self.logictools_controller.pin_map[i] = 'INPUT'
+            
+        # Write the initial value to the output pins
+        if(initial_value != 0xFFFF):
+            # Create buffers to get physical addresses to send to controller
+            src_addr = self.logictools_controller.allocate_buffer(
+            'src_buf', 1 + 2, data_type="unsigned int")
+            tri_addr = self.logictools_controller.allocate_buffer(
+            'tri_buf', 1 + 2, data_type="unsigned int")
 
+            for i in range (2):
+                self.logictools_controller.buffers[
+                    'src_buf'][i + 1] = initial_value
+                self.logictools_controller.buffers[
+                    'tri_buf'][i + 1] = 0
+
+            # Config the Pattern Generator
+            self.logictools_controller.write_control(
+                [src_addr, 1+1, 0, tri_addr])
+            self.logictools_controller.write_command(CMD_CONFIG_PATTERN)
+            
+            self.connect()
+            self.logictools_controller.steps = 0
+            
+            # Run, then stop the Pattern Generator
+            cmd_run = CMD_RUN | PATTERN_ENGINE_BIT
+            self.logictools_controller.write_command(cmd_run)
+            cmd_stop = CMD_STOP | PATTERN_ENGINE_BIT
+            self.logictools_controller.write_command(cmd_stop)
+                    
+            self.logictools_controller.free_buffer('src_buf')
+            self.logictools_controller.free_buffer('tri_buf')
+            
         # Prepare stimulus samples
         direction_mask = 0xFFFFF
         num_valid_samples = self._max_wave_length
@@ -505,6 +539,47 @@ class PatternGenerator:
         self.logictools_controller.check_status()
         self.clear_wave()
         self.logictools_controller.steps = 0
+        
+    def update_pattern(self, pattern):
+        """ This feature is EXPERIMENTAL and API should be considered UNSTABLE
+        
+        Updates the pattern from a numeric array. Patten can be updated and 
+        run() multiple times without calling reset(). 
+        This is faster than using a wavedrom JSON.         
+        The Pattern Generator must be setup (READY state). Waveform(s) are not 
+        updated and waveforms be cleared. 
+        
+        pattern: Array of 32-bit ints. Each int is a output sample where each
+            bit represents an output pin. 
+            LSB->MSB corrseponds to pins 0->31 of the pattern generator output. 
+            Pins are enabled during setup.
+            Bit values for pins that are not enabled are ignored (Don't Care)
+        """
+        if self.logictools_controller.status[
+                self.__class__.__name__] == 'RESET':
+            raise ValueError(
+                "Generator must be at least READY before updating the pattern.")
+        num_samples = len(pattern)
+        src_addr = self.logictools_controller.allocate_buffer(
+            'src_buf', 1 + num_samples, data_type="unsigned int")
+        for i in range(len(pattern)):
+            self.logictools_controller.buffers[
+                        'src_buf'][i + 1] = pattern[i]
+            
+        tri_addr = self.logictools_controller.allocate_buffer(
+            'tri_buf', 1 + num_samples, data_type="unsigned int")
+        for i in range(len(pattern)):
+            self.logictools_controller.buffers[
+                        'tri_buf'][i + 1] = 0
+
+        self.logictools_controller.write_control(
+            [src_addr, 1 + num_samples, 0, tri_addr])
+        self.logictools_controller.write_command(CMD_CONFIG_PATTERN)
+        self.logictools_controller.check_status()
+        self.logictools_controller.steps = 0
+        
+        self.waveform_dict.clear()
+        self.clear_wave()
 
     def clear_wave(self):
         """Clear the waveform object so new patterns can be accepted.
