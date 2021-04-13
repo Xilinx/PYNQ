@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -324,27 +324,36 @@ class DeviceClient:
 
         """
         self.client_request()
-        self._update_pr_ip(parser)
+        self._update_pr_ip(parser, hier)
         self._update_pr_gpio(parser)
         self._update_pr_intr_pins(parser)
         self._update_pr_hier(hier)
         self.server_update()
 
-    def _update_pr_ip(self, parser):
+    def _update_pr_ip(self, parser, hier):
         merged_ip_dict = deepcopy(self._ip_dict)
         if type(parser) is HWH:
+            for k in merged_ip_dict.copy():
+                if k.startswith(hier) and 's_axi_control' not in k:
+                        merged_ip_dict.pop(k)
+
             for k, v in parser.ip_dict.items():
-                if k in self._ip_dict:
-                    merged_ip_dict.pop(k)
+                parent = k.split('/')[0] + '/' + v['mem_id']
+                if parent in self._ip_dict:
                     ip_name = v['fullpath']
-                    merged_ip_dict[ip_name] = self._ip_dict[k]
+                    merged_ip_dict[ip_name] = dict()
                     merged_ip_dict[ip_name]['fullpath'] = v['fullpath']
                     merged_ip_dict[ip_name]['parameters'] = v['parameters']
                     merged_ip_dict[ip_name]['phys_addr'] = \
-                        self._ip_dict[k]['phys_addr'] + v['phys_addr']
+                        self._ip_dict[parent]['phys_addr'] + v['phys_addr']
+                    merged_ip_dict[ip_name]['addr_range'] = v['addr_range']
                     merged_ip_dict[ip_name]['registers'] = v['registers']
                     merged_ip_dict[ip_name]['state'] = None
                     merged_ip_dict[ip_name]['type'] = v['type']
+                    merged_ip_dict[ip_name]['gpio'] = {}
+                    merged_ip_dict[ip_name]['interrupts'] = {}
+                    merged_ip_dict[ip_name]['mem_id'] = v['mem_id']
+
         else:
             raise ValueError("Cannot find HWH PR region parser.")
         self._ip_dict = merged_ip_dict
