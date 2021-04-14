@@ -48,6 +48,6 @@ psutil==5.7.0
 pybind11==2.5.0
 EOT
 
-python3.6 -m pip install -U pip
-python3.6 -m pip install -r requirements.txt
+python3 -m pip install -U pip
+python3 -m pip install -r requirements.txt
 rm requirements.txt
