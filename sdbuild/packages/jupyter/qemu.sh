@@ -36,9 +36,9 @@ jupyter nbextension enable rise --py --sys-prefix
 # Enable jupyterlab
 jupyter serverextension enable jupyterlab
 
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.1 --no-build
-jupyter labextension install plotlywidget@1.5.2 --no-build
-jupyter labextension install jupyterlab-plotly@1.5.2 --no-build
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@3.0.0 --no-build
+jupyter labextension install plotlywidget@4.14.3 --no-build
+jupyter labextension install jupyterlab-plotly@4.14.3 --no-build
 
 jupyter lab build --minimize=False
 rm -rf /usr/local/share/jupyter/lab/staging
