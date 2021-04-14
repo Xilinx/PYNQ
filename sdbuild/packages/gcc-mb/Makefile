@@ -22,8 +22,8 @@ ${GCC_MB_WORKDIR}/samples: | ${GCC_MB_SOURCEDIR}/samples ${GCC_MB_WORKDIR}
 ${GCC_MB_WORKDIR}/patches: | ${GCC_MB_SOURCEDIR}/patches ${GCC_MB_WORKDIR}
 	cp -r ${GCC_MB_SOURCEDIR}/patches $@
 
-${NATIVE_BUILD_arm}: | ${GCC_MB_WORKDIR}/samples
-	cd ${GCC_MB_WORKDIR} && ct-ng arm-unknown-linux-gnueabihf && ct-ng build
+${NATIVE_BUILD_arm}: | ${GCC_MB_WORKDIR}/samples ${GCC_MB_WORKDIR}/patches
+	cd ${GCC_MB_WORKDIR} && ct-ng arm-unknown-linux-gnueabihf && sed -i -e 's:2.2.6:2.3.0:' .config && ct-ng build
 
 ${GCC_MB_WORKDIR}/arm/microblazeel-xilinx-elf/bin/mb-gcc: | ${NATIVE_BUILD_arm}
 
