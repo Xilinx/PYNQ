@@ -107,7 +107,17 @@ def preprocess(source, bsp=None, mb_info=None):
 
     source = "typedef int __builtin_va_list;\n" + source
     result = run(args, stdout=PIPE, stderr=PIPE, input=source.encode())
+    if result.returncode:
+        raise RuntimeError("Preprocessor failed: \n" + result.stderr.decode())
     return result.stdout.decode()
+
+
+def checkmodule(name, mb_info):
+    try:
+        preprocess(f'#include <{name}.h>', mb_info=mb_info)
+    except RuntimeError as exc:
+        return False
+    return True
 
 
 class MicroblazeProgram(PynqMicroblaze):

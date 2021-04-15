@@ -272,19 +272,24 @@ def _xclbin_to_dicts(filename):
     ip_layout = xclbin.ip_layout.from_buffer(
         sections[xclbin.AXLF_SECTION_KIND.IP_LAYOUT])
     ip_data = _get_object_as_array(ip_layout.m_ip_data[0], ip_layout.m_count)
-    connectivity = xclbin.connectivity.from_buffer(
-        sections[xclbin.AXLF_SECTION_KIND.CONNECTIVITY])
-    connections = _get_object_as_array(connectivity.m_connection[0],
-                                       connectivity.m_count)
 
-    mem_topology = xclbin.mem_topology.from_buffer(
-        sections[xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY])
-    mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
-                                    mem_topology.m_count)
-    memories = {i: ctypes.string_at(m.m_tag) for i, m in enumerate(mem_data)}
-    mem_dict = {memories[i].decode(): _mem_data_to_dict(i, mem)
-                for i, mem in enumerate(mem_data)}
-    _add_argument_memory(ip_dict, ip_data, connections, memories)
+    if xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
+        connectivity = xclbin.connectivity.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.CONNECTIVITY])
+        connections = _get_object_as_array(connectivity.m_connection[0],
+                                           connectivity.m_count)
+
+        mem_topology = xclbin.mem_topology.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY])
+        mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
+                                        mem_topology.m_count)
+        memories = {i: ctypes.string_at(m.m_tag) \
+                    for i, m in enumerate(mem_data)}
+        mem_dict = {memories[i].decode(): _mem_data_to_dict(i, mem)
+                    for i, mem in enumerate(mem_data)}
+        _add_argument_memory(ip_dict, ip_data, connections, memories)
+    else:
+        mem_dict = {}
     
     if xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY in sections:
         clock_topology = xclbin.clock_freq_topology.from_buffer(

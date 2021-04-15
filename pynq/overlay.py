@@ -1,4 +1,4 @@
-#   Copyright (c) 2016-2020, Xilinx, Inc.
+#   Copyright (c) 2016-2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -447,7 +447,6 @@ class Overlay(Bitstream):
             The path of the dtbo file.
 
         """
-        self.device.reset(self.parser)
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
         pr_parser = pr_block.parsers[pr_block.pr_loaded]
@@ -695,6 +694,7 @@ class DefaultIP(metaclass=RegisterIP):
             setattr(self, gpio, GPIO(gpio_number, 'out'))
         if 'registers' in description:
             self._registers = description['registers']
+            self._fullpath = description['fullpath']
             self._register_name = description['fullpath'].rpartition('/')[2]
             if ('CTRL' in self._registers and
                     self.device.has_capability('CALLABLE')):
@@ -1059,7 +1059,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         fullpath = self.description['fullpath']
         ip_dict = dict()
         for k, v in self.parsers[bitfile_name].ip_dict.items():
-            ip_dict_id = fullpath + '/' + v['mem_id']
+            ip_dict_id = fullpath + '/' + v['fullpath']
             ip_dict[ip_dict_id] = v
             ip_dict[ip_dict_id]['fullpath'] = fullpath + '/' + v['fullpath']
         self.parsers[bitfile_name].ip_dict = ip_dict
