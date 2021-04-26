@@ -57,6 +57,6 @@ psutil==5.7.0
 pybind11==2.5.0
 EOT
 
-python3 -m pip install -U pip
+python -m pip install pip==21.0.1
 python3 -m pip install -r requirements.txt
 rm requirements.txt
