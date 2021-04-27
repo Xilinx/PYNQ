@@ -13,6 +13,11 @@ else
 	export NODE_OPTIONS=--max-old-space-size=4096
 fi
 
+# install nodejs 12
+curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+echo deb https://deb.nodesource.com/node_12.x hirsute main > /etc/apt/sources.list.d/nodesource.list
+apt-get update && apt-get install -y nodejs
+
 jupyter notebook --generate-config --allow-root
 
 cat - >> /root/.jupyter/jupyter_notebook_config.py <<EOT
