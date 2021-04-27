@@ -4,7 +4,7 @@ set -x
 set -e
 
 export HOME=/root
-export PYNQ_PYTHON=python3.6
+export PYNQ_PYTHON=python3
 export PYNQ_JUPYTER_NOTEBOOKS=/home/xilinx/jupyter_notebooks
 
 if [ ${ARCH} == 'arm' ]; then

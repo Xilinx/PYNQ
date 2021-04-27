@@ -10,7 +10,7 @@ mkdir -p build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_PREFIX_PATH=/usr/local/include/python3.6 \
+	-DCMAKE_PREFIX_PATH=/usr/local/include/python3 \
 	..
 make -j
 make install
