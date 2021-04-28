@@ -181,8 +181,8 @@ extern "C" void config_audio_codec(int iic_index) {
     write_audio_reg(R10_RECORD_MICROPHONE_BIAS_CONTROL, 0x01, iic_fd);
     // Enable ALC control and noise gate
     write_audio_reg(R14_ALC_CONTROL_3, 0x20, iic_fd);
-    // Put CODEC in Master mode
-    write_audio_reg(R15_SERIAL_PORT_CONTROL_0, 0x01, iic_fd);
+    // Put CODEC in Slave mode
+    write_audio_reg(R15_SERIAL_PORT_CONTROL_0, 0x00, iic_fd);
     // Enable ADC on both channels, normal polarity and ADC high-pass filter
     write_audio_reg(R19_ADC_CONTROL, 0x33, iic_fd);
     // Mute play back Mixer3 and Mixer4 and enable when output is required
