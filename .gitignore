@@ -14,9 +14,10 @@
 Thumbs.db
 thumbs.db
 
-# Logs and Databases
+# Logs, Databases and Journals
 ######################
 *.log
+*.jou
 
 # VIM Swap Files
 ######################

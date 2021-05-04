@@ -3,7 +3,7 @@ set_top pixel_unpack
 add_files pixel_unpack/pixel_unpack.cpp
 add_files -tb pixel_unpack/pixel_unpack_test.cpp
 open_solution "solution1"
-set_part {xc7z020clg400-1} -tool vivado
+set_part {xc7z020clg400-1}
 create_clock -period 7 -name default
 create_clock -period 10 -name control
 csynth_design
