@@ -18,6 +18,7 @@ thumbs.db
 ######################
 *.log
 *.jou
+*.vitis_hls_log*.xml
 
 # VIM Swap Files
 ######################

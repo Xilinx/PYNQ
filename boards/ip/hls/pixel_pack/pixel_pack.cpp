@@ -1,42 +1,21 @@
-#include <ap_fixed.h>
-#include <ap_int.h>
+// Copyright (C) 2021 Xilinx, Inc
+//
+// SPDX-License-Identifier: BSD-3-Clause
 
+#include "pixel_pack.hpp"
 
-typedef ap_uint<8> pixel_type;
-typedef ap_int<8> pixel_type_s;
-
-struct narrow_stream {
-
-	ap_uint<24> data;
-
-	ap_uint<1> user;
-	ap_uint<1> last;
-};
-
-struct wide_stream {
-	ap_uint<32> data;
-	ap_uint<1> user;
-	ap_uint<1> last;
-};
-
-#define V_24 0
-#define V_32 1
-#define V_8 2
-#define V_16 3
-#define V_16C 4
-
-void pixel_pack(narrow_stream* stream_in_24, wide_stream* stream_out_32, 
-                int mode, ap_uint<8> alpha) {
+void pixel_pack(narrow_stream& stream_in_24, wide_stream& stream_out_32, 
+				int mode, ap_uint<8> alpha) {
 #pragma HLS INTERFACE ap_ctrl_none port=return
-//#pragma HLS INTERFACE s_axilite port=return
-#pragma HLS CLOCK domain=default
-#pragma HLS INTERFACE s_axilite register port=mode clock=control
-#pragma HLS INTERFACE s_axilite register port=alpha clock=control
-#pragma HLS INTERFACE axis depth=24 port=stream_in_24
-#pragma HLS INTERFACE axis depth=24 port=stream_out_32
+#pragma HLS INTERFACE s_axilite register port=mode
+#pragma HLS INTERFACE s_axilite register port=alpha
+#pragma HLS INTERFACE axis depth=24 port=stream_in_24 register
+#pragma HLS INTERFACE axis depth=24 port=stream_out_32 register
 
 	bool last = false;
 	bool delayed_last = false;
+	narrow_pixel in_pixel;
+	wide_pixel out_pixel;
 	switch (mode) {
 	case V_24:
 		while (!delayed_last) {
@@ -47,19 +26,19 @@ void pixel_pack(narrow_stream* stream_in_24, wide_stream* stream_out_32,
 			ap_uint<4> has_user;
 			for (int j = 0; j < 4; ++j) {
 				if (!last) {
-					buffer.range(j*24 + 23, j*24) = stream_in_24->data;
-					has_user[j] = stream_in_24->user;
-					has_last[j] = stream_in_24->last;
-					last = stream_in_24->last;
-					++stream_in_24;
+					stream_in_24.read(in_pixel);
+					buffer(j*24 + 23, j*24) = in_pixel.data;
+					has_user[j] = in_pixel.user;
+					has_last[j] = in_pixel.last;
+					last = in_pixel.last;
 				}
 			}
 			if (!delayed_last) {
 				for (int i = 0; i < 3; ++i) {
-					stream_out_32->data = buffer.range(i*32 + 31, i*32);
-					stream_out_32->user = has_user[i];
-					stream_out_32->last = has_last[i+1];
-					++stream_out_32;
+					out_pixel.data = buffer(i*32 + 31, i*32);
+					out_pixel.user = has_user[i];
+					out_pixel.last = has_last[i+1];
+					stream_out_32.write(out_pixel);
 				}
 			}
 		}
@@ -68,14 +47,15 @@ void pixel_pack(narrow_stream* stream_in_24, wide_stream* stream_out_32,
 		while (!last) {
 #pragma HLS pipeline II=1
 			ap_uint<32> data;
-			data.range(23, 0) = stream_in_24->data;
-			data.range(31, 24) = alpha;
-			stream_out_32->data = data;
-			stream_out_32->last = stream_in_24->last;
-			stream_out_32->user = stream_in_24->user;
-			last = stream_in_24->last;
-			++stream_out_32;
-			++stream_in_24;
+			stream_in_24.read(in_pixel);
+			data(23, 0) = in_pixel.data;
+			data(31, 24) = alpha;
+			out_pixel.data = data;
+			out_pixel.last = in_pixel.last;
+			out_pixel.user = in_pixel.user;
+			last = in_pixel.last;
+			stream_out_32.write(out_pixel);
+
 		}
 		break;
 	case V_8:
@@ -86,17 +66,17 @@ void pixel_pack(narrow_stream* stream_in_24, wide_stream* stream_out_32,
 			ap_uint<32> data;
 			for (int i = 0; i < 4; ++i) {
 				if (!last) {
-					user |= stream_in_24->user;
-					last = stream_in_24->last;
-					data.range(i*8 + 7, i * 8) = stream_in_24->data.range(7,0);
-					++stream_in_24;
+					stream_in_24.read(in_pixel);
+					user |= in_pixel.user;
+					last = in_pixel.last;
+					data(i*8 + 7, i * 8) = in_pixel.data(7,0);
 				}
 			}
 			if (!delayed_last) {
-				stream_out_32->user = user;
-				stream_out_32->last = last;
-				stream_out_32->data = data;
-				++stream_out_32;
+				out_pixel.user = user;
+				out_pixel.last = last;
+				out_pixel.data = data;
+				stream_out_32.write(out_pixel);
 			}
 		}
 		break;
@@ -106,15 +86,15 @@ void pixel_pack(narrow_stream* stream_in_24, wide_stream* stream_out_32,
 			bool user = false;
 			ap_uint<32> data;
 			for (int i = 0; i < 2; ++i) {
-				user |= stream_in_24->user;
-				last = stream_in_24->last;
-				data.range(i*16 + 15, i*16) = stream_in_24->data.range(16,0);
-				++stream_in_24;
+				stream_in_24.read(in_pixel);
+				user |= in_pixel.user;
+				last = in_pixel.last;
+				data(i*16 + 15, i*16) = in_pixel.data(16,0);
 			}
-			stream_out_32->user = user;
-			stream_out_32->last = last;
-			stream_out_32->data = data;
-			++stream_out_32;
+			out_pixel.user = user;
+			out_pixel.last = last;
+			out_pixel.data = data;
+			stream_out_32.write(out_pixel);
 		}
 		break;
 	case V_16C:
@@ -123,24 +103,24 @@ void pixel_pack(narrow_stream* stream_in_24, wide_stream* stream_out_32,
 			bool user = false;
 			ap_uint<48> data;
 			for (int i = 0; i < 2; ++i) {
-				user |= stream_in_24->user;
-				last = stream_in_24->last;
-				data.range(i*24 + 23, i*24) = stream_in_24->data;
-				++stream_in_24;
+				stream_in_24.read(in_pixel);
+				user |= in_pixel.user;
+				last = in_pixel.last;
+				data(i*24 + 23, i*24) = in_pixel.data;
 			}
 			ap_uint<32> out_data;
 			ap_uint<9> out_c1 = \
-                ap_uint<9>(data.range(15,8)) + ap_uint<9>(data.range(39,32));
+				ap_uint<9>(data(15,8)) + ap_uint<9>(data(39,32));
 			ap_uint<9> out_c2 = \
-                ap_uint<9>(data.range(23,16)) + ap_uint<9>(data.range(47,40));
-			out_data.range(7,0) = data.range(7,0);
-			out_data.range(15,8) = out_c1.range(8,1);
-			out_data.range(23,16) = data.range(31,24);
-			out_data.range(31,24) = out_c2.range(8,1);
-			stream_out_32->user = user;
-			stream_out_32->last = last;
-			stream_out_32->data = out_data;
-			++stream_out_32;
+				ap_uint<9>(data(23,16)) + ap_uint<9>(data(47,40));
+			out_data(7,0) = data(7,0);
+			out_data(15,8) = out_c1(8,1);
+			out_data(23,16) = data(31,24);
+			out_data(31,24) = out_c2(8,1);
+			out_pixel.user = user;
+			out_pixel.last = last;
+			out_pixel.data = out_data;
+			stream_out_32.write(out_pixel);
 		}
 		break;
 	}
