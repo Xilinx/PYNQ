@@ -254,7 +254,7 @@ class ErtWaitHandle:
 
 
 class XrtStream:
-    """XRT Streming Connection
+    """XRT Streaming Connection
 
     Encapsulates the IP connected to a stream. Note that the ``_ip``
     attributes will only be populated if the corresponding device

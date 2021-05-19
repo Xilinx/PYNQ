@@ -861,7 +861,7 @@ class DefaultIP(metaclass=RegisterIP):
 
 
 class _IPMap:
-    """Class that stores drivers to IP, hierarches, interrupts and
+    """Class that stores drivers to IP, hierarchies, interrupts and
     gpio as attributes.
 
     """

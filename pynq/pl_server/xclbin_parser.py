@@ -199,7 +199,7 @@ def _get_object_as_array(obj, number):
 
 def _mem_data_to_dict(idx, mem):
     if mem.m_type == 9:
-        # Streaming Endpoing
+        # Streaming Endpoint
         return {
             "raw_type": mem.m_type,
             "used": mem.m_used,
