@@ -45,6 +45,7 @@ int SC18IS602ClearInt(int XIicDevFile);
 void LMX2594ClockConfig(int XIicBus, int XFrequency);
 void Lmx2594Updatei2c(int XIicDevFile, unsigned int r[113]);
 void LMK04208ClockConfig(int XIicBus, unsigned int LMK04208_CKin[1][26]);
+int SC18IS602ClearInt(int XIicDevFile);
 #define LMX_FUNCTION_ID 	0xd
 #define LMK_FUNCTION_ID 	0x2
 #define I2C_SPI_ADDR 	    0x2F
