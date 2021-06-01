@@ -56,6 +56,7 @@ extern "C" {
 #include <xparameters.h>
 
 #ifdef XPAR_XGPIO_NUM_INSTANCES
+#define PYNQ_HAS_GPIO
 
 enum {
 GPIO_OUT = 0,
@@ -64,20 +65,98 @@ GPIO_INDEX_MIN = 0,
 GPIO_INDEX_MAX = 31,
 };
 
+/** Class for interacting with Microblaze GPIO
+ *
+ * Instances should be created using `gpio_open`,
+ * `gpio_open_device` or `gpio_open_grove` from the
+ * `grove_interfaces` module.
+ *
+ */
 typedef int gpio;
 
+/** Open a physical GPIO controller
+ *
+ * Returns a GPIO object representing all of the pins of the designated
+ * controller. To create smaller ranges, this GPIO object can be passed
+ * into `gpio_configure` multiple times to create child instances for
+ * different pin ranges. It is undefined to have multiple GPIO instances
+ * being used to control the same pins.
+ *
+ * Parameters
+ * ----------
+ * device : int
+ *     The index of the controler to open - should be less than `gpio_get_num_devices`
+ *
+ * Returns
+ * -------
+ *     A GPIO object
+ *
+ */
 gpio gpio_open_device(unsigned int device);
+
 #ifdef XPAR_IO_SWITCH_NUM_INSTANCES
 #ifdef XPAR_IO_SWITCH_0_GPIO_BASEADDR
+
+/** Opens a physical pin as a GPIO device
+ *
+ * Parameters
+ * ----------
+ * pin : int
+ *     The index of the pin to open
+ *
+ * Returns
+ * -------
+ *     A GPIO object
+ *
+ */
 gpio gpio_open(unsigned int pin);
 #endif
 #endif
+
+/** Create a new GPIO instance corresponding to a sub-range on an existing controller
+ *
+ */
 gpio gpio_configure(gpio device, unsigned int low, unsigned int high, 
                     unsigned int channel);
+
+/** Set the direction of the pins controlled by the object
+ *
+ * Parameters
+ * ----------
+ * direction : GPIO_IN or GPIO_OUT
+ *    The direction to set the pin
+ *
+ */
 void gpio_set_direction(gpio device, unsigned int direction);
+
+/** Read the value of the pins
+ *
+ * Assumes that pins are already set up as input pins
+ *
+ */
 int gpio_read(gpio device);
+
+/** Write the values of the pins
+ *
+ * Assumes that pins are already set up as output
+ *
+ * Parameters
+ * ----------
+ * data : int
+ *     The value to set the pins to
+ *
+ */
 void gpio_write(gpio device, unsigned int data);
+
+/** Close the GPIO device
+ *
+ * Also tristates the pins
+ */
 void gpio_close(gpio device);
+
+/** Get the number of physical controllers in the IOP
+ *
+ */
 unsigned int gpio_get_num_devices(void);
 
 #endif

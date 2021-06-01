@@ -447,7 +447,6 @@ class Overlay(Bitstream):
             The path of the dtbo file.
 
         """
-        self.device.reset(self.parser)
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
         pr_parser = pr_block.parsers[pr_block.pr_loaded]
@@ -695,12 +694,21 @@ class DefaultIP(metaclass=RegisterIP):
             setattr(self, gpio, GPIO(gpio_number, 'out'))
         if 'registers' in description:
             self._registers = description['registers']
+            self._fullpath = description['fullpath']
             self._register_name = description['fullpath'].rpartition('/')[2]
             if ('CTRL' in self._registers and
                     self.device.has_capability('CALLABLE')):
                 self._signature, struct_string, self._ptr_list, self.args = \
                     _create_call(self._registers)
                 self._call_struct = struct.Struct(struct_string)
+                self._ctrl_reg = True
+                self.start_ert = self._start_ert
+                self.start_sw  = self._start_sw
+                self.call = self._call
+                if self.device.has_capability('ERT'):
+                    self.start = self._start_ert
+                else:
+                    self.start = self._start_sw
         else:
             self._registers = None
         if 'index' in description:
@@ -716,21 +724,15 @@ class DefaultIP(metaclass=RegisterIP):
                 elif v['direction'] == 'input':
                     stream.sink_ip = self
 
-        if self.signature is None:
-            self._start = self.start_none
-        elif self.device.has_capability('ERT'):
-            self._start = self.start_ert
-        else:
-            self._start = self.start_sw
-
     def _setup_packet_prototype(self):
         self._packet = ert.ert_start_kernel_cmd()
         self._packet.m_uert.m_start_cmd_struct.state = \
             ert.ert_cmd_state.ERT_CMD_STATE_NEW
         self._packet.m_uert.m_start_cmd_struct.unused = 0
         self._packet.m_uert.m_start_cmd_struct.extra_cu_masks = 0
-        self._packet.m_uert.m_start_cmd_struct.count = \
-            (self._call_struct.size // 4) + 1
+        if hasattr(self, '_ctrl_reg'):
+            self._packet.m_uert.m_start_cmd_struct.count = \
+                (self._call_struct.size // 4) + 1
         self._packet.m_uert.m_start_cmd_struct.opcode = \
             ert.ert_cmd_opcode.ERT_START_CU
         self._packet.m_uert.m_start_cmd_struct.type = \
@@ -759,10 +761,10 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             return None
 
-    def call(self, *args, **kwargs):
+    def _call(self, *args, **kwargs):
         self.start(*args, **kwargs).wait()
 
-    def start_sw(self, *args, ap_ctrl=1, waitfor=None, **kwargs):
+    def _start_sw(self, *args, ap_ctrl=1, waitfor=None, **kwargs):
         """Start the accelerator
 
         This function will configure the accelerator with the provided
@@ -774,8 +776,8 @@ class DefaultIP(metaclass=RegisterIP):
         For details on the function's signature use the `signature` property.
         The type annotations provide the C types that the accelerator
         operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.Xlnk` class. Scalars should be passed
-        as a compatible python type as used by the `struct` library.
+        objects created from the `pynq.allocate` class. Scalars should be 
+        passed as a compatible python type as used by the `struct` library.
 
         """
         if not self._signature:
@@ -793,30 +795,7 @@ class DefaultIP(metaclass=RegisterIP):
         self.mmio.write(0, ap_ctrl)
         return WaitHandle(self)
 
-    def start_none(self, *args, **kwargs):
-        raise RuntimeError("Start only supported for XCLBIN-based designs")
-
-    def start(self, *args, **kwargs):
-        """Start the accelerator
-
-        This function will configure the accelerator with the provided
-        arguments and start the accelerator. Use the `wait` function to
-        determine when execution has finished. Note that buffers should be
-        flushed prior to starting the accelerator and any result buffers
-        will need to be invalidated afterwards.
-
-        For details on the function's signature use the `signature` property.
-        The type annotations provide the C types that the accelerator
-        operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.Xlnk` class. Scalars should be passed
-        as a compatible python type as used by the `struct` library.
-
-        """
-        # For now direct people to the sw version until the ERT initialization
-        # is fixed
-        return self._start(*args, **kwargs)
-
-    def start_ert(self, *args, waitfor=(), **kwargs):
+    def _start_ert(self, *args, waitfor=(), **kwargs):
         """Start the accelerator using the ERT scheduler
 
         This function will use the embedded scheduler to call the accelerator

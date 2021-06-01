@@ -35,6 +35,10 @@ import pycparser
 import struct
 import functools
 import itertools
+import collections
+import math
+import re
+import os
 from pycparser import c_ast
 from pycparser import c_generator
 from pycparser.plyparser import ParseError
@@ -308,6 +312,66 @@ def _type_to_struct_string(tdecl):
     raise RuntimeError('Unknown type {}'.format(name))
 
 
+class MicroblazeError(Exception):
+    pass
+
+
+class PyIntWrapper(PrimitiveWrapper):
+    def __init__(self, type_):
+        super().__init__('i', type_)
+
+    def return_decode(self, stream):
+        data = stream.read(self._struct.size)
+        val = self._struct.unpack(data)[0]
+        if val < 0:
+            raise MicroblazeError(os.strerror(-val))
+        return val
+
+
+class PyVoidWrapper(PrimitiveWrapper):
+    def __init__(self, type_):
+        super().__init__('i', type_)
+
+    def return_decode(self, stream):
+        data = stream.read(self._struct.size)
+        val = self._struct.unpack(data)[0]
+        if val < 0:
+            raise MicroblazeError(os.strerror(-val))
+        # Swallow the return value
+
+
+class PyBoolWrapper(PrimitiveWrapper):
+    def __init__(self, type_):
+        super().__init__('i', type_)
+
+    def return_decode(self, stream):
+        data = stream.read(self._struct.size)
+        val = self._struct.unpack(data)[0]
+        if val < 0:
+            raise MicroblazeError(os.strerror(-val))
+        return bool(val)
+
+
+class PyFloatWrapper(PrimitiveWrapper):
+    def __init__(self, type_):
+        super().__init__('f', type_)
+
+    def return_decode(self, stream):
+        data = stream.read(self._struct.size)
+        val = self._struct.unpack(data)[0]
+        if math.isnan(val):
+            raise MicroblazeError("An Unknown Error Occurred")
+        return val
+
+
+_interface_overrides = {
+        'py_int': PyIntWrapper,
+        'py_bool': PyBoolWrapper,
+        'py_float': PyFloatWrapper,
+        'py_void': PyVoidWrapper
+}
+
+
 def _type_to_interface(tdecl, typedefs):
     """ Returns a wrapper for a given C AST
 
@@ -334,8 +398,11 @@ def _type_to_interface(tdecl, typedefs):
 
     names = tdecl.type.names
     if len(names) == 1 and names[0] in typedefs:
-        interface = _type_to_interface(typedefs[names[0]], typedefs)
-        interface.typedefname = names[0]
+        if names[0] in _interface_overrides:
+            interface = _interface_overrides[names[0]](tdecl)
+        else:
+            interface = _type_to_interface(typedefs[names[0]], typedefs)
+            interface.typedefname = names[0]
         return interface
 
     struct_string = _type_to_struct_string(tdecl)
@@ -412,9 +479,11 @@ class FuncAdapter:
     def __init__(self, decl, typedefs):
         self.return_interface = _type_to_interface(decl.type, typedefs)
         self.name = decl.type.declname
-        self.docstring = ""
+        self.docstring = _get_docstring(decl.coord)
         self.arg_interfaces = []
+        self.args = []
         self.blocks = False
+        self.coord = decl.coord
         block_contents = []
         post_block_contents = []
         func_args = []
@@ -432,6 +501,10 @@ class FuncAdapter:
                 func_args.append(c_ast.ID('arg' + str(i)))
                 self.arg_interfaces.append(interface)
                 self.blocks = self.blocks | interface.blocks
+                if arg.name:
+                    self.args.append(arg.name)
+                else:
+                    self.args.append(f'arg{len(self.args)}')
 
         function_call = c_ast.FuncCall(c_ast.ID(self.name),
                                        c_ast.ExprList(func_args))
@@ -445,6 +518,7 @@ class FuncAdapter:
             )
             block_contents.append(ret_assign)
             block_contents.append(_generate_write('return_command'))
+            block_contents.extend(post_block_contents)
             block_contents.append(_generate_write('ret'))
             self.blocks = True
         else:
@@ -453,8 +527,8 @@ class FuncAdapter:
                 block_contents.append(_generate_write('return_command'))
             else:
                 block_contents.append(_generate_write('void_command'))
+            block_contents.extend(post_block_contents)
 
-        block_contents.extend(post_block_contents)
         self.call_ast = c_ast.Compound(block_contents)
         self.filename = decl.coord.file
 
@@ -478,7 +552,6 @@ class FuncAdapter:
         returns the value of the function call if applicable
 
         """
-        return_value = self.return_interface.return_decode(stream)
         if len(args) != len(self.arg_interfaces):
             raise RuntimeError(
                 "Wrong number of arguments: expected{0} got {1}".format(
@@ -487,6 +560,7 @@ class FuncAdapter:
         [f.param_decode(a, stream) for f, a in itertools.zip_longest(
              self.arg_interfaces, args
         )]
+        return_value = self.return_interface.return_decode(stream)
         return return_value
 
 
@@ -496,6 +570,7 @@ class ParsedEnum:
     """
     def __init__(self):
         self.name = None
+        self.file = None
         self.items = {}
 
 
@@ -509,9 +584,12 @@ class FuncDefVisitor(pycparser.c_ast.NodeVisitor):
         self.typedefs = {}
         self.enums = []
         self.defined = []
+        self.typedef_coords = {}
+        self.function_coords = {}
 
     def visit_Typedef(self, node):
         self.typedefs[node.name] = node.type
+        self.typedef_coords[node.name] = node.coord
 
     def visit_FuncDef(self, node):
         self.defined.append(node.decl.name)
@@ -529,6 +607,7 @@ class FuncDefVisitor(pycparser.c_ast.NodeVisitor):
             return
         try:
             self.functions[name] = FuncAdapter(node, self.typedefs)
+            self.function_coords[name] = node.coord
         except RuntimeError as e:
             if node.coord.file == '<stdin>':
                 print("Could not create interface for funcion {}: {}".format(
@@ -538,6 +617,7 @@ class FuncDefVisitor(pycparser.c_ast.NodeVisitor):
         enum = ParsedEnum()
         if node.name:
             enum.name = node.name
+        enum.file = node.coord.file
         cur_index = 0
         for entry in node.values.enumerators:
             if entry.value:
@@ -694,7 +774,7 @@ def _function_wrapper(stream, index, adapter, return_type, *args):
         return response
 
 
-def _create_typedef_classes(typedefs):
+def _create_typedef_classes(typedefs, typedef_coords):
     """ Creates an anonymous class for each typedef in the C function
 
     """
@@ -710,22 +790,27 @@ def _create_typedef_classes(typedefs):
 
             """
             def __init__(self, val):
-                self.val = val
+                self._val = val
 
             def __index__(self):
-                return self.val
+                return self._val
 
             def __int__(self):
-                return self.val
+                return self._val
 
             def _call_func(self, function, *args):
-                return function(self.val, *args)
+                return function(self._val, *args)
 
             def __repr__(self):
                 return "typedef {0} containing {1}".format(type(self).__name__,
-                                                           repr(self.val))
+                                                           repr(self._val))
+            _file = typedef_coords[k].file
 
         Wrapper.__name__ = k
+        if k in typedef_coords:
+            doc = _get_docstring(typedef_coords[k])
+            if doc:
+                Wrapper.__doc__ = doc
         classes[k] = Wrapper
     return classes
 
@@ -737,6 +822,41 @@ def _filter_typedefs(typedefs, function_names):
             used_typedefs.add(t)
     return used_typedefs
 
+
+def _get_docstring(coord):
+    try:
+        with open(coord.file) as f:
+            lines = f.readlines()
+    except:
+        return None
+    # We need to subtract 2 as coord is 1-indexed
+    keyline = lines[coord.line - 2].rstrip()
+    comment_lines = collections.deque()
+    if keyline.startswith('// '):
+        i = coord.line - 2
+        while i >= 0 and lines[i].startswith('// '):
+            comment_lines.appendleft(lines[i][3:].rstrip())
+            i -= 1
+    elif keyline.endswith('*/'):
+        i = coord.line - 2
+        # Strip comment close
+        line = re.sub(r'\W*\*+/\W*', '', lines[i])
+        if line:
+            comment_lines.appendleft(line.rstrip())
+        i -= 1
+        # Add Intermediate lines
+        while i >= 0 and not lines[i].startswith('/*'):
+            line = lines[i].rstrip()
+            line = re.sub(r' \* ?', '', line)
+            comment_lines.appendleft(line)
+            i -= 1
+        line = re.sub(r'/\*+\W*', '', lines[i].rstrip())
+        if line:
+            comment_lines.appendleft(line)
+
+    else:
+        return None
+    return "\n".join(comment_lines)
 
 class MicroblazeFunction:
     """Calls a specific function
@@ -760,7 +880,10 @@ class MicroblazeFunction:
             return None, False
         return self.function.receive_response(self.stream, *args), True
 
-    def __call__(self, *args):
+    def __repr__(self):
+        return "<MicroblazeFunction for " + self.function.name + ">"
+
+    def call(self, *args):
         self._call_function(*args)
         if not self.function.blocks:
             return None
@@ -773,6 +896,9 @@ class MicroblazeFunction:
             return self.return_type(return_value)
         else:
             return return_value
+
+    def __call__(self, *args):
+        return self.call(*args)
 
     async def call_async(self, *args):
         self._call_function(*args)
@@ -788,6 +914,30 @@ class MicroblazeFunction:
             return self.return_type(return_value)
         else:
             return return_value
+
+def _create_function_class(function):
+    call_func = f"""def call(self, {', '.join(function.args)}):
+        {repr(function.docstring)}
+        return self.call({', '.join(function.args)})
+    """
+    scope = {}
+    exec(call_func, scope)
+    derived = type("MicroblazeFuncion_"+function.name,
+                   (MicroblazeFunction,),
+                   {'__call__': scope['call'], '__doc__': function.docstring})
+    return derived
+
+
+def _create_instance_function(function):
+    args = function.function.args
+    func_string = f"""def wrapped({', '.join(['self'] + args[1:])}):
+        {repr(function.__doc__)}
+        return self._call_func(function, {', '.join(args[1:])})
+    """
+    scope = {'function': function}
+    exec(func_string, scope)
+    wrapped = scope['wrapped']
+    return wrapped
 
 
 class MicroblazeRPC:
@@ -822,20 +972,27 @@ class MicroblazeRPC:
         main_text = _build_main(program_text, visitor.functions)
         used_typedefs = _filter_typedefs(visitor.typedefs,
                                          visitor.functions.keys())
-        typedef_classes = _create_typedef_classes(visitor.typedefs)
+        typedef_classes = _create_typedef_classes(visitor.typedefs,
+                                                  visitor.typedef_coords)
         self._mb = MicroblazeProgram(iop, main_text)
         self._rpc_stream = InterruptMBStream(
             self._mb, read_offset=0xFC00, write_offset=0xF800)
         self._build_functions(visitor.functions, typedef_classes)
-        self._build_constants(visitor.enums)
+        self._build_constants(visitor.enums, typedef_classes)
         self._populate_typedefs(typedef_classes, visitor.functions)
         self.visitor = visitor
         self.active_functions = 0
 
-    def _build_constants(self, enums):
+    def _build_constants(self, enums, classes):
+        byfile = collections.defaultdict(list)
         for enum in enums:
             for name, value in enum.items.items():
                 setattr(self, name, value)
+                byfile[enum.file].append((name, value))
+        for c in classes.values():
+            if c._file in byfile:
+                for k, v in byfile[c._file]:
+                    setattr(c, k, v)
 
     def _build_functions(self, functions, typedef_classes):
         index = 0
@@ -843,8 +1000,9 @@ class MicroblazeRPC:
             return_type = None
             if v.return_interface.typedefname:
                 return_type = typedef_classes[v.return_interface.typedefname]
+            FunctionType = _create_function_class(v)
             setattr(self, k,
-                    MicroblazeFunction(
+                    FunctionType(
                         self._rpc_stream,
                         index, v, return_type)
                     )
@@ -858,10 +1016,13 @@ class MicroblazeRPC:
                     if (len(func.arg_interfaces) > 0 and
                             func.arg_interfaces[0].typedefname == name):
                         setattr(cls, subname,
-                                functools.partialmethod(
-                                    cls._call_func, getattr(self, fname)))
-                    else:
-                        setattr(cls, subname, getattr(self, fname))
+                                _create_instance_function(getattr(self, fname)))
+            getters = [s for s in dir(cls) if s.startswith('get_')]
+            for g in getters:
+                p = g[4:] # Strip the get_ off the front for the name
+                setattr(cls, p,
+                        property(getattr(cls, "get_" + p),
+                                 getattr(cls, "set_" + p, None)))
 
     def reset(self):
         """Reset and free the microblaze for use by other programs

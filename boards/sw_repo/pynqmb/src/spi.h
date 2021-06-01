@@ -57,6 +57,7 @@ extern "C" {
 #include <xparameters.h>
 
 #ifdef XPAR_XSPI_NUM_INSTANCES
+#define PYNQ_HAS_SPI
 
 /*
  * SPI API
