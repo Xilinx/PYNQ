@@ -101,6 +101,7 @@ timer timer_open(unsigned int pin){
 #endif
 #endif
 
+#define DELAY_TIMER (XPAR_XTMRCTR_NUM_INSTANCES - 1)
 
 void timer_delay(timer dev_id, unsigned int cycles){
     XTmrCtr_SetResetValue(&xtimer[dev_id], 1, cycles);
@@ -113,7 +114,7 @@ __attribute__((constructor))
 static void init_delay_timer() {
     static int initialized = 0;
     if (initialized == 0) {
-        timer_open_device(0);
+        timer_open_device(DELAY_TIMER);
         initialized = 1;
     }
 }
@@ -121,13 +122,13 @@ static void init_delay_timer() {
 void delay_us(unsigned int us){
     unsigned int cycles_per_us = XPAR_MICROBLAZE_CORE_CLOCK_FREQ_HZ / 1000000;
     init_delay_timer();
-    timer_delay(0, cycles_per_us * us);
+    timer_delay(DELAY_TIMER, cycles_per_us * us);
 }
 
 void delay_ms(unsigned int ms){
     unsigned int cycles_per_ms = XPAR_MICROBLAZE_CORE_CLOCK_FREQ_HZ / 1000;
     init_delay_timer();
-    timer_delay(0, cycles_per_ms * ms);
+    timer_delay(DELAY_TIMER, cycles_per_ms * ms);
 }
 
 

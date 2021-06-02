@@ -5,9 +5,9 @@ name: Python
 
 on:
   push:
-    branches: [ image_v2.6.0 ]
+    branches: [ image_v2.6.2 ]
   pull_request:
-    branches: [ image_v2.6.0 ]
+    branches: [ image_v2.6.2 ]
 
 jobs:
   build:
