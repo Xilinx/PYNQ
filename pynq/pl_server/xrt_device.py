@@ -1,4 +1,4 @@
-#   Copyright (c) 2019, Xilinx, Inc.
+#   Copyright (c) 2019-2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ from pynq._3rdparty import xrt
 from pynq._3rdparty import ert
 
 __author__ = "Peter Ogden"
-__copyright__ = "Copyright 2019, Xilinx"
+__copyright__ = "Copyright 2019-2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -318,7 +318,7 @@ class XrtDevice(Device):
         self.handle = xrt.xclOpen(index, None, 0)
         self._info = xrt.xclDeviceInfo2()
         xrt.xclGetDeviceInfo2(self.handle, self._info)
-        self.contexts = []
+        self.contexts = dict()
         self._find_sysfs()
         self.active_bos = []
         self._bo_cache = []
@@ -477,18 +477,18 @@ class XrtDevice(Device):
                      address, cdata, len(data))
 
     def free_bitstream(self):
-        for c in self.contexts:
-            xrt.xclCloseContext(self.handle, c[0], c[1])
-        self.contexts = []
+        for k, v in self.contexts.items():
+            xrt.xclCloseContext(self.handle, v['uuid_ctypes'], v['idx'])
+        self.contexts = dict()
 
     def download(self, bitstream, parser=None):
         # Keep copy of old contexts so we can reacquire them if
         # downloading fails
         old_contexts = copy.deepcopy(self.contexts)
         # Close existing contexts
-        for c in self.contexts:
-            xrt.xclCloseContext(self.handle, c[0], c[1])
-        self.contexts = []
+        for k, v in self.contexts.items():
+            xrt.xclCloseContext(self.handle, v['uuid_ctypes'], v['idx'])
+        self.contexts = dict()
 
         # Download xclbin file
         err = xrt.xclLockDevice(self.handle)
@@ -500,8 +500,9 @@ class XrtDevice(Device):
                 data = f.read()
             err = xrt.xclLoadXclBin(self.handle, data)
             if err:
-                for c in old_contexts:
-                    xrt.xclOpenContext(self.handle, c[0], c[1], True)
+                for k, v in old_contexts:
+                    xrt.xclOpenContext(self.handle, v['uuid_ctypes'],
+                        v['idx'], True)
                 self.contexts = old_contexts
                 raise RuntimeError("Programming Device failed: " +
                                    _format_xrt_error(err))
@@ -510,23 +511,39 @@ class XrtDevice(Device):
 
         super().post_download(bitstream, parser)
 
-        # Setup the execution context for the new xclbin
-        if parser is not None:
-            ip_dict = parser.ip_dict
-            cu_used = 0
-            uuid = None
-            for k, v in ip_dict.items():
-                if 'index' in v:
-                    index = v['adjusted_index']
-                    uuid = bytes.fromhex(v['xclbin_uuid'])
-                    uuid_ctypes = \
-                        XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
-                    err = xrt.xclOpenContext(self.handle, uuid_ctypes, index,
-                                             True)
-                    if err:
-                        raise RuntimeError('Could not open CU context - {}, '
-                                           '{}'.format(err, index))
-                    self.contexts.append((uuid_ctypes, index))
+    def open_contex(self, description, shared=True):
+        """Open XRT context for the compute unit"""
+
+        cu_name = description['cu_name']
+        context = self.contexts.get(cu_name)
+        if context:
+            return context['idx']
+        if _xrt_version >= (2, 6, 0):
+            cu_index = xrt.xclIPName2Index(self.handle, cu_name)
+        else:
+            cu_index = description['cu_index']
+
+        uuid = bytes.fromhex(description['xclbin_uuid'])
+        uuid_ctypes = XrtUUID((ctypes.c_char * 16).from_buffer_copy(uuid))
+        err = xrt.xclOpenContext(self.handle, uuid_ctypes, cu_index, shared)
+
+        if err:
+            raise RuntimeError('Could not open CU context - {}, {}'\
+                .format(err, index))
+        # Setup the execution context for the compute unit
+        self.contexts[cu_name] = {'cu' : cu_name, 'idx': cu_index,
+            'uuid_ctypes': uuid_ctypes, 'shared': shared}
+
+        return cu_index
+
+    def close_contex(self, cu_name):
+        """Close XRT context for the compute unit"""
+
+        context = self.contexts.get(cu_name)
+        if context is None:
+            raise RuntimeError('CU context ({}) is not open.'.format(cu_name))
+        xrt.xclCloseContext(self.handle, context['uuid_ctypes'], context['idx'])
+        self.contexts.pop(cu_name)
 
     def get_bitfile_metadata(self, bitfile_name):
         from .xclbin_parser import XclBin
