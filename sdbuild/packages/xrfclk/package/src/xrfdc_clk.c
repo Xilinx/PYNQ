@@ -26,7 +26,7 @@ this Software without prior written authorization from Xilinx.
 ******************************************************************************/
 /*****************************************************************************
 *
-* @file xrfdc_lmk04208.c
+* @file xrfdc_clk.c
 *
 * This file contains a programming example for using the lmk04208 clock 
 * generator.
@@ -47,7 +47,6 @@ this Software without prior written authorization from Xilinx.
 *****************************************************************************/
 
 /***************************** Include Files ********************************/
-#ifndef __BAREMETAL__
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,21 +68,7 @@ this Software without prior written authorization from Xilinx.
 #define I2C_SMBUS_I2C_BYTE   1
 #define I2C_SMBUS_I2C_BLOCK  6
 
-#else
-#include "xparameters.h"
-#include "sleep.h"
-#include "xuartps.h"
-#include "xiicps.h"
-#include "xil_printf.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-XIicPs Iic; /* Instance of the IIC Device */
-
-#endif
 #include "xrfdc_clk.h"
-
-#define LMK04832_count 125
 
 union i2c_smbus_data {
 	unsigned char byte;
@@ -111,7 +96,6 @@ static inline int IicReadData(int XIicDevFile, unsigned char *value)
 {
 	struct i2c_smbus_ioctl_data args;
 	union i2c_smbus_data data;
-	int i, err;
 	args.read_write = I2C_SMBUS_READ;
 	args.command = 0;
 	args.size = I2C_SMBUS_I2C_BYTE;
@@ -125,21 +109,34 @@ static inline int IicReadData(int XIicDevFile, unsigned char *value)
 	}
 }
 
-static int Lmk04832UpdateFreq(int XIicDevFile,
-		unsigned int LMK04832_CKin[1][125] )
+/* Function to write frequency update to I2C for LMK clocks */
+int LmkUpdateFreq(int XIicDevFile, unsigned int *CKin)
 {
 	int Index;
-	unsigned char tx_array[3];
-	for (Index = 0; Index < LMK04832_count; Index++) {
-		tx_array[2] = (unsigned char) (LMK04832_CKin[0][Index]) & (0xFF);
-		tx_array[1] = (unsigned char) (LMK04832_CKin[0][Index] >> 8) & (0xFF);
-		tx_array[0] = (unsigned char) (LMK04832_CKin[0][Index] >> 16) & (0xFF);
-		if (IicWriteData(XIicDevFile, LMK_FUNCTION_ID, 3, tx_array)){
+	unsigned char tx_array[TX_SIZE];
+	
+	for (Index = 0; Index < REG_COUNT; Index++) {
+#ifdef BOARD_ZCU111
+		tx_array[3] = (unsigned char) (CKin[Index]) & (0xFF);
+		tx_array[2] = (unsigned char) (CKin[Index] >> 8) & (0xFF);
+		tx_array[1] = (unsigned char) (CKin[Index] >> 16) & (0xFF);
+		tx_array[0] = (unsigned char) (CKin[Index] >> 24) & (0xFF);
+		if (IicWriteData(XIicDevFile, LMK_FUNCTION_ID, TX_SIZE, tx_array)){
 			printf("Error: IicWriteData failed. \n");
 			return -1;
 		}
 		usleep(1000);
-		if (IicWriteData(XIicDevFile, NC_FUNCTION_ID, 3, tx_array)){
+#elif BOARD_RFSoC2x2
+		tx_array[2] = (unsigned char) (CKin[Index]) & (0xFF);
+		tx_array[1] = (unsigned char) (CKin[Index] >> 8) & (0xFF);
+		tx_array[0] = (unsigned char) (CKin[Index] >> 16) & (0xFF);
+
+		if (IicWriteData(XIicDevFile, LMK_FUNCTION_ID, TX_SIZE, tx_array)){
+			printf("Error: IicWriteData failed. \n");
+			return -1;
+		}
+		usleep(1000);
+		if (IicWriteData(XIicDevFile, NC_FUNCTION_ID, TX_SIZE, tx_array)){
 			printf("Error: IicWriteData failed. \n");
 			return -1;
 		}
@@ -148,40 +145,63 @@ static int Lmk04832UpdateFreq(int XIicDevFile,
 			printf("Error: IicReadData failed. \n");
 			return -1;
 		}
+#endif
 	}
 	return 0;
 }
 
-/****************************************************************************/
-/**
-*
-* This function is used to configure LMK04832
-*
-* @param	XIicBus is the Controller Id/Bus number.
-*           - For Baremetal it is the I2C controller Id to which LMK04832
-*             device is connected.
-*           - For Linux it is the Bus Id to which LMK04832 device is connected.
-* @param	LMK04832_CKin is the configuration array to configure the LMK04832.
-*
-* @return
-*		- None
-*
-* @note   	None
-*
-****************************************************************************/
-void LMK04832ClockConfig(int XIicBus, unsigned int LMK04832_CKin[1][125])
+
+/* Function to configure I2C for the LMX2594 clock */
+void Lmx2594Updatei2c(int XIicDevFile,unsigned int *CKin)
 {
-	int XIicDevFile;
-	char XIicDevFilename[20];
-
-	sprintf(XIicDevFilename, "/dev/i2c-%d", XIicBus);
-	XIicDevFile = open(XIicDevFilename, O_RDWR);
-
-	if (ioctl(XIicDevFile, I2C_SLAVE_FORCE, I2C_SPI_ADDR) < 0) {
-		printf("Error: Could not set address \n");
-		return ;
+	int Index=0;
+	unsigned char tx_array[LMX_TX_SIZE];
+    
+/* 1. Apply power to device. */
+    
+/* 2. Program RESET = 1 to reset registers. */
+	tx_array[2] = 0x2;
+	tx_array[1] = 0;
+	tx_array[0] = 0;
+	IicWriteData(XIicDevFile, LMX_FUNCTION_ID, LMX_TX_SIZE, tx_array);
+	usleep(1000);
+    
+/* 3. Program RESET = 0 to remove reset. */
+	tx_array[2] = 0;
+	tx_array[1] = 0;
+	tx_array[0] = 0;
+	IicWriteData(XIicDevFile, LMX_FUNCTION_ID, LMX_TX_SIZE, tx_array);
+	usleep(1000);
+    
+/* 4. Program registers as shown in the register map in REVERSE order 
+ *    from highest to lowest. */
+	for (Index = 0; Index < LMX_REG_COUNT; Index++) {
+		tx_array[2] = (unsigned char) (CKin[Index]) & (0xFF);
+		tx_array[1] = (unsigned char) (CKin[Index] >> 8) & (0xFF);
+		tx_array[0] = (unsigned char) (CKin[Index] >> 16) & (0xFF);
+		IicWriteData(XIicDevFile, LMX_FUNCTION_ID, LMX_TX_SIZE, tx_array);
+		usleep(1000);
 	}
+    
+/* 5. Program register R0 one additional time with FCAL_EN = 1 to ensure 
+ *    that the VCO calibration runs from a stable state. */
+	tx_array[2] = (unsigned char) (CKin[112]) & (0xFF);
+	tx_array[1] = (unsigned char) (CKin[112] >> 8) & (0xFF);
+	tx_array[0] = (unsigned char) (CKin[112] >> 16) & (0xFF);
+	IicWriteData(XIicDevFile, LMX_FUNCTION_ID, LMX_TX_SIZE, tx_array);
+}
 
-	Lmk04832UpdateFreq( XIicDevFile, LMK04832_CKin);
-	close(XIicDevFile);
+
+/* Function to Clear SC18IS602 I2C-bus to SPI bridge */
+int SC18IS602ClearInt(int XIicDevFile)
+{   
+    struct i2c_smbus_ioctl_data args;
+    union i2c_smbus_data data;
+    data.block[0] = 0;
+    args.read_write = I2C_SMBUS_WRITE;
+    args.command = 0xF1;
+    args.size = 2;
+    args.data = &data;
+    ioctl(XIicDevFile,I2C_SMBUS,&args);
+    return 0;
 }
