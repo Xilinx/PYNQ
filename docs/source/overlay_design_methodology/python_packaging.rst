@@ -109,7 +109,7 @@ look like
 .. code-block :: python
 
    recursive-include new_overlay/notebooks *
-   recursive-include new_overlay *.bit *.hwh *.tcl
+   recursive-include new_overlay *.bit *.hwh
 
 If you want to have users be able to install your package without first
 installing PYNQ you will also need to create a *pyproject.toml* file as
