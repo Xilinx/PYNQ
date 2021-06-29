@@ -30,10 +30,8 @@ this Software without prior written authorization from Xilinx.
 #ifdef BOARD_RFSoC2x2
 #define LMX_FUNCTION_ID 	0x3
 #define LMK_FUNCTION_ID 	0x8
-#define NC_FUNCTION_ID		0x4
 #define I2C_SPI_ADDR 	    0x2A
 #define I2C_MUX_ADDR	    0x71
-#define LMK04832_count 125
 #define REG_COUNT	   125
 #define TX_SIZE		   3
 #endif /* BOARD_RFSoC2x2 */
@@ -43,7 +41,6 @@ this Software without prior written authorization from Xilinx.
 #define LMK_FUNCTION_ID 	0x2
 #define I2C_SPI_ADDR 	    0x2F
 #define I2C_MUX_ADDR	    0x74
-#define LMK04832_count 26
 #define REG_COUNT	   26
 #define TX_SIZE        4
 #endif /* BOARD_ZCU111 */
@@ -51,8 +48,8 @@ this Software without prior written authorization from Xilinx.
 #define LMX_REG_COUNT 113
 #define LMX_TX_SIZE	  3
 
-void Lmx2594Updatei2c(int XIicDevFile, unsigned int *CKin);
-int LmkUpdateFreq(int XIicDevFile, unsigned int *CKin);
+void Lmx2594Updatei2c(int XIicDevFile, unsigned int *RegVals);
+int LmkUpdateFreq(int XIicDevFile, unsigned int *RegVals);
 int SC18IS602ClearInt(int XIicDevFile);
 
 #endif /* _RFDC_CLK_H_ */

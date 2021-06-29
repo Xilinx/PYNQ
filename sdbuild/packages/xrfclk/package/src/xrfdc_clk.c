@@ -64,8 +64,6 @@ this Software without prior written authorization from Xilinx.
 
 #define XIIC_BLOCK_MAX	16	/* Max data length */
 #define I2C_SMBUS_WRITE	0
-#define I2C_SMBUS_READ	1
-#define I2C_SMBUS_I2C_BYTE   1
 #define I2C_SMBUS_I2C_BLOCK  6
 
 #include "xrfdc_clk.h"
@@ -92,67 +90,36 @@ static inline int IicWriteData(int XIicDevFile, unsigned char command,
 	return ioctl(XIicDevFile,I2C_SMBUS,&args);
 }
 
-static inline int IicReadData(int XIicDevFile, unsigned char *value)
-{
-	struct i2c_smbus_ioctl_data args;
-	union i2c_smbus_data data;
-	args.read_write = I2C_SMBUS_READ;
-	args.command = 0;
-	args.size = I2C_SMBUS_I2C_BYTE;
-	args.data = &data;
-	if (ioctl(XIicDevFile,I2C_SMBUS,&args)) {
-		return -1;
-	}
-	else {
-		value[0] = 0xff & data.byte;
-		return 0;
-	}
-}
-
 /* Function to write frequency update to I2C for LMK clocks */
-int LmkUpdateFreq(int XIicDevFile, unsigned int *CKin)
+int LmkUpdateFreq(int XIicDevFile, unsigned int *RegVals)
 {
 	int Index;
 	unsigned char tx_array[TX_SIZE];
 	
 	for (Index = 0; Index < REG_COUNT; Index++) {
 #ifdef BOARD_ZCU111
-		tx_array[3] = (unsigned char) (CKin[Index]) & (0xFF);
-		tx_array[2] = (unsigned char) (CKin[Index] >> 8) & (0xFF);
-		tx_array[1] = (unsigned char) (CKin[Index] >> 16) & (0xFF);
-		tx_array[0] = (unsigned char) (CKin[Index] >> 24) & (0xFF);
-		if (IicWriteData(XIicDevFile, LMK_FUNCTION_ID, TX_SIZE, tx_array)){
-			printf("Error: IicWriteData failed. \n");
-			return -1;
-		}
-		usleep(1000);
+		tx_array[3] = (unsigned char) (RegVals[Index]) & (0xFF);
+		tx_array[2] = (unsigned char) (RegVals[Index] >> 8) & (0xFF);
+		tx_array[1] = (unsigned char) (RegVals[Index] >> 16) & (0xFF);
+		tx_array[0] = (unsigned char) (RegVals[Index] >> 24) & (0xFF);
 #elif BOARD_RFSoC2x2
-		tx_array[2] = (unsigned char) (CKin[Index]) & (0xFF);
-		tx_array[1] = (unsigned char) (CKin[Index] >> 8) & (0xFF);
-		tx_array[0] = (unsigned char) (CKin[Index] >> 16) & (0xFF);
-
+		tx_array[2] = (unsigned char) (RegVals[Index]) & (0xFF);
+		tx_array[1] = (unsigned char) (RegVals[Index] >> 8) & (0xFF);
+		tx_array[0] = (unsigned char) (RegVals[Index] >> 16) & (0xFF);
+#endif
 		if (IicWriteData(XIicDevFile, LMK_FUNCTION_ID, TX_SIZE, tx_array)){
 			printf("Error: IicWriteData failed. \n");
 			return -1;
 		}
 		usleep(1000);
-		if (IicWriteData(XIicDevFile, NC_FUNCTION_ID, TX_SIZE, tx_array)){
-			printf("Error: IicWriteData failed. \n");
-			return -1;
-		}
-		usleep(1000);
-		if (IicReadData(XIicDevFile, tx_array)){
-			printf("Error: IicReadData failed. \n");
-			return -1;
-		}
-#endif
+
 	}
 	return 0;
 }
 
 
 /* Function to configure I2C for the LMX2594 clock */
-void Lmx2594Updatei2c(int XIicDevFile,unsigned int *CKin)
+void Lmx2594Updatei2c(int XIicDevFile,unsigned int *RegVals)
 {
 	int Index=0;
 	unsigned char tx_array[LMX_TX_SIZE];
@@ -176,18 +143,18 @@ void Lmx2594Updatei2c(int XIicDevFile,unsigned int *CKin)
 /* 4. Program registers as shown in the register map in REVERSE order 
  *    from highest to lowest. */
 	for (Index = 0; Index < LMX_REG_COUNT; Index++) {
-		tx_array[2] = (unsigned char) (CKin[Index]) & (0xFF);
-		tx_array[1] = (unsigned char) (CKin[Index] >> 8) & (0xFF);
-		tx_array[0] = (unsigned char) (CKin[Index] >> 16) & (0xFF);
+		tx_array[2] = (unsigned char) (RegVals[Index]) & (0xFF);
+		tx_array[1] = (unsigned char) (RegVals[Index] >> 8) & (0xFF);
+		tx_array[0] = (unsigned char) (RegVals[Index] >> 16) & (0xFF);
 		IicWriteData(XIicDevFile, LMX_FUNCTION_ID, LMX_TX_SIZE, tx_array);
 		usleep(1000);
 	}
     
 /* 5. Program register R0 one additional time with FCAL_EN = 1 to ensure 
  *    that the VCO calibration runs from a stable state. */
-	tx_array[2] = (unsigned char) (CKin[112]) & (0xFF);
-	tx_array[1] = (unsigned char) (CKin[112] >> 8) & (0xFF);
-	tx_array[0] = (unsigned char) (CKin[112] >> 16) & (0xFF);
+	tx_array[2] = (unsigned char) (RegVals[112]) & (0xFF);
+	tx_array[1] = (unsigned char) (RegVals[112] >> 8) & (0xFF);
+	tx_array[0] = (unsigned char) (RegVals[112] >> 16) & (0xFF);
 	IicWriteData(XIicDevFile, LMX_FUNCTION_ID, LMX_TX_SIZE, tx_array);
 }
 
