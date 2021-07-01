@@ -6,8 +6,9 @@ from pyfakefs.fake_filesystem import FakeDirectory
 
 
 class DtboDirectory(FakeDirectory):
-    def __init__(self, *args, update=True, **kwargs):
+    def __init__(self, *args, update=True, fail=False, **kwargs):
         self._update = update
+        self._fail = fail
         super().__init__(*args, **kwargs)
 
     def add_entry(self, path_object):
@@ -22,12 +23,16 @@ class DtboDirectory(FakeDirectory):
     def _add_dtbo(self, fd):
         if self._update:
             dtbo_dir = os.path.dirname(fd.path)
+            if self._fail:
+                print('Resetting contents')
+                fd._set_initial_contents('')
             with open(os.path.join(dtbo_dir, 'status'), 'w') as f:
                 f.write('applied\n')
 
 
-def _init_dtbo_fs(fs, update=True):
-    dtbo_dir = DtboDirectory('overlays', filesystem=fs, update=update)
+def _init_dtbo_fs(fs, update=True, fail=False):
+    dtbo_dir = DtboDirectory('overlays', filesystem=fs, update=update,
+            fail=fail)
     fs.create_dir('/sys/kernel/config/device-tree')
     fs.add_object('/sys/kernel/config/device-tree/', dtbo_dir)
 
@@ -73,6 +78,14 @@ def test_device_tree_no_apply(fs):
     fs.create_file('/home/xilinx/test.dtbo', contents=DTBO_DATA)
     dtbo = pynq.devicetree.DeviceTreeSegment('/home/xilinx/test.dtbo')
     assert dtbo.is_dtbo_applied() is False
+    with pytest.raises(RuntimeError):
+        dtbo.insert()
+
+
+def test_device_tree_failed_apply(fs):
+    _init_dtbo_fs(fs, True, True)
+    fs.create_file('/home/xilinx/test.dtbo', contents=DTBO_DATA)
+    dtbo = pynq.devicetree.DeviceTreeSegment('/home/xilinx/test.dtbo')
     with pytest.raises(RuntimeError):
         dtbo.insert()
 
