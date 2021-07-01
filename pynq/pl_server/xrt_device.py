@@ -82,6 +82,9 @@ def _get_xrt_version():
     try:
         output = subprocess.run(['xbutil', 'dump'], stdout=subprocess.PIPE,
                                 universal_newlines=True)
+        if output.returncode != 0:
+            warnings.warn(
+                    'xbutil failed to run - unable to determine XRT version')
         details = json.loads(output.stdout)
         return tuple(
             int(s) for s in details['runtime']['build']['version'].split('.'))

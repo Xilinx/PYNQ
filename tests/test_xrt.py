@@ -1,5 +1,6 @@
 import importlib
 import pynq._3rdparty.xrt
+import pytest
 import ctypes
 import os
 
@@ -89,8 +90,9 @@ exit 1
     monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
     monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
     import pynq.pl_server.xrt_device
-    xrt = importlib.reload(pynq._3rdparty.xrt)
-    xrt_device = importlib.reload(pynq.pl_server.xrt_device)
+    with pytest.warns(UserWarning, match='xbutil failed to run'):
+        xrt = importlib.reload(pynq._3rdparty.xrt)
+        xrt_device = importlib.reload(pynq.pl_server.xrt_device)
     assert xrt_device._xrt_version == (0, 0, 0)
 
 
