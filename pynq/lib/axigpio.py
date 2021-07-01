@@ -75,8 +75,7 @@ class AxiGPIO(DefaultIP):
             """
             return (self._parent.read() >> self._start) & self._mask
 
-        @asyncio.coroutine
-        def wait_for_value_async(self, value):
+        async def wait_for_value_async(self, value):
             """Coroutine that waits until the specified value is read
 
             This function relies on interrupts being available for the IP
@@ -84,7 +83,7 @@ class AxiGPIO(DefaultIP):
 
             """
             while self.read() != value:
-                yield from self._parent.wait_for_interrupt_async()
+                await self._parent.wait_for_interrupt_async()
 
         def wait_for_value(self, value):
             """Wait until the specified value is read
@@ -276,8 +275,7 @@ class AxiGPIO(DefaultIP):
                     "or the string 'in', 'out' or 'inout'")
             self.slicetype = direction
 
-        @asyncio.coroutine
-        def wait_for_interrupt_async(self):
+        async def wait_for_interrupt_async(self):
             """Wait for the interrupt on the channel to be signalled
 
             This is intended to be used by slices waiting for a particular
@@ -296,7 +294,7 @@ class AxiGPIO(DefaultIP):
 
             self._waiter_count += 1
 
-            yield from self._parent.ip2intc_irpt.wait()
+            await self._parent.ip2intc_irpt.wait()
             if self._parent.read(0x120) & mask:
                 self._parent.write(0x120, mask)
 

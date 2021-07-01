@@ -66,12 +66,11 @@ class MBInterruptEvent:
         self.interrupt = Interrupt(intr_pin)
         self.gpio = GPIO(GPIO.get_gpio_pin(intr_ack_gpio), "out")
 
-    @asyncio.coroutine
-    def wait(self):
+    async def wait(self):
         """Coroutine to wait until the event is set by an interrupt.
 
         """
-        yield from self.interrupt.wait()
+        await self.interrupt.wait()
 
     def clear(self):
         """Clear the interrupt and reset the event. Resetting the event

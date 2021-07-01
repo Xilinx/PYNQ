@@ -158,8 +158,7 @@ class Arduino_LCD18(object):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(task)
 
-    @asyncio.coroutine
-    def display_async(self, img_path, x_pos=0, y_pos=127,
+    async def display_async(self, img_path, x_pos=0, y_pos=127,
                       orientation=3, background=None, frames=1):
         """Animate the image at the desired location for multiple frames.
 
@@ -249,7 +248,7 @@ class Arduino_LCD18(object):
             while self.microblaze.read(MAILBOX_OFFSET +
                                        MAILBOX_PY2IOP_CMD_OFFSET) != 0:
                 if self.microblaze.interrupt:
-                    yield from self.microblaze.interrupt.wait()
+                    await self.microblaze.interrupt.wait()
         finally:
             if self.microblaze.interrupt:
                 self.microblaze.interrupt.clear()
