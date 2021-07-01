@@ -27,6 +27,15 @@ function checkdeps {
   done 
 }
 
+function checkbinfmt {
+  for f in qemu-arm qemu-aarch64; do
+    if [ ! -e /proc/sys/fs/binfmt_misc/$f ]; then
+      echo "Ensure that binfmt-support and qemu-user-static packages are installed"
+      exit 1
+    fi
+  done
+}
+
 function realpath { echo $(cd $(dirname "$1"); pwd)/$(basename "$1"); }
 
 if [ 4 -ne $# ]; then
@@ -34,6 +43,7 @@ if [ 4 -ne $# ]; then
 fi
 
 checkdeps
+checkbinfmt
 
 boardname=$1
 bsp_file=$2
