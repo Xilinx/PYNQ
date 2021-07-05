@@ -338,7 +338,7 @@ class DeviceClient:
                     merged_ip_dict.pop(k)
 
             for k, v in parser.ip_dict.items():
-                parent = k.split('/')[0] + '/' + v['mem_id']
+                parent = '/'.join(k.split('/')[:-1]) + '/' + v['mem_id']
                 if parent in self._ip_dict:
                     ip_name = v['fullpath']
                     merged_ip_dict[ip_name] = dict()
