@@ -1017,7 +1017,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         """
         return False
 
-    def download(self, bitfile_name, dtbo):
+    def download(self, bitfile_name, dtbo=None):
         """Function to download a partial bitstream for the hierarchy block.
 
         Since it is hard to know which hierarchy is to be reconfigured by only
