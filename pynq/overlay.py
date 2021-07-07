@@ -107,7 +107,7 @@ def _assign_drivers(description, ignore_version, device):
 
 
 def _complete_description(ip_dict, hierarchy_dict, ignore_version,
-                          mem_dict, device):
+                          mem_dict, device, overlay):
     """Returns a complete hierarchical description of an overlay based
     on the three dictionaries parsed from HWH file.
 
@@ -120,6 +120,8 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version,
     starting_dict['memories'] = {re.sub('[^A-Za-z0-9_]', '', k): v
                                  for k, v in mem_dict.items() if v['used']}
     starting_dict['device'] = device
+    for k, v in starting_dict['hierarchies'].items():
+        v['overlay'] = overlay
     _assign_drivers(starting_dict, ignore_version, device)
     return starting_dict
 
@@ -348,7 +350,7 @@ class Overlay(Bitstream):
         self.ignore_version = ignore_version
         description = _complete_description(
             self.ip_dict, self.hierarchy_dict, self.ignore_version,
-            self.mem_dict, self.device)
+            self.mem_dict, self.device, self)
         self._ip_map = _IPMap(description)
 
         if download:
@@ -457,7 +459,7 @@ class Overlay(Bitstream):
                                         'dtbo': pr_dtbo}
         description = _complete_description(
             self.ip_dict, self.hierarchy_dict, self.ignore_version,
-            self.mem_dict, self.device)
+            self.mem_dict, self.device, self)
         self._ip_map = _IPMap(description)
 
     def is_loaded(self):
@@ -1017,7 +1019,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         """
         return False
 
-    def download(self, bitfile_name, dtbo):
+    def download(self, bitfile_name, dtbo=None):
         """Function to download a partial bitstream for the hierarchy block.
 
         Since it is hard to know which hierarchy is to be reconfigured by only
