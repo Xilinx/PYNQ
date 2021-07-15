@@ -32,14 +32,16 @@ cat - > $target/postinst1.sh <<EOT
 /var/lib/dpkg/info/dash.preinst install
 export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
 export LC_ALL=C LANGUAGE=C LANG=C
+rm -f /var/run/reboot-required
 /var/lib/dpkg/info/dash.preinst install
+rm -f /var/run/reboot-required
 dpkg --configure -a
 exit 0
 EOT
 cat - > $target/postinst2.sh <<EOT
-/var/lib/dpkg/info/dash.preinst install
 export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
 export LC_ALL=C LANGUAGE=C LANG=C
+rm -f /var/run/reboot-required
 dpkg --configure -a
 apt-get clean
 
