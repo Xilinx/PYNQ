@@ -131,6 +131,19 @@ class DeviceTreeSegment:
                   'wb', buffering=0) as f:
             f.write(dtbo_data)
 
+        # The only way to detect a DTBO insert failure is to try and
+        # read back the contents of the dtbo attribute and see if
+        # it is non-empty
+
+        with open(os.path.join(self.sysfs_dir, 'dtbo'),
+                'rb', buffering=0) as f:
+            # The entire DTBO file has to be read in a single syscall
+            # otherwise and IO error will occur
+            read_back = f.read(1024*1024)
+            if read_back != dtbo_data:
+                raise RuntimeError('Device tree {} canoot be applied'.format(
+                    self.dtbo_name))
+
         if not self.is_dtbo_applied():
             raise RuntimeError('Device tree {} cannot be applied.'.format(
                 self.dtbo_name))
