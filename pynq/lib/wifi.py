@@ -96,6 +96,7 @@ class Wifi(object):
             String unique identifier of the wireless network
         password : str
             String WPA passphrase necessary to access the network
+            Leave empty for open network
         auto : bool
             Whether to set the interface as auto connected after boot.
 
@@ -105,16 +106,17 @@ class Wifi(object):
 
         """
 
-        # get bash string into string format for key search
-        wifikey_str = sproc.check_output('wpa_passphrase "{}" "{}"'.format(
-                                         ssid, password), shell=True)
-        wifikey_tokens = wifikey_str.decode().split('\n')
+        if password:
+            # get bash string into string format for key search
+            wifikey_str = sproc.check_output('wpa_passphrase "{}" "{}"'.format(
+                                             ssid, password), shell=True)
+            wifikey_tokens = wifikey_str.decode().split('\n')
 
-        # search clean list for tpsk key value
-        wifi_wpa_key = ''
-        for key_val in wifikey_tokens:
-            if '\tpsk=' in key_val:
-                wifi_wpa_key = key_val.split('=')[1]
+            # search clean list for tpsk key value
+            wifi_wpa_key = ''
+            for key_val in wifikey_tokens:
+                if '\tpsk=' in key_val:
+                    wifi_wpa_key = key_val.split('=')[1]
 
         # write the network interface file with new ssid/password entry
         os.system('ip link set {} up'.format(self.wifi_port))
@@ -125,7 +127,10 @@ class Wifi(object):
             net_iface_fh.write("allow-hotplug " + self.wifi_port + "\n")
         net_iface_fh.write("iface " + self.wifi_port + " inet dhcp\n")
         net_iface_fh.write(" wpa-ssid " + ssid + "\n")
-        net_iface_fh.write(" wpa-psk " + wifi_wpa_key + "\n\n")
+        if password:
+            net_iface_fh.write(" wpa-psk " + wifi_wpa_key + "\n\n")
+        else:
+            net_iface_fh.write(" wpa-key-mgmt NONE" + "\n\n")
         net_iface_fh.write(" wpa-scan-ssid 1")
         net_iface_fh.close()
 
@@ -141,6 +146,7 @@ class Wifi(object):
             Unique identifier of the wireless network
         password : str
             String WPA passphrase necessary to access the network
+            Leave empty for open network
         auto : bool
             Whether to set the interface as auto connected after boot.
         force : bool
@@ -179,3 +185,10 @@ class Wifi(object):
         os.system('killall -9 wpa_supplicant')
         os.system('ifdown {}'.format(self.wifi_port))
         os.system('rm -fr /etc/network/interfaces.d/wl*')
+
+# Prompt to setup a connection if run directly
+if __name__ == "__main__":
+    port = Wifi()
+    ssid = input("Type in the SSID:")
+    pwd = input("Type in the password:")
+    port.connect(ssid, pwd)
