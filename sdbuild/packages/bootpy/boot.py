@@ -1,4 +1,4 @@
-#! /usr/bin/env python3.6
+#! /usr/bin/env python3
 
 # example #1 - WiFi connection at boot
 #from pynq.lib import Wifi

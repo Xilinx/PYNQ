@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3
 
 from pynq.overlays.base import BaseOverlay
 from pynq import PL

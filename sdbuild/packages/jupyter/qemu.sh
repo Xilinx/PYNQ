@@ -4,7 +4,7 @@ set -x
 set -e
 
 export HOME=/root
-export PYNQ_PYTHON=python3.6
+export PYNQ_PYTHON=python3
 export PYNQ_JUPYTER_NOTEBOOKS=/home/xilinx/jupyter_notebooks
 
 if [ ${ARCH} == 'arm' ]; then
@@ -12,6 +12,11 @@ if [ ${ARCH} == 'arm' ]; then
 else
 	export NODE_OPTIONS=--max-old-space-size=4096
 fi
+
+# install nodejs 12
+curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+echo deb https://deb.nodesource.com/node_12.x hirsute main > /etc/apt/sources.list.d/nodesource.list
+apt-get update && apt-get install -y nodejs
 
 jupyter notebook --generate-config --allow-root
 
@@ -36,9 +41,9 @@ jupyter nbextension enable rise --py --sys-prefix
 # Enable jupyterlab
 jupyter serverextension enable jupyterlab
 
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.1 --no-build
-jupyter labextension install plotlywidget@1.5.2 --no-build
-jupyter labextension install jupyterlab-plotly@1.5.2 --no-build
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@3.0.0 --no-build
+jupyter labextension install plotlywidget@4.14.3 --no-build
+jupyter labextension install jupyterlab-plotly@4.14.3 --no-build
 
 jupyter lab build --minimize=False
 rm -rf /usr/local/share/jupyter/lab/staging

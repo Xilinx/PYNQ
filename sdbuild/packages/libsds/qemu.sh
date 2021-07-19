@@ -1,6 +1,6 @@
 
 export HOME=/root
-export PYNQ_PYTHON=python3.6
+export PYNQ_PYTHON=python3
 
 cd /root/libcma
 make -t
