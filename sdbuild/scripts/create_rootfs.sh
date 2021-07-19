@@ -73,13 +73,14 @@ EOT
 # Copy over what we need to complete the installation
 $dry_run sudo cp ${QEMU_EXE} $target/usr/bin
 
-$dry_run sudo -E chroot $target bash postinst1.sh
 # Finish the base install
 # Pass through special files so that the chroot works properly
 for fs in $fss
 do
   $dry_run sudo mount -o bind /$fs $target/$fs
 done
+
+$dry_run sudo -E chroot $target bash postinst1.sh
 
 function unmount_special() {
 

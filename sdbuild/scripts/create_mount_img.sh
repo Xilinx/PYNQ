@@ -5,7 +5,7 @@ set -x
 image_file=$1
 image_dir=$2
 script_dir=$(dirname ${BASH_SOURCE[0]})
-truncate --size 7G $image_file
+truncate --size 15G $image_file
 $script_dir/create_partitions.sh $image_file
 mount_points=( $(sudo kpartx -av $image_file | cut -d ' ' -f 3) )
 

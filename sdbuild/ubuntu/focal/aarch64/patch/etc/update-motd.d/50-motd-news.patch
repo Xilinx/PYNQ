@@ -1,6 +1,6 @@
---- /home/xilinx/tm_aarch64_diff/orig/etc/update-motd.d/50-motd-news	2018-08-21 16:29:47.010460138 +0000
-+++ /home/xilinx/tm_aarch64_diff/final/etc/update-motd.d/50-motd-news	2018-08-21 16:06:12.725223800 +0000
-@@ -28,96 +28,3 @@
+--- 50-motd-news	2019-12-05 14:39:21.000000000 +0000
++++ 50-motd-news.new	2021-07-07 20:42:22.772767592 +0000
+@@ -28,108 +28,4 @@
  #                                                                     - Dustin
  ##############################################################################
  
@@ -31,7 +31,7 @@
 -  	if [ -r $CACHE ]; then
 -		echo
 -		safe_print $CACHE
--	else
+-	elif [ "$(id -u)" -eq 0 ]; then
 -		: > $CACHE
 -	fi
 -	exit 0
@@ -41,9 +41,10 @@
 -# probably from the systemd motd-news.service.  Let's update...
 -
 -# Generate our temp files, clean up when done
--NEWS=$(mktemp)
--ERR="$NEWS.err"
--trap "rm -f $NEWS $ERR" HUP INT QUIT ILL TRAP KILL BUS TERM
+-NEWS=$(mktemp) || exit 1
+-ERR=$(mktemp) || exit 1
+-CLOUD=$(mktemp) || exit 1
+-trap "rm -f $NEWS $ERR $CLOUD" HUP INT QUIT ILL TRAP KILL BUS TERM
 -
 -# Construct a user agent, similar to Firefox/Chrome/Safari/IE to
 -# ensure a proper, tailored, accurate message of the day
@@ -60,13 +61,24 @@
 -platform="$(uname -o)/$(uname -r)/$(uname -m)"
 -arch="$(uname -m)"
 -cpu="$(grep -m1 "^model name" /proc/cpuinfo | sed -e "s/.*: //" -e "s:\s\+:/:g")"
+-cloud_id="unknown"
+-if [ -x /usr/bin/cloud-id ]; then
+-    /usr/bin/cloud-id > "$CLOUD" 2>/dev/null
+-    if [ "$?" -eq "0" ]; then
+-        # sanitize it a bit, just in case
+-        cloud_id=$(cut -c -40 "${CLOUD}" | tr -c -d '[:alnum:]')
+-        if [ -z "${cloud_id}" ]; then
+-            cloud_id="unknown"
+-        fi
+-    fi
+-fi
 -
 -# Some messages may only be pertinent before or after some amount of uptime
 -read up idle < /proc/uptime
 -uptime="uptime/$up/$idle"
 -
 -# Piece together the user agent
--USER_AGENT="curl/$curl_ver $lsb $platform $cpu $uptime"
+-USER_AGENT="curl/$curl_ver $lsb $platform $cpu $uptime cloud_id/$cloud_id"
 -
 -# Loop over any configured URLs
 -for u in $URLS; do
@@ -95,5 +107,5 @@
 -		: > "$CACHE"
 - 	fi
 -done
--rm -f "$NEWS" "$NEWS.err"
--exit 0
+-rm -f "$NEWS" "$ERR" "$CLOUD"
+ exit 0
