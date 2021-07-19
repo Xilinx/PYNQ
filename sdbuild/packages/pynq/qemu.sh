@@ -11,9 +11,11 @@ export BOARD=${PYNQ_BOARD}
 cd /home/xilinx
 mkdir -p jupyter_notebooks
 
+source /usr/local/share/pynq-venv/bin/activate
+
 cd pynq_git
 BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \
-python3 -m pip install dist/*.tar.gz --upgrade --no-deps
+     python3 -m pip install dist/*.tar.gz --upgrade --no-deps
 cd ..
 
 old_hostname=$(hostname)

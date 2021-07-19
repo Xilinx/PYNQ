@@ -35,6 +35,11 @@ fi
 
 # move revision onto target
 sudo cp -rf $BUILD_ROOT/PYNQ/REVISION $target/home/xilinx/REVISION
+sudo cp -rf $BUILD_ROOT/PYNQ/REVISION $target/boot/REVISION
+
+if [ -d /usr/local/share/fatfs_contents ]; then
+    sudo cp -rf $BUILD_ROOT/PYNQ/REVISION /usr/local/share/fatfs_contents/REVISION
+fi
 
 if [ -n "$PYNQ_SDIST" ] && [ "$BOARDDIR" -ef "$DEFAULT_BOARDDIR" ]; then
 	# using prebuilt sdist with non-external board
