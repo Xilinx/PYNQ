@@ -182,7 +182,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
             mod_type = mod.get('MODTYPE')
             full_path = mod.get('FULLNAME').lstrip('/')
             if mod_type == self.family_ps:
-                self.ps_name = mod.get('INSTANCE')
+                self.ps_name = full_path
                 self.init_clk_dict(mod)
                 self.init_full_ip_dict(mod)
                 self.add_ps_to_ip_dict(mod)
