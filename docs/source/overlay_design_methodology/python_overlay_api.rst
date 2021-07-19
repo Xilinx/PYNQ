@@ -15,7 +15,7 @@ An API for a PYNQ overlay can consist of
 The API for an overlay will manage the transfer of data between the Python
 environment in the PS, and the overlay in the PL. This may be the transfer of
 data directly from the PS to a peripheral or managing system memory to allow a
-peripheral in the PL to read or write data from DRAM that can also be access by
+peripheral in the PL to read or write data from DRAM that can also be accessed
 from the Python environment.
 
 The Default API
@@ -31,7 +31,7 @@ If no driver has been specified for a type of IP then a ``DefaultIP`` will be
 instantiated offering ``read`` and ``write`` functions to access the IP's
 address space and named accessors to any interrupts or GPIO pins connected to
 the IP. Hierarchies likewise will be instances of ``DefaultHierarchy`` offering
-access to any sub hierarchies or contained IP. The top-level ``DefaultOverlay``
+access to any sub hierarchies or contained IP. The top-level ``Overlay``
 also acts just like any other IP.
 
 Customising Drivers
@@ -39,7 +39,7 @@ Customising Drivers
 
 While the default drivers are useful for getting started with new hardware in a
 design it is preferable to have a higher level driver for end users to interact
-with. Each of ``DefaultIP``, ``DefaultHierarchy`` and ``DefaultOverlay`` can be
+with. Each of ``DefaultIP``, ``DefaultHierarchy`` and ``Overlay`` can be
 subclassed and automatically bound to elements of the block diagram. New drivers
 will only be bound when the overlay is reloaded.
 
@@ -78,7 +78,7 @@ A template for a hierarchy driver is as follows:
 
     from pynq import DefaultHierarchy
 
-    class MyHierarchy(DefaultHierarchy)
+    class MyHierarchy(DefaultHierarchy):
         def __init__(self, description):
             super().__init__(description)
 
@@ -89,18 +89,18 @@ A template for a hierarchy driver is as follows:
 Creating Custom Overlay Classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Finally the class changed from the ``DefaultOverlay`` to provide a more suitable
+Finally the class changed from the ``Overlay`` to provide a more suitable
 high-level API or provide overlay-specific initialisation. The overlay loader
-will look for a python file located alongside the bitstream and TCL files,
+will look for a python file located alongside the bitstream and HWH files,
 import it and then call the ``Overlay`` function.
 
 A template for a custom overlay class is as follows:
 
 .. code-block:: Python
 
-    from pynq import DefaultOverlay
+    from pynq import Overlay
 
-    class MyOverlay(DefaultOverlay):
+    class MyOverlay(Overlay):
         def __init__(self, bitfile_name, download):
             super().__init__(bitfile_name, download)
 
@@ -113,7 +113,7 @@ Working with Physically Contiguous Memory
 
 In many applications there is a need for large buffers to be transferred
 between the PS and PL either using DMA engines or HLS IP with AXI master
-interfaces. In PYNQ the ``allocate`` functions provides a mechanism to acquire
+interfaces. In PYNQ the ``allocate`` function provides a mechanism to acquire
 numpy arrays allocated as to be physically contiguous. The allocate function
 takes ``shape`` and ``dtype`` parameters in a similar way to other numpy
 construction functions.

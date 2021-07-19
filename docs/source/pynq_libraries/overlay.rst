@@ -6,14 +6,14 @@ Overlay
 The *Overlay* class is used to load PYNQ overlays to the PL, and manage and 
 control existing overlays. 
 The class is instantiated with the .bit file for an overlay. By default the
-overlay Tcl file will be parsed, and the bitstream will be downloaded to the
-PL. This means that to use the overlay class, a .bit and .tcl must be provided
+overlay HWH file will be parsed, and the bitstream will be downloaded to the
+PL. This means that to use the overlay class, a .bit and .hwh must be provided
 for an overlay. 
 
 To instantiate the Overlay only without downloading the .bit file, pass the
 parameter *download=False* when instantiating the Overlay class.
 
-On downloading the bitstream, the clock settings provided in the overlay .tcl
+On downloading the bitstream, the clock settings provided in the overlay .hwh
 file will also be applied before the bitstream is downloaded. 
 
 
