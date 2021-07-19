@@ -10,7 +10,7 @@ mkdir build
 cd build
 cmake ..
 make
-cp *.a /usr/lib/
+cp ./lib/*.a /usr/lib/
 cd ..
 rm -rf build
 mkdir -p /usr/local/lib/googletest
