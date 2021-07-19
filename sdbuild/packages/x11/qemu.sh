@@ -3,6 +3,8 @@
 set -x
 set -e
 
+source /usr/local/share/pynq-venv/bin/activate
+
 if [ -f /usr/local/share/x11/Welcome\ to\ Pynq.ipynb ]; then
 	jupyter nbconvert --to html \
 	/usr/local/share/x11/Welcome\ to\ Pynq.ipynb
