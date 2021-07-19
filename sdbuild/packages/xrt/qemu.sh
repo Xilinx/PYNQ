@@ -10,7 +10,7 @@ cd /root
 mkdir xrt-git
 git clone https://github.com/Xilinx/XRT xrt-git
 cd xrt-git
-git checkout -b temp tags/202010.2.6.655
+git checkout -b temp tags/202020.2.8.726
 
 cd build
 chmod 755 build.sh
