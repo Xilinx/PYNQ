@@ -4,7 +4,7 @@ set -x
 set -e
 
 export HOME=/root
-export PYNQ_PYTHON=python3.6
+export PYNQ_PYTHON=python3
 export PYNQ_JUPYTER_NOTEBOOKS=/home/xilinx/jupyter_notebooks
 
 if [ ${ARCH} == 'arm' ]; then
@@ -13,6 +13,12 @@ else
 	export NODE_OPTIONS=--max-old-space-size=4096
 fi
 
+# install nodejs 12
+curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+echo deb https://deb.nodesource.com/node_12.x focal main > /etc/apt/sources.list.d/nodesource.list
+apt-get update && apt-get install -y nodejs
+
+source /usr/local/share/pynq-venv/bin/activate
 jupyter notebook --generate-config --allow-root
 
 cat - >> /root/.jupyter/jupyter_notebook_config.py <<EOT
@@ -26,22 +32,8 @@ expire_time = datetime.datetime.now() + datetime.timedelta(days=3650)
 c.NotebookApp.cookie_options = {"expires": expire_time}
 EOT
 
-# Enable widgets
-jupyter nbextension enable --py --sys-prefix widgetsnbextension
-# Install Extensions
-jupyter contrib nbextension install --user
-jupyter nbextensions_configurator enable --user
-jupyter nbextension install rise --py --sys-prefix
-jupyter nbextension enable rise --py --sys-prefix
-# Enable jupyterlab
-jupyter serverextension enable jupyterlab
-
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.1 --no-build
-jupyter labextension install plotlywidget@1.5.2 --no-build
-jupyter labextension install jupyterlab-plotly@1.5.2 --no-build
-
-jupyter lab build --minimize=False
-rm -rf /usr/local/share/jupyter/lab/staging
+# In the past, we would enable widgets here
+# As of JupyterLab3 - widgets are now installed with pip
 
 mkdir -p $PYNQ_JUPYTER_NOTEBOOKS
 
