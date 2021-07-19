@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /etc/environment
+. /usr/local/share/pynq-venv/bin/activate
 
 BOOT_MNT=/boot
 BOOT_DEV=/dev/mmcblk0p1
@@ -11,6 +12,6 @@ if !(mount | grep -q "$BOOT_MNT") ; then
 fi
 
 if test -f "$BOOT_PY"; then
-   $PYNQ_PYTHON $BOOT_PY
+   python3 $BOOT_PY
 fi
 
