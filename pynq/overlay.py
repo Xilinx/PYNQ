@@ -712,7 +712,8 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             self._registers = None
         if 'index' in description:
-            self.cu_mask = 1 << description['adjusted_index']
+            cu_index = self.device.open_contex(description)
+            self.cu_mask = 1 << cu_index
             self._setup_packet_prototype()
         if 'streams' in description:
             self.streams = {}

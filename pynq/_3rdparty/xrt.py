@@ -22,6 +22,7 @@ import os
 import ctypes
 import warnings
 from .xclbin import *
+from numbers import Integral
 
 libc = None
 XRT_SUPPORTED = False
@@ -969,12 +970,12 @@ def xclWriteQueue(handle, q_hdl, wr_req):
              There is not any Flag been added to mark the end of buffer.
              The bytes been written should equal to bytes been requested unless error happens.
          Packet Queue:
-             There is Flag been added for end of buffer. Thus kernel may recognize that a packet is receviced.
+             There is Flag been added for end of buffer. Thus kernel may recognize that a packet is received.
      This function supports blocking and non-blocking write
          blocking:
              return only when the entire buf has been written, or error.
          non-blocking:
-             return 0 immediatly.
+             return 0 immediately.
          EOT:
              end of transmit signal will be added at last
          silent: (only used with non-blocking);
@@ -999,7 +1000,7 @@ def xclReadQueue(handle, q_hdl, wr_req):
          blocking:
              return only when the requested bytes are read (stream) or the entire packet is read (packet)
          non-blocking:
-             return 0 immidiately.
+             return 0 immediately.
     """
     libc.xclReadQueue.restype = ctypes.c_ssize_t
     libc.xclReadQueue.argtypes = [xclDeviceHandle, ctypes.POINTER(xclQueueRequest)]
@@ -1245,3 +1246,32 @@ def xclOpenMgmt(deviceIndex):
     libc.xclOpenMgmt.restype = xclDeviceHandle
     libc.xclOpenMgmt.argtype = ctypes.c_uint
     return libc.xclOpenMgmt(deviceIndex)
+
+def _valueOrError(res):
+    """
+    Validate return code from XRT C library and raise an exception if necessary
+    """
+    # check if result is some kind of integer
+    # can't do a direct comparison with an int since some
+    # functions return long and Python3 dropped support for long
+
+    if isinstance(res, Integral):
+        if res < 0:
+            raise OSError(abs(res), os.strerror(abs(res)))
+    # check if result type is a pointer. Python3 doesn't support pointer and int comparison
+    elif isinstance(res.contents, ctypes.c_void_p) and res is None:
+        raise OSError(errno.ENODEV, os.strerror(errno.ENODEV))
+    return res
+
+def xclIPName2Index(handle, name):
+    """
+    Obtain index of a kernel given its name.
+    :param handle: Device handle
+    :param name: Name of PL kernel
+    :return: index of Kernel
+
+    The index is used in APIs like xclOpenContext(), etc.
+    """
+    libc.xclIPName2Index.restype = ctypes.c_int
+    libc.xclIPName2Index.argtypes = [xclDeviceHandle, ctypes.c_char_p]
+    return _valueOrError(libc.xclIPName2Index(handle, name.encode()))

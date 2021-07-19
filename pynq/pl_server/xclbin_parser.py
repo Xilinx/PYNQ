@@ -1,4 +1,4 @@
-#   Copyright (c) 2019, Xilinx, Inc.
+#   Copyright (c) 2019-2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 
 __author__ = "Peter Ogden"
-__copyright__ = "Copyright 2019, Xilinx"
+__copyright__ = "Copyright 2019-2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import ctypes
@@ -156,10 +156,12 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                 'state': None,
                 'interrupts': {},
                 'gpio': {},
-                'xclbin_uuid': xclbin_uuid
+                'xclbin_uuid': xclbin_uuid,
+                'cu_name' : ":".join((kernel.attrib['vlnv'].split(':')[2],
+                    instance.attrib['name']))
             }
-    for i, d in enumerate(sorted(ip_dict.values(), key=lambda x: x['phys_addr'])):
-        d['adjusted_index'] = i
+    for i, d in enumerate(sorted(ip_dict.values(),
+        key=lambda x: x['phys_addr'])): d['cu_index'] = i
     return {k: v for k, v in sorted(ip_dict.items())}
 
 
