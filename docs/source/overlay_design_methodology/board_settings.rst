@@ -28,7 +28,7 @@ the corresponding board files can be downloaded as shown below.
 * `Download the Pynq-Z1 board files
   <https://github.com/cathalmccabe/pynq-z1_board_files/raw/master/pynq-z1.zip>`_
 * `Download the Pynq-Z2 board files
-  <https://d2m32eurp10079.cloudfront.net/Download/pynq-z2.zip>`_
+  <https://dpoauwgwqsy2x.cloudfront.net/Download/pynq-z2.zip>`_
   
 Installing these files in Vivado allows the board to be selected when creating
 a new project. This will configure the Zynq PS settings.
@@ -52,7 +52,7 @@ Please see below for a list of constraint files.
   <https://reference.digilentinc.com/_media/reference/programmable-logic/pynq-z1/pynq-z1_c.zip>`_
 
 * `Download the Pynq-Z2 Master XDC constraints
-  <http://www.tul.com.tw/download/PYNQ-Z2_v1.0.xdc.zip>`_
+  <https://dpoauwgwqsy2x.cloudfront.net/Download/pynq-z2_v1.0.xdc.zip>`_
 
 
 
