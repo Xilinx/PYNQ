@@ -114,7 +114,7 @@ make
 sudo make install
 cd ..
 
-qemuver="4.0.0"
+qemuver="5.2.0"
 wget http://wiki.qemu-project.org/download/qemu-$qemuver.tar.bz2
 tar -xf qemu-$qemuver.tar.bz2
 cd qemu-$qemuver

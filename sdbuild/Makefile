@@ -1,12 +1,12 @@
 DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
 BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
-UBUNTU_RELEASE := bionic
-VERSION := 2.6.0
+UBUNTU_RELEASE := focal
+VERSION := 2.7.0
 
 KERNEL_VERSION := 2020.1
 LINUX_VERSION := 5.4.0-xilinx-v2020.1
-QEMU_VERSION := 4.0.0
+QEMU_VERSION := 5.2.0
 SCRIPT_DIR := $(CURDIR)/scripts
 SHELL := /bin/bash
 
@@ -233,8 +233,11 @@ $$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODUL
 	cd $$(BUILD_ROOT_$1)/modules && tar -xf $$(MODULES_$1)
 	sudo cp -r --no-preserve=ownership $$(BUILD_ROOT_$1)/modules/* $$(STAGING_$1)
 	rm -rf $$(BUILD_ROOT_$1)/modules
+	sudo mount -o bind /dev $$(STAGING_$1)/dev
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
 	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
+	sudo umount -l $$(STAGING_$1)/dev
+
 	$$(SCRIPT_DIR)/resize_umount.sh $$(IMAGE_$1) $$(STAGING_$1)
 
 
