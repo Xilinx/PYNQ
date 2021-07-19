@@ -1,6 +1,6 @@
 
 ###############################################################################
- #  Copyright (c) 2018, Xilinx, Inc.
+ #  Copyright (c) 2018-2021, Xilinx, Inc.
  #  All rights reserved.
  #
  #  Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@
  # 2.04  yrq 01/17/2019 update to 2018.3
  # 2.5   yrq 08/22/2019 update to 2019.1
  # 2.6   yrq 11/06/2019 update to 2020.1
+ # 2.70  mr  05/17/2021 update to 2020.2 
  #
  # </pre>
  #
@@ -72,7 +73,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2020.1
+set scripts_vivado_version 2020.2
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -455,9 +456,9 @@ proc create_hier_cell_hdmi_out { parentCell nameHier } {
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 TX_DDC_OUT
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS1
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control1
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 stream_in_64
 
@@ -521,8 +522,8 @@ proc create_hier_cell_hdmi_out { parentCell nameHier } {
   set tx_video_axis_reg_slice [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 tx_video_axis_reg_slice ]
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_interconnect_M07_AXI [get_bd_intf_pins s_axi_AXILiteS] [get_bd_intf_pins color_convert/s_axi_AXILiteS]
-  connect_bd_intf_net -intf_net axi_interconnect_M10_AXI [get_bd_intf_pins s_axi_AXILiteS1] [get_bd_intf_pins pixel_unpack/s_axi_AXILiteS]
+  connect_bd_intf_net -intf_net axi_interconnect_M07_AXI [get_bd_intf_pins s_axi_control] [get_bd_intf_pins color_convert/s_axi_control]
+  connect_bd_intf_net -intf_net axi_interconnect_M10_AXI [get_bd_intf_pins s_axi_control1] [get_bd_intf_pins pixel_unpack/s_axi_control]
   connect_bd_intf_net -intf_net axi_vdma_0_M_AXIS_MM2S [get_bd_intf_pins stream_in_64] [get_bd_intf_pins pixel_unpack/stream_in_64]
   connect_bd_intf_net -intf_net axis_subset_converter_0_M_AXIS [get_bd_intf_pins frontend/VIDEO_IN] [get_bd_intf_pins pixel_reorder/M_AXIS]
   connect_bd_intf_net -intf_net color_convert_0_stream_out_48 [get_bd_intf_pins color_convert/stream_out_48] [get_bd_intf_pins tx_video_axis_reg_slice/S_AXIS]
@@ -543,8 +544,8 @@ proc create_hier_cell_hdmi_out { parentCell nameHier } {
   connect_bd_net -net net_v_hdmi_tx_ss_locked [get_bd_pins frontend/locked]
   connect_bd_net -net net_vid_phy_controller_tx_video_clk [get_bd_pins video_clk] [get_bd_pins frontend/video_clk]
   connect_bd_net -net net_vid_phy_controller_txoutclk [get_bd_pins link_clk] [get_bd_pins frontend/link_clk]
-  connect_bd_net -net net_zynq_us_ss_0_clk_out2 [get_bd_pins aclk] [get_bd_pins color_convert/ap_clk] [get_bd_pins color_convert/control] [get_bd_pins frontend/s_axis_video_aclk] [get_bd_pins pixel_reorder/aclk] [get_bd_pins pixel_unpack/ap_clk] [get_bd_pins pixel_unpack/control] [get_bd_pins tx_video_axis_reg_slice/aclk]
-  connect_bd_net -net net_zynq_us_ss_0_dcm_locked [get_bd_pins aresetn] [get_bd_pins color_convert/ap_rst_n] [get_bd_pins color_convert/ap_rst_n_control] [get_bd_pins frontend/s_axis_video_aresetn] [get_bd_pins pixel_reorder/aresetn] [get_bd_pins pixel_unpack/ap_rst_n] [get_bd_pins pixel_unpack/ap_rst_n_control] [get_bd_pins tx_video_axis_reg_slice/aresetn]
+  connect_bd_net -net net_zynq_us_ss_0_clk_out2 [get_bd_pins aclk] [get_bd_pins color_convert/ap_clk] [get_bd_pins frontend/s_axis_video_aclk] [get_bd_pins pixel_reorder/aclk] [get_bd_pins pixel_unpack/ap_clk] [get_bd_pins tx_video_axis_reg_slice/aclk]
+  connect_bd_net -net net_zynq_us_ss_0_dcm_locked [get_bd_pins aresetn] [get_bd_pins color_convert/ap_rst_n] [get_bd_pins frontend/s_axis_video_aresetn] [get_bd_pins pixel_reorder/aresetn] [get_bd_pins pixel_unpack/ap_rst_n] [get_bd_pins tx_video_axis_reg_slice/aresetn]
   connect_bd_net -net net_zynq_us_ss_0_peripheral_aresetn [get_bd_pins s_axi_cpu_aresetn] [get_bd_pins frontend/s_axi_cpu_aresetn]
   connect_bd_net -net net_zynq_us_ss_0_s_axi_aclk [get_bd_pins s_axi_cpu_aclk] [get_bd_pins frontend/s_axi_cpu_aclk]
   connect_bd_net -net s_axis_audio_aclk_1 [get_bd_pins s_axis_audio_aclk] [get_bd_pins frontend/s_axis_audio_aclk]
@@ -601,9 +602,9 @@ proc create_hier_cell_hdmi_in { parentCell nameHier } {
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_CPU_IN
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS1
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control1
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 stream_out_64
 
@@ -662,8 +663,8 @@ proc create_hier_cell_hdmi_in { parentCell nameHier } {
   set rx_video_axis_reg_slice [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 rx_video_axis_reg_slice ]
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_interconnect_M08_AXI [get_bd_intf_pins s_axi_AXILiteS] [get_bd_intf_pins color_convert/s_axi_AXILiteS]
-  connect_bd_intf_net -intf_net axi_interconnect_M09_AXI [get_bd_intf_pins s_axi_AXILiteS1] [get_bd_intf_pins pixel_pack/s_axi_AXILiteS]
+  connect_bd_intf_net -intf_net axi_interconnect_M08_AXI [get_bd_intf_pins s_axi_control] [get_bd_intf_pins color_convert/s_axi_control]
+  connect_bd_intf_net -intf_net axi_interconnect_M09_AXI [get_bd_intf_pins s_axi_control1] [get_bd_intf_pins pixel_pack/s_axi_control]
   connect_bd_intf_net -intf_net color_convert_1_stream_out_48 [get_bd_intf_pins color_convert/stream_out_48] [get_bd_intf_pins pixel_pack/stream_in_48]
   connect_bd_intf_net -intf_net frontend_VIDEO_OUT [get_bd_intf_pins frontend/VIDEO_OUT] [get_bd_intf_pins pixel_reorder/S_AXIS]
   connect_bd_intf_net -intf_net intf_net_v_hdmi_rx_ss_DDC_OUT [get_bd_intf_pins RX_DDC_OUT] [get_bd_intf_pins frontend/DDC_OUT]
@@ -683,8 +684,8 @@ proc create_hier_cell_hdmi_in { parentCell nameHier } {
   connect_bd_net -net net_v_hdmi_rx_ss_irq [get_bd_pins irq] [get_bd_pins frontend/irq]
   connect_bd_net -net net_vid_phy_controller_rx_video_clk [get_bd_pins video_clk] [get_bd_pins frontend/video_clk]
   connect_bd_net -net net_vid_phy_controller_rxoutclk [get_bd_pins link_clk] [get_bd_pins frontend/link_clk]
-  connect_bd_net -net net_zynq_us_ss_0_clk_out2 [get_bd_pins aclk] [get_bd_pins color_convert/ap_clk] [get_bd_pins color_convert/control] [get_bd_pins frontend/s_axis_video_aclk] [get_bd_pins pixel_pack/ap_clk] [get_bd_pins pixel_pack/control] [get_bd_pins pixel_reorder/aclk] [get_bd_pins rx_video_axis_reg_slice/aclk]
-  connect_bd_net -net net_zynq_us_ss_0_dcm_locked [get_bd_pins aresetn] [get_bd_pins color_convert/ap_rst_n] [get_bd_pins color_convert/ap_rst_n_control] [get_bd_pins frontend/s_axis_video_aresetn] [get_bd_pins pixel_pack/ap_rst_n] [get_bd_pins pixel_pack/ap_rst_n_control] [get_bd_pins pixel_reorder/aresetn] [get_bd_pins rx_video_axis_reg_slice/aresetn]
+  connect_bd_net -net net_zynq_us_ss_0_clk_out2 [get_bd_pins aclk] [get_bd_pins color_convert/ap_clk] [get_bd_pins frontend/s_axis_video_aclk] [get_bd_pins pixel_pack/ap_clk] [get_bd_pins pixel_reorder/aclk] [get_bd_pins rx_video_axis_reg_slice/aclk]
+  connect_bd_net -net net_zynq_us_ss_0_dcm_locked [get_bd_pins aresetn] [get_bd_pins color_convert/ap_rst_n] [get_bd_pins frontend/s_axis_video_aresetn] [get_bd_pins pixel_pack/ap_rst_n] [get_bd_pins pixel_reorder/aresetn] [get_bd_pins rx_video_axis_reg_slice/aresetn]
   connect_bd_net -net net_zynq_us_ss_0_peripheral_aresetn [get_bd_pins s_axi_cpu_aresetn] [get_bd_pins frontend/s_axi_cpu_aresetn]
   connect_bd_net -net net_zynq_us_ss_0_s_axi_aclk [get_bd_pins s_axi_cpu_aclk] [get_bd_pins frontend/s_axi_cpu_aclk]
   connect_bd_net -net s_axis_audio_aclk_1 [get_bd_pins s_axis_audio_aclk] [get_bd_pins frontend/s_axis_audio_aclk]
@@ -919,13 +920,13 @@ proc create_hier_cell_video { parentCell nameHier } {
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 TX_DDC_OUT
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS1
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control1
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS2
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control2
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_AXILiteS3
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_control3
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 vid_phy_axi4lite
 
@@ -987,10 +988,10 @@ proc create_hier_cell_video { parentCell nameHier } {
   create_hier_cell_phy $hier_obj phy
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_interconnect_M07_AXI [get_bd_intf_pins s_axi_AXILiteS] [get_bd_intf_pins hdmi_out/s_axi_AXILiteS]
-  connect_bd_intf_net -intf_net axi_interconnect_M08_AXI [get_bd_intf_pins s_axi_AXILiteS1] [get_bd_intf_pins hdmi_in/s_axi_AXILiteS]
-  connect_bd_intf_net -intf_net axi_interconnect_M09_AXI [get_bd_intf_pins s_axi_AXILiteS2] [get_bd_intf_pins hdmi_in/s_axi_AXILiteS1]
-  connect_bd_intf_net -intf_net axi_interconnect_M10_AXI [get_bd_intf_pins s_axi_AXILiteS3] [get_bd_intf_pins hdmi_out/s_axi_AXILiteS1]
+  connect_bd_intf_net -intf_net axi_interconnect_M07_AXI [get_bd_intf_pins s_axi_control] [get_bd_intf_pins hdmi_out/s_axi_control]
+  connect_bd_intf_net -intf_net axi_interconnect_M08_AXI [get_bd_intf_pins s_axi_control1] [get_bd_intf_pins hdmi_in/s_axi_control]
+  connect_bd_intf_net -intf_net axi_interconnect_M09_AXI [get_bd_intf_pins s_axi_control2] [get_bd_intf_pins hdmi_in/s_axi_control1]
+  connect_bd_intf_net -intf_net axi_interconnect_M10_AXI [get_bd_intf_pins s_axi_control3] [get_bd_intf_pins hdmi_out/s_axi_control1]
   connect_bd_intf_net -intf_net axi_vdma_0_M_AXIS_MM2S [get_bd_intf_pins axi_vdma/M_AXIS_MM2S] [get_bd_intf_pins hdmi_out/stream_in_64]
   connect_bd_intf_net -intf_net axi_vdma_0_M_AXI_MM2S [get_bd_intf_pins M_AXI_MM2S] [get_bd_intf_pins axi_vdma/M_AXI_MM2S]
   connect_bd_intf_net -intf_net axi_vdma_0_M_AXI_S2MM [get_bd_intf_pins M_AXI_S2MM] [get_bd_intf_pins axi_vdma/M_AXI_S2MM]
@@ -3277,10 +3278,10 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins address_remap_0/S_AXI_in] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_M05_AXI [get_bd_intf_pins axi_intc_0/s_axi] [get_bd_intf_pins axi_interconnect/M05_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_M06_AXI [get_bd_intf_pins axi_interconnect/M06_AXI] [get_bd_intf_pins reset_control/S_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_M07_AXI [get_bd_intf_pins axi_interconnect/M07_AXI] [get_bd_intf_pins video/s_axi_AXILiteS]
-  connect_bd_intf_net -intf_net axi_interconnect_M08_AXI [get_bd_intf_pins axi_interconnect/M08_AXI] [get_bd_intf_pins video/s_axi_AXILiteS1]
-  connect_bd_intf_net -intf_net axi_interconnect_M09_AXI [get_bd_intf_pins axi_interconnect/M09_AXI] [get_bd_intf_pins video/s_axi_AXILiteS2]
-  connect_bd_intf_net -intf_net axi_interconnect_M10_AXI [get_bd_intf_pins axi_interconnect/M10_AXI] [get_bd_intf_pins video/s_axi_AXILiteS3]
+  connect_bd_intf_net -intf_net axi_interconnect_M07_AXI [get_bd_intf_pins axi_interconnect/M07_AXI] [get_bd_intf_pins video/s_axi_control]
+  connect_bd_intf_net -intf_net axi_interconnect_M08_AXI [get_bd_intf_pins axi_interconnect/M08_AXI] [get_bd_intf_pins video/s_axi_control1]
+  connect_bd_intf_net -intf_net axi_interconnect_M09_AXI [get_bd_intf_pins axi_interconnect/M09_AXI] [get_bd_intf_pins video/s_axi_control2]
+  connect_bd_intf_net -intf_net axi_interconnect_M10_AXI [get_bd_intf_pins axi_interconnect/M10_AXI] [get_bd_intf_pins video/s_axi_control3]
   connect_bd_intf_net -intf_net axi_interconnect_M11_AXI [get_bd_intf_pins axi_interconnect/M11_AXI] [get_bd_intf_pins iop_pmod0/S_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_M12_AXI [get_bd_intf_pins axi_interconnect/M12_AXI] [get_bd_intf_pins iop_pmod1/S_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_M13_AXI [get_bd_intf_pins axi_interconnect/M13_AXI] [get_bd_intf_pins gpio_sws/S_AXI]
@@ -3378,15 +3379,15 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x80045000 -range 0x00001000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs gpio_btns/S_AXI/Reg] -force
   assign_bd_address -offset 0x80043000 -range 0x00001000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs axi_intc_0/S_AXI/Reg] -force
   assign_bd_address -offset 0x80042000 -range 0x00001000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/axi_vdma/S_AXI_LITE/Reg] -force
-  assign_bd_address -offset 0x80010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_out/color_convert/s_axi_AXILiteS/Reg] -force
-  assign_bd_address -offset 0x80050000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_in/color_convert/s_axi_AXILiteS/Reg] -force
+  assign_bd_address -offset 0x80010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_out/color_convert/s_axi_control/Reg] -force
+  assign_bd_address -offset 0x80050000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_in/color_convert/s_axi_control/Reg] -force
   assign_bd_address -offset 0x80041000 -range 0x00001000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs fmch_axi_iic/S_AXI/Reg] -force
   assign_bd_address -offset 0x80046000 -range 0x00001000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs gpio_leds/S_AXI/Reg] -force
   assign_bd_address -offset 0x80040000 -range 0x00001000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs gpio_sws/S_AXI/Reg] -force
   assign_bd_address -offset 0x800A0000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs iop_pmod0/mb_bram_ctrl/S_AXI/Mem0] -force
   assign_bd_address -offset 0x800B0000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs iop_pmod1/mb_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0x80070000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_in/pixel_pack/s_axi_AXILiteS/Reg] -force
-  assign_bd_address -offset 0x80080000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_out/pixel_unpack/s_axi_AXILiteS/Reg] -force
+  assign_bd_address -offset 0x80070000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_in/pixel_pack/s_axi_control/Reg] -force
+  assign_bd_address -offset 0x80080000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs video/hdmi_out/pixel_unpack/s_axi_control/Reg] -force
   assign_bd_address -offset 0x80060000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs shutdown_HP0_FPD/S_AXI_CTRL/Reg] -force
   assign_bd_address -offset 0x80090000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs shutdown_HP2_FPD/S_AXI_CTRL/Reg] -force
   assign_bd_address -offset 0x800C0000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_e_0/Data] [get_bd_addr_segs shutdown_LPD/S_AXI_CTRL/Reg] -force

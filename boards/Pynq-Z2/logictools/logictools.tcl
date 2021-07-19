@@ -1,5 +1,5 @@
 ###############################################################################
- #  Copyright (c) 2016, Xilinx, Inc.
+ #  Copyright (c) 2016-2021, Xilinx, Inc.
  #  All rights reserved.
  #
  #  Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,7 @@
  # 2.04  yrq 01/17/2019 update to 2018.3
  # 2.5   yrq 08/22/2019 update to 2019.1
  # 2.6   yrq 11/06/2019 update to 2020.1
+ # 2.70  mr  05/07/2021 update to 2020.2
  #
  # </pre>
 ###############################################################################
@@ -79,7 +80,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2020.1
+set scripts_vivado_version 2020.2
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {

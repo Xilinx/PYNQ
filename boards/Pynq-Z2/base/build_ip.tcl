@@ -8,7 +8,7 @@ foreach item $ip {
    if {[catch { glob -directory ${item}/solution1/impl/ip/ *.zip} zip_file]} {
 # Build IP only if a packaged IP does not exist
       puts "Building $item IP"
-      exec vivado_hls -f $item/script.tcl
+      exec vitis_hls -f $item/script.tcl
    } else {
 # Skip IP when a packaged IP exists in ip directory
       puts "Skipping building $item"
@@ -32,7 +32,7 @@ foreach item $ip {
         lassign $period target estimated uncertainty
         if {$target < $estimated} {
             puts "ERROR: Estimated clock period $estimated > target $target."
-            puts "ERROR: Revise $item to be compatible with Vivado_HLS."
+            puts "ERROR: Revise $item to be compatible with vitis_hls."
             exit 1
         }
       }
@@ -49,7 +49,7 @@ foreach item $ip {
         lassign $interval lc_min lc_max la_min la_max achieved target
         if {$achieved != $target} {
             puts "ERROR: Achieved II $achieved != target $target."
-            puts "ERROR: Revise $item to be compatible with Vivado_HLS."
+            puts "ERROR: Revise $item to be compatible with vitis_hls."
             exit 1
         }
       }

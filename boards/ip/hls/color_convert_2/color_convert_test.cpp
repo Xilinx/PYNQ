@@ -1,43 +1,23 @@
-#include <ap_int.h>
+// Copyright (C) 2021 Xilinx, Inc
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
+#include "color_convert.hpp"
 #include <cassert>
 #include <iostream>
 
-typedef ap_uint<8> pixel_type;
-typedef ap_int<8> pixel_type_s;
-typedef ap_fixed<10,2, AP_RND, AP_SAT> coeff_type;
-struct video_stream {
-	struct {
-		pixel_type p1;
-		pixel_type p2;
-		pixel_type p3;
-		pixel_type p4;
-		pixel_type p5;
-		pixel_type p6;
-	} data;
-	ap_uint<1> user;
-	ap_uint<1> last;
-};
-
-struct coeffs {
-	coeff_type c1;
-	coeff_type c2;
-	coeff_type c3;
-};
-
-
-void color_convert_2(video_stream* stream_in_48, video_stream* stream_out_48,
-                   coeffs c1, coeffs c2, coeffs c3, coeffs bias);
-
 int main() {
 	video_stream in, out;
-	in.data.p1 = 64;
-	in.data.p2 = 128;
-	in.data.p3 = 191;
-	in.data.p4 = 32;
-	in.data.p5 = 64;
-	in.data.p6 = 95;
-	in.user = 1;
-	in.last = 0;
+	pixel curr_pixel;
+	curr_pixel.data(7,0) = 64;
+	curr_pixel.data(15,8) = 128;
+	curr_pixel.data(23,16) = 191;
+	curr_pixel.data(31,24) = 32;
+	curr_pixel.data(39,32) = 64;
+	curr_pixel.data(47,40) = 95;
+	curr_pixel.user = 1;
+	curr_pixel.last = 0;
+	in.write(curr_pixel);
 
 	coeffs c1,c2,c3,bias;
 
@@ -56,14 +36,18 @@ int main() {
 	bias.c3 = 0;
 
 
-	color_convert_2(&in, &out, c1, c2, c3, bias);
-	std::cout << out.data.p1  << " " << out.data.p2 << " " << \
-    out.data.p3 << std::endl;
-	assert(out.data.p1 == 255);
-	assert(out.data.p2 == 96);
-	assert(out.data.p3 == 191);
-	assert(out.data.p4 == 191);
-	assert(out.data.p5 == 48);
-	assert(out.data.p6 == 95);
+	color_convert_2(in, out, c1, c2, c3, bias);
+	out.read(curr_pixel);
+	std::cout << curr_pixel.data(7,0)  << " " << curr_pixel.data(15,8) << " " << \
+	curr_pixel.data(23,16) << " " << curr_pixel.data(31,24) << " " << \
+	curr_pixel.data(39,32) << " " << curr_pixel.data(47,40) << std::endl;
+	assert(curr_pixel.data(7,0) == 255);
+	assert(curr_pixel.data(15,8) == 96);
+	assert(curr_pixel.data(23,16) == 191);
+	assert(curr_pixel.data(31,24) == 191);
+	assert(curr_pixel.data(39,32) == 48);
+	assert(curr_pixel.data(47,40) == 95);
+
+	return 0;
 
 }

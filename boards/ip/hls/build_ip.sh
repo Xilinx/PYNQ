@@ -2,5 +2,5 @@
 
 for f in */script.tcl
 do
-  vivado_hls -f $f
+  vitis_hls -f $f
 done
