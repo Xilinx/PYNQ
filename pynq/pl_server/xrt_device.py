@@ -532,7 +532,7 @@ class XrtDevice(Device):
 
         if err:
             raise RuntimeError('Could not open CU context - {}, {}'\
-                .format(err, index))
+                .format(err, cu_index))
         # Setup the execution context for the compute unit
         self.contexts[cu_name] = {'cu' : cu_name, 'idx': cu_index,
             'uuid_ctypes': uuid_ctypes, 'shared': shared}
