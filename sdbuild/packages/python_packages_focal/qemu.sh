@@ -19,6 +19,7 @@ blinker==1.4
 certifi==2019.11.28
 cffi==1.14.5
 chardet==3.0.4
+click==8.0.1
 cryptography==2.8
 cycler==0.10.0
 dbus-python==1.2.16
@@ -27,6 +28,7 @@ defusedxml==0.7.1
 distro==1.4.0
 dnspython==1.16.0
 entrypoints==0.3
+gTTS==2.2.3
 httplib2==0.14.0
 idna==2.8
 imageio==2.4.1
@@ -48,11 +50,13 @@ jupyterlab==3.0.16
 jupyterlab-pygments==0.1.2
 jupyterlab-server==2.5.2
 jupyterlab-widgets==1.0.0
+jupyterplot==0.0.3
 keyring==18.0.1
 kiwisolver==1.0.1
 launchpadlib==1.10.13
 lazr.restfulclient==0.14.2
 lazr.uri==1.0.3
+lrcurve==1.1.0
 lxml==4.5.0
 MarkupSafe==2.0.1
 matplotlib==3.1.2
@@ -75,9 +79,11 @@ packaging==20.3
 pandas==0.25.3
 pandocfilters==1.4.3
 parso==0.8.2
+pbr==5.6.0
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==7.0.0
+pkg-resources==0.0.0
 plotly==5.1.0
 pluggy==0.13.0
 ply==3.11
@@ -85,6 +91,8 @@ prometheus-client==0.10.1
 prompt-toolkit==3.0.18
 ptyprocess==0.7.0
 py==1.8.1
+PyAudio==0.2.11
+pycairo==1.20.1
 pycparser==2.19
 pycrypto==2.6.1
 pycurl==7.43.0.2
@@ -116,12 +124,14 @@ Send2Trash==1.5.0
 simplejson==3.16.0
 six==1.14.0
 sniffio==1.2.0
+SpeechRecognition==3.8.1
 SQLAlchemy==1.3.12
 ssh-import-id==5.10
 sympy==1.5.1
 tenacity==8.0.0
 terminado==0.10.0
 testpath==0.5.0
+testresources==2.0.1
 tornado==6.1
 traitlets==5.0.5
 transitions==0.7.2
@@ -142,6 +152,6 @@ export PYNQ_VENV=/usr/local/share/pynq-venv
 python3 -m venv --system-site-packages $PYNQ_VENV
 source $PYNQ_VENV/bin/activate
 
-python3 -m pip install pip==21.1.3
+python3 -m pip install pip==21.2.1
 python3 -m pip install -r requirements.txt
 rm requirements.txt
