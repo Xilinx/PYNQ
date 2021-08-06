@@ -446,6 +446,7 @@ REGMAP_TESTS = {
     'aligned_4': (32, 'I', 0x12345678, 0x87654321),
     'aligned_8': (40, 'Q', 0x123456789ABCDEF0, 0x0FEDCBA987654321),
     'unaligned_8': (52, 'Q', 0x123456789ABCDEF0, 0x0FEDCBA987654321),
+    'write_only': (68, 'I', 0x12345678, 0x87654321),
     'space_special__': (72, 'I', 0x12345678, 0x87654321),
     'r001_numbered': (76, 'I', 0x12345678, 0x87654321),
     'out_of_order': (80, 'I', 0x123456, 0x876543),
@@ -459,6 +460,8 @@ def test_regmap_rw(mock_registermap, register_name):
 
     width = struct.calcsize(struct_string)
     buf[offset:offset+width] = memoryview(struct.pack(struct_string, start))
+    if register_name == 'write_only':
+        start = 'write-only'
     assert getattr(rm, register_name)[:] == start
     setattr(rm, register_name, end)
     assert struct.unpack(struct_string, buf[offset:offset+width])[0] == end
@@ -473,6 +476,8 @@ def test_regmap_rw_mmio(register_name):
     offset, struct_string, start, end = REGMAP_TESTS[register_name]
     read_transaction = (ADDRESS+offset, struct.pack(struct_string, start))
     write_transaction = (ADDRESS+offset, struct.pack(struct_string, end))
+    if register_name == 'write_only':
+        start = 'write-only'
     with device.check_transactions([read_transaction], []):
         value = getattr(rm, register_name)[:]
         assert value == start
