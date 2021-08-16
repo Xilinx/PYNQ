@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,9 @@ from copy import deepcopy
 from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
 
 __author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
+__copyright__ = "Copyright 2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
 
 def get_hwh_name(bitfile_name):
     """This method returns the name of the hwh file.
@@ -174,7 +175,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
             i.get('FULLNAME').lstrip('/'),
             i.get('VLNV'),
             i.findall("./PARAMETERS/*[@NAME][@VALUE]"),
-            i.findall(".//REGISTERS/*[@NAME]"))
+            i.findall(".//REGISTERS/*[@NAME]"),
+            i.get('BDTYPE'))
             for i in self.root.iter("MODULE")}
 
         self.init_partial_ip_dict()
@@ -250,7 +252,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
             The current PS instance under parsing.
 
         """
-        full_name, vlnv, pars, _ = self.instance2attr[mod.get('INSTANCE')]
+        full_name, vlnv, pars, _, _ = self.instance2attr[mod.get('INSTANCE')]
         self.ip_dict[full_name] = {}
         self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
                                                  j.get('VALUE')
@@ -261,22 +263,25 @@ class _HWHABC(metaclass=abc.ABCMeta):
         to_pop = set()
         for i in mod.iter("MEMRANGE"):
             if i.get('INSTANCE') in self.instance2attr:
-                full_name, vlnv, pars, regs = self.instance2attr[
+                full_name, vlnv, pars, regs, bdtype = self.instance2attr[
                     i.get('INSTANCE')]
                 intf_id = i.get(mem_intf_id)
                 if full_name in self.ip_dict and \
                         self.ip_dict[full_name]['mem_id'] and intf_id:
-                    rename = full_name + '/' + self.ip_dict[full_name]['mem_id']
+                    rename = full_name + '/' + \
+                        self.ip_dict[full_name]['mem_id']
                     self.ip_dict[rename] = deepcopy(self.ip_dict[full_name])
                     self.ip_dict[rename]['fullpath'] = rename
                     to_pop.add(full_name)
                     full_name += '/' + intf_id
-                elif vlnv.split(':')[:2] == ['xilinx.com', 'module_ref']:
+                elif vlnv.split(':')[:2] == ['xilinx.com', 'module_ref'] and \
+                        bdtype:
                     full_name += '/' + intf_id
 
                 self.ip_dict[full_name] = {}
                 self.ip_dict[full_name]['fullpath'] = full_name
                 self.ip_dict[full_name]['type'] = vlnv
+                self.ip_dict[full_name]['bdtype'] = bdtype
                 self.ip_dict[full_name]['state'] = None
                 high_addr = int(i.get('HIGHVALUE'), 16)
                 base_addr = int(i.get('BASEVALUE'), 16)
@@ -641,4 +646,3 @@ elif CPU_ARCH == ZYNQ_ARCH:
     HWH = _HWHZynq
 else:
     HWH = _HWHABC
-
