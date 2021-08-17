@@ -92,6 +92,7 @@ PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
 ROOT_$1 := $$(BUILD_ROOT)/$1.tar.gz
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
+EXTRA_BOOT_$1 := $$(BUILD_ROOT)/$1.extra_boot
 
 ifeq ($$(ARCH_$1),arm)
 	TEMPLATE_$1 := zynq
@@ -234,6 +235,8 @@ $$(ROOT_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_RP
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
 	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
 	sudo umount -l $$(STAGING_$1)/dev
+	rm -rf $$(EXTRA_BOOT_$1)
+	cp -r $$(STAGING_$1)/boot $$(EXTRA_BOOT_$1)
 	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
 
@@ -241,7 +244,7 @@ $$(IMAGE_$1) : $$(ROOT_$1) $$(BOOT_FILES_$1)
 	sudo rm -rf $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
-	(cd $$(PL_PROJ_$1) && petalinux-package --wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$< --outdir $$(IMAGE_ROOT) --wks  $$(CURDIR)/boot/image.wks) && mv $$(IMAGE_ROOT)/petalinux-sdimage.wic $$@
+	(cd $$(PL_PROJ_$1) && petalinux-package --wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$< --outdir $$(IMAGE_ROOT) --wks  $$(CURDIR)/boot/image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:.") && mv $$(IMAGE_ROOT)/petalinux-sdimage.wic $$@
 
 
 SDX_DIR_$1 := $$(SDX_ROOT)/$1/sw
