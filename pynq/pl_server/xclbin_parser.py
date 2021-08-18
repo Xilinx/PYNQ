@@ -115,7 +115,8 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                 'bit_width': 1,
                 'description': 'Invoke next iteration of kernel'
             }
-        elif control_protocol == 'ap_ctrl_none':
+        elif control_protocol == 'ap_ctrl_none' or \
+                control_protocol == 'user_managed':
             registers = {}
         streams = {}
         for arg in kernel.findall('arg'):
