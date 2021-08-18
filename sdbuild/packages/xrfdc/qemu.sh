@@ -10,6 +10,9 @@ export HOME=/root
 export BOARD=${PYNQ_BOARD}
 
 cd /root/xrfdc_build
+
+source /usr/local/share/pynq-venv/bin/activate
+
 make embeddedsw
 make
 make install

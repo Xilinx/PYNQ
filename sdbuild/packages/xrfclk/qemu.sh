@@ -10,6 +10,8 @@ export HOME=/root
 export BOARD=${PYNQ_BOARD}
 
 cd /root/xrfclk_build
+
+source /usr/local/share/pynq-venv/bin/activate
 pip3 install .
 
 cd /root
