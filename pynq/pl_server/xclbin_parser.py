@@ -138,8 +138,9 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                     direction = 'output'
                 else:
                     raise RuntimeError('Could not determine port direction')
+                sid = attrib.get('id')
                 streams[attrib['name']] = {
-                    'id': int(attrib.get('id', -1)),
+                    'id': int(sid) if sid else None,
                     'type': attrib.get('type'),
                     'direction': direction
                 }
