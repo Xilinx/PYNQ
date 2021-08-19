@@ -49,7 +49,9 @@ __email__ = "pynq_support@xilinx.com"
 
 DRM_XOCL_BO_EXECBUF = 1 << 31
 REQUIRED_VERSION_ERT = (2, 3, 0)
+ZOCL_BO_FLAGS_CACHEABLE = 1 << 24
 libc = ctypes.CDLL('libc.so.6')
+
 libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
 libc.munmap.restype = ctypes.c_int
 
@@ -106,7 +108,7 @@ def _format_xrt_error(err):
     return errstring
 
 
-def _xrt_allocate(shape, dtype, device, memidx):
+def _xrt_allocate(shape, dtype, device, memidx, cacheable):
     elements = 1
     try:
         for s in shape:
@@ -115,7 +117,7 @@ def _xrt_allocate(shape, dtype, device, memidx):
         elements = shape
     dtype = np.dtype(dtype)
     size = elements * dtype.itemsize
-    bo = device.allocate_bo(size, memidx)
+    bo = device.allocate_bo(size, memidx, cacheable)
     buf = device.map_bo(bo)
     device_address = device.get_device_address(bo)
     ar = PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
@@ -140,10 +142,11 @@ class XrtMemory:
     def __init__(self, device, desc):
         self.idx = desc['idx']
         self.size = desc['size']
+        self.base_address = desc['base_address']
         self.desc = desc
         self.device = device
 
-    def allocate(self, shape, dtype):
+    def allocate(self, shape, dtype, cacheable=False):
         """Create a new  buffer in the memory bank
 
         Parameters
@@ -154,7 +157,7 @@ class XrtMemory:
             Data type of the array
 
         """
-        buf = _xrt_allocate(shape, dtype, self.device, self.idx)
+        buf = _xrt_allocate(shape, dtype, self.device, self.idx, cacheable)
         buf.memory = self
         return buf
 
@@ -393,7 +396,9 @@ class XrtDevice(Device):
         if ret >= 0x80000000:
             raise RuntimeError("Invalidate Failed: " + str(ret))
 
-    def allocate_bo(self, size, idx):
+    def allocate_bo(self, size, idx, cacheable):
+        if cacheable:
+            idx |= ZOCL_BO_FLAGS_CACHEABLE
         bo = xrt.xclAllocBO(self.handle, size,
                             xrt.xclBOKind.XCL_BO_DEVICE_RAM, idx)
         if bo >= 0x80000000:
