@@ -313,8 +313,8 @@ class XrtDevice(Device):
 
     _probe_priority_ = 200
 
-    def __init__(self, index):
-        super().__init__('xrt{}'.format(index))
+    def __init__(self, index, tag="xrt{}"):
+        super().__init__(tag.format(index))
         self.capabilities = {
             'REGISTER_RW': True,
             'CALLABLE': True,
