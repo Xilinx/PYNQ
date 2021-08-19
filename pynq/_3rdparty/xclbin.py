@@ -56,6 +56,8 @@ class AXLF_SECTION_KIND:
     KEYVALUE_METADATA   = 15
     USER_METADATA       = 16
     DNA_CERTIFICATE     = 17
+    GROUP_TOPOLOGY      = 26
+    GROUP_CONNECTIVITY  = 27
 
 class MEM_TYPE:
     MEM_DDR3              = 0
