@@ -489,7 +489,8 @@ class XrtDevice(Device):
             xrt.xclCloseContext(self.handle, v['uuid_ctypes'], v['idx'])
         self.contexts = dict()
 
-    def download(self, bitstream, parser=None):
+
+    def _xrt_download(self, data):
         # Keep copy of old contexts so we can reacquire them if
         # downloading fails
         old_contexts = copy.deepcopy(self.contexts)
@@ -504,8 +505,6 @@ class XrtDevice(Device):
             raise RuntimeError(
                 "Could not lock device for programming - " + str(err))
         try:
-            with open(bitstream.bitfile_name, 'rb') as f:
-                data = f.read()
             err = xrt.xclLoadXclBin(self.handle, data)
             if err:
                 for k, v in old_contexts:
@@ -517,6 +516,11 @@ class XrtDevice(Device):
         finally:
             xrt.xclUnlockDevice(self.handle)
 
+
+    def download(self, bitstream, parser=None):
+        with open(bitstream.bitfile_name, 'rb') as f:
+            data = f.read()
+        self._xrt_download(data)
         super().post_download(bitstream, parser)
 
     def open_contex(self, description, shared=True):
