@@ -33,6 +33,7 @@ __copyright__ = "Copyright 2019-2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import ctypes
+import itertools
 from copy import deepcopy
 from xml.etree import ElementTree
 from pynq._3rdparty import xclbin
@@ -192,7 +193,7 @@ def _add_argument_memory(ip_dict, ip_data, connections, memories):
             # Subtract 1 from the register index to account for AP_CTRL
             if (ip_index, r['id']) in connection_dict:
                 r['memory'] = \
-                    memories[connection_dict[(ip_index, r['id'])]].decode()
+                    memories[connection_dict[(ip_index, r['id'])]]
         for r in dict_entry['streams'].values():
             if (ip_index, r['id']) in connection_dict:
                 r['stream_id'] = connection_dict[(ip_index, r['id'])]
@@ -207,7 +208,7 @@ def _get_object_as_array(obj, number):
     return ctype.from_address(ctypes.addressof(obj))
 
 
-def _mem_data_to_dict(idx, mem):
+def _mem_data_to_dict(idx, mem, tag):
     if mem.m_type == 9:
         # Streaming Endpoint
         return {
@@ -217,7 +218,8 @@ def _mem_data_to_dict(idx, mem):
             "route_id": mem.mem_u1.route_id,
             "type": _mem_types[mem.m_type],
             "streaming": True,
-            "idx": idx
+            "idx": idx,
+            "tag": tag
         }
     else:
         return {
@@ -227,7 +229,8 @@ def _mem_data_to_dict(idx, mem):
             "size": mem.mem_u1.m_size * 1024,
             "type": _mem_types[mem.m_type],
             "streaming": False,
-            "idx": idx
+            "idx": idx,
+            "tag": tag
         }
 
 
@@ -269,34 +272,57 @@ def _xclbin_to_dicts(filename):
         s.m_sectionKind: _get_buffer_slice(
             binfile, s.m_sectionOffset, s.m_sectionSize)
         for s in section_headers}
+    return sections, bytes(header.m_header.u2.uuid).hex()
 
-    xclbin_uuid = bytes(header.m_header.u2.uuid).hex()
+
+def _xclbin_to_dicts(filename, xclbin_data=None):
+    if xclbin_data is None:
+         with open(filename, 'rb') as f:
+             xclbin_data = bytearray(f.read())
+    sections, xclbin_uuid = parse_xclbin_header(xclbin_data)
 
     ip_dict = _xclxml_to_ip_dict(
         sections[xclbin.AXLF_SECTION_KIND.EMBEDDED_METADATA].decode(),
         xclbin_uuid)
-    ip_layout = xclbin.ip_layout.from_buffer(
-        sections[xclbin.AXLF_SECTION_KIND.IP_LAYOUT])
-    ip_data = _get_object_as_array(ip_layout.m_ip_data[0], ip_layout.m_count)
 
-    if xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
+    if xclbin.AXLF_SECTION_KIND.IP_LAYOUT in sections:
+        ip_layout = xclbin.ip_layout.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.IP_LAYOUT])
+        ip_data = _get_object_as_array(ip_layout.m_ip_data[0], ip_layout.m_count)
+    else:
+        ip_data = []
+
+    if xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY in sections:
         connectivity = xclbin.connectivity.from_buffer(
-            sections[xclbin.AXLF_SECTION_KIND.CONNECTIVITY])
+            sections[xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY])
         connections = _get_object_as_array(connectivity.m_connection[0],
                                            connectivity.m_count)
+    elif xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
+        connectivity = xclbin.connectivity.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY])
+        connections = _get_object_as_array(connectivity.m_connection[0],
+                                           connectivity.m_count)
+    else:
+        connections = []
 
+    if xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY in sections:
+        mem_topology = xclbin.mem_topology.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY])
+        mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
+                                        mem_topology.m_count)
+    elif xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY in sections:
         mem_topology = xclbin.mem_topology.from_buffer(
             sections[xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY])
         mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
                                         mem_topology.m_count)
-        memories = {i: ctypes.string_at(m.m_tag)
-                    for i, m in enumerate(mem_data)}
-        mem_dict = {memories[i].decode(): _mem_data_to_dict(i, mem)
-                    for i, mem in enumerate(mem_data)}
-        _add_argument_memory(ip_dict, ip_data, connections, memories)
     else:
-        mem_dict = {}
+        mem_data = []
 
+    memories = [ctypes.string_at(m.m_tag).decode() for m in mem_data]
+    mem_dict = {tag: _mem_data_to_dict(i, mem, tag)
+                for i, tag, mem in zip(itertools.count(), memories, mem_data)}
+    _add_argument_memory(ip_dict, ip_data, connections, memories)
+    
     if xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY in sections:
         clock_topology = xclbin.clock_freq_topology.from_buffer(
               sections[xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY])
