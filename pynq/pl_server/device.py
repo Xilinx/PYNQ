@@ -352,13 +352,20 @@ class Device(metaclass=DeviceMeta):
         from pynq import MMIO
         self._client.load_ip_data(ip_name, data)
         ip_dict = self.ip_dict
+        mem_dict = self.mem_dict
+        print(mem_dict.keys())
+        print(ip_name)
+        if ip_name in ip_dict:
+            address = ip_dict[ip_name]['addr_range']
+            target_size = ip_dict[ip_name]['addr_range']
+        elif ip_name in mem_dict:
+            address = mem_dict[ip_name]['base_address']
+            target_size = mem_dict[ip_name]['size']
         with open(data, 'rb') as bin_file:
             size = os.fstat(bin_file.fileno()).st_size
-            target_size = ip_dict[ip_name]['addr_range']
             if size > target_size:
                 raise RuntimeError("Binary file too big for IP")
-            mmio = MMIO(ip_dict[ip_name]['phys_addr'], target_size,
-                        device=self)
+            mmio = MMIO(address, target_size, device=self)
             buf = bin_file.read(size)
             if len(buf) % 4 != 0:
                 padding = 4 - len(buf) % 4

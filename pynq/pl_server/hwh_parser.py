@@ -292,6 +292,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 self.ip_dict[full_name]['addr_range'] = addr_range
                 self.ip_dict[full_name]['phys_addr'] = base_addr
                 self.ip_dict[full_name]['mem_id'] = intf_id
+                self.ip_dict[full_name]['memtype'] = i.get('MEMTYPE', None)
                 self.ip_dict[full_name]['gpio'] = {}
                 self.ip_dict[full_name]['interrupts'] = {}
                 self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
@@ -396,15 +397,11 @@ class _HWHABC(metaclass=abc.ABCMeta):
         For now we will add a single entry for the PS
 
         """
-        from pynq.xlnk import Xlnk
-        self.mem_dict[self.ps_name] = {
-            'raw_type': None,
-            'used': 1,
-            'base_address': 0,
-            'size': Xlnk.cma_mem_size(None),
-            'type': 'PSDDR',
-            'streaming': False
-        }
+        for k, v in list(self.ip_dict.items()):
+            if v.get('memtype', None) == 'MEMORY':
+                self.mem_dict[k] = v
+                del self.ip_dict[k]
+
 
     def _add_interrupt_pins(self, net, parent, offset, raw_map=None):
         net_pins = self.nets[net] if net else set()
@@ -473,8 +470,9 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """Initialize the hierarchical dictionary.
 
         """
+        objects = list(self.ip_dict.keys()) + list(self.mem_dict.keys())
         lasthierarchies = {}
-        hierarchies = {k.rpartition('/')[0] for k in self.ip_dict.keys()
+        hierarchies = {k.rpartition('/')[0] for k in objects
                        if k.count('/') > 0}
         while lasthierarchies != hierarchies:
             parents = {k.rpartition('/')[0] for k in hierarchies
@@ -494,6 +492,11 @@ class _HWHABC(metaclass=abc.ABCMeta):
             hier, _, ip = name.rpartition('/')
             if hier:
                 self.hierarchy_dict[hier]['ip'][ip] = val
+
+        for name, val in self.mem_dict.items():
+            hier, _, mem = name.rpartition('/')
+            if hier:
+                self.hierarchy_dict[hier]['memories'][mem] = val
 
         for name, val in self.hierarchy_dict.items():
             hier, _, subhier = name.rpartition('/')

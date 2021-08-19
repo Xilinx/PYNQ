@@ -151,7 +151,7 @@ class PynqMicroblaze:
         'intr_ack_name': 'mb_1_intr_ack'}
 
         """
-        ip_dict = PL.ip_dict
+        mem_dict = PL.mem_dict
         gpio_dict = PL.gpio_dict
         intr_dict = PL.interrupt_pins
 
@@ -162,11 +162,11 @@ class PynqMicroblaze:
 
         # Get IP information
         ip_name = mb_info['ip_name']
-        if ip_name not in ip_dict.keys():
+        if ip_name not in mem_dict.keys():
             raise ValueError("No such IP {}.".format(ip_name))
-        addr_base = ip_dict[ip_name]['phys_addr']
-        addr_range = ip_dict[ip_name]['addr_range']
-        ip_state = ip_dict[ip_name]['state']
+        addr_base = mem_dict[ip_name]['base_address']
+        addr_range = mem_dict[ip_name]['size']
+        ip_state = mem_dict[ip_name]['state']
 
         # Get reset information
         rst_name = mb_info['rst_name']
@@ -348,4 +348,4 @@ class MicroblazeHierarchy(DefaultHierarchy):
 
     @staticmethod
     def checkhierarchy(description):
-        return 'mb_bram_ctrl' in description['ip']
+        return 'mb_bram_ctrl' in description['memories']
