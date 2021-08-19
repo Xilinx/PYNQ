@@ -261,10 +261,8 @@ def _clk_data_to_dict(clk_data):
 
     return clk_dict
 
-
-def _xclbin_to_dicts(filename):
-    with open(filename, 'rb') as f:
-        binfile = bytearray(f.read())
+def parse_xclbin_header(xclbin_data):
+    binfile = bytearray(xclbin_data)
     header = xclbin.axlf.from_buffer(binfile)
     section_headers = _get_object_as_array(
         header.m_sections, header.m_header.m_numSections)
@@ -368,9 +366,9 @@ class XclBin:
         {str: {'name' : str, 'frequency' : int, 'type' : str}}.
 
     """
-    def __init__(self, filename):
+    def __init__(self, filename="", xclbin_data=None):
         self.ip_dict, self.mem_dict, self.clock_dict = \
-            _xclbin_to_dicts(filename)
+            _xclbin_to_dicts(filename, xclbin_data)
         self.gpio_dict = {}
         self.interrupt_controllers = {}
         self.interrupt_pins = {}

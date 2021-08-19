@@ -141,7 +141,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
     family_irq = ""
     family_gpio = ""
 
-    def __init__(self, hwh_name):
+    def __init__(self, hwh_name=None, hwh_data=None):
         """Returns a map built from the supplied hwh file
 
         Parameters
@@ -155,7 +155,10 @@ class _HWHABC(metaclass=abc.ABCMeta):
         and return without initialization
 
         """
-        tree = ElementTree.parse(hwh_name)
+        if hwh_name is not None:
+            tree = ElementTree.parse(hwh_name)
+        else:
+            tree = ElementTree.ElementTree(ElementTree.fromstring(hwh_data))
         self.root = tree.getroot()
         self.partial = True
         self.intc_names = []
