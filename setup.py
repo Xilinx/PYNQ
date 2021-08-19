@@ -127,7 +127,8 @@ extend_pynq_package(['pynq/lib/pynqmicroblaze',
                      'pynq/lib/arduino',
                      'pynq/lib/pmod',
                      'pynq/lib/rpi',
-                     'pynq/lib/logictools'])
+                     'pynq/lib/logictools',
+                     'pynq/pl_server/default.xclbin'])
 
 
 # Video source files

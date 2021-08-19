@@ -49,6 +49,7 @@ simple_description = {
     'hierarchies': {},
     'gpio': {},
     'interrupts': {},
+    'memories': {},
 }
 
 hier_description = {
@@ -68,9 +69,11 @@ hier_description = {
         'hierarchies': {},
         'gpio': {},
         'interrupts': {},
+        'memories': {},
     }},
     'gpio': {},
     'interrupts': {},
+    'memories': {},
 }
 
 

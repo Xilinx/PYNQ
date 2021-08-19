@@ -33,7 +33,6 @@ __email__ = "pynq_support@xilinx.com"
 
 import asyncio
 import numpy as np
-from pynq.xlnk import ContiguousArray
 from pynq import DefaultIP, allocate, UnsupportedConfiguration
 
 

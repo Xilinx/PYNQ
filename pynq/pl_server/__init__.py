@@ -40,3 +40,4 @@ import os
 if 'XILINX_XRT' in os.environ:
     from .xclbin_parser import XclBin
     from .xrt_device import XrtDevice
+    from .embedded_device import EmbeddedDevice
