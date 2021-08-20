@@ -400,6 +400,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         for k, v in list(self.ip_dict.items()):
             if v.get('memtype', None) == 'MEMORY':
                 self.mem_dict[k] = v
+                v['used'] = 1
                 del self.ip_dict[k]
 
 
