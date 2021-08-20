@@ -108,7 +108,8 @@ def _format_xrt_error(err):
     return errstring
 
 
-def _xrt_allocate(shape, dtype, device, memidx, cacheable):
+def _xrt_allocate(shape, dtype, device, memidx, cacheable=0, pointer=None,
+                  cache=None):
     elements = 1
     try:
         for s in shape:
@@ -117,12 +118,20 @@ def _xrt_allocate(shape, dtype, device, memidx, cacheable):
         elements = shape
     dtype = np.dtype(dtype)
     size = elements * dtype.itemsize
-    bo = device.allocate_bo(size, memidx, cacheable)
-    buf = device.map_bo(bo)
-    device_address = device.get_device_address(bo)
+    if pointer is not None:
+        bo, buf, device_address = pointer
+    else:
+        bo = device.allocate_bo(size, memidx, cacheable)
+        buf = device.map_bo(bo)
+        device_address = device.get_device_address(bo)
     ar = PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
                     device_address=device_address, coherent=False)
-    weakref.finalize(buf, _free_bo, device, bo, ar.virtual_address, ar.nbytes)
+    if pointer is not None:
+        weakref.finalize(buf, _free_bo, device, bo, ar.virtual_address,
+                         ar.nbytes)
+    if cache is not None:
+        ar.pointer = (bo, buf, device_address)
+        ar.return_to = cache
     return ar
 
 
@@ -146,7 +155,7 @@ class XrtMemory:
         self.desc = desc
         self.device = device
 
-    def allocate(self, shape, dtype, cacheable=False):
+    def allocate(self, shape, dtype, **kwargs):
         """Create a new  buffer in the memory bank
 
         Parameters
@@ -157,7 +166,7 @@ class XrtMemory:
             Data type of the array
 
         """
-        buf = _xrt_allocate(shape, dtype, self.device, self.idx, cacheable)
+        buf = _xrt_allocate(shape, dtype, self.device, self.idx, **kwargs)
         buf.memory = self
         return buf
 
