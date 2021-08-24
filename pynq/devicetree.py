@@ -141,7 +141,7 @@ class DeviceTreeSegment:
             # otherwise and IO error will occur
             read_back = f.read(1024*1024)
             if read_back != dtbo_data:
-                raise RuntimeError('Device tree {} canoot be applied'.format(
+                raise RuntimeError('Device tree {} cannot be applied'.format(
                     self.dtbo_name))
 
         if not self.is_dtbo_applied():
