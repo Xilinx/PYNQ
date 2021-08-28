@@ -331,6 +331,9 @@ class AxiGPIO(DefaultIP):
         'in', 'out' or 'inout'
 
         """
+        if type(direction) is str:
+            if direction in _direction_map:
+                direction = _direction_map[direction]
         if direction not in [AxiGPIO.Input, AxiGPIO.Output, AxiGPIO.InOut]:
             raise ValueError(
                 "direction should be one of AxiGPIO.{Input,Output,InOut}")
