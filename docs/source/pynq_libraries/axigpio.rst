@@ -5,7 +5,8 @@ AxiGPIO
 
 The AxiGPIO class provides methods to read, write, and receive 
 interrupts from external general purpose peripherals such as LEDs, 
-buttons, switches connected to the PL using AXI GPIO controller IP.
+buttons, switches connected to the PL using AXI GPIO controller IP. 
+This class is automatically assigned as a driver to IP of the type AXI GPIO
 
 
 Block Diagram
@@ -51,9 +52,10 @@ to exist in the overlay used with this class.
 Examples
 --------
 
-This example is for illustration, to show how to use the AxiGPIO class.
+This example is for illustration, and shows how to use the AxiGPIO class.
 In practice, the LED, Button, Switches, and RGBLED classes may be available 
-to extend the AxiGPIO class should be used for these peripherals in an overlay. 
+to extend the AxiGPIO class and should be used for these peripherals in 
+an overlay. 
 
 After an overlay has been loaded, an AxiGPIO instance can be instantiated 
 by passing the name of the AXI GPIO controller to the class. 
@@ -64,8 +66,8 @@ by passing the name of the AXI GPIO controller to the class.
    from pynq.lib import AxiGPIO
    ol = Overlay("base.bit")
 
-   led_ip = ol.ip_dict['gpio_leds']
-   switches_ip = ol.ip_dict['gpio_switches']
+   led_ip = ol.ip_dict['leds_gpio']
+   switches_ip = ol.ip_dict['switches_gpio']
    leds = AxiGPIO(led_ip).channel1
    switches = AxiGPIO(switches_ip).channel1
 
@@ -96,4 +98,5 @@ PYNQ-Z1/PYNQ-Z2 board at:
 
    <Jupyter Home>/base/board/board_btns_leds.ipynb
    
-The same notebook may be found in the corresponding folder in the GitHub repository. 
+The same notebook may be found in the corresponding folder in the GitHub 
+repository. 
