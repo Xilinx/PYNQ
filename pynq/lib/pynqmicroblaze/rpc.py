@@ -196,7 +196,11 @@ class ConstCharPointerWrapper(ConstPointerWrapper):
         super().__init__(type_, 'b')
 
     def param_encode(self, old_val):
-        val = [ord(c) for c in old_val]
+        if type(old_val) is str:
+            val = bytearray(old_val.encode())
+        else:
+            val = bytearray(old_val)
+
         val.append(0)
         return super().param_encode(val)
 
