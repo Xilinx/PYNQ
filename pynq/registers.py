@@ -1,4 +1,4 @@
-#   Copyright (c) 2019, Xilinx, Inc.
+#   Copyright (c) 2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@ import numpy as np
 import re
 import warnings
 
-__author__ = "Peter Ogden, Yun Rock Qu"
-__copyright__ = "Copyright 2019, Xilinx"
+__author__ = "Peter Ogden, Yun Rock Qu, Mario Ruiz"
+__copyright__ = "Copyright 2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -322,7 +322,7 @@ class Register:
         for k, v in fields.items():
             attrname = _safe_attrname(k)
             safe_fields[attrname] = v
-            doc = _wrap_docstring(v['description'])
+            doc = _wrap_docstring(v.get('description', ''))
             stop = v['bit_offset']
             start = stop + v['bit_width'] - 1
             index = slice(start, stop, -1)
@@ -447,7 +447,7 @@ class RegisterMap:
         name = _safe_attrname(name)
         for k, v in registers.items():
             attrname = _safe_attrname(k)
-            doc = _wrap_docstring(v['description'])
+            doc = _wrap_docstring(v.get('description', ''))
             if 'fields' in v:
                 register_class = Register.create_subclass(
                         attrname, v['fields'], doc)
