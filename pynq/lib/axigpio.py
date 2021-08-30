@@ -234,6 +234,8 @@ class AxiGPIO(DefaultIP):
             """Set the state of the output pins
 
             """
+            if self.slicetype == AxiGPIO.Input:
+                raise RuntimeError('You cannot write to an Input')
             self.val = (self.val & ~mask) | (val & mask)
             self._parent.write(self._channel * 8, self.val)
 
@@ -241,11 +243,13 @@ class AxiGPIO(DefaultIP):
             """Read the state of the input pins
 
             """
+            if self.slicetype == AxiGPIO.Output:
+                raise RuntimeError('You cannot read from an output')
             return self._parent.read(self._channel * 8)
 
         @property
         def trimask(self):
-            """Gets or sets the tri-state mask for an inout channel
+            """Gets or sets the tristate mask for an inout channel
 
             """
             return self._parent.read(self._channel * 8 + 4)
