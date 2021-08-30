@@ -40,9 +40,6 @@ zerofree
 u-boot-tools
 rpm2cpio
 curl
-docker-ce
-docker-ce-cli
-containerd.io
 libsdl1.2-dev
 libpixman-1-dev
 libc6-dev
@@ -63,39 +60,16 @@ set -e
 
 sudo apt-get update
 
-if [[ $(lsb_release -rs) == "16.04" ]]; then
-    echo "Install packages on Ubuntu 16.04..."
-    sudo apt purge -y libgnutls-dev
-elif [[ $(lsb_release -rs) == "18.04" ]]; then
+if [[ $(lsb_release -rs) == "18.04" ]]; then
     echo "Install packages on Ubuntu 18.04..."
 else
     echo "Error: current OS not supported."
     exit 1
 fi
 
-# Setup docker and containerd using repository before installing them
-sudo apt-get install -y \
-        apt-transport-https \
-        ca-certificates \
-        curl \
-        gnupg-agent \
-        software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository \
-        "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
-sudo apt-get update
-
-sudo dpkg --add-architecture i386
-sudo apt-get update
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/ppa
 sudo apt-get update
 sudo apt-get install -y $PACKAGES
-
-# Double-check docker can run with or without sudo
-sudo service docker start
-sudo chmod 777 /var/run/docker.sock
-docker run hello-world
-sudo docker run hello-world
 
 # Install up-to-date versions of crosstool and qemu
 if [ -e tools ]; then
