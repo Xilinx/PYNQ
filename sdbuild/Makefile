@@ -1,6 +1,6 @@
 DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
-BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
+BOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 UBUNTU_RELEASE := focal
 VERSION := 2.7.0
 
@@ -77,10 +77,6 @@ include $(PACKAGE_MAKES)
 include $(wildcard $(CURDIR)/ubuntu/$(UBUNTU_RELEASE)/*/config)
 include $(wildcard $(BOARDDIR)/*/*.spec)
 
-MOUNTED_TARGET_BOOT := $(wildcard $(BUILD_ROOT)/$(UBUNTU_RELEASE).*/boot)
-MOUNTED_TARGET := $(dir $(MOUNTED_TARGET_BOOT))
-LOOP_IMAGE_FILE := $(shell sudo losetup -a | grep "/sdbuild/" | cut -d "(" -f2 | cut -d ")" -f1)
-
 define BOARD_SPECIFIC_RULES
 # $1 is the board name
 ifeq ($$(FPGA_MANAGER_$1),)
@@ -94,7 +90,9 @@ BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1) ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
+ROOT_$1 := $$(BUILD_ROOT)/$1.tar.gz
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
+EXTRA_BOOT_$1 := $$(BUILD_ROOT)/$1.extra_boot
 
 ifeq ($$(ARCH_$1),arm)
 	TEMPLATE_$1 := zynq
@@ -215,7 +213,7 @@ $$(BUILD_ROOT_$1):
 $$(BOOT_ROOT_$1):
 	mkdir -p $$@
 
-BASE_$1 ?= $$(UBUNTU_RELEASE).$$(ARCH_$1).$$(VERSION).img
+BASE_$1 ?= $$(UBUNTU_RELEASE).$$(ARCH_$1).$$(VERSION).tar.gz
 ifeq ($$(PREBUILT),)
 	BASE_PATH_$1 := $$(IMAGE_ROOT)/$$(BASE_$1)
 else
@@ -224,11 +222,11 @@ endif
 STAGE4_DEPENDS_$1 := $$(foreach package, $$(STAGE4_PACKAGES_$1), $$(PACKAGE_BUILD_$$(package)_$1) $$(PACKAGE_BUILD_$$(package)))
 STAGING_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1
 
-$$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODULES_$1) $$(KERNEL_RPM_$1) | $$(CCACHEDIR)
-	cp --sparse=always $$(BASE_PATH_$1) $$(IMAGE_$1)
-	$$(SCRIPT_DIR)/mount_image.sh $$(IMAGE_$1) $$(STAGING_$1)
+$$(ROOT_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_RPM_$1) | $$(CCACHEDIR)
+	sudo rm -fr $$(STAGING_$1)
+	mkdir $$(STAGING_$1)
+	(cd $$(STAGING_$1) && sudo tar -xf $$(realpath $$<))
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/install_packages.sh $$(STAGING_$1) $$(STAGE4_PACKAGES_$1)
-	sudo cp $$(BOOT_FILES_$1) $$(STAGING_$1)/boot
 	mkdir -p $$(BUILD_ROOT_$1)/modules
 	cd $$(BUILD_ROOT_$1)/modules && tar -xf $$(MODULES_$1)
 	sudo cp -r --no-preserve=ownership $$(BUILD_ROOT_$1)/modules/* $$(STAGING_$1)
@@ -237,8 +235,16 @@ $$(IMAGE_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(BOOT_FILES_$1) $$(MODUL
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
 	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
 	sudo umount -l $$(STAGING_$1)/dev
+	rm -rf $$(EXTRA_BOOT_$1)
+	cp -r $$(STAGING_$1)/boot $$(EXTRA_BOOT_$1)
+	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
-	$$(SCRIPT_DIR)/resize_umount.sh $$(IMAGE_$1) $$(STAGING_$1)
+
+$$(IMAGE_$1) : $$(ROOT_$1) $$(BOOT_FILES_$1)
+	sudo rm -rf $$(STAGING_$1)
+	mkdir $$(STAGING_$1)
+	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
+	(cd $$(PL_PROJ_$1) && petalinux-package --wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$< --outdir $$(IMAGE_ROOT) --wks  $$(CURDIR)/boot/image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:.") && mv $$(IMAGE_ROOT)/petalinux-sdimage.wic $$@
 
 
 SDX_DIR_$1 := $$(SDX_ROOT)/$1/sw
@@ -273,15 +279,11 @@ $$(SDX_IMAGE_DIR_$1)/image.ub: $$(BOOT_ROOT_$1)/image.ub | $$(SDX_IMAGE_DIR_$1)
 
 sdx_sw_$1: $$(SDX_FILES_$1)
 
-$$(SYSROOT_$1): $$(IMAGE_$1) | $$(SYSROOT_ROOT)
+$$(SYSROOT_$1): $$(ROOT_$1) | $$(SYSROOT_ROOT)
 	-rm -rf $$@
 	mkdir -p $$@/usr $$@/lib $$@/opt
-	$$(SCRIPT_DIR)/mount_image.sh $$(IMAGE_$1) $$(STAGING_$1)
-	cp -rd $$(STAGING_$1)/usr $$@
-	cp -rd $$(STAGING_$1)/lib $$@
-	cp -rd $$(STAGING_$1)/opt $$@
+	(cd $$@ && tar -xf $$(ROOT_$1) usr lib opt)
 	sudo chmod a+w -R $$@
-	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(IMAGE_$1)
 
 sysroot_$1 : $$(SYSROOT_$1)
 
@@ -292,10 +294,10 @@ endef
 define ARCH_SPECIFIC_RULES
 # $1 is the architecture
 # Used to generate the board-independent root filesystems
-BASE_$1 := $$(IMAGE_ROOT)/$$(UBUNTU_RELEASE).$1.$$(VERSION).img
+BASE_$1 := $$(IMAGE_ROOT)/$$(UBUNTU_RELEASE).$1.$$(VERSION).tar.gz
 STAGING_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1
-STAGE1_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1.stage1.img
-STAGE2_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1.stage2.img
+STAGE1_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1.stage1.tar.gz
+STAGE2_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1.stage2.tar.gz
 STAGE2_DEPENDS_$1 := $$(foreach package, $$(STAGE2_PACKAGES_$1), $$(PACKAGE_BUILD_$$(package)_$1) $$(PACKAGE_BUILD_$$(package)))
 STAGE3_DEPENDS_$1 := $$(foreach package, $$(STAGE3_PACKAGES_$1), $$(PACKAGE_BUILD_$$(package)_$1) $$(PACKAGE_BUILD_$$(package)))
 CONFIG_$1 := $$(CURDIR)/ubuntu/$$(UBUNTU_RELEASE)/$1
@@ -304,24 +306,24 @@ PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARD=Unknown ARCH=$1
 DIST_$1 := $$(DIST_ROOT)/$1
 
 $$(STAGE2_$1) : $$(STAGE1_$1) $$(STAGE2_DEPENDS_$1)
-	cp --sparse=always $$(STAGE1_$1) $$(STAGE2_$1)
-	$$(SCRIPT_DIR)/mount_image.sh $$(STAGE2_$1) $$(STAGING_$1)
+	sudo rm -rf $$(STAGING_$1)
+	mkdir $$(STAGING_$1)
+	(cd $$(STAGING_$1) && sudo tar -xf $$<)
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/install_packages.sh $$(STAGING_$1) $$(STAGE2_PACKAGES_$1)
-	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(STAGE2_$1)
+	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
 $$(BASE_$1) : $$(STAGE2_$1) $$(STAGE3_DEPENDS_$1) | $$(IMAGE_ROOT)
-	cp --sparse=always $$(STAGE2_$1) $$(BASE_$1)
-	$$(SCRIPT_DIR)/mount_image.sh $$(BASE_$1) $$(STAGING_$1)
+	sudo rm -rf $$(STAGING_$1)
+	mkdir $$(STAGING_$1)
+	(cd $$(STAGING_$1) && sudo tar -xf $$<)
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/install_packages.sh $$(STAGING_$1) $$(STAGE3_PACKAGES_$1)
-	$$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(BASE_$1)
+	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
 $$(STAGE1_$1): $$(CONFIG_$1)/multistrap.config | $$(BUILD_ROOT) $$(CCACHEDIR)
-	-rm -f $$@
-	$(SCRIPT_DIR)/create_mount_img.sh $$(STAGE1_$1) $$(STAGING_$1)
+	sudo rm -rf $$(STAGING_$1)
+	mkdir $$(STAGING_$1)
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/create_rootfs.sh $$(STAGING_$1) $$(CONFIG_$1)
-	$(SCRIPT_DIR)/unmount_image.sh $$(STAGING_$1) $$(STAGE1_$1)
-
-.PRECIOUS: $$(STAGE1_$1) $$(STAGE2_$2) $$(BASE_$1)
+	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
 qemu_check_$1:
 	$$(QEMU_$1) -version | fgrep ${QEMU_VERSION}
@@ -363,9 +365,7 @@ checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
 	which microblaze-xilinx-elf-gcc
 	which ct-ng
 	which python | fgrep /usr/bin/python
-	sudo -n mount > /dev/null
 	bash $(SCRIPT_DIR)/check_env.sh
-	bash $(SCRIPT_DIR)/check_mounts.sh
 
 boot_files: checkenv $(BOOT_FILES)
 
@@ -386,17 +386,9 @@ dist: $(patsubst %, dist_%, $(USED_ARCH))
 # Default package clean target
 PACKAGE_CLEAN_%: ;
 
-unmount:
-	if [ ! -z $(LOOP_IMAGE_FILE) ]; then \
-		$(SCRIPT_DIR)/unmount_image.sh $(MOUNTED_TARGET) $(LOOP_IMAGE_FILE) ;\
-	fi
-
-delete: unmount
-	rm -rf $(LOOP_IMAGE_FILE)
-
-clean: delete $(PACKAGE_CLEAN)
+clean: $(PACKAGE_CLEAN)
 	-rm -rf $(BUILD_ROOT)
 	-rm -rf $(IMAGE_ROOT)
 
-.PHONY: dist bsp boot_files images all unmount delete clean \
+.PHONY: dist bsp boot_files images all clean \
 	real_all checkenv sdx_sw sysroot nocheck_images
