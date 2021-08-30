@@ -348,6 +348,7 @@ class AxiGPIO(DefaultIP):
 
     bindto = ['xilinx.com:ip:axi_gpio:2.0']
 
-_direction_map = { "in": AxiGPIO.Input,
-                   "out": AxiGPIO.Output,
-                   "inout": AxiGPIO.InOut }
+
+_direction_map = {"in": AxiGPIO.Input,
+                  "out": AxiGPIO.Output,
+                  "inout": AxiGPIO.InOut}
