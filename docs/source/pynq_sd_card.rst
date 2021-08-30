@@ -31,7 +31,6 @@ It is recommended to use a Ubuntu OS to build the image. The currently supported
 ================  ==================
 Supported OS      Code name
 ================  ==================   
-Ubuntu 16.04       xenial
 Ubuntu 18.04       bionic
 ================  ==================
 
@@ -71,7 +70,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
         vagrant up
 
      The above command will take about 20 minutes to finish.
-     By default, our vagrant file will prepare a Ubuntu 16.04 OS. If you would
+     By default, our vagrant file will prepare a Ubuntu 18.04 OS. If you would
      like to use another OS, do:
      
      .. code-block:: console
@@ -128,6 +127,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.4               2018.3
      v2.5               2019.1
      v2.6               2020.1
+     v2.7               2020.2
      ================  ================
 
 Use existing Ubuntu OS
