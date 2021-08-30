@@ -98,8 +98,7 @@ class Interrupt(object):
         self.event = asyncio.Event()
         self.waiting = False
 
-    @asyncio.coroutine
-    def wait(self):
+    async def wait(self):
         """Wait for the interrupt to be active
 
         May raise an exception if the Overlay has been changed since
@@ -112,7 +111,7 @@ class Interrupt(object):
             self.event.clear()
             parent.add_event(self.event, self.number)
             self.waiting = True
-        yield from self.event.wait()
+        await self.event.wait()
         self.waiting = False
 
 
