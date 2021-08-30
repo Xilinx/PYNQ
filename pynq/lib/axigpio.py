@@ -233,6 +233,8 @@ class AxiGPIO(DefaultIP):
             """Set the state of the output pins
 
             """
+            if self.slicetype == AxiGPIO.Input:
+                raise RuntimeError('You cannot write to an Input')
             self.val = (self.val & ~mask) | (val & mask)
             self._parent.write(self._channel * 8, self.val)
 
@@ -240,11 +242,13 @@ class AxiGPIO(DefaultIP):
             """Read the state of the input pins
 
             """
+            if self.slicetype == AxiGPIO.Output:
+                raise RuntimeError('You cannot read from an output')
             return self._parent.read(self._channel * 8)
 
         @property
         def trimask(self):
-            """Gets or sets the tri-state mask for an inout channel
+            """Gets or sets the tristate mask for an inout channel
 
             """
             return self._parent.read(self._channel * 8 + 4)
@@ -329,6 +333,9 @@ class AxiGPIO(DefaultIP):
         'in', 'out' or 'inout'
 
         """
+        if type(direction) is str:
+            if direction in _direction_map:
+                direction = _direction_map[direction]
         if direction not in [AxiGPIO.Input, AxiGPIO.Output, AxiGPIO.InOut]:
             raise ValueError(
                 "direction should be one of AxiGPIO.{Input,Output,InOut}")
@@ -339,6 +346,7 @@ class AxiGPIO(DefaultIP):
 
     bindto = ['xilinx.com:ip:axi_gpio:2.0']
 
-_direction_map = { "in": AxiGPIO.Input,
-                   "out": AxiGPIO.Output,
-                   "inout": AxiGPIO.InOut }
+
+_direction_map = {"in": AxiGPIO.Input,
+                  "out": AxiGPIO.Output,
+                  "inout": AxiGPIO.InOut}
