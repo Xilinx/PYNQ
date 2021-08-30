@@ -139,6 +139,8 @@ ubuntu-advantage-tools==20.3
 unattended-upgrades==0.1
 urllib3==1.25.8
 uvloop==0.14.0
+voila==0.2.10
+voila-gridstack==0.2.0
 wadllib==1.3.3
 wcwidth==0.1.8
 webencodings==0.5.1
