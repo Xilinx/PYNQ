@@ -62,11 +62,11 @@ def _write_LMK_regs(reg_vals, lmk):
     lmk: dictionary
         An instance of lmk_devices
         
-    This function opens spi_address at /dev/spidevB.C and writes the register values stored in reg_vals.
+    This function opens spi_device at /dev/spidevB.C and writes the register values stored in reg_vals.
     Number of bytes written is board dependant. 
 
     """   
-    with open(lmk['spi_address'], 'rb+', buffering=0) as f:
+    with open(lmk['spi_device'], 'rb+', buffering=0) as f:
         for v in reg_vals:
             data = struct.pack('>I', v)
             if lmk['num_bytes'] == 3:
@@ -90,11 +90,11 @@ def _write_LMX_regs(reg_vals, lmx):
     lmx: dictionary
         An instance of lmx_devices
         
-    This function opens spi_address at /dev/spidevB.C and writes the register values stored in reg_vals.
+    This function opens spi_device at /dev/spidevB.C and writes the register values stored in reg_vals.
     LMX must be reset before writing new values.
     """
     
-    with open(lmx['spi_address'], 'rb+', buffering=0) as f:
+    with open(lmx['spi_device'], 'rb+', buffering=0) as f:
         # Program RESET = 1 to reset registers.
         reset = struct.pack('>I', 0x020000)
         f.write(reset[1:])
@@ -188,19 +188,19 @@ def _find_devices():
             
             # sort devices into lmk_devices or lmx_devices
             if compatible[:3] == 'lmk':
-                lmk_dict = {'spi_address' : _get_spidev_path(dev), 
+                lmk_dict = {'spi_device' : _get_spidev_path(dev), 
                             'compatible' : compatible, 
                             'num_bytes' : struct.unpack('>I', (dev / 'of_node' / 'num_bytes').read_bytes())[0]}
                 lmk_devices.append(lmk_dict)
             else:
-                lmx_dict = {'spi_address' : _get_spidev_path(dev), 
+                lmx_dict = {'spi_device' : _get_spidev_path(dev), 
                             'compatible' : compatible}
                 lmx_devices.append(lmx_dict)
                 
     if lmk_devices == []:
-        raise RuntimeError("SPI path not set. LMK not found on device tree.")
+        raise RuntimeError("SPI path not set. LMK not found on device tree. Issue with BSP.")
     if lmx_devices == []:
-        raise RuntimeError("SPI path not set. LMX not found on device tree.")
+        raise RuntimeError("SPI path not set. LMX not found on device tree. Issue with BSP.")
         
 
 def set_ref_clks(lmk_freq=122.88, lmx_freq=409.6):
@@ -216,15 +216,15 @@ def set_ref_clks(lmk_freq=122.88, lmx_freq=409.6):
         The frequency for the LMX PLL chip.
         
     lmk_devices: list of dictionaries
-        For each lmk device on the board, stores {spi_address, compatible, num_bytes}
+        For each lmk device on the board, stores {spi_device, compatible, num_bytes}
         ZCU111: 1 device
         RFSoC2x2: 1 device
     lmx_devices: list of dictionaries
-        For each lmx device on the board, stores {spi_address, compatible}
+        For each lmx device on the board, stores {spi_device, compatible}
         ZCU111: 3 devices
         RFSoC2x2: 2 devices (ADC and DAC)
         
-    spi_address: location of /dev/spidevB.C
+    spi_device: location of /dev/spidevB.C
     compatible: name of lmk/lmx device
         ZCU111: lmk04208, lmx2594
         RFSoC2x2: lmk04832, lmx2594
