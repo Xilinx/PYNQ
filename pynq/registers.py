@@ -120,7 +120,8 @@ class Register:
 
     """
 
-    def __init__(self, address, width=32, debug=False, buffer=None):
+    def __init__(self, address, width=32, debug=False, buffer=None,
+                 access='read-write'):
         """Instantiate a register object.
 
         Parameters
@@ -141,6 +142,7 @@ class Register:
         self.address = address
         self.width = width
         self.debug = debug
+        self.access = access
 
         if width == 32:
             register_type = 'u4'
@@ -172,6 +174,8 @@ class Register:
         """
         lower, upper, reverse = _calc_index(index, self.width)
         curr_val = int(self._buffer[0])
+        if self.access == 'write-only':
+            return self.access
         if lower == upper:
             self._debug("Reading index {} at address {}"
                         .format(index, hex(self.address)))
@@ -268,9 +272,14 @@ class Register:
         """
         if hasattr(self, '_fields') and self._fields:
             field_desc = []
-            for k in self._fields.keys():
-                field_desc.append("{}={}".format(k, getattr(self, k)))
+            for k, v in self._fields.items():
+                if v['access'] != 'write-only':
+                    field_desc.append("{}={}".format(k, getattr(self, k)))
+                else:
+                    field_desc.append("{}={}".format(k, 'write-only'))
             return "Register({})".format(", ".join(field_desc))
+        elif self.access == 'write-only':
+            return "Register(value={})".format(self.access)
         else:
             return "Register(value={})".format(self[:])
 
@@ -324,8 +333,8 @@ class Register:
             else:
                 attr_dict[attrname] = property(
                     functools.partial(Register.__getitem__, index=index),
-                    functools.partial(Register._reordered_setitem, index=index),
-                    doc=doc)
+                    functools.partial(Register._reordered_setitem,
+                                      index=index), doc=doc)
         return type("Register" + name, (Register,), attr_dict)
 
     @classmethod
@@ -371,12 +380,10 @@ class RegisterMap:
                                "create_subclass can be instantiated")
         if hasattr(buffer, 'view'):
             array32 = buffer.view(dtype='u4')
-            array64 = buffer.view(dtype='u8')
         else:
             array32 = np.frombuffer(buffer=buffer, dtype=np.uint32,
                                     count=self._map_size // 4)
-            array64 = np.frombuffer(buffer=buffer, dtype=np.uint64,
-                                    count=self._map_size // 8)
+
         self._instances = {}
         for k, v in self._register_classes.items():
             if v[2] <= 32:
@@ -393,8 +400,9 @@ class RegisterMap:
                         v[2], k
                     ))
                 continue
+
             self._instances[k] = v[0](
-                address=v[1], width=align_width, buffer=array)
+                address=v[1], width=align_width, buffer=array, access=v[5])
 
     def _set_value(self, value, name):
         self._instances[name][:] = value
@@ -404,9 +412,9 @@ class RegisterMap:
 
     def __repr__(self):
         register_info = []
-        for k, v in sorted(self._instances.items(), key=lambda x: x[1].address):
-            register_info.append(
-                "  {} = {}".format(k, repr(v)))
+        for k, v in \
+                sorted(self._instances.items(), key=lambda x: x[1].address):
+            register_info.append("  {} = {}".format(k, repr(v)))
         return "RegisterMap {\n" + ",\n".join(register_info) + "\n}"
 
     @classmethod
@@ -446,7 +454,8 @@ class RegisterMap:
             else:
                 register_class = Register
             register_classes[attrname] = (
-                register_class, v['address_offset'], v['size'])
+                register_class, v['address_offset'], v['size'],
+                None, None, v['access'])
             upper_range = v['address_offset'] + v['size'] // 8
             if upper_range > address_high:
                 address_high = upper_range

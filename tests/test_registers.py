@@ -331,7 +331,7 @@ def test_repr_plain(width):
 
 
 def test_repr_fields(mock_register):
-    assert "Register(read_field=1, write_field=2, rw_field_1=3, rw_field_2=4, r0_number_field=5, space_special__=6)" == repr(mock_register)  # NOQA
+    assert "Register(read_field=1, write_field=write-only, rw_field_1=3, rw_field_2=4, r0_number_field=5, space_special__=6)" == repr(mock_register)  # NOQA
 
 
 def test_reg_debug_bit(width, capsys):
@@ -460,6 +460,8 @@ def test_regmap_rw(mock_registermap, register_name):
 
     width = struct.calcsize(struct_string)
     buf[offset:offset+width] = memoryview(struct.pack(struct_string, start))
+    if register_name == 'write_only':
+        start = 'write-only'
     assert getattr(rm, register_name)[:] == start
     setattr(rm, register_name, end)
     assert struct.unpack(struct_string, buf[offset:offset+width])[0] == end
@@ -474,6 +476,8 @@ def test_regmap_rw_mmio(register_name):
     offset, struct_string, start, end = REGMAP_TESTS[register_name]
     read_transaction = (ADDRESS+offset, struct.pack(struct_string, start))
     write_transaction = (ADDRESS+offset, struct.pack(struct_string, end))
+    if register_name == 'write_only':
+        start = 'write-only'
     with device.check_transactions([read_transaction], []):
         value = getattr(rm, register_name)[:]
         assert value == start
@@ -491,12 +495,12 @@ def test_regmap_read_only(mock_registermap):
 
 
 expected_regmap_repr = """RegisterMap {
-  test_register = Register(read_field=0, write_field=1, rw_field_1=1, rw_field_2=1, r0_number_field=2, space_special__=1),
+  test_register = Register(read_field=0, write_field=write-only, rw_field_1=1, rw_field_2=1, r0_number_field=2, space_special__=1),
   aligned_4 = Register(value=589439264),
   aligned_8 = Register(value=3399704436437297448),
   unaligned_8 = Register(value=4267786510494217524),
   read_only = Register(value=1128415552),
-  write_only = Register(value=1195787588),
+  write_only = Register(value=write-only),
   space_special__ = Register(value=1263159624),
   r001_numbered = Register(value=1330531660),
   out_of_order = Register(value=1397903696)
