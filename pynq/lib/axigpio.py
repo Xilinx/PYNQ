@@ -152,9 +152,9 @@ class AxiGPIO(DefaultIP):
             """Toggles all of the wires in the slice
 
             """
-            self.write((~self._parent.val >> self._start) & self._mask)
+            self.write((~self._parent._val >> self._start) & self._mask)
 
-    class InOut(Output, Input):
+    class InOut(Input, Output):
         """Class representing wires in an inout channel.
 
         This class should be passed to `setdirection` to indicate the
@@ -213,7 +213,7 @@ class AxiGPIO(DefaultIP):
             self._channel = channel
             self.slicetype = AxiGPIO.InOut
             self.length = 32
-            self.val = 0
+            self._val = 0
             self._waiter_count = 0
 
         def __getitem__(self, idx):
@@ -235,8 +235,8 @@ class AxiGPIO(DefaultIP):
             """
             if self.slicetype == AxiGPIO.Input:
                 raise RuntimeError('You cannot write to an Input')
-            self.val = (self.val & ~mask) | (val & mask)
-            self._parent.write(self._channel * 8, self.val)
+            self._val = (self._val & ~mask) | (val & mask)
+            self._parent.write(self._channel * 8, self._val)
 
         def read(self):
             """Read the state of the input pins
