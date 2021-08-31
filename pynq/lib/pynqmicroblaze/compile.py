@@ -127,11 +127,11 @@ class MicroblazeProgram(PynqMicroblaze):
         if bsp is None:
             bsp = _find_bsp(mb_info['name'])
 
-        ip_dict = PL.ip_dict
+        mem_dict = PL.mem_dict
         ip_name = mb_info['ip_name']
-        if ip_name not in ip_dict.keys():
+        if ip_name not in mem_dict.keys():
             raise ValueError("No such IP {}.".format(ip_name))
-        ip_state = ip_dict[ip_name]['state']
+        ip_state = mem_dict[ip_name]['state']
         force = False
         if ip_state and ip_state.startswith('/tmp/'):
             force = True

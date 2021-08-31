@@ -49,7 +49,9 @@ __email__ = "pynq_support@xilinx.com"
 
 DRM_XOCL_BO_EXECBUF = 1 << 31
 REQUIRED_VERSION_ERT = (2, 3, 0)
+ZOCL_BO_FLAGS_CACHEABLE = 1 << 24
 libc = ctypes.CDLL('libc.so.6')
+
 libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
 libc.munmap.restype = ctypes.c_int
 
@@ -106,7 +108,8 @@ def _format_xrt_error(err):
     return errstring
 
 
-def _xrt_allocate(shape, dtype, device, memidx):
+def _xrt_allocate(shape, dtype, device, memidx, cacheable=0, pointer=None,
+                  cache=None):
     elements = 1
     try:
         for s in shape:
@@ -115,12 +118,20 @@ def _xrt_allocate(shape, dtype, device, memidx):
         elements = shape
     dtype = np.dtype(dtype)
     size = elements * dtype.itemsize
-    bo = device.allocate_bo(size, memidx)
-    buf = device.map_bo(bo)
-    device_address = device.get_device_address(bo)
+    if pointer is not None:
+        bo, buf, device_address = pointer
+    else:
+        bo = device.allocate_bo(size, memidx, cacheable)
+        buf = device.map_bo(bo)
+        device_address = device.get_device_address(bo)
     ar = PynqBuffer(shape, dtype, bo=bo, device=device, buffer=buf,
                     device_address=device_address, coherent=False)
-    weakref.finalize(buf, _free_bo, device, bo, ar.virtual_address, ar.nbytes)
+    if pointer is not None:
+        weakref.finalize(buf, _free_bo, device, bo, ar.virtual_address,
+                         ar.nbytes)
+    if cache is not None:
+        ar.pointer = (bo, buf, device_address)
+        ar.return_to = cache
     return ar
 
 
@@ -140,10 +151,11 @@ class XrtMemory:
     def __init__(self, device, desc):
         self.idx = desc['idx']
         self.size = desc['size']
+        self.base_address = desc['base_address']
         self.desc = desc
         self.device = device
 
-    def allocate(self, shape, dtype):
+    def allocate(self, shape, dtype, **kwargs):
         """Create a new  buffer in the memory bank
 
         Parameters
@@ -154,7 +166,7 @@ class XrtMemory:
             Data type of the array
 
         """
-        buf = _xrt_allocate(shape, dtype, self.device, self.idx)
+        buf = _xrt_allocate(shape, dtype, self.device, self.idx, **kwargs)
         buf.memory = self
         return buf
 
@@ -310,8 +322,8 @@ class XrtDevice(Device):
 
     _probe_priority_ = 200
 
-    def __init__(self, index):
-        super().__init__('xrt{}'.format(index))
+    def __init__(self, index, tag="xrt{}"):
+        super().__init__(tag.format(index))
         self.capabilities = {
             'REGISTER_RW': True,
             'CALLABLE': True,
@@ -393,7 +405,9 @@ class XrtDevice(Device):
         if ret >= 0x80000000:
             raise RuntimeError("Invalidate Failed: " + str(ret))
 
-    def allocate_bo(self, size, idx):
+    def allocate_bo(self, size, idx, cacheable):
+        if cacheable:
+            idx |= ZOCL_BO_FLAGS_CACHEABLE
         bo = xrt.xclAllocBO(self.handle, size,
                             xrt.xclBOKind.XCL_BO_DEVICE_RAM, idx)
         if bo >= 0x80000000:
@@ -484,7 +498,8 @@ class XrtDevice(Device):
             xrt.xclCloseContext(self.handle, v['uuid_ctypes'], v['idx'])
         self.contexts = dict()
 
-    def download(self, bitstream, parser=None):
+
+    def _xrt_download(self, data):
         # Keep copy of old contexts so we can reacquire them if
         # downloading fails
         old_contexts = copy.deepcopy(self.contexts)
@@ -499,8 +514,6 @@ class XrtDevice(Device):
             raise RuntimeError(
                 "Could not lock device for programming - " + str(err))
         try:
-            with open(bitstream.bitfile_name, 'rb') as f:
-                data = f.read()
             err = xrt.xclLoadXclBin(self.handle, data)
             if err:
                 for k, v in old_contexts:
@@ -512,6 +525,11 @@ class XrtDevice(Device):
         finally:
             xrt.xclUnlockDevice(self.handle)
 
+
+    def download(self, bitstream, parser=None):
+        with open(bitstream.bitfile_name, 'rb') as f:
+            data = f.read()
+        self._xrt_download(data)
         super().post_download(bitstream, parser)
 
     def open_contex(self, description, shared=True):

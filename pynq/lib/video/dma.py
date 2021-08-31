@@ -33,16 +33,16 @@ __email__ = "pynq_support@xilinx.com"
 
 import asyncio
 import numpy as np
-from pynq.xlnk import ContiguousArray
 from pynq import DefaultIP, allocate, UnsupportedConfiguration
 
 
 class _FrameCache:
-    def __init__(self, mode, capacity=5, cacheable=0):
+    def __init__(self, mode, memory, capacity=5, cacheable=0):
         self._cache = []
         self._mode = mode
         self._capacity = capacity
         self._cacheable = cacheable
+        self._memory = memory
 
     def getframe(self):
         """Retrieve a frame from the cache or create a new frame if the
@@ -54,11 +54,11 @@ class _FrameCache:
         if self._cache:
             frame = allocate(
                 shape=self._mode.shape, dtype='u1', cacheable=self._cacheable,
-                pointer=self._cache.pop(), cache=self)
+                pointer=self._cache.pop(), cache=self, target=self._memory)
         else:
             frame = allocate(
                 shape=self._mode.shape, dtype=np.uint8,
-                cacheable=self._cacheable, cache=self)
+                cacheable=self._cacheable, cache=self, target=self._memory)
         return frame
 
     def return_pointer(self, pointer):
@@ -156,12 +156,13 @@ class AxiVDMA(DefaultIP):
 
         """
 
-        def __init__(self, parent, interrupt):
+        def __init__(self, parent, interrupt, memory):
             self._mmio = parent.mmio
             self._frames = AxiVDMA._FrameList(self, 0xAC, parent.framecount)
             self._interrupt = interrupt
             self._sinkchannel = None
             self._mode = None
+            self.memory = memory
             self.cacheable_frames = True
 
         def _readframe_internal(self):
@@ -300,7 +301,7 @@ class AxiVDMA(DefaultIP):
                 raise RuntimeError("Video mode not set, channel not started")
             self.desiredframe = 0
             self._cache = _FrameCache(
-                    self._mode, cacheable=self.cacheable_frames)
+                    self._mode, self.memory, cacheable=self.cacheable_frames)
             for i in range(len(self._frames)):
                 self._frames[i] = self._cache.getframe()
 
@@ -387,13 +388,14 @@ class AxiVDMA(DefaultIP):
 
         """
 
-        def __init__(self, parent, interrupt):
+        def __init__(self, parent, interrupt, memory):
             self._mmio = parent.mmio
             self._frames = AxiVDMA._FrameList(self, 0x5C, parent.framecount)
             self._interrupt = interrupt
             self._mode = None
             self.sourcechannel = None
             self.cacheable_frames = True
+            self.memory = memory
 
         def start(self):
             """Start the DMA channel with a blank screen. The mode must
@@ -403,7 +405,7 @@ class AxiVDMA(DefaultIP):
             if not self._mode:
                 raise RuntimeError("Video mode not set, channel not started")
             self._cache = _FrameCache(
-                    self._mode, cacheable=self.cacheable_frames)
+                    self._mode, self.memory, cacheable=self.cacheable_frames)
             self._frames[0] = self._cache.getframe()
             self._writemode()
             self.reload()
@@ -604,10 +606,13 @@ class AxiVDMA(DefaultIP):
             framecount = 4 if framecount is None else framecount
 
         self.framecount = framecount
+        memory = description['device'].default_memory
         if has_s2mm:
-            self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut)
+            self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut,
+                    memory)
         if has_mm2s:
-            self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut)
+            self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut,
+                    memory)
 
     bindto = ['xilinx.com:ip:axi_vdma:6.2',
               'xilinx.com:ip:axi_vdma:6.3']

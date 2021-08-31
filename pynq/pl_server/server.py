@@ -306,7 +306,10 @@ class DeviceClient:
 
         """
         self.client_request()
-        self._ip_dict[ip_name]['state'] = data
+        if ip_name in self._ip_dict:
+            self._ip_dict[ip_name]['state'] = data
+        elif ip_name in self._mem_dict:
+            self._mem_dict[ip_name]['state'] = data
         self.server_update()
 
     def update_partial_region(self, hier, parser):
