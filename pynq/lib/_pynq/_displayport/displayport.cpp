@@ -174,7 +174,7 @@ public:
 		data = mmap(0, creq.size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mreq.offset);
 		std::cerr << "Offset: " << mreq.offset << std::endl;
 		if (data == MAP_FAILED) {
-			throw std::runtime_error("Cannot mmap dumb buffer");
+			throw os_error("Cannot mmap dumb buffer", EIO);
 		}
 		memset(data, 0, size);
 
@@ -210,7 +210,7 @@ public:
 		m_ev.page_flip_handler = page_flip_handler;
 		uint64_t has_dumb;
 		if (drmGetCap(m_fd, DRM_CAP_DUMB_BUFFER, &has_dumb) < 0 || !has_dumb) {
-			throw std::runtime_error("Device does not support DUMB buffers");
+			throw os_error("Device does not support DUMB buffers", EINVAL);
 		}
 		enumerate_modes();
 	}
@@ -236,7 +236,7 @@ public:
 		m_saved_crtc = drmModeGetCrtc(m_fd, m_crtc);
 		int ret = drmModeSetCrtc(m_fd, m_crtc, frame->fb_handle, 0, 0, &m_conn, 1, &m_info);
 		if (ret) {
-			throw std::runtime_error("Could not set CRTC");
+			throw os_error("Could not set CRTC", ret);
 		}
 		m_active_frame = frame;
 		return 0;
@@ -331,7 +331,7 @@ private:
 
 			for (int j = 0; j < conn->count_modes; ++j) {
 				const auto& mode = conn->modes[j];
-				m_modes.push_back(video_mode{mode.hdisplay, mode.vdisplay, mode.vrefresh});
+				m_modes.push_back(video_mode{mode.hdisplay, mode.vdisplay, (int)mode.vrefresh});
 			}
 		}
 	}
@@ -381,7 +381,7 @@ private:
 		}
 
 		if (!m_info.hdisplay) {
-			throw std::runtime_error("Could not find compatible mode");
+			throw os_error("Could not find compatible mode", EINVAL);
 		}
 
 	}
@@ -416,7 +416,7 @@ private:
 			}
 		}
 		if (!m_crtc) {
-			throw std::runtime_error("Could not find CRTC");
+			throw os_error("Could not find CRTC", ENODEV);
 		}
 	}
 
@@ -437,8 +437,13 @@ private:
 }
 
 void* pynqvideo_device_init(int fd) {
-	auto dev = new pynqvideo::device(fd);
-	return static_cast<void*>(dev);
+	try {
+		auto dev = new pynqvideo::device(fd);
+		return static_cast<void*>(dev);
+	}
+	catch (pynqvideo::os_error& e) {
+		return 0;
+	}
 }
 
 int pynqvideo_device_set_mode(void* device, int width, int height,
@@ -464,9 +469,14 @@ void pynqvideo_device_handle_events(void* device) {
 }
 
 void* pynqvideo_frame_new(void* device) {
-	auto dev = static_cast<pynqvideo::device*>(device);
-	auto frame = dev->new_frame();
-	return static_cast<void*>(frame);
+	try {
+		auto dev = static_cast<pynqvideo::device*>(device);
+		auto frame = dev->new_frame();
+		return static_cast<void*>(frame);
+	}
+	catch (pynqvideo::os_error& e) {
+		return 0;
+	}
 }
 
 int pynqvideo_frame_write(void* device, void* frame) {
