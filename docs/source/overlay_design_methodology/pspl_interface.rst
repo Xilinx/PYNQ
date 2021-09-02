@@ -99,7 +99,7 @@ Interrupt
 
 There are dedicated interrupts which are linked with asyncio events in
 the python environment. To integrate into the PYNQ framework Dedicated
-interrupts must be attached to an AXI Interrupt controller which is in turn
+interrupts must be attached to an **AXI Interrupt Controller** which is in turn
 attached to the first interrupt line to the processing system. If more than 32
 interrupts are required then AXI interrupt controllers can be cascaded. This
 arrangement leaves the other interrupts free for IP not controlled by PYNQ
