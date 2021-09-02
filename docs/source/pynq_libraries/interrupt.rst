@@ -33,8 +33,7 @@ Interrupt Controller
 
 To integrate into the PYNQ framework Dedicated interrupts must be attached to an
 `AXI Interrupt Controller <https://www.xilinx.com/products/intellectual-property/axi_intc.html#documentation>`_
-which is in turn attached to the first interrupt
-line to the processing system.
+which is in turn attached to the first interrupt line to the processing system.
 
 If interrupts are directly connected to the PS, PYNQ will report a warning
 and ignore the interrupt. For instance,
@@ -42,7 +41,6 @@ and ignore the interrupt. For instance,
    .. code-block:: Python
 
       RuntimeWarning: axi_iic_0 interrupt is ignored because there is no associated AXI Interrupt controller
-
 
 PYNQ only support interrupts that are ultimately connected to IRQ_F2P[0].
 
