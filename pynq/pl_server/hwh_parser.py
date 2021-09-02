@@ -33,6 +33,7 @@ import abc
 from xml.etree import ElementTree
 from copy import deepcopy
 from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
+import warnings
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2021, Xilinx"
@@ -510,6 +511,11 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """
         for interrupt, val in self.interrupt_pins.items():
             block, _, pin = interrupt.rpartition('/')
+            if not val['controller']:
+                warnings.warn("{} interrupt is ignored because there is no "
+                              "associated AXI Interrupt Controller."
+                              .format(block), RuntimeWarning)
+                continue
             if block in self.ip_dict:
                 self.ip_dict[block]['interrupts'][pin] = val
             if block in self.hierarchy_dict:
