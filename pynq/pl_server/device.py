@@ -1,4 +1,4 @@
-#   Copyright (c) 2019, Xilinx, Inc.
+#   Copyright (c) 2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,12 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__ = "Peter Ogden"
-__copyright__ = "Copyright 2019, Xilinx"
+__copyright__ = "Copyright 2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import atexit
 import os
-import struct
 import warnings
-import numpy as np
 from .server import DeviceClient, DeviceServer
 
 
@@ -59,7 +57,7 @@ class DeviceMeta(type):
         if '_probe_' in attrs:
             priority = attrs['_probe_priority_']
             if (priority in DeviceMeta._subclasses and
-                DeviceMeta._subclasses[priority].__name__ != name):
+                    DeviceMeta._subclasses[priority].__name__ != name):
                 raise RuntimeError(
                     "Multiple Device subclasses with same priority")
             DeviceMeta._subclasses[priority] = cls
@@ -433,7 +431,9 @@ class Device(metaclass=DeviceMeta):
         from pynq import MMIO
         ip = self.ip_dict
         for name, details in ip.items():
-            if details['type'] == 'xilinx.com:ip:pr_axi_shutdown_manager:1.0':
+            if details['type'] in \
+                    ['xilinx.com:ip:pr_axi_shutdown_manager:1.0',
+                     'xilinx.com:ip:dfx_axi_shutdown_manager:1.0']:
                 mmio = MMIO(details['phys_addr'], device=self)
                 # Request shutdown
                 mmio.write(0x0, 0x1)
@@ -474,5 +474,3 @@ class Device(metaclass=DeviceMeta):
 
     def get_bitfile_metadata(self, bitfile_name):
         return None
-
-
