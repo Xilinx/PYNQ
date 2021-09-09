@@ -68,8 +68,9 @@ class VideoMode:
             self.shape = (self.height, self.width, self.bytes_per_pixel)
 
     def __repr__(self):
-        return ("VideoMode: width={} height={} bpp={}"
-                .format(self.width, self.height, self.bits_per_pixel))
+        return ("VideoMode: width={} height={} bpp={} fps={}"
+                .format(self.width, self.height, self.bits_per_pixel,
+                        self.fps))
 
 
 class PixelFormat:
