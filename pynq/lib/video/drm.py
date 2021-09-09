@@ -87,6 +87,9 @@ class DrmDriver:
         self._video_file = os.fdopen(self._video_fd, "r+b", buffering=0)
 
         self._device = self._videolib.pynqvideo_device_init(self._video_fd)
+        if self._device == 0:
+            raise RuntimeError("Unable to create DRM device")
+
         if event_loop:
             self._loop = event_loop
         else:
@@ -155,7 +158,7 @@ class DrmDriver:
             self._device, mode.width, mode.height, mode.fps,
             _fourcc_int(pixelformat.fourcc))
         if ret:
-            raise OSError(ret)
+            raise OSError(ret, os.strerror(ret))
         self._mode = mode
 
     def start(self):
@@ -174,9 +177,11 @@ class DrmDriver:
         """Close the display device
 
         """
-        self._loop.remove_reader(self._video_file)
-        self._videolib.pynqvideo_device_close(self._device)
-        self._video_file.close()
+        if self._device:
+            self._loop.remove_reader(self._video_file)
+            self._videolib.pynqvideo_device_close(self._device)
+            self._device = None
+            self._video_file.close()
 
     def newframe(self):
         """Return a new frame which can later be written
@@ -233,7 +238,7 @@ class DrmDriver:
             self._loop.run_until_complete(
                 asyncio.ensure_future(self.writeframe_async(frame)))
         elif ret > 0:
-            raise OSError(ret)
+            raise OSError(ret, os.strerror(ret))
         else:
             self._videolib.pynqvideo_device_handle_events(self._device)
             # Frame should no longer be disposed
@@ -259,7 +264,7 @@ class DrmDriver:
                 await asyncio.sleep(0)
                 frame.disposed = True
             elif ret > 0:
-                raise OSError(ret)
+                raise OSError(ret, os.strerror(ret))
             else:
                 self._pageflip_event.clear()
                 await self._pageflip_event.wait()
