@@ -364,7 +364,6 @@ checkenv: $(patsubst %, qemu_check_%, $(USED_ARCH))
 	which arm-linux-gnueabihf-gcc
 	which microblaze-xilinx-elf-gcc
 	which ct-ng
-	which python | fgrep /usr/bin/python
 	bash $(SCRIPT_DIR)/check_env.sh
 
 boot_files: checkenv $(BOOT_FILES)

@@ -8,6 +8,15 @@ script_dir=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
 # Install a bunch of packages we need
 
+if [ $(lsb_release -rs) == "18.04" ]; then
+    rel_deps="libncurses5-dev lib32ncurses5"
+elif [ $(lsb_release -rs) == "20.04" ]; then
+    rel_deps="libncurses6 lib32ncurses6"
+else
+    echo "Error: Please use Ubuntu 20.04 or Ubuntu 18.04."
+    exit 1
+fi
+
 read -d '' PACKAGES <<EOT
 bc
 libtool-bin
@@ -21,7 +30,6 @@ gawk
 libtool
 build-essential
 automake
-libncurses5-dev
 libglib2.0-dev
 libfdt-dev
 device-tree-compiler
@@ -30,7 +38,6 @@ binfmt-support
 multistrap
 git
 lib32z1
-lib32ncurses5
 lib32stdc++6
 libssl-dev
 kpartx
@@ -50,22 +57,17 @@ zlib1g:i386
 unzip
 rsync
 python3-pip
-python-minimal
 gcc-multilib
 xterm
 net-tools
 libidn11
+ninja-build
+python3-testresources
+${rel_deps}
 EOT
 set -e
 
 sudo apt-get update
-
-if [[ $(lsb_release -rs) == "18.04" ]]; then
-    echo "Install packages on Ubuntu 18.04..."
-else
-    echo "Error: current OS not supported."
-    exit 1
-fi
 
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/ppa
 sudo apt-get update
@@ -116,9 +118,9 @@ if [ ! -f /run/systemd/resolve/stub-resolv.conf ]; then
 fi
 
 # update setuptools
-sudo -H pip3 install --upgrade "setuptools>=24.2.0"
+sudo -H python3 -m pip install --upgrade "setuptools>=24.2.0"
 # install dependencies required to build pynq sdist
-sudo -H pip3 install numpy cffi
+sudo -H python3 -m pip install numpy cffi
 
 echo 'PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH' >> ~/.profile
 

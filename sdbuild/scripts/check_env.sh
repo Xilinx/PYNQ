@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ $(lsb_release -rs) == "18.04" ]; then
+    rel_deps="libncurses5-dev lib32ncurses5"
+elif [ $(lsb_release -rs) == "20.04" ]; then
+    rel_deps="libncurses6 lib32ncurses6"
+else
+    echo "Error: Please use Ubuntu 20.04 or Ubuntu 18.04."
+    exit 1
+fi
+
 # Check for dependencies 
 read -d '' DEPS <<EOT
 bc
@@ -14,7 +23,6 @@ libtool
 libtool-bin
 build-essential
 automake
-libncurses5-dev
 libglib2.0-dev
 device-tree-compiler
 qemu-user-static
@@ -22,7 +30,6 @@ binfmt-support
 multistrap
 git
 lib32z1
-lib32ncurses5
 libbz2-1.0
 lib32stdc++6
 libssl-dev
@@ -36,6 +43,7 @@ python3-pip
 gcc-multilib
 libidn11
 curl
+${rel_deps}
 EOT
 
 read -d '' PYTHON_DEPS <<EOT
@@ -43,12 +51,6 @@ numpy
 cffi
 EOT
 
-if [ $(lsb_release -rs) == "16.04" ]||[ $(lsb_release -rs) == "18.04" ]; then
-    echo "Pass: Current OS is supported."
-else
-    echo "Error: Please use Ubuntu 16.04 or Ubuntu 18.04."
-    exit 1
-fi
 
 if [ "$EUID" -eq 0 ] ; then
     echo "Error: Please do not run as root."
@@ -60,7 +62,8 @@ if [ ! -f /run/systemd/resolve/stub-resolv.conf ]; then
     sudo cp -L /etc/resolv.conf /run/systemd/resolve/stub-resolv.conf
 fi
 
-echo "Checking system for installed $DEPS"
+echo "Checking system for required packages:"
+echo $DEPS
 
 failed=false
 for i in $DEPS ; do
@@ -71,7 +74,7 @@ for i in $DEPS ; do
     fi
 done
 for i in $PYTHON_DEPS ; do
-    found=$(sudo -H pip3 freeze | grep $i)
+    found=$(sudo -H python3 -m pip freeze | grep $i)
     if [ -z $found ]; then
         echo "Error: Package not found -" $i
         failed=true
