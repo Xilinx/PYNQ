@@ -1,0 +1,13 @@
+--- legal.old	2018-08-16 02:05:47.901866395 +0000
++++ legal	2018-08-16 02:06:28.882260610 +0000
+@@ -1,8 +1,8 @@
+ 
+-The programs included with the Ubuntu system are free software;
++The programs included with the PYNQ Linux system are free software;
+ the exact distribution terms for each program are described in the
+ individual files in /usr/share/doc/*/copyright.
+ 
+-Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
++PYNQ Linux comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+ applicable law.
+ 
