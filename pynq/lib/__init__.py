@@ -39,6 +39,7 @@ from .switch import Switch
 from .button import Button
 from .iic import AxiIIC
 from .wifi import Wifi
+from .cmac import CMAC
 
 from .rpi import Rpi
 
@@ -75,7 +76,7 @@ from . import video
 from . import audio
 from . import dma
 from . import pybind11
-
+from . import cmac
 
 __author__ = "Graham Schelle"
 __copyright__ = "Copyright 2016, Xilinx"
