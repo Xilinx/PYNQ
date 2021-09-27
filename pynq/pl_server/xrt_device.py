@@ -541,6 +541,7 @@ class XrtDevice(Device):
             return context['idx']
         if _xrt_version >= (2, 6, 0):
             cu_index = xrt.xclIPName2Index(self.handle, cu_name)
+            description['cu_index'] = cu_index
         else:
             cu_index = description['cu_index']
 
