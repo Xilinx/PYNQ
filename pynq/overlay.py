@@ -714,7 +714,7 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             self._registers = None
         if 'index' in description:
-            cu_index = self.device.open_contex(description)
+            cu_index = self.device.open_context(description)
             self.cu_mask = 1 << cu_index
             self._setup_packet_prototype()
         if 'streams' in description:

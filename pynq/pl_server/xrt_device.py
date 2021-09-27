@@ -532,7 +532,7 @@ class XrtDevice(Device):
         self._xrt_download(data)
         super().post_download(bitstream, parser)
 
-    def open_contex(self, description, shared=True):
+    def open_context(self, description, shared=True):
         """Open XRT context for the compute unit"""
 
         cu_name = description['cu_name']
@@ -558,7 +558,7 @@ class XrtDevice(Device):
 
         return cu_index
 
-    def close_contex(self, cu_name):
+    def close_context(self, cu_name):
         """Close XRT context for the compute unit"""
 
         context = self.contexts.get(cu_name)
