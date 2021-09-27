@@ -87,7 +87,6 @@ pycairo==1.20.1
 pycurl==7.43.0.2
 pyeda==0.28.0
 Pygments==2.9.0
-pynq @ file:///home/xilinx/pynq_git/dist/pynq-2.7.0.tar.gz
 pyrsistent==0.17.3
 pyzmq==22.1.0
 qtconsole==5.1.0
