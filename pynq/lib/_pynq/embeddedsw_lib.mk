@@ -1,3 +1,7 @@
+# Copyright (C) 2021 Xilinx, Inc
+
+# SPDX-License-Identifier: BSD-3-Clause
+
 EMBEDDEDSW_DIR ?= embeddedsw
 
 # This makefile should be included at the end of a makefile which sets the following
