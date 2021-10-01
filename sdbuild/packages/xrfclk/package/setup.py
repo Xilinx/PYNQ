@@ -49,8 +49,5 @@ setup(
     packages=['xrfclk'],
     package_data={
         '': ['*.py', '*.so', '*.txt'],
-    },
-    install_requires=[
-       'pynq',
-    ]
+    }
 )

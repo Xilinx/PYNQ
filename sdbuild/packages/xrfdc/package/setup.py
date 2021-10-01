@@ -51,7 +51,6 @@ setup(
         '': ['*.py', '*.so', '*.c'],
     },
     install_requires=[
-        'pynq',
         'wurlitzer',
     ]
 )
