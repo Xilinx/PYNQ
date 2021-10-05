@@ -388,6 +388,7 @@ extend_pynq_package(
      "pynq/lib/_pynq/_displayport",
      "pynq/lib/_pynq/_xhdmi",
      "pynq/lib/_pynq/_xiic",
+     "pynq/lib/_pynq/_pcam5c",
      "pynq/notebooks",
      "pynq/tests",
      "pynq/lib/tests"
