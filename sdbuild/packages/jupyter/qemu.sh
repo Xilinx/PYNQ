@@ -18,7 +18,8 @@ curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 echo deb https://deb.nodesource.com/node_12.x focal main > /etc/apt/sources.list.d/nodesource.list
 apt-get update && apt-get install -y nodejs
 
-source /usr/local/share/pynq-venv/bin/activate
+for f in /etc/profile.d/*.sh; do source $f; done
+
 jupyter notebook --generate-config --allow-root
 
 cat - >> /root/.jupyter/jupyter_notebook_config.py <<EOT

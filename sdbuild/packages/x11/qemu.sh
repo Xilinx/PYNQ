@@ -3,7 +3,7 @@
 set -x
 set -e
 
-source /usr/local/share/pynq-venv/bin/activate
+for f in /etc/profile.d/*.sh; do source $f; done
 
 if [ -f /usr/local/share/x11/Welcome\ to\ Pynq.ipynb ]; then
 	jupyter nbconvert --to html \

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . /etc/environment
-. /usr/local/share/pynq-venv/bin/activate
+for f in /etc/profile.d/*.sh; do source $f; done
 
 if [ -z "$PYNQ_PYTHON" ]; then
   PYNQ_PYTHON=python3

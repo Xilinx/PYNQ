@@ -6,12 +6,13 @@ set -x
 set -e
 
 . /etc/environment
+for f in /etc/profile.d/*.sh; do source $f; done
+
 export HOME=/root
 export BOARD=${PYNQ_BOARD}
 
 cd /root/xrfclk_build
 
-source /usr/local/share/pynq-venv/bin/activate
 pip3 install .
 
 cd /root
