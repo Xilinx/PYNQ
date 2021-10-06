@@ -202,6 +202,13 @@ def _find_devices():
     if lmx_devices == []:
         raise RuntimeError("SPI path not set. LMX not found on device tree. Issue with BSP.")
         
+def set_all_ref_clks(lmx_freq=409.6):
+    """This function is depreciated and exists for compatability.
+    Will be removed in future releases."""
+    
+    lmk_freq = 122.88
+    
+    return set_ref_clks(lmk_freq, lmx_freq)
 
 def set_ref_clks(lmk_freq=122.88, lmx_freq=409.6):
     """Set all RF data converter tile reference clocks to a given frequency.
