@@ -83,6 +83,7 @@ prompt-toolkit==3.0.18
 psutil==5.8.0
 ptyprocess==0.7.0
 PyAudio==0.2.11
+pybind11==2.8.0
 pycairo==1.20.1
 pycurl==7.43.0.2
 pyeda==0.28.0
