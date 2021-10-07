@@ -152,7 +152,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
             except ValueError:
                 phys_addr = None
 
-            if phys_addr:
+            if phys_addr is not None:
                 ip_dict[instance.attrib['name']] = {
                     'phys_addr': phys_addr,
                     'addr_range': addr_size,
