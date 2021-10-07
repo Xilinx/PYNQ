@@ -58,12 +58,16 @@ adduser xilinx adm
 adduser xilinx sudo
 
 fake-hwclock save
+
+# Disable wpa_supplicant service so ifup works correctly
+systemctl mask wpa_supplicant
+
 EOT
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
   cat - >> $target/postinst2.sh <<EOT
-echo "deb http://ports.ubuntu.com/ubuntu-ports focal main universe" > /etc/apt/sources.list.d/multistrap-bionic.list
-echo "deb-src http://ports.ubuntu.com/ubuntu-ports focal main universe" >> /etc/apt/sources.list.d/multistrap-bionic.list
+echo "deb http://ports.ubuntu.com/ubuntu-ports focal main universe" > /etc/apt/sources.list.d/multistrap-focal.list
+echo "deb-src http://ports.ubuntu.com/ubuntu-ports focal main universe" >> /etc/apt/sources.list.d/multistrap-focal.list
 EOT
 fi
 
