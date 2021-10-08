@@ -356,6 +356,8 @@ class BuildExtension(build_ext):
                           "libaudio.so")
             self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
                           "libiic.so")
+            self.run_make("pynq/lib/_pynq/_pcam5c/", "pynq/lib/",
+                          "libpcam5c.so")
         build_ext.run(self)
         copy_notebooks()
         self.install_overlays()
@@ -376,6 +378,12 @@ extend_pynq_package(
      "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/vtc/src",
      "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/iic/src",
      "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/gpio/src",
+     "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/iicps/src",
+     "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/scugic/src",
+     "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/axivdma/src",
+     "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/mipicsiss/src",
+     "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/csi/src",
+     "pynq/lib/_pynq/embeddedsw/XilinxProcessorIPLib/drivers/dphy/src",
      "pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src",
      "pynq/lib/_pynq/embeddedsw_lib.mk",
      "pynq/lib/_pynq/common",
@@ -386,6 +394,7 @@ extend_pynq_package(
      "pynq/lib/_pynq/_displayport",
      "pynq/lib/_pynq/_xhdmi",
      "pynq/lib/_pynq/_xiic",
+     "pynq/lib/_pynq/_pcam5c",
      "pynq/notebooks",
      "pynq/tests",
      "pynq/lib/tests"

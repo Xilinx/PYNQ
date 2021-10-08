@@ -1,4 +1,4 @@
-#   Copyright (c) 2018, Xilinx, Inc.
+#   Copyright (c) 2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__ = "Peter Ogden"
-__copyright__ = "Copyright 2018, Xilinx"
+__copyright__ = "Copyright 2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import pynq.ps
@@ -41,6 +41,8 @@ if pynq.ps.CPU_ARCH == pynq.ps.ZYNQ_ARCH:
     from . import dvi
 elif pynq.ps.CPU_ARCH == pynq.ps.ZU_ARCH:
     from . import xilinx_hdmi
+    from . import pcam5c
+    from . import mipi_rx
 
 from . import hierarchies
 from . import frontend
