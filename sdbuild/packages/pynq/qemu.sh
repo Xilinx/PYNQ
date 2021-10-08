@@ -5,13 +5,14 @@ set -e
 set -x
 
 . /etc/environment
+for f in /etc/profile.d/*.sh; do source $f; done
+
 export HOME=/root
 export BOARD=${PYNQ_BOARD}
 
 cd /home/xilinx
 mkdir -p jupyter_notebooks
 
-source /usr/local/share/pynq-venv/bin/activate
 
 cd pynq_git
 BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \

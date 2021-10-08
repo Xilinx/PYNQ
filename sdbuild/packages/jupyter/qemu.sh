@@ -29,7 +29,8 @@ else
     rm -rf *.deb
 fi
 
-source /usr/local/share/pynq-venv/bin/activate
+for f in /etc/profile.d/*.sh; do source $f; done
+
 jupyter notebook --generate-config --allow-root
 
 cat - >> /root/.jupyter/jupyter_notebook_config.py <<EOT
