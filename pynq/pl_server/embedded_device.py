@@ -512,6 +512,7 @@ class EmbeddedDevice(XrtDevice):
         super().__init__(0, "embedded_xrt{}")
         self.capabilities['REGISTER_RW'] = False
         self.capabilities['MEMORY_MAPPED'] = True
+        self.capabilities['CALLABLE'] = False
 
     def get_memory(self, description):
         return EmbeddedXrtMemory(self, description)
