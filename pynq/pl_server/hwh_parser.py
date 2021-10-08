@@ -257,6 +257,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """
         full_name, vlnv, pars, _, _ = self.instance2attr[mod.get('INSTANCE')]
         self.ip_dict[full_name] = {}
+        self.ip_dict[full_name]['gpio'] = dict()
+        self.ip_dict[full_name]['interrupts'] = dict()
         self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
                                                  j.get('VALUE')
                                                  for j in pars}
@@ -402,7 +404,6 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 self.mem_dict[k] = v
                 v['used'] = 1
                 del self.ip_dict[k]
-
 
     def _add_interrupt_pins(self, net, parent, offset, raw_map=None):
         net_pins = self.nets[net] if net else set()

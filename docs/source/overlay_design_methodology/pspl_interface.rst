@@ -99,14 +99,16 @@ Interrupt
 
 There are dedicated interrupts which are linked with asyncio events in
 the python environment. To integrate into the PYNQ framework Dedicated
-interrupts must be attached to an AXI Interrupt controller which is in turn
+interrupts must be attached to an **AXI Interrupt Controller** which is in turn
 attached to the first interrupt line to the processing system. If more than 32
 interrupts are required then AXI interrupt controllers can be cascaded. This
 arrangement leaves the other interrupts free for IP not controlled by PYNQ
-directly such as SDSoC accelerators.
+directly such as Vitis accelerators. The AXI Interrupt Controller can be avoided
+for overlays with only one interrupt, in such overlays the interrupt pin must be
+connected to the first interrupt line of the processing system.
 
 Interrupts are managed by the Interrupt class, and the implementation is built
-on top of *asyncio*, part of the Python standard library. 
+on top of *asyncio*, part of the Python standard library.
 
 
 More information about using the Interrupt class can be found in the 
