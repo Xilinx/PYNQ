@@ -152,7 +152,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
             except ValueError:
                 phys_addr = None
 
-            if phys_addr:
+            if phys_addr is not None:
                 ip_dict[instance.attrib['name']] = {
                     'phys_addr': phys_addr,
                     'addr_range': addr_size,
@@ -297,7 +297,7 @@ def _xclbin_to_dicts(filename, xclbin_data=None):
                                            connectivity.m_count)
     elif xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
         connectivity = xclbin.connectivity.from_buffer(
-            sections[xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY])
+            sections[xclbin.AXLF_SECTION_KIND.CONNECTIVITY])
         connections = _get_object_as_array(connectivity.m_connection[0],
                                            connectivity.m_count)
     else:
