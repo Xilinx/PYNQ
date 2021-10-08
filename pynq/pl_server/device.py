@@ -351,8 +351,6 @@ class Device(metaclass=DeviceMeta):
         self._client.load_ip_data(ip_name, data)
         ip_dict = self.ip_dict
         mem_dict = self.mem_dict
-        print(mem_dict.keys())
-        print(ip_name)
         if ip_name in ip_dict:
             address = ip_dict[ip_name]['addr_range']
             target_size = ip_dict[ip_name]['addr_range']
