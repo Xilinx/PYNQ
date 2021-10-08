@@ -50,7 +50,6 @@ setup(
         '': ['*.py', '*.so', '*.c'],
     },
     install_requires=[
-        'pynq>=2.4',
         'wurlitzer',
         'parsec',
     ]
