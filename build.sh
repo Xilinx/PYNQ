@@ -43,19 +43,6 @@ build_bitstreams () {
 	cd $orig_dir
 }
 
-create_link_file () {
-	local file=$1
-	local link=$2
-	md5_hash=$(md5sum $file | awk '{print $1}')
-
-	cat > $file.link << EOL
-{
-    "url": "${link}",
-    "md5sum": "${md5_hash}"
-}
-EOL
-}
-
 get_opendownloads_file() {
     local remote_file=$1
     local local_file=$2
@@ -91,9 +78,6 @@ get_bitstreams () {
 				# Cleanup to avoid potential issues later
 				rm -f $ol.bit
 				rm -f $ol.hwh
-			else
-				create_link_file "$ol.bit" "${PYNQ_OVERLAYS_REMOTE_PREFIX}$board.$ol.$tcl_md5.bit"
-				create_link_file "$ol.hwh" "${PYNQ_OVERLAYS_REMOTE_PREFIX}$board.$ol.$tcl_md5.hwh"
 			fi
 		fi
 		if [ ! -e $ol.xsa ]; then
