@@ -20,7 +20,7 @@ rm -rf /home/xilinx/.config/chromium/Singleton*
 mkdir /root/armsoc_build
 cd /root/armsoc_build
 
-git clone https://anongit.freedesktop.org/git/xorg/driver/xf86-video-armsoc.git
+git clone https://anongit.freedesktop.org/git/xorg/driver/xf86-video-armsoc.git -c http.sslverify=false
 cd xf86-video-armsoc
 git apply /armsoc.patch --ignore-whitespace
 ./autogen.sh
