@@ -20,6 +20,7 @@ click==8.0.1
 CppHeaderParser==2.7.4
 Cython==0.29.24
 dash==2.0.0
+dash-bootstrap-components==0.13.1
 dash-core-components==2.0.0
 dash-html-components==2.0.0
 dash-renderer==1.9.1
@@ -46,6 +47,7 @@ jupyter-console==6.4.0
 jupyter-contrib-core==0.3.3
 jupyter-contrib-nbextensions==0.5.1
 jupyter-core==4.7.1
+jupyter-dash==0.4.0
 jupyter-highlight-selected-word==0.2.0
 jupyter-latex-envs==1.4.6
 jupyter-nbextensions-configurator==0.4.1
@@ -109,7 +111,6 @@ sphinxcontrib-htmlhelp==2.0.0
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
-statsmodels==0.12.2
 tenacity==8.0.0
 terminado==0.10.0
 testpath==0.5.0
