@@ -575,7 +575,7 @@ class EmbeddedDevice(XrtDevice):
     def download(self, bitstream, parser=None):
         if parser is None:
             from .xclbin_parser import XclBin
-            parser = XclBin(DEFAULT_XCLBIN)
+            parser = XclBin(xclbin_data=DEFAULT_XCLBIN)
 
         if not bitstream.binfile_name:
             _preload_binfile(bitstream, parser)
