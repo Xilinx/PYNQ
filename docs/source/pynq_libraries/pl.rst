@@ -58,7 +58,7 @@ Bitstream
 
    bit.bitfile_name
    
-'/opt/python3.6/lib/python3.6/site-packages/pynq/overlays/base/base.bit'
+'/usr/local/share/pynq-venv/lib/python3.8/site-packages/pynq/overlays/base/base.bit'
 
 Device Server Types
 -------------------
