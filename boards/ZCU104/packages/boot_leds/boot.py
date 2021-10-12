@@ -1,4 +1,4 @@
-#! /usr/bin/env python3.6
+#! /usr/bin/env python3.8
 
 from pynq import Overlay
 from time import sleep
