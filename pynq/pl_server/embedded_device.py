@@ -503,10 +503,13 @@ class EmbeddedDevice(XrtDevice):
 
     @property
     def default_memory(self):
+        if not self.mem_dict:
+            raise RuntimeError("Overlay is not downloaded")
+
         for k, v in self.mem_dict.items():
             if v['base_address'] == 0:
                 return self.get_memory(v)
-        raise RuntimeError("XRT design does not contain PS memroy")
+        raise RuntimeError("XRT design does not contain PS memory")
 
     def __init__(self):
         super().__init__(0, "embedded_xrt{}")
