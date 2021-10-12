@@ -62,6 +62,9 @@ fake-hwclock save
 # Disable wpa_supplicant service so ifup works correctly
 systemctl mask wpa_supplicant
 
+# Disable hibernation to keep interfaces alive
+systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
 EOT
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
