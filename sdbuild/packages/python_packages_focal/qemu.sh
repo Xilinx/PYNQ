@@ -47,7 +47,6 @@ jupyter-console==6.4.0
 jupyter-contrib-core==0.3.3
 jupyter-contrib-nbextensions==0.5.1
 jupyter-core==4.7.1
-jupyter-dash==0.4.0
 jupyter-highlight-selected-word==0.2.0
 jupyter-latex-envs==1.4.6
 jupyter-nbextensions-configurator==0.4.1
