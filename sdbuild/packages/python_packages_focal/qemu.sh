@@ -37,7 +37,7 @@ ipykernel==5.5.5
 ipython==7.24.0
 ipywidgets==7.6.3
 itsdangerous==2.0.1
-jedi==0.18.0
+jedi==0.17.2
 Jinja2==3.0.1
 json5==0.9.5
 jsonschema==3.2.0
@@ -72,7 +72,7 @@ notebook==6.4.0
 numpy==1.20.3
 pandocfilters==1.4.3
 parsec==3.9
-parso==0.8.2
+parso==0.7.1
 patsy==0.5.1
 pbr==5.6.0
 pexpect==4.8.0
