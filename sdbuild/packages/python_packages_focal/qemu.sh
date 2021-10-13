@@ -70,7 +70,6 @@ nest-asyncio==1.5.1
 netifaces==0.11.0
 notebook==6.4.0
 numpy==1.20.3
-pandas==1.3.3
 pandocfilters==1.4.3
 parsec==3.9
 parso==0.8.2
