@@ -42,8 +42,6 @@
 #include "pcam_5c.h"
 #include "i2cps.h"
 
-extern XIicPs Ps_Iic0;
-
 int ReadChannel(int i2c_fd, unsigned char writebuffer[], unsigned char RecvBuffer[], u8 write_num, int read_num)
 {
     int Status;

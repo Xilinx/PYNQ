@@ -43,30 +43,14 @@
 #include "xcsiss.h"
 #include "xiicps.h"
 #include "i2cps.h"
+#include "xvidc.h"
 
-#define PCAM_I2C_ADDR			0x3C
-#define XVIDC_VM_1280x720_60_P  50
-#define XVIDC_VM_1920x1080_30_P 109
-
-#define VPROCSSCSC_BASE	XPAR_XVPROCSS_0_BASEADDR
-#define DEMOSAIC_BASE	XPAR_XV_DEMOSAIC_0_S_AXI_CTRL_BASEADDR
-#define VGAMMALUT_BASE	XPAR_XV_GAMMA_LUT_0_S_AXI_CTRL_BASEADDR
-
+#define PCAM_I2C_ADDR		0x3C
 #define XCSIRXSS_DEVICE_ID	XPAR_CSISS_0_DEVICE_ID
-XCsiSs CsiRxSs;
-
-#define GPIO_SENSOR		XPAR_CAM_GPIO_BASEADDR
-#define GPIO_IP_RESET	XPAR_PSNG0_AXI_GPIO_IP_RESET_BASEADDR
-#define PSU_INTR_DEVICE_ID	XPAR_PSU_ACPU_GIC_DEVICE_ID
-
 
 // Function Prototypes
 int StartPcam(int);
 int init_pcam(int, unsigned long, int);
-
-XScuGic Intc;
-XIicPs Ps_Iic0;
-XIicPs_Config *XIic0Ps_ConfigPtr;
 
 inline static uint32_t Read32(intptr_t addr) {
 	return *(volatile uint32_t*)addr;
@@ -77,8 +61,9 @@ inline static void Write32(intptr_t addr, uint32_t value) {
 }
 
 // This function initializes MIPI CSI2 RX SS and gets config parameters.
-u32 InitializeCsiRxSs(void)
+int InitializeCsiRxSs(void)
 {
+	XCsiSs CsiRxSs;
 	u32 Status = 0;
 	XCsiSs_Config *CsiRxSsCfgPtr = NULL;
 
@@ -169,12 +154,18 @@ void ConfigDemosaic(unsigned long DEMOSAIC_BaseAddress, u32 width , u32 height)
 
 // This function Initializes Image Processing blocks wrt to selected resolution
 void InitImageProcessingPipe(unsigned long VPROCSSCS_BaseAddress, unsigned long GAMMALUT_BaseAddress, \
-		unsigned long DEMOSAIC_BaseAddress)
+		unsigned long DEMOSAIC_BaseAddress, int video_mode)
 {
 	u32 width, height;
 
-	width = 1280;
-	height = 720;
+	if (video_mode == XVIDC_VM_1280x720_60_P){
+		width = 1280;
+		height = 720;
+	}
+	else if (video_mode == XVIDC_VM_1920x1080_30_P){
+		width = 1920;
+		height = 1080;		
+	}
 	ConfigCSC(VPROCSSCS_BaseAddress,width, height);
 	ConfigGammaLut(GAMMALUT_BaseAddress,width, height);
 	ConfigDemosaic(DEMOSAIC_BaseAddress, width, height);
@@ -187,45 +178,47 @@ void Reset_IP_Pipe(unsigned long BaseAddress)
 	Xil_Out32(BaseAddress, 0x00);
 	Xil_Out32(BaseAddress, 0x01);
 }
-#if 0
-{
-	Write32(BaseAddress, 0x01);
-	Write32(BaseAddress, 0x00);
-	Write32(BaseAddress, 0x01);
-}
-#endif
+
 // Pcam_MIPI function to initialize the video pipleline and process user input
 int pcam_mipi(
-		int i2cbus, int mode,
+		int i2cbus, int usermode,
 		unsigned long GPIO_IP_RESET_BaseAddress, unsigned long VPROCSSCS_BaseAddress, \
 		unsigned long GAMMALUT_BaseAddress, unsigned long DEMOSAIC_BaseAddress)
 {
-	u32 Status, i2c_fd;
+	int i2c_fd, status, video_mode = -1;
 
 	i2c_fd=setI2C(i2cbus, PCAM_I2C_ADDR);
-	
+
 	/* Reset Demosaic, Gamma_Lut and CSC IPs */
 	Reset_IP_Pipe(GPIO_IP_RESET_BaseAddress);
 
 	/* Initialize CSIRXSS  */
-	Status = InitializeCsiRxSs();
-	if (Status != XST_SUCCESS) {
-		printf("CSI Rx Ss Init failed status = %x.\r\n", Status);
+	status = InitializeCsiRxSs();
+	if (status != XST_SUCCESS) {
+		printf("CSI Rx Ss Init failed status = %x.\r\n", status);
+		return -1;
+	}
+	if (usermode == 0)
+		video_mode = XVIDC_VM_1280x720_60_P;
+	else if (usermode ==1 )
+		video_mode = XVIDC_VM_1920x1080_30_P;
+	else {
+		printf("User mode (%d) is not valid.\r\n", usermode);
 		return -1;
 	}
 
-	Status = init_pcam(i2c_fd,GPIO_IP_RESET_BaseAddress, mode);
-	if (Status != XST_SUCCESS) {
+	status = init_pcam(i2c_fd,GPIO_IP_RESET_BaseAddress, video_mode);
+	if (status != XST_SUCCESS) {
 		printf("init_pcam failed.\r\n");
 		return -1;
 	}
 	printf("PCam init done.\r\n");
 
-	InitImageProcessingPipe(VPROCSSCS_BaseAddress, GAMMALUT_BaseAddress, DEMOSAIC_BaseAddress);
+	InitImageProcessingPipe(VPROCSSCS_BaseAddress, GAMMALUT_BaseAddress, DEMOSAIC_BaseAddress, video_mode);
 
 	/* Start Camera Sensor to capture video */
-	Status = StartPcam(i2c_fd);
-	if (Status != XST_SUCCESS) {
+	status = StartPcam(i2c_fd);
+	if (status != XST_SUCCESS) {
 		printf("StartPcam failed.\r\n");
 		return -1;
 	}

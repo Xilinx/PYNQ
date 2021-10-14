@@ -42,7 +42,7 @@ __email__ = "pynq_support@xilinx.com"
 _pcam5c_lib_header = R"""
 int pcam_mipi(
         int i2cbus,
-        int mode,
+        int usermode,
         unsigned long GPIO_IP_RESET_BaseAddress,
         unsigned long VPROCSSCS_BaseAddress,
         unsigned long GAMMALUT_BaseAddress,
@@ -52,8 +52,8 @@ int pcam_mipi(
 
 class MIPIMode(Enum):
     """Suported input video modes"""
-    r1280x720_60 = 50
-    r1920x1080_30 = 109
+    r1280x720_60 = 0
+    r1920x1080_30 = 1
 
 
 class Pcam5C(DefaultHierarchy):
