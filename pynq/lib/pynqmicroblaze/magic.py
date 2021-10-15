@@ -101,3 +101,6 @@ instance = get_ipython()
 if instance:
     get_ipython().register_magics(MicroblazeMagics)
     display_javascript(js, raw=True)
+    import nest_asyncio
+    nest_asyncio.apply()
+
