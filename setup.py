@@ -356,7 +356,7 @@ class BuildExtension(build_ext):
                           "libaudio.so")
             self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/",
                           "libiic.so")
-            self.run_make("pynq/lib/_pynq/_pcam5c/", "pynq/lib/",
+            self.run_make("pynq/lib/_pynq/_pcam5c/", "pynq/lib/video/",
                           "libpcam5c.so")
         build_ext.run(self)
         copy_notebooks()

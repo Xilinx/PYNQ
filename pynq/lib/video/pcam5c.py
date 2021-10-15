@@ -1,6 +1,6 @@
 #   Copyright (c) 2020-2021, Xilinx, Inc.
 #   All rights reserved.
-# 
+#
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions are met:
 #
@@ -27,13 +27,12 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 import os
 import cffi
-import warnings
-from pynq import DefaultHierarchy
 import contextlib
 from enum import Enum
+from pynq import DefaultHierarchy
+from .constants import LIB_SEARCH_PATH
 
 __author__ = "Parimal Patel, Yun Rock Qu, Mario Ruiz"
 __copyright__ = "Copyright 2020-2021, Xilinx"
@@ -43,30 +42,19 @@ __email__ = "pynq_support@xilinx.com"
 _pcam5c_lib_header = R"""
 int pcam_mipi(
         int i2cbus,
-        int mode,
+        int usermode,
         unsigned long GPIO_IP_RESET_BaseAddress,
         unsigned long VPROCSSCS_BaseAddress,
         unsigned long GAMMALUT_BaseAddress,
         unsigned long DEMOSAIC_BaseAddress);
 """
 
-_pcam5c_ffi = cffi.FFI()
-_pcam5c_ffi.cdef(_pcam5c_lib_header)
-LIB_SEARCH_PATH = os.path.dirname(os.path.realpath(__file__))
-
-try:
-    _pcam5c_lib = _pcam5c_ffi.dlopen(os.path.join(LIB_SEARCH_PATH,
-                                                  "libpcam5c.so"))
-except:
-    warnings.warn("Could not load Xilinx Pcam5c camera Library",
-                  ResourceWarning)
-    _pcam5c_lib = None
-
 
 class MIPIMode(Enum):
     """Suported input video modes"""
-    r1280x720_60 = 50
-    r1920x1080_30 = 109
+    r1280x720_60 = 0
+    r1920x1080_30 = 1
+
 
 class Pcam5C(DefaultHierarchy):
     """Driver for PCAM 5C
@@ -94,8 +82,11 @@ class Pcam5C(DefaultHierarchy):
             Entry in the ip_dict for the device
 
         """
-        if _pcam5c_lib is None:
-            raise RuntimeError("No PCam5C Library")
+        pcam5c_ffi = cffi.FFI()
+        pcam5c_ffi.cdef(_pcam5c_lib_header)
+        pcam5c_lib = pcam5c_ffi.dlopen(os.path.join(LIB_SEARCH_PATH,
+                                                    "libpcam5c.so"))
+
         super().__init__(description)
         self._vdma = self.axi_vdma
 
@@ -107,12 +98,12 @@ class Pcam5C(DefaultHierarchy):
         #todo read /sys/bus/i2c/devices/i2c-6/of_node/label
 
         self._handle = \
-            _pcam5c_lib.pcam_mipi(6,
-                                  int(MIPIMode.r1280x720_60.value),
-                                  virtaddr_gpio_ip_reset,
-                                  virtaddr_v_proc_sys,
-                                  virtaddr_gamma_lut,
-                                  virtaddr_demosaic)
+            pcam5c_lib.pcam_mipi(6,
+                                 int(MIPIMode.r1280x720_60.value),
+                                 virtaddr_gpio_ip_reset,
+                                 virtaddr_v_proc_sys,
+                                 virtaddr_gamma_lut,
+                                 virtaddr_demosaic)
         if self._handle < 0:
             raise RuntimeError("PCam 5C cannot be initialized")
 
