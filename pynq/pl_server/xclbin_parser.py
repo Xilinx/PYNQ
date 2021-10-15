@@ -373,3 +373,4 @@ class XclBin:
         self.interrupt_controllers = {}
         self.interrupt_pins = {}
         self.hierarchy_dict = {}
+        self.xclbin_data = xclbin_data
