@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2021, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import time
 import warnings
 
 __author__ = "Peter Ogden"
-__copyright__ = "Copyright 2018, Xilinx"
+__copyright__ = "Copyright 2021, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -225,7 +225,7 @@ _ffi = cffi.FFI()
 
 try:
     _ffi.cdef(_c_header)
-    _lib = _ffi.dlopen("libsensors.so.4")
+    _lib = _ffi.dlopen("libsensors.so")
 except Exception as e:
     _lib = None
 
