@@ -72,6 +72,11 @@ class VideoMode:
                 .format(self.width, self.height, self.bits_per_pixel,
                         self.fps))
 
+    def __eq__(self, mode):
+        return self.width == mode.width and self.height == mode.height and \
+               self.bits_per_pixel == mode.bits_per_pixel and \
+               self.fps == mode.fps and self.stride == mode.stride
+
 
 class PixelFormat:
     """Wrapper for all of the information about a video format
