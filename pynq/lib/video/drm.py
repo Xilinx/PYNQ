@@ -152,13 +152,15 @@ class DrmDriver:
             The pixel format to use - must contain a fourcc
 
         """
+        if mode not in self.modes:
+            raise ValueError("mode: {} is not supported".format(mode))
         if not pixelformat.fourcc:
             raise ValueError("pixelformat does not define a FourCC")
         ret = self._videolib.pynqvideo_device_set_mode(
             self._device, mode.width, mode.height, mode.fps,
             _fourcc_int(pixelformat.fourcc))
         if ret:
-            raise OSError(ret, os.strerror(ret))
+            raise RuntimeError("Monitor is not detected")
         self.mode = mode
 
     def start(self):
@@ -238,7 +240,7 @@ class DrmDriver:
             self._loop.run_until_complete(
                 asyncio.ensure_future(self.writeframe_async(frame)))
         elif ret > 0:
-            raise OSError(ret, os.strerror(ret))
+            raise OSError(ret, "Can't write frame")
         else:
             self._videolib.pynqvideo_device_handle_events(self._device)
             # Frame should no longer be disposed
@@ -264,7 +266,7 @@ class DrmDriver:
                 await asyncio.sleep(0)
                 frame.disposed = True
             elif ret > 0:
-                raise OSError(ret, os.strerror(ret))
+                raise OSError(ret, "Can't write frame")
             else:
                 self._pageflip_event.clear()
                 await self._pageflip_event.wait()
