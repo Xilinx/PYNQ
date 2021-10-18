@@ -119,7 +119,7 @@ Our pytest suite will provide some instructions for users to follow.
 
 In some cases, two types of cables are used with the tests:
 
-.. image:: ./images/cable_type.jpeg
+.. image:: ../images/cable_type.jpeg
    :width: 400
  
 *  *Straight cable* (upper one in the image): The internal wires between the two ends are straight. This cable is intended for use as an extension cable.

@@ -71,7 +71,7 @@ This block design below shows the pattern of using a concat IP block to combine
 all of the single interrupts into a single interrupt bus that then passed
 into the input of both the interrupt controller and the processing system.
 
-.. image:: images/interrupt_bd.png
+.. image:: ../images/interrupt_bd.png
    :align: center
 
 Exploring Interrupts in Software

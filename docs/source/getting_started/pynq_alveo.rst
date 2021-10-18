@@ -132,7 +132,7 @@ Kernel Streams
 Kernel-to-kernel (K2K) streams are supported by PYNQ and are exposed as part of
 the memory infrastructure.
 
-   .. image:: images/k2k_streams.png
+   .. image:: ../images/k2k_streams.png
       :align: center
 
 In SDAccel or Vitis designs, the K2K streams are
@@ -140,7 +140,7 @@ given names in the form of ``dc_#`` and will appear in the memory dictionary
 with the entry ``streaming: True``. The docstring of the overlay will also
 identify streams under the *Memories* section.
 
-.. code::
+.. code-block:: console
 
     Memories
     ------------

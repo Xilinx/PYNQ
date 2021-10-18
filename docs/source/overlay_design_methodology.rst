@@ -4,8 +4,9 @@
 Overlay Design Methodology
 **************************
 
-As described in the PYNQ introduction, overlays are analogous to software
-libraries. A programmer can download overlays into the Zynq® PL at runtime to
+PYNQ *Overlays* are analogous to software
+libraries. A programmer can download overlays into the Xilinx Programmable 
+Logic at runtime to
 provide functionality required by the software application.
 
 An *overlay* is a class of Programmable Logic design. Programmable Logic designs
@@ -14,18 +15,23 @@ to be configurable, and reusable for broad set of applications. A PYNQ overlay
 will have a Python interface, allowing a software programmer to use it like any
 other Python package.
 
-A software programmer can use an overlay, but will not usually create overlay,
-as this usually requires a high degree of hardware design expertise.
-
 There are a number of components required in the process of creating an overlay:
 
-  * Board Settings
-  * PS-PL Interface
+  * Board or platform settings
+  * Interfaces between host processor and programmable logic
   * MicroBlaze Soft Processors
   * Python/C Integration
   * Python AsyncIO
   * Python Overlay API
   * Python Packaging
+  
+While they are conceptually similar, there are differences in the process for 
+building Overlays for different platforms. i.e. Zynq vs. Zynq Ultrascale+ vs. 
+Alveo platforms. Most of the differences relate to the configuration of the 
+Zynq/Zynq Ultrascale+ PS, and the interfaces between the host processor and the
+programmable logic. E.g. AXI interfaces for ARM & Zynq/Zynq Ultrascale+, and 
+PCIe for x86|IBM|ARM|etc. for Alveo. Most of the differences will be related to
+the hardware (Programmable logic) design.
 
 This section will give an overview of the process of creating an overlay and
 integrating it into PYNQ, but will not cover the hardware design process in
@@ -44,6 +50,7 @@ detail. Hardware design will be familiar to Zynq, and FPGA hardware developers.
    overlay_design_methodology/python_overlay_api
    overlay_design_methodology/pynq_utils
    overlay_design_methodology/python_packaging
+   overlay_design_methodology/partial_reconfiguration.rst
    overlay_design_methodology/overlay_tutorial.ipynb
 
    

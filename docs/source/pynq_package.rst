@@ -25,7 +25,7 @@ Data Movement modules:
   * pynq.mmio - Implements PYNQ Memory Mapped IO (MMIO) API
   * pynq.gpio - Implements PYNQ General-Purpose IO (GPIO) by wrapping the Linux
     Sysfs API
-  * pynq.xlnk - Implements Contiguous Memory Allocation for PYNQ DMA
+  * pynq.allocate - Implements Contiguous Memory Allocation for PYNQ DMA
   * pynq.buffer - Implements a buffer class for DMA engines and accelerators
 
 Additional modules:
@@ -49,7 +49,6 @@ Sub-packages:
     :hidden:
 
     pynq_package/pynq.lib
-    pynq_package/pynq.pl_server
     pynq_package/pynq.bitstream
     pynq_package/pynq.buffer
     pynq_package/pynq.devicetree
@@ -57,10 +56,11 @@ Sub-packages:
     pynq_package/pynq.interrupt
     pynq_package/pynq.mmio
     pynq_package/pynq.overlay
+    pynq_package/pynq.pl
+    pynq_package/pynq.pl_server
     pynq_package/pynq.pmbus
     pynq_package/pynq.ps
     pynq_package/pynq.registers
     pynq_package/pynq.uio
     pynq_package/pynq.utils
-    pynq_package/pynq.xlnk
 

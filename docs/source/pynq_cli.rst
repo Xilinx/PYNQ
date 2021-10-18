@@ -106,7 +106,7 @@ directly, without asking for confirmation
     
     pynq get-notebooks all
 
-You can also chose to get only a number of selected notebooks by typing the name 
+You can also choose to get only a number of selected notebooks by typing the name 
 of the notebooks you want
 
 .. code:: bash
@@ -139,7 +139,7 @@ option
     
     pynq get-notebooks --device DEVICE
 
-Or be presented with a list of detected devices to chose from using the 
+Or get a list of detected devices to choose from using the 
 ``--interactive`` option instead.
 
 .. code:: bash

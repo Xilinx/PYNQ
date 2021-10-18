@@ -115,7 +115,7 @@ installed prior to the setup script running so that ``pynq.utils.build_py`` is
 available for importing. The ``setuptools`` and ``wheel`` are required by
 the build system so we'll add those to the list as well.
 
-.. code-block :: toml
+.. code-block :: python
 
     [build-system]
     requires = ["setuptools", "wheel", "pynq>=2.5.1"]

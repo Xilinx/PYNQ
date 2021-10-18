@@ -31,6 +31,7 @@ Subpackages:
     pynq.lib/pynq.lib.axigpio
     pynq.lib/pynq.lib.iic
     pynq.lib/pynq.lib.button
+    pynq.lib/pynq.lib.cmac
     pynq.lib/pynq.lib.dma
     pynq.lib/pynq.lib.led
     pynq.lib/pynq.lib.logictools
