@@ -41,7 +41,6 @@ by many other software developers working at the application level.
     :hidden:
    
     pynq_overlays/loading_an_overlay.ipynb
-    pynq_overlays/partial_reconfiguration.rst
     pynq_overlays/pynqz1
     pynq_overlays/pynqz2
     pynq_overlays/zcu104

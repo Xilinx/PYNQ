@@ -355,5 +355,5 @@ Documentation updated: 16 Dec 2016
    * Pmod Finger HR
    * Pmod Haptic motor
    * Pmod TH02
-* Added USB WiFI driver
+* Added USB WiFi driver
    

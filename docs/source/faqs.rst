@@ -39,7 +39,7 @@ I can't connect to my board
    * You must ensure your PC/laptop and board have IP addresses in the same range. 
      If your network cables are connected directly to your PC/laptop and board, 
      you may need to set a static IP address for your PC/laptop manually. See
-     :ref:`assign-your-computer-a-static-ip`.
+     :ref:`assign-a-static-ip-address`.
          
    * If you have a proxy setup, you may need to add a rule to bypass the board
      hostname/ip address.
@@ -143,7 +143,7 @@ need to assign a static IP address in the same range to the computer.  This
 allows your computer and board to communicate to each other over the Ethernet
 cable.
 
-See :ref:`assign-your-computer-a-static-ip`.
+See :ref:`assign-a-static-ip-address`.
 
 I can't connect to the Jupyter portal!
 --------------------------------------

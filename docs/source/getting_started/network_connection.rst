@@ -21,7 +21,7 @@ without Internet access.
 
 Connect directly to a computer (Static IP):
 
-  1. :ref:`assign-your-computer-a-static-IP`
+  1. :ref:`assign-a-static-ip-address`
   2. Connect the board to your computer's Ethernet port
   3. Browse to http://192.168.2.99
   

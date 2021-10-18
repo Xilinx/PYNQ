@@ -44,7 +44,7 @@ The AXI streams are connected in loopback so that after sending and receiving da
 via the DMA the contents of the input buffer will have been transferred to the
 output buffer. 
 
-Note that when instantiating a DMA, the default maximum transaction size is
+Note that when instantiating a DMA, the **default** maximum transaction size is
 14-bits (i.e. 2^14 = 16KB). For larger DMA transactions, make sure to increase
 this value when configuring the DMA in your Vivado IPI design.
 
@@ -57,8 +57,8 @@ IP block with both send and receive channels enabled.
    from pynq import allocate
    from pynq import Overlay
 
-   overlay = Overlay('example.bit')
-   dma = overlay.axi_dma
+   ol = Overlay('example.bit')
+   dma = ol.axi_dma
 
    input_buffer = allocate(shape=(5,), dtype=np.uint32)
    output_buffer = allocate(shape=(5,), dtype=np.uint32)
