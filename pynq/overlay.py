@@ -451,10 +451,7 @@ class Overlay(Bitstream):
         """
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
-        pr_parser = pr_block.parsers[pr_block.pr_loaded]
         pr_dtbo = pr_block.bitstreams[partial_bit].dtbo
-        self.device.update_partial_region(partial_region, pr_parser)
-        self._deepcopy_dict_from(self.device)
         self.pr_dict[partial_region] = {'loaded': pr_block.pr_loaded,
                                         'dtbo': pr_dtbo}
         description = _complete_description(
@@ -1006,6 +1003,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         self.bitstreams = dict()
         self.pr_loaded = ''
         self.device = description['device']
+        self._overlay = description['overlay']
         super().__init__(description)
 
     @staticmethod
@@ -1043,6 +1041,11 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         self._load_bitstream(bitfile_name)
         if dtbo:
             self.bitstreams[bitfile_name].insert_dtbo()
+
+        self.device.update_partial_region(self.description['fullpath'],
+                                          self.parsers[self.pr_loaded])
+
+        self._overlay._deepcopy_dict_from(self.device)
 
     def _find_bitstream_by_abs(self, absolute_path):
         for i in self.bitstreams.keys():
