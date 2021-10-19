@@ -15,6 +15,7 @@ recursive-exclude boards/* *.spec *.bsp *.hdf *.dsa *.xsa
 
 # include notebooks and images in docs folder
 include docs/source/*.ipynb
+include docs/source/getting_started/*.ipynb
 recursive-include docs/source/images *
 
 # include misc files
