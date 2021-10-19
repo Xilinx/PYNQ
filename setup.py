@@ -235,7 +235,7 @@ def copy_documentation_files(staging_notebooks_dir):
     notebooks_getting_started_dst_img_dir = os.path.join(
         staging_notebooks_dir, 'getting_started', 'images')
     notebooks_getting_started_src_dir = os.path.join(
-        'docs', 'source')
+        'docs', 'source', 'getting_started')
     notebooks_getting_started_src_img_dir = os.path.join(
         'docs', 'source', 'images')
 
