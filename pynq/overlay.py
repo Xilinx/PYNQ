@@ -30,7 +30,6 @@
 import collections
 import ctypes
 import itertools
-import os
 import re
 import struct
 import warnings
@@ -41,7 +40,6 @@ from .bitstream import Bitstream
 from .interrupt import Interrupt
 from .gpio import GPIO
 from .registers import RegisterMap
-from .registers import Register
 from .utils import ReprDict
 from .utils import _ExtensionsManager
 
@@ -51,7 +49,6 @@ from pynq._3rdparty import ert
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
-
 
 
 DRIVERS_GROUP = "pynq.lib"
@@ -534,6 +531,7 @@ class Overlay(Bitstream):
         for ext in drivers_ext_man.list:
             importlib.import_module(ext.module_name)
 
+
 _ip_drivers = dict()
 _hierarchy_drivers = collections.deque()
 
@@ -702,7 +700,7 @@ class DefaultIP(metaclass=RegisterIP):
                 self._call_struct = struct.Struct(struct_string)
                 self._ctrl_reg = True
                 self.start_ert = self._start_ert
-                self.start_sw  = self._start_sw
+                self.start_sw = self._start_sw
                 self.call = self._call
                 if self.device.has_capability('ERT'):
                     self.start = self._start_ert
@@ -776,7 +774,7 @@ class DefaultIP(metaclass=RegisterIP):
         For details on the function's signature use the `signature` property.
         The type annotations provide the C types that the accelerator
         operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.allocate` class. Scalars should be 
+        objects created from the `pynq.allocate` class. Scalars should be
         passed as a compatible python type as used by the `struct` library.
 
         """
@@ -821,7 +819,7 @@ class DefaultIP(metaclass=RegisterIP):
         if kwargs:
             # Resolve any kwargs to make a single args tuple
             args = self._signature.bind(*args, **kwargs).args
-        args = [a.device_address if p else a for a, p in zip(args, 
+        args = [a.device_address if p else a for a, p in zip(args,
                                                              self._ptr_list)]
         arg_data = self._call_struct.pack(0, *args)
         bo = self.device.get_exec_bo()
