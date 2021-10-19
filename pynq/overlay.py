@@ -448,13 +448,6 @@ class Overlay(Bitstream):
         """
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
-        pr_dtbo = pr_block.bitstreams[partial_bit].dtbo
-        self.pr_dict[partial_region] = {'loaded': pr_block.pr_loaded,
-                                        'dtbo': pr_dtbo}
-        description = _complete_description(
-            self.ip_dict, self.hierarchy_dict, self.ignore_version,
-            self.mem_dict, self.device, self)
-        self._ip_map = _IPMap(description)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
@@ -1044,6 +1037,13 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
                                           self.parsers[self.pr_loaded])
 
         self._overlay._deepcopy_dict_from(self.device)
+        self._overlay.pr_dict[self.description['fullpath']] = \
+            {'loaded': self.pr_loaded, 'dtbo': dtbo}
+        description = _complete_description(
+            self._overlay.ip_dict, self._overlay.hierarchy_dict,
+            self._overlay.ignore_version, self._overlay.mem_dict,
+            self._overlay.device, self._overlay)
+        self._overlay._ip_map = _IPMap(description)
 
     def _find_bitstream_by_abs(self, absolute_path):
         for i in self.bitstreams.keys():
