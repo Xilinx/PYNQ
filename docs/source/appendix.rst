@@ -11,7 +11,6 @@ Appendix
    appendix/sdcard
    appendix/verification
    appendix/glossary
-   appendix/python_environment
    appendix/references
    
    
