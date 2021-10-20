@@ -30,7 +30,6 @@
 import collections
 import ctypes
 import itertools
-import os
 import re
 import struct
 import warnings
@@ -41,7 +40,6 @@ from .bitstream import Bitstream
 from .interrupt import Interrupt
 from .gpio import GPIO
 from .registers import RegisterMap
-from .registers import Register
 from .utils import ReprDict
 from .utils import _ExtensionsManager
 
@@ -51,7 +49,6 @@ from pynq._3rdparty import ert
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
-
 
 
 DRIVERS_GROUP = "pynq.lib"
@@ -451,16 +448,6 @@ class Overlay(Bitstream):
         """
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
-        pr_parser = pr_block.parsers[pr_block.pr_loaded]
-        pr_dtbo = pr_block.bitstreams[partial_bit].dtbo
-        self.device.update_partial_region(partial_region, pr_parser)
-        self._deepcopy_dict_from(self.device)
-        self.pr_dict[partial_region] = {'loaded': pr_block.pr_loaded,
-                                        'dtbo': pr_dtbo}
-        description = _complete_description(
-            self.ip_dict, self.hierarchy_dict, self.ignore_version,
-            self.mem_dict, self.device, self)
-        self._ip_map = _IPMap(description)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
@@ -536,6 +523,7 @@ class Overlay(Bitstream):
         drivers_ext_man = _ExtensionsManager(DRIVERS_GROUP)
         for ext in drivers_ext_man.list:
             importlib.import_module(ext.module_name)
+
 
 _ip_drivers = dict()
 _hierarchy_drivers = collections.deque()
@@ -705,7 +693,7 @@ class DefaultIP(metaclass=RegisterIP):
                 self._call_struct = struct.Struct(struct_string)
                 self._ctrl_reg = True
                 self.start_ert = self._start_ert
-                self.start_sw  = self._start_sw
+                self.start_sw = self._start_sw
                 self.call = self._call
                 if self.device.has_capability('ERT'):
                     self.start = self._start_ert
@@ -779,7 +767,7 @@ class DefaultIP(metaclass=RegisterIP):
         For details on the function's signature use the `signature` property.
         The type annotations provide the C types that the accelerator
         operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.allocate` class. Scalars should be 
+        objects created from the `pynq.allocate` class. Scalars should be
         passed as a compatible python type as used by the `struct` library.
 
         """
@@ -824,7 +812,7 @@ class DefaultIP(metaclass=RegisterIP):
         if kwargs:
             # Resolve any kwargs to make a single args tuple
             args = self._signature.bind(*args, **kwargs).args
-        args = [a.device_address if p else a for a, p in zip(args, 
+        args = [a.device_address if p else a for a, p in zip(args,
                                                              self._ptr_list)]
         arg_data = self._call_struct.pack(0, *args)
         bo = self.device.get_exec_bo()
@@ -1006,6 +994,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         self.bitstreams = dict()
         self.pr_loaded = ''
         self.device = description['device']
+        self._overlay = description['overlay']
         super().__init__(description)
 
     @staticmethod
@@ -1043,6 +1032,18 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         self._load_bitstream(bitfile_name)
         if dtbo:
             self.bitstreams[bitfile_name].insert_dtbo()
+
+        self.device.update_partial_region(self.description['fullpath'],
+                                          self.parsers[self.pr_loaded])
+
+        self._overlay._deepcopy_dict_from(self.device)
+        self._overlay.pr_dict[self.description['fullpath']] = \
+            {'loaded': self.pr_loaded, 'dtbo': dtbo}
+        description = _complete_description(
+            self._overlay.ip_dict, self._overlay.hierarchy_dict,
+            self._overlay.ignore_version, self._overlay.mem_dict,
+            self._overlay.device, self._overlay)
+        self._overlay._ip_map = _IPMap(description)
 
     def _find_bitstream_by_abs(self, absolute_path):
         for i in self.bitstreams.keys():
