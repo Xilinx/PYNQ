@@ -16,10 +16,10 @@ controllers in the PS that are connected to the PL.
 There are four ``pynq`` classes that are used to manage data movement between 
 the Zynq PS (including the PS DRAM) and PL interfaces.
 
-* GPIO - General Purpose Input/Output
-* MMIO - Memory Mapped IO
-* allocate - Memory allocation
-* DMA  - Direct Memory Access
+* :class:`pynq.gpio.GPIO` - General Purpose Input/Output
+* :class:`pynq.mmio.MMIO` - Memory Mapped IO
+* :func:`pynq.buffer.allocate` - Memory allocation
+* :class:`pynq.lib.dma.DMA` - Direct Memory Access
 
 The class used depends on the Zynq PS interface the IP is connected to, and the
 interface of the IP. 
@@ -49,7 +49,8 @@ interrupts.
 
 IP does not have to be mapped into the system memory map to be connected to GPIO. 
 
-More information about using PS GPIO can be found in the :ref:`pynq-libraries-psgpio` section.
+More information about using PS GPIO can be found in the
+:ref:`pynq-libraries-psgpio` section.
 
 MMIO
 ----
@@ -62,37 +63,42 @@ location. As burst instructions are not supported, MMIO is most appropriate for
 reading and writing small amounts of data to/from IP connect to the AXI Slave 
 GP ports. 
 
-More information about using MMIO can be found in the :ref:`pynq-libraries-mmio` section.
+More information about using MMIO can be found in the
+:ref:`pynq-libraries-mmio` section.
 
 allocate
 --------
 
-Memory must be allocated before it can be accessed by the IP. ``allocate`` allows
-memory buffers to be allocated. The ``allocate`` function allocates a contiguous memory buffer which
-allows efficient transfers of data between PS and PL. Python or other code
-running in Linux on the PS can access the memory buffer directly.
+Memory must be allocated before it can be accessed by the IP. ``allocate``
+allows memory buffers to be allocated. The :func:`pynq.buffer.allocate`
+function allocates a contiguous memory buffer which allows efficient transfers
+of data between PS and PL. Python or other code running in Linux on the PS can
+access the memory buffer directly.
 
-As PYNQ is running Linux, the buffer will exist in the Linux virtual memory. The
-Zynq AXI Slave ports allow an AXI-master IP in an overlay to access physical
-memory. The numpy array returned can also provide the physical memory pointer to the buffer which
-can be sent to an IP in the overlay. The physical address is stored in the
-``device_address`` property of the allocated memory buffer instance. An IP in
-an overlay can then access the same buffer using the physical address.
+As PYNQ is running Linux, the buffer will exist in the Linux virtual memory.
+The Zynq AXI Slave ports allow an AXI-master IP in an overlay to access
+physical memory. The numpy array returned can also provide the physical memory
+pointer to the buffer which can be sent to an IP in the overlay. The physical
+address is stored in the ``device_address`` property of the allocated memory
+buffer instance. An IP in an overlay can then access the same buffer using the
+physical address.
 
-More information about using allocate can be found in the :ref:`pynq-libraries-allocate` section.
+More information about using allocate can be found in the
+:ref:`pynq-libraries-allocate` section.
 
 DMA
 ---
 
-AXI stream interfaces are commonly used for high performance streaming applications. 
-AXI streams can be used with Zynq AXI HP ports via a DMA. 
+AXI stream interfaces are commonly used for high performance streaming
+applications. AXI streams can be used with Zynq AXI HP ports via a DMA.
 
-The ``pynq`` DMA class supports the `AXI Direct Memory Access IP
+The :class:`pynq.lib.dma.DMA` class supports the `AXI Direct Memory Access IP
 <https://www.xilinx.com/support/documentation/ip_documentation/axi_dma/v7_1/pg021_axi_dma.pdf>`_.
 This allows data to be read from DRAM, and sent to an AXI stream, or received
 from a stream and written to DRAM.
 
-More information about using DMA can be found in the :ref:`pynq-libraries-dma` section.
+More information about using DMA can be found in the
+:ref:`pynq-libraries-dma` section.
 
 Interrupt
 ---------
