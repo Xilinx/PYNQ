@@ -9,7 +9,10 @@ set -e
 target=$1
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+wget https://www.xilinx.com/bin/public/openDownload?filename=cmake-3.20.5-Linux-armv7l.sh \
+    -O $script_dir/pre-built/cmake-3.20.5-Linux-armv7l.sh
 
+chmod a+x $script_dir/pre-built/cmake-3.20.5-Linux-armv7l.sh
 sudo cp -rf $script_dir/pre-built/cmake-3.20.5-Linux-armv7l.sh $target/usr
 
 # TODO should build on x86_64 host using sdcard sysroot
