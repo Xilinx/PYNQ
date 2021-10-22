@@ -36,7 +36,7 @@ It is recommended to use a Ubuntu OS to build the image. The currently supported
 ================  ==================
 Supported OS      Code name
 ================  ==================   
-Ubuntu 20.04       Focal
+Ubuntu 18.04       Bionic
 ================  ==================
 
 Use Vagrant to prepare Ubuntu OS
