@@ -361,5 +361,5 @@ sdbuild makefile.
    make BOARDDIR=${BOARD_REPO}
 
 The board repo should be provided as an absolute path. The ``${BOARDDIR}`` variable
-can be combined with the ``${BOARD}`` variable if the repository contains multiple
+can be combined with the ``${BOARDS}`` variable if the repository contains multiple
 boards and only a subset should be built.
