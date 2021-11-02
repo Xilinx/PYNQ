@@ -65,6 +65,9 @@ systemctl mask wpa_supplicant
 # Disable hibernation to keep interfaces alive
 systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 
+# Disable UA Client
+systemctl mask ua-auto-attach.service
+
 EOT
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
