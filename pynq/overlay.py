@@ -384,6 +384,8 @@ class Overlay(Bitstream):
     def free(self):
         if hasattr(self.device, 'free_bitstream'):
             self.device.free_bitstream()
+        if self.dtbo:
+            self.remove_dtbo()
 
     def download(self, dtbo=None):
         """The method to download a full bitstream onto PL.
