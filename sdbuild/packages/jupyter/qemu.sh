@@ -5,7 +5,10 @@ set -e
 
 export HOME=/root
 export PYNQ_PYTHON=python3
-export PYNQ_JUPYTER_NOTEBOOKS=/home/xilinx/jupyter_notebooks
+
+if [ -z "$PYNQ_JUPYTER_NOTEBOOKS" ]; then
+	export PYNQ_JUPYTER_NOTEBOOKS=/home/xilinx/jupyter_notebooks
+fi 
 
 if [ ${ARCH} == 'arm' ]; then
 	export NODE_OPTIONS=--max-old-space-size=2048
@@ -29,7 +32,7 @@ else
     rm -rf *.deb
 fi
 
-for f in /etc/profile.d/*.sh; do source $f; done
+source /etc/profile.d/pynq_venv.sh
 
 jupyter notebook --generate-config --allow-root
 

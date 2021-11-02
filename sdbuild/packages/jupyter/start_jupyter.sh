@@ -17,7 +17,6 @@ if [ $notebook_version -ge 5 ]; then
   notebook_args="$notebook_args --allow-root"
 fi
 
-cd ~xilinx
 export SHELL=/bin/bash
 jupyter notebook $notebook_args > /var/log/jupyter.log  2>&1 &
 
