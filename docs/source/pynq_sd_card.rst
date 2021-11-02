@@ -357,7 +357,7 @@ officially supported boards. This means, in particular, that:
 Building from a board repository
 ================================
 
-To build from a third-party board repository pass the ``${BOARDDIR}`` variable to the
+To build from a third-party board repository, pass the ``BOARDDIR`` variable to the
 sdbuild makefile.
 
 .. code-block:: console
@@ -365,6 +365,6 @@ sdbuild makefile.
    cd <PYNQ repository>/sdbuild/
    make BOARDDIR=${BOARD_REPO}
 
-The board repo should be provided as an absolute path. The ``${BOARDDIR}`` variable
-can be combined with the ``${BOARD}`` variable if the repository contains multiple
+The board repo should be provided as an absolute path. The ``BOARDDIR`` variable
+can be combined with the ``BOARDS`` variable if the repository contains multiple
 boards and only a subset should be built.
