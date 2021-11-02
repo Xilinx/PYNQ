@@ -210,6 +210,7 @@ v2.0               2016.1
 v2.1               2017.4
 v2.5               2019.1
 v2.6               2020.1 (Vitis)
+v2.7               2020.2 (Vitis)
 ================  ================
 
 It is recommended
@@ -225,7 +226,7 @@ the MicroBlaze can be written in C or C++ and compiled using Vitis.
 
 You can pull or clone the PYNQ repository, and all the driver source and
 project files can be found in 
-``<PYNQ repository>\pynq\lib\<driver_group_name>\<project_directory>``.
+``<PYNQ repository>/pynq/lib/<driver_group_name>/<project_directory>``.
 
 Vitis Application, Board Support Package, Hardware Platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -303,7 +304,7 @@ sure this path is external to the downloaded PYNQ repository). From the
 
 In Linux, open a terminal, and source the Vitis tools.
 
-From either the Windows Shell, or the Linux terminal, navigate to the sdk 
+From either the Windows Shell, or the Linux terminal, navigate to the Vitis
 folder in your local copy of the PYNQ repository:
 
 The following example shows how to run ``make`` in 
@@ -354,9 +355,9 @@ Creating Your Own Project
 Using the makefile flow, you can use an existing project as a starting point 
 for your own project.
 
-Copy and rename the project, and modify or replace the .c file in the src/ with
-your C code. The generated .bin file will have the same base name as your C
-file.
+Copy and rename the project, and modify or replace the ``.c`` file in the
+``src/`` with your C code. The generated .bin file will have the same base
+name as your C file.
 
 For example, if your C code is ``my_peripheral.c``, the generated .elf and .bin 
 will be ``my_peripheral.elf`` and ``my_peripheral.bin``.

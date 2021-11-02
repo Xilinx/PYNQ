@@ -21,16 +21,17 @@ from the Python environment.
 The Default API
 ---------------
 
-When and Overlay is loaded using the ``pynq.Overlay`` function all of the IP and
-hierarchies in the overlay will have drivers assigned to them and used to
-construct an object hierarchy. The IP can then be accessed via attributes on the
-returned overlay class using the names of the IP and hierarchies in the block
-diagram.
+When and Overlay is loaded using the :class:`pynq.overlay.Overlay` function
+all of the IP and hierarchies in the overlay will have drivers assigned to
+them and used to construct an object hierarchy. The IP can then be accessed
+via attributes on the returned overlay class using the names of the IP and
+hierarchies in the block diagram.
 
-If no driver has been specified for a type of IP then a ``DefaultIP`` will be
-instantiated offering ``read`` and ``write`` functions to access the IP's
-address space and named accessors to any interrupts or GPIO pins connected to
-the IP. Hierarchies likewise will be instances of ``DefaultHierarchy`` offering
+If no driver has been specified for a type of IP then a
+:class:`pynq.overlay.DefaultIP` will be instantiated offering ``read`` and
+``write`` functions to access the IP's address space and named accessors to
+any interrupts or GPIO pins connected to the IP. Hierarchies, likewise will be
+instances of :class:`pynq.overlay.DefaultHierarchy` offering
 access to any sub hierarchies or contained IP. The top-level ``Overlay``
 also acts just like any other IP.
 
@@ -39,18 +40,20 @@ Customising Drivers
 
 While the default drivers are useful for getting started with new hardware in a
 design it is preferable to have a higher level driver for end users to interact
-with. Each of ``DefaultIP``, ``DefaultHierarchy`` and ``Overlay`` can be
+with. Each of :class:`pynq.overlay.DefaultIP`,
+:class:`pynq.overlay.DefaultHierarchy` and :class:`pynq.overlay.Overlay` can be
 subclassed and automatically bound to elements of the block diagram. New drivers
 will only be bound when the overlay is reloaded.
 
 Creating IP Drivers
 ^^^^^^^^^^^^^^^^^^^
 
-All IP drivers should inherit from ``DefaultIP`` and include a ``bindto`` class
-attribute consisting of an array of strings. Each string should be a type of IP
-that the driver should bind to. It is also strongly recommend to call
-``super().__init__`` in the class's constructor. The type of an IP can be found
-as the VLNV parameter in Vivado or from the ``ip_dict`` of the overlay.
+All IP drivers should inherit from :class:`pynq.overlay.DefaultIP` and include
+a ``bindto`` class attribute consisting of an array of strings. Each string
+should be a type of IP that the driver should bind to. It is also strongly
+recommend to call ``super().__init__`` in the class's constructor. The type of
+an IP can be found as the VLNV parameter in Vivado or from the ``ip_dict``
+of the overlay.
 
 A template for an IP driver is as follows:
 
@@ -66,11 +69,11 @@ A template for an IP driver is as follows:
 Creating Hierarchy Drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Hierarchy drivers should inherit from ``DefaultHierarchy`` and provide a static
-method ``checkhierarchy`` that takes a description and returns ``True`` if the
-driver can bind to it. Any class that meets these two requirements will be
-automatically added to a list of drivers tested against each hierarchy in a
-newly loaded overlay.
+Hierarchy drivers should inherit from :class:`pynq.overlay.DefaultHierarchy`
+and provide a static method :meth:`pynq.overlay.DefaultHierarchy.checkhierarchy`
+that takes a description and returns ``True`` if the driver can bind to it.
+Any class that meets these two requirements will be automatically added to a
+list of drivers tested against each hierarchy in a newly loaded overlay.
 
 A template for a hierarchy driver is as follows:
 
@@ -89,10 +92,10 @@ A template for a hierarchy driver is as follows:
 Creating Custom Overlay Classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Finally the class changed from the ``Overlay`` to provide a more suitable
-high-level API or provide overlay-specific initialisation. The overlay loader
-will look for a python file located alongside the bitstream and HWH files,
-import it and then call the ``Overlay`` function.
+Finally the class changed from the :class:`pynq.overlay.Overlay` to provide a
+more suitable high-level API or provide overlay-specific initialisation.
+The overlay loader will look for a python file located alongside the
+bitstream and HWH files, import it and then call the ``Overlay`` function.
 
 A template for a custom overlay class is as follows:
 
@@ -113,10 +116,10 @@ Working with Physically Contiguous Memory
 
 In many applications there is a need for large buffers to be transferred
 between the PS and PL either using DMA engines or HLS IP with AXI master
-interfaces. In PYNQ the ``allocate`` function provides a mechanism to acquire
-numpy arrays allocated as to be physically contiguous. The allocate function
-takes ``shape`` and ``dtype`` parameters in a similar way to other numpy
-construction functions.
+interfaces. In PYNQ the :func:`pynq.buffer.allocate` function provides a
+mechanism to acquire numpy arrays allocated as to be physically contiguous.
+The allocate function takes ``shape`` and ``dtype`` parameters in a similar
+way to other numpy construction functions.
 
 .. code-block:: Python
 

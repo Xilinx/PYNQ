@@ -21,9 +21,9 @@ on the bitstream, so that new drivers can be assigned to the new blocks
 available in the bitstream. To achieve this, users have to provide the 
 metadata file (*.hwh* file) along with each full / partial bitstream. 
 The *.hwh* file is typically located at:
-`<project_name>/<design_name>.srcs/sources_1/bd/<design_name>/hw_handoff/`.
+`<project_name>/<design_name>.gen/sources_1/bd/<design_name>/hw_handoff/`.
 
-Keep in mind that each partial bitstream need a *.hwh* file.
+Keep in mind that each partial bitstream needs a *.hwh* file.
 
 
 Loading Full Bitstream
@@ -50,35 +50,44 @@ partial reconfiguration project, the *.hwh* file for the full bitstream
 will not contain any information inside a partial region, even if the full 
 bitstream always has a default *Reconfiguration Module* (RM) implemented. 
 Instead, the *.hwh* file only provides the information on the interfaces 
-connecting to the partial region. So for the full bitstream, don't be surprised
-if you see an empty partial region in the *.hwh* file. The complete information
-on the partial regions are revealed by the *.hwh* files of 
-the partial bitstreams, where each *.hwh* file reveals one possible 
+connecting to the partial region. So for the full bitstream, do not be 
+surprised if you see an empty partial region in the *.hwh* file. 
+The complete information on the partial regions are revealed by the *.hwh* 
+files of the partial bitstreams, where each *.hwh* file reveals one possible 
 internal organization of the partial region.
 
 Loading Partial Bitstream
 =========================
 Typically, the partial regions are hierarchies in the block design of the 
 bitstream. In an *overlay* object, the hierarchical blocks are exposed as 
-attributes of the object; users have to set the partial region for the overlay 
-before they can reconfigure it. In the following example, let's assume there
-is a hierarchical block called *block_0* in the design.
+attributes of the object. In the following example, let us assume there
+is a hierarchical block called *block_0* in the design. There are two ways 
+to download a partial bitstream.
+
+The first way, using the ``download()`` method of the ``DefaultHierarchy``
+class, please see :meth:`pynq.overlay.DefaultHierarchy.download`
 
 .. code-block:: python
    
-   overlay.set_partial_region('block_0')
+   overlay.block_0.download('rm_0_partial.bit')
 
-After the partial region is set, users can use the *download()* method 
-for partial bitstreams. Note that an argument is now needed if a partial
-bitstream is to be downloaded.
-
-.. code-block:: python
-   
-   overlay.download('rm_0_partial.bit')
-   
 To load a different RM:
 
 .. code-block:: python
    
-   overlay.download('rm_1_partial.bit')
+   overlay.block_0.download('rm_1_partial.bit')
+
+The second way, using ``pr_download()`` method of the ``Overlay`` class.
+For this, users have to specify the partial region as well as the partial
+bitstream , see :meth:`pynq.overlay.Overlay.pr_download`
+
+.. code-block:: python
+   
+   overlay.pr_download('block_0', 'rm_0_partial.bit')
+
+To load a different RM:
+
+.. code-block:: python
+   
+   overlay.pr_download('block_0', 'rm_1_partial.bit')
    
