@@ -18,8 +18,6 @@ chmod a+x /usr/bin/killchromium
 rm -rf /home/xilinx/.config/chromium/Singleton*
 echo startfluxbox > /root/.xinitrc
 
-snap install chromium
-
 chown -R xilinx:xilinx /home/xilinx/.config
 runuser -l xilinx -c "xdg-settings set default-web-browser chromium-browser.desktop"
 
