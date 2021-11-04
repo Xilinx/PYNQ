@@ -13,7 +13,7 @@ sudo cp $script_dir/pixmap.patch $target/
 
 snap known --remote model series=16 brand-id=generic model=generic-classic > /tmp/model
 
-sudo snap prepare-image --snap chromium --snap core18 --snap "gnome-3-28-1804" --snap "gtk-common-themes" --snap bare --classic --arch arm64 /tmp/model $target
+sudo snap prepare-image --snap chromium --snap core18 --snap "gnome-3-28-1804" --snap "gtk-common-themes" --snap bare --snap core --classic --arch arm64 /tmp/model $target
 
 rm /tmp/model
 

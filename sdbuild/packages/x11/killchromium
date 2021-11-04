@@ -1,5 +1,5 @@
 #!/bin/sh
 
-pkill -o chromium
+pkill -o chrome
 sed -i "s/\"exit_type\"\:\"Crashed\"/\"exit_type\"\:\"none\"/g" \
-	/home/xilinx/.config/chromium/Default/Preferences
+	/home/xilinx/snap/chromium/common/chromium/Default/Preferences
