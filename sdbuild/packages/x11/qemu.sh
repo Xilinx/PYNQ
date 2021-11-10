@@ -12,6 +12,7 @@ if [ -f /home/xilinx/Welcome\ to\ Pynq.ipynb ]; then
 fi
 
 systemctl enable pynq-x11.service
+systemctl set-default multi-user
 
 chown -R xilinx:xilinx /home/xilinx/.config/chromium
 chmod a+x /usr/bin/killchromium
