@@ -120,6 +120,22 @@ the build system so we'll add those to the list as well.
     [build-system]
     requires = ["setuptools", "wheel", "pynq>=2.5.1"]
 
+Registering Overlays path
+-------------------------
+
+If you have overlays in your package, and you want to reference them without the
+absolute path. You can register the absolute path in in the setup.py by creating
+a ``pynq.overlay`` entry point. The key part of the entry point specifies the
+name of the folder where the overlays will be located.
+
+An example is provided below:
+
+.. code-block :: python
+
+      entry_points={
+          'pynq.overlays': ['new-overlay = new_overlay.overlays']
+      },
+
 Rebuilding PYNQ
 ---------------
 
