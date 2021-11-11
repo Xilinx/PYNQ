@@ -68,6 +68,8 @@ systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 # Disable UA Client
 systemctl mask ua-auto-attach.service
 
+# Disable default graphical environment
+systemctl set-default multi-user
 EOT
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
