@@ -54,7 +54,7 @@ def get_dtbo_path(bitfile_name):
         The absolute path of the dtbo file.
 
     """
-    return ''.join(bitfile_name.split('.', -1)[:-1]) + '.dtbo'
+    return os.path.splitext(bitfile_name)[0] + '.dtbo'
 
 
 def get_dtbo_base_name(dtbo_path):
