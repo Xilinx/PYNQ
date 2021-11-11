@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "x$(/usr/bin/snap get system seed.loaded)" != "xtrue" ]; then
+  snap watch --last=seed | sed -u -e 's:^:# :' | zenity --progress --title="First time setup" --text="This may take a few minutes..." --no-cancel --pulsate --auto-close &
+  progress_pid=$!
+  while ! /usr/bin/snap wait system seed.loaded; do true; done
+  kill $progress_pid
+fi
+
+runuser -w DISPLAY -l xilinx -c "xdg-open $@"
