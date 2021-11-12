@@ -14,13 +14,7 @@ fi
 systemctl enable pynq-x11.service
 systemctl set-default multi-user
 
-chown -R xilinx:xilinx /home/xilinx/.config/chromium
-chmod a+x /usr/bin/killchromium
-rm -rf /home/xilinx/.config/chromium/Singleton*
 echo startfluxbox > /root/.xinitrc
-
-chown -R xilinx:xilinx /home/xilinx/.config
-runuser -l xilinx -c "xdg-settings set default-web-browser chromium-browser.desktop"
 
 mkdir /root/armsoc_build
 cd /root/armsoc_build
@@ -36,3 +30,4 @@ make install
 cd /
 rm -rf /root/armsoc_build
 rm /armsoc.patch
+rm /pixmap.patch

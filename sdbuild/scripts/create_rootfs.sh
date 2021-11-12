@@ -70,6 +70,9 @@ systemctl mask ua-auto-attach.service
 
 # Disable default graphical environment
 systemctl set-default multi-user
+
+# Ensure /usr/local/bin is a directory
+mkdir -p /usr/local/bin
 EOT
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then

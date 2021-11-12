@@ -19,7 +19,7 @@ xhost + SI:localuser:xilinx
 # wmsmixer -w &
 # idesk &
 if [ -f "/home/xilinx/Welcome to Pynq.html" ]; then
-        /usr/local/bin/startchromium "file:///home/xilinx/Welcome%20to%20Pynq.html" &
+        runuser -w DISPLAY -l xilinx -c " xdg-open file:///home/xilinx/Welcome%20to%20Pynq.html" &
 fi
 
 
