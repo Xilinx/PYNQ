@@ -42,6 +42,7 @@ cat - > $target/postinst2.sh <<EOT
 export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
 export LC_ALL=C LANGUAGE=C LANG=C
 rm -f /var/run/reboot-required
+rm -f /var/run/firefox-restart-required
 dpkg --configure -a
 apt-get clean
 
