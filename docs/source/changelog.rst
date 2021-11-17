@@ -2,6 +2,41 @@
 Change Log
 ************************
 
+Version 2.7.0 
+============================
+
+Updates to PYNQ since the last release include:
+
+* Image releases:
+   * pynq_z1_v2.7.0
+   * pynq_z2_v2.7.0
+   * zcu104_v2.7.0
+   * zcu111_v2.7.0
+   * rfsoc2x2_v2.7.0
+   * pynq_zu_v2.7.0
+   
+* Upgraded Software
+   * All overlays built with Vivado 2020.2
+   * Linux kernel and build updated to Petalinux 2020.2
+
+* Productivity additions
+   * Updated to Python 3.8
+   * Updated to JupyterLab 3.0.16
+   * Updated to Ubuntu 20.04 based packages
+   * Pynq and Jupyter now execute in a virtual environment (venv)
+
+* SD Build updates
+   * Updated to use OpenEmbedded WIC flows for building SD card images   
+
+* Programmable Logic updates
+   * Added cmac.py for 100 GbE offload
+   * PL DRAM allocation support added
+   * RFSoC clock and data converters updated to support RFSoC Gen3 devices
+
+* Deprecations
+   * Removed Xlnk allocator and libraries for edge devices (replaced by XRT allocation)
+
+
 Version 2.6.0 
 ============================
 
