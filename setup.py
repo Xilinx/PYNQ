@@ -252,6 +252,15 @@ def copy_documentation_files(staging_notebooks_dir):
     for dst, files in doc_files:
         for f in files:
             copy_file(f, dst)
+            if os.path.splitext(f)[1] == '.ipynb':
+                dest_nb = os.path.join(dst, os.path.split(f)[1])
+                # rewrite image paths in notebooks
+                with open(dest_nb, 'r+') as nb:
+                    text = nb.read()
+                    text = re.sub(r'\(../images', r'(images', text)
+                    nb.seek(0)
+                    nb.truncate(0)
+                    nb.write(text)
 
 
 # Rename and copy getting started notebooks
