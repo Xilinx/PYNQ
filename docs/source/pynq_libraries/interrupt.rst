@@ -77,6 +77,10 @@ into the input of both the interrupt controller and the processing system.
 The default Peripheral Interupt Type, set by the block automation, is Level. It causes that not all interrupts can be caught in Pynq.
 Change the Peripheral Interrupt Type in tha AXI Interrupt Controller block from Level to Edge, by setting the Interrupt Type - Edge or Level to Manual. Then enter value 0xFFFFFFFF.
 
+.. image:: ../images/interrupt_bd_trigger.png
+   :align: center
+
+
 Exploring Interrupts in Software
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
