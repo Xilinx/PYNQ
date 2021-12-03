@@ -649,7 +649,7 @@ class DMA(DefaultIP):
                     self.sendchannel = _SGDMAChannel(
                         self.mmio,
                         max_size,
-                        6,
+                        data_width,
                         DMA_TYPE_TX,
                         dre,
                         self.mm2s_introut)
@@ -666,7 +666,7 @@ class DMA(DefaultIP):
                     self.sendchannel = _SGDMAChannel(
                         self.mmio,
                         max_size,
-                        6,
+                        data_width,
                         DMA_TYPE_TX,
                         dre)
                 else:
@@ -707,7 +707,7 @@ class DMA(DefaultIP):
                     self.recvchannel = _SGDMAChannel(
                         self.mmio,
                         max_size,
-                        6,
+                        data_width,
                         DMA_TYPE_RX,
                         dre,
                         self.s2mm_introut)
@@ -724,7 +724,7 @@ class DMA(DefaultIP):
                     self.recvchannel = _SGDMAChannel(
                         self.mmio,
                         max_size,
-                        6,
+                        data_width,
                         DMA_TYPE_RX,
                         dre)
                 else:
