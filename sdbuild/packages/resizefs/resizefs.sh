@@ -8,8 +8,8 @@
 exec >> /var/log/syslog
 exec 2>&1
 
-TGTDEV=/dev/mmcblk0
-TGTPART=/dev/mmcblk0p2
+TGTDEV=/dev/mmcblk1
+TGTPART=/dev/mmcblk1p2
 source /etc/environment
 
 if [[ ${RESIZED} -eq "1" ]]; then

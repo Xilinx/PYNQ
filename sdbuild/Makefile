@@ -143,7 +143,7 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 		-s $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp -n petalinux_project
 	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ROOTFS_EXT4=y' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_SDROOT_DEV="/dev/mmcblk0p2"' >> $$(PL_CONFIG_$1)
+	echo 'CONFIG_SUBSYSTEM_SDROOT_DEV="/dev/mmcblk1p2"' >> $$(PL_CONFIG_$1)
 	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
 	if [ $$(FPGA_MANAGER_$1) = 1 ]; then \
 		echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1) ;\

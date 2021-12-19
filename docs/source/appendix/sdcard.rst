@@ -132,10 +132,10 @@ wrong drive, you could lose data from, or delete your primary Linux partition.
 * Run df -h again. 
 
 The new device that has appeared is your Micro SD card. The left column gives
-the device name; it will be listed as something like /dev/mmcblk0p1 or
+the device name; it will be listed as something like /dev/mmcblk1p1 or
 /dev/sdd1. The last part (p1 or 1 respectively) is the partition number but you
 want to write to the whole SD card, not just one partition. You need to remove
-that part from the name. e.g. Use /dev/mmcblk0 or /dev/sdd as the device name
+that part from the name. e.g. Use /dev/mmcblk1 or /dev/sdd as the device name
 for the whole SD card.
 
 Now that you've noted what the device name is, you need to unmount it so that
@@ -153,7 +153,7 @@ If your SD card shows up more than once in the output of df due to having multip
   name. This is very important, as you will lose all data on the hard drive if
   you provide the wrong device name. Make sure the device name is the name of
   the whole Micro SD card as described above, not just a partition of it; for
-  example, sdd, not sdds1, and mmcblk0, not mmcblk0p1.
+  example, sdd, not sdds1, and mmcblk1, not mmcblk1p1.
 
 `sudo dd bs=4M if=pynq_image.img of=/dev/sdd`
 
