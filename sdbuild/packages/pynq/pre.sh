@@ -41,51 +41,7 @@ if [ -d /usr/local/share/fatfs_contents ]; then
     sudo cp -rf $BUILD_ROOT/PYNQ/REVISION /usr/local/share/fatfs_contents/REVISION
 fi
 
-if [ -n "$PYNQ_SDIST" ] && [ "$BOARDDIR" -ef "$DEFAULT_BOARDDIR" ]; then
-	# using prebuilt sdist with non-external board
-	# nothing to do except copy sdist to target folder
-	sudo cp ${PYNQ_SDIST} $target/home/xilinx/pynq_git/dist
-else
-	if [ -n "$PYNQ_SDIST" ] && [ ! "$BOARDDIR" -ef "$DEFAULT_BOARDDIR" ]; then
-		# using prebuilt sdist with external board
-		# copy bitstreams, microblaze bsps and binaries from sdist
-		sdist_untar=$BUILD_ROOT/PYNQ/sdist_untar
-		mkdir -p ${sdist_untar}
-		tar -xzvf ${PYNQ_SDIST} -C ${sdist_untar}
-		cd $BUILD_ROOT/PYNQ
-		rsync -rptL --ignore-existing ${sdist_untar}/*/pynq/lib/* pynq/lib/
-		boards=`ls ${sdist_untar}/*/boards`
-		for bd_name in $boards ; do
-			cd ${sdist_untar}/*/boards/${bd_name}
-			overlays=`find . -maxdepth 2 -iname '*.bit' -printf '%h\n' | cut -f2 -d"/"`
-			for ol in $overlays ; do
-				sudo cp -fL $ol/*.bit $ol/*.hwh \
-					$BUILD_ROOT/PYNQ/boards/${bd_name}/$ol 2>/dev/null||:
-			done
-		done
-		rm -rf ${sdist_untar}
-	fi
-	# build bitstream, microblazes' bsps and binaries
-	cd $BUILD_ROOT/PYNQ
-	./build.sh
-	# get rid of Vivado temp files in case there are any
-	boards=`find boards -maxdepth 2 -name '*.spec' -printf '%h\n' | cut -f2 -d"/"`
-	for bd_name in $boards ; do
-		cd $BUILD_ROOT/PYNQ/boards/${bd_name}
-		overlays=`find . -maxdepth 2 -iname 'makefile' -printf '%h\n' | cut -f2 -d"/"`
-		for ol in $overlays ; do
-			cd $BUILD_ROOT/PYNQ/boards/${bd_name}/$ol
-			make clean
-			if [[ -e $ol.bit.link ]]; then
-				rm -f $ol.bit
-			fi
-			if [[ -e $ol.hwh.link ]]; then
-				rm -f $ol.hwh
-			fi
-		done
-	done
-	# create sdist
-	cd $BUILD_ROOT/PYNQ
-	python3 setup.py sdist
-	sudo cp dist/*.tar.gz $target/home/xilinx/pynq_git/dist
-fi
+# create sdist
+cd $BUILD_ROOT/PYNQ
+python3 setup.py sdist
+sudo cp dist/*.tar.gz $target/home/xilinx/pynq_git/dist
