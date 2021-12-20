@@ -1,0 +1,138 @@
+#   Copyright (c) 2016-2021, Xilinx, Inc.
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import sys
+import os
+import argparse
+import zipfile
+import tempfile
+import shutil
+import json
+from xml.etree import ElementTree
+
+__author__ = "stf"
+__copyright__ = "Copyright 2021, Xilinx"
+__email__ = "pynq_support@xilinx.com"
+
+class XSAParser:
+    """ 
+        A class for parsing the XSA format
+    """
+
+    def xmlCheckParse(self,xmlfile):
+        """ Checks if an XML file exists in the extracted temp XSA directory and parses it """ 
+        if os.path.exists(self.__tdir+"/"+xmlfile):
+            return ElementTree.parse(self.__tdir+"/"+xmlfile)
+        else:
+            raise RuntimeError("[Error] "+xmlfile+" file could not be found in the XSA")
+            sys.exit(2)
+
+    def jsonCheckParse(self,jsonfile):
+        """ Checks if a json file exists in the extracted temp XSA directory and parses it """ 
+        if os.path.exists(self.__tdir+"/"+jsonfile):
+            with open(self.__tdir+"/"+jsonfile) as xsa_json_f:
+                return json.load(xsa_json_f)
+        else:
+            raise RuntimeError("[Error] "+jsonfile+" file could not be found in the XSA")
+
+    def printJson(self):
+        """ prints the xsa.json file in the XSA """
+        if not self.__xsa_json == None:
+            print(self.__xsa_json)
+        else:
+            print("XSA json file has not been loaded")
+
+    def getTempDir(self):
+        """ Returns the temporary directory that the XSA has been extracted to """
+        if not self.__tdir == None:
+            return self.__tdir
+        else:
+            print("XSA json file has not been loaded or extracted")
+
+    # ----------------------------------------------
+    # Prints out an XML structure
+    # ----------------------------------------------
+    def printXML_walker(self, node):
+        """ recursively walks down the XML structure """
+        for c in node:
+            print(c.tag, c.attrib)
+            self.printXML_walker(c)
+
+    def printXML(self, xml):
+        """ Prints the sysdef file """
+        if not xml == None:
+            root = xml.getroot()
+            print(root.tag)
+            print(root.attrib)
+            for child in root:
+                self.printXML_walker(child)
+        else:
+            print("XML file was empty")
+    # ----------------------------------------------
+
+    def getHwhXML(self):
+        """ Returns the XML of the hardware handoff file """
+        return self.__hwh_xml
+
+    def getHWHFileName(self):
+        """ Looks through the sysdef.xml file to find the name of the hardware handoff file """
+        if not self.__sysdef_xml == None:
+            root = self.__sysdef_xml.getroot()
+            for child in root: # There is probably a more pythonic way to do this.
+                if "Type" in child.attrib:
+                    if child.attrib["Type"] == "HW_HANDOFF":
+                        return child.attrib["Name"]
+            raise RuntimeError("Error. Name of the hardware handoff file could not be found in sysdef.xml when parsing the XSA file")
+        else:
+            raise RuntimeError("Error. Attempting to gather HWH file details from XSA when no sysdef.xml has been parsed correctly")
+
+    def __init__(self, xsa):
+        """ The constructor, accepts a string for xsa file location """
+        self.__tdir = tempfile.mkdtemp()
+        with zipfile.ZipFile(xsa, 'r') as zip_ref:
+            zip_ref.extractall(self.__tdir)
+
+        self.__xsa_json = self.jsonCheckParse("xsa.json")
+        self.__sysdef_xml = self.xmlCheckParse("sysdef.xml")
+
+        # Parsing the HWH file 
+        #     * first it gets the name from the sysdef.xml
+        #     * then it parses the xml
+        self.__hwh_xml = self.xmlCheckParse(self.getHWHFileName());
+
+    __tdir = None
+    __xsa_json = None
+    __hwh_file = None
+    __sysdef_xml = None
+    __hwdef_xml = None
+    __hwh_filename = None
+    __hwh_xml = None
+
+
+

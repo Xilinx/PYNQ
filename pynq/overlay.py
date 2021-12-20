@@ -42,6 +42,7 @@ from .gpio import GPIO
 from .registers import RegisterMap
 from .utils import ReprDict
 from .utils import _ExtensionsManager
+from .xsaparser import XSAParser
 
 from pynq._3rdparty import ert
 
