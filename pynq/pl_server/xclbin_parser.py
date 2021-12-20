@@ -166,7 +166,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                     'interrupts': {},
                     'gpio': {},
                     'xclbin_uuid': xclbin_uuid,
-                    'cu_name': ":".join((kernel.attrib['vlnv'].split(':')[2],
+                    'cu_name': ":".join((kernel.attrib['name'],
                                          instance.attrib['name']))
                 }
     for i, d in enumerate(sorted(ip_dict.values(),
