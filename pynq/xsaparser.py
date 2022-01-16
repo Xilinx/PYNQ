@@ -36,24 +36,36 @@ import shutil
 import json
 from xml.etree import ElementTree
 
-__author__ = "stf"
-__copyright__ = "Copyright 2021, Xilinx"
+__author__ = "Shane T. Fleming"
+__copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 class XSAParser:
     """ 
         A class for parsing the XSA format
     """
+    def __init__(self, xsa):
+        """ The constructor, accepts a string for xsa file location """
+        self.__tdir = tempfile.mkdtemp()
+        with zipfile.ZipFile(xsa, 'r') as zip_ref: # TODO: There can be a lot in an xsa file, only pull out the relevant stuff
+            zip_ref.extractall(self.__tdir)
 
-    def xmlCheckParse(self,xmlfile):
+        self.__xsa_json = self.json_parse_check("xsa.json")
+        self.__sysdef_xml = self.xml_parse_check("sysdef.xml")
+
+        # Parsing the HWH file 
+        #     * first it gets the name from the sysdef.xml
+        #     * then it parses the xml
+        self.__hwh_xml = self.xml_parse_check(self.get_hwh_filename());
+
+    def xml_parse_check(self,xmlfile):
         """ Checks if an XML file exists in the extracted temp XSA directory and parses it """ 
         if os.path.exists(self.__tdir+"/"+xmlfile):
             return ElementTree.parse(self.__tdir+"/"+xmlfile)
         else:
             raise RuntimeError("[Error] "+xmlfile+" file could not be found in the XSA")
-            sys.exit(2)
 
-    def jsonCheckParse(self,jsonfile):
+    def json_parse_check(self,jsonfile):
         """ Checks if a json file exists in the extracted temp XSA directory and parses it """ 
         if os.path.exists(self.__tdir+"/"+jsonfile):
             with open(self.__tdir+"/"+jsonfile) as xsa_json_f:
@@ -61,14 +73,14 @@ class XSAParser:
         else:
             raise RuntimeError("[Error] "+jsonfile+" file could not be found in the XSA")
 
-    def printJson(self):
+    def print_json(self):
         """ prints the xsa.json file in the XSA """
-        if not self.__xsa_json == None:
+        if self.__xsa_json is not None:
             print(self.__xsa_json)
         else:
             print("XSA json file has not been loaded")
 
-    def getTempDir(self):
+    def get_temp_dir(self):
         """ Returns the temporary directory that the XSA has been extracted to """
         if not self.__tdir == None:
             return self.__tdir
@@ -78,31 +90,31 @@ class XSAParser:
     # ----------------------------------------------
     # Prints out an XML structure
     # ----------------------------------------------
-    def printXML_walker(self, node):
+    def print_xml_recurse(self, node):
         """ recursively walks down the XML structure """
         for c in node:
             print(c.tag, c.attrib)
-            self.printXML_walker(c)
+            self.print_xml_recurse(c)
 
-    def printXML(self, xml):
+    def print_xml(self, xml):
         """ Prints the sysdef file """
-        if not xml == None:
+        if xml is not None:
             root = xml.getroot()
             print(root.tag)
             print(root.attrib)
             for child in root:
-                self.printXML_walker(child)
+                self.print_xml_recurse(child)
         else:
             print("XML file was empty")
     # ----------------------------------------------
 
-    def getHwhXML(self):
+    def get_hwh_xml(self):
         """ Returns the XML of the hardware handoff file """
         return self.__hwh_xml
 
-    def getHWHFileName(self):
+    def get_hwh_filename(self):
         """ Looks through the sysdef.xml file to find the name of the hardware handoff file """
-        if not self.__sysdef_xml == None:
+        if self.__sysdef_xml is not None:
             root = self.__sysdef_xml.getroot()
             for child in root: # There is probably a more pythonic way to do this.
                 if "Type" in child.attrib:
@@ -112,19 +124,6 @@ class XSAParser:
         else:
             raise RuntimeError("Error. Attempting to gather HWH file details from XSA when no sysdef.xml has been parsed correctly")
 
-    def __init__(self, xsa):
-        """ The constructor, accepts a string for xsa file location """
-        self.__tdir = tempfile.mkdtemp()
-        with zipfile.ZipFile(xsa, 'r') as zip_ref:
-            zip_ref.extractall(self.__tdir)
-
-        self.__xsa_json = self.jsonCheckParse("xsa.json")
-        self.__sysdef_xml = self.xmlCheckParse("sysdef.xml")
-
-        # Parsing the HWH file 
-        #     * first it gets the name from the sysdef.xml
-        #     * then it parses the xml
-        self.__hwh_xml = self.xmlCheckParse(self.getHWHFileName());
 
     __tdir = None
     __xsa_json = None
