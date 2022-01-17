@@ -48,15 +48,14 @@ class XSAParser:
         """ The constructor, accepts a string for xsa file location """
         self.__tdir = tempfile.mkdtemp()
         with zipfile.ZipFile(xsa, 'r') as zip_ref: # TODO: There can be a lot in an xsa file, only pull out the relevant stuff
-            zip_ref.extractall(self.__tdir)
+            zip_ref.extract("sysdef.xml", self.__tdir)
+            self.__sysdef_xml = self.xml_parse_check("sysdef.xml")
 
-        self.__xsa_json = self.json_parse_check("xsa.json")
-        self.__sysdef_xml = self.xml_parse_check("sysdef.xml")
+            zip_ref.extract("xsa.json", self.__tdir)
+            self.__xsa_json = self.json_parse_check("xsa.json")
 
-        # Parsing the HWH file 
-        #     * first it gets the name from the sysdef.xml
-        #     * then it parses the xml
-        self.__hwh_xml = self.xml_parse_check(self.get_hwh_filename());
+            zip_ref.extract(self.get_hwh_filename(), self.__tdir)
+            self.__hwh_xml = self.xml_parse_check(self.get_hwh_filename())
 
     def xml_parse_check(self,xmlfile):
         """ Checks if an XML file exists in the extracted temp XSA directory and parses it """ 
@@ -82,7 +81,7 @@ class XSAParser:
 
     def get_temp_dir(self):
         """ Returns the temporary directory that the XSA has been extracted to """
-        if not self.__tdir == None:
+        if self.__tdir is not None:
             return self.__tdir
         else:
             print("XSA json file has not been loaded or extracted")
@@ -116,7 +115,7 @@ class XSAParser:
         """ Looks through the sysdef.xml file to find the name of the hardware handoff file """
         if self.__sysdef_xml is not None:
             root = self.__sysdef_xml.getroot()
-            for child in root: # There is probably a more pythonic way to do this.
+            for child in root: 
                 if "Type" in child.attrib:
                     if child.attrib["Type"] == "HW_HANDOFF":
                         return child.attrib["Name"]
@@ -129,7 +128,6 @@ class XSAParser:
     __xsa_json = None
     __hwh_file = None
     __sysdef_xml = None
-    __hwdef_xml = None
     __hwh_filename = None
     __hwh_xml = None
 
