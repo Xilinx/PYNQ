@@ -600,7 +600,7 @@ class FuncDefVisitor(pycparser.c_ast.NodeVisitor):
         self.visit(node.decl)
 
     def visit_FuncDecl(self, node):
-        if node.coord.file.startswith('/opt/microblaze'):
+        if node.coord.file.startswith('/usr/local/share/pynq-venv/bin'):
             return
         if type(node.type) is not c_ast.TypeDecl:
             # Ignore functions that are returning pointers
