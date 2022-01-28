@@ -43,7 +43,7 @@ PYNQ packages such as Jupyter and the Microblaze compiler.
 
 ## Initial bootstrap
 
-The `unbuntu` folder contains all of the files for the initial bootstrap of the
+The `ubuntu` folder contains all of the files for the initial bootstrap of the
 Ubuntu root filesystem. For this release we are targeting the 18.04 _Bionic
 Beaver_ release but other versions can be added here if desired. The `bionic`
 folder contains subfolders for the `arm` and `aarch64` architectures each
