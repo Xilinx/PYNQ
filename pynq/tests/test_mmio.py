@@ -63,7 +63,7 @@ def test_mmio():
     """
     mmio_base = mmio_range = None
     for ip in PL.ip_dict:
-        if PL.ip_dict[ip]['type'] == "xilinx.com:ip:axi_bram_ctrl:4.0":
+        if "xilinx.com:ip:axi_bram_ctrl:" in PL.ip_dict[ip]['type'] :
             mmio_base = PL.ip_dict[ip]['phys_addr']
             mmio_range = PL.ip_dict[ip]['addr_range']
             break
