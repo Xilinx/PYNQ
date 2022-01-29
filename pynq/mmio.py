@@ -176,9 +176,9 @@ class MMIO:
         if offset % 4:
             raise MemoryError('Unaligned write: offset must be multiple of 4.')
 
-        if type(data) is int:
+        if isinstance(data, (int, np.int32, np.uint32)):
             self.array[idx] = np.uint32(data)
-        elif type(data) is bytes:
+        elif isinstance(data, bytes):
             length = len(data)
             num_words = length >> 2
             if length % 4:
