@@ -1,4 +1,4 @@
-#   Copyright (c) 2019-2021, Xilinx, Inc.
+#   Copyright (c) 2019-2022, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,14 @@ import weakref
 import numpy as np
 from pynq.buffer import PynqBuffer
 from .device import Device
+import subprocess
+import json
 
 from pynq._3rdparty import xrt
 from pynq._3rdparty import ert
 
 __author__ = "Peter Ogden"
-__copyright__ = "Copyright 2019-2021, Xilinx"
+__copyright__ = "Copyright 2019-2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -78,15 +80,10 @@ _xrt_errors = {
 }
 
 
-def _get_xrt_version():
-    import subprocess
-    import json
+def _get_xrt_version_legacy():
     try:
         output = subprocess.run(['xbutil', 'dump'], stdout=subprocess.PIPE,
                                 universal_newlines=True)
-        if output.returncode != 0:
-            warnings.warn(
-                    'xbutil failed to run - unable to determine XRT version')
         details = json.loads(output.stdout)
         return tuple(
             int(s) for s in details['runtime']['build']['version'].split('.'))
@@ -94,8 +91,28 @@ def _get_xrt_version():
         return (0, 0, 0)
 
 
+def _get_xrt_version():
+    try:
+        filename = '/tmp/pynq_xrt_version.json'
+        output = subprocess.run(['xbutil', 'examine', '-r', 'host',
+            '-f', 'JSON', '-o', filename, '--force'], stdout=subprocess.PIPE,
+            universal_newlines=True)
+
+        with open(filename, 'r') as fp:
+            details = json.load(fp)
+
+        return tuple(int(s) for s in \
+            details['system']['host']['xrt']['version'].split('.'))
+    except Exception:
+        return (0, 0, 0)
+
+
 if xrt.XRT_SUPPORTED:
     _xrt_version = _get_xrt_version()
+    if _xrt_version == (0, 0, 0):
+        _xrt_version = _get_xrt_version_legacy()
+    if _xrt_version == (0, 0, 0):
+        warnings.warn('xbutil failed to run - unable to determine XRT version')
 else:
     _xrt_version = (0, 0, 0)
 
