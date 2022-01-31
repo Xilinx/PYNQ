@@ -147,8 +147,10 @@ class MMIO:
         idx = offset >> 2
         if offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
+        if data_type == 'float' and length != 4:
+            raise ValueError("reading floating point is only valid when "
+                "length is equal to 4")
 
-        # Read data out
         lsb = int(self.array[idx])
         if length == 8:
             if word_order == 'little':
