@@ -1,7 +1,41 @@
-import warnings
-import struct
-import pytest
+#   Copyright (c) 2022, Xilinx, Inc.
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions are met:
+#
+#   1.  Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#
+#   3.  Neither the name of the copyright holder nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import numpy as np
 import pynq
+import pytest
+import struct
+import warnings
+
+__author__ = "Peter Ogden, Mario Ruiz"
+__copyright__ = "Copyright 2022, Xilinx"
+__email__ = "pynq_support@xilinx.com"
 
 
 from .mock_devices import MockDeviceBase, MockRegisterDevice
@@ -22,6 +56,15 @@ TEST_READ_DATA = [
     (BASE_ADDRESS + 8, struct.pack('I', 0xbeefcafe))
 ]
 
+TEST_DATA_NUMPY = [
+    (300, np.uint32(53970361), int(53970361).to_bytes(4, 'little')),
+    (256, -14921033, int(np.uint32(-14921033)).to_bytes(4, 'little'))
+]
+
+TEST_DATA_FLOAT = [
+    (8, 98.576, int(0x42c526e9).to_bytes(4, 'little')),
+    (48, np.single(-32.587), int(0xc2025917).to_bytes(4, 'little'))
+]
 
 @pytest.fixture
 def register_device():
@@ -140,16 +183,9 @@ def test_unsupported_length_read(device):
 def test_bad_endianness_read(device):
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
     with pytest.raises(ValueError) as excinfo:
-        mmio.read(4, 8, 'middle')
+        mmio.read(4, 8, word_order='middle')
     assert str(excinfo.value) == \
         "MMIO only supports big and little endian."
-
-
-def test_float_write(device):
-    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
-    with pytest.raises(ValueError) as excinfo:
-        mmio.write(4, 8.5)
-    assert str(excinfo.value) == "Data type must be int or bytes."
 
 
 def test_oob_write(device):
@@ -203,7 +239,7 @@ def test_8byte_littleendian_read(register_device):
     pynq.Device.active_device = device
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
     with device.check_transactions(TEST_READ_DATA, []):
-        read = mmio.read(4, 8, 'little')
+        read = mmio.read(4, 8, word_order='little')
     assert read == 0xbeefcafe12345678
     assert mmio.device == device
     pynq.Device.active_device = None
@@ -214,7 +250,7 @@ def test_8byte_bigendian_read(register_device):
     pynq.Device.active_device = device
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE)
     with device.check_transactions(TEST_READ_DATA, []):
-        read = mmio.read(4, 8, 'big')
+        read = mmio.read(4, 8, word_order='big')
     assert read == 0x12345678beefcafe
     assert mmio.device == device
     pynq.Device.active_device = None
@@ -240,3 +276,39 @@ def test_deprecated_debug_keyword(mmap_device):
             'Warning is not of type DeprecationWarning'
         assert "debug" in str(w[-1].message), \
             'Warning not related to keyword debug'
+
+
+@pytest.mark.parametrize('transaction', TEST_DATA_NUMPY)
+def test_reg_write_np_uint32(transaction, register_device):
+    offset, pyobj, bytesobj = transaction
+    device = register_device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    with device.check_transactions([], [(BASE_ADDRESS+offset, bytesobj)]):
+        mmio.write(offset, pyobj)
+
+
+@pytest.mark.parametrize('transaction', TEST_DATA_FLOAT)
+def test_reg_write_float(transaction, register_device):
+    offset, pyobj, bytesobj = transaction
+    device = register_device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    with device.check_transactions([], [(BASE_ADDRESS+offset, bytesobj)]):
+        mmio.write(offset, pyobj)
+
+
+def test_reg_read_float(mmap_device):
+    device = mmap_device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    offset, testdata = (956, 102.687)
+    mmio.write(offset, np.single(testdata))
+    read = mmio.read(offset, data_type='float')
+    assert np.isclose(read, testdata, rtol=1e-05, atol=1e-08, equal_nan=False)
+
+
+def test_reg_read_float_len8(mmap_device):
+    device = mmap_device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    with pytest.raises(ValueError) as excinfo:
+        read = mmio.read(4, 8, data_type='float')
+    assert str(excinfo.value) == \
+        "reading floating point is only valid when length is equal to 4"
