@@ -49,7 +49,8 @@ from datetime import datetime
 required = [
     'setuptools>=24.2.0',
     'cffi',
-    'numpy'
+    'numpy',
+    'nest_asyncio'
 ]
 
 extras_required = {
