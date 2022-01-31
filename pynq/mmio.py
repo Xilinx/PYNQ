@@ -32,6 +32,7 @@ import mmap
 import warnings
 import numpy as np
 import pynq._3rdparty.tinynumpy as tnp
+import struct
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
@@ -43,8 +44,9 @@ class _AccessHook:
         self.baseaddress = baseaddress
         self.device = device
 
-    def read(self, offset, length):
-        return self.device.read_registers(self.baseaddress + offset, length)
+    def read(self, offset, length, **kwargs):
+        return self.device.read_registers(self.baseaddress + offset, length,
+                                          **kwargs)
 
     def write(self, offset, data):
         self.device.write_registers(self.baseaddress + offset, data)
@@ -95,19 +97,15 @@ class MMIO:
         self.length = length
 
         if self.device.has_capability('MEMORY_MAPPED'):
-            self.read = self.read
-            self.write = self.write_mm
             self.array = self.device.mmap(base_addr, length)
         elif self.device.has_capability('REGISTER_RW'):
-            self.read = self.read
-            self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
             self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
                                      hook=self._hook)
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 
-    def read(self, offset=0, length=4, word_order='little'):
+    def read(self, offset=0, length=4, **kwargs):
         """The method to read data from MMIO.
 
         For the `word_order` parameter, it is only effective when
@@ -126,6 +124,8 @@ class MMIO:
             The length of the data in bytes.
         word_order : str
             The word order of the 8-byte reads.
+        data_type : str
+            Interpret read value as data_type, either int or float.
 
         Returns
         -------
@@ -133,6 +133,10 @@ class MMIO:
             A list of data read out from MMIO
 
         """
+
+        word_order = kwargs.get('word_order', 'little')
+        data_type = kwargs.get('data_type', 'int')
+
         if length not in [1, 2, 4, 8]:
             raise ValueError("MMIO currently only supports "
                              "1, 2, 4 and 8-byte reads.")
@@ -151,17 +155,19 @@ class MMIO:
                 return ((int(self.array[idx+1])) << 32) + lsb
             else:
                 return (lsb << 32) + int(self.array[idx+1])
+        elif data_type == 'float':
+            return float(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
         else:
             return lsb & ((2**(8*length)) - 1)
 
-    def write_mm(self, offset, data):
+    def write(self, offset, data):
         """The method to write data to MMIO.
 
         Parameters
         ----------
         offset : int
             The write offset from the MMIO base address.
-        data : int / bytes
+        data : int, float, bytes
             The integer(s) to be written into MMIO.
 
         Returns
@@ -178,43 +184,20 @@ class MMIO:
 
         if isinstance(data, (int, np.int32, np.uint32)):
             self.array[idx] = np.uint32(data)
+        elif isinstance(data, (float, np.single, np.float32)):
+            data = int.from_bytes(struct.pack('f', np.single(data)), 'little')
+            self.array[idx] = np.uint32(data)
         elif isinstance(data, bytes):
-            length = len(data)
-            num_words = length >> 2
-            if length % 4:
-                raise MemoryError(
-                    'Unaligned write: data length must be multiple of 4.')
-            buf = np.frombuffer(data, np.uint32, num_words, 0)
-            for i in range(len(buf)):
-                self.array[idx + i] = buf[i]
+            if self.device.has_capability('REGISTER_RW'):
+                self._hook.write(offset, data)
+            else:
+                length = len(data)
+                num_words = length >> 2
+                if length % 4:
+                    raise MemoryError(
+                        'Unaligned write: data length must be multiple of 4.')
+                buf = np.frombuffer(data, np.uint32, num_words, 0)
+                for i in range(len(buf)):
+                    self.array[idx + i] = buf[i]
         else:
-            raise ValueError("Data type must be int or bytes.")
-
-    def write_reg(self, offset, data):
-        """The method to write data to MMIO.
-
-        Parameters
-        ----------
-        offset : int
-            The write offset from the MMIO base address.
-        data : int / bytes
-            The integer(s) to be written into MMIO.
-
-        Returns
-        -------
-        None
-
-        """
-        if offset < 0:
-            raise ValueError("Offset cannot be negative.")
-
-        idx = offset >> 2
-        if offset % 4:
-            raise MemoryError('Unaligned write: offset must be multiple of 4.')
-
-        if type(data) is int:
-            self.array[idx] = data
-        elif type(data) is bytes:
-            self._hook.write(offset, data)
-        else:
-            raise ValueError("Data type must be int or bytes.")
+            raise ValueError("Data type must be int, uint, float or bytes.")
