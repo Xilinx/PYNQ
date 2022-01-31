@@ -828,16 +828,18 @@ class DefaultIP(metaclass=RegisterIP):
         else:
             return self.device.execute_bo(bo)
 
-    def read(self, offset=0):
+    def read(self, offset=0, length=4, **kwargs):
         """Read from the MMIO device
 
         Parameters
         ----------
         offset : int
             Address to read
+        length : int
+            The length of the data in bytes
 
         """
-        return self.mmio.read(offset)
+        return self.mmio.read(offset, length, **kwargs)
 
     def write(self, offset, value):
         """Write to the MMIO device
