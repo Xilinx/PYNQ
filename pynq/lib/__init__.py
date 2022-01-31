@@ -40,6 +40,7 @@ from .button import Button
 from .iic import AxiIIC
 from .wifi import Wifi
 from .cmac import CMAC
+from .xsaparser import XSAParser
 
 from .rpi import Rpi
 
