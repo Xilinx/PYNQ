@@ -30,7 +30,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
         return MagicMock()
 
-MOCK_MODULES = ['_video', 'pynq.lib._video']
+MOCK_MODULES = ['_video', 'pynq.lib._video', 'pynq._3rdparty.xrt']
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
