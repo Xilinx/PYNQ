@@ -312,3 +312,11 @@ def test_reg_read_float_len8(mmap_device):
         read = mmio.read(4, 8, data_type='float')
     assert str(excinfo.value) == \
         "reading floating point is only valid when length is equal to 4"
+
+
+def test_reg_write_unsupported_type(mmap_device):
+    device = mmap_device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    with pytest.raises(ValueError) as excinfo:
+        mmio.write(4, np.half(20.22))
+    assert str(excinfo.value) == "Data type must be int, uint, float or bytes."
