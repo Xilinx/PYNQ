@@ -279,7 +279,7 @@ def test_deprecated_debug_keyword(mmap_device):
 
 
 @pytest.mark.parametrize('transaction', TEST_DATA_NUMPY)
-def test_reg_write_np_uint32(transaction, register_device):
+def test_reg_write_numpy(transaction, register_device):
     offset, pyobj, bytesobj = transaction
     device = register_device
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
