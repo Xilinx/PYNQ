@@ -8,6 +8,8 @@ fully understand the core PYNQ concepts as these form the foundation of PYNQ
 on XRT platforms. Here we will explore the changes made to bring PYNQ into the
 world of PCIe based FPGA compute.
 
+To install PYNQ for XRT-based platforms refer :ref:`alveo-getting-started`
+
 Programming the Device
 ----------------------
 
