@@ -215,13 +215,13 @@ class BinfileHandler(BitstreamHandler):
 
 class XclbinHandler(BitstreamHandler):
     def __init__(self, filepath):
-        from .xclbin_parser import parse_sections
+        from .xclbin_parser import parse_xclbin_header
         super().__init__(filepath)
         self._data = self._filepath.read_bytes()
-        self._sections, _ = parse_sections(self._data)
+        self._sections, _ = parse_xclbin_header(self._data)
 
     def get_bin_data(self):
-        from pynq._3rd_party.xclbin import AXLF_SECTION_KIND
+        from pynq._3rdparty.xclbin import AXLF_SECTION_KIND
         if AXLF_SECTION_KIND.BITSTREAM in self._sections:
             return bit2bin(self._sections[AXLF_SECTION_KIND.BITSTREAM])
         return None
