@@ -7,7 +7,7 @@
 void pixel_unpack(wide_stream& stream_in_32, narrow_stream& stream_out_24, 
                   int mode) {
 #pragma HLS INTERFACE ap_ctrl_none port=return
-#pragma HLS INTERFACE s_axilite register port=mode clock=control
+#pragma HLS INTERFACE s_axilite register port=mode
 #pragma HLS INTERFACE axis depth=24 port=stream_in_32 register
 #pragma HLS INTERFACE axis depth=96 port=stream_out_24 register
 
