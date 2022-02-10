@@ -330,7 +330,8 @@ class XrtDevice(Device):
         }
         if _xrt_version >= REQUIRED_VERSION_ERT:
             self.capabilities['ERT'] = True
-        self.handle = xrt.xclOpen(index, None, 0)
+        self._index = index
+        self._get_handle()
         self._info = xrt.xclDeviceInfo2()
         xrt.xclGetDeviceInfo2(self.handle, self._info)
         self.contexts = dict()
@@ -340,6 +341,9 @@ class XrtDevice(Device):
         self._loop = asyncio.get_event_loop()
         self._streams = {}
 
+    def _get_handle(self):
+        self.handle = xrt.xclOpen(self._index, None, 0)
+
     def _find_sysfs(self):
         devices = glob.glob('/sys/bus/pci/drivers/xclmgmt/*:*')
         self.sysfs_path = None
@@ -348,7 +352,6 @@ class XrtDevice(Device):
                 slot = int(f.read())
             if slot == self._info.mPciSlot:
                 self.sysfs_path = os.path.realpath(d)
-
 
     @property
     def device_info(self):
@@ -498,7 +501,6 @@ class XrtDevice(Device):
             xrt.xclCloseContext(self.handle, v['uuid_ctypes'], v['idx'])
         self.contexts = dict()
 
-
     def _xrt_download(self, data):
         # Keep copy of old contexts so we can reacquire them if
         # downloading fails
@@ -509,6 +511,8 @@ class XrtDevice(Device):
         self.contexts = dict()
 
         # Download xclbin file
+        if not self.handle:
+            self._get_handle()
         err = xrt.xclLockDevice(self.handle)
         if err:
             raise RuntimeError(
