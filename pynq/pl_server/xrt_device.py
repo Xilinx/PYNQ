@@ -37,7 +37,7 @@ import warnings
 import weakref
 import numpy as np
 from pynq.buffer import PynqBuffer
-from pynq.ps import CPU_ARCH, x86_ARCH
+from pynq.ps import CPU_ARCH_IS_x86
 from .device import Device
 
 from pynq._3rdparty import xrt
@@ -315,7 +315,7 @@ class XrtStream:
 class XrtDevice(Device):
     @classmethod
     def _probe_(cls):
-        if not xrt.XRT_SUPPORTED or CPU_ARCH != x86_ARCH:
+        if not xrt.XRT_SUPPORTED or not CPU_ARCH_IS_x86:
             return []
         num = xrt.xclProbe()
         devices = [XrtDevice(i) for i in range(num)]

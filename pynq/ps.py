@@ -36,9 +36,9 @@ __email__ = "pynq_support@xilinx.com"
 
 ZYNQ_ARCH = "armv7l"
 ZU_ARCH = "aarch64"
-x86_ARCH = "x86_64"
 CPU_ARCH = os.uname().machine
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
+CPU_ARCH_IS_x86 = "x86" in CPU_ARCH
 
 DEFAULT_PL_CLK_MHZ = 100.0
 
