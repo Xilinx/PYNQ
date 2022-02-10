@@ -468,7 +468,6 @@ class XrtDevice(Device):
         if self.handle:
             xrt.xclClose(self.handle)
         self.handle = None
-        super().close()
 
     def get_memory(self, desc):
         if desc['streaming']:
