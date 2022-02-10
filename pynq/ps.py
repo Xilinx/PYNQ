@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,12 @@ import os
 import warnings
 
 __author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2017, Xilinx"
+__copyright__ = "Copyright 2017-2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 ZYNQ_ARCH = "armv7l"
 ZU_ARCH = "aarch64"
+x86_ARCH = "x86_64"
 CPU_ARCH = os.uname().machine
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
