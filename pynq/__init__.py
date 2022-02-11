@@ -44,6 +44,7 @@ from .pmbus import get_rails
 from .pmbus import DataRecorder
 from .buffer import allocate
 from .pl_server import Device
+from .xsaparser import XsaParser
 from . import lib
 
 
