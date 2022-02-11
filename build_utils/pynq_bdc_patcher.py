@@ -6,6 +6,7 @@ __copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 import argparse
+import os
 from pynq import XsaParser
 from xml.etree import ElementTree
 
@@ -38,7 +39,58 @@ def get_all_ip_vlnv_from_parsed(hwh) -> dict:
         ip_type[ip.attrib["FULLNAME"]] = ip.attrib["VLNV"]
     return ip_type
 
-def search_for_xci_files_for(project_dir, ip_type_dict) -> dict:
+def get_all_xci_files_in(project_dir) -> list:
+    """
+        returns a list of all xci files in a project directory
+
+        Parameters:
+        -----------
+        project_dir : str
+            A string with the path to the project directory
+
+        Returns:
+        ----------
+        list
+            a list of all the xci files in the project directory
+    """
+    # Get a list of all .xci files in the project
+    xci_files =[]
+    for folders, dirs, files in os.walk(project_dir):
+        for f in files:
+            if f.endswith('.xci'):
+                xci_files.append(os.path.join(folders, f));
+    return xci_files
+    
+def filter_xci_files_for_ip(xci_files, ip_type_dict) -> dict:
+    """
+        filters a list of xci files for the ones that have information on an ip in the ip_type_dict
+
+        Parameters:
+        ------------
+        xci_files : list
+            A list of paths to xci files in the project directory
+
+        ip_type_dict: dict
+            A dictionary that maps ip names to their vlnv type
+
+        Returns:
+        -----------
+        dict
+            A dictionary that maps the name of the IP to the xci file with the 
+            corresponding information about it.
+    """
+    ip_xci = {}
+    for ip_key in ip_type_dict:
+        for xci in xci_files:
+            searchfile = open(xci, "r")
+            for line in searchfile:
+                if ip_type_dict[ip_key] in line:
+                    ip_xci[ip_key] = searchfile
+                    break
+    return ip_xci
+
+
+def search_for_xci_files_in(project_dir, ip_type_dict) -> dict:
     """
         returns a dict of the xci files that contain the regmap information 
         for the given IP.
@@ -55,7 +107,12 @@ def search_for_xci_files_for(project_dir, ip_type_dict) -> dict:
         dict
             a dictionary that maps ip names to their xci file paths in the project directory
     """
-    ip_xci_path = {}
+    xci_files = get_all_xci_files_in(project_dir)
+    ip_xci = filter_xci_files_for_ip(xci_files, ip_type_dict) 
+    print(ip_xci)
+    
+
+        
 
 
 
@@ -87,5 +144,6 @@ parsed_hwhs = parse_all_bdc_hwh_files_from(xsa_in)
 for p in parsed_hwhs:
     ip_types = get_all_ip_vlnv_from_parsed(p)
     print(ip_types)
+    search_for_xci_files_in(args.project_directory, ip_types)
 
 
