@@ -90,7 +90,7 @@ def filter_xci_files_for_ip(xci_files, ip_type_dict) -> dict:
     return ip_xci
 
 
-def search_for_xci_files_in(project_dir, ip_type_dict) -> dict:
+def get_xci_file_for_ip(project_dir, ip_type_dict) -> dict:
     """
         returns a dict of the xci files that contain the regmap information 
         for the given IP.
@@ -109,11 +109,88 @@ def search_for_xci_files_in(project_dir, ip_type_dict) -> dict:
     """
     xci_files = get_all_xci_files_in(project_dir)
     ip_xci = filter_xci_files_for_ip(xci_files, ip_type_dict) 
-    print(ip_xci)
+    return ip_xci
     
+class Register:
+    """
+        simple register class to hold information like name and offset
+    """
+    def __init__(self, name, offset) -> None:
+        self._name = name;
+        self._address = offset; 
 
+class RegMap:
+    def __init__(self) -> None:
+        self.registers = {}
+
+    def add(self, reg) -> None:
+        self.registers[reg.name] = reg
         
 
+class BdcIp:
+    """
+        A class to keep track of an IP core in a BDC
+    """
+    def __init__(self, name) -> None:
+        self.name = name 
+        self.regmap = RegMap()
+
+class Bdc:
+    """
+        A class for the block design container
+    """
+    def __init__(self, name) -> None:
+        self.name = name;
+        self.ip_list = []
+
+    def add_ip(self, ip) -> None:
+        """
+            Adds a BdcIP to the IP
+
+            Parameters:
+            -----------
+            ip : BdcIP
+                A BDC IP that contains the register map
+        """
+        self.ip_list.append(ip)
+
+def get_regmap_from_xci(xci) -> RegMap:
+    """
+        Given an xci file extract the regmap for that IP core.
+
+        Parameters:
+        -----------
+            xci : os.path to the xci file 
+
+        Returns:
+        ----------
+            RegMap
+                A RegMap object that contains the register map captured from this XCI
+    """
+    parsed_xci = ElementTree.parse(xci)
+
+def get_regmaps_for_ip(project_dir, ip_types):
+    """
+        Given a project directory and a set of ip in a BDC with their types return a 
+        dictionary of BdcIP objects for the ip names. 
+
+        Paramters:
+        -----------
+        project_dir : str
+            A path to the project directory
+
+        ip_types : dict
+            A dictionary mapping the name of an ip to the vlnv type
+            
+        Returns:
+        -----------
+        dict
+            A dictionary that maps the name of an IP to a BdcIP object containing the RegMap 
+            information
+    """
+    ip_to_xci = get_xci_file_for_ip(project_dir, ip_types)
+    for ip in ip_to_xci:
+        get_regmap_from_xci(ip_to_xci[ip])
 
 
 usage = "python3 pynq_bdc_patcher.py -i input.xsa -d /project/directory/path -o output.xsa"
@@ -143,7 +220,6 @@ parsed_hwhs = parse_all_bdc_hwh_files_from(xsa_in)
 
 for p in parsed_hwhs:
     ip_types = get_all_ip_vlnv_from_parsed(p)
-    print(ip_types)
-    search_for_xci_files_in(args.project_directory, ip_types)
+    get_regmaps_for_ip(args.project_directory, ip_types)
 
 
