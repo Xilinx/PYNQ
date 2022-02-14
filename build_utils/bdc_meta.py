@@ -8,29 +8,36 @@ __email__ = "pynq_support@xilinx.com"
 
 def print_n_tabs(n):
     for i in range(0,n):
-        print("\t", end="")
+        #print("\t", end="")
+        print(" ", end="")
 
 class Field:
     """
         simple filed class to hold bitwise information about a register
     """
-    def __init__(self, name, offset, bitwidth):
+    def __init__(self, name, bit_offset, bit_width, desc, access):
         self.name = name
-        self.offset = offset
-        self.bitwidth = bitwidth
+        self.bit_offset = bit_offset
+        self.bit_width = bit_width
+        self.desc = desc
+        self.access = access
 
     def print(self, tabdepth=0):
         print_n_tabs(tabdepth)
-        print(self.name)
+        print(self.name+" bit_offset:"+str(self.bit_offset)+" bit_width:"+str(self.bit_width)+" access:"+str(self.access))
+        #print_n_tabs(tabdepth+1)
+        #print(self.desc)
 
 class Register:
     """
         simple register class to hold information like name and offset
     """
-    def __init__(self, name, offset, size) -> None:
-        self.name = name;
-        self.offset = offset; 
-        self.size = size; 
+    def __init__(self, name, offset, size, desc, access) -> None:
+        self.name = name
+        self.offset = offset 
+        self.size = size 
+        self.desc = desc
+        self.access = access
         self.fields = []  
 
     def add(self, field):
@@ -38,9 +45,13 @@ class Register:
 
     def print(self, tabdepth=0):
         print_n_tabs(tabdepth)
-        print(self.name+":")
+        print(self.name+": "+"offset:"+str(self.offset)+" size:"+str(self.size)+" access:"+self.access)
+        print_n_tabs(tabdepth+1)
+        print(self.desc)
+        print_n_tabs(tabdepth+1)
+        print("fields:")
         for f in self.fields:
-            f.print(tabdepth+1)
+            f.print(tabdepth+2)
     
 
 class RegMap:

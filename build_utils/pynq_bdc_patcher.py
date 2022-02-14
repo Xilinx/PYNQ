@@ -134,16 +134,26 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.RegMap:
         ip_xci_boundary_json = json.loads(ip.attrib["{http://www.xilinx.com}boundaryDescriptionJSON"])
 
         for interface in ip_xci_boundary_json["boundary"]["memory_maps"]:
-            rendered_interface = BdcMeta.BdcIpInterface(interface)
+            rendered_interface = BdcMeta.BdcIpInterface(interface)   
             interface_json = ip_xci_boundary_json["boundary"]["memory_maps"][interface]["address_blocks"]
             for regblock in interface_json:
                 regmap = BdcMeta.RegMap(regblock, interface_json[regblock]["base_address"], interface_json[regblock]["range"])
                 registers = interface_json[regblock]["registers"]
                 for reg in registers:
-                    newreg = BdcMeta.Register(reg, registers[reg]["address_offset"], registers[reg]["size"])
+                    newreg = BdcMeta.Register(reg, 
+                                              registers[reg]["address_offset"], 
+                                              registers[reg]["size"],
+                                              registers[reg]["description"],
+                                              registers[reg]["access"]
+                                              )
                     fields = registers[reg]["fields"]
                     for field in fields:
-                        f = BdcMeta.Field(field, fields[field]["bit_offset"], fields[field]["bit_width"])
+                        f = BdcMeta.Field(field, 
+                                          fields[field]["bit_offset"], 
+                                          fields[field]["bit_width"],
+                                          fields[field]["description"],
+                                          fields[field]["access"]
+                                          )
                         newreg.add(f)
                     regmap.add(newreg)
                 rendered_interface.add_regmap(regmap)
