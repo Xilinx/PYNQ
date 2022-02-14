@@ -8,6 +8,9 @@ __email__ = "pynq_support@xilinx.com"
 import argparse
 import os
 import json
+import tempfile
+import zipfile
+import shutil
 from pynq import XsaParser
 from xml.etree import ElementTree
 import bdc_meta as BdcMeta
@@ -224,6 +227,14 @@ if args.verbose:
     print("Parsing: "+args.input_xsa)
 xsa_in = XsaParser(args.input_xsa)
 
+temp_directory = tempfile.mkdtemp()
+if args.verbose:
+    print("Extracting XSA to: "+temp_directory)
+with zipfile.ZipFile(args.input_xsa, 'r') as zip_ref:
+    zip_ref.extractall(temp_directory)
+if args.verbose:
+    print("XSA fully extracted at: "+temp_directory)
+
 parsed_hwhs = parse_all_bdc_hwh_files_from(xsa_in)
 
 for p in parsed_hwhs:
@@ -234,5 +245,14 @@ for p in parsed_hwhs:
     ip_to_xci = get_xci_file_for_ip(args.project_directory, ip_types)
     for ip in ip_to_xci:
         bdc.add_ip(get_bdcip_from_xci(ip, ip_to_xci[ip]))
-    bdc.render_as_json()
+    
+    bdc_json_metadata_filename = temp_directory +"/"+bdc_name+"_pynq_bdc_metadata.json"
+    bdc_json_metadata = open(bdc_json_metadata_filename, "w")
+    bdc.render_as_json(bdc_json_metadata)
+    if args.verbose:
+        print("Writing Metadata file: " + bdc_json_metadata_filename) 
 
+shutil.make_archive(args.output_xsa, 'zip', temp_directory)
+os.rename(args.output_xsa+".zip", args.output_xsa)
+if args.verbose:
+    print("Compressed the modified XSA file into :" +args.output_xsa)

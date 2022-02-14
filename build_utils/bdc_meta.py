@@ -195,11 +195,10 @@ class Bdc:
         """
         self.ip_list.append(ip)
 
-    def render_as_json(self) -> None:
+    def render_as_json(self, json_file) -> None:
         """
             Renders the internal metadata file as json file for shipping in the XSA
         """
-        json_file = open(self.name+"_pynq_bdc_meta.json", "w")
         json_file.write("{ \"name\": \""+self.name+"\",")
         if(len(self.ip_list) > 0):
             json_file.write("\"ip\" : {")
