@@ -28,6 +28,15 @@ class Field:
         #print_n_tabs(tabdepth+1)
         #print(self.desc)
 
+    def render_as_json(self, jf):
+        jf.write("\""+self.name+"\": {")
+        jf.write("\"bit_offset\":"+str(self.bit_offset)+",")
+        jf.write("\"bit_width\":"+str(self.bit_width)+",")
+        jf.write("\"access\": \""+str(self.access)+"\"")
+        #jf.write("\"description\":\""+str(self.desc)+"\"")
+        jf.write("}")
+
+
 class Register:
     """
         simple register class to hold information like name and offset
@@ -53,6 +62,25 @@ class Register:
         for f in self.fields:
             f.print(tabdepth+2)
     
+    def render_as_json(self, jf):
+        """
+            Renders all the registers and fields as a JSON file for parsing later
+        """
+        jf.write("\""+self.name+"\": {")
+        jf.write("\"offset\":\""+str(self.offset)+"\",")
+        jf.write("\"size\":"+str(self.size)+",")
+        jf.write("\"description\":\""+str(self.desc)+"\",")
+        jf.write("\"access\": \""+str(self.access)+"\"")
+        if(len(self.fields) > 0):
+            jf.write(",\"fields\": {")
+            for i in self.fields:
+                i.render_as_json(jf)
+                if i != self.fields[-1]:
+                    jf.write(",")
+            jf.write("}")
+
+        jf.write("}")
+
 
 class RegMap:
     def __init__(self, name, base_address, addr_range) -> None:
@@ -69,7 +97,21 @@ class RegMap:
         print(self.name+":")
         for r in self.registers:
             r.print(tabdepth+1)
-        
+
+    def render_as_json(self, jf):
+        """
+            Renders the entire regmap as json that can be parsed later
+        """
+        jf.write("\""+self.name+"\": {")        
+        if(len(self.registers) > 0):
+            jf.write("\"registers\": {")
+            for i in self.registers:
+                i.render_as_json(jf)
+                if i != self.registers[-1]:
+                    jf.write(",")
+            jf.write("}")
+        jf.write("}")        
+
 class BdcIpInterface:
     """
         A class to keep track of the interfaces that a BdcIp might have
@@ -88,6 +130,20 @@ class BdcIpInterface:
         for r in self.regmaps:
             r.print(tabdepth+1)
         
+    def render_as_json(self, jf) -> None:
+        """
+            Renders the entire interface in a json file for later parsing
+        """
+        jf.write("\""+self.name+"\" : {")
+        if(len(self.regmaps) > 0):
+            jf.write("\"regmap\": {")
+            for i in self.regmaps:
+                i.render_as_json(jf)
+                if i != self.regmaps[-1]:
+                    jf.write(",")
+            jf.write("}")
+        jf.write("}")
+    
 
 class BdcIp:
     """
@@ -106,6 +162,19 @@ class BdcIp:
         for i in self.interfaces:
             i.print(tabdepth+1)
 
+    def render_as_json(self, jf) -> None:
+        """ 
+            Renders the IP metadata into a json format
+        """
+        jf.write("\""+self.name+"\" : {")
+        if(len(self.interfaces) > 0):
+            jf.write("\"interfaces\": {")
+            for i in self.interfaces:
+                i.render_as_json(jf)
+                if i != self.interfaces[-1]:
+                    jf.write(",")
+            jf.write("}")
+        jf.write("}")
 
 class Bdc:
     """
@@ -125,4 +194,22 @@ class Bdc:
                 A BDC IP that contains the register map
         """
         self.ip_list.append(ip)
+
+    def render_as_json(self) -> None:
+        """
+            Renders the internal metadata file as json file for shipping in the XSA
+        """
+        json_file = open(self.name+"_pynq_bdc_meta.json", "w")
+        json_file.write("{ \"name\": \""+self.name+"\",")
+        if(len(self.ip_list) > 0):
+            json_file.write("\"ip\" : {")
+            for i in self.ip_list:
+                i.render_as_json(json_file)
+                if i != self.ip_list[-1]:
+                    json_file.write(",")
+            json_file.write("}")
+
+        json_file.write("}\n")
+
+
 

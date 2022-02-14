@@ -113,7 +113,7 @@ def get_xci_file_for_ip(project_dir, ip_type_dict) -> dict:
     ip_xci = filter_xci_files_for_ip(xci_files, ip_type_dict) 
     return ip_xci
     
-def get_bdcip_from_xci(ipname, xci) -> BdcMeta.RegMap:
+def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
     """
         Given an xci file extract the regmap for that IP core.
 
@@ -123,8 +123,8 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.RegMap:
 
         Returns:
         ----------
-            RegMap
-                A RegMap object that contains the register map captured from this XCI
+            BdcIP
+                An object containing the metadata for this block design container IP
     """
     namespaces = {'xilinx': "http://www.xilinx.com", 'spirit' : "http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009", 'xsi' : "http://www.w3.org/2001/XMLSchema-instance"}
     parsed_xci = ElementTree.parse(xci.name)
@@ -158,8 +158,7 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.RegMap:
                     regmap.add(newreg)
                 rendered_interface.add_regmap(regmap)
             bdcip.add_interface(rendered_interface)
-
-    bdcip.print()
+    return bdcip
 
 
 def get_regmaps_for_ip(project_dir, ip_types):
@@ -184,6 +183,22 @@ def get_regmaps_for_ip(project_dir, ip_types):
     ip_to_xci = get_xci_file_for_ip(project_dir, ip_types)
     for ip in ip_to_xci:
         get_bdcip_from_xci(ip, ip_to_xci[ip])
+
+def get_bdc_name_from_hwh(hwh):
+    """
+    From a parsed HWH file return the name of the BDC.
+
+    Parameters:
+    -----------
+    hwh : xml.etree.ElementTree.ElementTree object
+
+    Returns:
+    ---------
+    str:
+        the name of the BDC
+    """
+    for sys in hwh.getroot().iter('SYSTEMINFO'):
+        return sys.attrib['NAME']
 
 
 usage = "python3 pynq_bdc_patcher.py -i input.xsa -d /project/directory/path -o output.xsa"
@@ -212,7 +227,12 @@ xsa_in = XsaParser(args.input_xsa)
 parsed_hwhs = parse_all_bdc_hwh_files_from(xsa_in)
 
 for p in parsed_hwhs:
+    bdc_name = get_bdc_name_from_hwh(p)
+    bdc = BdcMeta.Bdc(bdc_name)
     ip_types = get_all_ip_vlnv_from_parsed(p)
-    get_regmaps_for_ip(args.project_directory, ip_types)
 
+    ip_to_xci = get_xci_file_for_ip(args.project_directory, ip_types)
+    for ip in ip_to_xci:
+        bdc.add_ip(get_bdcip_from_xci(ip, ip_to_xci[ip]))
+    bdc.render_as_json()
 
