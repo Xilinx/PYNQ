@@ -128,6 +128,17 @@ class XsaParser(Xsa):
         """
         return self._Xsa__path([e.attrib["Name"] for e in self.__hwhElements('REFERENCE_BD')])
 
+    def createNameMatchingDefaultHwh(self) -> None:
+        """
+        A temporary fix to rename the default bd to match the primary bitstream.
+        TODO: make it so that the whole XsaParser object is passed down into the 
+
+        Assumes that we have only one bitfile, need to test this with PR projects.
+        """
+        expected_hwh = os.path.splitext(self.bitstreamPaths[0])[0] + ".hwh" 
+        if expected_hwh not in self.defaultHwhPaths:
+            shutil.copyfile(self.defaultHwhPaths[0], expected_hwh)
+
     # ----------------------------------------------
     # Prints out an XML structure
     # ----------------------------------------------

@@ -117,6 +117,7 @@ class Bitstream:
         if bitfile_name.endswith(".xsa"):
             xsa = XsaParser(bitfile_name)
             bitfile_name = xsa.bitstreamPaths[0] 
+            xsa.createNameMatchingDefaultHwh()
 
         bitfile_overlay_abs_lst = []
         if os.path.isabs(bitfile_name):
