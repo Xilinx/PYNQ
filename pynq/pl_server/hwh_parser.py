@@ -331,18 +331,16 @@ class _HWHABC(metaclass=abc.ABCMeta):
                                 for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
                         for j in regs}
 
-
-                print("[WIP] We have a block design container")
-                print(self.tmpdir)
-
         # Add all the metadata for BDCs
-        for i in mod.iter('MODULES'):
+        for i in mod.iter('MODULE'):
             if i.get('BDTYPE') == "BLOCK_CONTAINER":
                 bdc_name = i.get('BD') 
                 bdc_json_meta_filename = self.tmpdir +"/" + bdc_name + "_pynq_bdc_metadata.json"
                 print(bdc_json_meta_filename)
-                #bdc_json_meta = json.load(self.tmpdir + "/" + full_name + "_pynq_bdc_metadata.json")
-                #print(bdc_json_meta.keys())
+                bdc_json_meta_file = open(bdc_json_meta_filename, "r")
+                bdc_json_meta = json.load(bdc_json_meta_file)
+                print(bdc_json_meta.keys())
+                bdc_json_meta_file.close()
 
                     
         for i in to_pop:
