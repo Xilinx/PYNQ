@@ -270,6 +270,10 @@ class _HWHABC(metaclass=abc.ABCMeta):
             if i.get('INSTANCE') in self.instance2attr:
                 full_name, vlnv, pars, regs, bdtype = self.instance2attr[
                     i.get('INSTANCE')]
+
+                if bdtype == "BLOCK_CONTAINER":
+                    print("[WIP LOG] We have found a block container, grabbing the metadata from the bdc json metadata instead")
+
                 intf_id = i.get(mem_intf_id)
                 if full_name in self.ip_dict and \
                         self.ip_dict[full_name]['mem_id'] and intf_id:
