@@ -128,6 +128,16 @@ class XsaParser(Xsa):
         """
         return self._Xsa__path([e.attrib["Name"] for e in self.__hwhElements('REFERENCE_BD')])
 
+
+    @property
+    def referenceBdcJsonPaths(self) -> None:
+        """
+        returns a tuple of paths to extract the JSON files that are associated with the BDC instances 
+        in the design
+        """
+        bdc_hwhs = [os.path.splitext(e.attrib["Name"])[0] + "_pynq_bdc_metadata.json" for e in self.__hwhElements('REFERENCE_BD')]
+        return self._Xsa__path(bdc_hwhs)
+
     def createNameMatchingDefaultHwh(self) -> None:
         """
         A temporary fix to rename the default bd to match the primary bitstream.
@@ -138,6 +148,13 @@ class XsaParser(Xsa):
         expected_hwh = os.path.splitext(self.bitstreamPaths[0])[0] + ".hwh" 
         if expected_hwh not in self.defaultHwhPaths:
             shutil.copyfile(self.defaultHwhPaths[0], expected_hwh)
+
+    def load_bdc_metadata(self) -> None:
+        """
+        Loads the required files for the current BDC metadata parser (such as the PYNQ metadata JSON files)
+        """
+        self.createNameMatchingDefaultHwh()
+        self.referenceBdcJsonPaths
 
     # ----------------------------------------------
     # Prints out an XML structure
