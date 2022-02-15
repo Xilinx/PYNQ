@@ -30,6 +30,7 @@
 import os
 import re
 import abc
+import json
 from xml.etree import ElementTree
 from copy import deepcopy
 from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
@@ -141,7 +142,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
     family_irq = ""
     family_gpio = ""
 
-    def __init__(self, hwh_name=None, hwh_data=None):
+    def __init__(self, hwh_name=None, hwh_data=None, tmpdir=None):
         """Returns a map built from the supplied hwh file
 
         Parameters
@@ -173,6 +174,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.gpio_dict = {}
         self.clock_dict = {}
         self.mem_dict = {}
+        self.tmpdir = tmpdir
 
         self.instance2attr = {i.get('INSTANCE'): (
             i.get('FULLNAME').lstrip('/'),
@@ -266,69 +268,83 @@ class _HWHABC(metaclass=abc.ABCMeta):
 
     def _parse_ip_dict(self, mod, mem_intf_id):
         to_pop = set()
+
         for i in mod.iter("MEMRANGE"):
             if i.get('INSTANCE') in self.instance2attr:
                 full_name, vlnv, pars, regs, bdtype = self.instance2attr[
                     i.get('INSTANCE')]
 
-                if bdtype == "BLOCK_CONTAINER":
-                    print("[WIP LOG] We have found a block container, grabbing the metadata from the bdc json metadata instead")
+                if bdtype != "BLOCK_CONTAINER":
+                    intf_id = i.get(mem_intf_id)
+                    if full_name in self.ip_dict and \
+                            self.ip_dict[full_name]['mem_id'] and intf_id:
+                        rename = full_name + '/' + \
+                            self.ip_dict[full_name]['mem_id']
+                        self.ip_dict[rename] = deepcopy(self.ip_dict[full_name])
+                        self.ip_dict[rename]['fullpath'] = rename
+                        to_pop.add(full_name)
+                        full_name += '/' + intf_id
+                    elif vlnv.split(':')[:2] == ['xilinx.com', 'module_ref'] and \
+                            bdtype:
+                        full_name += '/' + intf_id
 
-                intf_id = i.get(mem_intf_id)
-                if full_name in self.ip_dict and \
-                        self.ip_dict[full_name]['mem_id'] and intf_id:
-                    rename = full_name + '/' + \
-                        self.ip_dict[full_name]['mem_id']
-                    self.ip_dict[rename] = deepcopy(self.ip_dict[full_name])
-                    self.ip_dict[rename]['fullpath'] = rename
-                    to_pop.add(full_name)
-                    full_name += '/' + intf_id
-                elif vlnv.split(':')[:2] == ['xilinx.com', 'module_ref'] and \
-                        bdtype:
-                    full_name += '/' + intf_id
-
-                self.ip_dict[full_name] = {}
-                self.ip_dict[full_name]['fullpath'] = full_name
-                self.ip_dict[full_name]['type'] = vlnv
-                self.ip_dict[full_name]['bdtype'] = bdtype
-                self.ip_dict[full_name]['state'] = None
-                high_addr = int(i.get('HIGHVALUE'), 16)
-                base_addr = int(i.get('BASEVALUE'), 16)
-                addr_range = high_addr - base_addr + 1
-                self.ip_dict[full_name]['addr_range'] = addr_range
-                self.ip_dict[full_name]['phys_addr'] = base_addr
-                self.ip_dict[full_name]['mem_id'] = intf_id
-                self.ip_dict[full_name]['memtype'] = i.get('MEMTYPE', None)
-                self.ip_dict[full_name]['gpio'] = {}
-                self.ip_dict[full_name]['interrupts'] = {}
-                self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
-                                                         j.get('VALUE')
-                                                         for j in pars}
-                self.ip_dict[full_name]['registers'] = {j.get('NAME'): {
-                        'address_offset': string2int(j.find(
-                            './PROPERTY/[@NAME="ADDRESS_OFFSET"]').get(
-                            'VALUE')),
-                        'size': string2int(j.find(
-                            './PROPERTY/[@NAME="SIZE"]').get(
-                            'VALUE')),
-                        'access': j.find('./PROPERTY/[@NAME="ACCESS"]').get(
-                                'VALUE'),
-                        'description': j.find(
-                            './PROPERTY/[@NAME="DESCRIPTION"]').get('VALUE'),
-                        'fields': {k.get('NAME'): {
-                            'bit_offset': string2int(k.find(
-                                './PROPERTY/[@NAME="BIT_OFFSET"]').get(
+                    self.ip_dict[full_name] = {}
+                    self.ip_dict[full_name]['fullpath'] = full_name
+                    self.ip_dict[full_name]['type'] = vlnv
+                    self.ip_dict[full_name]['bdtype'] = bdtype
+                    self.ip_dict[full_name]['state'] = None
+                    high_addr = int(i.get('HIGHVALUE'), 16)
+                    base_addr = int(i.get('BASEVALUE'), 16)
+                    addr_range = high_addr - base_addr + 1
+                    self.ip_dict[full_name]['addr_range'] = addr_range
+                    self.ip_dict[full_name]['phys_addr'] = base_addr
+                    self.ip_dict[full_name]['mem_id'] = intf_id
+                    self.ip_dict[full_name]['memtype'] = i.get('MEMTYPE', None)
+                    self.ip_dict[full_name]['gpio'] = {}
+                    self.ip_dict[full_name]['interrupts'] = {}
+                    self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
+                                                             j.get('VALUE')
+                                                             for j in pars}
+                    self.ip_dict[full_name]['registers'] = {j.get('NAME'): {
+                            'address_offset': string2int(j.find(
+                                './PROPERTY/[@NAME="ADDRESS_OFFSET"]').get(
                                 'VALUE')),
-                            'bit_width': string2int(k.find(
-                                './PROPERTY/[@NAME="BIT_WIDTH"]').get(
+                            'size': string2int(j.find(
+                                './PROPERTY/[@NAME="SIZE"]').get(
                                 'VALUE')),
-                            'description': j.find(
-                                './PROPERTY/[@NAME="DESCRIPTION"]').get(
+                            'access': j.find('./PROPERTY/[@NAME="ACCESS"]').get(
                                     'VALUE'),
-                            'access': k.find(
-                                './PROPERTY/[@NAME="ACCESS"]').get('VALUE')}
-                            for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
-                    for j in regs}
+                            'description': j.find(
+                                './PROPERTY/[@NAME="DESCRIPTION"]').get('VALUE'),
+                            'fields': {k.get('NAME'): {
+                                'bit_offset': string2int(k.find(
+                                    './PROPERTY/[@NAME="BIT_OFFSET"]').get(
+                                    'VALUE')),
+                                'bit_width': string2int(k.find(
+                                    './PROPERTY/[@NAME="BIT_WIDTH"]').get(
+                                    'VALUE')),
+                                'description': j.find(
+                                    './PROPERTY/[@NAME="DESCRIPTION"]').get(
+                                        'VALUE'),
+                                'access': k.find(
+                                    './PROPERTY/[@NAME="ACCESS"]').get('VALUE')}
+                                for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
+                        for j in regs}
+
+
+                print("[WIP] We have a block design container")
+                print(self.tmpdir)
+
+        # Add all the metadata for BDCs
+        for i in mod.iter('MODULES'):
+            if i.get('BDTYPE') == "BLOCK_CONTAINER":
+                bdc_name = i.get('BD') 
+                bdc_json_meta_filename = self.tmpdir +"/" + bdc_name + "_pynq_bdc_metadata.json"
+                print(bdc_json_meta_filename)
+                #bdc_json_meta = json.load(self.tmpdir + "/" + full_name + "_pynq_bdc_metadata.json")
+                #print(bdc_json_meta.keys())
+
+                    
         for i in to_pop:
             self.ip_dict.pop(i)
 
