@@ -207,8 +207,7 @@ class Bdc:
                 if i != self.ip_list[-1]:
                     json_file.write(",")
             json_file.write("}")
-
-        json_file.write("}\n")
+        json_file.write("}\n\n")
 
 
 

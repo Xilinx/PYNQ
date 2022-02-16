@@ -249,6 +249,7 @@ for p in parsed_hwhs:
     bdc_json_metadata_filename = temp_directory +"/"+bdc_name+"_pynq_bdc_metadata.json"
     bdc_json_metadata = open(bdc_json_metadata_filename, "w")
     bdc.render_as_json(bdc_json_metadata)
+    bdc_json_metadata.close()
     if args.verbose:
         print("Writing Metadata file: " + bdc_json_metadata_filename) 
 
