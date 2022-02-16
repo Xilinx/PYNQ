@@ -187,7 +187,7 @@ class BitstreamHandler:
         hwh_data = self.get_hwh_data()
         xclbin_data = self.get_xclbin_data()
         if hwh_data is not None:
-            parser = HWH(hwh_data=hwh_data)
+            parser = HWH(hwh_data=hwh_data, tmpdir=os.path.dirname(self._filepath))
             if xclbin_data is None:
                 xclbin_data = _create_xclbin(parser.mem_dict)
             xclbin_parser = XclBin(xclbin_data=xclbin_data)

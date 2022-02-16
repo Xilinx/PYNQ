@@ -35,7 +35,7 @@ import os
 import warnings
 from .devicetree import get_dtbo_path
 from .utils import _find_local_overlay_res, _ExtensionsManager
-#from .xsaparser import XSAParser
+from .xsaparser import XsaParser
 
 OVERLAYS_GROUP = "pynq.overlays"
 
@@ -115,8 +115,9 @@ class Bitstream:
         self.device = device
 
         if bitfile_name.endswith(".xsa"):
-            xsa = XSAParser(bitfile_name)
-            bitfile_name = xsa.get_full_bitstream_path() 
+            xsa = XsaParser(bitfile_name)
+            bitfile_name = xsa.bitstreamPaths[0] 
+            xsa.load_bdc_metadata()
 
         bitfile_overlay_abs_lst = []
         if os.path.isabs(bitfile_name):
