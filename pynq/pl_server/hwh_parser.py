@@ -267,6 +267,17 @@ class _HWHABC(metaclass=abc.ABCMeta):
                                                  for j in pars}
         self.ip_dict[full_name]['type'] = vlnv
 
+    def _get_extern_bus_from_ref(self, busref, bdc_hwh):
+        """
+        From a parsed HWH file get the external interface name
+        for a given external bus ref.
+        """
+        for ext_bus in bdc_hwh.iter('BUSINTERFACE'):
+            if busref == ext_bus.get('BUSNAME'):
+                return ext_bus.get('NAME')
+        return None
+
+
     def _add_bdc_ip_to_dict(self):
         """
             Adds IP from all the block design containers into the ip_dict
@@ -284,23 +295,43 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 bdc_json_meta = json.load(bdc_json_meta_file)
 
                 # Need to also open the BDC HWH file here
+                bdc_hwh_filename = self.tmpdir + "/" + bdc_name + ".hwh"
+                bdc_tree = ElementTree.parse(bdc_hwh_filename)
+                bdc_root = bdc_tree.getroot()
 
-                for ip in bdc_json_meta["ip"]:
-                    full_name = bdc_name + ip
-                    self.ip_dict[full_name] = {}
-                    self.ip_dict[full_name]['fullpath'] = full_name
-                    self.ip_dict[full_name]['type'] = "need:to:capture:this:info"
-                    self.ip_dict[full_name]['bdtype'] = "NEED2CAPTURE"
-                    self.ip_dict[full_name]['state'] = None
-                    self.ip_dict[full_name]['addr_range'] = 0x10000
-                    self.ip_dict[full_name]['phys_addr'] = 0xdeadbeef
-                    self.ip_dict[full_name]['mem_id'] = "NeedToCapture"
-                    self.ip_dict[full_name]['mem_type'] = "Register"
-                    self.ip_dict[full_name]['gpio'] = {}
-                    self.ip_dict[full_name]['interrupts'] = {}
-                    self.ip_dict[full_name]['parameters'] = {}
-                    self.ip_dict[full_name]['registers'] = {}
+                for i in bdc_root.iter('MODULE'):
+                    for b_itf in i.iter('BUSINTERFACE'):
+                        extern_bus_ref = b_itf.get('BUSNAME')
+                        external_intf_name = self._get_extern_bus_from_ref(extern_bus_ref, bdc_root) 
+                        full_name = bdc_name + "/" + i.get('INSTANCE') + "/" + external_intf_name 
+                        self.ip_dict[full_name] = {} 
+                        self.ip_dict[full_name]['fullpath'] = full_name 
+                        self.ip_dict[full_name]['type'] = i.get('VLNV') 
+                        self.ip_dict[full_name]['bdtype'] = i.get('BDTYPE') 
+                        self.ip_dict[full_name]['state'] = None 
+                
+                        base_addr = 0
+                        high_addr = 0
+                        for p in i.iter('PARAMETER'):
+                            if p.get('NAME') == "C_BASEADDR":
+                                base_addr = int(p.get('VALUE'), 16)
+                            if p.get('NAME') == "C_HIGHADDR":
+                                high_addr = int(p.get('VALUE'), 16)
 
+                        addr_range = high_addr - base_addr + 1
+                        self.ip_dict[full_name]['addr_range'] = addr_range
+                        self.ip_dict[full_name]['phys_addr'] = base_addr
+
+                        self.ip_dict[full_name]['mem_id'] = external_intf_name 
+                        self.ip_dict[full_name]['memtype'] = None
+                        self.ip_dict[full_name]['gpio'] = { }
+                        self.ip_dict[full_name]['interrupts'] = { }
+                        self.ip_dict[full_name]['parameters'] = { }
+
+                        regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][external_intf_name]["regmap"]
+                        for regmap in regmaps:
+                            self.ip_dict[full_name]['registers'] = regmaps[regmap]["registers"] 
+                        
                 bdc_json_meta_file.close()
 
     def _parse_ip_dict(self, mod, mem_intf_id):

@@ -155,6 +155,7 @@ class XsaParser(Xsa):
         """
         self.createNameMatchingDefaultHwh()
         self.referenceBdcJsonPaths
+        self.referenceHwhPaths
 
     # ----------------------------------------------
     # Prints out an XML structure
