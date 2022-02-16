@@ -280,7 +280,6 @@ class _HWHABC(metaclass=abc.ABCMeta):
             if i.get('BDTYPE') == "BLOCK_CONTAINER":
                 bdc_name = i.get('BD') 
                 bdc_json_meta_filename = self.tmpdir +"/" + bdc_name + "_pynq_bdc_metadata.json"
-                print(bdc_json_meta_filename)
                 bdc_json_meta_file = open(bdc_json_meta_filename, "r")
                 bdc_json_meta = json.load(bdc_json_meta_file)
 
@@ -288,7 +287,6 @@ class _HWHABC(metaclass=abc.ABCMeta):
 
                 for ip in bdc_json_meta["ip"]:
                     full_name = bdc_name + ip
-                    print("Adding BDC IP:  " + full_name)
                     self.ip_dict[full_name] = {}
                     self.ip_dict[full_name]['fullpath'] = full_name
                     self.ip_dict[full_name]['type'] = "need:to:capture:this:info"
@@ -302,7 +300,6 @@ class _HWHABC(metaclass=abc.ABCMeta):
                     self.ip_dict[full_name]['interrupts'] = {}
                     self.ip_dict[full_name]['parameters'] = {}
                     self.ip_dict[full_name]['registers'] = {}
-                    print("Adding: "+full_name)
 
                 bdc_json_meta_file.close()
 
@@ -372,7 +369,6 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         for j in regs}
 
         for i in to_pop:
-            print("POPPING: "+ i)
             self.ip_dict.pop(i)
 
     def match_nets(self, mod, full_path):
