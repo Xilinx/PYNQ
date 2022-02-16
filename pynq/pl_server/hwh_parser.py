@@ -200,6 +200,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 self.intc_names.append(full_path)
 
             self.match_nets(mod, full_path)
+        self._add_bdc_ip_to_dict()
 
         self.match_ports()
         self.match_pins()
@@ -266,6 +267,42 @@ class _HWHABC(metaclass=abc.ABCMeta):
                                                  for j in pars}
         self.ip_dict[full_name]['type'] = vlnv
 
+    def _add_bdc_ip_to_dict(self):
+        """
+            Adds IP from all the block design containers into the ip_dict
+
+            Parameters
+            -----------
+            mod : Element
+                The modules that we are adding to the design
+        """
+        for i in self.root.iter('MODULE'):
+            if i.get('BDTYPE') == "BLOCK_CONTAINER":
+                bdc_name = i.get('BD') 
+                bdc_json_meta_filename = self.tmpdir +"/" + bdc_name + "_pynq_bdc_metadata.json"
+                bdc_json_meta_file = open(bdc_json_meta_filename, "r")
+                bdc_json_meta = json.load(bdc_json_meta_file)
+
+                # Need to also open the BDC HWH file here
+
+                for ip in bdc_json_meta["ip"]:
+                    full_name = bdc_name + ip
+                    self.ip_dict[full_name] = {}
+                    self.ip_dict[full_name]['fullpath'] = full_name
+                    self.ip_dict[full_name]['type'] = "need:to:capture:this:info"
+                    self.ip_dict[full_name]['bdtype'] = "NEED2CAPTURE"
+                    self.ip_dict[full_name]['state'] = None
+                    self.ip_dict[full_name]['addr_range'] = 0x10000
+                    self.ip_dict[full_name]['phys_addr'] = 0xdeadbeef
+                    self.ip_dict[full_name]['mem_id'] = "NeedToCapture"
+                    self.ip_dict[full_name]['mem_type'] = "Register"
+                    self.ip_dict[full_name]['gpio'] = {}
+                    self.ip_dict[full_name]['interrupts'] = {}
+                    self.ip_dict[full_name]['parameters'] = {}
+                    self.ip_dict[full_name]['registers'] = {}
+
+                bdc_json_meta_file.close()
+
     def _parse_ip_dict(self, mod, mem_intf_id):
         to_pop = set()
 
@@ -331,18 +368,6 @@ class _HWHABC(metaclass=abc.ABCMeta):
                                 for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
                         for j in regs}
 
-        # Add all the metadata for BDCs
-        for i in mod.iter('MODULE'):
-            if i.get('BDTYPE') == "BLOCK_CONTAINER":
-                bdc_name = i.get('BD') 
-                bdc_json_meta_filename = self.tmpdir +"/" + bdc_name + "_pynq_bdc_metadata.json"
-                print(bdc_json_meta_filename)
-                bdc_json_meta_file = open(bdc_json_meta_filename, "r")
-                bdc_json_meta = json.load(bdc_json_meta_file)
-                print(bdc_json_meta.keys())
-                bdc_json_meta_file.close()
-
-                    
         for i in to_pop:
             self.ip_dict.pop(i)
 
