@@ -331,6 +331,9 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][external_intf_name]["regmap"]
                         for regmap in regmaps:
                             self.ip_dict[full_name]['registers'] = regmaps[regmap]["registers"] 
+
+                        self.ip_dict[full_name]["parameters"] = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["parameters"]
+
                         
                 bdc_json_meta_file.close()
 
