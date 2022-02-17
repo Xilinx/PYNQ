@@ -146,18 +146,21 @@ def filter_component_xml_files_for_ip(xml_files, ip_type_dict, verbose=False) ->
     for ip_key in ip_type_dict:
         vlnv_split = re.split(':', ip_type_dict[ip_key])
         for xml in xml_files:
-            parsed_xml = ElementTree.parse(xml)
-            xml_root = parsed_xml.getroot()
-            c_vendor = xml_root.find("spirit:vendor", namespaces).text
-            c_library = xml_root.find("spirit:library", namespaces).text
-            c_name = xml_root.find("spirit:name", namespaces).text
-            c_version = xml_root.find("spirit:version", namespaces).text
-            c_vlnv = [c_vendor, c_library, c_name, c_version]
-            if c_vlnv == vlnv_split:
-                ip_xml[ip_key] = xml
-                if verbose:
-                    print("Found metadata for "+ip_key+" at "+xml)
-                break
+            try:
+                parsed_xml = ElementTree.parse(xml)
+                xml_root = parsed_xml.getroot()
+                c_vendor = xml_root.find("spirit:vendor", namespaces).text
+                c_library = xml_root.find("spirit:library", namespaces).text
+                c_name = xml_root.find("spirit:name", namespaces).text
+                c_version = xml_root.find("spirit:version", namespaces).text
+                c_vlnv = [c_vendor, c_library, c_name, c_version]
+                if c_vlnv == vlnv_split:
+                    ip_xml[ip_key] = xml
+                    if verbose:
+                        print("Found metadata for "+ip_key+" at "+xml)
+                    break
+            except Exception:
+                pass
     return ip_xml
 
 def get_component_xml_files_for_ip(ip_repo_list, ip_type_dict, verbose=False) -> dict:
