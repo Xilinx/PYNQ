@@ -134,8 +134,18 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
 
     bdcip = BdcMeta.BdcIp(ipname)
     for ip in parsed_xci.findall(".//*[@xilinx:boundaryDescriptionJSON]", namespaces):
-        ip_xci_boundary_json = json.loads(ip.attrib["{http://www.xilinx.com}boundaryDescriptionJSON"])
+        # Go through the configurableElementValues and put all the parameters that start with the prefix:
+        # MODELPARAM_VALUE.
+        # PARAM_VALUE.
+        for param in parsed_xci.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}configurableElementValue'):
+            refid = param.get('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}referenceId')
+            if refid.startswith("MODELPARAM_VALUE.") or refid.startswith("PARAM_VALUE."):
+                bdc_param = BdcMeta.BdcParam(refid, param.text)
+                print(refid + " : "+param.text)
+                bdcip.add_parameter(bdc_param)
 
+
+        ip_xci_boundary_json = json.loads(ip.attrib["{http://www.xilinx.com}boundaryDescriptionJSON"])
         for interface in ip_xci_boundary_json["boundary"]["memory_maps"]:
             rendered_interface = BdcMeta.BdcIpInterface(interface)   
             interface_json = ip_xci_boundary_json["boundary"]["memory_maps"][interface]["address_blocks"]

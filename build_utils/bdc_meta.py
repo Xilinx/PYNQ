@@ -144,6 +144,20 @@ class BdcIpInterface:
             jf.write("}")
         jf.write("}")
     
+class BdcParam:
+    """
+        A class for a parameter within a block design container.
+    """
+    def __init__(self, name, value) -> None:
+        self.name = name
+        self.value = value
+
+    def render_as_json(self, jf) -> None:
+        """
+        Renders the parameter as json
+        """
+        jf.write("\""+self.name+"\":\""+self.value+"\"")
+
 
 class BdcIp:
     """
@@ -152,6 +166,10 @@ class BdcIp:
     def __init__(self, name) -> None:
         self.name = name 
         self.interfaces = []
+        self.parameters = []
+
+    def add_parameter(self, parameter) -> None:
+        self.parameters.append(parameter)
 
     def add_interface(self, interface) -> None:
         self.interfaces.append(interface)
@@ -167,6 +185,14 @@ class BdcIp:
             Renders the IP metadata into a json format
         """
         jf.write("\""+self.name+"\" : {")
+        jf.write("\"parameters\": {")
+
+        for p in self.parameters:
+            p.render_as_json(jf)
+            if p != self.parameters[-1]:
+                jf.write(",")
+        jf.write("},")
+
         if(len(self.interfaces) > 0):
             jf.write("\"interfaces\": {")
             for i in self.interfaces:
