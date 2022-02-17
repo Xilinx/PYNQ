@@ -11,6 +11,7 @@ import json
 import tempfile
 import zipfile
 import shutil
+import re
 from pynq import XsaParser
 from xml.etree import ElementTree
 import bdc_meta as BdcMeta
@@ -43,6 +44,29 @@ def get_all_ip_vlnv_from_parsed(hwh) -> dict:
     for ip in hwh.findall(".//*[@IPTYPE]"):
         ip_type[ip.attrib["FULLNAME"]] = ip.attrib["VLNV"]
     return ip_type
+
+def get_all_component_xml_files_in(ip_locs) -> list:
+    """
+    Given a list of IP repositories return all the component.xml 
+    files within those repositories
+
+    Paramters:
+    ------------
+    list : ip_locs
+
+    Returns:
+    ------------
+    list
+        list of all component.xml files
+    """
+    component_files = []
+    for ip_loc in ip_locs:
+        for folders, dirs, files in os.walk(ip_loc):
+            for f in files:
+                if f == "component.xml":
+                    component_files.append(os.path.join(folders, f))
+    return component_files
+    
 
 def get_all_xci_files_in(project_dir) -> list:
     """
@@ -94,6 +118,43 @@ def filter_xci_files_for_ip(xci_files, ip_type_dict) -> dict:
                     break
     return ip_xci
 
+def filter_component_xml_files_for_ip(xml_files, ip_type_dict) -> dict:
+    """
+        filters a list of component.xml IP metadata files for the ones that
+        have information on an ip in the ip_type_dict
+
+        Parameters:
+        ------------
+        xml_files : list
+            A list of paths to component.xml files containing IP metadata
+
+        ip_type_dict: dict
+            A dictionary that maps ip names to their vlnv type
+
+
+        Returns:
+        -------------
+        dict
+            A dictionary that maps the name of the IP to the xci file with the 
+            corresponding information about it.
+    """
+    ip_xml = {}
+    namespaces = {'xilinx': "http://www.xilinx.com", 'spirit' : "http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009", 'xsi' : "http://www.w3.org/2001/XMLSchema-instance"}
+    for ip_key in ip_type_dict:
+        vlnv_split = re.split(':', ip_type_dict[ip_key])
+        for xml in xml_files:
+            parsed_xml = ElementTree.parse(xml)
+            xml_root = parsed_xml.getroot()
+            c_vendor = xml_root.find("spirit:vendor", namespaces).text
+            c_library = xml_root.find("spirit:library", namespaces).text
+            c_name = xml_root.find("spirit:name", namespaces).text
+            c_version = xml_root.find("spirit:version", namespaces).text
+            c_vlnv = [c_vendor, c_library, c_name, c_version]
+            if c_vlnv == vlnv_split:
+                ip_xml[ip_key] = xml
+    return ip_xml
+
+
 
 def get_xci_file_for_ip(project_dir, ip_type_dict) -> dict:
     """
@@ -134,9 +195,6 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
 
     bdcip = BdcMeta.BdcIp(ipname)
     for ip in parsed_xci.findall(".//*[@xilinx:boundaryDescriptionJSON]", namespaces):
-        # Go through the configurableElementValues and put all the parameters that start with the prefix:
-        # MODELPARAM_VALUE.
-        # PARAM_VALUE.
         for param in parsed_xci.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}configurableElementValue'):
             refid = param.get('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}referenceId')
             if refid.startswith("MODELPARAM_VALUE.") or refid.startswith("PARAM_VALUE."):
@@ -220,6 +278,7 @@ parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-i", "--input_xsa", help="sets the XSA file input name")
 parser.add_argument("-d", "--project_directory", help="sets the vivado project directory")
 parser.add_argument("-o", "--output_xsa", help="sets the output xsa filename")
+parser.add_argument("-t", "--vivado", help="location of the vivado tools")
 parser.add_argument("-V", "--verbose", help="increase the verbosity of the output", action="store_true")
 
 args = parser.parse_args()
@@ -252,18 +311,23 @@ for p in parsed_hwhs:
     bdc = BdcMeta.Bdc(bdc_name)
     ip_types = get_all_ip_vlnv_from_parsed(p)
 
-    ip_to_xci = get_xci_file_for_ip(args.project_directory, ip_types)
-    for ip in ip_to_xci:
-        bdc.add_ip(get_bdcip_from_xci(ip, ip_to_xci[ip]))
+    components = get_all_component_xml_files_in([args.project_directory, args.vivado]) 
+    ip_xml = filter_component_xml_files_for_ip(components, ip_types)
+    print(ip_xml)
     
-    bdc_json_metadata_filename = temp_directory +"/"+bdc_name+"_pynq_bdc_metadata.json"
-    bdc_json_metadata = open(bdc_json_metadata_filename, "w")
-    bdc.render_as_json(bdc_json_metadata)
-    bdc_json_metadata.close()
-    if args.verbose:
-        print("Writing Metadata file: " + bdc_json_metadata_filename) 
 
-shutil.make_archive(args.output_xsa, 'zip', temp_directory)
-os.rename(args.output_xsa+".zip", args.output_xsa)
-if args.verbose:
-    print("Compressed the modified XSA file into :" +args.output_xsa)
+    #ip_to_xci = get_xci_file_for_ip(args.project_directory, ip_types)
+    #for ip in ip_to_xci:
+    #    bdc.add_ip(get_bdcip_from_xci(ip, ip_to_xci[ip]))
+    #
+    #bdc_json_metadata_filename = temp_directory +"/"+bdc_name+"_pynq_bdc_metadata.json"
+    #bdc_json_metadata = open(bdc_json_metadata_filename, "w")
+    #bdc.render_as_json(bdc_json_metadata)
+    #bdc_json_metadata.close()
+    #if args.verbose:
+    #    print("Writing Metadata file: " + bdc_json_metadata_filename) 
+
+#shutil.make_archive(args.output_xsa, 'zip', temp_directory)
+#os.rename(args.output_xsa+".zip", args.output_xsa)
+#if args.verbose:
+#    print("Compressed the modified XSA file into :" +args.output_xsa)
