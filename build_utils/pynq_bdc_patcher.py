@@ -173,6 +173,11 @@ def get_component_xml_files_for_ip(ip_repo_list, ip_type_dict) -> dict:
     """
     xml_files = get_all_component_xml_files_in(ip_repo_list)
     ip_xml = filter_component_xml_files_for_ip(xml_files, ip_type_dict) 
+
+    for ip in ip_type_dict:
+        if ip not in ip_xml:
+            print("[WARNING] unable to find metadata for IP core "+ip+" it will likely have missing data in the PYNQ ip_dict when the data is loaded")
+
     return ip_xml
     
 
@@ -365,9 +370,6 @@ args = parser.parse_args()
 if not args.input_xsa:
     raise RuntimeError("We require an input XSA specified with the -i option");
 
-if not args.project_directory:
-    raise RuntimeError("We require the location of the original project directory specified with the -d option");
-
 if not args.output_xsa:
     print("[Warning] no output XSA specified using the default output.xsa");
 
@@ -387,11 +389,24 @@ parsed_hwhs = parse_all_bdc_hwh_files_from(xsa_in)
 
 for p in parsed_hwhs:
     bdc_name = get_bdc_name_from_hwh(p)
+
+    if args.verbose:
+        print("Getting metadata for BDC: "+bdc_name)
+
     bdc = BdcMeta.Bdc(bdc_name)
     ip_types = get_all_ip_vlnv_from_parsed(p)
 
+    if args.verbose:
+        print("Searching for metadata for the following IP...")
+        for ip in ip_types:
+            print("\t"+ip)
+    
+    if args.verbose:
+        print("\tSearching project directories and Vivado libraries...")
+
     ip_xml = get_component_xml_files_for_ip([args.project_directory, args.vivado], ip_types) 
     if args.verbose:
+        print("done\n")
         print("The following component.xml files have been located for all BDC IP files.")
         print(ip_xml)
 
