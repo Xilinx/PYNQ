@@ -220,6 +220,16 @@ def get_bdcip_from_component_xml(ipname, xml) -> BdcMeta.BdcIp:
     ns = {'xilinx': "http://www.xilinx.com", 'spirit' : "http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009", 'xsi' : "http://www.w3.org/2001/XMLSchema-instance"}
     parsed_xml = ElementTree.parse(xml)
     root = parsed_xml.getroot()
+
+    # Getting the parameters
+    parameters = root.find('spirit:parameters',ns)
+    for parameter in parameters.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}parameter'):
+        param_name = parameter.find('spirit:name',ns).text
+        param_value = parameter.find('spirit:value',ns).text
+        new_param = BdcMeta.BdcParam(param_name, param_value)
+        bdcip.add_parameter(new_param)
+
+    # Getting the memory maps
     for memmap in root.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}memoryMap'):
         intf_name = memmap.find('spirit:name', ns).text
         rendered_interface = BdcMeta.BdcIpInterface(intf_name)
