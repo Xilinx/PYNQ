@@ -45,7 +45,7 @@ def get_all_ip_vlnv_from_parsed(hwh) -> dict:
         ip_type[ip.attrib["FULLNAME"]] = ip.attrib["VLNV"]
     return ip_type
 
-def get_all_component_xml_files_in(ip_locs) -> list:
+def get_all_component_xml_files_in(ip_locs, verbose=False) -> list:
     """
     Given a list of IP repositories return all the component.xml 
     files within those repositories
@@ -61,10 +61,13 @@ def get_all_component_xml_files_in(ip_locs) -> list:
     """
     component_files = []
     for ip_loc in ip_locs:
+        print("Searching IP location: "+ip_loc)
         for folders, dirs, files in os.walk(ip_loc):
             for f in files:
                 if f == "component.xml":
                     component_files.append(os.path.join(folders, f))
+                    if verbose:
+                        print(folders+"/"+f)
     return component_files
     
 
@@ -118,7 +121,7 @@ def filter_xci_files_for_ip(xci_files, ip_type_dict) -> dict:
                     break
     return ip_xci
 
-def filter_component_xml_files_for_ip(xml_files, ip_type_dict) -> dict:
+def filter_component_xml_files_for_ip(xml_files, ip_type_dict, verbose=False) -> dict:
     """
         filters a list of component.xml IP metadata files for the ones that
         have information on an ip in the ip_type_dict
@@ -152,9 +155,12 @@ def filter_component_xml_files_for_ip(xml_files, ip_type_dict) -> dict:
             c_vlnv = [c_vendor, c_library, c_name, c_version]
             if c_vlnv == vlnv_split:
                 ip_xml[ip_key] = xml
+                if verbose:
+                    print("Found metadata for "+ip_key+" at "+xml)
+                break
     return ip_xml
 
-def get_component_xml_files_for_ip(ip_repo_list, ip_type_dict) -> dict:
+def get_component_xml_files_for_ip(ip_repo_list, ip_type_dict, verbose=False) -> dict:
     """
         returns a dict of the component.xml files that contain the regmap information 
         for the given IP.
@@ -171,8 +177,8 @@ def get_component_xml_files_for_ip(ip_repo_list, ip_type_dict) -> dict:
         dict
             a dictionary that maps ip names to their xml file paths in the project directory
     """
-    xml_files = get_all_component_xml_files_in(ip_repo_list)
-    ip_xml = filter_component_xml_files_for_ip(xml_files, ip_type_dict) 
+    xml_files = get_all_component_xml_files_in(ip_repo_list, verbose)
+    ip_xml = filter_component_xml_files_for_ip(xml_files, ip_type_dict, verbose) 
 
     for ip in ip_type_dict:
         if ip not in ip_xml:
@@ -402,9 +408,11 @@ for p in parsed_hwhs:
             print("\t"+ip)
     
     if args.verbose:
-        print("\tSearching project directories and Vivado libraries...")
+        print("\tSearching for metadata in the following locations")
+        print("\t"+args.project_directory)
+        print("\t"+args.vivado)
 
-    ip_xml = get_component_xml_files_for_ip([args.project_directory, args.vivado], ip_types) 
+    ip_xml = get_component_xml_files_for_ip([args.project_directory, args.vivado], ip_types, args.verbose) 
     if args.verbose:
         print("done\n")
         print("The following component.xml files have been located for all BDC IP files.")
