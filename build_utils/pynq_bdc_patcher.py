@@ -154,6 +154,27 @@ def filter_component_xml_files_for_ip(xml_files, ip_type_dict) -> dict:
                 ip_xml[ip_key] = xml
     return ip_xml
 
+def get_component_xml_files_for_ip(ip_repo_list, ip_type_dict) -> dict:
+    """
+        returns a dict of the component.xml files that contain the regmap information 
+        for the given IP.
+        
+        Parameters:
+        -----------
+        ip_repo_list : list 
+           a list to the paths of ip repositories 
+        ip_type_dict : dict
+            a dictionary mapping the ip names to their vlnv types
+
+        Returns:
+        ----------
+        dict
+            a dictionary that maps ip names to their xml file paths in the project directory
+    """
+    xml_files = get_all_component_xml_files_in(ip_repo_list)
+    ip_xml = filter_component_xml_files_for_ip(xml_files, ip_type_dict) 
+    return ip_xml
+    
 
 
 def get_xci_file_for_ip(project_dir, ip_type_dict) -> dict:
@@ -177,6 +198,54 @@ def get_xci_file_for_ip(project_dir, ip_type_dict) -> dict:
     ip_xci = filter_xci_files_for_ip(xci_files, ip_type_dict) 
     return ip_xci
     
+def get_bdcip_from_component_xml(ipname, xml) -> BdcMeta.BdcIp:
+    """
+        Given a component xml file extract the regmap and parameters for that IP core.
+
+        Parameters:
+        -----------
+            ipname : str
+               the name of the IP  
+
+            xml : str
+                the path to component.xml file for that IP
+
+        Returns:
+        -----------
+            BdcIp
+                An object containing the metadata for this block design container
+    """
+    bdcip = BdcMeta.BdcIp(ipname)
+
+    ns = {'xilinx': "http://www.xilinx.com", 'spirit' : "http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009", 'xsi' : "http://www.w3.org/2001/XMLSchema-instance"}
+    parsed_xml = ElementTree.parse(xml)
+    root = parsed_xml.getroot()
+    for memmap in root.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}memoryMap'):
+        intf_name = memmap.find('spirit:name', ns).text
+        rendered_interface = BdcMeta.BdcIpInterface(intf_name)
+        for addrblock in memmap.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}addressBlock'):
+            regmap_name = addrblock.find('spirit:name', ns).text
+            base_addr = addrblock.find('spirit:baseAddress', ns).text
+            addr_range = addrblock.find('spirit:range', ns).text
+            regmap = BdcMeta.RegMap(regmap_name, base_addr, addr_range) 
+            for registers in addrblock.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}register'):
+                new_reg = BdcMeta.Register(registers.find('spirit:name', ns).text,
+                                           registers.find('spirit:addressOffset', ns).text,
+                                           registers.find('spirit:size', ns).text,
+                                           registers.find('spirit:description', ns).text,
+                                           registers.find('spirit:access', ns).text)
+                for field in registers.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}field'):
+                    new_field = BdcMeta.Field(  field.find('spirit:name',ns).text,
+                                                field.find('spirit:bitOffset',ns).text, 
+                                                field.find('spirit:bitWidth',ns).text, 
+                                                field.find('spirit:description',ns).text, 
+                                                field.find('spirit:access',ns).text)
+                    new_reg.add(new_field)
+                regmap.add(new_reg)
+            rendered_interface.add_regmap(regmap)
+        bdcip.add_interface(rendered_interface)
+    return bdcip
+
 def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
     """
         Given an xci file extract the regmap for that IP core.
@@ -311,23 +380,22 @@ for p in parsed_hwhs:
     bdc = BdcMeta.Bdc(bdc_name)
     ip_types = get_all_ip_vlnv_from_parsed(p)
 
-    components = get_all_component_xml_files_in([args.project_directory, args.vivado]) 
-    ip_xml = filter_component_xml_files_for_ip(components, ip_types)
-    print(ip_xml)
-    
+    ip_xml = get_component_xml_files_for_ip([args.project_directory, args.vivado], ip_types) 
+    if args.verbose:
+        print("The following component.xml files have been located for all BDC IP files.")
+        print(ip_xml)
 
-    #ip_to_xci = get_xci_file_for_ip(args.project_directory, ip_types)
-    #for ip in ip_to_xci:
-    #    bdc.add_ip(get_bdcip_from_xci(ip, ip_to_xci[ip]))
-    #
-    #bdc_json_metadata_filename = temp_directory +"/"+bdc_name+"_pynq_bdc_metadata.json"
-    #bdc_json_metadata = open(bdc_json_metadata_filename, "w")
-    #bdc.render_as_json(bdc_json_metadata)
-    #bdc_json_metadata.close()
-    #if args.verbose:
-    #    print("Writing Metadata file: " + bdc_json_metadata_filename) 
+    for ip in ip_xml:
+        bdc.add_ip(get_bdcip_from_component_xml(ip, ip_xml[ip]))
 
-#shutil.make_archive(args.output_xsa, 'zip', temp_directory)
-#os.rename(args.output_xsa+".zip", args.output_xsa)
-#if args.verbose:
-#    print("Compressed the modified XSA file into :" +args.output_xsa)
+    bdc_json_metadata_filename = temp_directory +"/"+bdc_name+"_pynq_bdc_metadata.json"
+    bdc_json_metadata = open(bdc_json_metadata_filename, "w")
+    bdc.render_as_json(bdc_json_metadata)
+    bdc_json_metadata.close()
+    if args.verbose:
+        print("Writing Metadata file: " + bdc_json_metadata_filename) 
+
+shutil.make_archive(args.output_xsa, 'zip', temp_directory)
+os.rename(args.output_xsa+".zip", args.output_xsa)
+if args.verbose:
+    print("Compressed the modified XSA file into :" +args.output_xsa)
