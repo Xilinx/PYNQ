@@ -35,7 +35,7 @@ import os
 import warnings
 from .devicetree import get_dtbo_path
 from .utils import _find_local_overlay_res, _ExtensionsManager
-from .xsaparser import XsaParser
+from .utils import XsaParser
 
 OVERLAYS_GROUP = "pynq.overlays"
 
