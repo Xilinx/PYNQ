@@ -44,15 +44,15 @@ from .pmbus import get_rails
 from .pmbus import DataRecorder
 from .buffer import allocate
 from .pl_server import Device
-from .xsaparser import XsaParser
 from . import lib
+from .utils import XsaParser
 
 
 __author__ = "Yun Rock Qu"
 __copyright__ = "Copyright 2016, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
-__all__ = ['lib', 'tests']
+__all__ = ['lib', 'tests', 'build_utils']
 __version__ = '2.7.0'
 # This ID will always be tied to a specific release tag
 # since the file will be modified to edit the version

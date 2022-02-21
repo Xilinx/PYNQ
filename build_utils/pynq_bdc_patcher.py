@@ -1,9 +1,7 @@
-# pynq-bdc-patcher
-""" When using BDCs in Vivado the resulting XSA is missing information that PYNQ needs. Importantly the REGISTER field information. This script takes the XSA file and a path to the root directory of the project that the XSA was generated from and generates a new XSA that contains the missing information."""
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
 
-__author__ = "Shane T. Fleming"
-__copyright__ = "Copyright 2022, Xilinx"
-__email__ = "pynq_support@xilinx.com"
+""" When using BDCs in Vivado the resulting XSA is missing information that PYNQ needs. Importantly the REGISTER field information. This script takes the XSA file and a path to the root directory of the project that the XSA was generated from and generates a new XSA that contains the missing information."""
 
 import argparse
 import os
@@ -251,15 +249,15 @@ def get_bdcip_from_component_xml(ipname, xml) -> BdcMeta.BdcIp:
             regmap_name = addrblock.find('spirit:name', ns).text
             base_addr = addrblock.find('spirit:baseAddress', ns).text
             addr_range = addrblock.find('spirit:range', ns).text
-            regmap = BdcMeta.RegMap(regmap_name, base_addr, addr_range) 
+            regmap = BdcMeta.BdcRegMap(regmap_name, base_addr, addr_range) 
             for registers in addrblock.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}register'):
-                new_reg = BdcMeta.Register(registers.find('spirit:name', ns).text,
+                new_reg = BdcMeta.BdcRegister(registers.find('spirit:name', ns).text,
                                            registers.find('spirit:addressOffset', ns).text,
                                            registers.find('spirit:size', ns).text,
                                            registers.find('spirit:description', ns).text,
                                            registers.find('spirit:access', ns).text)
                 for field in registers.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}field'):
-                    new_field = BdcMeta.Field(  field.find('spirit:name',ns).text,
+                    new_field = BdcMeta.BdcField(  field.find('spirit:name',ns).text,
                                                 field.find('spirit:bitOffset',ns).text, 
                                                 field.find('spirit:bitWidth',ns).text, 
                                                 field.find('spirit:description',ns).text, 
@@ -301,10 +299,10 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
             rendered_interface = BdcMeta.BdcIpInterface(interface)   
             interface_json = ip_xci_boundary_json["boundary"]["memory_maps"][interface]["address_blocks"]
             for regblock in interface_json:
-                regmap = BdcMeta.RegMap(regblock, interface_json[regblock]["base_address"], interface_json[regblock]["range"])
+                regmap = BdcMeta.BdcRegMap(regblock, interface_json[regblock]["base_address"], interface_json[regblock]["range"])
                 registers = interface_json[regblock]["registers"]
                 for reg in registers:
-                    newreg = BdcMeta.Register(reg, 
+                    newreg = BdcMeta.BdcRegister(reg, 
                                               registers[reg]["address_offset"], 
                                               registers[reg]["size"],
                                               registers[reg]["description"],
@@ -312,7 +310,7 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
                                               )
                     fields = registers[reg]["fields"]
                     for field in fields:
-                        f = BdcMeta.Field(field, 
+                        f = BdcMeta.BdcField(field, 
                                           fields[field]["bit_offset"], 
                                           fields[field]["bit_width"],
                                           fields[field]["description"],
@@ -369,9 +367,8 @@ usage = "python3 pynq_bdc_patcher.py -i input.xsa -d /project/directory/path -o 
 
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-i", "--input_xsa", help="sets the XSA file input name")
-parser.add_argument("-d", "--project_directory", help="sets the vivado project directory")
 parser.add_argument("-o", "--output_xsa", help="sets the output xsa filename")
-parser.add_argument("-t", "--vivado", help="location of the vivado tools")
+parser.add_argument("-l", "--ip_libraries", action='append', help="add a location to search for IP metadata")
 parser.add_argument("-V", "--verbose", help="increase the verbosity of the output", action="store_true")
 
 args = parser.parse_args()
@@ -411,11 +408,11 @@ for p in parsed_hwhs:
             print("\t"+ip)
     
     if args.verbose:
-        print("\tSearching for metadata in the following locations")
-        print("\t"+args.project_directory)
-        print("\t"+args.vivado)
-
-    ip_xml = get_component_xml_files_for_ip([args.project_directory, args.vivado], ip_types, args.verbose) 
+        print("Searching the following locations for metadata:")
+        for l in args.ip_libraries:
+            print(l)
+    
+    ip_xml = get_component_xml_files_for_ip(args.ip_libraries, ip_types, args.verbose) 
     if args.verbose:
         print("done\n")
         print("The following component.xml files have been located for all BDC IP files.")

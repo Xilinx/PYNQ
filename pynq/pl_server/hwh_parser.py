@@ -303,6 +303,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
                     for b_itf in i.iter('BUSINTERFACE'):
                         extern_bus_ref = b_itf.get('BUSNAME')
                         external_intf_name = self._get_extern_bus_from_ref(extern_bus_ref, bdc_root) 
+                        internal_intf_name = b_itf.get('NAME')
+
                         full_name = bdc_name + "/" + i.get('INSTANCE') + "/" + external_intf_name 
                         self.ip_dict[full_name] = {} 
                         self.ip_dict[full_name]['fullpath'] = full_name 
@@ -328,7 +330,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
                         self.ip_dict[full_name]['interrupts'] = { }
                         self.ip_dict[full_name]['parameters'] = { }
 
-                        regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][external_intf_name]["regmap"]
+                        #regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][external_intf_name]["regmap"]
+                        regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][internal_intf_name]["regmap"]
                         for regmap in regmaps:
                             self.ip_dict[full_name]['registers'] = regmaps[regmap]["registers"] 
 

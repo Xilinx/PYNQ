@@ -1,17 +1,15 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 """
     A collection of classes that are used to store the metadata of the BDC, IP, and Registers
 """
-
-__author__ = "Shane T. Fleming"
-__copyright__ = "Copyright 2022, AMD"
-__email__ = "pynq_support@xilinx.com"
-
 def print_n_tabs(n):
     for i in range(0,n):
         #print("\t", end="")
         print(" ", end="")
 
-class Field:
+class BdcField:
     """
         simple filed class to hold bitwise information about a register
     """
@@ -37,7 +35,7 @@ class Field:
         jf.write("}")
 
 
-class Register:
+class BdcRegister:
     """
         simple register class to hold information like name and offset
     """
@@ -82,7 +80,7 @@ class Register:
         jf.write("}")
 
 
-class RegMap:
+class BdcRegMap:
     def __init__(self, name, base_address, addr_range) -> None:
         self.name = name
         self.base_address = base_address
