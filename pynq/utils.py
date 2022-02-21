@@ -46,7 +46,7 @@ from xml.etree import ElementTree
 from typing import Union
 
 
-__author__ = "Giuseppe Nataleo, Shane T. Fleming, Geoff Gillett"
+__author__ = "Giuseppe Natale, Shane T. Fleming, Geoff Gillett"
 __copyright__ = "Copyright 2020, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
