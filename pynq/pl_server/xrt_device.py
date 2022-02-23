@@ -1,4 +1,4 @@
-#   Copyright (c) 2019-2021, Xilinx, Inc.
+#   Copyright (c) 2019-2022, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,14 @@ import warnings
 import weakref
 import numpy as np
 from pynq.buffer import PynqBuffer
+from pynq.ps import CPU_ARCH_IS_x86
 from .device import Device
 
 from pynq._3rdparty import xrt
 from pynq._3rdparty import ert
 
 __author__ = "Peter Ogden"
-__copyright__ = "Copyright 2019-2021, Xilinx"
+__copyright__ = "Copyright 2019-2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -314,7 +315,7 @@ class XrtStream:
 class XrtDevice(Device):
     @classmethod
     def _probe_(cls):
-        if not xrt.XRT_SUPPORTED:
+        if not xrt.XRT_SUPPORTED or not CPU_ARCH_IS_x86:
             return []
         num = xrt.xclProbe()
         devices = [XrtDevice(i) for i in range(num)]
