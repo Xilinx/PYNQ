@@ -26,6 +26,9 @@ Simply install ``pynq`` through PIP
     
     pip install pynq
 
+The ``pynq`` python package for XRT-based platforms can be installed whether
+an accelerator card is present or not in the system.
+
 In case needed, please read the :ref:`alveo-extended-setup` section for more 
 detailed instructions.
 
@@ -61,6 +64,11 @@ there
     optional parameters that can be used to customize the notebooks delivery.
     Please run ``pynq get-notebooks -h`` to see them. Refer to the 
     :ref:`pynq-cli` section for more detailed information.
+
+.. note:: To deliver notebooks on systems without an accelerator card use
+    the ``-o`` switch: ``pynq get-notebooks -o``. This will force the
+    notebooks to be delivered without checking for available accelerators.
+
 
 .. _alveo-extended-setup:
 

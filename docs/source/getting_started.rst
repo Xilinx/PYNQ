@@ -19,7 +19,6 @@ Zynq, Zynq Ultrascale+ and Zynq RFSoC
     getting_started/pynq_z1_setup.rst
     getting_started/pynq_z2_setup.rst
     getting_started/zcu104_setup.rst
-    getting_started/alveo_getting_started.rst
 
 * `Ultra96 <https://ultra96-pynq.readthedocs.io/en/latest/getting_started.html>`_
 * `RFSoC 2x2 <https://www.rfsoc-pynq.io/getting_started.html>`_
@@ -31,6 +30,7 @@ Alveo and XRT supported platforms
 .. toctree::
     :maxdepth: 1
     
+    getting_started/alveo_getting_started.rst
     getting_started/pynq_alveo
 
 Jupyter Introduction
