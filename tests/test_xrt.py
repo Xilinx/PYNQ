@@ -69,10 +69,8 @@ def test_xrt_normal(monkeypatch, recwarn):
 
 
 def test_xrt_version_x86(monkeypatch, tmp_path):
-    monkeypatch.setenv('XILINX_XRT', '/opt/xilinx/xrt')
-    file = pathlib.Path("/opt/xilinx/xrt/version.json")
-    file.parent.mkdir(parents=True, exist_ok=True)
-    with file.open( 'w') as f:
+    monkeypatch.setenv('XILINX_XRT', str(tmp_path))
+    with open(tmp_path / 'version.json', 'w') as f:
         f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
     monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
     monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
@@ -99,9 +97,8 @@ def test_xrt_version_fail_x86(monkeypatch, tmp_path):
 
 
 def test_xrt_version_unsupported(monkeypatch, tmp_path):
-    file = pathlib.Path("/opt/xilinx/xrt/version.json")
-    file.parent.mkdir(parents=True, exist_ok=True)
-    with file.open( 'w') as f:
+    monkeypatch.setenv('XILINX_XRT', str(tmp_path))
+    with open(tmp_path / 'version.json', 'w') as f:
         f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
     monkeypatch.setenv('PATH', str(tmp_path) + ':' + os.environ['PATH'])
     monkeypatch.delenv('XILINX_XRT', raising=False)
