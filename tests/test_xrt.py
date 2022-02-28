@@ -72,7 +72,6 @@ def test_xrt_version_x86(monkeypatch, tmp_path):
     monkeypatch.setenv('XILINX_XRT', '/opt/xilinx/xrt')
     file = pathlib.Path("/opt/xilinx/xrt/version.json")
     file.parent.mkdir(parents=True, exist_ok=True)
-    os.chmod('/path/to/xrt', 0o666)
     with file.open( 'w') as f:
         f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
     monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
