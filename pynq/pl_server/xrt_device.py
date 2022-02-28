@@ -86,6 +86,7 @@ def _get_xrt_version_embedded():
         return tuple(
             int(s) for s in details.split('.'))
     except Exception:
+        warnings.warn('Unable to determine XRT version')
         return (0, 0, 0)
 
 
@@ -97,6 +98,7 @@ def _get_xrt_version_x86():
         return tuple(
             int(s) for s in details['BUILD_VERSION'].split('.'))
     except Exception:
+        warnings.warn('Unable to determine XRT version')
         return (0, 0, 0)
 
 
