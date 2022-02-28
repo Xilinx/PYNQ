@@ -70,6 +70,7 @@ def test_xrt_normal(monkeypatch, recwarn):
 
 def test_xrt_version_x86(monkeypatch, tmp_path):
     monkeypatch.setenv('XILINX_XRT', '/path/to/xrt')
+    os.chmod('/path/to/xrt', 0o666)
     file = pathlib.Path("/path/to/xrt/version.json")
     file.parent.mkdir(parents=True, exist_ok=True)
     with file.open( 'w') as f:
