@@ -42,10 +42,10 @@ class _ExtensionsManager:
         package_name: str
             Name of the package to inspect for extensions
     """
-
     def __init__(self, package_name):
         self.package_name = package_name
-        self.list = [ext for ext in pkg_resources.iter_entry_points(self.package_name)]
+        self.list = [ext for ext in
+                     pkg_resources.iter_entry_points(self.package_name)]
         atexit.register(pkg_resources.cleanup_resources, force=True)
 
     @staticmethod
@@ -59,7 +59,6 @@ class _ExtensionsManager:
             self.loader = getattr(module, "__loader__", None)
             module_path = [p for p in getattr(module, "__path__", "")][0]
             self.module_path = module_path
-
         # Temporarily apply monkey patch to
         # `pkg_resources.NullProvider.__init__`
         init_backup = pkg_resources.NullProvider.__init__
@@ -74,14 +73,13 @@ class _ExtensionsManager:
         """Return a list of extension names and related parent packages
         for printing.
         """
-        return [
-            "{} (source: {})".format(e.name, e.module_name.split(".")[0])
-            for e in self.list
-        ]
+        return ["{} (source: {})".format(e.name, e.module_name.split(".")[0])
+                for e in self.list]
 
     @property
     def paths(self):
-        """Return a list of paths from the discovered extensions."""
+        """Return a list of paths from the discovered extensions.
+        """
         return [self.extension_path(e.module_name) for e in self.list]
 
 
@@ -117,7 +115,7 @@ def get_logger(level=logging.INFO, force_lvl=False):
         "error": logging.ERROR,
         "warning": logging.WARNING,
         "info": logging.INFO,
-        "debug": logging.DEBUG,
+        "debug": logging.DEBUG
     }
 
     logger = logging.getLogger(__name__)
@@ -136,7 +134,6 @@ def get_logger(level=logging.INFO, force_lvl=False):
 def _detect_devices(active_only=False):
     """Return a list containing all the detected devices names."""
     from pynq.pl_server import Device
-
     devices = Device.devices
     if not devices:
         raise RuntimeError("No device found in the system")
@@ -148,7 +145,6 @@ def _detect_devices(active_only=False):
 class DownloadedFileChecksumError(Exception):
     """This exception is raised when a downloaded file has an incorrect
     checksum."""
-
     pass
 
 
@@ -169,10 +165,8 @@ def _download_file(download_link, path, md5sum=None):
     """
     import urllib.request
     import hashlib
-
-    with urllib.request.urlopen(download_link) as response, open(
-        path, "wb"
-    ) as out_file:
+    with urllib.request.urlopen(download_link) as response, \
+            open(path, "wb") as out_file:
         data = response.read()
         out_file.write(data)
     if md5sum:
@@ -182,11 +176,10 @@ def _download_file(download_link, path, md5sum=None):
                 file_md5sum.update(chunk)
         if md5sum != file_md5sum.hexdigest():
             os.remove(path)
-            raise DownloadedFileChecksumError(
-                "Incorrect checksum for file "
-                "'{}'. The file has been "
-                "deleted as a result".format(path)
-            )
+            raise DownloadedFileChecksumError("Incorrect checksum for file "
+                                              "'{}'. The file has been "
+                                              "deleted as a result".format(
+                                                  path))
 
 
 def _find_local_overlay_res(device_name, overlay_res_filename, src_path):
@@ -210,12 +203,11 @@ def _find_local_overlay_res(device_name, overlay_res_filename, src_path):
     if os.path.isfile(overlay_res_path):
         return overlay_res_path
     overlay_res_filename_split = os.path.splitext(overlay_res_filename)
-    overlay_res_filename_ext = "{}.{}{}".format(
-        overlay_res_filename_split[0], device_name, overlay_res_filename_split[1]
-    )
-    overlay_res_path = os.path.join(
-        src_path, overlay_res_filename + ".d", overlay_res_filename_ext
-    )
+    overlay_res_filename_ext = "{}.{}{}".format(overlay_res_filename_split[0],
+                                                device_name,
+                                                overlay_res_filename_split[1])
+    overlay_res_path = os.path.join(src_path, overlay_res_filename + ".d",
+                                    overlay_res_filename_ext)
     if os.path.isfile(overlay_res_path):
         return overlay_res_path
     return None
@@ -274,13 +266,11 @@ def _find_remote_overlay_res(device_name, links_json_path):
 class OverlayNotFoundError(Exception):
     """This exception is raised when an overlay for the target device could not
     be located."""
-
     pass
 
 
-def _resolve_overlay_res_from_folder(
-    device_name, overlay_res_folder, src_path, dst_path, rel_path, files_to_copy
-):
+def _resolve_overlay_res_from_folder(device_name, overlay_res_folder, src_path,
+                                     dst_path, rel_path, files_to_copy):
     """Resolve ``overlay_res.ext`` file from ``overlay_res.ext.d`` folder,
     based on ``device_name``. Updates ``files_to_copy`` with the resolved file
     to use. If a ``overlay_res.ext.link`` file is found, resolution is skipped
@@ -290,57 +280,48 @@ def _resolve_overlay_res_from_folder(
     overlay_res_filename = os.path.splitext(overlay_res_folder)[0]
     # Avoid checking a .d folder twice when also a
     # related .link file is found
-    if not os.path.isfile(os.path.join(src_path, overlay_res_filename + ".link")):
-        overlay_res_src_path = _find_local_overlay_res(
-            device_name, overlay_res_filename, src_path
-        )
+    if not os.path.isfile(os.path.join(src_path,
+                                       overlay_res_filename + ".link")):
+        overlay_res_src_path = _find_local_overlay_res(device_name,
+                                                       overlay_res_filename,
+                                                       src_path)
         if overlay_res_src_path:
-            overlay_res_dst_path = os.path.join(
-                dst_path, rel_path, overlay_res_filename
-            )
+            overlay_res_dst_path = os.path.join(dst_path, rel_path,
+                                                overlay_res_filename)
             files_to_copy[overlay_res_src_path] = overlay_res_dst_path
         else:
             raise OverlayNotFoundError(overlay_res_filename)
 
 
-def _resolve_overlay_res_from_link(
-    device_name,
-    overlay_res_link,
-    src_path,
-    dst_path,
-    rel_path,
-    files_to_copy,
-    files_to_move,
-    logger,
-):
+def _resolve_overlay_res_from_link(device_name, overlay_res_link, src_path,
+                                   dst_path, rel_path, files_to_copy,
+                                   files_to_move, logger):
     """Resolve ``overlay_res.ext`` file from ``overlay_res.ext.link`` file,
     based on ``device_name``. Updates ``files_to_copy`` with the resolved file
     to use if found locally (by inspecting ``overlay_res.ext.d`` folder), or
     updates ``files_to_move`` in case the file is downloaded.
     """
     overlay_res_filename = os.path.splitext(overlay_res_link)[0]
-    overlay_res_dst_path = os.path.join(dst_path, rel_path, overlay_res_filename)
-    overlay_res_src_path = _find_local_overlay_res(
-        device_name, overlay_res_filename, src_path
-    )
+    overlay_res_dst_path = os.path.join(dst_path, rel_path,
+                                        overlay_res_filename)
+    overlay_res_src_path = _find_local_overlay_res(device_name,
+                                                   overlay_res_filename,
+                                                   src_path)
     if overlay_res_src_path:
         files_to_copy[overlay_res_src_path] = overlay_res_dst_path
     else:
         overlay_res_download_dict = _find_remote_overlay_res(
-            device_name, os.path.join(src_path, overlay_res_link)
-        )
+            device_name, os.path.join(src_path, overlay_res_link))
         if overlay_res_download_dict:
             # attempt overlay_res.ext file download
             try:
                 tmp_file = tempfile.mkstemp()[1]
-                logger.info(
-                    "Downloading file '{}'. This may take a while"
-                    "...".format(overlay_res_filename)
-                )
+                logger.info("Downloading file '{}'. This may take a while"
+                            "...".format(overlay_res_filename))
                 _download_file(
                     overlay_res_download_dict["url"],
                     tmp_file,
-                    overlay_res_download_dict["md5sum"],
+                    overlay_res_download_dict["md5sum"]
                 )
                 files_to_move[tmp_file] = overlay_res_dst_path
             except DownloadedFileChecksumError:
@@ -374,7 +355,7 @@ def _roll_back_copy(files_to_copy, files_to_move):
     for _, dst in files_to_copy.items():
         if os.path.isfile(dst):
             os.remove(dst)
-            while len(os.listdir(os.path.dirname(dst))) == 0:
+            while(len(os.listdir(os.path.dirname(dst))) == 0):
                 os.rmdir(os.path.dirname(dst))
                 dst = os.path.dirname(dst)
         elif os.path.isdir(dst):
@@ -382,14 +363,13 @@ def _roll_back_copy(files_to_copy, files_to_move):
     for _, dst in files_to_move.items():
         if os.path.isfile(dst):
             os.remove(dst)
-            while len(os.listdir(os.path.dirname(dst))) == 0:
+            while(len(os.listdir(os.path.dirname(dst))) == 0):
                 os.rmdir(os.path.dirname(dst))
                 dst = os.path.dirname(dst)
 
 
-def deliver_notebooks(
-    device_name, src_path, dst_path, name, folder=False, overlays_res_lookup=True
-):
+def deliver_notebooks(device_name, src_path, dst_path, name, folder=False,
+                      overlays_res_lookup=True):
     """Deliver notebooks to target destination path.
 
     If a ``overlay_res.ext.link`` file or a ``overlay_res.ext.d`` folders is
@@ -463,32 +443,22 @@ def deliver_notebooks(
                     if d.endswith(".d"):
                         if overlays_res_lookup:
                             _resolve_overlay_res_from_folder(
-                                device_name,
-                                d,
-                                root,
-                                dst_fullpath,
-                                relpath,
-                                files_to_copy_tmp,
-                            )
+                                device_name, d, root, dst_fullpath, relpath,
+                                files_to_copy_tmp)
                     elif d != "__pycache__":  # exclude __pycache__ folder
                         dir_dst_path = os.path.join(dst_fullpath, relpath, d)
-                        files_to_copy_tmp[os.path.join(root, d)] = dir_dst_path
+                        files_to_copy_tmp[os.path.join(root, d)] = \
+                            dir_dst_path
                 for f in files:
                     if f.endswith(".link"):
                         if overlays_res_lookup:
                             _resolve_overlay_res_from_link(
-                                device_name,
-                                f,
-                                root,
-                                dst_fullpath,
-                                relpath,
-                                files_to_copy_tmp,
-                                files_to_move_tmp,
-                                logger,
-                            )
+                                device_name, f, root, dst_fullpath, relpath,
+                                files_to_copy_tmp, files_to_move_tmp, logger)
                     else:
                         file_dst_path = os.path.join(dst_fullpath, relpath, f)
-                        files_to_copy_tmp[os.path.join(root, f)] = file_dst_path
+                        files_to_copy_tmp[os.path.join(root, f)] = \
+                            file_dst_path
                 # No OverlayNotFoundError exception raised, can add
                 # files_to_copy_tmp to files_to_copy
                 files_to_copy.update(files_to_copy_tmp)
@@ -498,11 +468,9 @@ def deliver_notebooks(
                 # files_to_copy not updated, folder skipped
                 if relpath:
                     nb_str = os.path.join(name, relpath)
-                    logger.info(
-                        "Could not resolve file '{}' in folder "
-                        "'{}', notebooks will not be "
-                        "delivered".format(str(e), nb_str)
-                    )
+                    logger.info("Could not resolve file '{}' in folder "
+                                "'{}', notebooks will not be "
+                                "delivered".format(str(e), nb_str))
     try:
         # exclude root __init__.py from copy, if it exists
         files_to_copy.pop(os.path.join(src_path, "__init__.py"))
@@ -510,101 +478,87 @@ def deliver_notebooks(
         pass
     try:
         if not files_to_copy:
-            logger.info(
-                "The notebooks module '{}' could not be delivered. "
-                "The module has no notebooks, or no valid overlays "
-                "were found".format(name)
-            )
+            logger.info("The notebooks module '{}' could not be delivered. "
+                        "The module has no notebooks, or no valid overlays "
+                        "were found".format(name))
         else:
             _copy_and_move_files(files_to_copy, files_to_move)
     except (Exception, KeyboardInterrupt) as e:
         # roll-back copy
-        logger.info(
-            "Exception detected. Cleaning up as the delivery process "
-            "did not complete..."
-        )
+        logger.info("Exception detected. Cleaning up as the delivery process "
+                    "did not complete...")
         _roll_back_copy(files_to_copy, files_to_move)
         raise e
 
 
-def _resolve_global_overlay_res(overlay_res_link, src_path, logger, fail=False):
+def _resolve_global_overlay_res(overlay_res_link, src_path, logger,
+                                fail=False):
     """Resolve resource that is global to every device (using a ``device=None``
     when calling ``_find_remote_overlay_res``). File is downloaded in
     ``src_path``.
     """
     overlay_res_filename = os.path.splitext(overlay_res_link)[0]
-    overlay_res_download_dict = _find_remote_overlay_res(
-        None, os.path.join(src_path, overlay_res_link)
-    )
+    overlay_res_download_dict = \
+        _find_remote_overlay_res(None,
+                                 os.path.join(src_path, overlay_res_link))
     if overlay_res_download_dict:
-        overlay_res_fullpath = os.path.join(src_path, overlay_res_filename)
+        overlay_res_fullpath = os.path.join(
+            src_path, overlay_res_filename)
         try:
-            logger.info(
-                "Downloading file '{}'. "
-                "This may take a while"
-                "...".format(overlay_res_filename)
-            )
+            logger.info("Downloading file '{}'. "
+                        "This may take a while"
+                        "...".format(
+                            overlay_res_filename))
             _download_file(
                 overlay_res_download_dict["url"],
                 overlay_res_fullpath,
-                overlay_res_download_dict["md5sum"],
-            )
+                overlay_res_download_dict["md5sum"])
         except Exception as e:
             if fail:
                 raise e
         finally:
-            if not os.path.isfile(overlay_res_fullpath):
-                err_msg = "Could not resolve file '{}'".format(overlay_res_filename)
+            if not os.path.isfile(
+                    overlay_res_fullpath):
+                err_msg = "Could not resolve file '{}'".format(
+                    overlay_res_filename)
                 logger.info(err_msg)
             else:
                 return True  # overlay_res_download_dict was not empty
     return False
 
 
-def _resolve_devices_overlay_res_helper(
-    device,
-    src_path,
-    overlay_res_filename,
-    overlay_res_link,
-    overlay_res_fullpath,
-    logger,
-    fail=False,
-    overlay_res_download_path=None,
-):
+def _resolve_devices_overlay_res_helper(device, src_path, overlay_res_filename,
+                                        overlay_res_link, overlay_res_fullpath,
+                                        logger, fail=False,
+                                        overlay_res_download_path=None):
     """Helper function for `_resolve_devices_overlay_res`."""
-    overlay_res_src_path = _find_local_overlay_res(
-        device, overlay_res_filename, src_path
-    )
-    err_msg = "Could not resolve file '{}' for " "device '{}'".format(
-        overlay_res_filename, device
-    )
+    overlay_res_src_path = _find_local_overlay_res(device,
+                                                   overlay_res_filename,
+                                                   src_path)
+    err_msg = "Could not resolve file '{}' for " \
+              "device '{}'".format(overlay_res_filename, device)
     if not overlay_res_src_path:
         overlay_res_download_dict = _find_remote_overlay_res(
-            device, os.path.join(src_path, overlay_res_link)
-        )
+            device, os.path.join(src_path, overlay_res_link))
         if overlay_res_download_dict:
             if overlay_res_download_path:
                 mkpath(overlay_res_download_path)
             try:
-                logger.info(
-                    "Downloading file '{}'. This may take a while"
-                    "...".format(overlay_res_filename)
-                )
+                logger.info("Downloading file '{}'. This may take a while"
+                            "...".format(overlay_res_filename))
                 _download_file(
                     overlay_res_download_dict["url"],
                     overlay_res_fullpath,
-                    overlay_res_download_dict["md5sum"],
-                )
+                    overlay_res_download_dict["md5sum"])
             except Exception as e:
                 if fail:
                     raise e
             finally:
-                if not os.path.isfile(overlay_res_fullpath):
+                if not os.path.isfile(
+                        overlay_res_fullpath):
                     logger.info(err_msg)
-                if (
-                    overlay_res_download_path
-                    and len(os.listdir(overlay_res_download_path)) == 0
-                ):
+                if overlay_res_download_path and \
+                        len(os.listdir(overlay_res_download_path)) == 0:
                     os.rmdir(overlay_res_download_path)
         else:
             if fail:
@@ -612,101 +566,88 @@ def _resolve_devices_overlay_res_helper(
             logger.info(err_msg)
 
 
-def _resolve_devices_overlay_res(
-    overlay_res_link, src_path, devices, logger, fail=False
-):
+def _resolve_devices_overlay_res(overlay_res_link, src_path, devices, logger,
+                                 fail=False):
     """Resolve ``overlay_res.ext`` file for every device in ``devices``.
     Files are downloaded in a ``overlay_res.ext.d`` folder in ``src_path``.
     If the device is only one and is an edge device, file is resolved directly
     to ``overlay_res.ext``.
     """
-    from pynq.pl_server.device import Device
+    from pynq.pl_server.device import Device 
     from pynq.pl_server.embedded_device import EmbeddedDevice
-
     overlay_res_filename = os.path.splitext(overlay_res_link)[0]
     if len(devices) == 1 and type(Device.devices[0]) == EmbeddedDevice:
         overlay_res_fullpath = os.path.join(src_path, overlay_res_filename)
-        _resolve_devices_overlay_res_helper(
-            devices[0],
-            src_path,
-            overlay_res_filename,
-            overlay_res_link,
-            overlay_res_fullpath,
-            logger,
-            fail,
-        )
+        _resolve_devices_overlay_res_helper(devices[0], src_path,
+                                            overlay_res_filename,
+                                            overlay_res_link,
+                                            overlay_res_fullpath, logger, fail)
         return
     for device in devices:
-        overlay_res_download_path = os.path.join(src_path, overlay_res_filename + ".d")
-        overlay_res_filename_split = os.path.splitext(overlay_res_filename)
+        overlay_res_download_path = os.path.join(
+            src_path, overlay_res_filename + ".d")
+        overlay_res_filename_split = \
+            os.path.splitext(overlay_res_filename)
         overlay_res_filename_ext = "{}.{}{}".format(
-            overlay_res_filename_split[0], device, overlay_res_filename_split[1]
-        )
-        overlay_res_fullpath = os.path.join(
-            overlay_res_download_path, overlay_res_filename_ext
-        )
-        _resolve_devices_overlay_res_helper(
-            device,
-            src_path,
-            overlay_res_filename,
-            overlay_res_link,
-            overlay_res_fullpath,
-            logger,
-            fail,
-            overlay_res_download_path,
-        )
+            overlay_res_filename_split[0], device,
+            overlay_res_filename_split[1])
+        overlay_res_fullpath = os.path.join(overlay_res_download_path,
+                                            overlay_res_filename_ext)
+        _resolve_devices_overlay_res_helper(device, src_path,
+                                            overlay_res_filename,
+                                            overlay_res_link,
+                                            overlay_res_fullpath, logger, fail,
+                                            overlay_res_download_path)
 
 
-def _resolve_all_overlay_res_from_link(overlay_res_link, src_path, logger, fail=False):
-    """Resolve every entry of ``.link`` files regardless of detected devices."""
+def _resolve_all_overlay_res_from_link(overlay_res_link, src_path, logger,
+                                       fail=False):
+    """Resolve every entry of ``.link`` files regardless of detected devices.
+    """
     overlay_res_filename = os.path.splitext(overlay_res_link)[0]
     with open(os.path.join(src_path, overlay_res_link)) as f:
         links = json.load(f)
-    if not _resolve_global_overlay_res(overlay_res_link, src_path, logger, fail):
+    if not _resolve_global_overlay_res(overlay_res_link, src_path, logger,
+                                       fail):
         for device, download_link_dict in links.items():
-            if not _find_local_overlay_res(device, overlay_res_filename, src_path):
-                err_msg = "Could not resolve file '{}' for " "device '{}'".format(
-                    overlay_res_filename, device
-                )
+            if not _find_local_overlay_res(
+                    device, overlay_res_filename, src_path):
+                err_msg = "Could not resolve file '{}' for " \
+                    "device '{}'".format(overlay_res_filename, device)
                 overlay_res_download_path = os.path.join(
-                    src_path, overlay_res_filename + ".d"
-                )
-                overlay_res_filename_split = os.path.splitext(overlay_res_filename)
+                    src_path, overlay_res_filename + ".d")
+                overlay_res_filename_split = \
+                    os.path.splitext(overlay_res_filename)
                 overlay_res_filename_ext = "{}.{}{}".format(
-                    overlay_res_filename_split[0], device, overlay_res_filename_split[1]
-                )
+                    overlay_res_filename_split[0], device,
+                    overlay_res_filename_split[1])
                 mkpath(overlay_res_download_path)
                 overlay_res_fullpath = os.path.join(
-                    overlay_res_download_path, overlay_res_filename_ext
-                )
+                    overlay_res_download_path,
+                    overlay_res_filename_ext)
                 try:
-                    logger.info(
-                        "Downloading file '{}'. "
-                        "This may take a while"
-                        "...".format(overlay_res_filename)
-                    )
+                    logger.info("Downloading file '{}'. "
+                                "This may take a while"
+                                "...".format(
+                                    overlay_res_filename))
                     _download_file(
                         download_link_dict["url"],
                         overlay_res_fullpath,
-                        download_link_dict["md5sum"],
-                    )
+                        download_link_dict["md5sum"])
                 except Exception as e:
                     if fail:
                         raise e
                 finally:
-                    if not os.path.isfile(overlay_res_fullpath):
+                    if not os.path.isfile(
+                            overlay_res_fullpath):
                         logger.info(err_msg)
-                    if len(os.listdir(overlay_res_download_path)) == 0:
+                    if len(os.listdir(
+                            overlay_res_download_path)) == 0:
                         os.rmdir(overlay_res_download_path)
 
 
-def download_overlays(
-    path,
-    download_all=False,
-    fail_at_lookup=False,
-    fail_at_device_detection=False,
-    cleanup=False,
-):
+def download_overlays(path, download_all=False, fail_at_lookup=False,
+                      fail_at_device_detection=False, cleanup=False):
     """Download overlays for detected devices in destination path.
 
     Resolve ``overlay_res.ext`` files from  ``overlay_res.ext.link``
@@ -746,12 +687,13 @@ def download_overlays(
         for f in files:
             if f.endswith(".link"):
                 if not download_all:
-                    if not _resolve_global_overlay_res(f, root, logger, fail_at_lookup):
-                        _resolve_devices_overlay_res(
-                            f, root, devices, logger, fail_at_lookup
-                        )
+                    if not _resolve_global_overlay_res(f, root, logger,
+                                                       fail_at_lookup):
+                        _resolve_devices_overlay_res(f, root, devices, logger,
+                                                     fail_at_lookup)
                 else:  # download all overlays regardless of detected devices
-                    _resolve_all_overlay_res_from_link(f, root, logger, fail_at_lookup)
+                    _resolve_all_overlay_res_from_link(f, root, logger,
+                                                       fail_at_lookup)
                 if cleanup:
                     cleanup_list.append(os.path.join(root, f))
     for f in cleanup_list:
@@ -760,17 +702,12 @@ def download_overlays(
 
 class _download_overlays(dist_build):
     """Custom distutils command to download overlays using .link files."""
-
     description = "Download overlays using .link files"
-    user_options = [
-        (
-            "download-all",
-            "a",
-            "forcibly download every overlay from .link files, "
-            "overriding download based on detected devices",
-        ),
-        ("force-fail", "f", "Do not complete setup if overlays lookup fails."),
-    ]
+    user_options = [("download-all", "a",
+                     "forcibly download every overlay from .link files, "
+                     "overriding download based on detected devices"),
+                    ("force-fail", "f",
+                     "Do not complete setup if overlays lookup fails.")]
     boolean_options = ["download-all", "force-fail"]
 
     def initialize_options(self):
@@ -784,18 +721,15 @@ class _download_overlays(dist_build):
         cmd = self.get_finalized_command("build_py")
         for package, _, build_dir, _ in cmd.data_files:
             if "." not in package:  # sub-packages are skipped
-                download_overlays(
-                    build_dir,
-                    download_all=self.download_all,
-                    fail_at_lookup=self.force_fail,
-                )
+                download_overlays(build_dir,
+                                  download_all=self.download_all,
+                                  fail_at_lookup=self.force_fail)
 
 
 class build_py(_build_py):
     """Overload the standard setuptools 'build_py' command to also call the
     command 'download_overlays'.
     """
-
     def run(self):
         super().run()
         self.run_command("download_overlays")
@@ -811,18 +745,18 @@ class NotebookResult:
     Jupyter documentation for details on the format of the dictionary
 
     """
-
     def __init__(self, nb):
-        self.outputs = [c["outputs"] for c in nb["cells"] if c["cell_type"] == "code"]
-        objects = json.loads(self.outputs[-1][0]["text"])
+        self.outputs = [
+            c['outputs'] for c in nb['cells'] if c['cell_type'] == 'code'
+        ]
+        objects = json.loads(self.outputs[-1][0]['text'])
         for i, o in enumerate(objects):
-            setattr(self, "_" + str(i + 1), o)
+            setattr(self, "_" + str(i+1), o)
 
 
 def _create_code(num):
     call_line = "print(json.dumps([{}], default=_default_repr))".format(
-        ", ".join(("_resolve_global('_{}')".format(i + 1) for i in range(num)))
-    )
+        ", ".join(("_resolve_global('_{}')".format(i+1) for i in range(num))))
     return _function_text + call_line
 
 
@@ -852,9 +786,8 @@ def run_notebook(notebook, root_path=".", timeout=30, prerun=None):
     """
     import nbformat
     from nbconvert.preprocessors import ExecutePreprocessor
-
     with tempfile.TemporaryDirectory() as td:
-        workdir = os.path.join(td, "work")
+        workdir = os.path.join(td, 'work')
         notebook_dir = os.path.join(workdir, os.path.dirname(notebook))
         shutil.copytree(root_path, workdir)
         if prerun is not None:
@@ -862,18 +795,14 @@ def run_notebook(notebook, root_path=".", timeout=30, prerun=None):
         fullpath = os.path.join(workdir, notebook)
         with open(fullpath, "r") as f:
             nb = nbformat.read(f, as_version=4)
-        ep = ExecutePreprocessor(kernel_name="python3", timeout=timeout)
-        code_cells = [c for c in nb["cells"] if c["cell_type"] == "code"]
-        nb["cells"].append(
-            nbformat.from_dict(
-                {
-                    "cell_type": "code",
-                    "metadata": {},
-                    "source": _create_code(len(code_cells)),
-                }
-            )
-        )
-        ep.preprocess(nb, {"metadata": {"path": notebook_dir}})
+        ep = ExecutePreprocessor(kernel_name='python3', timeout=timeout)
+        code_cells = [c for c in nb['cells'] if c['cell_type'] == 'code']
+        nb['cells'].append(
+            nbformat.from_dict({'cell_type': 'code',
+                                'metadata': {},
+                                'source': _create_code(len(code_cells))}
+                               ))
+        ep.preprocess(nb, {'metadata': {'path': notebook_dir}})
         return NotebookResult(nb)
 
 
@@ -889,7 +818,6 @@ class ReprDict(dict):
     will be converted to ReprDict objects when returned.
 
     """
-
     def __init__(self, *args, rootname="root", expanded=False, **kwargs):
         """Dictionary constructor
 
@@ -907,10 +835,8 @@ class ReprDict(dict):
         super().__init__(*args, **kwargs)
 
     def _repr_json_(self):
-        return json.loads(json.dumps(self, default=_default_repr)), {
-            "expanded": self._expanded,
-            "root": self._rootname,
-        }
+        return json.loads(json.dumps(self, default=_default_repr)), \
+            {'expanded': self._expanded, 'root': self._rootname}
 
     def __getitem__(self, key):
         obj = super().__getitem__(key)
@@ -919,9 +845,8 @@ class ReprDict(dict):
         else:
             return obj
 
-
 class Xsa:
-    """
+    """ 
     XSA zip archive reader class
     """
 
@@ -932,21 +857,22 @@ class Xsa:
         self.__archive = path
         """ path to directory for extracted files """
         self.__extracted = tempfile.mkdtemp()
-        with zipfile.ZipFile(self.__archive, "r") as xsa:
-            """the set of members of the zip archive"""
+        with zipfile.ZipFile(self.__archive, 'r') as xsa:
+            """ the set of members of the zip archive """
             self.__members = set(xsa.namelist())
 
         # I am assuming that sysdef.xml xsa.json, and xsa.xml are always members
         """ the root of the sysdef.xml element tree """
         self.__sysdef = ElementTree.parse(self.__path("sysdef.xml")).getroot()
         with open(self.__path("xsa.json")) as f:
-            """xsa.json as a dict"""
+            """ xsa.json as a dict"""
             self.__json = json.load(f)
         """ the root of  xsa.xml element tree"""
         self.__xml = ElementTree.parse(self.__path("xsa.xml")).getroot()
+        
 
     def __path(self, members: Union[str, list]) -> Union[str, tuple]:
-        """
+        """ 
         return OS path(s) to extracted archive member(s)
         files are extracted if not present in the  __extracted directory
         """
@@ -961,7 +887,7 @@ class Xsa:
             raise RuntimeError(f"{', '.join(missing)} not found in the XSA archive")
 
         os_paths = []
-        with zipfile.ZipFile(self.__archive, "r") as xsa:
+        with zipfile.ZipFile(self.__archive, 'r') as xsa:
             for member in members:
                 os_path = os.path.join(self.__extracted, member)
                 if not os.path.exists(os_path):
@@ -971,64 +897,57 @@ class Xsa:
                 return os_paths[0]
             else:
                 return tuple(os_paths)
-
+                    
 
 class XsaParser(Xsa):
     """
     XSA parsing
-    """
-
+    """ 
     def __init__(self, path: str) -> None:
         super().__init__(path)
 
     @property
-    def bitstreamPaths(self) -> tuple:
-        """
-        return a tuple of paths to extracted bitstreams defined in sysdef.xml
+    def bitstreamPaths(self) -> tuple: 
+        """ 
+        return a tuple of paths to extracted bitstreams defined in sysdef.xml 
 
         """
-        return self._Xsa__path([e.attrib["Name"] for e in self.__bitstreamElements()])
+        return self._Xsa__path([e.attrib['Name'] for e in self.__bitstreamElements()])
 
     @property
     def defaultHwhPaths(self) -> tuple:
+        """ 
+        return a tuple of paths to extracted HWHs with attribute 
+        BD_TYPE=DEFAULT_BD in sysdef.xml 
         """
-        return a tuple of paths to extracted HWHs with attribute
-        BD_TYPE=DEFAULT_BD in sysdef.xml
-        """
-        return self._Xsa__path(
-            [e.attrib["Name"] for e in self.__hwhElements("DEFAULT_BD")]
-        )
+        return self._Xsa__path([e.attrib["Name"] for e in self.__hwhElements('DEFAULT_BD')])
 
     @property
     def referenceHwhPaths(self) -> tuple:
+        """ 
+        return a tuple of paths to extracted BDCs (attribute BD_TYPE=REFERENCE_BD) 
+        in sysdef.xml 
         """
-        return a tuple of paths to extracted BDCs (attribute BD_TYPE=REFERENCE_BD)
-        in sysdef.xml
-        """
-        return self._Xsa__path(
-            [e.attrib["Name"] for e in self.__hwhElements("REFERENCE_BD")]
-        )
+        return self._Xsa__path([e.attrib["Name"] for e in self.__hwhElements('REFERENCE_BD')])
+
 
     @property
     def referenceBdcJsonPaths(self) -> None:
         """
-        returns a tuple of paths to extract the JSON files that are associated with the BDC instances
+        returns a tuple of paths to extract the JSON files that are associated with the BDC instances 
         in the design
         """
-        bdc_hwhs = [
-            os.path.splitext(e.attrib["Name"])[0] + "_pynq_bdc_metadata.json"
-            for e in self.__hwhElements("REFERENCE_BD")
-        ]
+        bdc_hwhs = [os.path.splitext(e.attrib["Name"])[0] + "_pynq_bdc_metadata.json" for e in self.__hwhElements('REFERENCE_BD')]
         return self._Xsa__path(bdc_hwhs)
 
     def createNameMatchingDefaultHwh(self) -> None:
         """
         A temporary fix to rename the default bd to match the primary bitstream.
-        TODO: make it so that the whole XsaParser object is passed down into the
+        TODO: make it so that the whole XsaParser object is passed down into the 
 
         Assumes that we have only one bitfile, need to test this with PR projects.
         """
-        expected_hwh = os.path.splitext(self.bitstreamPaths[0])[0] + ".hwh"
+        expected_hwh = os.path.splitext(self.bitstreamPaths[0])[0] + ".hwh" 
         if expected_hwh not in self.defaultHwhPaths:
             shutil.copyfile(self.defaultHwhPaths[0], expected_hwh)
 
@@ -1044,31 +963,31 @@ class XsaParser(Xsa):
     # Prints out an XML structure
     # ----------------------------------------------
     def print_xml_recurse(self, node):
-        """recursively walks down the XML structure"""
+        """ recursively walks down the XML structure """
         for c in node:
             print(c.tag, c.attrib)
             self.print_xml_recurse(c)
 
     def print_xml(self, root=None):
-        """Prints xml structure from root,  root=None prints sysdef.xml"""
+        """ Prints xml structure from root,  root=None prints sysdef.xml"""
         if root is None:
             root = self._Xsa__xml
         print(root.tag)
         print(root.attrib)
         for child in root:
             self.print_xml_recurse(child)
-
     # ----------------------------------------------
 
     def print_json(self):
-        """prints the xsa.json file in the XSA"""
+        """ prints the xsa.json file in the XSA """
         print(json.dumps(self._Xsa__json, indent=2))
+
 
     def __hwhElements(self, bd_type=None) -> list:
         """
         return a list of elements in sysdef representing HWH files
 
-        Assumes all File elements with a BD_TYPE attribute are HWH files
+        Assumes all File elements with a BD_TYPE attribute are HWH files 
 
         Parameters
         ----------
@@ -1083,7 +1002,8 @@ class XsaParser(Xsa):
         if bd_type is None:
             return self._Xsa__sysdef.findall("File[@Type='HW_HANDOFF']")
         return self._Xsa__sysdef.findall(f"File[@BD_TYPE='{bd_type}']")
-
+        
+        
     def __bitstreamElements(self) -> list:
         """
         return a list of elements in sysdef representing bitstream files
@@ -1091,3 +1011,5 @@ class XsaParser(Xsa):
         sysdef tag=File attributes Type=BIT
         """
         return self._Xsa__sysdef.findall("File[@Type='BIT']")
+
+
