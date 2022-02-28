@@ -251,13 +251,13 @@ def get_bdcip_from_component_xml(ipname, xml) -> BdcMeta.BdcIp:
             addr_range = addrblock.find('spirit:range', ns).text
             regmap = BdcMeta.RegMap(regmap_name, base_addr, addr_range) 
             for registers in addrblock.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}register'):
-                new_reg = BdcMeta.Register(registers.find('spirit:name', ns).text,
+                new_reg = BdcMeta.BdcRegister(registers.find('spirit:name', ns).text,
                                            registers.find('spirit:addressOffset', ns).text,
                                            registers.find('spirit:size', ns).text,
                                            registers.find('spirit:description', ns).text,
                                            registers.find('spirit:access', ns).text)
                 for field in registers.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}field'):
-                    new_field = BdcMeta.Field(  field.find('spirit:name',ns).text,
+                    new_field = BdcMeta.BdcField(  field.find('spirit:name',ns).text,
                                                 field.find('spirit:bitOffset',ns).text, 
                                                 field.find('spirit:bitWidth',ns).text, 
                                                 field.find('spirit:description',ns).text, 
@@ -302,7 +302,7 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
                 regmap = BdcMeta.RegMap(regblock, interface_json[regblock]["base_address"], interface_json[regblock]["range"])
                 registers = interface_json[regblock]["registers"]
                 for reg in registers:
-                    newreg = BdcMeta.Register(reg, 
+                    newreg = BdcMeta.BdcRegister(reg, 
                                               registers[reg]["address_offset"], 
                                               registers[reg]["size"],
                                               registers[reg]["description"],
@@ -310,7 +310,7 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
                                               )
                     fields = registers[reg]["fields"]
                     for field in fields:
-                        f = BdcMeta.Field(field, 
+                        f = BdcMeta.BdcField(field, 
                                           fields[field]["bit_offset"], 
                                           fields[field]["bit_width"],
                                           fields[field]["description"],
