@@ -81,12 +81,18 @@ def test_xrt_version_x86(monkeypatch, tmp_path):
 
 
 def test_xrt_version_embedded(monkeypatch, tmp_path):
-    """To implement this test"""
-    pass
+    with open(tmp_path / 'version', 'w') as f:
+        f.write("""2.12.447\n""")
+    monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
+    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    import pynq.pl_server.xrt_device
+    xrt = importlib.reload(pynq._3rdparty.xrt)
+    xrt_device = importlib.reload(pynq.pl_server.xrt_device)
+    assert xrt_device._get_xrt_version_embedded(str(tmp_path)) == (2, 12, 447)
 
 
 def test_xrt_version_fail_x86(monkeypatch, tmp_path):
-    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt2')
+    monkeypatch.setenv('XILINX_XRT', str(tmp_path))
     import pynq.pl_server.xrt_device
     monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
     monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
