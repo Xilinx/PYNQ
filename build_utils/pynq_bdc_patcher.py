@@ -1,10 +1,6 @@
 # Copyright (C) 2022 Xilinx, Inc
 # SPDX-License-Identifier: BSD-3-Clause
 
-__author__ = "Shane T. Fleming"
-__copyright__ = "Copyright 2022, Xilinx"
-__email__ = "pynq_support@xilinx.com"
-
 """ When using BDCs in Vivado the resulting XSA is missing information that PYNQ needs. Importantly the REGISTER field information. This script takes the XSA file and a path to the root directory of the project that the XSA was generated from and generates a new XSA that contains the missing information."""
 
 import argparse

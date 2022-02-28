@@ -1,10 +1,6 @@
 # Copyright (C) 2022 Xilinx, Inc
 # SPDX-License-Identifier: BSD-3-Clause
 
-__author__ = "Shane T. Fleming"
-__copyright__ = "Copyright 2022, Xilinx"
-__email__ = "pynq_support@xilinx.com"
-
 """
     A collection of classes that are used to store the metadata of the BDC, IP, and Registers
 """
