@@ -69,11 +69,13 @@ def test_xrt_normal(monkeypatch, recwarn):
 
 
 def test_xrt_version_x86(monkeypatch, tmp_path):
-    file = pathlib.Path("/opt/xilinx/xrt/version.json")
+    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt')
+    file = pathlib.Path("/path/to/xrt/version.json")
     file.parent.mkdir(parents=True, exist_ok=True)
     with file.open( 'w') as f:
         f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
     monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
+    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
     import pynq.pl_server.xrt_device
     xrt = importlib.reload(pynq._3rdparty.xrt)
     xrt_device = importlib.reload(pynq.pl_server.xrt_device)
@@ -86,10 +88,10 @@ def test_xrt_version_embedded(monkeypatch, tmp_path):
 
 
 def test_xrt_version_fail_x86(monkeypatch, tmp_path):
-    file = "/opt/xilinx/xrt/version.json"
-    if os.path.isfile(file):
-        os.remove(file)
+    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt2')
     import pynq.pl_server.xrt_device
+    monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
+    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
     with pytest.warns(UserWarning, match='Unable to determine XRT version'):
         xrt = importlib.reload(pynq._3rdparty.xrt)
         xrt_device = importlib.reload(pynq.pl_server.xrt_device)
