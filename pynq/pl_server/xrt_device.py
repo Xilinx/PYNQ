@@ -79,9 +79,9 @@ _xrt_errors = {
 }
 
 
-def _get_xrt_version_embedded():
+def _get_xrt_version_embedded(path='/sys/module/zocl'):
     try:
-        with open('/sys/module/zocl/version', 'r') as f:
+        with open(path + '/version', 'r') as f:
             details = f.readline().replace('\n','')
         return tuple(
             int(s) for s in details.split('.'))
