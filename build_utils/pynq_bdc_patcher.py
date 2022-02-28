@@ -249,7 +249,7 @@ def get_bdcip_from_component_xml(ipname, xml) -> BdcMeta.BdcIp:
             regmap_name = addrblock.find('spirit:name', ns).text
             base_addr = addrblock.find('spirit:baseAddress', ns).text
             addr_range = addrblock.find('spirit:range', ns).text
-            regmap = BdcMeta.RegMap(regmap_name, base_addr, addr_range) 
+            regmap = BdcMeta.BdcRegMap(regmap_name, base_addr, addr_range) 
             for registers in addrblock.iter('{http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009}register'):
                 new_reg = BdcMeta.BdcRegister(registers.find('spirit:name', ns).text,
                                            registers.find('spirit:addressOffset', ns).text,
@@ -299,7 +299,7 @@ def get_bdcip_from_xci(ipname, xci) -> BdcMeta.BdcIp:
             rendered_interface = BdcMeta.BdcIpInterface(interface)   
             interface_json = ip_xci_boundary_json["boundary"]["memory_maps"][interface]["address_blocks"]
             for regblock in interface_json:
-                regmap = BdcMeta.RegMap(regblock, interface_json[regblock]["base_address"], interface_json[regblock]["range"])
+                regmap = BdcMeta.BdcRegMap(regblock, interface_json[regblock]["base_address"], interface_json[regblock]["range"])
                 registers = interface_json[regblock]["registers"]
                 for reg in registers:
                     newreg = BdcMeta.BdcRegister(reg, 
