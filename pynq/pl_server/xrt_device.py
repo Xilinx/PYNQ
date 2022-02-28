@@ -79,24 +79,30 @@ _xrt_errors = {
 }
 
 
-def _get_xrt_version():
-    import subprocess
+def _get_xrt_version_embedded():
+    try:
+        with open('/sys/module/zocl/version', 'r') as f:
+            details = f.readline().replace('\n','')
+        return tuple(
+            int(s) for s in details.split('.'))
+    except Exception:
+        return (0, 0, 0)
+
+
+def _get_xrt_version_x86():
     import json
     try:
-        output = subprocess.run(['xbutil', 'dump'], stdout=subprocess.PIPE,
-                                universal_newlines=True)
-        if output.returncode != 0:
-            warnings.warn(
-                    'xbutil failed to run - unable to determine XRT version')
-        details = json.loads(output.stdout)
+        with open('/opt/xilinx/xrt/version.json', 'r') as f:
+            details = json.loads(f.read())
         return tuple(
-            int(s) for s in details['runtime']['build']['version'].split('.'))
+            int(s) for s in details['BUILD_VERSION'].split('.'))
     except Exception:
         return (0, 0, 0)
 
 
 if xrt.XRT_SUPPORTED:
-    _xrt_version = _get_xrt_version()
+    _xrt_version = _get_xrt_version_x86() if CPU_ARCH_IS_x86 \
+        else _get_xrt_version_embedded()
 else:
     _xrt_version = (0, 0, 0)
 
