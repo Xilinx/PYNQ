@@ -77,7 +77,7 @@ def test_xrt_version_x86(monkeypatch, tmp_path):
     import pynq.pl_server.xrt_device
     xrt = importlib.reload(pynq._3rdparty.xrt)
     xrt_device = importlib.reload(pynq.pl_server.xrt_device)
-    assert xrt_device._xrt_version == (2, 12, 447)
+    assert xrt_device._get_xrt_version_x86() == (2, 12, 447)
 
 
 def test_xrt_version_embedded(monkeypatch, tmp_path):
