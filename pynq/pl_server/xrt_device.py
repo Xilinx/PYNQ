@@ -93,7 +93,7 @@ def _get_xrt_version_embedded():
 def _get_xrt_version_x86():
     import json
     try:
-        with open(os.environ['XILINX_XRT'] + '/version.json', 'r') as f:
+        with open('/opt/xilinx/xrt/version.json', 'r') as f:
             details = json.loads(f.read())
         return tuple(
             int(s) for s in details['BUILD_VERSION'].split('.'))
