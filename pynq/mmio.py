@@ -95,12 +95,8 @@ class MMIO:
         self.length = length
 
         if self.device.has_capability('MEMORY_MAPPED'):
-            self.read = self.read
-            self.write = self.write_mm
             self.array = self.device.mmap(base_addr, length)
         elif self.device.has_capability('REGISTER_RW'):
-            self.read = self.read
-            self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
             self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
                                      hook=self._hook)
@@ -154,7 +150,7 @@ class MMIO:
         else:
             return lsb & ((2**(8*length)) - 1)
 
-    def write_mm(self, offset, data):
+    def write(self, offset, data):
         """The method to write data to MMIO.
 
         Parameters
@@ -179,42 +175,16 @@ class MMIO:
         if type(data) is int:
             self.array[idx] = np.uint32(data)
         elif type(data) is bytes:
-            length = len(data)
-            num_words = length >> 2
-            if length % 4:
-                raise MemoryError(
-                    'Unaligned write: data length must be multiple of 4.')
-            buf = np.frombuffer(data, np.uint32, num_words, 0)
-            for i in range(len(buf)):
-                self.array[idx + i] = buf[i]
-        else:
-            raise ValueError("Data type must be int or bytes.")
-
-    def write_reg(self, offset, data):
-        """The method to write data to MMIO.
-
-        Parameters
-        ----------
-        offset : int
-            The write offset from the MMIO base address.
-        data : int / bytes
-            The integer(s) to be written into MMIO.
-
-        Returns
-        -------
-        None
-
-        """
-        if offset < 0:
-            raise ValueError("Offset cannot be negative.")
-
-        idx = offset >> 2
-        if offset % 4:
-            raise MemoryError('Unaligned write: offset must be multiple of 4.')
-
-        if type(data) is int:
-            self.array[idx] = data
-        elif type(data) is bytes:
-            self._hook.write(offset, data)
+            if self.device.has_capability('REGISTER_RW'):
+                self._hook.write(offset, data)
+            else:
+                length = len(data)
+                num_words = length >> 2
+                if length % 4:
+                    raise MemoryError(
+                        'Unaligned write: data length must be multiple of 4.')
+                buf = np.frombuffer(data, np.uint32, num_words, 0)
+                for i in range(len(buf)):
+                    self.array[idx + i] = buf[i]
         else:
             raise ValueError("Data type must be int or bytes.")
