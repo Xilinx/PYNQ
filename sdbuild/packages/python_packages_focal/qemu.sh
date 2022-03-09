@@ -57,6 +57,7 @@ jupyterlab-server==2.5.2
 jupyterlab-widgets==1.0.0
 jupyterplot==0.0.3
 lrcurve==1.1.0
+python-magic==0.4.25
 MarkupSafe==2.0.1
 matplotlib-inline==0.1.2
 mistune==0.8.4
