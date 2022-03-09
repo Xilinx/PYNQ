@@ -1,4 +1,4 @@
-#   Copyright (c) 2020, Xilinx, Inc.
+#   Copyright (c) 2020-2022, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ from setuptools.command.build_py import build_py as _build_py
 
 
 __author__ = "Giuseppe Natale"
-__copyright__ = "Copyright 2020, Xilinx"
+__copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -190,21 +190,29 @@ def _download_file(download_link, path, md5sum=None):
     """
     import urllib.request
     import hashlib
+    import magic
+    tmp_file = tempfile.mkstemp()[1]
     with urllib.request.urlopen(download_link) as response, \
-            open(path, "wb") as out_file:
+            open(tmp_file, "wb") as out_file:
         data = response.read()
         out_file.write(data)
     if md5sum:
         file_md5sum = hashlib.md5()
-        with open(path, "rb") as out_file:
+        with open(tmp_file, "rb") as out_file:
             for chunk in iter(lambda: out_file.read(4096), b""):
                 file_md5sum.update(chunk)
         if md5sum != file_md5sum.hexdigest():
-            os.remove(path)
+            os.remove(tmp_file)
             raise DownloadedFileChecksumError("Incorrect checksum for file "
                                               "'{}'. The file has been "
                                               "deleted as a result".format(
-                                                  path))
+                                                  tmp_file))
+    mime_type = magic.from_file(tmp_file, mime=True)
+    for f in shutil.get_unpack_formats():
+        if f[0] in mime_type:
+            shutil.unpack_archive(tmp_file, path, format=f[0])
+            return
+    copy_file(tmp_file, path)
 
 
 def _find_local_overlay_res(device_name, overlay_res_filename, src_path):
