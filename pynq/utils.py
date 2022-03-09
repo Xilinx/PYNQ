@@ -606,7 +606,7 @@ def _resolve_devices_overlay_res(overlay_res_link, src_path, devices, logger,
     If the device is only one and is an edge device, file is resolved directly
     to ``overlay_res.ext``.
     """
-    from pynq.pl_server.device import Device 
+    from pynq.pl_server.device import Device
     from pynq.pl_server.embedded_device import EmbeddedDevice
     overlay_res_filename = os.path.splitext(overlay_res_link)[0]
     if len(devices) == 1 and type(Device.devices[0]) == EmbeddedDevice:
