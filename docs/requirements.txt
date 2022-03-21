@@ -11,3 +11,4 @@ ipython
 pytest
 netifaces
 pandas
+sphinx_copybutton
