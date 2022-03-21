@@ -348,20 +348,7 @@ class DeviceClient:
             for k, v in parser.ip_dict.items():
                 parent = '/'.join(k.split('/')[:-1]) + '/' + v['mem_id']
                 if parent in self._ip_dict:
-                    ip_name = v['fullpath']
-                    merged_ip_dict[ip_name] = dict()
-                    merged_ip_dict[ip_name]['fullpath'] = v['fullpath']
-                    merged_ip_dict[ip_name]['parameters'] = v['parameters']
-                    merged_ip_dict[ip_name]['phys_addr'] = \
-                        self._ip_dict[parent]['phys_addr'] + v['phys_addr']
-                    merged_ip_dict[ip_name]['addr_range'] = v['addr_range']
-                    merged_ip_dict[ip_name]['registers'] = v['registers']
-                    merged_ip_dict[ip_name]['state'] = None
-                    merged_ip_dict[ip_name]['type'] = v['type']
-                    merged_ip_dict[ip_name]['gpio'] = {}
-                    merged_ip_dict[ip_name]['interrupts'] = {}
-                    merged_ip_dict[ip_name]['mem_id'] = v['mem_id']
-
+                    merged_ip_dict[v['fullpath']] = v
         else:
             raise ValueError("Cannot find HWH PR region parser.")
         self._ip_dict = merged_ip_dict
