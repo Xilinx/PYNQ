@@ -1,4 +1,4 @@
-#   Copyright (c) 2020, Xilinx, Inc.
+#   Copyright (c) 2022, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import sys
 
 
 __author__ = "Giuseppe Natale"
-__copyright__ = "Copyright 2020, Xilinx"
+__copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -135,7 +135,9 @@ def main():
             mod = __import__("pynq")
             version = mod.__version__
             git_id = mod.__git_id__.replace("$", "")
-            print("PYNQ version {}".format(version))
+            path = mod.__path__[0]
+            print("PYNQ version: {}".format(version))
+            print("Path: {}".format(path))
             print("Git {}".format(git_id))
             return
     if not subcommand:
