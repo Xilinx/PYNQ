@@ -450,7 +450,6 @@ class Overlay(Bitstream):
             Whether the overlay should be downloaded.
 
         """
-        self.device.reset(self.parser)
         pr_block = self.__getattr__(partial_region)
         pr_block.download(bitfile_name=partial_bit, dtbo=dtbo, program=program)
 
