@@ -50,7 +50,8 @@ required = [
     'setuptools>=24.2.0',
     'cffi',
     'numpy',
-    'nest_asyncio'
+    'nest_asyncio',
+    'python-magic'
 ]
 
 extras_required = {
