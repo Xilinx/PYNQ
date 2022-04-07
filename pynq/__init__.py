@@ -46,6 +46,7 @@ from .buffer import allocate
 from .pl_server import Device
 from . import lib
 from .utils import XsaParser
+from .utils import ReprDict
 
 
 __author__ = "Yun Rock Qu"

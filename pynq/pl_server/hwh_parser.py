@@ -277,6 +277,57 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 return ext_bus.get('NAME')
         return None
 
+    def _check_if_bdc_metadata_pmd_exists(self, bdcname:str)->bool:
+        """
+        Checks to see if the pynq metadata file for a bdc region exists
+        """
+        if self.tmpdir == None:
+            return False
+        if os.path.exists(self.tmpdir+"/"+bdcname+"_pynq_bdc_metadata.json"):
+            return True
+        else:
+            return False
+
+    def _populate_from_bdc_hwh(self, bdc_name:str, bdc_path:str)->None:
+        """
+        From a bdc hwh file populate the IP cores
+        """
+        if os.path.exists(bdc_path):
+            bdc_tree = ElementTree.parse(bdc_path)
+            bdc_root = bdc_tree.getroot()
+
+            for i in bdc_root.iter('MODULE'):
+                for b_itf in i.iter('BUSINTERFACE'):
+                     extern_bus_ref = b_itf.get('BUSNAME')
+                     external_intf_name = self._get_extern_bus_from_ref(extern_bus_ref, bdc_root) 
+                     internal_intf_name = b_itf.get('NAME')
+
+                     full_name = bdc_name + "/" + i.get('INSTANCE') + "/" + external_intf_name 
+                     self.ip_dict[full_name] = {} 
+                     self.ip_dict[full_name]['fullpath'] = full_name 
+                     self.ip_dict[full_name]['type'] = i.get('VLNV') 
+                     self.ip_dict[full_name]['bdtype'] = i.get('BDTYPE') 
+                     self.ip_dict[full_name]['state'] = None 
+                     
+                     base_addr = 0
+                     high_addr = 0
+                     for p in i.iter('PARAMETER'):
+                         if p.get('NAME') == "C_BASEADDR":
+                             base_addr = int(p.get('VALUE'), 16)
+                         if p.get('NAME') == "C_HIGHADDR":
+                             high_addr = int(p.get('VALUE'), 16)
+
+                     addr_range = high_addr - base_addr + 1
+                     self.ip_dict[full_name]['addr_range'] = addr_range
+                     self.ip_dict[full_name]['phys_addr'] = base_addr
+
+                     self.ip_dict[full_name]['mem_id'] = external_intf_name 
+                     self.ip_dict[full_name]['memtype'] = None
+                     self.ip_dict[full_name]['gpio'] = { }
+                     self.ip_dict[full_name]['interrupts'] = { }
+                     self.ip_dict[full_name]['parameters'] = { }
+        else:
+            print("Warning also unable to find BDC HWH file "+bdc_name+".hwh so the IP modules contained within the BDC region cannot be determined\n")
 
     def _add_bdc_ip_to_dict(self):
         """
@@ -290,55 +341,24 @@ class _HWHABC(metaclass=abc.ABCMeta):
         for i in self.root.iter('MODULE'):
             if i.get('BDTYPE') == "BLOCK_CONTAINER":
                 bdc_name = i.get('BD') 
-                bdc_json_meta_filename = self.tmpdir +"/" + bdc_name + "_pynq_bdc_metadata.json"
-                bdc_json_meta_file = open(bdc_json_meta_filename, "r")
-                bdc_json_meta = json.load(bdc_json_meta_file)
-
-                # Need to also open the BDC HWH file here
-                bdc_hwh_filename = self.tmpdir + "/" + bdc_name + ".hwh"
-                bdc_tree = ElementTree.parse(bdc_hwh_filename)
-                bdc_root = bdc_tree.getroot()
-
-                for i in bdc_root.iter('MODULE'):
-                    for b_itf in i.iter('BUSINTERFACE'):
-                        extern_bus_ref = b_itf.get('BUSNAME')
-                        external_intf_name = self._get_extern_bus_from_ref(extern_bus_ref, bdc_root) 
-                        internal_intf_name = b_itf.get('NAME')
-
-                        full_name = bdc_name + "/" + i.get('INSTANCE') + "/" + external_intf_name 
-                        self.ip_dict[full_name] = {} 
-                        self.ip_dict[full_name]['fullpath'] = full_name 
-                        self.ip_dict[full_name]['type'] = i.get('VLNV') 
-                        self.ip_dict[full_name]['bdtype'] = i.get('BDTYPE') 
-                        self.ip_dict[full_name]['state'] = None 
                 
-                        base_addr = 0
-                        high_addr = 0
-                        for p in i.iter('PARAMETER'):
-                            if p.get('NAME') == "C_BASEADDR":
-                                base_addr = int(p.get('VALUE'), 16)
-                            if p.get('NAME') == "C_HIGHADDR":
-                                high_addr = int(p.get('VALUE'), 16)
+                if self._check_if_bdc_metadata_pmd_exists(bdc_name):
+                    bdc_json_meta_filename = self.tmpdir +"/" + bdc_name + "_pynq_bdc_metadata.json"
+                    bdc_json_meta_file = open(bdc_json_meta_filename, "r")
+                    bdc_json_meta = json.load(bdc_json_meta_file)
 
-                        addr_range = high_addr - base_addr + 1
-                        self.ip_dict[full_name]['addr_range'] = addr_range
-                        self.ip_dict[full_name]['phys_addr'] = base_addr
+                    self._populate_from_bdc_hwh(bdc_name, self.tmpdir + "/" + bdc_name + ".hwh")
 
-                        self.ip_dict[full_name]['mem_id'] = external_intf_name 
-                        self.ip_dict[full_name]['memtype'] = None
-                        self.ip_dict[full_name]['gpio'] = { }
-                        self.ip_dict[full_name]['interrupts'] = { }
-                        self.ip_dict[full_name]['parameters'] = { }
-
-                        #regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][external_intf_name]["regmap"]
-                        regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][internal_intf_name]["regmap"]
-                        for regmap in regmaps:
-                            self.ip_dict[full_name]['registers'] = regmaps[regmap]["registers"] 
-
-                        self.ip_dict[full_name]["parameters"] = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["parameters"]
-
-                        
-                bdc_json_meta_file.close()
+                    regmaps = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["interfaces"][internal_intf_name]["regmap"]
+                    for regmap in regmaps:
+                        self.ip_dict[full_name]['registers'] = regmaps[regmap]["registers"] 
+                    self.ip_dict[full_name]["parameters"] = bdc_json_meta["ip"]["/"+i.get('INSTANCE')]["parameters"]
+                            
+                    bdc_json_meta_file.close()
+                else:
+                    print("Warning: BDC block "+bdc_name+" detected with missing metadata information. To correct this please export your design as an XSA file and use the pynq_bdc_patcher.py build script (PYNQ/build_utils/pynq_bdc_patcher.py) on your build machine to append the missing metadata.\n")
+                    self._populate_from_bdc_hwh(bdc_name, bdc_name + ".hwh")
+                    
 
     def _parse_ip_dict(self, mod, mem_intf_id):
         to_pop = set()
@@ -466,12 +486,13 @@ class _HWHABC(metaclass=abc.ABCMeta):
         and the interrupt pins dictionary.
 
         """
-        for irq_name in self.family_irq.keys():
-            if self.ps_name + "/" + irq_name in self.pins:
-                raw_map = _create_irq_map(self.family_irq[irq_name])
-                ps_irq_net = self.pins[
-                    self.ps_name + "/" + irq_name]
-                self._add_interrupt_pins(ps_irq_net, "", 0, raw_map)
+        if type(self.family_irq) is dict:
+            for irq_name in self.family_irq.keys():
+                if self.ps_name + "/" + irq_name in self.pins:
+                    raw_map = _create_irq_map(self.family_irq[irq_name])
+                    ps_irq_net = self.pins[
+                        self.ps_name + "/" + irq_name]
+                    self._add_interrupt_pins(ps_irq_net, "", 0, raw_map)
 
     def init_mem_dict(self):
         """Prepare the memory dictionary
