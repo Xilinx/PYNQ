@@ -342,7 +342,8 @@ class Overlay(Bitstream):
         self.ip_dict = self.gpio_dict = self.interrupt_controllers = \
             self.interrupt_pins = self.hierarchy_dict = dict()
         self._deepcopy_dict_from(self.parser)
-        self.clock_dict = self.parser.clock_dict
+        self.clock_dict = ReprDict(self.parser.clock_dict,
+                                   rootname='clock_dict')
         self.pr_dict = dict()
         self.ignore_version = ignore_version
         description = _complete_description(
