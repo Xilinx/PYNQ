@@ -115,7 +115,7 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version,
     starting_dict['interrupts'] = dict()
     starting_dict['gpio'] = dict()
     starting_dict['memories'] = {re.sub('[^A-Za-z0-9_]', '', k): v
-                                 for k, v in mem_dict.items() if v['used']}
+                                 for k, v in mem_dict.items() if v.get('used')}
     starting_dict['device'] = device
     for k, v in starting_dict['hierarchies'].items():
         v['overlay'] = overlay

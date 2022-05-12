@@ -300,13 +300,14 @@ def _ip_to_topology(mem_dict):
     ]}
     for k, v in mem_dict.items():
         v['xrt_mem_idx'] = len(topology['m_mem_data'])
-        topology['m_mem_data'].append(
-            {'m_type': 'MEM_DDR4',
-             'm_used': 1,
-             'm_sizeKB': v['addr_range'] // 1024,
-             'm_tag': f'MIG{len(topology["m_mem_data"])}',
-             'm_base_address': v['phys_addr']}
-        )
+        if not v.get('dfx'):
+            topology['m_mem_data'].append(
+                {'m_type': 'MEM_DDR4',
+                 'm_used': 1,
+                 'm_sizeKB': v['addr_range'] // 1024,
+                 'm_tag': f'MIG{len(topology["m_mem_data"])}',
+                 'm_base_address': v['phys_addr']}
+            )
     topology['m_count'] = len(topology['m_mem_data'])
     return {'mem_topology': topology}
 
@@ -507,7 +508,7 @@ class EmbeddedDevice(XrtDevice):
             raise RuntimeError("Overlay is not downloaded")
 
         for k, v in self.mem_dict.items():
-            if v['base_address'] == 0:
+            if v.get('base_address') == 0:
                 return self.get_memory(v)
         raise RuntimeError("XRT design does not contain PS memory")
 
