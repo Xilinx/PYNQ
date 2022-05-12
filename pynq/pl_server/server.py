@@ -342,13 +342,10 @@ class DeviceClient:
         merged_ip_dict = deepcopy(self._ip_dict)
         if type(parser) is HWH:
             for k in merged_ip_dict.copy():
-                if k.startswith(hier) and 's_axi_control' not in k:
+                if k.startswith(hier):
                     merged_ip_dict.pop(k)
-
             for k, v in parser.ip_dict.items():
-                parent = '/'.join(k.split('/')[:-1]) + '/' + v['mem_id']
-                if parent in self._ip_dict:
-                    merged_ip_dict[v['fullpath']] = v
+                merged_ip_dict[v['fullpath']] = v
         else:
             raise ValueError("Cannot find HWH PR region parser.")
         self._ip_dict = merged_ip_dict
