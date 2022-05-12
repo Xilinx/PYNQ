@@ -279,8 +279,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
                     self.ip_dict[rename]['fullpath'] = rename
                     to_pop.add(full_name)
                     full_name += '/' + intf_id
-                elif vlnv.split(':')[:2] == ['xilinx.com', 'module_ref'] and \
-                        bdtype:
+                elif vlnv and vlnv.split(':')[:2] == \
+                        ['xilinx.com', 'module_ref'] or bdtype:
                     full_name += '/' + intf_id
 
                 self.ip_dict[full_name] = {}

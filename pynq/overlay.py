@@ -84,7 +84,7 @@ def _assign_drivers(description, ignore_version, device):
         if ip_type in _ip_drivers:
             details['driver'] = _ip_drivers[ip_type]
         else:
-            no_version_ip = ip_type.rpartition(':')[0]
+            no_version_ip = ip_type.rpartition(':')[0] if ip_type else None
             if no_version_ip in _ip_drivers:
                 if ignore_version:
                     details['driver'] = _ip_drivers[no_version_ip]
