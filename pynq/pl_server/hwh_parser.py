@@ -407,7 +407,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
                 v['used'] = 1
             elif memtype == 'REGISTER':
                 if (bdtype == 'BLOCK_CONTAINER' and \
-                        v.get('parameters').get('ENABLE_DFX')) or \
+                        v.get('parameters').get('ENABLE_DFX') == 'true') or \
                         bdtype == 'RDB':
                     self.mem_dict[k] = v
                     v['dfx'] = True
