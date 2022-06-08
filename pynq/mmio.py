@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2022, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@ import warnings
 import numpy as np
 import pynq._3rdparty.tinynumpy as tnp
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
+__author__ = "Yun Rock Qu, Mario Ruiz"
+__copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -103,25 +103,13 @@ class MMIO:
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 
-    def read(self, offset=0, length=4, word_order='little'):
+    def read(self, offset=0, **kwargs):
         """The method to read data from MMIO.
-
-        For the `word_order` parameter, it is only effective when
-        operating 8 bytes. If it is `little`, from MSB to LSB, the
-        bytes will be offset+4, offset+5, offset+6, offset+7, offset+0,
-        offset+1, offset+2, offset+3. If it is `big`, from MSB to LSB,
-        the bytes will be offset+0, offset+1, ..., offset+7.
-        This is different than the byte order (endianness); notice
-        the endianness has not changed.
 
         Parameters
         ----------
         offset : int
             The read offset from the MMIO base address.
-        length : int
-            The length of the data in bytes.
-        word_order : str
-            The word order of the 8-byte reads.
 
         Returns
         -------
@@ -129,26 +117,24 @@ class MMIO:
             A list of data read out from MMIO
 
         """
-        if length not in [1, 2, 4, 8]:
-            raise ValueError("MMIO currently only supports "
-                             "1, 2, 4 and 8-byte reads.")
+
+        if 'length' in kwargs:
+            warnings.warn("Keyword length has been deprecated.",
+                          DeprecationWarning)
+        if 'word_order' in kwargs:
+            warnings.warn("Keyword word_order has been deprecated.",
+                          DeprecationWarning)
+
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
-        if length == 8 and word_order not in ['big', 'little']:
-            raise ValueError("MMIO only supports big and little endian.")
-        idx = offset >> 2
-        if offset % 4:
+        elif offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
+        idx = offset >> 2
 
         # Read data out
         lsb = int(self.array[idx])
-        if length == 8:
-            if word_order == 'little':
-                return ((int(self.array[idx+1])) << 32) + lsb
-            else:
-                return (lsb << 32) + int(self.array[idx+1])
-        else:
-            return lsb & ((2**(8*length)) - 1)
+
+        return lsb
 
     def write(self, offset, data):
         """The method to write data to MMIO.
