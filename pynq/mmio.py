@@ -57,7 +57,7 @@ def _array_to_value(array, idx, datatype):
         y = struct.pack("H", lsb)
         return datatype((np.frombuffer(y, dtype=np.float16)[0]))
     elif datatype == np.float128 or datatype == np.float64:
-            warnings.warn("datatype \'{}\' is not supported".format(datatypefl))
+            warnings.warn("datatype \'{}\' is not supported".format(datatype))
     return lsb
 
 
