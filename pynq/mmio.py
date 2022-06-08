@@ -32,10 +32,33 @@ import mmap
 import warnings
 import numpy as np
 import pynq._3rdparty.tinynumpy as tnp
+import struct
 
 __author__ = "Yun Rock Qu, Mario Ruiz"
 __copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
+
+
+def _array_to_value(array, idx, datatype):
+    lsb = int(array[idx])
+    if datatype==np.uint32 or datatype == np.int32 or datatype==int:
+        return datatype(lsb)
+    elif datatype == np.int8 or datatype == np.uint8:
+        return datatype(lsb & 0xFF)
+    elif datatype == np.int16 or datatype == np.uint16:
+        return datatype(lsb & 0xFFFF)
+    elif datatype == np.int64 or datatype == np.uint64:
+        msb = int(array[idx + 1])
+        return datatype((msb << 32) + lsb)
+    elif datatype == float or datatype == np.float32:
+        return datatype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
+    elif datatype == np.float16:
+        lsb = lsb & 0xFFFF
+        y = struct.pack("H", lsb)
+        return datatype((np.frombuffer(y, dtype=np.float16)[0]))
+    elif datatype == np.float128 or datatype == np.float64:
+            warnings.warn("datatype \'{}\' is not supported".format(datatypefl))
+    return lsb
 
 
 class _AccessHook:
@@ -119,11 +142,9 @@ class MMIO:
         """
 
         if 'length' in kwargs:
-            warnings.warn("Keyword length has been deprecated.",
-                          DeprecationWarning)
+            warnings.warn("Keyword length has been deprecated.")
         if 'word_order' in kwargs:
-            warnings.warn("Keyword word_order has been deprecated.",
-                          DeprecationWarning)
+            warnings.warn("Keyword word_order has been deprecated.")
 
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
@@ -131,10 +152,7 @@ class MMIO:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
         idx = offset >> 2
 
-        # Read data out
-        lsb = int(self.array[idx])
-
-        return lsb
+        return _array_to_value(self.array, idx, kwargs.get('datatype'))
 
     def write(self, offset, data):
         """The method to write data to MMIO.
