@@ -601,6 +601,9 @@ class XrtDevice(Device):
         return wh
 
     def execute_bo_with_waitlist(self, bo, waitlist):
+        if _xrt_version >= (2, 11, 0):
+            raise RuntimeError("waitfor list to schedule dependent executions "
+                "is not supported by XRT anymore.")
         wait_array = (ctypes.c_uint * len(waitlist))()
         for i in range(len(waitlist)):
             wait_array[i] = waitlist[i].bo
