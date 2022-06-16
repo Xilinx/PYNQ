@@ -159,26 +159,32 @@ class MMIO:
         None
 
         """
+
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
-
-        idx = offset >> 2
-        if offset % 4:
+        elif offset % 4:
             raise MemoryError('Unaligned write: offset must be multiple of 4.')
+        idx = offset >> 2
 
-        if type(data) is int:
-            self.array[idx] = np.uint32(data)
-        elif type(data) is bytes:
-            if self.device.has_capability('REGISTER_RW'):
-                self._hook.write(offset, data)
-            else:
-                length = len(data)
-                num_words = length >> 2
-                if length % 4:
-                    raise MemoryError(
-                        'Unaligned write: data length must be multiple of 4.')
-                buf = np.frombuffer(data, np.uint32, num_words, 0)
-                for i in range(len(buf)):
-                    self.array[idx + i] = buf[i]
+        dtype = type(data)
+        if dtype == int:
+            data = data.to_bytes()
+        elif dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32,
+                       np.int32, int, np.int64, np.uint64]:
+            data = data.tobytes()
+        elif dtype in [np.float32, float]:
+            data = struct.pack('f', np.float32(data))
         else:
-            raise ValueError("Data type must be int or bytes.")
+            raise ValueError("dtype \'{}\' is not supported".format(dtype))
+
+        if self.device.has_capability('REGISTER_RW'):
+            self._hook.write(offset, data)
+        else:
+            length = len(data)
+            num_words = length >> 2
+            if length % 4:
+                raise MemoryError(
+                    'Unaligned write: data length must be multiple of 4.')
+            buf = np.frombuffer(data, np.uint32, num_words, 0)
+            for i in range(len(buf)):
+                self.array[idx + i] = buf[i]
