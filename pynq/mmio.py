@@ -37,20 +37,6 @@ __copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-def _array_to_value(array, idx, dtype):
-    lsb = int(array[idx])
-    if dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32, np.int32,
-                 int]:
-        return dtype(lsb)
-    elif dtype in [np.int64, np.uint64]:
-        msb = int(array[idx + 1])
-        return dtype((msb << 32) + lsb)
-    elif dtype in [np.float32, float]:
-        return dtype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
-    else:
-        raise ValueError("dtype \'{}\' is not supported".format(dtype))
-
-
 class _AccessHook:
     def __init__(self, baseaddress, device):
         self.baseaddress = baseaddress
@@ -142,7 +128,20 @@ class MMIO:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
         idx = offset >> 2
 
-        return _array_to_value(self.array, idx, kwargs.get('dtype'))
+        dtype = kwargs.get('dtype')
+        lsb = int(array[idx])
+        if dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32,
+                     np.int32, int]:
+            lsb = dtype(lsb)
+        elif dtype in [np.int64, np.uint64]:
+            msb = int(array[idx + 1])
+            lsb = dtype((msb << 32) + lsb)
+        elif dtype in [np.float32, float]:
+            lsb = dtype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
+        elif dtype:
+            raise ValueError("dtype \'{}\' is not supported".format(dtype))
+
+        return lsb
 
     def write(self, offset, data):
         """The method to write data to MMIO.
