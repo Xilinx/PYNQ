@@ -129,12 +129,12 @@ class MMIO:
         idx = offset >> 2
 
         dtype = kwargs.get('dtype')
-        lsb = int(array[idx])
+        lsb = int(self.array[idx])
         if dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32,
                      np.int32, int]:
             lsb = dtype(lsb)
         elif dtype in [np.int64, np.uint64]:
-            msb = int(array[idx + 1])
+            msb = int(self.array[idx + 1])
             lsb = dtype((msb << 32) + lsb)
         elif dtype in [np.float32, float]:
             lsb = dtype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
