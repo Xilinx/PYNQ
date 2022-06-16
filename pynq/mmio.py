@@ -39,24 +39,16 @@ __email__ = "pynq_support@xilinx.com"
 
 def _array_to_value(array, idx, dtype):
     lsb = int(array[idx])
-    if dtype==np.uint32 or dtype == np.int32 or dtype==int:
+    if dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32, np.int32,
+                 int]:
         return dtype(lsb)
-    elif dtype == np.int8 or dtype == np.uint8:
-        return dtype(lsb & 0xFF)
-    elif dtype == np.int16 or dtype == np.uint16:
-        return dtype(lsb & 0xFFFF)
-    elif dtype == np.int64 or dtype == np.uint64:
+    elif dtype in [np.int64, np.uint64]:
         msb = int(array[idx + 1])
         return dtype((msb << 32) + lsb)
-    elif dtype == float or dtype == np.float32:
+    elif dtype in [np.float32, float]:
         return dtype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
-    elif dtype == np.float16:
-        lsb = lsb & 0xFFFF
-        y = struct.pack("H", lsb)
-        return dtype((np.frombuffer(y, dtype=np.float16)[0]))
-    elif dtype == np.float128 or dtype == np.float64:
-            warnings.warn("dtype \'{}\' is not supported".format(dtype))
-    return lsb
+    else:
+        raise ValueError("dtype \'{}\' is not supported".format(dtype))
 
 
 class _AccessHook:
