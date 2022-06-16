@@ -39,25 +39,25 @@ __copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-def _array_to_value(array, idx, datatype):
+def _array_to_value(array, idx, dtype):
     lsb = int(array[idx])
-    if datatype==np.uint32 or datatype == np.int32 or datatype==int:
-        return datatype(lsb)
-    elif datatype == np.int8 or datatype == np.uint8:
-        return datatype(lsb & 0xFF)
-    elif datatype == np.int16 or datatype == np.uint16:
-        return datatype(lsb & 0xFFFF)
-    elif datatype == np.int64 or datatype == np.uint64:
+    if dtype==np.uint32 or dtype == np.int32 or dtype==int:
+        return dtype(lsb)
+    elif dtype == np.int8 or dtype == np.uint8:
+        return dtype(lsb & 0xFF)
+    elif dtype == np.int16 or dtype == np.uint16:
+        return dtype(lsb & 0xFFFF)
+    elif dtype == np.int64 or dtype == np.uint64:
         msb = int(array[idx + 1])
-        return datatype((msb << 32) + lsb)
-    elif datatype == float or datatype == np.float32:
-        return datatype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
-    elif datatype == np.float16:
+        return dtype((msb << 32) + lsb)
+    elif dtype == float or dtype == np.float32:
+        return dtype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
+    elif dtype == np.float16:
         lsb = lsb & 0xFFFF
         y = struct.pack("H", lsb)
-        return datatype((np.frombuffer(y, dtype=np.float16)[0]))
-    elif datatype == np.float128 or datatype == np.float64:
-            warnings.warn("datatype \'{}\' is not supported".format(datatype))
+        return dtype((np.frombuffer(y, dtype=np.float16)[0]))
+    elif dtype == np.float128 or dtype == np.float64:
+            warnings.warn("dtype \'{}\' is not supported".format(dtype))
     return lsb
 
 
@@ -152,7 +152,7 @@ class MMIO:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
         idx = offset >> 2
 
-        return _array_to_value(self.array, idx, kwargs.get('datatype'))
+        return _array_to_value(self.array, idx, kwargs.get('dtype'))
 
     def write(self, offset, data):
         """The method to write data to MMIO.
