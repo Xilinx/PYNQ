@@ -27,12 +27,10 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import mmap
-import warnings
 import numpy as np
 import pynq._3rdparty.tinynumpy as tnp
 import struct
+import warnings
 
 __author__ = "Yun Rock Qu, Mario Ruiz"
 __copyright__ = "Copyright 2022, Xilinx"
