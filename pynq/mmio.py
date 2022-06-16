@@ -173,7 +173,7 @@ class MMIO:
             data = data.tobytes()
         elif dtype in [np.float32, float]:
             data = struct.pack('f', np.float32(data))
-        else:
+        elif dtype is not bytes:
             raise ValueError("dtype \'{}\' is not supported".format(dtype))
 
         if self.device.has_capability('REGISTER_RW'):
