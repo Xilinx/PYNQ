@@ -24,12 +24,13 @@ TEST_READ_DATA = [
 ]
 
 TEST_DATA_NUMPY = [
-    (300, np.uint32(53970361), int(53970361).to_bytes(4, 'little')),
-    (256, -14921033, int(np.uint32(-14921033)).to_bytes(4, 'little')),
-    (248, np.uint16(12045), np.uint16(12045).tobytes()),
-    (260, np.int16(-12045), np.int16(-12045).tobytes()),
-    (260, np.uint8(248), np.uint8(248).tobytes()),
-    (200, np.int8(-99), np.int8(-99).tobytes()),
+    (300, int(53970361), int(53970361).to_bytes(4, 'little')),
+    (300, np.uint32(543394), np.uint32(543394).tobytes()),
+    (256, np.int32(-14921033), np.int32(-14921033).tobytes()),
+    (248, np.uint16(12045), np.int32(12045).tobytes()),
+    (260, np.int16(-12045), np.int32(-12045).tobytes()),
+    (260, np.uint8(248), np.int32(248).tobytes()),
+    (200, np.int8(-99), np.int32(-99).tobytes()),
     (260, np.uint64(4181616581), np.uint64(4181616581).tobytes()),
     (200, np.int64(-14103463169), np.int64(-14103463169).tobytes()),
 ]
@@ -152,6 +153,16 @@ def test_reg_write_numpy(transaction, register_device):
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
     with device.check_transactions([], [(BASE_ADDRESS+offset, bytesobj)]):
         mmio.write(offset, value)
+
+
+@pytest.mark.parametrize('transaction', TEST_DATA_NUMPY)
+def test_reg_read_numpy(transaction, mmap_device):
+    offset, value, bytesobj = transaction
+    device = mmap_device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    mmio.write(offset, value)
+    read = mmio.read(offset, dtype=type(value))
+    assert value == read
 
 
 @pytest.mark.parametrize('transaction', TEST_DATA_FLOAT)
