@@ -136,8 +136,8 @@ class MMIO:
                      np.int32, int]:
             lsb = dtype(lsb)
         elif dtype in [np.int64, np.uint64]:
-            msb = int(self.array[idx + 1])
-            lsb = dtype((msb << 32) + lsb)
+            msb = np.uint64(np.uint64(self.array[idx + 1]) * 2**32)
+            lsb = dtype(msb + np.uint64(lsb))
         elif dtype in [np.float32, float]:
             lsb = dtype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
         elif dtype:
@@ -170,9 +170,10 @@ class MMIO:
         dtype = type(data)
         if dtype == int:
             data = data.to_bytes(4, 'little', signed=True)
-        elif dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32,
-                       np.int32, int, np.int64, np.uint64]:
+        elif dtype in [np.uint32, np.int32, int, np.int64, np.uint64]:
             data = data.tobytes()
+        elif dtype in [np.int8, np.uint8, np.int16, np.uint16]:
+            data = np.int32(data).tobytes()
         elif dtype in [np.float32, float]:
             data = struct.pack('f', np.float32(data))
         elif dtype is not bytes:
