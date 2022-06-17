@@ -118,9 +118,11 @@ class MMIO:
         """
 
         if 'length' in kwargs:
-            warnings.warn("Keyword length has been deprecated.")
+            warnings.warn("Keyword length has been deprecated.",
+                          DeprecationWarning)
         if 'word_order' in kwargs:
-            warnings.warn("Keyword word_order has been deprecated.")
+            warnings.warn("Keyword word_order has been deprecated.",
+                          DeprecationWarning)
 
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
