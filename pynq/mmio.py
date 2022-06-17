@@ -184,9 +184,6 @@ class MMIO:
         else:
             length = len(data)
             num_words = length >> 2
-            if length % 4:
-                raise MemoryError(
-                    'Unaligned write: data length must be multiple of 4.')
             buf = np.frombuffer(data, np.uint32, num_words, 0)
             for i in range(len(buf)):
                 self.array[idx + i] = buf[i]
