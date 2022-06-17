@@ -183,6 +183,15 @@ def test_reg_read_float(mmap_device):
     assert np.isclose(read, testdata, rtol=1e-05, atol=1e-08, equal_nan=False)
 
 
+def test_reg_read_unsopported_type(mmap_device):
+    device = mmap_device
+    mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
+    offset, value = (956, np.float16(102.687))
+    with pytest.raises(ValueError) as excinfo:
+        read = mmio.read(offset, dtype=type(value))
+    assert str(excinfo.value) == "dtype \'{}\' is not supported".format(type(value))
+
+
 def test_reg_write_unsupported_type(mmap_device):
     device = mmap_device
     mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)
