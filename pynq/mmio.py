@@ -167,7 +167,7 @@ class MMIO:
 
         dtype = type(data)
         if dtype == int:
-            data = data.to_bytes()
+            data = data.to_bytes(4, 'little', signed=True)
         elif dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32,
                        np.int32, int, np.int64, np.uint64]:
             data = data.tobytes()
