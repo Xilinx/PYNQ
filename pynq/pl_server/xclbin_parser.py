@@ -176,10 +176,13 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
 
 def _add_argument_memory(ip_dict, ip_data, connections, memories):
     import ctypes
-    connection_dict = {
-        (c.m_ip_layout_index, c.arg_index): c.mem_data_index
-        for c in connections
-    }
+    connection_dict = dict()
+    for c in connections:
+        key = c.m_ip_layout_index, c.arg_index
+        if key not in connection_dict.keys():
+            connection_dict[key] = list()
+        connection_dict[key].append(memories[c.mem_data_index])
+
     for ip_index, ip in enumerate(ip_data):
         if ip.m_type != 1:
             continue
@@ -192,8 +195,10 @@ def _add_argument_memory(ip_dict, ip_data, connections, memories):
         for r in dict_entry['registers'].values():
             # Subtract 1 from the register index to account for AP_CTRL
             if (ip_index, r['id']) in connection_dict:
-                r['memory'] = \
-                    memories[connection_dict[(ip_index, r['id'])]]
+                memory = connection_dict[(ip_index, r['id'])]
+                r['memory'] = memory[-1]
+                if len(memory) > 1:
+                    r['MBG'] = memory
         for r in dict_entry['streams'].values():
             if (ip_index, r['id']) in connection_dict:
                 r['stream_id'] = connection_dict[(ip_index, r['id'])]
@@ -290,27 +295,28 @@ def _xclbin_to_dicts(filename, xclbin_data=None):
     else:
         ip_data = []
 
-    if xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY in sections:
-        connectivity = xclbin.connectivity.from_buffer(
-            sections[xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY])
-        connections = _get_object_as_array(connectivity.m_connection[0],
-                                           connectivity.m_count)
-    elif xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
+
+    if xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
         connectivity = xclbin.connectivity.from_buffer(
             sections[xclbin.AXLF_SECTION_KIND.CONNECTIVITY])
+        connections = _get_object_as_array(connectivity.m_connection[0],
+                                           connectivity.m_count)
+    elif xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY in sections:
+        connectivity = xclbin.connectivity.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY])
         connections = _get_object_as_array(connectivity.m_connection[0],
                                            connectivity.m_count)
     else:
         connections = []
 
-    if xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY in sections:
-        mem_topology = xclbin.mem_topology.from_buffer(
-            sections[xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY])
-        mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
-                                        mem_topology.m_count)
-    elif xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY in sections:
+    if xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY in sections:
         mem_topology = xclbin.mem_topology.from_buffer(
             sections[xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY])
+        mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
+                                        mem_topology.m_count)
+    elif xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY in sections:
+        mem_topology = xclbin.mem_topology.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY])
         mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
                                         mem_topology.m_count)
     else:
@@ -320,7 +326,7 @@ def _xclbin_to_dicts(filename, xclbin_data=None):
     mem_dict = {tag: _mem_data_to_dict(i, mem, tag)
                 for i, tag, mem in zip(itertools.count(), memories, mem_data)}
     _add_argument_memory(ip_dict, ip_data, connections, memories)
-    
+
     if xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY in sections:
         clock_topology = xclbin.clock_freq_topology.from_buffer(
               sections[xclbin.AXLF_SECTION_KIND.CLOCK_FREQ_TOPOLOGY])
