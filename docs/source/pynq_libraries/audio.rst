@@ -14,7 +14,8 @@ Examples
 --------
 
 
-Both the :ref:`pynqz1-base-overlay` for the PYNQ z1 and the :ref:`pynqz2-base-overlay` for the PYNQ z2 contain
+Both the :ref:`pynqz1-base-overlay` for the PYNQ Z1 and the 
+:ref:`pynqz2-base-overlay` for the PYNQ Z2 contain
 a single Audio instance: *audio*.  After the overlay is loaded this instance
 can be accessed as follows:
 
