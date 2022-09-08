@@ -44,7 +44,7 @@ __copyright__ = "Copyright 2017, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
-PYNQ_JUPYTER_NOTEBOOKS = '/home/xilinx/jupyter_notebooks'
+PYNQ_JUPYTER_NOTEBOOKS = os.getenv('PYNQ_JUPYTER_NOTEBOOKS')
 
 
 def bitstring_to_wave(bitstring):
