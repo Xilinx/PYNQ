@@ -240,7 +240,8 @@ class HdmiTxSs(DefaultIP, VideoOutFrontend):
         """
         _hdmi_lib.HdmiTx_dvi_mode(self.handle)
 
-    bindto = ['xilinx.com:ip:v_hdmi_tx_ss:3.1']
+    bindto = ['xilinx.com:ip:v_hdmi_tx_ss:3.1',
+              'xilinx.com:ip:v_hdmi_tx_ss:3.2']
 
 
 class HdmiRxSs(DefaultIP, VideoInFrontend):
@@ -349,4 +350,5 @@ class HdmiRxSs(DefaultIP, VideoInFrontend):
         """
         _hdmi_lib.HdmiRx_set_hpd(self.handle, value)
 
-    bindto = ['xilinx.com:ip:v_hdmi_rx_ss:3.1']
+    bindto = ['xilinx.com:ip:v_hdmi_rx_ss:3.1',
+              'xilinx.com:ip:v_hdmi_rx_ss:3.2']

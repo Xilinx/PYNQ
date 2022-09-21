@@ -56,6 +56,7 @@
  # 2.5   yrq 08/22/2019 update to 2019.1
  # 2.6   yrq 11/06/2019 update to 2020.1
  # 2.70  mr  05/17/2021 update to 2020.2
+ # 2.80  mr  02/09/2022 update to 2022.1
  #
  # </pre>
  #
@@ -82,7 +83,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2020.2
+set scripts_vivado_version 2022.1
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -197,7 +198,7 @@ xilinx.com:ip:axi_intc:4.1\
 xilinx.com:user:debouncer:1.1\
 xilinx.com:user:dff_en_reset_vector:1.0\
 xilinx.com:ip:axi_gpio:2.0\
-xilinx.com:ip:axi_iic:2.0\
+xilinx.com:ip:axi_iic:2.1\
 xilinx.com:user:io_switch:1.1\
 xilinx.com:ip:xlconstant:1.1\
 xilinx.com:ip:microblaze:11.0\
@@ -1708,7 +1709,7 @@ proc create_hier_cell_iop_pmodb { parentCell nameHier } {
  ] $gpio
 
   # Create instance: iic, and set properties
-  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic ]
+  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic ]
 
   # Create instance: intc, and set properties
   set intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 intc ]
@@ -1894,7 +1895,7 @@ proc create_hier_cell_iop_pmoda { parentCell nameHier } {
  ] $gpio
 
   # Create instance: iic, and set properties
-  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic ]
+  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic ]
 
   # Create instance: intc, and set properties
   set intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 intc ]

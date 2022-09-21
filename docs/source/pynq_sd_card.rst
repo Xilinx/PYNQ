@@ -133,6 +133,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.5               2019.1
      v2.6               2020.1
      v2.7               2020.2
+     v2.8               2022.1
      ================  ================
 
 Use existing Ubuntu OS
@@ -158,12 +159,12 @@ Once you have the building environment ready, you can start to build the image
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
   1. Source the appropriate settings for PetaLinux and Vitis. 
-     Suppose you are using Xilinx 2020.2 tools:
+     Suppose you are using Xilinx 2022.1 tools:
 
      .. code-block:: console
 
-        source <path-to-vitis>/Vitis/2020.2/settings64.sh
-        source <path-to-petalinux>/petalinux-2020.2-final/settings.sh
+        source <path-to-vitis>/Vitis/2022.1/settings64.sh
+        source <path-to-petalinux>/petalinux-2022.1-final/settings.sh
         petalinux-util --webtalk off
 
   2. Make sure you have the appropriate Vivado licenses to build for your

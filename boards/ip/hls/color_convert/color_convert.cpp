@@ -1,11 +1,11 @@
-// Copyright (C) 2021 Xilinx, Inc
+// Copyright (C) 2021-2022 Xilinx, Inc
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "color_convert.hpp"
 
 void color_convert(video_stream& stream_in_24, video_stream& stream_out_24,
-                   coeffs c1, coeffs c2, coeffs c3, coeffs bias) {
+                   coeffs& c1, coeffs& c2, coeffs& c3, coeffs& bias) {
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS INTERFACE s_axilite port=c1
 #pragma HLS INTERFACE s_axilite port=c2

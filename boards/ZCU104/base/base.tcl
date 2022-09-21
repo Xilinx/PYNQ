@@ -1,6 +1,6 @@
 
 ###############################################################################
- #  Copyright (c) 2018-2021, Xilinx, Inc.
+ #  Copyright (c) 2018-2022, Xilinx, Inc.
  #  All rights reserved.
  #
  #  Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@
  # 2.5   yrq 08/22/2019 update to 2019.1
  # 2.6   yrq 11/06/2019 update to 2020.1
  # 2.70  mr  05/17/2021 update to 2020.2 
+ # 2.80  mr  02/09/2022 update to 2022.1
  #
  # </pre>
  #
@@ -73,7 +74,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2020.2
+set scripts_vivado_version 2022.1
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -98,7 +99,7 @@ set overlay_name base
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
    create_project ${overlay_name} ${overlay_name} -part xczu7ev-ffvc1156-2-e
-   set_property BOARD_PART xilinx.com:zcu104:part0:1.0 [current_project]
+   set_property BOARD_PART xilinx.com:zcu104:part0:1.1 [current_project]
 }
 
 set_property  ip_repo_paths  ../../ip [current_project]
@@ -182,13 +183,13 @@ if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 xilinx.com:ip:axi_intc:4.1\
 xilinx.com:ip:axi_register_slice:2.1\
-xilinx.com:ip:axi_iic:2.0\
+xilinx.com:ip:axi_iic:2.1\
 xilinx.com:ip:axi_gpio:2.0\
 xilinx.com:ip:xlslice:1.0\
 xilinx.com:ip:mdm:3.2\
-xilinx.com:ip:util_ds_buf:2.1\
+xilinx.com:ip:util_ds_buf:2.2\
 xilinx.com:ip:proc_sys_reset:5.0\
-xilinx.com:ip:zynq_ultra_ps_e:3.3\
+xilinx.com:ip:zynq_ultra_ps_e:3.4\
 xilinx.com:ip:dfx_axi_shutdown_manager:1.0\
 xilinx.com:ip:xlconstant:1.1\
 xilinx.com:ip:xlconcat:2.1\
@@ -203,11 +204,11 @@ xilinx.com:ip:lmb_v10:3.0\
 xilinx.com:ip:blk_mem_gen:8.4\
 xilinx.com:ip:lmb_bram_if_cntlr:4.0\
 xilinx.com:hls:color_convert_2:1.0\
-xilinx.com:ip:v_hdmi_rx_ss:3.1\
+xilinx.com:ip:v_hdmi_rx_ss:3.2\
 xilinx.com:hls:pixel_pack_2:1.0\
 xilinx.com:ip:axis_subset_converter:1.1\
 xilinx.com:ip:axis_register_slice:1.1\
-xilinx.com:ip:v_hdmi_tx_ss:3.1\
+xilinx.com:ip:v_hdmi_tx_ss:3.2\
 xilinx.com:hls:pixel_unpack_2:1.0\
 xilinx.com:ip:vid_phy_controller:2.2\
 "
@@ -319,13 +320,13 @@ proc create_hier_cell_phy { parentCell nameHier } {
   create_bd_pin -dir O -type clk vid_phy_tx_axi4s_aclk
 
   # Create instance: dru_ibufds_gt_odiv2, and set properties
-  set dru_ibufds_gt_odiv2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 dru_ibufds_gt_odiv2 ]
+  set dru_ibufds_gt_odiv2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.2 dru_ibufds_gt_odiv2 ]
   set_property -dict [ list \
    CONFIG.C_BUF_TYPE {BUFG_GT} \
  ] $dru_ibufds_gt_odiv2
 
   # Create instance: gt_refclk_buf, and set properties
-  set gt_refclk_buf [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 gt_refclk_buf ]
+  set gt_refclk_buf [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.2 gt_refclk_buf ]
   set_property -dict [ list \
    CONFIG.C_BUF_TYPE {IBUFDSGTE} \
  ] $gt_refclk_buf
@@ -481,7 +482,7 @@ proc create_hier_cell_hdmi_out { parentCell nameHier } {
   set color_convert [ create_bd_cell -type ip -vlnv xilinx.com:hls:color_convert_2:1.0 color_convert ]
 
   # Create instance: frontend, and set properties
-  set frontend [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_hdmi_tx_ss:3.1 frontend ]
+  set frontend [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_hdmi_tx_ss:3.2 frontend ]
   set_property -dict [ list \
    CONFIG.C_ADDR_WIDTH {13} \
    CONFIG.C_ADD_MARK_DBG {false} \
@@ -627,7 +628,7 @@ proc create_hier_cell_hdmi_in { parentCell nameHier } {
   set color_convert [ create_bd_cell -type ip -vlnv xilinx.com:hls:color_convert_2:1.0 color_convert ]
 
   # Create instance: frontend, and set properties
-  set frontend [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_hdmi_rx_ss:3.1 frontend ]
+  set frontend [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_hdmi_rx_ss:3.2 frontend ]
   set_property -dict [ list \
    CONFIG.C_ADDR_WIDTH {10} \
    CONFIG.C_ADD_MARK_DBG {false} \
@@ -1119,7 +1120,7 @@ proc create_hier_cell_iop_pmod1 { parentCell nameHier } {
  ] $gpio
 
   # Create instance: iic, and set properties
-  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic ]
+  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic ]
 
   # Create instance: intc, and set properties
   set intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 intc ]
@@ -1319,7 +1320,7 @@ proc create_hier_cell_iop_pmod0 { parentCell nameHier } {
  ] $gpio
 
   # Create instance: iic, and set properties
-  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic ]
+  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic ]
 
   # Create instance: intc, and set properties
   set intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 intc ]
@@ -1569,7 +1570,7 @@ proc create_root_design { parentCell } {
  ] $axi_mem_intercon_1
 
   # Create instance: fmch_axi_iic, and set properties
-  set fmch_axi_iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 fmch_axi_iic ]
+  set fmch_axi_iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 fmch_axi_iic ]
   set_property -dict [ list \
    CONFIG.C_SCL_INERTIAL_DELAY {10} \
    CONFIG.C_SDA_INERTIAL_DELAY {10} \
@@ -1649,14 +1650,14 @@ proc create_root_design { parentCell } {
  ] $mdm
 
   # Create instance: pmod0_buf, and set properties
-  set pmod0_buf [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 pmod0_buf ]
+  set pmod0_buf [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.2 pmod0_buf ]
   set_property -dict [ list \
    CONFIG.C_BUF_TYPE {IOBUF} \
    CONFIG.C_SIZE {8} \
  ] $pmod0_buf
 
   # Create instance: pmod1_buf, and set properties
-  set pmod1_buf [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 pmod1_buf ]
+  set pmod1_buf [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.2 pmod1_buf ]
   set_property -dict [ list \
    CONFIG.C_BUF_TYPE {IOBUF} \
    CONFIG.C_SIZE {8} \
@@ -1691,7 +1692,7 @@ proc create_root_design { parentCell } {
  ] $proc_sys_reset_3
 
   # Create instance: ps_e_0, and set properties
-  set ps_e_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:zynq_ultra_ps_e:3.3 ps_e_0 ]
+  set ps_e_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:zynq_ultra_ps_e:3.4 ps_e_0 ]
   set_property -dict [ list \
    CONFIG.CAN0_BOARD_INTERFACE {custom} \
    CONFIG.CAN1_BOARD_INTERFACE {custom} \
