@@ -36,6 +36,11 @@ device-based resolution will be performed.
         "md5sum": "1df38cf582c4c5d0c8e3ca38be8f1eb3"
     }
 
+The *link files* also supports compressed files in the url key. When a compressed file is
+provided, the PYNQ utils module will detect the extension and unpack the file
+automatically. The supported compressed files are
+`shutil.get_unpack_formats() <https://docs.python.org/3/library/shutil.html#shutil.get_unpack_formats>`_.
+
 PYNQ provides a ``download_overlays`` setuptools command which will process any
 link files in your repository and download overlays and resources for your
 board and place them alongside the link files. To run the the download command
@@ -43,9 +48,8 @@ automatically at build time the utils module provides a ``build_py`` command
 class that can be used in place of the normal ``build_py`` phase. For more 
 details on how to include this command in your setup.py see the
 :ref:`pynq-python-packaging` section for an example. Refer also to the 
-`official Python documentation <https://docs.python.org/3.6/distutils/extending.html>`_
-and the `setuptools documentation <https://setuptools.readthedocs.io/en/latest/setuptools.html#extending-and-reusing-setuptools>`_ for more info on extending
-and reusing setuptools.
+`official Python documentation <https://docs.python.org/3.8/distutils/extending.html>`_
+and the `setuptools documentation <https://setuptools.readthedocs.io/en/latest/setuptools.html#extending-and-reusing-setuptools>`_ for more info on extending and reusing setuptools.
 
 To download the overlays from your own setuptools pass the same functionality
 is exposed through the ``download_overlays`` function. For more information see
