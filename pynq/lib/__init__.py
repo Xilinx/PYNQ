@@ -41,6 +41,7 @@ from .iic import AxiIIC
 from .wifi import Wifi
 from .cmac import CMAC
 from .axiswitch import StreamSwitch
+from .debugbridge import DebugBridge
 
 from .rpi import Rpi
 

@@ -134,4 +134,4 @@ class AxiIIC(DefaultIP):
         if timed_out:
             raise RuntimeError("Timed out waiting for free bus")
 
-    bindto = ['xilinx.com:ip:axi_iic:2.0']
+    bindto = ['xilinx.com:ip:axi_iic:2.0', 'xilinx.com:ip:axi_iic:2.1']

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Xilinx, Inc
+// Copyright (C) 2021-2022 Xilinx, Inc
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -32,4 +32,4 @@ typedef ap_axiu<24,1,0,0> pixel;
 typedef hls::stream<pixel> video_stream;
 
 void color_convert(video_stream& stream_in_24, video_stream& stream_out_24,
-                   coeffs c1, coeffs c2, coeffs c3, coeffs bias);
+                   coeffs& c1, coeffs& c2, coeffs& c3, coeffs& bias);

@@ -25,7 +25,7 @@ class DtboDirectory(FakeDirectory):
             dtbo_dir = os.path.dirname(fd.path)
             if self._fail:
                 print('Resetting contents')
-                fd._set_initial_contents('')
+                fd.set_initial_contents('')
             with open(os.path.join(dtbo_dir, 'status'), 'w') as f:
                 f.write('applied\n')
 

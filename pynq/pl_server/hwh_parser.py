@@ -400,10 +400,18 @@ class _HWHABC(metaclass=abc.ABCMeta):
 
         """
         for k, v in list(self.ip_dict.items()):
-            if v.get('memtype', None) == 'MEMORY':
+            memtype = v.get('memtype')
+            bdtype = v.get('bdtype')
+            if memtype == 'MEMORY':
                 self.mem_dict[k] = v
                 v['used'] = 1
-                del self.ip_dict[k]
+            elif memtype == 'REGISTER':
+                if (bdtype == 'BLOCK_CONTAINER' and \
+                        v.get('parameters').get('ENABLE_DFX') == 'true') or \
+                        bdtype == 'RBD':
+                    self.mem_dict[k] = v
+                    v['dfx'] = True
+                    del self.ip_dict[k]
 
     def _add_interrupt_pins(self, net, parent, offset, raw_map=None):
         net_pins = self.nets[net] if net else set()

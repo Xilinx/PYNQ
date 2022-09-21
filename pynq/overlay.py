@@ -115,7 +115,7 @@ def _complete_description(ip_dict, hierarchy_dict, ignore_version,
     starting_dict['interrupts'] = dict()
     starting_dict['gpio'] = dict()
     starting_dict['memories'] = {re.sub('[^A-Za-z0-9_]', '', k): v
-                                 for k, v in mem_dict.items() if v['used']}
+                                 for k, v in mem_dict.items() if v.get('used')}
     starting_dict['device'] = device
     for k, v in starting_dict['hierarchies'].items():
         v['overlay'] = overlay
@@ -342,7 +342,8 @@ class Overlay(Bitstream):
         self.ip_dict = self.gpio_dict = self.interrupt_controllers = \
             self.interrupt_pins = self.hierarchy_dict = dict()
         self._deepcopy_dict_from(self.parser)
-        self.clock_dict = self.parser.clock_dict
+        self.clock_dict = ReprDict(self.parser.clock_dict,
+                                   rootname='clock_dict')
         self.pr_dict = dict()
         self.ignore_version = ignore_version
         description = _complete_description(
@@ -386,6 +387,7 @@ class Overlay(Bitstream):
             self.device.free_bitstream()
         if self.dtbo:
             self.remove_dtbo()
+        self.device.close()
 
     def download(self, dtbo=None):
         """The method to download a full bitstream onto PL.
@@ -423,7 +425,7 @@ class Overlay(Bitstream):
         elif self.dtbo:
             super().insert_dtbo()
 
-    def pr_download(self, partial_region, partial_bit, dtbo=None):
+    def pr_download(self, partial_region, partial_bit, dtbo=None, program=True):
         """The method to download a partial bitstream onto PL.
 
         In this method, the corresponding parser will only be
@@ -446,10 +448,12 @@ class Overlay(Bitstream):
             The name of the partial bitstream.
         dtbo : str
             The path of the dtbo file.
+        program : bool
+            Whether the overlay should be downloaded.
 
         """
         pr_block = self.__getattr__(partial_region)
-        pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
+        pr_block.download(bitfile_name=partial_bit, dtbo=dtbo, program=program)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
@@ -1026,7 +1030,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         """
         return False
 
-    def download(self, bitfile_name, dtbo=None):
+    def download(self, bitfile_name, dtbo=None, program=True):
         """Function to download a partial bitstream for the hierarchy block.
 
         Since it is hard to know which hierarchy is to be reconfigured by only
@@ -1040,13 +1044,15 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
             The name of the partial bitstream.
         dtbo : str
             The relative or absolute path of the partial dtbo file.
+        program : bool
+            Whether the overlay should be downloaded.
 
         """
         if self.pr_loaded:
             self._find_bitstream_by_abs(self.pr_loaded).remove_dtbo()
         self._locate_metadata(bitfile_name, dtbo)
         self._parse(bitfile_name)
-        self._load_bitstream(bitfile_name)
+        self._load_bitstream(bitfile_name, program)
         if dtbo:
             self.bitstreams[bitfile_name].insert_dtbo()
 
@@ -1098,6 +1104,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
             if s is not None and p is not None
         }
 
-    def _load_bitstream(self, bitfile_name):
-        self.bitstreams[bitfile_name].download()
+    def _load_bitstream(self, bitfile_name, program):
+        if program:
+            self.bitstreams[bitfile_name].download()
         self.pr_loaded = self.bitstreams[bitfile_name].bitfile_name

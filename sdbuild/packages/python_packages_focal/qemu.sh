@@ -91,6 +91,7 @@ pycurl==7.43.0.2
 pyeda==0.28.0
 Pygments==2.9.0
 pyrsistent==0.17.3
+python-magic==0.4.25
 pyzmq==22.1.0
 qtconsole==5.1.0
 QtPy==1.9.0
