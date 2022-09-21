@@ -1,4 +1,4 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2022, Xilinx, Inc.
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,13 @@
 #   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import mmap
-import warnings
 import numpy as np
 import pynq._3rdparty.tinynumpy as tnp
+import struct
+import warnings
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
+__author__ = "Yun Rock Qu, Mario Ruiz"
+__copyright__ = "Copyright 2022, Xilinx"
 __email__ = "pynq_support@xilinx.com"
 
 
@@ -95,37 +94,21 @@ class MMIO:
         self.length = length
 
         if self.device.has_capability('MEMORY_MAPPED'):
-            self.read = self.read
-            self.write = self.write_mm
             self.array = self.device.mmap(base_addr, length)
         elif self.device.has_capability('REGISTER_RW'):
-            self.read = self.read
-            self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
             self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
                                      hook=self._hook)
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 
-    def read(self, offset=0, length=4, word_order='little'):
+    def read(self, offset=0, **kwargs):
         """The method to read data from MMIO.
-
-        For the `word_order` parameter, it is only effective when
-        operating 8 bytes. If it is `little`, from MSB to LSB, the
-        bytes will be offset+4, offset+5, offset+6, offset+7, offset+0,
-        offset+1, offset+2, offset+3. If it is `big`, from MSB to LSB,
-        the bytes will be offset+0, offset+1, ..., offset+7.
-        This is different than the byte order (endianness); notice
-        the endianness has not changed.
 
         Parameters
         ----------
         offset : int
             The read offset from the MMIO base address.
-        length : int
-            The length of the data in bytes.
-        word_order : str
-            The word order of the 8-byte reads.
 
         Returns
         -------
@@ -133,28 +116,36 @@ class MMIO:
             A list of data read out from MMIO
 
         """
-        if length not in [1, 2, 4, 8]:
-            raise ValueError("MMIO currently only supports "
-                             "1, 2, 4 and 8-byte reads.")
+
+        if 'length' in kwargs:
+            warnings.warn("Keyword length has been deprecated.",
+                          DeprecationWarning)
+        if 'word_order' in kwargs:
+            warnings.warn("Keyword word_order has been deprecated.",
+                          DeprecationWarning)
+
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
-        if length == 8 and word_order not in ['big', 'little']:
-            raise ValueError("MMIO only supports big and little endian.")
-        idx = offset >> 2
-        if offset % 4:
+        elif offset % 4:
             raise MemoryError('Unaligned read: offset must be multiple of 4.')
+        idx = offset >> 2
 
-        # Read data out
+        dtype = kwargs.get('dtype')
         lsb = int(self.array[idx])
-        if length == 8:
-            if word_order == 'little':
-                return ((int(self.array[idx+1])) << 32) + lsb
-            else:
-                return (lsb << 32) + int(self.array[idx+1])
-        else:
-            return lsb & ((2**(8*length)) - 1)
+        if dtype in [np.int8, np.uint8, np.int16, np.uint16, np.uint32,
+                     np.int32, int]:
+            lsb = dtype(lsb)
+        elif dtype in [np.int64, np.uint64]:
+            msb = np.uint64(np.uint64(self.array[idx + 1]) * 2**32)
+            lsb = dtype(msb + np.uint64(lsb))
+        elif dtype in [np.float32, float]:
+            lsb = dtype(struct.unpack('!f', lsb.to_bytes(4, 'big'))[0])
+        elif dtype:
+            raise ValueError("dtype \'{}\' is not supported".format(dtype))
 
-    def write_mm(self, offset, data):
+        return lsb
+
+    def write(self, offset, data):
         """The method to write data to MMIO.
 
         Parameters
@@ -169,52 +160,30 @@ class MMIO:
         None
 
         """
+
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
-
-        idx = offset >> 2
-        if offset % 4:
+        elif offset % 4:
             raise MemoryError('Unaligned write: offset must be multiple of 4.')
+        idx = offset >> 2
 
-        if type(data) is int:
-            self.array[idx] = np.uint32(data)
-        elif type(data) is bytes:
+        dtype = type(data)
+        if dtype == int:
+            data = data.to_bytes(4, 'little', signed=True)
+        elif dtype in [np.uint32, np.int32, int, np.int64, np.uint64]:
+            data = data.tobytes()
+        elif dtype in [np.int8, np.uint8, np.int16, np.uint16]:
+            data = np.int32(data).tobytes()
+        elif dtype in [np.float32, float]:
+            data = struct.pack('f', np.float32(data))
+        elif dtype is not bytes:
+            raise ValueError("dtype \'{}\' is not supported".format(dtype))
+
+        if self.device.has_capability('REGISTER_RW'):
+            self._hook.write(offset, data)
+        else:
             length = len(data)
             num_words = length >> 2
-            if length % 4:
-                raise MemoryError(
-                    'Unaligned write: data length must be multiple of 4.')
             buf = np.frombuffer(data, np.uint32, num_words, 0)
             for i in range(len(buf)):
                 self.array[idx + i] = buf[i]
-        else:
-            raise ValueError("Data type must be int or bytes.")
-
-    def write_reg(self, offset, data):
-        """The method to write data to MMIO.
-
-        Parameters
-        ----------
-        offset : int
-            The write offset from the MMIO base address.
-        data : int / bytes
-            The integer(s) to be written into MMIO.
-
-        Returns
-        -------
-        None
-
-        """
-        if offset < 0:
-            raise ValueError("Offset cannot be negative.")
-
-        idx = offset >> 2
-        if offset % 4:
-            raise MemoryError('Unaligned write: offset must be multiple of 4.')
-
-        if type(data) is int:
-            self.array[idx] = data
-        elif type(data) is bytes:
-            self._hook.write(offset, data)
-        else:
-            raise ValueError("Data type must be int or bytes.")
