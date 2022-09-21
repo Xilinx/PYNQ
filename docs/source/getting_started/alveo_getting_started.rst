@@ -109,8 +109,8 @@ For instance, to install the latest ``Anaconda`` distribution you can do
 
 .. code-block:: bash
     
-    wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
-    bash Anaconda3-2019.10-Linux-x86_64.sh
+    wget https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh -O anaconda3.sh
+    bash anaconda3.sh
 
 After you have installed it make sure conda is in your ``PATH``, and in case 
 is not just source the conda activation script
