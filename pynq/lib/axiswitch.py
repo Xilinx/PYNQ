@@ -41,7 +41,7 @@ class StreamSwitch(DefaultIP):
 
     def __init__(self, description: dict):
         super().__init__(description=description)
-        self.max_slots = int(description['parameters']['C_NUM_MI_SLOTS'])
+        self.max_slots = int(description['parameters']['NUM_MI'])
         self._mi = np.zeros(self.max_slots, dtype=np.int64)
 
     def default(self) -> None:
