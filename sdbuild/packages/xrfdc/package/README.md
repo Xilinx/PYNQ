@@ -119,6 +119,10 @@ u32 XRFdc_GetLinkCoupling(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id,
 								u32 *ModePtr);
 u32 XRFdc_GetFabClkOutDiv(XRFdc *InstancePtr, u32 Type, u32 Tile_Id,
 								u16 *FabClkDivPtr);
+u32 XRFdc_MultiConverter_Sync(XRFdc *InstancePtr, u32 Type, 
+                              XRFdc_MultiConverter_Sync_Config *ConfigPtr);
+void XRFdc_MultiConverter_Init(XRFdc_MultiConverter_Sync_Config *ConfigPtr, 
+                              int *PLL_CodesPtr, int *T1_CodesPtr);								
 ```
 
 This list can also be found at the `Function Prototypes` section of 
@@ -138,6 +142,31 @@ Some functions are Gen 3 specific. These are clearly labelled in the RFDC user g
 If attempting to use one of these functions on a Gen 1 board, the user will see the error:
 metal: error:     
  Requested functionality not available for this IP 
+
+
+## Multi-Tile Syncronization (MTS)
+The underlying implementation is based on the [xrfdc_mts_example.c](https://github.com/Xilinx/embeddedsw/blob/master/XilinxProcessorIPLib/drivers/rfdc/examples/xrfdc_mts_example.c), which first defines the MTS configuration object and thereafter performs the actual MTS function call. 
+
+The following code snippet achieves MTS on all ADC (4) and DAC (2) tiles in flow:
+
+```python
+import pynq 
+import xrfclk
+import xrfdc
+
+#Config RF clocks (optional, lmk_freq and lmx_freq may differ depending on your application)
+xrfclk.set_ref_clks(lmk_freq=122.88, lmx_freq=409.6) 
+
+#Load bitstream
+ol = pynq.Overlay("bitstream_name.bit")
+
+#MTS
+ol.usp_rf_data_converter_0.mts_adc_config.Tiles = 0xf 
+ol.usp_rf_data_converter_0.mts_dac_config.Tiles = 0x3
+ol.usp_rf_data_converter_0.mts_adc()
+ol.usp_rf_data_converter_0.mts_dac()
+```
+
 
 Copyright (C) 2021 Xilinx, Inc
 
