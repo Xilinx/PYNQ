@@ -123,7 +123,7 @@ A Makefile is provided to rebuild the base overlay in Linux. The Makefile calls
 two tcl files. The first Tcl files compiles any HLS IP used in the design. The 
 second Tcl builds the overlay. 
 
-To rebuild the overlay, source the Xilinx tools first. Then assuming PYNQ has 
+To rebuild the overlay, source the AMD-Xilinx tools first. Then assuming PYNQ has 
 been cloned: 
 
 .. code-block:: console

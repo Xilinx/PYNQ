@@ -63,7 +63,7 @@ Subsystem, a configurable switch, and the following AXI controllers:
   * 1V peak-to-peak *
   
 .. warning::
-   Analog inputs are supported via the internal Xilinx XADC. This supports inputs
+   Analog inputs are supported via the internal AMD-Xilinx XADC. This supports inputs
    of 1V peak-to-peak. Note that the Arduino interface supports 0-5V analog inputs
    which is not supported by Zynq without external circuitry.
 

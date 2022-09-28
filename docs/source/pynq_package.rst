@@ -54,6 +54,7 @@ Sub-packages:
     pynq_package/pynq.devicetree
     pynq_package/pynq.gpio
     pynq_package/pynq.interrupt
+    pynq_package/pynq.metadata
     pynq_package/pynq.mmio
     pynq_package/pynq.overlay
     pynq_package/pynq.pl

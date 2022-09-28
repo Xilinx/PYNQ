@@ -116,7 +116,7 @@ The project files for the logictools overlay can be found here:
 
 Linux
 ^^^^^
-To rebuild the overlay, source the Xilinx tools first. Then assuming PYNQ has 
+To rebuild the overlay, source the AMD-Xilinx tools first. Then assuming PYNQ has 
 been cloned: 
 
 .. code-block:: console
@@ -139,7 +139,7 @@ Assuming PYNQ has been cloned:
    source ./build_logictools_ip.tcl
    source ./logictools.tcl
 
-To build from the command line, open the Vivado 2017.4 Tcl Shell, and run the 
+To build from the command line, open the Vivado Tcl Shell, and run the 
 following:
 
 .. code-block:: console
