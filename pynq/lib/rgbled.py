@@ -1,39 +1,10 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-# 
-#   Redistribution and use in source and binary forms, with or without 
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice, 
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright 
-#       notice, this list of conditions and the following disclaimer in the 
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its 
-#       contributors may be used to endorse or promote products derived from 
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 
 from pynq import MMIO
 from pynq import PL
 
-__author__ = "Graham Schelle"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
 RGBLEDS_XGPIO_OFFSET = 0
@@ -61,12 +32,12 @@ class RGBLED(object):
     _rgbleds_start_index : int
         Global value representing the lowest index for RGB LEDs
     """
+
     _mmio = None
     _rgbleds_val = 0
     _rgbleds_start_index = float("inf")
 
-    def __init__(self, index, ip_name="rgbleds_gpio",
-                 start_index=float("inf")):
+    def __init__(self, index, ip_name="rgbleds_gpio", start_index=float("inf")):
         """Create a new RGB LED object.
 
         Parameters
@@ -76,7 +47,7 @@ class RGBLED(object):
             The smallest index given will set the global value
             `_rgbleds_start_index`. This behavior can be overridden by defining
             `start_index`.
-        ìp_name : str
+        ip_name : str
             Name of the IP in  the `ip_dict`. Defaults to "rgbleds_gpio".
         start_index : int
             If defined, will be used to update the global value
@@ -111,9 +82,10 @@ class RGBLED(object):
         if color not in range(8):
             raise ValueError("color should be an integer value from 0 to 7.")
 
-        rgb_mask = 0x7 << ((self.index-RGBLED._rgbleds_start_index)*3)
-        new_val = (RGBLED._rgbleds_val & ~rgb_mask) | \
-                  (color << ((self.index-RGBLED._rgbleds_start_index)*3))
+        rgb_mask = 0x7 << ((self.index - RGBLED._rgbleds_start_index) * 3)
+        new_val = (RGBLED._rgbleds_val & ~rgb_mask) | (
+            color << ((self.index - RGBLED._rgbleds_start_index) * 3)
+        )
         self._set_rgbleds_value(new_val)
 
     def off(self):
@@ -124,7 +96,7 @@ class RGBLED(object):
         None
 
         """
-        rgb_mask = 0x7 << ((self.index-RGBLED._rgbleds_start_index)*3)
+        rgb_mask = 0x7 << ((self.index - RGBLED._rgbleds_start_index) * 3)
         new_val = RGBLED._rgbleds_val & ~rgb_mask
         self._set_rgbleds_value(new_val)
 
@@ -152,8 +124,9 @@ class RGBLED(object):
             The color value stored in the RGBLED.
 
         """
-        return (RGBLED._rgbleds_val >>
-                ((self.index-RGBLED._rgbleds_start_index)*3)) & 0x7
+        return (
+            RGBLED._rgbleds_val >> ((self.index - RGBLED._rgbleds_start_index) * 3)
+        ) & 0x7
 
     @staticmethod
     def _set_rgbleds_value(value):
@@ -172,3 +145,5 @@ class RGBLED(object):
         """
         RGBLED._rgbleds_val = value
         RGBLED._mmio.write(RGBLEDS_XGPIO_OFFSET, value)
+
+

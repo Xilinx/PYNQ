@@ -1,52 +1,24 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 
 import os
+
 import numpy as np
+from pynq.lib import PynqMicroblaze
+
+from pynq import allocate
 from pynq import PL
 from pynq import Clocks
-from pynq import allocate
 from pynq import Register
-from pynq.lib import PynqMicroblaze
 from .constants import *
 
-
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "yunq@xilinx.com"
 
 
 class LogicToolsController(PynqMicroblaze):
     """This class controls all the logic generators.
 
-    This class uses the PynqMicroblaze class. It extends 
+    This class uses the PynqMicroblaze class. It extends
     PynqMicroblaze with capability to control boolean generators, pattern
     generators, and Finite State Machine (FSM) generators.
 
@@ -78,26 +50,26 @@ class LogicToolsController(PynqMicroblaze):
     status : dict
         A dictionary keeping track of the generator status.
     steps : int
-        The number of steps during `step()` method. Equals 
+        The number of steps during `step()` method. Equals
         `num_analyzer_samples` when `run()` is called.
 
     """
+
     __instance = None
     __initialized = False
     __time_stamp = None
 
-    def __new__(cls, mb_info,
-                intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
+    def __new__(cls, mb_info, intf_spec_name="PYNQZ1_LOGICTOOLS_SPECIFICATION"):
         """Create a new Microblaze object.
 
         This method overwrites the default `new()` method so that the same
-        instance can be reused by many modules. The internal variable 
+        instance can be reused by many modules. The internal variable
         `__instance` is private and used as a singleton.
 
         Parameters
         ----------
         mb_info : dict
-            A dictionary storing Microblaze information, such as the 
+            A dictionary storing Microblaze information, such as the
             IP name and the reset name.
         intf_spec_name : str
             The name of the interface specification.
@@ -107,8 +79,8 @@ class LogicToolsController(PynqMicroblaze):
         The `mb_info` is a dictionary storing Microblaze information:
 
         >>> mb_info = {'ip_name': 'mb_bram_ctrl_3',
-        'rst_name': 'mb_reset_3', 
-        'intr_pin_name': 'iop3/dff_en_reset_0/q', 
+        'rst_name': 'mb_reset_3',
+        'intr_pin_name': 'iop3/dff_en_reset_0/q',
         'intr_ack_name': 'mb_3_intr_ack'}
 
         """
@@ -118,18 +90,21 @@ class LogicToolsController(PynqMicroblaze):
             cls.__initialized = False
         return cls.__instance
 
-    def __init__(self, mb_info,
-                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION',
-                 logictools_microblaze_bin=LOGICTOOLS_ARDUINO_BIN):
+    def __init__(
+        self,
+        mb_info,
+        intf_spec_name="PYNQZ1_LOGICTOOLS_SPECIFICATION",
+        logictools_microblaze_bin=LOGICTOOLS_ARDUINO_BIN,
+    ):
         """Initialize the created Microblaze object.
 
-        This method leverages the initialization method of its parent. It 
+        This method leverages the initialization method of its parent. It
         also deals with relative / absolute path of the program.
 
         Parameters
         ----------
         mb_info : dict
-            A dictionary storing Microblaze information, such as the 
+            A dictionary storing Microblaze information, such as the
             IP name and the reset name.
         intf_spec_name : str
             The name of the interface specification.
@@ -141,8 +116,8 @@ class LogicToolsController(PynqMicroblaze):
         The `mb_info` is a dictionary storing Microblaze information:
 
         >>> mb_info = {'ip_name': 'mb_bram_ctrl_3',
-        'rst_name': 'mb_reset_3', 
-        'intr_pin_name': 'iop3/dff_en_reset_0/q', 
+        'rst_name': 'mb_reset_3',
+        'intr_pin_name': 'iop3/dff_en_reset_0/q',
         'intr_ack_name': 'mb_3_intr_ack'}
 
         """
@@ -156,21 +131,21 @@ class LogicToolsController(PynqMicroblaze):
 
             self.clk = Clocks
             self.buffers = dict()
-            self.status = {k: 'RESET'
-                           for k in GENERATOR_ENGINE_DICT.keys()}
+            self.status = {k: "RESET" for k in GENERATOR_ENGINE_DICT.keys()}
             self.intf_spec = eval(intf_spec_name)
             pin_list = list(
-                set(self.intf_spec['traceable_io_pins'].keys()) |
-                set(self.intf_spec['non_traceable_outputs'].keys()) |
-                set(self.intf_spec['non_traceable_inputs'].keys()))
-            self.pin_map = {k: 'UNUSED' for k in pin_list}
+                set(self.intf_spec["traceable_io_pins"].keys())
+                | set(self.intf_spec["non_traceable_outputs"].keys())
+                | set(self.intf_spec["non_traceable_inputs"].keys())
+            )
+            self.pin_map = {k: "UNUSED" for k in pin_list}
             self.steps = 0
             self.__class__.__initialized = True
 
     def program(self):
         """This method programs the Microblaze.
 
-        This method is called in `__init__()`; it can also be called after 
+        This method is called in `__init__()`; it can also be called after
         that. It overwrites the `program()` method defined in the parent class.
 
         """
@@ -234,15 +209,16 @@ class LogicToolsController(PynqMicroblaze):
     def check_status(self):
         """Check the status of all the generators.
 
-        This method will send the command to the Microblaze, and wait for the 
+        This method will send the command to the Microblaze, and wait for the
         Microblaze to return the status for all the generator.
 
         """
         self.write_command(CMD_CHECK_STATUS)
         one_hot_status_list = self.read_results(len(GENERATOR_ENGINE_DICT))
         generator_name_list = GENERATOR_ENGINE_DICT.keys()
-        for generator_name, one_hot_status in zip(generator_name_list,
-                                                  one_hot_status_list):
+        for generator_name, one_hot_status in zip(
+            generator_name_list, one_hot_status_list
+        ):
             for state_name, state_code in GENERATOR_STATE.items():
                 if one_hot_status == state_code:
                     self.status[generator_name] = state_name
@@ -252,7 +228,7 @@ class LogicToolsController(PynqMicroblaze):
         """Reset the specified generators.
 
         After reset, the corresponding generators will have to be setup again
-        before it can be run or step. During reset, each generator will be 
+        before it can be run or step. During reset, each generator will be
         stopped first.
 
         Parameters
@@ -281,7 +257,7 @@ class LogicToolsController(PynqMicroblaze):
         Send the command to the Microblaze, and wait for the Microblaze
         to return control.
 
-        Valid generators must be objects of BooleanGenerator, PatternGenerator, 
+        Valid generators must be objects of BooleanGenerator, PatternGenerator,
         FSMGenerator, or TraceAnalyzer.
 
         Parameters
@@ -292,10 +268,10 @@ class LogicToolsController(PynqMicroblaze):
         """
         for generator in generator_list:
             generator_type = generator.__class__.__name__
-            if self.status[generator_type] == 'RESET':
+            if self.status[generator_type] == "RESET":
                 raise ValueError(
-                        "{} must be at least READY before RUNNING.".format(
-                            generator_type))
+                    "{} must be at least READY before RUNNING.".format(generator_type)
+                )
 
         cmd_run = CMD_RUN
         for generator in generator_list:
@@ -317,7 +293,7 @@ class LogicToolsController(PynqMicroblaze):
         Send the command to the Microblaze, and wait for the Microblaze
         to return control.
 
-        Valid generators must be objects of BooleanGenerator, PatternGenerator, 
+        Valid generators must be objects of BooleanGenerator, PatternGenerator,
         FSMGenerator, or TraceAnalyzer.
 
         Parameters
@@ -328,10 +304,10 @@ class LogicToolsController(PynqMicroblaze):
         """
         for generator in generator_list:
             generator_type = generator.__class__.__name__
-            if self.status[generator_type] == 'RESET':
+            if self.status[generator_type] == "RESET":
                 raise ValueError(
-                    "{} must be at least READY before RUNNING.".format(
-                        generator_type))
+                    "{} must be at least READY before RUNNING.".format(generator_type)
+                )
 
         cmd_step = CMD_STEP
         for generator in generator_list:
@@ -358,7 +334,7 @@ class LogicToolsController(PynqMicroblaze):
         Send the command to the Microblaze, and wait for the Microblaze
         to return control.
 
-        Valid generators must be objects of BooleanGenerator, PatternGenerator, 
+        Valid generators must be objects of BooleanGenerator, PatternGenerator,
         FSMGenerator, or TraceAnalyzer.
 
         Parameters
@@ -445,8 +421,7 @@ class LogicToolsController(PynqMicroblaze):
 
         """
         if name not in self.buffers:
-            raise ValueError("No such buffer {} allocated previously.".format(
-                name))
+            raise ValueError("No such buffer {} allocated previously.".format(name))
         buffer = self.buffers[name]
         return np.frombuffer(buffer, dtype=dtype).copy()
 
@@ -464,12 +439,12 @@ class LogicToolsController(PynqMicroblaze):
         """
         if name in self.buffers:
             self.buffers[name].freebuffer()
-            del (self.buffers[name])
+            del self.buffers[name]
 
     def phy_addr_from_buffer(self, name):
         """Get the physical address from the buffer.
 
-        The method takes the name of the buffer as input, and returns the 
+        The method takes the name of the buffer as input, and returns the
         physical address.
 
         Parameters
@@ -484,8 +459,7 @@ class LogicToolsController(PynqMicroblaze):
 
         """
         if name not in self.buffers:
-            raise ValueError(
-                "No such buffer {} allocated previously.".format(name))
+            raise ValueError("No such buffer {} allocated previously.".format(name))
         return self.buffers[name].physical_address
 
     def reset_buffers(self):
@@ -516,8 +490,7 @@ class LogicToolsController(PynqMicroblaze):
         # Read switch config
         self.write_command(CMD_READ_INTF_SWITCH_CONFIG)
         mailbox_addr = self.mmio.base_addr + MAILBOX_OFFSET
-        ioswitch_config = [Register(addr)
-                           for addr in [mailbox_addr, mailbox_addr + 4]]
+        ioswitch_config = [Register(addr) for addr in [mailbox_addr, mailbox_addr + 4]]
 
         # Modify switch for requested entries
         for ix in ioswitch_pins:
@@ -532,3 +505,5 @@ class LogicToolsController(PynqMicroblaze):
 
         # Write switch config
         self.write_command(CMD_INTF_SWITCH_CONFIG)
+
+

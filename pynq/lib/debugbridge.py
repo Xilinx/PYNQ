@@ -1,6 +1,8 @@
+# Copyright (c) 2022, Xilinx, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 from pynq import DefaultIP
+from pynqutils.runtime.repr_dict import ReprDict
 from threading import Thread, Event
 from struct import Struct
 import socket
@@ -197,18 +199,19 @@ class DebugBridge(DefaultIP):
 
     """
 
-    def __init__(self, description, *args, **kwargs):
+    def __init__(self, description):
         """Create an instance of the Debug Bridge Driver.
         Parameters
         ----------
         description : dict
             The entry in the IP dict describing the DMA engine
         """
-        if type(description) is not dict or args or kwargs:
+        if type(description) is not ReprDict:
             raise RuntimeError('Description is not valid', str(description))
 
         # Insert register dict as they are not provided in the IP descriptor
-        description['registers']['LENGTH'] = {
+        dbridge_registers = {
+        'LENGTH': {
             'access': 'read-write',
             'address_offset': 0x00,
             'description': 'Shift Bit Length Register',
@@ -221,8 +224,8 @@ class DebugBridge(DefaultIP):
                 }
             },
             'size': 32
-        }
-        description['registers']['TMS_VECTOR'] = {
+        },
+        'TMS_VECTOR': {
             'access': 'read-write',
             'address_offset': 0x04,
             'description': 'Test Mode Select (TMS) Bit Vector',
@@ -235,8 +238,8 @@ class DebugBridge(DefaultIP):
                 }
             },
             'size': 32
-        }
-        description['registers']['TDI_VECTOR'] = {
+        },
+        'TDI_VECTOR': {
             'access': 'read-write',
             'address_offset': 0x08,
             'description': 'Test Data In (TDI) Bit Vector',
@@ -249,8 +252,8 @@ class DebugBridge(DefaultIP):
                 }
             },
             'size': 32
-        }
-        description['registers']['TDO_VECTOR'] = {
+        },
+        'TDO_VECTOR': {
             'access': 'read',
             'address_offset': 0x0C,
             'description': 'Test Data Out (TDO) Bit Vector',
@@ -263,8 +266,8 @@ class DebugBridge(DefaultIP):
                 }
             },
             'size': 32
-        }
-        description['registers']['CTRL'] = {
+        },
+        'CTRL': {
             'access': 'read-write',
             'address_offset': 0x10,
             'description': 'Shift Control Register',
@@ -285,7 +288,10 @@ class DebugBridge(DefaultIP):
             },
             'size': 32
         }
-
+        }
+        
+        description["registers"] = dbridge_registers
+        
         super().__init__(description=description)
         self.description = description
 

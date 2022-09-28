@@ -1,44 +1,16 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 
-import os
 import asyncio
-from pynq import MMIO
-from pynq import GPIO
-from pynq import PL
-from pynq import Interrupt
-from pynq import DefaultHierarchy
+import os
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "yunq@xilinx.com"
+from pynq import GPIO
+from pynq import Interrupt
+from pynq import MMIO
+from pynq import DefaultHierarchy
+from pynq import PL
+
 
 
 class MBInterruptEvent:
@@ -52,6 +24,7 @@ class MBInterruptEvent:
     Microblaze and the host code.
 
     """
+
     def __init__(self, intr_pin, intr_ack_gpio):
         """Create a new _MBInterruptEvent object
 
@@ -67,9 +40,7 @@ class MBInterruptEvent:
         self.gpio = GPIO(GPIO.get_gpio_pin(intr_ack_gpio), "out")
 
     async def wait(self):
-        """Coroutine to wait until the event is set by an interrupt.
-
-        """
+        """Coroutine to wait until the event is set by an interrupt."""
         await self.interrupt.wait()
 
     def clear(self):
@@ -107,31 +78,31 @@ class PynqMicroblaze:
     def __init__(self, mb_info, mb_program, force=False):
         """Create a new Microblaze object.
 
-        It looks for active instances on the same Microblaze, and prevents 
-        users from silently reloading the Microblaze program. Users are 
+        It looks for active instances on the same Microblaze, and prevents
+        users from silently reloading the Microblaze program. Users are
         notified with an exception if a program is already running on the
         selected Microblaze, to prevent unwanted behavior.
 
         Two cases:
 
-        1.  No previous Microblaze program loaded in the system, 
+        1.  No previous Microblaze program loaded in the system,
         or users want to request another instance using the same program.
         No exception will be raised in this case.
 
         2.  There is a previous Microblaze program loaded in the system.
-        Users want to request another instance with a different 
+        Users want to request another instance with a different
         program. An exception will be raised.
 
         Note
         ----
         When a Microblaze program is already loaded in the system, and users
-        want to instantiate another object using a different Microblaze 
+        want to instantiate another object using a different Microblaze
         program, users are in danger of losing existing objects.
 
         Parameters
         ----------
         mb_info : dict
-            A dictionary storing Microblaze information, such as the 
+            A dictionary storing Microblaze information, such as the
             IP name and the reset name.
         mb_program : str
             The Microblaze program loaded for the processor.
@@ -146,8 +117,8 @@ class PynqMicroblaze:
         The `mb_info` is a dictionary storing Microblaze information:
 
         >>> mb_info = {'ip_name': 'mb_bram_ctrl_1',
-        'rst_name': 'mb_reset_1', 
-        'intr_pin_name': 'iop1/dff_en_reset_0/q', 
+        'rst_name': 'mb_reset_1',
+        'intr_pin_name': 'iop1/dff_en_reset_0/q',
         'intr_ack_name': 'mb_1_intr_ack'}
 
         """
@@ -157,40 +128,36 @@ class PynqMicroblaze:
 
         # Check program path
         if not os.path.isfile(mb_program):
-            raise ValueError('{} does not exist.'
-                             .format(mb_program))
+            raise ValueError("{} does not exist.".format(mb_program))
 
         # Get IP information
-        ip_name = mb_info['ip_name']
+        ip_name = mb_info["ip_name"]
         if ip_name not in mem_dict.keys():
             raise ValueError("No such IP {}.".format(ip_name))
-        addr_base = mem_dict[ip_name]['base_address']
-        addr_range = mem_dict[ip_name]['size']
-        ip_state = mem_dict[ip_name]['state']
+        addr_base = mem_dict[ip_name]["base_address"]
+        addr_range = mem_dict[ip_name]["size"]
+        ip_state = mem_dict[ip_name]["state"]
 
         # Get reset information
-        rst_name = mb_info['rst_name']
+        rst_name = mb_info["rst_name"]
         if rst_name not in gpio_dict.keys():
-            raise ValueError("No such reset pin {}."
-                             .format(rst_name))
-        gpio_uix = gpio_dict[rst_name]['index']
+            raise ValueError("No such reset pin {}.".format(rst_name))
+        gpio_uix = gpio_dict[rst_name]["index"]
 
         # Get interrupt pin information
-        if 'intr_pin_name' in mb_info:
-            intr_pin_name = mb_info['intr_pin_name']
+        if "intr_pin_name" in mb_info:
+            intr_pin_name = mb_info["intr_pin_name"]
             if intr_pin_name not in intr_dict.keys():
-                raise ValueError("No such interrupt pin {}."
-                                 .format(intr_pin_name))
+                raise ValueError("No such interrupt pin {}.".format(intr_pin_name))
         else:
             intr_pin_name = None
 
         # Get interrupt ACK information
-        if 'intr_ack_name' in mb_info:
-            intr_ack_name = mb_info['intr_ack_name']
+        if "intr_ack_name" in mb_info:
+            intr_ack_name = mb_info["intr_ack_name"]
             if intr_ack_name not in gpio_dict.keys():
-                raise ValueError("No such interrupt ACK {}."
-                                 .format(intr_ack_name))
-            intr_ack_gpio = gpio_dict[intr_ack_name]['index']
+                raise ValueError("No such interrupt ACK {}.".format(intr_ack_name))
+            intr_ack_gpio = gpio_dict[intr_ack_name]["index"]
         else:
             intr_ack_gpio = None
 
@@ -198,7 +165,7 @@ class PynqMicroblaze:
         self.ip_name = ip_name
         self.rst_name = rst_name
         self.mb_program = mb_program
-        self.state = 'IDLE'
+        self.state = "IDLE"
         self.reset_pin = GPIO(GPIO.get_gpio_pin(gpio_uix), "out")
         self.mmio = MMIO(addr_base, addr_range)
 
@@ -207,8 +174,9 @@ class PynqMicroblaze:
             if force:
                 self.reset()
             else:
-                raise RuntimeError('Another program {} already running.'
-                                   .format(ip_state))
+                raise RuntimeError(
+                    "Another program {} already running.".format(ip_state)
+                )
 
         # Set optional attributes
         if (intr_pin_name is not None) and (intr_ack_gpio is not None):
@@ -229,7 +197,7 @@ class PynqMicroblaze:
         None
 
         """
-        self.state = 'RUNNING'
+        self.state = "RUNNING"
         self.reset_pin.write(0)
 
     def reset(self):
@@ -242,7 +210,7 @@ class PynqMicroblaze:
         None
 
         """
-        self.state = 'STOPPED'
+        self.state = "STOPPED"
         self.reset_pin.write(1)
 
     def program(self):
@@ -281,9 +249,9 @@ class PynqMicroblaze:
             self.mmio.write(offset, data)
         elif type(data) is list:
             for i, word in enumerate(data):
-                self.mmio.write(offset + 4*i, word)
+                self.mmio.write(offset + 4 * i, word)
         else:
-            raise ValueError('Type of write data has to be int or lists.')
+            raise ValueError("Type of write data has to be int or lists.")
 
     def read(self, offset, length=1):
         """This method reads data from the shared memory of Microblaze.
@@ -304,9 +272,9 @@ class PynqMicroblaze:
         if length == 1:
             return self.mmio.read(offset)
         elif length > 1:
-            return [self.mmio.read(offset + 4*i) for i in range(length)]
+            return [self.mmio.read(offset + 4 * i) for i in range(length)]
         else:
-            raise ValueError('Length of read data has to be 1 or more.')
+            raise ValueError("Length of read data has to be 1 or more.")
 
 
 class MicroblazeHierarchy(DefaultHierarchy):
@@ -316,36 +284,39 @@ class MicroblazeHierarchy(DefaultHierarchy):
     calls and member accesses are delegated to the loaded program.
 
     """
+
     def __init__(self, description, mbtype="Unknown"):
         super().__init__(description)
-        hier = description['fullpath']
-        if hier.count('/') > 0:
-            parent, _, ip = hier.rpartition('/')
+        hier = description["fullpath"]
+        if hier.count("/") > 0:
+            parent, _, ip = hier.rpartition("/")
             container = "{}/".format(parent)
         else:
             container = ""
             ip = hier
-        self.mb_info = {'ip_name': '{}/mb_bram_ctrl'.format(hier),
-                        'rst_name': '{}mb_{}_reset'.format(container,ip),
-                        'intr_pin_name': '{}/dff_en_reset_vector_0/q'.format(
-                            hier),
-                        'intr_ack_name': '{}mb_{}_intr_ack'.format(
-                            container, ip),
-                        'mbtype': mbtype,
-                        'name' : hier}
+        self.mb_info = {
+            "ip_name": "{}/mb_bram_ctrl".format(hier),
+            "rst_name": "{}mb_{}_reset".format(container, ip),
+            "intr_pin_name": "{}/dff_en_reset_vector_0/q".format(hier),
+            "intr_ack_name": "{}mb_{}_intr_ack".format(container, ip),
+            "mbtype": mbtype,
+            "name": hier,
+        }
 
     @property
     def mbtype(self):
-        """The defined type of the microblaze subsystem. Used by driver 
+        """The defined type of the microblaze subsystem. Used by driver
         programs to limit what microblaze subsystems the program is run on.
 
         """
-        return self.mb_info['mbtype']
+        return self.mb_info["mbtype"]
 
     @mbtype.setter
     def mbtype(self, value):
-        self.mb_info['mbtype'] = value
+        self.mb_info["mbtype"] = value
 
     @staticmethod
     def checkhierarchy(description):
-        return 'mb_bram_ctrl' in description['memories']
+        return "mb_bram_ctrl" in description["memories"]
+
+

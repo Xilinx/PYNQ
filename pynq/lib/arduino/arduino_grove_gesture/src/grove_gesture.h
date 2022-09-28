@@ -1,3 +1,6 @@
+// Copyright (C) 2022 Xilinx, Inc
+// SPDX-License-Identifier: BSD-3-Clause
+
 /*
  * grove_gesture.h
  *
@@ -13,6 +16,7 @@
 #include <timer.h>
 #include <i2c.h>
 
+extern i2c device;
 
 // REGISTER DESCRIPTION
 #define PAJ7620_ADDR_BASE				0x00

@@ -1,8 +1,10 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 
 from . import Arduino
 from . import ARDUINO_GROVE_I2C
 
-__author__ = "CCHui,SWJTU"
 
 ARDUINO_GROVE_GESTURE_PROGRAM = "arduino_grove_gesture.bin"
 
@@ -111,3 +113,4 @@ class Grove_Gesture(object):
             raise ValueError('Value of fps must be either 120 or 240.')
 
         self.microblaze.write_blocking_command(SET_SPEED)
+
