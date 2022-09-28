@@ -55,6 +55,9 @@
 #include "circular_buffer.h"
 
 /************************** Function Definitions ***************************/
+circular_buffer circular_log;
+
+
 int cb_init(circular_buffer *cb, volatile u32* log_start_addr,
             size_t capacity, size_t sz, size_t channels){
     cb->buffer = (volatile char*) log_start_addr;

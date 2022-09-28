@@ -2,11 +2,6 @@
 / {
 	amba {
 
-		audio0:audio-codec-ctrl@43c00000 {
-			compatible = "xlnk,audio-codec-ctrl-1.0";
-			reg = <0x43c00000 0x10000>;
-		};
-
 		ethernet@e000b000 {
 			phy-handle = <&ethernet_phy>;
 			ethernet_phy: ethernet-phy@1{
@@ -21,6 +16,10 @@
                 view-port = <0x170>;
                 drv-vbus;
         };
+	audio0:audio-codec-ctrl@43c00000 {
+		compatible = "xlnk,audio-codec-ctrl-1.0";
+		reg = <0x43c00000 0x10000>;
+	};
 };
 
 &i2c0 {
@@ -32,7 +31,7 @@
 };
 
 &audio0 {
-		compatible = "generic-uio";
+	compatible = "generic-uio";
 };
 
 &usb0 {

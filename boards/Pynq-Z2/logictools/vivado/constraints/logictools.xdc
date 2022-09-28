@@ -1,3 +1,6 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 ## Buttons
 set_property -dict {PACKAGE_PIN D19 IOSTANDARD LVCMOS33} [get_ports {push_button[0]}]
 set_property -dict {PACKAGE_PIN D20 IOSTANDARD LVCMOS33} [get_ports {push_button[1]}]
