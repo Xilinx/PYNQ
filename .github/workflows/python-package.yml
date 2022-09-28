@@ -26,7 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest pyfakefs==4.5.6 pytest-cov pytest-asyncio codecov
         # Install required dependencies for pynq since we import it in setup.py
-        pip install numpy cffi
+        pip install numpy cffi ipython
         # Install PYNQ-Utils and PYNQ-Metadata
         pip install git+https://github.com/Xilinx/PYNQ-Metadata
         pip install git+https://github.com/Xilinx/PYNQ-Utils
