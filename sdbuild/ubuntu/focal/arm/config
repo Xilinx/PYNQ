@@ -1,6 +1,0 @@
-STAGE2_PACKAGES_arm := gcc-mb ssl udev cmake python_packages_focal libsds
-STAGE2_PACKAGES_arm += jupyter phantomjs-fix sigrok
-STAGE2_PACKAGES_arm += pybind11
-STAGE2_PACKAGES_arm += bootpy
-STAGE3_PACKAGES_arm := pynq resizefs
-

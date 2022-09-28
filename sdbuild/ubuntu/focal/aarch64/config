@@ -1,5 +1,0 @@
-STAGE2_PACKAGES_aarch64 := gcc-mb udev libsds python_packages_focal jupyter
-STAGE2_PACKAGES_aarch64 += phantomjs-fix sigrok
-STAGE2_PACKAGES_aarch64 += pybind11
-STAGE2_PACKAGES_aarch64 += bootpy
-STAGE3_PACKAGES_aarch64 := pynq x11 resizefs
