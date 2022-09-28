@@ -144,7 +144,7 @@ metal: error:
  Requested functionality not available for this IP 
 
 
-## Multi-Tile Syncronization (MTS)
+## Multi-Tile Synchronization (MTS)
 The underlying implementation is based on the [xrfdc_mts_example.c](https://github.com/Xilinx/embeddedsw/blob/master/XilinxProcessorIPLib/drivers/rfdc/examples/xrfdc_mts_example.c), which first defines the MTS configuration object and thereafter performs the actual MTS function call. 
 
 The following code snippet achieves MTS on all ADC (4) and DAC (2) tiles in flow:
