@@ -20,7 +20,6 @@ HWH_FILES = [os.path.basename(f) for f in glob.glob(os.path.join(HWH_PATH, "*.hw
 def device():
     device = MockMemoryMappedDevice("mmap_device")
     yield device
-    device.close()
 
 
 @pytest.mark.parametrize("hwh_file", HWH_FILES)

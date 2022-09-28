@@ -75,6 +75,22 @@ class DeviceMeta(type):
     def active_device(cls, value):
         cls._active_device = value
 
+def clear_state(dict_in):
+    """Clear the state information for a given dictionary.
+    Parameters
+    ----------
+    dict_in : obj
+        Input dictionary to be cleared.
+    """
+    if not isinstance(dict_in,dict):
+        return dict_in
+
+    for k,v in dict_in.items():
+        if isinstance(v,dict):
+            dict_in[k] =  clear_state(v)
+        if k == 'state':
+            dict_in[k] = None
+    return dict_in
 
 class Device(metaclass=DeviceMeta):
     """Construct a new Device Instance
@@ -443,4 +459,8 @@ class Device(metaclass=DeviceMeta):
     def get_bitfile_metadata(self, bitfile_name):
         return None
 
-
+    def close(self):
+        """ Deprecated """
+        warnings.warn("PL Server has been deprecated -- this call"
+                "will be removed in a future release")
+        pass
