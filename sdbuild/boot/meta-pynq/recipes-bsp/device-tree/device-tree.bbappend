@@ -1,5 +1,5 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
-SRC_URI_append = "\
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+SRC_URI:append = "\
     file://pynq_xlnk_zynq.dtsi \
     file://pynq_xlnk_zynqmp.dtsi \
     file://pynq_zocl_poll_zynq.dtsi \
@@ -16,7 +16,7 @@ SRC_URI_append = "\
 # PYNQ_BOARDNAME="${BB_ORIGENV[PYNQ_BOARDNAME]}"
 # FPGA_MANAGER="${BB_ORIGENV[FPGA_MANAGER]}"
 
-do_configure_append_zynq () {
+do_configure:append:zynq () {
     PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
     FPGA_MANAGER="${@d.getVar('BB_ORIGENV', False).getVar('FPGA_MANAGER', True)}"
     echo '/include/ "pynq_zynq.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
@@ -33,7 +33,7 @@ do_configure_append_zynq () {
         exit 1
     fi
 }
-do_configure_append_zynqmp () {
+do_configure:append:zynqmp () {
     PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
 	FPGA_MANAGER="${@d.getVar('BB_ORIGENV', False).getVar('FPGA_MANAGER', True)}"
     echo '/include/ "pynq_zynqmp.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
