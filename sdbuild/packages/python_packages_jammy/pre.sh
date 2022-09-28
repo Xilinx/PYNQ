@@ -12,3 +12,5 @@ then
     sudo mkdir -p $target/$target_dir
     sudo cp -rf $script_dir/pre-built/$target_dir/* $target/$target_dir
 fi
+
+sudo cp $script_dir/requirements.txt $target/root/

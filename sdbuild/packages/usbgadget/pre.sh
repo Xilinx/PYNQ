@@ -12,3 +12,7 @@ if [ -f $BUILD_ROOT/PYNQ/pynq/notebooks/Welcome\ to\ Pynq.ipynb ]; then
 	sudo cp -f $BUILD_ROOT/PYNQ/pynq/notebooks/Welcome\ to\ Pynq.ipynb \
 	$target/usr/local/share/fatfs_contents
 fi
+
+if [ -f $target/home/xilinx/REVISION ]; then
+        sudo cp -f $target/home/xilinx/REVISION $target/usr/local/share/fatfs_contents
+fi

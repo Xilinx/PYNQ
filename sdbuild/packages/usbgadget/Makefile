@@ -1,3 +1,6 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 USB_SOURCEDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 USB_WORKDIR := ${BUILD_ROOT}/usbgadget
 

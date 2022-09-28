@@ -16,22 +16,6 @@ else
 	export NODE_OPTIONS=--max-old-space-size=4096
 fi
 
-# install nodejs 12
-curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
-echo deb https://deb.nodesource.com/node_12.x focal main > /etc/apt/sources.list.d/nodesource.list
-
-# TODO fix hang on the apt-get install...
-# apt-get update && apt-get install -y nodejs
-if [ ${ARCH} == 'arm' ]; then
-    wget https://deb.nodesource.com/node_12.x/pool/main/n/nodejs/nodejs_12.22.6-deb-1nodesource1_armhf.deb
-    dpkg -i *.deb
-    rm -rf *.deb
-else
-    wget https://deb.nodesource.com/node_12.x/pool/main/n/nodejs/nodejs_12.22.6-deb-1nodesource1_arm64.deb
-    dpkg -i *.deb
-    rm -rf *.deb
-fi
-
 source /etc/profile.d/pynq_venv.sh
 
 jupyter notebook --generate-config --allow-root
