@@ -397,9 +397,21 @@ class RFdc(pynq.DefaultIP):
         _lib.XRFdc_CfgInitialize(self._instance, self._config)
         self.adc_tiles = [RFdcAdcTile(self, i) for i in range(4)]
         self.dac_tiles = [RFdcDacTile(self, i) for i in range(4)]
+        self.mts_adc_config = _ffi.new('XRFdc_MultiConverter_Sync_Config*')
+        self.mts_dac_config = _ffi.new('XRFdc_MultiConverter_Sync_Config*')
+        _safe_wrapper("XRFdc_MultiConverter_Init", self.mts_adc_config, cffi.FFI.NULL, cffi.FFI.NULL)
+        _safe_wrapper("XRFdc_MultiConverter_Init", self.mts_dac_config, cffi.FFI.NULL, cffi.FFI.NULL)
+
 
     def _call_function(self, name, *args):
         _safe_wrapper(f"XRFdc_{name}", self._instance, *args)
+
+    def mts_adc(self):
+        return _safe_wrapper("XRFdc_MultiConverter_Sync", self._instance, 0, self.mts_adc_config)
+        
+    def mts_dac(self):
+        return _safe_wrapper("XRFdc_MultiConverter_Sync", self._instance, 1, self.mts_dac_config)
+        
 
 
 # Finally we can add our data-driven properties to each class in the hierarchy
