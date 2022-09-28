@@ -2,12 +2,14 @@
 
 # SPDX-License-Identifier: BSD-3-Clause
 
-import importlib
 import ctypes
+import importlib
 import os
 import pathlib
+
 import pynq._3rdparty.xrt
 import pytest
+
 
 class FakeXrt:
     def __init__(self, path):
@@ -17,98 +19,102 @@ class FakeXrt:
         return 0
 
     def __getattr__(self, key):
-        return FakeXrt(self.path + '.' + key)
+        return FakeXrt(self.path + "." + key)
 
 
 def test_xrt_none(monkeypatch, recwarn):
-    monkeypatch.delenv('XILINX_XRT', raising=False)
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    monkeypatch.delenv("XILINX_XRT", raising=False)
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
     xrt = importlib.reload(pynq._3rdparty.xrt)
     assert xrt.XRT_SUPPORTED == False
     assert len(recwarn) == 0
 
 
 def test_xrt_hw_emu(monkeypatch, recwarn):
-    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt')
-    monkeypatch.setenv('XCL_EMULATION_MODE', 'hw_emu')
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    monkeypatch.setenv("XILINX_XRT", "/path/to/xrt")
+    monkeypatch.setenv("XCL_EMULATION_MODE", "hw_emu")
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
     xrt = importlib.reload(pynq._3rdparty.xrt)
     assert xrt.XRT_SUPPORTED == True
     assert xrt.XRT_EMULATION == True
-    assert xrt.libc.path == '/path/to/xrt/lib/libxrt_hwemu.so'
+    assert xrt.libc.path == "/path/to/xrt/lib/libxrt_hwemu.so"
     assert len(recwarn) == 0
 
 
 def test_xrt_sw_emu(monkeypatch, recwarn):
-    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt')
-    monkeypatch.setenv('XCL_EMULATION_MODE', 'sw_emu')
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    monkeypatch.setenv("XILINX_XRT", "/path/to/xrt")
+    monkeypatch.setenv("XCL_EMULATION_MODE", "sw_emu")
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
     xrt = importlib.reload(pynq._3rdparty.xrt)
     assert xrt.XRT_SUPPORTED == False
     assert len(recwarn) == 1
 
 
 def test_xrt_wrong_emu(monkeypatch, recwarn):
-    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt')
-    monkeypatch.setenv('XCL_EMULATION_MODE', 'wrong_emu')
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    monkeypatch.setenv("XILINX_XRT", "/path/to/xrt")
+    monkeypatch.setenv("XCL_EMULATION_MODE", "wrong_emu")
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
     xrt = importlib.reload(pynq._3rdparty.xrt)
     assert xrt.XRT_SUPPORTED == False
     assert len(recwarn) == 1
 
 
 def test_xrt_normal(monkeypatch, recwarn):
-    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt')
-    monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    monkeypatch.setenv("XILINX_XRT", "/path/to/xrt")
+    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
     xrt = importlib.reload(pynq._3rdparty.xrt)
     assert xrt.XRT_SUPPORTED == True
     assert xrt.XRT_EMULATION == False
-    assert xrt.libc.path == '/path/to/xrt/lib/libxrt_core.so'
+    assert xrt.libc.path == "/path/to/xrt/lib/libxrt_core.so"
     assert len(recwarn) == 0
 
 
 def test_xrt_version_x86(monkeypatch, tmp_path):
-    monkeypatch.setenv('XILINX_XRT', str(tmp_path))
-    with open(tmp_path / 'version.json', 'w') as f:
+    monkeypatch.setenv("XILINX_XRT", str(tmp_path))
+    with open(tmp_path / "version.json", "w") as f:
         f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
-    monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
     import pynq.pl_server.xrt_device
+
     xrt = importlib.reload(pynq._3rdparty.xrt)
     xrt_device = importlib.reload(pynq.pl_server.xrt_device)
     assert xrt_device._get_xrt_version_x86() == (2, 12, 447)
 
 
 def test_xrt_version_embedded(monkeypatch, tmp_path):
-    with open(tmp_path / 'version', 'w') as f:
+    with open(tmp_path / "version", "w") as f:
         f.write("""2.12.447\n""")
-    monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
+    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
     import pynq.pl_server.xrt_device
+
     xrt = importlib.reload(pynq._3rdparty.xrt)
     xrt_device = importlib.reload(pynq.pl_server.xrt_device)
     assert xrt_device._get_xrt_version_embedded(str(tmp_path)) == (2, 12, 447)
 
 
 def test_xrt_version_fail_x86(monkeypatch, tmp_path):
-    monkeypatch.setenv('XILINX_XRT', str(tmp_path))
+    monkeypatch.setenv("XILINX_XRT", str(tmp_path))
     import pynq.pl_server.xrt_device
-    monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
-    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
-    with pytest.warns(UserWarning, match='Unable to determine XRT version'):
+
+    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
+    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
+    with pytest.warns(UserWarning, match="Unable to determine XRT version"):
         xrt = importlib.reload(pynq._3rdparty.xrt)
         xrt_device = importlib.reload(pynq.pl_server.xrt_device)
     assert xrt_device._xrt_version == (0, 0, 0)
 
 
 def test_xrt_version_unsupported(monkeypatch, tmp_path):
-    monkeypatch.setenv('XILINX_XRT', str(tmp_path))
-    with open(tmp_path / 'version.json', 'w') as f:
+    monkeypatch.setenv("XILINX_XRT", str(tmp_path))
+    with open(tmp_path / "version.json", "w") as f:
         f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
-    monkeypatch.setenv('PATH', str(tmp_path) + ':' + os.environ['PATH'])
-    monkeypatch.delenv('XILINX_XRT', raising=False)
+    monkeypatch.setenv("PATH", str(tmp_path) + ":" + os.environ["PATH"])
+    monkeypatch.delenv("XILINX_XRT", raising=False)
     import pynq.pl_server.xrt_device
+
     xrt = importlib.reload(pynq._3rdparty.xrt)
     xrt_device = importlib.reload(pynq.pl_server.xrt_device)
     assert xrt_device._xrt_version == (0, 0, 0)
