@@ -23,7 +23,7 @@ DEVICE_NAMES = [
 
 
 def set_pynq_path(path, monkeypatch, extra_paths=[]):
-    monkeypatch.setattr(pynq.bitstream, '_ExtensionsManager',
+    monkeypatch.setattr(pynq.bitstream, 'ExtensionsManager',
                         MockExtension({'pynq.overlays': (path, extra_paths)}))
 
 
