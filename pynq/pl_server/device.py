@@ -459,4 +459,8 @@ class Device(metaclass=DeviceMeta):
     def get_bitfile_metadata(self, bitfile_name):
         return None
 
+    def close(self):
+        """ Deprecated """
+        pass
+
 

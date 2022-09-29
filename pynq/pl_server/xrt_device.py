@@ -51,16 +51,15 @@ _xrt_errors = {
 }
 
 
-def _get_xrt_version_embedded():
-    output = subprocess.run(
-        ["xbutil", "--version"], stdout=subprocess.PIPE, universal_newlines=True
-    )
-    if output.returncode != 0:
-        warnings.warn("xbutil failed to run - unable to determine XRT version")
+def _get_xrt_version_embedded(path='/sys/module/zocl'):
+    try:
+        with open(path + '/version', 'r') as f:
+            details = f.readline().replace('\n','')
+        return tuple(
+            int(s) for s in details.split('.'))
+    except Exception:
+        warnings.warn('Unable to determine XRT version')
         return (0, 0, 0)
-    xrt_version_str = output.stdout.split("\n")[0].split(":")[1].strip()
-    return tuple(map(int, xrt_version_str.split(".")))
-
 
 def _get_xrt_version_x86():
     import json

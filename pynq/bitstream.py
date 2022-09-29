@@ -8,6 +8,7 @@ import warnings
 import pynqutils
 
 from .devicetree import get_dtbo_path
+from pynqutils.setup_utils import ExtensionsManager
 
 OVERLAYS_GROUP = "pynq.overlays"
 
