@@ -307,7 +307,6 @@ def test_init_device(width):
     assert reg[7:0] == 0x12
     reg[7:0] = 0x34
     assert region[0] == 0x34
-    device.close()
     pynq.Device.active_device = None
 
 
@@ -486,7 +485,6 @@ def test_regmap_rw_mmio(register_name):
         assert value == start
     with device.check_transactions([], [write_transaction]):
         setattr(rm, register_name, end)
-    device.close()
 
 
 def test_regmap_read_only(mock_registermap):

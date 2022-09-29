@@ -23,7 +23,7 @@ DEVICE_NAMES = [
 
 
 def set_pynq_path(path, monkeypatch, extra_paths=[]):
-    monkeypatch.setattr(pynq.bitstream, '_ExtensionsManager',
+    monkeypatch.setattr(pynq.bitstream, 'ExtensionsManager',
                         MockExtension({'pynq.overlays': (path, extra_paths)}))
 
 
@@ -31,7 +31,6 @@ def set_pynq_path(path, monkeypatch, extra_paths=[]):
 def device():
     device = MockDownloadableDevice('testcase')
     yield device
-    device.close()
 
 
 @pytest.fixture(params=DEVICE_NAMES)
@@ -39,7 +38,6 @@ def named_device(request):
     device = MockDownloadableDevice('testcase-named')
     device.name = request.param
     yield device
-    device.close()
 
 
 def test_relative(tmpdir, device):
@@ -109,8 +107,8 @@ def test_pynq_overlay(tmpdir, device, monkeypatch):
                                 os.path.splitext(BITSTREAM_FILE)[0])
     os.mkdir(overlay_path)
     create_file(os.path.join(overlay_path, BITSTREAM_FILE), BITSTREAM_DATA)
-    set_pynq_path(os.path.join(pynqdir, 'overlays'), monkeypatch)
-    bs = pynq.Bitstream(BITSTREAM_FILE, device=device)
+    #set_pynq_path(os.path.join(pynqdir, 'overlays'), monkeypatch)
+    bs = pynq.Bitstream(os.path.join(overlay_path,BITSTREAM_FILE), device=device)
     assert bs.bitfile_name == os.path.join(overlay_path, BITSTREAM_FILE)
 
 

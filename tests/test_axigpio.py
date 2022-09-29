@@ -11,7 +11,6 @@ from .mock_devices import MockRegisterDevice
 def device():
     device = MockRegisterDevice('register_device')
     yield device
-    device.close()
 
 
 BASE_ADDR = 0x10000

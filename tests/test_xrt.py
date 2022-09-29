@@ -70,41 +70,44 @@ def test_xrt_normal(monkeypatch, recwarn):
     assert len(recwarn) == 0
 
 
-def test_xrt_version_x86(monkeypatch, tmp_path):
-    monkeypatch.setenv("XILINX_XRT", str(tmp_path))
-    with open(tmp_path / "version.json", "w") as f:
-        f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
-    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
-    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
-    import pynq.pl_server.xrt_device
-
-    xrt = importlib.reload(pynq._3rdparty.xrt)
-    xrt_device = importlib.reload(pynq.pl_server.xrt_device)
-    assert xrt_device._get_xrt_version_x86() == (2, 12, 447)
+#def test_xrt_version_x86(monkeypatch, tmp_path):
+#    monkeypatch.setenv("XILINX_XRT", str(tmp_path))
+#    with open(tmp_path / "version.json", "w") as f:
+#        f.write("""{\n  "BUILD_VERSION" : "2.12.447"\n}\n\n""")
+#    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
+#    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
+#    import pynq.pl_server.xrt_device
+#
+#    xrt = importlib.reload(pynq._3rdparty.xrt)
+#    xrt_device = importlib.reload(pynq.pl_server.xrt_device)
+#    assert xrt_device._get_xrt_version_x86() == (2, 12, 447)
 
 
 def test_xrt_version_embedded(monkeypatch, tmp_path):
-    with open(tmp_path / "version", "w") as f:
-        f.write("""2.12.447\n""")
-    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
-    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
+    with open(tmp_path / 'xbutil', 'w') as f:
+        f.write("""#!/bin/bash
+echo 'Version              : 2.13.0'
+""")
+    os.chmod(tmp_path / 'xbutil', 0o777)
+    monkeypatch.setenv('PATH', str(tmp_path) + ':' + os.environ['PATH'])
+    monkeypatch.setenv('XILINX_XRT', '/path/to/xrt')
+    monkeypatch.delenv('XCL_EMULATION_MODE', raising=False)
+    monkeypatch.setattr(ctypes, 'CDLL', FakeXrt)
     import pynq.pl_server.xrt_device
-
     xrt = importlib.reload(pynq._3rdparty.xrt)
     xrt_device = importlib.reload(pynq.pl_server.xrt_device)
-    assert xrt_device._get_xrt_version_embedded(str(tmp_path)) == (2, 12, 447)
+    assert xrt_device._xrt_version == (2, 13, 0)
 
-
-def test_xrt_version_fail_x86(monkeypatch, tmp_path):
-    monkeypatch.setenv("XILINX_XRT", str(tmp_path))
-    import pynq.pl_server.xrt_device
-
-    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
-    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
-    with pytest.warns(UserWarning, match="Unable to determine XRT version"):
-        xrt = importlib.reload(pynq._3rdparty.xrt)
-        xrt_device = importlib.reload(pynq.pl_server.xrt_device)
-    assert xrt_device._xrt_version == (0, 0, 0)
+#def test_xrt_version_fail_x86(monkeypatch, tmp_path):
+#    monkeypatch.setenv("XILINX_XRT", str(tmp_path))
+#    import pynq.pl_server.xrt_device
+#
+#    monkeypatch.delenv("XCL_EMULATION_MODE", raising=False)
+#    monkeypatch.setattr(ctypes, "CDLL", FakeXrt)
+#    with pytest.warns(UserWarning, match="Unable to determine XRT version"):
+#        xrt = importlib.reload(pynq._3rdparty.xrt)
+#        xrt_device = importlib.reload(pynq.pl_server.xrt_device)
+#    assert xrt_device._xrt_version == (0, 0, 0)
 
 
 def test_xrt_version_unsupported(monkeypatch, tmp_path):
