@@ -80,7 +80,7 @@ class RuntimeMetadataParser:
             default_hierarchy=None,
             device=None,
         )
-        self.hierarchy_dict = copy.deepcopy(self.hierarchy_dict_view.view)
+        self.refresh_hierarchy_dict()
 
         # Remove any duplicates in ip_dict and mem_dict
         for item in self.mem_dict:
@@ -89,3 +89,28 @@ class RuntimeMetadataParser:
 
     def refresh_hierarchy_dict(self) -> None:
         self.hierarchy_dict = copy.deepcopy(self.hierarchy_dict_view.view)
+        self.assign_gpio_to_ip()
+        self.assign_interrupts_to_ip()
+
+    def assign_gpio_to_ip(self)->None:
+        """
+        Assigns the GPIO and Interrupts to the IP Dict
+        """
+        for gpio in self.gpio_dict.values():
+            for connection in gpio["pins"]:
+                ip, _, pin = connection.rpartition("/")
+                if ip in self.ip_dict:
+                    self.ip_dict[ip]["gpio"][pin] = gpio
+                elif ip in self.hierarchy_dict:
+                    self.hierarchy_dict[ip]["gpio"][pin] = gpio
+                    
+    def assign_interrupts_to_ip(self)->None:
+        """
+        Assigns interrupts to the dictionaries
+        """
+        for interrupt, val in self.interrupt_pins.items():
+            block, _, pin = interrupt.rpartition("/")
+            if block in self.ip_dict:
+                self.ip_dict[block]["interrupts"][pin] = val
+            elif block in self.hierarchy_dict:
+                self.hierarchy_dict[block]["interrupts"][pin]= val   
