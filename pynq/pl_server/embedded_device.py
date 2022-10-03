@@ -178,6 +178,16 @@ class BitstreamHandler:
             return True
         return False
 
+    def _cache_exists(self)->bool:
+        """ Checks to see if this bitstream is already on the system and
+        use the cached metadata """
+        from .global_state import bitstream_hash, load_global_state, global_state_file_exists
+        if global_state_file_exists():
+            glob_state = load_global_state()
+            return glob_state.bitfile_hash == bitstream_hash(self._filepath)
+        return False
+             
+
     def get_parser(self, partial:bool=False):
         """Returns a parser object for the bitstream
 
@@ -199,9 +209,16 @@ class BitstreamHandler:
             if partial:
                 parser = HWH(hwh_data=hwh_data)
             else:
-                parser = RuntimeMetadataParser(
-                    Metadata(input=self._filepath.with_suffix(".hwh"))
-                )
+                if self._cache_exists():
+                    metadata_state_file = Path(f"{os.path.dirname(__file__)}/_current_metadata.json")
+                    if os.path.isfile(metadata_state_file):
+                        parser = RuntimeMetadataParser(Metadata(input=metadata_state_file))
+                        parser._from_cache = True
+                    else:
+                        parser = RuntimeMetadataParser(Metadata(input=self._filepath.with_suffix(".hwh")))
+                else:
+                    parser = RuntimeMetadataParser(Metadata(input=self._filepath.with_suffix(".hwh")))
+
 
             if xclbin_data is None:
                 xclbin_data = _create_xclbin(parser.mem_dict)
@@ -583,28 +600,30 @@ class EmbeddedDevice(XrtDevice):
                         Register(addr)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
 
     def download(self, bitstream, parser=None):
-        if parser is None:
-            from .xclbin_parser import XclBin
 
-            parser = XclBin(xclbin_data=DEFAULT_XCLBIN)
+        if not hasattr(parser, "_from_cache"):
+            if parser is None:
+                from .xclbin_parser import XclBin
 
-        if not bitstream.binfile_name:
-            _preload_binfile(bitstream, parser)
+                parser = XclBin(xclbin_data=DEFAULT_XCLBIN)
 
-        if not bitstream.partial:
-            self.shutdown()
-            flag = 0
-        else:
-            flag = 1
+            if not bitstream.binfile_name:
+                _preload_binfile(bitstream, parser)
 
-        with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
-            fd.write(str(flag))
-        with open(self.BS_FPGA_MAN, "w") as fd:
-            fd.write(bitstream.binfile_name)
+            if not bitstream.partial:
+                self.shutdown()
+                flag = 0
+            else:
+                flag = 1
 
-        self.set_axi_port_width(parser)
+            with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
+                fd.write(str(flag))
+            with open(self.BS_FPGA_MAN, "w") as fd:
+                fd.write(bitstream.binfile_name)
 
-        self._xrt_download(parser.xclbin_data)
+            self.set_axi_port_width(parser)
+
+            self._xrt_download(parser.xclbin_data)
         super().post_download(bitstream, parser, self.name)
 
     def get_bitfile_metadata(self, bitfile_name:str, partial:bool=False):
