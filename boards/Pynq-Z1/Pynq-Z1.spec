@@ -6,4 +6,4 @@ BSP_Pynq-Z1 :=
 BITSTREAM_Pynq-Z1 := base/base.bit
 FPGA_MANAGER_Pynq-Z1 := 1
 
-STAGE4_PACKAGES_Pynq-Z1 := xrt_zocl pynq boot_leds ethernet pynq_peripherals
+STAGE4_PACKAGES_Pynq-Z1 := xrt pynq boot_leds ethernet pynq_peripherals
