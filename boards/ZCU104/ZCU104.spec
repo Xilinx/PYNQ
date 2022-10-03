@@ -6,5 +6,5 @@ BSP_ZCU104 := xilinx-zcu104-v2022.1-final.bsp
 BITSTREAM_ZCU104 := base/base.bit
 FPGA_MANAGER_ZCU104 := 1
 
-STAGE4_PACKAGES_ZCU104 := xrt_zocl pynq ethernet sensorconf boot_leds pynq_peripherals
+STAGE4_PACKAGES_ZCU104 := xrt pynq ethernet sensorconf boot_leds pynq_peripherals
 
