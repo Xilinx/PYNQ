@@ -65,7 +65,12 @@ class PLMeta(type):
             Bitstream download timestamp.
 
         """
-        return Device.active_device.timestamp
+        if hasattr(Device.active_device, "timestamp"):
+            return Device.active_device.timestamp
+        
+        if global_state_file_exists():
+            gs = load_global_state()
+            return gs.timestamp
 
     @property
     def dict_views(cls):

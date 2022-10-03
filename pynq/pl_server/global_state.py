@@ -15,6 +15,16 @@ class ShutdownIP(BaseModel):
     name: str
     base_addr: int
 
+import hashlib
+def bitstream_hash(filename:str)->int:
+    """ Returns a hash of the bitstream """
+    h = hashlib.sha1()
+    with open(filename, 'rb') as file:
+        chunk=0
+        while chunk != b'':
+            chunk = file.read(1024)
+            h.update(chunk)
+    return h.hexdigest()
 
 class GlobalState(BaseModel):
     """A class that is used to globally keep track on some details of the currently
@@ -22,6 +32,8 @@ class GlobalState(BaseModel):
 
     bitfile_name: str
     active_name: str
+    timestamp : str
+    bitfile_hash : str = ""
     shutdown_ips: Dict[str, ShutdownIP] = {}
     psddr: Dict = {}
 
@@ -32,6 +44,9 @@ class GlobalState(BaseModel):
         if name not in self.shutdown_ips:
             self.shutdown_ips[name] = ShutdownIP(name=name, base_addr=addr)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.bitfile_hash = bitstream_hash(self.bitfile_name)
 
 def initial_global_state_file_boot_check()->None:
     """ Performs a check to see if this is a coldstart, if it is then clear the
