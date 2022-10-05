@@ -83,13 +83,18 @@ class PLMeta(type):
             return cls._dict_view_cache
         else:
             import os
+            import pickle
             from pynqmetadata.frontends import Metadata
             from .metadata.runtime_metadata_parser import RuntimeMetadataParser
-            metadata_state_file = Path(f"{os.path.dirname(__file__)}/pl_server/_current_metadata.json")
+            metadata_state_file = Path(f"{os.path.dirname(__file__)}/pl_server/_current_metadata.pkl")
             if os.path.isfile(metadata_state_file):
                 cls._dict_views_cached = True
-                cls._dict_view_cache = RuntimeMetadataParser(Metadata(input=metadata_state_file))
-                return cls._dict_view_cache 
+                try:
+                    cls._dict_view_cache = pickle.load(open(metadata_state_file, "rb"))
+                    return cls._dict_view_cache 
+                except:
+                    os.remove(metadata_state_file)
+                    return None
             else:
                 return None
 
@@ -175,7 +180,7 @@ class PLMeta(type):
             if not Device.active_device.hierarchy_dict is None:
                 return Device.active_device.hierarchy_dict
 
-        if not cls.dict_views.hierarchy_dict is None:
+        if not cls.dict_views is None:
             return cls.dict_views.hierarchy_dict
 
     @property
@@ -216,7 +221,7 @@ class PLMeta(type):
             if not Device.active_device.mem_dict is None:
                 return Device.active_device.mem_dict
 
-        if not self.dict_views.mem_dict is None:
+        if not self.dict_views is None:
             return self.dict_views.mem_dict
 
     def shutdown(cls):
@@ -246,10 +251,12 @@ class PLMeta(type):
 
         """
         clear_global_state()
-        for i in cls.mem_dict.values():
-            i['state'] = None
-        for i in cls.ip_dict.values():
-            i['state'] = None
+        if not cls.mem_dict is None:
+            for i in cls.mem_dict.values():
+                i['state'] = None
+        if not cls.ip_dict is None:
+            for i in cls.ip_dict.values():
+                i['state'] = None
 
     def clear_dict(cls):
         """Clear all the dictionaries stored in PL.

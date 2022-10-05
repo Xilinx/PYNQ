@@ -6,8 +6,9 @@ import json
 import os
 from shutil import move
 
-from pynqutils.runtime import detect_devices, get_logger
+from pynqutils.runtime import get_logger
 from pynqutils.setup_utils import ExtensionsManager, deliver_notebooks
+from pynq.utils import _detect_devices
 
 
 
@@ -129,7 +130,7 @@ def main():
     if args.device:
         device = args.device
     elif args.interactive and "XILINX_XRT" in os.environ:
-        shells = list(dict.fromkeys(detect_devices()))
+        shells = list(dict.fromkeys(_detect_devices()))
         shells_num = len(shells)
         print("Detected shells:")
         for i in range(shells_num):
@@ -151,7 +152,7 @@ def main():
     elif args.ignore_overlays:  # overlays are ignored, set device to `None`
         device = None
     else:  # default case, detect devices and use default device
-        device = detect_devices(active_only=True)
+        device = _detect_devices(active_only=True)
     if not notebooks_ext_man.list:
         logger.warn("No notebooks available, nothing can be " "delivered")
         return
