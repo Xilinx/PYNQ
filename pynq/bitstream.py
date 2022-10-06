@@ -167,6 +167,10 @@ class Bitstream:
         """
         self.device.download(self, parser)
 
+    def gen_cache(self, parser=None):
+        """ Generates the pickled metadata cache in pl_server/ even if no download has occurred """
+        self.device.gen_cache(self, parser)
+
     def remove_dtbo(self):
         """Remove dtbo file from the system.
 

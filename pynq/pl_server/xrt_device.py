@@ -532,6 +532,9 @@ class XrtDevice(Device):
         finally:
             xrt.xclUnlockDevice(self.handle)
 
+    def gen_cache(self, bitstream, parser=None):
+        pass
+
     def download(self, bitstream, parser=None):
         with open(bitstream.bitfile_name, "rb") as f:
             data = f.read()

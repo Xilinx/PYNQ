@@ -12,6 +12,7 @@ from distutils.file_util import copy_file
 from warnings import warn
 
 import pkg_resources
+import pynq
 import pynqutils
 from setuptools.command.build_py import build_py as _build_py
 
@@ -45,11 +46,15 @@ def get_logger(level=logging.INFO, force_lvl=False):
 
 
 def _detect_devices(active_only=False):
-    warn(
-        "_detect_devices in utils.py is being deprecated, in future please use pynqutils.runtime.detect_devices",
-        DeprecationWarning,
-    )
-    return pynqutils.runtime.detect_devices(active_only=active_only)
+    """Return a list containing all the detected devices names."""
+    from pynq.pl_server import Device
+    devices = Device.devices
+    if not devices:
+        raise RuntimeError("No device found in the system")
+    if active_only:
+        return Device.active_device.name
+    return [d.name for d in devices]
+
 
 
 def _find_local_overlay_res(device_name, overlay_res_filename, src_path):

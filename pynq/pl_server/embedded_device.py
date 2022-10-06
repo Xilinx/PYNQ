@@ -2,18 +2,25 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
+import pickle
 import struct
 from pathlib import Path
+import datetime
 
 import numpy as np
 from pynqmetadata.frontends import Metadata
 
 from ..metadata.runtime_metadata_parser import RuntimeMetadataParser
 from .xrt_device import XrtDevice, XrtMemory
-from .global_state import initial_global_state_file_boot_check, load_global_state, global_state_file_exists
+from .global_state import GlobalState, save_global_state
+from .global_state import initial_global_state_file_boot_check, load_global_state
+from .global_state import bitstream_hash, global_state_file_exists, clear_global_state
 
 DEFAULT_XCLBIN = (Path(__file__).parent / "default.xclbin").read_bytes()
 
+class CacheMetadataError(Exception):
+    """ An exception that is raised when there is no cached metadata """
+    pass
 
 def _unify_dictionaries(hwh_parser, xclbin_parser):
     """Merges the XRT specific info from the xclbin file into
@@ -181,12 +188,44 @@ class BitstreamHandler:
     def _cache_exists(self)->bool:
         """ Checks to see if this bitstream is already on the system and
         use the cached metadata """
-        from .global_state import bitstream_hash, load_global_state, global_state_file_exists
         if global_state_file_exists():
             glob_state = load_global_state()
             return glob_state.bitfile_hash == bitstream_hash(self._filepath)
         return False
              
+
+    def _clear_cache(self):
+        """ Clears the cache file """
+        metadata_state_file = Path(f"{os.path.dirname(__file__)}/_current_metadata.pkl")
+        if os.path.isfile(metadata_state_file):
+            os.remove(metadata_state_file)
+
+    def _get_cache(self):
+        """ Tries to return the Cached data """
+        if self._cache_exists():
+            metadata_state_file = Path(f"{os.path.dirname(__file__)}/_current_metadata.pkl")
+            if os.path.isfile(metadata_state_file):
+                try:
+                    parser = pickle.load(open(metadata_state_file, "rb"))
+                    parser._from_cache = True
+
+                    # Removing previous synthetic XRT mem_dict items
+                    mem_dict_to_remove = []
+                    for itemname, item in parser.mem_dict.items():
+                        if not "fullpath" in item:
+                            mem_dict_to_remove.append(itemname)
+                    for i in mem_dict_to_remove:
+                        del parser.mem_dict[i]
+
+                    return parser
+                except:
+                    self._clear_cache()
+                    raise CacheMetadataError(f"Global state file exists, but pickled metadata cannot be found")
+            else:
+                clear_global_state()
+                raise CacheMetadataError(f"Global state file exists, but pickled metadata cannot be found")
+        else:
+            raise CacheMetadataError(f"No cached metadata present")
 
     def get_parser(self, partial:bool=False):
         """Returns a parser object for the bitstream
@@ -209,16 +248,12 @@ class BitstreamHandler:
             if partial:
                 parser = HWH(hwh_data=hwh_data)
             else:
-                if self._cache_exists():
-                    metadata_state_file = Path(f"{os.path.dirname(__file__)}/_current_metadata.json")
-                    if os.path.isfile(metadata_state_file):
-                        parser = RuntimeMetadataParser(Metadata(input=metadata_state_file))
-                        parser._from_cache = True
-                    else:
-                        parser = RuntimeMetadataParser(Metadata(input=self._filepath.with_suffix(".hwh")))
-                else:
+                try:
+                    parser = self._get_cache() 
+                except CacheMetadataError:
                     parser = RuntimeMetadataParser(Metadata(input=self._filepath.with_suffix(".hwh")))
-
+                except:
+                    raise RuntimeError(f"Unable to parse metadata")
 
             if xclbin_data is None:
                 xclbin_data = _create_xclbin(parser.mem_dict)
@@ -242,7 +277,34 @@ class BitstreamHandler:
         parser.bin_data = self.get_bin_data()
         parser.xclbin_data = xclbin_data
         parser.dtbo_data = self.get_dtbo_data()
+        self._cache_metadata(parser)
         return parser
+
+    def _cache_metadata(self, parser, name:str="Unknown")->None:
+        """ Caches the metadata and global state """
+        if not hasattr(parser, "_from_cache"):
+
+            t = datetime.datetime.now()
+            ts = "{}/{}/{} {}:{}:{} +{}".format(
+                t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
+            )
+
+            gs = GlobalState(bitfile_name=str(self._filepath),
+                             timestamp=ts,
+                             active_name=name,
+                             psddr=parser.mem_dict.get("PSDDR", {}))
+            ip =parser.ip_dict
+            for sd_name, details in ip.items():
+                if details["type"] in ["xilinx.com:ip:pr_axi_shutdown_manager:1.0",
+                                       "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",]:
+                    gs.add(name=sd_name, addr=details["phys_addr"])
+            save_global_state(gs)
+
+            if hasattr(parser, "systemgraph"):
+                if not parser.systemgraph is None:
+                    STATE_DIR = os.path.dirname(__file__)
+                    pickle.dump(parser, open(f"{STATE_DIR}/_current_metadata.pkl", "wb"))
+
 
 
 class BitfileHandler(BitstreamHandler):
@@ -599,31 +661,34 @@ class EmbeddedDevice(XrtDevice):
                         f = ZU_AXIFM_REG[para][reg_name]["field"]
                         Register(addr)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
 
+    def gen_cache(self, bitstream, parser=None):
+        """ Generates the cache of the metadata even if no download occurred """
+        super()._cache_metadata(parser, bitstream, self.name)
+
     def download(self, bitstream, parser=None):
 
-        if not hasattr(parser, "_from_cache"):
-            if parser is None:
-                from .xclbin_parser import XclBin
+        if parser is None:
+            from .xclbin_parser import XclBin
 
-                parser = XclBin(xclbin_data=DEFAULT_XCLBIN)
+            parser = XclBin(xclbin_data=DEFAULT_XCLBIN)
 
-            if not bitstream.binfile_name:
-                _preload_binfile(bitstream, parser)
+        if not bitstream.binfile_name:
+            _preload_binfile(bitstream, parser)
 
-            if not bitstream.partial:
-                self.shutdown()
-                flag = 0
-            else:
-                flag = 1
+        if not bitstream.partial:
+            self.shutdown()
+            flag = 0
+        else:
+            flag = 1
 
-            with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
-                fd.write(str(flag))
-            with open(self.BS_FPGA_MAN, "w") as fd:
-                fd.write(bitstream.binfile_name)
+        with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
+            fd.write(str(flag))
+        with open(self.BS_FPGA_MAN, "w") as fd:
+            fd.write(bitstream.binfile_name)
 
-            self.set_axi_port_width(parser)
+        self.set_axi_port_width(parser)
 
-            self._xrt_download(parser.xclbin_data)
+        self._xrt_download(parser.xclbin_data)
         super().post_download(bitstream, parser, self.name)
 
     def get_bitfile_metadata(self, bitfile_name:str, partial:bool=False):

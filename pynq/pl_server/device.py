@@ -3,6 +3,7 @@
 
 
 import os
+import pickle
 import warnings
 from copy import deepcopy
 
@@ -420,27 +421,6 @@ class Device(metaclass=DeviceMeta):
             )
             self.reset(parser, bitstream.timestamp, bitstream.bitfile_name)
 
-            if not hasattr(parser, "_from_cache"):
-                from .global_state import GlobalState, save_global_state
-
-                gs = GlobalState(bitfile_name=bitstream.bitfile_name,
-                                 timestamp=bitstream.timestamp,
-                                 active_name=name,
-                                 psddr=self.mem_dict.get("PSDDR", {}))
-                ip = self.ip_dict
-                for sd_name, details in ip.items():
-                    if details["type"] in [
-                        "xilinx.com:ip:pr_axi_shutdown_manager:1.0",
-                        "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",
-                    ]:
-                        gs.add(name=sd_name, addr=details["phys_addr"])
-                save_global_state(gs)
-
-                if hasattr(self, "systemgraph"):
-                    if not self.systemgraph is None:
-                        import os
-                        STATE_DIR = os.path.dirname(__file__)
-                        self.systemgraph.export(path=f"{STATE_DIR}/_current_metadata.json")
 
     def has_capability(self, cap):
         """Test if the device as a desired capability

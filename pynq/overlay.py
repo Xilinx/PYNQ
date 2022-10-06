@@ -284,7 +284,7 @@ class Overlay(Bitstream):
     """
 
     def __init__(
-        self, bitfile_name, dtbo=None, download=True, ignore_version=False, device=None
+        self, bitfile_name, dtbo=None, download=True, ignore_version=False, device=None, gen_cache=False
     ):
         """Return a new Overlay object.
 
@@ -303,6 +303,8 @@ class Overlay(Bitstream):
         device : pynq.Device
             Device on which to load the Overlay. Defaults to
             pynq.Device.active_device
+        gen_cache: bool
+            if true generates a pickeled cache of the metadata
 
         Note
         ----
@@ -344,6 +346,9 @@ class Overlay(Bitstream):
 
         if download:
             self.download()
+        else:
+            if gen_cache:
+                self.gen_cache()
 
         self.__doc__ = _build_docstring(
             self._ip_map._description, bitfile_name, "overlay"
@@ -385,6 +390,10 @@ class Overlay(Bitstream):
         if self.dtbo:
             self.remove_dtbo()
         self.device.close()
+
+    def gen_cache(self):
+        """ Generate a pickled cache of the metadata even if a download has not occurred """
+        super().gen_cache(self.parser)
 
     def download(self, dtbo=None):
         """The method to download a full bitstream onto PL.
