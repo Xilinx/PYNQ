@@ -1,7 +1,7 @@
 .. _pynq-metadata-mem_dict_view:
 
 pynq.metadata-mem_dict_view Module
-===================================
+==================================
 
 Provides a view onto the Metadata object that displays all 
 memory accessible from the Processing System. Models a dictionary,

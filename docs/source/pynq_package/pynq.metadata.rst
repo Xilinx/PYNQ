@@ -1,7 +1,7 @@
 .. _pynq-metadata:
 
 pynq.metadata Package
-======================
+=====================
 
 The pynq.metadata module contains the required modules for managing the Overlay metadata. 
 The metadata can be extracted from a HWH file or an XSA and contains the complete hardware
@@ -21,11 +21,11 @@ Modules:
 .. toctree::
     :hidden:
 
-    pynq.metadata/pynq.pl_server.runtime_metadata_parser
-    pynq.metadata/pynq.pl_server.metadata_view
-    pynq.metadata/pynq.pl_server.ip_dict_view
-    pynq.metadata/pynq.pl_server.mem_dict_view
-    pynq.metadata/pynq.pl_server.interrupt_controllers_view
-    pynq.metadata/pynq.pl_server.hierarchy_dict_view
-    pynq.metadata/pynq.pl_server.gpio_dict_view
-    pynq.metadata/pynq.pl_server.clock_dict_view
+    pynq.metadata/pynq.metadata.runtime_metadata_parser
+    pynq.metadata/pynq.metadata.metadata_view
+    pynq.metadata/pynq.metadata.ip_dict_view
+    pynq.metadata/pynq.metadata.mem_dict_view
+    pynq.metadata/pynq.metadata.interrupt_controllers_view
+    pynq.metadata/pynq.metadata.hierarchy_dict_view
+    pynq.metadata/pynq.metadata.gpio_dict_view
+    pynq.metadata/pynq.metadata.clock_dict_view

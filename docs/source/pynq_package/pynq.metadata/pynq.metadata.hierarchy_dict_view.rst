@@ -1,7 +1,7 @@
 .. _pynq-metadata-hierarchy_dict_view:
 
 pynq.metadata-hierarchy_dict_view Module
-================================================
+========================================
 
 Provides a hierarchy view onto the Metadata object that will display
 all hierarchies of addressable IP from the Processing System.

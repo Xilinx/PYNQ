@@ -1,7 +1,7 @@
 .. _pynq-metadata-ip_dict_view:
 
 pynq.metadata-ip_dict_view Module
-===================================
+=================================
 
 Provides a view onto the Metadata object that displays all 
 addressable IP from the Processing System. Models a dictionary,

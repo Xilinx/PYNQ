@@ -1,7 +1,7 @@
 .. _pynq-metadata-clock_dict_view:
 
 pynq.metadata-clock_dict_view Module
-================================================
+====================================
 
 Provides a view onto the Metadata object that displays all
 configurable clocks in the system. Models a dictionary, where

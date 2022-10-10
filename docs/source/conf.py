@@ -68,9 +68,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'PYNQ: Python productivity for Xilinx platforms'
-copyright = '2022, AMD-Xilinx'
-author = 'AMD-Xilinx'
+project = 'PYNQ: Python productivity for Adaptive Computing platforms'
+copyright = '2022, Advanced Micro Devices, Inc.'
+author = 'AMD'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -277,7 +277,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pythononzynqpynq', 'Python productivity for Zynq (Pynq) Documentation',
+    (master_doc, 'pythononzynqpynq', 'PYNQ Documentation',
      [author], 1)
 ]
 
@@ -291,8 +291,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PythononZynqPynq', 'Python productivity for Zynq (Pynq) Documentation',
-     author, 'PythononZynqPynq', 'One line description of project.',
+    (master_doc, 'PythononZynqPynq', 'Pynq Documentation',
+     author, 'PythononZynqPynq', 'Python Productivity for Adaptive Computing platforms.',
      'Miscellaneous'),
 ]
 

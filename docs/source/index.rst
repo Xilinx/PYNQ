@@ -7,13 +7,14 @@
 PYNQ Introduction
 *****************
 
-PYNQ is an open-source project from Xilinx®. It provides a Jupyter-based 
-framework with Python APIs for using Xilinx platforms. 
-PYNQ supports Zynq® and Zynq Ultrascale+™, Zynq RFSoC™, Alveo™ and AWS-F1 
-instances. 
+PYNQ is an open-source project from AMD. It provides a Jupyter-based 
+framework with Python APIs for using AMD Xilinx Adaptive Computing platforms. 
+PYNQ supports Zynq® and Zynq Ultrascale+™, Zynq RFSoC™, Kria™ SOMs, Alveo™ 
+and AWS-F1 instances. 
 
 PYNQ enables architects, engineers
-and programmers who design embedded systems to use Zynq devices, without having
+and programmers who design embedded systems to use Adaptive Computing 
+platforms, without having
 to use ASIC-style design tools to design programmable logic circuits.
 
 
@@ -57,7 +58,8 @@ PYNQ Background
   operating system.  This goal is achieved by adopting a web-based architecture,
   which is also browser agnostic.  We incorporate the open-source Jupyter
   notebook infrastructure to run an Interactive Python (IPython) kernel and a
-  web server directly on the ARM processor of the Zynq device.  The web server
+  web server directly on the ARM processor of the Zynq device, or host processor
+  in the case of Alveo and AWS-F1.  The web server
   brokers access to the kernel via a suite of browser-based tools that provide a
   dashboard, bash terminal, code editors and Jupyter notebooks.  The browser
   tools are implemented with a combination of JavaScript, HTML and CSS and run
@@ -67,7 +69,7 @@ Summary
 #######
 
 PYNQ is the first project to combine the following elements to simplify and
-improve Xilinx system design:
+improve Adaptive Computing system design:
 
 #. A high-level productivity language (Python in this case)
 #. FPGA overlays with extensive APIs exposed as Python libraries 
