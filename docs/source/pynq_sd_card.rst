@@ -135,7 +135,7 @@ that can help you install the Ubuntu VM on your host OS using the following step
      ================  ================
 
 Use an existing Ubuntu OS
-----------------------
+-------------------------
 If you already have a Ubuntu OS, and it is listed in the beginning of
 this section, you can simply do the following:
 
@@ -197,7 +197,7 @@ The build flow can take several hours and will rebuild SD cards for the Pynq-Z1,
 and ZCU104 platforms. 
 
 Rebuilding the prebuilt board-agnostic image
----------------------------------------
+--------------------------------------------
 In order to simplify and speed-up the image building process, users should re-use the 
 prebuilt board-agnostic image appropriate to the architecture - arm for Zynq-7000 
 and aarch64 for Zynq UltraScale+, downloadable at the 
@@ -213,7 +213,7 @@ when invoking make:
    make REBUILD_PYNQ_ROOTFS=True BOARDS=<board>
 
 Rebuilding the PYNQ source distribution tarball
--------------------------------------------
+-----------------------------------------------
 To avoid rebuilding the PYNQ source distribution package, and consequently bypass
 the need to build bitstreams for the PYNQ-Z1, PYNQ-Z2 and the
 ZCU104, a prebuilt PYNQ sdist tarball should be reused as described in steps listed above.
