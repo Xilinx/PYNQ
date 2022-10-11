@@ -1,7 +1,7 @@
 .. _pynq-metadata-gpio_dict_view:
 
 pynq.metadata-gpio_dict_view Module
-================================================
+===================================
 
 Provides a view onto the Metadata object that displays all
 GPIO pins controlled by the PS. Models a dictionary where

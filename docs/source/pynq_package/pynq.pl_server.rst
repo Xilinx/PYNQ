@@ -18,7 +18,6 @@ Modules:
 .. toctree::
     :hidden:
 
-    pynq.pl_server/pynq.pl_server.server
     pynq.pl_server/pynq.pl_server.device
     pynq.pl_server/pynq.pl_server.xrt_device
     pynq.pl_server/pynq.pl_server.embedded_device

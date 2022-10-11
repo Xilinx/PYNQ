@@ -1,7 +1,7 @@
 .. _pynq-metadata-interrupt_controllers_view:
 
 pynq.metadata-interrupt_controllers_view Module
-================================================
+===============================================
 
 Provides a view onto the Metadata object that displays all the AXI interrupt
 controllers that are accessible from the processing system. Models a dictionary
