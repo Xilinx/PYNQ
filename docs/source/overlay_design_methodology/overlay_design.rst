@@ -15,8 +15,8 @@ The Xilinx® Vivado software is used to create a Zynq design. A *bitstream* or
 *binary* file (.bit file) will be generated that can be used to program the Zynq
 PL.
 
-A free WebPack version of Vivado is available to build overlays.
-https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html
+A free Vivado ML Standard Edition is available to build overlays
+https://www.xilinx.com/products/design-tools/vivado/vivado-ml.html
 
 The hardware designer is encouraged to support programmability in the IP used in
 a PYNQ overlays. Once the IP has been created, the PL design is carried out in

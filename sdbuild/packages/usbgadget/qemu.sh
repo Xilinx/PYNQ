@@ -5,28 +5,6 @@ set -e
 
 for f in /etc/profile.d/*.sh; do source $f; done
 
-mkdir /mnt/fatfs
-mount /usr/local/share/fatfs /mnt/fatfs
-
-# HTML version of the Welcome Notebook
-if [ -f /usr/local/share/fatfs_contents/Welcome\ to\ Pynq.ipynb ]; then
-	jupyter nbconvert --to html \
-	/usr/local/share/fatfs_contents/Welcome\ to\ Pynq.ipynb
-	rm -f /usr/local/share/fatfs_contents/Welcome\ to\ Pynq.ipynb
-	cp -f /usr/local/share/fatfs_contents/Welcome\ to\ Pynq.html \
-	/mnt/fatfs
-fi
-
-# Copy over the release REVISION
-if [ -f /home/xilinx/REVISION ]; then
-        cp -f /home/xilinx/REVISION /mnt/fatfs
-fi
-
-# Default to USB Gadgets for Windows (RNDIS driver)
-touch /mnt/fatfs/delete-for-mac.txt
-
-umount /mnt/fatfs
-
 if [ -f /etc/default/isc-dhcp-server ] && \
 	grep -q "INTERFACES=" /etc/default/isc-dhcp-server; then
 	if ! grep -q "usb0" /etc/default/isc-dhcp-server; then

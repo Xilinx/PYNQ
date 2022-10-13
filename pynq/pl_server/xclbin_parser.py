@@ -1,36 +1,7 @@
 #   Copyright (c) 2019-2021, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 
-__author__ = "Peter Ogden"
-__copyright__ = "Copyright 2019-2021, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 import ctypes
 import itertools
@@ -166,7 +137,7 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
                     'interrupts': {},
                     'gpio': {},
                     'xclbin_uuid': xclbin_uuid,
-                    'cu_name': ":".join((kernel.attrib['vlnv'].split(':')[2],
+                    'cu_name': ":".join((kernel.attrib['name'],
                                          instance.attrib['name']))
                 }
     for i, d in enumerate(sorted(ip_dict.values(),
@@ -176,10 +147,13 @@ def _xclxml_to_ip_dict(raw_xml, xclbin_uuid):
 
 def _add_argument_memory(ip_dict, ip_data, connections, memories):
     import ctypes
-    connection_dict = {
-        (c.m_ip_layout_index, c.arg_index): c.mem_data_index
-        for c in connections
-    }
+    connection_dict = dict()
+    for c in connections:
+        key = c.m_ip_layout_index, c.arg_index
+        if key not in connection_dict.keys():
+            connection_dict[key] = list()
+        connection_dict[key].append(memories[c.mem_data_index])
+
     for ip_index, ip in enumerate(ip_data):
         if ip.m_type != 1:
             continue
@@ -192,11 +166,13 @@ def _add_argument_memory(ip_dict, ip_data, connections, memories):
         for r in dict_entry['registers'].values():
             # Subtract 1 from the register index to account for AP_CTRL
             if (ip_index, r['id']) in connection_dict:
-                r['memory'] = \
-                    memories[connection_dict[(ip_index, r['id'])]]
+                memory = connection_dict[(ip_index, r['id'])]
+                r['memory'] = memory[-1]
+                if len(memory) > 1:
+                    r['MBG'] = memory
         for r in dict_entry['streams'].values():
             if (ip_index, r['id']) in connection_dict:
-                r['stream_id'] = connection_dict[(ip_index, r['id'])]
+                r['stream_id'] = connection_dict[(ip_index, r['id'])][-1]
 
 
 def _get_buffer_slice(b, offset, length):
@@ -290,27 +266,27 @@ def _xclbin_to_dicts(filename, xclbin_data=None):
     else:
         ip_data = []
 
-    if xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY in sections:
-        connectivity = xclbin.connectivity.from_buffer(
-            sections[xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY])
-        connections = _get_object_as_array(connectivity.m_connection[0],
-                                           connectivity.m_count)
-    elif xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
+    if xclbin.AXLF_SECTION_KIND.CONNECTIVITY in sections:
         connectivity = xclbin.connectivity.from_buffer(
             sections[xclbin.AXLF_SECTION_KIND.CONNECTIVITY])
+        connections = _get_object_as_array(connectivity.m_connection[0],
+                                           connectivity.m_count)
+    elif xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY in sections:
+        connectivity = xclbin.connectivity.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.GROUP_CONNECTIVITY])
         connections = _get_object_as_array(connectivity.m_connection[0],
                                            connectivity.m_count)
     else:
         connections = []
 
-    if xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY in sections:
-        mem_topology = xclbin.mem_topology.from_buffer(
-            sections[xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY])
-        mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
-                                        mem_topology.m_count)
-    elif xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY in sections:
+    if xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY in sections:
         mem_topology = xclbin.mem_topology.from_buffer(
             sections[xclbin.AXLF_SECTION_KIND.MEM_TOPOLOGY])
+        mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
+                                        mem_topology.m_count)
+    elif xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY in sections:
+        mem_topology = xclbin.mem_topology.from_buffer(
+            sections[xclbin.AXLF_SECTION_KIND.GROUP_TOPOLOGY])
         mem_data = _get_object_as_array(mem_topology.m_mem_data[0],
                                         mem_topology.m_count)
     else:
@@ -374,3 +350,6 @@ class XclBin:
         self.interrupt_pins = {}
         self.hierarchy_dict = {}
         self.xclbin_data = xclbin_data
+        self.systemgraph = None
+
+

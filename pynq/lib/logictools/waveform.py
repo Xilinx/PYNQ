@@ -1,31 +1,5 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 
 from copy import deepcopy
@@ -39,12 +13,9 @@ import numpy as np
 from .constants import *
 
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2017, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
-PYNQ_JUPYTER_NOTEBOOKS = '/home/xilinx/jupyter_notebooks'
+PYNQ_JUPYTER_NOTEBOOKS = os.getenv('PYNQ_JUPYTER_NOTEBOOKS')
 
 
 def bitstring_to_wave(bitstring):
@@ -184,12 +155,7 @@ def draw_wavedrom(data):
 
     """
     data = _dump_json_data(data)
-    phantomjs = _find_phantomjs()
-    if phantomjs:
-        wavedrom_cli = _find_wavedrom_cli()
-        return _draw_phantomjs(data, phantomjs, wavedrom_cli)
-    else:
-        return _draw_javascript(data)
+    return _draw_javascript(data)
 
 
 def _dump_json_data(data):
@@ -276,47 +242,6 @@ def _copy_javascripts():
         raise RuntimeError('Cannot copy the javascripts.')
 
 
-def _draw_phantomjs(data, phantomjs, wavedrom_cli):
-    import IPython.core.display
-    import IPython.display
-    """Draw the wavedrom using PhantomJS.
-
-    This method requires the PhantomJS to be properly installed on the board.
-
-    Parameters
-    ----------
-    data : str
-        A dump of a Json formatted data.
-    phantomjs : str
-        The absolute path of the PhantomJS executable.
-    wavedrom_cli : str
-        The absolute path of the Wavedrom-cli Javascript.
-
-    """
-    prog = subprocess.Popen([
-        phantomjs, wavedrom_cli, '-i', '-', '-s', '-'],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    svg, _ = prog.communicate(data.encode('utf-8'))
-
-    # This code based on IPython.core.display.SVG
-    x = minidom.parseString(svg)
-    found_svg = x.getElementsByTagName('svg')
-    if found_svg:
-        svg = found_svg[0].toxml()
-    else:
-        # fallback on the input, trust the user
-        # but this is probably an error.
-        pass
-
-    svgdata = base64.b64encode(svg.encode('utf-8')).decode('ascii')
-    htmldata = ('<div class="output_svg">'
-                '<img class="svg" style="max-width: none"'
-                'src="data:image/svg+xml;base64,{0}" alt="Image"></img>'
-                '</div>').format(svgdata)
-
-    IPython.display.display(IPython.display.HTML(htmldata))
-
-
 def _find_wavedrom_cli():
     """Get path for the Wavedrom CLI Javascript file.
 
@@ -337,24 +262,6 @@ def _find_wavedrom_cli():
     jsfile = 'wavedrom-cli.js'
     base = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(base, 'js', jsfile)
-
-
-def _find_phantomjs():
-    """Find the PhantomJS executable path.
-
-    Returns
-    -------
-    str
-        The path of the PhantomJS executable file.
-
-    """
-    program = 'phantomjs'
-    for path in os.environ['PATH'].split(os.pathsep):
-        path = path.strip('"')
-        exe_file = os.path.join(path, program)
-        if _is_exe(exe_file):
-            return exe_file
-    return None
 
 
 def _is_exe(path):
@@ -881,3 +788,5 @@ class Waveform:
         for index, group in enumerate(self.waveform_dict['signal']):
             if group and (group[0] == group_name):
                 self.waveform_dict['signal'][index].append(wavelane_group)
+
+

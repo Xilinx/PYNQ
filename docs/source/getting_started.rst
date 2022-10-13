@@ -2,10 +2,10 @@
 Getting Started
 ***************
 
-You need a supported Xilinx platform to get started. How you get PYNQ depends
+You need a supported AMD-Xilinx platform to get started. How you get PYNQ depends
 on your platform. For some Zynq|Zynq Ultrascale+ platforms you can download 
-an SD card image to boot the board. For other platforms, including Alveo, you
-can install PYNQ onto your host Operating System. 
+an SD card image to boot the board. For other platforms, including Alveo and Kria
+SoMs, you can install PYNQ onto your host Operating System. 
 
 If you have one of the following boards, you can follow the quick start guide.
 Go to the `PYNQ support forum <https://discuss.pynq.io/>`_ for help.
@@ -19,11 +19,18 @@ Zynq, Zynq Ultrascale+ and Zynq RFSoC
     getting_started/pynq_z1_setup.rst
     getting_started/pynq_z2_setup.rst
     getting_started/zcu104_setup.rst
-    getting_started/alveo_getting_started.rst
 
 * `Ultra96 <https://ultra96-pynq.readthedocs.io/en/latest/getting_started.html>`_
-* `RFSoC 2x2 <https://www.rfsoc-pynq.io/getting_started.html>`_
 * `PYNQ-ZU <https://xilinx.github.io/PYNQ-ZU/getting_started.html>`_
+
+.. * 
+
+* `RFSoC-PYNQ <https://www.rfsoc-pynq.io/getting_started.html>`_
+
+Kria SoMs
+=========
+
+* `Kria-PYNQ <http://github.com/Xilinx/Kria-PYNQ>`_
 
 Alveo and XRT supported platforms
 =================================
@@ -31,6 +38,7 @@ Alveo and XRT supported platforms
 .. toctree::
     :maxdepth: 1
     
+    getting_started/alveo_getting_started.rst
     getting_started/pynq_alveo
 
 Jupyter Introduction

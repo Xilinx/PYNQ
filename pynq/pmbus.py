@@ -1,42 +1,14 @@
 #   Copyright (c) 2021, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
-import cffi
 import glob
 import os
 import threading
 import time
 import warnings
 
-__author__ = "Peter Ogden"
-__copyright__ = "Copyright 2021, Xilinx"
-__email__ = "pynq_support@xilinx.com"
+import cffi
+
 
 
 _c_header = R"""
@@ -249,7 +221,9 @@ class SysFSSensor:
 
     def __repr__(self):
         return "Sensor {{name={}, value={}{}}}".format(
-            self.name, self.value, self._unit)
+            self.name, self.value, self._unit
+        )
+
 
 class DerivedPowerSensor:
     def __init__(self, name, voltage, current):
@@ -270,8 +244,8 @@ class DerivedPowerSensor:
         return self.get_value()
 
     def __repr__(self):
-        return "Sensor {{name={}, value={}W}}".format(
-            self.name, self.value)
+        return "Sensor {{name={}, value={}W}}".format(self.name, self.value)
+
 
 class Sensor:
     """Interacts with a sensor exposed by libsensors
@@ -289,6 +263,7 @@ class Sensor:
         The current value of the sensor
 
     """
+
     def __init__(self, chip, number, unit, name):
         """Create a new sensor object wrapping a libsensors chip and feature
 
@@ -313,9 +288,7 @@ class Sensor:
 
     @property
     def value(self):
-        """Read the current value of the sensor
-
-        """
+        """Read the current value of the sensor"""
         if _lib:
             _lib.sensors_get_value(self._chip, self._number, self._value)
             return self._value[0]
@@ -327,7 +300,9 @@ class Sensor:
 
     def __repr__(self):
         return "Sensor {{name={}, value={}{}}}".format(
-            self.name, self.value, self._unit)
+            self.name, self.value, self._unit
+        )
+
 
 class Rail:
     """Bundles up to three sensors monitoring the same power rail
@@ -347,10 +322,9 @@ class Rail:
         Power sensor for the rail or None if not available
 
     """
-    def __init__(self, name):
-        """Create a new Rail with the specified rail
 
-        """
+    def __init__(self, name):
+        """Create a new Rail with the specified rail"""
         self.name = name
         self.voltage = None
         self.current = None
@@ -364,7 +338,7 @@ class Rail:
             args.append("current=" + repr(self.current))
         if self.power:
             args.append("power=" + repr(self.power))
-        return "Rail {{{}}}".format(', '.join(args))
+        return "Rail {{{}}}".format(", ".join(args))
 
 
 class XrtInfoDump:
@@ -388,8 +362,9 @@ class XrtInfoDump:
             "mgtavtt_v": info.mMgtVtt,
             "sys_5v5_v": info.mSys5v5,
             "vccint_v": info.mVccIntVol,
-            "vccint_i": info.mCurrent
+            "vccint_i": info.mCurrent,
         }
+
 
 class XrtSensor:
     def __init__(self, unit, name, scale, parent, field):
@@ -410,28 +385,27 @@ class XrtSensor:
 
     def __repr__(self):
         return "Sensor {{name={}, value={}{}}}".format(
-            self.name, self.value, self._unit)
+            self.name, self.value, self._unit
+        )
 
 
 class XrtRail:
     def __init__(self, name, sample_dict, parent):
-       self.name = name
-       if name + "_v" in sample_dict:
-           self.voltage = XrtSensor("V", name + "_vol", 0.001, parent, name + "_v")
-       else:
-           self.voltage = None
+        self.name = name
+        if name + "_v" in sample_dict:
+            self.voltage = XrtSensor("V", name + "_vol", 0.001, parent, name + "_v")
+        else:
+            self.voltage = None
 
-       if name + "_i" in sample_dict:
-           self.current = XrtSensor("A", name + "_curr", 0.001, parent, name + "_i")
-       else:
-           self.current = None
+        if name + "_i" in sample_dict:
+            self.current = XrtSensor("A", name + "_curr", 0.001, parent, name + "_i")
+        else:
+            self.current = None
 
-       if self.voltage and self.current:
-           self.power = DerivedPowerSensor(name + "_power",
-               self.voltage, self.current)
-       else:
-           self.power = None
-
+        if self.voltage and self.current:
+            self.power = DerivedPowerSensor(name + "_power", self.voltage, self.current)
+        else:
+            self.power = None
 
     def __repr__(self):
         args = ["name=" + self.name]
@@ -441,16 +415,28 @@ class XrtRail:
             args.append("current=" + repr(self.current))
         if self.power:
             args.append("power=" + repr(self.power))
-        return "XrtRail {{{}}}".format(', '.join(args))
+        return "XrtRail {{{}}}".format(", ".join(args))
 
 
 def get_xrt_sysfs_rails(device=None):
     if device is None:
         from pynq.pl_server import Device
+
         device = Device.active_device
 
-    rail_names = ["0v85", "12v_aux", "12v_pex", "12v_sw", "1v8", "3v3_aux",
-                  "3v3_pex", "mgt0v9avcc", "mgtavtt", "sys_5v5", "vccint" ]
+    rail_names = [
+        "0v85",
+        "12v_aux",
+        "12v_pex",
+        "12v_sw",
+        "1v8",
+        "3v3_aux",
+        "3v3_pex",
+        "mgt0v9avcc",
+        "mgtavtt",
+        "sys_5v5",
+        "vccint",
+    ]
 
     infodump = XrtInfoDump(device)
     sample_dict = infodump.get_value()
@@ -468,8 +454,8 @@ def _enumerate_sensors(config_file=None):
         return {}
 
     if config_file:
-        with open(config_file, 'r') as handle:
-            _lib.sensors_init(handle);
+        with open(config_file, "r") as handle:
+            _lib.sensors_init(handle)
     else:
         _lib.sensors_init(_ffi.NULL)
 
@@ -486,25 +472,32 @@ def _enumerate_sensors(config_file=None):
             subfeature = None
             if feature.type == _lib.SENSORS_FEATURE_POWER:
                 subfeature = _lib.sensors_get_subfeature(
-                        cn, feature, _lib.SENSORS_SUBFEATURE_POWER_INPUT)
+                    cn, feature, _lib.SENSORS_SUBFEATURE_POWER_INPUT
+                )
                 feature_type = "power"
                 unit = "W"
             elif feature.type == _lib.SENSORS_FEATURE_IN:
                 subfeature = _lib.sensors_get_subfeature(
-                        cn, feature, _lib.SENSORS_SUBFEATURE_IN_INPUT)
+                    cn, feature, _lib.SENSORS_SUBFEATURE_IN_INPUT
+                )
                 feature_type = "voltage"
                 unit = "V"
             elif feature.type == _lib.SENSORS_FEATURE_CURR:
                 subfeature = _lib.sensors_get_subfeature(
-                        cn, feature, _lib.SENSORS_SUBFEATURE_CURR_INPUT)
+                    cn, feature, _lib.SENSORS_SUBFEATURE_CURR_INPUT
+                )
                 feature_type = "current"
                 unit = "A"
             if subfeature:
                 if name not in rails:
                     rails[name] = Rail(name)
-                setattr(rails[name], feature_type,
-                        Sensor(cn, subfeature.number, unit, "{}_{}".format(
-                            name, feature_type)))
+                setattr(
+                    rails[name],
+                    feature_type,
+                    Sensor(
+                        cn, subfeature.number, unit, "{}_{}".format(name, feature_type)
+                    ),
+                )
             feature = _lib.sensors_get_features(cn, feature_nr)
         cn = _lib.sensors_get_detected_chips(_ffi.NULL, chip_nr)
     return rails
@@ -530,9 +523,8 @@ def get_rails(config_file=None):
 
 
 class MultiSensor:
-    """Class for efficiently collecting the readings from multiple sensors
+    """Class for efficiently collecting the readings from multiple sensors"""
 
-    """
     def __init__(self, sensors):
         self._sensors = sensors
 
@@ -547,25 +539,26 @@ class MultiSensor:
         stored[sensor] = value
         return value
 
+
 class DataRecorder:
     """Class to record sensors during an execution
     The DataRecorder provides a way of recording sensor data using a
     `with` block.
     """
+
     def __init__(self, *sensors):
-        """Create a new DataRecorder attached to the specified sensors
-        """
+        """Create a new DataRecorder attached to the specified sensors"""
         import pandas as pd
 
         self._record_index = -1
         self._sensors = sensors
         self._getter = MultiSensor(sensors)
-        self._columns = ['Mark']
+        self._columns = ["Mark"]
         self._times = []
         self._columns.extend([s.name for s in sensors])
-        self._frame = pd.DataFrame(columns=self._columns,
-                                   index = pd.DatetimeIndex([]),
-                                   dtype='f4')
+        self._frame = pd.DataFrame(
+            columns=self._columns, index=pd.DatetimeIndex([]), dtype="f4"
+        )
         self._callbacks = []
         self._data = []
         self._thread = None
@@ -582,12 +575,10 @@ class DataRecorder:
         self._record_index = -1
 
     def record(self, interval):
-        """Start recording
-        """
+        """Start recording"""
         if self._thread:
             raise RuntimeError("DataRecorder is already recording")
-        self._thread = threading.Thread(
-                target=DataRecorder._thread_func, args=[self])
+        self._thread = threading.Thread(target=DataRecorder._thread_func, args=[self])
         self._interval = interval
         self._done = False
         self._record_index += 1
@@ -602,15 +593,13 @@ class DataRecorder:
         return
 
     def stop(self):
-        """Stops recording
-        """
+        """Stops recording"""
         self._done = True
         self._thread.join()
         self._thread = None
 
     def mark(self):
-        """Increment the Invocation count
-        """
+        """Increment the Invocation count"""
         self._record_index += 1
         return self._record_index
 
@@ -632,3 +621,5 @@ class DataRecorder:
         Sensors* : one column per sensor
         """
         return self._frame
+
+

@@ -4,20 +4,18 @@
 PYNQ SD Card image
 ******************
 
-This page will explain how the PYNQ SD card image can be built for PYNQ
-embedded platforms (Zynq, Zynq Ultrascale+). SD card images are not use with 
-Alveo and other XRT platforms. For Alveo/XRT platforms, PYNQ is installed on 
-the host OS. 
+This page will explain how SD card images can be built for PYNQ
+embedded platforms (Zynq, Zynq Ultrascale+, Zynq RFSoC). SD card images are
+not used with Alveo and other PCI-express connected platforms. For those
+datacenter platforms, only PYNQ software is installed on the host OS. 
 
-The PYNQ images for supported boards are provided as precompiled 
-downloadable SD card images. You do not need to rerun this flow for these 
-boards unless you want to make changes to the image.
+Note: the PYNQ images for supported boards are provided as precompiled 
+downloadable SD card images and do not need rebuilt.  The SD card build flow is
+only required to modify SD cards' contents or target a new board.
 
-This flow can also be used as a starting point to build a PYNQ image for another
-Zynq / Zynq Ultrascale+ board.
-
-The image flow will create the BOOT.bin, the u-boot bootloader, the Linux
-Device tree blob, and the Linux kernel.
+Specifically, The SD card build flow will create the BOOT.bin, the u-boot
+bootloader, the Linux Device tree blob, the Linux kernel and the
+PYNQ-Linux root filesystem.
 
 The source files for the PYNQ image flow build can be found here:
 
@@ -31,21 +29,21 @@ in the folder above.
 Prepare the Building Environment
 ================================
 
-It is recommended to use a Ubuntu OS to build the image. The currently supported Ubuntu OS are listed below:
+It is recommended to use a Ubuntu OS to build the image. The currently supported
+Ubuntu OS are listed below:
 
 ================  ==================
 Supported OS      Code name
 ================  ==================   
 Ubuntu 18.04       Bionic
+Ubuntu 20.04       Focal
 ================  ==================
 
 Use Vagrant to prepare Ubuntu OS
 --------------------------------
-If you do not have a Ubuntu OS, you may need to prepare a Ubuntu virtual 
-machine (VM) on your host OS. We provide in our repository a *vagrant* file 
-that can help you install the Ubuntu VM on your host OS.
-
-If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
+If you do not have an Ubuntu enabled machine, you cam also prepare a Ubuntu virtual 
+machine (VM) on your host OS . We provide in our repository a *vagrant* file 
+that can help you install the Ubuntu VM on your host OS using the following steps:
 
   1. Download the `vagrant software <https://www.vagrantup.com/>`_ and 
      `Virtual Box <https://www.virtualbox.org/>`_. Install them on your host OS.
@@ -91,7 +89,7 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      The supported OS and their corresponding code names are listed in the 
      beginning of this section.
 
-  5. In the end, you will see a Virtual Box window popped up with only shell 
+  5. In the end, you will see a Virtual Box window pop up with only shell 
      terminal, asking for your Ubuntu login information. 
      Ignore this window and close it. Run the following command on your host:
      
@@ -133,10 +131,11 @@ If you do not have a Ubuntu OS, and you need a Ubuntu VM, do the following:
      v2.5               2019.1
      v2.6               2020.1
      v2.7               2020.2
+     v3.0               2022.1
      ================  ================
 
-Use existing Ubuntu OS
-----------------------
+Use an existing Ubuntu OS
+-------------------------
 If you already have a Ubuntu OS, and it is listed in the beginning of
 this section, you can simply do the following:
 
@@ -151,63 +150,81 @@ this section, you can simply do the following:
      PetaLinux, Vivado, and Vitis. See the above table for the correct version 
      of each release.
 
-Building the Image
-==================
+Building the Image From Source
+==============================
 
-Once you have the building environment ready, you can start to build the image 
+Once you have the build environment ready, you can build an SD card image 
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
   1. Source the appropriate settings for PetaLinux and Vitis. 
-     Suppose you are using Xilinx 2020.2 tools:
+     Suppose you are using Xilinx 2022.1 tools:
 
      .. code-block:: console
 
-        source <path-to-vitis>/Vitis/2020.2/settings64.sh
-        source <path-to-petalinux>/petalinux-2020.2-final/settings.sh
-        petalinux-util --webtalk off
+        source <path-to-vitis>/Vitis/2022.1/settings64.sh
+        source <path-to-petalinux>/petalinux-2022.1-final/settings.sh
 
-  2. Make sure you have the appropriate Vivado licenses to build for your
-     target board, especially 
-     `HDMI IP <https://www.xilinx.com/products/intellectual-property/hdmi.html>`_. 
+  2. Depending on the overlays being rebuilt, make sure you have the appropriate
+     Vivado licenses to build for your target board, especially the
+     `HDMI IP <https://www.xilinx.com/products/intellectual-property/hdmi.html>`_
+     for the ZCU104 or the `CMAC IP <https://www.xilinx.com/products/intellectual-property/cmac.html>`_
+     for the RFSoC4x2.   
 
-  3. Navigate to the following directory and run make
+  3. Collect a prebuilt board-agnostic root filesystem tarball and a prebuilt PYNQ
+     source distribution.  Starting in PYNQ v3.0, by default the SD card build
+     flow expects a prebuilt root filesystem and a PYNQ source distribution to
+     speedup and simplify user rebuilds of SD card images.  These binaries can be
+     found at `the PYNQ boards page <http://www.pynq.io/board.html/>`_ and
+     copied into the sdbuild prebuilt folder
+
+     .. code-block:: console
+
+	# For rebuilding all SD cards, both arm and aarch64 root filesystems
+	# may be required depending on boards being targetted.
+        cp pynq_rootfs.<arm|aarch64>.tar.gz <PYNQ repository>/sdbuild/prebuilt/pynq_rootfs.<arm|aarch64>.tar.gz
+	cp pynq-<version>.tar.gz            <PYNQ repository>/sdbuild/prebuilt/pynq_sdist.tar.gz
+        
+
+     
+  4. Navigate to the following directory and run make
 
      .. code-block:: console
     
         cd <PYNQ repository>/sdbuild/
         make
 
-The build flow can take several hours. By default images for all of the
-supported boards will be built.
+The build flow can take several hours and will rebuild SD cards for the Pynq-Z1, Pynq-Z2
+and ZCU104 platforms. 
 
-Using the prebuilt board-agnostic image
----------------------------------------
-In order to simplify and speed-up the image building process, you can re-use the 
+Rebuilding the prebuilt board-agnostic image
+--------------------------------------------
+In order to simplify and speed-up the image building process, users should re-use the 
 prebuilt board-agnostic image appropriate to the architecture - arm for Zynq-7000 
 and aarch64 for Zynq UltraScale+, downloadable at the 
 `boards page <http://www.pynq.io/board.html/>`_ of our website. This will allow 
-you to completely skip the board-agnostic stage. It is important to notice however
-that this will restrict the build process to only boards that share the same
-architecture. You can do so by passing the ``PREBUILT`` variable when invoking make:
+you to completely skip the board-agnostic stage.
+
+You can force a root filesystem build by setting the ``REBUILD_PYNQ_ROOTFS`` variable
+when invoking make:
 
 .. code-block:: console
     
    cd <PYNQ repository>/sdbuild/
-   make PREBUILT=<image path> BOARDS=<board>
+   make REBUILD_PYNQ_ROOTFS=True BOARDS=<board>
 
-Re-use the PYNQ source distribution tarball
--------------------------------------------
+Rebuilding the PYNQ source distribution tarball
+-----------------------------------------------
 To avoid rebuilding the PYNQ source distribution package, and consequently bypass
-the need to build bitstreams (except for external boards) and MicroBlazes' bsps 
-and binaries, a prebuilt PYNQ sdist tarball can be reused by specifying the 
-``PYNQ_SDIST`` variable when invoking make. The tarball specific to the target
-PYNQ version will be distributed when a new version is released on 
-`GitHub <https://github.com/Xilinx/PYNQ/releases>`_.
+the need to build bitstreams for the PYNQ-Z1, PYNQ-Z2 and the
+ZCU104, a prebuilt PYNQ sdist tarball should be reused as described in steps listed above.
+
+You can force a PYNQ source distribution rebuild by setting the ``REBUILD_PYNQ_SDIST`` variable
+when invoking make
 
 .. code-block:: console
     
    cd <PYNQ repository>/sdbuild/
-   make PYNQ_SDIST=<sdist tarball path>
+   make REBUILD_PYNQ_SDIST=True
 
 
 Please also refer to the 

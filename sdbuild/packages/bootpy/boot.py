@@ -22,4 +22,3 @@
 #    sleep(0.2)
 #    leds[0:4].on()
 #    sleep(0.2)
-

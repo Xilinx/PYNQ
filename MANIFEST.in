@@ -10,8 +10,12 @@ prune boards/sw_repo
 prune boards/*/petalinux_bsp
 prune boards/*/packages
 prune boards/*/*/vivado
+prune boards/*/*/base
+prune boards/*/*/logictools
+prune boards/*/*/NA
+
 recursive-exclude boards/*/* makefile
-recursive-exclude boards/* *.spec *.bsp *.hdf *.dsa *.xsa
+recursive-exclude boards/* *.spec *.bsp *.hdf *.dsa *.xsa *.log *.jou
 
 # include notebooks and images in docs folder
 include docs/source/*.ipynb
@@ -19,4 +23,4 @@ include docs/source/getting_started/*.ipynb
 recursive-include docs/source/images *
 
 # include misc files
-include pynq/pl_server/default.xclbin
+include pynq/devices/default.xclbin

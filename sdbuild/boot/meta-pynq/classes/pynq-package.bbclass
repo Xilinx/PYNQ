@@ -2,12 +2,12 @@ PYNQ_NOTEBOOK_DIR ?= "/home/root/notebooks"
 
 PYNQ_BOARD ?= ZCU104
 
-do_compile_prepend() {
+do_compile:prepend() {
 export PYNQ_JUPYTER_NOTEBOOKS="${D}${PYNQ_NOTEBOOK_DIR}"
 export BOARD=${PYNQ_BOARD}
 }
 
-do_install_prepend() {
+do_install:prepend() {
 export PYNQ_JUPYTER_NOTEBOOKS="${D}${PYNQ_NOTEBOOK_DIR}"
 export BOARD=${PYNQ_BOARD}
 }

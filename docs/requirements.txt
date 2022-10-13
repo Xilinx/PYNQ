@@ -11,3 +11,6 @@ ipython
 pytest
 netifaces
 pandas
+sphinx_copybutton
+git+https://github.com/xilinx/pynq-metadata@main#egg=pynqmetadata
+git+https://github.com/xilinx/pynq-utils@main#egg=pynqutils

@@ -18,7 +18,7 @@ PUTTY (terminal emulation software)
 
 Pynq Technical support
 ======================
-* `Pynq Technical support <http://www.pynq.io/support.html>`_
+* `Pynq Technical support <https://discuss.pynq.io/>`_
 
 Python built-in functions
 =========================
@@ -29,7 +29,7 @@ Python training
 * `The Python Tutorial from the Python development team <https://docs.python.org/3.5/tutorial/>`_
 * `Google Python training including videos <https://developers.google.com/edu/python/introduction>`_
 * `Python Tutor including visualization of Python program execution <http://www.pythontutor.com/>`_
-* `20 Best Free Tutorials to Learn Python as of 9 Oct 2015 <http://noeticforce.com/best-free-tutorials-to-learn-python-pdfs-ebooks-online-interactive>`_
+* `20 Best Free Tutorials to Learn Python as of 10 Nov 2021 <http://noeticforce.com/best-free-tutorials-to-learn-python-pdfs-ebooks-online-interactive>`_
 
 reStructuredText
 ================

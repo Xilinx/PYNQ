@@ -1,53 +1,23 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 import os
+import struct
 import warnings
 from copy import deepcopy
 from datetime import datetime
-import struct
+from multiprocessing.connection import Client, Listener
+from pathlib import Path
+
 import numpy as np
-from multiprocessing.connection import Listener
-from multiprocessing.connection import Client
+
+from .devicetree import DeviceTreeSegment, get_dtbo_base_name, get_dtbo_path
 from .mmio import MMIO
-from .ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
-from .devicetree import DeviceTreeSegment
-from .devicetree import get_dtbo_path
-from .devicetree import get_dtbo_base_name
+from .pl_server.device import Device
+from .pl_server.global_state import clear_global_state, load_global_state, global_state_file_exists
+from .pl_server.hwh_parser import HWH, get_hwh_name
+from .ps import CPU_ARCH, CPU_ARCH_IS_SUPPORTED, ZU_ARCH, ZYNQ_ARCH
 
-from .pl_server import HWH
-from .pl_server import get_hwh_name
-from .pl_server import Device
-
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
 class PLMeta(type):
@@ -77,7 +47,13 @@ class PLMeta(type):
             The absolute path of the bitstream currently on PL.
 
         """
-        return Device.active_device.bitfile_name
+        if hasattr(Device.active_device, "bitfile_name"):
+            if not Device.active_device.bitfile_name is None:
+                return Device.active_device.bitfile_name
+        
+        if global_state_file_exists():
+            gs = load_global_state()
+            return gs.bitfile_name
 
     @property
     def timestamp(cls):
@@ -89,7 +65,38 @@ class PLMeta(type):
             Bitstream download timestamp.
 
         """
-        return Device.active_device.timestamp
+        if hasattr(Device.active_device, "timestamp"):
+            return Device.active_device.timestamp
+        
+        if global_state_file_exists():
+            gs = load_global_state()
+            return gs.timestamp
+
+    @property
+    def dict_views(cls):
+        """ 
+            Getter attribute for the `systemgraph`
+            First checks to see if the metadata file is where it is expected.
+            If it is, parses it, and create a runtime_views object for it 
+        """
+        if hasattr(cls, "_dict_views_cached"):
+            return cls._dict_view_cache
+        else:
+            import os
+            import pickle
+            from pynqmetadata.frontends import Metadata
+            from .metadata.runtime_metadata_parser import RuntimeMetadataParser
+            metadata_state_file = Path(f"{os.path.dirname(__file__)}/pl_server/_current_metadata.pkl")
+            if os.path.isfile(metadata_state_file):
+                cls._dict_views_cached = True
+                try:
+                    cls._dict_view_cache = pickle.load(open(metadata_state_file, "rb"))
+                    return cls._dict_view_cache 
+                except:
+                    os.remove(metadata_state_file)
+                    return None
+            else:
+                return None
 
     @property
     def ip_dict(cls):
@@ -101,7 +108,12 @@ class PLMeta(type):
             The dictionary storing addressable IP instances; can be empty.
 
         """
-        return Device.active_device.ip_dict
+        if hasattr(Device.active_device, "ip_dict"):
+            if not Device.active_device.ip_dict is None:
+                return Device.active_device.ip_dict
+
+        if not cls.dict_views is None:
+            return cls.dict_views.ip_dict
 
     @property
     def gpio_dict(cls):
@@ -113,7 +125,12 @@ class PLMeta(type):
             The dictionary storing the PS GPIO pins.
 
         """
-        return Device.active_device.gpio_dict
+        if hasattr(Device.active_device, "gpio_dict"):
+            if not Device.active_device.gpio_dict is None:
+                return Device.active_device.gpio_dict
+        
+        if not cls.dict_views is None:
+            return cls.dict_views.gpio_dict
 
     @property
     def interrupt_controllers(cls):
@@ -125,7 +142,12 @@ class PLMeta(type):
             The dictionary storing interrupt controller information.
 
         """
-        return Device.active_device.interrupt_controllers
+        if hasattr(Device.active_device, "interrupt_controllers"):
+            if not Device.active_device.interrupt_controllers is None:
+                return Device.active_device.interrupt_controllers
+
+        if not cls.dict_views is None:
+            return cls.dict_views.interrupt_controllers
 
     @property
     def interrupt_pins(cls):
@@ -137,7 +159,12 @@ class PLMeta(type):
             The dictionary storing the interrupt endpoint information.
 
         """
-        return Device.active_device.interrupt_pins
+        if hasattr(Device.active_device, "interrupt_pins"):
+            if not Device.active_device.interrupt_pins is None:
+                return Device.active_device.interrupt_pins
+
+        if not cls.dict_views is None:
+            return cls.dict_views.interrupt_pins
 
     @property
     def hierarchy_dict(cls):
@@ -149,7 +176,12 @@ class PLMeta(type):
             The dictionary containing the hierarchies in the design
 
         """
-        return Device.active_device.hierarchy_dict
+        if hasattr(Device.active_device, "hierarchy_dict"):
+            if not Device.active_device.hierarchy_dict is None:
+                return Device.active_device.hierarchy_dict
+
+        if not cls.dict_views is None:
+            return cls.dict_views.hierarchy_dict
 
     @property
     def devicetree_dict(cls):
@@ -185,7 +217,12 @@ class PLMeta(type):
             The dictionary containing the memories in the design.
 
         """
-        return Device.active_device.mem_dict
+        if hasattr(Device.active_device, "mem_dict"):
+            if not Device.active_device.mem_dict is None:
+                return Device.active_device.mem_dict
+
+        if not self.dict_views is None:
+            return self.dict_views.mem_dict
 
     def shutdown(cls):
         """Shutdown the AXI connections to the PL in preparation for
@@ -213,7 +250,13 @@ class PLMeta(type):
             A parser object to speed up the reset process.
 
         """
-        Device.active_device.reset(parser)
+        clear_global_state()
+        if not cls.mem_dict is None:
+            for i in cls.mem_dict.values():
+                i['state'] = None
+        if not cls.ip_dict is None:
+            for i in cls.ip_dict.values():
+                i['state'] = None
 
     def clear_dict(cls):
         """Clear all the dictionaries stored in PL.
@@ -350,6 +393,7 @@ class PL(metaclass=PLMeta):
                'gpio': dict, 'fullpath': str}}
 
     """
+
     def __init__(self):
         """Return a new PL object.
 
@@ -358,4 +402,6 @@ class PL(metaclass=PLMeta):
         """
         euid = os.geteuid()
         if euid != 0:
-            raise EnvironmentError('Root permissions required.')
+            raise EnvironmentError("Root permissions required.")
+
+

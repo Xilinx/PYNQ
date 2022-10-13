@@ -1,3 +1,6 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 set_property PACKAGE_PIN M11 [get_ports reset]
 set_property IOSTANDARD LVCMOS33 [get_ports reset]
 

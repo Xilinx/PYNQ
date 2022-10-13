@@ -1,10 +1,10 @@
-#! /usr/bin/env python3.8
+#!/usr/local/share/pynq-venv/bin/python
 
-from pynq import Overlay
+from pynq.overlays.base import BaseOverlay
 from time import sleep
 
-ol = Overlay('base.bit')
-leds = ol.gpio_leds.channel1
+ol = BaseOverlay('base.bit')
+leds = ol.leds
 
 for _ in range(8):
     leds[0:4].off()

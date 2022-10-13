@@ -1,3 +1,6 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 # Rebuild HLS IP from source
 set current_dir [pwd]
 cd ../../ip/hls/

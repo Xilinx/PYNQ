@@ -1,5 +1,9 @@
 /include/ "system-conf.dtsi"
 / {
+        chosen {
+	        xlnx,eeprom = &eeprom;
+        };
+
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;

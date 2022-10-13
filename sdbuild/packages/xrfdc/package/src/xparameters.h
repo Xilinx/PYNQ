@@ -1,3 +1,6 @@
+// Copyright (C) 2022 Xilinx, Inc
+// SPDX-License-Identifier: BSD-3-Clause
+
 /* Definitions for driver RFDC */
 #define XPAR_XRFDC_NUM_INSTANCES 0
 #define XPAR_SCUGIC_NUM_INSTANCES 0

@@ -1,46 +1,16 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-# 
-#   Redistribution and use in source and binary forms, with or without 
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice, 
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright 
-#       notice, this list of conditions and the following disclaimer in the 
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its 
-#       contributors may be used to endorse or promote products derived from 
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 
-from math import ceil
 import asyncio
 import os
+from math import ceil
+
 from numpy import array
+
 from pynq import allocate
-from . import Arduino
-from . import MAILBOX_OFFSET
-from . import MAILBOX_PY2IOP_CMD_OFFSET
+from . import MAILBOX_OFFSET, MAILBOX_PY2IOP_CMD_OFFSET, Arduino
 
-
-__author__ = "Parimal Patel, Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
 ARDUINO_LCD18_PROGRAM = "arduino_lcd18.bin"
@@ -74,12 +44,12 @@ def _convert_color(color):
 
 
 class Arduino_LCD18(object):
-    """This class controls the Adafruit 1.8" LCD shield from AdaFruit. 
-    
+    """This class controls the Adafruit 1.8" LCD shield from AdaFruit.
+
     The LCD panel consists of ST7735 LCD controller, a joystick, and a microSD
-    socket. This class uses the LCD panel (128x160 pixels) and the joystick. 
+    socket. This class uses the LCD panel (128x160 pixels) and the joystick.
     The joystick uses A3 analog channel. https://www.adafruit.com/product/802.
-    
+
     Attributes
     ----------
     microblaze : Arduino
@@ -88,9 +58,10 @@ class Arduino_LCD18(object):
         Contiguous buffer used to store the image.
 
     """
+
     def __init__(self, mb_info):
         """Return a new instance of an Arduino_LCD18 object.
-        
+
         Parameters
         ----------
         mb_info : dict
@@ -103,16 +74,17 @@ class Arduino_LCD18(object):
 
     def clear(self):
         """Clear the screen.
-        
+
         Returns
         -------
         None
-        
+
         """
         self.microblaze.write_blocking_command(CLEAR_SCREEN)
 
-    def display(self, img_path, x_pos=0, y_pos=127, orientation=3,
-                background=None, frames=1):
+    def display(
+        self, img_path, x_pos=0, y_pos=127, orientation=3, background=None, frames=1
+    ):
         """Animate the image at the desired location for multiple frames.
 
         The maximum screen resolution is 160x128.
@@ -153,13 +125,14 @@ class Arduino_LCD18(object):
 
         """
         task = asyncio.ensure_future(
-                    self.display_async(img_path, x_pos, y_pos, orientation,
-                                       background, frames))
+            self.display_async(img_path, x_pos, y_pos, orientation, background, frames)
+        )
         loop = asyncio.get_event_loop()
         loop.run_until_complete(task)
 
-    async def display_async(self, img_path, x_pos=0, y_pos=127,
-                      orientation=3, background=None, frames=1):
+    async def display_async(
+        self, img_path, x_pos=0, y_pos=127, orientation=3, background=None, frames=1
+    ):
         """Animate the image at the desired location for multiple frames.
 
         The maximum screen resolution is 160x128.
@@ -231,22 +204,32 @@ class Arduino_LCD18(object):
             for j in range(width):
                 for i in range(height):
                     red, green, blue = image_array[i][j]
-                    temp = ((blue & 0xF8) << 8) | ((green & 0xFC) << 3) | \
-                           ((red & 0xF8) >> 3)
+                    temp = (
+                        ((blue & 0xF8) << 8)
+                        | ((green & 0xFC) << 3)
+                        | ((red & 0xF8) >> 3)
+                    )
                     index = 2 * ((height - i - 1) * width + j)
                     self.buffer[index] = temp & 0xFF
                     self.buffer[index + 1] = (temp & 0xFF00) >> 8
 
-            data = [x_pos, y_pos, width, height,
-                    phy_addr, background16, orientation, frames]
+            data = [
+                x_pos,
+                y_pos,
+                width,
+                height,
+                phy_addr,
+                background16,
+                orientation,
+                frames,
+            ]
             self.microblaze.write_mailbox(0, data)
 
             # Ensure interrupt is reset before issuing command
             if self.microblaze.interrupt:
                 self.microblaze.interrupt.clear()
             self.microblaze.write_non_blocking_command(DISPLAY)
-            while self.microblaze.read(MAILBOX_OFFSET +
-                                       MAILBOX_PY2IOP_CMD_OFFSET) != 0:
+            while self.microblaze.read(MAILBOX_OFFSET + MAILBOX_PY2IOP_CMD_OFFSET) != 0:
                 if self.microblaze.interrupt:
                     await self.microblaze.interrupt.wait()
         finally:
@@ -254,8 +237,16 @@ class Arduino_LCD18(object):
                 self.microblaze.interrupt.clear()
             self.buffer.freebuffer()
 
-    def draw_line(self, x_start_pos, y_start_pos, x_end_pos, y_end_pos,
-                  color=None, background=None, orientation=3):
+    def draw_line(
+        self,
+        x_start_pos,
+        y_start_pos,
+        x_end_pos,
+        y_end_pos,
+        color=None,
+        background=None,
+        orientation=3,
+    ):
         """Draw a line from starting point to ending point.
 
         The maximum screen resolution is 160x128.
@@ -313,13 +304,21 @@ class Arduino_LCD18(object):
             background = [0, 0, 0]
         background16 = _convert_color(background)
 
-        data = [x_start_pos, y_start_pos, x_end_pos, y_end_pos,
-                color16, background16, orientation]
+        data = [
+            x_start_pos,
+            y_start_pos,
+            x_end_pos,
+            y_end_pos,
+            color16,
+            background16,
+            orientation,
+        ]
         self.microblaze.write_mailbox(0, data)
         self.microblaze.write_blocking_command(DRAW_LINE)
 
-    def print_string(self, x_start_pos, y_start_pos, text,
-                     color=None, background=None, orientation=3):
+    def print_string(
+        self, x_start_pos, y_start_pos, text, color=None, background=None, orientation=3
+    ):
         """Draw a character with a specific color.
 
         The maximum screen resolution is 160x128.
@@ -336,7 +335,7 @@ class Arduino_LCD18(object):
         are valid orientations. If users choose orientation 1, the picture
         will be shown upside-down. If users choose orientation 3, the picture
         will be shown consistently with the LCD screen orientation.
-        
+
         Parameters
         ----------
         x_start_pos : int
@@ -376,10 +375,9 @@ class Arduino_LCD18(object):
         temp_txt = text
         count = len(text)
         for _ in range(count % 4):
-            temp_txt = temp_txt + str('\0')
+            temp_txt = temp_txt + str("\0")
 
-        data = [x_start_pos, y_start_pos,
-                color16, background16, orientation]
+        data = [x_start_pos, y_start_pos, color16, background16, orientation]
         temp = 0
         for i in range(len(temp_txt)):
             temp = temp | (ord(temp_txt[i]) << 8 * (i % 4))
@@ -390,8 +388,16 @@ class Arduino_LCD18(object):
         self.microblaze.write_mailbox(0, data)
         self.microblaze.write_blocking_command(PRINT_STRING)
 
-    def draw_filled_rectangle(self, x_start_pos, y_start_pos, width, height,
-                              color=None, background=None, orientation=3):
+    def draw_filled_rectangle(
+        self,
+        x_start_pos,
+        y_start_pos,
+        width,
+        height,
+        color=None,
+        background=None,
+        orientation=3,
+    ):
         """Draw a filled rectangle.
 
         Parameter `color` specifies the color of the text; it is a list of 3
@@ -447,8 +453,15 @@ class Arduino_LCD18(object):
             background = [0, 0, 0]
         background16 = _convert_color(background)
 
-        data = [x_start_pos, y_start_pos, width, height,
-                color16, background16, orientation]
+        data = [
+            x_start_pos,
+            y_start_pos,
+            width,
+            height,
+            color16,
+            background16,
+            orientation,
+        ]
         self.microblaze.write_mailbox(0, data)
         self.microblaze.write_blocking_command(FILL_RECTANGLE)
 
@@ -475,3 +488,5 @@ class Arduino_LCD18(object):
         self.microblaze.write_blocking_command(READ_BUTTON)
         value = self.microblaze.read_mailbox(0)
         return value
+
+

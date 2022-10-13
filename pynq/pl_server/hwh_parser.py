@@ -1,42 +1,14 @@
 #   Copyright (c) 2021, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
+import abc
 import os
 import re
-import abc
-from xml.etree import ElementTree
 from copy import deepcopy
-from pynq.ps import CPU_ARCH_IS_SUPPORTED, CPU_ARCH, ZYNQ_ARCH, ZU_ARCH
+from xml.etree import ElementTree
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2021, Xilinx"
-__email__ = "pynq_support@xilinx.com"
+from pynq.ps import CPU_ARCH, CPU_ARCH_IS_SUPPORTED, ZU_ARCH, ZYNQ_ARCH
+
 
 
 def get_hwh_name(bitfile_name):
@@ -56,7 +28,7 @@ def get_hwh_name(bitfile_name):
         The absolute path of the .hwh file.
 
     """
-    return os.path.splitext(bitfile_name)[0] + '.hwh'
+    return os.path.splitext(bitfile_name)[0] + ".hwh"
 
 
 def string2int(a):
@@ -73,7 +45,7 @@ def string2int(a):
         The decimal number.
 
     """
-    return int(a, 16 if a.startswith('0x') else 10)
+    return int(a, 16 if a.startswith("0x") else 10)
 
 
 def _create_irq_map(details):
@@ -137,6 +109,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         {index: {'divisor0' : int, 'divisor1' : int, 'enable' : int}}
 
     """
+
     family_ps = ""
     family_irq = ""
     family_gpio = ""
@@ -174,27 +147,31 @@ class _HWHABC(metaclass=abc.ABCMeta):
         self.clock_dict = {}
         self.mem_dict = {}
 
-        self.instance2attr = {i.get('INSTANCE'): (
-            i.get('FULLNAME').lstrip('/'),
-            i.get('VLNV'),
-            i.findall("./PARAMETERS/*[@NAME][@VALUE]"),
-            i.findall(".//REGISTERS/*[@NAME]"),
-            i.get('BDTYPE'))
-            for i in self.root.iter("MODULE")}
+        self.instance2attr = {
+            i.get("INSTANCE"): (
+                i.get("FULLNAME").lstrip("/"),
+                i.get("VLNV"),
+                i.findall("./PARAMETERS/*[@NAME][@VALUE]"),
+                i.findall(".//REGISTERS/*[@NAME]"),
+                i.get("BDTYPE"),
+            )
+            for i in self.root.iter("MODULE")
+        }
 
         self.init_partial_ip_dict()
         for mod in self.root.iter("MODULE"):
-            mod_type = mod.get('MODTYPE')
-            full_path = mod.get('FULLNAME').lstrip('/')
+            mod_type = mod.get("MODTYPE")
+            full_path = mod.get("FULLNAME").lstrip("/")
             if mod_type == self.family_ps:
                 self.ps_name = full_path
                 self.init_clk_dict(mod)
                 self.init_full_ip_dict(mod)
                 self.add_ps_to_ip_dict(mod)
-            elif mod_type == 'xlconcat':
-                self.concat_cells[full_path] = mod.find(
-                    ".//*[@NAME='NUM_PORTS']").get('VALUE')
-            elif mod_type == 'axi_intc':
+            elif mod_type == "xlconcat":
+                self.concat_cells[full_path] = mod.find(".//*[@NAME='NUM_PORTS']").get(
+                    "VALUE"
+                )
+            elif mod_type == "axi_intc":
                 self.intc_names.append(full_path)
 
             self.match_nets(mod, full_path)
@@ -213,7 +190,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         This method will only work for partial block designs.
 
         """
-        self._parse_ip_dict(self.root, 'MASTERBUSINTERFACE')
+        self._parse_ip_dict(self.root, "MASTERBUSINTERFACE")
 
     def init_full_ip_dict(self, mod):
         """Get the IP address blocks exposed at the top level block design.
@@ -239,7 +216,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """
         self.partial = False
         self.ip_dict = {}
-        self._parse_ip_dict(mod, 'SLAVEBUSINTERFACE')
+        self._parse_ip_dict(mod, "SLAVEBUSINTERFACE")
 
     def add_ps_to_ip_dict(self, mod):
         """Add the PS block to the IP dict.
@@ -255,76 +232,95 @@ class _HWHABC(metaclass=abc.ABCMeta):
             The current PS instance under parsing.
 
         """
-        full_name, vlnv, pars, _, _ = self.instance2attr[mod.get('INSTANCE')]
+        full_name, vlnv, pars, _, _ = self.instance2attr[mod.get("INSTANCE")]
         self.ip_dict[full_name] = {}
-        self.ip_dict[full_name]['gpio'] = dict()
-        self.ip_dict[full_name]['interrupts'] = dict()
-        self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
-                                                 j.get('VALUE')
-                                                 for j in pars}
-        self.ip_dict[full_name]['type'] = vlnv
+        self.ip_dict[full_name]["gpio"] = dict()
+        self.ip_dict[full_name]["interrupts"] = dict()
+        self.ip_dict[full_name]["parameters"] = {
+            j.get("NAME"): j.get("VALUE") for j in pars
+        }
+        self.ip_dict[full_name]["type"] = vlnv
 
     def _parse_ip_dict(self, mod, mem_intf_id):
         to_pop = set()
         for i in mod.iter("MEMRANGE"):
-            if i.get('INSTANCE') in self.instance2attr:
+            if i.get("INSTANCE") in self.instance2attr:
                 full_name, vlnv, pars, regs, bdtype = self.instance2attr[
-                    i.get('INSTANCE')]
-                intf_id = i.get(mem_intf_id)
-                if full_name in self.ip_dict and \
-                        self.ip_dict[full_name]['mem_id'] and intf_id:
-                    rename = full_name + '/' + \
-                        self.ip_dict[full_name]['mem_id']
-                    self.ip_dict[rename] = deepcopy(self.ip_dict[full_name])
-                    self.ip_dict[rename]['fullpath'] = rename
-                    to_pop.add(full_name)
-                    full_name += '/' + intf_id
-                elif vlnv.split(':')[:2] == ['xilinx.com', 'module_ref'] and \
-                        bdtype:
-                    full_name += '/' + intf_id
+                    i.get("INSTANCE")
+                ]
 
-                self.ip_dict[full_name] = {}
-                self.ip_dict[full_name]['fullpath'] = full_name
-                self.ip_dict[full_name]['type'] = vlnv
-                self.ip_dict[full_name]['bdtype'] = bdtype
-                self.ip_dict[full_name]['state'] = None
-                high_addr = int(i.get('HIGHVALUE'), 16)
-                base_addr = int(i.get('BASEVALUE'), 16)
-                addr_range = high_addr - base_addr + 1
-                self.ip_dict[full_name]['addr_range'] = addr_range
-                self.ip_dict[full_name]['phys_addr'] = base_addr
-                self.ip_dict[full_name]['mem_id'] = intf_id
-                self.ip_dict[full_name]['memtype'] = i.get('MEMTYPE', None)
-                self.ip_dict[full_name]['gpio'] = {}
-                self.ip_dict[full_name]['interrupts'] = {}
-                self.ip_dict[full_name]['parameters'] = {j.get('NAME'):
-                                                         j.get('VALUE')
-                                                         for j in pars}
-                self.ip_dict[full_name]['registers'] = {j.get('NAME'): {
-                        'address_offset': string2int(j.find(
-                            './PROPERTY/[@NAME="ADDRESS_OFFSET"]').get(
-                            'VALUE')),
-                        'size': string2int(j.find(
-                            './PROPERTY/[@NAME="SIZE"]').get(
-                            'VALUE')),
-                        'access': j.find('./PROPERTY/[@NAME="ACCESS"]').get(
-                                'VALUE'),
-                        'description': j.find(
-                            './PROPERTY/[@NAME="DESCRIPTION"]').get('VALUE'),
-                        'fields': {k.get('NAME'): {
-                            'bit_offset': string2int(k.find(
-                                './PROPERTY/[@NAME="BIT_OFFSET"]').get(
-                                'VALUE')),
-                            'bit_width': string2int(k.find(
-                                './PROPERTY/[@NAME="BIT_WIDTH"]').get(
-                                'VALUE')),
-                            'description': j.find(
-                                './PROPERTY/[@NAME="DESCRIPTION"]').get(
-                                    'VALUE'),
-                            'access': k.find(
-                                './PROPERTY/[@NAME="ACCESS"]').get('VALUE')}
-                            for k in j.findall('./FIELDS/FIELD/[@NAME]')}}
-                    for j in regs}
+                if bdtype != "BLOCK_CONTAINER":
+                    intf_id = i.get(mem_intf_id)
+                    if (
+                        full_name in self.ip_dict
+                        and self.ip_dict[full_name]["mem_id"]
+                        and intf_id
+                    ):
+                        rename = full_name + "/" + self.ip_dict[full_name]["mem_id"]
+                        self.ip_dict[rename] = deepcopy(self.ip_dict[full_name])
+                        self.ip_dict[rename]["fullpath"] = rename
+                        to_pop.add(full_name)
+                        full_name += "/" + intf_id
+                    elif vlnv.split(":")[:2] == ["xilinx.com", "module_ref"] and bdtype:
+                        full_name += "/" + intf_id
+
+                    self.ip_dict[full_name] = {}
+                    self.ip_dict[full_name]["fullpath"] = full_name
+                    self.ip_dict[full_name]["type"] = vlnv
+                    self.ip_dict[full_name]["bdtype"] = bdtype
+                    self.ip_dict[full_name]["state"] = None
+                    high_addr = int(i.get("HIGHVALUE"), 16)
+                    base_addr = int(i.get("BASEVALUE"), 16)
+                    addr_range = high_addr - base_addr + 1
+                    self.ip_dict[full_name]["addr_range"] = addr_range
+                    self.ip_dict[full_name]["phys_addr"] = base_addr
+                    self.ip_dict[full_name]["mem_id"] = intf_id
+                    self.ip_dict[full_name]["memtype"] = i.get("MEMTYPE", None)
+                    self.ip_dict[full_name]["gpio"] = {}
+                    self.ip_dict[full_name]["interrupts"] = {}
+                    self.ip_dict[full_name]["parameters"] = {
+                        j.get("NAME"): j.get("VALUE") for j in pars
+                    }
+                    self.ip_dict[full_name]["registers"] = {
+                        j.get("NAME"): {
+                            "address_offset": string2int(
+                                j.find('./PROPERTY/[@NAME="ADDRESS_OFFSET"]').get(
+                                    "VALUE"
+                                )
+                            ),
+                            "size": string2int(
+                                j.find('./PROPERTY/[@NAME="SIZE"]').get("VALUE")
+                            ),
+                            "access": j.find('./PROPERTY/[@NAME="ACCESS"]').get(
+                                "VALUE"
+                            ),
+                            "description": j.find(
+                                './PROPERTY/[@NAME="DESCRIPTION"]'
+                            ).get("VALUE"),
+                            "fields": {
+                                k.get("NAME"): {
+                                    "bit_offset": string2int(
+                                        k.find('./PROPERTY/[@NAME="BIT_OFFSET"]').get(
+                                            "VALUE"
+                                        )
+                                    ),
+                                    "bit_width": string2int(
+                                        k.find('./PROPERTY/[@NAME="BIT_WIDTH"]').get(
+                                            "VALUE"
+                                        )
+                                    ),
+                                    "description": j.find(
+                                        './PROPERTY/[@NAME="DESCRIPTION"]'
+                                    ).get("VALUE"),
+                                    "access": k.find('./PROPERTY/[@NAME="ACCESS"]').get(
+                                        "VALUE"
+                                    ),
+                                }
+                                for k in j.findall("./FIELDS/FIELD/[@NAME]")
+                            },
+                        }
+                        for j in regs
+                    }
         for i in to_pop:
             self.ip_dict.pop(i)
 
@@ -344,8 +340,8 @@ class _HWHABC(metaclass=abc.ABCMeta):
 
         """
         for blk in mod.iter("PORT"):
-            ports = [full_path + '/' + blk.get('NAME')]
-            signame = blk.get('SIGNAME')
+            ports = [full_path + "/" + blk.get("NAME")]
+            signame = blk.get("SIGNAME")
             if signame in self.nets:
                 self.nets[signame] |= set(ports)
             else:
@@ -358,10 +354,10 @@ class _HWHABC(metaclass=abc.ABCMeta):
         net names.
 
         """
-        external_ports = self.root.find('./EXTERNALPORTS')
+        external_ports = self.root.find("./EXTERNALPORTS")
         for port in external_ports.iter("PORT"):
-            name_list = [port.get('NAME')]
-            signame = port.get('SIGNAME')
+            name_list = [port.get("NAME")]
+            signame = port.get("SIGNAME")
             if signame in self.nets:
                 self.nets[signame] |= set(name_list)
             else:
@@ -389,8 +385,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
         for irq_name in self.family_irq.keys():
             if self.ps_name + "/" + irq_name in self.pins:
                 raw_map = _create_irq_map(self.family_irq[irq_name])
-                ps_irq_net = self.pins[
-                    self.ps_name + "/" + irq_name]
+                ps_irq_net = self.pins[self.ps_name + "/" + irq_name]
                 self._add_interrupt_pins(ps_irq_net, "", 0, raw_map)
 
     def init_mem_dict(self):
@@ -400,37 +395,48 @@ class _HWHABC(metaclass=abc.ABCMeta):
 
         """
         for k, v in list(self.ip_dict.items()):
-            if v.get('memtype', None) == 'MEMORY':
+            memtype = v.get("memtype")
+            bdtype = v.get("bdtype")
+            if memtype == "MEMORY":
                 self.mem_dict[k] = v
-                v['used'] = 1
-                del self.ip_dict[k]
+                v["used"] = 1
+            elif memtype == "REGISTER":
+                if (
+                    bdtype == "BLOCK_CONTAINER"
+                    and v.get("parameters").get("ENABLE_DFX") == "true"
+                ) or bdtype == "RBD":
+                    self.mem_dict[k] = v
+                    v["dfx"] = True
+                    del self.ip_dict[k]
 
     def _add_interrupt_pins(self, net, parent, offset, raw_map=None):
         net_pins = self.nets[net] if net else set()
         for p in net_pins:
-            m = re.match('(.*)/dout', p)
+            m = re.match("(.*)/dout", p)
             if m is not None:
                 name = m.group(1)
                 if name in self.concat_cells:
                     return self._add_concat_pins(name, parent, offset, raw_map)
-            m = re.match('(.*)/irq', p)
+            m = re.match("(.*)/irq", p)
             if m is not None:
                 name = m.group(1)
                 if name in self.intc_names:
-                    self._add_interrupt_pins(
-                        self.pins[name + "/intr"], name, 0)
-                    self.interrupt_controllers[name] = {'parent': parent,
-                                                        'index': offset}
+                    self._add_interrupt_pins(self.pins[name + "/intr"], name, 0)
+                    self.interrupt_controllers[name] = {
+                        "parent": parent,
+                        "index": offset,
+                    }
                     if raw_map is not None:
-                        self.interrupt_controllers[name]['raw_irq'] = \
-                                raw_map[offset]
+                        self.interrupt_controllers[name]["raw_irq"] = raw_map[offset]
                     return offset + 1
         for p in net_pins:
-            self.interrupt_pins[p] = {'controller': parent,
-                                      'index': offset,
-                                      'fullpath': p}
+            self.interrupt_pins[p] = {
+                "controller": parent,
+                "index": offset,
+                "fullpath": p,
+            }
             if raw_map is not None:
-                self.interrupt_pins[p]['raw_irq'] = raw_map[offset]
+                self.interrupt_pins[p]["raw_irq"] = raw_map[offset]
         return offset + 1
 
     def _add_concat_pins(self, name, parent, offset, raw_map=None):
@@ -441,88 +447,82 @@ class _HWHABC(metaclass=abc.ABCMeta):
         return offset
 
     def add_gpio(self):
-        """Get the PS GPIO blocks exposed at the top level block design.
-
-        """
-        for it in self.root.iter('MODULE'):
+        """Get the PS GPIO blocks exposed at the top level block design."""
+        for it in self.root.iter("MODULE"):
             mod = it.find(
                 ".//PORTS//*[@DIR='I']"
                 "//*[@INSTANCE='{0}'][@PORT='{1}']../../../..".format(
-                    self.ps_name, self.family_gpio))
+                    self.ps_name, self.family_gpio
+                )
+            )
             if mod is not None:
-                din = int(mod.find(".//*[@NAME='DIN_FROM']").get('VALUE'))
+                din = int(mod.find(".//*[@NAME='DIN_FROM']").get("VALUE"))
                 for p in mod.iter("PORT"):
-                    if p.get('DIR') == 'O':
-                        signame = p.get('SIGNAME')
+                    if p.get("DIR") == "O":
+                        signame = p.get("SIGNAME")
                         net_set = self.nets[signame]
-                        gpio_name = ''
+                        gpio_name = ""
                         for i in net_set:
-                            m = re.match('(.*)/Dout', i)
+                            m = re.match("(.*)/Dout", i)
                             if m is not None:
                                 gpio_name = m.group(1)
                                 break
-                        if gpio_name == '':
+                        if gpio_name == "":
                             raise ValueError("Cannot get GPIO name */Dout.")
                         self.gpio_dict[gpio_name] = {}
-                        self.gpio_dict[gpio_name]['state'] = None
-                        self.gpio_dict[gpio_name]['pins'] = net_set
-                        self.gpio_dict[gpio_name]['index'] = din
+                        self.gpio_dict[gpio_name]["state"] = None
+                        self.gpio_dict[gpio_name]["pins"] = net_set
+                        self.gpio_dict[gpio_name]["index"] = din
 
     def init_hierarchy_dict(self):
-        """Initialize the hierarchical dictionary.
-
-        """
+        """Initialize the hierarchical dictionary."""
         objects = list(self.ip_dict.keys()) + list(self.mem_dict.keys())
         lasthierarchies = {}
-        hierarchies = {k.rpartition('/')[0] for k in objects
-                       if k.count('/') > 0}
+        hierarchies = {k.rpartition("/")[0] for k in objects if k.count("/") > 0}
         while lasthierarchies != hierarchies:
-            parents = {k.rpartition('/')[0] for k in hierarchies
-                       if k.count('/') > 0}
+            parents = {k.rpartition("/")[0] for k in hierarchies if k.count("/") > 0}
             lasthierarchies = hierarchies
             hierarchies.update(parents)
         for hier in hierarchies:
             self.hierarchy_dict[hier] = {
-                'ip': dict(),
-                'hierarchies': dict(),
-                'interrupts': dict(),
-                'gpio': dict(),
-                'memories': dict(),
-                'fullpath': hier,
+                "ip": dict(),
+                "hierarchies": dict(),
+                "interrupts": dict(),
+                "gpio": dict(),
+                "memories": dict(),
+                "fullpath": hier,
             }
         for name, val in self.ip_dict.items():
-            hier, _, ip = name.rpartition('/')
+            hier, _, ip = name.rpartition("/")
             if hier:
-                self.hierarchy_dict[hier]['ip'][ip] = val
+                self.hierarchy_dict[hier]["ip"][ip] = val
 
         for name, val in self.mem_dict.items():
-            hier, _, mem = name.rpartition('/')
+            hier, _, mem = name.rpartition("/")
             if hier:
-                self.hierarchy_dict[hier]['memories'][mem] = val
+                self.hierarchy_dict[hier]["memories"][mem] = val
 
         for name, val in self.hierarchy_dict.items():
-            hier, _, subhier = name.rpartition('/')
+            hier, _, subhier = name.rpartition("/")
             if hier:
-                self.hierarchy_dict[hier]['hierarchies'][subhier] = val
+                self.hierarchy_dict[hier]["hierarchies"][subhier] = val
 
     def assign_interrupts_gpio(self):
-        """Assign interrupts and gpio entries to the dictionaries.
-
-        """
+        """Assign interrupts and gpio entries to the dictionaries."""
         for interrupt, val in self.interrupt_pins.items():
-            block, _, pin = interrupt.rpartition('/')
+            block, _, pin = interrupt.rpartition("/")
             if block in self.ip_dict:
-                self.ip_dict[block]['interrupts'][pin] = val
+                self.ip_dict[block]["interrupts"][pin] = val
             if block in self.hierarchy_dict:
-                self.hierarchy_dict[block]['interrupts'][pin] = val
+                self.hierarchy_dict[block]["interrupts"][pin] = val
 
         for gpio in self.gpio_dict.values():
-            for connection in gpio['pins']:
-                ip, _, pin = connection.rpartition('/')
+            for connection in gpio["pins"]:
+                ip, _, pin = connection.rpartition("/")
                 if ip in self.ip_dict:
-                    self.ip_dict[ip]['gpio'][pin] = gpio
+                    self.ip_dict[ip]["gpio"][pin] = gpio
                 elif ip in self.hierarchy_dict:
-                    self.hierarchy_dict[ip]['gpio'][pin] = gpio
+                    self.hierarchy_dict[ip]["gpio"][pin] = gpio
 
     def init_clk_dict(self, mod):
         """Initialize the clock dictionary.
@@ -535,10 +535,11 @@ class _HWHABC(metaclass=abc.ABCMeta):
         """
         for i in range(4):
             self.clock_dict[i] = dict()
-            self.clock_dict[i]['enable'] = self.find_clock_enable(mod, i)
+            self.clock_dict[i]["enable"] = self.find_clock_enable(mod, i)
             for j in range(2):
-                self.clock_dict[i]['divisor{}'.format(j)] = \
-                    self.find_clock_divisor(mod, i, j)
+                self.clock_dict[i]["divisor{}".format(j)] = self.find_clock_divisor(
+                    mod, i, j
+                )
 
 
 class _HWHZynq(_HWHABC):
@@ -547,6 +548,7 @@ class _HWHZynq(_HWHABC):
     This class works for the Zynq devices.
 
     """
+
     family_ps = "processing_system7"
     family_irq = {"IRQ_F2P": ((61, 8), (84, 8))}
     family_gpio = "GPIO_O"
@@ -569,9 +571,10 @@ class _HWHZynq(_HWHABC):
             The clock divisor value in decimal.
 
         """
-        clk_odiv = 'PCW_FCLK{0}_PERIPHERAL_DIVISOR{1}'.format(clk_id, div_id)
-        return int(mod.find(
-            "./PARAMETERS/*[@NAME='{0}']".format(clk_odiv)).get('VALUE'))
+        clk_odiv = "PCW_FCLK{0}_PERIPHERAL_DIVISOR{1}".format(clk_id, div_id)
+        return int(
+            mod.find("./PARAMETERS/*[@NAME='{0}']".format(clk_odiv)).get("VALUE")
+        )
 
     def find_clock_enable(self, mod, clk_id):
         """Return the clock enable for the given clock ID.
@@ -589,9 +592,10 @@ class _HWHZynq(_HWHABC):
             The clock enable value in decimal (1 means enabled).
 
         """
-        clk_enable = 'PCW_FPGA_FCLK{0}_ENABLE'.format(clk_id)
-        return int(mod.find(
-            "./PARAMETERS/*[@NAME='{0}']".format(clk_enable)).get('VALUE'))
+        clk_enable = "PCW_FPGA_FCLK{0}_ENABLE".format(clk_id)
+        return int(
+            mod.find("./PARAMETERS/*[@NAME='{0}']".format(clk_enable)).get("VALUE")
+        )
 
 
 class _HWHUltrascale(_HWHABC):
@@ -600,6 +604,7 @@ class _HWHUltrascale(_HWHABC):
     This class works for the Zynq Ultrascale devices.
 
     """
+
     family_ps = "zynq_ultra_ps_e"
     family_irq = {"pl_ps_irq0": ((121, 8),), "pl_ps_irq1": ((136, 8),)}
     family_gpio = "emio_gpio_o"
@@ -622,10 +627,10 @@ class _HWHUltrascale(_HWHABC):
             The clock divisor value in decimal.
 
         """
-        clk_odiv = 'PSU__CRL_APB__PL{0}_REF_CTRL__DIVISOR{1}'.format(
-            clk_id, div_id)
-        return int(mod.find(
-            "./PARAMETERS/*[@NAME='{0}']".format(clk_odiv)).get('VALUE'))
+        clk_odiv = "PSU__CRL_APB__PL{0}_REF_CTRL__DIVISOR{1}".format(clk_id, div_id)
+        return int(
+            mod.find("./PARAMETERS/*[@NAME='{0}']".format(clk_odiv)).get("VALUE")
+        )
 
     def find_clock_enable(self, mod, clk_id):
         """Return the clock enable for the given clock ID.
@@ -643,9 +648,10 @@ class _HWHUltrascale(_HWHABC):
             The clock enable value in decimal (1 means enabled).
 
         """
-        clk_enable = 'PSU__FPGA_PL{0}_ENABLE'.format(clk_id)
-        return int(mod.find(
-            "./PARAMETERS/*[@NAME='{0}']".format(clk_enable)).get('VALUE'))
+        clk_enable = "PSU__FPGA_PL{0}_ENABLE".format(clk_id)
+        return int(
+            mod.find("./PARAMETERS/*[@NAME='{0}']".format(clk_enable)).get("VALUE")
+        )
 
 
 if CPU_ARCH == ZU_ARCH:
@@ -654,3 +660,5 @@ elif CPU_ARCH == ZYNQ_ARCH:
     HWH = _HWHZynq
 else:
     HWH = _HWHABC
+
+

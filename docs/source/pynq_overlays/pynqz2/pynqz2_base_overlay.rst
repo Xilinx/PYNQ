@@ -167,7 +167,7 @@ A Makefile is provided to rebuild the base overlay in Linux. The Makefile calls
 two tcl files. The first Tcl files compiles any HLS IP used in the design. The 
 second Tcl builds the overlay. 
 
-To rebuild the overlay, source the Xilinx tools first. Then assuming PYNQ has 
+To rebuild the overlay, source the AMD-Xilinx tools first. Then assuming PYNQ has 
 been cloned: 
 
 .. code-block:: console
@@ -193,7 +193,7 @@ Assuming PYNQ has been cloned:
    source ./build_base_ip.tcl
    source ./base.tcl
 
-To build from the command line, open the Vivado 2017.4 Tcl Shell, and run the 
+To build from the command line, open the Vivado Tcl Shell, and run the 
 following:
 
 .. code-block:: console

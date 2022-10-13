@@ -1,3 +1,6 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 CMA_ARCH ?= $(shell getconf LONG_BIT)
 INSTALL_LIB = libcma.so.$(CMA_ARCH)
 

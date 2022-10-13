@@ -1,31 +1,5 @@
 #   Copyright (c) 2016-2021, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 import collections
 import ctypes
@@ -34,21 +8,20 @@ import re
 import struct
 import warnings
 from copy import deepcopy
-from .mmio import MMIO
-from .ps import Clocks
-from .bitstream import Bitstream
-from .interrupt import Interrupt
-from .gpio import GPIO
-from .registers import RegisterMap
-from .utils import ReprDict
-from .utils import _ExtensionsManager
+
+import pynqutils
+from pynqmetadata.frontends import Metadata
 
 from pynq._3rdparty import ert
 
+from .bitstream import Bitstream
+from .gpio import GPIO
+from .interrupt import Interrupt
+from .metadata.append_drivers_pass import bind_drivers_to_metadata
+from .mmio import MMIO
+from .ps import Clocks
+from .registers import RegisterMap
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
 DRIVERS_GROUP = "pynq.lib"
@@ -62,70 +35,74 @@ class UnsupportedConfiguration(Exception):
     issue a warning and instead create a DefaultIP instance.
 
     """
+
     pass
 
 
 def _assign_drivers(description, ignore_version, device):
-    """Assigns a driver for each IP and hierarchy in the description.
-
-    """
-    for name, details in description['hierarchies'].items():
+    """Assigns a driver for each IP and hierarchy in the description."""
+    for name, details in description["hierarchies"].items():
         _assign_drivers(details, ignore_version, device)
-        details['device'] = device
-        details['driver'] = DocumentHierarchy
+        details["device"] = device
+        details["driver"] = DocumentHierarchy
         for hip in _hierarchy_drivers:
             if hip.checkhierarchy(details):
-                details['driver'] = hip
+                details["driver"] = hip
                 break
 
-    for name, details in description['ip'].items():
-        details['device'] = device
-        ip_type = details['type']
+    for name, details in description["ip"].items():
+        details["device"] = device
+        ip_type = details["type"]
         if ip_type in _ip_drivers:
-            details['driver'] = _ip_drivers[ip_type]
+            details["driver"] = _ip_drivers[ip_type]
         else:
-            no_version_ip = ip_type.rpartition(':')[0]
+            no_version_ip = ip_type.rpartition(":")[0] if ip_type else None
             if no_version_ip in _ip_drivers:
                 if ignore_version:
-                    details['driver'] = _ip_drivers[no_version_ip]
+                    details["driver"] = _ip_drivers[no_version_ip]
                 else:
-                    other_versions = [v for v in _ip_drivers.keys()
-                                      if v.startswith(no_version_ip + ":")]
+                    other_versions = [
+                        v
+                        for v in _ip_drivers.keys()
+                        if v.startswith(no_version_ip + ":")
+                    ]
                     message = (
-                        "IP {0} is of type {1} and driver found for [{2}]. " +
-                        "Use ignore_version=True to use this driver."
-                        ).format(details['fullpath'],
-                                 details['type'],
-                                 ", ".join(other_versions))
+                        "IP {0} is of type {1} and driver found for [{2}]. "
+                        + "Use ignore_version=True to use this driver."
+                    ).format(
+                        details["fullpath"], details["type"], ", ".join(other_versions)
+                    )
                     warnings.warn(message, UserWarning)
-                    details['driver'] = DefaultIP
+                    details["driver"] = DefaultIP
             else:
-                details['driver'] = DefaultIP
+                details["driver"] = DefaultIP
 
 
-def _complete_description(ip_dict, hierarchy_dict, ignore_version,
-                          mem_dict, device, overlay):
+def _complete_description(
+    ip_dict, hierarchy_dict, ignore_version, mem_dict, device, overlay
+):
     """Returns a complete hierarchical description of an overlay based
     on the three dictionaries parsed from HWH file.
 
     """
     starting_dict = dict()
-    starting_dict['ip'] = {k: v for k, v in ip_dict.items()}
-    starting_dict['hierarchies'] = {k: v for k, v in hierarchy_dict.items()}
-    starting_dict['interrupts'] = dict()
-    starting_dict['gpio'] = dict()
-    starting_dict['memories'] = {re.sub('[^A-Za-z0-9_]', '', k): v
-                                 for k, v in mem_dict.items() if v['used']}
-    starting_dict['device'] = device
-    for k, v in starting_dict['hierarchies'].items():
-        v['overlay'] = overlay
+    starting_dict["ip"] = {k: v for k, v in ip_dict.items()}
+    starting_dict["hierarchies"] = {k: v for k, v in hierarchy_dict.items()}
+    starting_dict["interrupts"] = dict()
+    starting_dict["gpio"] = dict()
+    starting_dict["memories"] = {
+        re.sub("[^A-Za-z0-9_]", "", k): v for k, v in mem_dict.items() if v.get("used")
+    }
+    starting_dict["device"] = device
+    for k, v in starting_dict["hierarchies"].items():
+        v["overlay"] = overlay
     _assign_drivers(starting_dict, ignore_version, device)
     return starting_dict
 
 
 _class_aliases = {
-    'pynq.overlay.DocumentOverlay': 'pynq.overlay.DefaultOverlay',
-    'pynq.overlay.DocumentHierarchy': 'pynq.overlay.DefaultHierarchy'
+    "pynq.overlay.DocumentOverlay": "pynq.overlay.DefaultOverlay",
+    "pynq.overlay.DocumentHierarchy": "pynq.overlay.DefaultHierarchy",
 }
 
 
@@ -162,45 +139,43 @@ def _build_docstring(description, name, type_):
 
     """
     lines = list()
-    lines.append("Default documentation for {} {}. The following"
-                 .format(type_, name))
+    lines.append("Default documentation for {} {}. The following".format(type_, name))
     lines.append("attributes are available on this {}:".format(type_))
     lines.append("")
 
     lines.append("IP Blocks")
     lines.append("----------")
-    if description['ip']:
-        for ip, details in description['ip'].items():
-            lines.append("{0: <20} : {1}"
-                         .format(ip, _classname(details['driver'])))
+    if description["ip"]:
+        for ip, details in description["ip"].items():
+            lines.append("{0: <20} : {1}".format(ip, _classname(details["driver"])))
     else:
         lines.append("None")
     lines.append("")
 
     lines.append("Hierarchies")
     lines.append("-----------")
-    if description['hierarchies']:
-        for hierarchy, details in description['hierarchies'].items():
-            lines.append("{0: <20} : {1}"
-                         .format(hierarchy, _classname(details['driver'])))
+    if description["hierarchies"]:
+        for hierarchy, details in description["hierarchies"].items():
+            lines.append(
+                "{0: <20} : {1}".format(hierarchy, _classname(details["driver"]))
+            )
     else:
         lines.append("None")
     lines.append("")
 
     lines.append("Interrupts")
     lines.append("----------")
-    if description['interrupts']:
-        for interrupt in description['interrupts'].keys():
-            lines.append("{0: <20} : pynq.interrupt.Interrupt"
-                         .format(interrupt))
+    if description["interrupts"]:
+        for interrupt in description["interrupts"].keys():
+            lines.append("{0: <20} : pynq.interrupt.Interrupt".format(interrupt))
     else:
         lines.append("None")
     lines.append("")
 
     lines.append("GPIO Outputs")
     lines.append("------------")
-    if description['gpio']:
-        for gpio in description['gpio'].keys():
+    if description["gpio"]:
+        for gpio in description["gpio"].keys():
             lines.append("{0: <20} : pynq.gpio.GPIO".format(gpio))
     else:
         lines.append("None")
@@ -208,9 +183,9 @@ def _build_docstring(description, name, type_):
 
     lines.append("Memories")
     lines.append("------------")
-    if description['memories']:
-        for mem, mem_desc in description['memories'].items():
-            if 'streaming' in mem_desc and mem_desc['streaming']:
+    if description["memories"]:
+        for mem, mem_desc in description["memories"].items():
+            if "streaming" in mem_desc and mem_desc["streaming"]:
                 lines.append("{0: <20} : Stream".format(mem))
             else:
                 lines.append("{0: <20} : Memory".format(mem))
@@ -218,7 +193,7 @@ def _build_docstring(description, name, type_):
         lines.append("None")
     lines.append("")
     lines.append("")
-    return '\n    '.join(lines)
+    return "\n    ".join(lines)
 
 
 class Overlay(Bitstream):
@@ -307,8 +282,10 @@ class Overlay(Bitstream):
         The device that the overlay is loaded on
 
     """
-    def __init__(self, bitfile_name, dtbo=None,
-                 download=True, ignore_version=False, device=None):
+
+    def __init__(
+        self, bitfile_name, dtbo=None, download=True, ignore_version=False, device=None, gen_cache=False
+    ):
         """Return a new Overlay object.
 
         An overlay instantiates a bitstream object as a member initially.
@@ -326,6 +303,8 @@ class Overlay(Bitstream):
         device : pynq.Device
             Device on which to load the Overlay. Defaults to
             pynq.Device.active_device
+        gen_cache: bool
+            if true generates a pickeled cache of the metadata
 
         Note
         ----
@@ -337,25 +316,43 @@ class Overlay(Bitstream):
 
         self._register_drivers()
 
-        self.parser = self.device.get_bitfile_metadata(self.bitfile_name)
+        self.device.set_bitfile_name(self.bitfile_name)
+        self.parser = self.device.parser
 
-        self.ip_dict = self.gpio_dict = self.interrupt_controllers = \
-            self.interrupt_pins = self.hierarchy_dict = dict()
+        self.ip_dict = (
+            self.gpio_dict
+        ) = (
+            self.interrupt_controllers
+        ) = self.interrupt_pins = self.hierarchy_dict = dict()
         self._deepcopy_dict_from(self.parser)
         self.clock_dict = self.parser.clock_dict
         self.pr_dict = dict()
         self.ignore_version = ignore_version
         description = _complete_description(
-            self.ip_dict, self.hierarchy_dict, self.ignore_version,
-            self.mem_dict, self.device, self)
+            self.ip_dict,
+            self.hierarchy_dict,
+            self.ignore_version,
+            self.mem_dict,
+            self.device,
+            self,
+        )
         self._ip_map = _IPMap(description)
+
+        # If we have a system graph information, expose it
+        if hasattr(self.parser, "systemgraph"):
+            self.systemgraph = self.parser.systemgraph
+        else:
+            self.systemgraph = None
 
         if download:
             self.download()
+        else:
+            if gen_cache:
+                self.gen_cache()
 
-        self.__doc__ = _build_docstring(self._ip_map._description,
-                                        bitfile_name,
-                                        "overlay")
+        self.__doc__ = _build_docstring(
+            self._ip_map._description, bitfile_name, "overlay"
+        )
 
     def __getattr__(self, key):
         """Overload of __getattr__ to return a driver for an IP or
@@ -368,24 +365,35 @@ class Overlay(Bitstream):
             raise RuntimeError("Overlay not currently loaded")
 
     def _deepcopy_dict_from(self, source):
-        self.ip_dict = ReprDict(deepcopy(source.ip_dict), rootname='ip_dict')
-        self.gpio_dict = ReprDict(deepcopy(source.gpio_dict),
-                                  rootname='gpio_dict')
-        self.interrupt_controllers = ReprDict(
-            deepcopy(source.interrupt_controllers),
-            rootname='interrupt_controllers')
-        self.interrupt_pins = ReprDict(
-            deepcopy(source.interrupt_pins), rootname='interrupt_pins')
-        self.hierarchy_dict = ReprDict(deepcopy(source.hierarchy_dict),
-                                       rootname='hierarchy_dict')
-        self.mem_dict = ReprDict(deepcopy(source.mem_dict),
-                                 rootname='mem_dict')
+        self.ip_dict = pynqutils.runtime.ReprDict(
+            deepcopy(source.ip_dict), rootname="ip_dict"
+        )
+        self.gpio_dict = pynqutils.runtime.ReprDict(
+            deepcopy(source.gpio_dict), rootname="gpio_dict"
+        )
+        self.interrupt_controllers = pynqutils.runtime.ReprDict(
+            deepcopy(source.interrupt_controllers), rootname="interrupt_controllers"
+        )
+        self.interrupt_pins = pynqutils.runtime.ReprDict(
+            deepcopy(source.interrupt_pins), rootname="interrupt_pins"
+        )
+        self.hierarchy_dict = pynqutils.runtime.ReprDict(
+            deepcopy(source.hierarchy_dict), rootname="hierarchy_dict"
+        )
+        self.mem_dict = pynqutils.runtime.ReprDict(
+            deepcopy(source.mem_dict), rootname="mem_dict"
+        )
 
     def free(self):
-        if hasattr(self.device, 'free_bitstream'):
+        if hasattr(self.device, "free_bitstream"):
             self.device.free_bitstream()
         if self.dtbo:
             self.remove_dtbo()
+        self.device.close()
+
+    def gen_cache(self):
+        """ Generate a pickled cache of the metadata even if a download has not occurred """
+        super().gen_cache(self.parser)
 
     def download(self, dtbo=None):
         """The method to download a full bitstream onto PL.
@@ -408,10 +416,10 @@ class Overlay(Bitstream):
 
         """
         for i in self.clock_dict:
-            if 'enable' in self.clock_dict[i]:
-                enable = self.clock_dict[i]['enable']
-                div0 = self.clock_dict[i]['divisor0']
-                div1 = self.clock_dict[i]['divisor1']
+            if "enable" in self.clock_dict[i]:
+                enable = self.clock_dict[i]["enable"]
+                div0 = self.clock_dict[i]["divisor0"]
+                div1 = self.clock_dict[i]["divisor1"]
                 if enable:
                     Clocks.set_pl_clk(i, div0, div1)
                 else:
@@ -423,7 +431,7 @@ class Overlay(Bitstream):
         elif self.dtbo:
             super().insert_dtbo()
 
-    def pr_download(self, partial_region, partial_bit, dtbo=None):
+    def pr_download(self, partial_region, partial_bit, dtbo=None, program=True):
         """The method to download a partial bitstream onto PL.
 
         In this method, the corresponding parser will only be
@@ -446,10 +454,12 @@ class Overlay(Bitstream):
             The name of the partial bitstream.
         dtbo : str
             The path of the dtbo file.
+        program : bool
+            Whether the overlay should be downloaded.
 
         """
         pr_block = self.__getattr__(partial_region)
-        pr_block.download(bitfile_name=partial_bit, dtbo=dtbo)
+        pr_block.download(bitfile_name=partial_bit, dtbo=dtbo, program=program)
 
     def is_loaded(self):
         """This method checks whether a bitstream is loaded.
@@ -463,7 +473,7 @@ class Overlay(Bitstream):
             True if bitstream is loaded.
 
         """
-        if not self.timestamp == '':
+        if not self.timestamp == "":
             return self.timestamp == self.device.timestamp
         else:
             return self.bitfile_name == self.device.bitfile_name
@@ -511,18 +521,21 @@ class Overlay(Bitstream):
 
         """
         self.device.load_ip_data(ip_name, data)
-        self.ip_dict[ip_name]['state'] = data
+        self.ip_dict[ip_name]["state"] = data
 
     def __dir__(self):
-        return sorted(set(super().__dir__() +
-                          list(self.__dict__.keys()) + self._ip_map._keys()))
+        return sorted(
+            set(super().__dir__() + list(self.__dict__.keys()) + self._ip_map._keys())
+        )
 
     def _register_drivers(self):
         """Imports plugin modules registered against `pynq.lib`, so that IP
         drivers contained in these modules can be registered automatically.
         """
         import importlib
-        drivers_ext_man = _ExtensionsManager(DRIVERS_GROUP)
+
+        drivers_ext_man = pynqutils.setup_utils.ExtensionsManager(DRIVERS_GROUP)
+        importlib.import_module(DRIVERS_GROUP)
         for ext in drivers_ext_man.list:
             importlib.import_module(ext.module_name)
 
@@ -538,20 +551,19 @@ class RegisterIP(type):
     containing the VLNV of the IP the driver should bind to.
 
     """
+
     def __init__(cls, name, bases, attrs):
-        if 'bindto' in attrs:
+        if "bindto" in attrs:
             for vlnv in cls.bindto:
                 _ip_drivers[vlnv] = cls
-                _ip_drivers[vlnv.rpartition(':')[0]] = cls
+                _ip_drivers[vlnv.rpartition(":")[0]] = cls
         super().__init__(name, bases, attrs)
 
     def unregister(cls):
-        """Unregister a subclass from the driver registry
-
-        """
-        if hasattr(cls, 'bindto'):
+        """Unregister a subclass from the driver registry"""
+        if hasattr(cls, "bindto"):
             for vlnv in cls.bindto:
-                vln = vlnv.rpartition(':')[0]
+                vln = vlnv.rpartition(":")[0]
                 if _ip_drivers.get(vlnv, None) == cls:
                     del _ip_drivers[vlnv]
                 if _ip_drivers.get(vln, None) == cls:
@@ -560,41 +572,55 @@ class RegisterIP(type):
 
 _struct_dict = {
     # Base Vitis int types
-    'char': 'c',
-    'signed char': 'b',
-    'unsigned char': 'B',
-    'short': 'h',
-    'unsigned short': 'H',
-    'int': 'i',
-    'unsigned int': 'I',
-    'long int': 'l',
-    'long unsigned int': 'L',
-    'long long int': 'q',
-    'long long unsigned int': 'Q',
+    "char": "c",
+    "signed char": "b",
+    "unsigned char": "B",
+    "short": "h",
+    "short int": "h",
+    "signed short": "h",
+    "signed short int": "h",
+    "unsigned short": "H",
+    "unsigned short int": "H",
+    "int": "i",
+    "signed": "i",
+    "signed int": "i",
+    "unsigned": "I",
+    "unsigned int": "I",
+    "long": "l",
+    "long int": "l",
+    "signed long": "l",
+    "signed long int": "l",
+    "unsigned long": "L",
+    "unsigned long int": "L",
+    "long long": "q",
+    "long long int": "q",
+    "signed long long": "q",
+    "signed long long int": "q",
+    "unsigned long long": "Q",
+    "unsigned long long int": "Q",
     # Base Vitis floating point types
-    'float': 'f',
-    'double': 'd',
+    "float": "f",
+    "double": "d",
     # Other types seen in the wild
-    'long': 'l',
-    'uint': 'I',
-    'ushort': 'H'
+    "long": "l",
+    "uint": "I",
+    "ushort": "H",
 }
 
 
 def _ctype_to_struct(ctype):
-    ctype = ctype.replace('const', '').strip()
+    ctype = ctype.replace("const", "").strip()
     return _struct_dict[ctype]
 
 
-XrtArgument = collections.namedtuple('XrtArgument',
-                                     ['name', 'index', 'type', 'mem'])
+XrtArgument = collections.namedtuple("XrtArgument", ["name", "index", "type", "mem"])
 
 
 def _create_call(regmap):
     from inspect import Parameter, Signature
 
     sorted_regmap = list(regmap.items())
-    sorted_regmap.sort(key=lambda x: x[1]['address_offset'])
+    sorted_regmap.sort(key=lambda x: x[1]["address_offset"])
 
     parameters = []
     ptr_list = []
@@ -603,26 +629,26 @@ def _create_call(regmap):
 
     for k, v in sorted_regmap:
         curr_offset = struct.calcsize(struct_string)
-        reg_offset = v['address_offset']
+        reg_offset = v["address_offset"]
         if reg_offset < curr_offset:
             raise RuntimeError("Struct string generation failed")
         elif reg_offset > curr_offset:
             struct_string += "{}x".format(reg_offset - curr_offset)
-        reg_type = v['type']
+        reg_type = v["type"]
         if "*" in reg_type:
             struct_string += "Q"
             ptr_type = True
         else:
-            struct_string += _struct_dict[v['type']]
+            struct_string += _struct_dict[v["type"]]
             ptr_type = False
-        if k != 'CTRL':
+        if k != "CTRL":
             ptr_list.append(ptr_type)
-            parameters.append(Parameter(
-                k, Parameter.POSITIONAL_OR_KEYWORD,
-                annotation=v['type']))
+            parameters.append(
+                Parameter(k, Parameter.POSITIONAL_OR_KEYWORD, annotation=v["type"])
+            )
             arg_details[k] = XrtArgument(
-                k, len(parameters), v['type'],
-                v['memory'] if 'memory' in v else None)
+                k, len(parameters), v["type"], v["memory"] if "memory" in v else None
+            )
     signature = Signature(parameters)
     return signature, struct_string, ptr_list, arg_details
 
@@ -659,96 +685,99 @@ class DefaultIP(metaclass=RegisterIP):
     """
 
     def __init__(self, description):
-        if 'device' in description:
-            self.device = description['device']
+        if "device" in description:
+            self.device = description["device"]
         else:
             from .pl_server.device import Device
+
             self.device = Device.active_device
-        self.mmio = MMIO(description['phys_addr'], description['addr_range'],
-                         device=self.device)
-        if 'interrupts' in description:
-            self._interrupts = description['interrupts']
+        self.mmio = MMIO(
+            description["phys_addr"], description["addr_range"], device=self.device
+        )
+        if "interrupts" in description:
+            self._interrupts = description["interrupts"]
         else:
             self._interrupts = {}
-        if 'gpio' in description:
-            self._gpio = description['gpio']
+        if "gpio" in description:
+            self._gpio = description["gpio"]
         else:
             self._gpio = {}
         for interrupt, details in self._interrupts.items():
             try:
-                setattr(self, interrupt, Interrupt(details['fullpath']))
+                setattr(self, interrupt, Interrupt(details["fullpath"]))
             except ValueError as e:
-                warnings.warn('Interrupt {} not created: {}'.format(
-                    interrupt, str(e)))
+                warnings.warn("Interrupt {} not created: {}".format(interrupt, str(e)))
                 setattr(self, interrupt, None)
         for gpio, entry in self._gpio.items():
-            gpio_number = GPIO.get_gpio_pin(entry['index'])
-            setattr(self, gpio, GPIO(gpio_number, 'out'))
-        if 'registers' in description:
-            self._registers = description['registers']
-            self._fullpath = description['fullpath']
-            self._register_name = description['fullpath'].rpartition('/')[2]
-            if ('CTRL' in self._registers and
-                    self.device.has_capability('CALLABLE')):
-                self._signature, struct_string, self._ptr_list, self.args = \
-                    _create_call(self._registers)
+            gpio_number = GPIO.get_gpio_pin(entry["index"])
+            setattr(self, gpio, GPIO(gpio_number, "out"))
+        if "registers" in description:
+            self._registers = description["registers"]
+            self._fullpath = description["fullpath"]
+            self._register_name = description["fullpath"].rpartition("/")[2]
+            if "CTRL" in self._registers and self.device.has_capability("CALLABLE"):
+                (
+                    self._signature,
+                    struct_string,
+                    self._ptr_list,
+                    self.args,
+                ) = _create_call(self._registers)
                 self._call_struct = struct.Struct(struct_string)
                 self._ctrl_reg = True
                 self.start_ert = self._start_ert
                 self.start_sw = self._start_sw
                 self.call = self._call
-                if self.device.has_capability('ERT'):
+                if self.device.has_capability("ERT"):
                     self.start = self._start_ert
                 else:
                     self.start = self._start_sw
         else:
             self._registers = None
-        if 'index' in description:
+        if "index" in description:
             cu_index = self.device.open_context(description)
             self.cu_mask = 1 << cu_index
             self._setup_packet_prototype()
-        if 'streams' in description:
+        if "streams" in description:
             self.streams = {}
-            for k, v in description['streams'].items():
-                stream = self.device.get_memory_by_idx(v['stream_id'])
+            for k, v in description["streams"].items():
+                stream = self.device.get_memory_by_name(v["stream_id"])
                 self.streams[k] = stream
-                if v['direction'] == 'output':
+                if v["direction"] == "output":
                     stream.source_ip = self
-                elif v['direction'] == 'input':
+                elif v["direction"] == "input":
                     stream.sink_ip = self
 
     def _setup_packet_prototype(self):
         self._packet = ert.ert_start_kernel_cmd()
-        self._packet.m_uert.m_start_cmd_struct.state = \
+        self._packet.m_uert.m_start_cmd_struct.state = (
             ert.ert_cmd_state.ERT_CMD_STATE_NEW
+        )
         self._packet.m_uert.m_start_cmd_struct.unused = 0
         self._packet.m_uert.m_start_cmd_struct.extra_cu_masks = 0
-        if hasattr(self, '_ctrl_reg'):
-            self._packet.m_uert.m_start_cmd_struct.count = \
-                (self._call_struct.size // 4) + 1
-        self._packet.m_uert.m_start_cmd_struct.opcode = \
-            ert.ert_cmd_opcode.ERT_START_CU
-        self._packet.m_uert.m_start_cmd_struct.type = \
-            ert.ert_cmd_type.ERT_DEFAULT
+        if hasattr(self, "_ctrl_reg"):
+            self._packet.m_uert.m_start_cmd_struct.count = (
+                self._call_struct.size // 4
+            ) + 1
+        self._packet.m_uert.m_start_cmd_struct.opcode = ert.ert_cmd_opcode.ERT_START_CU
+        self._packet.m_uert.m_start_cmd_struct.type = ert.ert_cmd_type.ERT_DEFAULT
         self._packet.cu_mask = self.cu_mask
 
     @property
     def register_map(self):
-        if not hasattr(self, '_register_map'):
+        if not hasattr(self, "_register_map"):
             if self._registers:
                 self._register_map = RegisterMap.create_subclass(
-                    self._register_name,
-                    self._registers)(self.mmio.array)
+                    self._register_name, self._registers
+                )(self.mmio.array)
             else:
                 raise AttributeError(
-                    "register_map only available if the .hwh is provided")
+                    "register_map only available if the .hwh is provided"
+                )
         return self._register_map
 
     @property
     def signature(self):
-        """The signature of the `call` method
-
-        """
+        """The signature of the `call` method"""
         if hasattr(self, "_signature"):
             return self._signature
         else:
@@ -776,14 +805,15 @@ class DefaultIP(metaclass=RegisterIP):
         if not self._signature:
             raise RuntimeError("Only HLS IP can be called with the wrapper")
         if waitfor is not None:
-            raise RuntimeError(
-                "waitfor only supported on newer versions of XRT")
+            raise RuntimeError("waitfor only supported on newer versions of XRT")
         if kwargs:
             # Resolve any kwargs to make a single args tuple
             args = self._signature.bind(*args, **kwargs).args
         # Resolve and pointers that need .device_address taken
-        args = [a.device_address if p else a
-                for a, p in itertools.zip_longest(args, self._ptr_list)]
+        args = [
+            a.device_address if p else a
+            for a, p in itertools.zip_longest(args, self._ptr_list)
+        ]
         self.mmio.write(0, self._call_struct.pack(0, *args))
         self.mmio.write(0, ap_ctrl)
         return WaitHandle(self)
@@ -814,8 +844,7 @@ class DefaultIP(metaclass=RegisterIP):
         if kwargs:
             # Resolve any kwargs to make a single args tuple
             args = self._signature.bind(*args, **kwargs).args
-        args = [a.device_address if p else a for a, p in zip(args,
-                                                             self._ptr_list)]
+        args = [a.device_address if p else a for a, p in zip(args, self._ptr_list)]
         arg_data = self._call_struct.pack(0, *args)
         bo = self.device.get_exec_bo()
         exec_packet = bo.as_packet(ert.ert_start_kernel_cmd)
@@ -860,63 +889,63 @@ class _IPMap:
     """
 
     def __init__(self, desc):
-        """Create a new _IPMap based on a hierarchical description.
-
-        """
+        """Create a new _IPMap based on a hierarchical description."""
         self._description = desc
 
     def __getattr__(self, key):
-        if key in self._description['hierarchies']:
-            hierdescription = self._description['hierarchies'][key]
-            hierarchy = hierdescription['driver'](hierdescription)
+        if key in self._description["hierarchies"]:
+            hierdescription = self._description["hierarchies"][key]
+            hierarchy = hierdescription["driver"](hierdescription)
             setattr(self, key, hierarchy)
             return hierarchy
-        elif key in self._description['ip']:
-            ipdescription = self._description['ip'][key]
+        elif key in self._description["ip"]:
+            ipdescription = self._description["ip"][key]
             try:
-                driver = ipdescription['driver'](ipdescription)
+                driver = ipdescription["driver"](ipdescription)
             except UnsupportedConfiguration as e:
                 warnings.warn(
-                    "Configuration if IP {} not supported: {}".format(
-                        key, str(e.args)),
-                    UserWarning)
+                    "Configuration if IP {} not supported: {}".format(key, str(e.args)),
+                    UserWarning,
+                )
+                print(f"Creating Driver for {key}  from description {ipdescription}")
                 driver = DefaultIP(ipdescription)
             setattr(self, key, driver)
             return driver
-        elif key in self._description['interrupts']:
-            interrupt = Interrupt(
-                self._description['interrupts'][key]['fullpath'])
+        elif key in self._description["interrupts"]:
+            interrupt = Interrupt(self._description["interrupts"][key]["fullpath"])
             setattr(self, key, interrupt)
             return interrupt
-        elif key in self._description['gpio']:
-            gpio_index = self._description['gpio'][key]['index']
+        elif key in self._description["gpio"]:
+            gpio_index = self._description["gpio"][key]["index"]
             gpio_number = GPIO.get_gpio_pin(gpio_index)
-            gpio = GPIO(gpio_number, 'out')
+            gpio = GPIO(gpio_number, "out")
             setattr(self, key, gpio)
             return gpio
-        elif key in self._description['memories']:
-            mem = self._description['device'].get_memory(
-                self._description['memories'][key])
+        elif key in self._description["memories"]:
+            mem = self._description["device"].get_memory(
+                self._description["memories"][key]
+            )
             setattr(self, key, mem)
             return mem
         else:
             raise AttributeError(
-                "Could not find IP or hierarchy {} in overlay".format(key))
+                "Could not find IP or hierarchy {} in overlay".format(key)
+            )
 
     def _keys(self):
-        """The set of keys that can be accessed through the IP map
-
-        """
-        return (list(self._description['hierarchies'].keys()) +
-                list(i for i in self._description['ip'].keys()) +
-                list(i for i in self._description['interrupts'].keys()) +
-                list(i for i in self._description['gpio'].keys()) +
-                list(g for g in self._description['memories'].keys()))
+        """The set of keys that can be accessed through the IP map"""
+        return (
+            list(self._description["hierarchies"].keys())
+            + list(i for i in self._description["ip"].keys())
+            + list(i for i in self._description["interrupts"].keys())
+            + list(i for i in self._description["gpio"].keys())
+            + list(g for g in self._description["memories"].keys())
+        )
 
     def __dir__(self):
-        return sorted(set(super().__dir__() +
-                          list(self.__dict__.keys()) +
-                          self._keys()))
+        return sorted(
+            set(super().__dir__() + list(self.__dict__.keys()) + self._keys())
+        )
 
 
 def DocumentOverlay(bitfile, download):
@@ -924,13 +953,15 @@ def DocumentOverlay(bitfile, download):
     based on the supplied bitstream. Mimics a class constructor.
 
     """
+
     class DocumentedOverlay(Overlay):
         def __init__(self):
             super().__init__(bitfile, download=download)
+
     overlay = DocumentedOverlay()
-    DocumentedOverlay.__doc__ = _build_docstring(overlay._ip_map._description,
-                                                 bitfile,
-                                                 "overlay")
+    DocumentedOverlay.__doc__ = _build_docstring(
+        overlay._ip_map._description, bitfile, "overlay"
+    )
     return overlay
 
 
@@ -939,13 +970,15 @@ def DocumentHierarchy(description):
     based on the description. Mimics a class constructor
 
     """
+
     class DocumentedHierarchy(DefaultHierarchy):
         def __init__(self):
             super().__init__(description)
+
     hierarchy = DocumentedHierarchy()
-    DocumentedHierarchy.__doc__ = _build_docstring(description,
-                                                   description['fullpath'],
-                                                   "hierarchy")
+    DocumentedHierarchy.__doc__ = _build_docstring(
+        description, description["fullpath"], "hierarchy"
+    )
     return hierarchy
 
 
@@ -956,8 +989,9 @@ class RegisterHierarchy(type):
     will be registered in the global driver database
 
     """
+
     def __init__(cls, name, bases, attrs):
-        if 'checkhierarchy' in attrs:
+        if "checkhierarchy" in attrs:
             _hierarchy_drivers.appendleft(cls)
         super().__init__(name, bases, attrs)
 
@@ -994,9 +1028,9 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         self.description = description
         self.parsers = dict()
         self.bitstreams = dict()
-        self.pr_loaded = ''
-        self.device = description['device']
-        self._overlay = description['overlay']
+        self.pr_loaded = ""
+        self.device = description["device"]
+        self._overlay = description["overlay"]
         super().__init__(description)
 
     @staticmethod
@@ -1011,7 +1045,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         """
         return False
 
-    def download(self, bitfile_name, dtbo=None):
+    def download(self, bitfile_name, dtbo=None, program=True):
         """Function to download a partial bitstream for the hierarchy block.
 
         Since it is hard to know which hierarchy is to be reconfigured by only
@@ -1025,26 +1059,35 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
             The name of the partial bitstream.
         dtbo : str
             The relative or absolute path of the partial dtbo file.
+        program : bool
+            Whether the overlay should be downloaded.
 
         """
         if self.pr_loaded:
             self._find_bitstream_by_abs(self.pr_loaded).remove_dtbo()
         self._locate_metadata(bitfile_name, dtbo)
         self._parse(bitfile_name)
-        self._load_bitstream(bitfile_name)
+        self._load_bitstream(bitfile_name, program)
         if dtbo:
             self.bitstreams[bitfile_name].insert_dtbo()
 
-        self.device.update_partial_region(self.description['fullpath'],
-                                          self.parsers[self.pr_loaded])
+        self.device.update_partial_region(
+            self.description["fullpath"], self.parsers[self.pr_loaded]
+        )
 
         self._overlay._deepcopy_dict_from(self.device)
-        self._overlay.pr_dict[self.description['fullpath']] = \
-            {'loaded': self.pr_loaded, 'dtbo': dtbo}
+        self._overlay.pr_dict[self.description["fullpath"]] = {
+            "loaded": self.pr_loaded,
+            "dtbo": dtbo,
+        }
         description = _complete_description(
-            self._overlay.ip_dict, self._overlay.hierarchy_dict,
-            self._overlay.ignore_version, self._overlay.mem_dict,
-            self._overlay.device, self._overlay)
+            self._overlay.ip_dict,
+            self._overlay.hierarchy_dict,
+            self._overlay.ignore_version,
+            self._overlay.mem_dict,
+            self._overlay.device,
+            self._overlay,
+        )
         self._overlay._ip_map = _IPMap(description)
 
     def _find_bitstream_by_abs(self, absolute_path):
@@ -1054,35 +1097,35 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         return None
 
     def _locate_metadata(self, bitfile_name, dtbo):
-        self.bitstreams[bitfile_name] = Bitstream(bitfile_name, dtbo,
-                                                  partial=True)
+        self.bitstreams[bitfile_name] = Bitstream(bitfile_name, dtbo, partial=True)
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name
-        self.parsers[bitfile_name] = self.device.get_bitfile_metadata(
-            bitfile_name)
+        self.parsers[bitfile_name] = self.device.get_bitfile_metadata(bitfile_name, partial=True)
 
     def _parse(self, bitfile_name):
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name
-        fullpath = self.description['fullpath']
+        fullpath = self.description["fullpath"]
         ip_dict = dict()
         for k, v in self.parsers[bitfile_name].ip_dict.items():
-            ip_dict_id = fullpath + '/' + v['fullpath']
+            ip_dict_id = fullpath + "/" + v["fullpath"]
             ip_dict[ip_dict_id] = v
-            ip_dict[ip_dict_id]['fullpath'] = fullpath + '/' + v['fullpath']
+            ip_dict[ip_dict_id]["fullpath"] = fullpath + "/" + v["fullpath"]
         self.parsers[bitfile_name].ip_dict = ip_dict
 
         self.parsers[bitfile_name].nets = {
-            fullpath + '_' + s: {
-                fullpath + '/' + i for i in p}
+            fullpath + "_" + s: {fullpath + "/" + i for i in p}
             for s, p in self.parsers[bitfile_name].nets.items()
             if s is not None and p is not None
         }
 
         self.parsers[bitfile_name].pins = {
-            fullpath + '/' + p: fullpath + '_' + s
+            fullpath + "/" + p: fullpath + "_" + s
             for p, s in self.parsers[bitfile_name].pins.items()
             if s is not None and p is not None
         }
 
-    def _load_bitstream(self, bitfile_name):
-        self.bitstreams[bitfile_name].download()
+    def _load_bitstream(self, bitfile_name, program):
+        if program:
+            self.bitstreams[bitfile_name].download()
         self.pr_loaded = self.bitstreams[bitfile_name].bitfile_name
+
+

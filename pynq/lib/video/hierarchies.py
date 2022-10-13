@@ -1,42 +1,14 @@
 #   Copyright (c) 2018, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
-__author__ = "Peter Ogden"
-__copyright__ = "Copyright 2018, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 import contextlib
+
 from pynq import DefaultHierarchy
-from .pipeline import ColorConverter, PixelPacker
-from .frontend import VideoInFrontend, VideoOutFrontend
-from .dma import AxiVDMA
 from .common import *
+from .dma import AxiVDMA
+from .frontend import VideoInFrontend, VideoOutFrontend
+from .pipeline import ColorConverter, PixelPacker
 
 
 class VideoIn(DefaultHierarchy):
@@ -60,18 +32,19 @@ class VideoIn(DefaultHierarchy):
 
     @staticmethod
     def checkhierarchy(description):
-        if 'frontend' in description['hierarchies']:
-            frontend_dict = description['hierarchies']['frontend']
-        elif 'frontend' in description['ip']:
-            frontend_dict = description['ip']['frontend']
+        if "frontend" in description["hierarchies"]:
+            frontend_dict = description["hierarchies"]["frontend"]
+        elif "frontend" in description["ip"]:
+            frontend_dict = description["ip"]["frontend"]
         else:
             return False
         return (
-            'pixel_pack' in description['ip'] and
-            'color_convert' in description['ip'] and
-            description['ip']['pixel_pack']['driver'] == PixelPacker and
-            description['ip']['color_convert']['driver'] == ColorConverter and
-            issubclass(frontend_dict['driver'], VideoInFrontend))
+            "pixel_pack" in description["ip"]
+            and "color_convert" in description["ip"]
+            and description["ip"]["pixel_pack"]["driver"] == PixelPacker
+            and description["ip"]["color_convert"]["driver"] == ColorConverter
+            and issubclass(frontend_dict["driver"], VideoInFrontend)
+        )
 
     def __init__(self, description, vdma=None):
         """Initialise the drivers for the pipeline
@@ -107,45 +80,37 @@ class VideoIn(DefaultHierarchy):
         self._pixel.bits_per_pixel = pixelformat.bits_per_pixel
         self._hdmi.start()
         input_mode = self._hdmi.mode
-        self._vdma.readchannel.mode = VideoMode(input_mode.width,
-                                                input_mode.height,
-                                                pixelformat.bits_per_pixel,
-                                                input_mode.fps)
+        self._vdma.readchannel.mode = VideoMode(
+            input_mode.width,
+            input_mode.height,
+            pixelformat.bits_per_pixel,
+            input_mode.fps,
+        )
         return self._closecontextmanager()
 
     def start(self):
-        """Start the pipeline
-
-        """
+        """Start the pipeline"""
         self._vdma.readchannel.start()
         return self._stopcontextmanager()
 
     def stop(self):
-        """Stop the pipeline
-
-        """
+        """Stop the pipeline"""
         self._vdma.readchannel.stop()
 
     @contextlib.contextmanager
     def _stopcontextmanager(self):
-        """Context Manager to stop the VDMA at the end of the block
-
-        """
+        """Context Manager to stop the VDMA at the end of the block"""
         yield
         self.stop()
 
     @contextlib.contextmanager
     def _closecontextmanager(self):
-        """Context Manager to close the HDMI port at the end of the block
-
-        """
+        """Context Manager to close the HDMI port at the end of the block"""
         yield
         self.close()
 
     def close(self):
-        """Uninitialise the drivers, stopping the pipeline beforehand
-
-        """
+        """Uninitialise the drivers, stopping the pipeline beforehand"""
         self.stop()
         self._hdmi.stop()
 
@@ -163,9 +128,7 @@ class VideoIn(DefaultHierarchy):
 
     @property
     def mode(self):
-        """Video mode of the input
-
-        """
+        """Video mode of the input"""
         return self._vdma.readchannel.mode
 
     @property
@@ -236,18 +199,19 @@ class VideoOut(DefaultHierarchy):
 
     @staticmethod
     def checkhierarchy(description):
-        if 'frontend' in description['hierarchies']:
-            frontend_dict = description['hierarchies']['frontend']
-        elif 'frontend' in description['ip']:
-            frontend_dict = description['ip']['frontend']
+        if "frontend" in description["hierarchies"]:
+            frontend_dict = description["hierarchies"]["frontend"]
+        elif "frontend" in description["ip"]:
+            frontend_dict = description["ip"]["frontend"]
         else:
             return False
         return (
-            'pixel_unpack' in description['ip'] and
-            'color_convert' in description['ip'] and
-            description['ip']['pixel_unpack']['driver'] == PixelPacker and
-            description['ip']['color_convert']['driver'] == ColorConverter and
-            issubclass(frontend_dict['driver'], VideoOutFrontend))
+            "pixel_unpack" in description["ip"]
+            and "color_convert" in description["ip"]
+            and description["ip"]["pixel_unpack"]["driver"] == PixelPacker
+            and description["ip"]["color_convert"]["driver"] == ColorConverter
+            and issubclass(frontend_dict["driver"], VideoOutFrontend)
+        )
 
     def __init__(self, description, vdma=None):
         """Initialise the drivers for the pipeline
@@ -289,10 +253,10 @@ class VideoOut(DefaultHierarchy):
                 pixelformat = PIXEL_RGBA
             else:
                 raise ValueError(
-                    "No default pixel format for ${mode.bits_per_pixel} bpp")
+                    "No default pixel format for ${mode.bits_per_pixel} bpp"
+                )
         if pixelformat.bits_per_pixel != mode.bits_per_pixel:
-            raise ValueError(
-                "Video mode and pixel format have different sized pixels")
+            raise ValueError("Video mode and pixel format have different sized pixels")
 
         self._color.colorspace = pixelformat.out_color
         self._pixel.bits_per_pixel = pixelformat.bits_per_pixel
@@ -302,38 +266,28 @@ class VideoOut(DefaultHierarchy):
         return self._closecontextmanager()
 
     def start(self):
-        """Start the pipeline
-
-        """
+        """Start the pipeline"""
         self._vdma.writechannel.start()
         return self._stopcontextmanager()
 
     def stop(self):
-        """Stop the pipeline
-
-        """
+        """Stop the pipeline"""
         self._vdma.writechannel.stop()
 
     def close(self):
-        """Close the pipeline an unintialise the drivers
-
-        """
+        """Close the pipeline an unintialise the drivers"""
         self.stop()
         self._hdmi.stop()
 
     @contextlib.contextmanager
     def _stopcontextmanager(self):
-        """Context Manager to stop the VDMA at the end of the block
-
-        """
+        """Context Manager to stop the VDMA at the end of the block"""
         yield
         self.stop()
 
     @contextlib.contextmanager
     def _closecontextmanager(self):
-        """Context Manager to close the HDMI port at the end of the block
-
-        """
+        """Context Manager to close the HDMI port at the end of the block"""
         yield
         self.close()
 
@@ -351,9 +305,7 @@ class VideoOut(DefaultHierarchy):
 
     @property
     def mode(self):
-        """The currently configured video mode
-
-        """
+        """The currently configured video mode"""
         return self._vdma.writechannel.mode
 
     @property
@@ -416,37 +368,38 @@ class HDMIWrapper(DefaultHierarchy):
         The video DMA.
 
     """
+
     @staticmethod
     def checkhierarchy(description):
         in_pipeline = None
         out_pipeline = None
         dma = None
-        for hier, details in description['hierarchies'].items():
-            if details['driver'] == VideoIn:
+        for hier, details in description["hierarchies"].items():
+            if details["driver"] == VideoIn:
                 in_pipeline = hier
-            elif details['driver'] == VideoOut:
+            elif details["driver"] == VideoOut:
                 out_pipeline = hier
 
-        for ip, details in description['ip'].items():
-            if details['driver'] == AxiVDMA:
+        for ip, details in description["ip"].items():
+            if details["driver"] == AxiVDMA:
                 dma = ip
 
-        return (in_pipeline is not None and
-                out_pipeline is not None and
-                dma is not None)
+        return in_pipeline is not None and out_pipeline is not None and dma is not None
 
     def __init__(self, description):
         super().__init__(description)
         in_pipeline = None
         out_pipeline = None
         dma = None
-        for hier, details in description['hierarchies'].items():
-            if details['driver'] == VideoIn:
+        for hier, details in description["hierarchies"].items():
+            if details["driver"] == VideoIn:
                 in_pipeline = hier
-            elif details['driver'] == VideoOut:
+            elif details["driver"] == VideoOut:
                 out_pipeline = hier
-        for ip, details in description['ip'].items():
-            if details['driver'] == AxiVDMA:
+        for ip, details in description["ip"].items():
+            if details["driver"] == AxiVDMA:
                 dma = ip
         getattr(self, in_pipeline)._vdma = getattr(self, dma)
         getattr(self, out_pipeline)._vdma = getattr(self, dma)
+
+

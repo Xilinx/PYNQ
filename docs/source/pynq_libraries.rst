@@ -11,7 +11,7 @@ embedded system is typically limited, and the GPIO are controlled by the
 main CPU. As the main CPU which is managing the rest of the system, GPIO
 performance is usually limited.
 
-Xilinx platforms usually have many more IO pins available than a typical embedded
+AMD-Xilinx platforms usually have many more IO pins available than a typical embedded
 system. Dedicated hardware controllers and additional soft (real-time) processors can be
 built in Programmable Logic. This means
 performance on these interfaces can be much higher than other embedded systems.
@@ -65,6 +65,7 @@ Supported IP
     pynq_libraries/audio.rst
     pynq_libraries/axigpio.rst
     pynq_libraries/axiiic.rst
+    pynq_libraries/debugbridge.rst
     pynq_libraries/dma.rst
     pynq_libraries/logictools.rst
     pynq_libraries/video.rst

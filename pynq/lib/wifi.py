@@ -163,9 +163,9 @@ class Wifi(object):
                 or not sproc.getoutput("ifconfig {} | grep "
                                    "inet".format(self.wifi_port)) \
                 or force:
-            os.system('ifdown {}'.format(self.wifi_port))
+            os.system('ip link set {} down'.format(self.wifi_port))
             self.gen_network_file(ssid, password, auto)
-            os.system('ifup {}'.format(self.wifi_port))
+            sproc.getoutput('ifup --force {}'.format(self.wifi_port))
         else:
             warnings.warn("A connection is already established. You can force "
                           "a new connection by setting the 'force' option to "
@@ -183,7 +183,7 @@ class Wifi(object):
 
         """
         os.system('killall -9 wpa_supplicant')
-        os.system('ifdown {}'.format(self.wifi_port))
+        os.system('ip link set {} down'.format(self.wifi_port))
         os.system('rm -fr /etc/network/interfaces.d/wl*')
 
 # Prompt to setup a connection if run directly

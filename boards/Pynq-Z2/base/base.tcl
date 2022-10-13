@@ -1,32 +1,6 @@
 ###############################################################################
  #  Copyright (c) 2016-2021, Xilinx, Inc.
- #  All rights reserved.
- #
- #  Redistribution and use in source and binary forms, with or without
- #  modification, are permitted provided that the following conditions are met:
- #
- #  1.  Redistributions of source code must retain the above copyright notice,
- #     this list of conditions and the following disclaimer.
- #
- #  2.  Redistributions in binary form must reproduce the above copyright
- #      notice, this list of conditions and the following disclaimer in the
- #      documentation and/or other materials provided with the distribution.
- #
- #  3.  Neither the name of the copyright holder nor the names of its
- #      contributors may be used to endorse or promote products derived from
- #      this software without specific prior written permission.
- #
- #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- #  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- #  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- #  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- #  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- #  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- #  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- #  OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- #  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #  SPDX-License-Identifier: BSD-3-Clause
  #
 ###############################################################################
 ###############################################################################
@@ -59,6 +33,7 @@
  # 2.60  yrq 11/06/2019 update to 2020.1
  # 2.61  yrq 08/19/2020 change gpio base of iop_rpi to 0x40000000
  # 2.70  mr  05/17/2021 update to 2020.2
+ # 2.80  mr  02/09/2022 update to 2022.1
  #
  # </pre>
  #
@@ -85,7 +60,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2020.2
+set scripts_vivado_version 2022.1
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -205,7 +180,7 @@ xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:user:interface_slice:1.0\
 xilinx.com:ip:axi_intc:4.1\
 xilinx.com:user:dff_en_reset_vector:1.0\
-xilinx.com:ip:axi_iic:2.0\
+xilinx.com:ip:axi_iic:2.1\
 xilinx.com:user:io_switch:1.1\
 xilinx.com:ip:microblaze:11.0\
 xilinx.com:ip:axi_bram_ctrl:4.1\
@@ -229,7 +204,7 @@ xilinx.com:hls:pixel_pack:1.0\
 xilinx.com:hls:pixel_unpack:1.0\
 xilinx.com:user:color_swap:1.1\
 digilentinc.com:ip:dvi2rgb:1.7\
-xilinx.com:ip:v_vid_in_axi4s:4.0\
+xilinx.com:ip:v_vid_in_axi4s:5.0\
 xilinx.com:ip:v_tc:6.2\
 digilentinc.com:ip:axi_dynclk:1.0\
 digilentinc.com:ip:rgb2dvi:1.2\
@@ -466,7 +441,7 @@ proc create_hier_cell_frontend { parentCell nameHier } {
  ] $dvi2rgb_0
 
   # Create instance: v_vid_in_axi4s_0, and set properties
-  set v_vid_in_axi4s_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_vid_in_axi4s:4.0 v_vid_in_axi4s_0 ]
+  set v_vid_in_axi4s_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_vid_in_axi4s:5.0 v_vid_in_axi4s_0 ]
   set_property -dict [ list \
    CONFIG.C_ADDR_WIDTH {12} \
    CONFIG.C_HAS_ASYNC_CLK {1} \
@@ -1311,10 +1286,10 @@ proc create_hier_cell_iic_subsystem { parentCell nameHier } {
   create_bd_pin -dir I -from 0 -to 0 -type rst s_axi_aresetn1
 
   # Create instance: iic_0, and set properties
-  set iic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic_0 ]
+  set iic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic_0 ]
 
   # Create instance: iic_1, and set properties
-  set iic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic_1 ]
+  set iic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic_1 ]
 
   # Create interface connections
   connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins IIC_0] [get_bd_intf_pins iic_0/IIC]
@@ -2680,7 +2655,7 @@ proc create_hier_cell_iop_pmodb { parentCell nameHier } {
  ] $gpio
 
   # Create instance: iic, and set properties
-  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic ]
+  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic ]
 
   # Create instance: intc, and set properties
   set intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 intc ]
@@ -2878,7 +2853,7 @@ proc create_hier_cell_iop_pmoda { parentCell nameHier } {
  ] $gpio
 
   # Create instance: iic, and set properties
-  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic ]
+  set iic [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic ]
 
   # Create instance: intc, and set properties
   set intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 intc ]
@@ -3094,7 +3069,7 @@ proc create_hier_cell_iop_arduino { parentCell nameHier } {
  ] $dff_en_reset_vector_0
 
   # Create instance: iic_direct, and set properties
-  set iic_direct [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 iic_direct ]
+  set iic_direct [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 iic_direct ]
 
   # Create instance: intc, and set properties
   set intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 intc ]
@@ -4776,3 +4751,4 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmodb_pmodb_gpio] [get_bd_in
 ##################################################################
 
 create_root_design ""
+

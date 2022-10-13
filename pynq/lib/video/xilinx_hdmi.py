@@ -1,43 +1,16 @@
 #   Copyright (c) 2018, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
-__author__ = "Peter Ogden"
-__copyright__ = "Copyright 2018, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
-import cffi
 import os
 import warnings
+
+import cffi
+
 from pynq import DefaultIP
-from .frontend import VideoInFrontend, VideoOutFrontend
-from .constants import LIB_SEARCH_PATH
 from .common import VideoMode
+from .constants import LIB_SEARCH_PATH
+from .frontend import VideoInFrontend, VideoOutFrontend
 
 _hdmi_lib_header = R"""
 void* HdmiPhy_new(unsigned long BaseAddress);
@@ -78,15 +51,12 @@ _hdmi_ffi.cdef(_hdmi_lib_header)
 try:
     _hdmi_lib = _hdmi_ffi.dlopen(os.path.join(LIB_SEARCH_PATH, "libxhdmi.so"))
 except:
-    warnings.warn("Could not load Xilinx HDMI Library",
-                  ResourceWarning)
+    warnings.warn("Could not load Xilinx HDMI Library", ResourceWarning)
     _hdmi_lib = None
 
 
 class Vphy(DefaultIP):
-    """Driver for Xilinx HDMI PHY
-
-    """
+    """Driver for Xilinx HDMI PHY"""
 
     def __init__(self, description):
         """Create a new instance of the driver
@@ -108,18 +78,14 @@ class Vphy(DefaultIP):
         self.handle = _hdmi_lib.HdmiPhy_new(self._virtaddr)
 
     def report(self):
-        """Write the status of the PHY to stdout
-
-        """
+        """Write the status of the PHY to stdout"""
         _hdmi_lib.HdmiPhy_report(self.handle)
 
-    bindto = ['xilinx.com:ip:vid_phy_controller:2.2']
+    bindto = ["xilinx.com:ip:vid_phy_controller:2.2"]
 
 
 class HdmiTxSs(DefaultIP, VideoOutFrontend):
-    """Driver for the HDMI transmit subsystem
-
-    """
+    """Driver for the HDMI transmit subsystem"""
 
     def __init__(self, description):
         """Create a new instance of the driver
@@ -166,8 +132,9 @@ class HdmiTxSs(DefaultIP, VideoOutFrontend):
             raise RuntimeError("Mode must be set before starting HDMI TX")
         while not _hdmi_lib.HdmiTx_connected(self.handle):
             _hdmi_lib.HdmiTx_handle_events(self.handle)
-        frequency = _hdmi_lib.HdmiTx_set_format(self.handle, self.mode.width,
-                self.mode.height, self.mode.fps)
+        frequency = _hdmi_lib.HdmiTx_set_format(
+            self.handle, self.mode.width, self.mode.height, self.mode.fps
+        )
         if frequency == -1:
             raise RuntimeError("Resolution not supported")
         elif frequency == -2:
@@ -186,27 +153,19 @@ class HdmiTxSs(DefaultIP, VideoOutFrontend):
             _hdmi_lib.HdmiTx_handle_events(self.handle)
 
     def handle_events(self):
-        """Ensure that interrupt handlers are called
-
-         """
+        """Ensure that interrupt handlers are called"""
         _hdmi_lib.HdmiTx_handle_events(self.handle)
 
     def stop(self):
-        """Stop the HDMI transmitter
-
-        """
+        """Stop the HDMI transmitter"""
         _hdmi_lib.HdmiTx_stop(self.handle)
 
     def report(self):
-        """Write the status of the transmitter to stdout
-
-        """
+        """Write the status of the transmitter to stdout"""
         _hdmi_lib.HdmiTx_report(self.handle)
 
     def wait_for_connect(self):
-        """Wait for a cable to connected to the transmitter port
-
-        """
+        """Wait for a cable to connected to the transmitter port"""
         while not _hdmi_lib.HdmiTx_connected(self.handle):
             _hdmi_lib.HdmiTx_handle_events(self.handle)
 
@@ -229,24 +188,18 @@ class HdmiTxSs(DefaultIP, VideoOutFrontend):
         return bytes(buf[0:256])
 
     def HdmiMode(self):
-        """Output using HDMI framing
-
-        """
+        """Output using HDMI framing"""
         _hdmi_lib.HdmiTx_hdmi_mode(self.handle)
 
     def DviMode(self):
-        """Output using DVI framing
-
-        """
+        """Output using DVI framing"""
         _hdmi_lib.HdmiTx_dvi_mode(self.handle)
 
-    bindto = ['xilinx.com:ip:v_hdmi_tx_ss:3.1']
+    bindto = ["xilinx.com:ip:v_hdmi_tx_ss:3.1", "xilinx.com:ip:v_hdmi_tx_ss:3.2"]
 
 
 class HdmiRxSs(DefaultIP, VideoInFrontend):
-    """Driver for the HDMI receiver subsystem
-
-    """
+    """Driver for the HDMI receiver subsystem"""
 
     def __init__(self, description):
         """Create a new instance of the driver
@@ -291,28 +244,25 @@ class HdmiRxSs(DefaultIP, VideoInFrontend):
             _hdmi_lib.HdmiRx_handle_events(self.handle)
 
     def stop(self):
-        """Stop the receiver
-
-        """
+        """Stop the receiver"""
         pass
 
     @property
     def mode(self):
-        """Return the mode of the attached device
-
-        """
+        """Return the mode of the attached device"""
         if self.handle is None:
             raise RuntimeError("HDMI RX must be ready to get mode")
         if not _hdmi_lib.HdmiRx_ready(self.handle):
             raise RuntimeError("HDMI RX must be ready to get mode")
-        return VideoMode(_hdmi_lib.HdmiRx_hsize(self.handle),
-                _hdmi_lib.HdmiRx_vsize(self.handle), 24,
-                _hdmi_lib.HdmiRx_fps(self.handle))
+        return VideoMode(
+            _hdmi_lib.HdmiRx_hsize(self.handle),
+            _hdmi_lib.HdmiRx_vsize(self.handle),
+            24,
+            _hdmi_lib.HdmiRx_fps(self.handle),
+        )
 
     def report(self):
-        """Write the status of the receiver to stdout
-
-         """
+        """Write the status of the receiver to stdout"""
         _hdmi_lib.HdmiRx_report(self.handle)
 
     def load_edid(self, data):
@@ -332,7 +282,7 @@ class HdmiRxSs(DefaultIP, VideoInFrontend):
         if len(data) > 256:
             raise ValueError("Only EDIDs up to 256 bytes supported")
         buf = _hdmi_ffi.new("unsigned char [256]")
-        buf[0:len(data)] = data
+        buf[0 : len(data)] = data
         _hdmi_lib.HdmiRx_load_edid(self.handle, buf, len(data))
 
     def set_hpd(self, value):
@@ -349,4 +299,6 @@ class HdmiRxSs(DefaultIP, VideoInFrontend):
         """
         _hdmi_lib.HdmiRx_set_hpd(self.handle, value)
 
-    bindto = ['xilinx.com:ip:v_hdmi_rx_ss:3.1']
+    bindto = ["xilinx.com:ip:v_hdmi_rx_ss:3.1", "xilinx.com:ip:v_hdmi_rx_ss:3.2"]
+
+
