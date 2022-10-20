@@ -277,34 +277,7 @@ class BitstreamHandler:
         parser.bin_data = self.get_bin_data()
         parser.xclbin_data = xclbin_data
         parser.dtbo_data = self.get_dtbo_data()
-        self._cache_metadata(parser)
         return parser
-
-    def _cache_metadata(self, parser, name:str="Unknown")->None:
-        """ Caches the metadata and global state """
-        if not hasattr(parser, "_from_cache"):
-
-            t = datetime.datetime.now()
-            ts = "{}/{}/{} {}:{}:{} +{}".format(
-                t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
-            )
-
-            gs = GlobalState(bitfile_name=str(self._filepath),
-                             timestamp=ts,
-                             active_name=name,
-                             psddr=parser.mem_dict.get("PSDDR", {}))
-            ip =parser.ip_dict
-            for sd_name, details in ip.items():
-                if details["type"] in ["xilinx.com:ip:pr_axi_shutdown_manager:1.0",
-                                       "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",]:
-                    gs.add(name=sd_name, addr=details["phys_addr"])
-            save_global_state(gs)
-
-            if hasattr(parser, "systemgraph"):
-                if not parser.systemgraph is None:
-                    STATE_DIR = os.path.dirname(__file__)
-                    pickle.dump(parser, open(f"{STATE_DIR}/_current_metadata.pkl", "wb"))
-
 
 
 class BitfileHandler(BitstreamHandler):
@@ -663,7 +636,28 @@ class EmbeddedDevice(XrtDevice):
 
     def gen_cache(self, bitstream, parser=None):
         """ Generates the cache of the metadata even if no download occurred """
-        super()._cache_metadata(parser, bitstream, self.name)
+        if not hasattr(parser, "_from_cache"):
+            t = datetime.datetime.now()
+            ts = "{}/{}/{} {}:{}:{} +{}".format(
+                t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
+            )
+            
+            if os.path.exists(bitstream.bitfile_name):
+                gs=GlobalState(bitfile_name=str(bitstream.bitfile_name),
+                                 timestamp=ts,
+                                 active_name=self.name,
+                                 psddr=parser.mem_dict.get("PSDDR", {}))
+                ip=parser.ip_dict
+                for sd_name, details in ip.items():
+                    if details["type"] in ["xilinx.com:ip:pr_axi_shutdown_manager:1.0",
+                                           "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",]:
+                        gs.add(name=sd_name, addr=details["phys_addr"])
+                save_global_state(gs)
+
+            if hasattr(parser, "systemgraph"):
+                if not parser.systemgraph is None:
+                    STATE_DIR = os.path.dirname(__file__)
+                    pickle.dump(parser, open(f"{STATE_DIR}/_current_metadata.pkl", "wb"))
 
     def download(self, bitstream, parser=None):
 
@@ -677,6 +671,7 @@ class EmbeddedDevice(XrtDevice):
 
         if not bitstream.partial:
             self.shutdown()
+            self.gen_cache(bitstream, parser)
             flag = 0
         else:
             flag = 1
