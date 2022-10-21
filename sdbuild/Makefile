@@ -10,7 +10,7 @@ ALLBOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 BOARDS ?= $(ALLBOARDS)
 
 UBUNTU_RELEASE := jammy
-VERSION := 3.0.0
+VERSION := 3.0.1
 
 KERNEL_VERSION := 2022.1
 LINUX_VERSION := 5.15.19-xilinx-v2022.1
