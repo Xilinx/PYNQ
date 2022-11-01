@@ -156,27 +156,47 @@ Custom packages can be placed in a `packages` subfolder of the and will be
 picked up automatically if referenced. This is a convenient way of installing
 custom notebooks or Python packages if desired for your board.
 
-### Step 3: Run `make`
+### Step 3: Build the image
 
-With all the files prepared, the SD card image can be built:
+#### (1) Collect a prebuilt board-agnostic root filesystem tarball and a prebuilt PYNQ source distribution.
 
-```Makefile
-make BOARDDIR=<absolute_path>/myboards
+Starting in PYNQ v3.0, by default the SD card build flow expects a prebuilt root filesystem and a PYNQ source distribution to speedup and simplify user rebuilds of SD card images. These binaries can be found at [the PYNQ boards page](http://www.pynq.io/board.html/) and copied into the sdbuild prebuilt folder
+
+```bash
+# For rebuilding all SD cards, both arm and aarch64 root filesystems
+# may be required depending on boards being targetted.
+cp pynq_rootfs.<arm|aarch64>.tar.gz <PYNQ repository>/sdbuild/prebuilt/pynq_rootfs.<arm|aarch64>.tar.gz
+cp pynq-<version>.tar.gz            <PYNQ repository>/sdbuild/prebuilt/pynq_sdist.tar.gz
+```
+
+#### (2) Run `make`
+
+With all the files prepared, the SD card image can be built by navigating to the following directory and running make:
+
+```bash
+cd <PYNQ repository>/sdbuild/
+make
 ```
 
 ### Step 4 (Optional): Useful byproducts
+
+You can force a PYNQ source distribution rebuild by setting the REBUILD_PYNQ_SDIST variable when invoking make
+
+```bash
+make REBUILD_PYNQ_SDIST=True
+```
+
+You can force a root filesystem build by setting the REBUILD_PYNQ_ROOTFS variable when invoking make:
+
+```bash
+make REBUILD_PYNQ_ROOTFS=True
+```
 
 All boot files are created using Petalinux based on a provided BSP. To generate
 the boot files only:
 
 ```Makefile
 make boot_files BOARDDIR=<absolute_path>/myboards
-```
-
-To generate the software components for SDx platform:
-
-```Makefile
-make sdx_sw BOARDDIR=<absolute_path>/myboards
 ```
 
 To generate sysroot:
@@ -191,27 +211,10 @@ To generate the Petalinux BSP for future use:
 make bsp BOARDDIR=<absolute_path>/myboards
 ```
 
-To build the board-agnostic images and sysroot you can pass the `ARCH_ONLY`
-variable to make. This will cause the `images` target to build the architecture
-image.
+To use a previously built PYNQ source distribution tarball and/or rootfs, instead of moving the files into the prebuilt folder, you can specify the `PYNQ_SDIST` and `PYNQ_ROOTFS` environment variables
 
 ```Makefile
-make images ARCH_ONLY=arm
-```
-
-To use a board-agnostic image to build a board-specific image you can pass the
-`PREBUILT` variable:
-
-```Makefile
-make PREBUILT=<image path> BOARDS=<board>
-```
-
-To use a previously built PYNQ source distribution tarball you can pass the 
-`PYNQ_SDIST` variable. This will also avoid having to rebuild bitstreams 
-(except for external boards) and MicroBlazes' bsps and binaries.
-
-```Makefile
-make PYNQ_SDIST=<sdist tarball path>
+make PYNQ_SDIST=<sdist tarball path> PYNQ_ROOTFS=<rootfs tarball path>
 ```
 
 ## Custom Ubuntu Repository
