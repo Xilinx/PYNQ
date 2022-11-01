@@ -17,8 +17,9 @@ require different or additional packages. The build process is optimised for
  * Ensure that sudo is configured for passwordless use and that proxy settings
    and other environment variables are forwarded correctly.
  * Run `scripts/setup_host.sh`
- * Install Petalinux (e.g. 2017.4)
+ * Install Petalinux (e.g. 2022.1)
  * Ensure that Petalinux is on the PATH
+ * Ensure that the prebuilt pynq sdist and rootfs tarballs are in the sdbuild/prebuilt folder
  * Run `make BOARDDIR=<boards_directory>` to recreate all board images
  * Wait for a couple of hours
 
