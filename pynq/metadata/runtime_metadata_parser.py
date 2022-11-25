@@ -49,8 +49,9 @@ class RuntimeMetadataParser:
         self.xclbin_data = None
         self.dtbo_data = None
         self.systemgraph = self.md
-        self.ps_name = list(md.get_processing_systems().keys())[0]
-        self.ps = md.get_processing_systems()[self.ps_name]
+        ps_blocks = md.get_processing_systems()
+        self.ps = ps_blocks[list(ps_blocks.keys())[0]]
+        self.ps_name = self.ps.hierarchy_name
         self.family_ps = self.ps.ps_name
 
         self.interrupt_controllers_view = InterruptControllersView(self.md)
