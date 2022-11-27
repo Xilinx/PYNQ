@@ -39,7 +39,7 @@ jupyter-client==7.3.4
 jupyter-console==6.4.4
 jupyter-contrib-core==0.4.0
 jupyter-contrib-nbextensions==0.5.1
-jupyter-core==4.11.1
+jupyter-core==4.11.2
 jupyter-highlight-selected-word==0.2.0
 jupyter-latex-envs==1.4.6
 jupyter-nbextensions-configurator==0.5.0
