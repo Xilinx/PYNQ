@@ -227,7 +227,7 @@ class BitstreamHandler:
         else:
             raise CacheMetadataError(f"No cached metadata present")
 
-    def get_parser(self, partial:bool=False):
+    def get_parser(self, partial:bool=False, ps_region = (0, 256*1024)):
         """Returns a parser object for the bitstream
 
         The returned object contains all of the data that
@@ -256,7 +256,7 @@ class BitstreamHandler:
                     raise RuntimeError(f"Unable to parse metadata")
 
             if xclbin_data is None:
-                xclbin_data = _create_xclbin(parser.mem_dict)
+                xclbin_data = _create_xclbin(parser.mem_dict, ps_region)
             xclbin_parser = XclBin(xclbin_data=xclbin_data)
             _unify_dictionaries(parser, xclbin_parser)
 
@@ -267,7 +267,7 @@ class BitstreamHandler:
         elif is_xsa:
             parser = RuntimeMetadataParser(Metadata(input=self._filepath))
             if xclbin_data is None:
-                xclbin_data = _create_xclbin(parser.mem_dict)
+                xclbin_data = _create_xclbin(parser.mem_dict, ps_region)
             xclbin_parser = XclBin(xclbin_data=xclbin_data)
             _unify_dictionaries(parser, xclbin_parser)
             parser.refresh_hierarchy_dict()
@@ -379,15 +379,15 @@ BLANK_METADATA = r"""<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
-def _ip_to_topology(mem_dict):
+def _ip_to_topology(mem_dict, ps_region):
     topology = {
         "m_mem_data": [
             {
                 "m_type": "MEM_DDR4",
                 "m_used": 1,
-                "m_sizeKB": 256 * 1024,
+                "m_sizeKB": ps_region[1],
                 "m_tag": "PSDDR",
-                "m_base_address": 0,
+                "m_base_address": ps_region[0],
             }
         ]
     }
@@ -413,7 +413,7 @@ def _as_str(obj):
     return obj
 
 
-def _create_xclbin(mem_dict):
+def _create_xclbin(mem_dict, ps_region):
     """Create an XCLBIN file containing the specified memories"""
     import json
     import subprocess
@@ -422,7 +422,7 @@ def _create_xclbin(mem_dict):
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         (td / "metadata.xml").write_text(BLANK_METADATA)
-        (td / "mem.json").write_text(json.dumps(_ip_to_topology(mem_dict)))
+        (td / "mem.json").write_text(json.dumps(_ip_to_topology(mem_dict, ps_region)))
         completion = subprocess.run(
             [
                 "xclbinutil",
@@ -538,6 +538,7 @@ class EmbeddedDevice(XrtDevice):
     BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
 
     _probe_priority_ = 50
+    _ps_region = (0, 256*1024)
 
     @classmethod
     def _probe_(cls):
@@ -560,7 +561,7 @@ class EmbeddedDevice(XrtDevice):
 
         for k, v in mem_dict.items():
             if "base_address" in v:
-                if v["base_address"] == 0:
+                if v["base_address"] == self._ps_region[0]:
                     return self.get_memory(v)
         raise RuntimeError("XRT design does not contain PS memory")
 
@@ -634,6 +635,35 @@ class EmbeddedDevice(XrtDevice):
                         f = ZU_AXIFM_REG[para][reg_name]["field"]
                         Register(addr)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
 
+    def set_psddr_region(self, address, size):
+        """Sets the default PSDDR allocation area to a reserved region
+
+        This allows you to use any reserved region defined in the device
+        tree as the default allocation target for `pynq.allocate`. You
+        should be careful to only use reserved regions that actually
+        lie within the PSDDR address range.
+
+        `address` should be a byte address and `size` should be the
+        requested size in bytes, and the region must be page alligned.
+
+        This should be called before the bitstream is downloaded eg with:
+
+        ```python
+        pynq.Device.active_device
+        ```
+        """
+        import subprocess
+        completion = subprocess.run(
+            ["getconf", "PAGESIZE"],
+            stdout=subprocess.PIPE,
+        )
+        page_size = int(completion.stdout.strip())
+
+        if (address % page_size) or (size % page_size) or (size % 1024):
+            raise RuntimeError("Memory region must be page aligned")
+
+        self._ps_region = (address, size // 1024)
+
     def gen_cache(self, bitstream, parser=None):
         """ Generates the cache of the metadata even if no download occurred """
         if not hasattr(parser, "_from_cache"):
@@ -687,7 +717,9 @@ class EmbeddedDevice(XrtDevice):
         super().post_download(bitstream, parser, self.name)
 
     def get_bitfile_metadata(self, bitfile_name:str, partial:bool=False):
-        parser = _get_bitstream_handler(bitfile_name).get_parser(partial=partial)
+        parser = _get_bitstream_handler(bitfile_name).get_parser(
+            partial=partial, ps_region = self._ps_region
+        )
         if parser is None:
             raise RuntimeError("Unable to find metadata for bitstream")
         return parser
