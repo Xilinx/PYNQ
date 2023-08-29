@@ -43,7 +43,7 @@ jupyter-core==4.11.1
 jupyter-highlight-selected-word==0.2.0
 jupyter-latex-envs==1.4.6
 jupyter-nbextensions-configurator==0.5.0
-jupyter-server==1.18.1
+jupyter-server==2.7.2
 jupyterlab==3.4.4
 jupyterlab-pygments==0.2.2
 jupyterlab-server==2.15.0
