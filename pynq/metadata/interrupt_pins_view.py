@@ -44,7 +44,7 @@ class InterruptPinsView(MetadataView):
 
         pins = []
         for ctrler_name in self._controllers:
-            irq_controller = self._md.blocks[ctrler_name]
+            irq_controller = self._md.blocks[self._controllers[ctrler_name]["name"]]
             if "intr" in irq_controller.ports:
                 pins = pins + self._walk_for_irq_pins(
                     irq_controller.ports["intr"].sig()
@@ -95,7 +95,7 @@ class InterruptPinsView(MetadataView):
 
         for ctrler_name in self._controllers:
             pins = []
-            irq_controller = self._md.blocks[ctrler_name]
+            irq_controller = self._md.blocks[self._controllers[ctrler_name]["name"]]
             if "intr" in irq_controller.ports:
                 pins = pins + self._walk_for_irq_pins(
                     irq_controller.ports["intr"].sig()

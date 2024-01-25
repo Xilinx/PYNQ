@@ -86,17 +86,17 @@ class InterruptControllersView(MetadataView):
             controller_list = controller_list + self._walk_for_irq_controllers(ps_irq)
 
         for controller in controller_list:
-            repr_dict[controller.name] = {}
-            repr_dict[controller.name]["parent"] = ""
+            repr_dict[controller.hierarchy_name] = {"name": controller.name}
+            repr_dict[controller.hierarchy_name]["parent"] = ""
             if "interrupt_controller_index" in controller.ext:
-                repr_dict[controller.name]["index"] = controller.ext[
+                repr_dict[controller.hierarchy_name]["index"] = controller.ext[
                     "interrupt_controller_index"
                 ].index
             else:
                 raise RuntimeError(
                     f"Cannot determine the index for interrupt controller {controller.ref}"
                 )
-            repr_dict[controller.name]["raw_irq"] = ps.irq_map[
+            repr_dict[controller.hierarchy_name]["raw_irq"] = ps.irq_map[
                 controller.ext["interrupt_controller_index"].index
             ]
 
