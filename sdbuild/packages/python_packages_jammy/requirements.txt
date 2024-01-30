@@ -27,7 +27,7 @@ gTTS==2.2.4
 imagesize==1.4.1
 imutils==0.5.4
 ipykernel==6.15.1
-ipython==8.4.0
+ipython==8.10.0
 ipython-genutils==0.2.0
 ipywidgets==7.7.1
 itsdangerous==2.1.2
