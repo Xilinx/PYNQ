@@ -31,7 +31,7 @@ $(EMBEDDEDSW_DIR):
 	git clone https://github.com/Xilinx/embeddedsw \
 		--depth 1 -b $(ESW_VERSION) $(EMBEDDEDSW_DIR)
 
-$(LIB_METAL_INC): $(EMBEDDED_DIR)
+$(LIB_METAL_INC): $(EMBEDDEDSW_DIR)
 	mkdir -p $(LIB_METAL_DIR)/build-libmetal;
 	cd $(LIB_METAL_DIR)/build-libmetal; \
 	cmake .. -Wno-deprecated \
