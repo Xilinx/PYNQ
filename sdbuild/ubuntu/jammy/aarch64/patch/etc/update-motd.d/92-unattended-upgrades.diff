@@ -1,4 +1,0 @@
-3,5d2
-< if [ -x /usr/share/unattended-upgrades/update-motd-unattended-upgrades ]; then
-<     exec /usr/share/unattended-upgrades/update-motd-unattended-upgrades
-< fi

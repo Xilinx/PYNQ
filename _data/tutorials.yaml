@@ -1,0 +1,29 @@
+- image: ./assets/images/community/tr_tutorial.png
+  url: https://github.com/Xilinx/PYNQ_Workshop
+  alt: PYNQ Tutorial Workshop
+- image: ./assets/images/community/tr_hls_filter.png
+  url: http://www.fpgadeveloper.com/2018/03/create-a-custom-pynq-overlay-for-pynq-z1.html
+  alt: HLS Filter Example (FPGA Developer)
+- image: ./assets/images/community/tr_hls_tutorial.png
+  url: https://github.com/drichmond/PYNQ-HLS
+  alt: PYNQ HLS Tutorial (Dustin Richmond)
+- image: ./assets/images/community/tr_fir.png
+  url: http://www.fpgadeveloper.com/2018/03/how-to-accelerate-a-python-function-with-pynq.html
+  alt: Accelerate FIR Function (FPGA Developer)
+- image: ./assets/images/community/tr_add_ip.png
+  url: https://www.youtube.com/watch?v=LomArt-hi4M
+  alt: Video Add existing IP to a PYNQ overlay
+- image: ./assets/images/community/tr_rfsoc.png
+  url: https://github.com/Xilinx/PYNQ_RFSOC_Workshop
+  alt: PYNQ RFSoC Tutorial Workshop
+- image: ./assets/images/community/tr_bootcamp.png
+  url: https://github.com/Xilinx/PYNQ_Bootcamp/
+  alt: PYNQ Bootcamp (High School Level)
+- image: ./assets/images/community/tr_vivado.png
+  url: https://www.youtube.com/watch?v=UBsCNPWudww
+- image: ./assets/images/community/tr_makarena.png
+  url: https://github.com/MakarenaLabs/Xilinx-FPGA-HLS-PYNQ-ALVEO-Flow
+  alt: Zynq and Alveo video tutorials for PYNQ 
+- image: ./assets/images/community/tr_pp4fpga.png
+  url: https://pp4fpgas.readthedocs.io/
+  alt: Parallel Programming for FPGAs, PYNQ Projects and Labs (Ryan Kastner, UCSD)

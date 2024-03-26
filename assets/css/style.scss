@@ -1,0 +1,310 @@
+---
+---
+
+@import 'jekyll-theme-cayman';
+@import url('https://fonts.googleapis.com/css?family=Oswald:300,400');
+
+body {
+      justify-content: space-between;
+}
+	  
+.pynq_header{
+  height: 310px;
+}
+@media (max-width : 750px) {
+  .pynq_header{
+    height: 60px;
+  }
+}
+    
+img.pynq_background {
+  margin: auto;
+  top: 0px; 
+  width: 1754.45px; 
+  height: 240px;
+}
+
+@media (max-width : 750px) {
+  img.pynq_background {
+    display: none;
+    height: 0px;
+  }
+}
+
+.pynq_container {
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+.top-left {
+  width: 1100px; 
+  margin: auto;
+}
+@media (max-width : 750px) {
+  .top-left {
+    width: 100%; 
+  }
+}
+
+.pynq_banner_background{
+  height: 60px; 
+  width: 100%; 
+  background-color: rgba(240, 135, 180 , 0.75); 
+  position: absolute; 
+  top: 10px; 
+  margin-left: auto; 
+  margin-right: auto;
+}
+@media (max-width : 750px) {
+  .pynq_banner_background{
+    height: 30px; 
+  }
+}
+    
+.pynq_banner_text{
+  width : 1100px; 
+  margin: auto; 
+  height: 60px; 
+  line-height: 1.2; 
+  font-family: Oswald;
+  font-size: 48px; 
+  font-weight: 300;
+  text-align: center;
+}
+@media (max-width : 750px) {
+  .pynq_banner_text {
+    width: 100%; 
+    font-size: 18px; 
+    height: 30px; 
+  }
+}
+.menu_container{
+  width : 1100px; 
+  margin: auto;
+}
+@media (max-width : 750px) {
+  .menu_container{
+    width : 100%; 
+  }
+}
+
+div.pynq_menubar {
+  float: right;
+  height: 120px;
+  width: 1100px; 
+  margin: auto;
+}
+@media (max-width : 750px) {
+  div.pynq_menubar{
+    width:100%;  
+  }
+}
+
+nav {
+    display: table;
+    margin: auto;
+    width: 600px;
+}
+@media (max-width : 750px) {
+  nav{
+    position: relative;
+    top: 35px; 
+    width: 100%;
+  }
+}
+
+nav ul.pynq_menubar {
+    display: table-row;
+    margin: 0;
+    padding: 0;
+    #background-color: #FFD6EF;
+}
+
+nav ul li {
+    list-style: none;
+    display: table-cell;
+    text-align: center;
+    border: 3px solid #ffffff;
+}
+@media (max-width : 750px) {
+  nav ul li {
+    border: 1px solid #ffffff;
+  }
+}
+    
+nav ul li a {
+  display: block;
+  color: black;
+  text-align: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-decoration: none;
+  font-size: 18px;
+  font-family: Arial;
+  line-height: 1.2;
+}
+@media (max-width : 750px) {
+  nav ul li a{
+  font-size: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  }
+}
+nav ul li a:hover {
+  #background-color: #FFBFDB;
+  background-color: #d0d0d0;
+  color: black;
+  text-decoration: none;
+}
+nav ul li a:visited {
+  color: black;
+    
+}
+ul.pynq_menubar li a:hover {
+  #background-color: #FFBFDB;
+  background-color: #d0d0d0;
+  color: black;
+  text-decoration: none;
+}
+
+.column {
+  width: 25%; /* Adjust width as needed */
+  float: left;
+  align-items: center;
+  
+  p{
+    text-align: center;
+  }
+}
+
+hr{
+  clear: both;
+  background-color: $hr-border-color;
+}
+
+img[src*='#left'] {
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+img[src*='#right'] {
+    float: right;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+img[src*='#center'] {
+    display: block;
+    margin: auto;
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  
+  .row {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .image {
+    width: 20%; /* Adjust based on your desired column width */
+    margin: 5px;
+    float: left;
+  }
+  
+  .image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .image img:hover {
+    transform: scale(1.1);
+  }
+  
+  .title {
+	font-size: 1.2rem;
+  }
+  
+  .caption{
+	font-size: 1.0rem;
+  }
+  
+  .affiliation{
+	font-size: .8rem;
+  }
+}
+
+.logos {
+display: flex;
+  justify-content: space-between;
+  margin: 10px auto; /* Center the div horizontally */
+  max-width: 80%; /* Adjust the max-width as needed */
+  
+  img {
+    width: 16%;
+    height: 100%;
+  }
+}
+
+.video{
+    float: right;
+    margin-left: 10px;
+    margin-bottom: 10px;
+	width: 40%;
+}
+
+#announcement {
+	display: none;
+	padding: 5px 0px 0px 5px;
+	background-color: #EFAAC7;
+	color: white;
+	width: 100%;
+	z-index: 1;
+	overflow-y: auto; /* Add a vertical scroll bar if content overflows */
+    max-height: 20vh; /* Set a maximum height for the banner */
+	
+  word-wrap: break-word;
+
+  :first-child {
+    margin-top: 0;
+  }
+
+  @include large {
+    max-width: 64rem;
+    padding: 1rem 1rem;
+    margin: 5px auto;
+    font-size: 1.1rem;
+  }
+
+  @include medium {
+    padding: 1rem 1rem;
+    font-size: 1.1rem;
+  }
+
+  @include small {
+    padding: 1rem 1rem;
+    font-size: 1rem;
+  }
+  
+  a{
+    font-weight: bold;
+	color:#B0AAEF;
+  }
+	
+}
+
+/* Style for the close button */
+.close-btn {
+	color: red;
+	float: right;
+	font-size: 20px;
+	font-weight: bold;
+	cursor: pointer;
+}

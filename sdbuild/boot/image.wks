@@ -1,6 +1,0 @@
-# Description: Creates a partitioned SD card image. Boot files
-# are located in the first vfat partition. Rootfs will be in second ext4 partition.
-
-part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label PYNQ --active --align 4 --size 100 --overhead-factor=1
-part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 1024 --extra-space 512
-

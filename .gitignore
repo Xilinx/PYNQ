@@ -1,49 +1,6 @@
-# Compiled Sources
-###################
-*.o
-*.map
-*.hex
-*.dis
-*.exe
-
-# Packages 
-############
-
-# Windows Thumbnail
-######################
-Thumbs.db
-thumbs.db
-
-# Logs, Databases and Journals
-######################
-*.log
-*.jou
-*.vitis_hls_log*.xml
-
-# VIM Swap Files
-######################
-*.swp
-
-# Build directory
-######################
-build/
-sdcard/
-
-# Raw overlay files
-*.bit
-*.hwh
-*.xsa
-
-# Test failure outputs
-######################
-tests/*.exp
-tests/*.out
-
-# Python cache files
-######################
-__pycache__/
-
-# Customized Makefile/project overrides
-######################
-GNUmakefile
-user.props
+_site
+.sass-cache
+Gemfile.lock
+*.gem
+.jekyll-cache
+.jekyll-cache

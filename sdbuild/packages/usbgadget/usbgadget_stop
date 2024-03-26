@@ -1,3 +1,0 @@
-#!/bin/bash
-
-echo "" > /sys/kernel/config/usb_gadget/g/UDC
