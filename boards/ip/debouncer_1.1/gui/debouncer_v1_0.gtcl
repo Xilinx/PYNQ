@@ -1,2 +1,0 @@
-# This file is automatically written.  Do not modify.
-proc gen_USERPARAMETER_N_VALUE {C_DEBOUNCE_TIME_MSEC C_CLK_FREQ_MHZ } {expr log($C_DEBOUNCE_TIME_MSEC*(10**-3)*$C_CLK_FREQ_MHZ*10**6)/log(2)}

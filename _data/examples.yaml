@@ -1,0 +1,36 @@
+- image: ./assets/images/community/eg_adc.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/boards/Pynq-Z1/base/notebooks/pmod/pmod_adc.ipynb
+  alt: ADC waveforms
+- image: ./assets/images/community/eg_arduino.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/boards/Pynq-Z1/base/notebooks/pmod/pmod_dac_adc.ipynb
+  alt: DAC ADC example
+- image: ./assets/images/community/eg_audio.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/boards/Pynq-Z1/base/notebooks/audio/audio_playback.ipynb
+  alt: PYNQ audio
+- image: ./assets/images/community/eg_dac.jpg
+  url: https://github.com/Xilinx/PYNQ/tree/v1.4/Pynq-Z1/notebooks/examples/arduino_analog.ipynb
+  alt: Arduino analog example
+- image: ./assets/images/community/eg_grove_adc.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/boards/Pynq-Z1/base/notebooks/pmod/pmod_grove_adc.ipynb
+  alt: Grove ADC
+- image: ./assets/images/community/eg_grove_led.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/boards/Pynq-Z1/base/notebooks/arduino/arduino_grove_ledbar.ipynb
+  alt: Grove LED bar
+- image: ./assets/images/community/eg_opencv.jpg
+  url: https://github.com/Xilinx/PYNQ/tree/v1.4/Pynq-Z1/notebooks/examples/opencv_filters_webcam.ipynb
+  alt: OpenCV software filters
+- image: ./assets/images/community/eg_opencv_face_detect.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/boards/Pynq-Z1/base/notebooks/video/opencv_face_detect_hdmi.ipynb
+  alt: OpenCV face detection
+- image: ./assets/images/community/eg_overlays.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/pynq/notebooks/common/overlay_download.ipynb
+  alt: Downloading overlays
+- image: ./assets/images/community/eg_shell.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/boards/Pynq-Z1/base/notebooks/pmod/pmod_grove_tmp.ipynb
+  alt: Shell commands
+- image: ./assets/images/community/eg_webcam.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/pynq/notebooks/common/usb_webcam.ipynb
+  alt: USB webcam
+- image: ./assets/images/community/eg_wifi.jpg
+  url: https://github.com/Xilinx/PYNQ/blob/v3.0/pynq/notebooks/common/usb_wifi.ipynb 
+  alt: USB Wifi

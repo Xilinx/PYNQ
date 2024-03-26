@@ -1,1 +1,0 @@
-systemctl enable wifi_connect

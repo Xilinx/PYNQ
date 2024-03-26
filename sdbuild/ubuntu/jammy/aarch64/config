@@ -1,5 +1,0 @@
-STAGE2_PACKAGES_aarch64 := gcc-mb udev libsds python_packages_jammy jupyter
-STAGE2_PACKAGES_aarch64 += sigrok
-STAGE2_PACKAGES_aarch64 += bootpy
-STAGE2_PACKAGES_aarch64 += clear_pl_statefile 
-STAGE3_PACKAGES_aarch64 := xrtlib pynq x11 resizefs

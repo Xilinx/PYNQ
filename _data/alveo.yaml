@@ -1,0 +1,13 @@
+- image: ./assets/images/community/alveo_intro.png
+  alt: Introduction to PYNQ with Alveo
+  url: https://github.com/Xilinx/Alveo-PYNQ
+- image: ./assets/images/community/alveo_vitis.png
+  alt: Vitis acceleration library, data compression example
+  url: https://github.com/Xilinx/Alveo-PYNQ/tree/master/pynq_alveo_examples/notebooks/data_compression
+- image: ./assets/images/community/alveo_5_point.png
+  alt: Alveo 5-point relative pose example
+  url: https://github.com/Xilinx/5point-PYNQ
+- image: ./assets/images/community/alveo_finn.png
+  alt: ResNet50 image classification with FINN
+  url: https://github.com/Xilinx/ResNet50-PYNQ/
+

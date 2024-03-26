@@ -1,0 +1,192 @@
+- image: ./assets/images/embedded/rfsoc.png
+  url: https://github.com/strath-sdr/rfsoc_qpsk
+  title: PYNQ RFSoC QPSK demo on ZCU111
+  affiliation: University Strathclyde
+- image: ./assets/images/embedded/gravity.gif
+  url: https://www.hackster.io/rajeev-patwari-ultra96-2019/ultra96-fpga-accelerated-parallel-n-particle-gravity-sim-87f45e
+  title: N-Particle Gravity Simulation on Ultra96
+  affiliation: Rajeev Patwari, Nathalie Chan King Choy
+- image: ./assets/images/embedded/bayes.png
+  url: https://github.com/AcceleratedCloud/SDSoC/tree/master/Gaussian%20NaiveBayes
+  title: Gaussian Naive Bayes
+  affiliation: NTUA
+- image: ./assets/images/embedded/cube.gif
+  url: https://www.hackster.io/adam-taylor/pynq-controlled-neopixel-led-cube-92a1c1
+  title: PYNQ Controlled NeoPixel LED Cube
+  affiliation: Adam Taylor
+- image: ./assets/images/embedded/deadbolt.png
+  url: https://www.hackster.io/julian-bartolone2/ultra96-facial-recognition-deadbolt-using-pynq-0fe8e9
+  title: Ultra96 Facial Recognition Deadbolt Using PYNQ
+  affiliation: Julian Bartolone
+- image: ./assets/images/embedded/scurve.gif
+  url: https://github.com/Reconfigurable-Computing-CalPoly-Pomona/Motion-Controller
+  title: PYNQ S-Curve motion controller
+  affiliation: CalPolyPonoma
+- image: ./assets/images/embedded/sa.gif
+  url: https://github.com/strath-sdr/rfsoc_sam
+  title: Open Source RFSoC Spectrum Analyzer
+  affiliation: University of Strathclyde
+- image: ./assets/images/embedded/cccam.png
+  url: https://github.com/Springbone/CC-Cam
+  title: CC-Cam a PYNQ diffuser camera
+  affiliation: Southeast University, China
+- image: ./assets/images/embedded/snn.png
+  url: https://github.com/OpenHEC/SNN-simulator-on-PYNQcluster
+  title: SNN simulator on PYNQ cluster
+  affiliation: Jiangnan University, China
+- image: ./assets/images/embedded/respeaker.png
+  url: https://github.com/xupsh/pynq-respeaker
+  title: PYNQ respeaker
+  affiliation: Xilinx University Program, China
+- image: ./assets/images/embedded/ov5640.png
+  url: https://github.com/xupsh/Pynq-CV-OV5640
+  title: PYNQ CV OV5640
+  affiliation: Xilinx University Program, China
+- image: ./assets/images/embedded/sensehat.png
+  url: https://github.com/xupsh/pynq-sense-hat
+  title: PYNQ Sense Hat
+  affiliation: Xilinx University Program, China
+- image: ./assets/images/embedded/orb.png
+  url: https://github.com/Siudya/ORB_FPGA
+  title: PYNQ ORB feature extractor
+  affiliation: Southeast University, China; Xilinx China
+- image: ./assets/images/embedded/rock.gif
+  url: https://github.com/linxiaobo110/rps_u96
+  title: PYNQ gesture recognition
+  affiliation: University of Science and Technology Beijing, Xilinx China
+- image: ./assets/images/embedded/ismart2.png
+  url: https://github.com/ZhangYuQAQ/Hardware-Acceleration-Circuit-Design-of-Object-Detection-Network-Based-on-FPGA
+  title: iSmart2 - PYNQ hardware accelerated object detection
+  affiliation: XUP China summer school
+- image: ./assets/images/embedded/fractals.gif
+  url: https://github.com/FredKellerman/pynq-juliabrot
+  title: PYNQ fractal factory
+  affiliation: Fred Kellerman
+- image: ./assets/images/embedded/xohw20_vector.jpg
+  url: https://github.com/RyanMan1/PYNQ-SVM-OpenHW-2020
+  title: Support vector machines on PYNQ
+  affiliation: Strathclyde University
+- image: ./assets/images/embedded/xohw20_plaster.jpg
+  url: https://bitbucket.org/necst/xohw2020_plaster_public
+  title: PYNQ Plaster - Abandoned object detection using map-reduce on multi-FPGA cluster
+  affiliation: Politechnico di Milano
+- image: ./assets/images/embedded/xohw20_pypix.jpg
+  url: https://github.com/smpis/PyPix
+  title: PyPix - 3D Scene Reconstruction Based on Stereo Vision
+  affiliation: Strathclyde University
+- image: ./assets/images/embedded/deblurring.png
+  url: https://github.com/PaiPai121/Defocus-Image-Deblurring-Based-on-PYNQ
+  title: Defocus Image Deblurring
+  affiliation: XUP China summer school
+- image: ./assets/images/embedded/xohw20_qnn.jpg
+  url: https://github.com/eneriz-daniel/sensorialfusionQNNs
+  title: Sensorial fusion via QNNs
+  affiliation: University of Zaragoza
+  url: https://github.com/WilliamsCeng/02Hero
+- image: ./assets/images/embedded/aes.png
+  title: AES encryption/ decryption
+  affiliation: XUP China summer school
+- image: ./assets/images/embedded/ismartdnn.png
+  url: https://github.com/onioncc/iSmartDNN
+  title: iSmart DNN
+  affiliation: FPGA-based neural network inference for DAC 2018 contest
+- image: ./assets/images/embedded/cv2pynq.png
+  url: https://github.com/wbrueckner/cv2pynq
+  title: cv2PYNQ - Accelerated OpenCV image filtering library
+  affiliation: FAU
+- image: ./assets/images/embedded/spoonnn.png
+  url: https://github.com/fpgasystems/spooNN
+  title: spoonNN - FPGA-based neural network inference project
+  affiliation: ETH Zurich
+- image: ./assets/images/embedded/bot.png
+  url: https://github.com/Xilinx/PYNQ-BOT
+  title: PYNQ bot - Control of robotic car from PYNQ
+  affiliation: IT Tallaght
+- image: ./assets/images/embedded/led_cube.png
+  url: https://github.com/sonnyhcl/PYNQ-Light-Cube
+  title: PYNQ LED cube
+  affiliation: Fudan University, Xilinx China
+- image: ./assets/images/embedded/video.png
+  url: https://github.com/Pieter-Berteloot/PYNQ_Projects
+  title: Video processing
+  affiliation: KU Leuven
+- image: ./assets/images/embedded/zipml.jpg
+  url: https://github.com/fpgasystems/ZipML-PYNQ
+  title: ZipML-PYNQ - Hardware accelerated compression
+  affiliation: ETH Zurich
+- image: ./assets/images/embedded/yolo.png
+  url: https://github.com/Xilinx/QNN-MO-PYNQ
+  title: Quantised neural network
+  affiliation: Xilinx labs
+- image: ./assets/images/embedded/bnn.png
+  url: https://github.com/Xilinx/BNN-PYNQ/
+  title: Binarised neural network
+  affiliation: NTNU, University Sydney, Xilinx labs
+- image: ./assets/images/embedded/spyn.png
+  url: https://github.com/Xilinx/IIoT-SPYN
+  title: SPYN - Industrial motor control
+  affiliation: Xilinx ISM, Trenz electronics
+- image: ./assets/images/embedded/networking.png
+  url: https://github.com/Xilinx/PYNQ-Networking
+  title: PYNQ networking - Overlay with network analysis capability
+  affiliation: Xilinx labs
+- image: ./assets/images/embedded/lstm.png
+  url: https://github.com/tukl-msd/LSTM-PYNQ
+  title: Quantized LSTM on PYNQ
+  affiliation: TU Kaiserslautern
+- image: ./assets/images/embedded/computer_vision.png
+  url: https://github.com/Xilinx/PYNQ-ComputerVision
+  title: PYNQ computer vision - Build a vision processing pipeline from xfOpenCV
+  affiliation: Xilinx labs
+- image: ./assets/images/embedded/gzip.png
+  url: https://gitlab.dcae.pub.ro/research/PynqGzip
+  title: GZip compression with DEFLATE-compatible data, and fixed Huffman coding
+  affiliation: University Bucharest
+- image: ./assets/images/embedded/spark.jpg
+  url: https://github.com/AcceleratedCloud/SPynq
+  title: SPynq - Apache Spark on PYNQ
+  affiliation: NTUA
+- image: ./assets/images/embedded/fir.png
+  url: https://github.com/hackwa/pynqfire/blob/master/notebooks/fir.ipynb
+  title: FIR filter example
+  affiliation: CU Boulder
+- image: ./assets/images/embedded/cnn.png
+  url: https://github.com/awai54st/PYNQ-Classification
+  title: CNN on PYNQ
+  affiliation: Imperial College London
+- image: ./assets/images/embedded/softgpu.png
+  url: https://github.com/malkadi/FGPU_IPython/
+  title: Soft GPU on PYNQ
+  affiliation: Ruhr University Bochum
+- image: ./assets/images/embedded/kalman.png
+  url: https://github.com/sfox14/pynq-ekf
+  title: Extended Kalman filter
+  affiliation: University Sydney
+- image: ./assets/images/embedded/riscv.png
+  url: https://github.com/drichmond/RISC-V-On-PYNQ
+  title: RISC-V on PYNQ
+  affiliation: UCSD
+- image: ./assets/images/embedded/tgiif.png
+  url: https://github.com/hirayaku/DAC2018-TGIIF
+  title: TGIIF
+  affiliation: FPGA-based neural network inference for DAC 2018 contest
+- image: ./assets/images/embedded/pr_video.png
+  url: https://github.com/AEW2015/PYNQ_PR_Overlay
+  title: Video filters with Partial Reconfiguration
+  affiliation: BYU
+- image: ./assets/images/embedded/resize.png
+  url: https://github.com/Xilinx/PYNQ-HelloWorld
+  title: PYNQ Hello World - Hardware accelerated image resizer example
+  affiliation: Xilinx
+- image: ./assets/images/embedded/prio.png
+  url: https://github.com/byuccl/PYNQ-PRIO
+  title: PYNQ-PRIO; Partial reconfiguration Input/Output
+  affiliation: BYU
+- image: ./assets/images/embedded/handwriting.jpg
+  url: https://github.com/Microdent/Handwritten_Mathematical_Calculator_on_FPGA
+  title: Handwritten mechanical calculator
+  affiliation: XUP China summer school
+- image: ./assets/images/embedded/smartlock.png
+  title: PYNQ Smart Lock
+  affiliation: XUP China summer school
+

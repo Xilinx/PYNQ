@@ -1,5 +1,0 @@
-IMAGE_INSTALL:append = " xrt-dev"
-IMAGE_INSTALL:append = " xrt"
-IMAGE_INSTALL:append = " zocl"
-IMAGE_INSTALL:append = " opencl-headers-dev"
-IMAGE_INSTALL:append = " opencl-clhpp-dev"
