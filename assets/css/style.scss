@@ -308,3 +308,52 @@ display: flex;
 	font-weight: bold;
 	cursor: pointer;
 }
+
+/* Cookie consent */
+.cookie-consent-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background: #333;
+  color: #fff;
+  text-align: center;
+}
+
+.cookie-consent-banner p {
+  margin: 0;
+}
+
+.cookie-consent-banner button {
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Cookie consent banner styles */
+.cookie-consent {
+    display: none;
+    position: fixed;
+    bottom: 0; /* Updated to position at the bottom */
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    z-index: 1000; /* Ensures the banner appears above other elements */
+}
+
+.cookie-consent a {
+    color: #4CAF50;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Style the "Reject" button */
+.cookie-consent #cookie-reject {
+    color: #ff5252; /* Adjust the color as needed */
+}

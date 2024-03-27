@@ -105,7 +105,7 @@ function rotateImage(imageSources, imageId) {
 
 PYNQ&#8482; is an open-source project from AMD&#174; that makes it easier to use Adaptive Computing platforms.
 
-Using the Python language and libraries, designers can exploit the benefits of programmable logic and microprocessors to build more capable and exciting electronic systems.
+Using the Python language, Jupyter notebooks, and the huge ecosystem of Python libraries, designers can exploit the benefits of programmable logic and microprocessors to build more capable and exciting electronic systems.
 
 PYNQ can be used to create high performance applications with:
 
