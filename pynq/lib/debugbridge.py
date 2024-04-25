@@ -206,7 +206,7 @@ class DebugBridge(DefaultIP):
         description : dict
             The entry in the IP dict describing the DMA engine
         """
-        if type(description) is not ReprDict:
+        if type(description) not in [dict, ReprDict]:
             raise RuntimeError('Description is not valid', str(description))
 
         # Insert register dict as they are not provided in the IP descriptor
