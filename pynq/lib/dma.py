@@ -410,9 +410,9 @@ class _SGDMAChannel:
             remain -= d_len
 
             # Buffer address (64-bit)
-            self._descr[i, 2] = (array.physical_address + (i * blk_size)) & 0xFFFFFFFF
+            self._descr[i, 2] = (array.physical_address + start + (i * blk_size)) & 0xFFFFFFFF
             self._descr[i, 3] = (
-                (array.physical_address + (i * blk_size)) >> 32
+                (array.physical_address + start + (i * blk_size)) >> 32
             ) & 0xFFFFFFFF
 
             # First block
