@@ -186,7 +186,7 @@ Using the prebuilt board-agnostic image
 In order to simplify and speed-up the image building process, you can re-use the 
 prebuilt board-agnostic image appropriate to the architecture - arm for Zynq-7000 
 and aarch64 for Zynq UltraScale+, downloadable at the 
-`boards page <http://www.pynq.io/board.html/>`_ of our website. This will allow 
+`boards page <https://www.pynq.io/boards.html/>`_ of our website. This will allow 
 you to completely skip the board-agnostic stage. It is important to notice however
 that this will restrict the build process to only boards that share the same
 architecture. You can do so by passing the ``PREBUILT`` variable when invoking make:

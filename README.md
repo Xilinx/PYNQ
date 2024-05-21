@@ -15,7 +15,7 @@ See the <a href="http://www.pynq.io/" target="_blank">PYNQ webpage</a> for an ov
 
 ## Precompiled Image
 
-The project currently supports <a href="http://www.pynq.io/board.html" target="_blank">multiple boards</a>. 
+The project currently supports <a href="https://www.pynq.io/boards.html" target="_blank">multiple boards</a>. 
 
 You can download a precompiled image, write the image to a micro SD card, and boot the board from the micro SD card. 
 
