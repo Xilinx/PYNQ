@@ -1,30 +1,29 @@
 diff --git a/board/xilinx/common/board.c b/board/xilinx/common/board.c
-index 771b749..7409212 100644
+index 203c4c772f..36d818b98c 100644
 --- a/board/xilinx/common/board.c
 +++ b/board/xilinx/common/board.c
-@@ -8,6 +8,8 @@
+@@ -11,6 +11,8 @@
  #include <asm/sections.h>
  #include <dm/uclass.h>
  #include <i2c.h>
 +#include <spi.h>
 +#include <spi_flash.h>
+ #include <linux/sizes.h>
  #include <malloc.h>
  #include "board.h"
- #include <dm.h>
-@@ -15,10 +17,11 @@
- #include <i2c_eeprom.h>
- #include <net.h>
+@@ -23,10 +25,10 @@
+ 
+ #include "fru.h"
  
 -#if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
  int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
  {
  	int ret = -EINVAL;
-+
-+#if 0	
++#if 0
  	struct udevice *dev;
  	ofnode eeprom;
  
-@@ -38,10 +41,35 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+@@ -46,10 +48,34 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
  		debug("%s: I2C EEPROM MAC address read failed\n", __func__);
  	else
  		debug("%s: I2C EEPROM MAC %pM\n", __func__, ethaddr);
@@ -57,7 +56,6 @@ index 771b749..7409212 100644
  	return ret;
  }
 -#endif
-+
  
  #define EEPROM_HEADER_MAGIC		0xdaaddeed
  #define EEPROM_HDR_MANUFACTURER_LEN	16

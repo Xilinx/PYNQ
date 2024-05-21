@@ -13,10 +13,16 @@ export BOARD=${PYNQ_BOARD}
 cd /home/xilinx
 mkdir -p jupyter_notebooks
 
+# clone and then install extra packages
+python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Metadata.git
+python3	-m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Utils.git
 
 cd pynq_git
 BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \
      python3 -m pip install dist/*.tar.gz --upgrade --no-deps --no-use-pep517
+if [ -d notebooks ]; then
+     cp -r notebooks/* ${PYNQ_JUPYTER_NOTEBOOKS}/
+fi
 cd ..
 
 old_hostname=$(hostname)
@@ -34,4 +40,3 @@ chown xilinx:xilinx /home/xilinx/REVISION
 chown xilinx:xilinx -R /home/xilinx/pynq
 chown xilinx:xilinx -R /home/xilinx/jupyter_notebooks
 chown xilinx:xilinx -R $pynq_dir
-systemctl enable pl_server

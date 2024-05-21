@@ -1,0 +1,7 @@
+STAGE2_PACKAGES_arm := gcc-mb ssl udev python_packages_jammy libsds
+STAGE2_PACKAGES_arm += jupyter sigrok
+STAGE2_PACKAGES_arm += pybind11
+STAGE2_PACKAGES_arm += bootpy
+STAGE2_PACKAGES_arm += clear_pl_statefile 
+STAGE3_PACKAGES_arm := xrtlib pynq resizefs
+

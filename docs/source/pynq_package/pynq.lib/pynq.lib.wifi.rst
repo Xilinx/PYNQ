@@ -1,3 +1,5 @@
+.. _pynq-lib-wifi:
+
 pynq.lib.wifi Module
 ====================
 

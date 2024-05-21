@@ -5,6 +5,7 @@ set -e
 
 target=$1
 SRCDIR=$2
+ARCH=$3
 
 fss="proc dev sys"
 echo $QEMU_EXE
@@ -14,6 +15,7 @@ multistrap_opt=
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
   tmpfile=$(mktemp)
+  export PYNQ_UBUNTU_REPO=$(echo ${PYNQ_UBUNTU_REPO} | sed 's\jammy\jammy/$(ARCH)\')
   sed -e "s;source=.*;source=${PYNQ_UBUNTU_REPO};" $multistrap_conf > $tmpfile
   mkdir -p $target/etc/apt/apt.conf.d/
   echo 'Acquire::AllowInsecureRepositories "1";' > $target/etc/apt/apt.conf.d/allowinsecure
@@ -29,11 +31,9 @@ $dry_run sudo -E multistrap -f $multistrap_conf -d $target $multistrap_opt
 sudo chroot / chmod a+w $target
 
 cat - > $target/postinst1.sh <<EOT
-/var/lib/dpkg/info/dash.preinst install
+set -x
 export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
 export LC_ALL=C LANGUAGE=C LANG=C
-rm -f /var/run/reboot-required
-/var/lib/dpkg/info/dash.preinst install
 rm -f /var/run/reboot-required
 dpkg --configure -a
 exit 0
@@ -78,8 +78,8 @@ EOT
 
 if [ -n "$PYNQ_UBUNTU_REPO" ]; then
   cat - >> $target/postinst2.sh <<EOT
-echo "deb http://ports.ubuntu.com/ubuntu-ports focal main universe" > /etc/apt/sources.list.d/multistrap-focal.list
-echo "deb-src http://ports.ubuntu.com/ubuntu-ports focal main universe" >> /etc/apt/sources.list.d/multistrap-focal.list
+echo "deb http://ports.ubuntu.com/ubuntu-ports jammy main universe" > /etc/apt/sources.list.d/multistrap-jammy.list
+echo "deb-src http://ports.ubuntu.com/ubuntu-ports jammy main universe" >> /etc/apt/sources.list.d/multistrap-jammy.list
 EOT
 fi
 

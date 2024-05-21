@@ -1,41 +1,14 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
-import os
 import mmap
+import os
 import warnings
+
 import numpy as np
+
 import pynq._3rdparty.tinynumpy as tnp
 
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2016, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
 class _AccessHook:
@@ -51,7 +24,7 @@ class _AccessHook:
 
 
 class MMIO:
-    """ This class exposes API for MMIO read and write.
+    """This class exposes API for MMIO read and write.
 
     Attributes
     ----------
@@ -79,12 +52,12 @@ class MMIO:
             The device that MMIO object is created for.
 
         """
-        if 'debug' in kwargs:
-            warnings.warn("Keyword debug has been deprecated.",
-                          DeprecationWarning)
+        if "debug" in kwargs:
+            warnings.warn("Keyword debug has been deprecated.", DeprecationWarning)
 
         if device is None:
             from .pl_server.device import Device
+
             device = Device.active_device
         self.device = device
 
@@ -94,20 +67,19 @@ class MMIO:
         self.base_addr = base_addr
         self.length = length
 
-        if self.device.has_capability('MEMORY_MAPPED'):
+        if self.device.has_capability("MEMORY_MAPPED"):
             self.read = self.read
             self.write = self.write_mm
             self.array = self.device.mmap(base_addr, length)
-        elif self.device.has_capability('REGISTER_RW'):
+        elif self.device.has_capability("REGISTER_RW"):
             self.read = self.read
             self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
-            self.array = tnp.ndarray(shape=(length // 4,), dtype='u4',
-                                     hook=self._hook)
+            self.array = tnp.ndarray(shape=(length // 4,), dtype="u4", hook=self._hook)
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 
-    def read(self, offset=0, length=4, word_order='little'):
+    def read(self, offset=0, length=4, word_order="little"):
         """The method to read data from MMIO.
 
         For the `word_order` parameter, it is only effective when
@@ -134,25 +106,26 @@ class MMIO:
 
         """
         if length not in [1, 2, 4, 8]:
-            raise ValueError("MMIO currently only supports "
-                             "1, 2, 4 and 8-byte reads.")
+            raise ValueError(
+                "MMIO currently only supports " "1, 2, 4 and 8-byte reads."
+            )
         if offset < 0:
             raise ValueError("Offset cannot be negative.")
-        if length == 8 and word_order not in ['big', 'little']:
+        if length == 8 and word_order not in ["big", "little"]:
             raise ValueError("MMIO only supports big and little endian.")
         idx = offset >> 2
         if offset % 4:
-            raise MemoryError('Unaligned read: offset must be multiple of 4.')
+            raise MemoryError("Unaligned read: offset must be multiple of 4.")
 
         # Read data out
         lsb = int(self.array[idx])
         if length == 8:
-            if word_order == 'little':
-                return ((int(self.array[idx+1])) << 32) + lsb
+            if word_order == "little":
+                return ((int(self.array[idx + 1])) << 32) + lsb
             else:
-                return (lsb << 32) + int(self.array[idx+1])
+                return (lsb << 32) + int(self.array[idx + 1])
         else:
-            return lsb & ((2**(8*length)) - 1)
+            return lsb & ((2 ** (8 * length)) - 1)
 
     def write_mm(self, offset, data):
         """The method to write data to MMIO.
@@ -174,7 +147,7 @@ class MMIO:
 
         idx = offset >> 2
         if offset % 4:
-            raise MemoryError('Unaligned write: offset must be multiple of 4.')
+            raise MemoryError("Unaligned write: offset must be multiple of 4.")
 
         if type(data) is int:
             self.array[idx] = np.uint32(data)
@@ -182,8 +155,7 @@ class MMIO:
             length = len(data)
             num_words = length >> 2
             if length % 4:
-                raise MemoryError(
-                    'Unaligned write: data length must be multiple of 4.')
+                raise MemoryError("Unaligned write: data length must be multiple of 4.")
             buf = np.frombuffer(data, np.uint32, num_words, 0)
             for i in range(len(buf)):
                 self.array[idx + i] = buf[i]
@@ -210,7 +182,7 @@ class MMIO:
 
         idx = offset >> 2
         if offset % 4:
-            raise MemoryError('Unaligned write: offset must be multiple of 4.')
+            raise MemoryError("Unaligned write: offset must be multiple of 4.")
 
         if type(data) is int:
             self.array[idx] = data
@@ -218,3 +190,5 @@ class MMIO:
             self._hook.write(offset, data)
         else:
             raise ValueError("Data type must be int or bytes.")
+
+

@@ -1,50 +1,22 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 
-from collections import OrderedDict
-from copy import deepcopy
 import re
 import subprocess
+from collections import OrderedDict
+from copy import deepcopy
+
 import numpy as np
-from pynq import Clocks
+
 from pynq import allocate
 from pynq import MMIO
+from pynq import Clocks
 from pynq.lib import DMA
 from .constants import *
 from .logictools_controller import LogicToolsController
 from .waveform import bitstring_to_wave
 
-
-__author__ = "Yun Rock Qu"
-__copyright__ = "Copyright 2017, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
 def get_tri_state_pins(io_pin_dict, tri_dict):
@@ -91,7 +63,7 @@ class _MBTraceAnalyzer:
     logictools_controller : LogicToolsController
         The generator controller for this class.
     mb_info : dict
-        A dictionary storing Microblaze information, such as the 
+        A dictionary storing Microblaze information, such as the
         IP name and the reset name.
     intf_spec : dict
         The interface specification, e.g., PYNQZ1_LOGICTOOLS_SPECIFICATION.
@@ -103,13 +75,14 @@ class _MBTraceAnalyzer:
         The frequency of the trace analyzer, in MHz.
 
     """
+
     def __init__(self, mb_info, intf_spec_name):
         """Return a new trace analyzer object.
 
         Parameters
         ----------
         mb_info : dict
-            A dictionary storing Microblaze information, such as the 
+            A dictionary storing Microblaze information, such as the
             IP name and the reset name.
         intf_spec_name : str/dict
             The name of the interface specification.
@@ -124,8 +97,7 @@ class _MBTraceAnalyzer:
             raise ValueError("Interface specification has to be str or dict.")
 
         self.mb_info = mb_info
-        self.logictools_controller = LogicToolsController(mb_info,
-                                                          intf_spec_name)
+        self.logictools_controller = LogicToolsController(mb_info, intf_spec_name)
 
         # Parameters to be cleared at reset
         self.num_analyzer_samples = 0
@@ -139,12 +111,12 @@ class _MBTraceAnalyzer:
 
         """
         parameter_list = list()
-        parameter_list.append('num_analyzer_samples={}'.format(
-            self.num_analyzer_samples))
-        parameter_list.append('frequency_mhz={}'.format(
-            self.frequency_mhz))
+        parameter_list.append(
+            "num_analyzer_samples={}".format(self.num_analyzer_samples)
+        )
+        parameter_list.append("frequency_mhz={}".format(self.frequency_mhz))
         parameter_string = ", ".join(map(str, parameter_list))
-        return '{}({})'.format(self.__class__.__name__, parameter_string)
+        return "{}({})".format(self.__class__.__name__, parameter_string)
 
     @property
     def status(self):
@@ -153,31 +125,34 @@ class _MBTraceAnalyzer:
         Returns
         -------
         str
-            Indicating the current status of the analyzer; can be 
+            Indicating the current status of the analyzer; can be
             'RESET', 'READY', or 'RUNNING'.
 
         """
         self.logictools_controller.check_status()
         return self.logictools_controller.status[self.__class__.__name__]
 
-    def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
-              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
-              fclk_index=1):
+    def setup(
+        self,
+        num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
+        frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
+        fclk_index=1,
+    ):
         """Configure the trace analyzer.
-        
-        This method prepares the trace analyzer by sending configuration 
+
+        This method prepares the trace analyzer by sending configuration
         parameters to the Microblaze.
 
         Note that the analyzer is always attached to the pins, so there
-        is no need to use any method like 'connect()'. In short, once the 
+        is no need to use any method like 'connect()'. In short, once the
         analyzer has been setup, it is connected as well.
 
         FCLK1 will be configured during this method.
 
         Note
         ----
-        The first sample captured is a dummy sample (for both pattern 
-        generator and FSM generator), therefore we have to allocate a buffer 
+        The first sample captured is a dummy sample (for both pattern
+        generator and FSM generator), therefore we have to allocate a buffer
         one sample larger.
 
         Parameters
@@ -191,33 +166,41 @@ class _MBTraceAnalyzer:
 
         """
         if not 1 <= num_analyzer_samples <= MAX_NUM_TRACE_SAMPLES:
-            raise ValueError('Number of samples should be in '
-                             '[1, {}]'.format(MAX_NUM_TRACE_SAMPLES))
+            raise ValueError(
+                "Number of samples should be in "
+                "[1, {}]".format(MAX_NUM_TRACE_SAMPLES)
+            )
         self.num_analyzer_samples = num_analyzer_samples
 
-        if not MIN_CLOCK_FREQUENCY_MHZ <= frequency_mhz <= \
-                MAX_CLOCK_FREQUENCY_MHZ:
-            raise ValueError("Clock frequency out of range "
-                             "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ,
-                                               MAX_CLOCK_FREQUENCY_MHZ))
-        setattr(self.logictools_controller.clk,
-                "fclk{}_mhz".format(fclk_index), frequency_mhz)
+        if not MIN_CLOCK_FREQUENCY_MHZ <= frequency_mhz <= MAX_CLOCK_FREQUENCY_MHZ:
+            raise ValueError(
+                "Clock frequency out of range "
+                "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ, MAX_CLOCK_FREQUENCY_MHZ)
+            )
+        setattr(
+            self.logictools_controller.clk,
+            "fclk{}_mhz".format(fclk_index),
+            frequency_mhz,
+        )
         self.frequency_mhz = frequency_mhz
 
-        trace_bit_width = self.intf_spec['monitor_width']
+        trace_bit_width = self.intf_spec["monitor_width"]
         trace_byte_width = round(trace_bit_width / 8)
 
-        if 'trace_buf' in self.logictools_controller.buffers:
+        if "trace_buf" in self.logictools_controller.buffers:
             buffer_phy_addr = self.logictools_controller.phy_addr_from_buffer(
-                'trace_buf')
+                "trace_buf"
+            )
         else:
             buffer_phy_addr = self.logictools_controller.allocate_buffer(
-                'trace_buf', 1 + self.num_analyzer_samples,
-                data_type=BYTE_WIDTH_TO_CTYPE[trace_byte_width])
+                "trace_buf",
+                1 + self.num_analyzer_samples,
+                data_type=BYTE_WIDTH_TO_CTYPE[trace_byte_width],
+            )
 
-        self.logictools_controller.write_control([buffer_phy_addr,
-                                                 1 + self.num_analyzer_samples,
-                                                 0, 0])
+        self.logictools_controller.write_control(
+            [buffer_phy_addr, 1 + self.num_analyzer_samples, 0, 0]
+        )
         self.logictools_controller.write_command(CMD_CONFIG_TRACE)
 
         # Update generator status
@@ -226,13 +209,12 @@ class _MBTraceAnalyzer:
     def reset(self):
         """Reset the trace analyzer.
 
-        This method will bring the trace analyzer from any state to 
+        This method will bring the trace analyzer from any state to
         'RESET' state.
 
         """
         # Stop the running generator if necessary
-        if self.logictools_controller.status[
-                self.__class__.__name__] == 'RUNNING':
+        if self.logictools_controller.status[self.__class__.__name__] == "RUNNING":
             self.stop()
 
         # Clear the parameters
@@ -307,7 +289,7 @@ class _MBTraceAnalyzer:
         Parameters
         ----------
         steps : int
-            Number of samples to analyze, if it is non-zero, it means the 
+            Number of samples to analyze, if it is non-zero, it means the
             generator is working in the `step()` mode.
 
         Returns
@@ -317,16 +299,18 @@ class _MBTraceAnalyzer:
             and the waveform pattern in string format.
 
         """
-        io_pins = get_tri_state_pins(self.intf_spec['traceable_io_pins'],
-                                     self.intf_spec['traceable_tri_states'])
-        trace_bit_width = self.intf_spec['monitor_width']
+        io_pins = get_tri_state_pins(
+            self.intf_spec["traceable_io_pins"], self.intf_spec["traceable_tri_states"]
+        )
+        trace_bit_width = self.intf_spec["monitor_width"]
         trace_byte_width = round(trace_bit_width / 8)
 
         samples = self.logictools_controller.ndarray_from_buffer(
-            'trace_buf', dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
+            "trace_buf", dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width]
+        )
 
         # Exclude the first dummy sample when not in step()
-        data_type = '>i{}'.format(trace_byte_width)
+        data_type = ">i{}".format(trace_byte_width)
         if steps == 0:
             num_valid_samples = len(samples) - 1
             self.samples = np.zeros(num_valid_samples, dtype=data_type)
@@ -338,16 +322,15 @@ class _MBTraceAnalyzer:
         temp_bytes = np.frombuffer(self.samples, dtype=np.uint8)
         bit_array = np.unpackbits(temp_bytes)
         temp_lanes = bit_array.reshape(
-            num_valid_samples,
-            self.intf_spec['monitor_width']).T[::-1]
+            num_valid_samples, self.intf_spec["monitor_width"]
+        ).T[::-1]
 
         wavelanes = list()
         for pin_label in io_pins:
-            temp_lane = temp_lanes[
-                self.intf_spec['traceable_io_pins'][pin_label]]
-            bitstring = ''.join(temp_lane.astype(str).tolist())
+            temp_lane = temp_lanes[self.intf_spec["traceable_io_pins"][pin_label]]
+            bitstring = "".join(temp_lane.astype(str).tolist())
             wave = bitstring_to_wave(bitstring)
-            wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
+            wavelanes.append({"name": "", "pin": pin_label, "wave": wave})
 
         return wavelanes
 
@@ -378,8 +361,9 @@ class _PSTraceAnalyzer:
         The clock management unit for the trace analyzer.
 
     """
+
     def __init__(self, ip_info, intf_spec_name):
-        """Return a new PS controlled trace analyzer object. 
+        """Return a new PS controlled trace analyzer object.
 
         The maximum sample rate is 100MHz. Usually the sample rate is set
         to no larger than 10MHz in order for the signals to be captured
@@ -407,18 +391,20 @@ class _PSTraceAnalyzer:
         else:
             raise ValueError("Interface specification has to be str or dict.")
 
-        trace_cntrl_info = ip_info['trace_cntrl_{}_0'.format(
-            self.intf_spec['monitor_width'])]
-        trace_dma_info = ip_info['axi_dma_0']
-        self.trace_control = MMIO(trace_cntrl_info['phys_addr'],
-                                  trace_cntrl_info['addr_range'])
+        trace_cntrl_info = ip_info[
+            "trace_cntrl_{}_0".format(self.intf_spec["monitor_width"])
+        ]
+        trace_dma_info = ip_info["axi_dma_0"]
+        self.trace_control = MMIO(
+            trace_cntrl_info["phys_addr"], trace_cntrl_info["addr_range"]
+        )
         self.dma = DMA(trace_dma_info)
         self.num_analyzer_samples = 0
         self.samples = None
         self._cma_array = None
         self.frequency_mhz = 0
         self.clk = Clocks
-        self._status = 'RESET'
+        self._status = "RESET"
 
     def __repr__(self):
         """Disambiguation of the object.
@@ -427,12 +413,12 @@ class _PSTraceAnalyzer:
 
         """
         parameter_list = list()
-        parameter_list.append('num_analyzer_samples={}'.format(
-            self.num_analyzer_samples))
-        parameter_list.append('frequency_mhz={}'.format(
-            self.frequency_mhz))
+        parameter_list.append(
+            "num_analyzer_samples={}".format(self.num_analyzer_samples)
+        )
+        parameter_list.append("frequency_mhz={}".format(self.frequency_mhz))
         parameter_string = ", ".join(map(str, parameter_list))
-        return '{}({})'.format(self.__class__.__name__, parameter_string)
+        return "{}({})".format(self.__class__.__name__, parameter_string)
 
     @property
     def status(self):
@@ -441,30 +427,33 @@ class _PSTraceAnalyzer:
         Returns
         -------
         str
-            Indicating the current status of the analyzer; can be 
+            Indicating the current status of the analyzer; can be
             'RESET', 'READY', or 'RUNNING'.
 
         """
         return self._status
 
-    def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
-              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
-              fclk_index=3):
+    def setup(
+        self,
+        num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
+        frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
+        fclk_index=3,
+    ):
         """Configure the trace analyzer.
 
-        This method prepares the trace analyzer by sending configuration 
+        This method prepares the trace analyzer by sending configuration
         parameters to the Microblaze.
 
         Note that the analyzer is always attached to the pins, so there
-        is no need to use any method like 'connect()'. In short, once the 
+        is no need to use any method like 'connect()'. In short, once the
         analyzer has been setup, it is connected as well.
 
         FCLK3 will be configured during this method.
 
         Note
         ----
-        The first sample captured is a dummy sample (for both pattern 
-        generator and FSM generator), therefore we have to allocate a buffer 
+        The first sample captured is a dummy sample (for both pattern
+        generator and FSM generator), therefore we have to allocate a buffer
         one sample larger.
 
         Parameters
@@ -478,33 +467,34 @@ class _PSTraceAnalyzer:
 
         """
         if not 1 <= num_analyzer_samples <= MAX_NUM_TRACE_SAMPLES:
-            raise ValueError('Number of samples should be in '
-                             '[1, {}]'.format(MAX_NUM_TRACE_SAMPLES))
+            raise ValueError(
+                "Number of samples should be in "
+                "[1, {}]".format(MAX_NUM_TRACE_SAMPLES)
+            )
         self.num_analyzer_samples = num_analyzer_samples
 
-        if not MIN_CLOCK_FREQUENCY_MHZ <= frequency_mhz <= \
-                MAX_CLOCK_FREQUENCY_MHZ:
-            raise ValueError("Clock frequency out of range "
-                             "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ,
-                                               MAX_CLOCK_FREQUENCY_MHZ))
-        setattr(self.clk,
-                "fclk{}_mhz".format(fclk_index), frequency_mhz)
+        if not MIN_CLOCK_FREQUENCY_MHZ <= frequency_mhz <= MAX_CLOCK_FREQUENCY_MHZ:
+            raise ValueError(
+                "Clock frequency out of range "
+                "[{}, {}]".format(MIN_CLOCK_FREQUENCY_MHZ, MAX_CLOCK_FREQUENCY_MHZ)
+            )
+        setattr(self.clk, "fclk{}_mhz".format(fclk_index), frequency_mhz)
         self.frequency_mhz = frequency_mhz
 
-        trace_byte_width = round(self.intf_spec['monitor_width'] / 8)
+        trace_byte_width = round(self.intf_spec["monitor_width"] / 8)
         self._cma_array = allocate(
-            [1, self.num_analyzer_samples],
-            dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width])
-        self._status = 'READY'
+            [1, self.num_analyzer_samples], dtype=BYTE_WIDTH_TO_NPTYPE[trace_byte_width]
+        )
+        self._status = "READY"
 
     def reset(self):
         """Reset the trace analyzer.
 
-        This method will bring the trace analyzer from any state to 
+        This method will bring the trace analyzer from any state to
         'RESET' state.
 
         """
-        if self._status == 'RUNNING':
+        if self._status == "RUNNING":
             self.stop()
 
         self.samples = None
@@ -512,7 +502,7 @@ class _PSTraceAnalyzer:
         self.frequency_mhz = 0
         if self._cma_array is not None:
             self._cma_array.freebuffer()
-        self._status = 'RESET'
+        self._status = "RESET"
 
     def run(self):
         """Start the DMA to capture the traces.
@@ -523,21 +513,19 @@ class _PSTraceAnalyzer:
 
         """
         self.dma.recvchannel.transfer(self._cma_array)
-        if self.intf_spec['monitor_width'] == 32:
-            self.trace_control.write(TRACE_CNTRL_32_LENGTH, 
-                                     self.num_analyzer_samples)
+        if self.intf_spec["monitor_width"] == 32:
+            self.trace_control.write(TRACE_CNTRL_32_LENGTH, self.num_analyzer_samples)
             self.trace_control.write(TRACE_CNTRL_32_DATA_COMPARE, 0)
             self.trace_control.write(TRACE_CNTRL_32_ADDR_AP_CTRL, 1)
             self.trace_control.write(TRACE_CNTRL_32_ADDR_AP_CTRL, 0)
         else:
-            self.trace_control.write(TRACE_CNTRL_64_LENGTH, 
-                                     self.num_analyzer_samples)
+            self.trace_control.write(TRACE_CNTRL_64_LENGTH, self.num_analyzer_samples)
             self.trace_control.write(TRACE_CNTRL_64_DATA_COMPARE_MSW, 0)
             self.trace_control.write(TRACE_CNTRL_64_DATA_COMPARE_LSW, 0)
             self.trace_control.write(TRACE_CNTRL_64_ADDR_AP_CTRL, 1)
             self.trace_control.write(TRACE_CNTRL_64_ADDR_AP_CTRL, 0)
 
-        self._status = 'RUNNING'
+        self._status = "RUNNING"
 
     def stop(self):
         """Stop the DMA after capture is done.
@@ -548,7 +536,7 @@ class _PSTraceAnalyzer:
 
         """
         self.dma.recvchannel.wait()
-        self._status = 'READY'
+        self._status = "READY"
 
     def __del__(self):
         """Destructor for trace buffer object.
@@ -575,7 +563,7 @@ class _PSTraceAnalyzer:
         Note the all the lanes should have the same number of samples.
         All the pins are assumed to be tri-stated and traceable.
 
-        Currently only no `step()` method is supported for PS controlled 
+        Currently only no `step()` method is supported for PS controlled
         trace analyzer.
 
         Parameters
@@ -591,31 +579,31 @@ class _PSTraceAnalyzer:
             and the waveform pattern in string format.
 
         """
-        io_pins = get_tri_state_pins(self.intf_spec['traceable_io_pins'],
-                                     self.intf_spec['traceable_tri_states'])
+        io_pins = get_tri_state_pins(
+            self.intf_spec["traceable_io_pins"], self.intf_spec["traceable_tri_states"]
+        )
 
         if steps == 0:
             num_valid_samples = self.num_analyzer_samples
         else:
             num_valid_samples = steps
 
-        trace_byte_width = round(self.intf_spec['monitor_width'] / 8)
-        data_type = '>i{}'.format(trace_byte_width)
+        trace_byte_width = round(self.intf_spec["monitor_width"] / 8)
+        data_type = ">i{}".format(trace_byte_width)
         self.samples = np.zeros(num_valid_samples, dtype=data_type)
         np.copyto(self.samples, self._cma_array)
         temp_bytes = np.frombuffer(self.samples, dtype=np.uint8)
         bit_array = np.unpackbits(temp_bytes)
         temp_lanes = bit_array.reshape(
-            num_valid_samples,
-            self.intf_spec['monitor_width']).T[::-1]
+            num_valid_samples, self.intf_spec["monitor_width"]
+        ).T[::-1]
 
         wavelanes = list()
         for pin_label in io_pins:
-            temp_lane = temp_lanes[
-                self.intf_spec['traceable_io_pins'][pin_label]]
-            bitstring = ''.join(temp_lane.astype(str).tolist())
+            temp_lane = temp_lanes[self.intf_spec["traceable_io_pins"][pin_label]]
+            bitstring = "".join(temp_lane.astype(str).tolist())
             wave = bitstring_to_wave(bitstring)
-            wavelanes.append({'name': '', 'pin': pin_label, 'wave': wave})
+            wavelanes.append({"name": "", "pin": pin_label, "wave": wave})
 
         return wavelanes
 
@@ -626,53 +614,51 @@ class TraceAnalyzer:
     This class can capture digital IO patterns / stimulus on monitored pins.
 
     This class can wrap one out of the two classes:
-    (1) the Microblaze controlled trace analyzer, or (2) the PS controlled 
+    (1) the Microblaze controlled trace analyzer, or (2) the PS controlled
     trace analyzer.
 
-    To use the PS controlled trace analyzer, users can set the `ip_info` to 
+    To use the PS controlled trace analyzer, users can set the `ip_info` to
     a dictionary containing the corresponding IP name; for example:
 
     >>> ip_info = {'trace_cntrl':'trace_analyzer_pmoda/trace_cntrl_0',
         'trace_dma': 'trace_analyzer_pmoda/axi_dma_0'}
 
     Otherwise the Microblaze controlled trace analyzer will be used.
-    By default, the Microblaze controlled version will be used, and the 
-    interface specification name will be set to 
+    By default, the Microblaze controlled version will be used, and the
+    interface specification name will be set to
     `PYNQZ1_LOGICTOOLS_SPECIFICATION`.
 
-    Most of the methods implemented inside this class assume the protocol 
+    Most of the methods implemented inside this class assume the protocol
     is known, so the pattern can be decoded and added to the annotation
     of the waveforms.
 
-    In case the protocol is unknown, users should refrain from using these 
+    In case the protocol is unknown, users should refrain from using these
     methods.
 
     Two files are maintained by this class: the `csv` file, which is human
     readable; and the `sr` file, which is sigrok readable.
 
     """
-    def __init__(self, ip_info,
-                 intf_spec_name='PYNQZ1_LOGICTOOLS_SPECIFICATION'):
+
+    def __init__(self, ip_info, intf_spec_name="PYNQZ1_LOGICTOOLS_SPECIFICATION"):
         """Initialize the trace analyzer.
 
-        Note all the file paths are empty but will be set later. 
+        Note all the file paths are empty but will be set later.
         Two files are maintained by this class: the `csv` file, which is human
         readable; and the `sr` file, which is sigrok readable. In addition to
         those two files, the `pd` file records the decoded transactions using
         sigrok.
 
         """
-        if not ('ip_name' in ip_info and 'rst_name' in ip_info):
-            self._trace_analyzer = _PSTraceAnalyzer(ip_info,
-                                                    intf_spec_name)
+        if not ("ip_name" in ip_info and "rst_name" in ip_info):
+            self._trace_analyzer = _PSTraceAnalyzer(ip_info, intf_spec_name)
         else:
-            self._trace_analyzer = _MBTraceAnalyzer(ip_info,
-                                                    intf_spec_name)
+            self._trace_analyzer = _MBTraceAnalyzer(ip_info, intf_spec_name)
         self.protocol = None
-        self.trace_csv = ''
-        self.trace_sr = ''
-        self.trace_pd = ''
-        self.trace_txt = ''
+        self.trace_csv = ""
+        self.trace_sr = ""
+        self.trace_pd = ""
+        self.trace_txt = ""
         self.probes = OrderedDict({})
         self.intf_spec = self._trace_analyzer.intf_spec
         self.frequency_mhz = self._trace_analyzer.frequency_mhz
@@ -696,15 +682,18 @@ class TraceAnalyzer:
         Returns
         -------
         str
-            Indicating the current status of the analyzer; can be 
+            Indicating the current status of the analyzer; can be
             'RESET', 'READY', or 'RUNNING'.
 
         """
         return self._trace_analyzer.status
 
-    def setup(self, num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
-              frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
-              fclk_index=None):
+    def setup(
+        self,
+        num_analyzer_samples=DEFAULT_NUM_TRACE_SAMPLES,
+        frequency_mhz=DEFAULT_CLOCK_FREQUENCY_MHZ,
+        fclk_index=None,
+    ):
         """Configure the trace analyzer.
 
         The wrapper method for configuring the PS or Microblaze controlled
@@ -726,10 +715,9 @@ class TraceAnalyzer:
 
         """
         if fclk_index is None:
-                self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz)
+            self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz)
         else:
-                self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz,
-                                           fclk_index)
+            self._trace_analyzer.setup(num_analyzer_samples, frequency_mhz, fclk_index)
         self.frequency_mhz = self._trace_analyzer.frequency_mhz
         self.samples = self._trace_analyzer.samples
         self.num_analyzer_samples = self._trace_analyzer.num_analyzer_samples
@@ -737,10 +725,10 @@ class TraceAnalyzer:
     def reset(self):
         """Reset the trace analyzer.
 
-        This method will bring the trace analyzer from any state to 
+        This method will bring the trace analyzer from any state to
         'RESET' state.
 
-        At the same time, all the trace files stored previously will be 
+        At the same time, all the trace files stored previously will be
         removed.
 
         """
@@ -752,13 +740,13 @@ class TraceAnalyzer:
         self.num_analyzer_samples = self._trace_analyzer.num_analyzer_samples
         self.num_decoded_samples = 0
 
-        if os.system('rm -rf ' + self.trace_csv):
+        if os.system("rm -rf " + self.trace_csv):
             raise RuntimeError("Cannot remove trace csv file.")
-        if os.system('rm -rf ' + self.trace_sr):
+        if os.system("rm -rf " + self.trace_sr):
             raise RuntimeError("Cannot remove trace sr file.")
-        if os.system('rm -rf ' + self.trace_pd):
+        if os.system("rm -rf " + self.trace_pd):
             raise RuntimeError("Cannot remove trace pd file.")
-        if os.system('rm -rf ' + self.trace_txt):
+        if os.system("rm -rf " + self.trace_txt):
             raise RuntimeError("Cannot remove trace txt file.")
 
     def run(self):
@@ -815,7 +803,7 @@ class TraceAnalyzer:
         Note the all the lanes should have the same number of samples.
         All the pins are assumed to be tri-stated and traceable.
 
-        Currently only no `step()` method is supported for PS controlled 
+        Currently only no `step()` method is supported for PS controlled
         trace analyzer.
 
         Parameters
@@ -882,21 +870,22 @@ class TraceAnalyzer:
         if self.protocol is None:
             raise ValueError("Must set protocol before showing information.")
 
-        result = subprocess.run(["sigrok-cli", "--protocol-decoders",
-                                 self.protocol, "--show"],
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True)
+        result = subprocess.run(
+            ["sigrok-cli", "--protocol-decoders", self.protocol, "--show"],
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         print(result.stdout)
 
     def _csv_to_sr(self):
         """Translate the `*.csv` file to `*.sr` file.
 
-        The translated `*.sr` files can be directly used in PulseView to show 
+        The translated `*.sr` files can be directly used in PulseView to show
         the waveform.
 
         Note
         ----
-        This method also modifies the input `*.csv` file (the comments, 
+        This method also modifies the input `*.csv` file (the comments,
         usually 3 lines, will be removed).
 
         Return
@@ -909,33 +898,32 @@ class TraceAnalyzer:
         temp = name + ".temp"
 
         if os.system("rm -rf " + self.trace_sr):
-            raise RuntimeError('Trace sr file cannot be deleted.')
+            raise RuntimeError("Trace sr file cannot be deleted.")
 
-        in_file = open(self.trace_csv, 'r')
-        out_file = open(temp, 'w')
+        in_file = open(self.trace_csv, "r")
+        out_file = open(temp, "w")
 
         for i, line in enumerate(in_file):
-            if not line.startswith(';'):
+            if not line.startswith(";"):
                 out_file.write(line)
         in_file.close()
         out_file.close()
         os.remove(self.trace_csv)
         os.rename(temp, self.trace_csv)
 
-        command = "sigrok-cli -i " + self.trace_csv + \
-                  " -I csv -o " + self.trace_sr
+        command = "sigrok-cli -i " + self.trace_csv + " -I csv -o " + self.trace_sr
         if os.system(command):
-            raise RuntimeError('Sigrok-cli csv to sr failed.')
+            raise RuntimeError("Sigrok-cli csv to sr failed.")
 
     def _sr_to_csv(self):
         """Translate the `*.sr` file to `*.csv` file.
 
-        The translated `*.csv` files can be used for interactive plotting. 
+        The translated `*.csv` files can be used for interactive plotting.
         `*.csv` file is human readable, and can be opened using text editor.
 
         Note
         ----
-        This method also removes the redundant header that is generated by 
+        This method also removes the redundant header that is generated by
         sigrok.
 
         Return
@@ -948,25 +936,23 @@ class TraceAnalyzer:
         temp = name + ".temp"
 
         if os.system("rm -rf " + self.trace_csv):
-            raise RuntimeError('Trace csv file cannot be deleted.')
+            raise RuntimeError("Trace csv file cannot be deleted.")
 
-        command = "sigrok-cli -i " + self.trace_sr + \
-                  " -O csv > " + temp
+        command = "sigrok-cli -i " + self.trace_sr + " -O csv > " + temp
         if os.system(command):
-            raise RuntimeError('Sigrok-cli sr to csv failed.')
+            raise RuntimeError("Sigrok-cli sr to csv failed.")
 
-        in_file = open(temp, 'r')
-        out_file = open(self.trace_csv, 'w')
+        in_file = open(temp, "r")
+        out_file = open(self.trace_csv, "w")
 
         for i, line in enumerate(in_file):
-            if not line.startswith(';'):
+            if not line.startswith(";"):
                 out_file.write(line)
         in_file.close()
         out_file.close()
         os.remove(temp)
 
-    def decode(self, trace_csv, start_pos, stop_pos,
-               decoded_file, options=''):
+    def decode(self, trace_csv, start_pos, stop_pos, decoded_file, options=""):
         """Parse CSV file, add metadata, and use sigrok to decode transactions.
 
         Internally, this method is calling `save_csv()`, `set_metadata()`,
@@ -975,7 +961,7 @@ class TraceAnalyzer:
         Parameters
         ----------
         trace_csv : str
-            Name of the output file (`*.csv`) which can be opened in 
+            Name of the output file (`*.csv`) which can be opened in
             text editor.
         start_pos : int
             Starting sample number, no less than 1.
@@ -989,7 +975,7 @@ class TraceAnalyzer:
         Return
         ------
         None
-        
+
         """
         wave_lanes = self._save_csv(trace_csv, start_pos, stop_pos)
         self._set_metadata()
@@ -1012,13 +998,13 @@ class TraceAnalyzer:
 
         Note
         ----
-        The `trace_csv` file will be put into the specified path, or in the 
+        The `trace_csv` file will be put into the specified path, or in the
         working directory in case the path does not exist.
 
         Parameters
         ----------
         trace_csv : str
-            Name of the output file (`*.csv`) which can be opened in 
+            Name of the output file (`*.csv`) which can be opened in
             text editor.
         start_pos : int
             Starting sample number, no less than 1.
@@ -1036,56 +1022,54 @@ class TraceAnalyzer:
             raise ValueError("Must set probes before parsing samples.")
 
         if not 1 <= start_pos <= stop_pos <= MAX_NUM_TRACE_SAMPLES:
-            raise ValueError("Start or stop position out of range "
-                             "[1, {}].".format(MAX_NUM_TRACE_SAMPLES))
+            raise ValueError(
+                "Start or stop position out of range "
+                "[1, {}].".format(MAX_NUM_TRACE_SAMPLES)
+            )
 
         if os.path.isdir(os.path.dirname(trace_csv)):
             trace_csv_abs = trace_csv
         else:
-            trace_csv_abs = os.getcwd() + '/' + trace_csv
+            trace_csv_abs = os.getcwd() + "/" + trace_csv
 
-        if os.system('rm -rf ' + trace_csv_abs):
+        if os.system("rm -rf " + trace_csv_abs):
             raise RuntimeError("Cannot remove old trace_csv file.")
 
-        _ = get_tri_state_pins(self.intf_spec['traceable_io_pins'],
-                               self.intf_spec['traceable_tri_states'])
+        _ = get_tri_state_pins(
+            self.intf_spec["traceable_io_pins"], self.intf_spec["traceable_tri_states"]
+        )
         self.num_decoded_samples = stop_pos - start_pos
-        temp_bytes = np.frombuffer(self.samples[start_pos:stop_pos],
-                                   dtype=np.uint8)
+        temp_bytes = np.frombuffer(self.samples[start_pos:stop_pos], dtype=np.uint8)
         bit_array = np.unpackbits(temp_bytes)
         temp_lanes = bit_array.reshape(
-            self.num_decoded_samples,
-            self.intf_spec['monitor_width']).T[::-1]
+            self.num_decoded_samples, self.intf_spec["monitor_width"]
+        ).T[::-1]
 
         wavelanes = list()
         temp_samples = None
         for index, pin_name in enumerate(self.probes.keys()):
             pin_label = self.probes[pin_name]
-            temp_lane = temp_lanes[
-                self.intf_spec['traceable_io_pins'][pin_label]]
-            bitstring = ''.join(temp_lane.astype(str).tolist())
+            temp_lane = temp_lanes[self.intf_spec["traceable_io_pins"][pin_label]]
+            bitstring = "".join(temp_lane.astype(str).tolist())
             wave = bitstring_to_wave(bitstring)
-            wavelanes.append({'name': pin_name,
-                              'pin': pin_label,
-                              'wave': wave})
+            wavelanes.append({"name": pin_name, "pin": pin_label, "wave": wave})
 
             temp_sample = temp_lane.reshape(-1, 1)
             if index == 0:
                 temp_samples = deepcopy(temp_sample)
             else:
-                temp_samples = np.concatenate((temp_samples, temp_sample),
-                                              axis=1)
+                temp_samples = np.concatenate((temp_samples, temp_sample), axis=1)
 
-        np.savetxt(trace_csv_abs, temp_samples, fmt='%d', delimiter=',')
+        np.savetxt(trace_csv_abs, temp_samples, fmt="%d", delimiter=",")
         self.trace_csv = trace_csv_abs
-        self.trace_sr = ''
+        self.trace_sr = ""
 
         return wavelanes
 
     def _set_metadata(self):
         """Set metadata for the trace.
 
-        A `*.sr` file directly generated from `*.csv` will not have any 
+        A `*.sr` file directly generated from `*.csv` will not have any
         metadata. This method helps to set the sample rate, probe names, etc.
 
         Return
@@ -1093,19 +1077,19 @@ class TraceAnalyzer:
         None
 
         """
-        if self.trace_sr == '':
+        if self.trace_sr == "":
             self._csv_to_sr()
 
         dir_name, _ = os.path.splitext(self.trace_sr)
         if os.system("rm -rf " + dir_name):
-            raise RuntimeError('Directory cannot be deleted.')
+            raise RuntimeError("Directory cannot be deleted.")
         if os.system("mkdir " + dir_name):
-            raise RuntimeError('Directory cannot be created.')
+            raise RuntimeError("Directory cannot be created.")
         if os.system("unzip -q " + self.trace_sr + " -d " + dir_name):
-            raise RuntimeError('Unzip sr file failed.')
+            raise RuntimeError("Unzip sr file failed.")
 
-        metadata = open(dir_name + '/metadata', 'r')
-        temp = open(dir_name + '/temp', 'w')
+        metadata = open(dir_name + "/metadata", "r")
+        temp = open(dir_name + "/temp", "w")
         pat = "rate=0 Hz"
         rate = self.frequency_mhz * 1e6
         subst = "rate=" + str(rate) + " Hz"
@@ -1113,34 +1097,32 @@ class TraceAnalyzer:
         probe_list = list(self.probes.keys())
         for line in metadata:
             if line.startswith("probe"):
-                temp.write("probe" + str(j + 1) + "=" +
-                           str(probe_list[j]) + '\n')
+                temp.write("probe" + str(j + 1) + "=" + str(probe_list[j]) + "\n")
                 j += 1
             else:
                 temp.write(line.replace(pat, subst))
         metadata.close()
         temp.close()
 
-        if os.system("rm -rf " + dir_name + '/metadata'):
-            raise RuntimeError('Cannot remove metadata folder.')
-        if os.system("mv " + dir_name + '/temp ' + dir_name + '/metadata'):
-            raise RuntimeError('Cannot rename metadata folder.')
-        if os.system("cd " + dir_name + "; zip -rq " +
-                     self.trace_sr + " * ; cd .."):
-            raise RuntimeError('Zip sr file failed.')
+        if os.system("rm -rf " + dir_name + "/metadata"):
+            raise RuntimeError("Cannot remove metadata folder.")
+        if os.system("mv " + dir_name + "/temp " + dir_name + "/metadata"):
+            raise RuntimeError("Cannot rename metadata folder.")
+        if os.system("cd " + dir_name + "; zip -rq " + self.trace_sr + " * ; cd .."):
+            raise RuntimeError("Zip sr file failed.")
         if os.system("rm -rf " + dir_name):
-            raise RuntimeError('Cannot remove temporary folder.')
+            raise RuntimeError("Cannot remove temporary folder.")
 
-    def _sigrok_decode(self, decoded_file, options=''):
+    def _sigrok_decode(self, decoded_file, options=""):
         """Decode and record the trace based on the protocol specified.
 
         The `decoded_file` contains the name of the output file.
 
         The `option` specifies additional options to be passed to sigrok-cli.
-        For example, users can use option=':wordsize=9:cpol=1:cpha=0' to add 
+        For example, users can use option=':wordsize=9:cpol=1:cpha=0' to add
         these options for the SPI decoder.
 
-        The decoder will also ignore the pin collected but not required for 
+        The decoder will also ignore the pin collected but not required for
         decoding.
 
         Note
@@ -1149,7 +1131,7 @@ class TraceAnalyzer:
 
         Note
         ----
-        The decoded file will be put into the specified path, or in the 
+        The decoded file will be put into the specified path, or in the
         working directory in case the path does not exist.
 
         Parameters
@@ -1167,41 +1149,48 @@ class TraceAnalyzer:
         if os.path.isdir(os.path.dirname(decoded_file)):
             decoded_abs = decoded_file
         else:
-            decoded_abs = os.getcwd() + '/' + decoded_file
+            decoded_abs = os.getcwd() + "/" + decoded_file
 
         dir_name, _ = os.path.splitext(self.trace_sr)
-        txt_file = dir_name + '.txt'
-        if os.system('rm -rf ' + txt_file):
+        txt_file = dir_name + ".txt"
+        if os.system("rm -rf " + txt_file):
             raise RuntimeError("Cannot remove temporary txt file.")
-        if os.system('rm -rf ' + decoded_abs):
+        if os.system("rm -rf " + decoded_abs):
             raise RuntimeError("Cannot remove old decoded file.")
 
-        self.trace_pd = ''
-        pd_annotation = ''
+        self.trace_pd = ""
+        pd_annotation = ""
         for i in list(self.probes.keys()):
-            if i != 'NC':
-                pd_annotation += (':' + i.lower() + '=' + i)
-        command = "sigrok-cli -i " + self.trace_sr + " -P " + \
-                  self.protocol + options + pd_annotation + (' > ' + txt_file)
+            if i != "NC":
+                pd_annotation += ":" + i.lower() + "=" + i
+        command = (
+            "sigrok-cli -i "
+            + self.trace_sr
+            + " -P "
+            + self.protocol
+            + options
+            + pd_annotation
+            + (" > " + txt_file)
+        )
         if os.system(command):
-            raise RuntimeError('Sigrok-cli decode failed.')
+            raise RuntimeError("Sigrok-cli decode failed.")
 
-        f_decoded = open(decoded_abs, 'w')
-        f_temp = open(txt_file, 'r')
+        f_decoded = open(decoded_abs, "w")
+        f_temp = open(txt_file, "r")
         j = 0
         for line in f_temp:
-            m = re.search('([0-9]+)-([0-9]+)( +)(.*)', line)
+            m = re.search("([0-9]+)-([0-9]+)( +)(.*)", line)
             if m:
                 while j < int(m.group(1)):
-                    f_decoded.write('x\n')
+                    f_decoded.write("x\n")
                     j += 1
-                f_decoded.write(m.group(4) + '\n')
+                f_decoded.write(m.group(4) + "\n")
                 j += 1
                 while j < int(m.group(2)):
-                    f_decoded.write('.\n')
+                    f_decoded.write(".\n")
                     j += 1
         for i in range(j, self.num_decoded_samples):
-            f_decoded.write('x\n')
+            f_decoded.write("x\n")
 
         f_temp.close()
         f_decoded.close()
@@ -1218,34 +1207,34 @@ class TraceAnalyzer:
         so that the decoded transactions can also be shown in the waveform.
 
         The returned annotation has the following format:
-        [{name: '', 
-          wave: 'x.444x4.x', 
+        [{name: '',
+          wave: 'x.444x4.x',
           data: ['read', 'write', 'read', 'data']}]
 
         Returns
         -------
         list
-            A list containing one dictionary, having the same format as 
+            A list containing one dictionary, having the same format as
             wavelane.
 
         """
-        if self.trace_pd == '':
+        if self.trace_pd == "":
             raise ValueError("Must have decoded trace before annotating.")
 
-        pd_file = open(self.trace_pd, 'r')
-        annotation_lane = [{'name': '', 'wave': '', 'data': list()}]
+        pd_file = open(self.trace_pd, "r")
+        annotation_lane = [{"name": "", "wave": "", "data": list()}]
         i = 0
         for pd_line in pd_file:
             if pd_line is not None:
                 pd_data = pd_line.rstrip()
             else:
-                pd_data = 'x'
+                pd_data = "x"
 
-            if str(pd_data) in ['x', '.']:
-                annotation_lane[0]['wave'] += str(pd_data)
+            if str(pd_data) in ["x", "."]:
+                annotation_lane[0]["wave"] += str(pd_data)
             else:
-                annotation_lane[0]['wave'] += '4'
-                annotation_lane[0]['data'].append(str(pd_data))
+                annotation_lane[0]["wave"] += "4"
+                annotation_lane[0]["data"].append(str(pd_data))
             i += 1
         pd_file.close()
 
@@ -1269,17 +1258,22 @@ class TraceAnalyzer:
             raise ValueError("Trace has to be decoded first.")
 
         zero_based_correction = 1
-        with open(self.trace_txt, 'r') as f:
+        with open(self.trace_txt, "r") as f:
             i = 1
             for line in f:
-                m = re.search('(?P<begin>[0-9]+)-(?P<end>[0-9]+)' +
-                              '(?P<whitespace> +)(?P<command>.*)', line)
+                m = re.search(
+                    "(?P<begin>[0-9]+)-(?P<end>[0-9]+)"
+                    + "(?P<whitespace> +)(?P<command>.*)",
+                    line,
+                )
                 if m:
                     cmd = dict()
-                    cmd['command'] = m.group('command')
-                    cmd['begin'] = int(m.group('begin'))+zero_based_correction
-                    cmd['end'] = int(m.group('end'))+zero_based_correction
+                    cmd["command"] = m.group("command")
+                    cmd["begin"] = int(m.group("begin")) + zero_based_correction
+                    cmd["end"] = int(m.group("end")) + zero_based_correction
                     transactions.append(cmd)
                 i += 1
 
         return transactions
+
+

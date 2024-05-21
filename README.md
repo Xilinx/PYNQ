@@ -76,6 +76,6 @@ Please ask questions on the <a href="https://discuss.pynq.io" target="_blank">PY
 
 ## SDBuild Open Source Components
 
-**License and Copyrights Info** [TAR/GZIP](https://bit.ly/pynq_license_2_7)
+**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v3.0-license.tar.gz)
 
-**Open Components Source Code** [TAR/GZIP](https://bit.ly/pynq_opencomponents_2_7)
+**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v3.0-open_components.tar.gz)

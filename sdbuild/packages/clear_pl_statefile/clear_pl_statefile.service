@@ -1,0 +1,11 @@
+[Unit]
+Description=Clears the PL Statefile on boot
+Requires=jupyter.service
+After=jupyter.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/clear_pl_statefile.sh
+
+[Install]
+WantedBy=basic.target

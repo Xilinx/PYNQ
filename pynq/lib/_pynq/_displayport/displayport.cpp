@@ -172,7 +172,6 @@ public:
 			throw os_error("Cannot map dumb buffer", ret);
 		}
 		data = mmap(0, creq.size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mreq.offset);
-		std::cerr << "Offset: " << mreq.offset << std::endl;
 		if (data == MAP_FAILED) {
 			throw os_error("Cannot mmap dumb buffer", EIO);
 		}
@@ -180,7 +179,6 @@ public:
 
 		physical_address = mreq.offset;
 
-		std::cout << "Created Frame Buffer: " << physical_address << std::endl;
 		
 		commit = true;
 	}

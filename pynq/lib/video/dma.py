@@ -1,39 +1,13 @@
 #   Copyright (c) 2018, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
-__author__ = "Peter Ogden"
-__copyright__ = "Copyright 2018, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 import asyncio
+
 import numpy as np
-from pynq import DefaultIP, allocate, UnsupportedConfiguration
+
+from pynq import allocate
+from pynq import DefaultIP, UnsupportedConfiguration
 
 
 class _FrameCache:
@@ -53,12 +27,21 @@ class _FrameCache:
         """
         if self._cache:
             frame = allocate(
-                shape=self._mode.shape, dtype='u1', cacheable=self._cacheable,
-                pointer=self._cache.pop(), cache=self, target=self._memory)
+                shape=self._mode.shape,
+                dtype="u1",
+                cacheable=self._cacheable,
+                pointer=self._cache.pop(),
+                cache=self,
+                target=self._memory,
+            )
         else:
             frame = allocate(
-                shape=self._mode.shape, dtype=np.uint8,
-                cacheable=self._cacheable, cache=self, target=self._memory)
+                shape=self._mode.shape,
+                dtype=np.uint8,
+                cacheable=self._cacheable,
+                cache=self,
+                target=self._memory,
+            )
         return frame
 
     def return_pointer(self, pointer):
@@ -93,6 +76,7 @@ class AxiVDMA(DefaultIP):
         Video output DMA channel
 
     """
+
     class _FrameList:
         """Internal helper class for handling the list of frames associated
         with a DMA channel. Assumes ownership of all frames it contains
@@ -121,8 +105,7 @@ class AxiVDMA(DefaultIP):
         def __setitem__(self, index, frame):
             self._frames[index] = frame
             if frame is not None:
-                self._mmio.write(self._offset + 4 * index,
-                                 frame.physical_address)
+                self._mmio.write(self._offset + 4 * index, frame.physical_address)
             else:
                 self._mmio.write(self._offset + 4 * index, 0)
             self.reload()
@@ -195,11 +178,10 @@ class AxiVDMA(DefaultIP):
 
             """
             if not self.running:
-                raise RuntimeError('DMA channel not started')
+                raise RuntimeError("DMA channel not started")
             while self._mmio.read(0x34) & 0x1000 == 0:
                 loop = asyncio.get_event_loop()
-                loop.run_until_complete(
-                    asyncio.ensure_future(self._interrupt.wait()))
+                loop.run_until_complete(asyncio.ensure_future(self._interrupt.wait()))
                 pass
             self._mmio.write(0x34, 0x1000)
             return self._readframe_internal()
@@ -210,7 +192,7 @@ class AxiVDMA(DefaultIP):
 
             """
             if not self.running:
-                raise RuntimeError('DMA channel not started')
+                raise RuntimeError("DMA channel not started")
             while self._mmio.read(0x34) & 0x1000 == 0:
                 await self._interrupt.wait()
             self._mmio.write(0x34, 0x1000)
@@ -228,9 +210,7 @@ class AxiVDMA(DefaultIP):
 
         @property
         def desiredframe(self):
-            """The next frame index to the processed by the DMA
-
-            """
+            """The next frame index to the processed by the DMA"""
             return (self._mmio.read(0x28) >> 8) & 0x1F
 
         @desiredframe.setter
@@ -240,7 +220,7 @@ class AxiVDMA(DefaultIP):
             register_value = self._mmio.read(0x28)
             mask = ~(0x1F << 8)
             register_value &= mask
-            register_value |= (frame_number << 8)
+            register_value |= frame_number << 8
             self._mmio.write(0x28, register_value)
 
         @property
@@ -260,16 +240,12 @@ class AxiVDMA(DefaultIP):
 
         @property
         def running(self):
-            """Is the DMA channel running
-
-            """
+            """Is the DMA channel running"""
             return (self._mmio.read(0x34) & 0x1) == 0
 
         @property
         def parked(self):
-            """Is the channel parked or running in circular buffer mode
-
-            """
+            """Is the channel parked or running in circular buffer mode"""
             return self._mmio.read(0x30) & 0x2 == 0
 
         @parked.setter
@@ -294,14 +270,13 @@ class AxiVDMA(DefaultIP):
                 self._mmio.write(0x30, newregister)
 
         def start(self):
-            """Start the DMA. The mode must be set prior to this being called
-
-            """
+            """Start the DMA. The mode must be set prior to this being called"""
             if not self._mode:
                 raise RuntimeError("Video mode not set, channel not started")
             self.desiredframe = 0
             self._cache = _FrameCache(
-                    self._mode, self.memory, cacheable=self.cacheable_frames)
+                self._mode, self.memory, cacheable=self.cacheable_frames
+            )
             for i in range(len(self._frames)):
                 self._frames[i] = self._cache.getframe()
 
@@ -326,12 +301,11 @@ class AxiVDMA(DefaultIP):
                 pass
             for i in range(len(self._frames)):
                 self._frames[i] = None
-            if hasattr(self, '_cache'):
+            if hasattr(self, "_cache"):
                 self._cache.clear()
 
         def _writemode(self):
-            self._mmio.write(0xA4, self._mode.width *
-                             self._mode.bytes_per_pixel)
+            self._mmio.write(0xA4, self._mode.width * self._mode.bytes_per_pixel)
             self._mmio.write(0xA8, self._mode.stride)
 
         def reload(self):
@@ -405,7 +379,8 @@ class AxiVDMA(DefaultIP):
             if not self._mode:
                 raise RuntimeError("Video mode not set, channel not started")
             self._cache = _FrameCache(
-                    self._mode, self.memory, cacheable=self.cacheable_frames)
+                self._mode, self.memory, cacheable=self.cacheable_frames
+            )
             self._frames[0] = self._cache.getframe()
             self._writemode()
             self.reload()
@@ -417,21 +392,17 @@ class AxiVDMA(DefaultIP):
             pass
 
         def stop(self):
-            """Stop the DMA channel and empty the frame cache
-
-            """
+            """Stop the DMA channel and empty the frame cache"""
             self._mmio.write(0x00, 0x00011080)
             while self.running:
                 pass
             for i in range(len(self._frames)):
                 self._frames[i] = None
-            if hasattr(self, '_cache'):
+            if hasattr(self, "_cache"):
                 self._cache.clear()
 
         def reset(self):
-            """Soft reset the DMA channel
-
-            """
+            """Soft reset the DMA channel"""
             self.stop()
             self._mmio.write(0x00, 0x00011084)
             while self._mmio.read(0x00) & 0x4 == 4:
@@ -453,11 +424,10 @@ class AxiVDMA(DefaultIP):
 
             """
             if not self.running:
-                raise RuntimeError('DMA channel not started')
+                raise RuntimeError("DMA channel not started")
             while self._mmio.read(0x04) & 0x1000 == 0:
                 loop = asyncio.get_event_loop()
-                loop.run_until_complete(
-                    asyncio.ensure_future(self._interrupt.wait()))
+                loop.run_until_complete(asyncio.ensure_future(self._interrupt.wait()))
             self._mmio.write(0x04, 0x1000)
             self._writeframe_internal(frame)
 
@@ -467,7 +437,7 @@ class AxiVDMA(DefaultIP):
 
             """
             if not self.running:
-                raise RuntimeError('DMA channel not started')
+                raise RuntimeError("DMA channel not started")
             while self._mmio.read(0x04) & 0x1000 == 0:
                 await self._interrupt.wait()
             self._mmio.write(0x04, 0x1000)
@@ -483,10 +453,9 @@ class AxiVDMA(DefaultIP):
             self._frames.takeownership(frameindex)
 
         def _writemode(self):
-            self._mmio.write(0x54, self._mode.width *
-                             self._mode.bytes_per_pixel)
+            self._mmio.write(0x54, self._mode.width * self._mode.bytes_per_pixel)
             register = self._mmio.read(0x58)
-            register &= (0xF << 24)
+            register &= 0xF << 24
             register |= self._mode.stride
             self._mmio.write(0x58, register)
 
@@ -551,9 +520,7 @@ class AxiVDMA(DefaultIP):
 
         @property
         def parked(self):
-            """Is the channel parked or running in circular buffer mode
-
-            """
+            """Is the channel parked or running in circular buffer mode"""
             return self._mmio.read(0x00) & 0x2 == 0
 
         @parked.setter
@@ -588,17 +555,19 @@ class AxiVDMA(DefaultIP):
 
         """
         super().__init__(description)
-        if 'parameters' in description:
-            parameters = description['parameters']
-            has_s2mm = parameters['C_INCLUDE_S2MM'] == '1'
-            has_mm2s = parameters['C_INCLUDE_MM2S'] == '1'
-            framecount = int(parameters['C_NUM_FSTORES'])
-            s2mm_addr_width = int(parameters['C_M_AXI_S2MM_ADDR_WIDTH'])
-            mm2s_addr_width = int(parameters['C_M_AXI_MM2S_ADDR_WIDTH'])
-            if ((has_s2mm and s2mm_addr_width > 32) or
-                    (has_mm2s and mm2s_addr_width > 32)):
+        if "parameters" in description:
+            parameters = description["parameters"]
+            has_s2mm = parameters["C_INCLUDE_S2MM"] == "1"
+            has_mm2s = parameters["C_INCLUDE_MM2S"] == "1"
+            framecount = int(parameters["C_NUM_FSTORES"])
+            s2mm_addr_width = int(parameters["C_M_AXI_S2MM_ADDR_WIDTH"])
+            mm2s_addr_width = int(parameters["C_M_AXI_MM2S_ADDR_WIDTH"])
+            if (has_s2mm and s2mm_addr_width > 32) or (
+                has_mm2s and mm2s_addr_width > 32
+            ):
                 raise UnsupportedConfiguration(
-                    'VDMA driver only supports 32-bit addresses')
+                    "VDMA driver only supports 32-bit addresses"
+                )
 
         else:
             has_s2mm = True
@@ -606,13 +575,12 @@ class AxiVDMA(DefaultIP):
             framecount = 4 if framecount is None else framecount
 
         self.framecount = framecount
-        memory = description['device'].default_memory
+        memory = description["device"].default_memory
         if has_s2mm:
-            self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut,
-                    memory)
+            self.readchannel = AxiVDMA.S2MMChannel(self, self.s2mm_introut, memory)
         if has_mm2s:
-            self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut,
-                    memory)
+            self.writechannel = AxiVDMA.MM2SChannel(self, self.mm2s_introut, memory)
 
-    bindto = ['xilinx.com:ip:axi_vdma:6.2',
-              'xilinx.com:ip:axi_vdma:6.3']
+    bindto = ["xilinx.com:ip:axi_vdma:6.2", "xilinx.com:ip:axi_vdma:6.3"]
+
+

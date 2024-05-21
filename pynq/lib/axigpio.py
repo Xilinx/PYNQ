@@ -1,39 +1,10 @@
 #   Copyright (c) 2016, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
 import asyncio
+
 from pynq import DefaultIP
 
-
-__author__ = "Peter Ogden"
-__copyright__ = "Copyright 2017, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 
 class AxiGPIO(DefaultIP):
@@ -51,6 +22,7 @@ class AxiGPIO(DefaultIP):
     by whether the pin was last read or written.
 
     """
+
     class Input:
         """Class representing wires in an input channel.
 
@@ -59,6 +31,7 @@ class AxiGPIO(DefaultIP):
         directly.
 
         """
+
         def __init__(self, parent, start, stop):
             self._parent = parent
             self._start = start
@@ -95,9 +68,9 @@ class AxiGPIO(DefaultIP):
 
             """
             loop = asyncio.get_event_loop()
-            loop.run_until_complete(asyncio.ensure_future(
-                self.wait_for_value_async(value)
-            ))
+            loop.run_until_complete(
+                asyncio.ensure_future(self.wait_for_value_async(value))
+            )
 
     class Output:
         """Class representing wires in an output channel.
@@ -107,6 +80,7 @@ class AxiGPIO(DefaultIP):
         directly.
 
         """
+
         def __init__(self, parent, start, stop):
             self._parent = parent
             self._start = start
@@ -132,26 +106,21 @@ class AxiGPIO(DefaultIP):
 
             """
             if val > self._mask:
-                raise ValueError("{} too large for {} bits"
-                                 .format(val, self._stop - self._start))
+                raise ValueError(
+                    "{} too large for {} bits".format(val, self._stop - self._start)
+                )
             self._parent.write(val << self._start, self._mask << self._start)
 
         def on(self):
-            """Turns on all of the wires in the slice
-
-            """
+            """Turns on all of the wires in the slice"""
             self.write(self._mask)
 
         def off(self):
-            """Turns off all of the wires in the slice
-
-            """
+            """Turns off all of the wires in the slice"""
             self.write(0)
 
         def toggle(self):
-            """Toggles all of the wires in the slice
-
-            """
+            """Toggles all of the wires in the slice"""
             self.write((~self._parent._val >> self._start) & self._mask)
 
     class InOut(Input, Output):
@@ -162,6 +131,7 @@ class AxiGPIO(DefaultIP):
         be used directly.
 
         """
+
         def __init__(self, parent, start, stop):
             self._parent = parent
             self._start = start
@@ -208,6 +178,7 @@ class AxiGPIO(DefaultIP):
         array can be assigned simultaneously.
 
         """
+
         def __init__(self, parent, channel):
             self._parent = parent
             self._channel = channel
@@ -230,27 +201,21 @@ class AxiGPIO(DefaultIP):
             return self.length
 
         def write(self, val, mask):
-            """Set the state of the output pins
-
-            """
+            """Set the state of the output pins"""
             if self.slicetype == AxiGPIO.Input:
-                raise RuntimeError('You cannot write to an Input')
+                raise RuntimeError("You cannot write to an Input")
             self._val = (self._val & ~mask) | (val & mask)
             self._parent.write(self._channel * 8, self._val)
 
         def read(self):
-            """Read the state of the input pins
-
-            """
+            """Read the state of the input pins"""
             if self.slicetype == AxiGPIO.Output:
-                raise RuntimeError('You cannot read from an output')
+                raise RuntimeError("You cannot read from an output")
             return self._parent.read(self._channel * 8)
 
         @property
         def trimask(self):
-            """Gets or sets the tristate mask for an inout channel
-
-            """
+            """Gets or sets the tristate mask for an inout channel"""
             return self._parent.read(self._channel * 8 + 4)
 
         @trimask.setter
@@ -258,9 +223,7 @@ class AxiGPIO(DefaultIP):
             self._parent.write(self._channel * 8 + 4, value)
 
         def setlength(self, length):
-            """Set the number of wires connected to the channel
-
-            """
+            """Set the number of wires connected to the channel"""
             self.length = length
 
         def setdirection(self, direction):
@@ -276,7 +239,8 @@ class AxiGPIO(DefaultIP):
             if direction not in [AxiGPIO.Input, AxiGPIO.Output, AxiGPIO.InOut]:
                 raise ValueError(
                     "direction should be one of AxiGPIO.{Input,Output,InOut} "
-                    "or the string 'in', 'out' or 'inout'")
+                    "or the string 'in', 'out' or 'inout'"
+                )
             self.slicetype = direction
 
         async def wait_for_interrupt_async(self):
@@ -288,9 +252,9 @@ class AxiGPIO(DefaultIP):
 
             """
             if not self._parent.has_interrupts:
-                raise RuntimeError('Interrupts not available for this IP')
+                raise RuntimeError("Interrupts not available for this IP")
 
-            mask = (1 << self._channel)
+            mask = 1 << self._channel
             if self._waiter_count == 0:
                 enable = self._parent.read(0x128)
                 enable |= mask
@@ -314,16 +278,14 @@ class AxiGPIO(DefaultIP):
         self._channels = [AxiGPIO.Channel(self, i) for i in range(2)]
         self.channel1 = self._channels[0]
         self.channel2 = self._channels[1]
-        if 'ip2intc_irpt' in description['interrupts']:
+        if "ip2intc_irpt" in description["interrupts"]:
             self.write(0x11C, 0x80000000)
             self.has_interrupts = True
         else:
             self.has_interrupts = False
 
     def setlength(self, length, channel=1):
-        """Sets the length of a channel in the controller
-
-        """
+        """Sets the length of a channel in the controller"""
         self._channels[channel - 1].length = length
 
     def setdirection(self, direction, channel=1):
@@ -337,16 +299,15 @@ class AxiGPIO(DefaultIP):
             if direction in _direction_map:
                 direction = _direction_map[direction]
         if direction not in [AxiGPIO.Input, AxiGPIO.Output, AxiGPIO.InOut]:
-            raise ValueError(
-                "direction should be one of AxiGPIO.{Input,Output,InOut}")
+            raise ValueError("direction should be one of AxiGPIO.{Input,Output,InOut}")
         self._channels[channel - 1].slicetype = direction
 
     def __getitem__(self, idx):
         return self.channel1[idx]
 
-    bindto = ['xilinx.com:ip:axi_gpio:2.0']
+    bindto = ["xilinx.com:ip:axi_gpio:2.0"]
 
 
-_direction_map = {"in": AxiGPIO.Input,
-                  "out": AxiGPIO.Output,
-                  "inout": AxiGPIO.InOut}
+_direction_map = {"in": AxiGPIO.Input, "out": AxiGPIO.Output, "inout": AxiGPIO.InOut}
+
+

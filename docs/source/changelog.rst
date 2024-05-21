@@ -2,6 +2,54 @@
 Change Log
 ************************
 
+Version 3.0.0
+============================
+
+Updates to PYNQ since the last release include:
+
+* Image releases:
+   * pynq_z1_v3.0.0
+   * pynq_z2_v3.0.0
+   * zcu104_v3.0.0
+   * pynq_zu_v3.0.0
+   * zcu111_v3.0.0
+   * rfsoc2x2_v3.0.0
+   * rfsoc4x2_v3.0.0
+   * (new) zcu208_v3.0.0
+
+* Official Ubuntu 22.04 support on the Kria-PYNQ repository:
+   * KV260
+   * (new) KR260
+
+* Upgraded Software
+   * All overlays built with Vivado 2022.1
+   * Linux kernel and build updated to Petalinux 2022.1
+
+* Productivity additions - software
+   * Updated to Python 3.10
+   * Updated to JupyterLab 3.4.4
+   * Updated to Ubuntu 22.04 based packages
+   * Separation of PYNQ-Utils repository for overlay packaging
+
+* Productivity additions - hardware
+   * Added XSA parsing support
+   * Added debug bridge IP for XVC server support
+   * Improved support for block design containers and partial reconfiguration
+   * Separation of PYNQ-Metadata repository for design exploration
+
+* SD Build updates
+   * API change to emphasize builds using prebuilt root filesystem
+   * API change to emphasize builds using PYNQ source distribution
+   * XRT library included in board-agnostic images
+
+* Deprecations
+   * PL server as a multi-user daemon is deprecated - pynq server CLI is also deprecated
+   * 3rd party board automatic building of overlays in SD Build is deprecated
+   * Wavedrom viewing in JupyterLabs is deprecated - Jupyter notebook viewing is still supported
+   * Use of pynq/utils.py will be deprecated in future releases - PYNQ-Utils will have same APIs
+   * Use of pynq/pl_server/<Vivado parsers>.py will be deprecated in future releases - PYNQ-Metadata will have same APIs
+
+
 Version 2.7.0 
 ============================
 

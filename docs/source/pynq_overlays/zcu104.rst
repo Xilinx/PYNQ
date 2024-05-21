@@ -52,7 +52,7 @@ Power
 
 For details on the ZCU104 board including reference manual, schematics, 
 constraints file (xdc),
-see the `Xilinx ZCU104 webpage <https://www.xilinx.com/products/boards-and-kits/zcu104.html>`_
+see the `AMD-Xilinx ZCU104 webpage <https://www.xilinx.com/products/boards-and-kits/zcu104.html>`_
 
 The following overlays are include by default in the PYNQ image for the ZCU104 board:
 

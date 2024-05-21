@@ -31,7 +31,7 @@ tar -xf ${libsigrokdecode}.tar.gz
 cd ${libsigrokdecode}
 patch -p2 -i $patch_file
 export PKG_CONFIG_PATH=/opt/sigrok/lib/pkgconfig
-./configure --prefix=/opt/sigrok LIBS="-lpython3.8"
+./configure --prefix=/opt/sigrok LIBS="-lpython3.10"
 make
 make install
 cd ..

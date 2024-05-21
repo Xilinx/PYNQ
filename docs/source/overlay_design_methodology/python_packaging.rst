@@ -148,7 +148,7 @@ version-control the following files anymore:
 
 * MicroBlaze binaries (e.g., `pmod_adc.bin`)
 
-We refrain from keeping tracking of these large files; instead, we rely on the 
+We refrain from keeping track of these large files; instead, we rely on the 
 SD build flow to update them automatically in each build. Some side-effects
 are shown below:
 
@@ -187,11 +187,11 @@ If you are not on a PYNQ image (other OS), the above `pip3 install`
 is only for the pynq Python library installation; you also need
 2 additional services to be started for pynq to be fully-functional.
 
-* PL server service. (Check 
-  <PYNQ-repo>/sdbuild/packages/pynq for more information).
-
 * Jupyter notebook service. (Check 
   <PYNQ-repo>/sdbuild/packages/jupyter/start_jupyter.sh as an example).
+  
+* Clear PL Statefile service. (Check 
+  <PYNQ-repo>/sdbuild/packages/clear_pl_statefile for more information).
 
 Using ``pynq`` as a Dependency
 ------------------------------

@@ -1,3 +1,6 @@
+# Copyright (C) 2022 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
 import warnings
 import struct
 import pytest
@@ -27,21 +30,18 @@ TEST_READ_DATA = [
 def register_device():
     device = MockRegisterDevice('register_device')
     yield device
-    device.close()
 
 
 @pytest.fixture
 def mmap_device():
     device = MockMemoryMappedDevice('mmap_device')
     yield device
-    device.close()
 
 
 @pytest.fixture(params=[MockRegisterDevice, MockMemoryMappedDevice])
 def device(request):
     device = request.param('device')
     yield device
-    device.close()
 
 
 def test_mmap_read(mmap_device):
@@ -90,7 +90,6 @@ def test_no_capability():
     with pytest.raises(ValueError) as excinfo:
         mmio = pynq.MMIO(BASE_ADDRESS, ADDR_RANGE, device=device)  # NOQA
     assert str(excinfo.value) == "Device does not have capabilities for MMIO"
-    device.close()
 
 
 def test_negative_addr(device):

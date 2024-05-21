@@ -24,8 +24,8 @@ when you type ``pynq subcommand`` it looks for an available executable named
 
 Therefore, to add new functionalities to the PYNQ CLI, it is sufficient to make 
 a new executable available that follow this naming structure. For example, to 
-manage instances of a device server, the ``pynq-server`` executable is created,
-and it will be called by typing ``pynq server`` in the command line.
+download the collatoral for all installed notebooks, the ``pynq-get-notebooks`` executable is created,
+and it will be called by typing ``pynq get-notebooks`` in the command line.
 
 Printing the Help Message
 -------------------------
@@ -54,26 +54,6 @@ useful for diagnosing issues and bug reporting.
 
 Available subcommands
 ---------------------
-
-Device Server Management
-^^^^^^^^^^^^^^^^^^^^^^^^
-The ``pynq server`` command is used to manage instances of device servers. You 
-can either ``start`` or ``stop`` the server by typing the intended command as 
-follows
-
-.. code:: bash
-    
-    pynq server start
-
-And you can also get a help message by typing 
-
-.. code:: bash
-    
-    pynq server --help
-
-.. note:: As of now, we recommend not to use the ``pynq server`` subcommand on 
-    Zynq and Zynq Ultrascale+ devices, as the device server in these cases is 
-    already managed by a system service provided in the PYNQ SD card image.
 
 Get the Available Notebooks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -122,7 +102,7 @@ You can get a list of the available notebooks by using the ``--list`` option
 When running ``pynq get-notebooks`` overlays are potentially downloaded 
 automatically from the network based on the target device. Therefore, there is 
 the possibility that some overlays will not be available for your device, and 
-you will have to synthesize the manually from source. In case the overlays 
+you will have to synthesize them manually from source. In case the overlays 
 associated with certain notebooks are not found for your device, these notebooks 
 will not be delivered. If, however, you want to get the notebooks anyway,  
 ignoring the automatic overlays lookup, you can pass the ``--ignore-overlays`` 

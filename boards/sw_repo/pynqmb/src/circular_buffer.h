@@ -79,7 +79,7 @@ typedef struct circular_buffer
   volatile void *tail;       // pointer to tail
 } circular_buffer;
 
-circular_buffer circular_log;
+extern circular_buffer circular_log;
 
 int cb_init(circular_buffer *cb, volatile u32* log_start_addr,
             size_t capacity, size_t sz, size_t channels);

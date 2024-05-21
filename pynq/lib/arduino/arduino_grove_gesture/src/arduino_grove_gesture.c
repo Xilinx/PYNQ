@@ -1,3 +1,6 @@
+// Copyright (C) 2022 Xilinx, Inc
+// SPDX-License-Identifier: BSD-3-Clause
+
 /*
  * arduino_gesture.c
  *
@@ -14,7 +17,6 @@
 #define SET_SPEED				0x5
 #define RESET					0xF
 
-i2c device;
 
 int main()
 {

@@ -1,40 +1,13 @@
 #   Copyright (c) 2019, Xilinx, Inc.
-#   All rights reserved.
-#
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
-#
-#   1.  Redistributions of source code must retain the above copyright notice,
-#       this list of conditions and the following disclaimer.
-#
-#   2.  Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#   3.  Neither the name of the copyright holder nor the names of its
-#       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
-#
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-#   OR BUSINESS INTERRUPTION). HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-#   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#   SPDX-License-Identifier: BSD-3-Clause
 
-__author__ = "Yun Rock Qu, Peter Ogden"
-__copyright__ = "Copyright 2019, Xilinx"
-__email__ = "pynq_support@xilinx.com"
 
 import os
 import warnings
+
+import pynqutils
+
 from .devicetree import get_dtbo_path
-from .utils import _find_local_overlay_res, _ExtensionsManager
 
 OVERLAYS_GROUP = "pynq.overlays"
 
@@ -42,13 +15,15 @@ OVERLAYS_GROUP = "pynq.overlays"
 def _resolve_bitstream(bitfile_path, device):
     if os.path.isfile(bitfile_path):
         return bitfile_path
-    if os.path.isdir(bitfile_path + ".d") and hasattr(device, 'name'):
+    if os.path.isdir(bitfile_path + ".d") and hasattr(device, "name"):
         split_bitfile = os.path.split(bitfile_path)
-        local_bitfile = _find_local_overlay_res(device.name, split_bitfile[1],
-                                                split_bitfile[0])
+        local_bitfile = pynqutils.setup_utils._find_local_overlay_res(
+            device.name, split_bitfile[1], split_bitfile[0]
+        )
         if local_bitfile is not None:
             return local_bitfile
     return None
+
 
 def _find_dtbo_file(dtbo_path, bitfile_path):
     if os.path.exists(dtbo_path):
@@ -57,6 +32,7 @@ def _find_dtbo_file(dtbo_path, bitfile_path):
     if os.path.exists(relative_path):
         return relative_path
     return None
+
 
 class Bitstream:
     """This class instantiates the meta class for PL bitstream (full/partial).
@@ -108,25 +84,30 @@ class Bitstream:
             raise TypeError("Bitstream name has to be a string.")
         if device is None:
             from .pl_server.device import Device
+
             device = Device.active_device
         self.device = device
+
+        # self.xsa = None
+        # if bitfile_name.endswith(".xsa"):
+        #    self.xsa_filepath = bitfile_name
+        #    self.xsa = pynqutils.build_utils.XsaParser(bitfile_name)
+        #    bitfile_name = self.xsa.bitstreamPaths[0]
+        #    self.xsa.load_bdc_metadata()
 
         bitfile_overlay_abs_lst = []
         if os.path.isabs(bitfile_name):
             bitfile_abs = _resolve_bitstream(bitfile_name, device)
         else:
-            bitfile_abs = _resolve_bitstream(os.path.abspath(bitfile_name),
-                                             device)
-            overlays_ext_man = _ExtensionsManager(OVERLAYS_GROUP)
+            bitfile_abs = _resolve_bitstream(os.path.abspath(bitfile_name), device)
+            overlays_ext_man = pynqutils.setup_utils.ExtensionsManager(OVERLAYS_GROUP)
             paths = [overlays_ext_man.extension_path(OVERLAYS_GROUP)]
             paths += overlays_ext_man.paths
             for path in paths:
-                for p in [os.path.join(path,
-                                       os.path.splitext(bitfile_name)[0]),
-                          path]:
+                for p in [os.path.join(path, os.path.splitext(bitfile_name)[0]), path]:
                     bitfile_overlay_abs = _resolve_bitstream(
-                        os.path.join(p, bitfile_name),
-                        device)
+                        os.path.join(p, bitfile_name), device
+                    )
                     if bitfile_overlay_abs:
                         bitfile_overlay_abs_lst.append(bitfile_overlay_abs)
         if bitfile_abs:
@@ -134,37 +115,37 @@ class Bitstream:
         elif bitfile_overlay_abs_lst:
             self.bitfile_name = bitfile_overlay_abs_lst[0]
         else:
-            raise IOError('Bitstream file {} does not exist.'.format(
-                bitfile_name))
+            raise IOError("Bitstream file {} does not exist.".format(bitfile_name))
 
-        if bitfile_abs and bitfile_overlay_abs_lst or \
-                len(bitfile_overlay_abs_lst) > 1:
-            msg = ("The provided name '{}' resulted in multiple possible "
-                   "matches:\n - ".format(bitfile_name))
+        if bitfile_abs and bitfile_overlay_abs_lst or len(bitfile_overlay_abs_lst) > 1:
+            msg = (
+                "The provided name '{}' resulted in multiple possible "
+                "matches:\n - ".format(bitfile_name)
+            )
             if bitfile_abs:
                 msg += "{}\n - ".format(bitfile_abs)
             msg += "\n - ".join(bitfile_overlay_abs_lst)
-            msg += ("\nThe first entry of this list, '{}', will be used, "
-                    "please provide the full path in case your target file "
-                    "was a different one in this list.".format(
-                        self.bitfile_name))
+            msg += (
+                "\nThe first entry of this list, '{}', will be used, "
+                "please provide the full path in case your target file "
+                "was a different one in this list.".format(self.bitfile_name)
+            )
             warnings.warn(msg, UserWarning)
 
         self.dtbo = None
         default_dtbo = get_dtbo_path(self.bitfile_name)
         if dtbo is None:
-           if os.path.exists(default_dtbo):
-               self.dtbo = default_dtbo
+            if os.path.exists(default_dtbo):
+                self.dtbo = default_dtbo
         else:
             self.dtbo = _find_dtbo_file(dtbo, self.bitfile_name)
             if self.dtbo is None:
-                raise IOError("DTBO file {} does not exist.".format(
-                    dtbo))
+                raise IOError("DTBO file {} does not exist.".format(dtbo))
 
         self.bit_data = dict()
-        self.binfile_name = ''
-        self.firmware_path = ''
-        self.timestamp = ''
+        self.binfile_name = ""
+        self.firmware_path = ""
+        self.timestamp = ""
         self.partial = partial
 
     def download(self, parser=None):
@@ -185,6 +166,10 @@ class Bitstream:
 
         """
         self.device.download(self, parser)
+
+    def gen_cache(self, parser=None):
+        """ Generates the pickled metadata cache in pl_server/ even if no download has occurred """
+        self.device.gen_cache(self, parser)
 
     def remove_dtbo(self):
         """Remove dtbo file from the system.
@@ -216,8 +201,9 @@ class Bitstream:
             if resolved_dtbo:
                 self.dtbo = resolved_dtbo
             else:
-                raise IOError("DTBO file {} does not exist.".format(
-                    dtbo))
+                raise IOError("DTBO file {} does not exist.".format(dtbo))
         if not self.dtbo:
             raise ValueError("DTBO path has to be specified.")
         self.device.insert_device_tree(self.dtbo)
+
+
