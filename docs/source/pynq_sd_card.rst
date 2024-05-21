@@ -174,7 +174,7 @@ following the steps below. You don't have to rerun the `setup_host.sh`.
      source distribution.  Starting in PYNQ v3.0, by default the SD card build
      flow expects a prebuilt root filesystem and a PYNQ source distribution to
      speedup and simplify user rebuilds of SD card images.  These binaries can be
-     found at `the PYNQ boards page <http://www.pynq.io/board.html/>`_ and
+     found at `the PYNQ boards page <https://www.pynq.io/boards.html/>`_ and
      copied into the sdbuild prebuilt folder
 
      .. code-block:: console
@@ -202,9 +202,10 @@ In order to simplify and speed-up the image building process, users should re-us
 prebuilt board-agnostic image appropriate to the architecture - arm for Zynq-7000 
 and aarch64 for Zynq UltraScale+, downloadable at the 
 `boards page <https://www.pynq.io/boards.html/>`_ of our website. This will allow 
-you to completely skip the board-agnostic stage. It is important to notice however
-that this will restrict the build process to only boards that share the same
-architecture. You can do so by passing the ``PREBUILT`` variable when invoking make:
+you to completely skip the board-agnostic stage.
+
+You can force a root filesystem build by setting the ``REBUILD_PYNQ_ROOTFS`` variable
+when invoking make:
 
 .. code-block:: console
     
