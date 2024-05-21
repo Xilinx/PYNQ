@@ -73,7 +73,7 @@ line interface*:
 Using PYNQ with other boards
 ============================
 
-You can find other PYNQ enabled boards on the `PYNQ.io boards <http://www.pynq.io/board.html>`_ page. 
+You can find other PYNQ enabled boards on the `PYNQ.io boards <https://www.pynq.io/boards.html>`_ page. 
 
 If you have another Xilinx-based platform you would like to use with PYNQ, see the following guide:
 
