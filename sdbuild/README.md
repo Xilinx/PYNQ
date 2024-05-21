@@ -161,7 +161,7 @@ custom notebooks or Python packages if desired for your board.
 
 #### (1) Collect a prebuilt board-agnostic root filesystem tarball and a prebuilt PYNQ source distribution.
 
-Starting in PYNQ v3.0, by default the SD card build flow expects a prebuilt root filesystem and a PYNQ source distribution to speedup and simplify user rebuilds of SD card images. These binaries can be found at [the PYNQ boards page](https://www.pynq.io/boards.html/) and copied into the sdbuild prebuilt folder
+Starting in PYNQ v3.0, by default the SD card build flow expects a prebuilt root filesystem and a PYNQ source distribution to speedup and simplify user rebuilds of SD card images. These binaries can be found at [the PYNQ boards page](https://www.pynq.io/boards.html) and copied into the sdbuild prebuilt folder
 
 ```bash
 # For rebuilding all SD cards, both arm and aarch64 root filesystems
