@@ -8,7 +8,7 @@ Pre-compiled images
 -------------------
 
 Pre-compiled SD card images for supported boards can be found via the 
-`PYNQ boards <http://www.pynq.io/board.html>`_ page.
+`PYNQ boards <https://www.pynq.io/boards.html>`_ page.
 
 If you already have a MicroSD card preloaded with a PYNQ image for your
 board, you don't need to rewrite it unless you want to restore or update your
