@@ -22,7 +22,7 @@ required = [
     "pynqmetadata>=0.0.1",
     "setuptools>=24.2.0",
     "cffi",
-    "numpy",
+    "numpy<2.0",
     "nest_asyncio",
 ]
 
