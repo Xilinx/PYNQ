@@ -91,7 +91,7 @@ sudo make install
 cd ..
 
 qemuver="5.2.0"
-wget http://wiki.qemu-project.org/download/qemu-$qemuver.tar.bz2
+wget http://download.qemu.org/qemu-$qemuver.tar.bz2
 tar -xf qemu-$qemuver.tar.bz2
 cd qemu-$qemuver
 ./configure --target-list=arm-linux-user,aarch64-linux-user \
