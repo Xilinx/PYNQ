@@ -99,7 +99,7 @@ flexibility to use the video subsystem color space conversion blocks before and
 after the custom IP.
 
 The video pipelines of the Pynq-Z1 and Pynq-Z2 boards run at 142 MHz with one
-pixel-per-clock, slightly below the 148.5 MHz pixel clock fo 1080p60 video but
+pixel-per-clock, slightly below the 148.5 MHz pixel clock for 1080p60 video but
 sufficient once blanking intervals are taken into account. for the ZCU104 board
 the pipeline runs at 300 MHz and two pixels-per-clock to support 4k60 (2160p)
 video.
