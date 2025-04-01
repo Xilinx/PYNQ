@@ -233,8 +233,7 @@ What is the user account and password?
 --------------------------------------
 
 The username for all Linux, Jupyter and Samba logins is ``xilinx``. 
-The password is ``xilinx``. For vagrant Ubuntu VM, both the username and 
-password are ``vagrant``.
+The password is ``xilinx``.
 
 How do I enable/disable the Jupyter notebook password?
 ------------------------------------------------------
