@@ -39,85 +39,21 @@ Ubuntu 18.04       Bionic
 Ubuntu 20.04       Focal
 ================  ==================
 
-Use Vagrant to prepare Ubuntu OS
---------------------------------
-If you do not have an Ubuntu enabled machine, you cam also prepare a Ubuntu virtual 
-machine (VM) on your host OS . We provide in our repository a *vagrant* file 
-that can help you install the Ubuntu VM on your host OS using the following steps:
+Use an existing Ubuntu OS
+-------------------------
+If you have an Ubuntu OS, and it is listed in the table above, you can simply do the following:
 
-  1. Download the `vagrant software <https://www.vagrantup.com/>`_ and 
-     `Virtual Box <https://www.virtualbox.org/>`_. Install them on your host OS.
-  2. In your host OS, open a terminal program. Locate your PYNQ repository, 
-     where the vagrant file is stored.
+  1. Install dependencies using the following script. 
 
      .. code-block:: console
     
-        cd <PYNQ repository>
+        <PYNQ repository>/sdbuild/scripts/setup_host.sh
 
-  3. (optional) Depending on your Virtual Box configurations, you may 
-     need to run the following command first; it may help you get better 
-     screen resolution for your Ubuntu VM.
+  2. Install correct version of the Xilinx tools, including 
+     PetaLinux, Vivado, and Vitis. See the table below for the correct version 
+     of each release.
 
-     .. code-block:: console
-
-        vagrant plugin install vagrant-vbguest
-
-  4. You can then prepare the VM using the following command. This step will
-     prepare a Ubuntu VM called *pynq_ubuntu_<version>* on your Virtual Box.
-     The Ubuntu packages on the VM will be updated during this process; 
-     the Ubuntu desktop will also be installed so you can install Xilinx 
-     software later.
-
-     .. code-block:: console
-    
-        vagrant up
-
-     The above command will take about 20 minutes to finish.
-     By default our vagrant file will prepare a Ubuntu 20.04 OS. If you would
-     like to use another OS, do:
-     
-     .. code-block:: console
-    
-        vagrant up <ubuntu_code_name>
-
-     For example, you can do the following to prepare a Ubuntu 20.04 OS:
-     
-     .. code-block:: console
-    
-        vagrant up focal
-
-     The supported OS and their corresponding code names are listed in the 
-     beginning of this section.
-
-  5. In the end, you will see a Virtual Box window pop up with only shell 
-     terminal, asking for your Ubuntu login information. 
-     Ignore this window and close it. Run the following command on your host:
-     
-     .. code-block:: console
-    
-        vagrant reload <ubuntu_code_name>
-     
-     After running the above command, you will be asked to log onto your 
-     Ubuntu desktop. The username and password are both defaulted to *vagrant*.
-     The current working directory on your host machine will be shared with 
-     */pynq* on your VM. Always use *vagrant reload* command to reboot the VM;
-     otherwise vagrant has no clue whether the VM has been rebooted, and users
-     will not be able to see shared folder.
-
-  6. (optional) You can enable bidirectional clipboard between your host and 
-     your VM in your Virtual Box settings:
-
-     .. image:: ./images/bidirectional-clipboard.png
-        :width: 400
-
-  7. Now you are ready to install Xilinx tools. You will need 
-     PetaLinux, Vivado, and Vitis for building PYNQ image.
-     Do not install Xilinx tools into */pynq* since it is only a small shared
-     folder. Instead, a 160GB disk space will be allocated at */workspace*
-     folder in VM. Install Xilinx tools there.
-     
      Starting from image v2.5, SDx is no longer needed.
-     The version of Xilinx tools for each PYNQ release is shown below:
 
      ================  ================
      Release version    Xilinx Tool Version
@@ -133,22 +69,6 @@ that can help you install the Ubuntu VM on your host OS using the following step
      v2.7               2020.2
      v3.0               2022.1
      ================  ================
-
-Use an existing Ubuntu OS
--------------------------
-If you already have a Ubuntu OS, and it is listed in the beginning of
-this section, you can simply do the following:
-
-  1. Install dependencies using the following script. This is necessary 
-     if you are not using our vagrant file to prepare the environment.
-
-     .. code-block:: console
-    
-        <PYNQ repository>/sdbuild/scripts/setup_host.sh
-
-  2. Install correct version of the Xilinx tools, including 
-     PetaLinux, Vivado, and Vitis. See the above table for the correct version 
-     of each release.
 
 Building the Image From Source
 ==============================
