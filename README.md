@@ -45,17 +45,7 @@ In Linux, you can rebuild the overlay by running *make* in the corresponding ove
 
 ## Alveo support
 
-Starting from PYNQ version `2.5.1`, Alveo support has also been introduced. It is now possible to use PYNQ to tap into the potential of hardware acceleration in the data center space.
-
-To get PYNQ on an Alveo-enabled system, simply install it through PIP:
-
-```console
-pip install pynq
-```
-
-For Alveo cards, PYNQ currently requires a <a href="https://github.com/Xilinx/XRT" target="_blank">Xilinx Runtime (XRT)</a> version above or equal to `2.3` to be installed in the system. In terms of Operating System, any XRT-supported version of either RedHat/CentOS or Ubuntu can be used.
-
-For more information, please see the Alveo <a href="https://pynq.readthedocs.io/en/latest/getting_started/alveo_getting_started.html" target="_blank">getting started guide</a>.
+This version of PYNQ **does not** support Alveo.  Alveo is supported from PYNQ version `2.5.1` to `3.0.1`. For more information, check the [documentation](https://pynq.readthedocs.io/en/v3.0.0/getting_started/alveo_getting_started.html) for these versions.
 
 ## Contribute
 

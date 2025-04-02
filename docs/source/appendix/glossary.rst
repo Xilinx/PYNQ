@@ -6,7 +6,7 @@ A-G
 ===
   
   Alveo
-   `Xilinx Alveo™ Data Center accelerator cards <https://www.xilinx.com/products/boards-and-kits/alveo.html>`_ with their ready to go applications deliver a much-needed increase in compute capability, at lowest Total Cost of Ownership (TCO), for the broadest range of workloads.
+   `Xilinx Alveo™ Data Center accelerator cards <https://www.amd.com/en/products/accelerators/alveo.html>`_ with their ready to go applications deliver a much-needed increase in compute capability, at lowest Total Cost of Ownership (TCO), for the broadest range of workloads.
 
   APSOC
    All Programmable System on Chip

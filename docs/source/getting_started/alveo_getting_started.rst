@@ -4,14 +4,17 @@
 Alveo Getting Started Guide
 ***************************
 
+This version of PYNQ **does not** support Alveo.
+
 Prerequisites
 =============
-
+  * PYNQ on Alveo is **only supported** by PYNQ versions ``2.5.1``, ``2.6.1``, 
+  ``2.7.0``, ``3.0.0`` and ``3.0.1``. PYNQ version ```3.1`` and newer do not support Alveo cards.
   * A version of the `Xilinx Runtime <https://github.com/Xilinx/XRT>`_ (XRT) 
-    above or equal ``2.3`` installed in the system. Previous versions of XRT 
-    might still work, but are not explicitly supported. Moreover, the  
-    functionalities offered by the Embedded Runtime Library (ERT) will not work 
-    with versions of XRT below ``2.3``.
+    above or equal ``2.3`` and less or equal to ``2.17`` installed in the system.
+    Previous versions of XRT  might still work, but are not explicitly supported. 
+    Moreover, the functionalities offered by the Embedded Runtime Library (ERT)
+    will not work with versions of XRT below ``2.3``.
   * Any XRT-supported version of either RedHat/CentOS or Ubuntu as Operating 
     System
   * Python and PIP must be installed. The minimum Python version is ``3.5.2``, 

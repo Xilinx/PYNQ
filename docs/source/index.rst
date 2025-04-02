@@ -9,8 +9,7 @@ PYNQ Introduction
 
 PYNQ is an open-source project from AMD. It provides a Jupyter-based 
 framework with Python APIs for using AMD Xilinx Adaptive Computing platforms. 
-PYNQ supports Zynq® and Zynq Ultrascale+™, Zynq RFSoC™, Kria™ SOMs, Alveo™ 
-and AWS-F1 instances. 
+PYNQ supports Zynq® and Zynq Ultrascale+™, Zynq RFSoC™ and Kria™ SOMs. 
 
 PYNQ enables architects, engineers
 and programmers who design embedded systems to use Adaptive Computing 
@@ -58,8 +57,7 @@ PYNQ Background
   operating system.  This goal is achieved by adopting a web-based architecture,
   which is also browser agnostic.  We incorporate the open-source Jupyter
   notebook infrastructure to run an Interactive Python (IPython) kernel and a
-  web server directly on the ARM processor of the Zynq device, or host processor
-  in the case of Alveo and AWS-F1.  The web server
+  web server directly on the ARM processor of the Zynq device. The web server
   brokers access to the kernel via a suite of browser-based tools that provide a
   dashboard, bash terminal, code editors and Jupyter notebooks.  The browser
   tools are implemented with a combination of JavaScript, HTML and CSS and run
