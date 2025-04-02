@@ -5,9 +5,7 @@ PYNQ SD Card image
 ******************
 
 This page will explain how SD card images can be built for PYNQ
-embedded platforms (Zynq, Zynq Ultrascale+, Zynq RFSoC). SD card images are
-not used with Alveo and other PCI-express connected platforms. For those
-datacenter platforms, only PYNQ software is installed on the host OS. 
+embedded platforms (Zynq, Zynq Ultrascale+, Zynq RFSoC).
 
 Note: the PYNQ images for supported boards are provided as precompiled 
 downloadable SD card images and do not need rebuilt.  The SD card build flow is

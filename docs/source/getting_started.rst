@@ -4,7 +4,7 @@ Getting Started
 
 You need a supported AMD-Xilinx platform to get started. How you get PYNQ depends
 on your platform. For some Zynq|Zynq Ultrascale+ platforms you can download 
-an SD card image to boot the board. For other platforms, including Alveo and Kria
+an SD card image to boot the board. For other platforms, including Kria
 SoMs, you can install PYNQ onto your host Operating System. 
 
 If you have one of the following boards, you can follow the quick start guide.
@@ -34,6 +34,8 @@ Kria SoMs
 
 Alveo and XRT supported platforms
 =================================
+
+This version of PYNQ **does not** support Alveo.
 
 .. toctree::
     :maxdepth: 1
