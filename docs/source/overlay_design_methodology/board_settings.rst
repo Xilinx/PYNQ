@@ -37,7 +37,7 @@ To install the board files, extract, and copy the board files folder to:
 
    .. code-block:: console
 
-      <Xilinx installation directory>/Vivado/<version>/data/boards/board_files
+      <Xilinx installation directory>/Vivado/<version>/data/xhub/boards/XilinxBoardStore/boards/Xilinx/
 
 If Vivado is open, it must be restart to load in the new project files before a
 new project can be created.
