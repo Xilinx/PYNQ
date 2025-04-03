@@ -66,6 +66,7 @@ If you have an Ubuntu OS, and it is listed in the table above, you can simply do
      v2.6               2020.1
      v2.7               2020.2
      v3.0               2022.1
+     v3.1               2024.1
      ================  ================
 
 Building the Image From Source
@@ -75,12 +76,12 @@ Once you have the build environment ready, you can build an SD card image
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
   1. Source the appropriate settings for PetaLinux and Vitis. 
-     Suppose you are using Xilinx 2022.1 tools:
+     Suppose you are using Xilinx 2024.1 tools:
 
      .. code-block:: console
 
-        source <path-to-vitis>/Vitis/2022.1/settings64.sh
-        source <path-to-petalinux>/petalinux-2022.1-final/settings.sh
+        source <path-to-vitis>/Vitis/2024.1/settings64.sh
+        source <path-to-petalinux>/petalinux-2024.1-final/settings.sh
 
   2. Depending on the overlays being rebuilt, make sure you have the appropriate
      Vivado licenses to build for your target board, especially the
