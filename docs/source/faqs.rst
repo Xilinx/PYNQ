@@ -285,8 +285,8 @@ Does PYNQ support Python 2.7?
 -----------------------------
 
 The PYNQ image is based on Ubuntu which includes Python 2.7 in the root file 
-system. The Python package *pynq*, however, is based on Python 3.6; 
-this python package is not compatible with Python 2.7.
+system. The Python package *pynq*, however, is based on Python 3.10; 
+this Python package is not compatible with Python 2.7.
 
 Where can I find the overlay bitstreams?
 ----------------------------------------

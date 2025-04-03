@@ -132,6 +132,7 @@ that can help you install the Ubuntu VM on your host OS using the following step
      v2.6               2020.1
      v2.7               2020.2
      v3.0               2022.1
+     v3.1               2024.1
      ================  ================
 
 Use an existing Ubuntu OS
