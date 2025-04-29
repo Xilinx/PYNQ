@@ -29,17 +29,15 @@ Python training
 * `The Python Tutorial from the Python development team <https://docs.python.org/3.5/tutorial/>`_
 * `Google Python training including videos <https://developers.google.com/edu/python/introduction>`_
 * `Python Tutor including visualization of Python program execution <http://www.pythontutor.com/>`_
-* `20 Best Free Tutorials to Learn Python as of 10 Nov 2021 <http://noeticforce.com/best-free-tutorials-to-learn-python-pdfs-ebooks-online-interactive>`_
 
 reStructuredText
 ================
 * `reStructuredText docs <http://docutils.sourceforge.net/rst.html>`_
 * `reStructuredText Primer <http://www.sphinx-doc.org/en/stable/rest.html>`_
-* `Online reStructuredText editor <http://rst.ninjs.org/>`_
+* `Online reStructuredText editor <https://rsted.info.ucl.ac.be/>`_
 
 Sphinx
 ======
 * `The official Sphinx docs <http://www.sphinx-doc.org/en/stable/index.html>`_
-* `Online reST and Sphinx editor with rendering <https://livesphinx.herokuapp.com/>`_
 * `A useful Sphinx cheat sheet <http://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html>`_
 * `Jupyter Notebook Tools for Sphinx <http://nbsphinx.readthedocs.io/en/0.2.7/>`_
