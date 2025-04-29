@@ -310,7 +310,7 @@ class _SGDMAChannel:
     def _clear_interrupt(self):
         self._mmio.write(self._offset + 4, 0x1000)
 
-    def transfer(self, array, start=0, nbytes=0, cyclic=False):
+    def transfer(self, array, start=0, nbytes=0, cyclic=False, bd_allocate_target=None):
         """Transfer memory with the DMA
 
         Transfer must only be called when the channel is halted
@@ -345,7 +345,9 @@ class _SGDMAChannel:
              Number of bytes to transfer. Default is 0.
         cyclic : bool
              Enable cyclic BD mode. Default is False.
-
+        bd_allocate_target : PynqBuffer
+             The target memory to allocate buffer descriptors. Default is None.
+             If None, the buffer descriptors are allocated in the active memory.
         """
 
         if not self.halted:
@@ -377,7 +379,10 @@ class _SGDMAChannel:
 
         # Zero-Allocate buffer for descriptors: uint32[_num_descr][16]
         # Descriptor is only 52 bytes but each one has to be 64-byte aligned!
-        self._descr = allocate(shape=(self._num_descr, 16), dtype=numpy.uint32)
+        self._descr = allocate(shape=(self._num_descr, 16), dtype=numpy.uint32, target=bd_allocate_target)
+
+        # Fill descriptors with zeros in case of re-use of allocated memory without board reset
+        self._descr.fill(0)
 
         # Idle DMA engine
         self.stop()
