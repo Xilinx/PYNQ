@@ -1,6 +1,15 @@
+/*
+ * See gen_zocl for new polling mode implementation.  TBD if this would cause conflict if our users
+ * are using GIC IRQs
+ * https://github.com/Xilinx/device-tree-xlnx/blob/xlnx_rel_v2024.1/device_tree/data/device_tree.tcl#L751
+ *
+ */
+
 &amba {
-	zyxclmm_drm {
-		compatible = "xlnx,zocl";
-		status = "okay";
-	};
-};
+    zyxclmm_drm {
+                compatible = "xlnx,zocl";
+                interrupt-parent = <&gic>;
+                interrupts = <0x0 0x89 0x4>, <0x0 0x90 0x4>, <0x0 0x91 0x4>, <0x0 0x92 0x4>, <0x0 0x93 0x4>, <0x0 0x94 0x4>, <0x0 0x95 0x4>, <0x0 0x96 0x4>;
+        };
+    };
+

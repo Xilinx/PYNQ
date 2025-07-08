@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package remote_device;
+
+service RemoteDevice {
+    rpc set_bitstream_attrs(SetBitstreamAttrsRequest) returns (SetBitstreamAttrsResponse) {}
+    rpc download (stream DownloadRequest) returns (DownloadResponse) {}
+    rpc set_pl_clk(SetPlClkRequest) returns (SetPlClkResponse) {}
+    rpc shutdown(ShutdownRequest) returns (ShutdownResponse) {}
+    rpc readfile(ReadFileRequest) returns (stream ReadFileResponse) {}
+    rpc writefile(stream WriteFileRequest) returns (WriteFileResponse) {}
+    rpc existsfile(ExistsFileRequest) returns (ExistsFileResponse) {}
+}
+
+//Add ReadFileRequest/Response
+message ReadFileRequest {
+    string file_path = 1;
+}
+
+message ReadFileResponse {
+    bytes data = 1;
+}
+
+//Add WriteFileRequest/Response
+message WriteFileRequest {
+    string file_path = 1;
+    bytes data = 2;
+}
+
+message WriteFileResponse {}
+
+//Add existsfileRequest/Response
+message ExistsFileRequest {
+    string file_path = 1;
+}
+
+message ExistsFileResponse {
+    bool exists = 1;
+}
+message SetBitstreamAttrsRequest {
+    string binfile_name = 1;
+    bool partial = 2;
+}
+
+message SetBitstreamAttrsResponse {
+    bool status = 1;
+}
+
+message ShutdownRequest {}
+
+message ShutdownResponse {
+    bool status = 1;
+}
+
+message SetPlClkRequest {
+    int32 i = 1;
+    int32 div0 = 2;
+    int32 div1 = 3;
+    int32 clk_mhz = 4;
+}
+
+message SetPlClkResponse {
+    bool status = 1;
+}
+
+message DownloadRequest {
+    bytes buffer = 1; 
+}
+
+message DownloadResponse {
+    bool status = 1;
+}

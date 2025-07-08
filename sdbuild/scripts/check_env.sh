@@ -1,12 +1,15 @@
 #!/bin/bash
 
 if [ $(lsb_release -rs) == "18.04" ]; then
-    rel_deps="libncurses5-dev lib32ncurses5"
+    rel_deps="libncurses5-dev lib32ncurses5 libidn11 zlib1g:i386"
 elif [ $(lsb_release -rs) == "20.04" ]; then
-    rel_deps="libncurses6 lib32ncurses6"
+#    rel_deps="libncurses6 lib32ncurses6 libidn11 zlib1g:i386"
+    rel_deps="libncurses6 lib32ncurses6 libidn11"    
+elif [ $(lsb_release -rs) == "22.04" ]; then
+    rel_deps="dnsutils"
 else
-    echo "Error: Please use Ubuntu 20.04 or Ubuntu 18.04."
-    exit 1
+    echo "Error: Please use Ubuntu 22.04 or buntu 20.04 or Ubuntu 18.04."
+    exit 1 
 fi
 
 # Check for dependencies 
@@ -41,14 +44,11 @@ libsdl1.2-dev
 rsync
 python3-pip
 gcc-multilib
-libidn11
 curl
 ${rel_deps}
 EOT
 
 read -d '' PYTHON_DEPS <<EOT
-numpy
-cffi
 EOT
 
 

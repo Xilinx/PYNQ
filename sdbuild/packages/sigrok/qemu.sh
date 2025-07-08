@@ -5,6 +5,14 @@ set -e
 
 export HOME=/root
 
+. /etc/environment
+
+if [ ${ARCH} == 'arm' ]; then
+    export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig:/opt/sigrok/lib/pkgconfig
+else
+    export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig/:/opt/sigrok/lib/pkgconfig
+fi
+
 libsigrok_version=0.3.0
 libsigrokdecode_version=0.3.0
 sigrok_cli_version=0.5.0
@@ -30,7 +38,6 @@ wget http://sigrok.org/download/source/libsigrokdecode/${libsigrokdecode}.tar.gz
 tar -xf ${libsigrokdecode}.tar.gz
 cd ${libsigrokdecode}
 patch -p2 -i $patch_file
-export PKG_CONFIG_PATH=/opt/sigrok/lib/pkgconfig
 ./configure --prefix=/opt/sigrok LIBS="-lpython3.10"
 make
 make install
