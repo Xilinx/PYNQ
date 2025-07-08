@@ -34,7 +34,6 @@ Ubuntu OS are listed below:
 Supported OS      Code name
 ================  ==================   
 Ubuntu 22.04       Jammy
-Ubuntu 24.04       Noble
 ================  ==================
 
 Use Docker to prepare the build environment
@@ -128,8 +127,26 @@ this section, you can simply do the following:
         <PYNQ repository>/sdbuild/scripts/setup_host.sh
 
   2. Install correct version of the Xilinx tools, including 
-     PetaLinux, Vivado, and Vitis. See the above table for the correct version 
+     PetaLinux, Vivado, and Vitis. See the table below for the correct version 
      of each release.
+
+     Starting from image v2.5, SDx is no longer needed.
+
+     ================  ================
+     Release version    Xilinx Tool Version
+     ================  ================
+     v1.4               2015.4
+     v2.0               2016.1
+     v2.1               2017.4
+     v2.2               2017.4
+     v2.3               2018.2
+     v2.4               2018.3
+     v2.5               2019.1
+     v2.6               2020.1
+     v2.7               2020.2
+     v3.0               2022.1
+     v3.1               2024.1
+     ================  ================
 
 Building the Image From Source
 ==============================
@@ -138,12 +155,12 @@ Once you have the build environment ready, you can build an SD card image
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
   1. Source the appropriate settings for PetaLinux and Vitis. 
-     Suppose you are using Xilinx 2022.1 tools:
+     Suppose you are using Xilinx 2024.1 tools:
 
      .. code-block:: console
 
-        source <path-to-vitis>/Vitis/2022.1/settings64.sh
-        source <path-to-petalinux>/petalinux-2022.1-final/settings.sh
+        source <path-to-vitis>/Vitis/2024.1/settings64.sh
+        source <path-to-petalinux>/petalinux-2024.1-final/settings.sh
 
   2. Depending on the overlays being rebuilt, make sure you have the appropriate
      Vivado licenses to build for your target board, especially the
