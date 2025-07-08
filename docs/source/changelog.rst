@@ -2,6 +2,28 @@
 Change Log
 ************************
 
+Version 3.1.0
+============================
+
+Updates to PYNQ since the last release include:
+
+* Image releases:
+   * pynq_z1_v3.1.0
+   * pynq_z2_v3.1.0
+   * zcu104_v3.1.0
+
+* Upgraded Software
+   * All overlays built with Vivado 2024.1
+   * Linux kernel and build updated to Petalinux 2024.1
+
+* New Features
+   * Added PYNQ.remote and PYNQ.cpp
+   * Docker image build flow added
+
+* Deprecations
+   * Support for Alveo and AWS F1 platforms is deprecated
+   * Removed Vagrant VM support for SD card image builds
+
 Version 3.0.0
 ============================
 

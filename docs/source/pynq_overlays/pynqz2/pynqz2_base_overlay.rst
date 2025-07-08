@@ -37,7 +37,7 @@ The base overlay on PYNQ-Z2 includes the following hardware:
     * 2x Pmod PYNQ MicroBlaze
     * Arduino PYNQ MicroBlaze
     * RPi (Raspberry Pi) PYNQ MicroBlaze
-    * 4x Trace Analyzer (PMODA, PMODB, ARDUINO, RASPBERRYPI)
+    * 3x Trace Analyzer (PMODA, PMODB and RASPBERRYPI)
 
 HDMI 
 ----
@@ -131,7 +131,7 @@ Trace Analyzer
 --------------
 
 Trace analyzer blocks are connected to the interface pins for the two Pmod 
-PYNQ MicroBlazes, the Arduino and RPi PYNQ MicroBlazes. The trace analyzer can 
+PYNQ MicroBlazes and RPi PYNQ MicroBlazes. The trace analyzer can 
 capture IO signals and stream the data to the PS DRAM for analysis in the 
 Python environment.
 
@@ -167,7 +167,7 @@ A Makefile is provided to rebuild the base overlay in Linux. The Makefile calls
 two tcl files. The first Tcl files compiles any HLS IP used in the design. The 
 second Tcl builds the overlay. 
 
-To rebuild the overlay, source the AMD-Xilinx tools first. Then assuming PYNQ has 
+To rebuild the overlay, source the AMD tools first. Then assuming PYNQ has 
 been cloned: 
 
 .. code-block:: console

@@ -30,7 +30,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
         return MagicMock()
 
-MOCK_MODULES = ['_video', 'pynq.lib._video', 'pynq._3rdparty.xrt']
+MOCK_MODULES = ['_video', 'pynq.lib._video']
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
@@ -50,8 +50,13 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
     'nbsphinx',
-    'sphinx_copybutton'
+    'sphinx_copybutton',
+    'breathe',
 ]
+breathe_projects = {
+    "Device": "pynq_remote/doxygen/xml",
+}
+breathe_default_project = "Device"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -69,7 +74,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PYNQ: Python productivity for Adaptive Computing platforms'
-copyright = '2022, Advanced Micro Devices, Inc.'
+copyright = '2025, Advanced Micro Devices, Inc.'
 author = 'AMD'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -86,7 +91,7 @@ release = '3.1'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:

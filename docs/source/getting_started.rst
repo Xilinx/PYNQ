@@ -32,16 +32,6 @@ Kria SoMs
 
 * `Kria-PYNQ <http://github.com/Xilinx/Kria-PYNQ>`_
 
-Alveo and XRT supported platforms
-=================================
-
-This version of PYNQ **does not** support Alveo.
-
-.. toctree::
-    :maxdepth: 1
-    
-    getting_started/alveo_getting_started.rst
-    getting_started/pynq_alveo
 
 Jupyter Introduction
 ====================
