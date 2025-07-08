@@ -1,4 +1,10 @@
 
+###############################################################################
+ #  Copyright (c) 2016-2021, Xilinx, Inc.
+ #  SPDX-License-Identifier: BSD-3-Clause
+ #
+###############################################################################
+
 ################################################################
 # This is a generated script based on design: base
 #
@@ -515,6 +521,7 @@ proc create_hier_cell_hdmi_out { parentCell nameHier } {
 
   # Create instance: axis_register_slice_0, and set properties
   set axis_register_slice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 axis_register_slice_0 ]
+  set_property CONFIG.TUSER_WIDTH {1} $axis_register_slice_0
 
   # Create instance: color_convert, and set properties
   set color_convert [ create_bd_cell -type ip -vlnv xilinx.com:hls:color_convert:1.0 color_convert ]
@@ -616,6 +623,7 @@ proc create_hier_cell_hdmi_in { parentCell nameHier } {
 
   # Create instance: axis_register_slice_0, and set properties
   set axis_register_slice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 axis_register_slice_0 ]
+  set_property CONFIG.TUSER_WIDTH {1} $axis_register_slice_0
 
   # Create instance: color_convert, and set properties
   set color_convert [ create_bd_cell -type ip -vlnv xilinx.com:hls:color_convert:1.0 color_convert ]
@@ -3513,12 +3521,6 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces video/axi_vdma/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces video/axi_vdma/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
 
-  # Exclude Address Segments
-  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces address_remap_0/M_AXI_out] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_IOP]
-  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces address_remap_0/M_AXI_out] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP0]
-  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces address_remap_0/M_AXI_out] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_M_AXI_GP1]
-  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces address_remap_0/M_AXI_out] [get_bd_addr_segs ps7_0/S_AXI_GP0/GP0_QSPI_LINEAR]
-
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -3541,5 +3543,4 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets iop_pmoda_pmoda_gpio] [get_bd_in
 ##################################################################
 
 create_root_design ""
-
 

@@ -12,7 +12,7 @@ all: hls_ip block_design bitstream check_timing
 hls_ip:
 	vivado -mode batch -source build_ip.tcl -notrace
 
-block_design: hls_ip
+block_design:
 	vivado -mode batch -source $(overlay_name).tcl -notrace
 
 bitstream:
