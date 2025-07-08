@@ -47,3 +47,10 @@ __pycache__/
 ######################
 GNUmakefile
 user.props
+
+# Miscellaneous
+######################
+.vscode/
+.venv/
+*.egg-info/
+.coverage

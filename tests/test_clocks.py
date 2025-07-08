@@ -84,6 +84,8 @@ def setup_zynq(monkeypatch):
     slcr_array = np.frombuffer(slcr_buffer, dtype='u4')
     new_ps = importlib.reload(pynq.ps)
     Clocks = new_ps.Clocks
+    Clocks.device = device
+    Clocks.device.arch = os.uname().machine
 
     yield Clocks, slcr_array
 
@@ -105,6 +107,8 @@ def setup_zu(monkeypatch):
 
     new_ps = importlib.reload(pynq.ps)
     Clocks = new_ps.Clocks
+    Clocks.device = device
+    Clocks.device.arch = os.uname().machine
 
     yield Clocks, lpd_array, fpd_array
 
@@ -308,9 +312,12 @@ def test_zynq_cpu(setup_zynq, pll_name):
 
 def test_invalid_arch(monkeypatch):
     old_arch = pynq.ps.CPU_ARCH
+    device = MockMemoryMappedDevice('invalid_arch')
     monkeypatch.setattr(os, 'uname', be_other)
     new_ps = importlib.reload(pynq.ps)
     Clocks = new_ps.Clocks
+    Clocks.device = device
+    Clocks.device.arch = os.uname().machine
     with pytest.raises(RuntimeError):
         Clocks.fclk0_mhz
 
