@@ -1,0 +1,23 @@
+diff --git a/src/runtime_src/core/common/api/xrt_module.cpp b/src/runtime_src/core/common/api/xrt_module.cpp
+index d5f940107..02b353e99 100644
+--- a/src/runtime_src/core/common/api/xrt_module.cpp
++++ b/src/runtime_src/core/common/api/xrt_module.cpp
+@@ -562,7 +562,7 @@ class module_elf : public module_impl
+         if (offset >= sec_size)
+           throw std::runtime_error("Invalid offset " + std::to_string(offset));
+
+-        std::string argnm{ symname, symname + std::min(strlen(symname), dynstr->get_size()) };
++        std::string argnm{ symname, symname + std::min(strlen(symname), (size_t) dynstr->get_size()) };
+
+         if (auto search = arg2patchers.find(argnm); search != arg2patchers.end())
+           search->second.m_ctrlcode_offset.emplace_back(offset);
+@@ -631,7 +631,7 @@ class module_elf : public module_impl
+         ctrlcode_offset += column_ctrlcode_offset;
+
+         // Construct the patcher for the argument with the symbol name
+-        std::string argnm{ symname, symname + std::min(strlen(symname), dynstr->get_size()) };
++        std::string argnm{ symname, symname + std::min(strlen(symname), (size_t) dynstr->get_size()) };
+         auto symbol_type = static_cast<patcher::symbol_type>(rela->r_addend);
+
+         std::vector<uint64_t> offsets;
+

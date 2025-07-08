@@ -1,0 +1,89 @@
+syntax = "proto3";
+package buffer;
+
+service RemoteBuffer {
+    rpc allocate(AllocateRequest) returns (AllocateResponse) {}
+    rpc write(stream BufferWriteRequest) returns (BufferWriteResponse) {}
+    rpc read(BufferReadRequest) returns (stream BufferReadResponse) {}
+    rpc freebuffer(FreeBufferRequest) returns (FreeBufferResponse) {}
+    rpc flush(FlushRequest) returns (FlushResponse) {}
+    rpc invalidate(InvalidateRequest) returns (InvalidateResponse) {}
+    rpc physical_address(AddressRequest) returns (AddressResponse) {}
+    rpc virtual_address(AddressRequest) returns (AddressResponse) {}
+    rpc cacheable(CacheableRequest) returns (CacheableResponse) {}
+}
+
+message CacheableRequest {
+    string buffer_id = 1;
+}
+
+message CacheableResponse {
+    optional string msg = 2;
+    optional bool cacheable = 3;
+}
+
+message AddressRequest {
+    string buffer_id = 1;
+}
+
+message AddressResponse {
+    optional string msg = 2;
+    optional uint64 address = 3;
+}
+
+message InvalidateRequest {
+    string buffer_id = 1;
+}
+
+message InvalidateResponse {
+    optional string msg = 2;
+}
+
+message FlushRequest {
+    string buffer_id = 1;
+}
+
+message FlushResponse {
+    optional string msg = 2;
+}
+
+message AllocateRequest {
+    int32 size = 1;
+    string dtype = 2;
+    bool cacheable = 3;
+}
+
+message AllocateResponse {
+    optional string msg = 2;
+    optional string buffer_id = 3;
+}
+
+message BufferWriteRequest {
+    string buffer_id = 1;
+    bytes data = 2;
+    int32 start = 3;
+    int32 end = 4;
+}
+
+message BufferWriteResponse {
+    optional string msg = 2;
+}
+
+message BufferReadRequest {
+    string buffer_id = 1;
+    int32 start = 2;
+    int32 end = 3;
+}
+
+message BufferReadResponse {
+    optional string msg = 2;
+    optional bytes data = 3;
+}
+
+message FreeBufferRequest {
+    string buffer_id = 1;
+}
+
+message FreeBufferResponse {
+    optional string msg = 2;
+}

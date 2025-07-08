@@ -3,7 +3,14 @@
 set -x
 set -e
 
+. /etc/environment
 for f in /etc/profile.d/*.sh; do source $f; done
+
+if [ ${ARCH} == 'arm' ]; then
+    export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig
+else
+    export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+fi
 
 if [ -f /home/xilinx/Welcome\ to\ Pynq.ipynb ]; then
 	jupyter nbconvert --to html \

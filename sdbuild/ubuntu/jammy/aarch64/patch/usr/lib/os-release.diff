@@ -17,7 +17,7 @@
 +ID=pynqlinux
 +ID_LIKE=ubuntu
 +PRETTY_NAME="PynqLinux, based on Ubuntu 22.04"
-+VERSION_ID="3.0"
++VERSION_ID="3.1"
 +HOME_URL="https://www.pynq.io/"
 +SUPPORT_URL="https://discuss.pynq.io/"
 +BUG_REPORT_URL="https://www.pynq.io"

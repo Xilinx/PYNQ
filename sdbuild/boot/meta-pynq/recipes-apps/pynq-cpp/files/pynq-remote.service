@@ -1,0 +1,14 @@
+[Unit]
+Description=PYNQ Remote Server Application
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/pynq-remote
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=pynq-remote
+User=root
+
+[Install]
+WantedBy=multi-user.target

@@ -8,6 +8,14 @@ shift
 
 fss="proc run dev"
 
+# PLNX 2024.1 adds CERT FILES which cause issues in QEMU ...  
+unset GIT_SSL_CAINFO
+unset SSL_CERT_DIR
+unset CURL_CA_BUNDLE
+unset SSL_CERT_FILE
+unset REQUESTS_CA_BUNDLE
+
+
 
 for fs in $fss
 do

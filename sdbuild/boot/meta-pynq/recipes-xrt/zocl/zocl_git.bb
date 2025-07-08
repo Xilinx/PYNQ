@@ -4,13 +4,13 @@ DESCRIPTION = "Xilinx Runtime driver module provides memory management and compu
 LICENSE = "GPLv2 & Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=7d040f51aae6ac6208de74e88a3795f8"
 
-BRANCH ?= "2022.1"
+BRANCH ?= "2024.1"
 REPO ?= "git://github.com/Xilinx/XRT.git;protocol=https"
 BRANCHARG = "${@['nobranch=1', 'branch=${BRANCH}'][d.getVar('BRANCH', True) != '']}"
 SRC_URI = "${REPO};${BRANCHARG}"
 
-PV = "202210.2.13.0"
-SRCREV ?= "f5505e402c2ca1ffe45eb6d3a9399b23a0dc8776"
+PV = "202410.2.17.0"
+SRCREV ?= "a75e9843c875bac0f52d34a1763e39e16fb3c9a7"
 
 S = "${WORKDIR}/git/src/runtime_src/core/edge/drm/zocl"
 

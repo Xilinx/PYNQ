@@ -7,7 +7,8 @@ target=$1
 pynqoverlays_dir=$target/usr/local/share/pynq-venv/lib/python3.10/site-packages/pynq/overlays
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# 1. Copy files from staging area to the qemu environment
+# 1. Copy files from build area to the qemu environment
+sudo git clone --recursive $BUILD_ROOT/PYNQ  $target/home/xilinx/pynq_git
 sudo mkdir -p $target/home/xilinx/pynq_git/dist
 
 sudo cp $script_dir/pynq_hostname.sh $target/usr/local/bin
@@ -15,7 +16,7 @@ sudo cp $script_dir/boardname.sh $target/etc/profile.d
 
 
 # 2. Create and copy the REVISION file
-echo "Release $(date +'%Y_%m_%d') $(git rev-parse --short=7 --verify HEAD)" \
+echo "Release 3.1 (Carlisle) $(date +'%Y_%m_%d') $(git rev-parse --short=7 --verify HEAD)" \
 	> $BUILD_ROOT/PYNQ/REVISION
 
 if [ ${PYNQ_BOARD} != "Unknown" ]; then
@@ -38,7 +39,7 @@ fi
 # 3. 3rd party board may have additional pynq.overlay entries and notebooks - deliver those now if they exist
 if [ "$BOARDDIR" != "$DEFAULT_BOARDDIR" ] && [ "$PYNQ_BOARD" != "Unknown" ]; then
 
-    overlays=`find $BOARDDIR/$PYNQ_BOARD -maxdepth 2 -iname '*.bit' -printf '%h\n'`
+    overlays=`find -L $BOARDDIR/$PYNQ_BOARD -maxdepth 2 -iname '*.bit' -printf '%h\n'`
     for ol in $overlays ; do
 	ol_name=`basename $ol`
 	sudo mkdir -p $pynqoverlays_dir/$ol_name
@@ -61,7 +62,7 @@ if [ -n "$REBUILD_PYNQ_SDIST" ]; then
     echo "
 
     Warning ... setting REBUILD_PYNQ_SDIST will result in several bitstream and bsp builds
-                      please rerun `Make` without REBUILD_PYNQ_SDIST set using latest PYNQ source
+                      please rerun Makefile without REBUILD_PYNQ_SDIST set using latest PYNQ source
                       distribution on PYPI at: https://pypi.org/project/pynq/#files
     "
     sleep 10

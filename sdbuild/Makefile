@@ -1,6 +1,10 @@
 # Copyright (C) 2022 Xilinx, Inc
 # SPDX-License-Identifier: BSD-3-Clause
 
+ifneq (,$(filter pynqremote,$(MAKECMDGOALS)))
+override PYNQREMOTE = 1
+endif
+
 DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
 
@@ -12,8 +16,7 @@ BOARDS ?= $(ALLBOARDS)
 UBUNTU_RELEASE := jammy
 VERSION := 3.1
 
-KERNEL_VERSION := 2022.1
-LINUX_VERSION := 5.15.19-xilinx-v2022.1
+KERNEL_VERSION := 2024.1
 QEMU_VERSION := 5.2.0
 SCRIPT_DIR := $(CURDIR)/scripts
 SHELL := /bin/bash
@@ -38,7 +41,7 @@ BOOT_aarch64 := u-boot.elf zynqmp_fsbl.elf pmufw.elf bl31.elf
 export CCACHEDIR
 export ROOTDIR
 export BUILD_ROOT
-export BB_ENV_EXTRAWHITE := PYNQ_BOARDNAME FPGA_MANAGER
+export BB_ENV_PASSTHROUGH_ADDITIONS := PYNQ_BOARDNAME FPGA_MANAGER
 export SHELL
 
 $(IMAGE_ROOT):
@@ -106,7 +109,9 @@ BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
 PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1) ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages PYNQ_SDIST=$$(PYNQ_SDIST) PYNQ_ROOTFS=$$(PYNQ_ROOTFS)
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
+REMOTE_IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION)-remote.img
 ROOT_$1 := $$(BUILD_ROOT)/$1.tar.gz
+REMOTE_ROOT_$1 := $$(BUILD_ROOT)/$1.remote_rootfs.tar.gz
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
 EXTRA_BOOT_$1 := $$(BUILD_ROOT)/$1.extra_boot
 
@@ -147,6 +152,8 @@ bsp_$1: $$(BSP_FILES_$1)
 PL_PROJ_$1 := $$(BUILD_ROOT_$1)/petalinux_project
 PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
 PL_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/rootfs_config
+PL_USER_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/meta-user/conf/user-rootfsconfig
+LOCAL_CONF_$1 := $$(PL_PROJ_$1)/build/conf/local.conf
 MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/modules-plnx_$$(ARCH_$1).tgz
 KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
 PL_ENV_$1 := PYNQ_BOARDNAME=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1)
@@ -169,14 +176,35 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 		echo 'CONFIG_SUBSYSTEM_REMOVE_PL_DTB=y' >> $$(PL_CONFIG_$1) ;\
 	fi
 	if [ -z $$(BSP_$1) ]; then \
-                echo 'CONFIG_SUBSYSTEM_REMOVE_PL_DTB=y' >> $$(PL_CONFIG_$1) ;\
-        fi
+		echo 'CONFIG_SUBSYSTEM_REMOVE_PL_DTB=y' >> $$(PL_CONFIG_$1) ;\
+	fi
+
+	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
+
+	echo 'CONFIG_xrt' >> $$(PL_USER_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_xrt-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_zocl' >> $$(PL_USER_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_opencl-headers-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_opencl-clhpp-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
+
 	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
+
+	# TODO: make this a configurable Makefile var:  echo 'CONFIG_TMP_DIR_LOCATION="'/scratch/plnxscratch'"'  >> $$(PL_CONFIG_$1)
+
+	if [ $(PYNQREMOTE) = 1 ]; then \
+		echo 'CONFIG_grpc' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_pynq-cpp' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_grpc=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_pynq-cpp=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+	fi	
+
+	if [ $(PYNQREMOTE) = 1 ]; then \
+		petalinux-config -c rootfs --silentconfig -p $$(PL_PROJ_$1) ;\
+	fi
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && petalinux-package --boot --fpga $$(BITSTREAM_ABS_$1) --u-boot -p $$(PL_PROJ_$1) --force
@@ -186,7 +214,7 @@ $$(BOOT_ROOT_$1)/image.ub : $$(BUILD_ROOT_$1)/image.its $$(BUILD_ROOT_$1)/system
 	cd $$(BOOT_ROOT_$1) && mkimage -f $$(BUILD_ROOT_$1)/image.its $$@
 
 $$(BOOT_ROOT_$1)/boot.scr : $$(BOOT_DEPENDS_$1) | $$(BOOT_ROOT_$1)
-	$$(PL_ENV_$1) petalinux-build -c u-boot-zynq-scr -p $$(PL_PROJ_$1)
+	$$(PL_ENV_$1) petalinux-build -c u-boot-xlnx-scr -p $$(PL_PROJ_$1)
 	cp -f $$(PL_PROJ_$1)/images/linux/boot.scr $$@
 
 $$(BUILD_ROOT_$1)/image.its: $$(CURDIR)/boot/image_$$(ARCH_$1).its | $$(BUILD_ROOT_$1)
@@ -252,10 +280,21 @@ $$(ROOT_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_RP
 	rm -rf $$(BUILD_ROOT_$1)/modules
 	sudo mount -o bind /dev $$(STAGING_$1)/dev
 	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
-	sudo chroot $$(STAGING_$1) depmod -a $$(LINUX_VERSION)
+
+	# PLNX 2024.1 need to get commit bits into symbols
+	echo "depmod -a \`ls /lib/modules\`" > $$(STAGING_$1)/depmod.sh
+	chmod a+x $$(STAGING_$1)/depmod.sh
+	sudo chroot $$(STAGING_$1) /bin/bash -c "/depmod.sh"
+	rm $$(STAGING_$1)/depmod.sh
+
 	sudo umount -l $$(STAGING_$1)/dev
 	rm -rf $$(EXTRA_BOOT_$1)
 	cp -r $$(STAGING_$1)/boot $$(EXTRA_BOOT_$1)
+
+	# Clean up any unwanted user directories created during build process
+	# Only keep the xilinx user directory
+	sudo find $$(STAGING_$1)/home -mindepth 1 -maxdepth 1 -type d ! -name "xilinx" -exec rm -rf {} + 2>/dev/null || true
+	
 	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
 
@@ -263,8 +302,26 @@ $$(IMAGE_$1) : $$(ROOT_$1) $$(BOOT_FILES_$1)
 	sudo rm -rf $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
-	(cd $$(PL_PROJ_$1) && petalinux-package --wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$< --outdir $$(IMAGE_ROOT) --wks  $$(CURDIR)/boot/image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:.") && mv $$(IMAGE_ROOT)/petalinux-sdimage.wic $$@
 
+	# PLNX 2024.1 bug - wic call will error out due to issue seen in link below ... 
+	# https://discuss.pynq.io/t/error-then-building-pynq-for-microzed-board/7252/6
+	-cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$< --outdir $$(IMAGE_ROOT) --wks $$(CURDIR)/boot/image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:."
+	mv $$(PL_PROJ_$1)/build/wic/wic-tmp/image-*.direct $$@
+
+
+
+$$(REMOTE_ROOT_$1) : $$(CCACHEDIR)
+	petalinux-build -c rootfs -p $$(PL_PROJ_$1)
+	cp $$(BUILD_ROOT_$1)/petalinux_project/images/linux/rootfs.tar.gz $$@
+
+$$(REMOTE_IMAGE_$1) : $$(PL_PROJ_$1) $$(REMOTE_ROOT_$1) $$(BOOT_FILES_$1)
+	rm -rf $$(STAGING_$1)
+	mkdir $$(STAGING_$1)
+	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
+	(cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$(REMOTE_ROOT_$1) --outdir $$(IMAGE_ROOT) --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:.") && mv $$(IMAGE_ROOT)/petalinux-sdimage.wic $$@
+
+pynqremote_$1: $$(REMOTE_IMAGE_$1) 
+	echo "Done building remote image for board $1"
 
 SDX_DIR_$1 := $$(SDX_ROOT)/$1/sw
 SDX_LINUX_DIR_$1 := $$(SDX_DIR_$1)/linux
@@ -425,6 +482,8 @@ sysroot: $(patsubst %, sysroot_%, $(BOARDS))
 bsp: $(patsubst %, bsp_%, $(BOARDS))
 
 dist: $(patsubst %, dist_%, $(USED_ARCH))
+
+pynqremote: $(patsubst %, pynqremote_%, $(BOARDS))
 
 # Default package clean target
 PACKAGE_CLEAN_%: ;

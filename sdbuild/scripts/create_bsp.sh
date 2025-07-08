@@ -28,7 +28,7 @@ if [ -n "$BSP" ]; then
 else
 	cp -rf $board/petalinux_bsp/* $BSP_BUILD
 	cd $BSP_BUILD/hardware_project
-	if [ -e "makefile" ]; then make; fi
+	if [ -e "makefile" ] || [ -e "Makefile" ]; then make; fi
 	cd $BSP_BUILD
 	petalinux-create --type project --template $template --name $BSP_PROJECT
 	cd $BSP_PROJECT
@@ -39,6 +39,6 @@ else
 			$BSP_BUILD/$BSP_PROJECT/project-spec/meta-user
 	fi
 	cd $BSP_BUILD
-	petalinux-package --force --bsp -p $BSP_PROJECT \
+	petalinux-package --force bsp -p $BSP_PROJECT \
 		--output $BSP_PROJECT.bsp
 fi
