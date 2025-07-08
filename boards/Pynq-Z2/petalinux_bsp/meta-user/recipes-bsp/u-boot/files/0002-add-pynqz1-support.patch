@@ -1,24 +1,24 @@
-From ba6740befaf561e5893462742e7875b427359e63 Mon Sep 17 00:00:00 2001
-From: Rock Qu <yunq@xilinx.com>
-Date: Mon, 22 Jun 2020 18:34:23 -0700
-Subject: [PATCH 3/4] add pynqz1 support
+From b4c6e5e8ec434bcde8bf623cf6f2b9ab2e711a79 Mon Sep 17 00:00:00 2001
+From: josh goldsmith <josh.goldsmith@amd.com>
+Date: Thu, 26 Jun 2025 10:40:19 +0100
+Subject: [PATCH 2/3] add pynqz1 support
 
 ---
  arch/arm/dts/Makefile         |  1 +
- arch/arm/dts/zynq-pynqz1.dts  | 72 +++++++++++++++++++++++++++++++++++++++++++
- configs/zynq_pynqz1_defconfig | 68 ++++++++++++++++++++++++++++++++++++++++
- drivers/net/Kconfig           |  7 +++++
- include/configs/zynq_pynqz1.h | 34 ++++++++++++++++++++
+ arch/arm/dts/zynq-pynqz1.dts  | 72 +++++++++++++++++++++++++++++++++++
+ configs/zynq_pynqz1_defconfig | 68 +++++++++++++++++++++++++++++++++
+ drivers/net/Kconfig           |  7 ++++
+ include/configs/zynq_pynqz1.h | 34 +++++++++++++++++
  5 files changed, 182 insertions(+)
  create mode 100644 arch/arm/dts/zynq-pynqz1.dts
  create mode 100644 configs/zynq_pynqz1_defconfig
  create mode 100644 include/configs/zynq_pynqz1.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 93a3822f..ff0275c 100644
+index 17d0cf3c867..139b6b641c5 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -252,6 +252,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+@@ -392,6 +392,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-topic-miamilite.dtb \
  	zynq-topic-miamiplus.dtb \
  	zynq-artyz.dtb \
@@ -28,7 +28,7 @@ index 93a3822f..ff0275c 100644
  	zynq-zc770-xm010.dtb \
 diff --git a/arch/arm/dts/zynq-pynqz1.dts b/arch/arm/dts/zynq-pynqz1.dts
 new file mode 100644
-index 0000000..ae117c1
+index 00000000000..ae117c195b1
 --- /dev/null
 +++ b/arch/arm/dts/zynq-pynqz1.dts
 @@ -0,0 +1,72 @@
@@ -106,7 +106,7 @@ index 0000000..ae117c1
 +};
 diff --git a/configs/zynq_pynqz1_defconfig b/configs/zynq_pynqz1_defconfig
 new file mode 100644
-index 0000000..6247b37
+index 00000000000..6247b374cc8
 --- /dev/null
 +++ b/configs/zynq_pynqz1_defconfig
 @@ -0,0 +1,68 @@
@@ -179,10 +179,10 @@ index 0000000..6247b37
 +CONFIG_CI_UDC=y
 +CONFIG_USB_GADGET_DOWNLOAD=y
 diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 142a2c6..9fe0af0 100644
+index ebab4d9f2e5..b58deef6f98 100644
 --- a/drivers/net/Kconfig
 +++ b/drivers/net/Kconfig
-@@ -449,6 +449,13 @@ config ZYNQ_GEM
+@@ -754,6 +754,13 @@ config ZYNQ_GEM
  	help
  	  This MAC is present in Xilinx Zynq and ZynqMP SoCs.
  
@@ -195,10 +195,10 @@ index 142a2c6..9fe0af0 100644
 +
  config PIC32_ETH
  	bool "Microchip PIC32 Ethernet Support"
- 	depends on DM_ETH && MACH_PIC32
+ 	depends on MACH_PIC32
 diff --git a/include/configs/zynq_pynqz1.h b/include/configs/zynq_pynqz1.h
 new file mode 100644
-index 0000000..699fb0f6
+index 00000000000..699fb0f6a09
 --- /dev/null
 +++ b/include/configs/zynq_pynqz1.h
 @@ -0,0 +1,34 @@
@@ -237,5 +237,5 @@ index 0000000..699fb0f6
 +
 +#endif /* __CONFIG_ZYNQ_PYNQZ1_H */
 -- 
-1.8.3.1
+2.34.1
 

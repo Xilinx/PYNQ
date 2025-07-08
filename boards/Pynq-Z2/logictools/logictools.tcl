@@ -3817,53 +3817,53 @@ proc create_root_design { parentCell } {
   connect_bd_net -net xlconcat_0_dout [get_bd_pins xlconcat_0/dout] [get_bd_pins ps7_0/IRQ_F2P]
 
   # Create address segments
-  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_pmodb/mb_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0x40010000 -range 0x00010000 -with_name SEG_mb_bram_ctrl_Mem0_1 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs lcp_ar/mb_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0x42000000 -range 0x00002000 -with_name SEG_mb_bram_ctrl_Mem0_2 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs lcp_rp/mb_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x42000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs iop_pmodb/mb_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x44000000 -range 0x00010000 -with_name SEG_mb_bram_ctrl_Mem0_1 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs lcp_ar/mb_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x40000000 -range 0x00010000 -with_name SEG_mb_bram_ctrl_Mem0_2 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs lcp_rp/mb_bram_ctrl/S_AXI/Mem0] -force
   assign_bd_address -offset 0x41800000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs system_interrupts/S_AXI/Reg] -force
-  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/gpio/S_AXI/Reg] -force
   assign_bd_address -offset 0x40800000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/iic/S_AXI/Reg] -force
   assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/intc/S_AXI/Reg] -force
-  assign_bd_address -offset 0x40020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/intr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/intr/S_AXI/Reg] -force
   assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/io_switch/S_AXI/S_AXI_reg] -force
-  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
   assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/spi/AXI_LITE/Reg] -force
   assign_bd_address -offset 0x41C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Data] [get_bd_addr_segs iop_pmodb/timer/S_AXI/Reg] -force
-  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Instruction] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
-  assign_bd_address -offset 0xC0000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/FSM_generator/fsm_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0xC2000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_data_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0xC4000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_tri_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces iop_pmodb/mb/Instruction] [get_bd_addr_segs iop_pmodb/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
+  assign_bd_address -offset 0xC0000000 -range 0x00008000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/FSM_generator/fsm_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x30000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_data_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x30040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_tri_bram_ctrl/S_AXI/Mem0] -force
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces lcp_ar/axi_cdma_0/Data] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
   assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/axi_cdma_0/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0x41E00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/trace_analyzer/axi_dma_0/S_AXI_LITE/Reg] -force
-  assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/boolean_generator/boolean_generator/S_AXI/S_AXI_reg] -force
-  assign_bd_address -offset 0x40020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/controllers_reg/S_AXI/Reg] -force
-  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/FSM_generator/fsm_bram_rst_addr/S_AXI/Reg] -force
-  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/FSM_generator/fsm_io_switch/S_AXI/S_AXI_reg] -force
-  assign_bd_address -offset 0x40030000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/generator_select/function_sel/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/boolean_generator/boolean_generator/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x40050000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/controllers_reg/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40030000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/FSM_generator/fsm_bram_rst_addr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A30000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/FSM_generator/fsm_io_switch/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x40020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/generator_select/function_sel/S_AXI/Reg] -force
   assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/intc/S_AXI/Reg] -force
   assign_bd_address -offset 0x40040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/intr/S_AXI/Reg] -force
-  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
-  assign_bd_address -offset 0x40050000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_nsamples/S_AXI/Reg] -force
-  assign_bd_address -offset 0x20000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/trace_analyzer/trace_cntrl_64_0/s_axi_trace_cntrl/Reg] -force
-  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Instruction] [get_bd_addr_segs lcp_ar/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
-  assign_bd_address -offset 0xC0000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_rp/axi_cdma_0/Data] [get_bd_addr_segs lcp_rp/FSM_generator/fsm_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0xC2000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_rp/axi_cdma_0/Data] [get_bd_addr_segs lcp_rp/pattern_generator/pattern_data_bram_ctrl/S_AXI/Mem0] -force
-  assign_bd_address -offset 0xC4000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_rp/axi_cdma_0/Data] [get_bd_addr_segs lcp_rp/pattern_generator/pattern_tri_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
+  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/pattern_generator/pattern_nsamples/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Data] [get_bd_addr_segs lcp_ar/trace_analyzer/trace_cntrl_64_0/s_axi_trace_cntrl/Reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_ar/mb/Instruction] [get_bd_addr_segs lcp_ar/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
+  assign_bd_address -offset 0xC0000000 -range 0x00008000 -target_address_space [get_bd_addr_spaces lcp_rp/axi_cdma_0/Data] [get_bd_addr_segs lcp_rp/FSM_generator/fsm_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x30000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/axi_cdma_0/Data] [get_bd_addr_segs lcp_rp/pattern_generator/pattern_data_bram_ctrl/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x30040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/axi_cdma_0/Data] [get_bd_addr_segs lcp_rp/pattern_generator/pattern_tri_bram_ctrl/S_AXI/Mem0] -force
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces lcp_rp/axi_cdma_0/Data] [get_bd_addr_segs ps7_0/S_AXI_HP1/HP1_DDR_LOWOCM] -force
   assign_bd_address -offset 0x44A10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/axi_cdma_0/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0x41E00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/trace_analyzer/axi_dma_0/S_AXI_LITE/Reg] -force
-  assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/boolean_generator/boolean_generator/S_AXI/S_AXI_reg] -force
-  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/controllers_reg/S_AXI/Reg] -force
-  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/FSM_generator/fsm_bram_rst_addr/S_AXI/Reg] -force
-  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/FSM_generator/fsm_io_switch/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/boolean_generator/boolean_generator/S_AXI/S_AXI_reg] -force
+  assign_bd_address -offset 0x40050000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/controllers_reg/S_AXI/Reg] -force
+  assign_bd_address -offset 0x40030000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/FSM_generator/fsm_bram_rst_addr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A30000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/FSM_generator/fsm_io_switch/S_AXI/S_AXI_reg] -force
   assign_bd_address -offset 0x40020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/generator_select/function_sel/S_AXI/Reg] -force
   assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/intc/S_AXI/Reg] -force
-  assign_bd_address -offset 0x40030000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/intr/S_AXI/Reg] -force
-  assign_bd_address -offset 0x42000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
-  assign_bd_address -offset 0x40040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/pattern_generator/pattern_nsamples/S_AXI/Reg] -force
-  assign_bd_address -offset 0x20000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/trace_analyzer/trace_cntrl_64_0/s_axi_trace_cntrl/Reg] -force
-  assign_bd_address -offset 0x42000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Instruction] [get_bd_addr_segs lcp_rp/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
+  assign_bd_address -offset 0x40040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/intr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/lmb/lmb_bram_if_cntlr/SLMB1/Mem] -force
+  assign_bd_address -offset 0x40010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/pattern_generator/pattern_nsamples/S_AXI/Reg] -force
+  assign_bd_address -offset 0x44A20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Data] [get_bd_addr_segs lcp_rp/trace_analyzer/trace_cntrl_64_0/s_axi_trace_cntrl/Reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces lcp_rp/mb/Instruction] [get_bd_addr_segs lcp_rp/lmb/lmb_bram_if_cntlr/SLMB/Mem] -force
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces lcp_ar/trace_analyzer/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP2/HP2_DDR_LOWOCM] -force
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces lcp_rp/trace_analyzer/axi_dma_0/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_HP3/HP3_DDR_LOWOCM] -force
 

@@ -1,44 +1,48 @@
-From 7939818a1eef7657ce1047474e108ed6fe7a110b Mon Sep 17 00:00:00 2001
-From: Rock Qu <yunq@xilinx.com>
-Date: Mon, 22 Jun 2020 18:36:51 -0700
-Subject: [PATCH 4/4] add pynqz2 support
+From 646ad9c7a76f390e4994f9ad531800dd6ec1025e Mon Sep 17 00:00:00 2001
+From: josh goldsmith <josh.goldsmith@amd.com>
+Date: Thu, 26 Jun 2025 11:36:16 +0100
+Subject: [PATCH 2/2] add pynqz1 support
 
 ---
  arch/arm/dts/Makefile         |  1 +
- arch/arm/dts/zynq-pynqz2.dts  | 68 +++++++++++++++++++++++++++++++++++++++++++
- configs/zynq_pynqz2_defconfig | 68 +++++++++++++++++++++++++++++++++++++++++++
- include/configs/zynq_pynqz2.h | 35 ++++++++++++++++++++++
- 4 files changed, 172 insertions(+)
- create mode 100644 arch/arm/dts/zynq-pynqz2.dts
- create mode 100644 configs/zynq_pynqz2_defconfig
- create mode 100644 include/configs/zynq_pynqz2.h
+ arch/arm/dts/zynq-pynqz1.dts  | 72 +++++++++++++++++++++++++++++++++++
+ configs/zynq_pynqz1_defconfig | 68 +++++++++++++++++++++++++++++++++
+ include/configs/zynq_pynqz1.h | 34 +++++++++++++++++
+ 4 files changed, 175 insertions(+)
+ create mode 100644 arch/arm/dts/zynq-pynqz1.dts
+ create mode 100644 configs/zynq_pynqz1_defconfig
+ create mode 100644 include/configs/zynq_pynqz1.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index ff0275c..8151172 100644
+index 17d0cf3c867..139b6b641c5 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -253,6 +253,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+@@ -392,6 +392,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+ 	zynq-topic-miamilite.dtb \
  	zynq-topic-miamiplus.dtb \
  	zynq-artyz.dtb \
- 	zynq-pynqz1.dtb \
-+	zynq-pynqz2.dtb \
++	zynq-pynqz1.dtb \
  	zynq-zc702.dtb \
  	zynq-zc706.dtb \
  	zynq-zc770-xm010.dtb \
-diff --git a/arch/arm/dts/zynq-pynqz2.dts b/arch/arm/dts/zynq-pynqz2.dts
+diff --git a/arch/arm/dts/zynq-pynqz1.dts b/arch/arm/dts/zynq-pynqz1.dts
 new file mode 100644
-index 0000000..795dc93
+index 00000000000..ae117c195b1
 --- /dev/null
-+++ b/arch/arm/dts/zynq-pynqz2.dts
-@@ -0,0 +1,68 @@
++++ b/arch/arm/dts/zynq-pynqz1.dts
+@@ -0,0 +1,72 @@
 +/*
-+ * TUL Pynq-Z2 board DTS
++ * Digilent Pynq-Z1 board DTS
++ *
++ *  Copyright (C) 2016 Digilent
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
 + */
 +/dts-v1/;
 +#include "zynq-7000.dtsi"
 +
 +/ {
-+	model = "Zynq PYNQ-Z2 Development Board";
++	model = "Zynq PYNQ-Z1 Development Board";
 +	compatible = "digilent,zynq-artyz", "xlnx,zynq-7000";
 +
 +	aliases {
@@ -99,18 +103,18 @@ index 0000000..795dc93
 +	dr_mode = "host";
 +	usb-phy = <&usb_phy0>;
 +};
-diff --git a/configs/zynq_pynqz2_defconfig b/configs/zynq_pynqz2_defconfig
+diff --git a/configs/zynq_pynqz1_defconfig b/configs/zynq_pynqz1_defconfig
 new file mode 100644
-index 0000000..8f2f032
+index 00000000000..80e637be092
 --- /dev/null
-+++ b/configs/zynq_pynqz2_defconfig
++++ b/configs/zynq_pynqz1_defconfig
 @@ -0,0 +1,68 @@
 +CONFIG_ARM=y
-+CONFIG_SYS_CONFIG_NAME="zynq_pynqz2"
++CONFIG_SYS_CONFIG_NAME="zynq_pynqz1"
 +CONFIG_ARCH_ZYNQ=y
 +CONFIG_SYS_TEXT_BASE=0x4000000
 +CONFIG_SPL_STACK_R_ADDR=0x200000
-+CONFIG_DEFAULT_DEVICE_TREE="zynq-pynqz2"
++CONFIG_DEFAULT_DEVICE_TREE="zynq-pynqz1"
 +CONFIG_DEBUG_UART=y
 +CONFIG_DISTRO_DEFAULTS=y
 +CONFIG_FIT=y
@@ -154,7 +158,7 @@ index 0000000..8f2f032
 +CONFIG_PHY_REALTEK=y
 +CONFIG_PHY_XILINX=y
 +CONFIG_ZYNQ_GEM=y
-+CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET=0x20
++# CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET=0x20
 +CONFIG_DEBUG_UART_ZYNQ=y
 +CONFIG_DEBUG_UART_BASE=0xe0000000
 +CONFIG_DEBUG_UART_CLOCK=50000000
@@ -173,30 +177,29 @@ index 0000000..8f2f032
 +CONFIG_USB_GADGET_PRODUCT_NUM=0x0300
 +CONFIG_CI_UDC=y
 +CONFIG_USB_GADGET_DOWNLOAD=y
-diff --git a/include/configs/zynq_pynqz2.h b/include/configs/zynq_pynqz2.h
+diff --git a/include/configs/zynq_pynqz1.h b/include/configs/zynq_pynqz1.h
 new file mode 100644
-index 0000000..c55a008
+index 00000000000..81e715cdc8c
 --- /dev/null
-+++ b/include/configs/zynq_pynqz2.h
-@@ -0,0 +1,35 @@
++++ b/include/configs/zynq_pynqz1.h
+@@ -0,0 +1,34 @@
 +/*
 + * (C) Copyright 2016 Digilent Inc.
 + *
-+ * Configuration for Zynq Development Board - Pynq-Z2
++ * Configuration for Zynq Development Board - Pynq-Z1
 + * See zynq-common.h for Zynq common configs
 + *
 + * SPDX-License-Identifier:	GPL-2.0+
 + */
 +
-+#ifndef __CONFIG_ZYNQ_PYNQZ2_H
-+#define __CONFIG_ZYNQ_PYNQZ2_H
++#ifndef __CONFIG_ZYNQ_PYNQZ1_H
++#define __CONFIG_ZYNQ_PYNQZ1_H
 +
 +#define CONFIG_SYS_NO_FLASH
 +
 +#define CONFIG_ZYNQ_USB
 +#define CONFIG_ZYNQ_I2C0
-+#define CONFIG_ZYNQ_I2C1
-+/*
++/*#define CONFIG_ZYNQ_I2C1
 +#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 +#define CONFIG_CMD_EEPROM
 +#define CONFIG_ZYNQ_GEM_EEPROM_ADDR	0x50
@@ -206,14 +209,14 @@ index 0000000..c55a008
 +*/
 +
 +/* GEM MAC address offset */
-+#define CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET	0x20
++// #define CONFIG_ZYNQ_GEM_SPI_MAC_OFFSET	0x20
 +
 +/* Define Pynq-Z1 PS Clock Frequency to 50MHz */
 +#define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
 +
 +#include <configs/zynq-common.h>
 +
-+#endif /* __CONFIG_ZYNQ_PYNQZ2_H */
++#endif /* __CONFIG_ZYNQ_PYNQZ1_H */
 -- 
-1.8.3.1
+2.34.1
 
