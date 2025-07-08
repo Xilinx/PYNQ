@@ -53,3 +53,4 @@ user.props
 .vscode/
 .venv/
 *.egg-info/
+.coverage
