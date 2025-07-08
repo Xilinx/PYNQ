@@ -33,7 +33,7 @@ Planned Features and Improvements
 How to Contribute or Give Feedback
 ----------------------------------
 * Report bugs or feature requests on the official `GitHub repository <http://github.com/Xilinx/PYNQ>`_
-* Contributions are welcome! See the main PYNQ documentation for guidelines.
+* Contributions are welcome! See the `PYNQ contribution guide <https://github.com/Xilinx/PYNQ/blob/master/CONTRIBUTING.md>`_ for more details.
 * Join the `PYNQ community forum <https://discuss.pynq.io/>`_ for support and discussion
 
 How to Stay Updated
