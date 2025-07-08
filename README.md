@@ -43,10 +43,6 @@ All board related files including Vivado projects, bitstreams, and example noteb
 
 In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
 
-## Alveo support
-
-This version of PYNQ **does not** support Alveo.  Alveo is supported from PYNQ version `2.5.1` to `3.0.1`. For more information, check the [documentation](https://pynq.readthedocs.io/en/v3.0.0/getting_started/alveo_getting_started.html) for these versions.
-
 ## Contribute
 
 Contributions to this repository are welcomed. Please refer to <a href="https://github.com/Xilinx/PYNQ/blob/master/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> 

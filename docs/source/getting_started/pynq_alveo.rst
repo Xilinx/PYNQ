@@ -1,10 +1,13 @@
 PYNQ on XRT Platforms
 =====================
 
-This version of PYNQ **does not** support Alveo.
+.. warning::
+    Starting from PYNQ v3.1, the Alveo platform is no longer supported.
+    This guide is kept for reference purposes only, and will be removed
+    in a future release. Alveo is still supported in PYNQ v3.0.1 and earlier.
 
-Starting from version ``2.5.1`` and ending with version ``3.0.1`` PYNQ supports
-XRT-based platforms including Amazon's AWS F1 and Alveo for cloud and on-premise deployment.
+Starting from version ``2.5.1`` PYNQ supports XRT-based platforms including 
+Amazon's AWS F1 and Alveo for cloud and on-premise deployment.
 If you are new to PYNQ we recommend browsing the rest of the documentation to
 fully understand the core PYNQ concepts as these form the foundation of PYNQ
 on XRT platforms. Here we will explore the changes made to bring PYNQ into the

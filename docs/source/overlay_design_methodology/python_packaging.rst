@@ -50,18 +50,19 @@ device.
 Link File Processing
 --------------------
 
-In place of bit files your repository can instead contain
-bit.link files which provide locations where bit files can be downloaded
-for particular boards. For more details on the link format see the 
-:ref:`pynq-utils` documentation. bit.link files alongside notebooks will be 
+In place of xclbin files your repository can instead contain
+xclbin.link files which provide locations where xclbin files can be downloaded
+for particular shells. For more details on the link format see the 
+:ref:`pynq-utils` documentation. xclbin.link files alongside notebooks will be 
 resolved when the ``pynq get-notebooks`` command is run. If you would prefer 
-to have the bit files downloaded at package install time, we provide a 
+to have the xclbin files downloaded at package install time, we provide a 
 ``download_overlays`` setuptools command that you can call as part of your 
 installation or the ``pynq.utils.build_py`` command which can be used in-place 
 of the regular ``build_py`` command to perform the downloading automatically.
 
-By default the ``download_overlays`` command will only download bit files
-for your board. This can be overridden with the ``--download-all`` option.
+By default the ``download_overlays`` command will only download xclbin files
+for the boards installed in the machine. This can be overridden with
+the ``--download-all`` option.
 
 Example Setup Script
 --------------------
