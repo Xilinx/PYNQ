@@ -48,7 +48,7 @@ class GlobalState(BaseModel):
         super().__init__(**kwargs)
         self.bitfile_hash = bitstream_hash(self.bitfile_name)
 
-def initial_global_state_file_boot_check()->None:
+def initial_global_state_file_boot_check(device_tag="")->None:
     """ Performs a check to see if this is a coldstart, if it is then clear the
     config file. """
     pl_state_file:str = "/sys/class/fpga_manager/fpga0/state"
@@ -58,35 +58,38 @@ def initial_global_state_file_boot_check()->None:
         with open(pl_flags_file, "r") as flags_fd:
             flags = flags_fd.read()
             if (state[0:7] == "unknown") or flags[0:3] == "100":
-                clear_global_state()
+                clear_global_state(device_tag)
 
+def _get_state_path(device_tag=""):
+    """Get the path to the state file for a specific device"""
+    return Path(f"{STATE_DIR}/global_pl_state_{device_tag}.json") 
 
-def global_state_file_exists() -> bool:
+def global_state_file_exists(device_tag="") -> bool:
     """Returns true if the global_pl_state file is present in the system
     False otherwise"""
-    return os.path.isfile(Path(f"{STATE_DIR}/global_pl_state.json"))
+    return os.path.isfile(_get_state_path(device_tag))
 
 
-def clear_global_state() -> None:
+def clear_global_state(device_tag="") -> None:
     """Clears the global state file, used on boot"""
-    if global_state_file_exists():
-        os.remove(Path(f"{STATE_DIR}/global_pl_state.json"))
+    if global_state_file_exists(device_tag):
+        os.remove(_get_state_path(device_tag))
 
 
-def save_global_state(state: GlobalState) -> None:
+def save_global_state(state: GlobalState, device_tag="") -> None:
     """Saves the global state of the PL in a known location.
 
     This includes details on whether the current configured IP
     needs a shutdown before a reconfiguration can happen, along
     with where the shutdown logic lives.
     """
-    with open(Path(f"{STATE_DIR}/global_pl_state.json"), "w") as state_file:
+    with open(_get_state_path(device_tag), "w") as state_file:
         state_file.write(state.json())
 
 
-def load_global_state() -> Optional[GlobalState]:
+def load_global_state(device_tag="") -> Optional[GlobalState]:
     """Reads the global state of the PL from a known location, returns None if it cannot be found"""
-    with open(Path(f"{STATE_DIR}/global_pl_state.json"), "r") as state_file:
+    with open(_get_state_path(device_tag), "r") as state_file:
         jdict = json.load(state_file)
         return GlobalState.parse_obj(jdict)
     return None

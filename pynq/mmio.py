@@ -76,6 +76,11 @@ class MMIO:
             self.write = self.write_reg
             self._hook = _AccessHook(self.base_addr, self.device)
             self.array = tnp.ndarray(shape=(length // 4,), dtype="u4", hook=self._hook)
+        elif self.device.has_capability("REMOTE"):
+            map = self.device.mmap(base_addr, length)
+            self.read = map.read
+            self.write = map.write
+            self.array = map.array
         else:
             raise ValueError("Device does not have capabilities for MMIO")
 

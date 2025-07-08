@@ -1,6 +1,7 @@
 #   Copyright (c) 2016-2021, Xilinx, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
+import os
 import collections
 import ctypes
 import itertools
@@ -12,16 +13,18 @@ from copy import deepcopy
 import pynqutils
 from pynqmetadata.frontends import Metadata
 
-from pynq._3rdparty import ert
-
 from .bitstream import Bitstream
-from .gpio import GPIO
-from .interrupt import Interrupt
 from .metadata.append_drivers_pass import bind_drivers_to_metadata
 from .mmio import MMIO
 from .ps import Clocks
 from .registers import RegisterMap
 
+if os.environ.get("PYNQ_REMOTE_DEVICES", False):
+    from .pl_server.remote_device import RemoteGPIO as GPIO
+    from .pl_server.remote_device import RemoteInterrupt as Interrupt
+else:
+    from .gpio import GPIO
+    from .interrupt import Interrupt
 
 
 DRIVERS_GROUP = "pynq.lib"
@@ -313,7 +316,7 @@ class Overlay(Bitstream):
 
         """
         super().__init__(bitfile_name, dtbo, partial=False, device=device)
-
+        
         self._register_drivers()
 
         self.device.set_bitfile_name(self.bitfile_name)
@@ -337,6 +340,9 @@ class Overlay(Bitstream):
             self,
         )
         self._ip_map = _IPMap(description)
+
+        # Setting device class variables
+        Clocks.set_device(self.device)
 
         # If we have a system graph information, expose it
         if hasattr(self.parser, "systemgraph"):
@@ -385,8 +391,6 @@ class Overlay(Bitstream):
         )
 
     def free(self):
-        if hasattr(self.device, "free_bitstream"):
-            self.device.free_bitstream()
         if self.dtbo:
             self.remove_dtbo()
         self.device.close()
@@ -715,28 +719,11 @@ class DefaultIP(metaclass=RegisterIP):
             self._registers = description["registers"]
             self._fullpath = description["fullpath"]
             self._register_name = description["fullpath"].rpartition("/")[2]
-            if "CTRL" in self._registers and self.device.has_capability("CALLABLE"):
-                (
-                    self._signature,
-                    struct_string,
-                    self._ptr_list,
-                    self.args,
-                ) = _create_call(self._registers)
-                self._call_struct = struct.Struct(struct_string)
-                self._ctrl_reg = True
-                self.start_ert = self._start_ert
-                self.start_sw = self._start_sw
-                self.call = self._call
-                if self.device.has_capability("ERT"):
-                    self.start = self._start_ert
-                else:
-                    self.start = self._start_sw
         else:
             self._registers = None
         if "index" in description:
             cu_index = self.device.open_context(description)
             self.cu_mask = 1 << cu_index
-            self._setup_packet_prototype()
         if "streams" in description:
             self.streams = {}
             for k, v in description["streams"].items():
@@ -746,21 +733,6 @@ class DefaultIP(metaclass=RegisterIP):
                     stream.source_ip = self
                 elif v["direction"] == "input":
                     stream.sink_ip = self
-
-    def _setup_packet_prototype(self):
-        self._packet = ert.ert_start_kernel_cmd()
-        self._packet.m_uert.m_start_cmd_struct.state = (
-            ert.ert_cmd_state.ERT_CMD_STATE_NEW
-        )
-        self._packet.m_uert.m_start_cmd_struct.unused = 0
-        self._packet.m_uert.m_start_cmd_struct.extra_cu_masks = 0
-        if hasattr(self, "_ctrl_reg"):
-            self._packet.m_uert.m_start_cmd_struct.count = (
-                self._call_struct.size // 4
-            ) + 1
-        self._packet.m_uert.m_start_cmd_struct.opcode = ert.ert_cmd_opcode.ERT_START_CU
-        self._packet.m_uert.m_start_cmd_struct.type = ert.ert_cmd_type.ERT_DEFAULT
-        self._packet.cu_mask = self.cu_mask
 
     @property
     def register_map(self):
@@ -785,77 +757,6 @@ class DefaultIP(metaclass=RegisterIP):
 
     def _call(self, *args, **kwargs):
         self.start(*args, **kwargs).wait()
-
-    def _start_sw(self, *args, ap_ctrl=1, waitfor=None, **kwargs):
-        """Start the accelerator
-
-        This function will configure the accelerator with the provided
-        arguments and start the accelerator. Use the `wait` function to
-        determine when execution has finished. Note that buffers should be
-        flushed prior to starting the accelerator and any result buffers
-        will need to be invalidated afterwards.
-
-        For details on the function's signature use the `signature` property.
-        The type annotations provide the C types that the accelerator
-        operates on. Any pointer types should be passed as `ContiguousArray`
-        objects created from the `pynq.allocate` class. Scalars should be
-        passed as a compatible python type as used by the `struct` library.
-
-        """
-        if not self._signature:
-            raise RuntimeError("Only HLS IP can be called with the wrapper")
-        if waitfor is not None:
-            raise RuntimeError("waitfor only supported on newer versions of XRT")
-        if kwargs:
-            # Resolve any kwargs to make a single args tuple
-            args = self._signature.bind(*args, **kwargs).args
-        # Resolve and pointers that need .device_address taken
-        args = [
-            a.device_address if p else a
-            for a, p in itertools.zip_longest(args, self._ptr_list)
-        ]
-        self.mmio.write(0, self._call_struct.pack(0, *args))
-        self.mmio.write(0, ap_ctrl)
-        return WaitHandle(self)
-
-    def _start_ert(self, *args, waitfor=(), **kwargs):
-        """Start the accelerator using the ERT scheduler
-
-        This function will use the embedded scheduler to call the accelerator
-        with the provided arguments - see the documentation for ``start`` for
-        more details. An optional ``waitfor`` parameter can be used to
-        schedule dependent executions without using the CPU.
-
-        Parameters
-        ----------
-        waitfor : [WaitHandle]
-            A list of wait handles returned by other calls to ``start_ert``
-            which must complete before this execution starts
-
-        Returns
-        -------
-        WaitHandle :
-            Object with a ``wait`` call that will return when the execution
-            completes
-
-        """
-        if not self._signature:
-            raise RuntimeError("Only HLS IP can be called with the wrapper")
-        if kwargs:
-            # Resolve any kwargs to make a single args tuple
-            args = self._signature.bind(*args, **kwargs).args
-        args = [a.device_address if p else a for a, p in zip(args, self._ptr_list)]
-        arg_data = self._call_struct.pack(0, *args)
-        bo = self.device.get_exec_bo()
-        exec_packet = bo.as_packet(ert.ert_start_kernel_cmd)
-        exec_packet.m_uert.header = self._packet.m_uert.header
-        exec_packet.cu_mask = self.cu_mask
-        ctypes.memmove(exec_packet.data, arg_data, len(arg_data))
-        wait_bos = tuple(w._bo for w in waitfor if w is not None and w._has_bo)
-        if wait_bos:
-            return self.device.execute_bo_with_waitlist(bo, wait_bos)
-        else:
-            return self.device.execute_bo(bo)
 
     def read(self, offset=0):
         """Read from the MMIO device
@@ -1097,7 +998,7 @@ class DefaultHierarchy(_IPMap, metaclass=RegisterHierarchy):
         return None
 
     def _locate_metadata(self, bitfile_name, dtbo):
-        self.bitstreams[bitfile_name] = Bitstream(bitfile_name, dtbo, partial=True)
+        self.bitstreams[bitfile_name] = Bitstream(bitfile_name, dtbo, partial=True, device=self.device)
         bitfile_name = self.bitstreams[bitfile_name].bitfile_name
         self.parsers[bitfile_name] = self.device.get_bitfile_metadata(bitfile_name, partial=True)
 

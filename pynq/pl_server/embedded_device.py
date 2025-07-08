@@ -6,6 +6,7 @@ import pickle
 import struct
 from pathlib import Path
 import datetime
+import platform
 
 import numpy as np
 from pynqmetadata.frontends import Metadata
@@ -175,7 +176,7 @@ class BitstreamHandler:
         """
         hwh_file = self._filepath.with_suffix(".hwh")
         if hwh_file.exists():
-            return hwh_file.read_text()
+            return hwh_file.read_text(encoding='utf-8')
         return None
 
     def is_xsa(self):
@@ -505,7 +506,7 @@ class EmbeddedXrtMemory(XrtMemory):
         if self._mmio is None:
             import pynq
 
-            self._mmio = pynq.MMIO(self.base_address, self.size)
+            self._mmio = pynq.MMIO(self.base_address, self.size, device=self.device)
         return self._mmio
 
 
@@ -564,11 +565,12 @@ class EmbeddedDevice(XrtDevice):
                     return self.get_memory(v)
         raise RuntimeError("XRT design does not contain PS memory")
 
-    def __init__(self):
-        super().__init__(0, "embedded_xrt{}")
+    def __init__(self, index=0, tag="embedded_xrt{}"):
+        super().__init__(index, tag.format(index))
         self.capabilities["REGISTER_RW"] = False
         self.capabilities["MEMORY_MAPPED"] = True
         self.capabilities["CALLABLE"] = False
+        self.arch = platform.machine()
 
     def get_memory(self, description):
         return EmbeddedXrtMemory(self, description)
@@ -625,14 +627,14 @@ class EmbeddedDevice(XrtDevice):
                     for reg_name in ZU_FPD_SLCR_REG[para]:
                         addr = ZU_FPD_SLCR_REG[para][reg_name]["addr"]
                         f = ZU_FPD_SLCR_REG[para][reg_name]["field"]
-                        Register(addr)[f[0] : f[1]] = ZU_FPD_SLCR_VALUE[width]
+                        Register(addr, device=self)[f[0] : f[1]] = ZU_FPD_SLCR_VALUE[width]
             for para in ZU_AXIFM_REG:
                 if para in parameter_dict:
                     width = parameter_dict[para]
                     for reg_name in ZU_AXIFM_REG[para]:
                         addr = ZU_AXIFM_REG[para][reg_name]["addr"]
                         f = ZU_AXIFM_REG[para][reg_name]["field"]
-                        Register(addr)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
+                        Register(addr, device=self)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
 
     def gen_cache(self, bitstream, parser=None):
         """ Generates the cache of the metadata even if no download occurred """

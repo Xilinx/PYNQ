@@ -1,15 +1,17 @@
 #   Copyright (c) 2016-2022, Xilinx, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
-import os
+import platform
 import warnings
+import os
 
 
 ZYNQ_ARCH = "armv7l"
 ZU_ARCH = "aarch64"
-CPU_ARCH = os.uname().machine
+CPU_ARCH = platform.machine()
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
-CPU_ARCH_IS_x86 = "x86" in CPU_ARCH
+CPU_ARCH_IS_x86 = CPU_ARCH in ['x86_64', 'AMD64']
+ON_TARGET = os.path.isfile('/proc/device-tree/chosen/pynq_board')
 
 DEFAULT_PL_CLK_MHZ = 100.0
 
@@ -305,10 +307,14 @@ class _ClocksMeta(type):
     @property
     def _instance(cls):
         if not hasattr(cls, '_real_instance'):
-            if CPU_ARCH == ZYNQ_ARCH:
-                cls._real_instance = _ClocksZynq()
-            elif CPU_ARCH == ZU_ARCH:
-                cls._real_instance = _ClocksUltrascale()
+            if not cls.device:
+                # If device is not set, default to active device
+                from pynq.pl_server.device import Device
+                cls.device = Device.active_device
+            if cls.device.arch == ZYNQ_ARCH:
+                cls._real_instance = _ClocksZynq(device=cls.device)
+            elif cls.device.arch == ZU_ARCH:
+                cls._real_instance = _ClocksUltrascale(device=cls.device)
             else:
                 raise RuntimeError('Architecture not supported for Clocks')
         return cls._real_instance
@@ -456,12 +462,12 @@ class _ClocksUltrascale(_ClocksBase):
                                 for i in range(1 << 6)
                                 for j in range(1 << 6)}
 
-    def __init__(self, src_clk_mhz=DEFAULT_SRC_CLK_MHZ):
+    def __init__(self, src_clk_mhz=DEFAULT_SRC_CLK_MHZ, device=None):
         self._ref_clk_mhz = src_clk_mhz
 
         from .mmio import MMIO
-        self._crf_mmio = MMIO(self.CRF_APB_ADDRESS, 0x100)
-        self._crl_mmio = MMIO(self.CRL_APB_ADDRESS, 0x100)
+        self._crf_mmio = MMIO(self.CRF_APB_ADDRESS, 0x100, device=device)
+        self._crl_mmio = MMIO(self.CRL_APB_ADDRESS, 0x100, device=device)
 
         from .registers import RegisterMap
         CrfRegisterMap = RegisterMap.create_subclass('CRF', ZU_CRF_REGISTERS)
@@ -574,11 +580,11 @@ class _ClocksZynq(_ClocksBase):
                                 for i in range(1 << 6)
                                 for j in range(1 << 6)}
 
-    def __init__(self, ref_clk_mhz=DEFAULT_SRC_CLK_MHZ):
+    def __init__(self, ref_clk_mhz=DEFAULT_SRC_CLK_MHZ, device=None):
         self._ref_clk_mhz = ref_clk_mhz
 
         from .mmio import MMIO
-        self._slcr_mmio = MMIO(self.SLCR_BASE_ADDRESS, 0x200)
+        self._slcr_mmio = MMIO(self.SLCR_BASE_ADDRESS, 0x200, device=device)
 
         from .registers import RegisterMap
         SlcrRegisters = RegisterMap.create_subclass('SL', ZYNQ_SLCR_REGISTERS)
@@ -692,6 +698,17 @@ class Clocks(metaclass=_ClocksMeta):
         The clock rate of the PL clock 3, measured in MHz.
 
     """
-    pass
+    
+    device = None
+    
+    @classmethod
+    def set_device(cls, device):
+        """Set the device for the Clocks class.
 
+        Parameters
+        ----------
+        device : Device
+
+        """
+        cls.device = device
 

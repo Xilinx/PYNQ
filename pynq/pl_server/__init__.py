@@ -14,9 +14,12 @@ from .global_state import (
 )
 from .hwh_parser import HWH, get_hwh_name
 
-if "XILINX_XRT" in os.environ:
+if os.environ.get("XILINX_XRT", False):
     from .embedded_device import EmbeddedDevice
     from .xclbin_parser import XclBin
     from .xrt_device import XrtDevice
+
+if os.environ.get("PYNQ_REMOTE_DEVICES", False):
+    from .remote_device import RemoteDevice
 
 

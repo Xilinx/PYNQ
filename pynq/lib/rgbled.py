@@ -37,7 +37,7 @@ class RGBLED(object):
     _rgbleds_val = 0
     _rgbleds_start_index = float("inf")
 
-    def __init__(self, index, ip_name="rgbleds_gpio", start_index=float("inf")):
+    def __init__(self, index, ip_name="rgbleds_gpio", start_index=float("inf"), device=None):
         """Create a new RGB LED object.
 
         Parameters
@@ -58,7 +58,7 @@ class RGBLED(object):
         self.index = index
         if RGBLED._mmio is None:
             base_addr = PL.ip_dict[ip_name]["phys_addr"]
-            RGBLED._mmio = MMIO(base_addr, 16)
+            RGBLED._mmio = MMIO(base_addr, 16, device=device)
         if index < start_index and start_index != float("inf"):
             raise ValueError("Inconsistent use of initialization indexes.")
         if start_index < RGBLED._rgbleds_start_index:

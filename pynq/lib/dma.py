@@ -183,7 +183,9 @@ class _SDMAChannel:
         if not self._flush_before:
             self._active_buffer.invalidate()
         self.transferred = self._mmio.read(self._offset + 0x28)
-
+        # Clean up buffer
+        self._active_buffer = None
+        
     async def wait_async(self):
         """Wait for the transfer to complete"""
         if not self.running:
@@ -194,6 +196,7 @@ class _SDMAChannel:
         if not self._flush_before:
             self._active_buffer.invalidate()
         self.transferred = self._mmio.read(self._offset + 0x28)
+        self._active_buffer = None
 
 
 class _SGDMAChannel:
@@ -210,7 +213,7 @@ class _SGDMAChannel:
 
     """
 
-    def __init__(self, mmio, max_size, width, tx_rx, dre, interrupt=None):
+    def __init__(self, mmio, max_size, width, tx_rx, dre, interrupt=None, device=None):
         """Initialize the simple DMA object.
 
         Parameters
@@ -231,6 +234,7 @@ class _SGDMAChannel:
         """
         self._mmio = mmio
         self._interrupt = interrupt
+        self.device = device
         self._max_size = max_size
         self._active_buffer = None
         self._align = width
@@ -377,7 +381,7 @@ class _SGDMAChannel:
 
         # Zero-Allocate buffer for descriptors: uint32[_num_descr][16]
         # Descriptor is only 52 bytes but each one has to be 64-byte aligned!
-        self._descr = allocate(shape=(self._num_descr, 16), dtype=numpy.uint32)
+        self._descr = allocate(shape=(self._num_descr, 16), dtype=numpy.uint32, target=self.device)
 
         # Idle DMA engine
         self.stop()
@@ -410,7 +414,7 @@ class _SGDMAChannel:
             remain -= d_len
 
             # Buffer address (64-bit)
-            self._descr[i, 2] = (array.physical_address + start + (i * blk_size)) & 0xFFFFFFFF
+            self._descr[i, 2] = (array.physical_address + (i * blk_size)) & 0xFFFFFFFF
             self._descr[i, 3] = (
                 (array.physical_address + start + (i * blk_size)) >> 32
             ) & 0xFFFFFFFF
@@ -515,6 +519,8 @@ class _SGDMAChannel:
         # Clean up descriptor buffer
         self._descr.close()
         self._descr = None
+        # Clean up buffer
+        self._active_buffer = None
 
     async def wait_async(self):
         """Wait for the transfer to complete"""
@@ -544,6 +550,8 @@ class _SGDMAChannel:
         # Clean up descriptor buffer
         self._descr.close()
         self._descr = None
+
+        self._active_buffer = None
 
 
 class DMA(DefaultIP):
@@ -592,6 +600,11 @@ class DMA(DefaultIP):
             )
         super().__init__(description=description)
         self.description = description
+
+        if "device" in description:
+            self.device = description["device"]
+        else:
+            raise RuntimeError("Device not specified in description")
 
         if "parameters" not in description:
             raise RuntimeError(
@@ -664,6 +677,7 @@ class DMA(DefaultIP):
                         DMA_TYPE_TX,
                         dre,
                         self.mm2s_introut,
+                        device=self.device,
                     )
                 else:
                     self.sendchannel = _SDMAChannel(
@@ -677,7 +691,7 @@ class DMA(DefaultIP):
             else:
                 if self._sg:
                     self.sendchannel = _SGDMAChannel(
-                        self.mmio, max_size, data_width, DMA_TYPE_TX, dre
+                        self.mmio, max_size, data_width, DMA_TYPE_TX, dre, device=self.device
                     )
                 else:
                     self.sendchannel = _SDMAChannel(
@@ -720,6 +734,7 @@ class DMA(DefaultIP):
                         DMA_TYPE_RX,
                         dre,
                         self.s2mm_introut,
+                        device=self.device,
                     )
                 else:
                     self.recvchannel = _SDMAChannel(
@@ -733,7 +748,7 @@ class DMA(DefaultIP):
             else:
                 if self._sg:
                     self.recvchannel = _SGDMAChannel(
-                        self.mmio, max_size, data_width, DMA_TYPE_RX, dre
+                        self.mmio, max_size, data_width, DMA_TYPE_RX, dre, device=self.device
                     )
                 else:
                     self.recvchannel = _SDMAChannel(
@@ -741,5 +756,4 @@ class DMA(DefaultIP):
                     )
 
     bindto = ["xilinx.com:ip:axi_dma:7.1"]
-
 

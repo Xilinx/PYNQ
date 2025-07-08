@@ -3,15 +3,15 @@
 
 
 import warnings
-
+import os
 import numpy as np
+from pynq.ps import ON_TARGET
 
-from pynq._3rdparty import ert, xrt
-
-import ctypes
-libc = ctypes.CDLL("libc.so.6")
-libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
-libc.munmap.restype = ctypes.c_int
+if ON_TARGET:
+    import ctypes
+    libc = ctypes.CDLL("libc.so.6")
+    libc.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
+    libc.munmap.restype = ctypes.c_int
 
 
 class PynqBuffer(np.ndarray):
@@ -79,7 +79,7 @@ class PynqBuffer(np.ndarray):
                 if not self.freed:
                     self.freed = True
                     libc.munmap(ctypes.cast(self.virtual_address, ctypes.c_void_p), self.nbytes)
-                    xrt.xclFreeBO(self.device.handle, self.bo)
+                    del self.bo
 
 
     @property

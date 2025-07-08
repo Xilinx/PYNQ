@@ -1,4 +1,5 @@
-#   Copyright (c) 2021, Xilinx, Inc.
+#   Copyright (c) 2021-2022, Xilinx, Inc.
+#   Copyright (C) 2023-2025 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 from pynq import DefaultIP
@@ -413,6 +414,22 @@ _registers = {
             },
         },
     },
+    "vs_selection": {
+        "address_offset": 0x2C,
+        "access": "read-write;",
+        "size": 32,
+        "host_size": 4,
+        "description": "VC Selection Register",
+        "type": "uint",
+        "fields": {
+            "vc_selection": {
+                "access": "read-write",
+                "bit_offset": 0,
+                "bit_width": 16,
+                "description": "Dynamically select the VC packets to be processed by the core",
+            },
+        },
+    },
     "generic_short_packet": {
         "address_offset": 0x30,
         "access": "read-write;",
@@ -435,8 +452,8 @@ _registers = {
             },
             "data": {
                 "access": "read-only",
-                "bit_offset": 2,
-                "bit_width": 1,
+                "bit_offset": 8,
+                "bit_width": 16,
                 "description": "16-bit short packet data",
             },
         },
@@ -597,7 +614,7 @@ _registers = {
     },
     "clock_lane_information": {
         "address_offset": 0x3C,
-        "access": "read-write;",
+        "access": "read-only;",
         "size": 32,
         "host_size": 4,
         "description": "The Clock Lane Information register",
@@ -639,7 +656,7 @@ _registers = {
             },
             "stop_state": {
                 "access": "read-only",
-                "bit_offset": 2,
+                "bit_offset": 5,
                 "bit_width": 1,
                 "description": "etection of stop state",
             },
@@ -673,7 +690,7 @@ _registers = {
             },
             "stop_state": {
                 "access": "read-only",
-                "bit_offset": 2,
+                "bit_offset": 5,
                 "bit_width": 1,
                 "description": "etection of stop state",
             },
@@ -707,7 +724,7 @@ _registers = {
             },
             "stop_state": {
                 "access": "read-only",
-                "bit_offset": 2,
+                "bit_offset": 5,
                 "bit_width": 1,
                 "description": "etection of stop state",
             },
@@ -741,7 +758,7 @@ _registers = {
             },
             "stop_state": {
                 "access": "read-only",
-                "bit_offset": 2,
+                "bit_offset": 5,
                 "bit_width": 1,
                 "description": "etection of stop state",
             },
@@ -771,7 +788,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 32,
                 "bit_width": 6,
-                "description": "Indicates the deskew reception",
+                "description": "Data Type of current packet being processed by control FSM",
             },
         },
     },
@@ -799,7 +816,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 32,
                 "bit_width": 6,
-                "description": "Indicates the deskew reception",
+                "description": "Data Type of current packet being processed by control FSM",
             },
         },
     },
@@ -827,7 +844,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 32,
                 "bit_width": 6,
-                "description": "Indicates the deskew reception",
+                "description": "Data Type of current packet being processed by control FSM",
             },
         },
     },
@@ -855,7 +872,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 32,
                 "bit_width": 6,
-                "description": "Indicates the deskew reception",
+                "description": "Data Type of current packet being processed by control FSM",
             },
         },
     },
@@ -1257,10 +1274,8 @@ _registers = {
 class MipiRx(DefaultIP):
     """Driver for MIPI CSI-2 Receiver Subsystem"""
 
-    bindto = ["xilinx.com:ip:mipi_csi2_rx_subsystem:5.1"]
+    bindto = ["xilinx.com:ip:mipi_csi2_rx_subsystem:6.0"]
 
     def __init__(self, description):
         description["registers"] = _registers
         super().__init__(description)
-
-
