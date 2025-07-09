@@ -61,7 +61,7 @@ Once the environment variable is set, you can use the ``pynq`` package as usual.
     os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.2.99"
 
     from pynq import Overlay
-    overlay = Overlay('my_overlay.xsa')
+    ol = Overlay('my_overlay.xsa')
     print(ol.ip_dict)
 
 * Replace ``192.168.2.99`` with your target device’s IP address.
