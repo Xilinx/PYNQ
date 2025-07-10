@@ -10,8 +10,8 @@ Unlike Classic PYNQ, there are no pre-built PYNQ.remote SD card images available
 
 **Prerequisites:**
 
-- AMD Tools: Vivado, Vitis, and Petalinux version 2024.1
-- Docker installation
+- AMD Tools: `Vivado, Vitis, and Petalinux version 2024.1 <https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2024-1.html>`_
+- `Docker installation <https://docs.docker.com/engine/install/>`_
 - Supported Linux distribution (see `UG973 <https://docs.amd.com/r/2024.1-English/ug973-vivado-release-notes-install-license/Supported-Operating-Systems>`_)
 
 **Using the Docker-base build flow:**
@@ -22,7 +22,7 @@ Unlike Classic PYNQ, there are no pre-built PYNQ.remote SD card images available
 
         git clone --recursive https://github.com/Xilinx/PYNQ.git
 
-#. Follow the Docker-based build instructions in the ``sdbuild/README.md`` file to set up the build environment.
+#. Follow the Docker-based build instructions in the `sdbuild/README.md <https://github.com/Xilinx/PYNQ/blob/master/sdbuild/Makefile>`_ file to set up the build environment.
 
 #. Build the remote image for your target board:
 
@@ -34,24 +34,10 @@ Unlike Classic PYNQ, there are no pre-built PYNQ.remote SD card images available
 
    Replace ``<board_name>`` with your target board (e.g., ``ZCU104``, ``Pynq-Z2``).
 
-#. Flash the generated image from ``sdbuild/output/`` to an SD card and boot your device.
+#. Flash the generated image from ``sdbuild/output/`` to an SD card and boot your device (See :doc:`../appendix/sdcard` for more details).
 
 #. After booting, the ``pynq-remote`` server will start automatically, allowing you to connect to the device (see :doc:`quickstart` for more details).
 
 **Alternative: Using PYNQ Metalayer in Custom Petalinux Build**
 
 Advanced users can integrate the `meta-pynq` metalayer into their own Petalinux projects. Refer to the `Petalinux Tools Reference Guide (UG1144) <https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide>`_ for detailed instructions.
-
-Upgrading or Troubleshooting
-----------------------------
-
-* To upgrade PYNQ.remote, rebuild the image using the latest PYNQ source code:
-
-  .. code-block:: bash
-
-     git pull origin main
-     # Rebuild using the Docker flow as described in sdbuild/README.md
-
-* If you have issues connecting, see :doc:`troubleshooting`, or check network/firewall settings.
-
-For a step-by-step guide, see :doc:`quickstart`.
