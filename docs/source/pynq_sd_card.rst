@@ -8,7 +8,8 @@ This page will explain how SD card images can be built for PYNQ
 embedded platforms (Zynq, Zynq Ultrascale+, Zynq RFSoC). 
 
 Note: the PYNQ images for supported boards are provided as precompiled 
-downloadable SD card images and do not need rebuilt.  The SD card build flow is
+`downloadable SD card images <https://www.pynq.io/boards.html>`_ and do 
+not need rebuilt.  The SD card build flow is
 only required to modify SD cards' contents or target a new board.
 
 Specifically, The SD card build flow will create the BOOT.bin, the u-boot
@@ -164,8 +165,8 @@ following the steps below. You don't have to rerun the `setup_host.sh`.
 
   2. Depending on the overlays being rebuilt, make sure you have the appropriate
      Vivado licenses to build for your target board, especially the
-     `HDMI IP <https://www.xilinx.com/products/intellectual-property/hdmi.html>`_
-     for the ZCU104 or the `CMAC IP <https://www.xilinx.com/products/intellectual-property/cmac.html>`_
+     `HDMI IP <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/hdmi.html>`_
+     for the ZCU104 or the `CMAC IP <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/cmac.html>`_
      for the RFSoC4x2.   
 
   3. Collect a prebuilt board-agnostic root filesystem tarball and a prebuilt PYNQ

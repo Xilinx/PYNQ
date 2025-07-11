@@ -24,6 +24,7 @@ Connect directly to a computer (Static IP):
   1. :ref:`assign-a-static-ip-address`
   2. Connect the board to your computer's Ethernet port
   3. Browse to http://192.168.2.99
+  4. Jump to the :ref:`connecting-to-jupyter` section.
   
 Connect to a Network Router
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -37,5 +38,6 @@ Connect to a Router/Network (DHCP):
   1. Connect the Ethernet port on your board to a router/switch
   2. Connect your computer to Ethernet or WiFi on the router/switch
   3. Browse to http://<board IP address>
-  4. Optional: see *Change the Hostname* below
-  5. Optional: see *Configure Proxy Settings* below
+  4. Jump to the :ref:`connecting-to-jupyter` section.
+  5. Optional: see *Change the Hostname* below
+  6. Optional: see *Configure Proxy Settings* below

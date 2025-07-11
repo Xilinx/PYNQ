@@ -22,7 +22,7 @@ Unlike Classic PYNQ, there are no pre-built PYNQ.remote SD card images available
 
         git clone --recursive https://github.com/Xilinx/PYNQ.git
 
-#. Follow the Docker-based build instructions in the `sdbuild/README.md <https://github.com/Xilinx/PYNQ/blob/master/sdbuild/Makefile>`_ file to set up the build environment.
+#. Follow the Docker-based build instructions in the `sdbuild/README.md <https://github.com/Xilinx/PYNQ/blob/master/sdbuild/README.md>`_ file to set up the build environment.
 
 #. Build the remote image for your target board:
 

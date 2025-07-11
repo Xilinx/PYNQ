@@ -17,11 +17,38 @@
 import sys
 import os
 
+import sphinx_rtd_theme
+
+import subprocess
+
+current_working_directory = os.getcwd()
+print(f"{current_working_directory=}")
+
+doxyfile_path = os.path.abspath("pynq_remote/doxygen/Doxyfile")
+result = subprocess.run(f'doxygen {doxyfile_path}', shell=True, capture_output=True, text=True)
+
+if result.returncode != 0:
+    print("Doxygen failed:")
+    print(result.stdout)
+    print(result.stderr)
+else:
+    print("Doxygen ran successfully.")
+
+# Debug Doxygen - find output files
+#for root, dirs, files in os.walk(os.getcwd()):
+#    for file in files:
+#        if file.endswith(".xml"):
+#            print("🔍 Found XML:", os.path.join(root, file))
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../../'))
 #sys.path.insert(0, os.path.abspath('../../pynq'))
+
+current_working_directory = os.getcwd()
+print(f"{current_working_directory=}")
 
 from unittest.mock import MagicMock
 
@@ -54,7 +81,7 @@ extensions = [
     'breathe',
 ]
 breathe_projects = {
-    "Device": "pynq_remote/doxygen/xml",
+    "Device": os.path.abspath("pynq_remote/doxygen/xml")
 }
 breathe_default_project = "Device"
 

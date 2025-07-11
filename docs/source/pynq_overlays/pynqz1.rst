@@ -23,10 +23,10 @@ The PYNQ-Z1 board has the following features:
   * 1x Arduino header 
 
 For details on the PYNQ-Z1 board including `PYNQ-Z1 reference manual 
-<https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual>`_
+<https://digilent.com/reference/programmable-logic/pynq-z1/reference-manual>`_
 and `PYNQ-Z1 constraints file (xdc) 
-<https://reference.digilentinc.com/_media/reference/programmable-logic/pynq-z1/pynq-z1_c.zip>`_
-see the `PYNQ-Z1 webpage <https://store.digilentinc.com/pynq-z1-python-productivity-for-zynq/>`_
+<https://digilent.com/reference/_media/reference/programmable-logic/pynq-z1/pynq-z1_c.zip>`_
+see the `PYNQ-Z1 webpage <https://digilent.com/reference/programmable-logic/pynq-z1/start>`_
 
 The following overlays are include by default in the PYNQ image for the PYNQ-Z1 
 board:

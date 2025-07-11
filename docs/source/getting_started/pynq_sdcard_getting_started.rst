@@ -1,12 +1,9 @@
+.. _connecting-to-jupyter:
+
 Connecting to Jupyter Notebook
 ------------------------------
 
-Once your board is setup, to connect to Jupyter Notebooks open a web browser and navigate to:
-
-  * http://192.168.2.99 If your board is connected to a computer via a static IP address
-
-
-If your board is configured correctly you will be presented with a login
+Once you have connected to your boarcd, you will be presented with a login
 screen. The username is **xilinx** and the password is also **xilinx**.
 
 After logging in, you will see the following screen:
