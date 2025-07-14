@@ -1,7 +1,7 @@
 .. _env_variables:
 
 Setting Environment Variables
-------------------------------
+=============================
 
 PYNQ.remote uses the ``PYNQ_REMOTE_DEVICES`` environment variable to identify and configure remote devices. Windows, Linux, and macOS all use different methods to set environment variables. This document aims to provide a brief overview of how to set this variable across different platforms. For more details, refer to the documentation for your specific operating system.
 
