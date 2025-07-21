@@ -58,7 +58,7 @@ build environment on your host OS using the following steps:
      .. note::
         AMD tools must be installed on the host system, not inside the Docker container.
 
-  3. Clone the PYNQ repository and build the Docker image:
+  3. Clone the PYNQ repository and in a bash shell, build the Docker image:
 
      .. code-block:: console
     
@@ -69,6 +69,8 @@ build environment on your host OS using the following steps:
           --build-arg USER_UID=$(id -u) \
           --build-arg USER_GID=$(id -g) \
           -t pynqdock:latest .
+
+     If you are in a csh-like shell, switch to Bash by typing: ``bash``.
 
      The ``--build-arg`` values ensure that files created inside the container 
      will be owned by your user on the host system, avoiding permission issues.

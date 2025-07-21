@@ -16,13 +16,9 @@
 
 import sys
 import os
-
 import sphinx_rtd_theme
-
 import subprocess
 
-current_working_directory = os.getcwd()
-print(f"{current_working_directory=}")
 
 doxyfile_path = os.path.abspath("pynq_remote/doxygen/Doxyfile")
 result = subprocess.run(f'doxygen {doxyfile_path}', shell=True, capture_output=True, text=True)
@@ -33,13 +29,6 @@ if result.returncode != 0:
     print(result.stderr)
 else:
     print("Doxygen ran successfully.")
-
-# Debug Doxygen - find output files
-#for root, dirs, files in os.walk(os.getcwd()):
-#    for file in files:
-#        if file.endswith(".xml"):
-#            print("🔍 Found XML:", os.path.join(root, file))
-
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
