@@ -14,6 +14,7 @@ PYNQ.remote
    pynq_remote/image_build
    pynq_remote/remote_device
    pynq_remote/cppindex
+   pynq_remote/env_variables
    pynq_remote/roadmap
 
 PYNQ.remote is an extension to the PYNQ framework that enables remote control of AMD's FPGA-based devices. By moving the Python API to the host and communicating with the target device via gRPC, PYNQ.remote brings powerful new deployment, integration, and scalability features to PYNQ users, while preserving the familiar PYNQ user experience.

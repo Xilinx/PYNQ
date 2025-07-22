@@ -20,14 +20,14 @@ Step 1: Install PYNQ.remote on the Host
 .. note::
 
     PYNQ.remote relies on environment variables for installation and target device identification.
-    For installation you need to have either ``PYNQ_REMOTE`` or ``PYNQ_REMOTE_DEVICES`` environment variables set. See :docs:`env_variables` for more information on how to set environment variables.
+    For installation you need to have either ``PYNQ_REMOTE`` or ``PYNQ_REMOTE_DEVICES`` environment variables set. See :doc:`env_variables` for more information on how to set environment variables.
 
 Download PYNQ from GitHub and install the ``pynq`` package using pip. It is recommended to use a 
 `Python virtual environment <https://docs.python.org/3/library/venv.html>`_.
 
 .. code-block:: bash
 
-   git clone http://github/com/Xilinx/PYNQ.git
+   git clone https://github.com/Xilinx/PYNQ.git
    cd PYNQ
    pip install .
 
