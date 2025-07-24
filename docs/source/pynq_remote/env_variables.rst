@@ -13,7 +13,7 @@ You can set environment variables in Python using the ``os`` module. This is use
 .. code-block:: python
 
     import os
-    os.environ['PYNQ_REMOTE_DEVICES'] - "192.168.2.99"
+    os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.2.99"
 
 Setting an Environment Variable in Linux and macOS
 --------------------------------------------------
@@ -22,7 +22,7 @@ In Linux and macOS shells, you can set environment variables using the `export` 
 
 .. code-block:: bash
 
-    export PYNQ_REMOTE_DEVICES-"192.168.2.99"
+    export PYNQ_REMOTE_DEVICES="192.168.2.99"
 
 The code above sets the environment variable for the current shell session. If you use a new terminal or restart your computer you will need to set it again. 
 
@@ -48,13 +48,13 @@ In Windows, there are several ways to set environment variables, depending on wh
 
 .. code-block:: powershell
 
-    set PYNQ_REMOTE_DEVICES-192.168.2.99
+    set PYNQ_REMOTE_DEVICES=192.168.2.99
 
 For Powershell, you can use the ``$env:`` syntax:
 
 .. code-block:: powershell
 
-    $env:PYNQ_REMOTE_DEVICES-"192.168.2.99"
+    $env:PYNQ_REMOTE_DEVICES="192.168.2.99"
 
 Setting an Environment Variable in a Python Virtual Environment
 ---------------------------------------------------------------

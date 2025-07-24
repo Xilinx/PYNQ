@@ -9,7 +9,7 @@ This module includes classes for remote memory management (``RemoteBuffer``), me
 
 Remote devices can be configured through the ``PYNQ_REMOTE_DEVICES`` environment variable, which should contain a comma-separated list of IP addresses for target devices. Additionally, separate devices can be specified by directly passing the IP address to the ``RemoteDevice`` constructor.
 
-The ``RemoteDevice`` class is complimented by ``PYNQ.cpp`` which operates on the target device, providing a C++ implementation of the PYNQ API. For more details on the C++ implementation, see the :ref:`cppindex` module documentation.
+The ``RemoteDevice`` class is complemented by ``PYNQ.cpp`` which operates on the target device, providing a C++ implementation of the PYNQ API. For more details on the C++ implementation, see the :ref:`cppindex` module documentation.
 
 .. automodule:: pynq.pl_server.remote_device
     :members:

@@ -4,7 +4,7 @@ C++ API Usage Examples
 Load a Bitstream
 ----------------
 
-To write a bitstream file to the /lib/firmware directory, you can use the `Device` class to write the file directly.
+To write a bitstream file to the ``/lib/firmware directory``, you can use the `Device` class to write the file directly.
 
 .. code-block:: cpp
 

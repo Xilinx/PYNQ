@@ -10,9 +10,9 @@ Unlike Classic PYNQ, there are no pre-built PYNQ.remote SD card images available
 
 **Prerequisites:**
 
+- Host machine with Ubuntu 2022.4 OS installed
 - AMD Tools: `Vivado, Vitis, and Petalinux version 2024.1 <https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2024-1.html>`_
 - `Docker installation <https://docs.docker.com/engine/install/>`_
-- Supported Linux distribution (see `UG973 <https://docs.amd.com/r/2024.1-English/ug973-vivado-release-notes-install-license/Supported-Operating-Systems>`_)
 
 **Using the Docker-base build flow:**
 
