@@ -146,5 +146,3 @@ Change it to:
 The ``[:]`` slice is necessary because PYNQ.remote's RemoteBuffer works slightly differently than PYNQ's PynqBuffer, and PIL won't be able to read the data correctly otherwise.
 
 Once these changes are made, you should be able to run through the entire notebook and resize images completely remotely using PYNQ.remote!
-
-* Remember to replace ``192.168.0.238`` with your target device's actual IP address.
