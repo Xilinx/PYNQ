@@ -34,9 +34,7 @@ If you want to install the latest development version of PYNQ, you can clone the
 
 .. code-block:: bash
 
-   git clone https://github.com/Xilinx/PYNQ.git
-   cd PYNQ
-   pip install .
+   pip install git+https://github.com/Xilinx/PYNQ.git
 
 Step 2: Prepare and Boot the Target Device 
 ------------------------------------------
