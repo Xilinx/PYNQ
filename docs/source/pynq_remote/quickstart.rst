@@ -3,7 +3,7 @@
 Quick Start
 ===========
 
-This page shows the fastest way to get up and running with PYNQ.remote. We will use the ZCU104 and the `PYNQ-HelloWorld <https://github.com/Xilinx/PYNQ-HelloWorld>`_ overlay as an example, but the steps are similar for other supported AMD adaptive SoCs and overlays. See :doc:`status` for a list of supported platforms.
+This page how to get started with PYNQ.remote. We will use the ZCU104 and the `PYNQ-HelloWorld <https://github.com/Xilinx/PYNQ-HelloWorld>`_ overlay as an example, but the steps are similar for other supported AMD adaptive SoCs and overlays.
 
 Prerequisites
 -------------
@@ -57,7 +57,7 @@ First, install the required dependencies in your Python virtual environment:
 
 .. code-block:: bash
 
-   pip install jupyterlab matplotlib pillow
+   pip install jupyterlab matplotlib pillow wheel
 
 Next, install the PYNQ-HelloWorld overlay. You need to set the ``BOARD`` environment variable before installation so that PYNQ-Utils knows which board you are targeting:
 
@@ -122,7 +122,7 @@ Change it to:
    import matplotlib.pyplot as plt
    %matplotlib inline
    import os
-   os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.0.238"  # Replace with your board's IP
+   os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.2.99"  # Replace with your board's IP
    from pynq import allocate, Overlay
 
 **2. Fix the image display for RemoteBuffer**
