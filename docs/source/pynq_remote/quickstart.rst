@@ -42,7 +42,7 @@ Step 2: Prepare and Boot the Target Device
 ------------------------------------------
 
 * Create a PYNQ.remote image using the instructions in :doc:`image_build`.
-* Flash the image to your SD card.
+* Flash the image to your SD card (see :doc:`../appendix/sdcard` for instructions on how to flash the image).
 * Insert the SD card and power on the device (make sure it is connected to your network).
 * Wait for the device to boot up. You can check the device's IP address using a serial console (e.g. `minicom <https://help.ubuntu.com/community/Minicom>`_ or `PuTTY <https://www.putty.org/>`_) or by checking your router's DHCP client list.
 
@@ -50,33 +50,103 @@ Step 2: Prepare and Boot the Target Device
 
     Your board must be connected to the same network as your host machine. If you are using a direct connection, you may need to set a static IP address on both the host and the target device.
 
-Step 3: Connect from Host and Run Your Code
--------------------------------------------
+Step 3: Install and Run PYNQ-HelloWorld
+---------------------------------------
 
-In your Python environment on the host, you can now use PYNQ.remote.
+In this step, we'll install the PYNQ-HelloWorld overlay and run it remotely using PYNQ.remote.
 
-PYNQ.remote aims to provide an identical API to classic PYNQ. This means that you should be able to run your existing PYNQ code with minimal changes. However, not all PYNQ features are supported yet, and so some adjustments may be necessary. See :doc:`status` for a list of supported features.
-
-In order for PYNQ to connect to the remote device, you need to specify the IP address of the target. The simplest way to do this is with the use of the ``PYNQ_REMOTE_DEVICES`` environment variable, which should be set as a string containing your board's IP address. For example:
+First, install the required dependencies in your Python virtual environment:
 
 .. code-block:: bash
 
-   PYNQ_REMOTE_DEVICES="192.168.2.99"
+   pip install jupyterlab matplotlib pillow
 
-This can be set in your shell or in your Python script **before** importing the ``pynq`` package. For more information on how to set environment variables, refer to :ref:`env_variables`.
+Next, install the PYNQ-HelloWorld overlay. You need to set the ``BOARD`` environment variable before installation so that PYNQ-Utils knows which board you are targeting:
 
-Once the environment variable is set, you can use the ``pynq`` package as usual. For example, to load an overlay and print the ``ip_dict``, you can do the following:
+**Windows:**
+
+.. code-block:: bash
+
+   # PowerShell:
+   $env:BOARD="ZCU104"; pip install --no-build-isolation pynq-helloworld
+   
+   # Command Prompt:
+   set BOARD=ZCU104 && pip install --no-build-isolation pynq-helloworld
+
+**Linux/macOS:**
+
+.. code-block:: bash
+
+   BOARD=ZCU104 pip install --no-build-isolation pynq-helloworld
+
+After installing the package, download the notebooks and overlay files:
+
+.. code-block:: bash
+
+   pynq get-notebooks pynq-helloworld -d ZCU104
+
+The ``-d`` argument is required for PYNQ's get-notebooks function to know where to find the notebooks and overlay files.
+
+After installation, the notebooks will be available in the current folder under ``pynq-notebooks/pynq-helloworld``. Start Jupyter Lab to access them:
+
+.. code-block:: bash
+
+   jupyter lab
+
+   # On some shells it may be necessary to use:
+   python -m jupyterlab
+
+Modifying the Notebook for PYNQ.remote
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you open the ``resizer_pl.ipynb`` notebook, you need to make two changes to make it compatible with PYNQ.remote:
+
+**1. Add the environment variable setting**
+
+Find the cell with the imports and modify it to include the ``PYNQ_REMOTE_DEVICES`` environment variable:
 
 .. code-block:: python
 
-    import os 
-    os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.2.99"
+   # Original cell:
+   from PIL import Image
+   import numpy as np
+   import matplotlib.pyplot as plt
+   %matplotlib inline
+   from pynq import allocate, Overlay
 
-    from pynq import Overlay
-    ol = Overlay('my_overlay.xsa')
-    print(ol.ip_dict)
+Change it to:
 
-* Replace ``192.168.2.99`` with your target device’s IP address.
-* Replace ``my_overlay.xsa`` with your overlay
+.. code-block:: python
 
-That's it! You can now run your PYNQ code remotely, just like on a classic PYNQ board.
+   # Modified cell:
+   from PIL import Image
+   import numpy as np
+   import matplotlib.pyplot as plt
+   %matplotlib inline
+   import os
+   os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.0.238"  # Replace with your board's IP
+   from pynq import allocate, Overlay
+
+**2. Fix the image display for RemoteBuffer**
+
+Find the cell that creates the PIL Image from the output buffer and modify it to work with PYNQ.remote's RemoteBuffer:
+
+.. code-block:: python
+
+   # Original cell:
+   run_kernel()
+   resized_image = Image.fromarray(out_buffer)
+
+Change it to:
+
+.. code-block:: python
+
+   # Modified cell:
+   run_kernel()
+   resized_image = Image.fromarray(out_buffer[:])
+
+The ``[:]`` slice is necessary because PYNQ.remote's RemoteBuffer works slightly differently than PYNQ's PynqBuffer, and PIL won't be able to read the data correctly otherwise.
+
+Once these changes are made, you should be able to run through the entire notebook and resize images completely remotely using PYNQ.remote!
+
+* Remember to replace ``192.168.0.238`` with your target device's actual IP address.
