@@ -3,9 +3,6 @@
 PYNQ.remote 
 ===========
 
-.. note::
-      PYNQ.remote is currently in **beta**. Active development is ongoing, and some PYNQ features may have limited support. The API is subject to change in future releases. For more information on currently supported functionality and our development roadmap, see the :ref:`roadmap`.
-
 .. toctree::
    :maxdepth: 1
    :caption: Contents
@@ -13,11 +10,22 @@ PYNQ.remote
    pynq_remote/quickstart
    pynq_remote/image_build
    pynq_remote/remote_device
-   pynq_remote/cppindex
+   pynq_remote/cpp_index
+   pynq_remote/status
    pynq_remote/env_variables
-   pynq_remote/roadmap
 
 PYNQ.remote is an extension to the PYNQ framework that enables remote control of AMD's FPGA-based devices. By moving the Python API to the host and communicating with the target device via gRPC, PYNQ.remote brings powerful new deployment, integration, and scalability features to PYNQ users, while preserving the familiar PYNQ user experience.
+
+**Introducing PYNQ.remote**
+
+PYNQ.remote provides two key benefits to PYNQ. First, by moving the Python API to the host machine we create opportunities to integrate PYNQ into host-based hardware and software workflows. This allows users to take full advantage of the Python ecosystem on the host, while still controlling AMD's adaptive SoC devices remotely. This is particularly useful for applications that require high-performance computing, such as AI inference, data processing, or real-time visualisations. This allows the host to handle complex computations, while the FPGA can focus on specialised tasks. 
+
+Second, by using a minimal Petalinux image the target device software requirements are reduced to a PYNQ meta-layer and a minimal root file system. Additionally, we have implemented a PYNQ C++ API called `PYNQ.cpp` that runs on the target device, which provides a low-level interface to the hardware. Together, this provides a greatly reduced image size (small enough to fit on a RAM disk) and allows deployment with a minimal software footprint. This is ideal for when resources are constrained, such as edge computing or IoT applications.
+
+The diagram below illustrates the key differences between Classic PYNQ and PYNQ.remote. 
+
+.. image:: ./images/pynqremote_block_diagram.png
+      :align: center
 
 **Key Features**
 
@@ -35,4 +43,7 @@ PYNQ.remote is an extension to the PYNQ framework that enables remote control of
 
 **Getting Started**
 
-To get started with PYNQ.remote, follow the quickstart guide in :ref:`quickstart`. This will walk you through setting up your environment, deploying the remote image, and running your first remote application.
+To get started with PYNQ.remote, follow the :ref:`quickstart` guide. This will walk you through setting up your environment, deploying the remote image, and running your first remote application.
+
+.. note::
+      PYNQ.remote is currently in **beta**. Active development is ongoing, and some PYNQ features may have limited support. The API is subject to change in future releases. For more information on currently supported functionality see :ref:`status`.

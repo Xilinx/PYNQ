@@ -9,8 +9,8 @@ Requirements for building PYNQ.cpp
 
 Requirements for using PYNQ.cpp on SoC devices.
 -----------------------------------------------
-- Embedded Linux with FPGA Manager support (``/sys/class/fpga_manager/``)  
-- Root access on device (for device & filesystem operations)
+- Compatible Petalinux image with FPGA Manager support enabled.
+- Root access on device (for device & filesystem operations).
 - Embedded XRT 2.17 installed on the device.
 
 Build Instructions

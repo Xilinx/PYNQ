@@ -85,8 +85,8 @@ improve Adaptive Computing system design:
    pynq_libraries
    overlay_design_methodology
    pynq_sd_card
-   pynq_package
    pynq_remote
+   pynq_package
    faqs
    appendix
    changelog
