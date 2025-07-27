@@ -25,6 +25,7 @@ from pynq.remote import (
 )
 
 import grpc
+import ipaddress
 
 PYNQ_PORT = 7967
 BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
@@ -495,8 +496,8 @@ class RemoteDevice(Device):
             shape,
             dtype,
             stub=self._stub['buffer'],
+            device=self,
             buffer_id=buffer_id,
-            coherent=False,
         )
         return ar
             
@@ -717,107 +718,90 @@ class RemoteMMIO:
         if response.msg:
             raise RuntimeError(response.msg)
 
+
 class RemoteBuffer(np.ndarray):
-    """NumPy-compatible buffer for remote device memory
+    """A subclass of numpy.ndarray which represents memory allocated
+    on a remote device. The buffer operates on a local cache and
+    requires explicit synchronization with the remote device using
+    `sync_to_device` and `sync_from_device`. The DMA driver handles
+    this automatically when using the `transfer` method 
     
-    Extends numpy.ndarray to provide transparent access to memory buffers
-    allocated on remote PYNQ devices. Supports all standard numpy operations
-    while handling data transfer via gRPC automatically.
+    As physically contiguous memory is a limited resource on remote 
+    devices, it is strongly recommended to free the underlying 
+    buffer with `del` when the buffer is no longer needed. 
+    Alternatively a `with` statement can be used to automatically 
+    free the memory at the end of the scope.
+
+    This class should not be constructed directly and instead
+    created using `RemoteDevice.allocate()`.
+
+    Attributes
+    ----------
+    device_address: int
+        The physical address of the buffer on the remote device.
+    coherent: bool
+        Whether the buffer is cache coherent. Always set to False for RemoteBuffer.
+    stub: grpc stub
+        gRPC stub for buffer operations.
+    buffer_id: int
+        Unique identifier for the remote buffer.
+    freed: bool
+        Indicates whether the buffer has been freed.
+    device: RemoteDevice
+        The remote device associated with this buffer.
+
     """
 
-    def __new__(
-        cls, *args, stub, buffer_id, coherent=False, **kwargs
-        ):
-        """Create new RemoteBuffer instance
-        
+    def __new__(cls, shape, dtype, stub, buffer_id, device=None, coherent=False):
+        """
+        Create a new RemoteBuffer instance.
+
         Parameters
         ----------
-        *args
-            Positional arguments passed to numpy.ndarray
+        shape : tuple
+            Shape of the buffer.
+        dtype : str or numpy.dtype
+            Data type of the buffer.
         stub : grpc stub
-            gRPC stub for buffer operations
+            gRPC stub for buffer operations.
         buffer_id : int
-            Unique identifier for remote buffer
+            Unique identifier for the remote buffer.
+        device : RemoteDevice, optional
+            The remote device associated with this buffer. Default is None.
         coherent : bool, optional
-            Whether buffer is cache coherent. Default is False.
-        **kwargs
-            Keyword arguments passed to numpy.ndarray
+            Whether the buffer is cache coherent. Default is False.
+
+        Returns
+        -------
+        RemoteBuffer
+            A new instance of the RemoteBuffer class.
         """
-        self = super().__new__(cls, *args, **kwargs)
+        self = super().__new__(cls, shape, dtype)
         self.stub = stub
         self.buffer_id = buffer_id
-        self.coherent = coherent
+        self.coherent = False  # Always set to False for RemoteBuffer
         self.freed = False
-        self.CHUNK_SIZE = 2*1024*1024  # 2MB chunks
+        self.device = device
         return self
 
     def __array_finalize__(self, obj):
-        if isinstance(obj, RemoteBuffer) and obj.coherent is not None:
-            self.stub = obj.stub
+        if isinstance(obj, RemoteBuffer):
             self.coherent = obj.coherent
+            self.stub = obj.stub
             self.buffer_id = obj.buffer_id
+            obj.device = obj.device
+        else:
+            self.stub = None
+            self.buffer_id = None
+            self.coherent = None
 
     def __del__(self):
-        try:
-            self.freebuffer()
-        except Exception as e:
-            pass
-
-    def __setitem__(self, key, value):
-        if key == slice(None, None, None):  # equivalent to [:]
-            self.__set_data(value)
-        else:
-            data = self[:]
-            data[key] = value
-            self.__set_data(data)
-
-    def __getitem__(self, key):
-        request = buffer_pb2.BufferReadRequest(buffer_id=self.buffer_id)
-        response_stream = self.stub.read(request)
-        return self.__get_data(key, response_stream)
-        
-    def __set_data(self, data):
-        if not isinstance(data, np.ndarray) or data.dtype != self.dtype:
-            data = np.asarray(data, dtype=self.dtype)
-        
-        if data.shape != self.shape:
-            data = data.reshape(self.shape)
-        data_bytes = data.tobytes()
-        total_size = len(data_bytes)
-        
-        # Create an iterator that yields requests
-        def request_iterator():
-            for i in range(0, total_size, self.CHUNK_SIZE):
-                chunk = data_bytes[i:i+self.CHUNK_SIZE]
-                yield buffer_pb2.BufferWriteRequest(
-                    buffer_id=self.buffer_id,
-                    data=chunk
-                )
-        
-        response = self.stub.write(request_iterator())
-        if response.msg:
-            raise RuntimeError(response.msg)
-
-    def __get_data(self, key, stream):
-        result = np.zeros(self.shape, dtype=self.dtype)
-        offset = 0
-        
-        for response in stream:
-            chunk = np.frombuffer(response.data, dtype=self.dtype)
-            chunk_size = len(chunk)
-            result.flat[offset:offset+chunk_size] = chunk
-            offset += chunk_size
-        return result[key]
-
-    def __repr__(self):
-        return f"RemoteBuffer(buffer_id={self.buffer_id}, dtype={self.dtype}, size={self.size}, shape={self.shape})"
-
-    def __str__(self):
-        data = self[:]
-        return str(data)
-
-    def __len__(self):
-        return self.size
+        if hasattr(self, 'freed') and not self.freed:
+            try:
+                self.freebuffer()
+            except Exception:
+                pass
+    
 
     def freebuffer(self):
         """Free the remote buffer memory
@@ -832,6 +816,59 @@ class RemoteBuffer(np.ndarray):
             )
             if response.msg:
                 raise RuntimeError(response.msg)
+
+    def flush(self):
+        """Flush local changes to the remote buffer."""
+        data_bytes = self.tobytes()
+        total_size = len(data_bytes)
+
+        def request_iterator():
+            CHUNK_SIZE = 2 * 1024 * 1024  # 2MB chunks
+            for i in range(0, total_size, CHUNK_SIZE):
+                chunk = data_bytes[i:i + CHUNK_SIZE]
+                yield buffer_pb2.BufferWriteRequest(
+                    buffer_id=self.buffer_id,
+                    data=chunk
+                )
+
+        response = self.stub.write(request_iterator())
+        if response.msg:
+            raise RuntimeError(response.msg)
+
+        # Perform a FlushRequest to sync PS and PL
+        response = self.stub.flush(
+            buffer_pb2.FlushRequest(buffer_id=self.buffer_id)
+        )
+        if response.msg:
+            raise RuntimeError(response.msg)
+
+    def invalidate(self):
+        """Invalidate the local cache and sync from the remote buffer."""
+        # Perform an InvalidateRequest to sync PS and PL
+        response = self.stub.invalidate(
+            buffer_pb2.InvalidateRequest(buffer_id=self.buffer_id)
+        )
+        if response.msg:
+            raise RuntimeError(response.msg)
+
+        # Perform a BufferReadRequest to update the local cache
+        request = buffer_pb2.BufferReadRequest(buffer_id=self.buffer_id)
+        response_stream = self.stub.read(request)
+
+        data_bytes = b""
+        for response in response_stream:
+            data_bytes += response.data
+
+        flat_data = np.frombuffer(data_bytes, dtype=self.dtype)
+        self[:] = flat_data.reshape(self.shape)
+
+    def sync_to_device(self):
+        """Copy the contents of the local buffer to the remote device."""
+        self.flush()
+
+    def sync_from_device(self):
+        """Copy the contents of the remote buffer to the local buffer."""
+        self.invalidate()
 
     @property
     def cacheable(self):
@@ -858,38 +895,12 @@ class RemoteBuffer(np.ndarray):
         if response.msg:
             raise RuntimeError(response.msg)
         return response.address
-
-    @property
-    def nbytes(self):
-        return int(self.size * self.dtype.itemsize)
-
-    def flush(self):
-        if not self.coherent:
-            response = self.stub.flush(
-                buffer_pb2.FlushRequest(buffer_id=self.buffer_id)
-            )
-            if response.msg:
-                raise RuntimeError(response.msg)
-        
-    def invalidate(self):
-        if not self.coherent:
-            response = self.stub.invalidate(
-                buffer_pb2.InvalidateRequest(buffer_id=self.buffer_id)
-            )
-            if response.msg:
-                raise RuntimeError(response.msg)
-
-    def sync_to_device(self):
-        self.flush()
-
-    def sync_from_device(self):
-        self.invalidate()
-
+    
     def __enter__(self):
+        """Enter the runtime context related to this object."""
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Exit the runtime context and release the buffer."""
         self.freebuffer()
-
-    def __array__(self):
-        return np.array(self[:])
+        return 0
