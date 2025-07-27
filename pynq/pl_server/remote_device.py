@@ -175,11 +175,11 @@ class RemoteDevice(Device):
             devices = [RemoteDevice(i, ip_list[i]) for i in range(num)]
             return devices
 
-    def __init__(self, index, ip_addr, tag="remote{}"):
+    def __init__(self, index=0, ip_addr=None, port=PYNQ_PORT, tag="remote{}"):
         super().__init__(tag.format(index))
         self.name = tag.format(index)
         self.ip_addr = ip_addr
-        self.port = PYNQ_PORT
+        self.port = port
         self.client = GrpcChannel(self.ip_addr, self.port)
         self._stub = {
             'device': remote_device_pb2_grpc.RemoteDeviceStub(self.client.channel),
@@ -188,10 +188,21 @@ class RemoteDevice(Device):
         }
 
         self.arch = self.get_arch()
+        self.name = self.get_board_name()
 
         self.capabilities = {
             "REMOTE": True,
         }
+
+    def get_board_name(self):
+        board_name_path = "/proc/device-tree/chosen/pynq_board"
+        response = self.exists_file(board_name_path)
+        if response.exists:
+            content = self.read_file(board_name_path)
+            return content.decode('utf-8').strip('\x00')
+        else:
+            return "Unknown"
+        
 
     def get_arch(self):
         """Determine the architecture of the remote device
@@ -460,7 +471,7 @@ class RemoteDevice(Device):
                         "don't match."
                     )
 
-    def allocate(self, shape, dtype, cacheable=0, **kwargs):
+    def allocate(self, shape, dtype, cacheable=1, **kwargs):
         """Allocate memory buffer on the remote device
 
         Parameters
@@ -471,10 +482,11 @@ class RemoteDevice(Device):
             Data type of the buffer elements  
         cacheable : int, optional
             Whether buffer should be cacheable (0=non-cacheable, 1=cacheable).
-            Default is 0.
+            For remote buffers, this is always set to 1.
         **kwargs
             Additional keyword arguments (currently unused)
         """
+        cacheable = 1  # always cacheable for remote buffers
         elements = 1
         try:
             for s in shape:
