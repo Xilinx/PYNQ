@@ -177,7 +177,10 @@ class RemoteDevice(Device):
 
     def __init__(self, index=0, ip_addr=None, port=PYNQ_PORT, tag="remote{}"):
         super().__init__(tag.format(index))
-        self.name = tag.format(index)
+        try:
+            ipaddress.ip_address(ip_addr)
+        except ValueError:
+            raise ValueError(f"Invalid IP address: {ip_addr}")
         self.ip_addr = ip_addr
         self.port = port
         self.client = GrpcChannel(self.ip_addr, self.port)
