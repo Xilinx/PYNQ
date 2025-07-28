@@ -27,11 +27,10 @@ There are a number of components required in the process of creating an overlay:
   
 While they are conceptually similar, there are differences in the process for 
 building Overlays for different platforms. i.e. Zynq vs. Zynq Ultrascale+ vs. 
-Kria SoM vs. Alveo platforms. Most of the differences relate to the configuration of the 
+Kria SoM. Most of the differences relate to the configuration of the 
 Zynq/Zynq Ultrascale+ PS, and the interfaces between the host processor and the
-programmable logic. E.g. AXI interfaces for ARM & Zynq/Zynq Ultrascale+/Kria SoM, and 
-PCIe for x86|IBM|ARM|etc. for Alveo. Most of the differences will be related to
-the hardware (Programmable logic) design.
+programmable logic. E.g. AXI interfaces for ARM & Zynq/Zynq Ultrascale+/Kria SoM. 
+Most of the differences will be related to the hardware (Programmable logic) design.
 
 This section will give an overview of the process of creating an overlay and
 integrating it into PYNQ, but will not cover the hardware design process in

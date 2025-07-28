@@ -4,9 +4,6 @@ Glossary
 
 A-G
 ===
-  
-  Alveo
-   `Xilinx Alveo™ Data Center accelerator cards <https://www.xilinx.com/products/boards-and-kits/alveo.html>`_ with their ready to go applications deliver a much-needed increase in compute capability, at lowest Total Cost of Ownership (TCO), for the broadest range of workloads.
 
   APSOC
    All Programmable System on Chip
@@ -41,7 +38,7 @@ H-R
    
    
   Pmod Interface
-   The Pmod or `Peripheral Module <http://www.digilentinc.com/Pmods/Digilent-Pmod_%20Interface_Specification.pdf>`_ interface is used to connect low frequency, low I/O pin count peripheral modules to host controller boards.accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.
+   The Pmod or `Peripheral Module <https://digilent.com/reference/_media/reference/pmod/digilent-pmod-interface-specification.pdf>`_ interface is used to connect low frequency, low I/O pin count peripheral modules to host controller boards.accessory boards to add functionality to the platform. e.g. ADC, DAC, I/O interfaces, sensors etc.
 
   (Micro) SD
    Secure Digital (Memory Card standard)

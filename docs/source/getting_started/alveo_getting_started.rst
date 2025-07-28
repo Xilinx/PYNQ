@@ -4,6 +4,11 @@
 Alveo Getting Started Guide
 ***************************
 
+.. warning::
+    Starting from PYNQ v3.1, the Alveo platform is no longer supported.
+    This guide is kept for reference purposes only, and will be removed
+    in a future release. Alveo is still supported in PYNQ v3.0.1 and earlier.
+
 Prerequisites
 =============
 
@@ -25,12 +30,6 @@ Simply install ``pynq`` through PIP
 .. code-block:: bash
     
     pip install pynq
-
-The ``pynq`` python package for XRT-based platforms can be installed whether
-an accelerator card is present or not in the system.
-
-In case needed, please read the :ref:`alveo-extended-setup` section for more 
-detailed instructions.
 
 Get the Introductory Examples
 =============================

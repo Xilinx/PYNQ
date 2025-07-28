@@ -50,7 +50,7 @@ device.
 Link File Processing
 --------------------
 
-In place of xclbin files for Alveo cards your repository can instead contain
+In place of xclbin files your repository can instead contain
 xclbin.link files which provide locations where xclbin files can be downloaded
 for particular shells. For more details on the link format see the 
 :ref:`pynq-utils` documentation. xclbin.link files alongside notebooks will be 

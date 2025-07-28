@@ -13,6 +13,7 @@ Prerequisites
   * Ethernet cable
   * Micro USB cable 
   * Micro-SD card with preloaded image, or blank card (Minimum 8GB recommended)
+    * Get the latest image from `PYNQ.io SD card images <https://www.pynq.io/boards.html>`_
   
 Getting Started Video
 =====================
@@ -36,7 +37,7 @@ Board Setup
    .. image:: ../images/pynqz2_setup.png
       :align: center
 
-  1. Set the ** Boot** jumper to the *SD* position.
+  1. Set the **Boot** jumper to the *SD* position.
      (This sets the board to boot from the Micro-SD card)
    
   2. To power the board from the micro USB cable, set the **Power**
@@ -63,7 +64,7 @@ position to turn on the board. The **Red** LED will come on immediately to
 confirm that the board has power.  After a few seconds, the **Yellow/Green
 / Done** LED will light up to show that the Zynq® device is operational.
 
-After a minute you should see two **Blue ** LEDs and four
+After a minute you should see two **Blue** LEDs and four
 **Yellow/Green** LEDs flash simultaneously. The **Blue** LEDs
 will then turn on and off while the **Yellow/Green** LEDs remain on. The
 system is now booted and ready for use.

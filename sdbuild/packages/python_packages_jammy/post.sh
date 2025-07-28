@@ -10,5 +10,5 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 sudo mkdir -p $script_dir/pre-built/$target_dir
 sudo cp -rf $target/$target_dir/wheels $script_dir/pre-built/$target_dir
 
-# clean cache to save space ~150MB on v2.7
+# clean cache to save space ~150MB on v3.1
 sudo rm -rf $target/$target_dir

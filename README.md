@@ -43,20 +43,6 @@ All board related files including Vivado projects, bitstreams, and example noteb
 
 In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
 
-## Alveo support
-
-Starting from PYNQ version `2.5.1`, Alveo support has also been introduced. It is now possible to use PYNQ to tap into the potential of hardware acceleration in the data center space.
-
-To get PYNQ on an Alveo-enabled system, simply install it through PIP:
-
-```console
-pip install pynq
-```
-
-For Alveo cards, PYNQ currently requires a <a href="https://github.com/Xilinx/XRT" target="_blank">Xilinx Runtime (XRT)</a> version above or equal to `2.3` to be installed in the system. In terms of Operating System, any XRT-supported version of either RedHat/CentOS or Ubuntu can be used.
-
-For more information, please see the Alveo <a href="https://pynq.readthedocs.io/en/latest/getting_started/alveo_getting_started.html" target="_blank">getting started guide</a>.
-
 ## Contribute
 
 Contributions to this repository are welcomed. Please refer to <a href="https://github.com/Xilinx/PYNQ/blob/master/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> 

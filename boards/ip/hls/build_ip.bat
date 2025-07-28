@@ -1,1 +1,1 @@
-for /D %%f in ( * ) do vitis_hls -f %%f\script.tcl
+for /D %%f in ( * ) do vitis-run --mode hls --tcl %%f\script.tcl

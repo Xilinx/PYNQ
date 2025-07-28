@@ -1,7 +1,7 @@
 #   Copyright (c) 2016, Xilinx, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
-
+import os
 from .pynqmicroblaze import PynqMicroblaze
 from .pynqmicroblaze import MicroblazeRPC
 from .pynqmicroblaze import MicroblazeLibrary
@@ -10,6 +10,7 @@ from .dma import DMA
 from .led import LED
 from .rgbled import RGBLED
 from .switch import Switch
+from .axiswitch import StreamSwitch
 from .button import Button
 from .iic import AxiIIC
 from .wifi import Wifi

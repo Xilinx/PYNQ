@@ -26,7 +26,7 @@ Note that 8 pins of the RaspberryPi header are shared with one of the Pmod ports
 
 For details on the PYNQ-Z2 board including reference manual, schematics, 
 constraints file (xdc),
-see the `PYNQ-Z2 webpage <http://www.tul.com.tw/ProductsPYNQ-z2.html>`_
+see the `PYNQ-Z2 webpage <https://www.tulembedded.com/FPGA/ProductsPYNQ-Z2.html>`_
 
 The following overlays are include by default in the PYNQ image for the PYNQ-Z2 board:
 

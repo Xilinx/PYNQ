@@ -1,9 +1,9 @@
 #   Copyright (c) 2016, Xilinx, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
-
 import glob
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -18,13 +18,17 @@ from setuptools.command.build_ext import build_ext
 
 # Requirement
 required = [
-    "pynqutils>=0.0.1",
-    "pynqmetadata>=0.0.1",
+    'pynqmetadata @ git+https://github.com/Xilinx/PYNQ-Metadata.git',
+    'pynqutils @ git+https://github.com/Xilinx/PYNQ-Utils.git',
     "setuptools>=24.2.0",
     "cffi",
     "numpy<2.0",
     "nest_asyncio",
+    'grpcio==1.64.0',
+    'grpcio-tools==1.64.0',
 ]
+
+REMOTE_INSTALL = os.environ.get("PYNQ_REMOTE", False)
 
 # Device family constants
 ZYNQ_ARCH = "armv7l"
@@ -32,9 +36,8 @@ ZU_ARCH = "aarch64"
 if "PYNQ_BUILD_ARCH" in os.environ:
     CPU_ARCH = os.environ["PYNQ_BUILD_ARCH"]
 else:
-    CPU_ARCH = os.uname()[-1]
+    CPU_ARCH = platform.machine()
 CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
-
 
 # Parse version number
 def find_version(file_path):
@@ -104,7 +107,6 @@ extend_pynq_package(
         "pynq/pl_server/default.xclbin",
     ]
 )
-
 
 # Video source files
 _video_src = [
@@ -312,7 +314,8 @@ def backup_notebooks(notebooks_dir):
 
 # Change ownership of the notebook folder
 def change_ownership(notebooks_dir):
-    subprocess.run(["chmod", "-R", "a+rwX", notebooks_dir])
+    if os.name != 'nt':  # Skip on Windows
+        subprocess.run(["chmod", "-R", "a+rwX", notebooks_dir])
 
 
 # Copy all the notebooks
@@ -340,7 +343,7 @@ class BuildExtension(build_ext):
 
     def install_overlays(self):
         board, _ = check_env()
-        if board:
+        if not REMOTE_INSTALL:
             board_folder = "boards/{}".format(board)
             overlay_dirs = find_overlays(board_folder)
             for ol in overlay_dirs:
@@ -352,20 +355,25 @@ class BuildExtension(build_ext):
                     )
 
     def run(self):
-        if CPU_ARCH == ZYNQ_ARCH:
-            self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
-            self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
-        elif CPU_ARCH == ZU_ARCH:
-            self.run_make(
-                "pynq/lib/_pynq/_displayport/", "pynq/lib/video/", "libdisplayport.so"
-            )
-            self.run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/", "libxhdmi.so")
-            self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
-            self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
-            self.run_make("pynq/lib/_pynq/_pcam5c/", "pynq/lib/video/", "libpcam5c.so")
+        if not REMOTE_INSTALL:
+            if CPU_ARCH == ZYNQ_ARCH:
+                self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+                self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
+            elif CPU_ARCH == ZU_ARCH:
+                self.run_make(
+                    "pynq/lib/_pynq/_displayport/", "pynq/lib/video/", "libdisplayport.so"
+                )
+                self.run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/", "libxhdmi.so")
+                self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
+                self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
+                self.run_make("pynq/lib/_pynq/_pcam5c/", "pynq/lib/video/", "libpcam5c.so")
+        else:
+            self.announce("Remote install, skipping native C/C++ builds", level=2)
+
         build_ext.run(self)
-        copy_notebooks()
-        self.install_overlays()
+        if not REMOTE_INSTALL:
+            copy_notebooks()
+            self.install_overlays()
 
 
 pynq_version = find_version("pynq/__init__.py")
@@ -406,26 +414,29 @@ extend_pynq_package(
         "pynq/metadata",
         "pynq/devices",
         "pynq/lib/tests",
+        "pynq/remote",
     ]
 )
 
-
-if CPU_ARCH == ZYNQ_ARCH:
-    ext_modules = [
-        Extension(
-            "pynq.lib._video",
-            video,
-            include_dirs=[
-                "pynq/lib/_pynq/_video",
-                "pynq/lib/_pynq/_video/bsp/vtc",
-                "pynq/lib/_pynq/_video/bsp/gpio",
-                "pynq/lib/_pynq/common/armv7l",
-            ]
-            + _bsp_includes,
-        ),
-    ]
+if REMOTE_INSTALL:
+    ext_modules = [] # no extension modules for remote install
 else:
-    ext_modules = []
+    if CPU_ARCH == ZYNQ_ARCH:
+        ext_modules = [
+            Extension(
+                "pynq.lib._video",
+                video,
+                include_dirs=[
+                    "pynq/lib/_pynq/_video",
+                    "pynq/lib/_pynq/_video/bsp/vtc",
+                    "pynq/lib/_pynq/_video/bsp/gpio",
+                    "pynq/lib/_pynq/common/armv7l",
+                ]
+                + _bsp_includes,
+            ),
+        ]
+    else:
+        ext_modules = []
 
 
 setup(

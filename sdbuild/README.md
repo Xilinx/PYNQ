@@ -1,34 +1,124 @@
 # PYNQ Image Building
 
-This repository constructs a PYNQ image from the Ubuntu repositories and the
-sources of the other constituent parts.
+This repository builds a PYNQ image from Ubuntu and the sources of its constituent
+components. Starting with the PYNQ v3.1 release, Docker is the recommended way to 
+build PYNQ images. Docker simplifies setup by managing dependencies and environment 
+configuration within an isolated container.
 
-## Choosing a VM environment
+## Quick Start: Building with Docker
 
-It's highly recommended to run these scripts inside of a virtual machine. The
-image building requires doing a lot of things as root and while every effort
-has been made to ensure it doesn't break the world this is far from guaranteed.
-This flow must be run in a Ubuntu based Linux distribution and has been tested
-on Ubuntu 16.04 and Ubuntu 18.04. Other Linux versions might work but may
-require different or additional packages. The build process is optimised for
-4-cores and can take up to 50 GB of space.
+### 1. Prerequisites
 
-## Quick start
- * Ensure that sudo is configured for passwordless use and that proxy settings
-   and other environment variables are forwarded correctly.
- * Run `scripts/setup_host.sh`
- * Install Petalinux (e.g. 2022.1)
- * Ensure that Petalinux is on the PATH
- * Ensure that the prebuilt pynq sdist and rootfs tarballs are in the sdbuild/prebuilt folder
- * Run `make BOARDDIR=<boards_directory>` to recreate all board images
- * Wait for a couple of hours
+To use the Docker-based flow, ensure the following tools are installed **on your host machine**:
+
+* **Vivado**, **Vitis**, and **Petalinux**, version 2024.1
+* A supported Linux distribution (see [UG973](https://docs.amd.com/r/2024.1-English/ug973-vivado-release-notes-install-license/Supported-Operating-Systems))
+* **Docker** (Install via the [official instructions](https://docs.docker.com/engine/install/))
+
+> ⚠️ AMD tools must be installed on the host system, not inside the Docker container.
+
+### 2. Clone the Repository and Build the Docker Image
+
+```sh
+git clone --recursive https://github.com/Xilinx/PYNQ.git PYNQ
+cd PYNQ/sdbuild
+docker build \
+  --build-arg USERNAME=$(whoami) \
+  --build-arg USER_UID=$(id -u) \
+  --build-arg USER_GID=$(id -g) \
+  -t pynqdock:latest .
+```
+
+These `--build-arg` values ensure that any files created inside the container will
+be owned by your user on the host system, helping to avoid permission issues.
+
+### 3. Run the Docker Container
+
+Before running the container, make sure you know where Vivado and Petalinux are 
+installed on your host. For example:
+
+* Vivado: `/tools/Xilinx`
+* Petalinux: `/home/user/petalinux`
+
+Then, from within the PYNQ repo top-level directory, you can start the container as follows:
+
+```sh
+docker run \
+  --init \
+  --rm \
+  -it \
+  -v /tools/Xilinx:/tools/Xilinx:ro \
+  -v /home/user/petalinux:/home/user/petalinux:ro \
+  -v $(pwd):/workspace \
+  --name pynq-sdbuild-env \
+  --privileged \
+  pynqdock:latest \
+  /bin/bash
+```
+
+Notes:
+
+* `-v $(pwd):/workspace` mounts your local PYNQ repo inside the container.
+* The `:ro` option mounts tool directories read-only.
+* `--privileged` is required for parts of the build process.
+
+### 4. Build the PYNQ Image
+
+Inside the container, first set up the tool environment:
+
+```sh
+source /tools/Xilinx/Vivado/2024.1/settings64.sh
+source /home/user/petalinux/settings.sh
+```
+
+Ensure that the prebuilt pynq sdist and rootfs tarballs are in the `sdbuild/prebuilt` 
+folder, then build your image:
+
+```
+cd sdbuild
+make BOARDS=ZCU104 # Replace ZCU104 with the board you'd like to target.
+```
+
+## Known Limitations
+
+Rebuilding the PYNQ source distribution (SDIST) currently does not work inside Docker 
+due to limitations in the Vitis tools. If you need to rebuild the SDIST, we recommend 
+using a virtual machine as described below.
+
+## VM-Based Setup (Alternative)
+
+If Docker is unavailable or you need to rebuild the SDIST, you can run the build process
+inside a supported Ubuntu-based VM (e.g. Ubuntu 22.04). The image building requires doing
+a lot of things as root and while every effort has been made to ensure it doesn't break
+the world this is far from guaranteed. This flow must be run in a Ubuntu based Linux 
+distribution and has been tested on Ubuntu 22.04. Other Linux versions might work but may 
+require different or additional packages. The build process is optimised for 4-cores and 
+can take up to 100 GB of space.
+
+### Quick Steps
+
+1. Ensure that sudo is configured for passwordless use and that proxy settings and other environment variables are forwarded correctly.
+2. Run the setup script:
+
+   ```sh
+   scripts/setup_host.sh
+   ```
+3. Install Petalinux (2024.1) and ensure it is on your `PATH`
+4. Download the prebuilt `pynq_sdist.tar.gz` and `pynq_rootfs.<arch>.tar.gz` and place them in `sdbuild/prebuilt/`
+5. Build your image:
+
+   ```sh
+   make BOARDDIR=<boards_dir>
+   ```
+
+> The full build may require up to **50 GB** of disk space and a 4-core machine is recommended.
 
 ## Detailed host setup
 
-The `setup_host.sh` script install a set of packages required either for Vivado
+The `setup_host.sh` script installs a set of packages required either for Vivado
 or the other build tools. It installs crosstool-ng which is not included in the
-ubuntu repository and an up-to-date and slightly patched version of QEMU which
-fixes some race conditions in the ubuntu-shipped version. See the source of the
+Ubuntu repository and an up-to-date and slightly patched version of QEMU which
+fixes some race conditions in the Ubuntu-shipped version. See the source of the
 script for more details in what exactly needs to be done to configure your own
 environment if the script proves insufficient. Also, make sure you have the 
 appropriate Vivado licenses to build for your target board, in particular 
@@ -45,8 +135,8 @@ PYNQ packages such as Jupyter and the Microblaze compiler.
 ## Initial bootstrap
 
 The `ubuntu` folder contains all of the files for the initial bootstrap of the
-Ubuntu root filesystem. For this release we are targeting the 18.04 _Bionic
-Beaver_ release but other versions can be added here if desired. The `bionic`
+Ubuntu root filesystem. For this release we are targeting the 22.04 _Jammy Jellyfish_ 
+release but other versions can be added here if desired. The `jammy`
 folder contains subfolders for the `arm` and `aarch64` architectures each
 containing a `multistrap` config file, a set of patches to apply to the
 filesystem and a `config` file listing the packages to be installed.
@@ -70,7 +160,7 @@ all of which are optional:
    cleans up any temporary files. The chroot location is passed as the first
    argument.
 
-Scripts should not polluted their current working directory instead using the
+Scripts should not pollute their current working directory instead using the
 location specified by `$BUILD_ROOT` for all temporary files. This is also the
 recommend place for the makefile to deposit files for the bash scripts to
 subsequently use. Each package script is passed `ARCH` and `PYNQ_BOARDNAME`
@@ -161,7 +251,10 @@ custom notebooks or Python packages if desired for your board.
 
 #### (1) Collect a prebuilt board-agnostic root filesystem tarball and a prebuilt PYNQ source distribution.
 
-Starting in PYNQ v3.0, by default the SD card build flow expects a prebuilt root filesystem and a PYNQ source distribution to speedup and simplify user rebuilds of SD card images. These binaries can be found at [the PYNQ boards page](https://www.pynq.io/boards.html) and copied into the sdbuild prebuilt folder
+Starting in PYNQ v3.0, by default the SD card build flow expects a prebuilt root filesystem 
+and a PYNQ source distribution to speedup and simplify user rebuilds of SD card images. 
+These binaries can be found at [the PYNQ boards page](https://www.pynq.io/boards.html)
+and copied into the sdbuild prebuilt folder
 
 ```bash
 # For rebuilding all SD cards, both arm and aarch64 root filesystems
@@ -212,7 +305,9 @@ To generate the Petalinux BSP for future use:
 make bsp BOARDDIR=<absolute_path>/myboards
 ```
 
-To use a previously built PYNQ source distribution tarball and/or rootfs, instead of moving the files into the prebuilt folder, you can specify the `PYNQ_SDIST` and `PYNQ_ROOTFS` environment variables
+To use a previously built PYNQ source distribution tarball and/or rootfs, instead of 
+moving the files into the prebuilt folder, you can specify the `PYNQ_SDIST` and 
+`PYNQ_ROOTFS` environment variables
 
 ```Makefile
 make PYNQ_SDIST=<sdist tarball path> PYNQ_ROOTFS=<rootfs tarball path>

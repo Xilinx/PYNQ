@@ -31,6 +31,7 @@
  # 2.6   yrq 11/06/2019 update to 2020.1
  # 2.70  mr  05/17/2021 update to 2020.2
  # 2.80  mr  02/09/2022 update to 2022.1
+ # 3.1   jg  20/06/2024 update to 2024.1
  #
  # </pre>
  #
@@ -57,7 +58,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2022.1
+set scripts_vivado_version 2024.1
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {

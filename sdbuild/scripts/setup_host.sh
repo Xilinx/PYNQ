@@ -9,11 +9,13 @@ script_dir=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 # Install a bunch of packages we need
 
 if [ $(lsb_release -rs) == "18.04" ]; then
-    rel_deps="libncurses5-dev lib32ncurses5"
+    rel_deps="libncurses5-dev lib32ncurses5 libidn11 zlib1g:i386"
 elif [ $(lsb_release -rs) == "20.04" ]; then
-    rel_deps="libncurses6 lib32ncurses6"
+    rel_deps="libncurses6 lib32ncurses6 libidn11 zlib1g:i386"
+elif [ $(lsb_release -rs) == "22.04" ]; then
+    rel_deps="dnsutils"
 else
-    echo "Error: Please use Ubuntu 20.04 or Ubuntu 18.04."
+    echo "Error: Please use Ubuntu 22.04, Ubuntu 20.04 or Ubuntu 18.04."
     exit 1
 fi
 
@@ -53,14 +55,12 @@ libc6-dev
 chrpath
 socat
 zlib1g-dev
-zlib1g:i386
 unzip
 rsync
 python3-pip
 gcc-multilib
 xterm
 net-tools
-libidn11
 ninja-build
 python3-testresources
 ${rel_deps}

@@ -5,12 +5,11 @@ PYNQ SD Card image
 ******************
 
 This page will explain how SD card images can be built for PYNQ
-embedded platforms (Zynq, Zynq Ultrascale+, Zynq RFSoC). SD card images are
-not used with Alveo and other PCI-express connected platforms. For those
-datacenter platforms, only PYNQ software is installed on the host OS. 
+embedded platforms (Zynq, Zynq Ultrascale+, Zynq RFSoC). 
 
 Note: the PYNQ images for supported boards are provided as precompiled 
-downloadable SD card images and do not need rebuilt.  The SD card build flow is
+`downloadable SD card images <https://www.pynq.io/boards.html>`_ and do 
+not need rebuilt.  The SD card build flow is
 only required to modify SD cards' contents or target a new board.
 
 Specifically, The SD card build flow will create the BOOT.bin, the u-boot
@@ -35,89 +34,106 @@ Ubuntu OS are listed below:
 ================  ==================
 Supported OS      Code name
 ================  ==================   
-Ubuntu 18.04       Bionic
-Ubuntu 20.04       Focal
+Ubuntu 22.04       Jammy
 ================  ==================
 
-Use Vagrant to prepare Ubuntu OS
---------------------------------
-If you do not have an Ubuntu enabled machine, you cam also prepare a Ubuntu virtual 
-machine (VM) on your host OS . We provide in our repository a *vagrant* file 
-that can help you install the Ubuntu VM on your host OS using the following steps:
+Use Docker to prepare the build environment
+-------------------------------------------
+Starting with the PYNQ v3.1 release, Docker is the recommended way to build PYNQ images. 
+Docker simplifies setup by managing dependencies and environment configuration within an 
+isolated container.
 
-  1. Download the `vagrant software <https://www.vagrantup.com/>`_ and 
-     `Virtual Box <https://www.virtualbox.org/>`_. Install them on your host OS.
-  2. In your host OS, open a terminal program. Locate your PYNQ repository, 
-     where the vagrant file is stored.
+If you do not have a supported Ubuntu machine, you can use Docker to create an isolated 
+build environment on your host OS using the following steps:
+
+  1. Install Docker on your host OS by following the 
+     `official Docker installation instructions <https://docs.docker.com/engine/install/>`_.
+
+  2. Install the required AMD tools on your host OS (not inside Docker):
+     
+     * **Vivado**, **Vitis**, and **PetaLinux**, version 2024.1
+     * Ensure your host OS is supported by the AMD tools (see 
+       `UG973 <https://docs.amd.com/r/2024.1-English/ug973-vivado-release-notes-install-license/Supported-Operating-Systems>`_)
+
+     .. note::
+        AMD tools must be installed on the host system, not inside the Docker container.
+
+  3. Clone the PYNQ repository and in a bash shell, build the Docker image:
 
      .. code-block:: console
     
-        cd <PYNQ repository>
+        git clone --recursive https://github.com/Xilinx/PYNQ.git PYNQ
+        cd PYNQ/sdbuild
+        docker build \
+          --build-arg USERNAME=$(whoami) \
+          --build-arg USER_UID=$(id -u) \
+          --build-arg USER_GID=$(id -g) \
+          -t pynqdock:latest .
 
-  3. (optional) Depending on your Virtual Box configurations, you may 
-     need to run the following command first; it may help you get better 
-     screen resolution for your Ubuntu VM.
+     If you are in a csh-like shell, switch to Bash by typing: ``bash``.
+
+     The ``--build-arg`` values ensure that files created inside the container 
+     will be owned by your user on the host system, avoiding permission issues.
+
+  4. Run the Docker container, mounting your AMD tools and PYNQ repository:
 
      .. code-block:: console
+    
+        docker run \
+          --init \
+          --rm \
+          -it \
+          -v /tools/Xilinx:/tools/Xilinx:ro \
+          -v /home/user/petalinux:/home/user/petalinux:ro \
+          -v $(pwd):/workspace \
+          --name pynq-sdbuild-env \
+          --privileged \
+          pynqdock:latest \
+          /bin/bash
 
-        vagrant plugin install vagrant-vbguest
+     Replace ``/tools/Xilinx`` and ``/home/user/petalinux`` with the actual paths 
+     to your Xilinx installations on the host system. The ``:ro`` option mounts 
+     tool directories read-only, and ``--privileged`` is required for parts of 
+     the build process.
 
-  4. You can then prepare the VM using the following command. This step will
-     prepare a Ubuntu VM called *pynq_ubuntu_<version>* on your Virtual Box.
-     The Ubuntu packages on the VM will be updated during this process; 
-     the Ubuntu desktop will also be installed so you can install Xilinx 
-     software later.
+  5. Inside the container, set up the tool environment:
 
      .. code-block:: console
     
-        vagrant up
+        source /tools/Xilinx/Vivado/2024.1/settings64.sh
+        source /home/user/petalinux/settings.sh
 
-     The above command will take about 20 minutes to finish.
-     By default our vagrant file will prepare a Ubuntu 20.04 OS. If you would
-     like to use another OS, do:
-     
+     Adjust the paths to match your actual Xilinx tool installation paths.
+
+  6. You are now ready to build PYNQ images inside the Docker container. 
+     Navigate to the sdbuild directory and follow the building instructions 
+     in the next section.
+
+     .. note::
+        Rebuilding the PYNQ source distribution (SDIST) currently does not work 
+        inside Docker due to limitations in the Vitis tools. If you need to 
+        rebuild the SDIST, consider using a virtual machine with a supported 
+        Ubuntu distribution instead.
+
+Use an existing Ubuntu OS
+-------------------------
+If you're not able to use Docker, you can still build PYNQ images on a supported Ubuntu OS.
+
+If you already have a Ubuntu OS, and it is listed in the beginning of
+this section, you can simply do the following:
+
+  1. Install dependencies using the following script. This is necessary 
+     if you are not using our vagrant file to prepare the environment.
+
      .. code-block:: console
     
-        vagrant up <ubuntu_code_name>
+        <PYNQ repository>/sdbuild/scripts/setup_host.sh
 
-     For example, you can do the following to prepare a Ubuntu 20.04 OS:
-     
-     .. code-block:: console
-    
-        vagrant up focal
+  2. Install correct version of the Xilinx tools, including 
+     PetaLinux, Vivado, and Vitis. See the table below for the correct version 
+     of each release.
 
-     The supported OS and their corresponding code names are listed in the 
-     beginning of this section.
-
-  5. In the end, you will see a Virtual Box window pop up with only shell 
-     terminal, asking for your Ubuntu login information. 
-     Ignore this window and close it. Run the following command on your host:
-     
-     .. code-block:: console
-    
-        vagrant reload <ubuntu_code_name>
-     
-     After running the above command, you will be asked to log onto your 
-     Ubuntu desktop. The username and password are both defaulted to *vagrant*.
-     The current working directory on your host machine will be shared with 
-     */pynq* on your VM. Always use *vagrant reload* command to reboot the VM;
-     otherwise vagrant has no clue whether the VM has been rebooted, and users
-     will not be able to see shared folder.
-
-  6. (optional) You can enable bidirectional clipboard between your host and 
-     your VM in your Virtual Box settings:
-
-     .. image:: ./images/bidirectional-clipboard.png
-        :width: 400
-
-  7. Now you are ready to install Xilinx tools. You will need 
-     PetaLinux, Vivado, and Vitis for building PYNQ image.
-     Do not install Xilinx tools into */pynq* since it is only a small shared
-     folder. Instead, a 160GB disk space will be allocated at */workspace*
-     folder in VM. Install Xilinx tools there.
-     
      Starting from image v2.5, SDx is no longer needed.
-     The version of Xilinx tools for each PYNQ release is shown below:
 
      ================  ================
      Release version    Xilinx Tool Version
@@ -132,23 +148,8 @@ that can help you install the Ubuntu VM on your host OS using the following step
      v2.6               2020.1
      v2.7               2020.2
      v3.0               2022.1
+     v3.1               2024.1
      ================  ================
-
-Use an existing Ubuntu OS
--------------------------
-If you already have a Ubuntu OS, and it is listed in the beginning of
-this section, you can simply do the following:
-
-  1. Install dependencies using the following script. This is necessary 
-     if you are not using our vagrant file to prepare the environment.
-
-     .. code-block:: console
-    
-        <PYNQ repository>/sdbuild/scripts/setup_host.sh
-
-  2. Install correct version of the Xilinx tools, including 
-     PetaLinux, Vivado, and Vitis. See the above table for the correct version 
-     of each release.
 
 Building the Image From Source
 ==============================
@@ -157,17 +158,17 @@ Once you have the build environment ready, you can build an SD card image
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
   1. Source the appropriate settings for PetaLinux and Vitis. 
-     Suppose you are using Xilinx 2022.1 tools:
+     Suppose you are using Xilinx 2024.1 tools:
 
      .. code-block:: console
 
-        source <path-to-vitis>/Vitis/2022.1/settings64.sh
-        source <path-to-petalinux>/petalinux-2022.1-final/settings.sh
+        source <path-to-vitis>/Vitis/2024.1/settings64.sh
+        source <path-to-petalinux>/petalinux-2024.1-final/settings.sh
 
   2. Depending on the overlays being rebuilt, make sure you have the appropriate
      Vivado licenses to build for your target board, especially the
-     `HDMI IP <https://www.xilinx.com/products/intellectual-property/hdmi.html>`_
-     for the ZCU104 or the `CMAC IP <https://www.xilinx.com/products/intellectual-property/cmac.html>`_
+     `HDMI IP <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/hdmi.html>`_
+     for the ZCU104 or the `CMAC IP <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/cmac.html>`_
      for the RFSoC4x2.   
 
   3. Collect a prebuilt board-agnostic root filesystem tarball and a prebuilt PYNQ

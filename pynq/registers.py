@@ -92,7 +92,7 @@ class Register:
     """
 
     def __init__(self, address, width=32, debug=False, buffer=None,
-                 access='read-write'):
+                 access='read-write', device=None):
         """Instantiate a register object.
 
         Parameters
@@ -124,7 +124,8 @@ class Register:
 
         if buffer is None:
             from .mmio import MMIO
-            array = MMIO(address, np.dtype(register_type).itemsize).array
+            mmio = MMIO(address, np.dtype(register_type).itemsize, device=device)
+            array = mmio.array
         elif hasattr(buffer, 'view'):
             array = buffer
         else:

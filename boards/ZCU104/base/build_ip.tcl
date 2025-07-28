@@ -1,11 +1,13 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2025 Advanced Micro Devices, Inc.
+
 # SPDX-License-Identifier: BSD-3-Clause
 
 # Rebuild HLS IP from source
 set current_dir [pwd]
 cd ../../ip/hls/
 # get list of IP from folder names
-set ip {color_convert_2 pixel_pack_2 pixel_unpack_2}
+set ip {color_convert_2 pixel_pack_2 pixel_unpack_2 trace_cntrl_32 trace_cntrl_64}
 # Check and build each IP
 foreach item $ip {
    if {[catch { glob -directory ${item}/solution1/impl/ip/ *.zip} zip_file]} {
