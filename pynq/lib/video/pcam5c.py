@@ -4,6 +4,7 @@
 import contextlib
 import os
 from enum import Enum
+import glob
 
 import cffi
 
@@ -67,10 +68,22 @@ class Pcam5C(DefaultHierarchy):
         virtaddr_gamma_lut = self.gamma_lut.mmio.array.ctypes.data
         virtaddr_demosaic = self.demosaic.mmio.array.ctypes.data
 
-        # todo read /sys/bus/i2c/devices/i2c-6/of_node/label
+        i2c_devices = glob.glob('/dev/i2c-*')
+        i2c_index = 6 ## legacy
+        for dev_path in i2c_devices:
+            adapter_number = os.path.basename(dev_path).split('-')[-1]
+            name_path = f'/sys/bus/i2c/devices/i2c-{adapter_number}/of_node/label'
+            try:
+                with open(name_path, 'r') as name_file:                
+                    label = name_file.read().strip()
+                    if 'RPICAM' in label:
+                        i2c_index = int(adapter_number)
+            except FileNotFoundError:
+                continue
 
+        print(i2c_index)
         self._handle = pcam5c_lib.pcam_mipi(
-            6,
+            i2c_index,
             int(MIPIMode.r1280x720_60.value),
             virtaddr_gpio_ip_reset,
             virtaddr_v_proc_sys,
