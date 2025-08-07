@@ -59,7 +59,7 @@ docker run \
 Notes:
 
 * `-v $(pwd):/workspace` mounts your local PYNQ repo inside the container.
-* The `:ro` option mounts tool directories read-only.
+* The `:ro` option mounts tool directories as read-only.
 * `--privileged` is required for parts of the build process.
 
 ### 4. Build the PYNQ Image
@@ -79,12 +79,6 @@ cd sdbuild
 make BOARDS=ZCU104 # Replace ZCU104 with the board you'd like to target.
 ```
 
-## Known Limitations
-
-Rebuilding the PYNQ source distribution (SDIST) currently does not work inside Docker 
-due to limitations in the Vitis tools. If you need to rebuild the SDIST, we recommend 
-using a virtual machine as described below.
-
 ## VM-Based Setup (Alternative)
 
 If Docker is unavailable or you need to rebuild the SDIST, you can run the build process
@@ -103,6 +97,7 @@ can take up to 100 GB of space.
    ```sh
    scripts/setup_host.sh
    ```
+
 3. Install Petalinux (2024.1) and ensure it is on your `PATH`
 4. Download the prebuilt `pynq_sdist.tar.gz` and `pynq_rootfs.<arch>.tar.gz` and place them in `sdbuild/prebuilt/`
 5. Build your image:

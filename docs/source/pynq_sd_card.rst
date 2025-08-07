@@ -93,7 +93,7 @@ build environment on your host OS using the following steps:
 
      Replace ``/tools/Xilinx`` and ``/home/user/petalinux`` with the actual paths 
      to your Xilinx installations on the host system. The ``:ro`` option mounts 
-     tool directories read-only, and ``--privileged`` is required for parts of 
+     tool directories as read-only, and ``--privileged`` is required for parts of 
      the build process.
 
   5. Inside the container, set up the tool environment:
@@ -109,11 +109,6 @@ build environment on your host OS using the following steps:
      Navigate to the sdbuild directory and follow the building instructions 
      in the next section.
 
-     .. note::
-        Rebuilding the PYNQ source distribution (SDIST) currently does not work 
-        inside Docker due to limitations in the Vitis tools. If you need to 
-        rebuild the SDIST, consider using a virtual machine with a supported 
-        Ubuntu distribution instead.
 
 Use an existing Ubuntu OS
 -------------------------
