@@ -43,8 +43,8 @@ if [ "$BOARDDIR" != "$DEFAULT_BOARDDIR" ] && [ "$PYNQ_BOARD" != "Unknown" ]; the
     for ol in $overlays ; do
 	ol_name=`basename $ol`
 	sudo mkdir -p $pynqoverlays_dir/$ol_name
-	sudo cp -fL $ol/*.bit $ol/*.hwh $ol/*.py $pynqoverlays_dir/$ol_name
-	
+	sudo cp -fL $ol/*.bit $ol/*.hwh $ol/*.py $ol/*.dtbo $pynqoverlays_dir/$ol_name
+
 	if [ -e $ol_name/notebooks ]; then
 		sudo mkdir -p $target/home/xilinx/pynq_git/notebooks/$ol_name
 		sudo cp -fLr $ol_name/notebooks/* $target/home/xilinx/pynq_git/notebooks/$ol_name
