@@ -233,7 +233,7 @@ class Device(metaclass=DeviceMeta):
         ip_dict = self.ip_dict
         mem_dict = self.mem_dict
         if ip_name in ip_dict:
-            address = ip_dict[ip_name]["addr_range"]
+            address = ip_dict[ip_name]["base_address"]
             target_size = ip_dict[ip_name]["addr_range"]
         elif ip_name in mem_dict:
             address = mem_dict[ip_name]["base_address"]
