@@ -335,8 +335,14 @@ class XrtDevice(Device):
         flags = pyxrt.bo.flags.normal
         if cacheable:
             flags = pyxrt.bo.flags.cacheable
+        
+        # Workaround for XRT v2.17 4KB threshold issue:
+        # Small buffers (<4KB) get 64-bit addresses, large buffers (>=4KB) get 32-bit addresses
+        # Force minimum allocation of 8KB to ensure 32-bit addresses for DMA compatibility
+        actual_size = max(size, 8192)  # 8KB minimum
+        
         try: 
-            bo = pyxrt.bo(self.handle, size, flags,idx)
+            bo = pyxrt.bo(self.handle, actual_size, flags, idx)
         except Exception as e:
             raise RuntimeError(f"BO allocation failed: {e}")
         if bo is None:
