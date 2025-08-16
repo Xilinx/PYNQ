@@ -5,7 +5,7 @@ If you can't access the terminal from Jupyter, you can connect the micro-USB
 cable from your computer to the board and open a terminal. You can use the
 terminal to check the network connection of the board. You will need to have
 terminal emulator software installed on your computer. `PuTTY
-<http://www.putty.org/>`_ is one application that can be used, and is available
+<http://putty.software/>`_ is one application that can be used, and is available
 for free on Windows. To open a terminal, you will need to know the COM port for
 the board.
 
