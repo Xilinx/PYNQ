@@ -3,7 +3,7 @@
 
 # Builds final pynq source distribution with overlays and BSPs included
 
-VERSION := 3.1.0
+VERSION := 3.1.1
 SDIST := dist/pynq-$(VERSION).tar.gz
 
 BITS := boards/Pynq-Z1/logictools/logictools.bit \

@@ -14,7 +14,7 @@ ALLBOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 BOARDS ?= $(ALLBOARDS)
 
 UBUNTU_RELEASE := jammy
-VERSION := 3.1
+VERSION := 3.1.1
 
 KERNEL_VERSION := 2024.1
 QEMU_VERSION := 5.2.0
