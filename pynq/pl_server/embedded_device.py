@@ -646,6 +646,7 @@ class EmbeddedDevice(XrtDevice):
             
             if os.path.exists(bitstream.bitfile_name):
                 gs=GlobalState(bitfile_name=str(bitstream.bitfile_name),
+                                 bitfile_hash=bitstream_hash(bitstream.bitfile_name),
                                  timestamp=ts,
                                  active_name=self.name,
                                  psddr=parser.mem_dict.get("PSDDR", {}))

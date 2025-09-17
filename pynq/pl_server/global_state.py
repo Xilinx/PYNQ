@@ -46,7 +46,6 @@ class GlobalState(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bitfile_hash = bitstream_hash(self.bitfile_name)
 
 def initial_global_state_file_boot_check(device_tag="")->None:
     """ Performs a check to see if this is a coldstart, if it is then clear the
