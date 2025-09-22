@@ -18,6 +18,7 @@ from .global_state import (
     GlobalState,
     save_global_state, load_global_state,
     global_state_file_exists, clear_global_state,
+    bitstream_hash
 )
 from pynq.remote import (
     remote_device_pb2_grpc, mmio_pb2_grpc, buffer_pb2_grpc,
@@ -346,6 +347,7 @@ class RemoteDevice(Device):
             
             if os.path.exists(bitstream.bitfile_name):
                 gs=GlobalState(bitfile_name=str(bitstream.bitfile_name),
+                                 bitfile_hash=bitstream_hash(bitstream.bitfile_name),
                                  timestamp=ts,
                                  active_name=self.name,
                                  psddr=parser.mem_dict.get("PSDDR", {}))
