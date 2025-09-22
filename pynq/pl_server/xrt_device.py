@@ -388,8 +388,6 @@ class XrtDevice(Device):
 
 
     def close(self):
-        if self.handle:
-            self.handle.close()
         self.handle = None
 
     def get_memory(self, desc):
