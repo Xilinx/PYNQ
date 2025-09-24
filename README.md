@@ -52,6 +52,10 @@ for how to improve PYNQ.
 
 Please ask questions on the <a href="https://discuss.pynq.io" target="_blank">PYNQ support forum</a>.
 
+## Citing PYNQ
+
+If you use PYNQ in your research, please cite this GitHub repository by using the metadata given in <a href="https://github.com/Xilinx/PYNQ/blob/master/CITATION.cff" target="_blank">CITATION.cff</a>.
+
 ## Licenses
 
 **PYNQ** License: [BSD 3-Clause License](https://github.com/Xilinx/PYNQ/blob/master/LICENSE)

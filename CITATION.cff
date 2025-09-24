@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use PYNQ in your research, please cite it using the metadata below."
+authors:
+  - name: 'Advanced Micro Devices, Inc.'
+title: "PYNQ"
+type: software
+license: 'BSD-3-Clause'
+version: 3.1.1
+date-released: "2025-09-24"
+url: 'https://pynq.io'
+repository-code: "https://github.com/Xilinx/PYNQ"
