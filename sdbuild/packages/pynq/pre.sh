@@ -16,7 +16,7 @@ sudo cp $script_dir/boardname.sh $target/etc/profile.d
 
 
 # 2. Create and copy the REVISION file
-echo "Release 3.1 (Carlisle) $(date +'%Y_%m_%d') $(git rev-parse --short=7 --verify HEAD)" \
+echo "Release 3.1.1 (Carlisle) $(date +'%Y_%m_%d') $(git rev-parse --short=7 --verify HEAD)" \
 	> $BUILD_ROOT/PYNQ/REVISION
 
 if [ ${PYNQ_BOARD} != "Unknown" ]; then

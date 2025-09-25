@@ -13,11 +13,11 @@
 -BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
 -PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
 +NAME="PynqLinux"
-+VERSION="3.1 (Carlisle)"
++VERSION="3.1.1 (Carlisle)"
 +ID=pynqlinux
 +ID_LIKE=ubuntu
 +PRETTY_NAME="PynqLinux, based on Ubuntu 22.04"
-+VERSION_ID="3.1"
++VERSION_ID="3.1.1"
 +HOME_URL="https://www.pynq.io/"
 +SUPPORT_URL="https://discuss.pynq.io/"
 +BUG_REPORT_URL="https://www.pynq.io"
