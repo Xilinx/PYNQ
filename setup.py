@@ -18,8 +18,8 @@ from setuptools.command.build_ext import build_ext
 
 # Requirement
 required = [
-    'pynqmetadata @ git+https://github.com/Xilinx/PYNQ-Metadata.git',
-    'pynqutils @ git+https://github.com/Xilinx/PYNQ-Utils.git',
+    'pynqmetadata',
+    'pynqutils',
     "setuptools>=24.2.0",
     "cffi",
     "numpy<2.0",
