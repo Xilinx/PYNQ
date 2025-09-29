@@ -5,7 +5,7 @@ authors:
 title: "PYNQ"
 type: software
 license: 'BSD-3-Clause'
-version: 3.1.1
+version: 3.1.2
 date-released: "2025-09-24"
 url: 'https://pynq.io'
 repository-code: "https://github.com/Xilinx/PYNQ"
