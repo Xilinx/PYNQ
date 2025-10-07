@@ -262,20 +262,20 @@ A hashed password is saved in the Jupyter Notebook configuration file.
 
       /root/.jupyter/jupyter_notebook_config.py
 
-You can create a hashed password using the function ``IPython.lib.passwd()``:
+You can create a hashed password using the function ``notebook.auth.passwd()``:
 
    .. code-block:: python
    
-      from IPython.lib import passwd
+      from notebook.auth import passwd
       password = passwd("secret")
-      6c2164fc2b22:ed55ecf07fc0f985ab46561483c0e888e8964ae6
+      argon2:$argon2id$v=19$m=10240,t=10,p=8$RtRr2NIdfjs7U/PvDSP0SQ$F/anN49jBe8OBNOpp5my3saZ3OGsZlspHf+iBEnTIoQ
 
 
 You can then add or modify the line in the `jupyter_notebook_config.py` file
 
    .. code-block:: console
 
-      c.NotebookApp.password =u'sha1:6c2164fc2b22:ed55ecf07fc0f985ab46561483c0e888e8964ae6'
+      c.NotebookApp.password =u'argon2:$argon2id$v=19$m=10240,t=10,p=8$RtRr2NIdfjs7U/PvDSP0SQ$F/anN49jBe8OBNOpp5my3saZ3OGsZlspHf+iBEnTIoQ'
      
 
 General Questions
