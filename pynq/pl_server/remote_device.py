@@ -21,8 +21,10 @@ from .global_state import (
     bitstream_hash
 )
 from pynq.remote import (
-    remote_device_pb2_grpc, mmio_pb2_grpc, buffer_pb2_grpc,
-    remote_device_pb2, mmio_pb2, buffer_pb2,
+    remote_device_pb2_grpc, remote_device_pb2,
+    mmio_pb2_grpc, mmio_pb2,
+    buffer_pb2_grpc, buffer_pb2,
+    gpio_pb2_grpc, gpio_pb2,
 )
 
 import grpc
@@ -184,6 +186,7 @@ class RemoteDevice(Device):
             'device': remote_device_pb2_grpc.RemoteDeviceStub(self.client.channel),
             'mmio': mmio_pb2_grpc.MmioStub(self.client.channel),
             'buffer': buffer_pb2_grpc.RemoteBufferStub(self.client.channel),
+            'gpio': gpio_pb2_grpc.GpioStub(self.client.channel),
         }
 
         self.arch = self.get_arch()
@@ -521,7 +524,7 @@ class RemoteGPIO:
     GPIO functionality is not yet implemented for remote PYNQ devices.
     """
     
-    def __init__(self, gpio_index=None, direction=None):
+    def __init__(self, gpio_index, direction, device=None):
         """Initialize RemoteGPIO object
         
         Parameters
@@ -530,33 +533,119 @@ class RemoteGPIO:
             GPIO pin index number
         direction : str, optional  
             GPIO direction ('in' or 'out')
+        device : Device, optional
+            RemoteDevice object for GPIO operations
         """
+        if device is None:
+            raise RuntimeError("RemoteGPIO requires a RemoteDevice instance")
+        self.device = device
         self.gpio_index = gpio_index
-        self.direction = direction
-        warnings.warn("GPIO operations are not yet implemented for remote devices")
+        self._direction = direction
+        self._stub = device._stub['gpio']
+        
+        response = self._stub.get_gpio(
+            gpio_pb2.GetGpioRequest(index=gpio_index, direction=direction)
+        )
+        self._gpio_id = response.gpio_id
         
     def read(self):
-        raise RuntimeError("GPIO operations are not yet implemented for remote devices")
+        
+        if self.direction != 'in':
+            raise AttributeError("Cannot read from GPIO output.")
+        
+        response = self._stub.read(
+            gpio_pb2.GpioReadRequest(gpio_id=self._gpio_id)
+        )
+        return response.value
         
     def write(self, value):
-        raise RuntimeError("GPIO operations are not yet implemented for remote devices")
+        if self.direction != 'out':
+            raise AttributeError("Cannot write to GPIO input.")
+        
+        if value not in (0, 1):
+            raise ValueError("Can only write integer 0 or 1.")
+        
+        response = self._stub.write(
+            gpio_pb2.GpioWriteRequest(gpio_id=self._gpio_id, value=value)
+        )
+        return
+        
+    def unexport(self):
+        response = self._stub.unexport(
+            gpio_pb2.GpioUnexportRequest(gpio_id=self._gpio_id)
+        )
         
     def release(self):
-        """Release GPIO resources
+        self.unexport()
         
-        No-op for remote GPIO placeholder
-        """
-        pass
+    def is_exported(self):
+        response = self._stub.is_exported(
+            gpio_pb2.GpioIsExportedRequest(gpio_id=self._gpio_id)
+        )
+        return bool(response.is_exported)
     
-    # Add class methods to match the GPIO API
+    @property
+    def index(self):
+        return self.gpio_index
+    
+    @property
+    def direction(self):
+        return self._direction
+    
+    @property
+    def path(self):
+        warnings.warn("This property is not implemented for remote devices.")
+    
     @staticmethod
-    def get_gpio_pin(gpio_user_index, target_label=None):
-        """Get GPIO pin by user index
+    def get_gpio_base_path(target_label=None, device=None):
+        if device is None:
+            raise RuntimeError("get_gpio_base_path requires a RemoteDevice instance.")
+        stub = device._stub['gpio']
+
+        response = stub.get_gpio_base_path(
+            gpio_pb2.GetGpioBasePathRequest(target_label=target_label)
+        )
+        if response.base_path == "":
+            return None
+        return response.base_path
+    
+    @staticmethod
+    def get_gpio_base(target_label=None, device=None):
+        if device is None:
+            raise RuntimeError("get_gpio_base requires a RemoteDevice instance.")
         
-        Placeholder method to prevent attribute errors in remote device context.
-        """
-        warnings.warn("GPIO operations are not yet implemented for remote devices")
-        return gpio_user_index  # Just return the index to prevent errors
+        base_path = RemoteGPIO.get_gpio_base_path(target_label=target_label, device=device)
+        if base_path is not None:
+            return int(''.join(x for x in base_path if x.isdigit()))
+        
+    @staticmethod
+    def get_gpio_pin(gpio_user_index, target_label=None, device=None):
+        if device is None:
+            raise RuntimeError("get_gpio_pin requires a RemoteDevice instance.")
+        
+        if target_label is not None:
+            GPIO_OFFSET = 0
+        else:
+            if device.arch == "aarch64":
+                GPIO_OFFSET = 78
+            else:
+                GPIO_OFFSET = 54
+        return (RemoteGPIO.get_gpio_base(target_label=target_label, device=device) +
+                GPIO_OFFSET +
+                gpio_user_index)
+        
+    @staticmethod
+    def get_gpio_npins(target_label=None, device=None):
+        if device is None:
+            raise RuntimeError("get_gpio_npins requires a RemoteDevice instance.")
+        
+        stub = device._stub['gpio']
+        response = stub.get_gpio_npins(
+            gpio_pb2.GetGpioNPinsRequest(
+                target_label=target_label)
+        )
+        return response.npins 
+        
 
 class RemoteInterrupt:
     """Remote Interrupt placeholder class
