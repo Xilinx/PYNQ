@@ -275,7 +275,7 @@ class Device(metaclass=DeviceMeta):
         merged_ip_dict = deepcopy(self.ip_dict)
         if type(parser) is HWH:
             for k in merged_ip_dict.copy():
-                if k.startswith(hier):
+                if k == hier or k.startswith(hier + "/"):
                     merged_ip_dict.pop(k)
             for k, v in parser.ip_dict.items():
                 merged_ip_dict[v['fullpath']] = v
