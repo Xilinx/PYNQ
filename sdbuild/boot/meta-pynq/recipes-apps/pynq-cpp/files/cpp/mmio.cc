@@ -5,9 +5,9 @@
 MMIO::MMIO(off_t base_address, size_t length_p)
     : mem_fd(-1), virt_base(0), virt_offset(0), length(0), mapped_base(nullptr)
 {
-    if (base_address < 0 || length_p < 0)
+    if (length_p < 0)
     {
-        std::cerr << "Error: Base address or length cannot be negative." << std::endl;
+        std::cerr << "Error: Length cannot be negative." << std::endl;
         return;
     }
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -17,7 +17,7 @@ MMIO::MMIO(off_t base_address, size_t length_p)
         return;
     }
     virt_base = base_address & ~(4096 - 1);
-    virt_offset = base_address - virt_base;
+    virt_offset = base_address & (4096 - 1);
     length = length_p;
 
     mapped_base = mmap(nullptr, length + virt_offset, PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd, virt_base);
