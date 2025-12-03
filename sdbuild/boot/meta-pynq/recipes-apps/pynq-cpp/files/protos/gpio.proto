@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package gpio;
+
+service Gpio {
+    rpc get_gpio (GetGpioRequest) returns (GetGpioResponse);
+    rpc read (GpioReadRequest) returns (GpioReadResponse);
+    rpc write (GpioWriteRequest) returns (GpioWriteResponse);
+    rpc unexport (GpioUnexportRequest) returns (GpioUnexportResponse);
+    rpc is_exported (GpioIsExportedRequest) returns (GpioIsExportedResponse);
+    rpc get_gpio_base_path (GetGpioBasePathRequest) returns (GetGpioBasePathResponse);
+    rpc get_gpio_npins (GetGpioNPinsRequest) returns (GetGpioNPinsResponse);
+}
+
+message GetGpioRequest {
+    int32 index = 1;
+    string direction = 2;
+}
+
+message GetGpioResponse {
+    optional string message = 2;
+    optional string gpio_id = 3;
+}
+
+message GpioReadRequest {
+    string gpio_id = 1;
+}
+
+message GpioReadResponse {
+    optional string message = 2;
+    optional int32 value = 3;
+}
+
+message GpioWriteRequest {
+    string gpio_id = 1;
+    int32 value = 2;
+}
+
+message GpioWriteResponse {
+}
+
+message GpioUnexportRequest {
+    string gpio_id = 1;
+}
+
+message GpioUnexportResponse {
+}
+
+message GpioIsExportedRequest {
+    string gpio_id = 1;
+}
+
+message GpioIsExportedResponse {
+    optional bool is_exported = 3;
+}
+
+message GetGpioBasePathRequest {
+    optional string target_label = 1;
+}
+
+message GetGpioBasePathResponse {
+    optional string base_path = 3;
+}
+
+message GetGpioNPinsRequest {
+    optional string target_label = 1;
+}
+
+message GetGpioNPinsResponse {
+    optional int32 npins = 1;
+}

@@ -21,22 +21,21 @@
 #include <sstream>
 #include <filesystem>
 
+
 #include <remote_device.grpc.pb.h>
 #include <mmio.grpc.pb.h>
 #include <buffer.grpc.pb.h>
-#include <xrt/xclhal2.h>
-#include <xrt/xrt.h>
-#include <xrt/xrt_bo.h>
-#include <xrt/xrt_device.h>
+#include <gpio.grpc.pb.h>
 
 #include "buffer.cc"
 #include "mmio.h"
 #include "device.h"
-// #include <xrt/xrt/xrt_error.h>
-// #include <xrt/xrt/xrt_exception.h>
-//   #include <xrt.h>
-//   #include <xrt_mem.h>
-//    #include <experimental/xrt_bo.h> //include actual xrt folder, not just include folder
+#include "gpio.h"
+
+#include <xrt/xclhal2.h>
+#include <xrt/xrt.h>
+#include <xrt/xrt_bo.h>
+#include <xrt/xrt_device.h>
 
 // Namespaces from grpc.pb.h to simplify code
 using buffer::AddressRequest;
@@ -84,6 +83,21 @@ using remote_device::WriteFileRequest;
 using remote_device::WriteFileResponse;
 using remote_device::ExistsFileRequest;
 using remote_device::ExistsFileResponse;
+using gpio::GetGpioRequest;
+using gpio::GetGpioResponse;
+using gpio::GpioReadRequest;
+using gpio::GpioReadResponse;
+using gpio::GpioWriteRequest;
+using gpio::GpioWriteResponse;
+using gpio::GpioUnexportRequest;
+using gpio::GpioUnexportResponse;
+using gpio::GpioIsExportedRequest;
+using gpio::GpioIsExportedResponse;
+using gpio::GetGpioBasePathRequest;
+using gpio::GetGpioBasePathResponse;
+using gpio::GetGpioNPinsRequest;
+using gpio::GetGpioNPinsResponse;
+using gpio::Gpio;
 
 #define DEBUG
 
@@ -623,6 +637,223 @@ public:
     }
 };
 
+class GPIOImpl final : public Gpio::Service
+{
+    /**
+     * @class GPIOImpl
+     * @brief Implements the gRPC service for managing GPIO objects.
+     */
+private:
+    std::unordered_map<std::string, std::unique_ptr<GPIO>> gpios_; ///< Map to store GPIO objects
+    uint64_t count = 0;                                            ///< Counter for generating GPIO IDs}
+
+public:
+    /**
+     * @brief Adds a new GPIO object.
+     * Creates and stores a new GPIO object with the given index, direction and identifier.
+     * @param index Index of the GPIO.
+     * @param direction Direction of the GPIO.
+     * @param gpio_id Identifier for the GPIO object.
+     */
+    void addGPIO(uint32_t index, std::string direction, std::string gpio_id)
+    {
+        gpios_[gpio_id] = std::make_unique<GPIO>(index, direction);
+    }
+
+    /**
+     * @brief Finds a GPIO object by its ID.
+     * Searches the internal map for a GPIO object with the given identifier.
+     * @param gpio_id Identifier for the GPIO object.
+     * @return Pointer to the GPIO object, or nullptr if not found.
+     */
+    GPIO *findGPIO(const std::string &gpio_id)
+    {
+        auto it = gpios_.find(gpio_id);
+        if (it != gpios_.end())
+        {
+            return it->second.get();
+        }
+        return nullptr;
+    }
+
+    /**
+     * @brief Handles the GetGpio gRPC request.
+     * Creates a new GPIO object based on the request parameters and returns its identifier.
+     * @param context Server context for the request.
+     * @param request GetGpioRequest message.
+     * @param response GetGpioResponse message.
+     * @return gRPC status. 
+     */
+    Status get_gpio(ServerContext *context, const GetGpioRequest *request, GetGpioResponse *response) override
+    {
+        #ifdef DEBUG
+        std::cout << "Function: get_gpio, "
+                  << "index=" << request->index() << ", "
+                  << "direction=" << request->direction()
+                  << std::endl;
+        #endif
+        std::string gpio_id = std::to_string(count);
+        addGPIO(request->index(), request->direction(), gpio_id);
+        count += 1;
+        response->set_gpio_id(gpio_id);
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the Read gRPC request.
+     * Reads data from the specified GPIO object and returns it in the response.
+     * @param context Server context for the request.
+     * @param request GpioReadRequest message.
+     * @param response GpioReadResponse message.
+     * @return gRPC status.
+     */
+    Status read(ServerContext *context, const GpioReadRequest *request, GpioReadResponse *response) override
+    {
+        GPIO *gpio = findGPIO(request->gpio_id());
+        if (!gpio)
+        {
+            return grpc::Status(grpc::StatusCode::NOT_FOUND, "GPIO Object not found.");
+        }
+        uint32_t data = gpio->read();
+        #ifdef DEBUG
+        std::cout << "Function: read, "
+                  << "gpio_id=" << request->gpio_id() << ", "
+                  << "Data=" << data
+                  << std::endl;
+        #endif
+        response->set_value(data);
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the Write gRPC request.
+     * Writes the value (0,1) to the specified GPIO object based on the request parameters.
+     * @param context Server context for the request.
+     * @param request GpioWriteRequest message.
+     * @param response GpioWriteResponse message.
+     * @return gRPC status.
+     */
+    Status write(ServerContext *context, const GpioWriteRequest *request, GpioWriteResponse *response) override
+    {
+        #ifdef DEBUG
+        std::cout << "Function: write, "
+                  << "gpio_id=" << request->gpio_id() << ", "
+                  << "data=" << request->value()
+                  << std::dec
+                  << std::endl;
+        #endif
+        GPIO *gpio = findGPIO(request->gpio_id());
+        if (!gpio)
+        {
+            return grpc::Status(grpc::StatusCode::NOT_FOUND, "GPIO Object not found.");
+        }
+        gpio->write(request->value());
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the Unexport gRPC request.
+     * Releases the specified GPIO object based on the request parameters.
+     * @param context Server context for the request.
+     * @param request GpioUnexportRequest message.
+     * @param response GpioUnexportResponse message.
+     * @return gRPC status.
+     */
+    Status unexport(ServerContext *context, const GpioUnexportRequest *request, GpioUnexportResponse *response) override
+    {
+        #ifdef DEBUG
+        std::cout << "Function: unexport, "
+                  << "gpio_id=" << request->gpio_id()
+                  << std::dec
+                  << std::endl;
+        #endif
+        GPIO *gpio = findGPIO(request->gpio_id());
+        if (!gpio)
+        {
+            return grpc::Status(grpc::StatusCode::NOT_FOUND, "GPIO Object not found.");
+        }
+        gpio->unexport();
+        gpios_.erase(request->gpio_id());
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the IsExported gRPC request.
+     * Checks if the specified GPIO object is exported based on the request parameters.
+     * @param context Server context for the request.
+     * @param request GpioIsExportedRequest message.
+     * @param response GpioIsExportedResponse message.
+     * @return gRPC status.
+     */
+    Status is_exported(ServerContext *context, const GpioIsExportedRequest *request, GpioIsExportedResponse *response) override
+    {
+        #ifdef DEBUG
+        std::cout << "Function: is_exported, "
+                  << "gpio_id=" << request->gpio_id()
+                  << std::dec
+                  << std::endl;
+        #endif
+        GPIO *gpio = findGPIO(request->gpio_id());
+        response->set_is_exported(gpio != nullptr && gpio->is_exported());
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the GetGpioBasePath gRPC request.
+     * Retrieves the base path of the specified GPIO object based on the request parameters.
+     * @param context Server context for the request.
+     * @param request GetGpioBasePathRequest message.
+     * @param response GetGpioBasePathResponse message.
+     * @return gRPC status.
+     */
+    Status get_gpio_base_path(ServerContext *context, const GetGpioBasePathRequest *request, GetGpioBasePathResponse *response) override
+    {
+        #ifdef DEBUG
+        std::cout << "Function: get_gpio_base_path, "
+                    << "target_label=" << request->target_label()
+                    << std::dec
+                    << std::endl;
+        #endif
+
+        std::string base_path;
+        if (request->has_target_label()) {
+            base_path = ::get_gpio_base_path(request->target_label());
+        } else {
+            base_path = ::get_gpio_base_path();
+        }
+        response->set_base_path(base_path);
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the GetGpioNPins gRPC request.
+     * Retrieves the number of pins of the specified GPIO object based on the request parameters.
+     * @param context Server context for the request.
+     * @param request GetGpioNPinsRequest message.
+     * @param response GetGpioNPinsResponse message.
+     * @return gRPC status.
+     */
+    Status get_gpio_npins(ServerContext *context, const GetGpioNPinsRequest *request, GetGpioNPinsResponse *response) override
+    {
+        #ifdef DEBUG
+        std::cout << "Function: get_gpio_npins, "
+                    << "target_label=" << request->target_label()
+                    << std::dec
+                    << std::endl;
+        #endif
+
+        uint32_t npins;
+        if (request->has_target_label()) {
+            npins = ::get_gpio_npins(request->target_label());
+        } else {
+            npins = ::get_gpio_npins();
+        }
+        response->set_npins(npins);
+        return grpc::Status::OK;
+    }
+};
+
+
 class RemoteDeviceImpl final : public RemoteDevice::Service
 {
     /**
@@ -785,7 +1016,8 @@ void RunServer(uint16_t port)
     std::string server_address = "0.0.0.0:" + std::to_string(port);
     RemoteDeviceImpl remote_device_service; // Create remote_device rpc handler
     MMIOImpl mmio_service;                  // Create MMIO rpc handler
-    BufferImpl buffer_service;
+    BufferImpl buffer_service;              // Create Buffer rpc handler
+    GPIOImpl gpio_service;                  // Create Gpio rpc handler
     remote_device_service.device_name = buffer_service.device_name;
 
     grpc::EnableDefaultHealthCheckService(true);
@@ -795,6 +1027,7 @@ void RunServer(uint16_t port)
     builder.RegisterService(&remote_device_service); // Add to RPC running server.
     builder.RegisterService(&mmio_service);
     builder.RegisterService(&buffer_service);
+    builder.RegisterService(&gpio_service);
 
     std::unique_ptr<Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;
