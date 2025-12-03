@@ -181,30 +181,34 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 
 	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
 
+	# Base packages
 	echo 'CONFIG_xrt' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_xrt-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_zocl' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-headers-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-clhpp-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-
 	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_zocl' >> $$(PL_USER_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
 
-	# TODO: make this a configurable Makefile var:  echo 'CONFIG_TMP_DIR_LOCATION="'/scratch/plnxscratch'"'  >> $$(PL_CONFIG_$1)
+	# Classic PYNQ packages
+	if [ -z $(PYNQREMOTE) ]; then \
+		echo 'CONFIG_xrt-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-headers-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-clhpp-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+	fi
 
+	# PYNQ.remote packages
 	if [ $(PYNQREMOTE) = 1 ]; then \
 		echo 'CONFIG_grpc' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_pynq-cpp' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_grpc=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_pynq-cpp=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-	fi	
-
-	if [ $(PYNQREMOTE) = 1 ]; then \
+		echo 'CONFIG_nfs-utils=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_tcf-agent=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_imagefeature-ssh-server-openssh=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_imagefeature-ssh-server-dropbear=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		petalinux-config -c rootfs --silentconfig -p $$(PL_PROJ_$1) ;\
-	fi
+	fi	
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && petalinux-package --boot --fpga $$(BITSTREAM_ABS_$1) --u-boot -p $$(PL_PROJ_$1) --force
@@ -318,7 +322,9 @@ $$(REMOTE_IMAGE_$1) : $$(PL_PROJ_$1) $$(REMOTE_ROOT_$1) $$(BOOT_FILES_$1)
 	rm -rf $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
-	(cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$(REMOTE_ROOT_$1) --outdir $$(IMAGE_ROOT) --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:.") && mv $$(IMAGE_ROOT)/petalinux-sdimage.wic $$@
+	cp $$(CURDIR)/boot/remote-image.wks $$(PL_PROJ_$1)/build/rootfs.wks
+	-cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$(REMOTE_ROOT_$1) --outdir $$(IMAGE_ROOT) --wks $$(CURDIR)/boot/remote-image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:."
+	mv $$(PL_PROJ_$1)/build/wic/wic-tmp/remote-image-*.direct $$@
 
 pynqremote_$1: $$(REMOTE_IMAGE_$1) 
 	echo "Done building remote image for board $1"
