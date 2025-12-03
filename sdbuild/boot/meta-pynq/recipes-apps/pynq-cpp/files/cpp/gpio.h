@@ -33,7 +33,6 @@ public:
 
     /**
      * @brief Destructor for GPIO class
-     * Cleans up resources associated with the GPIO pin.
      */
     ~GPIO();
 

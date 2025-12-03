@@ -518,23 +518,30 @@ class RemoteDevice(Device):
             
 
 class RemoteGPIO:
-    """Remote GPIO placeholder class
-    
-    Placeholder implementation for GPIO operations on remote devices.
-    GPIO functionality is not yet implemented for remote PYNQ devices.
+    """Internal Helper class to wrap Linux's GPIO Sysfs API.
+
+    This GPIO class does not handle PL I/O without the use of
+    device tree overlays.
+
+    Attributes
+    ----------
+    index : int
+        The index of the GPIO, starting from the GPIO base.
+    direction : str
+        Input/output direction of the GPIO.
     """
     
     def __init__(self, gpio_index, direction, device=None):
-        """Initialize RemoteGPIO object
-        
+        """Return a new RemoteGPIO object.
+
         Parameters
         ----------
-        gpio_index : int, optional
-            GPIO pin index number
-        direction : str, optional  
-            GPIO direction ('in' or 'out')
-        device : Device, optional
-            RemoteDevice object for GPIO operations
+        gpio_index : int
+            The index of the RemoteGPIO using Linux's GPIO Sysfs API.
+        direction : 'str'
+            Input/output direction of the GPIO.
+        device : RemoteDevice
+            Device object for RemoteGPIO operations
         """
         if device is None:
             raise RuntimeError("RemoteGPIO requires a RemoteDevice instance")
@@ -549,7 +556,14 @@ class RemoteGPIO:
         self._gpio_id = response.gpio_id
         
     def read(self):
-        
+        """The method to read a value from the GPIO.
+
+        Returns
+        -------
+        int
+            An integer read from the GPIO
+
+        """
         if self.direction != 'in':
             raise AttributeError("Cannot read from GPIO output.")
         
@@ -559,6 +573,18 @@ class RemoteGPIO:
         return response.value
         
     def write(self, value):
+        """The method to write a value into the GPIO.
+
+        Parameters
+        ----------
+        value : int
+            An integer value, either 0 or 1
+
+        Returns
+        -------
+        None
+
+        """
         if self.direction != 'out':
             raise AttributeError("Cannot write to GPIO input.")
         
@@ -571,14 +597,37 @@ class RemoteGPIO:
         return
         
     def unexport(self):
+        """The method to unexport the GPIO using Linux's GPIO Sysfs API.
+
+        Returns
+        -------
+        None
+
+        """
         response = self._stub.unexport(
             gpio_pb2.GpioUnexportRequest(gpio_id=self._gpio_id)
         )
         
     def release(self):
+        """The method to release the GPIO.
+
+        Returns
+        -------
+        None
+
+        """
         self.unexport()
         
     def is_exported(self):
+        """The method to check if a GPIO is still exported using
+        Linux's GPIO Sysfs API.
+
+        Returns
+        -------
+        bool
+            True if the GPIO is still loaded.
+
+        """
         response = self._stub.is_exported(
             gpio_pb2.GpioIsExportedRequest(gpio_id=self._gpio_id)
         )
@@ -598,6 +647,34 @@ class RemoteGPIO:
     
     @staticmethod
     def get_gpio_base_path(target_label=None, device=None):
+        """This method returns the path to the Remote GPIO base using Linux's
+        GPIO Sysfs API. This path relates to the target device, not the 
+        host machine.
+
+        This is a static method. To use:
+
+        >>> from pynq import GPIO
+        
+        >>> from pynq.pl_server import RemoteDevice
+        
+        >>> device = RemoteDevice(ip_addr='192.168.2.99')
+
+        >>> gpio = GPIO.get_gpio_base_path(device=device)
+
+        Parameters
+        ----------
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
+        device : RemoteDevice
+            Remote device object for RemoteGPIO operations
+
+        Returns
+        -------
+        str
+            The path to the Remote GPIO base.
+
+        """
         if device is None:
             raise RuntimeError("get_gpio_base_path requires a RemoteDevice instance.")
         stub = device._stub['gpio']
@@ -611,6 +688,36 @@ class RemoteGPIO:
     
     @staticmethod
     def get_gpio_base(target_label=None, device=None):
+        """This method returns the GPIO base using Linux's GPIO Sysfs API.
+
+        This is a static method. To use:
+
+        >>> from pynq import GPIO
+        
+        >>> from pynq.pl_server import RemoteDevice
+        
+        >>> device = RemoteDevice(ip_addr='192.168.2.99')
+        
+        >>> gpio = GPIO.get_gpio_base(device)
+
+        Note
+        ----
+        For path '/sys/class/gpio/gpiochip138/', this method returns 138.
+
+        Parameters
+        ----------
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
+        device : RemoteDevice
+            Remote device object for RemoteGPIO operations
+
+        Returns
+        -------
+        int
+            The GPIO index of the base.
+
+        """
         if device is None:
             raise RuntimeError("get_gpio_base requires a RemoteDevice instance.")
         
@@ -620,6 +727,32 @@ class RemoteGPIO:
         
     @staticmethod
     def get_gpio_pin(gpio_user_index, target_label=None, device=None):
+        """This method returns a GPIO instance for PS GPIO pins.
+
+        Users only need to specify an index starting from 0; this static
+        method will map this index to the correct Linux GPIO pin number.
+
+        Note
+        ----
+        The GPIO pin number can be calculated using:
+        GPIO pin number = GPIO base + GPIO offset + user index
+        e.g. The GPIO base is 138, and pin 54 is the base GPIO offset.
+        Then the Linux GPIO pin would be (138 + 54 + 0) = 192.
+
+        Parameters
+        ----------
+        gpio_user_index : int
+            The index specified by users, starting from 0.
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
+
+        Returns
+        -------
+        int
+            The Linux Sysfs GPIO pin number.
+
+        """
         if device is None:
             raise RuntimeError("get_gpio_pin requires a RemoteDevice instance.")
         
@@ -636,6 +769,33 @@ class RemoteGPIO:
         
     @staticmethod
     def get_gpio_npins(target_label=None, device=None):
+        """This method returns the number of GPIO pins for the GPIO base
+        using Linux's GPIO Sysfs API.
+
+        This is a static method. To use:
+
+        >>> from pynq import GPIO
+        
+        >>> from pynq.pl_server import RemoteDevice
+        
+        >>> device = RemoteDevice(ip_addr='192.168.2.99')
+
+        >>> gpio = GPIO.get_gpio_npins()
+
+        Parameters
+        ----------
+        target_label : str
+            The label of the GPIO driver to look for, as defined in a
+            device tree entry.
+        device : RemoteDevice
+            Remote device object for RemoteGPIO operations
+
+        Returns
+        -------
+        int
+            The number of GPIO pins for the GPIO base.
+
+        """
         if device is None:
             raise RuntimeError("get_gpio_npins requires a RemoteDevice instance.")
         

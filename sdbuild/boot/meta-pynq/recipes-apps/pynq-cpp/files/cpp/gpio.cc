@@ -9,7 +9,6 @@ GPIO::GPIO(uint32_t gpio_index, std::string direction)
         return;
     }
 
-    // Set member variables
     this->gpio_index = gpio_index;
     this->direction = direction;
     this->gpio_base_path = "/sys/class/gpio/gpio" + std::to_string(gpio_index) + "/";
@@ -47,14 +46,12 @@ uint32_t GPIO::read()
         return 0;
     }
 
-    // Open the value file for reading
     std::ifstream value_file(this->gpio_base_path + "value");
     if (!value_file.is_open()) {
         std::cerr << "Failed to open value file for reading" << std::endl;
         return 0;
     }
 
-    // Read the value and convert to integer
     std::string value_str;
     value_file >> value_str;
     value_file.close();
@@ -72,13 +69,11 @@ void GPIO::write(uint32_t value)
         return;
     }
 
-    // Check if value is valid
     if (value != 0 && value != 1) {
         std::cerr << "Value must be 0 or 1" << std::endl;
         return;
     }
 
-    // Open the value file for writing
     std::ofstream value_file(this->gpio_base_path + "value");
     if (!value_file.is_open()) {
         std::cerr << "Failed to open value file for writing" << std::endl;
