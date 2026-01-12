@@ -6,7 +6,7 @@ set -x
 target=$1
 shift
 
-fss="proc run dev"
+fss="proc run dev dev/pts"
 
 # PLNX 2024.1 adds CERT FILES which cause issues in QEMU ...  
 unset GIT_SSL_CAINFO

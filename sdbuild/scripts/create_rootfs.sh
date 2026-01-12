@@ -7,7 +7,7 @@ target=$1
 SRCDIR=$2
 ARCH=$3
 
-fss="proc dev sys"
+fss="proc dev sys dev/pts"
 echo $QEMU_EXE
 
 multistrap_conf=${SRCDIR}/multistrap.config
