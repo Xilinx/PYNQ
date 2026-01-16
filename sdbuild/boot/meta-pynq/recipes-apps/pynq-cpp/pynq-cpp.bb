@@ -13,6 +13,8 @@ SRC_URI = "file://cpp/CMakeLists.txt \
            file://cpp/mmio.h \
            file://cpp/buffer.cc \
            file://cpp/buffer.h \
+           file://cpp/gpio.cc \
+           file://cpp/gpio.h \
            file://protos/buffer.proto \
            file://protos/mmio.proto \
            file://protos/remote_device.proto \
