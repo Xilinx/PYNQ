@@ -42,7 +42,9 @@ Step 2: Prepare and Boot the Target Device
 * Create a PYNQ.remote image using the instructions in :doc:`image_build`.
 * Flash the image to your SD card (see :doc:`../appendix/sdcard` for instructions on how to flash the image).
 * Insert the SD card and power on the device (make sure it is connected to your network).
-* Wait for the device to boot up. You can check the device's IP address using a serial console (e.g. `minicom <https://help.ubuntu.com/community/Minicom>`_ or `PuTTY <https://www.putty.org/>`_) or by checking your router's DHCP client list.
+* Wait for the device to boot up. You can check the device's IP address using a serial console (e.g. `minicom <https://help.ubuntu.com/community/Minicom>`_ or `PuTTY <https://www.putty.org/>`_) or by checking your router's DHCP client list. 
+
+Be aware that the default login credentials have changed with Petalinux. The username is `petalinux`. On first boot, you will be prompted to set a new password.
 
 .. note::
 
