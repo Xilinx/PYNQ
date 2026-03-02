@@ -72,7 +72,7 @@ source /home/user/petalinux/settings.sh
 ```
 
 Ensure that the prebuilt pynq sdist and rootfs tarballs are in the `sdbuild/prebuilt` 
-folder, then build your image:
+folder named `pynq_sdist.tar.gz` and `pynq_rootfs.<arch>.tar.gz` , then build your image:
 
 ```
 cd sdbuild
