@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package interrupt;
+
+service RemoteInterrupt {
+    rpc register_interrupt(RegisterRequest) returns (RegisterResponse) {}
+    rpc wait_for_interrupt(WaitRequest) returns (WaitResponse) {}
+    rpc release_interrupt(ReleaseRequest) returns (ReleaseResponse) {}
+}
+
+message RegisterRequest {
+    string pin_name = 1;
+    uint32 pin_index = 2;
+    uint32 raw_irq = 3;
+    uint64 controller_phys_addr = 4;
+}
+
+message RegisterResponse {
+    optional string msg = 1;
+    string interrupt_id = 2;
+}
+
+message WaitRequest {
+    string interrupt_id = 1;
+    uint32 timeout_ms = 2;
+}
+
+message WaitResponse {
+    enum Status { FIRED = 0; TIMEOUT = 1; ERROR = 2; }
+    Status status = 1;
+    optional string msg = 2;
+}
+
+message ReleaseRequest {
+    string interrupt_id = 1;
+}
+
+message ReleaseResponse {
+    optional string msg = 1;
+}

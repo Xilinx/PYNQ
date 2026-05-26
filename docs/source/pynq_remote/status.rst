@@ -16,6 +16,6 @@ This document outlines the current status of PYNQ.remote.
    * :doc:`../pynq_libraries/mmio`
    * :doc:`../pynq_libraries/dma`
    * :doc:`../pynq_libraries/allocate`
-   * :doc:`../pynq_libraries/interrupt` (coming soon)
+   * :doc:`../pynq_libraries/interrupt` (see :ref:`remote_interrupts`)
    * :doc:`../pynq_libraries/psgpio` (coming soon)
    * Multi-board support

@@ -26,6 +26,7 @@
 #include <mmio.grpc.pb.h>
 #include <buffer.grpc.pb.h>
 #include <gpio.grpc.pb.h>
+#include <interrupt.grpc.pb.h>
 #ifdef RFSOC
 #include <xrfclk.grpc.pb.h>
 #include <xrfdc.grpc.pb.h>
@@ -35,6 +36,7 @@
 #include "mmio.h"
 #include "device.h"
 #include "gpio.h"
+#include "interrupt.h"
 #ifdef RFSOC
 #include "xrfclk.h"
 #include "xrfdc.h"
@@ -106,6 +108,12 @@ using gpio::GetGpioBasePathResponse;
 using gpio::GetGpioNPinsRequest;
 using gpio::GetGpioNPinsResponse;
 using gpio::Gpio;
+using interrupt::RegisterRequest;
+using interrupt::RegisterResponse;
+using interrupt::WaitRequest;
+using interrupt::WaitResponse;
+using interrupt::ReleaseRequest;
+using interrupt::ReleaseResponse;
 #ifdef RFSOC
 using xrfclk::FindDevicesRequest;
 using xrfclk::FindDevicesResponse;
@@ -904,6 +912,7 @@ private:
 
 public:
     std::string device_name = "";
+    InterruptImpl *interrupt_service_ = nullptr;
     /**
      * @brief Constructor for RemoteDeviceImpl.
      * Checks if the /lib/firmware/ directory exists and creates it if it does not.
@@ -965,6 +974,10 @@ public:
         file.close();
         remote_device_.download(remote_device_.get_bitstream_attrs().first);
 
+        if (interrupt_service_)
+        {
+            interrupt_service_->invalidate_all_internal();
+        }
 #ifdef RFSOC
         // The PL has been reprogrammed, so any cached RFDC/clock state on the
         // server now points at the old overlay. Tell the dependent services to
@@ -1082,12 +1095,14 @@ void RunServer(uint16_t port)
     MMIOImpl mmio_service;                  // Create MMIO rpc handler
     BufferImpl buffer_service;              // Create Buffer rpc handler
     GPIOImpl gpio_service;                  // Create Gpio rpc handler
+    InterruptImpl interrupt_service;          // Create Interrupt rpc handler
 #ifdef RFSOC
     XrfclkImpl xrfclk_service;              // Create Xrfclk rpc handler
     XrfdcImpl xrfdc_service;                // Create Xrfdc rpc handler
     remote_device_service.set_rfsoc_services(&xrfdc_service, &xrfclk_service);
 #endif
     remote_device_service.device_name = buffer_service.device_name;
+    remote_device_service.interrupt_service_ = &interrupt_service;
 
     grpc::EnableDefaultHealthCheckService(true);
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();
@@ -1097,6 +1112,7 @@ void RunServer(uint16_t port)
     builder.RegisterService(&mmio_service);
     builder.RegisterService(&buffer_service);
     builder.RegisterService(&gpio_service);
+    builder.RegisterService(&interrupt_service);
 #ifdef RFSOC
     builder.RegisterService(&xrfclk_service);
     builder.RegisterService(&xrfdc_service);

@@ -10,6 +10,7 @@ PYNQ.remote
    pynq_remote/quickstart
    pynq_remote/image_build
    pynq_remote/remote_device
+   pynq_remote/interrupts
    pynq_remote/cpp_index
    pynq_remote/status
    pynq_remote/env_variables
