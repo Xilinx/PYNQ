@@ -5,6 +5,12 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 DEPENDS = "protobuf grpc protobuf-native grpc-native xrt"
 
+# RFSoC services (xrfdc, xrfclk) are gated by the "rfsoc" PACKAGECONFIG.
+# The PYNQ Makefile writes a per-project bbappend that appends "rfsoc" to
+# PACKAGECONFIG when RFSoC_<board>=1 in the board .spec.
+PACKAGECONFIG ??= ""
+PACKAGECONFIG[rfsoc] = "-DRFSOC=ON,-DRFSOC=OFF,rfdc libmetal,rfdc libmetal"
+
 SRC_URI = "file://cpp/CMakeLists.txt \
            file://cpp/pynq-remote.cc \
            file://cpp/device.cc \
@@ -21,6 +27,11 @@ SRC_URI = "file://cpp/CMakeLists.txt \
            file://protos/remote_device.proto \
            file://cmake/common.cmake \
            file://pynq-remote.service"
+
+SRC_URI:append = " ${@bb.utils.contains('PACKAGECONFIG', 'rfsoc', \
+    'file://cpp/xrfclk.cc file://cpp/xrfclk.h \
+     file://cpp/xrfdc.cc file://cpp/xrfdc.h \
+     file://protos/xrfclk.proto file://protos/xrfdc.proto', '', d)}"
 
 S = "${WORKDIR}/cpp"
 

@@ -96,6 +96,12 @@ ifeq ($$(FPGA_MANAGER_$1),)
 	FPGA_MANAGER_$1 := 1
 endif
 
+# Default RFSoC to 0 (non-RFSoC board) if not specified
+# Board .spec files should set RFSoC_<boardname> := 1 for RFSoC boards
+ifeq ($$(RFSoC_$1),)
+	RFSoC_$1 := 0
+endif
+
 # New API - SDIST and RootFS by default should be provided to the Makefile
 # >v2.7     can be overriden to old behavior by setting REBUILD_PYNQ_ROOTFS
 #           and REBUILD_PYNQ_SDIST
@@ -207,6 +213,19 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 		echo 'CONFIG_tcf-agent=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_imagefeature-ssh-server-openssh=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_imagefeature-ssh-server-dropbear=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		if [ $$(RFSoC_$1) = 1 ]; then \
+			echo 'CONFIG_rfdc' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+			echo 'CONFIG_rfdc=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+			echo 'CONFIG_rfdc-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+			echo 'CONFIG_rfdc-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+			echo 'CONFIG_libmetal' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+			echo 'CONFIG_libmetal=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+			echo 'CONFIG_libmetal-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+			echo 'CONFIG_libmetal-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+			mkdir -p $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp ;\
+			echo 'PACKAGECONFIG:append = " rfsoc"' \
+				> $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp/pynq-cpp.bbappend ;\
+		fi ;\
 		petalinux-config -c rootfs --silentconfig -p $$(PL_PROJ_$1) ;\
 	fi	
 
