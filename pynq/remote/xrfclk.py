@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import re
 from collections import defaultdict
@@ -8,13 +9,30 @@ from pynq.remote import xrfclk_pb2, xrfclk_pb2_grpc
 
 _Config = defaultdict(dict)
 _Devices = defaultdict(dict)
-_Config_loaded_from = None
 
 lmk_devices = []
 lmx_devices = []
 
+# Self-alias for classic compatibility: expose xrfclk.xrfclk as this module.
+xrfclk = sys.modules[__name__]
 
-def _write_LMK_regs(reg_vals, device):
+# get target devices
+def _get_device(device):
+    """Return device if it is a RemoteDevice, else the active remote device."""
+    if not isinstance(device, RemoteDevice):
+        try:
+            device = Device.active_device
+        except Exception:
+            raise RuntimeError("No remote device found. Either use the "
+                               "PYNQ_REMOTE_DEVICES environment variable or pass "
+                               "a device explicitly.")
+    if not isinstance(device, RemoteDevice):
+        raise RuntimeError("This function is only supported on remote devices.")
+    return device
+
+
+def _write_LMK_regs(reg_vals, device=None):
+    device = _get_device(device)
     request = xrfclk_pb2.WriteLmkRegsRequest(reg_vals=reg_vals)
     try:
         device._stub['xrfclk'].write_lmk_regs(request)
@@ -22,7 +40,8 @@ def _write_LMK_regs(reg_vals, device):
         raise RuntimeError(f"Failed to write LMK registers: {e}")
 
 
-def _write_LMX_regs(reg_vals, device):
+def _write_LMX_regs(reg_vals, device=None):
+    device = _get_device(device)
     request = xrfclk_pb2.WriteLmxRegsRequest(reg_vals=reg_vals)
     try:
         device._stub['xrfclk'].write_lmx_regs(request)
@@ -45,27 +64,18 @@ def _set_LMX_regs(lmx_freq, device):
 
 
 def set_ref_clks(lmk_freq=122.88, lmx_freq=409.6, device=None):
-    try:
-        if not device:
-            device = Device.active_device
-    except Exception:
-        raise RuntimeError("No remote device found. Either use the PYNQ_REMOTE_DEVICES "
-                           "environment variable or pass device explicitly.")
-    if not isinstance(device, RemoteDevice):
-        raise RuntimeError("This function is only supported on remote devices.")
+    device = _get_device(device)
 
     if device not in _Devices or 'lmk' not in _Devices[device]:
         _find_devices(device)
-    cwd = os.getcwd()
-    if not _Config or _Config_loaded_from != cwd:
-        _Config.clear()
-        _read_tics_output()
 
+    _read_tics_output(device.name)
     _set_LMK_regs(lmk_freq, device)
     _set_LMX_regs(lmx_freq, device)
 
-
-def _find_devices(device):
+# find clock devices
+def _find_devices(device=None):
+    device = _get_device(device)
     if not hasattr(device, '_stub'):
         device._stub = {}
     device._stub['xrfclk'] = xrfclk_pb2_grpc.XrfclkStub(device.client.channel)
@@ -73,68 +83,53 @@ def _find_devices(device):
     _Devices[device]['lmk'] = response.lmk_device
     _Devices[device]['lmx'] = response.lmx_device
 
+    # Classic-compatible globals for code that reads xrfclk.lmk_devices/lmx_devices.
+    global lmk_devices, lmx_devices
+    lmk_devices = [{'compatible': response.lmk_device}]
+    lmx_devices = [{'compatible': response.lmx_device}]
 
-def _read_tics_output(config_dir=None):
-    """Read all the TICS register values from all the txt files.
 
-    Fill a single dictionary with dictionaries for each chip.
-    Can store multiple frequencies per chip.
+def _load_tics_dir(dir_path):
+    """Parse the CHIPNAME_FREQUENCY.txt TICS files in dir_path into _Config.
 
-    Reading all the configurations from the specified directory, current
-    working directory, or module directory (in that priority order).
-    File format: `CHIPNAME_frequency.txt`.
-
-    Parameters
-    ----------
-    config_dir : str, optional
-        Path to directory containing TICS configuration files.
-        If None, searches current working directory first, then module directory.
-
+    Each file (e.g. LMK04828_245.76.txt) holds the register values for that chip
+    at that frequency, stored as _Config[chip][freq] = [reg, ...]. Entries are
+    overwritten, so a directory loaded later overrides one loaded earlier.
     """
-    if config_dir is not None:
-        if not os.path.exists(config_dir):
-            raise RuntimeError(f"Specified config directory does not exist: {config_dir}")
-        search_paths = [config_dir]
-    else:
-        cwd = os.getcwd()
-        module_dir = os.path.dirname(os.path.realpath(__file__))
-        bundled_tics_dir = os.path.join(module_dir, 'tics')
-        search_paths = [cwd, bundled_tics_dir]
+    for path in sorted(glob.glob(os.path.join(dir_path, '*.txt'))):
+        name = os.path.splitext(os.path.basename(path).lower())[0]
+        match = re.match(r'^([a-z0-9]+)_([\d.]+)$', name)
+        if not match:
+            continue
+        chip, freq = match.group(1), float(match.group(2))
+        regs = []
+        with open(path) as f:
+            for line in f:
+                m = re.search(r'0x[0-9A-Fa-f]+', line)
+                if m:
+                    regs.append(int(m.group(0), 16))
+        if not regs:
+            raise RuntimeError(f"No register values found in TICS file: {path}")
+        _Config[chip][freq] = regs
 
-    _TICS_NAME = re.compile(r'^([a-z0-9]+)_([\d.]+)$')
 
-    tics_files = []
-    used_path = None
-    for dir_path in search_paths:
-        for s in glob.glob(os.path.join(dir_path, '*.txt')):
-            basename = os.path.splitext(os.path.basename(s.lower()))[0]
-            match = _TICS_NAME.match(basename)
-            if match:
-                tics_files.append((s, match.group(1), match.group(2)))
-        if tics_files:
-            used_path = dir_path
-            break
+def _read_tics_output(board=None):
+    """Populate _Config with the board's TICS clock files plus local overrides.
 
-    if not tics_files:
-        search_str = f"'{config_dir}'" if config_dir else "current directory or module directory"
-        raise RuntimeError(f"No TICS configuration files found in {search_str}. "
-                           f"Expected files named CHIPNAME_FREQUENCY.txt "
-                           f"(e.g. LMK04828_245.76.txt)")
-
+    Loads the board's bundled files from pynq/remote/tics/<board>/ first, then any
+    CHIPNAME_FREQUENCY.txt in the current working directory on top, so a local file
+    overrides (or adds to) the bundled set. TICS register values are board-specific
+    (boards sharing an LMK/LMX chip may ship different registers), hence the
+    per-board bundled layout.
+    """
     _Config.clear()
-    for s, chip, freq_str in tics_files:
-        with open(s, 'r') as f:
-            lines = [l.rstrip("\n") for l in f]
+    module_dir = os.path.dirname(os.path.realpath(__file__))
+    board_dir = os.path.join(module_dir, 'tics', board) if board else None
+    if board_dir and os.path.isdir(board_dir):
+        _load_tics_dir(board_dir)        # bundled base
+    _load_tics_dir(os.getcwd())          # local overrides win
 
-        registers = []
-        for line in lines:
-            m = re.search(r'[\t]*(0x[0-9A-F]+)', line, re.IGNORECASE)
-            if m:
-                registers.append(int(m.group(1), 16))
-        if not registers:
-            raise RuntimeError(f"No register values found in TICS file: {s}")
-
-        _Config[chip][float(freq_str)] = registers
-
-    global _Config_loaded_from
-    _Config_loaded_from = used_path if used_path else (config_dir or os.getcwd())
+    if not _Config:
+        raise RuntimeError(
+            f"No TICS files found for board '{board}' or in the current directory. "
+            f"Expected files named CHIPNAME_FREQUENCY.txt (e.g. LMK04828_245.76.txt).")
