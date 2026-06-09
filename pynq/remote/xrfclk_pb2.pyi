@@ -36,3 +36,23 @@ class WriteLmxRegsRequest(_message.Message):
 class WriteLmxRegsResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
+
+class ProgramLmkRequest(_message.Message):
+    __slots__ = ("freq",)
+    FREQ_FIELD_NUMBER: _ClassVar[int]
+    freq: float
+    def __init__(self, freq: _Optional[float] = ...) -> None: ...
+
+class ProgramLmkResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class ProgramLmxRequest(_message.Message):
+    __slots__ = ("freq",)
+    FREQ_FIELD_NUMBER: _ClassVar[int]
+    freq: float
+    def __init__(self, freq: _Optional[float] = ...) -> None: ...
+
+class ProgramLmxResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...

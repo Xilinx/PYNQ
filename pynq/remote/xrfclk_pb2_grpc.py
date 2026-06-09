@@ -54,6 +54,16 @@ class XrfclkStub(object):
                 request_serializer=xrfclk__pb2.WriteLmxRegsRequest.SerializeToString,
                 response_deserializer=xrfclk__pb2.WriteLmxRegsResponse.FromString,
                 _registered_method=True)
+        self.program_lmk = channel.unary_unary(
+                '/xrfclk.Xrfclk/program_lmk',
+                request_serializer=xrfclk__pb2.ProgramLmkRequest.SerializeToString,
+                response_deserializer=xrfclk__pb2.ProgramLmkResponse.FromString,
+                _registered_method=True)
+        self.program_lmx = channel.unary_unary(
+                '/xrfclk.Xrfclk/program_lmx',
+                request_serializer=xrfclk__pb2.ProgramLmxRequest.SerializeToString,
+                response_deserializer=xrfclk__pb2.ProgramLmxResponse.FromString,
+                _registered_method=True)
 
 
 class XrfclkServicer(object):
@@ -77,6 +87,18 @@ class XrfclkServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def program_lmk(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def program_lmx(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_XrfclkServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -94,6 +116,16 @@ def add_XrfclkServicer_to_server(servicer, server):
                     servicer.write_lmx_regs,
                     request_deserializer=xrfclk__pb2.WriteLmxRegsRequest.FromString,
                     response_serializer=xrfclk__pb2.WriteLmxRegsResponse.SerializeToString,
+            ),
+            'program_lmk': grpc.unary_unary_rpc_method_handler(
+                    servicer.program_lmk,
+                    request_deserializer=xrfclk__pb2.ProgramLmkRequest.FromString,
+                    response_serializer=xrfclk__pb2.ProgramLmkResponse.SerializeToString,
+            ),
+            'program_lmx': grpc.unary_unary_rpc_method_handler(
+                    servicer.program_lmx,
+                    request_deserializer=xrfclk__pb2.ProgramLmxRequest.FromString,
+                    response_serializer=xrfclk__pb2.ProgramLmxResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -177,6 +209,60 @@ class Xrfclk(object):
             '/xrfclk.Xrfclk/write_lmx_regs',
             xrfclk__pb2.WriteLmxRegsRequest.SerializeToString,
             xrfclk__pb2.WriteLmxRegsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def program_lmk(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfclk.Xrfclk/program_lmk',
+            xrfclk__pb2.ProgramLmkRequest.SerializeToString,
+            xrfclk__pb2.ProgramLmkResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def program_lmx(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfclk.Xrfclk/program_lmx',
+            xrfclk__pb2.ProgramLmxRequest.SerializeToString,
+            xrfclk__pb2.ProgramLmxResponse.FromString,
             options,
             channel_credentials,
             insecure,
