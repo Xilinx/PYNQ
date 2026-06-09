@@ -1,3 +1,29 @@
+"""Remote xrfclk: set RFSoC reference clocks over gRPC.
+
+Used exactly like classic PYNQ:
+
+    import xrfclk
+    xrfclk.set_ref_clks(lmk_freq=245.76, lmx_freq=491.52)
+
+The only difference from classic is where the clock (TICS) files come from.
+
+Normally you don't need additional clock files. Each board's remote image 
+already ships its own, so set_ref_clks works for the frequencies the board 
+supports. Any unsupported frequency raises "Frequency <f> MHz is not valid".
+
+To override or add a frequency, put a clock file named CHIPNAME_FREQUENCY.txt
+in the directory you run from. A local file takes precedence over the board's.
+
+When driving multiple boards from the same host, place board-specific files
+in a subdirectory so they do not clash. The most specific match wins:
+
+    ./                   applies to every board
+    ./<device.name>/     one board model, e.g. ./RFSoC4x2/ or ./ZCU208/
+    ./<device.ip_addr>/  one specific board
+
+Two boards of the same model can only be told apart by ./<device.ip_addr>/.
+"""
+
 import os
 import sys
 import glob
