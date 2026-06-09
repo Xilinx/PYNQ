@@ -18,6 +18,13 @@
 #include <xrfclk.grpc.pb.h>
 #include <xrfclk.pb.h>
 
+// Raised when no on-target TICS file matches the requested chip/frequency, so the
+// service can map it to a gRPC NOT_FOUND (the host then reports "frequency not valid").
+class TicsNotFound : public std::runtime_error {
+public:
+    explicit TicsNotFound(const std::string& msg) : std::runtime_error(msg) {}
+};
+
 class XRFCLK
 {
 private:
@@ -37,6 +44,7 @@ private:
     std::vector<LmkDevice> lmk_devices_;
     std::vector<LmxDevice> lmx_devices_;
     bool devices_initialized_;
+    std::string tics_dir_;
     
     // Private helper methods
     std::string getSpidevPath(const std::filesystem::path& dev);
@@ -44,6 +52,11 @@ private:
     std::string readFile(const std::filesystem::path& filepath);
     std::vector<uint8_t> readBinaryFile(const std::filesystem::path& filepath);
     void findDevices();
+
+    // On-target TICS lookup/parse: find <tics_dir_>/<CHIP>_<freq>.txt for the given
+    // device compatible (case-insensitive) and frequency, and parse its hex registers.
+    std::string findTicsFile(const std::string& compatible, double freq);
+    std::vector<uint32_t> parseRegFile(const std::filesystem::path& filepath);
 
 public:
     XRFCLK();
@@ -54,6 +67,10 @@ public:
     
     void writeLmkRegs(const std::vector<uint32_t>& reg_vals);
     void writeLmxRegs(const std::vector<uint32_t>& reg_vals);
+
+    // Program from the on-target TICS files by frequency (throws TicsNotFound if absent).
+    void programLmk(double freq);
+    void programLmx(double freq);
 
     /**
      * @brief Drop the cached device-discovery state.
@@ -92,6 +109,8 @@ public:
     grpc::Status find_devices(grpc::ServerContext *context, const xrfclk::FindDevicesRequest *request, xrfclk::FindDevicesResponse *response) override;
     grpc::Status write_lmk_regs(grpc::ServerContext *context, const xrfclk::WriteLmkRegsRequest *request, xrfclk::WriteLmkRegsResponse *response) override;
     grpc::Status write_lmx_regs(grpc::ServerContext *context, const xrfclk::WriteLmxRegsRequest *request, xrfclk::WriteLmxRegsResponse *response) override;
+    grpc::Status program_lmk(grpc::ServerContext *context, const xrfclk::ProgramLmkRequest *request, xrfclk::ProgramLmkResponse *response) override;
+    grpc::Status program_lmx(grpc::ServerContext *context, const xrfclk::ProgramLmxRequest *request, xrfclk::ProgramLmxResponse *response) override;
 };
 
 #endif // XRFCLK_H

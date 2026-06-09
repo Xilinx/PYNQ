@@ -3,6 +3,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstring>
+#include <cmath>
+#include <cctype>
 #include <algorithm>
 
 #ifdef DEBUG
@@ -12,7 +14,7 @@
 namespace fs = std::filesystem;
 
 // Constructor
-XRFCLK::XRFCLK() : devices_initialized_(false) {
+XRFCLK::XRFCLK() : devices_initialized_(false), tics_dir_("/usr/share/xrfclk") {
     // Discover devices on construction
     findDevices();
 }
@@ -381,6 +383,120 @@ void XRFCLK::writeLmxRegs(const std::vector<uint32_t>& reg_vals) {
     }
 }
 
+// Find <tics_dir_>/<CHIP>_<freq>.txt whose chip matches `compatible`
+// (case-insensitive) and whose frequency equals `freq`. Returns "" if none.
+std::string XRFCLK::findTicsFile(const std::string& compatible, double freq) {
+    if (!fs::exists(tics_dir_) || !fs::is_directory(tics_dir_)) {
+        return "";
+    }
+
+    for (const auto& entry : fs::directory_iterator(tics_dir_)) {
+        if (!entry.is_regular_file()) {
+            continue;
+        }
+
+        std::string fname = entry.path().filename().string();
+        // Expect CHIP_FREQ.txt (e.g. LMK04828_245.76.txt)
+        if (fname.size() < 5 || fname.substr(fname.size() - 4) != ".txt") {
+            continue;
+        }
+        std::string stem = fname.substr(0, fname.size() - 4); // CHIP_FREQ
+
+        std::size_t us = stem.find('_');
+        if (us == std::string::npos) {
+            continue;
+        }
+        std::string chip = stem.substr(0, us);
+        std::string freq_str = stem.substr(us + 1);
+
+        // Compare chip case-insensitively against the device compatible (lowercase).
+        std::transform(chip.begin(), chip.end(), chip.begin(),
+                       [](unsigned char c) { return std::tolower(c); });
+        if (chip != compatible) {
+            continue;
+        }
+
+        double file_freq;
+        try {
+            file_freq = std::stod(freq_str);
+        } catch (...) {
+            continue;
+        }
+        if (std::fabs(file_freq - freq) < 1e-6) {
+            return entry.path().string();
+        }
+    }
+
+    return "";
+}
+
+// Parse hex register values from a TICS file: the first 0x... token on each line
+// (matches the host-side parser).
+std::vector<uint32_t> XRFCLK::parseRegFile(const fs::path& filepath) {
+    std::ifstream file(filepath);
+    if (!file) {
+        throw std::runtime_error("Failed to open TICS file: " + filepath.string());
+    }
+
+    std::vector<uint32_t> regs;
+    std::string line;
+    while (std::getline(file, line)) {
+        std::size_t pos = line.find("0x");
+        if (pos == std::string::npos) {
+            pos = line.find("0X");
+        }
+        if (pos == std::string::npos) {
+            continue;
+        }
+        try {
+            regs.push_back(static_cast<uint32_t>(std::stoul(line.substr(pos), nullptr, 16)));
+        } catch (...) {
+            continue;
+        }
+    }
+
+    if (regs.empty()) {
+        throw std::runtime_error("No register values found in TICS file: " + filepath.string());
+    }
+    return regs;
+}
+
+void XRFCLK::programLmk(double freq) {
+    if (!devices_initialized_) {
+        findDevices();
+    }
+    if (lmk_devices_.empty()) {
+        throw std::runtime_error("No LMK devices found");
+    }
+
+    const std::string& compatible = lmk_devices_[0].compatible;
+    std::string path = findTicsFile(compatible, freq);
+    if (path.empty()) {
+        throw TicsNotFound("No on-target TICS file for " + compatible + " at " +
+                           std::to_string(freq) + " MHz in " + tics_dir_);
+    }
+
+    writeLmkRegs(parseRegFile(path));
+}
+
+void XRFCLK::programLmx(double freq) {
+    if (!devices_initialized_) {
+        findDevices();
+    }
+    if (lmx_devices_.empty()) {
+        throw std::runtime_error("No LMX devices found");
+    }
+
+    const std::string& compatible = lmx_devices_[0].compatible;
+    std::string path = findTicsFile(compatible, freq);
+    if (path.empty()) {
+        throw TicsNotFound("No on-target TICS file for " + compatible + " at " +
+                           std::to_string(freq) + " MHz in " + tics_dir_);
+    }
+
+    writeLmxRegs(parseRegFile(path));
+}
+
 void XRFCLK::reset() {
     lmk_devices_.clear();
     lmx_devices_.clear();
@@ -455,6 +571,50 @@ grpc::Status XrfclkImpl::write_lmx_regs(grpc::ServerContext *context, const xrfc
     }
     catch (const std::exception &e) {
         std::cerr << "Error writing LMX registers: " << e.what() << std::endl;
+        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    }
+
+    return grpc::Status::OK;
+}
+
+grpc::Status XrfclkImpl::program_lmk(grpc::ServerContext *context, const xrfclk::ProgramLmkRequest *request, xrfclk::ProgramLmkResponse *response)
+{
+    std::lock_guard<std::mutex> lk(mu_);
+    #ifdef DEBUG
+    std::cout << "Function: program_lmk, freq=" << request->freq() << std::endl;
+    #endif
+
+    try {
+        xrfclk_instance_.programLmk(request->freq());
+    }
+    catch (const TicsNotFound &e) {
+        std::cerr << "LMK TICS not found: " << e.what() << std::endl;
+        return grpc::Status(grpc::StatusCode::NOT_FOUND, e.what());
+    }
+    catch (const std::exception &e) {
+        std::cerr << "Error programming LMK: " << e.what() << std::endl;
+        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    }
+
+    return grpc::Status::OK;
+}
+
+grpc::Status XrfclkImpl::program_lmx(grpc::ServerContext *context, const xrfclk::ProgramLmxRequest *request, xrfclk::ProgramLmxResponse *response)
+{
+    std::lock_guard<std::mutex> lk(mu_);
+    #ifdef DEBUG
+    std::cout << "Function: program_lmx, freq=" << request->freq() << std::endl;
+    #endif
+
+    try {
+        xrfclk_instance_.programLmx(request->freq());
+    }
+    catch (const TicsNotFound &e) {
+        std::cerr << "LMX TICS not found: " << e.what() << std::endl;
+        return grpc::Status(grpc::StatusCode::NOT_FOUND, e.what());
+    }
+    catch (const std::exception &e) {
+        std::cerr << "Error programming LMX: " << e.what() << std::endl;
         return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
     }
 
