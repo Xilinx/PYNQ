@@ -17,6 +17,7 @@ in the directory you run from. A local file takes precedence over the board's.
 When driving multiple boards from the same host, place board-specific files
 in a subdirectory so they do not clash. The most specific match wins:
 
+    <site-packages>/**   applies to every board, every working directory
     ./                   applies to every board
     ./<device.name>/     one board model, e.g. ./RFSoC4x2/ or ./ZCU208/
     ./<device.ip_addr>/  one specific board
@@ -28,6 +29,7 @@ import os
 import sys
 import glob
 import re
+import sysconfig
 import grpc
 from collections import defaultdict
 from pynq.pl_server import Device
@@ -160,35 +162,57 @@ def _find_devices(device=None):
     lmx_devices = [{'compatible': response.lmx_device}]
 
 
-def _load_tics_dir(dir_path, config):
-    """Parse the CHIPNAME_FREQUENCY.txt TICS files in dir_path into config.
+def _load_tics_file(path, config):
+    """Parse one CHIPNAME_FREQUENCY.txt TICS file into config[chip][freq].
 
-    Each file (e.g. LMK04828_245.76.txt) holds the register values for that chip
-    at that frequency, stored as config[chip][freq] = [reg, ...]. Entries are
-    overwritten, so a directory loaded later overrides one loaded earlier. A missing
-    directory yields no files (skipped).
+    The file (e.g. LMK04828_245.76.txt) holds the register values for that chip at
+    that frequency, stored as config[chip][freq] = [reg, ...]. Files whose name does
+    not match the CHIPNAME_FREQUENCY pattern are skipped. Entries are overwritten, so
+    a file loaded later overrides one loaded earlier for the same chip+freq.
+    """
+    name = os.path.splitext(os.path.basename(path).lower())[0]
+    match = re.match(r'^([a-z0-9]+)_([\d.]+)$', name)
+    if not match:
+        return
+    chip, freq = match.group(1), float(match.group(2))
+    regs = []
+    with open(path) as f:
+        for line in f:
+            m = re.search(r'0x[0-9A-Fa-f]+', line)
+            if m:
+                regs.append(int(m.group(0), 16))
+    if not regs:
+        raise RuntimeError(f"No register values found in TICS file: {path}")
+    config[chip][freq] = regs
+
+
+def _load_tics_dir(dir_path, config):
+    """Load the TICS files directly in dir_path (non-recursive) into config.
+
+    A missing directory yields no files (skipped).
     """
     for path in sorted(glob.glob(os.path.join(dir_path, '*.txt'))):
-        name = os.path.splitext(os.path.basename(path).lower())[0]
-        match = re.match(r'^([a-z0-9]+)_([\d.]+)$', name)
-        if not match:
-            continue
-        chip, freq = match.group(1), float(match.group(2))
-        regs = []
-        with open(path) as f:
-            for line in f:
-                m = re.search(r'0x[0-9A-Fa-f]+', line)
-                if m:
-                    regs.append(int(m.group(0), 16))
-        if not regs:
-            raise RuntimeError(f"No register values found in TICS file: {path}")
-        config[chip][freq] = regs
+        _load_tics_file(path, config)
+
+
+def _load_venv_tics(config):
+    """Load TICS files from anywhere under the active environment's site-packages.
+
+    Resolved from the running interpreter (honours an active virtualenv), so it
+    tracks whichever environment PYNQ is executing in, and searched recursively so
+    TICS files bundled inside any installed package are found.
+    """
+    site_packages = sysconfig.get_paths()['purelib']
+    for path in sorted(glob.glob(os.path.join(site_packages, '**', '*.txt'),
+                                 recursive=True)):
+        _load_tics_file(path, config)
 
 
 def _read_tics_output(device):
     """Load this device's local TICS overrides, most-specific directory winning.
 
     Search order (a later directory overrides an earlier one for the same file):
+      <site-packages>/**   environment-wide default (searched recursively)
       ./                   shared / single-board (classic layout)
       ./<device.name>/     per board model, e.g. RFSoC4x2, ZCU208
       ./<device.ip_addr>/  per board instance (distinguishes identical boards)
@@ -200,6 +224,7 @@ def _read_tics_output(device):
     """
     config = _Config[device]
     config.clear()
+    _load_venv_tics(config)
     cwd = os.getcwd()
     _load_tics_dir(cwd, config)
     if device.name:
