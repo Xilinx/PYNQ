@@ -7,7 +7,7 @@ DEPENDS = "protobuf grpc protobuf-native grpc-native xrt"
 
 # RFSoC services (xrfdc, xrfclk) are gated by the "rfsoc" PACKAGECONFIG.
 # The PYNQ Makefile writes a per-project bbappend that appends "rfsoc" to
-# PACKAGECONFIG when RFSoC_<board>=1 in the board .spec.
+# PACKAGECONFIG when RFSoC_<board>=1.
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[rfsoc] = "-DRFSOC=ON,-DRFSOC=OFF,rfdc libmetal,rfdc libmetal"
 
