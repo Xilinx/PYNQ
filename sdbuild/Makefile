@@ -5,6 +5,10 @@ ifneq (,$(filter pynqremote,$(MAKECMDGOALS)))
 override PYNQREMOTE = 1
 endif
 
+# Packages enabled in every PYNQ.remote (PetaLinux) rootfs. Boards add
+# board-specific remote packages via REMOTE_PACKAGES_<board> in their .spec file.
+REMOTE_PACKAGES ?= grpc pynq-cpp
+
 DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
 
@@ -14,7 +18,7 @@ ALLBOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 BOARDS ?= $(ALLBOARDS)
 
 UBUNTU_RELEASE := jammy
-VERSION := 3.1.2
+VERSION := 3.1.3
 
 KERNEL_VERSION := 2024.1
 QEMU_VERSION := 5.2.0
@@ -94,6 +98,11 @@ define BOARD_SPECIFIC_RULES
 # $1 is the board name
 ifeq ($$(FPGA_MANAGER_$1),)
 	FPGA_MANAGER_$1 := 1
+endif
+
+# If the board .spec file has rfdc as a remote package we infer it's an RFSoC board
+ifeq ($$(RFSoC_$1),)
+	RFSoC_$1 := $$(if $$(filter rfdc,$$(REMOTE_PACKAGES_$1)),1,0)
 endif
 
 # New API - SDIST and RootFS by default should be provided to the Makefile
@@ -181,28 +190,38 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 
 	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
 
+	# Base packages
 	echo 'CONFIG_xrt' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_xrt-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_zocl' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-headers-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-clhpp-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-
 	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
+	echo 'CONFIG_zocl' >> $$(PL_USER_ROOTFS_CONFIG_$1)
 	echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1)
 
-	# TODO: make this a configurable Makefile var:  echo 'CONFIG_TMP_DIR_LOCATION="'/scratch/plnxscratch'"'  >> $$(PL_CONFIG_$1)
+	# Classic PYNQ packages
+	if [ -z $(PYNQREMOTE) ]; then \
+		echo 'CONFIG_xrt-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-headers-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-clhpp-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+	fi
 
+	# PYNQ.remote packages: general defaults (REMOTE_PACKAGES) + board-specific
+	# additions (REMOTE_PACKAGES_<board> from the board .spec)
 	if [ $(PYNQREMOTE) = 1 ]; then \
-		echo 'CONFIG_grpc' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_pynq-cpp' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_grpc=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_pynq-cpp=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-	fi	
-
-	if [ $(PYNQREMOTE) = 1 ]; then \
+		for pkg in $(REMOTE_PACKAGES) $$(REMOTE_PACKAGES_$1); do \
+			echo "CONFIG_$$$$pkg" >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+			echo "CONFIG_$$$$pkg=y" >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		done ;\
+		echo 'CONFIG_nfs-utils=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_tcf-agent=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_imagefeature-ssh-server-openssh=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		echo 'CONFIG_imagefeature-ssh-server-dropbear=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		if [ $$(RFSoC_$1) = 1 ]; then \
+			mkdir -p $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp ;\
+			echo 'PACKAGECONFIG:append = " rfsoc"' \
+				> $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp/pynq-cpp.bbappend ;\
+		fi ;\
 		petalinux-config -c rootfs --silentconfig -p $$(PL_PROJ_$1) ;\
 	fi
 
@@ -318,7 +337,9 @@ $$(REMOTE_IMAGE_$1) : $$(PL_PROJ_$1) $$(REMOTE_ROOT_$1) $$(BOOT_FILES_$1)
 	rm -rf $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
-	(cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$(REMOTE_ROOT_$1) --outdir $$(IMAGE_ROOT) --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:.") && mv $$(IMAGE_ROOT)/petalinux-sdimage.wic $$@
+	cp $$(CURDIR)/boot/remote-image.wks $$(PL_PROJ_$1)/build/rootfs.wks
+	-cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$(REMOTE_ROOT_$1) --outdir $$(IMAGE_ROOT) --wks $$(CURDIR)/boot/remote-image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:."
+	mv $$(PL_PROJ_$1)/build/wic/wic-tmp/remote-image-*.direct $$@
 
 pynqremote_$1: $$(REMOTE_IMAGE_$1) 
 	echo "Done building remote image for board $1"

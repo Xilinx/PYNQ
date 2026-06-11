@@ -127,7 +127,7 @@ class _SDMAChannel:
         array : ContiguousArray
             An contiguously allocated array to be transferred
         start : int
-             Offset into array to start. Default is 0.
+             Byte offset into array to start. Default is 0.
         nbytes : int
              Number of bytes to transfer. Default is 0.
 
@@ -344,7 +344,7 @@ class _SGDMAChannel:
         array : ContiguousArray
             An contiguously allocated array to be transferred
         start : int
-             Offset into array to start. Default is 0.
+             Byte offset into array to start. Default is 0.
         nbytes : int
              Number of bytes to transfer. Default is 0.
         cyclic : bool
@@ -414,7 +414,7 @@ class _SGDMAChannel:
             remain -= d_len
 
             # Buffer address (64-bit)
-            self._descr[i, 2] = (array.physical_address + (i * blk_size)) & 0xFFFFFFFF
+            self._descr[i, 2] = (array.physical_address + start + (i * blk_size)) & 0xFFFFFFFF
             self._descr[i, 3] = (
                 (array.physical_address + start + (i * blk_size)) >> 32
             ) & 0xFFFFFFFF

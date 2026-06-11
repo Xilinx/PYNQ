@@ -29,7 +29,7 @@ message ReadRequest {
 message ReadResponse {
     bool status = 1;
     optional string msg = 2;
-    optional int32 data = 3;
+    optional uint32 data = 3;
 }
 
 message WriteRequest {

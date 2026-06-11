@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package xrfclk;
+
+service Xrfclk{
+    rpc find_devices (FindDevicesRequest) returns (FindDevicesResponse);
+    rpc write_lmk_regs (WriteLmkRegsRequest) returns (WriteLmkRegsResponse);
+    rpc write_lmx_regs (WriteLmxRegsRequest) returns (WriteLmxRegsResponse);
+    rpc program_lmk (ProgramLmkRequest) returns (ProgramLmkResponse);
+    rpc program_lmx (ProgramLmxRequest) returns (ProgramLmxResponse);
+}
+
+message FindDevicesRequest {
+}
+
+message FindDevicesResponse {
+    string lmk_device = 1;
+    string lmx_device = 2;
+}
+
+message WriteLmkRegsRequest {
+    repeated uint32 reg_vals = 1;
+}
+
+message WriteLmkRegsResponse {
+}
+
+message WriteLmxRegsRequest {
+    repeated uint32 reg_vals = 1;
+}
+
+message WriteLmxRegsResponse {
+}
+
+message ProgramLmkRequest {
+    double freq = 1;
+}
+
+message ProgramLmkResponse {
+}
+
+message ProgramLmxRequest {
+    double freq = 1;
+}
+
+message ProgramLmxResponse {
+}

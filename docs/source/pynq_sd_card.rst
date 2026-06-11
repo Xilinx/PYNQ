@@ -232,34 +232,17 @@ Unmount images before building again
 Sometimes the SD image building process can error out, leaving mounted images
 in your host OS. You need to unmount these images before trying the make
 process again. Starting from image v2.6, users can do the following to
-unmount the images.
-
-.. code-block:: console
-    
-   cd <PYNQ repository>/sdbuild/
-   make delete
-
-The above command not only unmounts all the images, but also deletes the
-failed images. This makes sure the users do not use the failed images when
-continuing the SD build process.
-
-To unmount images but not delete them, use the following command instead.
-
-.. code-block:: console
-    
-   cd <PYNQ repository>/sdbuild/
-   make unmount
-
-If you want to ignore all the previous staged or cached SD build
-artifacts and start from scratch again, you can use the following command.
-This will unmount and delete the failed images, and remove all the previously
-built images at different stages.
+unmount and delete the failed images, and remove all the previously
+built images at different stages:
 
 .. code-block:: console
     
    cd <PYNQ repository>/sdbuild/
    make clean
 
+
+If you want to ignore all the previous staged or cached SD build
+artifacts and start from scratch again, you can use the command above.
 
 Retargeting to a Different Board
 ================================

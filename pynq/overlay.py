@@ -393,7 +393,6 @@ class Overlay(Bitstream):
     def free(self):
         if self.dtbo:
             self.remove_dtbo()
-        self.device.close()
 
     def gen_cache(self):
         """ Generate a pickled cache of the metadata even if a download has not occurred """

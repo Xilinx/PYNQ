@@ -1,0 +1,733 @@
+syntax = "proto3";
+
+package xrfdc;
+
+service Xrfdc {
+      rpc CfgInitialize(CfgInitializeRequest) returns (CfgInitializeResponse);
+
+      rpc GetIPStatus(GetIPStatusRequest) returns (GetIPStatusResponse);
+      rpc GetBlockStatus(BlockRequest) returns (GetBlockStatusResponse);
+      rpc GetFIFOStatus(TileRequest) returns (GetFIFOStatusResponse);
+      rpc GetPLLLockStatus(TileRequest) returns (GetPLLLockStatusResponse);
+      rpc GetClockSource(TileRequest) returns (GetClockSourceResponse);
+
+      rpc StartUp(TileControlRequest) returns (TileControlResponse);
+      rpc Shutdown(TileControlRequest) returns (TileControlResponse);
+      rpc Reset(TileControlRequest) returns (TileControlResponse);
+      rpc SetupFIFO(SetupFIFORequest) returns (TileControlResponse);
+      rpc DynamicPLLConfig(DynamicPLLConfigRequest) returns (TileControlResponse);
+
+      rpc SetFabClkOutDiv(SetFabClkOutDivRequest) returns (TileControlResponse);
+      rpc GetFabClkOutDiv(TileRequest) returns (GetFabClkOutDivResponse);
+
+      rpc SetMixerSettings(SetMixerSettingsRequest) returns (TileControlResponse);
+      rpc GetMixerSettings(BlockRequest) returns (GetMixerSettingsResponse);
+      rpc ResetNCOPhase(BlockRequest) returns (TileControlResponse);
+
+      rpc SetNyquistZone(SetNyquistZoneRequest) returns (TileControlResponse);
+      rpc GetNyquistZone(BlockRequest) returns (GetNyquistZoneResponse);
+
+      rpc SetInterpolationFactor(SetInterpolationFactorRequest) returns (TileControlResponse);
+      rpc GetInterpolationFactor(BlockRequest) returns (GetInterpolationFactorResponse);
+      rpc SetDecimationFactor(SetDecimationFactorRequest) returns (TileControlResponse);
+      rpc GetDecimationFactor(BlockRequest) returns (GetDecimationFactorResponse);
+
+      rpc SetQMCSettings(SetQMCSettingsRequest) returns (TileControlResponse);
+      rpc GetQMCSettings(BlockRequest) returns (GetQMCSettingsResponse);
+
+      rpc SetThresholdSettings(SetThresholdSettingsRequest) returns (TileControlResponse);
+      rpc GetThresholdSettings(BlockRequest) returns (GetThresholdSettingsResponse);
+      rpc SetThresholdClrMode(SetThresholdClrModeRequest) returns (SetThresholdClrModeResponse);
+      rpc ThresholdStickyClear(ThresholdStickyClearRequest) returns (ThresholdStickyClearResponse);
+
+      rpc GetCoarseDelaySettings(GetCoarseDelaySettingsRequest) returns (GetCoarseDelaySettingsResponse);
+      rpc SetCoarseDelaySettings(SetCoarseDelaySettingsRequest) returns (SetCoarseDelaySettingsResponse);
+
+      rpc GetEnabledInterrupts(BlockRequest) returns (GetEnabledInterruptsResponse);
+      rpc GetPwrMode(BlockRequest) returns (GetPwrModeResponse);
+      rpc SetPwrMode(SetPwrModeRequest) returns (TileControlResponse);
+      rpc UpdateEvent(UpdateEventRequest) returns (TileControlResponse);
+      rpc ResetInternalFIFOWidth(BlockRequest) returns (TileControlResponse);
+      rpc GetConnectedIData(BlockRequest) returns (GetConnectedDataResponse);
+      rpc GetConnectedQData(BlockRequest) returns (GetConnectedDataResponse);
+
+      rpc GetCalibrationMode(BlockRequest) returns (GetCalibrationModeResponse);
+      rpc SetCalibrationMode(SetCalibrationModeRequest) returns (TileControlResponse);
+
+      rpc GetFabRdVldWords(BlockRequest) returns (GetFabRdVldWordsResponse);
+      rpc SetFabRdVldWords(SetFabRdVldWordsRequest) returns (TileControlResponse);
+      rpc GetFabWrVldWords(BlockRequest) returns (GetFabWrVldWordsResponse);
+      rpc SetFabWrVldWords(SetFabWrVldWordsRequest) returns (TileControlResponse);
+
+      rpc GetDecimationFactorObs(BlockRequest) returns (GetDecimationFactorResponse);
+      rpc SetDecimationFactorObs(SetDecimationFactorRequest) returns (TileControlResponse);
+      rpc GetFabRdVldWordsObs(BlockRequest) returns (GetFabRdVldWordsObsResponse);
+      rpc SetFabRdVldWordsObs(SetFabRdVldWordsObsRequest) returns (TileControlResponse);
+      rpc GetFabWrVldWordsObs(BlockRequest) returns (GetFabWrVldWordsObsResponse);
+
+      rpc GetDither(BlockRequest) returns (GetDitherResponse);
+      rpc SetDither(SetDitherRequest) returns (TileControlResponse);
+      rpc GetCalFreeze(BlockRequest) returns (GetCalFreezeResponse);
+      rpc SetCalFreeze(SetCalFreezeRequest) returns (TileControlResponse);
+      rpc GetDSA(BlockRequest) returns (GetDSAResponse);
+      rpc SetDSA(SetDSARequest) returns (TileControlResponse);
+
+      rpc DisableCoefficientsOverride(DisableCoefficientsOverrideRequest) returns (TileControlResponse);
+      rpc ResetInternalFIFOWidthObs(BlockRequest) returns (TileControlResponse);
+      rpc SetCalCoefficients(SetCalCoefficientsRequest) returns (TileControlResponse);
+      rpc GetCalCoefficients(GetCalCoefficientsRequest) returns (GetCalCoefficientsResponse);
+
+      rpc GetDecoderMode(BlockRequest) returns (GetDecoderModeResponse);
+      rpc SetDecoderMode(SetDecoderModeRequest) returns (TileControlResponse);
+      rpc GetOutputCurr(BlockRequest) returns (GetOutputCurrResponse);
+      rpc GetInvSincFIR(BlockRequest) returns (GetInvSincFIRResponse);
+      rpc SetInvSincFIR(SetInvSincFIRRequest) returns (TileControlResponse);
+      rpc GetDataPathMode(BlockRequest) returns (GetDataPathModeResponse);
+      rpc SetDataPathMode(SetDataPathModeRequest) returns (TileControlResponse);
+      rpc GetIMRPassMode(BlockRequest) returns (GetIMRPassModeResponse);
+      rpc SetIMRPassMode(SetIMRPassModeRequest) returns (TileControlResponse);
+      rpc GetDACCompMode(BlockRequest) returns (GetDACCompModeResponse);
+      rpc SetDACCompMode(SetDACCompModeRequest) returns (TileControlResponse);
+      rpc SetDACVOP(SetDACVOPRequest) returns (TileControlResponse);
+
+      rpc DumpRegs(TileRequest) returns (TileControlResponse);
+      rpc GetPLLConfig(TileRequest) returns (GetPLLConfigResponse);
+      rpc SetupFIFOObs(SetupFIFORequest) returns (TileControlResponse);
+      rpc SetupFIFOBoth(SetupFIFORequest) returns (TileControlResponse);
+      rpc GetFIFOStatusObs(TileRequest) returns (GetFIFOStatusResponse);
+
+      rpc GetClkDistribution(GetClkDistributionRequest) returns (GetClkDistributionResponse);
+      rpc SetClkDistribution(SetClkDistributionRequest) returns (TileControlResponse);
+}
+
+message Status {
+    uint32 code = 1;
+    string message = 2;
+    reserved 3;
+    string operation = 4;
+    string tile_type_name = 5;
+    int32 tile_id = 6;
+    int32 block_id = 7;
+}
+
+message BlockStatus {
+    double sampling_freq = 1;
+    uint32 analog_data_path_status = 2;
+    uint32 digital_data_path_status = 3;
+    uint32 data_path_clocks_status = 4;
+    uint32 is_fifo_flags_enabled = 5;
+    uint32 ib_supply = 6;
+    uint32 is_fifo_flags_asserted = 7;
+}
+
+message TileStatus {
+    uint32 is_enabled = 1;
+    uint32 tile_state = 2;
+    uint32 block_status_mask = 3;
+    uint32 power_up_state = 4;
+    uint32 pll_state = 5;
+    repeated BlockStatus block_status = 6; // 4 blocks
+}
+
+message IPStatus {
+    repeated TileStatus dac_tile_status = 1; // 4 tiles
+    repeated TileStatus adc_tile_status = 2; // 4 tiles
+    uint32 state = 3;
+}
+
+message DACBlockAnalogDataPathConfig {
+    uint32 block_available = 1;
+    uint32 inv_sync_enable = 2;
+    uint32 mix_mode = 3;
+    uint32 decoder_mode = 4;
+}
+
+message DACBlockDigitalDataPathConfig {
+    uint32 mixer_input_data_type = 1;
+    uint32 data_width = 2;
+    uint32 interpolation_mode = 3;
+    uint32 fifo_enable = 4;
+    uint32 adder_enable = 5;
+    uint32 mixer_type = 6;
+}
+
+message ADCBlockAnalogDataPathConfig {
+    uint32 block_available = 1;
+    uint32 mix_mode = 2;
+}
+
+message ADCBlockDigitalDataPathConfig {
+    uint32 mixer_input_data_type = 1;
+    uint32 data_width = 2;
+    uint32 decimation_mode = 3;
+    uint32 fifo_enable = 4;
+    uint32 mixer_type = 5;
+}
+
+message DACTileConfig {
+    uint32 enable = 1;
+    uint32 pll_enable = 2;
+    double sampling_rate = 3;
+    double ref_clk_freq = 4;
+    double fab_clk_freq = 5;
+    uint32 feedback_div = 6;
+    uint32 output_div = 7;
+    uint32 ref_clk_div = 8;
+    uint32 multiband_config = 9;
+    double max_sample_rate = 10;
+    uint32 num_slices = 11;
+    repeated DACBlockAnalogDataPathConfig dac_block_analog_config = 12; // 4 blocks
+    repeated DACBlockDigitalDataPathConfig dac_block_digital_config = 13; // 4 blocks
+}
+
+message ADCTileConfig {
+    uint32 enable = 1;
+    uint32 pll_enable = 2;
+    double sampling_rate = 3;
+    double ref_clk_freq = 4;
+    double fab_clk_freq = 5;
+    uint32 feedback_div = 6;
+    uint32 output_div = 7;
+    uint32 ref_clk_div = 8;
+    uint32 multiband_config = 9;
+    double max_sample_rate = 10;
+    uint32 num_slices = 11;
+    repeated ADCBlockAnalogDataPathConfig adc_block_analog_config = 12; // 4 blocks
+    repeated ADCBlockDigitalDataPathConfig adc_block_digital_config = 13; // 4 blocks
+}
+
+message RFdcConfig {
+    uint32 device_id = 1;
+    uint64 base_addr = 2;
+    uint32 adc_type = 3;
+    uint32 master_adc_tile = 4;
+    uint32 master_dac_tile = 5;
+    uint32 adc_sysref_source = 6;
+    uint32 dac_sysref_source = 7;
+    uint32 ip_type = 8;
+    uint32 si_revision = 9;
+    repeated DACTileConfig dac_tile_config = 10; // 4 tiles
+    repeated ADCTileConfig adc_tile_config = 11; // 4 tiles
+}
+
+message CfgInitializeRequest {
+    RFdcConfig config = 1;
+    uint64 size = 2;
+}
+
+message CfgInitializeResponse {
+    Status status = 1;
+}
+
+message GetIPStatusRequest {
+}
+
+message GetIPStatusResponse {
+    Status status = 1;
+    IPStatus ip_status = 2;
+}
+
+message TileControlRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+}
+
+message TileControlResponse {
+    Status status = 1;
+}
+
+message SetupFIFORequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    bool enable = 3;
+    uint32 block_id = 4;
+}
+
+message DynamicPLLConfigRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 source = 3;
+    double ref_clk_freq = 4; // MHz
+    double samp_rate = 5; // MHz
+}
+
+message BlockRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+}
+
+message TileRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+}
+
+message GetBlockStatusResponse {
+    Status status = 1;
+    double sampling_freq = 2;
+    uint32 analog_data_path_status = 3;
+    uint32 digital_data_path_status = 4;
+    uint32 data_path_clocks_status = 5;
+    uint32 is_fifo_flags_enabled = 6;
+    uint32 is_fifo_flags_asserted = 7;
+}
+
+message GetFIFOStatusResponse {
+    Status status = 1;
+    bool enable = 2;
+}
+
+message GetPLLLockStatusResponse {
+    Status status = 1;
+    uint32 lock_status = 2;
+}
+
+message GetClockSourceResponse {
+    Status status = 1;
+    uint32 clock_source = 2;
+}
+
+message SetFabClkOutDivRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 fab_clk_div = 3;
+}
+
+message GetFabClkOutDivResponse {
+    Status status = 1;
+    uint32 fab_clk_div = 2;
+}
+
+message MixerSettings {
+    double freq = 1;
+    double phase_offset = 2;
+    uint32 event_source = 3;
+    uint32 coarse_mix_freq = 4;
+    uint32 mixer_mode = 5;
+    uint32 fine_mixer_scale = 6;
+    uint32 mixer_type = 7;
+}
+
+message SetMixerSettingsRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    MixerSettings settings = 4;
+}
+
+message GetMixerSettingsResponse {
+    Status status = 1;
+    MixerSettings settings = 2;
+}
+
+message ResetNCOPhaseRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+}
+
+message SetNyquistZoneRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    uint32 nyquist_zone = 4;
+}
+
+message GetNyquistZoneResponse {
+    Status status = 1;
+    uint32 nyquist_zone = 2;
+}
+
+message SetInterpolationFactorRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 interp_factor = 3;
+}
+
+message GetInterpolationFactorResponse {
+    Status status = 1;
+    uint32 interp_factor = 2;
+}
+
+message SetDecimationFactorRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 dec_factor = 3;
+}
+
+message GetDecimationFactorResponse {
+    Status status = 1;
+    uint32 dec_factor = 2;
+}
+
+message QMCSettings {
+    bool enable_phase = 1;
+    bool enable_gain = 2;
+    bool enable_offset_corr = 3;
+    double gain_correction_factor = 4;
+    double phase_correction_factor = 5;
+    int32 offset_correction_factor = 6;
+    uint32 event_source = 7;
+}
+
+message SetQMCSettingsRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    QMCSettings settings = 4;
+}
+
+message GetQMCSettingsResponse {
+    Status status = 1;
+    QMCSettings settings = 2;
+}
+
+message ThresholdSettings {
+    uint32 update_threshold = 1;
+    repeated uint32 threshold_mode = 2;
+    repeated uint32 threshold_avg_val = 3;
+    repeated uint32 threshold_under_val = 4;
+    repeated uint32 threshold_over_val = 5;
+}
+
+message SetThresholdSettingsRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    ThresholdSettings settings = 3;
+}
+
+message GetThresholdSettingsResponse {
+    Status status = 1;
+    ThresholdSettings settings = 2;
+}
+
+message CoarseDelaySettings {
+    uint32 coarse_delay = 1;
+    uint32 event_source = 2;
+}
+
+message SetThresholdClrModeRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 threshold_to_update = 3;
+    uint32 clr_mode = 4;
+}
+
+message SetThresholdClrModeResponse {
+    Status status = 1;
+}
+
+message ThresholdStickyClearRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 threshold_to_update = 3;
+}
+
+message ThresholdStickyClearResponse {
+    Status status = 1;
+}
+
+message GetCoarseDelaySettingsRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+}
+
+message GetCoarseDelaySettingsResponse {
+    Status status = 1;
+    CoarseDelaySettings settings = 2;
+}
+
+message SetCoarseDelaySettingsRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    CoarseDelaySettings settings = 4;
+}
+
+message SetCoarseDelaySettingsResponse {
+    Status status = 1;
+}
+
+message PwrModeSettings {
+    uint32 disable_ip_control = 1;
+    uint32 pwr_mode = 2;
+}
+
+message GetPwrModeResponse {
+    Status status = 1;
+    PwrModeSettings settings = 2;
+}
+
+message SetPwrModeRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    PwrModeSettings settings = 4;
+}
+
+message UpdateEventRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    uint32 event = 4;
+}
+
+message GetConnectedDataResponse {
+    Status status = 1;
+    int32 value = 2;
+}
+
+message GetEnabledInterruptsResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message GetCalibrationModeResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetCalibrationModeRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetFabRdVldWordsResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetFabRdVldWordsRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetFabWrVldWordsResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetFabWrVldWordsRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetFabRdVldWordsObsResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetFabRdVldWordsObsRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetFabWrVldWordsObsResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetDitherRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetDitherResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetDecoderModeRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetDecoderModeResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message GetOutputCurrResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message GetInvSincFIRResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetInvSincFIRRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetDataPathModeResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetDataPathModeRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetIMRPassModeResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetIMRPassModeRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message GetDACCompModeResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message SetDACCompModeRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 value = 3;
+}
+
+message CalFreezeSettings {
+    uint32 cal_frozen = 1;
+    uint32 disable_freeze_pin = 2;
+    uint32 freeze_calibration = 3;
+}
+
+message GetCalFreezeResponse {
+    Status status = 1;
+    CalFreezeSettings settings = 2;
+}
+
+message SetCalFreezeRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    CalFreezeSettings settings = 3;
+}
+
+message DSASettings {
+    uint32 disable_rts = 1;
+    float attenuation = 2;
+}
+
+message GetDSAResponse {
+    Status status = 1;
+    DSASettings settings = 2;
+}
+
+message SetDSARequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    DSASettings settings = 3;
+}
+
+message DisableCoefficientsOverrideRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 calibration_block = 3;
+}
+
+message CalibrationCoefficients {
+    uint32 coeff0 = 1;
+    uint32 coeff1 = 2;
+    uint32 coeff2 = 3;
+    uint32 coeff3 = 4;
+    uint32 coeff4 = 5;
+    uint32 coeff5 = 6;
+    uint32 coeff6 = 7;
+    uint32 coeff7 = 8;
+}
+
+message SetCalCoefficientsRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 calibration_block = 3;
+    CalibrationCoefficients coeffs = 4;
+}
+
+message GetCalCoefficientsRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 calibration_block = 3;
+}
+
+message GetCalCoefficientsResponse {
+    Status status = 1;
+    CalibrationCoefficients coeffs = 2;
+}
+
+message SetDACVOPRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    uint32 uA_current = 3;
+}
+
+message PLLSettings {
+    uint32 enabled = 1;
+    double ref_clk_freq = 2;
+    double sample_rate = 3;
+    uint32 ref_clk_divider = 4;
+    uint32 feedback_divider = 5;
+    uint32 output_divider = 6;
+    uint32 fractional_mode = 7;
+    uint64 fractional_data = 8;
+    uint32 fract_width = 9;
+}
+
+message GetPLLConfigResponse {
+    Status status = 1;
+    PLLSettings settings = 2;
+}
+
+message GetClkDistributionRequest {
+}
+
+message Distribution {
+    uint32 source = 1;
+    uint32 upper_bound = 2;
+    uint32 lower_bound = 3;
+    uint32 max_delay = 4;
+    uint32 min_delay = 5;
+    uint32 is_delay_balanced = 6;
+}
+
+message TileClockSettings {
+    uint32 source_type = 1;
+    uint32 source_tile = 2;
+    uint32 pll_enable = 3;
+    double ref_clk_freq = 4;
+    double sample_rate = 5;
+    uint32 division_factor = 6;
+    uint32 distributed_clock = 7;
+    uint32 delay = 8;
+}
+
+message ClkDistributionSettings {
+    repeated TileClockSettings dac = 1;
+    repeated TileClockSettings adc = 2;
+    Distribution distribution_info = 3;
+}
+
+message GetClkDistributionResponse {
+    Status status = 1;
+    ClkDistributionSettings settings = 2;
+}
+
+message SetClkDistributionRequest {
+    ClkDistributionSettings settings = 1;
+}
