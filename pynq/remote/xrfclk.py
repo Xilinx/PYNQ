@@ -229,5 +229,4 @@ def _read_tics_output(device):
     _load_tics_dir(cwd, config)
     if device.name:
         _load_tics_dir(os.path.join(cwd, device.name), config)
-    if device.ip_addr:
-        _load_tics_dir(os.path.join(cwd, str(device.ip_addr)), config)
+    _load_tics_dir(os.path.join(cwd, str(device.ip_addr)), config)
