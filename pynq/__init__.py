@@ -17,6 +17,10 @@ if os.environ.get("PYNQ_REMOTE_DEVICES", False):
     from .pl_server.remote_device import RemoteGPIO as GPIO
     from .pl_server.remote_device import RemoteInterrupt as Interrupt
     from .pl_server.remote_device import RemoteUioController as UioController   
+    import sys
+    from .remote import xrfdc as _remote_xrfdc, xrfclk as _remote_xrfclk
+    sys.modules["xrfdc"] = _remote_xrfdc
+    sys.modules["xrfclk"] = _remote_xrfclk
 else:
     from .gpio import GPIO
     from .interrupt import Interrupt
