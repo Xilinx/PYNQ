@@ -13,7 +13,7 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /tmp
 
-# Enable source repo for ubuntu-keyring
+# Enable source repo for ubuntu-keyring (needed for rootfs multistrap)
 RUN echo "deb-src http://archive.ubuntu.com/ubuntu/ jammy main" > /etc/apt/sources.list.d/multistrap.list
 
 # Enable i386 architecture and install core dependencies
@@ -35,8 +35,6 @@ RUN dpkg --add-architecture i386 \
     rsync python3-pip gcc-multilib xterm net-tools ninja-build python3-testresources \
     libncurses5-dev libncursesw5-dev vim nano tmux zip dnsutils sudo binfmt-support \
     dbus-x11 libswt-glx-gtk-4-jni libgtk2.0-0 xvfb lsb-core \
- # Install ubuntu-keyring sources needed for multistrap
- && apt-get source -y ubuntu-keyring \
  # Locale for Vivado
  && locale-gen en_US.utf8 && update-locale \
  # Clean up APT
