@@ -18,6 +18,7 @@ class MIPIMode(Enum):
 
     r1280x720_60 = (0, 1280, 720)
     r1920x1080_30 = (1, 1920, 1080)
+    r1920x1080_15 = (2, 1920, 1080)
 
 
 class Pcam5C(DefaultHierarchy):
@@ -63,6 +64,9 @@ class Pcam5C(DefaultHierarchy):
         self._sensor = OV5640(i2c_bus)
         self._sensor.configure(mode_id, self.gpio_ip_reset)
 
+        # Enable the MIPI CSI-2 RX core
+        self.mipi_csi2_rx_subsyst.configure(active_lanes=2)
+
         # Configure image processing pipeline
         self.demosaic.configure(width, height)
         self.gamma_lut.configure(width, height)
@@ -82,6 +86,7 @@ class Pcam5C(DefaultHierarchy):
         self.stop()
         mode_id, width, height = mode.value
         self._sensor.reconfigure(mode_id, self.gpio_ip_reset)
+        self.mipi_csi2_rx_subsyst.configure(active_lanes=2)
         self.demosaic.configure(width, height)
         self.gamma_lut.configure(width, height)
         self.v_proc_sys.configure(width, height)

@@ -2,6 +2,8 @@
 #   Copyright (C) 2023-2025 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
+import time
+
 from pynq import DefaultIP
 
 
@@ -1279,3 +1281,33 @@ class MipiRx(DefaultIP):
     def __init__(self, description):
         description["registers"] = _registers
         super().__init__(description)
+
+    def configure(self, active_lanes=2, timeout=1.0):
+        """Reset and (re-)enable the CSI-2 RX core per PG232.
+
+        The core enable bit defaults to 1 at power-on reset, so this is
+        not required after a fresh bitstream load. It makes the driver
+        robust to re-runs where the core was left disabled or in an
+        error state by performing the documented disable -> poll ->
+        re-enable sequence.
+
+        Parameters
+        ----------
+        active_lanes : int
+            Number of active MIPI data lanes (Pcam 5C uses 2). The
+            register field encodes lanes-1. Only takes effect if
+            "Enable Active Lanes" was set when the IP was generated.
+        timeout : float
+            Maximum seconds to wait for the soft reset to complete.
+        """
+        rmap = self.register_map
+        rmap.core_configuration.soft_reset = 1
+        deadline = time.monotonic() + timeout
+        while rmap.core_status.soft_reset:
+            if time.monotonic() > deadline:
+                raise TimeoutError(
+                    "MIPI CSI-2 RX soft reset did not complete within "
+                    f"{timeout}s")
+        rmap.core_configuration.soft_reset = 0
+        rmap.protocol_configuration.active_lanes = active_lanes - 1
+        rmap.core_configuration.core_enabled = 1
