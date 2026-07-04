@@ -379,6 +379,16 @@ class OV5640:
         """Power down the sensor (stop streaming)."""
         self.write_reg(0x3008, 0x42)
 
+    def mirror(self):
+        """Toggle horizontal mirror on the sensor."""
+        current = self.read_reg(0x3821)
+        self.write_reg(0x3821, current ^ 0x06)
+
+    def flip(self):
+        """Toggle vertical flip on the sensor."""
+        current = self.read_reg(0x3820)
+        self.write_reg(0x3820, current ^ 0x06)
+
     def set_awb(self, mode='advanced'):
         """Change auto white balance mode.
 

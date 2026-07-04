@@ -153,6 +153,14 @@ class Pcam5C(DefaultHierarchy):
         else:
             raise RuntimeError("No VDMA specified")
 
+    def mirror(self):
+        """Toggle horizontal mirror of the sensor image."""
+        self._sensor.mirror()
+
+    def flip(self):
+        """Toggle vertical flip of the sensor image."""
+        self._sensor.flip()
+
     def readframe(self):
         """Read a video frame
 
