@@ -1,38 +1,38 @@
 #   Copyright (c) 2020-2021, Xilinx, Inc.
+#   Copyright (c) 2025-2026, Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import contextlib
-import os
 from enum import Enum
-import glob
-
-import cffi
 
 from pynq import DefaultHierarchy
-from .constants import LIB_SEARCH_PATH
-
-
-
-_pcam5c_lib_header = R"""
-int pcam_mipi(
-        int i2cbus,
-        int usermode,
-        unsigned long GPIO_IP_RESET_BaseAddress,
-        unsigned long VPROCSSCS_BaseAddress,
-        unsigned long GAMMALUT_BaseAddress,
-        unsigned long DEMOSAIC_BaseAddress);
-"""
+from .ov5640 import OV5640
 
 
 class MIPIMode(Enum):
-    """Suported input video modes"""
+    """Supported input video modes.
 
-    r1280x720_60 = 0
-    r1920x1080_30 = 1
+    Each value is (mode_id, width, height).
+    """
+
+    r1280x720_60 = (0, 1280, 720)
+    r1920x1080_30 = (1, 1920, 1080)
 
 
 class Pcam5C(DefaultHierarchy):
-    """Driver for PCAM 5C"""
+    """Driver for PCAM 5C.
+
+    Initializes the OV5640 camera sensor over I2C and configures
+    the image processing pipeline (demosaic, gamma LUT, CSC) via
+    MMIO. No shared library required.
+
+    Parameters
+    ----------
+    description : dict
+        Entry in the ip_dict for the hierarchy
+    mode : MIPIMode
+        Initial video mode (default: 720p @ 60fps)
+    """
 
     @staticmethod
     def checkhierarchy(description):
@@ -45,59 +45,51 @@ class Pcam5C(DefaultHierarchy):
             and "pixel_pack" in description["ip"]
         )
 
-    def __init__(self, description):
-        """Create a new instance of the driver
+    def __init__(self, description, mode=MIPIMode.r1280x720_60):
+        super().__init__(description)
+        self._vdma = self.axi_vdma
+        mode_id, width, height = mode.value
 
-        Can raise `RuntimeError` if the shared library was not found.
+        print("Not using using shared object library for PCAM5C. Using Python driver instead.")
+
+        # Reset demosaic, gamma LUT, and CSC IPs
+        self.gpio_ip_reset.write(0x00, 0x01)
+        self.gpio_ip_reset.write(0x00, 0x00)
+        self.gpio_ip_reset.write(0x00, 0x01)
+
+        # Initialize camera sensor over I2C
+        i2c_bus = OV5640.find_i2c_bus()
+        self._sensor = OV5640(i2c_bus)
+        self._sensor.configure(mode_id, self.gpio_ip_reset)
+
+        # Configure image processing pipeline
+        self.demosaic.configure(width, height)
+        self.gamma_lut.configure(width, height)
+        self.v_proc_sys.configure(width, height)
+
+        # Start camera streaming
+        self._sensor.start()
+
+    def reconfigure(self, mode):
+        """Switch video mode at runtime.
 
         Parameters
         ----------
-        description : dict
-            Entry in the ip_dict for the device
-
+        mode : MIPIMode
+            The new video mode
         """
-        pcam5c_ffi = cffi.FFI()
-        pcam5c_ffi.cdef(_pcam5c_lib_header)
-        pcam5c_lib = pcam5c_ffi.dlopen(os.path.join(LIB_SEARCH_PATH, "libpcam5c.so"))
-
-        super().__init__(description)
-        self._vdma = self.axi_vdma
-
-        virtaddr_gpio_ip_reset = self.gpio_ip_reset.mmio.array.ctypes.data
-        virtaddr_v_proc_sys = self.v_proc_sys.mmio.array.ctypes.data
-        virtaddr_gamma_lut = self.gamma_lut.mmio.array.ctypes.data
-        virtaddr_demosaic = self.demosaic.mmio.array.ctypes.data
-
-        i2c_devices = glob.glob('/dev/i2c-*')
-        i2c_index = 6 ## legacy
-        for dev_path in i2c_devices:
-            adapter_number = os.path.basename(dev_path).split('-')[-1]
-            name_path = f'/sys/bus/i2c/devices/i2c-{adapter_number}/of_node/label'
-            try:
-                with open(name_path, 'r') as name_file:                
-                    label = name_file.read().strip()
-                    if 'RPICAM' in label:
-                        i2c_index = int(adapter_number)
-            except FileNotFoundError:
-                continue
-
-        print(i2c_index)
-        self._handle = pcam5c_lib.pcam_mipi(
-            i2c_index,
-            int(MIPIMode.r1280x720_60.value),
-            virtaddr_gpio_ip_reset,
-            virtaddr_v_proc_sys,
-            virtaddr_gamma_lut,
-            virtaddr_demosaic,
-        )
-        if self._handle < 0:
-            raise RuntimeError("PCam 5C cannot be initialized")
+        self.stop()
+        mode_id, width, height = mode.value
+        self._sensor.reconfigure(mode_id, self.gpio_ip_reset)
+        self.demosaic.configure(width, height)
+        self.gamma_lut.configure(width, height)
+        self.v_proc_sys.configure(width, height)
 
     def configure(self, videomode):
         """Configure the pipeline to use the specified VideoMode format.
 
         If the pipeline is running it is stopped prior to the configuration
-        being changed
+        being changed.
 
         Parameters
         ----------
@@ -134,6 +126,9 @@ class Pcam5C(DefaultHierarchy):
     def close(self):
         """Uninitialise the drivers, stopping the pipeline beforehand"""
         self.stop()
+        if hasattr(self, '_sensor') and self._sensor is not None:
+            self._sensor.close()
+            self._sensor = None
 
     @property
     def mode(self):
@@ -181,5 +176,3 @@ class Pcam5C(DefaultHierarchy):
             The output to mirror on to
         """
         self._vdma.readchannel.tie(output._vdma.writechannel)
-
-

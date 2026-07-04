@@ -1,5 +1,102 @@
 #   Copyright (c) 2018, Xilinx, Inc.
+#   Copyright (c) 2026, Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
+
+
+HLS_AP_CTRL_REGISTER = {
+    "ap_ctrl": {
+        "address_offset": 0x00,
+        "access": "read-write",
+        "size": 32,
+        "description": "Control signals",
+        "fields": {
+            "ap_start": {
+                "access": "read-write",
+                "bit_offset": 0,
+                "bit_width": 1,
+                "description": "Start the IP (Read/Write/COH)",
+            },
+            "ap_done": {
+                "access": "read-only",
+                "bit_offset": 1,
+                "bit_width": 1,
+                "description": "Asserted when IP completes (Read/COR)",
+            },
+            "ap_idle": {
+                "access": "read-only",
+                "bit_offset": 2,
+                "bit_width": 1,
+                "description": "Asserted when IP is idle",
+            },
+            "ap_ready": {
+                "access": "read-only",
+                "bit_offset": 3,
+                "bit_width": 1,
+                "description": "Asserted when IP is ready for new input",
+            },
+            "auto_restart": {
+                "access": "read-write",
+                "bit_offset": 7,
+                "bit_width": 1,
+                "description": "Auto-restart the IP on completion",
+            },
+        },
+    },
+    "global_interrupt_enable": {
+        "address_offset": 0x04,
+        "access": "read-write",
+        "size": 32,
+        "description": "Global Interrupt Enable Register",
+        "fields": {
+            "global_interrupt_enable": {
+                "access": "read-write",
+                "bit_offset": 0,
+                "bit_width": 1,
+                "description": "Global Interrupt Enable",
+            },
+        },
+    },
+    "ip_interrupt_enable": {
+        "address_offset": 0x08,
+        "access": "read-write",
+        "size": 32,
+        "description": "IP Interrupt Enable Register",
+        "fields": {
+            "ap_done": {
+                "access": "read-write",
+                "bit_offset": 0,
+                "bit_width": 1,
+                "description": "Channel 0 (ap_done) interrupt enable",
+            },
+            "ap_ready": {
+                "access": "read-write",
+                "bit_offset": 1,
+                "bit_width": 1,
+                "description": "Channel 1 (ap_ready) interrupt enable",
+            },
+        },
+    },
+    "ip_interrupt_status": {
+        "address_offset": 0x0C,
+        "access": "read-only",
+        "size": 32,
+        "description": "IP Interrupt Status Register (Read/TOW)",
+        "fields": {
+            "ap_done": {
+                "access": "read-only",
+                "bit_offset": 0,
+                "bit_width": 1,
+                "description": "Channel 0 (ap_done) interrupt status",
+            },
+            "ap_ready": {
+                "access": "read-only",
+                "bit_offset": 1,
+                "bit_width": 1,
+                "description": "Channel 1 (ap_ready) interrupt status",
+            },
+        },
+    },
+}
 
 
 
@@ -111,5 +208,3 @@ PIXEL_RGBA = PixelFormat(32, COLOR_IN_RGB, COLOR_OUT_RGB, "RA24")
 PIXEL_BGR = PixelFormat(24, COLOR_IN_BGR, COLOR_OUT_BGR, "BG24")
 PIXEL_YCBCR = PixelFormat(24, COLOR_IN_YCBCR, COLOR_OUT_YCBCR, "YU24")
 PIXEL_GRAY = PixelFormat(8, COLOR_IN_YCBCR, COLOR_OUT_GRAY)
-
-
