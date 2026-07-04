@@ -2,6 +2,7 @@
 #   Copyright (c) 2025-2026, Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
+import asyncio
 import contextlib
 from enum import Enum
 
@@ -161,12 +162,24 @@ class Pcam5C(DefaultHierarchy):
         """Toggle vertical flip of the sensor image."""
         self._sensor.flip()
 
-    def readframe(self):
-        """Read a video frame
+    def readframe(self, timeout=None):
+        """Read a video frame.
 
-        See AxiVDMA.S2MMChannel.readframe for details
+        Parameters
+        ----------
+        timeout : float, optional
+            Maximum seconds to wait for a frame. If None, blocks indefinitely.
+            Raises TimeoutError if no frame arrives within the timeout.
         """
-        return self._vdma.readchannel.readframe()
+        if timeout is None:
+            return self._vdma.readchannel.readframe()
+        loop = asyncio.get_event_loop()
+        try:
+            return loop.run_until_complete(
+                asyncio.wait_for(self.readframe_async(), timeout=timeout)
+            )
+        except asyncio.TimeoutError:
+            raise TimeoutError(f"readframe timed out after {timeout}s")
 
     async def readframe_async(self):
         """Read a video frame
