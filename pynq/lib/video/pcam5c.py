@@ -34,6 +34,9 @@ class Pcam5C(DefaultHierarchy):
         Entry in the ip_dict for the hierarchy
     mode : MIPIMode
         Initial video mode (default: 720p @ 60fps)
+    bayer_phase : int
+        Demosaic Bayer phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR). Adjust
+        if the captured image has wrong hue.
     """
 
     @staticmethod
@@ -47,9 +50,10 @@ class Pcam5C(DefaultHierarchy):
             and "pixel_pack" in description["ip"]
         )
 
-    def __init__(self, description, mode=MIPIMode.r1280x720_60):
+    def __init__(self, description, mode=MIPIMode.r1280x720_60, bayer_phase=0x0):
         super().__init__(description)
         self._vdma = self.axi_vdma
+        self._bayer_phase = bayer_phase
         mode_id, width, height = mode.value
 
         print("Not using using shared object library for PCAM5C. Using Python driver instead.")
@@ -68,7 +72,7 @@ class Pcam5C(DefaultHierarchy):
         self.mipi_csi2_rx_subsyst.configure(active_lanes=2)
 
         # Configure image processing pipeline
-        self.demosaic.configure(width, height)
+        self.demosaic.configure(width, height, self._bayer_phase)
         self.gamma_lut.configure(width, height)
         self.v_proc_sys.configure(width, height)
 
@@ -87,7 +91,7 @@ class Pcam5C(DefaultHierarchy):
         mode_id, width, height = mode.value
         self._sensor.reconfigure(mode_id, self.gpio_ip_reset)
         self.mipi_csi2_rx_subsyst.configure(active_lanes=2)
-        self.demosaic.configure(width, height)
+        self.demosaic.configure(width, height, self._bayer_phase)
         self.gamma_lut.configure(width, height)
         self.v_proc_sys.configure(width, height)
 
@@ -158,6 +162,16 @@ class Pcam5C(DefaultHierarchy):
             self._vdma.readchannel.cacheable_frames = value
         else:
             raise RuntimeError("No VDMA specified")
+
+    @property
+    def bayer_phase(self):
+        """Demosaic Bayer phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR)."""
+        return self._bayer_phase
+
+    @bayer_phase.setter
+    def bayer_phase(self, value):
+        self._bayer_phase = value
+        self.demosaic.register_map.bayer_phase = value & 0x3
 
     def mirror(self):
         """Toggle horizontal mirror of the sensor image."""

@@ -70,7 +70,7 @@ class Demosaic(DefaultIP):
         description["registers"] = _registers
         super().__init__(description)
 
-    def configure(self, width, height):
+    def configure(self, width, height, bayer_phase=0x0):
         """Configure and enable the demosaic IP.
 
         Parameters
@@ -79,10 +79,14 @@ class Demosaic(DefaultIP):
             Frame width in pixels
         height : int
             Frame height in lines
+        bayer_phase : int
+            Bayer sampling-grid start (reg 0x28, bits[1:0]): 0=RGGB,
+            1=GRBG, 2=GBRG, 3=BGGR. Board- and sensor-orientation
+            dependent; adjust if the demosaiced image has wrong hue.
         """
         rmap = self.register_map
         rmap.width = width
         rmap.height = height
         rmap.reserved_0x20 = 0x0
-        rmap.bayer_phase = 0x0
+        rmap.bayer_phase = bayer_phase & 0x3
         rmap.ap_ctrl = 0x81  # ap_start=1, auto_restart=1 in a single write
