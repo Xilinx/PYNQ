@@ -432,7 +432,7 @@ class OV5640:
             name_path = (f'/sys/bus/i2c/devices/i2c-{adapter_number}'
                          f'/of_node/label')
             try:
-                with open(name_path, 'r') as f:
+                with open(name_path, 'r', encoding='utf-8') as f:
                     if 'RPICAM' in f.read().strip():
                         return int(adapter_number)
             except FileNotFoundError:
