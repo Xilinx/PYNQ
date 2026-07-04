@@ -181,6 +181,49 @@ class Pcam5C(DefaultHierarchy):
         """Toggle vertical flip of the sensor image."""
         self._sensor.flip()
 
+    def test_pattern(self, enable=True):
+        """Toggle the sensor's built-in color-bar test pattern.
+
+        Useful to isolate the MIPI/D-PHY/VDMA transport from sensor
+        imaging: if color bars stream but normal capture does not, the
+        transport is fine and the issue is imaging/AWB/exposure config;
+        if color bars also fail, the problem is in the MIPI path.
+
+        Parameters
+        ----------
+        enable : bool
+            True to emit color bars, False for normal imaging.
+        """
+        self._sensor.test_pattern(enable)
+
+    def diagnostics(self):
+        """Return CSI-2 RX status to help triage a stalled capture.
+
+        Reads the MIPI CSI-2 RX subsystem status registers. A
+        ``packet_count`` of 0 after ``start()`` means no long packets are
+        reaching the line buffer (sensor not transmitting or D-PHY not
+        locking); a nonzero count while ``readframe`` still hangs points
+        downstream to the VDMA or pixel format.
+
+        Returns
+        -------
+        dict
+            CSI-2 RX status fields (packet count, FIFO/stream flags,
+            active vs maximum lanes).
+        """
+        csi = self.mipi_csi2_rx_subsyst.register_map
+        status = csi.core_status
+        proto = csi.protocol_configuration
+        return {
+            "packet_count": int(status.packet_count),
+            "stream_line_buffer_full": bool(status.stream_full),
+            "short_packet_fifo_not_empty":
+                bool(status.shot_packet_fifo_not_empty),
+            "short_packet_fifo_full": bool(status.shot_packet_fifo_full),
+            "active_lanes": int(proto.active_lanes) + 1,
+            "maximum_lanes": int(proto.maximum_lanes) + 1,
+        }
+
     def readframe(self, timeout=None):
         """Read a video frame.
 

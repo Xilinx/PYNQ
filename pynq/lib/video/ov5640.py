@@ -379,6 +379,25 @@ class OV5640:
         """Power down the sensor (stop streaming)."""
         self.write_reg(0x3008, 0x42)
 
+    def test_pattern(self, enable=True):
+        """Enable or disable the sensor's built-in color-bar test pattern.
+
+        Writes reg 0x503d bit7 (color-bar enable). The pattern is
+        generated inside the sensor and streamed over MIPI independently
+        of the imaging pipeline, so it isolates the MIPI/D-PHY/VDMA
+        transport from sensor imaging/AWB/exposure configuration.
+
+        Parameters
+        ----------
+        enable : bool
+            True to emit color bars, False for normal imaging.
+        """
+        current = self.read_reg(0x503d)
+        if enable:
+            self.write_reg(0x503d, current | 0x80)
+        else:
+            self.write_reg(0x503d, current & ~0x80)
+
     def mirror(self):
         """Toggle horizontal mirror on the sensor."""
         current = self.read_reg(0x3821)
