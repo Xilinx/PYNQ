@@ -5,6 +5,10 @@ ifneq (,$(filter pynqremote,$(MAKECMDGOALS)))
 override PYNQREMOTE = 1
 endif
 
+# Packages enabled in every PYNQ.remote (PetaLinux) rootfs. Boards add
+# board-specific remote packages via REMOTE_PACKAGES_<board> in their .spec file.
+REMOTE_PACKAGES ?= grpc pynq-cpp
+
 DEFAULT_BOARDDIR := $(CURDIR)/../boards
 BOARDDIR ?= $(DEFAULT_BOARDDIR)
 
@@ -94,6 +98,11 @@ define BOARD_SPECIFIC_RULES
 # $1 is the board name
 ifeq ($$(FPGA_MANAGER_$1),)
 	FPGA_MANAGER_$1 := 1
+endif
+
+# If the board .spec file has rfdc as a remote package we infer it's an RFSoC board
+ifeq ($$(RFSoC_$1),)
+	RFSoC_$1 := $$(if $$(filter rfdc,$$(REMOTE_PACKAGES_$1)),1,0)
 endif
 
 # New API - SDIST and RootFS by default should be provided to the Makefile
@@ -197,18 +206,24 @@ $$(PL_PROJ_$1): $$(BSP_TARGET_$1)
 		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 	fi
 
-	# PYNQ.remote packages
+	# PYNQ.remote packages: general defaults (REMOTE_PACKAGES) + board-specific
+	# additions (REMOTE_PACKAGES_<board> from the board .spec)
 	if [ $(PYNQREMOTE) = 1 ]; then \
-		echo 'CONFIG_grpc' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_pynq-cpp' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_grpc=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_pynq-cpp=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		for pkg in $(REMOTE_PACKAGES) $$(REMOTE_PACKAGES_$1); do \
+			echo "CONFIG_$$$$pkg" >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
+			echo "CONFIG_$$$$pkg=y" >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		done ;\
 		echo 'CONFIG_nfs-utils=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_tcf-agent=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_imagefeature-ssh-server-openssh=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
 		echo 'CONFIG_imagefeature-ssh-server-dropbear=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
+		if [ $$(RFSoC_$1) = 1 ]; then \
+			mkdir -p $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp ;\
+			echo 'PACKAGECONFIG:append = " rfsoc"' \
+				> $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp/pynq-cpp.bbappend ;\
+		fi ;\
 		petalinux-config -c rootfs --silentconfig -p $$(PL_PROJ_$1) ;\
-	fi	
+	fi
 
 $$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
 	cd $$(BOOT_ROOT_$1) && petalinux-package --boot --fpga $$(BITSTREAM_ABS_$1) --u-boot -p $$(PL_PROJ_$1) --force
