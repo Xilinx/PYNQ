@@ -197,23 +197,29 @@ class Pcam5C(DefaultHierarchy):
         self._sensor.test_pattern(enable)
 
     def diagnostics(self):
-        """Return CSI-2 RX status to help triage a stalled capture.
+        """Return CSI-2 RX + D-PHY status to help triage a stalled capture.
 
-        Reads the MIPI CSI-2 RX subsystem status registers. A
-        ``packet_count`` of 0 after ``start()`` means no long packets are
-        reaching the line buffer (sensor not transmitting or D-PHY not
-        locking); a nonzero count while ``readframe`` still hangs points
-        downstream to the VDMA or pixel format.
+        Reads the CSI-2 RX controller status and the D-PHY clock/data-lane
+        status registers. Rough narrowing:
+
+        - all lanes in stop state, packet_count 0 => no HS burst reaching
+          the D-PHY (sensor silent, gated clock, or wrong HS_SETTLE).
+        - dphy_cl_init_done 0 => D-PHY never initialized (clock/reset/PLL).
+        - dphy_dl0_pkt_count > 0 but packet_count 0 => data dropped before
+          the line buffer (lane map or filtered data type).
+        - packet_count > 0 but readframe hangs => downstream (VDMA/format).
 
         Returns
         -------
         dict
-            CSI-2 RX status fields (packet count, FIFO/stream flags,
-            active vs maximum lanes).
+            CSI-2 RX controller status, lane counts, and D-PHY status.
         """
         csi = self.mipi_csi2_rx_subsyst.register_map
         status = csi.core_status
         proto = csi.protocol_configuration
+        cl = csi.dphy_cl_status
+        dl0 = csi.dphy_dl0_status
+        dl1 = csi.dphy_dl1_status
         return {
             "packet_count": int(status.packet_count),
             "stream_line_buffer_full": bool(status.stream_full),
@@ -222,6 +228,16 @@ class Pcam5C(DefaultHierarchy):
             "short_packet_fifo_full": bool(status.shot_packet_fifo_full),
             "active_lanes": int(proto.active_lanes) + 1,
             "maximum_lanes": int(proto.maximum_lanes) + 1,
+            "dphy_enabled": bool(csi.dphy_control.dphy_en),
+            "dphy_cl_init_done": bool(cl.init_done),
+            "dphy_cl_stop_state": bool(cl.stop_state),
+            "dphy_cl_mode": int(cl.mode),
+            "dphy_dl0_init_done": bool(dl0.init_done),
+            "dphy_dl0_stop_state": bool(dl0.stop_state),
+            "dphy_dl0_pkt_count": int(dl0.pkt_count),
+            "dphy_dl1_init_done": bool(dl1.init_done),
+            "dphy_dl1_stop_state": bool(dl1.stop_state),
+            "dphy_dl1_pkt_count": int(dl1.pkt_count),
         }
 
     def readframe(self, timeout=None):

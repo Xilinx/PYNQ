@@ -1282,25 +1282,32 @@ class MipiRx(DefaultIP):
         description["registers"] = _registers
         super().__init__(description)
 
-    def configure(self, active_lanes=2, timeout=1.0):
-        """Reset and (re-)enable the CSI-2 RX core per PG232.
+    def configure(self, active_lanes=2, timeout=1.0, hs_settle_ns=None,
+                  core_clk_mhz=200):
+        """Reset and (re-)enable the CSI-2 RX controller then the D-PHY.
 
-        The core enable bit defaults to 1 at power-on reset, so this is
-        not required after a fresh bitstream load. It makes the driver
-        robust to re-runs where the core was left disabled or in an
-        error state by performing the documented disable -> poll ->
+        Follows the PG232 programming order (controller first, then
+        D-PHY). Robust to re-runs via the documented disable -> poll ->
         re-enable sequence.
 
         Parameters
         ----------
         active_lanes : int
-            Number of active MIPI data lanes (Pcam 5C uses 2). The
-            register field encodes lanes-1. Only takes effect if
-            "Enable Active Lanes" was set when the IP was generated.
+            Number of active MIPI data lanes (Pcam 5C uses 2); the
+            register field encodes lanes-1.
         timeout : float
             Maximum seconds to wait for the soft reset to complete.
+        hs_settle_ns : int or None
+            HS_SETTLE time in ns, applied to every active lane. If None
+            (default) the build-time value is left untouched. The value
+            is converted to core_clk cycles (ns * core_clk_mhz / 1000)
+            per PG202/PG435; the field name is ns but the hardware wants
+            a cycle count.
+        core_clk_mhz : int
+            D-PHY core clock in MHz for the ns->cycles conversion.
         """
         rmap = self.register_map
+        # --- CSI-2 RX controller ---
         rmap.core_configuration.soft_reset = 1
         deadline = time.monotonic() + timeout
         while rmap.core_status.soft_reset:
@@ -1311,3 +1318,14 @@ class MipiRx(DefaultIP):
         rmap.core_configuration.soft_reset = 0
         rmap.protocol_configuration.active_lanes = active_lanes - 1
         rmap.core_configuration.core_enabled = 1
+
+        # --- D-PHY ---
+        if hs_settle_ns is not None:
+            cycles = round(hs_settle_ns * core_clk_mhz / 1000)
+            settle_regs = (rmap.dphy_hs_settle0, rmap.dphy_hs_settle1,
+                           rmap.dphy_hs_settle2, rmap.dphy_hs_settle3)
+            for reg in settle_regs[:active_lanes]:
+                reg.hs_settle_ns = cycles
+        rmap.dphy_control.srst = 1
+        rmap.dphy_control.srst = 0
+        rmap.dphy_control.dphy_en = 1
