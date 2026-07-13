@@ -89,6 +89,10 @@ RUN useradd -m ${USERNAME} \
 ENV PATH="/opt/qemu/bin:/opt/crosstool-ng/bin:${PATH}"
 ENV LD_PRELOAD=/lib/x86_64-linux-gnu/libudev.so.1
 
+# Register binfmt to allow run ARM elf on x86
+RUN update-binfmts --enable qemu-arm
+RUN update-binfmts --enable qemu-aarch64
+
 # Switch to non-root user
 USER ${USERNAME}
 WORKDIR /workspace
