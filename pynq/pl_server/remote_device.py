@@ -1050,7 +1050,7 @@ class RemoteBuffer(np.ndarray):
             self.coherent = obj.coherent
             self.stub = obj.stub
             self.buffer_id = obj.buffer_id
-            obj.device = obj.device
+            self.device = obj.device
         else:
             self.stub = None
             self.buffer_id = None

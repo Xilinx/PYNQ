@@ -20,6 +20,7 @@ Zynq, Zynq Ultrascale+ and Zynq RFSoC
     getting_started/pynq_z2_setup.rst
     getting_started/zcu104_setup.rst
 
+* `AUP-ZU3 <https://xilinx.github.io/AUP-ZU3/getting_started.html>`_
 * `Ultra96 <https://ultra96-pynq.readthedocs.io/en/latest/getting_started.html>`_
 * `PYNQ-ZU <https://xilinx.github.io/PYNQ-ZU/getting_started.html>`_
 
