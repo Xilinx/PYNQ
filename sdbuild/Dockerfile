@@ -13,6 +13,9 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /tmp
 
+# Enable source repo for ubuntu-keyring (needed for rootfs multistrap)
+RUN echo "deb-src http://archive.ubuntu.com/ubuntu/ jammy main" > /etc/apt/sources.list.d/multistrap.list
+
 # Enable i386 architecture and install core dependencies
 RUN dpkg --add-architecture i386 \
  && apt-get update && apt-get upgrade -y \
@@ -20,6 +23,8 @@ RUN dpkg --add-architecture i386 \
  # Add toolchain PPA
  && add-apt-repository -y ppa:ubuntu-toolchain-r/ppa \
  && apt-get update \
+ # Configures timezone interactively (2: Americas, 37: Central)
+ && echo -e '2\n37\n' | apt-get install -y tzdata \
  # Install build and host packages
  && apt-get install -y \
     bc libtool-bin gperf bison flex texi2html texinfo help2man gawk libtool \
@@ -29,9 +34,7 @@ RUN dpkg --add-architecture i386 \
     libsdl1.2-dev libpixman-1-dev libc6-dev chrpath socat zlib1g-dev unzip \
     rsync python3-pip gcc-multilib xterm net-tools ninja-build python3-testresources \
     libncurses5-dev libncursesw5-dev vim nano tmux zip dnsutils sudo binfmt-support \
-    dbus-x11 libswt-glx-gtk-4-jni libgtk2.0-0 xvfb \
- # Configures timezone interactively (2: Americas, 37: Central)
- && echo -e '2\n37\n' | apt-get install -y lsb-core \
+    dbus-x11 libswt-glx-gtk-4-jni libgtk2.0-0 xvfb lsb-core \
  # Locale for Vivado
  && locale-gen en_US.utf8 && update-locale \
  # Clean up APT

@@ -22,6 +22,8 @@ if [ -n "$PYNQ_UBUNTU_REPO" ]; then
   multistrap_conf=$tmpfile
   multistrap_opt=--no-auth
   trap "rm -f $tmpfile" EXIT
+else
+    sudo apt-get update
 fi
 
 # Perform the basic bootstrapping of the image
