@@ -1,0 +1,59 @@
+# build system requirements
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# static project meta data
+[project]
+name = "pynq"
+dynamic = ["version"]
+description = "(PY)thon productivity for zy(NQ)"
+readme = "README.md"
+authors = [
+    {name = "Xilinx PYNQ Development Team", email = "pynq_support@xilinx.com"}
+]
+license = {text = "BSD 3-Clause"}
+requires-python = ">=3.5.2"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "pynqmetadata",
+    "pynqutils",
+    "setuptools>=24.2.0",
+    "cffi",
+    "numpy<2.0",
+    "nest_asyncio",
+    "grpcio==1.64.0",
+    "grpcio-tools==1.64.0",
+]
+
+# project urls
+[project.urls]
+Homepage = "https://github.com/Xilinx/PYNQ"
+Download = "https://github.com/Xilinx/PYNQ"
+
+# cli commands
+[project.scripts]
+pynq = "pynq._cli.cmd:main"
+pynq-get-notebooks = "pynq._cli.get_notebooks:main"
+
+# custom build commands
+[project.entry-points."distutils.commands"]
+download_overlays = "pynqutils.setup_utils:du_download_overlays"
+
+# setuptools specific configurations
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+# map the dynamic version to the init file
+[tool.setuptools.dynamic]
+version = {attr = "pynq.__version__"}
+
+# define package boundaries
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pynq*"]

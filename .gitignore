@@ -48,6 +48,9 @@ __pycache__/
 GNUmakefile
 user.props
 
+# Build artifacts
+dist/
+
 # Miscellaneous
 ######################
 .vscode/
