@@ -24,3 +24,6 @@ recursive-include docs/source/images *
 
 # include misc files
 include pynq/devices/default.xclbin
+
+# include all deeply nested python and data files in the core module
+recursive-include pynq *
