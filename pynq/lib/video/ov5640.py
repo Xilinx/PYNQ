@@ -321,22 +321,27 @@ class OV5640:
         return True
 
     @staticmethod
-    def power_cycle(gpio_ip):
+    def power_cycle(gpio_ip, settle=1.0):
         """Power-cycle the camera sensor via GPIO.
 
-        Pulses CAM_PWUP low for 100ms then drives high.
+        Pulses CAM_PWUP low then drives high, waiting ``settle`` seconds
+        after each edge. The default matches Digilent's reference driver;
+        a slow-starting oscillator on the camera needs this long to bring
+        XVCLK up before the sensor is accessed.
 
         Parameters
         ----------
         gpio_ip : DefaultIP
             GPIO IP used for camera power control (channel 2 at offset 0x08)
+        settle : float
+            Seconds to wait after each power edge.
         """
         gpio_ip.write(0x08, 0)
-        time.sleep(0.1)
+        time.sleep(settle)
         gpio_ip.write(0x08, 1)
-        time.sleep(0.05)
+        time.sleep(settle)
 
-    def configure(self, mode, gpio_ip):
+    def configure(self, mode, gpio_ip, reset_settle=1.0):
         """Full sensor initialization sequence.
 
         Power-cycles the sensor, verifies the ID, writes the base
@@ -349,6 +354,10 @@ class OV5640:
             Video mode index (0=720p60, 1=1080p30, 2=1080p15)
         gpio_ip : DefaultIP
             GPIO IP for camera power control
+        reset_settle : float
+            Seconds to wait after the software reset for XVCLK and the
+            sensor PLL to stabilize before writing the config. The
+            default matches Digilent's reference driver.
         """
         if mode not in _MODE_CONFIGS:
             raise ValueError(f"Invalid mode {mode}, must be one of "
@@ -358,7 +367,7 @@ class OV5640:
 
         self.write_reg(0x3103, 0x11)
         self.write_reg(0x3008, 0x82)
-        time.sleep(0.01)
+        time.sleep(reset_settle)
 
         self._write_config(_CFG_INIT)
 
