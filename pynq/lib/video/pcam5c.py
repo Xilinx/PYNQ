@@ -4,6 +4,7 @@
 
 import asyncio
 import contextlib
+import time
 from enum import Enum
 
 from pynq import DefaultHierarchy
@@ -251,13 +252,20 @@ class Pcam5C(DefaultHierarchy):
         """
         if timeout is None:
             return self._vdma.readchannel.readframe()
-        loop = asyncio.get_event_loop()
-        try:
-            return loop.run_until_complete(
-                asyncio.wait_for(self.readframe_async(), timeout=timeout)
-            )
-        except asyncio.TimeoutError:
-            raise TimeoutError(f"readframe timed out after {timeout}s")
+        # Poll the VDMA frame-complete bit directly rather than using
+        # asyncio. run_until_complete does not work reliably under the
+        # Jupyter event loop, whereas a plain deadline poll behaves the
+        # same in a script or a notebook.
+        ch = self._vdma.readchannel
+        if not ch.running:
+            raise RuntimeError("DMA channel not started")
+        deadline = time.monotonic() + timeout
+        while ch._mmio.read(0x34) & 0x1000 == 0:
+            if time.monotonic() > deadline:
+                raise TimeoutError(f"readframe timed out after {timeout}s")
+            time.sleep(0.001)
+        ch._mmio.write(0x34, 0x1000)
+        return ch._readframe_internal()
 
     async def readframe_async(self):
         """Read a video frame
