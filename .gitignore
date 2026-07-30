@@ -20,6 +20,10 @@ thumbs.db
 *.jou
 *.vitis_hls_log*.xml
 
+# Compiled shared objects (build artefacts of pynq/lib/_pynq/*)
+######################
+*.so
+
 # VIM Swap Files
 ######################
 *.swp
@@ -28,6 +32,7 @@ thumbs.db
 ######################
 build/
 sdcard/
+dist/
 
 # Raw overlay files
 *.bit

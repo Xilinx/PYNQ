@@ -4,7 +4,7 @@ How to build projects with PYNQ.cpp
 Requirements for building PYNQ.cpp
 ----------------------------------
 
-- XRT (2024.1)
+- XRT (2025.2)
 - C++17 or later  
 
 Requirements for using PYNQ.cpp on SoC devices.

@@ -11,7 +11,7 @@ Unlike Classic PYNQ, there are no pre-built PYNQ.remote SD card images available
 **Prerequisites:**
 
 - Host machine with Ubuntu 2022.4 OS installed
-- AMD Tools: `Vivado, Vitis, and Petalinux version 2024.1 <https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2024-1.html>`_
+- AMD Tools: `Vivado and Vitis version 2025.2 <https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2025-2.html>`_ (Petalinux is no longer required)
 - `Docker installation <https://docs.docker.com/engine/install/>`_
 
 **Using the Docker-base build flow:**
@@ -40,4 +40,4 @@ Unlike Classic PYNQ, there are no pre-built PYNQ.remote SD card images available
 
 **Alternative: Using PYNQ Metalayer in Custom Petalinux Build**
 
-Advanced users can integrate the `meta-pynq` metalayer into their own Petalinux projects. Refer to the `Petalinux Tools Reference Guide (UG1144) <https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide>`_ for detailed instructions.
+Advanced users can integrate the ``meta-pynq`` metalayer into their own Yocto projects built on AMD's EDF (Extensible Device Framework). The layer lives at ``sdbuild/boot/meta-pynq/`` and declares Scarthgap / Styhead compatibility.
