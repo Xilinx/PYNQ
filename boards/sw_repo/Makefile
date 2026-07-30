@@ -1,5 +1,7 @@
 # Makefile to build BSPs.
-XSA := ../Pynq-Z1/base/base.xsa
+# NOTE: the historic default XSA (../Pynq-Z1/base/base.xsa) was removed when
+# Pynq-Z1/Z2 were deprecated. Callers must supply XSA=... explicitly.
+XSA :=
 
 .PHONY: workspace bsp
 all: help workspace bsp
