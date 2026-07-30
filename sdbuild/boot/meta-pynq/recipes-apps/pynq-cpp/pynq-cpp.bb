@@ -9,7 +9,7 @@ DEPENDS = "protobuf grpc protobuf-native grpc-native xrt"
 # The PYNQ Makefile writes a per-project bbappend that appends "rfsoc" to
 # PACKAGECONFIG when RFSoC_<board>=1.
 PACKAGECONFIG ??= ""
-PACKAGECONFIG[rfsoc] = "-DRFSOC=ON,-DRFSOC=OFF,rfdc libmetal,rfdc libmetal"
+PACKAGECONFIG[rfsoc] = "-DRFSOC=ON,-DRFSOC=OFF,librfdc libmetal,librfdc libmetal"
 
 SRC_URI = "file://cpp/CMakeLists.txt \
            file://cpp/pynq-remote.cc \
