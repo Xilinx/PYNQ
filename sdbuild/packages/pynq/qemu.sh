@@ -18,15 +18,16 @@ python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Metadata.git
 python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Utils.git
 
 cd pynq_git
-python3 -m pip install --upgrade setuptools==59.6.0 
+# setuptools>=68 (Python 3.12), <=80 (pynqutils).
+python3 -m pip install --upgrade 'setuptools>=68,<=80'
 BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \
-     python3 -m pip install dist/*.tar.gz --upgrade --no-deps --no-use-pep517
+     python3 -m pip install dist/*.tar.gz --upgrade --no-deps --no-build-isolation
 
 # v3.1 - if using prebuilt SDIST, allow current pynq_git contents to
 #        override the SDIST python files with current contents (--ignore-installed)
 if [ -z "$REBUILD_PYNQ_SDIST" ]; then
     BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \
-     python3 -m pip install . --upgrade --no-deps --no-use-pep517 --ignore-installed
+     python3 -m pip install . --upgrade --no-deps --no-build-isolation --ignore-installed
 fi
 
 

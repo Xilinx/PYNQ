@@ -4,7 +4,7 @@ set -x
 set -e
 
 target=$1
-pynqoverlays_dir=$target/usr/local/share/pynq-venv/lib/python3.10/site-packages/pynq/overlays
+pynqoverlays_dir=$target/usr/local/share/pynq-venv/lib/python3.12/site-packages/pynq/overlays
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # 1. Copy files from build area to the qemu environment
@@ -16,7 +16,7 @@ sudo cp $script_dir/boardname.sh $target/etc/profile.d
 
 
 # 2. Create and copy the REVISION file
-echo "Release 3.1.3 (Carlisle) $(date +'%Y_%m_%d') $(git rev-parse --short=7 --verify HEAD)" \
+echo "Release 4.0.0 (Verona) $(date +'%Y_%m_%d') $(git rev-parse --short=7 --verify HEAD)" \
 	> $BUILD_ROOT/PYNQ/REVISION
 
 if [ ${PYNQ_BOARD} != "Unknown" ]; then

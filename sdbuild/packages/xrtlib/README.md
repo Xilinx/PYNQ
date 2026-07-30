@@ -1,53 +1,17 @@
-# XRT On Target Build Documentation for PYNQ
+# xrtlib — XRT + pyxrt for PYNQ
 
-## Table of Contents
-- [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
-  - [System Requirements](#system-requirements)
-  - [Software Requirements](#software-requirements)
-- [Installing XRT on target device](#installing-xrt-on-target-device)
+Builds the Xilinx Runtime (XRT) userspace libraries and the `pyxrt`
+Python bindings from source and installs them into the PYNQ image.
 
----
+`qemu.sh` runs inside the sdbuild container's aarch64 chroot and:
 
-## Introduction
+- clones XRT at tag `202520.2.20.197` (Xilinx 2025.2 / XRT 2.20),
+- builds the embedded (`-edge`) variant for the zocl/DRM device path,
+- installs `libxrt_*` under `/opt/xilinx/xrt/` and registers it with
+  `ldconfig`,
+- stages `pyxrt` into the PYNQ venv (`/usr/local/share/pynq-venv`).
 
-This document provides step-by-step instructions to build the Xilinx Runtime (XRT) on a target device, install PyXRT, and create XRT Debian packages.
-
----
-
-## Prerequisites
-- **Note:** All required tools are included in the PYNQ 3.1 image.
-
-### System Requirements
-- A target device with ARM32 or ARM64 architecture (e.g., RFSoC4x2).
-- PYNQ Image.
-- Minimum 16 GB of free disk space (tested with a 128GB SD card).
-
-### Software Requirements
-- GNU Make
-- CMake
-- GCC/G++ for ARM
-- Python 3.10 (can force rebuild for different versions of python.)
-- Git
-- Debian packaging tools (e.g., `dpkg`, `debhelper`)
-
----
-
-## Installing XRT on target device
-
-The version of XRT that will be installed is 2.17.0.
-The `qemu.sh` script automates the process of building & installing XRT for your PYNQ device.
-
-Script usage: 
-```bash
-chmod +x qemu.sh
-./qemu.sh [--force-rebuild]
-```
-
-By default, the script will download the relevant debian package and pyxrt.so. 
-
-If you include the force rebuild option, The XRT source will be downloaded and build from scratch natively against the installed version of python3 on the PATH. 
-
-XRT and pyxrt.so (The python pybind11 bindings for XRT) will be installed for use with PYNQ. The debian will be built and can be found in the root directory, '/'
-
----
+The XRT tag is kept in sync with the `zocl` kernel-module recipe
+(`sdbuild/boot/meta-pynq/recipes-xrt/zocl/`) so the userspace and
+kernel-side ABIs match. Build dependencies come from the base rootfs
+manifest (`sdbuild/ubuntu/noble/aarch64/multistrap.config`).

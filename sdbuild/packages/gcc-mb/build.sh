@@ -33,6 +33,7 @@ ct-ng $sample
 
 sed -e 's|CT_ISL_MIRRORS=.*$|CT_ISL_MIRRORS="https://distfiles.macports.org/isl/"|' \
     -e 's|CT_EXPAT_MIRRORS=.*$|CT_EXPAT_MIRRORS="https://github.com/libexpat/libexpat/releases/download/R_2_2_6"|' \
+    -e 's|CT_NEWLIB_MIRRORS=.*$|CT_NEWLIB_MIRRORS="https://sourceware.org/pub/newlib"|' \
     -i .config
 
 ct-ng build
