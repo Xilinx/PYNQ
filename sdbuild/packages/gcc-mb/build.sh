@@ -28,6 +28,7 @@ do
 done
 
 export -n LD_LIBRARY_PATH
+export -n LD_PRELOAD
 # Use cross tools to build the provided configuration
 ct-ng $sample
 
