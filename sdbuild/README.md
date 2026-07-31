@@ -308,14 +308,6 @@ moving the files into the prebuilt folder, you can specify the `PYNQ_SDIST` and
 make PYNQ_SDIST=<sdist tarball path> PYNQ_ROOTFS=<rootfs tarball path>
 ```
 
-## Rebuilding the PYNQ sdist
-
-Rebuilding the PYNQ source distribution (`REBUILD_PYNQ_SDIST`, i.e.
-`make -f build.mk`) must currently be done **outside** the Docker build
-container, on a native host with the Xilinx tools. Copy the resulting
-`dist/pynq-<version>.tar.gz` to `sdbuild/prebuilt/pynq_sdist.tar.gz`, then build
-the SD image inside Docker as usual.
-
 ## Custom Ubuntu Repository
 
 By default the SD build flow will pull from https://ports.ubuntu.com. This can
