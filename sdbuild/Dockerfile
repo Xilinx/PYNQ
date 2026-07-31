@@ -79,6 +79,7 @@ ENV PATH="/opt/crosstool-ng/bin:${PATH}"
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV TERM=xterm
+ENV LD_PRELOAD=/lib/x86_64-linux-gnu/libudev.so.1
 ENV EDF_DIR=/edf-cache/pynq-edf
 ENV SSTATE_DIR=/edf-cache/sstate
 ENV DL_DIR=/edf-cache/downloads
