@@ -19,7 +19,7 @@ help:
 	@echo
 
 workspace:
-	xsct build_project.tcl $(XSA)
+	LD_PRELOAD= xsct build_project.tcl $(XSA)
 
 bsp:
 	bash build_bsp.sh
