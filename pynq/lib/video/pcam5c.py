@@ -57,8 +57,6 @@ class Pcam5C(DefaultHierarchy):
         self._bayer_phase = bayer_phase
         mode_id, width, height = mode.value
 
-        print("Not using using shared object library for PCAM5C. Using Python driver instead.")
-
         # Reset demosaic, gamma LUT, and CSC IPs
         self.gpio_ip_reset.write(0x00, 0x01)
         self.gpio_ip_reset.write(0x00, 0x00)
