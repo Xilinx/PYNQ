@@ -1,54 +1,22 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-SRC_URI:append = "\
-    file://pynq_xlnk_zynq.dtsi \
-    file://pynq_xlnk_zynqmp.dtsi \
-    file://pynq_zocl_poll_zynq.dtsi \
-    file://pynq_zocl_poll_zynqmp.dtsi \
-    file://pynq_zocl_intc_zynq.dtsi \
-    file://pynq_zocl_intc_zynqmp.dtsi \
-    file://pynq_uio_zynq.dtsi \
-    file://pynq_uio_zynqmp.dtsi \
-    file://pynq_bootargs.dtsi \
-    file://pynq_zynq.dtsi \
-    file://pynq_zynqmp.dtsi \
-"
 
-# PYNQ_BOARDNAME="${BB_ORIGENV[PYNQ_BOARDNAME]}"
-# FPGA_MANAGER="${BB_ORIGENV[FPGA_MANAGER]}"
+FPGA_MANAGER := "${@d.getVar('BB_ORIGENV', False).getVar('FPGA_MANAGER', True) or '1'}"
 
-do_configure:append:zynq () {
-    PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
-    FPGA_MANAGER="${@d.getVar('BB_ORIGENV', False).getVar('FPGA_MANAGER', True)}"
-    echo '/include/ "pynq_zynq.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
-    if [ "${FPGA_MANAGER}" = 1 ]; then
-        echo "/include/ \"pynq_uio_zynq.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
-        echo "/include/ \"pynq_zocl_poll_zynq.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
-    else
-        echo "/include/ \"pynq_zocl_intc_zynq.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
+# Track board.dtsi's content hash so edits invalidate the device-tree sstate.
+PYNQ_BOARD_DTSI := "${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARD_DTSI', True) or ''}"
+do_configure[file-checksums] += "${@(d.getVar('PYNQ_BOARD_DTSI') + ':True') if d.getVar('PYNQ_BOARD_DTSI') else ''}"
+
+EXTRA_DT_INCLUDE_FILES:append:linux = " pynq_xlnk_zynqmp.dtsi pynq_uio_zynqmp.dtsi pynq_bootargs.dtsi ${@'pynq_zocl_poll_zynqmp.dtsi' if d.getVar('FPGA_MANAGER') == '1' else 'pynq_zocl_intc_zynqmp.dtsi'}"
+
+do_configure:append:linux() {
+    dts="${DT_FILES_PATH}/${BASE_DTS}.dts"
+    board_dtsi="${PYNQ_BOARD_DTSI}"
+    board_name="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True) or 'Unknown'}"
+    if [ -n "${board_dtsi}" ] && [ -f "${board_dtsi}" ]; then
+        printf '\n' >> "${dts}"
+        cat "${board_dtsi}" >> "${dts}"
     fi
-    if [ -n "${PYNQ_BOARDNAME}" ]; then
-        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DT_FILES_PATH}/system-top.dts
-    else
-        echo "No board set"
-        exit 1
-    fi
-}
-do_configure:append:zynqmp () {
-    PYNQ_BOARDNAME="${@d.getVar('BB_ORIGENV', False).getVar('PYNQ_BOARDNAME', True)}"
-	FPGA_MANAGER="${@d.getVar('BB_ORIGENV', False).getVar('FPGA_MANAGER', True)}"
-    echo '/include/ "pynq_zynqmp.dtsi"' >> ${DT_FILES_PATH}/system-top.dts
-    if [ "${FPGA_MANAGER}" = 1 ]; then
-        echo "/include/ \"pynq_uio_zynqmp.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
-        echo "/include/ \"pynq_zocl_poll_zynqmp.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
-    else
-        echo "/include/ \"pynq_zocl_intc_zynqmp.dtsi\"" >> ${DT_FILES_PATH}/system-top.dts
-    fi
-    if [ -n "${PYNQ_BOARDNAME}" ]; then
-        echo "/ { chosen { pynq_board = \"${PYNQ_BOARDNAME}\"; }; };" >> ${DT_FILES_PATH}/system-top.dts
-    else
-        echo "No board set"
-        exit 1
-    fi
+    printf '\n/ { chosen { pynq_board = "%s"; }; };\n' "${board_name}" >> "${dts}"
 }
 
 do_configure[vardepsexclude] = "BB_ORIGENV"
