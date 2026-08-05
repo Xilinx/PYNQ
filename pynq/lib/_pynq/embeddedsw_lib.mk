@@ -29,7 +29,29 @@ COMMON_INC_armv7l := -Icommon/armv7l
 ALL_SRC := $(SRC) $(COMMON_SRC) $(COMMON_SRC_$(PYNQ_BUILD_ARCH)) $(ESW_SRC)
 ALL_INC := $(INC) $(COMMON_INC) $(COMMON_INC_$(PYNQ_BUILD_ARCH)) $(ESW_INC) $(OS_INC) $(OS_INC_$(PYNQ_BUILD_ARCH))
 
+# Per-library object directory (so _xhdmi's .o files never collide with
+# _pcam5c's when both libraries live alongside each other).
+OBJ_DIR := $(LIB_NAME:.so=).objs
+ALL_OBJ := $(patsubst %.c,$(OBJ_DIR)/%.o,$(ALL_SRC))
+
 all: $(LIB_NAME)
 
-$(LIB_NAME): $(EMBEDDEDSW_DIR)
-	$(CC) -o $(LIB_NAME) -shared -fPIC $(ALL_INC) $(ALL_SRC) $(CFLAGS) $(LDFLAGS)
+$(LIB_NAME): $(EMBEDDEDSW_DIR) $(ALL_OBJ)
+	$(CC) -shared -fPIC -o $(LIB_NAME) $(ALL_OBJ) $(LDFLAGS)
+
+# Compile each translation unit into its own object file. Under
+# qemu-user-static cc1 also crashes intermittently on individual files
+# (not deterministic, not always the same file). A 3-attempt retry loop
+# absorbs these transient emulation failures without slowing down the
+# happy path. Per-file (rather than one giant cc invocation) keeps each
+# cc1 short enough that restarting it is cheap.
+$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
+	@mkdir -p $(dir $@)
+	@for attempt in 1 2 3; do \
+	    $(CC) -fPIC $(ALL_INC) $(CFLAGS) -c $< -o $@ && break || \
+	    { echo "cc attempt $$attempt failed for $<"; sleep 1; }; \
+	done; \
+	test -f $@
+
+$(OBJ_DIR):
+	mkdir -p $@
