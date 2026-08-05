@@ -142,16 +142,13 @@ if(USE_LOCAL_XRT)
     set(XRT_LIBRARIES "/usr/lib/libxrt_core.so")
     set(XRT_ADDITIONAL_LIBRARIES "/usr/lib/libxrt_coreutil.so")
 else()
-    # Hard code default XRT paths
-    # Explicitly set the paths for XRT
-    set(XRT_INCLUDE_DIRS "${BASE_DIR}/build/tmp/sysroots-components/cortexa72-cortexa53/xrt/usr/include")
-    set(XRT_LIBRARIES "${BASE_DIR}/build/tmp/sysroots-components/cortexa72-cortexa53/xrt/usr/lib/libxrt_core.so")
-
-    # Additional XRT libraries (if needed)
-    set(XRT_ADDITIONAL_LIBRARIES "${BASE_DIR}/build/tmp/sysroots-components/cortexa72-cortexa53/xrt/usr/lib/libxrt_coreutil.so")
+    # XRT from the bitbake recipe sysroot.
+    set(XRT_INCLUDE_DIRS "${CMAKE_SYSROOT}/usr/include")
+    set(XRT_LIBRARIES "${CMAKE_SYSROOT}/usr/lib/libxrt_core.so")
+    set(XRT_ADDITIONAL_LIBRARIES "${CMAKE_SYSROOT}/usr/lib/libxrt_coreutil.so")
 endif()
 
-if(EXISTS "${XRT_INCLUDE_DIRS}/xrt/xrt.h" AND EXISTS "${XRT_LIBRARIES}")
+if(EXISTS "${XRT_INCLUDE_DIRS}/xrt/xrt_bo.h" AND EXISTS "${XRT_LIBRARIES}")
     message(STATUS "Found XRT: includes in ${XRT_INCLUDE_DIRS}, libs in ${XRT_LIBRARIES}")
 else()
     message(FATAL_ERROR "Could not find XRT")

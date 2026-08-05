@@ -96,12 +96,9 @@ void libxrfdcManager::loadLibrary() {
     std::cout << "Loading librfdc.so..." << std::endl;
 #endif
 
-    handle_ = dlopen("librfdc.so.3", RTLD_LAZY);
+    handle_ = dlopen("librfdc.so", RTLD_LAZY);
     if (!handle_) {
-        handle_ = dlopen("librfdc.so", RTLD_LAZY);
-        if (!handle_) {
-            throw std::runtime_error(std::string("Failed to load librfdc.so: ") + dlerror());
-        }
+        throw std::runtime_error(std::string("Failed to load librfdc.so: ") + dlerror());
     }
 
     // Load function pointers

@@ -40,8 +40,6 @@
 #include "xrfdc.h"
 #endif
 
-#include <xrt/xclhal2.h>
-#include <xrt/xrt.h>
 #include <xrt/xrt_bo.h>
 #include <xrt/xrt_device.h>
 
