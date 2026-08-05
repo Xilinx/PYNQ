@@ -4,3 +4,4 @@ rootfs.img
 build
 output
 ccache
+prebuilt/*

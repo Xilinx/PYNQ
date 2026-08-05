@@ -17,11 +17,12 @@ BOARDDIR ?= $(DEFAULT_BOARDDIR)
 ALLBOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec))) 
 BOARDS ?= $(ALLBOARDS)
 
-UBUNTU_RELEASE := jammy
-VERSION := 3.1.3
+UBUNTU_RELEASE := noble
+VERSION := 4.0.0
 
-KERNEL_VERSION := 2024.1
-QEMU_VERSION := 5.2.0
+# Vivado/EDF tool version (checked in checkenv).
+KERNEL_VERSION := 2025.2
+QEMU_VERSION := 8.2
 SCRIPT_DIR := $(CURDIR)/scripts
 SHELL := /bin/bash
 
@@ -37,15 +38,14 @@ SYSROOT_ROOT := $(CURDIR)/output/sysroot
 BSP_ROOT := $(CURDIR)/output/bsp
 DIST_ROOT := $(CURDIR)/output/dist
 
-KERNEL_arm := zImage
+# aarch64 only (Zynq-7000 deprecated). EDF's xilinx-bootbin builds the boot
+# components into BOOT.BIN, so no per-component list is needed.
 KERNEL_aarch64 := Image
-BOOT_arm := u-boot.elf zynq_fsbl.elf
-BOOT_aarch64 := u-boot.elf zynqmp_fsbl.elf pmufw.elf bl31.elf
 
 export CCACHEDIR
 export ROOTDIR
 export BUILD_ROOT
-export BB_ENV_PASSTHROUGH_ADDITIONS := PYNQ_BOARDNAME FPGA_MANAGER
+export BB_ENV_PASSTHROUGH_ADDITIONS := PYNQ_BOARDNAME FPGA_MANAGER PYNQ_BOARD_DTSI
 export SHELL
 
 $(IMAGE_ROOT):
@@ -102,7 +102,7 @@ endif
 
 # If the board .spec file has rfdc as a remote package we infer it's an RFSoC board
 ifeq ($$(RFSoC_$1),)
-	RFSoC_$1 := $$(if $$(filter rfdc,$$(REMOTE_PACKAGES_$1)),1,0)
+	RFSoC_$1 := $$(if $$(filter librfdc,$$(REMOTE_PACKAGES_$1)),1,0)
 endif
 
 # New API - SDIST and RootFS by default should be provided to the Makefile
@@ -116,7 +116,7 @@ BITSTREAM_ABS_$1 := $$(patsubst %, $$(BOARDDIR_$1)/%, $$(BITSTREAM_$1))
 BUILD_ROOT_$1 := $$(BUILD_ROOT)/$1
 BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
-PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1) ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages PYNQ_SDIST=$$(PYNQ_SDIST) PYNQ_ROOTFS=$$(PYNQ_ROOTFS)
+PACKAGE_ENV_$1 := QEMU_EXE=$$(QEMU_$1) PYNQ_BOARDDIR=$$(BOARDDIR_$1) PYNQ_BOARD=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1) ARCH=$$(ARCH_$1) PACKAGE_PATH=$$(BOARDDIR_$1)/packages PYNQ_SDIST=$$(PYNQ_SDIST) PYNQ_ROOTFS=$$(PYNQ_ROOTFS) BOOT_ROOT=$$(BOOT_ROOT_$1)
 IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION).img
 REMOTE_IMAGE_$1 := $$(IMAGE_ROOT)/$1-$$(VERSION)-remote.img
 ROOT_$1 := $$(BUILD_ROOT)/$1.tar.gz
@@ -124,152 +124,32 @@ REMOTE_ROOT_$1 := $$(BUILD_ROOT)/$1.remote_rootfs.tar.gz
 SYSROOT_$1 := $$(SYSROOT_ROOT)/$1
 EXTRA_BOOT_$1 := $$(BUILD_ROOT)/$1.extra_boot
 
-ifeq ($$(ARCH_$1),arm)
-	TEMPLATE_$1 := zynq
-endif
-ifeq ($$(ARCH_$1),aarch64)
-	TEMPLATE_$1 := zynqMP
-endif
+# ---- EDF boot artefacts (bitbake, via scripts/build_edf_boot.sh) ---------
+# Per-board EDF config lives in boards/<board>/edf.env. One script produces
+# BOOT.BIN + kernel Image + system.dtb + kernel modules tarball + zocl.ko
+# into output/boot/<board>/, replacing the Petalinux boot-artefact flow.
+BOARD_EDF_ENV_$1 := $$(BOARDDIR_$1)/edf.env
 
-BSP_BUILD_$1 := $$(BUILD_ROOT_$1)/petalinux_bsp
-BSP_ABS_$1 := $$(patsubst %,$$(BOARDDIR_$1)/%,$$(BSP_$1))
-BSP_PROJECT_$1 := xilinx-$$(shell echo $1 | tr A-Z a-z | tr -cd '[:alnum:]')-$$(KERNEL_VERSION)
-BSP_TARGET_$1 := $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp
-BSP_ENV_$1 := BSP=$$(BSP_$1) BSP_BUILD=$$(BSP_BUILD_$1) BSP_ABS=$$(BSP_ABS_$1) BSP_PROJECT=$$(BSP_PROJECT_$1)
+BOOT_BIN_$1     := $$(BOOT_ROOT_$1)/BOOT.BIN
+KERNEL_IMAGE_$1 := $$(BOOT_ROOT_$1)/Image
+SYSTEM_DTB_$1   := $$(BOOT_ROOT_$1)/system.dtb
+MODULES_$1      := $$(BOOT_ROOT_$1)/modules.tgz
+ZOCL_KO_$1      := $$(BOOT_ROOT_$1)/zocl.ko
+KERNEL_DEVSRC_$1 := $$(BOOT_ROOT_$1)/kernel-devsrc.rpm
+BOOT_FILES_$1   := $$(BOOT_BIN_$1) $$(KERNEL_IMAGE_$1) $$(SYSTEM_DTB_$1) $$(MODULES_$1) $$(ZOCL_KO_$1)
+BOOT_STAMP_$1   := $$(BOOT_ROOT_$1)/.boot_built
 
-$$(BSP_BUILD_$1): | $$(BUILD_ROOT_$1)
-	-rm -rf $$(BSP_BUILD_$1)
-	mkdir -p $$(BSP_BUILD_$1)
+BOOT_ENV_$1 := BOARD=$1 BOARD_PATH=$$(BOARDDIR_$1) ARCH=$$(ARCH_$1) \
+	FPGA_MANAGER=$$(FPGA_MANAGER_$1) OUTPUT_DIR=$$(BOOT_ROOT) ROOTDIR=$$(CURDIR)
 
-$$(BSP_TARGET_$1): | $$(BSP_BUILD_$1)
-	$$(BSP_ENV_$1) $$(SCRIPT_DIR)/create_bsp.sh $$(BOARDDIR_$1) $$(TEMPLATE_$1)
+$$(BOOT_STAMP_$1): $$(BOARD_EDF_ENV_$1) | $$(BOOT_ROOT_$1)
+	$$(BOOT_ENV_$1) $$(SCRIPT_DIR)/build_edf_boot.sh
+	touch $$@
 
-# BSP Specific Rules
-BSP_DIR_$1 := $$(BSP_ROOT)/$1
-BSP_FILES_$1 := $$(BSP_DIR_$1)/$$(BSP_PROJECT_$1).bsp
+$$(BOOT_FILES_$1) $$(KERNEL_DEVSRC_$1): $$(BOOT_STAMP_$1)
 
-$$(BSP_DIR_$1): | $$(BSP_ROOT)
-	mkdir -p $$@
-
-$$(BSP_DIR_$1)/$$(BSP_PROJECT_$1).bsp: $$(BSP_TARGET_$1) | $$(BSP_DIR_$1)
-	cp $$< $$@
-
-bsp_$1: $$(BSP_FILES_$1)
-
-.PHONY: bsp_$1
-
-PL_PROJ_$1 := $$(BUILD_ROOT_$1)/petalinux_project
-PL_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/config
-PL_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/configs/rootfs_config
-PL_USER_ROOTFS_CONFIG_$1 := $$(PL_PROJ_$1)/project-spec/meta-user/conf/user-rootfsconfig
-LOCAL_CONF_$1 := $$(PL_PROJ_$1)/build/conf/local.conf
-MODULES_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/images/modules-plnx_$$(ARCH_$1).tgz
-KERNEL_RPM_$1 := $$(PL_PROJ_$1)/build/tmp/deploy/rpm/kernel-devsrc-1.0-r0.plnx_$$(ARCH_$1).rpm
-PL_ENV_$1 := PYNQ_BOARDNAME=$1 FPGA_MANAGER=$$(FPGA_MANAGER_$1)
-
-BOOT_FILES_$1 := $$(BOOT_ROOT_$1)/image.ub $$(BOOT_ROOT_$1)/BOOT.BIN $$(BOOT_ROOT_$1)/boot.scr
-BOOT_DEPENDS_$1 := $$(patsubst %, $$(PL_PROJ_$1)/images/linux/%, $$(BOOT_$$(ARCH_$1)))
-$$(PL_PROJ_$1): $$(BSP_TARGET_$1)
-	-rm -rf $$(PL_PROJ_$1)
-	cd $$(BUILD_ROOT_$1) && petalinux-create -t project \
-		-s $$(BSP_BUILD_$1)/$$(BSP_PROJECT_$1).bsp -n petalinux_project
-	echo 'CONFIG_USER_LAYER_0="'$(CURDIR)/boot/meta-pynq'"' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_ROOTFS_EXT4=y' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_SDROOT_DEV="/dev/mmcblk0p2"' >> $$(PL_CONFIG_$1)
-	echo 'CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=y' >> $$(PL_CONFIG_$1)
-	if [ $$(FPGA_MANAGER_$1) = 1 ]; then \
-		echo 'CONFIG_SUBSYSTEM_DEVICETREE_FLAGS="-@"' >> $$(PL_CONFIG_$1) ;\
-		echo 'CONFIG_SUBSYSTEM_DTB_OVERLAY=y' >> $$(PL_CONFIG_$1) ;\
-		echo 'CONFIG_SUBSYSTEM_FPGA_MANAGER=y' >> $$(PL_CONFIG_$1) ;\
-	else \
-		echo 'CONFIG_SUBSYSTEM_REMOVE_PL_DTB=y' >> $$(PL_CONFIG_$1) ;\
-	fi
-	if [ -z $$(BSP_$1) ]; then \
-		echo 'CONFIG_SUBSYSTEM_REMOVE_PL_DTB=y' >> $$(PL_CONFIG_$1) ;\
-	fi
-
-	petalinux-config --silentconfig -p $$(PL_PROJ_$1)
-
-	# Base packages
-	echo 'CONFIG_xrt' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_xrt=y' >> $$(PL_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_zocl' >> $$(PL_USER_ROOTFS_CONFIG_$1)
-	echo 'CONFIG_zocl=y' >> $$(PL_ROOTFS_CONFIG_$1)
-
-	# Classic PYNQ packages
-	if [ -z $(PYNQREMOTE) ]; then \
-		echo 'CONFIG_xrt-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-headers-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-clhpp-dev' >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_xrt-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-headers-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_opencl-clhpp-dev=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-	fi
-
-	# PYNQ.remote packages: general defaults (REMOTE_PACKAGES) + board-specific
-	# additions (REMOTE_PACKAGES_<board> from the board .spec)
-	if [ $(PYNQREMOTE) = 1 ]; then \
-		for pkg in $(REMOTE_PACKAGES) $$(REMOTE_PACKAGES_$1); do \
-			echo "CONFIG_$$$$pkg" >> $$(PL_USER_ROOTFS_CONFIG_$1) ;\
-			echo "CONFIG_$$$$pkg=y" >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		done ;\
-		echo 'CONFIG_nfs-utils=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_tcf-agent=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_imagefeature-ssh-server-openssh=n' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		echo 'CONFIG_imagefeature-ssh-server-dropbear=y' >> $$(PL_ROOTFS_CONFIG_$1) ;\
-		if [ $$(RFSoC_$1) = 1 ]; then \
-			mkdir -p $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp ;\
-			echo 'PACKAGECONFIG:append = " rfsoc"' \
-				> $$(PL_PROJ_$1)/project-spec/meta-user/recipes-apps/pynq-cpp/pynq-cpp.bbappend ;\
-		fi ;\
-		petalinux-config -c rootfs --silentconfig -p $$(PL_PROJ_$1) ;\
-	fi
-
-$$(BOOT_ROOT_$1)/BOOT.BIN : $$(BOOT_DEPENDS_$1) $$(BOOT_BITSTREAM_$1) | $$(BOOT_ROOT_$1)
-	cd $$(BOOT_ROOT_$1) && petalinux-package --boot --fpga $$(BITSTREAM_ABS_$1) --u-boot -p $$(PL_PROJ_$1) --force
-	cp -f $$(PL_PROJ_$1)/images/linux/BOOT.BIN $$(BOOT_ROOT_$1)
-
-$$(BOOT_ROOT_$1)/image.ub : $$(BUILD_ROOT_$1)/image.its $$(BUILD_ROOT_$1)/system.dtb $$(BUILD_ROOT_$1)/$$(KERNEL_$$(ARCH_$1)) | $$(BOOT_ROOT_$1)
-	cd $$(BOOT_ROOT_$1) && mkimage -f $$(BUILD_ROOT_$1)/image.its $$@
-
-$$(BOOT_ROOT_$1)/boot.scr : $$(BOOT_DEPENDS_$1) | $$(BOOT_ROOT_$1)
-	$$(PL_ENV_$1) petalinux-build -c u-boot-xlnx-scr -p $$(PL_PROJ_$1)
-	cp -f $$(PL_PROJ_$1)/images/linux/boot.scr $$@
-
-$$(BUILD_ROOT_$1)/image.its: $$(CURDIR)/boot/image_$$(ARCH_$1).its | $$(BUILD_ROOT_$1)
-	cp $$< $$@
-
-$$(PL_CONFIG_$1): | $$(BSP_BUILD_$1) $$(PL_PROJ_$1)
-
-$$(PL_PROJ_$1)/images/linux/%_fsbl.elf: $$(PL_CONFIG_$1)
-	$$(PL_ENV_$1) petalinux-build -c bootloader -p $$(PL_PROJ_$1)
-
-$$(PL_PROJ_$1)/images/linux/u-boot.elf: $$(PL_CONFIG_$1)
-	$$(PL_ENV_$1) petalinux-build -c u-boot -p $$(PL_PROJ_$1)
-
-$$(PL_PROJ_$1)/images/linux/$$(KERNEL_$$(ARCH_$1)): $$(PL_CONFIG_$1)
-	$$(PL_ENV_$1) petalinux-build -c kernel -p $$(PL_PROJ_$1)
-
-$$(PL_PROJ_$1)/images/linux/system.dtb:  $$(PL_CONFIG_$1)
-	$$(PL_ENV_$1) petalinux-build -c device-tree -p $$(PL_PROJ_$1)
-
-$$(PL_PROJ_$1)/images/linux/pmufw.elf:  $$(PL_CONFIG_$1)
-	$$(PL_ENV_$1) petalinux-build -c pmufw -p $$(PL_PROJ_$1)
-
-$$(PL_PROJ_$1)/images/linux/bl31.elf:  $$(PL_CONFIG_$1)
-	$$(PL_ENV_$1) petalinux-build -c arm-trusted-firmware -p $$(PL_PROJ_$1)
-
-$$(MODULES_$1): $$(PL_PROJ_$1)/images/linux/$$(KERNEL_$$(ARCH_$1))
-	cp -f $$(PL_PROJ_$1)/build/tmp/deploy/images/*/modules--*.tgz \
-	$$(MODULES_$1)
-
-$$(KERNEL_RPM_$1): $$(PL_CONFIG_$1)
-	$$(PL_ENV_$1) petalinux-build -c kernel-devsrc -p $$(PL_PROJ_$1)
-	cp -f $$(PL_PROJ_$1)/build/tmp/deploy/rpm/*/kernel-devsrc-1.0-r0.*.rpm \
-	$$(KERNEL_RPM_$1)
-
-$$(BUILD_ROOT_$1)/% : $$(PL_PROJ_$1)/images/linux/%
-	cp $$< $$@
+boot_$1: $$(BOOT_FILES_$1)
+.PHONY: boot_$1
 
 $$(BUILD_ROOT_$1):
 	mkdir -p $$@
@@ -288,24 +168,24 @@ endif
 STAGE4_DEPENDS_$1 := $$(foreach package, $$(STAGE4_PACKAGES_$1), $$(PACKAGE_BUILD_$$(package)_$1) $$(PACKAGE_BUILD_$$(package)))
 STAGING_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1
 
-$$(ROOT_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_RPM_$1) | $$(CCACHEDIR)
+$$(ROOT_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_DEVSRC_$1) | $$(CCACHEDIR)
 	sudo rm -fr $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	(cd $$(STAGING_$1) && sudo tar -xf $$(realpath $$<))
-	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/install_packages.sh $$(STAGING_$1) $$(STAGE4_PACKAGES_$1)
+	# Lay the EDF kernel modules down BEFORE STAGE4: xrt's pre.sh drops
+	# zocl.ko into /lib/modules/<kver>/extra, so the modules tree must exist.
 	mkdir -p $$(BUILD_ROOT_$1)/modules
 	cd $$(BUILD_ROOT_$1)/modules && tar -xf $$(MODULES_$1)
 	sudo cp -r --no-preserve=ownership $$(BUILD_ROOT_$1)/modules/lib/* $$(STAGING_$1)/usr/lib/
 	rm -rf $$(BUILD_ROOT_$1)/modules
+	# On-target kernel build tree (/usr/src/kernel + /lib/modules/<kver>/build).
+	rpm2cpio $$(KERNEL_DEVSRC_$1) | ( cd $$(STAGING_$1) && sudo cpio -idmu )
+	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/install_packages.sh $$(STAGING_$1) $$(STAGE4_PACKAGES_$1)
 	sudo mount -o bind /dev $$(STAGING_$1)/dev
-	rpm2cpio $$(KERNEL_RPM_$1) | sudo chroot $$(STAGING_$1) cpio -id
-
-	# PLNX 2024.1 need to get commit bits into symbols
 	echo "depmod -a \`ls /lib/modules\`" > $$(STAGING_$1)/depmod.sh
 	chmod a+x $$(STAGING_$1)/depmod.sh
 	sudo chroot $$(STAGING_$1) /bin/bash -c "/depmod.sh"
 	rm $$(STAGING_$1)/depmod.sh
-
 	sudo umount -l $$(STAGING_$1)/dev
 	rm -rf $$(EXTRA_BOOT_$1)
 	cp -r $$(STAGING_$1)/boot $$(EXTRA_BOOT_$1)
@@ -317,31 +197,28 @@ $$(ROOT_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_RP
 	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
 
-$$(IMAGE_$1) : $$(ROOT_$1) $$(BOOT_FILES_$1)
-	sudo rm -rf $$(STAGING_$1)
-	mkdir $$(STAGING_$1)
-	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
-
-	# PLNX 2024.1 bug - wic call will error out due to issue seen in link below ... 
-	# https://discuss.pynq.io/t/error-then-building-pynq-for-microzed-board/7252/6
-	-cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$< --outdir $$(IMAGE_ROOT) --wks $$(CURDIR)/boot/image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:."
-	mv $$(PL_PROJ_$1)/build/wic/wic-tmp/image-*.direct $$@
+# Build the SD image (FAT32 boot + ext4 root); see scripts/make_sdimage.sh.
+$$(IMAGE_$1) : $$(ROOT_$1) $$(BOOT_FILES_$1) | $$(IMAGE_ROOT)
+	ROOTFS_TAR=$$(ROOT_$1) BOOT_DIR=$$(BOOT_ROOT_$1) OUT_IMG=$$@ \
+		EXTRA_BOOT=$$(EXTRA_BOOT_$1) \
+		$$(SCRIPT_DIR)/make_sdimage.sh
 
 
 
-$$(REMOTE_ROOT_$1) : $$(CCACHEDIR)
-	petalinux-build -c rootfs -p $$(PL_PROJ_$1)
-	cp $$(BUILD_ROOT_$1)/petalinux_project/images/linux/rootfs.tar.gz $$@
+# ---- PYNQ.remote appliance image (EDF/bitbake minimal rootfs) ----
+REMOTE_ENV_$1 := BOARD=$1 BOARD_PATH=$$(BOARDDIR_$1) ARCH=$$(ARCH_$1) \
+	ROOTDIR=$$(CURDIR) REMOTE_ROOTFS_OUT=$$(REMOTE_ROOT_$1) \
+	REMOTE_PACKAGES="$$(REMOTE_PACKAGES) $$(REMOTE_PACKAGES_$1)" RFSoC=$$(RFSoC_$1)
 
-$$(REMOTE_IMAGE_$1) : $$(PL_PROJ_$1) $$(REMOTE_ROOT_$1) $$(BOOT_FILES_$1)
-	rm -rf $$(STAGING_$1)
-	mkdir $$(STAGING_$1)
-	cp $$(BOOT_FILES_$1) $$(STAGING_$1)
-	cp $$(CURDIR)/boot/remote-image.wks $$(PL_PROJ_$1)/build/rootfs.wks
-	-cd $$(PL_PROJ_$1) && petalinux-package wic --images-dir "$$(STAGING_$1)" --bootfiles "$$(notdir $$(BOOT_FILES_$1))" -c $$(REMOTE_ROOT_$1) --outdir $$(IMAGE_ROOT) --wks $$(CURDIR)/boot/remote-image.wks --extra-bootfiles "$$(EXTRA_BOOT_$1)/*:."
-	mv $$(PL_PROJ_$1)/build/wic/wic-tmp/remote-image-*.direct $$@
+$$(REMOTE_ROOT_$1) : $$(BOARD_EDF_ENV_$1) | $$(BUILD_ROOT)
+	$$(REMOTE_ENV_$1) $$(SCRIPT_DIR)/build_edf_remote_rootfs.sh
 
-pynqremote_$1: $$(REMOTE_IMAGE_$1) 
+$$(REMOTE_IMAGE_$1) : $$(REMOTE_ROOT_$1) $$(BOOT_FILES_$1) | $$(IMAGE_ROOT)
+	ROOTFS_TAR=$$(REMOTE_ROOT_$1) BOOT_DIR=$$(BOOT_ROOT_$1) OUT_IMG=$$@ \
+		ROOT_MARGIN_MB=256 \
+		$$(SCRIPT_DIR)/make_sdimage.sh
+
+pynqremote_$1: $$(REMOTE_IMAGE_$1)
 	echo "Done building remote image for board $1"
 
 SDX_DIR_$1 := $$(SDX_ROOT)/$1/sw
@@ -411,14 +288,14 @@ endif
 
 DIST_$1 := $$(DIST_ROOT)/$1
 
-$$(STAGE2_$1) : $$(STAGE1_$1) $$(STAGE2_DEPENDS_$1)
+$$(STAGE2_$1) : $$(STAGE1_$1) $$(STAGE2_DEPENDS_$1) | $$(CCACHEDIR)
 	sudo rm -rf $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	(cd $$(STAGING_$1) && sudo tar -xf $$<)
 	$$(PACKAGE_ENV_$1) $$(SCRIPT_DIR)/install_packages.sh $$(STAGING_$1) $$(STAGE2_PACKAGES_$1)
 	(cd $$(STAGING_$1) && sudo tar -cz * > $$@)
 
-$$(BASE_$1) : $$(STAGE2_$1) $$(STAGE3_DEPENDS_$1) | $$(IMAGE_ROOT)
+$$(BASE_$1) : $$(STAGE2_$1) $$(STAGE3_DEPENDS_$1) | $$(IMAGE_ROOT) $$(CCACHEDIR)
 	sudo rm -rf $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	(cd $$(STAGING_$1) && sudo tar -xf $$<)
