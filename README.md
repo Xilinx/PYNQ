@@ -41,7 +41,7 @@ SDK software projects and Python-C source codes are also stored along with the P
 
 All board related files including Vivado projects, bitstreams, and example notebooks, can be found in the `/boards` folder.
 
-In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/Pynq-Z1/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
+In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/ZCU104/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
 
 ## Contribute
 
