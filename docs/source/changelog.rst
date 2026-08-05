@@ -2,6 +2,31 @@
 Change Log
 ************************
 
+Version 4.0.0
+============================
+
+A major release: migration off Petalinux, adoption of AMD EDF (Yocto /
+bitbake), upgrade to Xilinx 2025.2 tools, and deprecation of Pynq-Z1 /
+Pynq-Z2.
+
+Updates to PYNQ in this release:
+
+* Image releases:
+   * zcu104_v4.0.0
+
+* Upgraded Software
+   * Xilinx tools upgraded to **2025.2**
+   * Build moved from Petalinux to AMD **EDF (Yocto / bitbake)**.
+     Petalinux is no longer required on the host; only Vivado and
+     Docker are.
+   * Yocto version compatibility: Scarthgap
+
+* Deprecations
+   * Support for **Pynq-Z1** and **Pynq-Z2** boards is removed.
+     Their board directories, Petalinux BSP wiring, and board-only
+     documentation are gone.
+   * Petalinux build flow removed from ``sdbuild/`` 
+
 Version 3.1.0
 ============================
 

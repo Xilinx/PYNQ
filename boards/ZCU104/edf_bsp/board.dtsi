@@ -1,9 +1,6 @@
-/include/ "system-conf.dtsi"
-/ {
-        chosen {
-	        xlnx,eeprom = &eeprom;
-        };
+/* ZCU104 board-specific device-tree nodes (appended to the SDT base dts). */
 
+/ {
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -20,19 +17,12 @@
 
 &i2c1 {
 	i2c-mux@74 {
-		i2c@2 {
-			irps5401_44: irps5401@44 {
-				#clock-cells = <0>;
-				compatible = "infineon,irps5401";
-				reg = <0x44>;
-			};
-		};
-
 		i2c@3 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
-			ina226: ina226@40 {
+
+			ina226@40 {
 				compatible = "ti,ina226";
 				reg = <0x40>;
 				shunt-resistor = <5000>;
@@ -40,4 +30,3 @@
 		};
 	};
 };
-

@@ -6,7 +6,7 @@ Current Status
 This document outlines the current status of PYNQ.remote.
 
 * **Supported PYNQ Version**: 3.1
-* **Required Tool Version**: 2024.1
+* **Required Tool Version**: 2025.2
 * **Validated Platforms**: 
    * `ZCU104 <https://www.amd.com/en/products/adaptive-socs-and-fpgas/evaluation-boards/zcu104.html>`_
    * `AUP-ZU3 <https://www.realdigital.org/hardware/aup-zu3>`_

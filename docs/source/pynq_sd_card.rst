@@ -51,9 +51,9 @@ build environment on your host OS using the following steps:
 
   2. Install the required AMD tools on your host OS (not inside Docker):
      
-     * **Vivado**, **Vitis**, and **PetaLinux**, version 2024.1
+     * **Vivado** and **Vitis**, version 2025.2 (Petalinux is no longer required)
      * Ensure your host OS is supported by the AMD tools (see 
-       `UG973 <https://docs.amd.com/r/2024.1-English/ug973-vivado-release-notes-install-license/Supported-Operating-Systems>`_)
+       `UG973 <https://docs.amd.com/r/2025.2-English/ug973-vivado-release-notes-install-license/Supported-Operating-Systems>`_)
 
      .. note::
         AMD tools must be installed on the host system, not inside the Docker container.
@@ -100,8 +100,7 @@ build environment on your host OS using the following steps:
 
      .. code-block:: console
     
-        source /tools/Xilinx/Vivado/2024.1/settings64.sh
-        source /home/user/petalinux/settings.sh
+        source /tools/Xilinx/Vivado/2025.2/settings64.sh
 
      Adjust the paths to match your actual Xilinx tool installation paths.
 
@@ -144,6 +143,7 @@ this section, you can simply do the following:
      v2.7               2020.2
      v3.0               2022.1
      v3.1               2024.1
+     v4.0               2025.2
      ================  ================
 
 Building the Image From Source
@@ -152,13 +152,13 @@ Building the Image From Source
 Once you have the build environment ready, you can build an SD card image 
 following the steps below. You don't have to rerun the `setup_host.sh`.
 
-  1. Source the appropriate settings for PetaLinux and Vitis. 
-     Suppose you are using Xilinx 2024.1 tools:
+  1. Source the Vitis settings for Xilinx 2025.2 tools (Petalinux is
+     no longer required — the EDF build container sources Vivado
+     automatically from ``VIVADO_PATH``):
 
      .. code-block:: console
 
-        source <path-to-vitis>/Vitis/2024.1/settings64.sh
-        source <path-to-petalinux>/petalinux-2024.1-final/settings.sh
+        source <path-to-vitis>/Vitis/2025.2/settings64.sh
 
   2. Depending on the overlays being rebuilt, make sure you have the appropriate
      Vivado licenses to build for your target board, especially the
@@ -232,17 +232,34 @@ Unmount images before building again
 Sometimes the SD image building process can error out, leaving mounted images
 in your host OS. You need to unmount these images before trying the make
 process again. Starting from image v2.6, users can do the following to
-unmount and delete the failed images, and remove all the previously
-built images at different stages:
+unmount the images.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make delete
+
+The above command not only unmounts all the images, but also deletes the
+failed images. This makes sure the users do not use the failed images when
+continuing the SD build process.
+
+To unmount images but not delete them, use the following command instead.
+
+.. code-block:: console
+    
+   cd <PYNQ repository>/sdbuild/
+   make unmount
+
+If you want to ignore all the previous staged or cached SD build
+artifacts and start from scratch again, you can use the following command.
+This will unmount and delete the failed images, and remove all the previously
+built images at different stages.
 
 .. code-block:: console
     
    cd <PYNQ repository>/sdbuild/
    make clean
 
-
-If you want to ignore all the previous staged or cached SD build
-artifacts and start from scratch again, you can use the command above.
 
 Retargeting to a Different Board
 ================================
