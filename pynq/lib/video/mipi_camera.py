@@ -117,11 +117,19 @@ class MipiCamera(DefaultHierarchy):
 
         # active_lanes is inert: the subsystem is built with
         # C_CSI_EN_ACTIVELANES = false, so the lane count is fixed in
-        # hardware. hs_settle_ns is what makes one D-PHY build work for
-        # every sensor's line rate.
+        # hardware.
+        #
+        # HS_SETTLE is deliberately NOT written here. The build-time
+        # C_HS_SETTLE_NS = 124 ns already sits inside the D-PHY spec
+        # window for every supported sensor -- the windows are
+        # [93.9, 159.9] ns for the OV5640 at 672 Mbps and [91.6, 156.0] ns
+        # for the IMX parts at ~912 Mbps, which intersect at
+        # [93.9, 156.0] ns. One build therefore covers all three, and
+        # overwriting it at runtime only risks pushing a working link out
+        # of spec. Each sensor still declares HS_SETTLE_NS so the value is
+        # recorded next to its line rate if a future part needs it.
         self.mipi_csi2_rx_subsyst.configure(
-            active_lanes=self._sensor.LANE_COUNT,
-            hs_settle_ns=self._sensor.HS_SETTLE_NS)
+            active_lanes=self._sensor.LANE_COUNT)
 
         self.demosaic.configure(videomode.width, videomode.height,
                                 bayer_phase)

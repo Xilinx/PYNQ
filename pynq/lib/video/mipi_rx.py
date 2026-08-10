@@ -1299,12 +1299,25 @@ class MipiRx(DefaultIP):
             Maximum seconds to wait for the soft reset to complete.
         hs_settle_ns : int or None
             HS_SETTLE time in ns, applied to every active lane. If None
-            (default) the build-time value is left untouched. The value
-            is converted to core_clk cycles (ns * core_clk_mhz / 1000)
-            per PG202/PG435; the field name is ns but the hardware wants
-            a cycle count.
+            (default) the build-time value is left untouched, which is
+            the normal case -- see the warning below.
         core_clk_mhz : int
             D-PHY core clock in MHz for the ns->cycles conversion.
+
+        Warning
+        -------
+        **Passing ``hs_settle_ns`` is unverified and known to break
+        capture.** Driving it with the OV5640's 149 ns stalled the link
+        (``packet_count`` 0 while the lanes still counted packets), so
+        the ns->cycles conversion below does not match what the hardware
+        expects. Whether the register field wants nanoseconds or core_clk
+        cycles has not been confirmed against PG202 on real hardware.
+
+        This is normally unnecessary: the build-time ``C_HS_SETTLE_NS``
+        is one value covering every supported sensor, since the D-PHY
+        spec windows for 672 Mbps and ~912 Mbps overlap. Leave it None
+        unless you are deliberately bringing up a new sensor, and expect
+        to have to determine the correct units first.
         """
         rmap = self.register_map
         # --- CSI-2 RX controller ---
