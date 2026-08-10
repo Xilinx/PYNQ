@@ -1,15 +1,11 @@
 #   Copyright (c) 2026, Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
-import glob
-import os
 import time
-import fcntl
 
-_I2C_SLAVE = 0x0703
-_OV5640_ADDR = 0x3C
-_SENSOR_ID_HIGH = 0x56
-_SENSOR_ID_LOW = 0x40
+from .camera_sensor import CameraSensor
+
+__all__ = ["OV5640"]
 
 # Register tables ported from pcam_5c.h
 # Each entry is (register_address, data_byte)
@@ -258,12 +254,8 @@ _AWB_CONFIGS = {
 }
 
 
-class OV5640:
-    """OV5640 MIPI camera sensor driver using raw Linux I2C.
-
-    The OV5640 uses 16-bit register addresses, so standard SMBus
-    cannot be used. This driver communicates via raw /dev/i2c-N
-    file I/O with ioctl for slave address selection.
+class OV5640(CameraSensor):
+    """OV5640 MIPI camera sensor driver (Digilent Pcam 5C).
 
     Parameters
     ----------
@@ -273,75 +265,19 @@ class OV5640:
         I2C slave address of the sensor (default 0x3C)
     """
 
-    def __init__(self, i2c_bus, slave_addr=_OV5640_ADDR):
-        self._fd = os.open(f'/dev/i2c-{i2c_bus}', os.O_RDWR)
-        fcntl.ioctl(self._fd, _I2C_SLAVE, slave_addr)
+    NAME = "OV5640"
+    I2C_ADDR = 0x3C
+    ID_REG = 0x300A
+    ID_VALUE = 0x5640
+    HS_SETTLE_NS = 149
+    BAYER_PHASE = 0x0
+    MODES = {
+        (1280, 720, 60): 0,
+        (1920, 1080, 30): 1,
+        (1920, 1080, 15): 2,
+    }
 
-    def close(self):
-        if self._fd is not None:
-            os.close(self._fd)
-            self._fd = None
-
-    def __del__(self):
-        self.close()
-
-    def write_reg(self, addr, data):
-        """Write a single byte to a 16-bit register address."""
-        buf = bytes([addr >> 8, addr & 0xFF, data])
-        os.write(self._fd, buf)
-
-    def read_reg(self, addr):
-        """Read a single byte from a 16-bit register address."""
-        buf = bytes([addr >> 8, addr & 0xFF])
-        os.write(self._fd, buf)
-        return os.read(self._fd, 1)[0]
-
-    def _write_config(self, table):
-        """Write a register configuration table with delays."""
-        for addr, data in table:
-            self.write_reg(addr, data)
-            time.sleep(0.01)
-
-    def verify_sensor_id(self):
-        """Read and verify the OV5640 sensor ID.
-
-        Returns True if sensor ID matches (0x5640).
-
-        Raises
-        ------
-        RuntimeError
-            If sensor ID does not match.
-        """
-        id_high = self.read_reg(0x300A)
-        id_low = self.read_reg(0x300B)
-        if id_high != _SENSOR_ID_HIGH or id_low != _SENSOR_ID_LOW:
-            raise RuntimeError(
-                f"OV5640 not detected: expected ID 0x{_SENSOR_ID_HIGH:02X}"
-                f"{_SENSOR_ID_LOW:02X}, got 0x{id_high:02X}{id_low:02X}")
-        return True
-
-    @staticmethod
-    def power_cycle(gpio_ip, settle=1.0):
-        """Power-cycle the camera sensor via GPIO.
-
-        Pulses CAM_PWUP low then drives high, waiting ``settle`` seconds
-        after each edge. The default matches Digilent's reference driver;
-        a slow-starting oscillator on the camera needs this long to bring
-        XVCLK up before the sensor is accessed.
-
-        Parameters
-        ----------
-        gpio_ip : DefaultIP
-            GPIO IP used for camera power control (channel 2 at offset 0x08)
-        settle : float
-            Seconds to wait after each power edge.
-        """
-        gpio_ip.write(0x08, 0)
-        time.sleep(settle)
-        gpio_ip.write(0x08, 1)
-        time.sleep(settle)
-
-    def configure(self, mode, gpio_ip, reset_settle=1.0):
+    def configure(self, mode, gpio_ip, power_cycle=True, reset_settle=1.0):
         """Full sensor initialization sequence.
 
         Power-cycles the sensor, verifies the ID, writes the base
@@ -354,6 +290,10 @@ class OV5640:
             Video mode index (0=720p60, 1=1080p30, 2=1080p15)
         gpio_ip : DefaultIP
             GPIO IP for camera power control
+        power_cycle : bool
+            Whether to power-cycle the sensor first. Skipped when the
+            caller has already powered the camera up, as the hierarchy
+            driver does before identifying it over I2C.
         reset_settle : float
             Seconds to wait after the software reset for XVCLK and the
             sensor PLL to stabilize before writing the config. The
@@ -362,7 +302,8 @@ class OV5640:
         if mode not in _MODE_CONFIGS:
             raise ValueError(f"Invalid mode {mode}, must be one of "
                              f"{list(_MODE_CONFIGS.keys())}")
-        self.power_cycle(gpio_ip)
+        if power_cycle:
+            self.power_cycle(gpio_ip)
         self.verify_sensor_id()
 
         self.write_reg(0x3103, 0x11)
@@ -429,40 +370,3 @@ class OV5640:
             raise ValueError(f"Invalid AWB mode '{mode}', must be one of "
                              f"{list(_AWB_CONFIGS.keys())}")
         self._write_config(_AWB_CONFIGS[mode])
-
-    def reconfigure(self, mode, gpio_ip):
-        """Re-initialize the sensor with a new video mode.
-
-        Parameters
-        ----------
-        mode : int
-            Video mode index (0=720p60, 1=1080p30, 2=1080p15)
-        gpio_ip : DefaultIP
-            GPIO IP for camera power control
-        """
-        self.stop()
-        self.configure(mode, gpio_ip)
-        self.start()
-
-    @staticmethod
-    def find_i2c_bus():
-        """Scan for the PCam5C I2C bus by looking for 'RPICAM' label.
-
-        Falls back to bus 6 if not found (legacy behavior).
-
-        Returns
-        -------
-        int
-            I2C bus number
-        """
-        for dev_path in glob.glob('/dev/i2c-*'):
-            adapter_number = os.path.basename(dev_path).split('-')[-1]
-            name_path = (f'/sys/bus/i2c/devices/i2c-{adapter_number}'
-                         f'/of_node/label')
-            try:
-                with open(name_path, 'r', encoding='utf-8') as f:
-                    if 'RPICAM' in f.read().strip():
-                        return int(adapter_number)
-            except FileNotFoundError:
-                continue
-        return 6
