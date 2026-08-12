@@ -343,6 +343,17 @@ def c_dropped_libs():
         ok("pynq.lib.%s absent" % mod) if absent else bad("pynq.lib.%s still present" % mod)
 
 
+def c_deb_src():
+    _, out = sh("grep -rh '^deb-src' /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null")
+    line = out.splitlines()[0] if out else ""
+    ok("deb-src source configured (%s)" % line) if line \
+        else bad("no 'deb-src' line in /etc/apt/sources.list(.d) -- "
+                 "GPL/legal source-availability regression (apt-get source will fail)")
+    rc, src_out = sh("apt-get source --print-uris bash 2>&1 | tail -5", timeout=30)
+    ok("apt-get source --print-uris bash resolved source URIs") if rc == 0 and ".dsc" in src_out \
+        else bad("apt-get source --print-uris bash failed (rc=%d): %s" % (rc, src_out.replace("\n", " | ")))
+
+
 # ===========================================================================
 # BOARD-SPECIFIC CHECKS (ZCU104)
 # ===========================================================================
@@ -539,15 +550,16 @@ def main():
     run(16, "Internet connectivity",                   c_internet, timeout=45)
     run(17, "Overlay download + install (%s)" % OVERLAY_PKG, c_overlay_download, timeout=300)
     run(18, "Dropped libs (arduino/rpi/logictools removed)", c_dropped_libs)
+    run(19, "deb-src source availability (apt-get source)", c_deb_src, timeout=40)
 
     # ---- board-specific checks (ZCU104) ----
-    run(19, "Pmod/Grove MicroBlaze firmware installed", b_pmod_firmware)
-    run(20, "LEDs / buttons / switches (GPIO)",         b_gpio,            timeout=20, hardware=True)
-    run(21, "Pmod OLED + Grove temperature",            b_pmod_oled_grove, timeout=60, hardware=True)
-    run(22, "PMODA MicroBlaze IOP (compile + run)",      b_pmod_microblaze, timeout=90, hardware=True)
-    run(23, "HDMI Tx->Rx loopback",                     b_hdmi,            timeout=120, hardware=True)
-    run(24, "USB webcam (/dev/video0)",                 b_webcam,          timeout=35, hardware=True)
-    run(25, "Static MAC from EEPROM (not random)",      c_mac)
+    run(20, "Pmod/Grove MicroBlaze firmware installed", b_pmod_firmware)
+    run(21, "LEDs / buttons / switches (GPIO)",         b_gpio,            timeout=20, hardware=True)
+    run(22, "Pmod OLED + Grove temperature",            b_pmod_oled_grove, timeout=60, hardware=True)
+    run(23, "PMODA MicroBlaze IOP (compile + run)",      b_pmod_microblaze, timeout=90, hardware=True)
+    run(24, "HDMI Tx->Rx loopback",                     b_hdmi,            timeout=120, hardware=True)
+    run(25, "USB webcam (/dev/video0)",                 b_webcam,          timeout=35, hardware=True)
+    run(26, "Static MAC from EEPROM (not random)",      c_mac)
 
     print("-" * 54)
     print(" summary: %d passed, %d failed, %d skipped" % (_passed, _failed, _skipped))
