@@ -15,6 +15,21 @@ ON_TARGET = os.path.isfile('/proc/device-tree/chosen/pynq_board')
 
 DEFAULT_PL_CLK_MHZ = 100.0
 
+
+def _is_versal_host():
+    """Return True when the device tree identifies the SoC as Versal.
+
+    ZynqMP and Versal both report `aarch64`, so `CPU_ARCH` cannot tell
+    them apart.
+
+    """
+    try:
+        with open('/proc/device-tree/compatible', 'rb') as f:
+            return b'xlnx,versal' in f.read()
+    except OSError:
+        return False
+
+
 ZYNQ_PLL_FIELDS = {
     'PLL_FDIV': {'access': 'read-write', 'bit_offset': 12, 'bit_width': 7,
                  'description': 'Provide the feedback divisor for the PLL'},
@@ -314,7 +329,11 @@ class _ClocksMeta(type):
             if cls.device.arch == ZYNQ_ARCH:
                 cls._real_instance = _ClocksZynq(device=cls.device)
             elif cls.device.arch == ZU_ARCH:
-                cls._real_instance = _ClocksUltrascale(device=cls.device)
+                # Versal is also aarch64, but has no CRL_APB/CRF_APB.
+                if _is_versal_host():
+                    cls._real_instance = _ClocksVersal(device=cls.device)
+                else:
+                    cls._real_instance = _ClocksUltrascale(device=cls.device)
             else:
                 raise RuntimeError('Architecture not supported for Clocks')
         return cls._real_instance
@@ -676,6 +695,75 @@ class _ClocksZynq(_ClocksBase):
         arm_clk_odiv = cpu_ctrl_reg.DIVISOR
         src_pll_reg = self.ARM_SRC_PLL_CTRLS[arm_src_pll_idx]
         return round(self.get_pll_mhz(src_pll_reg) / arm_clk_odiv, 6)
+
+
+class _ClocksVersal(_ClocksBase):
+    """Implementation class for all Versal PS and PL clocks
+    not exposed to users.
+
+    Versal clocks belong to the Platform Management Controller, which has
+    no userspace register interface equivalent to the ZynqMP CRL_APB and
+    CRF_APB banks, so the rates are read from the kernel's clock
+    framework under `SYSFS_CLK_BASE`.
+
+    Users should use the class `Clocks` instead.
+
+    """
+    SYSFS_CLK_BASE = '/sys/kernel/debug/clk'
+    PL_CLK_NAMES = ('pmc_pl0_ref', 'pmc_pl1_ref',
+                    'pmc_pl2_ref', 'pmc_pl3_ref')
+    CPU_CLK_NAME = 'apu_pll_out'
+
+    def __init__(self, device=None):
+        self.device = device
+
+    def _get_clk_mhz(self, name):
+        """Return the rate the Common Clock Framework reports for `name`.
+
+        Parameters
+        ----------
+        name : str
+            The clock name as it appears under `SYSFS_CLK_BASE`.
+
+        Returns
+        -------
+        float
+            The clock rate in MHz.
+
+        """
+        rate_path = '{}/{}/clk_rate'.format(self.SYSFS_CLK_BASE, name)
+        try:
+            with open(rate_path, 'r') as f:
+                rate_hz = int(f.read().strip())
+        except (OSError, ValueError) as e:
+            raise RuntimeError('Cannot read the {} clock rate from {}: '
+                               '{}'.format(name, rate_path, e))
+        return round(rate_hz / 1e6, 6)
+
+    def get_pl_clk(self, clk_idx):
+        if clk_idx not in range(4):
+            raise ValueError('Valid PL clock index is 0 - 3.')
+        return self._get_clk_mhz(self.PL_CLK_NAMES[clk_idx])
+
+    def set_pl_clk(self, clk_idx, div0=None, div1=None,
+                   clk_mhz=DEFAULT_PL_CLK_MHZ):
+        """Warn that Versal PL clocks cannot be set from PYNQ.
+
+        The PL clock frequencies are fixed by the boot PDI and changing
+        them requires a PMC EEMI call that PYNQ does not implement. An
+        overlay download sets every enabled PL clock, so warn rather than
+        raise, and change the frequency in the CIPS configuration of the
+        reference design instead.
+
+        """
+        if clk_idx not in range(4):
+            raise ValueError('Valid PL clock index is 0 - 3.')
+        warnings.warn('PL clocks cannot be set at runtime on Versal; set '
+                      'them in the CIPS configuration of the reference '
+                      'design instead.', UserWarning)
+
+    def get_cpu_mhz(self):
+        return self._get_clk_mhz(self.CPU_CLK_NAME)
 
 
 class Clocks(metaclass=_ClocksMeta):
