@@ -1,0 +1,32 @@
+--- etc/samba/smb.conf
++++ etc/samba/smb.conf
+@@ -167,6 +167,12 @@
+ # public shares, not just authenticated ones
+    usershare allow guests = yes
+ 
++# grahams - will allow some symlink following, globally disable here
++unix extensions = no
++
++# Work better inside corporate network
++map untrusted to domain = yes
++
+ #======================= Share Definitions =======================
+ 
+ # Un-comment the following (and tweak the other settings below to suit)
+@@ -240,3 +246,16 @@
+ # to the drivers directory for these users to have write rights in it
+ ;   write list = root, @lpadmin
+ 
++
++[xilinx]
++path = /home/xilinx
++browsable =yes
++writable = yes
++guest ok = yes
++read only = no
++valid users = samba xilinx
++follow symlinks = yes
++wide links = yes
++create mask = 664
++directory mask = 755
++force user = xilinx

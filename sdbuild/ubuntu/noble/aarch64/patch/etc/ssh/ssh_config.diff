@@ -1,0 +1,13 @@
+--- etc/ssh/ssh_config
++++ etc/ssh/ssh_config
+@@ -20,8 +20,8 @@
+ 
+ Host *
+ #   ForwardAgent no
+-#   ForwardX11 no
+-#   ForwardX11Trusted yes
++ForwardX11 yes
++ForwardX11Trusted yes
+ #   PasswordAuthentication yes
+ #   HostbasedAuthentication no
+ #   GSSAPIAuthentication no
