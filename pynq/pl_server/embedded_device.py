@@ -319,11 +319,25 @@ class XsafileHandler(BitstreamHandler):
             return bit2bin(Path(self._xsa_bitstream_file).read_bytes())
 
 
+class PdifileHandler(BitstreamHandler):
+    """Handler for Versal Programmable Device Image (.pdi) files.
+
+    A PDI is already in the layout the FPGA Manager expects, so unlike a
+    .bit it needs no conversion. Metadata comes from the sibling .hwh and
+    optional .dtbo through the base class.
+
+    """
+
+    def get_bin_data(self):
+        return self._filepath.read_bytes()
+
+
 _bitstream_handlers = {
     ".bit": BitfileHandler,
     ".bin": BinfileHandler,
     ".xsa": XsafileHandler,
     ".xclbin": XclbinHandler,
+    ".pdi": PdifileHandler,
 }
 
 
