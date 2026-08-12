@@ -25,7 +25,7 @@ RUN apt-get update \
     rsync python3-pip crossbuild-essential-arm64 xterm net-tools ninja-build \
     libncurses-dev vim nano tmux zip dnsutils sudo \
     ca-certificates cpio curl diffstat file gnupg wget xz-utils zstd lz4 \
-    liblz4-tool python3-git python3-jinja2 python3-subunit python3-pexpect \
+    liblz4-tool python3-git python3-jinja2 python3-subunit python3-pexpect python3-yaml \
     debootstrap mtools parted e2fsprogs udev locales \
     lsb-release x11-utils xvfb dbus-x11 libswt-glx-gtk-4-jni \
     libpixman-1-0 libgtk2.0-0t64 libcanberra-gtk-module \
