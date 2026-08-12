@@ -130,9 +130,9 @@ PYNQ packages such as Jupyter and the Microblaze compiler.
 ## Initial bootstrap
 
 The `ubuntu` folder contains all of the files for the initial bootstrap of the
-Ubuntu root filesystem. For this release we are targeting the 22.04 _Jammy Jellyfish_ 
-release but other versions can be added here if desired. The `jammy`
-folder contains subfolders for the `arm` and `aarch64` architectures each
+Ubuntu root filesystem. For this release we are targeting the 24.04 _Noble Numbat_
+release but other versions can be added here if desired. The `noble`
+folder contains a subfolder for the `aarch64` architecture
 containing a `multistrap` config file, a set of patches to apply to the
 filesystem and a `config` file listing the packages to be installed.
 
