@@ -21,6 +21,10 @@ Updates to PYNQ in this release:
      Docker are.
    * Yocto version compatibility: Scarthgap
 
+* New Backends
+   * ``pynq.pl_server.VersalDevice`` adds support for Versal Adaptive
+     SoCs, including ``.pdi`` bitstreams.
+
 * Deprecations
    * Support for **Pynq-Z1** and **Pynq-Z2** boards is removed.
      Their board directories, Petalinux BSP wiring, and board-only
