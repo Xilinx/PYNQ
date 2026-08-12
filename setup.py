@@ -365,7 +365,6 @@ class BuildExtension(build_ext):
                 self.run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/", "libxhdmi.so")
                 self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
                 self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
-                self.run_make("pynq/lib/_pynq/_pcam5c/", "pynq/lib/video/", "libpcam5c.so")
         else:
             self.announce("Remote install, skipping native C/C++ builds", level=2)
 
@@ -407,7 +406,6 @@ extend_pynq_package(
         "pynq/lib/_pynq/_displayport",
         "pynq/lib/_pynq/_xhdmi",
         "pynq/lib/_pynq/_xiic",
-        "pynq/lib/_pynq/_pcam5c",
         "pynq/notebooks",
         "pynq/tests",
         "pynq/metadata",
