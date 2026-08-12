@@ -1,0 +1,8 @@
+# Copyright (C) 2026 Xilinx, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+
+ARCH_VCK190 := aarch64
+BITSTREAM_VCK190 := base/base.pdi
+FPGA_MANAGER_VCK190 := 1
+
+STAGE4_PACKAGES_VCK190 := xrt pynq ethernet pynq_peripherals selftest

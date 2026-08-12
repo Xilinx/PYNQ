@@ -1,0 +1,512 @@
+#!/usr/local/share/pynq-venv/bin/python3
+# PYNQ image self-test. See README.md for the required environment.
+#   pynq-selftest [--no-peripherals]
+
+import argparse
+import logging
+import os
+import re
+import signal
+import subprocess
+import sys
+import time
+
+# --- board configuration ---------------------------------------------------
+BOARD          = "VCK190"
+OVERLAY_BIT    = "base.pdi"
+
+# --- logging + harness ------------------------------------------------------
+LOG_FILE = os.environ.get("PYNQ_TEST_LOG",
+                          "/tmp/pynq-selftest.%s.log" % time.strftime("%Y%m%d-%H%M%S"))
+log = logging.getLogger("pynq-selftest")
+log.setLevel(logging.DEBUG)
+_ch = logging.StreamHandler(sys.stdout)
+_ch.setFormatter(logging.Formatter("      %(asctime)s %(levelname)-5s %(message)s", "%H:%M:%S"))
+log.addHandler(_ch)
+try:
+    _fh = logging.FileHandler(LOG_FILE)
+    _fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)-5s %(message)s", "%H:%M:%S"))
+    log.addHandler(_fh)
+except OSError:
+    pass
+
+_passed = _failed = _skipped = 0
+_run_hw = True
+
+
+class Skip(Exception):
+    pass
+
+
+class Timeout(Exception):
+    pass
+
+
+def _on_alarm(signum, frame):
+    raise Timeout()
+
+
+signal.signal(signal.SIGALRM, _on_alarm)
+
+
+def ok(msg):
+    global _passed
+    _passed += 1
+    print("  [PASS] %s" % msg)
+
+
+def bad(msg):
+    global _failed
+    _failed += 1
+    print("  [FAIL] %s" % msg)
+
+
+def skip(msg):
+    global _skipped
+    _skipped += 1
+    print("  [SKIP] %s" % msg)
+
+
+def run(num, name, fn, timeout=30, hardware=False):
+    print("[%d] %s" % (num, name))
+    if hardware and not _run_hw:
+        skip("hardware check skipped (--no-peripherals)")
+        return
+    signal.alarm(timeout)
+    try:
+        fn()
+    except Skip as e:
+        skip(str(e))
+    except Timeout:
+        bad("%s TIMED OUT after %ds -- hang (last log line shows the stalled step)" % (name, timeout))
+    except Exception as e:
+        bad("%s errored: %r" % (name, e))
+    finally:
+        signal.alarm(0)
+        sys.stdout.flush()
+
+
+def sh(cmd, timeout=15):
+    p = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout)
+    return p.returncode, p.stdout.strip()
+
+
+def read(path):
+    try:
+        with open(path) as f:
+            return f.read()
+    except OSError:
+        return ""
+
+
+def read_priv(path):
+    txt = read(path)
+    if txt:
+        return txt
+    rc, out = sh("sudo -n cat %s 2>/dev/null" % path, timeout=10)
+    return out if rc == 0 else ""
+
+
+# ===========================================================================
+# COMMON CHECKS
+# ===========================================================================
+def c_resize():
+    _, root_mb = sh("df -m --output=size / | tail -1 | tr -d ' '")
+    if "RESIZED=1" in read("/etc/environment"):
+        ok("resizefs ran (RESIZED=1); root is %s MiB" % (root_mb or "?"))
+    else:
+        bad("RESIZED flag not set; root is %s MiB (resizefs did not run)" % (root_mb or "?"))
+
+
+def c_networking():
+    _, ip4 = sh("ip -4 -o addr show scope global | awk '{print $2\" \"$4}' | head -1")
+    ok("global IPv4 present (%s)" % ip4) if ip4 else bad("no global IPv4 address on any interface")
+
+
+def c_mac():
+    # A random/fallback MAC has the locally-administered bit (0x02) set in the
+    # first octet; a real factory MAC (read from the board EEPROM by u-boot) has
+    # it clear. Catches boards that fell back to a random MAC at boot.
+    iface, mac = "eth0", read("/sys/class/net/eth0/address").strip()
+    if not mac:
+        for name in sorted(os.listdir("/sys/class/net")):
+            if name == "lo" or name.startswith(("usb", "docker", "veth", "sit")):
+                continue
+            mac = read("/sys/class/net/%s/address" % name).strip()
+            if mac:
+                iface = name
+                break
+    if not mac:
+        raise Skip("no ethernet interface with a MAC found")
+    first = int(mac.split(":")[0], 16)
+    if first & 0x01:
+        bad("%s MAC %s is multicast (invalid unicast address)" % (iface, mac))
+    elif first & 0x02:
+        bad("%s MAC %s is locally-administered (random/fallback, not read from EEPROM)" % (iface, mac))
+    else:
+        ok("%s MAC %s is globally-administered (factory MAC from EEPROM)" % (iface, mac))
+
+
+def c_cma():
+    _, val = sh("awk '/CmaTotal/{print $2}' /proc/meminfo")
+    kb = int(val) if val.isdigit() else 0
+    ok("CmaTotal %d kB (~512 MB)" % kb) if kb >= 500000 else bad("CmaTotal %d kB (<500 MB)" % kb)
+
+
+def c_jupyter():
+    rc, _ = sh("systemctl is-active --quiet jupyter.service")
+    ok("jupyter.service active") if rc == 0 else bad("jupyter.service not active")
+    rc, _ = sh("ss -tln | grep -q ':9090'")
+    ok("listening on :9090") if rc == 0 else bad("nothing listening on :9090")
+
+
+def c_xrt():
+    xrt = os.environ.get("XILINX_XRT", "")
+    ok("XILINX_XRT=%s" % xrt) if xrt else bad("XILINX_XRT is unset (xrt_setup.sh not sourced)")
+    try:
+        import pyxrt
+        pyxrt.device(0)
+        ok("pyxrt.device(0) opened an XRT device")
+    except Exception as e:
+        bad("pyxrt.device(0) failed (XRT env / zocl): %r" % e)
+
+
+def c_overlay_allocate():
+    import numpy as np
+    from pynq import allocate
+    log.debug("loading %s + allocating a DMA buffer", OVERLAY_BIT)
+    _overlay()
+    b = allocate(shape=(1024,), dtype=np.uint32)
+    try:
+        b[:] = np.arange(1024)
+        b.flush()
+        _ = b.device_address
+    finally:
+        b.freebuffer()
+    ok("BaseOverlay('%s') + allocate() succeeded" % OVERLAY_BIT)
+
+
+def c_systemd_units():
+    allow = {"isc-dhcp-server.service", "isc-dhcp-server6.service", "pynq-x11.service", ""}
+    _, out = sh("systemctl --failed --no-legend --plain | awk '{print $1}'")
+    unexpected = [u for u in out.split("\n") if u and u not in allow]
+    ok("no unexpected failed units (benign allowed: isc-dhcp-server*, pynq-x11)") if not unexpected \
+        else bad("unexpected failed units: %s" % " ".join(unexpected))
+
+
+def c_image_identity():
+    vals = {}
+    for line in read("/etc/os-release").splitlines():
+        if "=" in line and not line.startswith("#"):
+            k, v = line.split("=", 1)
+            vals[k] = v.strip().strip('"')
+    name = vals.get("NAME", "")
+    ver = vals.get("VERSION_ID", "")
+    codename = vals.get("VERSION_CODENAME", "")
+    if not codename:
+        m = re.search(r"\(([^)]+)\)", vals.get("VERSION", ""))
+        codename = m.group(1) if m else ""
+    ok("os-release NAME=PynqLinux") if name == "PynqLinux" else bad("os-release NAME is %r, not PynqLinux" % name)
+    ok("os-release VERSION_ID=%s (codename %s)" % (ver, codename or "?")) if ver \
+        else bad("os-release VERSION_ID is empty")
+    rev = read("/home/xilinx/REVISION")
+    if ver and ("Release %s" % ver) in rev:
+        ok("REVISION matches os-release (Release %s)" % ver)
+    else:
+        bad("REVISION does not match os-release version %r (REVISION: %r)" % (ver, rev.strip()))
+    if codename:
+        ok("codename %s consistent across os-release + REVISION" % codename) if codename in rev \
+            else bad("codename %s in os-release but not in REVISION" % codename)
+
+
+def c_user_groups():
+    rc, _ = sh("id xilinx")
+    ok("xilinx user exists") if rc == 0 else bad("xilinx user missing")
+    _, grps = sh("id -nG xilinx")
+    g = grps.split()
+    ok("xilinx in sudo group") if "sudo" in g else bad("xilinx not in sudo group")
+    ok("xilinx in adm group") if "adm" in g else bad("xilinx not in adm group")
+
+
+def c_notebooks():
+    nbdir = os.environ.get("PYNQ_JUPYTER_NOTEBOOKS", "")
+    if not nbdir:
+        bad("PYNQ_JUPYTER_NOTEBOOKS unset in /etc/environment")
+        return
+    ok("PYNQ_JUPYTER_NOTEBOOKS=%s" % nbdir)
+    if os.path.isdir(nbdir) and os.listdir(nbdir):
+        ok("notebook dir exists and is populated")
+    else:
+        bad("notebook dir missing or empty (%s)" % nbdir)
+
+
+def c_serial_autologin():
+    sg = "/usr/lib/systemd/system/serial-getty@.service"
+    ok("serial-getty@.service autologins xilinx") if "--autologin xilinx" in read(sg) \
+        else bad("serial-getty@.service missing --autologin xilinx")
+
+
+def c_merged_usr():
+    if all(os.path.islink(d) for d in ("/bin", "/sbin", "/lib", "/lib64")):
+        ok("/bin,/sbin,/lib,/lib64 are symlinks into /usr")
+    else:
+        bad("split-/usr detected (not all of /bin,/sbin,/lib,/lib64 are symlinks)")
+
+
+def c_baseconfig():
+    sudoers = read_priv("/etc/sudoers")
+    if not sudoers:
+        skip("/etc/sudoers not readable (needs root or passwordless sudo)")
+    else:
+        ok("sudoers keeps BOARD env") if 'env_keep="BOARD"' in sudoers else bad("sudoers missing env_keep BOARD")
+    checks = [
+        (any(l.strip().startswith("ForwardX11 yes") for l in read("/etc/ssh/ssh_config").splitlines()),
+         "ssh_config ForwardX11 yes", "ssh_config ForwardX11 not enabled"),
+        (os.path.isfile("/etc/pip.conf"), "/etc/pip.conf present", "/etc/pip.conf missing"),
+        ("/opt/microblazeel-xilinx-elf/bin" in read("/etc/environment"),
+         "PATH includes microblaze toolchain", "microblaze toolchain not on PATH"),
+        (os.environ.get("PYNQ_PYTHON") == "python3", "PYNQ_PYTHON=python3", "PYNQ_PYTHON not python3"),
+        ("[xilinx]" in read("/etc/samba/smb.conf"), "samba [xilinx] share present", "samba [xilinx] share missing"),
+    ]
+    for good, okmsg, badmsg in checks:
+        ok(okmsg) if good else bad(badmsg)
+
+
+def c_sysfs_gpio():
+    _, labels = sh("cat /sys/class/gpio/gpiochip*/label 2>/dev/null | tr '\\n' ' '")
+    ok("PS GPIO controller exposed (labels: %s)" % labels) if labels.strip() \
+        else bad("no gpiochip labels found (PS GPIO controller missing)")
+    try:
+        from pynq import GPIO
+        base = GPIO.get_gpio_base()
+        ok("pynq GPIO.get_gpio_base() resolved a base (not None)") if base is not None \
+            else bad("pynq GPIO.get_gpio_base() is None")
+    except Exception as e:
+        bad("pynq GPIO.get_gpio_base() error: %r" % e)
+
+
+def c_pybind11():
+    import tempfile
+    import shutil
+    d = tempfile.mkdtemp(prefix="pynq_pb_")
+    cwd = os.getcwd()
+    try:
+        os.chdir(d)
+        from pynq.lib.pybind11.proc import Pybind11Processor
+        log.debug("compiling a C++ module with pybind11")
+        Pybind11Processor("pynq_selftest_pb", {"cflags": None, "ldflags": None},
+                          "int add(int a, int b){ return a + b; }\n")
+        sys.path.insert(0, d)
+        import pynq_selftest_pb
+        if pynq_selftest_pb.add(2, 3) == 5:
+            ok("pybind11 compiled a C++ module and imported it")
+        else:
+            bad("pybind11 module returned a wrong result")
+    finally:
+        os.chdir(cwd)
+        shutil.rmtree(d, ignore_errors=True)
+
+
+def c_internet():
+    rc, _ = sh("curl -fsS --max-time 15 -o /dev/null https://github.com "
+               "|| wget -q --timeout=15 -O /dev/null https://github.com", timeout=40)
+    ok("reached https://github.com (overlay download possible)") if rc == 0 \
+        else bad("no internet reachable (overlay download needs DNS/gateway/proxy)")
+
+
+def c_dropped_libs():
+    import importlib.util
+    for mod in ("arduino", "rpi", "logictools"):
+        absent = importlib.util.find_spec("pynq.lib.%s" % mod) is None
+        ok("pynq.lib.%s absent" % mod) if absent else bad("pynq.lib.%s still present" % mod)
+
+
+def c_deb_src():
+    _, out = sh("grep -rh '^deb-src' /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null")
+    line = out.splitlines()[0] if out else ""
+    ok("deb-src source configured (%s)" % line) if line \
+        else bad("no 'deb-src' line in /etc/apt/sources.list(.d) -- "
+                 "GPL/legal source-availability regression (apt-get source will fail)")
+    rc, src_out = sh("apt-get source --print-uris bash 2>&1 | tail -5", timeout=30)
+    ok("apt-get source --print-uris bash resolved source URIs") if rc == 0 and ".dsc" in src_out \
+        else bad("apt-get source --print-uris bash failed (rc=%d): %s" % (rc, src_out.replace("\n", " | ")))
+
+
+# ===========================================================================
+# BOARD-SPECIFIC CHECKS (VCK190)
+# ===========================================================================
+class _S:
+    base = None
+
+
+def _overlay():
+    if _S.base is None:
+        from pynq.overlays.base import BaseOverlay
+        log.debug("programming PL with %s", OVERLAY_BIT)
+        _S.base = BaseOverlay(OVERLAY_BIT)
+        log.debug("PL programmed")
+    return _S.base
+
+
+def b_overlay_load():
+    base = _overlay()
+    if not base.is_loaded():
+        bad("BaseOverlay('%s') did not load the PL" % OVERLAY_BIT)
+        return
+    ip = base.ip_dict
+    ok("BaseOverlay('%s') loaded; ip_dict has %d IPs" % (OVERLAY_BIT, len(ip))) if ip \
+        else bad("BaseOverlay loaded but ip_dict is empty")
+
+
+def b_leds():
+    base = _overlay()
+    n = len(base.leds)
+    log.debug("toggling %d LEDs", n)
+    for i in range(n):
+        base.leds[i].on()
+    for i in range(n):
+        base.leds[i].off()
+    for i in range(n):
+        base.leds[i].toggle()
+    for i in range(n):
+        base.leds[i].toggle()
+    ok("%d LEDs driven (on/off/toggle) via AXI GPIO" % n) if n == 4 \
+        else bad("expected 4 LEDs, base.leds has %d" % n)
+
+
+def b_buttons_switches():
+    base = _overlay()
+    nbtn, nsw = len(base.buttons), len(base.switches)
+    bt = [base.buttons[i].read() for i in range(nbtn)]
+    sw = [base.switches[i].read() for i in range(nsw)]
+    log.debug("buttons=%s switches=%s", bt, sw)
+    if nbtn == 4 and nsw == 4 and all(v in (0, 1) for v in bt + sw):
+        ok("buttons=%s switches=%s (all binary, 4+4 channels)" % (bt, sw))
+    else:
+        bad("button/switch read invalid (nbtn=%d nsw=%d bt=%s sw=%s)" % (nbtn, nsw, bt, sw))
+
+
+def b_register_map():
+    base = _overlay()
+    rm = base.axi_gpio_led.register_map
+    log.debug("writing LED GPIO_DATA via register_map")
+    rm.GPIO_DATA.CH1_DATA = 0xA
+    val = int(base.axi_gpio_pb.register_map.GPIO_DATA.CH1_DATA)
+    rm.GPIO_DATA.CH1_DATA = 0x0
+    ok("register_map read/write works (read buttons CH1_DATA=0x%X)" % val) if 0 <= val <= 0xF \
+        else bad("register_map button read out of range: 0x%X" % val)
+
+
+def b_dma_loopback():
+    import numpy as np
+    from pynq import allocate
+    base = _overlay()
+    dma = base.dma
+    dma.reset()
+    N = 1024
+    tx = allocate(shape=(N,), dtype=np.uint32)
+    rx = allocate(shape=(N,), dtype=np.uint32)
+    try:
+        tx[:] = np.arange(N, dtype=np.uint32)
+        rx[:] = 0
+        log.debug("DMA loopback %d x uint32", N)
+        dma.sendchannel.transfer(tx)
+        dma.recvchannel.transfer(rx)
+        dma.sendchannel.wait()
+        dma.recvchannel.wait()
+        if np.array_equal(tx, rx):
+            ok("DMA loopback recovered %d x uint32 (%d bytes)" % (N, N * 4))
+        else:
+            nbad = int(np.count_nonzero(tx != rx))
+            bad("DMA loopback mismatch: %d/%d words differ" % (nbad, N))
+    finally:
+        tx.freebuffer()
+        rx.freebuffer()
+
+
+def b_bram():
+    base = _overlay()
+    bram = base.axi_bram_ctrl_0.mmio
+    bram.write(0x00, 0xDEADBEEF)
+    bram.write(0x04, 0xCAFEBABE)
+    v0, v1 = bram.read(0x00), bram.read(0x04)
+    log.debug("BRAM[0]=0x%08X BRAM[4]=0x%08X", v0, v1)
+    if v0 == 0xDEADBEEF and v1 == 0xCAFEBABE:
+        ok("BRAM read/write verified (0xDEADBEEF / 0xCAFEBABE)")
+    else:
+        bad("BRAM read-back mismatch (got 0x%08X / 0x%08X)" % (v0, v1))
+
+
+PYNQ_VENV = "/usr/local/share/pynq-venv"
+
+
+def preflight():
+    errs = []
+    if PYNQ_VENV not in sys.executable and PYNQ_VENV not in sys.prefix:
+        errs.append("not in the PYNQ venv -- source %s/bin/activate "
+                    "(or /etc/profile.d/pynq_venv.sh)" % PYNQ_VENV)
+    if not os.environ.get("XILINX_XRT"):
+        errs.append("XRT environment not sourced -- source /etc/profile.d/xrt_setup.sh "
+                    "(plain `sudo` scrubs it; become root first, then source)")
+    if errs:
+        print("PRE-FLIGHT FAILED -- fix the environment and re-run:")
+        for e in errs:
+            print("  - %s" % e)
+        sys.exit(2)
+
+
+# ===========================================================================
+def main():
+    global _run_hw
+    ap = argparse.ArgumentParser(add_help=True)
+    ap.add_argument("--no-peripherals", action="store_true", help="software-only; skip hardware checks")
+    args = ap.parse_args()
+    _run_hw = not args.no_peripherals
+
+    preflight()
+
+    bar = "=" * 54
+    print(bar)
+    print(" PYNQ image self-test  (%s)" % BOARD)
+    print(" host: %s   kernel: %s" % (os.uname().nodename, os.uname().release))
+    print(" mode: %s" % ("full (peripheral tests enabled)" if _run_hw else "--no-peripherals (software-only)"))
+    print(" log: %s" % LOG_FILE)
+    print(bar)
+
+    # ---- common checks ----
+    run(1,  "Root filesystem auto-resize",             c_resize)
+    run(2,  "Networking (global IPv4)",                c_networking)
+    run(3,  "CMA pool",                                c_cma)
+    run(4,  "Jupyter server",                          c_jupyter)
+    run(5,  "XRT runtime",                             c_xrt)
+    run(6,  "PYNQ overlay + DMA buffer",               c_overlay_allocate, timeout=120)
+    run(7,  "systemd failed units",                    c_systemd_units)
+    run(8,  "Image identity (PynqLinux; version read from image)", c_image_identity)
+    run(9,  "xilinx user + groups",                    c_user_groups)
+    run(10, "Notebook delivery",                       c_notebooks)
+    run(11, "Serial console autologin",                c_serial_autologin)
+    run(12, "merged-/usr layout",                      c_merged_usr)
+    run(13, "base-config patches",                     c_baseconfig)
+    run(14, "sysfs GPIO interface",                    c_sysfs_gpio)
+    run(15, "pybind11 C++ compile + import",           c_pybind11, timeout=120)
+    run(16, "Internet connectivity",                   c_internet, timeout=45)
+    run(17, "Dropped libs (arduino/rpi/logictools removed)", c_dropped_libs)
+    run(18, "deb-src source availability (apt-get source)", c_deb_src, timeout=40)
+
+    # ---- board-specific checks (VCK190) ----
+    run(19, "Base overlay load (base.pdi) + ip_dict",  b_overlay_load,     timeout=120, hardware=True)
+    run(20, "LEDs (AXI GPIO out)",                     b_leds,             timeout=20,  hardware=True)
+    run(21, "Buttons + DIP switches (AXI GPIO in)",    b_buttons_switches, timeout=20,  hardware=True)
+    run(22, "register_map read/write",                 b_register_map,     timeout=20,  hardware=True)
+    run(23, "AXI DMA loopback (PL<->DDR)",             b_dma_loopback,     timeout=60,  hardware=True)
+    run(24, "AXI BRAM read/write",                     b_bram,             timeout=20,  hardware=True)
+    run(25, "Static MAC from EEPROM (not random)",     c_mac)
+
+    print("-" * 54)
+    print(" summary: %d passed, %d failed, %d skipped" % (_passed, _failed, _skipped))
+    print(bar)
+    return 1 if _failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
