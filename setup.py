@@ -70,7 +70,10 @@ def find_overlays(path):
             f
             for f in os.listdir(path)
             if os.path.isdir(os.path.join(path, f))
-            and len(glob.glob(os.path.join(path, f, "*.bit"))) > 0
+            and (
+                glob.glob(os.path.join(path, f, "*.bit"))
+                or glob.glob(os.path.join(path, f, "*.pdi"))
+            )
         ]
     else:
         return []
