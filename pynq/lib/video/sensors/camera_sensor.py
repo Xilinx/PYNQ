@@ -40,6 +40,12 @@ class CameraSensor(metaclass=abc.ABCMeta):
         link (see the warning on ``MipiCsi2RxSubsystem.configure``).
     BAYER_PHASE : int
         Default demosaic Bayer phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR).
+    WB_GAINS : tuple of float
+        Default (red, green, blue) white balance gains applied by the
+        colour space converter. Sensors with their own on-chip auto
+        white balance leave this at unity; raw sensors need it, because
+        silicon is roughly twice as sensitive to green as to red or blue
+        and an uncorrected frame comes out visibly green.
     MODES : dict
         Maps ``(width, height, fps)`` to a sensor mode id. Each sensor is
         the source of truth for the modes it supports.
@@ -63,6 +69,8 @@ class CameraSensor(metaclass=abc.ABCMeta):
     LANE_COUNT = 2
     HS_SETTLE_NS = None
     BAYER_PHASE = 0x0
+    #: Unity by default: only raw sensors without on-chip AWB need this.
+    WB_GAINS = (1.0, 1.0, 1.0)
     MODES = {}
     #: Delay in seconds after each register write in a configuration table.
     REG_DELAY = 0.01
@@ -179,6 +187,17 @@ class CameraSensor(metaclass=abc.ABCMeta):
         a slow-starting oscillator on the camera needs this long to bring
         the input clock up before the sensor is accessed. The PWUP line is
         the same connector pin for every supported module.
+
+        .. warning::
+
+            This gates sensor power only -- it does **not** isolate the
+            MIPI data lines, so it is not a substitute for powering the
+            board down before swapping cameras. The CSI connector has no
+            hot-plug protection: the flex contacts mate in an arbitrary
+            order, so a data lane can connect before ground. Swapping a
+            camera on a live board has destroyed modules on this setup,
+            the signature being one data lane permanently dead while the
+            others still count packets (see ``MipiCamera.diagnostics``).
 
         Parameters
         ----------

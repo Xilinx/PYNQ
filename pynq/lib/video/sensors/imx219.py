@@ -202,6 +202,11 @@ class IMX219(SonySensor):
     HS_SETTLE_NS = 124
     # imx219_mbus_formats[0] (no flip) is SRGGB10.
     BAYER_PHASE = 0x0
+    # Raw sensor with no on-chip AWB, so the pipeline has to correct the
+    # green bias itself. These are daylight-ish starting gains, not a
+    # calibrated matrix; adjust via MipiCamera.wb_gains under other
+    # lighting.
+    WB_GAINS = (1.8, 1.0, 1.6)
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,

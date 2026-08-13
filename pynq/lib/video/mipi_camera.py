@@ -59,8 +59,10 @@ class MipiCamera(DefaultHierarchy):
         # that overlay load cannot fail when no camera is attached.
         self._sensor = None
         self._bayer_phase = None
+        self._wb_gains = None
 
-    def configure(self, videomode, sensor=None, bayer_phase=None):
+    def configure(self, videomode, sensor=None, bayer_phase=None,
+                  wb_gains=None):
         """Configure the camera and pipeline for the given video mode.
 
         Identifies the attached camera if it is not already known, then
@@ -79,6 +81,9 @@ class MipiCamera(DefaultHierarchy):
             Demosaic Bayer phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR).
             Defaults to the sensor's ``BAYER_PHASE``; override if the
             captured image has the wrong hue.
+        wb_gains : tuple of float or None
+            White balance (red, green, blue) gains. Defaults to the
+            sensor's ``WB_GAINS``; override to suit the lighting.
 
         Returns
         -------
@@ -111,6 +116,10 @@ class MipiCamera(DefaultHierarchy):
             bayer_phase = self._sensor.BAYER_PHASE
         self._bayer_phase = bayer_phase
 
+        if wb_gains is None:
+            wb_gains = self._sensor.WB_GAINS
+        self._wb_gains = tuple(wb_gains)
+
         # Already powered up above, so skip the sensor's own power cycle.
         self._sensor.configure(mode_id, self.gpio_ip_reset,
                                power_cycle=False)
@@ -134,7 +143,8 @@ class MipiCamera(DefaultHierarchy):
         self.demosaic.configure(videomode.width, videomode.height,
                                 bayer_phase)
         self.gamma_lut.configure(videomode.width, videomode.height)
-        self.v_proc_sys.configure(videomode.width, videomode.height)
+        self.v_proc_sys.configure(videomode.width, videomode.height,
+                                  self._wb_gains)
 
         self.pixel_pack.bits_per_pixel = videomode.bits_per_pixel
         self._vdma.readchannel.mode = videomode
@@ -247,6 +257,21 @@ class MipiCamera(DefaultHierarchy):
         self._bayer_phase = value
         self.demosaic.register_map.bayer_phase = value & 0x3
 
+    @property
+    def wb_gains(self):
+        """White balance (red, green, blue) gains.
+
+        None until the pipeline has been configured. Assigning takes
+        effect on the next frame, so gains can be tuned against a live
+        capture without reconfiguring the pipeline.
+        """
+        return self._wb_gains
+
+    @wb_gains.setter
+    def wb_gains(self, value):
+        self.v_proc_sys.gains = value
+        self._wb_gains = self.v_proc_sys.gains
+
     def _require_sensor(self):
         if self._sensor is None:
             raise RuntimeError(
@@ -288,6 +313,13 @@ class MipiCamera(DefaultHierarchy):
         - dphy_dl0_pkt_count > 0 but packet_count 0 => data dropped before
           the line buffer (lane map or filtered data type).
         - packet_count > 0 but readframe hangs => downstream (VDMA/format).
+        - one lane counting packets while the other stays at 0 => a
+          physical-layer fault, not a configuration one: both lanes are
+          enabled by the same sensor register, so no register setting
+          produces this. Reseat or replace the flex cable and retry with
+          a known-good module before suspecting the driver. A lane that
+          never recovers is usually damage from swapping a camera with
+          the board powered on.
 
         Returns
         -------

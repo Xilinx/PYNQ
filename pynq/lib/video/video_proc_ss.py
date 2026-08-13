@@ -512,6 +512,15 @@ _registers = {
     },
 }
 
+#: Matrix coefficients are 16-bit fixed point with 0x1000 representing 1.0.
+_UNITY_COEFF = 0x1000
+
+
+def _gain_to_coeff(gain):
+    """Convert a floating point gain to a 16-bit matrix coefficient."""
+    return max(0, min(round(gain * _UNITY_COEFF), 0xFFFF))
+
+
 _COEFF_REGS = ["k11", "k12", "k13",
                "k21", "k22", "k23",
                "k31", "k32", "k33",
@@ -535,8 +544,8 @@ class VideoProcessingCSC(DefaultIP):
         description["registers"] = _registers
         super().__init__(description)
 
-    def configure(self, width, height):
-        """Configure with identity color matrix and enable.
+    def configure(self, width, height, gains=(1.0, 1.0, 1.0)):
+        """Configure the colour matrix and enable.
 
         Parameters
         ----------
@@ -544,27 +553,53 @@ class VideoProcessingCSC(DefaultIP):
             Frame width in pixels
         height : int
             Frame height in lines
+        gains : tuple of float
+            Per-channel (red, green, blue) gains written to the matrix
+            diagonal. The default applies no correction.
         """
         rmap = self.register_map
         rmap.in_video_format = 0x0
         rmap.out_video_format = 0x0
-        self._set_identity()
+        self.gains = gains
         rmap.width = width
         rmap.height = height
         rmap.ap_ctrl = 0x81  # ap_start=1, auto_restart=1 in a single write
 
-    def _set_identity(self):
-        """Write identity (passthrough) color matrix."""
+    @property
+    def gains(self):
+        """Per-channel (red, green, blue) gains on the matrix diagonal."""
         rmap = self.register_map
-        rmap.k11 = 0x1000
+        return tuple(int(getattr(rmap, name)) / _UNITY_COEFF
+                     for name in ("k11", "k22", "k33"))
+
+    @gains.setter
+    def gains(self, gains):
+        """Write a diagonal colour matrix with the given per-channel gains.
+
+        The off-diagonal terms stay zero, so this scales each channel
+        independently without mixing them -- which is exactly what white
+        balancing a raw sensor needs. Gains of 1.0 give the identity
+        (passthrough) matrix.
+
+        This IP sits upstream of ``axis_channel_swap``, so its channels are
+        still in the demosaic's RGB order, matching the r/g/b offset
+        register names.
+        """
+        gains = tuple(gains)
+        if len(gains) != 3:
+            raise ValueError(
+                f"Expected (red, green, blue) gains, got {len(gains)} values")
+        red, green, blue = (_gain_to_coeff(g) for g in gains)
+        rmap = self.register_map
+        rmap.k11 = red
         rmap.k12 = 0x0
         rmap.k13 = 0x0
         rmap.k21 = 0x0
-        rmap.k22 = 0x1000
+        rmap.k22 = green
         rmap.k23 = 0x0
         rmap.k31 = 0x0
         rmap.k32 = 0x0
-        rmap.k33 = 0x1000
+        rmap.k33 = blue
         rmap.r_offset = 0x0
         rmap.g_offset = 0x0
         rmap.b_offset = 0x0
